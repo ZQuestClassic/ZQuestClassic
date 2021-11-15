@@ -2597,21 +2597,21 @@ static ListData noyesmisc_list(noyesmisclist, is_large? &lfont_l : &font);
 static EnemyNameInfo enameinf[]=
 {
 	{
-		//"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility"
+		//"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility"
 		eeWALK, { "Shot Type:", "Death Type:", "Death Attr. 1:", "Death Attr. 2:", "Death Attr. 3:", "Extra Shots:", "Touch Effects:", "Effect Strength:", "Walk Style:", "Walk Attr.:" },
 		{ (void*)&walkmisc1_list, (void*)&walkmisc2_list, NULL, NULL, NULL, NULL, (void*)&walkmisc7_list, NULL, (void*)&walkmisc9_list, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",
 		(char *)"Draw Invisible as Cloaked",(char *)"Split in Place",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",
 		(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",
 		(char *)"Fast Drawing",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}
 	},
 	{
@@ -2619,15 +2619,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, (void*)&gleeokmisc3_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Centre Spawn X Point",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Centre Spawn X Point",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2635,15 +2635,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&digdoggermisc10_list, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2651,15 +2651,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Has Firing Animation",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Has Firing Animation",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
 		(char *)"Transformation Inv Time",(char *)"Shot chance (1/N per frame)",(char *)"Firing cooldown",(char *)"Firing Pattern",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2667,15 +2667,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&walkmisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2683,15 +2683,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&gohmamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2699,15 +2699,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&aquamisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2715,15 +2715,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, (void*)&manhandlamisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"Each segment drops items",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"Each segment drops items",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2731,15 +2731,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Each segment drops items",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Each segment drops items",
 		(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",
 		(char *)"Fast Drawing",(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2747,15 +2747,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Each segment drops items",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Each segment drops items",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2763,15 +2763,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&wizzrobemisc1_list, (void*)&wizzrobemisc2_list, NULL, &yesnomisc_list, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"Old Windrobe teleport",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"Old Windrobe teleport",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2779,15 +2779,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&dodongomisc10_list, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2795,15 +2795,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&keesemisc1_list, (void*)&keesemisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
-		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Misc Attr. 15",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2811,15 +2811,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2827,15 +2827,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&leevermisc1_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2843,15 +2843,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&noyesmisc_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2859,15 +2859,15 @@ static EnemyNameInfo enameinf[]=
 		{ (void*)&trapmisc1_list, (void*)&trapmisc2_list, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2875,15 +2875,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&rockmisc1_list, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2891,15 +2891,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&yesnomisc_list, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2907,15 +2907,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
-		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Misc Attr. 15",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2923,15 +2923,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Attributes[14]",(char *)"Halt Duration",
-		(char *)"Acceleration Factor",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Misc Attr. 15",(char *)"Halt Duration",
+		(char *)"Acceleration Factor",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2939,15 +2939,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"Lava Only",(char *)"Lava and Water",(char *)"Shallow Water",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"Lava Only",(char *)"Lava and Water",(char *)"Shallow Water",
 		(char *)"Doesn't regenerate health",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2955,15 +2955,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2971,15 +2971,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -2987,15 +2987,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3003,15 +3003,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3019,15 +3019,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3035,15 +3035,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3051,15 +3051,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3067,15 +3067,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3083,15 +3083,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3099,15 +3099,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3115,15 +3115,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3131,15 +3131,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3147,15 +3147,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3163,15 +3163,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3179,15 +3179,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3195,15 +3195,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3211,15 +3211,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3227,15 +3227,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3243,15 +3243,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3259,15 +3259,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3275,15 +3275,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3291,15 +3291,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3307,15 +3307,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3323,15 +3323,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3339,15 +3339,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3355,15 +3355,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3371,15 +3371,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3387,15 +3387,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3403,15 +3403,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3419,15 +3419,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3435,15 +3435,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3451,15 +3451,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3467,15 +3467,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3483,15 +3483,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Doesn't always return",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3500,15 +3500,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
+	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
 		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor ",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
 		(char *)"This Item Dispels Invisibility",(char *)"Death Shot Item ID",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	},
 	{
@@ -3516,15 +3516,15 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 (->Attributes[12]) Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
+	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"Draw Invisible as Cloaked",(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
-	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attribute 11",(char*)"Misc Attribute 12",
-		(char *)"This Item Dispels Invisibility",(char *)"Attributes[13]",(char *)"Transform Effect",(char *)"Transform Into Enemy",
-		(char *)"Transformation Inv Time",(char *)"Attributes[17]",(char *)"Attributes[18]",(char *)"Attributes[19]",
-		(char *)"Attributes[20]",(char *)"Attributes[21]",(char *)"Attributes[22]",(char *)"Attributes[23]",
-		(char *)"Attributes[24]",(char *)"Attributes[25]",(char *)"Attributes[26]",(char *)"Attributes[27]",
-		(char *)"Attributes[28]",(char *)"Attributes[29]",(char *)"Attributes[30]",(char *)"Attributes[31]",
+	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11",(char*)"Misc Attr. 12",
+		(char *)"This Item Dispels Invisibility",(char *)"Misc Attr. 14",(char *)"Transform Effect",(char *)"Transform Into Enemy",
+		(char *)"Transformation Inv Time",(char *)"Misc Attr. 18",(char *)"Misc Attr. 19",(char *)"Misc Attr. 20",
+		(char *)"Misc Attr. 21",(char *)"Misc Attr. 22",(char *)"Misc Attr. 23",(char *)"Misc Attr. 24",
+		(char *)"Misc Attr. 25",(char *)"Misc Attr. 26",(char *)"Misc Attr. 27",(char *)"Misc Attr. 28",
+		(char *)"Misc Attr. 29",(char *)"Misc Attr. 30",(char *)"Misc Attr. 31",(char *)"Misc Attr. 32",
 	}	
 	}
 };
@@ -4189,12 +4189,12 @@ static DIALOG enedata_dlg[] =
 	//attributes page 2, attrib 9 to 16
 	 {  d_dummy_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[8]",                                   NULL,   NULL                 },
 	{  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Lower Attributes are on Basic->Data 2",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[10]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[11]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[12]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[13]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[14]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[15]",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 13",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 14",                                   NULL,   NULL                 },
+	{  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 15",                                   NULL,   NULL                 },
+	{  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 16",                                   NULL,   NULL                 },
 	  //294 : Misc Attribute boxes. 
 	{  d_dummy_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4206,14 +4206,14 @@ static DIALOG enedata_dlg[] =
 	{  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //302
 	//attributes page 3, attrib 17 to 24
-	 {  jwin_text_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[16]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[17]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[18]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[19]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[20]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[21]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[22]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[23]",                                   NULL,   NULL                 },
+	 {  jwin_text_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 17",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 18",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 19",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 20",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 21",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 22",                                   NULL,   NULL                 },
+	{  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 23",                                   NULL,   NULL                 },
+	{  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 24",                                   NULL,   NULL                 },
 	  //310 : Misc Attribute boxes. 
 	{  jwin_edit_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4225,14 +4225,14 @@ static DIALOG enedata_dlg[] =
 	{  jwin_edit_proc,         6,     56+(18*7),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 //318
 	//attributes page 4, attrib 25 to 32
-	 {  jwin_text_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[24]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[25]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[26]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[27]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[28]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[29]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[30]",                                   NULL,   NULL                 },
-	{  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Attributes[31]",                                   NULL,   NULL                 },
+	 {  jwin_text_proc,           70,   58,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 25",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,     58+(18),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 26",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,     58+(18*2),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 27",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*3),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 28",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*4),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 29",                                   NULL,   NULL                 },
+	{  jwin_text_proc,           70,    58+(18*5),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 30",                                   NULL,   NULL                 },
+	{  jwin_text_proc,         70,     58+(18*6),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 31",                                   NULL,   NULL                 },
+	{  jwin_text_proc,         70,     58+(18*7),     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 32",                                   NULL,   NULL                 },
 	  //327 : Misc Attribute boxes. 
 	{  jwin_edit_proc,         6,     56,     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,          6,     56+(18),     50,     16,    vc(12),                 vc(1),                   0,    0,           6,    0,  NULL,                                                           NULL,   NULL                 },
