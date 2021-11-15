@@ -21218,7 +21218,7 @@ bool parsemsgcode()
 			{
 				itemScriptData[itemID].Clear();
 				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
 			}
 			return true;
 		}

@@ -3291,6 +3291,18 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31,1);
 	}
 	
+	if(compatrule_version < 7)
+	{
+		//'Hit All Triggers->Perm Secret' doesn't trigger temp secrets
+		set_bit(quest_rules,qr_ALLTRIG_PERMSEC_NO_TEMP,1);
+	}
+	
+	if(compatrule_version < 8)
+	{
+		//Hardcoded LItem/Bomb/Clock/Magic LTMs
+		set_bit(quest_rules,qr_HARDCODED_LITEM_LTMS,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

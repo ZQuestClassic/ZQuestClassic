@@ -1574,7 +1574,7 @@ void FFScript::initZScriptItemScripts()
 {
 	for ( int32_t q = 0; q < 256; q++ )
 	{
-		if ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] ) item_doscript[q] = 1;
+		if ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] ) item_doscript[q] = 1;
 		else item_doscript[q] = 0;
 		item_collect_doscript[q] = 0;
 		itemScriptData[q].Clear();
@@ -5133,7 +5133,7 @@ int32_t get_register(const int32_t arg)
 				case 14:
 					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG15)?10000:0; break;
 				case 15:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG16)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & ITEM_PASSIVESCRIPT)?10000:0; break;
 				
 				
 				default: 
@@ -11348,13 +11348,13 @@ void set_register(const int32_t arg, const int32_t value)
 				//Clear the item refInfo and stack for use.
 				itemScriptData[itemID].Clear();
 				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
 				
 			}
 			else if ( value && item_doscript[itemID] == 4 ) 
 			{
 				// Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
-				if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
 			}
 			
 			bool settrue = ( value != 0 );
@@ -13059,7 +13059,7 @@ void set_register(const int32_t arg, const int32_t value)
 					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG15 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG15;  
 					break;
 				case 15:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG16 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG16; 
+					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_PASSIVESCRIPT : (itemsbuf[ri->idata].flags)&= ~ITEM_PASSIVESCRIPT; 
 					break;
 				
 				
@@ -27191,7 +27191,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if ( !collect )
 			{
-				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 				item_doscript[new_i] = 0;
 				for ( int32_t q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
 				itemScriptData[new_i].Clear();
@@ -30843,7 +30843,7 @@ bool FFScript::itemScriptEngine()
 		#endif
 		
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
 			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
@@ -30936,7 +30936,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			  This allows passive item scripts to function. 
 		*/
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;

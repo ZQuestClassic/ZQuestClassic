@@ -357,7 +357,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								FLAG_CHECK(12,ITEM_FLAG13),
 								FLAG_CHECK(13,ITEM_FLAG14),
 								FLAG_CHECK(14,ITEM_FLAG15),
-								FLAG_CHECK(15,ITEM_FLAG16)
+								FLAG_CHECK(15,ITEM_PASSIVESCRIPT)
 							)
 						)),
 						TabRef(name = "Action", Columns<4>(
@@ -1535,7 +1535,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								FLAG_CHECK(12,ITEM_FLAG13),
 								FLAG_CHECK(13,ITEM_FLAG14),
 								FLAG_CHECK(14,ITEM_FLAG15),
-								FLAG_CHECK(15,ITEM_FLAG16)
+								FLAG_CHECK(15,ITEM_PASSIVESCRIPT)
 							)
 						)),
 						TabRef(name = "Action", Columns<4>(

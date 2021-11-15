@@ -2376,6 +2376,11 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
             Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
             setflag=false;
         }
+		
+		if(!(tr||ftr) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
+		{
+			hidden_entrance(0,true,(tmpscr->flags6&fTRIGGERF1631));
+		}
     }
     
     if(setflag && canPermSecret())
