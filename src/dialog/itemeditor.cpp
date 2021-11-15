@@ -867,10 +867,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					)),
 					TabRef(name = "Graphics", TabPanel(
 						TabRef(name = "GFX", Row(
-							Rows<2>(
+							Rows<3>(
 								Label(text = "Flash CSet:", hAlign = 1.0),
 								TextField(
-									val = (local_itemref.csets>>4),
+									val = (local_itemref.csets>>4), rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 16,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -879,9 +879,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.csets |= val<<4;
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Frames:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.frames,
+									val = local_itemref.frames, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -890,9 +891,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setFrames(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Speed:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.speed,
+									val = local_itemref.speed, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -901,9 +903,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setSpeed(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Initial Delay:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.delay,
+									val = local_itemref.delay, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -912,14 +915,28 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setDelay(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Player Tile Modifier:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.ltm,
+									val = local_itemref.ltm, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.ltm = val;
+									}
+								),
+								Button(
+									width = 1.5_em, leftPadding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Tile Modifiers",
+											"The tile modifiers of the highest level item owned from each itemclass"
+											" are added up, and the total is added to the Player's tile.\n"
+											"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
+											" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
+											" found in Init Data is also added."
+										).show();
 									}
 								)
 							),
@@ -2055,10 +2072,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					)),
 					TabRef(name = "Graphics", TabPanel(
 						TabRef(name = "GFX", Row(
-							Rows<2>(
+							Rows<3>(
 								Label(text = "Flash CSet:", hAlign = 1.0),
 								TextField(
-									val = (local_itemref.csets>>4),
+									val = (local_itemref.csets>>4), rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 16,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2067,9 +2084,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.csets |= val<<4;
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Frames:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.frames,
+									val = local_itemref.frames, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2078,9 +2096,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setFrames(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Speed:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.speed,
+									val = local_itemref.speed, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2089,9 +2108,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setSpeed(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Initial Delay:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.delay,
+									val = local_itemref.delay, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2100,14 +2120,28 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setDelay(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Player Tile Modifier:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.ltm,
+									val = local_itemref.ltm, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.ltm = val;
+									}
+								),
+								Button(
+									width = 1.5_em, leftPadding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Tile Modifiers",
+											"The tile modifiers of the highest level item owned from each itemclass"
+											" are added up, and the total is added to the Player's tile.\n"
+											"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
+											" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
+											" found in Init Data is also added."
+										).show();
 									}
 								)
 							),

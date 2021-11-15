@@ -65,7 +65,6 @@ void Label::fitText()
 	size_t currentLine = 1;
 	int32_t max_width = 0;
 	int32_t i;
-	size_t linecount = 1;
 	for(i = 0; data[i] && (!maxLines || currentLine < maxLines); ++i)
 	{
 		char c = data[i];
@@ -82,11 +81,10 @@ void Label::fitText()
 		}
 		else if(c == ' ')
 			lastSpace = i;
-		linecount = currentLine;
 		widthSoFar += char_length(f, c);
 		if(widthSoFar > actualWidth)
 		{
-			// Line's too int32_t; try to put replace the last space with
+			// Line's too long; try to put replace the last space with
 			// a line break. If there hasn't been one, we'll just
 			// keep trying until there's a space.
 			if(lastSpace >= 0)
@@ -108,7 +106,7 @@ void Label::fitText()
 	widthSoFar = text_length(f, data);
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
-	setPreferredHeight(Size::pixels(text_height(widgFont)*linecount));
+	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
 	setPreferredWidth(Size::pixels(max_width)+4_spx);
 	if(alDialog)
 	{

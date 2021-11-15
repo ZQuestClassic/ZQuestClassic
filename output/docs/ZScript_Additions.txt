@@ -5093,7 +5093,7 @@ int WeaponInitD[8];
  * The eight InitD args used by the weapon script for this item.
 
 int Modifier;	
- * The Link Tile Modifier
+ * The Player Tile Modifier
 
 int Tile;	
  * The tile used by the item.

@@ -3299,7 +3299,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(compatrule_version < 8)
 	{
-		//Hardcoded LItem/Bomb/Clock/Magic LTMs
+		//Hardcoded LItem/Bomb/Clock/Magic Tile Mods
 		set_bit(quest_rules,qr_HARDCODED_LITEM_LTMS,1);
 	}
 	

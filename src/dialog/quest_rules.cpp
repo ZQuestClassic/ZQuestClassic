@@ -565,7 +565,7 @@ static const GUI::ListData compatRulesList
 	{ "'Hit All Triggers->Perm Secret' doesn't trigger temp secrets", qr_ALLTRIG_PERMSEC_NO_TEMP,
 		"The screen flag 'Hit All Triggers->Perm Secret' will only set the secret state of the screen,"
 		" not trigger secrets immediately"},
-	{ "Hardcoded LItem/Bomb/Clock/Magic LTMs", qr_HARDCODED_LITEM_LTMS,
+	{ "Hardcoded LItem/Bomb/Clock/Magic Tile Mods", qr_HARDCODED_LITEM_LTMS,
 		"Tile modifiers for level items, bombs/superbombs, clocks, and magic containers are"
 		" (incorrectly) hardcoded to their classic item IDs"},
 };
