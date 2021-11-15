@@ -1,7 +1,65 @@
 // 2.55 Change Log
-// Updated 21st Oct, 2021
+// Updated 15th Nov, 2021
 
-//Recent Changes
+//Recent Changes (Since A99)
+
+Add bunny/Moon Pearl feature (dmap flag, pearl item class, init data LTM)
+	( EmilyV, Nov 15th, 2021 )
+
+Enemy Editor dropdowns stuff
+	( Deedee, Nov 14th, 2021 )
+Fix 'Hit All Triggers->Perm' not triggering *temp* secrets,
+	only setting the perm secret state
+Fix large map displaying negative offsets wrong
+	( EmilyV, Nov 14th, 2021 )
+	
+Fix cloaked/phantom drawstyles
+Fix '->Polygon' hardlock
+	( EmilyV, Nov 13th, 2021 )
+
+Update classic tileset (no more Classic.zh stuff,
+	new tiles/combos for Signpost, Crystal Switch, Lantern, etc,
+	Lantern 1, Lantern 2, and Attack Ring items)
+	( EmilyV, Nov 11th, 2021 )
+Patra and QR stuff
+	( Deedee, Nov 11th, 2021 )
+
+Fix moldorms
+Fix lanmola ringleaders
+	( Deedee, Nov 9th, 2021 )
+
+Fix module stuff
+Fix inherent 'Many' push flags
+	( EmilyV, Nov 7th, 2021 )
+
+Fix dmap preview ignoring map styles
+	( EmilyV, Nov 6th, 2021 )
+
+Fix 'sfx.dat' issues with quests/modules (will increase quest file size by a bit)
+	( EmilyV, Nov 5th, 2021 )
+
+Fix crashes with really long script names
+Add 'Hero->Grabbed' to zscript, for checking wallmaster state
+	( EmilyV, Nov 3rd, 2021 )
+
+Polish up darkrooms; lantern combos work as FFCs now
+	( EmilyV, Nov 1st, 2021 )
+
+Fix effect square on layers bug
+	( Deedee, Oct 31st, 2021 )
+
+Add QR help text buttons (not all filled in yet)
+	( EmilyV, Oct 30th, 2021 )
+
+Change emulation rules to QRs
+	( Deedee, Oct 30th, 2021 )
+
+Fixed 1.90 compat bugs, Push->Wait being broken
+	( Deedee, Oct 28th, 2021 )
+
+Fix a crash with Blit/BlitTo reading *from* out of bounds
+Revamp options dialog
+	( EmilyV, Oct 22nd, 2021 )
 
 Add 'ResizeArray()'
 Add warning when global Init script changes
@@ -21,7 +79,7 @@ Fix some dialog issues
 	( EmilyV, Oct 11th, 2021 )
 
 Fix solidity errors, fix solid damage combos
-	( Dimi, Oct 11th, 2021 )
+	( Deedee, Oct 11th, 2021 )
 
 Allow script-modified templayers to become 'valid'
 	( EmilyV, Oct 10th, 2021 )
@@ -33,7 +91,7 @@ Brand new item editor design!!!
 
 Fix wrong CSet9 colors when returning from passage into dark room
 Fix buggy hookshot when player moved by script
-	( Dimi, Oct 10th, 2021 )
+	( Deedee, Oct 10th, 2021 )
 
 Fix walking atop switch blocks
 Fix swap-textfield '-' handling
@@ -44,10 +102,10 @@ Add 'this->Layer()' for combo scripts
 Allow setting book fire damage
 Various fixes: crash, sideview swimming hopping, smartscroll,
 	fairy spawn limits, whistle sound bugs, item messages not saving
-	( Dimi, Oct 9th, 2021 )
+	( Deedee, Oct 9th, 2021 )
 
 Sideview Swimming!!!
-	( Dimi, Oct 8th, 2021 )
+	( Deedee, Oct 8th, 2021 )
 
 Update 'About' dialogs
 Increase Game->Generic[] to long
@@ -142,7 +200,7 @@ Add reloading of game icons (with config)
 	( EmilyV, 4th Sept, 2021 )
 
 Fixed bug with horizontal weapons with animations
-	( Dimi, 4th Sept, 2021 )
+	( Deedee, 4th Sept, 2021 )
 
 Fix pickup string bug
 	( Saffith, 4th Sept, 2021 )
@@ -161,13 +219,13 @@ Add button to InitD[] / Combo Attributes allowing
 Fixed system palettes being shown in ZQuest palette editor.
 Fixed Darknut bomb interaction with new QRs
 Fixed remote bomb subscreen handling.
-	( Dimi, 16th Aug, 2021 )
+	( Deedee, 16th Aug, 2021 )
 
 Fixed Gohmas poofing in older quests
-	( Dimi, 15th Aug, 2021 )
+	( Deedee, 15th Aug, 2021 )
 	
 Added Automatic Triggers
-	( Dimi, 13th Aug, 2021 )
+	( Deedee, 13th Aug, 2021 )
 
 Add Crystal Switches / Switch Blocks
 Add 'Secrets->Next' flag
@@ -175,7 +233,7 @@ Add 'Secrets->Next' flag
 
 Added Item/Special Item always returns.
 Added Item->Secrets
-	( Dimi, 10th Aug, 2021 )
+	( Deedee, 10th Aug, 2021 )
 
 Add Signpost Combos
 Update chest combos
@@ -199,10 +257,10 @@ Allow decimal value for combo attributes
 	( EmilyV, 5th Aug, 2021 )
 	
 Added custom conveyor speed
-	( Dimi, 5th Aug, 2021 )
+	( Deedee, 5th Aug, 2021 )
 
 Add effect area to combos
-	( Dimi, 3rd Aug, 2021 )
+	( Deedee, 3rd Aug, 2021 )
 
 Re-organize squares in combo editor, add labels
 Fix cancel buttons in combo editor
@@ -257,38 +315,38 @@ Make ZScript 'Distance()' internal
 	( Timelord, 22nd April, 2021 )
 
 Re-organized combo editor
-	( Dimi, 19th April, 2021 )
+	( Deedee, 19th April, 2021 )
 Fix vires in sideview
-	( Dimi, 16th April, 2021 )
+	( Deedee, 16th April, 2021 )
 
 Add Instant Continue on Death QR
 	( Timelord, 11th April, 2021 )
 
 Fixes for Slash->Next, Lock Blocks
-	( Dimi, 10th April, 2021 )
+	( Deedee, 10th April, 2021 )
 
 //Alpha 94
 
 Water Refactor
-	( Dimi, 27th March, 2021 )
+	( Deedee, 27th March, 2021 )
 
 Add Link->Defense Dialog (In Graphics->Sprites->Player)
 	( jman, 26th March, 2021 )
 
 Fix smart scrolling bugs
-	( Dimi, 26th March, 2021 )
+	( Deedee, 26th March, 2021 )
 
 Add 'ReadBytes'/'WriteBytes' ZScript functions
 Fix negative layer solidity drawing bugs
-	( Dimi, 25th March, 2021 )
+	( Deedee, 25th March, 2021 )
 
 //Alpha 93
 
 Updated solidity drawing to work with Bridge combo.
-	( Dimi, 24th March, 2021 )
+	( Deedee, 24th March, 2021 )
 
 Add ladder compatability with bridges
-	( Dimi, 21st March, 2021 )
+	( Deedee, 21st March, 2021 )
 
 Feat: Subscreen fall speed
 Fix Special Item rooms not freezing messages
@@ -299,7 +357,7 @@ Allow writing Hero->Pushing (Experimental)
 	( Timelord, 21st March, 2021 )
 	
 Added Bridge combo types
-	( Dimi, 20th March, 2021 )
+	( Deedee, 20th March, 2021 )
 
 //Alpha 92
 
@@ -339,7 +397,7 @@ Added error messages to WriteBytes, and related functions is pos is OoB
 	( Timelord, 8th March, 2021 )
 	
 Added WriteBytes() to ZScript
-	( Dimi, 8th March, 2020 )
+	( Deedee, 8th March, 2020 )
 	
 Merged: Merge pull request #671 from ArmageddonGames/2.55-listfiles 
 	( Timelord, 7th March, 2021 )
