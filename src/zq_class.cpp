@@ -12885,6 +12885,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(89);
 		}
+		if(!p_iputl(zinit.bunny_ltm,f))
+		{
+			new_return(90);
+		}
 		if(writecycle==0)
 		{
 			section_size=writesize;

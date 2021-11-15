@@ -4852,6 +4852,14 @@ int Stun;
  * Writing to this causes Link to be stunned for 'n' frames.
  * This decrements once per frame.
 
+int BunnyClk;
+ * Returns the number of frames for which the player will be a Bunny.
+ * If -1, the effect will be removed by the engine if the current
+ *     dmap does not have the bunny flag, or the player possesses a pearl item.
+ * -2 through -99 reserved for potential future engine use
+ * If <-100, the effect will last until script-modified
+ * If >0, will tick down each frame
+
 int Pushing;
  * Returns the number of frames that Link has been pushing against a solid object.
 

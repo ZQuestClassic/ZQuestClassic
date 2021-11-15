@@ -2267,40 +2267,40 @@ void flushItemCache()
 // This is used often, so it should be as direct as possible.
 int32_t current_item_id(int32_t itemtype, bool checkmagic)
 {
-    if(itemtype!=itype_ring)  // Rings must always be checked.
-    {
-        std::map<int32_t,int32_t>::iterator res = itemcache.find(itemtype);
-        
-        if(res != itemcache.end())
-            return res->second;
-    }
-    
-    int32_t result = -1;
-    int32_t highestlevel = -1;
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
-        {
-            if((checkmagic || itemtype == itype_ring) && itemtype != itype_magicring)
-            {
-                //printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
-                if(!checkmagiccost(i))
-                {
-                        if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
-                }
-            }
-            
-            if(itemsbuf[i].fam_type >= highestlevel)
-            {
-                highestlevel = itemsbuf[i].fam_type;
-                result=i;
-            }
-        }
-    }
-    
-    itemcache[itemtype] = result;
-    return result;
+	if(itemtype!=itype_ring)  // Rings must always be checked.
+	{
+		std::map<int32_t,int32_t>::iterator res = itemcache.find(itemtype);
+		
+		if(res != itemcache.end())
+			return res->second;
+	}
+	
+	int32_t result = -1;
+	int32_t highestlevel = -1;
+	
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
+		{
+			if((checkmagic || itemtype == itype_ring) && itemtype != itype_magicring)
+			{
+				//printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
+				if(!checkmagiccost(i))
+				{
+					if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
+				}
+			}
+			
+			if(itemsbuf[i].fam_type >= highestlevel)
+			{
+				highestlevel = itemsbuf[i].fam_type;
+				result=i;
+			}
+		}
+	}
+	
+	itemcache[itemtype] = result;
+	return result;
 }
 
 int32_t current_item_power(int32_t itemtype)
@@ -2309,184 +2309,140 @@ int32_t current_item_power(int32_t itemtype)
     return (result<0) ? 0 : itemsbuf[result].power;
 }
 
-int32_t item_tile_mod(bool)
+int32_t item_tile_mod()
 {
-    int32_t tile=0;
-    int32_t ret=0;
-    
-    ret=game->get_bombs();
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        if(current_item_id(itype_bomb,false)>=0)
-            ret=itemsbuf[current_item_id(itype_bomb,false)].ltm;
-        else
-            ret=0;
-            
-        break;
-        
-    }
-    
-    tile+=ret;
-    
-    ret=game->get_sbombs();
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        if(current_item_id(itype_sbomb,false)>=0)
-            ret=itemsbuf[current_item_id(itype_sbomb,false)].ltm;
-        else
-            ret=0;
-            
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_clock);
-    
-    switch(ret)
-    {
-    case 1:
-        ret=itemsbuf[iClock].ltm;
-        break;
-        
-    default:
-        ret=0;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_key);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iKey].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_lkey);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iLevelKey].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_map);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iMap].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_compass);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iCompass].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_bosskey);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iBossKey].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_magiccontainer);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iMagicC].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    ret=current_item(itype_triforcepiece);
-    
-    switch(ret)
-    {
-    case 0:
-        ret=0;
-        break;
-        
-    default:
-        ret=itemsbuf[iTriforce].ltm;
-        break;
-    }
-    
-    tile+=ret;
-    
-    for(int32_t i=0; i<itype_max; i++)
-    {
-        ret=current_item_id(i,false);
-        
-        if(ret >= 0)
-            tile+=itemsbuf[ret].ltm;
-    }
-    
-    return tile;
+	int32_t tile=0;
+	int32_t ret=0;
+	
+	if(game->get_bombs())
+	{
+		int32_t itemid = current_item_id(itype_bomb,false);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(game->get_sbombs())
+	{
+		int32_t itemid = current_item_id(itype_sbomb,false);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_clock))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iClock
+				: getHighestLevelEvenUnowned(itemsbuf, itype_clock);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_key))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iKey
+				: getHighestLevelEvenUnowned(itemsbuf, itype_key);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_lkey))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iLevelKey
+				: getHighestLevelEvenUnowned(itemsbuf, itype_lkey);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_map))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iMap
+				: getHighestLevelEvenUnowned(itemsbuf, itype_map);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_compass))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iCompass
+				: getHighestLevelEvenUnowned(itemsbuf, itype_compass);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_bosskey))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iBossKey
+				: getHighestLevelEvenUnowned(itemsbuf, itype_bosskey);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_magiccontainer))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iMagicC
+				: getHighestLevelEvenUnowned(itemsbuf, itype_magiccontainer);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	if(current_item(itype_triforcepiece))
+	{
+		int32_t itemid =
+			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+				? iTriforce
+				: getHighestLevelEvenUnowned(itemsbuf, itype_triforcepiece);
+		if(itemid > -1 && checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
+	}
+	
+	for(int32_t i=0; i<itype_max; i++)
+	{
+		if(!get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS))
+		{
+			switch(i)
+			{
+				case itype_bomb:
+				case itype_sbomb:
+				case itype_clock:
+				case itype_key:
+				case itype_lkey:
+				case itype_map:
+				case itype_compass:
+				case itype_bosskey:
+				case itype_magiccontainer:
+				case itype_triforcepiece:
+					continue; //already handled
+			}
+		}
+		ret=current_item_id(i,false);
+		
+		if(ret >= 0 && checkbunny(ret))
+			tile+=itemsbuf[ret].ltm;
+	}
+	
+	return tile;
 }
 
-int32_t dmap_tile_mod()
+int32_t bunny_tile_mod()
 {
-    return 0;
+	if(Link.BunnyClock())
+	{
+		return game->get_bunny_ltm();
+	}
+	return 0;
 }
 
 // Hints are drawn on a separate layer to combo reveals.

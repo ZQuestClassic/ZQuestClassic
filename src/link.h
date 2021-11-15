@@ -236,7 +236,8 @@ public:
 	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
 	newconveyorclk; // clock for determining when Link gets moved by a conveyor
     int32_t shiftdir, // shift direction when walking into corners of solid combos
-    link_is_stunned, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
+    lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
+	lbunnyclock,
     sdir, // scrolling direction
     sideswimdir;  //for forcing link to face left or right in sideview
     int32_t hammer_swim_up_offset,
@@ -388,6 +389,8 @@ public:
     void setDrunkClock(int32_t newdrunkclk);
     int32_t StunClock();
     void setStunClock(int32_t v);
+    int32_t BunnyClock();
+    void setBunnyClock(int32_t v);
     void setEntryPoints(int32_t x, int32_t y);
     LinkClass();
     void init();
@@ -548,6 +551,7 @@ void computeMaxArrows();
 int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);
+bool checkbunny(int32_t itemid);
 bool checkmagiccost(int32_t itemid);
 void paymagiccost(int32_t itemid, bool ignoreTimer = false);
 int32_t Bweapon(int32_t pos);

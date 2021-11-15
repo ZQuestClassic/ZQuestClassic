@@ -112,6 +112,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->heroSideswimSideStep = gdata->get_sideswim_side();
 	zinit2->heroSideswimDownStep = gdata->get_sideswim_down();
 	zinit2->exitWaterJump = gdata->get_sideswim_jump();
+	zinit2->bunny_ltm = gdata->get_bunny_ltm();
 	
 	for(int32_t q = 0; q < 25; ++q)
 	{

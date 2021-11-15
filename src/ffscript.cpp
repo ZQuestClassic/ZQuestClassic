@@ -1574,7 +1574,7 @@ void FFScript::initZScriptItemScripts()
 {
 	for ( int32_t q = 0; q < 256; q++ )
 	{
-		if ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] ) item_doscript[q] = 1;
+		if ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] ) item_doscript[q] = 1;
 		else item_doscript[q] = 0;
 		item_collect_doscript[q] = 0;
 		itemScriptData[q].Clear();
@@ -3949,6 +3949,9 @@ int32_t get_register(const int32_t arg)
 		case LINKGRABBED:
 			ret = Link.inwallm ? 10000 : 0;
 			break;
+		case HEROBUNNY:
+			ret = Link.BunnyClock()*10000;
+			break;
 		case LINKPUSH:
 			ret=(int32_t)Link.getPushing()*10000;
 			break;
@@ -5133,7 +5136,7 @@ int32_t get_register(const int32_t arg)
 				case 14:
 					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG15)?10000:0; break;
 				case 15:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG16)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & ITEM_PASSIVESCRIPT)?10000:0; break;
 				
 				
 				default: 
@@ -11348,13 +11351,13 @@ void set_register(const int32_t arg, const int32_t value)
 				//Clear the item refInfo and stack for use.
 				itemScriptData[itemID].Clear();
 				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
 				
 			}
 			else if ( value && item_doscript[itemID] == 4 ) 
 			{
 				// Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
-				if ( (itemsbuf[itemID].flags&ITEM_FLAG16) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
 			}
 			
 			bool settrue = ( value != 0 );
@@ -11825,11 +11828,6 @@ void set_register(const int32_t arg, const int32_t value)
 			//directItemB = directItem;
 			break;
 		}
-		case LINKTILEMOD:
-		{
-			Link.setTileModifier(value/10000);
-			break;
-		}
 
 
 		case LINKEATEN:
@@ -11837,6 +11835,9 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		case LINKGRABBED:
 			Link.inwallm = value != 0;
+			break;
+		case HEROBUNNY:
+			Link.setBunnyClock(value/10000);
 			break;
 		case LINKPUSH:
 			Link.pushing = zc_max((value/10000),0);
@@ -13059,7 +13060,7 @@ void set_register(const int32_t arg, const int32_t value)
 					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG15 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG15;  
 					break;
 				case 15:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG16 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG16; 
+					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_PASSIVESCRIPT : (itemsbuf[ri->idata].flags)&= ~ITEM_PASSIVESCRIPT; 
 					break;
 				
 				
@@ -27191,7 +27192,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if ( !collect )
 			{
-				if ( (itemsbuf[i].flags&ITEM_FLAG16) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+				if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 				item_doscript[new_i] = 0;
 				for ( int32_t q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
 				itemScriptData[new_i].Clear();
@@ -30150,22 +30151,13 @@ bool ZModule::init(bool d) //bool default
 			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
 			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
 			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
-			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255","ic_256","ic_257","ic_258","ic_259","ic_260","ic_261","ic_262","ic_263","ic_264","ic_265",
-			"ic_266","ic_267","ic_267","ic_269","ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
-			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
-			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
-			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
-			"ic_338","ic_339","ic_340","ic_341","ic_342","ic_343","ic_344","ic_345","ic_346","ic_347","ic_348","ic_349","ic_350","ic_351","ic_352","ic_353",
-			"ic_354","ic_355","ic_356","ic_357","ic_358","ic_359","ic_360","ic_361","ic_362","ic_363","ic_364","ic_365","ic_366","ic_367","ic_368","ic_369",
-			"ic_370","ic_371","ic_372","ic_373","ic_374","ic_375","ic_376","ic_377","ic_378","ic_379","ic_380","ic_381","ic_382","ic_383","ic_384","ic_385",
-			"ic_386","ic_387","ic_388","ic_389","ic_390","ic_391","ic_392","ic_393","ic_394","ic_395","ic_396","ic_397","ic_398","ic_399","ic_400","ic_401","ic_402","ic_403","ic_404",
-			"ic_405","ic_406","ic_407","ic_408","ic_409","ic_411","ic_412","ic_413","ic_414","ic_415","ic_416","ic_417","ic_418","ic_419","ic_420","ic_421",
-			"ic_422","ic_423","ic_424","ic_425","ic_426","ic_427","ic_428","ic_429","ic_430","ic_431","ic_432","ic_433","ic_434","ic_435","ic_436","ic_437",
-			"ic_438","ic_439","ic_440","ic_441","ic_442","ic_443","ic_444","ic_445","ic_446","ic_447","ic_448","ic_449","ic_450","ic_451","ic_452","ic_453",
-			"ic_454","ic_455","ic_456","ic_457","ic_458","ic_459","ic_460","ic_461","ic_462","ic_463","ic_464","ic_465","ic_466","ic_467","ic_468","ic_469",
-			"ic_470","ic_471","ic_472","ic_473","ic_474","ic_475","ic_476","ic_477","ic_478","ic_479","ic_480","ic_481","ic_482","ic_483","ic_484","ic_485",
-			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
-			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
+			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
+			//256
+			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
+			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
+			//266
+			"ic_icerod","ic_atkring","ic_lantern","ic_pearl"
+			//270
 		};
 		for ( int32_t q = 0; q < itype_max; q++ )
 		{
@@ -30843,7 +30835,7 @@ bool FFScript::itemScriptEngine()
 		#endif
 		
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
 			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
@@ -30936,7 +30928,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			  This allows passive item scripts to function. 
 		*/
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_FLAG16) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
 		{
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;
@@ -34942,6 +34934,7 @@ script_variable ZASMVars[]=
 	
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
 	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
+	{ "HEROBUNNY",           HEROBUNNY,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

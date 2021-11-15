@@ -2236,6 +2236,7 @@ script_variable variable_list[]=
 	
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
 	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
+	{ "HEROBUNNY",           HEROBUNNY,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

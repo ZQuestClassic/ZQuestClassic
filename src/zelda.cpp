@@ -2397,6 +2397,15 @@ int32_t init_game()
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
 	Link.init();
+	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	{
+		int32_t itemid = current_item_id(itype_pearl);
+		if(itemid < 0)
+		{
+			Link.setBunnyClock(-1);
+		}
+	}
+	
 	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
 	{
 		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
@@ -2709,6 +2718,15 @@ int32_t cont_game()
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
     Link.init();
+	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	{
+		int32_t itemid = current_item_id(itype_pearl);
+		if(itemid < 0)
+		{
+			Link.setBunnyClock(-1);
+		}
+	}
+	
     wavy=quakeclk=0;
     
     //if(get_bit(zinit.misc,idM_CONTPERCENT))
@@ -2813,6 +2831,15 @@ void restart_level()
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
     Link.init();
+	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	{
+		int32_t itemid = current_item_id(itype_pearl);
+		if(itemid < 0)
+		{
+			Link.setBunnyClock(-1);
+		}
+	}
+	
     currcset=DMaps[currdmap].color;
     openscreen();
     map_bkgsfx(true);
@@ -2968,7 +2995,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
             
             casty=Link.getY();
@@ -2984,7 +3011,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
             
             castnext=false;
@@ -2996,7 +3023,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -3036,7 +3063,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                ltile+=item_tile_mod(shieldModify);
+                ltile+=Link.getTileModifier();
             }
             
             unpack_tile(newtilebuf, ltile, lflip, true);
@@ -3047,7 +3074,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
         }
         
@@ -3065,7 +3092,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
         }
         
@@ -3149,7 +3176,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
             
             castx=Link.getX();
@@ -3177,7 +3204,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
             
             castnext=false;
@@ -3190,7 +3217,7 @@ void do_magic_casting()
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=item_tile_mod(shieldModify);
+                Link.tile+=Link.getTileModifier();
             }
             
             Link.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
