@@ -19185,11 +19185,6 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	else
 	{
-		temp_zinit.dither_type = 0;
-		temp_zinit.dither_arg = 0;
-		temp_zinit.dither_percent = 20;
-		temp_zinit.def_lightrad = 24;
-		temp_zinit.transdark_percent = 0;
 		temp_zinit.darkcol = BLACK;
 	}
 	
@@ -19242,6 +19237,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	else
 	{
 		temp_zinit.exitWaterJump = 0;
+	}
+	
+	if(s_version > 29)
+	{
+		if(!p_igetl(&temp_zinit.bunny_ltm,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.bunny_ltm = 0;
 	}
 	
 	if(keepdata==true)

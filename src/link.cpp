@@ -1274,6 +1274,7 @@ void LinkClass::init()
 	switchblock_offset = false;
 	extra_jump_count = 0;
 	hoverflags = 0;
+    lbunnyclock = 0;
     
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
@@ -1840,10 +1841,8 @@ attack:
 				
 				if(useltm)
 				{
-					if ( script_link_sprite <= 0 ) tile+=item_tile_mod(shieldModify);
+					if ( script_link_sprite <= 0 ) tile+=getTileModifier();
 				}
-				
-				if ( script_link_sprite <= 0 ) tile+=dmap_tile_mod();
 				
 				// Stone of Agony
 				if(agony)
@@ -2388,11 +2387,9 @@ attack:
 	{
 		if(useltm)
 		{
-			if ( script_link_sprite <= 0 ) tile+=item_tile_mod(shieldModify);
+			if ( script_link_sprite <= 0 ) tile+=getTileModifier();
 		}
 	}
-	
-	if ( script_link_sprite <= 0 ) tile+=dmap_tile_mod();
 	
 	// Stone of Agony
 	if(agony)
@@ -7473,11 +7470,31 @@ bool LinkClass::animate(int32_t)
 	//, so we unfreeze him here, and return him to the action that he had when he was stunned. 
 	if ( FFCore.getLinkAction() == stunned && !lstunclock )
 	{
-	action=tempaction; FFCore.setLinkAction(tempaction);
-		 zprint("Unfreezing link to action: %d\n", (int32_t)tempaction);
-	   
-	//action=none; FFCore.setLinkAction(none);
-		
+		action=tempaction; FFCore.setLinkAction(tempaction);
+		//zprint("Unfreezing link to action: %d\n", (int32_t)tempaction);
+		//action=none; FFCore.setLinkAction(none);
+	}
+	
+	if( lbunnyclock > 0 )
+	{
+		--lbunnyclock;
+	}
+	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	{
+		int32_t itemid = current_item_id(itype_pearl);
+		if(itemid > -1)
+		{
+			if(lbunnyclock == -1) //cure dmap-caused bunny effect
+				lbunnyclock = 0;
+		}
+		else if(lbunnyclock > -1) //No pearl, force into bunny mode
+		{
+			lbunnyclock = -1;
+		}
+	}
+	else if(lbunnyclock == -1) //dmap-caused bunny effect
+	{
+		lbunnyclock = 0;
 	}
 	
 	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || z>0) && charging==0 && spins<=5
@@ -26182,9 +26199,10 @@ bool LinkClass::CanSideSwim()
 	return (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM));
 }
 
-//int32_t LinkClass::getTileModifier() { return item_tile_mod(shieldModify); }
-int32_t LinkClass::getTileModifier() { return item_tile_mod(true); } //how best to read shieldcanmodify? -Z
-void LinkClass::setTileModifier(int32_t new_tile_mod) { /*item_tile_mod = new_tile_mod;*/ }
+int32_t LinkClass::getTileModifier()
+{
+	return item_tile_mod() + bunny_tile_mod();
+}
 /*** end of link.cpp ***/
 
 

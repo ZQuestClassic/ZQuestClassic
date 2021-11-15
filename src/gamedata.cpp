@@ -945,6 +945,15 @@ void gamedata::set_sideswim_jump(int32_t val)
 	set_generic(val, genSIDESWIM_JUMP);
 }
 
+int32_t gamedata::get_bunny_ltm()
+{
+	return get_generic(genBUNNY_LTM);
+}
+void gamedata::set_bunny_ltm(int32_t val)
+{
+	set_generic(val, genBUNNY_LTM);
+}
+
 void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);

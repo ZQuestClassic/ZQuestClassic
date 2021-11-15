@@ -2309,7 +2309,7 @@ int32_t current_item_power(int32_t itemtype)
     return (result<0) ? 0 : itemsbuf[result].power;
 }
 
-int32_t item_tile_mod(bool)
+int32_t item_tile_mod()
 {
 	int32_t tile=0;
 	int32_t ret=0;
@@ -2436,9 +2436,13 @@ int32_t item_tile_mod(bool)
 	return tile;
 }
 
-int32_t dmap_tile_mod()
+int32_t bunny_tile_mod()
 {
-    return 0;
+	if(Link.BunnyClock())
+	{
+		return game->get_bunny_ltm();
+	}
+	return 0;
 }
 
 // Hints are drawn on a separate layer to combo reveals.

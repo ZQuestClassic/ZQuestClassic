@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        29
+#define V_INITDATA        30
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -3495,26 +3495,27 @@ struct dmap
 };
 
 // DMap flags
-#define dmfCAVES			0x0001
-#define dmf3STAIR			0x0002
-#define dmfWHIRLWIND		0x0004
-#define dmfGUYCAVES			0x0008
-#define dmfNOCOMPASS		0x0010
-#define dmfWAVY 			0x0020
-#define dmfWHIRLWINDRET		0x0040
-#define dmfALWAYSMSG   		0x0080
-#define dmfVIEWMAP       	0x0100
-#define dmfDMAPMAP         	0x0200
-#define dmfMINIMAPCOLORFIX 	0x0400
-#define dmfSCRIPT1 			0x0800
-#define dmfSCRIPT2 			0x1000
-#define dmfSCRIPT3 			0x2000
-#define dmfSCRIPT4 			0x4000
-#define dmfSCRIPT5 			0x8000
-#define dmfSIDEVIEW 			0x10000
-#define dmfLAYER3BG 			0x20000
-#define dmfLAYER2BG 			0x40000
-#define dmfNEWCELLARENEMIES 			0x80000
+#define dmfCAVES            0x000001
+#define dmf3STAIR           0x000002
+#define dmfWHIRLWIND        0x000004
+#define dmfGUYCAVES         0x000008
+#define dmfNOCOMPASS        0x000010
+#define dmfWAVY             0x000020
+#define dmfWHIRLWINDRET     0x000040
+#define dmfALWAYSMSG        0x000080
+#define dmfVIEWMAP          0x000100
+#define dmfDMAPMAP          0x000200
+#define dmfMINIMAPCOLORFIX  0x000400
+#define dmfSCRIPT1          0x000800
+#define dmfSCRIPT2          0x001000
+#define dmfSCRIPT3          0x002000
+#define dmfSCRIPT4          0x004000
+#define dmfSCRIPT5          0x008000
+#define dmfSIDEVIEW         0x010000
+#define dmfLAYER3BG         0x020000
+#define dmfLAYER2BG         0x040000
+#define dmfNEWCELLARENEMIES 0x080000
+#define dmfBUNNYIFNOPEARL   0x100000
 
 
 #define OLDMAXCOMBOALIASES 256
@@ -3812,6 +3813,7 @@ enum // used for gamedata ITEMS
 	itype_icerod, //ice Rod
 	itype_atkring,
 	itype_lantern,
+	itype_pearl,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -3896,7 +3898,8 @@ enum generic_ind
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
-	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP, genLAST,
+	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP,
+	genBUNNY_LTM, genLAST,
 	genMAX = 256
 };
 enum glow_shape
@@ -4141,6 +4144,9 @@ struct gamedata
 	
 	int32_t get_sideswim_jump();
 	void set_sideswim_jump(int32_t val);
+	
+	int32_t get_bunny_ltm();
+	void set_bunny_ltm(int32_t val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4263,8 +4269,9 @@ struct zinitdata
 	
 	int32_t swimgravity;
 	
-	
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
+	
+	int32_t bunny_ltm;
 };
 
 struct zcmap

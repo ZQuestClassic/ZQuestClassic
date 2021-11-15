@@ -15762,7 +15762,7 @@ static int32_t editdmap_disableitems_list[] =
 
 static int32_t editdmap_flags_list[] =
 {
-    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,-1
+    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,211,-1
 };
 
 static int32_t editdmap_script_active[] =
@@ -16154,6 +16154,8 @@ static DIALOG editdmap_dlg[] =
 	{ jwin_swapbtn_proc,  158,     169,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,  158,     187,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
 	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
+    //211
+	{  jwin_check_proc,              12,    205,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Become Bunny with no Pearl",      NULL,                 NULL                  },
     
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
@@ -16325,6 +16327,7 @@ void editdmap(int32_t index)
     editdmap_dlg[129].flags = (DMaps[index].flags& dmfLAYER2BG) ? D_SELECTED : 0;
     
     editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
+    editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
     
     if(is_large)
     {
@@ -16484,6 +16487,7 @@ void editdmap(int32_t index)
         f |= editdmap_dlg[128].flags & D_SELECTED ? dmfLAYER3BG:0;
         f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
         f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
+        f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
         DMaps[index].flags = f;
 	
 	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
@@ -34873,8 +34877,10 @@ const char *itemclass_help_string_cats[itype_max*3]=
 			"This item class is", "reserved for the Ice Rod", "in a future version of ZC",
 			//266 == atkring
 			"The Sword, Wand and Hammer deal more damage.","The multiplier applies before the bonus damage.","",
-			"This item class is", "reserved for future", "versions of ZC",
-			"This item class is", "reserved for future", "versions of ZC",
+			//267 == lantern
+			"Emanates light passively from the player in dark rooms.", "", "",
+			//268 == pearls
+			"Prevents the player from becoming a Bunny on certain dmaps.", "", "",
 			"This item class is", "reserved for future", "versions of ZC",
 			"This item class is", "reserved for future", "versions of ZC",
 			//270
@@ -35722,8 +35728,7 @@ bool ZModule::init(bool d) //bool default
 			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
 			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
 			//80
-			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle","ic_last",
-			
+			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle", "ic_last",
 			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
 			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
 			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
@@ -35735,24 +35740,12 @@ bool ZModule::init(bool d) //bool default
 			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
 			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
 			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
+			//256
 			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
 			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
-			"ic_icerod","ic_atkring","ic_lantern",
-			"ic_269""ic_270","ic_271","ic_272","ic_273","ic_274","ic_275","ic_276","ic_277","ic_278","ic_279","ic_280","ic_281","ic_282","ic_283","ic_284","ic_285",
-			"ic_286","ic_287","ic_288","ic_289","ic_290","ic_291","ic_292","ic_293","ic_294","ic_295","ic_296","ic_297","ic_298","ic_299","ic_300","ic_301","ic_302","ic_303","ic_304",
-			"ic_305","ic_306","ic_307","ic_308","ic_309","ic_311","ic_312","ic_313","ic_314","ic_315","ic_316","ic_317","ic_318","ic_319","ic_320","ic_321",
-			"ic_322","ic_323","ic_324","ic_325","ic_326","ic_327","ic_328","ic_329","ic_330","ic_331","ic_332","ic_333","ic_334","ic_335","ic_336","ic_337",
-			"ic_338","ic_339","ic_340","ic_341","ic_342","ic_343","ic_344","ic_345","ic_346","ic_347","ic_348","ic_349","ic_350","ic_351","ic_352","ic_353",
-			"ic_354","ic_355","ic_356","ic_357","ic_358","ic_359","ic_360","ic_361","ic_362","ic_363","ic_364","ic_365","ic_366","ic_367","ic_368","ic_369",
-			"ic_370","ic_371","ic_372","ic_373","ic_374","ic_375","ic_376","ic_377","ic_378","ic_379","ic_380","ic_381","ic_382","ic_383","ic_384","ic_385",
-			"ic_386","ic_387","ic_388","ic_389","ic_390","ic_391","ic_392","ic_393","ic_394","ic_395","ic_396","ic_397","ic_398","ic_399","ic_400","ic_401","ic_402","ic_403","ic_404",
-			"ic_405","ic_406","ic_407","ic_408","ic_409","ic_411","ic_412","ic_413","ic_414","ic_415","ic_416","ic_417","ic_418","ic_419","ic_420","ic_421",
-			"ic_422","ic_423","ic_424","ic_425","ic_426","ic_427","ic_428","ic_429","ic_430","ic_431","ic_432","ic_433","ic_434","ic_435","ic_436","ic_437",
-			"ic_438","ic_439","ic_440","ic_441","ic_442","ic_443","ic_444","ic_445","ic_446","ic_447","ic_448","ic_449","ic_450","ic_451","ic_452","ic_453",
-			"ic_454","ic_455","ic_456","ic_457","ic_458","ic_459","ic_460","ic_461","ic_462","ic_463","ic_464","ic_465","ic_466","ic_467","ic_468","ic_469",
-			"ic_470","ic_471","ic_472","ic_473","ic_474","ic_475","ic_476","ic_477","ic_478","ic_479","ic_480","ic_481","ic_482","ic_483","ic_484","ic_485",
-			"ic_486","ic_487","ic_488","ic_489","ic_490","ic_491","ic_492","ic_493","ic_494","ic_495","ic_496","ic_497","ic_498","ic_499","ic_500","ic_501","ic_502","ic_503","ic_504",
-			"ic_505","ic_506","ic_507","ic_508","ic_509","ic_511"
+			//266
+			"ic_icerod","ic_atkring","ic_lantern","ic_pearl"
+			//270
 		};
 		for ( int32_t q = 0; q < itype_max; q++ )
 		{
