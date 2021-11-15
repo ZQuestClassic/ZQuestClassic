@@ -26,6 +26,7 @@ using std::setw;
 class CompileError::Impl
 {
 public:
+	virtual ~Impl() {}
 	// Create a copy.
 	virtual CompileError::Impl* clone() const = 0;
 	// Get this error's id.

@@ -90,7 +90,7 @@ namespace ZScript
 		// Types
 		void caseDataType(ASTDataType& host, void* param) {}
 
-		std::vector<std::shared_ptr<Opcode>> getResult() const {return result;}
+		std::vector<std::shared_ptr<Opcode>> const& getResult() const {return result;}
 		int32_t getReturnLabelID() const {return returnlabelid;}
 		std::list<int32_t> *getArrayRefs() {return &arrayRefs;}
 		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
@@ -100,7 +100,7 @@ namespace ZScript
 		void addOpcode(std::shared_ptr<Opcode> &code);
 
 		template <class Container>
-		void addOpcodes(Container &container);
+		void addOpcodes(Container const& container);
 	
 		void deallocateArrayRef(int32_t arrayRef);
 		void deallocateRefsUntilCount(int32_t count);
@@ -145,13 +145,13 @@ namespace ZScript
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
 		virtual void caseExprArrow(ASTExprArrow &host, void *param);
 		virtual void caseExprIndex(ASTExprIndex &host, void *param);
-		std::vector<std::shared_ptr<Opcode>> getResult() {return result;}
+		std::vector<std::shared_ptr<Opcode>> const& getResult() {return result;}
 	private:
 		void addOpcode(Opcode* code);
 		void addOpcode(std::shared_ptr<Opcode>& code);
 
 		template <class Container>
-		void addOpcodes(Container &container);
+		void addOpcodes(Container const& container);
 	
 		std::vector<std::shared_ptr<Opcode>> result;
 	};

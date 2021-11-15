@@ -13,6 +13,7 @@
 
 #include <cstdio>
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
 using std::unique_ptr;

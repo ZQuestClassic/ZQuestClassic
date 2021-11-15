@@ -390,8 +390,7 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 		// Resolve the base type.
 		DataType const& baseType = host.baseType->resolve(*scope, this);
 		if (breakRecursion(*host.baseType.get())) return;
-		if (!&baseType 
-			|| !baseType.isResolved())
+		if (!host.baseType->wasResolved())
 		{
 			handleError(CompileError::UnresolvedType(&host, baseType.getName()));
 			return;
@@ -569,8 +568,8 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		// Make sure we can cast the initializer to the type.
 		DataType const& initType = *host.getInitializer()->getReadType(scope, this);
 		//If this is in an `enum`, then the write type is `CFLOAT`.
-		ASTDataType* temp = new ASTDataType(DataType::CFLOAT, host.location);
-		DataType const& enumType = temp->resolve(*scope, this);
+		ASTDataType temp=ASTDataType(DataType::CFLOAT, host.location);
+		DataType const& enumType = temp.resolve(*scope, this);
 
 		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : type, &host);
 		if (breakRecursion(host)) return;
