@@ -3814,6 +3814,9 @@ enum // used for gamedata ITEMS
 	itype_atkring,
 	itype_lantern,
 	itype_pearl,
+	itype_bottle,
+	itype_bottlefill,
+	itype_bugnet,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -4378,7 +4381,7 @@ struct zcmodule
 	char player_weapon_names[wIce+1][255];
 	char counter_names[33][255];
 	
-	char itemclass_help_strings[itype_max*3][512];
+	char itemclass_help_strings[itype_max][1024];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];
