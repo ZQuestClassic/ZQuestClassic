@@ -227,7 +227,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           5
 #define V_RULES           17
 #define V_STRINGS          8
-#define V_MISC             12
+#define V_MISC             13
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           19
 #define V_CSETS            4
@@ -3552,6 +3552,23 @@ struct shoptype
     //10
 };
 
+struct bottletype
+{
+    char name[32];
+    char counter[3];
+    word amount[3];
+    byte flags;
+    byte next_type;
+    void clear()
+    {
+        memset(name, 0, 32);
+        memset(counter, -1, 3);
+        memset(amount, 0, 3);
+        flags = 0;
+        next_type = 0;
+    }
+};
+
 struct pondtype
 {
     byte olditem[3];
@@ -3660,6 +3677,8 @@ struct miscQdata
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
     int32_t zscript_last_compiled_version;
 	byte sprites[sprMAX];
+	
+	bottletype bottle_types[64];
 };
 
 #define MFORMAT_MIDI 0

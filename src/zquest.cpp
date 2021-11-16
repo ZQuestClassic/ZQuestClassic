@@ -1636,6 +1636,7 @@ static MENU misc_menu[] =
     { (char *)"S&ubscreens",                onEditSubscreens,          NULL,                     0,            NULL   },
     { (char *)"&Master Subscreen Type",     onSubscreen,               NULL,                     0,            NULL   },
     { (char *)"&Shop Types",                onShopTypes,               NULL,                     0,            NULL   },
+    { (char *)"&Bottle Types",              onBottleTypes,             NULL,                     0,            NULL   },
     { (char *)"&Info Types",                onInfoTypes,               NULL,                     0,            NULL   },
     { (char *)"&Warp Rings",                onWarpRings,               NULL,                     0,            NULL   },
     { (char *)"&Triforce Pieces",           onTriPieces,               NULL,                     0,            NULL   },
@@ -14161,6 +14162,24 @@ const char *shoplist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
+static char bottle_str_buf[40];
+int32_t bottle_list_size=1;
+
+const char *bottlelist(int32_t index, int32_t *list_size)
+{
+    if(index>=0)
+    {
+        bound(index,0,bottle_list_size-1);
+		if(!index)
+			sprintf(bottle_str_buf," 0:  (None)");
+        else sprintf(bottle_str_buf,"%2d:  %s",index,misc.bottle_types[index-1].name);
+        return bottle_str_buf;
+    }
+    
+    *list_size=bottle_list_size;
+    return NULL;
+}
+
 static char info_str_buf[40];
 int32_t info_list_size=1;
 
@@ -19905,9 +19924,7 @@ int32_t onSideWarp()
     return D_O_K;
 }
 
-/*******************************/
-/*********** onPath ************/
-/*******************************/
+
 
 const char *dirlist(int32_t index, int32_t *list_size)
 {
@@ -19998,9 +20015,7 @@ int32_t onPath()
     return D_O_K;
 }
 
-/********************************/
-/********* onInfoTypes **********/
-/********************************/
+
 
 static DIALOG editinfo_dlg[] =
 {
@@ -20138,9 +20153,8 @@ int32_t onInfoTypes()
     return D_O_K;
 }
 
-/********************************/
-/********* onShopTypes **********/
-/********************************/
+
+
 //This dialogie is self-contained, and does not use dialogue control numbers in a separate array to generate its fields.
 static DIALOG editshop_dlg[] =
 {
@@ -20306,9 +20320,22 @@ int32_t onShopTypes()
     return D_O_K;
 }
 
-/***********************************/
-/********* onItemDropSets **********/
-/***********************************/
+void call_bottle_dlg(int32_t index);
+int32_t onBottleTypes()
+{
+	bottle_list_size = 65; //64 + (None)
+	int32_t index = 0;
+	
+	while(index > -1)
+	{
+		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", lfont);
+		if(index > 0)
+			call_bottle_dlg(index);
+	}
+	
+	return D_O_K;
+}
+
 
 static char item_drop_set_str_buf[40];
 int32_t item_drop_set_list_size=MAXITEMDROPSETS;
@@ -30008,14 +30035,14 @@ int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 int32_t exittimer = 10000, exittimer2 = 100;
 
+
 int32_t main(int32_t argc,char **argv)
-{ 
+{
 #if (defined(_DEBUG) && defined(_MSC_VER))
 #if (VLD_FORCE_ENABLE == 0)
 	::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
-	
 	if ( V_ZC_ALPHA )
 	{
 		Z_title("%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA);
@@ -33812,8 +33839,8 @@ int32_t onCmdExit()
 
 //remember to adjust this number in zquest.h if it changes here!
 //P.S: Must be listed in the same order as the enum in zquest.h. No exceptions! -L
-//These auto-alphabetize in the dialog! Don't add in the middle! -V
-//Starting with a space in the name invalidates it- it will not appear in the dialog, and will be set to 0 in configs. -V
+//These auto-alphabetize in the dialog! Don't add in the middle! -Em
+//Starting with a space in the name invalidates it- it will not appear in the dialog, and will be set to 0 in configs. -Em
 command_pair commands[cmdMAX]=
 {
     { "(None)",                             0, NULL                                                    },
@@ -33981,7 +34008,8 @@ command_pair commands[cmdMAX]=
     { "Screen Script",                      0, (intF) onScreenScript                                   },
     { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
     { "View L2 as BG",                      0, (intF) onLayer2BG                                       },
-    { "View L3 as BG",                      0, (intF) onLayer3BG                                       }
+    { "View L3 as BG",                      0, (intF) onLayer3BG                                       },
+    { "Bottle Types",                       0, (intF) onBottleTypes                                    }
 };
 
 /********************************/
@@ -35633,12 +35661,12 @@ bool ZModule::init(bool d) //bool default
 		
 		for ( int32_t q = 0; q < itype_max; q++ )
 		{
-			char temp_help_str[512];
+			char temp_help_str[1024];
 			strcpy(temp_help_str,get_config_string("ITEMHELP",itemclass_help_string_cats[q],""));
 			if ( temp_help_str[0] == NULL ) 
 			{
 				strcpy(temp_help_str,
-					itemclass_help_string_defaults[q][0]
+					(itemclass_help_string_defaults[q] && itemclass_help_string_defaults[q][0])
 					? itemclass_help_string_defaults[q]
 					: (q < 256
 						? "This has no built-in effect, but can be given special significance using ZScripts or ZASM."

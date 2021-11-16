@@ -7755,188 +7755,187 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 
 int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    dword section_id=ID_MISC;
-    dword section_version=V_MISC;
-    dword section_cversion=CV_MISC;
-    word shops=count_shops(Misc);
-    word infos=count_infos(Misc);
-    word warprings=count_warprings(Misc);
-    word triforces=8;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        //shops
-        if(!p_iputw(shops,f))
-        {
-            new_return(5);
-        }
-        
-        for(int32_t i=0; i<shops; i++)
-        {
-            if(!pfwrite(Misc->shop[i].name,sizeof(Misc->shop[i].name),f))
-            {
-                new_return(6);
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_putc(Misc->shop[i].item[j],f))
-                {
-                    new_return(7);
-                }
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_iputw(Misc->shop[i].price[j],f))
-                {
-                    new_return(8);
-                }
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_putc(Misc->shop[i].hasitem[j],f))
-                {
-                    new_return(9);
-                }
-            }
-	    
-        }
-        
-        //infos
-        if(!p_iputw(infos,f))
-        {
-            new_return(10);
-        }
-        
-        for(int32_t i=0; i<infos; i++)
-        {
-            if(!pfwrite(Misc->info[i].name,sizeof(Misc->info[i].name),f))
-            {
-                new_return(11);
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_iputw(Misc->info[i].str[j],f))
-                {
-                    new_return(12);
-                }
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_iputw(Misc->info[i].price[j],f))
-                {
-                    new_return(13);
-                }
-            }
-        }
-        
-        //warp rings
-        if(!p_iputw(warprings,f))
-        {
-            new_return(14);
-        }
-        
-        for(int32_t i=0; i<warprings; i++)
-        {
-            for(int32_t j=0; j<9; j++)
-            {
-                if(!p_iputw(Misc->warp[i].dmap[j],f))
-                {
-                    new_return(15);
-                }
-            }
-            
-            for(int32_t j=0; j<9; j++)
-            {
-                if(!p_putc(Misc->warp[i].scr[j],f))
-                {
-                    new_return(16);
-                }
-            }
-            
-            if(!p_putc(Misc->warp[i].size,f))
-            {
-                new_return(17);
-            }
-        }
-        
-        //triforce pieces
-        for(int32_t i=0; i<triforces; i++)
-        {
-            if(!p_putc(Misc->triforce[i],f))
-            {
-                new_return(18);
-            }
-        }
-        
-        //end string
-        if(!p_iputw(Misc->endstring,f))
-        {
-            new_return(19);
-        }
+	//these are here to bypass compiler warnings about unused arguments
+	Header=Header;
 	
-	//V_MISC >= 8
-	for(int32_t i=0; i<shops; i++)
+	dword section_id=ID_MISC;
+	dword section_version=V_MISC;
+	dword section_cversion=CV_MISC;
+	word shops=count_shops(Misc);
+	word infos=count_infos(Misc);
+	word warprings=count_warprings(Misc);
+	word triforces=8;
+	dword section_size = 0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
 	{
-	    for(int32_t j=0; j<3; j++)
-            {
-                if(!p_iputw(Misc->shop[i].str[j],f))
-                {
-                    new_return(20);
-                }
-            }
-        }
-	//V_MISC >= 9
-	for ( int32_t q = 0; q < 32; q++ ) 
-	{
-		if(!p_iputl(Misc->questmisc[q],f))
-                    new_return(21);
+		new_return(1);
 	}
-	for ( int32_t q = 0; q < 32; q++ ) 
+	
+	
+	//section version info
+	if(!p_iputw(section_version,f))
 	{
-		for ( int32_t j = 0; j < 128; j++ )
-		if(!p_putc(Misc->questmisc_strings[q][j],f))
-                     new_return(22);
+		new_return(2);
 	}
-	//V_MISC >= 11
-	if(!p_iputl(Misc->zscript_last_compiled_version,f))
-                     new_return(23);
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		//shops
+		if(!p_iputw(shops,f))
+		{
+			new_return(5);
+		}
+		
+		for(int32_t i=0; i<shops; i++)
+		{
+			if(!pfwrite(Misc->shop[i].name,sizeof(Misc->shop[i].name),f))
+			{
+				new_return(6);
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_putc(Misc->shop[i].item[j],f))
+				{
+					new_return(7);
+				}
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_iputw(Misc->shop[i].price[j],f))
+				{
+					new_return(8);
+				}
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_putc(Misc->shop[i].hasitem[j],f))
+				{
+					new_return(9);
+				}
+			}
+		}
+		
+		//infos
+		if(!p_iputw(infos,f))
+		{
+			new_return(10);
+		}
+		
+		for(int32_t i=0; i<infos; i++)
+		{
+			if(!pfwrite(Misc->info[i].name,sizeof(Misc->info[i].name),f))
+			{
+				new_return(11);
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_iputw(Misc->info[i].str[j],f))
+				{
+					new_return(12);
+				}
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_iputw(Misc->info[i].price[j],f))
+				{
+					new_return(13);
+				}
+			}
+		}
+		
+		//warp rings
+		if(!p_iputw(warprings,f))
+		{
+			new_return(14);
+		}
+		
+		for(int32_t i=0; i<warprings; i++)
+		{
+			for(int32_t j=0; j<9; j++)
+			{
+				if(!p_iputw(Misc->warp[i].dmap[j],f))
+				{
+					new_return(15);
+				}
+			}
+			
+			for(int32_t j=0; j<9; j++)
+			{
+				if(!p_putc(Misc->warp[i].scr[j],f))
+				{
+					new_return(16);
+				}
+			}
+			
+			if(!p_putc(Misc->warp[i].size,f))
+			{
+				new_return(17);
+			}
+		}
+		
+		//triforce pieces
+		for(int32_t i=0; i<triforces; i++)
+		{
+			if(!p_putc(Misc->triforce[i],f))
+			{
+				new_return(18);
+			}
+		}
+		
+		//end string
+		if(!p_iputw(Misc->endstring,f))
+		{
+			new_return(19);
+		}
+		
+		//V_MISC >= 8
+		for(int32_t i=0; i<shops; i++)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_iputw(Misc->shop[i].str[j],f))
+				{
+					new_return(20);
+				}
+			}
+		}
+		//V_MISC >= 9
+		for ( int32_t q = 0; q < 32; q++ ) 
+		{
+			if(!p_iputl(Misc->questmisc[q],f))
+						new_return(21);
+		}
+		for ( int32_t q = 0; q < 32; q++ ) 
+		{
+			for ( int32_t j = 0; j < 128; j++ )
+			if(!p_putc(Misc->questmisc_strings[q][j],f))
+						 new_return(22);
+		}
+		//V_MISC >= 11
+		if(!p_iputl(Misc->zscript_last_compiled_version,f))
+			new_return(23);
 		
 		//V_MISC >= 12
 		for(int32_t q = 0; q < sprMAX; ++q)
@@ -7945,20 +7944,39 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 				new_return(24);
 		}
 		
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writemisc()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
-    }
-    
-    new_return(0);
+		//V_MISC >= 13
+		for(size_t q = 0; q < 64; ++q)
+		{
+			bottletype* bt = &(Misc->bottle_types[q]);
+            if (!pfwrite(bt->name, 32, f))
+                return qe_invalid;
+			for(size_t j = 0; j < 3; ++j)
+			{
+                if (!p_putc(bt->counter[j], f))
+                    return qe_invalid;
+                if (!p_iputw(bt->amount[j], f))
+                    return qe_invalid;
+			}
+            if (!p_putc(bt->flags, f))
+                return qe_invalid;
+            if (!p_putc(bt->next_type, f))
+                return qe_invalid;
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writemisc()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+	}
+	
+	new_return(0);
 }
 
 int32_t writeitems(PACKFILE *f, zquestheader *Header)
