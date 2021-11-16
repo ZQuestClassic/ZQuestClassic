@@ -799,8 +799,9 @@ public:
 	double circle_x, circle_y;
 	double temp_x, temp_y;
 	bool adjusted;
-	int32_t clk4, //Unused
-		clk5; //Firing clock
+	int32_t clk4, //Slow down clock
+		clk5, //Segment firing clock
+		clk6; //Center firing clock
 	//ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy((zfix)128,(zfix)48,Id,Clk)
 	virtual bool animate(int32_t index);
@@ -828,7 +829,7 @@ public:
 	int32_t flycnt,flycnt2, loopcnt, lookat;
 	double temp_x, temp_y;
 	bool adjusted;
-	int32_t clk4, //Unused
+	int32_t clk4, //Slow down clock
 		clk5; //Firing clock
 	//ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk);                   // : enemy((zfix)128,(zfix)48,Id,Clk)

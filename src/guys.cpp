@@ -17447,6 +17447,7 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 	loopcnt=0;
 	clk4 = 0;
 	clk5 = 0;
+	clk6 = 0;
 	if(dmisc6<int16_t(1))dmisc6=1; // ratio cannot be 0!
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -17465,6 +17466,7 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 		yofs = (int32_t)yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
 	}
+	if (editorflags & ENEMY_FLAG8) misc = 1;
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
 }
@@ -17480,48 +17482,66 @@ bool ePatra::animate(int32_t index)
 		
 		return Dead(index);
 	}
+
 	
 	if(clk==0)
 	{
 		removearmos(x,y);
 	}
 	
-	variable_walk_8(rate,homing,hrate,spw_floater);
-	
-	if(++clk2>84)
+	if (clk4 <=0 || clk4%2)
 	{
-		clk2=0;
-		
-		if(loopcnt)
-			--loopcnt;
-		else
+		if (!dmisc22 || loopcnt == 0 || (dmisc22 == 1 && loopcnt < 0)) variable_walk_8(rate,homing,hrate,spw_floater);
+		if (loopcnt < 0) ++clk2;
+		if(++clk2>84)
 		{
-			if((misc%dmisc6)==0)
-				loopcnt=dmisc7;
+			clk2=0;
+			if (!dmisc26 || (dmisc26 == 1 && flycnt) || (dmisc26 == 2 && !flycnt))
+			{
+				if(loopcnt > 0)
+					--loopcnt;
+				else if (loopcnt == 0)
+				{
+					if((misc%dmisc6)==0)
+					{
+						if (dmisc21 > 0) loopcnt=-dmisc21;
+						else loopcnt=dmisc7;
+					}
+				}
+				else if (loopcnt == -1) loopcnt=dmisc7;
+				else ++loopcnt;
+				
+				if (!(editorflags & ENEMY_FLAG9) || loopcnt == 0) ++misc;
+			}
+			else 
+			{
+				loopcnt = 0;
+				misc = 1;
+			}
 		}
-		
-		++misc;
 	}
+	if (clk4 > 0) --clk4;
 	
 	double size=1;
 	
-	if (clk5 < 0)
+	if (clk6 < 0)
 	{
-		if (dmisc5 == 1)
+		if (dmisc5 == 1 || dmisc5 == 3)
 		{
-			if (get_bit(quest_rules,qr_NEWENEMYTILES) || dmisc5 != 1)
+			if (get_bit(quest_rules,qr_NEWENEMYTILES))
 			{
-				if (++clk5 == 0) o_tile=d->e_tile;
+				if (++clk6 == 0) o_tile=d->e_tile;
 				else
 				{
-					if (clk5 > -16) o_tile=d->e_tile + 80;
+					if (clk6 > -16) o_tile=d->e_tile + 80;
 					else o_tile=d->e_tile + 40;
 				}
 			}
-			else clk5 = 0;
+			else clk6 = 0;
 		}
-		else ++clk5;
 	}
+	else if (dmisc19) ++clk6;
+	if (clk5 < 0) ++clk5;
 	else if (dmisc19) ++clk5;
 	
 	for(int32_t i=index+1; i<index+flycnt+1; i++)
@@ -17553,7 +17573,7 @@ bool ePatra::animate(int32_t index)
 				guys.swap(j,j+1);
 			}
 			
-			--flycnt;
+			if (--flycnt == 0 && dmisc23 != 0) step += zslongToFix(dmisc23*100);
 		}
 		else
 		{
@@ -17637,24 +17657,26 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	if(dmisc5==1)
+	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2))))
 	{
-		if (((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
-		(!dmisc18 && !(zc_oldrand()&127))) && (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-		&& clk5 >= dmisc19)
+		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+		(!dmisc18 && !(zc_oldrand()&127))) && (clk6 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+		&& clk6 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > 48)))
 		{
-			if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) clk5 = -48;
+			if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) clk6 = -48;
 			else
 			{
 				addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 				sfx(wpnsfx(wpn),pan(int32_t(x)));
-				clk5 = 0;
+				clk6 = 0;
+				if (editorflags & ENEMY_FLAG6) clk4 = 16;
 			}
 		}
-		if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk5 == -16)
+		if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk6 == -16)
 		{
 			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
 			sfx(wpnsfx(wpn),pan(int32_t(x)));
+			if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
 		}
 	}
 	
@@ -17664,9 +17686,11 @@ bool ePatra::animate(int32_t index)
 	bool dofire = false;
 	if (dmisc20)
 	{
-		if (((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
 		(!dmisc18 && !(zc_oldrand()&127))) && (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-		&& clk5 >= dmisc19) dofire = true;
+		&& clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
+		(dmisc20 == 2 && (84*(dmisc6 - (misc%dmisc6))) > (48 + (12*flycnt2))) ||
+		(dmisc20 != 2 && (84*(dmisc6 - (misc%dmisc6))) > 48))))  dofire = true;
 	}
 	if(flycnt2)
 	{
@@ -17682,6 +17706,7 @@ bool ePatra::animate(int32_t index)
 					{
 						// Center eye shoots projectiles; make room for its firing tiles
 					case 1:
+					case 3:
 						((enemy*)guys.spr(i))->o_tile=d->e_tile+120;
 						break;
 						
@@ -17698,6 +17723,7 @@ bool ePatra::animate(int32_t index)
 				}
 				
 				((enemy*)guys.spr(i))->cs=dmisc9;
+				if (dmisc27) ((enemy*)guys.spr(i))->hp=dmisc27;
 			}
 			
 			if(flycnt>0)
@@ -17716,11 +17742,11 @@ bool ePatra::animate(int32_t index)
 					guys.swap(j,j+1);
 				}
 				
-				--flycnt2;
+				if (--flycnt2 == 0 && dmisc24 != 0) step += zslongToFix(dmisc24*100);
 			}
 			else
 			{
-				if(dmisc5==2)
+				if(dmisc5==2 || dmisc5== 3)
 				{
 					/*
 					if(!(zc_oldrand()&127))
@@ -17729,26 +17755,52 @@ bool ePatra::animate(int32_t index)
 						sfx(wpnsfx(wpn),pan(int32_t(x)));
 					}
 					*/
-					if (((esPatra*)guys.spr(i))->clk5 < 0)
+					if (((esPatra*)guys.spr(i))->clk5 < 0 && (editorflags & ENEMY_FLAG3))
 					{
-						if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
-						else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
-						else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
-						else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+						if (dmisc5 == 3)
+						{
+							if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+200;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+160;
+							else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+						}
+						else
+						{
+							if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
+							else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+						}
 					}
 					else if (dmisc19 || ((esPatra*)guys.spr(i))->clk5) ++((esPatra*)guys.spr(i))->clk5;
-					switch(dmisc20) //Patra Attack Patterns
+					if (!dmisc25 || (dmisc25 == 1 && !((enemy*)guys.spr(i))->superman) || (dmisc25 == 2 && ((enemy*)guys.spr(i))->superman))
 					{
-						case 3: //Ring
+						switch(dmisc20) //Patra Attack Patterns
 						{
-							if (dofire)
+							case 3: //Ring
 							{
-								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+								if (dofire)
 								{
-									((esPatra*)guys.spr(i))->clk5 = -48;
-									clk5 = -48;
+									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+									{
+										((esPatra*)guys.spr(i))->clk5 = -48;
+										clk5 = -48;
+										if (editorflags & ENEMY_FLAG6) clk4 = 64;
+									}
+									else
+									{
+										addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+										sfx(wpnsfx(wpn),pan(int32_t(x)));
+										int32_t m=Ewpns.Count()-1;
+										weapon *ew = (weapon*)(Ewpns.spr(m));
+										
+										ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+										((esPatra*)guys.spr(i))->clk5 = 0;
+										clk5 = 0;
+										if (editorflags & ENEMY_FLAG6) clk4 = 16;
+									}
 								}
-								else
+								if (((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
 									sfx(wpnsfx(wpn),pan(int32_t(x)));
@@ -17756,79 +17808,77 @@ bool ePatra::animate(int32_t index)
 									weapon *ew = (weapon*)(Ewpns.spr(m));
 									
 									ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
-									((esPatra*)guys.spr(i))->clk5 = 0;
-									clk5 = 0;
 								}
+								break;
 							}
-							if (((esPatra*)guys.spr(i))->clk5 == -16)
+							case 2: //one after another
 							{
-								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
-								sfx(wpnsfx(wpn),pan(int32_t(x)));
-								int32_t m=Ewpns.Count()-1;
-								weapon *ew = (weapon*)(Ewpns.spr(m));
-								
-								ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
-							}
-							break;
-						}
-						case 2: //one after another
-						{
-							if (dofire)
-							{
-								((esPatra*)guys.spr(i))->clk5 = -48 - (16*(i-(index+flycnt+1)));
-								clk5 = -48 - (16*flycnt2);
-							}
-							if (((esPatra*)guys.spr(i))->clk5 == -16)
-							{
-								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
-								sfx(wpnsfx(wpn),pan(int32_t(x)));
-							}
-							break;
-						}
-						case 1: //random one eye
-						{
-							if (dofire && i == randeye)
-							{
-								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+								if (dofire)
 								{
-									((esPatra*)guys.spr(i))->clk5 = -48;
-									clk5 = -48;
+									((esPatra*)guys.spr(i))->clk5 = -48 - (12*(i-(index+flycnt+1)));
+									clk5 = -48 - (12*flycnt2);
+									if (editorflags & ENEMY_FLAG6) clk4 = abs(clk5) + 16;
 								}
-								else
+								if (((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
 									sfx(wpnsfx(wpn),pan(int32_t(x)));
-									((esPatra*)guys.spr(i))->clk5 = 0;
-									clk5 = 0;
 								}
+								break;
 							}
-							if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
+							case 1: //random one eye
 							{
-								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
-								sfx(wpnsfx(wpn),pan(int32_t(x)));
-							}
-							break;
-						}
-						default: //old behavior, all eyes can fire any time
-						{
-							if (((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
-							(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-							&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19)
-							{
-								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) ((esPatra*)guys.spr(i))->clk5 = -48;
-								else
+								if (dofire && i == randeye)
+								{
+									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+									{
+										((esPatra*)guys.spr(i))->clk5 = -48;
+										clk5 = -48;
+										if (editorflags & ENEMY_FLAG6) clk4 = 64;
+									}
+									else
+									{
+										addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+										sfx(wpnsfx(wpn),pan(int32_t(x)));
+										((esPatra*)guys.spr(i))->clk5 = 0;
+										clk5 = 0;
+										if (editorflags & ENEMY_FLAG6) clk4 = 16;
+									}
+								}
+								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
 								{
 									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
 									sfx(wpnsfx(wpn),pan(int32_t(x)));
-									((esPatra*)guys.spr(i))->clk5 = 0;
 								}
+								break;
 							}
-							if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
+							default: //old behavior, all eyes can fire any time
 							{
-								addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
-								sfx(wpnsfx(wpn),pan(int32_t(x)));
+								if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+								(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+								&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
+								(dmisc20 != 2 && (84*(dmisc6 - (misc%dmisc6))) > 48))))
+								{
+									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+									{
+										((esPatra*)guys.spr(i))->clk5 = -48;
+										if (editorflags & ENEMY_FLAG6) clk4 = 64;
+									}
+									else
+									{
+										addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+										sfx(wpnsfx(wpn),pan(int32_t(x)));
+										((esPatra*)guys.spr(i))->clk5 = 0;
+										if (editorflags & ENEMY_FLAG6) clk4 = 16;
+									}
+								}
+								if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && ((esPatra*)guys.spr(i))->clk5 == -16)
+								{
+									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+									sfx(wpnsfx(wpn),pan(int32_t(x)));
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}
