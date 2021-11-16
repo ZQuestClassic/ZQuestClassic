@@ -21213,6 +21213,7 @@ bool parsemsgcode()
 		case MSGC_GIVEITEM:
 		{
 			int32_t itemID = grab_next_argument();
+			
 			getitem(itemID, true);
 			if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
 			{

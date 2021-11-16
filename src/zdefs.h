@@ -4230,27 +4230,9 @@ struct gamedata
 		if(val > 64) val = 0;
 		bottleSlots[slot] = val;
 	}
-	bool fillBottle(byte val)
-	{
-		for(size_t q = 0; q < 256; ++q)
-		{
-			if(bottleSlots[q] == 0)
-			{
-				set_bottle_slot(q, val);
-				return true;
-			}
-		}
-		return false;
-	}
-	bool canFillBottle()
-	{
-		for(size_t q = 0; q < 256; ++q)
-		{
-			if(bottleSlots[q] == 0)
-				return true;
-		}
-		return false;
-	}
+	
+	bool fillBottle(byte val);
+	bool canFillBottle();
 };
 
 // "initialization data" flags (bit numbers in bit string)

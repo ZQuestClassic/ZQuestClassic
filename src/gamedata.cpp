@@ -972,6 +972,53 @@ void gamedata::set_item_no_flush(int32_t id, bool value)
         
     item[id]=value;
 }
+bool gamedata::fillBottle(byte val)
+{
+	bool temp[256] = {false};
+	for(size_t q = 0; q < MAXITEMS; ++q)
+	{
+		if(get_item(q) && itemsbuf[q].family == itype_bottle)
+		{
+			size_t bind = itemsbuf[q].misc1;
+			if(bind < 256)
+			{
+				temp[bind] = true;
+			}
+		}
+	}
+	for(size_t q = 0; q < 256; ++q)
+	{
+		if(!temp[q]) continue; //don't own bottle
+		if(bottleSlots[q] == 0)
+		{
+			set_bottle_slot(q, val);
+			return true;
+		}
+	}
+	return false;
+}
+bool gamedata::canFillBottle()
+{
+	bool temp[256] = {false};
+	for(size_t q = 0; q < MAXITEMS; ++q)
+	{
+		if(get_item(q) && itemsbuf[q].family == itype_bottle)
+		{
+			size_t bind = itemsbuf[q].misc1;
+			if(bind < 256)
+			{
+				temp[bind] = true;
+			}
+		}
+	}
+	for(size_t q = 0; q < 256; ++q)
+	{
+		if(!temp[q]) continue; //don't own bottle
+		if(bottleSlots[q] == 0)
+			return true;
+	}
+	return false;
+}
 
 /*** end of gamedata.cpp ***/
 

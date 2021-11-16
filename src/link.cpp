@@ -2753,7 +2753,9 @@ bool LinkClass::checkstab()
 	{
 		for(int32_t j=0; j<items.Count(); j++)
 		{
-			item* ptr = (item*)items.spr(j); 
+			item* ptr = (item*)items.spr(j);
+			if(itemsbuf[ptr->id].family == itype_bottlefill && !game->canFillBottle())
+				continue; //No picking these up unless you have a bottle to fill!
 			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER))
 			{
 				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= 32) && !ptr->fallclk && !ptr->drownclk)
@@ -2767,59 +2769,59 @@ bool LinkClass::checkstab()
 							setmapflag(mITEM);
 						else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
 							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
-				
-					if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
-					{
-						if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-						hidden_entrance(0, true, false, -5);
-					}
+						
+						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
+						{
+							if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+							hidden_entrance(0, true, false, -5);
+						}
 						//!DIMI
 						if(itemsbuf[ptr->id].collect_script)
 						{
-				//clear item script stack. 
-				//ri = &(itemScriptData[ptr->id]);
-				//ri->Clear();
-				//itemCollectScriptData[ptr->id].Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
-				ri = &(itemCollectScriptData[ptr->id]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
-				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
+							//clear item script stack. 
+							//ri = &(itemScriptData[ptr->id]);
+							//ri->Clear();
+							//itemCollectScriptData[ptr->id].Clear();
+							//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
+							ri = &(itemCollectScriptData[ptr->id]);
+							for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
+							ri->Clear();
+							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
+							
+							if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
+							{
+								item_collect_doscript[ptr->id] = 1;
+								itemscriptInitialised[ptr->id] = 0;
+								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
+								//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+									FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
+							}
+							else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
+							{
+								item_collect_doscript[ptr->id] = 1;
+								itemscriptInitialised[ptr->id] = 0;
+								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+								//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+									FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+							}
 				
-				if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
-				{
-					item_collect_doscript[ptr->id] = 1;
-					itemscriptInitialised[ptr->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
-					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
-				}
-				else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
-				{
-					item_collect_doscript[ptr->id] = 1;
-					itemscriptInitialised[ptr->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-				}
-	
-				//runningItemScripts[ptr->id] = 0;
+							//runningItemScripts[ptr->id] = 0;
 				
 						}
 			
-			//Passive item scripts on colelction
+						//Passive item scripts on colelction
 						if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-			{
-				ri = &(itemScriptData[ptr->id]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
-				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-				item_doscript[ptr->id] = 1;
-				itemscriptInitialised[ptr->id] = 0;
-				//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
-							
-			}
+						{
+							ri = &(itemScriptData[ptr->id]);
+							for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
+							ri->Clear();
+							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+							item_doscript[ptr->id] = 1;
+							itemscriptInitialised[ptr->id] = 0;
+							//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
+										
+						}
 			
 						getitem(ptr->id);
 						items.del(j);
@@ -23943,9 +23945,9 @@ void dospecialmoney(int32_t index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-	int32_t total = game->get_drupy()-price;
-	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
-	game->set_drupy(game->get_drupy()-total);
+		int32_t total = game->get_drupy()-price;
+		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+		game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
         setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
         game->change_maxbombs(4);
@@ -24044,99 +24046,99 @@ void getitem(int32_t id, bool nosound)
     {
         return;
     }
-    
-    if(itemsbuf[id].family!=0xFF)
+    itemdata const& idat = itemsbuf[id&0xFF];
+    if(idat.family!=0xFF)
     {
-        if(itemsbuf[id].flags & ITEM_GAMEDATA && itemsbuf[id].family != itype_triforcepiece)
+        if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
         {
             // Fix boomerang sounds.
-            int32_t itemid = current_item_id(itemsbuf[id].family);
+            int32_t itemid = current_item_id(idat.family);
             
-            if(itemid>=0 && (itemsbuf[id].family == itype_brang || itemsbuf[id].family == itype_nayruslove
-                             || itemsbuf[id].family == itype_hookshot || itemsbuf[id].family == itype_cbyrna)
+            if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
+                             || idat.family == itype_hookshot || idat.family == itype_cbyrna)
                     && sfx_allocated(itemsbuf[itemid].usesound)
-                    && itemsbuf[id].usesound != itemsbuf[itemid].usesound)
+                    && idat.usesound != itemsbuf[itemid].usesound)
             {
                 stop_sfx(itemsbuf[itemid].usesound);
-                cont_sfx(itemsbuf[id].usesound);
+                cont_sfx(idat.usesound);
             }
             
             game->set_item(id,true);
             
-            if(!(itemsbuf[id].flags & ITEM_KEEPOLD))
+            if(!(idat.flags & ITEM_KEEPOLD))
             {
-                if(current_item(itemsbuf[id].family)<itemsbuf[id].fam_type)
+                if(current_item(idat.family)<idat.fam_type)
                 {
-                    removeLowerLevelItemsOfFamily(game,itemsbuf,itemsbuf[id].family, itemsbuf[id].fam_type);
+                    removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
                 }
             }
             
             // NES consistency: replace all flying boomerangs with the current boomerang.
-            if(itemsbuf[id].family==itype_brang)
+            if(idat.family==itype_brang)
                 for(int32_t i=0; i<Lwpns.Count(); i++)
                 {
                     weapon *w = ((weapon*)Lwpns.spr(i));
                     
                     if(w->id==wBrang)
                     {
-                        w->LOADGFX(itemsbuf[id].wpn);
+                        w->LOADGFX(idat.wpn);
                     }
                 }
         }
         
-        if(itemsbuf[id].count!=-1)
+        if(idat.count!=-1)
         {
-            if(itemsbuf[id].setmax)
+            if(idat.setmax)
             {
                 // Bomb bags are a special case; they may be set not to increase super bombs
-                if(itemsbuf[id].family==itype_bombbag && itemsbuf[id].count==2 && (itemsbuf[id].flags&16)==0)
+                if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
                 {
                     int32_t max = game->get_maxbombs();
                     
-                    if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+                    if(max<idat.max) max=idat.max;
                     
-                    game->set_maxbombs(zc_min(game->get_maxbombs()+itemsbuf[id].setmax,max), false);
+                    game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
                 }
                 else
                 {
-                    int32_t max = game->get_maxcounter(itemsbuf[id].count);
+                    int32_t max = game->get_maxcounter(idat.count);
                     
-                    if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+                    if(max<idat.max) max=idat.max;
                     
-                    game->set_maxcounter(zc_min(game->get_maxcounter(itemsbuf[id].count)+itemsbuf[id].setmax,max), itemsbuf[id].count);
+                    game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
                 }
             }
             
             // Amount is an uint16_t, but the range is -9999 to 16383
             // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
-            if(itemsbuf[id].amount&0x3FFF)
+            if(idat.amount&0x3FFF)
             {
-                if(itemsbuf[id].amount&0x8000)
+                if(idat.amount&0x8000)
                     game->set_dcounter(
-                        game->get_dcounter(itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+                        game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
                 else
                 {
-                    if(itemsbuf[id].amount>=16385 && game->get_counter(0)<=itemsbuf[id].amount-16384)
-                        game->set_counter(0, itemsbuf[id].count);
+                    if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
+                        game->set_counter(0, idat.count);
                     else
                         // This is too confusing to try and change...
-                        game->set_counter(zc_min(game->get_counter(itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF),game->get_maxcounter(itemsbuf[id].count)), itemsbuf[id].count);
+                        game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
                 }
             }
         }
     }
     
-    if(itemsbuf[id].playsound&&!nosound)
+    if(idat.playsound&&!nosound)
     {
-        sfx(itemsbuf[id].playsound);
+        sfx(idat.playsound);
     }
     
     //add lower-level items
-    if(itemsbuf[id].flags&ITEM_GAINOLD)
+    if(idat.flags&ITEM_GAINOLD)
     {
-        for(int32_t i=itemsbuf[id].fam_type-1; i>0; i--)
+        for(int32_t i=idat.fam_type-1; i>0; i--)
         {
-            int32_t potid = getItemID(itemsbuf, itemsbuf[id].family, i);
+            int32_t potid = getItemID(itemsbuf, idat.family, i);
             
             if(potid != -1)
             {
@@ -24145,92 +24147,101 @@ void getitem(int32_t id, bool nosound)
         }
     }
     
-    switch(itemsbuf[id&0xFF].family)
+    switch(idat.family)
     {
-    case itype_clock:
-    {
-        setClock(watch=true);
-        
-        for(int32_t i=0; i<eMAXGUYS; i++)
-            clock_zoras[i]=0;
-            
-        clockclk=itemsbuf[id&0xFF].misc1;
-    }
-    break;
-    
-    case itype_lkey:
-        if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
-        
-        break;
-        
-    case itype_ring:
-    case itype_magicring:
-        if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
-        {
-            ringcolor(false);
-        }
-        
-        break;
-        
-    case itype_whispring:
-    {
-        if(itemsbuf[id].flags & ITEM_FLAG1)
-        {
-            if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
-            
-            if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
-        }
-        
-        if(itemsbuf[id].power==0)
-        {
-            setSwordClk(0);
-            setItemClk(0);
-        }
-        
-        break;
-    }
-    
-    
-    case itype_map:
-        game->lvlitems[dlevel]|=liMAP;
-        break;
-        
-    case itype_compass:
-        game->lvlitems[dlevel]|=liCOMPASS;
-        break;
-        
-    case itype_bosskey:
-        game->lvlitems[dlevel]|=liBOSSKEY;
-        break;
-        
-    case itype_fairy:
-    
-        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int32_t)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*game->get_hp_per_heart()))),game->get_maxlife()));
-        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int32_t)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*game->get_mp_per_block()))),game->get_maxmagic()));
-        break;
-        
-    case itype_heartpiece:
-        game->change_HCpieces(1);
-        
-        if(game->get_HCpieces()<game->get_hcp_per_hc())
-            break;
-            
-        game->set_HCpieces(0);
-        
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            if(itemsbuf[i].family == itype_heartcontainer)
-            {
-                getitem(i);
-                break;
-            }
-        }
-        
-        break;
-        
-    case itype_killem:
-        kill_em_all();
-        break;
+		case itype_bottlefill:
+		{
+			if(idat.misc1)
+			{
+				game->fillBottle(idat.misc1);
+			}
+		}
+		break;
+		
+		case itype_clock:
+		{
+			setClock(watch=true);
+			
+			for(int32_t i=0; i<eMAXGUYS; i++)
+				clock_zoras[i]=0;
+				
+			clockclk=itemsbuf[id&0xFF].misc1;
+		}
+		break;
+		
+		case itype_lkey:
+			if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
+			
+			break;
+			
+		case itype_ring:
+		case itype_magicring:
+			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+			{
+				ringcolor(false);
+			}
+			
+			break;
+			
+		case itype_whispring:
+		{
+			if(idat.flags & ITEM_FLAG1)
+			{
+				if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
+				
+				if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
+			}
+			
+			if(idat.power==0)
+			{
+				setSwordClk(0);
+				setItemClk(0);
+			}
+			
+			break;
+		}
+		
+		
+		case itype_map:
+			game->lvlitems[dlevel]|=liMAP;
+			break;
+			
+		case itype_compass:
+			game->lvlitems[dlevel]|=liCOMPASS;
+			break;
+			
+		case itype_bosskey:
+			game->lvlitems[dlevel]|=liBOSSKEY;
+			break;
+			
+		case itype_fairy:
+		
+			game->set_life(zc_min(game->get_life()+(idat.flags&ITEM_FLAG1 ?(int32_t)(game->get_maxlife()*(idat.misc1/100.0)):((idat.misc1*game->get_hp_per_heart()))),game->get_maxlife()));
+			game->set_magic(zc_min(game->get_magic()+(idat.flags&ITEM_FLAG2 ?(int32_t)(game->get_maxmagic()*(idat.misc2/100.0)):((idat.misc2*game->get_mp_per_block()))),game->get_maxmagic()));
+			break;
+			
+		case itype_heartpiece:
+			game->change_HCpieces(1);
+			
+			if(game->get_HCpieces()<game->get_hcp_per_hc())
+				break;
+				
+			game->set_HCpieces(0);
+			
+			for(int32_t i=0; i<MAXITEMS; i++)
+			{
+				if(itemsbuf[i].family == itype_heartcontainer)
+				{
+					getitem(i);
+					break;
+				}
+			}
+			
+			break;
+			
+		case itype_killem:
+			kill_em_all();
+			break;
     }
     
     update_subscreens();
@@ -24315,134 +24326,127 @@ void takeitem(int32_t id)
 // Attempt to pick up an item. (-1 = check items touching Link.)
 void LinkClass::checkitems(int32_t index)
 {
-    int32_t tmp=currscr>=128?1:0;
-    
-    if(index==-1)
-    {
-        if(diagonalMovement)
-        {
-            index=items.hit(x,y+(bigHitbox?0:8),z,6,6,1);
-        }
-        else index=items.hit(x,y+(bigHitbox?0:8),z,1,1,1);
-    }
-    
-    if(index==-1)
-        return;
-        
-    // if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
-    //   return;
-    item* ptr = (item*)items.spr(index);
-    int32_t pickup = ((item*)items.spr(index))->pickup;
-    int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
-    int32_t id2 = ((item*)items.spr(index))->id;
-    int32_t pstr = ((item*)items.spr(index))->pstring;
-    int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-    //int32_t tempnextmsg;
-    
+	int32_t tmp=currscr>=128?1:0;
+	
+	if(index==-1)
+	{
+		if(diagonalMovement)
+		{
+			index=items.hit(x,y+(bigHitbox?0:8),z,6,6,1);
+		}
+		else index=items.hit(x,y+(bigHitbox?0:8),z,1,1,1);
+	}
+	
+	if(index==-1)
+		return;
+		
+	// if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
+	//   return;
+	item* ptr = (item*)items.spr(index);
+	int32_t pickup = ((item*)items.spr(index))->pickup;
+	int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
+	int32_t id2 = ((item*)items.spr(index))->id;
+	int32_t pstr = ((item*)items.spr(index))->pstring;
+	int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
+	//int32_t tempnextmsg;
+	zprint2("Picking up item of family %d (bf is %d), canfill %d\n", itemsbuf[id2].family, itype_bottlefill, game->canFillBottle()?1:0);
+	if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
+		return; //No picking these up unless you have a bottle to fill!
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
-    if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
-        if(items.spr(index)->id!=iFairyMoving)
-            // wait for it to stop flashing, doesn't check for other items yet
-            return;
-            
-    if(pickup&ipENEMY)                                        // item was being carried by enemy
-        if(more_carried_items()<=1)  // 1 includes this own item.
-            hasitem &= ~2;
-            
-    if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
-    {
-        if(pickup&ipMONEY)
-            dospecialmoney(index);
-            
-        return;
-    }
-    
-    if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
-        return;
-        
-    if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
-        // Item upgrade routine.
-    {
-        int32_t nextitem = -1;
-        
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            // Find the item which is as close to this item's fam_type as possible.
-            if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-                    && (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
-            {
-                nextitem = i;
-            }
-        }
-        
-        if(nextitem>-1)
-            id2 = nextitem;
-    }
-    
-    if(pickup&ipCHECK)                                        // check restrictions
-        switch(tmpscr[tmp].room)
-        {
-        case rSP_ITEM:                                        // special item
-            if(!canget(id2)) // These ones always need the Hearts Required check
-                return;
-                
-            break;
-            
-        case rP_SHOP:                                         // potion shop
-            if(msg_active)
-                return;
-                
-        case rSHOP:                                           // shop
-            if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
-            {
-                
-		if(!current_item_power(itype_wallet))
+	if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+		if(items.spr(index)->id!=iFairyMoving)
+			// wait for it to stop flashing, doesn't check for other items yet
+			return;
+			
+	if(pickup&ipENEMY)                                        // item was being carried by enemy
+		if(more_carried_items()<=1)  // 1 includes this own item.
+			hasitem &= ~2;
+			
+	if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
+	{
+		if(pickup&ipMONEY)
+			dospecialmoney(index);
+			
+		return;
+	}
+	
+	if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
+		return;
+		
+	if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
+		// Item upgrade routine.
+	{
+		int32_t nextitem = -1;
+		
+		for(int32_t i=0; i<MAXITEMS; i++)
 		{
-			if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
-			int32_t tmpprice = -abs(prices[PriceIndex]);
-			//game->change_drupy(-abs(prices[priceindex]));
-			int32_t total = game->get_drupy()-tmpprice;
-			total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
-			game->set_drupy(game->get_drupy()-total);
+			// Find the item which is as close to this item's fam_type as possible.
+			if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
+					&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+			{
+				nextitem = i;
+			}
 		}
-		else //infinite wallet
+		
+		if(nextitem>-1)
+			id2 = nextitem;
+	}
+	
+	if(pickup&ipCHECK)                                        // check restrictions
+		switch(tmpscr[tmp].room)
 		{
-                    game->change_drupy(0);
+		case rSP_ITEM:                                        // special item
+			if(!canget(id2)) // These ones always need the Hearts Required check
+				return;
+				
+			break;
+			
+		case rP_SHOP:                                         // potion shop
+			if(msg_active)
+				return;
+				
+		case rSHOP:                                           // shop
+			if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
+			{
+				if(!current_item_power(itype_wallet))
+				{
+					if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+					int32_t tmpprice = -abs(prices[PriceIndex]);
+					//game->change_drupy(-abs(prices[priceindex]));
+					int32_t total = game->get_drupy()-tmpprice;
+					total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+					game->set_drupy(game->get_drupy()-total);
+				}
+				else //infinite wallet
+				{
+					game->change_drupy(0);
+				}
+			}
+			boughtsomething=true;
+			//make the other shop items untouchable after
+			//you buy something
+			int32_t count = 0;
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
+				{
+					++count;
+				}
+			}
+			
+			for(int32_t i=0; i<items.Count(); i++)
+			{
+				if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
+					((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
+			}
+			
+			break;
 		}
-            }
-            boughtsomething=true;
-            //make the other shop items untouchable after
-            //you buy something
-            int32_t count = 0;
-	    
-	    
-	    //Show a message string, if set.
-	    /*if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
-	    {
-		    donewmsg(QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
-	    }*/
-	    
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
-                {
-                    ++count;
-                }
-            }
-            
-            for(int32_t i=0; i<items.Count(); i++)
-            {
-                if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
-                    ((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
-            }
-            
-            break;
-        }
-        
-    if(pickup&ipONETIME)    // set mITEM for one-time-only items
-    {
+		
+	if(pickup&ipONETIME)    // set mITEM for one-time-only items
+	{
 		setmapflag(mITEM);
 
 		//Okay so having old source files is a godsend. You wanna know why?
@@ -24467,23 +24471,23 @@ void LinkClass::checkitems(int32_t index)
 			}
 		}
 		*/
-    }
-    else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
-        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+	}
+	else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
+		setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
 	
-    if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
-    {
-	if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-	hidden_entrance(0, true, false, -5);
-    }
-        
-    if(itemsbuf[id2].collect_script)
-    {
-	    //clear the item script stack for a new script
+	if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
+	{
+		if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+		hidden_entrance(0, true, false, -5);
+	}
+		
+	if(itemsbuf[id2].collect_script)
+	{
+		//clear the item script stack for a new script
 		ri = &(itemCollectScriptData[id2]);
-	        for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+			for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
 		ri->Clear();
-	        //itemCollectScriptData[(id2 & 0xFFF)].Clear();
+			//itemCollectScriptData[(id2 & 0xFFF)].Clear();
 		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
 		if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
@@ -24502,10 +24506,8 @@ void LinkClass::checkitems(int32_t index)
 			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
 		}
-		
-		
-    }
-    //Passive item scripts on colelction
+	}
+	//Passive item scripts on colelction
 	if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 	{
 		ri = &(itemScriptData[id2]);
@@ -24518,71 +24520,68 @@ void LinkClass::checkitems(int32_t index)
 		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
 					
 	}
-    getitem(id2);
-    
-    if(pickup&ipHOLDUP)
-    {
-	    
+	getitem(id2);
 	
-	    
-        attackclk=0;
-        reset_swordcharge();
-        
-        if(action!=swimming && !IsSideSwim())
-            reset_hookshot();
-            
-        if(msg_onscreen)
-        {
-            dismissmsg();
-        }
-        
-        clear_bitmap(pricesdisplaybuf);
-        
-        if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
-        {
-            fadeclk=66;
-        }
-        
-        if(id2!=iBombs || action==swimming || get_bit(quest_rules,qr_BOMBHOLDFIX))
-        {
-            // don't hold up bombs unless swimming or the bomb hold fix quest rule is on
-            if(action==swimming)
-            {
-                action=waterhold1; FFCore.setLinkAction(waterhold1);
-            }
-	    else if(IsSideSwim())
-            {
-                action=sidewaterhold1; FFCore.setLinkAction(sidewaterhold1);
-            }
-            else
-            {
-                action=landhold1; FFCore.setLinkAction(landhold1);
-            }
-            
-            if(((item*)items.spr(index))->twohand)
-            {
-                if(action==waterhold1)
-                {
-                    action=waterhold2; FFCore.setLinkAction(waterhold2);
-                }
-		else if(action==sidewaterhold1)
-                {
-                    action=sidewaterhold2; FFCore.setLinkAction(sidewaterhold2);
-                }
-                else
-                {
-                    action=landhold2; FFCore.setLinkAction(landhold2);
-                }
-            }
-            
-            holdclk=130;
-            
-            //restart music
-            if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
-                music_stop();
-                
-            holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
-            freeze_guys=true;
+	if(pickup&ipHOLDUP)
+	{
+		attackclk=0;
+		reset_swordcharge();
+		
+		if(action!=swimming && !IsSideSwim())
+			reset_hookshot();
+			
+		if(msg_onscreen)
+		{
+			dismissmsg();
+		}
+		
+		clear_bitmap(pricesdisplaybuf);
+		
+		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
+		{
+			fadeclk=66;
+		}
+		
+		if(id2!=iBombs || action==swimming || get_bit(quest_rules,qr_BOMBHOLDFIX))
+		{
+			// don't hold up bombs unless swimming or the bomb hold fix quest rule is on
+			if(action==swimming)
+			{
+				action=waterhold1; FFCore.setLinkAction(waterhold1);
+			}
+			else if(IsSideSwim())
+			{
+				action=sidewaterhold1; FFCore.setLinkAction(sidewaterhold1);
+			}
+			else
+			{
+				action=landhold1; FFCore.setLinkAction(landhold1);
+			}
+			
+			if(((item*)items.spr(index))->twohand)
+			{
+				if(action==waterhold1)
+				{
+					action=waterhold2; FFCore.setLinkAction(waterhold2);
+				}
+				else if(action==sidewaterhold1)
+				{
+					action=sidewaterhold2; FFCore.setLinkAction(sidewaterhold2);
+				}
+				else
+				{
+					action=landhold2; FFCore.setLinkAction(landhold2);
+				}
+			}
+			
+			holdclk=130;
+			
+			//restart music
+			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
+				music_stop();
+				
+			holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
+			freeze_guys=true;
 			//show the info string
 			 
 			
@@ -24608,86 +24607,86 @@ void LinkClass::checkitems(int32_t index)
 			}
 			
 		}
-        
-        if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
-        {
-            sfx(tmpscr[0].holdupsfx);
-        }
-        
-        items.del(index);
-        
-        for(int32_t i=0; i<Lwpns.Count(); i++)
-        {
-            weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->dragging==index)
-            {
-                w->dragging=-1;
-            }
-            else if(w->dragging>index)
-            {
-                w->dragging-=1;
-            }
-        }
-        
-        // clear up shop stuff
-        if((isdungeon()==0)&&(index!=0))
-        {
-            if(boughtsomething)
-            {
-                fadeclk=66;
-                
-                if(((item*)items.spr(0))->id == iRupy && ((item*)items.spr(0))->pickup & ipDUMMY)
-                    items.del(0);
-                    
-                for(int32_t i=0; i<Lwpns.Count(); i++)
-                {
-                    weapon *w = (weapon*)Lwpns.spr(i);
-                    
-                    if(w->dragging==0)
-                    {
-                        w->dragging=-1;
-                    }
-                    else if(w->dragging>0)
-                    {
-                        w->dragging-=1;
-                    }
-                }
-            }
-            
-            if(msg_onscreen)
-            {
-                dismissmsg();
-            }
-            
-            clear_bitmap(pricesdisplaybuf);
-            set_clip_state(pricesdisplaybuf, 1);
-        }
-        
-        //   items.del(index);
-    }
-    else
-    {
-        items.del(index);
-        
-        for(int32_t i=0; i<Lwpns.Count(); i++)
-        {
-            weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->dragging==index)
-            {
-                w->dragging=-1;
-            }
-            else if(w->dragging>index)
-            {
-                w->dragging-=1;
-            }
-        }
-        
-        if(msg_onscreen)
-        {
-            dismissmsg();
-        }
+		
+		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
+		{
+			sfx(tmpscr[0].holdupsfx);
+		}
+		
+		items.del(index);
+		
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = (weapon*)Lwpns.spr(i);
+			
+			if(w->dragging==index)
+			{
+				w->dragging=-1;
+			}
+			else if(w->dragging>index)
+			{
+				w->dragging-=1;
+			}
+		}
+		
+		// clear up shop stuff
+		if((isdungeon()==0)&&(index!=0))
+		{
+			if(boughtsomething)
+			{
+				fadeclk=66;
+				
+				if(((item*)items.spr(0))->id == iRupy && ((item*)items.spr(0))->pickup & ipDUMMY)
+					items.del(0);
+					
+				for(int32_t i=0; i<Lwpns.Count(); i++)
+				{
+					weapon *w = (weapon*)Lwpns.spr(i);
+					
+					if(w->dragging==0)
+					{
+						w->dragging=-1;
+					}
+					else if(w->dragging>0)
+					{
+						w->dragging-=1;
+					}
+				}
+			}
+			
+			if(msg_onscreen)
+			{
+				dismissmsg();
+			}
+			
+			clear_bitmap(pricesdisplaybuf);
+			set_clip_state(pricesdisplaybuf, 1);
+		}
+		
+		//   items.del(index);
+	}
+	else
+	{
+		items.del(index);
+		
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = (weapon*)Lwpns.spr(i);
+			
+			if(w->dragging==index)
+			{
+				w->dragging=-1;
+			}
+			else if(w->dragging>index)
+			{
+				w->dragging-=1;
+			}
+		}
+		
+		if(msg_onscreen)
+		{
+			dismissmsg();
+		}
 	
 		//general item pickup message
 		//show the info string
@@ -24713,21 +24712,21 @@ void LinkClass::checkitems(int32_t index)
 		}
 		
 		
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-    }
-    
-    if(itemsbuf[id2].family==itype_triforcepiece)
-    {
-        if(itemsbuf[id2].misc2>0) //Small TF Piece
-	{
-            getTriforce(id2);
+		clear_bitmap(pricesdisplaybuf);
+		set_clip_state(pricesdisplaybuf, 1);
 	}
-        else
+	
+	if(itemsbuf[id2].family==itype_triforcepiece)
 	{
-            getBigTri(id2);
+		if(itemsbuf[id2].misc2>0) //Small TF Piece
+		{
+				getTriforce(id2);
+		}
+		else
+		{
+				getBigTri(id2);
+		}
 	}
-    }
 }
 
 void LinkClass::StartRefill(int32_t refillWhat)
