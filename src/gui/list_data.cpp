@@ -4,6 +4,14 @@
 #include "../qst.h"
 extern zcmodule moduledata;
 extern char *weapon_string[];
+
+#ifdef IS_ZQUEST
+extern miscQdata misc;
+#define QMisc misc
+#else
+extern miscQdata QMisc;
+#endif
+
 using std::map, std::string, std::set, std::function, std::move, std::to_string;
 namespace GUI
 {
@@ -124,6 +132,27 @@ ListData ListData::miscsprites()
 	{
 		ls.add(*it, ids[*it]);
 	}
+	return ls;
+}
+
+ListData ListData::bottletype()
+{
+	ListData ls;
+	
+	ls.add("(None)", 0);
+	for(int32_t q = 0; q < 64; ++q)
+	{
+		if(QMisc.bottle_types[q].name[0])
+			ls.add(QMisc.bottle_types[q].name,q+1);
+		else
+		{
+			char buf[8] = { 0 };
+			sprintf(buf, "%2d", q+1);
+			
+			ls.add(buf, q+1);
+		}
+	}
+	
 	return ls;
 }
 

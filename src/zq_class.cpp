@@ -7962,6 +7962,25 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
             if (!p_putc(bt->next_type, f))
                 return qe_invalid;
 		}
+		for(size_t q = 0; q < 256; ++q)
+		{
+			bottleshoptype* bst = &(Misc->bottle_shop_types[q]);
+            if (!pfwrite(bst->name, 32, f))
+                return qe_invalid;
+			for(size_t j = 0; j < 3; ++j)
+			{
+                if (!p_putc(bst->fill[j], f))
+                    return qe_invalid;
+                if (!p_iputw(bst->comb[j], f))
+                    return qe_invalid;
+                if (!p_putc(bst->cset[j], f))
+                    return qe_invalid;
+                if (!p_iputw(bst->price[j], f))
+                    return qe_invalid;
+                if (!p_iputw(bst->str[j], f))
+                    return qe_invalid;
+			}
+		}
 		
 		if(writecycle==0)
 		{

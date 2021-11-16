@@ -1635,6 +1635,7 @@ static MENU misc_menu[] =
     { (char *)"&Master Subscreen Type",     onSubscreen,               NULL,                     0,            NULL   },
     { (char *)"&Shop Types",                onShopTypes,               NULL,                     0,            NULL   },
     { (char *)"&Bottle Types",              onBottleTypes,             NULL,                     0,            NULL   },
+    { (char *)"Bottle S&hop Types",         onBottleShopTypes,         NULL,                     0,            NULL   },
     { (char *)"&Info Types",                onInfoTypes,               NULL,                     0,            NULL   },
     { (char *)"&Warp Rings",                onWarpRings,               NULL,                     0,            NULL   },
     { (char *)"&Triforce Pieces",           onTriPieces,               NULL,                     0,            NULL   },
@@ -14176,6 +14177,22 @@ const char *bottlelist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
+static char bottleshop_str_buf[40];
+int32_t bottleshop_list_size=1;
+
+const char *bottleshoplist(int32_t index, int32_t *list_size)
+{
+    if(index>=0)
+    {
+        bound(index,0,bottleshop_list_size-1);
+		sprintf(bottleshop_str_buf,"%3d:  %s",index,misc.bottle_shop_types[index].name);
+        return bottleshop_str_buf;
+    }
+    
+    *list_size=bottleshop_list_size;
+    return NULL;
+}
+
 static char info_str_buf[40];
 int32_t info_list_size=1;
 
@@ -20327,6 +20344,22 @@ int32_t onBottleTypes()
 		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", lfont);
 		if(index > -1)
 			call_bottle_dlg(index);
+	}
+	
+	return D_O_K;
+}
+
+void call_bottleshop_dlg(int32_t index);
+int32_t onBottleShopTypes()
+{
+	bottleshop_list_size = 256;
+	int32_t index = 0;
+	
+	while(index > -1)
+	{
+		index = select_data("Bottle Shop Types", index, bottleshoplist, "Edit", "Done", lfont);
+		if(index > -1)
+			call_bottleshop_dlg(index);
 	}
 	
 	return D_O_K;
@@ -34005,7 +34038,8 @@ command_pair commands[cmdMAX]=
     { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
     { "View L2 as BG",                      0, (intF) onLayer2BG                                       },
     { "View L3 as BG",                      0, (intF) onLayer3BG                                       },
-    { "Bottle Types",                       0, (intF) onBottleTypes                                    }
+    { "Bottle Types",                       0, (intF) onBottleTypes                                    },
+    { "Bottle Shop Types",                  0, (intF) onBottleShopTypes                                }
 };
 
 /********************************/

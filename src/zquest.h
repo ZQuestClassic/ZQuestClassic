@@ -761,6 +761,7 @@ enum
 	cmdViewL2BG,
 	cmdViewL3BG,
 	cmdBottleTypes,
+	cmdBottleShopTypes,
     cmdMAX
 };
 
@@ -983,6 +984,8 @@ void EditShopType(int32_t index);
 int32_t onShopTypes();
 
 int32_t onBottleTypes();
+
+int32_t onBottleShopTypes();
 
 int32_t count_item_drop_sets();
 void EditItemDropSet(int32_t index);

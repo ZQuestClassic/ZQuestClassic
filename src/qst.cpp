@@ -5767,11 +5767,32 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
             if (!p_getc(&(bt->next_type), f, true))
                 return qe_invalid;
 		}
+		for(size_t q = 0; q < 256; ++q)
+		{
+			bottleshoptype* bst = &(temp_misc.bottle_shop_types[q]);
+            if (!pfread(bst->name, 32, f, true))
+                return qe_invalid;
+			for(size_t j = 0; j < 3; ++j)
+			{
+                if (!p_getc(&(bst->fill[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bst->comb[j]), f, true))
+                    return qe_invalid;
+                if (!p_getc(&(bst->cset[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bst->price[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bst->str[j]), f, true))
+                    return qe_invalid;
+			}
+		}
 	}
 	else
 	{
 		for(size_t q = 0; q < 64; ++q)
 			temp_misc.bottle_types[q].clear();
+		for(size_t q = 0; q < 256; ++q)
+			temp_misc.bottle_shop_types[q].clear();
 	}
 	
 	if(keepdata==true)

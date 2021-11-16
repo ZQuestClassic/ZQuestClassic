@@ -3553,6 +3553,25 @@ struct shoptype
     //10
 };
 
+struct bottleshoptype
+{
+	char name[32];
+	byte fill[3];
+	word comb[3];
+	byte cset[3];
+	word price[3];
+	word str[3];
+    void clear()
+    {
+        memset(name, 0, 32);
+        memset(fill, 0, 3);
+        memset(comb, 0, 3);
+        memset(cset, 0, 3);
+        memset(price, 0, 3);
+        memset(str, 0, 3);
+    }
+};
+
 struct bottletype
 {
     char name[32];
@@ -3685,6 +3704,7 @@ struct miscQdata
 	byte sprites[sprMAX];
 	
 	bottletype bottle_types[64];
+	bottleshoptype bottle_shop_types[256];
 };
 
 #define MFORMAT_MIDI 0

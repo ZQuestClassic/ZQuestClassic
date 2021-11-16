@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_BOTTLETYPE_H
-#define ZC_DIALOG_BOTTLETYPE_H
+#ifndef ZC_DIALOG_BOTTLESHOPTYPE_H
+#define ZC_DIALOG_BOTTLESHOPTYPE_H
 
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>
@@ -9,7 +9,7 @@
 #include <gui/window.h>
 #include <functional>
 
-class BottleTypeDialog: public GUI::Dialog<BottleTypeDialog>
+class BottleShopDialog: public GUI::Dialog<BottleShopDialog>
 {
 public:
 	enum class message
@@ -17,7 +17,7 @@ public:
 		OK, CANCEL
 	};
 
-	BottleTypeDialog::BottleTypeDialog(int32_t index);
+	BottleShopDialog::BottleShopDialog(int32_t index);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -25,9 +25,9 @@ public:
 private:
 	std::shared_ptr<GUI::Window> window;
 	int32_t index;
-	bottletype& sourceBottle;
-	bottletype tempBottle;
-	GUI::ListData list_counters;
+	bottleshoptype& sourceBottleShop;
+	bottleshoptype tempBottleShop;
+	GUI::ListData list_bottletypes;
 };
 
 #endif
