@@ -801,10 +801,12 @@ public:
 	bool adjusted;
 	int32_t clk4, //Slow down clock
 		clk5, //Segment firing clock
-		clk6; //Center firing clock
+		clk6, //Center firing clock
+		clk7; //Breath clock
 	//ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy((zfix)128,(zfix)48,Id,Clk)
 	virtual bool animate(int32_t index);
+	virtual void FirePatraWeapon();
 	virtual void draw(BITMAP *dest);
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);

@@ -1224,6 +1224,11 @@ const char *walkmisc9_string[e9tARMOS+1] =
     "Normal", "Rope", "Vire", "Pols Voice", "Armos"
 };
 
+const char *patramisc28_string[patratLAST] =
+{
+    "1 Shot", "1 (Fast)", "3 Shots", "3 (Fast)", "5 Shots", "5 (Fast)", "4 (Cardinal)", "4 (Diagonal)", "4 (Card/Diag Random)", "8 Shots", "Breath", "Stream"
+};
+
 const char *pattern_string[MAXPATTERNS] =
 {
     "Spawn (Classic)", "Enter from Sides (Consecutive)", "Enter from Sides (Random)", "Fall From Ceiling (Classic)", "Fall From Ceiling (Random)", "Spawn (Random)", "Spawn No Enemies"

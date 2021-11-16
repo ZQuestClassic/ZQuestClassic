@@ -92,6 +92,7 @@ extern const char *walkmisc1_string[e1tLAST];
 extern const char *walkmisc2_string[e2tTRIBBLE+1];
 extern const char *walkmisc7_string[e7tEATHURT+1];
 extern const char *walkmisc9_string[e9tARMOS+1];
+extern const char *patramisc28_string[patratLAST];
 extern const char *midi_string[MAXCUSTOMMIDIS_ZQ];
 extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 extern const char *enetype_string[eeMAX];

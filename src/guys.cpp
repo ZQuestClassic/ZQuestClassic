@@ -17448,6 +17448,7 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 	clk4 = 0;
 	clk5 = 0;
 	clk6 = 0;
+	clk7 = 0;
 	if(dmisc6<int16_t(1))dmisc6=1; // ratio cannot be 0!
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -17489,7 +17490,7 @@ bool ePatra::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	if (clk4 <=0 || clk4%2)
+	if ((clk4 <=0 || clk4%2) && (clk7 <= 0 || clk6 <= -16))
 	{
 		if (!dmisc22 || loopcnt == 0 || (dmisc22 == 1 && loopcnt < 0)) variable_walk_8(rate,homing,hrate,spw_floater);
 		if (loopcnt < 0) ++clk2;
@@ -17530,10 +17531,11 @@ bool ePatra::animate(int32_t index)
 		{
 			if (get_bit(quest_rules,qr_NEWENEMYTILES))
 			{
-				if (++clk6 == 0) o_tile=d->e_tile;
+				if (clk7 <= 0 || clk6 != -16) ++clk6;
+				if (clk6 == 0) o_tile=d->e_tile;
 				else
 				{
-					if (clk6 > -16) o_tile=d->e_tile + 80;
+					if (clk6 >= -16) o_tile=d->e_tile + 80;
 					else o_tile=d->e_tile + 40;
 				}
 			}
@@ -17543,6 +17545,9 @@ bool ePatra::animate(int32_t index)
 	else if (dmisc19) ++clk6;
 	if (clk5 < 0) ++clk5;
 	else if (dmisc19) ++clk5;
+	
+	if (clk7 > 0 && clk6 >= -16) --clk7;
+	if (clk6 > 0) clk7 = 0;
 	
 	for(int32_t i=index+1; i<index+flycnt+1; i++)
 	{
@@ -17659,32 +17664,83 @@ bool ePatra::animate(int32_t index)
 	
 	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2))))
 	{
-		switch(dmisc28)
+		int timeneeded = 48;
+		int patbreath = (zc_oldrand()%50+50);
+		if ((patbreath % 4) == 0) ++patbreath;
+		if (dmisc28 == patratBREATH)
 		{
-			default:
+			timeneeded = 48 + patbreath;
+		}
+		if (dmisc28 == patratSTREAM)
+		{
+			timeneeded = 48 + 96;
+		}
+		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || //New 1/N chance
+		(!dmisc18 && !(zc_oldrand()&127))) //Old hardcoded firing chance
+		&& (clk6 >= 0) //if not in the middle of firing...
+		&& clk6 >= dmisc19) //if over the set cooldown between shots...
+		&& (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > timeneeded))) //And lastly, if not in danger of starting a loop during the attack.
+		{
+			switch(dmisc28)
 			{
-				if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
-				(!dmisc18 && !(zc_oldrand()&127))) && (clk6 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-				&& clk6 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > 48)))
+				case patratSTREAM:
 				{
-					if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) clk6 = -48;
+					clk7 = 97;
+					if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES))  clk6 = -48;
+					else clk6 = 0;
+					break;
+				}
+				case patratBREATH:
+				{
+					clk7 = patbreath;
+					if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES))  clk6 = -48;
+					else clk6 = 0;
+					break;
+				}
+				default:
+				{
+					if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
+					{
+						clk6 = -48;
+						if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
+					}
 					else
 					{
 						clk6 = 0;
 						if (editorflags & ENEMY_FLAG6) clk4 = 16;
-						sfx(wpnsfx(wpn),pan(int32_t(x)));
-						addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+						FirePatraWeapon();
 					}
+					break;
 				}
-				if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk6 == -16)
+			} //ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+		}
+		if (clk6 < 0)
+		{
+			switch(dmisc28)
+			{
+				case patratSTREAM:
 				{
-					addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-					sfx(wpnsfx(wpn),pan(int32_t(x)));
+					if (clk7 > 0 && (clk7 % 12) == 0) FirePatraWeapon();
 					if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
+					break;
 				}
-				break;
+				case patratBREATH:
+				{
+					if (clk7 > 0 && (clk7 % 4) == 0) FirePatraWeapon();
+					if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
+					break;
+				}
+				default:
+				{
+					if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk6 == -16)
+					{
+						FirePatraWeapon();
+						if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
+					}
+					break;
+				}
 			}
-		} //ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+		}
 	}
 	
 	size=.5;
@@ -17973,6 +18029,94 @@ bool ePatra::animate(int32_t index)
 	
 	adjusted=true;
 	return enemy::animate(index);
+}
+
+void ePatra::FirePatraWeapon()
+{ //.707
+	int32_t xoff = 0;
+	int32_t yoff = 0;
+	if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH )
+	{
+		xoff += (hxsz/2)-8;   
+		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+	}
+	if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT )
+	{
+		yoff += (hysz/2)-8;   
+		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+	}
+	sfx(wpnsfx(wpn),pan(int32_t(x)));
+	switch (dmisc28)
+	{
+		case patrat8SHOT: //Fire Wizzrobe
+		case patrat4SHOTDIAG:
+		case patrat4SHOTRAND:
+			if (dmisc28 != patrat4SHOTRAND || (zc_oldrand()%2)) //if it's the 4 shot rand type, only let it through half the time. Break is within so it doesn't do both, but if it skips this one it'll always do the other one.
+			{
+				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,l_up,-1, getUID(),false));
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				
+				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,l_down,-1, getUID(),false));
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				
+				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,r_up,-1, getUID(),false));
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				
+				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,r_down,-1, getUID(),false));
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+				
+				if (dmisc28 == patrat4SHOTDIAG || dmisc28 == patrat4SHOTRAND) break;
+			}	
+			
+			//fallthrough
+		case patrat4SHOTCARD: //Stalfos 3
+			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,up,-1, getUID(),false));
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,down,-1, getUID(),false));
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,left,-1, getUID(),false));
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,right,-1, getUID(),false));
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			break;
+		
+		default:
+			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+			if (dmisc28 == patratBREATH) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle += (zc_rand(20,-20)/100.0)*PI;
+			double anglestore = ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle;
+			if (dmisc28 == patrat1SHOTFAST || dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+			if (dmisc28 == patrat3SHOT || dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOT || dmisc28 == patrat5SHOTFAST)
+			{
+				addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore + (double)0.46364761;
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.1180;
+				if (dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+				addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore - (double)0.46364761;
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.1180;
+				if (dmisc28 == patrat3SHOTFAST || dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+				if (dmisc28 == patrat5SHOT || dmisc28 == patrat5SHOTFAST)
+				{
+					addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore + (double)0.78539816;
+					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.4142;
+					if (dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+					addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->angle = anglestore - (double)0.78539816;
+					((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step += 0.4142;
+					if (dmisc28 == patrat5SHOTFAST) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= 2;
+				}
+			}
+			break;
+			
+	}
+	sfx(wpnsfx(wpn),pan(int32_t(x)));
+	//+0.46364761
+	//11.80
 }
 
 void ePatra::draw(BITMAP *dest)

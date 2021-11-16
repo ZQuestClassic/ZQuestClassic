@@ -2475,24 +2475,11 @@ const char *patramisc28list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
-		switch(index)
-		{
-			case 5:
-				return "5 Shots (Fast)";
-			case 4:
-				return "5 Shots";
-			case 3:
-				return "3 Shots (Fast)";
-			case 2:
-				return "3 Shots";
-			case 1:
-				return "1 Shot (Fast)";
-			default:
-				return "1 Shot";
-		}
+		bound(index,0,patratLAST-1);
+		return patramisc28_string[index];
 	}
 	
-	*list_size = 3;
+	*list_size = patratLAST;
 	return NULL;
 }
 
@@ -2663,6 +2650,7 @@ static ListData patramisc20_list(patramisc20list, is_large? &lfont_l : &font);
 static ListData patramisc22_list(patramisc22list, is_large? &lfont_l : &font);
 static ListData patramisc25_list(patramisc25list, is_large? &lfont_l : &font);
 static ListData patramisc26_list(patramisc26list, is_large? &lfont_l : &font);
+static ListData patramisc28_list(patramisc28list, is_large? &lfont_l : &font);
 
 static ListData dodongomisc10_list(dodongomisc10list, is_large? &lfont_l : &font);
 
@@ -2739,7 +2727,7 @@ static EnemyNameInfo enameinf[]=
 		eePATRA, { "Outer Eyes:", "Inner Eyes:", "Eyes' HP:", "Eye Movement:", "Shooters:", "Pattern Odds:", "Pattern Cycles:", "Eye Offset:", "Eye CSet:", "Type:" },
 		{ NULL, NULL, NULL, (void*)&patramisc4_list, (void*)&patramisc5_list, NULL, NULL, NULL, NULL, (void*)&patramisc10_list, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&patramisc20_list, NULL,  //21
-		(void*)&patramisc22_list, NULL, NULL, (void*)&patramisc25_list, (void*)&patramisc26_list, NULL, NULL, NULL, NULL, NULL, NULL}, //32
+		(void*)&patramisc22_list, NULL, NULL, (void*)&patramisc25_list, (void*)&patramisc26_list, NULL, (void*)&patramisc28_list, NULL, NULL, NULL, NULL}, //32
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Has Firing Animation",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Slow down when Firing",(char *)"Don't attack when expanding",
 		(char *)"Don't expand when spawned",(char *)"Pattern Odds reset when Expanding",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },

@@ -4900,11 +4900,13 @@ void checkQuitKeys()
 
 bool CheatModifierKeys()
 {
-    if ( ( cheat_modifier_keys[0] <= 0 || key[cheat_modifier_keys[0]] ) ||
-        ( cheat_modifier_keys[1] <= 0 || key[cheat_modifier_keys[1]] ) )
+    if ( ( cheat_modifier_keys[0] > 0 && key[cheat_modifier_keys[0]] ) ||
+        ( cheat_modifier_keys[1] > 0 && key[cheat_modifier_keys[1]] ) ||
+	(cheat_modifier_keys[0] <= 0 && cheat_modifier_keys[1] <= 0))
     {
-        if ( ( cheat_modifier_keys[2] <= 0 || key[cheat_modifier_keys[2]] ) ||
-            ( cheat_modifier_keys[3] <= 0 || key[cheat_modifier_keys[3]] ) )
+        if ( ( cheat_modifier_keys[2] <= 0 || key[cheat_modifier_keys[2]] ) &&
+            ( cheat_modifier_keys[3] > 0 && key[cheat_modifier_keys[3]] )  ||
+	(cheat_modifier_keys[2] <= 0 && cheat_modifier_keys[3] <= 0))
         {
             return true;
         }

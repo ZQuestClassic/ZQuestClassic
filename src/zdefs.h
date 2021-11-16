@@ -1549,6 +1549,8 @@ enum { e9tNORMAL, e9tROPE, e9tVIRE, e9tPOLSVOICE, e9tARMOS,
        e9tLEEVER, e9tZ3LEEVER, e9tZ3WALK, e9tZ3STALFOS, e9tLAST
      };
 
+enum { patrat1SHOT, patrat1SHOTFAST, patrat3SHOT, patrat3SHOTFAST, patrat5SHOT, patrat5SHOTFAST, patrat4SHOTCARD, patrat4SHOTDIAG, patrat4SHOTRAND, patrat8SHOT, patratBREATH, patratSTREAM, patratLAST };
+
 /*
 // Floater
 enum { e9tPEAHAT=1, e9tGHINI };
