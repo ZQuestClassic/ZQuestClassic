@@ -17,6 +17,9 @@ public:
 	/* Sets the window's title. */
 	void setTitle(std::string newTitle);
 
+	/* Sets the window's title. */
+	void setHelp(std::string newHelp);
+
 	/* Sets the widget that will appear in the window. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept;
 	

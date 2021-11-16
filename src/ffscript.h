@@ -4336,8 +4336,10 @@ enum ASM_DEFINE
 #define PUSHBLOCKLAYER          0x13FA
 #define LINKGRABBED             0x13FB
 #define HEROBUNNY               0x13FC
+#define GAMELSWITCH             0x13FD
+#define GAMEBOTTLEST            0x13FE
 
-#define NUMVARIABLES         	0x13FD
+#define NUMVARIABLES         	0x13FF
 
 //} End variables
 

@@ -1303,8 +1303,10 @@
 #define PUSHBLOCKLAYER          1220
 #define LINKGRABBED             1221
 #define HEROBUNNY               1222
+#define GAMELSWITCH             1223
+#define GAMEBOTTLEST            1224
 
-#define LAST_BYTECODE           1223
+#define LAST_BYTECODE           1225
 
 //} END OF BYTECODE
 

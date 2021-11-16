@@ -78,6 +78,8 @@ void gamedata::Clear()
     forced_bwpn = -1;
     forced_xwpn = -1; 
     forced_ywpn = -1;
+	
+	memset(bottleSlots, 0, sizeof(bottleSlots));
     isclearing=false;
 }
 
@@ -163,6 +165,9 @@ void gamedata::Copy(const gamedata& g)
     forced_bwpn = g.forced_bwpn;
     forced_xwpn = g.forced_xwpn; 
     forced_ywpn = g.forced_ywpn;
+	
+	for(size_t q = 0; q < 256; ++q)
+		bottleSlots[q] = g.bottleSlots[q];
 }
 
 char *gamedata::get_name()

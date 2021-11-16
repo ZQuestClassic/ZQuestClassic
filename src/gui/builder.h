@@ -348,6 +348,7 @@ ZCGUI_BUILDER_FUNCTION(ColorSel, ColorSel, makeColorSel)
 
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
+	ZCGUI_ACCEPT_PROP(info, setHelp, std::string)
 	ZCGUI_ACCEPT_PROP(onClose, onClose, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onEnter, onEnter, Dialog::message)
 	ZCGUI_ACCEPT_PROP(use_vsync, setVSync, bool)

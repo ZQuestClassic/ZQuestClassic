@@ -6991,6 +6991,46 @@ void LinkClass::PhantomsCleanup()
 	}
 }
 
+//Waitframe handler for refilling operations
+static void do_refill_waitframe()
+{
+	put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+	if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
+	{
+		script_drawing_commands.Clear();
+		if(DMaps[currdmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			passive_subscreen_waitdraw = false;
+		}	
+		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+	}
+	advanceframe(true);
+}
+//Special handler if it's a "fairy revive"
+static void do_death_refill_waitframe()
+{
+	//!TODO Run a new script slot each frame here, before calling do_refill_waitframe()
+	//This script should be able to draw a 'fairy saving the player' animation -Em
+	do_refill_waitframe();
+}
+
+static size_t find_bottle_for_slot(size_t slot)
+{
+	int32_t found_unowned = -1;
+	for(int q = 0; q < MAXITEMS; ++q)
+	{
+		if(itemsbuf[q].family == itype_bottle && itemsbuf[q].misc1 == slot)
+		{
+			if(game->get_item(q))
+				return q;
+			found_unowned = q;
+		}
+	}
+	return found_unowned;
+}
 // returns true when game over
 bool LinkClass::animate(int32_t)
 {
@@ -7791,30 +7831,108 @@ bool LinkClass::animate(int32_t)
 	if(game->get_life()<=0)
 	{
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-		{	
-			// So scripts can have one frame to handle hp zero events
-			if(false == (last_hurrah = !last_hurrah))
+		{
+			for(size_t slot = 0; slot < 256; ++slot)
 			{
-				drunkclk=0;
-				lstunclock = 0;
-				FFCore.setLinkAction(dying);
-				FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-				FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-				ALLOFF(true,true);
-				Playing = false; //Disallow F6
-				if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+				if(size_t bind = game->get_bottle_slot(slot))
 				{
-					FFCore.runOnDeathEngine();
-					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					bottletype const* bt = &QMisc.bottle_types[bind-1];
+					if(!(bt->flags&BTFLAG_AUTOONDEATH))
+						continue;
+					word toFill[3] = { 0 };
+					for(size_t q = 0; q < 3; ++q)
+					{
+						char c = bt->counter[q];
+						if(c > -1)
+						{
+							if(bt->flags & (1<<q))
+							{
+								toFill[q] = (bt->amount[q]==100)
+									? game->get_maxcounter(c)
+									: word((game->get_maxcounter(c)/100.0)*bt->amount[q]);
+							}
+							else toFill[q] = bt->amount[q];
+							if(toFill[q] + game->get_counter(c) > game->get_maxcounter(c))
+							{
+								toFill[q] = game->get_maxcounter(c) - game->get_counter(c);
+							}
+						}
+					}
+					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
+					{
+						int32_t itemid = find_bottle_for_slot(slot);
+						if(itemid > -1)
+							sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+						for(size_t q = 0; q < 20; ++q)
+							do_death_refill_waitframe();
+						double inc = max/60.0; //1 second
+						double xtra[3]{ 0 };
+						for(size_t q = 0; q < 60; ++q)
+						{
+							if(!(q%6) && (toFill[0]||toFill[1]||toFill[2]))
+								sfx(WAV_MSG); //!TODO Need to make this configurable at some point... -Em
+							for(size_t j = 0; j < 3; ++j)
+							{
+								xtra[j] += inc;
+								word f = floor(xtra[j]);
+								xtra[j] -= f;
+								if(toFill[j] > f)
+								{
+									toFill[j] -= f;
+									game->change_counter(f,bt->counter[j]);
+								}
+								else if(toFill[j])
+								{
+									game->change_counter(toFill[j],bt->counter[j]);
+									toFill[j] = 0;
+								}
+							}
+							do_death_refill_waitframe();
+						}
+						for(size_t j = 0; j < 3; ++j)
+						{
+							if(toFill[j])
+							{
+								game->change_counter(toFill[j],bt->counter[j]);
+								toFill[j] = 0;
+							}
+						}
+						for(size_t q = 0; q < 20; ++q)
+							do_death_refill_waitframe();
+					}
+					game->set_bottle_slot(slot,bt->next_type);
+					if(game->get_life() > 0)
+					{
+						break; //Revived! Stop drinking things...
+					}
 				}
-				heroDeathAnimation();
-				if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+			}
+			if(game->get_life()<=0) //Not saved by fairy
+			{
+				// So scripts can have one frame to handle hp zero events
+				if(false == (last_hurrah = !last_hurrah))
 				{
-					FFCore.runOnDeathEngine();
-					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					drunkclk=0;
+					lstunclock = 0;
+					FFCore.setLinkAction(dying);
+					FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+					ALLOFF(true,true);
+					Playing = false; //Disallow F6
+					if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+					{
+						FFCore.runOnDeathEngine();
+						FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					}
+					heroDeathAnimation();
+					if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+					{
+						FFCore.runOnDeathEngine();
+						FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					}
+					ALLOFF(true,true);
+					return true;
 				}
-				ALLOFF(true,true);
-				return true;
 			}
 		}
 		else //2.50.x
@@ -8632,6 +8750,7 @@ bool LinkClass::startwpn(int32_t itemid)
 	switch(itemsbuf[itemid].family)
 	{
 		case itype_potion:
+		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 				return false;
 				
@@ -8649,20 +8768,7 @@ bool LinkClass::startwpn(int32_t itemid)
 				//music_pause();
 				while(refill())
 				{
-					put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-					if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
-					{
-						script_drawing_commands.Clear();
-						if(DMaps[currdmap].passive_sub_script != 0)
-							ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-						if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-						{
-							ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-							passive_subscreen_waitdraw = false;
-						}	
-						do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
-					}
-					advanceframe(true);
+					do_refill_waitframe();
 				}
 				
 				//add a quest rule or an item option that lets you specify whether or not to pause music during refilling
@@ -8671,7 +8777,108 @@ bool LinkClass::startwpn(int32_t itemid)
 			}
 			
 			break;
+		}
+		case itype_bottle:
+		{
+			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+				return false;
+			if(itemsbuf[itemid].script!=0 && item_doscript[itemid])
+				return false;
 			
+			size_t bind = game->get_bottle_slot(itemsbuf[itemid].misc1);
+			bool paidmagic = false;
+			if(itemsbuf[itemid].script)
+			{
+				paidmagic = true;
+				paymagiccost(itemid);
+			}
+			
+			if(itemsbuf[itemid].script)
+			{
+				ri = &(itemScriptData[itemid]);
+				for ( int32_t q = 0; q < 1024; q++ )
+					item_stack[itemid][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[itemid] = 1;
+				itemscriptInitialised[itemid] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+				bind = game->get_bottle_slot(itemsbuf[itemid].misc1);
+			}
+			bottletype const* bt = bind ? &(QMisc.bottle_types[bind-1]) : NULL;
+			if(bt)
+			{
+				word toFill[3] = { 0 };
+				for(size_t q = 0; q < 3; ++q)
+				{
+					char c = bt->counter[q];
+					if(c > -1)
+					{
+						if(bt->flags & (1<<q))
+						{
+							toFill[q] = (bt->amount[q]==100)
+								? game->get_maxcounter(c)
+								: word((game->get_maxcounter(c)/100.0)*bt->amount[q]);
+						}
+						else toFill[q] = bt->amount[q];
+						if(toFill[q] + game->get_counter(c) > game->get_maxcounter(c))
+						{
+							toFill[q] = game->get_maxcounter(c) - game->get_counter(c);
+						}
+					}
+				}
+				word max = std::max(toFill[0], std::max(toFill[1], toFill[2]));
+				bool run = get_bit(quest_rules, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL)
+					? ((bt->counter[0] > -1 && !toFill[0]) || (bt->counter[1] > -1 && !toFill[1]) || (bt->counter[2] > -1 && !toFill[2]))
+					: max > 0;
+				if(run || (bt->flags&BTFLAG_ALLOWIFFULL))
+				{
+					if(!paidmagic)
+						paymagiccost(itemid);
+					sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+					for(size_t q = 0; q < 20; ++q)
+						do_refill_waitframe();
+					double inc = max/60.0; //1 second
+					double xtra[3]{ 0 };
+					for(size_t q = 0; q < 60; ++q)
+					{
+						if(!(q%6) && (toFill[0]||toFill[1]||toFill[2]))
+							sfx(WAV_MSG); //!TODO Need to make this configurable at some point... -Em
+						for(size_t j = 0; j < 3; ++j)
+						{
+							xtra[j] += inc;
+							word f = floor(xtra[j]);
+							xtra[j] -= f;
+							if(toFill[j] > f)
+							{
+								toFill[j] -= f;
+								game->change_counter(f,bt->counter[j]);
+							}
+							else if(toFill[j])
+							{
+								game->change_counter(toFill[j],bt->counter[j]);
+								toFill[j] = 0;
+							}
+						}
+						do_refill_waitframe();
+					}
+					for(size_t j = 0; j < 3; ++j)
+					{
+						if(toFill[j])
+						{
+							game->change_counter(toFill[j],bt->counter[j]);
+							toFill[j] = 0;
+						}
+					}
+					for(size_t q = 0; q < 20; ++q)
+						do_refill_waitframe();
+					game->set_bottle_slot(itemsbuf[itemid].misc1, bt->next_type);
+				}
+			}
+			
+			dowpn = -1;
+			ret = false;
+			break;
+		}
 		case itype_rocs:
 		{
 			if(!inlikelike && charging==0)
@@ -24623,12 +24830,12 @@ bool LinkClass::refill()
                 game->set_life(refill_heart_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
-		{
-			if ( q == (int32_t)tmpscr->oceansfx ) continue;
-			if ( q == (int32_t)tmpscr->bosssfx ) continue;
-			stop_sfx(q);
-		}
-		sfx(WAV_MSG);
+				{
+					if ( q == (int32_t)tmpscr->oceansfx ) continue;
+					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					stop_sfx(q);
+				}
+				sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
             }
@@ -24643,11 +24850,11 @@ bool LinkClass::refill()
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
-		{
-			if ( q == (int32_t)tmpscr->oceansfx ) continue;
-			if ( q == (int32_t)tmpscr->bosssfx ) continue;
-			stop_sfx(q);
-		}
+				{
+					if ( q == (int32_t)tmpscr->oceansfx ) continue;
+					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					stop_sfx(q);
+				}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
@@ -24665,11 +24872,11 @@ bool LinkClass::refill()
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
-		{
-			if ( q == (int32_t)tmpscr->oceansfx ) continue;
-			if ( q == (int32_t)tmpscr->bosssfx ) continue;
-			stop_sfx(q);
-		}
+				{
+					if ( q == (int32_t)tmpscr->oceansfx ) continue;
+					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					stop_sfx(q);
+				}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;

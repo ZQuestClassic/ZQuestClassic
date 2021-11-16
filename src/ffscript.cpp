@@ -6948,6 +6948,12 @@ int32_t get_register(const int32_t arg)
 		case GAMELITEMSD:
 			ret=game->lvlitems[(ri->d[rINDEX])/10000]*10000;
 			break;
+		case GAMELSWITCH:
+			ret=game->lvlswitches[(ri->d[rINDEX])/10000];
+			break;
+		case GAMEBOTTLEST:
+			ret=game->get_bottle_slot((ri->d[rINDEX])/10000)*10000;
+			break;
 			
 		case GAMELKEYSD:
 			ret=game->lvlkeys[(ri->d[rINDEX])/10000]*10000;
@@ -15020,6 +15026,12 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case GAMELITEMSD:
 			game->lvlitems[(ri->d[rINDEX])/10000]=value/10000;
+			break;
+		case GAMELSWITCH:
+			game->lvlswitches[(ri->d[rINDEX])/10000]=value;
+			break;
+		case GAMEBOTTLEST:
+			game->set_bottle_slot((ri->d[rINDEX])/10000,value/10000);
 			break;
 		
 		case TANGOARR:
@@ -34935,6 +34947,9 @@ script_variable ZASMVars[]=
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
 	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	{ "HEROBUNNY",           HEROBUNNY,            0,             0 },
+	
+	{ "GAMELSWITCH",           GAMELSWITCH,            0,             0 },
+	{ "GAMEBOTTLEST",           GAMEBOTTLEST,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

@@ -103,8 +103,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 //SDL_Surface *sdl_screen;
 
-#define IS_ZQUEST 1
-
 #ifdef ALLEGRO_DOS
 static const char *data_path_name   = "dos_data_path";
 static const char *midi_path_name   = "dos_midi_path";
@@ -14170,9 +14168,7 @@ const char *bottlelist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottle_list_size-1);
-		if(!index)
-			sprintf(bottle_str_buf," 0:  (None)");
-        else sprintf(bottle_str_buf,"%2d:  %s",index,misc.bottle_types[index-1].name);
+		sprintf(bottle_str_buf,"%2d:  %s",index+1,misc.bottle_types[index].name);
         return bottle_str_buf;
     }
     
@@ -20323,13 +20319,13 @@ int32_t onShopTypes()
 void call_bottle_dlg(int32_t index);
 int32_t onBottleTypes()
 {
-	bottle_list_size = 65; //64 + (None)
+	bottle_list_size = 64;
 	int32_t index = 0;
 	
 	while(index > -1)
 	{
 		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", lfont);
-		if(index > 0)
+		if(index > -1)
 			call_bottle_dlg(index);
 	}
 	

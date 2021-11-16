@@ -1995,6 +1995,20 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			std::fill(savedata[i].item_messages_played, savedata[i].item_messages_played+MAXITEMS, 0);
 		}
+		if(section_version >= 22)
+		{
+			for(int32_t j=0; j<256; ++j)
+			{
+				if(!p_getc(&(savedata[i].bottleSlots[j]),f,true))
+				{
+					return 64;
+				}
+			}
+		}
+		else 
+		{
+			memset(savedata[i].bottleSlots, 0, sizeof(savedata[i].bottleSlots));
+		}
 	}
 	
 	
@@ -2517,6 +2531,10 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		if(!pfwrite(savedata[i].item_messages_played,MAXITEMS*sizeof(bool),f))
 		{
 			return 61;
+		}
+		if(!pfwrite(savedata[i].bottleSlots,256*sizeof(byte),f))
+		{
+			return 62;
 		}
 	}
 	

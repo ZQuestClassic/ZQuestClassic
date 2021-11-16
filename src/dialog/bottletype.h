@@ -3,9 +3,10 @@
 
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>
+#include <gui/checkbox.h>
 #include <gui/label.h>
-#include <gui/switcher.h>
 #include <gui/text_field.h>
+#include <gui/window.h>
 #include <functional>
 
 class BottleTypeDialog: public GUI::Dialog<BottleTypeDialog>
@@ -16,14 +17,17 @@ public:
 		OK, CANCEL
 	};
 
-	BottleTypeDialog::BottleTypeDialog(bottletype& theBottle);
+	BottleTypeDialog::BottleTypeDialog(int32_t index);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	bottletype& sourcebottle;
-	bottletype tempbottle;
+	std::shared_ptr<GUI::Window> window;
+	int32_t index;
+	bottletype& sourceBottle;
+	bottletype tempBottle;
+	GUI::ListData list_counters;
 };
 
 #endif

@@ -276,6 +276,7 @@ if(Boost_FOUND)
 		target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 	endif()
+	target_compile_definitions(zquest PRIVATE IS_ZQUEST)
 endif()
 
 #############################################################
