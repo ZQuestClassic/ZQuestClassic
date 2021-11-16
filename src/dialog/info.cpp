@@ -39,8 +39,9 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		onClose = 0,
 		Column(
 			Label(
-				hPadding = 3_em,
-				maxLines = 10,
+				hPadding = sized(1_em,3_em),
+				maxLines = 20,
+				maxwidth = sized(320_px-2_em,800_px-6_em),
 				textAlign = 1,
 				text = std::move(dlgText)),
 			Button(

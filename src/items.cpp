@@ -584,6 +584,26 @@ int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t famil
 	return result;
 }
 
+int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family)
+{
+	int32_t result = -1;
+	int32_t highestlevel = -1;
+	
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		if(items[i].family == family)
+		{
+			if(items[i].fam_type >= highestlevel)
+			{
+				highestlevel = items[i].fam_type;
+				result=i;
+			}
+		}
+	}
+	
+	return result;
+}
+
 int32_t getItemID(itemdata *items, int32_t family, int32_t level)
 {
 	if(level<0) return getCanonicalItemID(items, family);

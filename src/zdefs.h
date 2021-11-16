@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        29
+#define V_INITDATA        30
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -252,7 +252,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       6
+#define V_COMPATRULE       8
 //= V_SHOPS is under V_MISC
 
 /*
@@ -1012,7 +1012,7 @@ enum
 	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS, qr_OLD_ITEMDATA_SCRIPT_TIMING,
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2, qr_NEWDARK_SCROLLEDGE,
 	//32
-	qr_STEPTEMP_SECRET_ONLY_16_31,
+	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS,
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -1757,32 +1757,33 @@ struct itemdata
     byte fam_type;	//level										// What type in this family the item is
     int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
     int32_t flags;
-#define ITEM_GAMEDATA    0x00000001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE      0x00000002  // can be eaten by Like Like
-#define ITEM_COMBINE     0x00000004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE   0x00000008
-#define ITEM_FLAG1   0x00000010
-#define ITEM_FLAG2   0x00000020
-#define ITEM_KEEPOLD     0x00000040
-#define ITEM_RUPEE_MAGIC 0x00000080
-#define ITEM_UNUSED       0x00000100
-#define ITEM_GAINOLD     0x00000200
-#define ITEM_FLAG3     0x00000400
-#define ITEM_FLAG4     0x00000800
-#define ITEM_FLAG5     0x00001000
-#define ITEM_FLAG6     0x00002000
-#define ITEM_FLAG7     0x00004000
-#define ITEM_FLAG8     0x00008000
-#define ITEM_FLAG9     0x00010000
-#define ITEM_FLAG10     0x00020000
-#define ITEM_FLAG11     0x00040000
-#define ITEM_FLAG12     0x00080000
-#define ITEM_FLAG13     0x00100000
-#define ITEM_FLAG14     0x00200000
-#define ITEM_FLAG15     0x00400000
-#define ITEM_FLAG16     0x00800000
-#define ITEM_VALIDATEONLY	0x01000000
-#define ITEM_SIDESWIM_DISABLED	0x02000000
+#define ITEM_GAMEDATA           0x00000001  // Whether this item sets the corresponding gamedata value or not
+#define ITEM_EDIBLE             0x00000002  // can be eaten by Like Like
+#define ITEM_COMBINE            0x00000004  // blue potion + blue potion = red potion
+#define ITEM_DOWNGRADE          0x00000008
+#define ITEM_FLAG1              0x00000010
+#define ITEM_FLAG2              0x00000020
+#define ITEM_KEEPOLD            0x00000040
+#define ITEM_RUPEE_MAGIC        0x00000080
+#define ITEM_UNUSED             0x00000100
+#define ITEM_GAINOLD            0x00000200
+#define ITEM_FLAG3              0x00000400
+#define ITEM_FLAG4              0x00000800
+#define ITEM_FLAG5              0x00001000
+#define ITEM_FLAG6              0x00002000
+#define ITEM_FLAG7              0x00004000
+#define ITEM_FLAG8              0x00008000
+#define ITEM_FLAG9              0x00010000
+#define ITEM_FLAG10             0x00020000
+#define ITEM_FLAG11             0x00040000
+#define ITEM_FLAG12             0x00080000
+#define ITEM_FLAG13             0x00100000
+#define ITEM_FLAG14             0x00200000
+#define ITEM_FLAG15             0x00400000
+#define ITEM_PASSIVESCRIPT      0x00800000
+#define ITEM_VALIDATEONLY       0x01000000
+#define ITEM_SIDESWIM_DISABLED  0x02000000
+#define ITEM_BUNNY_ENABLED      0x04000000
 
 
 
@@ -3494,26 +3495,27 @@ struct dmap
 };
 
 // DMap flags
-#define dmfCAVES			0x0001
-#define dmf3STAIR			0x0002
-#define dmfWHIRLWIND		0x0004
-#define dmfGUYCAVES			0x0008
-#define dmfNOCOMPASS		0x0010
-#define dmfWAVY 			0x0020
-#define dmfWHIRLWINDRET		0x0040
-#define dmfALWAYSMSG   		0x0080
-#define dmfVIEWMAP       	0x0100
-#define dmfDMAPMAP         	0x0200
-#define dmfMINIMAPCOLORFIX 	0x0400
-#define dmfSCRIPT1 			0x0800
-#define dmfSCRIPT2 			0x1000
-#define dmfSCRIPT3 			0x2000
-#define dmfSCRIPT4 			0x4000
-#define dmfSCRIPT5 			0x8000
-#define dmfSIDEVIEW 			0x10000
-#define dmfLAYER3BG 			0x20000
-#define dmfLAYER2BG 			0x40000
-#define dmfNEWCELLARENEMIES 			0x80000
+#define dmfCAVES            0x000001
+#define dmf3STAIR           0x000002
+#define dmfWHIRLWIND        0x000004
+#define dmfGUYCAVES         0x000008
+#define dmfNOCOMPASS        0x000010
+#define dmfWAVY             0x000020
+#define dmfWHIRLWINDRET     0x000040
+#define dmfALWAYSMSG        0x000080
+#define dmfVIEWMAP          0x000100
+#define dmfDMAPMAP          0x000200
+#define dmfMINIMAPCOLORFIX  0x000400
+#define dmfSCRIPT1          0x000800
+#define dmfSCRIPT2          0x001000
+#define dmfSCRIPT3          0x002000
+#define dmfSCRIPT4          0x004000
+#define dmfSCRIPT5          0x008000
+#define dmfSIDEVIEW         0x010000
+#define dmfLAYER3BG         0x020000
+#define dmfLAYER2BG         0x040000
+#define dmfNEWCELLARENEMIES 0x080000
+#define dmfBUNNYIFNOPEARL   0x100000
 
 
 #define OLDMAXCOMBOALIASES 256
@@ -3811,6 +3813,7 @@ enum // used for gamedata ITEMS
 	itype_icerod, //ice Rod
 	itype_atkring,
 	itype_lantern,
+	itype_pearl,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -3895,7 +3898,8 @@ enum generic_ind
 	genHCP_PER_HC, genCONTHP, genCONTHP_IS_PERC, genHP_PER_HEART,
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
-	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP, genLAST,
+	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP,
+	genBUNNY_LTM, genLAST,
 	genMAX = 256
 };
 enum glow_shape
@@ -4140,6 +4144,9 @@ struct gamedata
 	
 	int32_t get_sideswim_jump();
 	void set_sideswim_jump(int32_t val);
+	
+	int32_t get_bunny_ltm();
+	void set_bunny_ltm(int32_t val);
     
     byte get_continue_scrn();
     void set_continue_scrn(byte s);
@@ -4262,8 +4269,9 @@ struct zinitdata
 	
 	int32_t swimgravity;
 	
-	
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
+	
+	int32_t bunny_ltm;
 };
 
 struct zcmap
@@ -4928,6 +4936,7 @@ void removeItemsOfFamily(zinitdata *i, itemdata *items, int32_t family);
 void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level);
 int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t family);
 int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t family, bool checkenabled = false);
+int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family);
 int32_t getItemID(itemdata *items, int32_t family, int32_t level);
 int32_t getCanonicalItemID(itemdata *items, int32_t family);
 int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power);

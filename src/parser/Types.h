@@ -342,6 +342,7 @@ namespace ZScript
 			: constType(constType ? constType->clone() : NULL)
 		{}
 		
+		virtual ~DataType() {}
 		// Call derived class's copy constructor.
 		virtual DataType* clone() const = 0;
 

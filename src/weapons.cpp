@@ -1652,7 +1652,7 @@ weapon::weapon(weapon const & other):
     weaprange(other.weaprange),		//int32_t		The range or distance of the weapon before removing it. 
     weapduration(other.weapduration),	//int32_t		The number of frames that must elapse before removing it
    	//word		The weapon action script. 
-    tilemod(other.tilemod),		//int32_t		The LTM to use when the weapon is active. 
+    tilemod(other.tilemod),		//int32_t		The Tile Mod to use when the weapon is active. 
     drawlayer(other.drawlayer),		//byte		The layer onto which we draw the weapon.
     family_class(other.family_class),	//byte		Item Class
     family_level(other.family_level),	//byte		Item Level

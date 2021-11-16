@@ -490,6 +490,15 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
 								)
 							)
+						)),
+						TabRef(name = "3", Row(
+							Column(vAlign = 0.0,
+								Rows<2>(
+									margins = 0_px,
+									padding = 0_px,
+									VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false)
+								)
+							)
 						))
 					))
 				),
@@ -760,7 +769,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							VAL_FIELD("Light Dither Percentage:",0,255,dither_percent,false),
 							VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
 							VAL_FIELD("Light Transp. Percentage:",0,255,transdark_percent,false),
-							COLOR_FIELD("Darkness Color:", darkcol,false)
+							COLOR_FIELD("Darkness Color:", darkcol,false),
+							VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false)
 						)
 					),
 					Column(vAlign = 0.0,

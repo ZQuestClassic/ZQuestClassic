@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <cstdint>
 #include <cstring>
 
 #include "single_instance.h"

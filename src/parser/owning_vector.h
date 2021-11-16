@@ -98,8 +98,9 @@ public:
 	inline void clear() {
 		deleteData();
 		vector_.clear();
-		vector_.swap(std::vector<Element* >(vector_));}
-	
+		vector_.shrink_to_fit();
+	}
+
 private:
 	base_type cloneData() const
 	{

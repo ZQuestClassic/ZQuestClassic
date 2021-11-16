@@ -82,11 +82,10 @@ void BuildOpcodes::addOpcode(std::shared_ptr<Opcode> &code)
 }
 
 template <class Container>
-void BuildOpcodes::addOpcodes(Container &container)
+void BuildOpcodes::addOpcodes(Container const& container)
 {
-	for (auto it = container.begin();
-		 it != container.end(); ++it)
-		addOpcode(*it);
+	for (auto ptr: container)
+		addOpcode(ptr);
 }
 
 void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
@@ -2414,11 +2413,10 @@ void LValBOHelper::addOpcode(std::shared_ptr<Opcode> &code)
 }
 
 template <class Container>
-void LValBOHelper::addOpcodes(Container &container)
+void LValBOHelper::addOpcodes(Container const& container)
 {
-	for (auto it = container.begin();
-		 it != container.end(); ++it)
-		addOpcode(*it);
+	for (auto ptr: container)
+		addOpcode(ptr);
 }
 
 /*

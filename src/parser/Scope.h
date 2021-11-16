@@ -57,6 +57,7 @@ namespace ZScript
 		Scope(TypeStore&);
 		Scope(TypeStore&, std::string const& name);
 		
+		virtual ~Scope() {}
 		// Scope type.
 		virtual bool isGlobal() const {return false;}
 		virtual bool isRoot() const {return false;}
@@ -530,6 +531,7 @@ namespace ZScript
 	{
 	public:
 		NamespaceScope(Scope* parent, FileScope* parentFile, Namespace* namesp);
+		~NamespaceScope();
 		virtual bool isGlobal() const {return true;}
 		virtual bool isNamespace() const {return true;};
 		Namespace* namesp;

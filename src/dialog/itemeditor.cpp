@@ -90,14 +90,14 @@ ItemNameInfo inameinf[]=
 	{ itype_bracelet,                 "Push Combo Level:",                      NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Once Per Screen",                      NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_book,                     "M. Damage:",                             "W. Damage:",                               "Wand Sound",                                   "Special Step",                         "Fire Damage",                          NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Fire Magic",                           "Override Wand Damage",                 "Fire Doesn't Hurt Player",                                             "Override Wand SFX",                    "Temporary Light",                      "Magic Sprite:",                             "Projectile Sprite:",                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           "Replace Wand Weapon",                          NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_ring,                     "Damage Divisor:",                        "Player Sprite Pal:",                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Affects Damage Combos",                "Divisor is Percentage Multiplier",     NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_wand,                     "Damage:",                                "M. Damage",                                "W. Type:",                                     "W. Speed:",                            "W. Range:",                            "Move Effect:",                    "Mvt Arg1:",                       "Mvt Arg2:",                       "No. of Clones:",                  "Clone Pattern:",                            "Slash Sound:",                         "Allow Magic w/o Book",                 "Wand Moves",                           "No Melee Attack",                                                      "Can Slash",                            "Quick",                                "Stab Sprite:",                              "Slash Sprite:",                                "Projectile Sprite:",                           "Projectile Misc:",                             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      "Light Torches",                                            NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
+	{ itype_wand,                     "Damage:",                                "M. Damage",                                "W. Type:",                                     "W. Speed:",                            "W. Range:",                            "Move Effect:",                    "Mvt Arg1:",                       "Mvt Arg2:",                       "No. of Clones:",                  "Clone Pattern:",                            "Slash Sound:",                         "Allow Magic w/o Book",                 "Wand Moves",                           "No Melee Attack",                                                      "Can Slash",                            "No Melee Cooldown",                    "Stab Sprite:",                              "Slash Sprite:",                                "Projectile Sprite:",                           "Projectile Misc:",                             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      "Light Torches",                                            NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_bait,                     NULL,                                     "Duration:",                                NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   "Bait Sprite:",                              NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Baiting Sound:",                          NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_potion,                   NULL,                                     "HP Regained:",                             "MP Regained:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "HP R. Is Percent",                     "MP R. Is Percent",                     "Removes Sword Jinxes",                                                 "Removes Item Jinxes",                  NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_whistle,                  NULL,                                     "Whirlwind Direction:",                     "Warp Ring:",                                   NULL,                                   NULL,                                   "Weapon Damage",                   NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "One W.Wind Per Scr.",                  "Has Damage",                           "Whirlwinds Reflect off Prism/Mirror Combos",                           NULL,                                   NULL,                                   "Whirlwind Sprite:",                         NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Music Sound:",                            NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_candle,                   "Damage:",                                "Damage to Player:",                        NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Once Per Screen",                      "Don't Provide Light",                  "Fire Doesn't Hurt Player",                                             "Can Slash",                            "Temporary Light",                      "Stab Sprite:",                              "Slash Sprite:",                                "Flame Sprite:",                                NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           NULL,                                           NULL,                                                                             "Flip Right-Facing Slash",                      NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_arrow,                    "Damage:",                                "Duration (0 = Infinite):",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Penetrate Enemies",                    "Allow Item Pickup",                    NULL,                                                                   "Pick Up Anything",                     NULL,                                   "Arrow Sprite:",                             "Sparkle Sprite:",                              "Damaging Sparkle Sprite:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           NULL,                                           "Picks Up Keys",                                                                  NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_brang,                    "Damage:",                                "Range (0 = Infinite):",                    NULL,                                           "Block Flags:",                         "Reflect Flags:",                       NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Corrected Animation",                  "Directional Sprites",                  "Do Not Return",                                                        "Pick Up Anything",                     "Drags Items",                          "Boomerang Sprite:",                         "Sparkle Sprite:",                              "Damaging Sparkle Sprite:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Spinning Sound:",                         "Reflects Enemy Projectiles",                   "Picks Up Keys",                                                                  "Triggers 'Fire(Any)'",                         NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_sword,                    "Damage:",                                "Beam Hearts:",                             "Beam Damage:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "B.H. Is Percent",                      "B.D. Is Percent",                      "B. Penetrates Enemies",                                                "Can Slash",                            "Quick",                                "Stab Sprite:",                              "Slash Sprite:",                                "Beam Sprite:",                                 NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Slash/Stab Sound",                        "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      "Sword Beams Reflect off Prism/Mirror Combos",              "Walk slowly while charging",                   NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
+	{ itype_sword,                    "Damage:",                                "Beam Hearts:",                             "Beam Damage:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Beam Hearts Is Percent",               "Beam Damage Is Percent",               "Beam Penetrates Enemies",                                              "Can Slash",                            "No Melee Cooldown",                    "Stab Sprite:",                              "Slash Sprite:",                                "Beam Sprite:",                                 NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Slash/Stab Sound",                        "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      "Sword Beams Reflect off Prism/Mirror Combos",              "Walk slowly while charging",                   NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_whimsicalring,            "Damage Bonus:",                          "Chance (1 in n):",                         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Whimsy Sound:",                           NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_perilring,                "Damage Divisor:",                        "Maximum Hearts:",                          NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   "Divisor is Percentage Multiplier",     NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_stompboots,               "Damage:",                                NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
@@ -128,6 +128,7 @@ ItemNameInfo inameinf[]=
 	//itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1                                         wpn2                                            wpn3                                            wpn4                                            wpn5                                            wpn6                                            wpn7                                            wpn8                                            wpn9                                            wpn10                                           action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
 	{ itype_atkring,                  NULL,                                     "Bonus Damage",                             "Damage Multiplier",                            NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ itype_lantern,                  NULL,                                     "Shape",                                    "Range",                                        NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
+	{ itype_pearl,                    NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
 	{ -1,                             NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 }
 };
 
@@ -189,7 +190,7 @@ ItemEditorDialog::ItemEditorDialog(int32_t index):
 #define SPR_LAB_WID sized(14_em,10_em)
 #define ACTION_LAB_WID 6_em
 #define ACTION_FIELD_WID 6_em
-#define FLAGS_WID 18_em
+#define FLAGS_WID 20_em
 
 #define NUM_FIELD(member,_min,_max,wid) \
 TextField( \
@@ -322,8 +323,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								ATTRIB_FIELD(misc10,9)
 							)
 						)),
-						TabRef(name = "Flags", Row(
-							Columns<9>(padding = 0_px,
+						TabRef(name = "Flags", Column(padding = 0_px,
+							Rows<2>(
+								framed = true,
+								frameText = "General Flags",
+								topPadding = DEFAULT_PADDING+0.4_em,
+								bottomPadding = DEFAULT_PADDING+1_px,
+								bottomMargin = 1_em,
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_EDIBLE),
@@ -333,14 +339,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 									}
 								),
-								FLAG_CHECK(0,ITEM_FLAG1),
-								FLAG_CHECK(1,ITEM_FLAG2),
-								FLAG_CHECK(2,ITEM_FLAG3),
-								FLAG_CHECK(3,ITEM_FLAG4),
-								FLAG_CHECK(4,ITEM_FLAG5),
-								FLAG_CHECK(5,ITEM_FLAG6),
-								FLAG_CHECK(6,ITEM_FLAG7),
-								FLAG_CHECK(7,ITEM_FLAG8),
+								FLAG_CHECK(15,ITEM_PASSIVESCRIPT),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -350,14 +349,36 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 									}
 								),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
+									text = "Usable as a Bunny",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+									}
+								)
+							),
+							Columns<8>(
+								framed = true,
+								frameText = "Variable Flags",
+								topPadding = DEFAULT_PADDING+0.4_em,
+								bottomPadding = DEFAULT_PADDING+1_px,
+								FLAG_CHECK(0,ITEM_FLAG1),
+								FLAG_CHECK(1,ITEM_FLAG2),
+								FLAG_CHECK(2,ITEM_FLAG3),
+								FLAG_CHECK(3,ITEM_FLAG4),
+								FLAG_CHECK(4,ITEM_FLAG5),
+								FLAG_CHECK(5,ITEM_FLAG6),
+								FLAG_CHECK(6,ITEM_FLAG7),
+								FLAG_CHECK(7,ITEM_FLAG8),
 								FLAG_CHECK(8,ITEM_FLAG9),
 								FLAG_CHECK(9,ITEM_FLAG10),
 								FLAG_CHECK(10,ITEM_FLAG11),
 								FLAG_CHECK(11,ITEM_FLAG12),
 								FLAG_CHECK(12,ITEM_FLAG13),
 								FLAG_CHECK(13,ITEM_FLAG14),
-								FLAG_CHECK(14,ITEM_FLAG15),
-								FLAG_CHECK(15,ITEM_FLAG16)
+								FLAG_CHECK(14,ITEM_FLAG15)
 							)
 						)),
 						TabRef(name = "Action", Columns<4>(
@@ -846,10 +867,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					)),
 					TabRef(name = "Graphics", TabPanel(
 						TabRef(name = "GFX", Row(
-							Rows<2>(
+							Rows<3>(
 								Label(text = "Flash CSet:", hAlign = 1.0),
 								TextField(
-									val = (local_itemref.csets>>4),
+									val = (local_itemref.csets>>4), rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 16,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -858,9 +879,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.csets |= val<<4;
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Frames:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.frames,
+									val = local_itemref.frames, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -869,9 +891,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setFrames(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Speed:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.speed,
+									val = local_itemref.speed, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -880,9 +903,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setSpeed(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Initial Delay:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.delay,
+									val = local_itemref.delay, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -891,14 +915,28 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setDelay(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Player Tile Modifier:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.ltm,
+									val = local_itemref.ltm, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.ltm = val;
+									}
+								),
+								Button(
+									width = 1.5_em, leftPadding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Tile Modifiers",
+											"The tile modifiers of the highest level item owned from each itemclass"
+											" are added up, and the total is added to the Player's tile.\n"
+											"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
+											" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
+											" found in Init Data is also added."
+										).show();
 									}
 								)
 							),
@@ -1500,8 +1538,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								ATTRIB_FIELD(misc10,9)
 							)
 						)),
-						TabRef(name = "Flags", Row(
-							Columns<9>(padding = 0_px,
+						TabRef(name = "Flags", Column(padding = 0_px,
+							Rows<2>(
+								framed = true,
+								frameText = "General Flags",
+								topPadding = DEFAULT_PADDING+0.4_em,
+								bottomPadding = DEFAULT_PADDING+1_px,
+								bottomMargin = 1_em,
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_EDIBLE),
@@ -1511,14 +1554,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 									}
 								),
-								FLAG_CHECK(0,ITEM_FLAG1),
-								FLAG_CHECK(1,ITEM_FLAG2),
-								FLAG_CHECK(2,ITEM_FLAG3),
-								FLAG_CHECK(3,ITEM_FLAG4),
-								FLAG_CHECK(4,ITEM_FLAG5),
-								FLAG_CHECK(5,ITEM_FLAG6),
-								FLAG_CHECK(6,ITEM_FLAG7),
-								FLAG_CHECK(7,ITEM_FLAG8),
+								FLAG_CHECK(15,ITEM_PASSIVESCRIPT),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -1528,14 +1564,36 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 									}
 								),
+								Checkbox(
+									width = FLAGS_WID,
+									checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
+									text = "Usable as a Bunny",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+									}
+								)
+							),
+							Columns<8>(
+								framed = true,
+								frameText = "Variable Flags",
+								topPadding = DEFAULT_PADDING+0.4_em,
+								bottomPadding = DEFAULT_PADDING+1_px,
+								FLAG_CHECK(0,ITEM_FLAG1),
+								FLAG_CHECK(1,ITEM_FLAG2),
+								FLAG_CHECK(2,ITEM_FLAG3),
+								FLAG_CHECK(3,ITEM_FLAG4),
+								FLAG_CHECK(4,ITEM_FLAG5),
+								FLAG_CHECK(5,ITEM_FLAG6),
+								FLAG_CHECK(6,ITEM_FLAG7),
+								FLAG_CHECK(7,ITEM_FLAG8),
 								FLAG_CHECK(8,ITEM_FLAG9),
 								FLAG_CHECK(9,ITEM_FLAG10),
 								FLAG_CHECK(10,ITEM_FLAG11),
 								FLAG_CHECK(11,ITEM_FLAG12),
 								FLAG_CHECK(12,ITEM_FLAG13),
 								FLAG_CHECK(13,ITEM_FLAG14),
-								FLAG_CHECK(14,ITEM_FLAG15),
-								FLAG_CHECK(15,ITEM_FLAG16)
+								FLAG_CHECK(14,ITEM_FLAG15)
 							)
 						)),
 						TabRef(name = "Action", Columns<4>(
@@ -2014,10 +2072,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					)),
 					TabRef(name = "Graphics", TabPanel(
 						TabRef(name = "GFX", Row(
-							Rows<2>(
+							Rows<3>(
 								Label(text = "Flash CSet:", hAlign = 1.0),
 								TextField(
-									val = (local_itemref.csets>>4),
+									val = (local_itemref.csets>>4), rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 16,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2026,9 +2084,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.csets |= val<<4;
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Frames:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.frames,
+									val = local_itemref.frames, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2037,9 +2096,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setFrames(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Animation Speed:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.speed,
+									val = local_itemref.speed, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2048,9 +2108,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setSpeed(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Initial Delay:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.delay,
+									val = local_itemref.delay, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2059,14 +2120,28 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										animFrame->setDelay(val);
 									}
 								),
+								DummyWidget(),
 								Label(text = "Player Tile Modifier:", hAlign = 1.0),
 								TextField(
-									val = local_itemref.ltm,
+									val = local_itemref.ltm, rightPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.ltm = val;
+									}
+								),
+								Button(
+									width = 1.5_em, leftPadding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Tile Modifiers",
+											"The tile modifiers of the highest level item owned from each itemclass"
+											" are added up, and the total is added to the Player's tile.\n"
+											"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
+											" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
+											" found in Init Data is also added."
+										).show();
 									}
 								)
 							),

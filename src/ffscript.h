@@ -4335,8 +4335,9 @@ enum ASM_DEFINE
 
 #define PUSHBLOCKLAYER          0x13FA
 #define LINKGRABBED             0x13FB
+#define HEROBUNNY               0x13FC
 
-#define NUMVARIABLES         	0x13FC
+#define NUMVARIABLES         	0x13FD
 
 //} End variables
 

@@ -562,6 +562,12 @@ static const GUI::ListData compatRulesList
 		"If this rule is enabled, Step->Secrets (Temp) will only trigger Secret Flags"
 		" 16 through 31. It will not trigger weapon triggers such as burn triggers or"
 		" bomb triggers."},
+	{ "'Hit All Triggers->Perm Secret' doesn't trigger temp secrets", qr_ALLTRIG_PERMSEC_NO_TEMP,
+		"The screen flag 'Hit All Triggers->Perm Secret' will only set the secret state of the screen,"
+		" not trigger secrets immediately"},
+	{ "Hardcoded LItem/Bomb/Clock/Magic Tile Mods", qr_HARDCODED_LITEM_LTMS,
+		"Tile modifiers for level items, bombs/superbombs, clocks, and magic containers are"
+		" (incorrectly) hardcoded to their classic item IDs"},
 };
 
 static const GUI::ListData enemiesRulesList

@@ -204,8 +204,8 @@ int32_t current_item(int32_t item_type, bool checkenabled);
 int32_t current_item_power(int32_t item_type);
 int32_t current_item_id(int32_t item_type, bool checkmagic = true);
 int32_t high_flag(int32_t i, int32_t item_type, bool consecutive);
-int32_t item_tile_mod(bool);
-int32_t dmap_tile_mod();
+int32_t item_tile_mod();
+int32_t bunny_tile_mod();
 
 bool try_zcmusic(char *filename, int32_t track, int32_t midi);
 bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);

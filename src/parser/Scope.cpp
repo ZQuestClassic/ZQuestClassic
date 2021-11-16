@@ -1496,6 +1496,11 @@ NamespaceScope::NamespaceScope(Scope* parent, FileScope* parentFile, Namespace* 
 	: BasicScope(parent, parentFile, namesp->getName()), namesp(namesp)
 {}
 
+NamespaceScope::~NamespaceScope()
+{
+	delete namesp;
+}
+
 ////////////////////////////////////////////////////////////////
 // InlineScope
 
