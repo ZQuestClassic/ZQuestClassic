@@ -17659,25 +17659,32 @@ bool ePatra::animate(int32_t index)
 	
 	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2))))
 	{
-		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
-		(!dmisc18 && !(zc_oldrand()&127))) && (clk6 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-		&& clk6 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > 48)))
+		switch(dmisc28)
 		{
-			if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) clk6 = -48;
-			else
+			default:
 			{
-				addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-				sfx(wpnsfx(wpn),pan(int32_t(x)));
-				clk6 = 0;
-				if (editorflags & ENEMY_FLAG6) clk4 = 16;
+				if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+				(!dmisc18 && !(zc_oldrand()&127))) && (clk6 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+				&& clk6 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > 48)))
+				{
+					if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) clk6 = -48;
+					else
+					{
+						clk6 = 0;
+						if (editorflags & ENEMY_FLAG6) clk4 = 16;
+						sfx(wpnsfx(wpn),pan(int32_t(x)));
+						addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+					}
+				}
+				if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk6 == -16)
+				{
+					addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
+					sfx(wpnsfx(wpn),pan(int32_t(x)));
+					if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
+				}
+				break;
 			}
-		}
-		if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) && clk6 == -16)
-		{
-			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-			sfx(wpnsfx(wpn),pan(int32_t(x)));
-			if (editorflags & ENEMY_FLAG6) clk4 = abs(clk6) + 16;
-		}
+		} //ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
 	}
 	
 	size=.5;

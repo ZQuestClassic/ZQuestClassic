@@ -2471,6 +2471,31 @@ const char *patramisc26list(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
+const char *patramisc28list(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		switch(index)
+		{
+			case 5:
+				return "5 Shots (Fast)";
+			case 4:
+				return "5 Shots";
+			case 3:
+				return "3 Shots (Fast)";
+			case 2:
+				return "3 Shots";
+			case 1:
+				return "1 Shot (Fast)";
+			default:
+				return "1 Shot";
+		}
+	}
+	
+	*list_size = 3;
+	return NULL;
+}
+
 const char *dodongomisc10list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
