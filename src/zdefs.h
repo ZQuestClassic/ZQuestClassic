@@ -1289,7 +1289,8 @@ enum
 	wThrowRock, wPot, //Thrown pot or rock -Z
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
-	wSword180, wSwordLA, 
+	wSword180, wSwordLA,
+	wBugNet,
     // Enemy weapons
     wEnemyWeapons=128,
     //129
