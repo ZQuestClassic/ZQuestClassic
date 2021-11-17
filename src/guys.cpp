@@ -21398,7 +21398,7 @@ bool parsemsgcode()
 			int32_t code = MsgStrings[msgstr].s[msgptr]-1;
 			int32_t counter = grab_next_argument();
 			int32_t amount = grab_next_argument();
-			amount = (vbound((int32_t)(amount*0.01), 0, 1)*game->get_maxcounter(counter));
+			amount = int32_t(vbound(amount*0.01, 0.0, 1.0)*game->get_maxcounter(counter));
 			
 			if(code==MSGC_CTRDNPC)
 				amount*=-1;
