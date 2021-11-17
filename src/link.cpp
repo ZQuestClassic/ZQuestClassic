@@ -7019,7 +7019,7 @@ static void do_death_refill_waitframe()
 	do_refill_waitframe();
 }
 
-static size_t find_bottle_for_slot(size_t slot)
+static size_t find_bottle_for_slot(size_t slot, bool unowned=false)
 {
 	int32_t found_unowned = -1;
 	for(int q = 0; q < MAXITEMS; ++q)
@@ -7028,7 +7028,8 @@ static size_t find_bottle_for_slot(size_t slot)
 		{
 			if(game->get_item(q))
 				return q;
-			found_unowned = q;
+			if(unowned)
+				found_unowned = q;
 		}
 	}
 	return found_unowned;
@@ -7862,7 +7863,7 @@ bool LinkClass::animate(int32_t)
 					}
 					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
 					{
-						int32_t itemid = find_bottle_for_slot(slot);
+						int32_t itemid = find_bottle_for_slot(slot,true);
 						if(itemid > -1)
 							sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
 						for(size_t q = 0; q < 20; ++q)
@@ -24349,178 +24350,227 @@ void LinkClass::checkitems(int32_t index)
 	int32_t pstr = ((item*)items.spr(index))->pstring;
 	int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
 	//int32_t tempnextmsg;
-	zprint2("Picking up item of family %d (bf is %d), canfill %d\n", itemsbuf[id2].family, itype_bottlefill, game->canFillBottle()?1:0);
-	if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
-		return; //No picking these up unless you have a bottle to fill!
-	if(ptr->fallclk > 0) return; //Don't pick up a falling item
+	bool bottledummy = (pickup&ipCHECK) && tmpscr[tmp].room == rBOTTLESHOP;
 	
-	if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
-		if(items.spr(index)->id!=iFairyMoving)
-			// wait for it to stop flashing, doesn't check for other items yet
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
+	if(bottledummy) //Dummy bullshit! 
+	{
+		if(!game->canFillBottle())
+			return;
+		if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
+		{
+			if(!current_item_power(itype_wallet))
+			{
+				if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+				int32_t tmpprice = -abs(prices[PriceIndex]);
+				//game->change_drupy(-abs(prices[priceindex]));
+				int32_t total = game->get_drupy()-tmpprice;
+				total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+				game->set_drupy(game->get_drupy()-total);
+			}
+			else //infinite wallet
+			{
+				game->change_drupy(0);
+			}
+		}
+		boughtsomething=true;
+		//make the other shop items untouchable after
+		//you buy something
+		int32_t count = 0;
+		
+		for(int32_t i=0; i<3; i++)
+		{
+			if(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[i] != 0)
+			{
+				++count;
+			}
+		}
+		
+		for(int32_t i=0; i<items.Count(); i++)
+		{
+			if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
+				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
+		}
+		
+		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[PriceIndex]);
+		id2 = find_bottle_for_slot(slot);
+		ptr->id = id2;
+		pstr = 0;
+		pickup |= ipHOLDUP;
+	}
+	else
+	{
+		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
+			return; //No picking these up unless you have a bottle to fill!
+		
+		if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+			if(items.spr(index)->id!=iFairyMoving)
+				// wait for it to stop flashing, doesn't check for other items yet
+				return;
+				
+		if(pickup&ipENEMY)                                        // item was being carried by enemy
+			if(more_carried_items()<=1)  // 1 includes this own item.
+				hasitem &= ~2;
+				
+		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
+		{
+			if(pickup&ipMONEY)
+				dospecialmoney(index);
+				
+			return;
+		}
+		
+		if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
 			return;
 			
-	if(pickup&ipENEMY)                                        // item was being carried by enemy
-		if(more_carried_items()<=1)  // 1 includes this own item.
-			hasitem &= ~2;
-			
-	if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
-	{
-		if(pickup&ipMONEY)
-			dospecialmoney(index);
-			
-		return;
-	}
-	
-	if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
-		return;
-		
-	if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
-		// Item upgrade routine.
-	{
-		int32_t nextitem = -1;
-		
-		for(int32_t i=0; i<MAXITEMS; i++)
+		if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
+			// Item upgrade routine.
 		{
-			// Find the item which is as close to this item's fam_type as possible.
-			if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-					&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
-			{
-				nextitem = i;
-			}
-		}
-		
-		if(nextitem>-1)
-			id2 = nextitem;
-	}
-	
-	if(pickup&ipCHECK)                                        // check restrictions
-		switch(tmpscr[tmp].room)
-		{
-		case rSP_ITEM:                                        // special item
-			if(!canget(id2)) // These ones always need the Hearts Required check
-				return;
-				
-			break;
+			int32_t nextitem = -1;
 			
-		case rP_SHOP:                                         // potion shop
-			if(msg_active)
-				return;
-				
-		case rSHOP:                                           // shop
-			if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
+			for(int32_t i=0; i<MAXITEMS; i++)
 			{
-				if(!current_item_power(itype_wallet))
+				// Find the item which is as close to this item's fam_type as possible.
+				if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
+						&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
 				{
-					if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
-					int32_t tmpprice = -abs(prices[PriceIndex]);
-					//game->change_drupy(-abs(prices[priceindex]));
-					int32_t total = game->get_drupy()-tmpprice;
-					total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
-					game->set_drupy(game->get_drupy()-total);
-				}
-				else //infinite wallet
-				{
-					game->change_drupy(0);
-				}
-			}
-			boughtsomething=true;
-			//make the other shop items untouchable after
-			//you buy something
-			int32_t count = 0;
-			
-			for(int32_t i=0; i<3; i++)
-			{
-				if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
-				{
-					++count;
+					nextitem = i;
 				}
 			}
 			
-			for(int32_t i=0; i<items.Count(); i++)
+			if(nextitem>-1)
+				id2 = nextitem;
+		}
+		
+		if(pickup&ipCHECK)                                        // check restrictions
+			switch(tmpscr[tmp].room)
 			{
-				if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
-					((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
-			}
-			
-			break;
-		}
-		
-	if(pickup&ipONETIME)    // set mITEM for one-time-only items
-	{
-		setmapflag(mITEM);
-
-		//Okay so having old source files is a godsend. You wanna know why?
-		//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
-		//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
-		//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mBELOW if in a cave.
-		//However, now the check just always defaults to mBELOW, which causes this bug.
-		//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
-		
-		/*
-		// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
-		// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
-
-		// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
-		// What is etc?! We need to check for every valid state here. ~Gleeok
-		if(get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
-		{
-			// Most older quests need one-time-pickups to not remove special items, etc.
-			if(tmpscr->room==rGRUMBLE)
-			{
-				setmapflag(mBELOW);
-			}
-		}
-		*/
-	}
-	else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
-		setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
-	
-	if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
-	{
-		if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-		hidden_entrance(0, true, false, -5);
-	}
-		
-	if(itemsbuf[id2].collect_script)
-	{
-		//clear the item script stack for a new script
-		ri = &(itemCollectScriptData[id2]);
-			for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
-		ri->Clear();
-			//itemCollectScriptData[(id2 & 0xFFF)].Clear();
-		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
-		if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
-		{
-			item_collect_doscript[id2] = 1;
-			itemscriptInitialised[id2] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
-			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
-		}
-		else if (!id2 && !item_collect_doscript[id2]) //item 0
-		{
-			item_collect_doscript[id2] = 1;
-			itemscriptInitialised[id2] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-		}
-	}
-	//Passive item scripts on colelction
-	if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-	{
-		ri = &(itemScriptData[id2]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
-		ri->Clear();
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-		item_doscript[id2] = 1;
-		itemscriptInitialised[id2] = 0;
-		//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
+			case rSP_ITEM:                                        // special item
+				if(!canget(id2)) // These ones always need the Hearts Required check
+					return;
 					
+				break;
+				
+			case rP_SHOP:                                         // potion shop
+				if(msg_active)
+					return;
+					
+			case rSHOP:                                           // shop
+				if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
+				{
+					if(!current_item_power(itype_wallet))
+					{
+						if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+						int32_t tmpprice = -abs(prices[PriceIndex]);
+						//game->change_drupy(-abs(prices[priceindex]));
+						int32_t total = game->get_drupy()-tmpprice;
+						total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+						game->set_drupy(game->get_drupy()-total);
+					}
+					else //infinite wallet
+					{
+						game->change_drupy(0);
+					}
+				}
+				boughtsomething=true;
+				//make the other shop items untouchable after
+				//you buy something
+				int32_t count = 0;
+				
+				for(int32_t i=0; i<3; i++)
+				{
+					if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
+					{
+						++count;
+					}
+				}
+				
+				for(int32_t i=0; i<items.Count(); i++)
+				{
+					if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
+						((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
+				}
+				
+				break;
+			}
+			
+		if(pickup&ipONETIME)    // set mITEM for one-time-only items
+		{
+			setmapflag(mITEM);
+
+			//Okay so having old source files is a godsend. You wanna know why?
+			//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
+			//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
+			//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mBELOW if in a cave.
+			//However, now the check just always defaults to mBELOW, which causes this bug.
+			//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
+			
+			/*
+			// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
+			// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
+
+			// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
+			// What is etc?! We need to check for every valid state here. ~Gleeok
+			if(get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
+			{
+				// Most older quests need one-time-pickups to not remove special items, etc.
+				if(tmpscr->room==rGRUMBLE)
+				{
+					setmapflag(mBELOW);
+				}
+			}
+			*/
+		}
+		else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
+			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+		
+		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
+		{
+			if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+			hidden_entrance(0, true, false, -5);
+		}
+			
+		if(itemsbuf[id2].collect_script)
+		{
+			//clear the item script stack for a new script
+			ri = &(itemCollectScriptData[id2]);
+				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+			ri->Clear();
+				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
+			//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
+			if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
+			{
+				item_collect_doscript[id2] = 1;
+				itemscriptInitialised[id2] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
+				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
+			}
+			else if (!id2 && !item_collect_doscript[id2]) //item 0
+			{
+				item_collect_doscript[id2] = 1;
+				itemscriptInitialised[id2] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+			}
+		}
+		//Passive item scripts on colelction
+		if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+		{
+			ri = &(itemScriptData[id2]);
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+			ri->Clear();
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+			item_doscript[id2] = 1;
+			itemscriptInitialised[id2] = 0;
+			//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
+						
+		}
+		getitem(id2);
 	}
-	getitem(id2);
 	
 	if(pickup&ipHOLDUP)
 	{
@@ -24558,7 +24608,7 @@ void LinkClass::checkitems(int32_t index)
 				action=landhold1; FFCore.setLinkAction(landhold1);
 			}
 			
-			if(((item*)items.spr(index))->twohand)
+			if(ptr->twohand)
 			{
 				if(action==waterhold1)
 				{
@@ -24580,14 +24630,23 @@ void LinkClass::checkitems(int32_t index)
 			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
 				music_stop();
 				
-			holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
+			holditem=ptr->id; // NES consistency: when combining blue potions, hold up the blue potion.
 			freeze_guys=true;
 			//show the info string
 			 
 			
 			//if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
 			
-			int32_t shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+			int32_t shop_pstr = 0;
+			switch(tmpscr[tmp].room)
+			{
+				case rSHOP:
+					shop_pstr = QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex];
+					break;
+				case rBOTTLESHOP:
+					shop_pstr = QMisc.bottle_shop_types[tmpscr[tmp].catchall].str[PriceIndex];
+					break;
+			}
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
 				if ( (pstr > 0 && pstr < msg_count) && ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )

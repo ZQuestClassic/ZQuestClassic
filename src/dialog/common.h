@@ -6,6 +6,7 @@
 GUI::ListData getItemListData(bool includeNone);
 GUI::ListData getStringListData();
 GUI::ListData getShopListData();
+GUI::ListData getBShopListData();
 GUI::ListData getInfoShopListData();
 
 #endif

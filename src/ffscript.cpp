@@ -30182,14 +30182,15 @@ bool ZModule::init(bool d) //bool default
 		{
 			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
 			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
-			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE","rBOTTLESHOP"
 		};
 		const char roomtype_defaults[rMAX][255] =
 		{
 			"(None)","Special Item","Pay for Info","Secret Money","Gamble",
 			"Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
 			"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-			"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+			"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
+			"More Arrows","Take One Item","Bottle Shop"
 		};
 		for ( int32_t q = 0; q < rMAX; q++ )
 		{

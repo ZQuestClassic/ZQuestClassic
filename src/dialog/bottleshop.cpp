@@ -39,10 +39,8 @@ std::shared_ptr<GUI::Widget> BottleShopDialog::view()
 	window = Window(
 		title = titlebuf,
 		minwidth = 30_em,
-		info = "Bottle Types to be used by the Bottle itemclass. Bottles can be filled"
-			" with various things, configurable here.\nThese can be set to restore up"
-			" to 3 counters, either by a value or a percentage; and also set what will"
-			" remain in the bottle after this type is consumed (ex. multi-use potions).",
+		info = "Buying from a bottle shop will fill your first empty bottle. If"
+			" the player has none, they will be unable to purchase anything.",
 		onClose = message::CANCEL,
 		Column(
 			Row(

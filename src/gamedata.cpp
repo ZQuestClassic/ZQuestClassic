@@ -972,7 +972,7 @@ void gamedata::set_item_no_flush(int32_t id, bool value)
         
     item[id]=value;
 }
-bool gamedata::fillBottle(byte val)
+int32_t gamedata::fillBottle(byte val)
 {
 	bool temp[256] = {false};
 	for(size_t q = 0; q < MAXITEMS; ++q)
@@ -992,10 +992,10 @@ bool gamedata::fillBottle(byte val)
 		if(bottleSlots[q] == 0)
 		{
 			set_bottle_slot(q, val);
-			return true;
+			return q;
 		}
 	}
-	return false;
+	return -1;
 }
 bool gamedata::canFillBottle()
 {

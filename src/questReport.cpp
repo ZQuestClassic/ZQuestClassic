@@ -1138,6 +1138,7 @@ bool integrityBoolRoomNoGuy(mapscr *ts)
     case rLEARNSLASH:
     case rARROWS:
     case rTAKEONE:
+    case rBOTTLESHOP:
     default:
         if(ts->guy==0&&ts->str!=0)
             return true;

@@ -1068,6 +1068,7 @@ enum
     rNONE, rSP_ITEM, rINFO, rMONEY, rGAMBLE, rREPAIR, rRP_HC, rGRUMBLE,
     rTRIFORCE, rP_SHOP, rSHOP, rBOMBS, rSWINDLE, r10RUPIES, rWARP,
     rGANON, rZELDA, rITEMPOND, rMUPGRADE, rLEARNSLASH, rARROWS, rTAKEONE,
+	rBOTTLESHOP,
     rMAX
 };
 
@@ -4251,7 +4252,7 @@ struct gamedata
 		bottleSlots[slot] = val;
 	}
 	
-	bool fillBottle(byte val);
+	int32_t fillBottle(byte val);
 	bool canFillBottle();
 };
 

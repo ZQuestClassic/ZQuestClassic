@@ -6273,6 +6273,9 @@ void drawpanel(int32_t pnl)
                 case rSHOP:
                     textprintf_ex(menu1,pfont,panel[3].x+7+xofs,panel[3].y+32,jwin_pal[jcBOXFG],-1,"(%d) %s",scr->catchall,misc.shop[scr->catchall].name);
                     break;
+                case rBOTTLESHOP:
+                    textprintf_ex(menu1,pfont,panel[3].x+7+xofs,panel[3].y+32,jwin_pal[jcBOXFG],-1,"(%d) %s",scr->catchall,misc.bottle_shop_types[scr->catchall].name);
+                    break;
                     
                 default:
                     textprintf_ex(menu1,pfont,panel[3].x+7+xofs,panel[3].y+32,jwin_pal[jcBOXFG],-1,"%d",scr->catchall);
@@ -7627,15 +7630,35 @@ void refresh(int32_t flags)
                     Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
                     
             for(int32_t j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
-                {
-                    strcat(buf,item_string[misc.shop[shop].item[j]]);
-                    strcat(buf,":");
-                    char pricebuf[4];
-                    sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
-                    strcat(buf,pricebuf);
+			{
+				strcat(buf,item_string[misc.shop[shop].item[j]]);
+				strcat(buf,":");
+				char pricebuf[4];
+				sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
+				strcat(buf,pricebuf);
+				
+				if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
+			}
+                
+            show_screen_error(buf,i++, vc(15));
+        }
+        break;
+		
+		case rBOTTLESHOP:
+        {
+            int32_t shop = Map.CurrScr()->catchall;
+            sprintf(buf,"Bottle Shop: ");
                     
-                    if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
-                }
+            for(int32_t j=0; j<3; j++) if(misc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
+			{
+				strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
+				strcat(buf,":");
+				char pricebuf[4];
+				sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
+				strcat(buf,pricebuf);
+				
+				if(j<2 && misc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
+			}
                 
             show_screen_error(buf,i++, vc(15));
         }
@@ -35510,14 +35533,15 @@ bool ZModule::init(bool d) //bool default
 		{
 			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
 			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
-			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE","rBOTTLESHOP"
 		};
 		const char roomtype_defaults[rMAX][255] =
 		{
 		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
 		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
 		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
+			"More Arrows","Take One Item","Bottle Shop"
 		};
 		for ( int32_t q = 0; q < rMAX; q++ )
 		{
