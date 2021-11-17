@@ -671,6 +671,13 @@ const int IC_ICEROD          	     = 266; //Not Implemented
 
 const int IC_ATKRING                 = 267;
 const int IC_LANTERN                 = 268;
+const int IC_PEARL                   = 269;
+const int IC_BOTTLE                  = 270;
+const int IC_BOTTLE_FILL             = 271;
+const int IC_BUG_NET                 = 272;
+
+//Itemclasses not less than this are reserved for future engine itemclasses
+const int IC_MAXUSABLE               = 273;
 
 const int IC_MAX                     = 512; //Last of enum. All itemclassesare < this.
 
@@ -831,6 +838,7 @@ const int LW_CANDLE             = 12; // This cannot be created
 const int LW_HAMMER             = 19; // This cannot be created
 const int LW_HOOKSHOT           = 20; // This cannot be created
 const int LW_CANEOFBYRNA        = 27; // This cannot be created
+const int LW_BUGNET             = 52; // This cannot be created
 const int LW_ARROW              = 8;
 const int LW_BEAM               = 2; // Sword beam
 const int LW_BRANG              = 3;
