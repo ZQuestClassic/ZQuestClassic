@@ -186,8 +186,9 @@ void jwin_draw_minimap_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t 
 void jwin_draw_win(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame);
 void jwin_draw_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type);
 void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state);
+void draw_question_button(BITMAP *dest, int32_t x, int32_t y, int32_t state);
 char *shorten_string(char *dest, char *src, FONT *usefont, int32_t maxchars, int32_t maxwidth);
-void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button);
+void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn = false);
 void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
 void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, BITMAP *bmp, BITMAP *bmp2, int32_t flags, bool show_dotted_rect, bool overlay);
 

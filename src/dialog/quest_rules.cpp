@@ -623,7 +623,11 @@ static const GUI::ListData itemRulesList
 	{ "Reroll Useless Drops", qr_SMARTDROPS },
 	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS },
 	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION },
-	{ "Fairies spawn with random direction", qr_FAIRYDIR }
+	{ "Fairies spawn with random direction", qr_FAIRYDIR },
+	{ "Bottles can't be used with any maxed counter", qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
+		"If enabled, bottled items cannot be used if ANY of the 3 (non-None) counters it fills "
+		" are already at maximum capacity.\n"
+		"Otherwise, bottled items can be used if AT LEAST ONE of it's counters is not full."}
 };
 
 static const GUI::ListData miscRulesList

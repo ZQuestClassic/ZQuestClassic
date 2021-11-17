@@ -46,6 +46,7 @@ src/gui/radio.cpp
 src/gui/radioset.cpp
 src/gui/colorsel.cpp
 src/gui/seltile_swatch.cpp
+src/gui/selcombo_swatch.cpp
 src/gui/tileanim_frame.cpp
 
 src/dialog/set_password.cpp
@@ -63,6 +64,8 @@ src/dialog/init_data.cpp
 src/dialog/itemeditor.cpp
 src/dialog/alertfunc.cpp
 src/dialog/options.cpp
+src/dialog/bottletype.cpp
+src/dialog/bottleshop.cpp
 
 ## End of ZQuest GUI module
 )

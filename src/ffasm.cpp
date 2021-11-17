@@ -2238,6 +2238,9 @@ script_variable variable_list[]=
 	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	{ "HEROBUNNY",           HEROBUNNY,            0,             0 },
 	
+	{ "GAMELSWITCH",           GAMELSWITCH,            0,             0 },
+	{ "GAMEBOTTLEST",           GAMEBOTTLEST,            0,             0 },
+	
 	{ " ",                       -1,             0,             0 }
 };
 

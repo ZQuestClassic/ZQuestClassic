@@ -227,7 +227,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           5
 #define V_RULES           17
 #define V_STRINGS          8
-#define V_MISC             12
+#define V_MISC             13
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           19
 #define V_CSETS            4
@@ -243,7 +243,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        21 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        22 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      14
 #define V_SUBSCREEN        6
@@ -1012,7 +1012,8 @@ enum
 	qr_SCREEN80_OWN_MUSIC, qr_OLDCS2, qr_HARDCODED_ENEMY_ANIMS, qr_OLD_ITEMDATA_SCRIPT_TIMING,
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2, qr_NEWDARK_SCROLLEDGE,
 	//32
-	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS,
+	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
+	
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -1067,6 +1068,7 @@ enum
     rNONE, rSP_ITEM, rINFO, rMONEY, rGAMBLE, rREPAIR, rRP_HC, rGRUMBLE,
     rTRIFORCE, rP_SHOP, rSHOP, rBOMBS, rSWINDLE, r10RUPIES, rWARP,
     rGANON, rZELDA, rITEMPOND, rMUPGRADE, rLEARNSLASH, rARROWS, rTAKEONE,
+	rBOTTLESHOP,
     rMAX
 };
 
@@ -1287,7 +1289,8 @@ enum
 	wThrowRock, wPot, //Thrown pot or rock -Z
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
-	wSword180, wSwordLA, 
+	wSword180, wSwordLA,
+	wBugNet,
     // Enemy weapons
     wEnemyWeapons=128,
     //129
@@ -3554,6 +3557,49 @@ struct shoptype
     //10
 };
 
+struct bottleshoptype
+{
+	char name[32];
+	byte fill[3];
+	word comb[3];
+	byte cset[3];
+	word price[3];
+	word str[3];
+    void clear()
+    {
+        memset(name, 0, 32);
+        memset(fill, 0, 3);
+        memset(comb, 0, 3);
+        memset(cset, 0, 3);
+        memset(price, 0, 3);
+        memset(str, 0, 3);
+    }
+};
+
+struct bottletype
+{
+    char name[32];
+    char counter[3];
+    word amount[3];
+    byte flags;
+    byte next_type;
+#define BTFLAG_PERC0       0x01
+#define BTFLAG_PERC1       0x02
+#define BTFLAG_PERC2       0x04
+#define BTFLAG_CURESWJINX  0x10
+#define BTFLAG_CUREITJINX  0x20
+#define BTFLAG_ALLOWIFFULL 0x40
+#define BTFLAG_AUTOONDEATH 0x80
+    void clear()
+    {
+        memset(name, 0, 32);
+        memset(counter, -1, 3);
+        memset(amount, 0, 3);
+        flags = 0;
+        next_type = 0;
+    }
+};
+
 struct pondtype
 {
     byte olditem[3];
@@ -3662,6 +3708,9 @@ struct miscQdata
 	//We probably want a way to access these in ZScript by their string, or to get the strings stored.
     int32_t zscript_last_compiled_version;
 	byte sprites[sprMAX];
+	
+	bottletype bottle_types[64];
+	bottleshoptype bottle_shop_types[256];
 };
 
 #define MFORMAT_MIDI 0
@@ -3816,6 +3865,9 @@ enum // used for gamedata ITEMS
 	itype_atkring,
 	itype_lantern,
 	itype_pearl,
+	itype_bottle,
+	itype_bottlefill,
+	itype_bugnet,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -3922,185 +3974,186 @@ enum
 };
 struct gamedata
 {
-    //private:
-    char  _name[9];
-    byte  _quest;
-    //10
-    //word _life,_maxlife;
-    //int16_t _drupy;
-    //word _rupies,_arrows,_maxarrows,
-    word _deaths;
-    //20
-    //byte  _keys,_maxbombs,
-    byte  /*_wlevel,*/_cheat;
-    //24
-    bool  item[MAXITEMS];
-    byte  items_off[MAXITEMS];
-    //280
-    word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
-    word _counter[MAX_COUNTERS];
-    int16_t _dcounter[MAX_COUNTERS];
-    
-    char  version[9];
-    char  title[65];
-    //354
-    byte  _hasplayed;
-    //byte  padding;
-    //356
-    dword _time;
-    //360
-    byte  _timevalid;
-    byte  lvlitems[MAXLEVELS];
-    byte  lvlkeys[MAXLEVELS];
+	//private:
+	char  _name[9];
+	byte  _quest;
+	//10
+	//word _life,_maxlife;
+	//int16_t _drupy;
+	//word _rupies,_arrows,_maxarrows,
+	word _deaths;
+	//20
+	//byte  _keys,_maxbombs,
+	byte  /*_wlevel,*/_cheat;
+	//24
+	bool  item[MAXITEMS];
+	byte  items_off[MAXITEMS];
+	//280
+	word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
+	word _counter[MAX_COUNTERS];
+	int16_t _dcounter[MAX_COUNTERS];
+	
+	char  version[9];
+	char  title[65];
+	//354
+	byte  _hasplayed;
+	//byte  padding;
+	//356
+	dword _time;
+	//360
+	byte  _timevalid;
+	byte  lvlitems[MAXLEVELS];
+	byte  lvlkeys[MAXLEVELS];
 	dword lvlswitches[MAXLEVELS];
-    //byte  _HCpieces;
-    byte  _continue_scrn;
-    word  _continue_dmap;
-    //620
-    /*word  _maxmagic, _magic;
-    int16_t _dmagic;*/
-    //byte  _magicdrainrate;
-    //byte  _canslash;                                           //Link slashes instead of stabs.
-    int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
-    //byte  padding[2];
-    //636
-    byte  visited[MAXDMAPS];
-    //892 (256)
-    byte  bmaps[MAXDMAPS*128];                                 // the dungeon progress maps
-    //17276 (16384)
-    word  maps[MAXMAPS2*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
-    //82556 (65280)
-    byte  guys[MAXMAPS2*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
-    //115196 (32640)
-    char  qstpath[2048];
-    byte  icon[128];
-    byte  pal[48];
-    bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
-    int32_t  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
-    int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
-    std::vector< ZCArray <int32_t> > globalRAM;
-    
-    byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
-    int16_t forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
-    bool isclearing; // The gamedata is being cleared
-    //115456 (260)
-    
-    // member functions
-    // public:
-    gamedata()
-    {
-        Clear();
-    }
-    
-    ~gamedata()
-    {}
-    
-    void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
-    void Copy(const gamedata& g);
-    
-    gamedata &operator = (const gamedata& data)
-    {
-        this->Copy(data);
-        this->globalRAM=data.globalRAM;
-        return *this;
-    }
-    
-    char *get_name();
-    void set_name(char *n);
-    
-    byte get_quest();
-    void set_quest(byte q);
-    void change_quest(int16_t q);
-    
-    word get_counter(byte c);
-    void set_counter(word change, byte c);
-    void change_counter(int16_t change, byte c);
-    
-    word get_maxcounter(byte c);
-    void set_maxcounter(word change, byte c);
-    void change_maxcounter(int16_t change, byte c);
-    
-    int16_t get_dcounter(byte c);
-    void set_dcounter(int16_t change, byte c);
-    void change_dcounter(int16_t change, byte c);
-    
-    word get_life();
-    void set_life(word l);
-    void change_life(int16_t l);
-    
-    word get_maxlife();
-    void set_maxlife(word m);
-    void change_maxlife(int16_t m);
-    
-    int16_t get_drupy();
-    void set_drupy(int16_t d);
-    void change_drupy(int16_t d);
-    
-    word get_rupies();
-    word get_spendable_rupies();
-    void set_rupies(word r);
-    void change_rupies(int16_t r);
-    
-    word get_maxarrows();
-    void set_maxarrows(word a);
-    void change_maxarrows(int16_t a);
-    
-    word get_arrows();
-    void set_arrows(word a);
-    void change_arrows(int16_t a);
-    
-    word get_deaths();
-    void set_deaths(word d);
-    void change_deaths(int16_t d);
-    
-    word get_keys();
-    void set_keys(word k);
-    void change_keys(int16_t k);
-    
-    word get_bombs();
-    void set_bombs(word k);
-    void change_bombs(int16_t k);
-    
-    word get_maxbombs();
-    void set_maxbombs(word b, bool setSuperBombs=true);
-    void change_maxbombs(int16_t b);
-    
-    word get_sbombs();
-    void set_sbombs(word k);
-    void change_sbombs(int16_t k);
-    
-    word get_wlevel();
-    void set_wlevel(word l);
-    void change_wlevel(int16_t l);
-    
-    byte get_cheat();
-    void set_cheat(byte c);
-    void change_cheat(int16_t c);
-    
-    byte get_hasplayed();
-    void set_hasplayed(byte p);
-    void change_hasplayed(int16_t p);
-    
-    dword get_time();
-    void set_time(dword t);
-    void change_time(int64_t t);
-    
-    byte get_timevalid();
-    void set_timevalid(byte t);
-    void change_timevalid(int16_t t);
-    
-    byte get_HCpieces();
-    void set_HCpieces(byte p);
-    void change_HCpieces(int16_t p);
-    
-    byte get_hcp_per_hc();
-    void set_hcp_per_hc(byte val);
-    
-    byte get_cont_hearts();
-    void set_cont_hearts(byte val);
-    
-    bool get_cont_percent();
-    void set_cont_percent(bool ispercent);
+	//byte  _HCpieces;
+	byte  _continue_scrn;
+	word  _continue_dmap;
+	//620
+	/*word  _maxmagic, _magic;
+	int16_t _dmagic;*/
+	//byte  _magicdrainrate;
+	//byte  _canslash;                                           //Link slashes instead of stabs.
+	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
+	//byte  padding[2];
+	//636
+	byte  visited[MAXDMAPS];
+	//892 (256)
+	byte  bmaps[MAXDMAPS*128];                                 // the dungeon progress maps
+	//17276 (16384)
+	word  maps[MAXMAPS2*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
+	//82556 (65280)
+	byte  guys[MAXMAPS2*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
+	//115196 (32640)
+	char  qstpath[2048];
+	byte  icon[128];
+	byte  pal[48];
+	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
+	int32_t  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
+	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
+	std::vector< ZCArray <int32_t> > globalRAM;
+	
+	byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
+	int16_t forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
+	bool isclearing; // The gamedata is being cleared
+	//115456 (260)
+	byte bottleSlots[256];
+	
+	// member functions
+	// public:
+	gamedata()
+	{
+		Clear();
+	}
+	
+	~gamedata()
+	{}
+	
+	void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
+	void Copy(const gamedata& g);
+	
+	gamedata &operator = (const gamedata& data)
+	{
+		this->Copy(data);
+		this->globalRAM=data.globalRAM;
+		return *this;
+	}
+	
+	char *get_name();
+	void set_name(char *n);
+	
+	byte get_quest();
+	void set_quest(byte q);
+	void change_quest(int16_t q);
+	
+	word get_counter(byte c);
+	void set_counter(word change, byte c);
+	void change_counter(int16_t change, byte c);
+	
+	word get_maxcounter(byte c);
+	void set_maxcounter(word change, byte c);
+	void change_maxcounter(int16_t change, byte c);
+	
+	int16_t get_dcounter(byte c);
+	void set_dcounter(int16_t change, byte c);
+	void change_dcounter(int16_t change, byte c);
+	
+	word get_life();
+	void set_life(word l);
+	void change_life(int16_t l);
+	
+	word get_maxlife();
+	void set_maxlife(word m);
+	void change_maxlife(int16_t m);
+	
+	int16_t get_drupy();
+	void set_drupy(int16_t d);
+	void change_drupy(int16_t d);
+	
+	word get_rupies();
+	word get_spendable_rupies();
+	void set_rupies(word r);
+	void change_rupies(int16_t r);
+	
+	word get_maxarrows();
+	void set_maxarrows(word a);
+	void change_maxarrows(int16_t a);
+	
+	word get_arrows();
+	void set_arrows(word a);
+	void change_arrows(int16_t a);
+	
+	word get_deaths();
+	void set_deaths(word d);
+	void change_deaths(int16_t d);
+	
+	word get_keys();
+	void set_keys(word k);
+	void change_keys(int16_t k);
+	
+	word get_bombs();
+	void set_bombs(word k);
+	void change_bombs(int16_t k);
+	
+	word get_maxbombs();
+	void set_maxbombs(word b, bool setSuperBombs=true);
+	void change_maxbombs(int16_t b);
+	
+	word get_sbombs();
+	void set_sbombs(word k);
+	void change_sbombs(int16_t k);
+	
+	word get_wlevel();
+	void set_wlevel(word l);
+	void change_wlevel(int16_t l);
+	
+	byte get_cheat();
+	void set_cheat(byte c);
+	void change_cheat(int16_t c);
+	
+	byte get_hasplayed();
+	void set_hasplayed(byte p);
+	void change_hasplayed(int16_t p);
+	
+	dword get_time();
+	void set_time(dword t);
+	void change_time(int64_t t);
+	
+	byte get_timevalid();
+	void set_timevalid(byte t);
+	void change_timevalid(int16_t t);
+	
+	byte get_HCpieces();
+	void set_HCpieces(byte p);
+	void change_HCpieces(int16_t p);
+	
+	byte get_hcp_per_hc();
+	void set_hcp_per_hc(byte val);
+	
+	byte get_cont_hearts();
+	void set_cont_hearts(byte val);
+	
+	bool get_cont_percent();
+	void set_cont_percent(bool ispercent);
 	
 	byte get_hp_per_heart();
 	void set_hp_per_heart(byte val);
@@ -4149,49 +4202,63 @@ struct gamedata
 	
 	int32_t get_bunny_ltm();
 	void set_bunny_ltm(int32_t val);
-    
-    byte get_continue_scrn();
-    void set_continue_scrn(byte s);
-    void change_continue_scrn(int16_t s);
-    
-    word get_continue_dmap();
-    void set_continue_dmap(word d);
-    void change_continue_dmap(int16_t d);
-    
-    word get_maxmagic();
-    void set_maxmagic(word m);
-    void change_maxmagic(int16_t m);
-    
-    word get_magic();
-    void set_magic(word m);
-    void change_magic(int16_t m);
-    
-    int16_t get_dmagic();
-    void set_dmagic(int16_t d);
-    void change_dmagic(int16_t d);
-    
-    byte get_magicdrainrate();
-    void set_magicdrainrate(byte r);
-    void change_magicdrainrate(int16_t r);
-    
-    byte get_canslash();
-    void set_canslash(byte s);
-    void change_canslash(int16_t s);
-    
-    int32_t get_generic(byte c);
-    void set_generic(int32_t change, byte c);
-    void change_generic(int32_t change, byte c);
-    
-    byte get_lkeys();
-    
-    void set_item(int32_t id, bool value);
-    void set_item_no_flush(int32_t id, bool value);
-    inline bool get_item(int32_t id)
-    {
-	if ( ((unsigned)id) >= MAXITEMS ) return false;
-        return item[id];
-    }
-    
+	
+	byte get_continue_scrn();
+	void set_continue_scrn(byte s);
+	void change_continue_scrn(int16_t s);
+	
+	word get_continue_dmap();
+	void set_continue_dmap(word d);
+	void change_continue_dmap(int16_t d);
+	
+	word get_maxmagic();
+	void set_maxmagic(word m);
+	void change_maxmagic(int16_t m);
+	
+	word get_magic();
+	void set_magic(word m);
+	void change_magic(int16_t m);
+	
+	int16_t get_dmagic();
+	void set_dmagic(int16_t d);
+	void change_dmagic(int16_t d);
+	
+	byte get_magicdrainrate();
+	void set_magicdrainrate(byte r);
+	void change_magicdrainrate(int16_t r);
+	
+	byte get_canslash();
+	void set_canslash(byte s);
+	void change_canslash(int16_t s);
+	
+	int32_t get_generic(byte c);
+	void set_generic(int32_t change, byte c);
+	void change_generic(int32_t change, byte c);
+	
+	byte get_lkeys();
+	
+	void set_item(int32_t id, bool value);
+	void set_item_no_flush(int32_t id, bool value);
+	inline bool get_item(int32_t id)
+	{
+		if ( ((unsigned)id) >= MAXITEMS ) return false;
+			return item[id];
+	}
+	
+	byte get_bottle_slot(dword slot)
+	{
+		if(slot > 256) return 0;
+		return bottleSlots[slot];
+	}
+	void set_bottle_slot(dword slot, byte val)
+	{
+		if(slot > 256) return;
+		if(val > 64) val = 0;
+		bottleSlots[slot] = val;
+	}
+	
+	int32_t fillBottle(byte val);
+	bool canFillBottle();
 };
 
 // "initialization data" flags (bit numbers in bit string)
@@ -4380,7 +4447,7 @@ struct zcmodule
 	char player_weapon_names[wIce+1][255];
 	char counter_names[33][255];
 	
-	char itemclass_help_strings[itype_max*3][512];
+	char itemclass_help_strings[itype_max][1024];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];

@@ -1896,756 +1896,361 @@ weapon::~weapon()
 
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent) : sprite(), parentid(prntid)
 {
-    x=X;
-    y=Y;
-    z=Z;
-    id=Id;
-    type=Type;
-    power=pow;
-    parentitem=Parentitem;
-    dir=zc_max(Dir,0);
-    clk=clk2=flip=misc=misc2=0;
-    frames=flash=wid=aframe=csclk=0;
-    ignorecombo=-1;
-    step=0;
-    dead=-1;
-    specialinfo = special;
-    bounce=ignoreLink=false;
-    yofs=playing_field_offset - 2;
-    dragging=-1;
-    hxsz=15;
-    hysz=15;
-    hzsz=8;
-    useweapon = usedefence = 0;
-    weaprange = weapduration = 0;
-    script_wrote_otile = 0;
-    linked_parent = Linked_Parent;
-    quantity_iterator = 0;
+	x=X;
+	y=Y;
+	z=Z;
+	id=Id;
+	type=Type;
+	power=pow;
+	parentitem=Parentitem;
+	dir=zc_max(Dir,0);
+	clk=clk2=flip=misc=misc2=0;
+	frames=flash=wid=aframe=csclk=0;
+	ignorecombo=-1;
+	step=0;
+	dead=-1;
+	specialinfo = special;
+	bounce=ignoreLink=false;
+	yofs=playing_field_offset - 2;
+	dragging=-1;
+	hxsz=15;
+	hysz=15;
+	hzsz=8;
+	useweapon = usedefence = 0;
+	weaprange = weapduration = 0;
+	script_wrote_otile = 0;
+	linked_parent = Linked_Parent;
+	quantity_iterator = 0;
 	weapon_dying_frame = false;
 	parent_script_UID = 0;
 	unblockable = 0;
-    if ( Parentitem > -1 )
-    {
-	weaponscript = itemsbuf[Parentitem].weaponscript;
-	useweapon = itemsbuf[Parentitem].useweapon;
-	usedefence = itemsbuf[Parentitem].usedefence;
-	quantity_iterator = type; //wCByrna uses this for positioning.
-	if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
-	    //Note: eweapons use this for boss weapon block flags
-	    // Note: wInd uses type for special properties.
-	    //Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
-	//load initd
-	for ( int32_t q = 0; q < 8; q++ )
+	if ( Parentitem > -1 )
 	{
-		//load InitD
-		weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
-		    
+		weaponscript = itemsbuf[Parentitem].weaponscript;
+		useweapon = itemsbuf[Parentitem].useweapon;
+		usedefence = itemsbuf[Parentitem].usedefence;
+		quantity_iterator = type; //wCByrna uses this for positioning.
+		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+			//Note: eweapons use this for boss weapon block flags
+			// Note: wInd uses type for special properties.
+			//Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
+		//load initd
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			//load InitD
+			weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
+				
+		}
 	}
-    }
-    
-    if ( isLW ) goto skip_eweapon_script;
-    if ( prntid > -1 && prntid != Link.getUID()  ) //eweapon scripts
-    {
-	    
-	//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
-	enemy *s = (enemy *)guys.getByUID(prntid);
-	//int32_t parent_enemy_id = 0;
-	//parent_enemy_id = s->id & 0xFFF;
-	//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
-	//weaponscript = guysbuf[prntid].weaponscript;
-	weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
-	parent_script_UID = s->script_UID;
-	    //Z_scripterrlog("parentUID %d\n", parent_script_UID);
-	for ( int32_t q = 0; q < 8; q++ )
+	
+	if ( isLW ) goto skip_eweapon_script;
+	if ( prntid > -1 && prntid != Link.getUID()  ) //eweapon scripts
 	{
-		//load InitD
-		//Z_scripterrlog("(weapon::weapon(zfix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
-		weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
-		    
+		
+		//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
+		enemy *s = (enemy *)guys.getByUID(prntid);
+		//int32_t parent_enemy_id = 0;
+		//parent_enemy_id = s->id & 0xFFF;
+		//Z_scripterrlog("The enemy ID that created it was: %d\n",s->id & 0xFFF);
+		//weaponscript = guysbuf[prntid].weaponscript;
+		weaponscript = guysbuf[s->id & 0xFFF].weaponscript;
+		parent_script_UID = s->script_UID;
+		//Z_scripterrlog("parentUID %d\n", parent_script_UID);
+		for ( int32_t q = 0; q < 8; q++ )
+		{
+			//load InitD
+			//Z_scripterrlog("(weapon::weapon(zfix)): Loading Initd[%d] for this eweapon script with a value of (%d).\n", q, guysbuf[parentid].weap_initiald[q]); 
+			weap_initd[q] = guysbuf[s->id & 0xFFF].weap_initiald[q];
+				
+		}
 	}
-    }
-    skip_eweapon_script:
-    tilemod = 0;
-    drawlayer = 0;
-    family_class = family_level = 0;
-    flags = 0;
-    collectflags = 0;
-    duplicates = 0;
-    count1 = count2 = count3 = count4 = count5 = 0;
-    temp1 = 0;
-    scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
-    for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
-    for ( int32_t q = 0; q < 128; q++ ) weapname[q] = 0;
-    
-    for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
-    //for ( int32_t q = 0; q < 2; q++ ) initiala[q] = 0;
-    for ( int32_t q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
-    for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
-    {
-	weap_pattern[q] = 0; //int32_t	The movement pattern and args.
-    }
-    isLit = false;
+	skip_eweapon_script:
+	tilemod = 0;
+	drawlayer = 0;
+	family_class = family_level = 0;
+	flags = 0;
+	collectflags = 0;
+	duplicates = 0;
+	count1 = count2 = count3 = count4 = count5 = 0;
+	temp1 = 0;
+	scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
+	for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
+	for ( int32_t q = 0; q < 128; q++ ) weapname[q] = 0;
+	
+	for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
+	//for ( int32_t q = 0; q < 2; q++ ) initiala[q] = 0;
+	for ( int32_t q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
+	for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
+	{
+		weap_pattern[q] = 0; //int32_t	The movement pattern and args.
+	}
+	isLit = false;
 	linkedItem = 0;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
-        memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
+		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
-        
+		
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
-		//This will need an input in the params! -Z
+	//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
-    minX = minY = maxX = maxY = 0;
-    //memset(stack,0,sizeof(stack));
-    //memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-    
-    int32_t defaultw, itemid = parentitem;
-    
-    if(id>wEnemyWeapons)
-    {
-        canfreeze=true;
-        
-        if(id!=ewBrang)
-        {
-            if(Type&2)
-            {
-                misc=(Type>>3)-1;
-                type &= ~2;
-            }
-            else
-                misc=-1;
-        }
-    }
-    
+	minX = minY = maxX = maxY = 0;
+	//memset(stack,0,sizeof(stack));
+	//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
+	
+	int32_t defaultw, itemid = parentitem;
+	
+	if(id>wEnemyWeapons)
+	{
+		canfreeze=true;
+		
+		if(id!=ewBrang)
+		{
+			if(Type&2)
+			{
+				misc=(Type>>3)-1;
+				type &= ~2;
+			}
+			else
+				misc=-1;
+		}
+	}
+	
 	//Default Gravity
-    switch(id)
-    {
-	    case wFire:
-	    
+	switch(id)
+	{
+		case wFire:
+		
 		// Din's Fire shouldn't fall
 		if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
 		{
-		    break;
+			break;
 		}
 		
-	    case wLitBomb:
-	    case wLitSBomb:
-	    case wBait:
-	    case ewFlame:
-	    case ewFireTrail:
+		case wLitBomb:
+		case wLitSBomb:
+		case wBait:
+		case ewFlame:
+		case ewFireTrail:
 			moveflags |= FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
-    }
+	}
 	
-    switch(id)
-    {
-	    
-	    
-	case wScript1:
-	case wScript2:
-	case wScript3:
-	case wScript4:
-	case wScript5:
-	case wScript6:
-	case wScript7:
-	case wScript8:
-	case wScript9:
-	case wScript10:
-	case wIce:
-    {
-	if(parentitem >-1)
+	switch(id)
 	{
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-		if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-		
-		defaultw = itemsbuf[parentitem].wpn;
-		LOADGFX(defaultw);
-		
-		if (!( itemsbuf[parentitem].flags & ITEM_FLAG1 ) )
+		case wBugNet:
 		{
-			switch(dir)
-			{
-				case up:
-				{
-					flip = 0; break;
-				}
-				case down:
-				{
-					flip = 2; break;
-				}
-				case left:
-				{
-					flip = 7; break;
-				}
-				case right:
-				{
-					flip = 4; break;
-				}
-				default: flip = 0; break;
-			}
+			defaultw = itemsbuf[parentitem].wpn;
+			LOADGFX(defaultw);
+			break;
 		}
-	}
-	else 
-	{
-		if ( !o_tile )
+		case wScript1:
+		case wScript2:
+		case wScript3:
+		case wScript4:
+		case wScript5:
+		case wScript6:
+		case wScript7:
+		case wScript8:
+		case wScript9:
+		case wScript10:
+		case wIce:
 		{
-			LOADGFX(0);
-			o_tile = tile;
-		}
-	}
-	break;
-    } 
-    case wSword: // Link's sword
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_sword);
-        }
-	hxsz=hysz=15;
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			
-			switch(dir)
+			if(parentitem >-1)
 			{
-				case up:
-				{
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-					/* yofs+playing_field_offset == yofs+56.
-					It is needed for the passive subscreen offset.
-					*/
-					yofs-=16;
-					break;
-				}
-				case down:
-				{
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-					/* yofs+playing_field_offset == yofs+56.
-					It is needed for the passive subscreen offset.
-					*/
-					break;
-				}
-				case left:
-				{
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tilew;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hysz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_yofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+playing_field_offset;}
-					/* yofs+playing_field_offset == yofs+56.
-					It is needed for the passive subscreen offset.
-					*/
-					xofs-=16;
-					break;
-				}
-				case right:
-				{
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tilew;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hysz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_yofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+playing_field_offset;}
-					/* yofs+playing_field_offset == yofs+56.
-					It is needed for the passive subscreen offset.
-					*/
-					break;
-				}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
 				
+				defaultw = itemsbuf[parentitem].wpn;
+				LOADGFX(defaultw);
+				
+				if (!( itemsbuf[parentitem].flags & ITEM_FLAG1 ) )
+				{
+					switch(dir)
+					{
+						case up:
+						{
+							flip = 0; break;
+						}
+						case down:
+						{
+							flip = 2; break;
+						}
+						case left:
+						{
+							flip = 7; break;
+						}
+						case right:
+						{
+							flip = 4; break;
+						}
+						default: flip = 0; break;
+					}
+				}
 			}
-			
-			
+			else 
+			{
+				if ( !o_tile )
+				{
+					LOADGFX(0);
+					o_tile = tile;
+				}
+			}
+			break;
 		}
-	}
-        if(itemid >-1)
-	{
-            defaultw = itemsbuf[itemid].wpn;
-	}
-        else
-            defaultw = wSWORD;
-            
-      
-	
-	
-	
-        LOADGFX(defaultw);
-        break;
-    }
-    
-    case wWand: // Link's wand, as well as the Cane itself
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_wand);
-        }
-        hxsz=15;
-        hysz=15; //hysz=24;
-	/* The wand class items need a special set of sizes, as the size is for their projectiles. 
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+playing_field_offset;}
-			// yofs+playing_field_offset == yofs+56.
-			//It is needed for the passive subscreen offset.
-			
-		}
-	}
-	*/
-        if(itemid >-1)
-	{
-            defaultw = itemsbuf[itemid].wpn;
-	}
-        else
-            defaultw = wWAND;
-            
-        
-        LOADGFX(defaultw);
-        break;
-    }
-    
-    case wHammer:
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_hammer);
-        }
-	
-        hxsz=15;
-        hysz=24;
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}
-        if(itemid >-1)
-	{
-            defaultw = itemsbuf[itemid].wpn;
-	}
-        else
-            defaultw = wHAMMER;
-            
-        
-        LOADGFX(defaultw);
-        break;
-    }
-    
-    case wCByrna: // The Cane's beam
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_cbyrna);
-        }
-        if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}
-        if(itemid >-1)
-	{
-            defaultw = itemsbuf[itemid].wpn3;
-	}
-        else
-            defaultw = wCBYRNA;
-            
-        LOADGFX(defaultw);
-        int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
-        int32_t qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
-	//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
-        clk = (int32_t)((((2*quantity_iterator*PI)/qty)
-                     // Appear on top of the cane's hook
-                     + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
-        quantity_iterator = 0;
-        
-        if(parentitem>-1)
-        {
-            cont_sfx(itemsbuf[parentitem].usesound);
-        }
-        
-        break;
-    }
-    
-    case wWhistle:
-        xofs=1000;                                            // don't show
-        x=y=hxofs=hyofs=0;
-        hxsz=hysz=255;                                        // hit the whole screen
-    	//Port Item Editor Weapon Size Values
-    
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_whistle);
-        }
-        
-        if ( parentitem > -1 )
-	{
-		//Whistle damage
-		if ((itemsbuf[parentitem].flags & ITEM_FLAG2)!=0 ) //Flags[1]
+		case wSword: // Link's sword
 		{
-			power = itemsbuf[parentitem].misc5; //Attributews[5]
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_sword);
+			}
+			hxsz=hysz=15;
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					
+					switch(dir)
+					{
+						case up:
+						{
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+							/* yofs+playing_field_offset == yofs+56.
+							It is needed for the passive subscreen offset.
+							*/
+							yofs-=16;
+							break;
+						}
+						case down:
+						{
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+							/* yofs+playing_field_offset == yofs+56.
+							It is needed for the passive subscreen offset.
+							*/
+							break;
+						}
+						case left:
+						{
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tileh;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tilew;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_yofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+playing_field_offset;}
+							/* yofs+playing_field_offset == yofs+56.
+							It is needed for the passive subscreen offset.
+							*/
+							xofs-=16;
+							break;
+						}
+						case right:
+						{
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tileh;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tilew;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_yofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+playing_field_offset;}
+							/* yofs+playing_field_offset == yofs+56.
+							It is needed for the passive subscreen offset.
+							*/
+							break;
+						}
+						
+					}
+					
+					
+				}
+			}
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn;
+			}
+			else
+				defaultw = wSWORD;
+			
+			LOADGFX(defaultw);
+			break;
 		}
 		
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
+		case wWand: // Link's wand, as well as the Cane itself
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_wand);
+			}
+			hxsz=15;
+			hysz=15; //hysz=24;
+			/* The wand class items need a special set of sizes, as the size is for their projectiles. 
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+playing_field_offset;}
+					// yofs+playing_field_offset == yofs+56.
+					//It is needed for the passive subscreen offset.
+					
+				}
+			}
 			*/
-		}
-	}
-        break;
-        
-    case wWind:
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_whistle);
-        }
-        clk=-14;
-        step=2;
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}
-        if(itemid >-1)
-	{
-            defaultw = itemsbuf[itemid].wpn;
-	}
-        else
-            defaultw = wWIND;
-            
-        LOADGFX(defaultw);
-        
-        if(get_bit(quest_rules,qr_MORESOUNDS))
-            cont_sfx(WAV_ZN1WHIRLWIND);
-            
-        
-        break;
-    }
-    
-    case wBeam:
-    case wRefBeam:
-        step = 3;
-        
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_sword);
-        }
-        
-        if(itemid>-1 && id!=wRefBeam)
-            defaultw = itemsbuf[itemid].wpn3;
-        else
-            defaultw = ewSWORD;
-            
-        LOADGFX(defaultw);
-        flash = 1;
-        cs = 6;
-        if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-            flip=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
-            
-	//if ( itemid > -1 ) 
-	//{
-	//	This requires special cases. 	The sword beams need a special size field!!!
-	//}
-        case up:
-            hyofs=2;
-            hysz=12;
-            break;
-            
-        case left:
-	//case l_down:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            hxofs=2;
-            hxsz=12;
-            yofs = playing_field_offset+(BSZ ? 3 : 1);
-            break;
-        }
-        
-	}
-	if(id==wRefBeam)
-        {
-            ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
-        }
-        
-        break;
-        
-    case wArrow:
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_arrow);
-        }
-        
-        if(itemid >-1)
-	{
-            defaultw = itemsbuf[itemid].wpn;
-	}
-        else
-	{
-            defaultw = wARROW;
-	}
-	LOADGFX(defaultw);
-        step=3;
-        if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}    
-
-	if ( do_animation ) 
-	{
-	switch(dir)
-        {
-        case down:
-            flip=2;
-            
-        case up:
-            //hyofs=2;
-            //hysz=12;
-	    hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
-			//2;
-	    hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
-			//12;
-            break;
-            
-        case left:
-	case l_down:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            yofs=playing_field_offset + 1;
-	
-	
-	    hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
-		//2;
-	    hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 14;
-		//14;
-	    hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
-		//2;
-	    hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
-		//12;
-            //hyofs=2;
-            //hysz=14;
-            //hxofs=2;
-            //hxsz=12;
-            break;
-        }
-        
-	}       
-	if(itemid >-1)
-            misc = itemsbuf[itemid].misc1;
-            
-        break;
-        
-    case wSSparkle:
-	/* Sparkles would be broken if we allowed them to be sized from here. 
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+playing_field_offset;}
-			// yofs+playing_field_offset == yofs+56.
-			//It is needed for the passive subscreen offset.
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn;
+			}
+			else
+				defaultw = wWAND;
 			
-		}
-	}
-	*/
-        LOADGFX(linked_parent ? linked_parent : wSSPARKLE);
-        step=0;
-        break;
-        
-    case wFSparkle:
-	    /* Sparkes would break if we sized them from the parent item.
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+playing_field_offset;}
-			// yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			
-		}
-	}
-	*/
-        LOADGFX(linked_parent ? linked_parent : wFSPARKLE);
-        step=0;
-        break;
-        
-    case wFire:
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_candle);
-        }
-        if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
+			LOADGFX(defaultw);
+			break;
 		}
 		
-		switch(itemsbuf[parentitem].family)
+		case wHammer:
 		{
-		case itype_dinsfire: // Din's Fire. This uses magicitem rather than itemid
-		    if(magicitem >-1 && !isDummy)
-			defaultw = itemsbuf[magicitem].wpn5;
-		    else defaultw = wFIRE;
-		    step = 0; 
-		    break;
-		    
-		case itype_wand: // Wand
-		    if(itemid>-1 && !isDummy)
-			defaultw = itemsbuf[itemid].wpn2;
-		    else defaultw = wFIRE; //this is why setting ->type as weapon Level, for fire weapons has issues. 
-		    step = 0;
-		    break;
-		    
-		case itype_candle: // Candles
-			hxofs = hyofs=1;
-			hxsz = hysz = 14;    
-			step = 0.5;
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_hammer);
+			}
+		
+			hxsz=15;
+			hysz=24;
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
@@ -2665,1143 +2270,1551 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					*/
 				}
 			}
-		    if(itemid>-1 && !isDummy)
-		    {
-			defaultw = itemsbuf[itemid].wpn3;
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn;
+			}
+			else
+				defaultw = wHAMMER;
+			
+			LOADGFX(defaultw);
 			break;
-		    }
+		}
+		
+		case wCByrna: // The Cane's beam
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_cbyrna);
+			}
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn3;
+			}
+			else
+				defaultw = wCBYRNA;
+				
+			LOADGFX(defaultw);
+			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
+			int32_t qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
+			//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
+			clk = (int32_t)((((2*quantity_iterator*PI)/qty)
+						 // Appear on top of the cane's hook
+						 + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
+			quantity_iterator = 0;
+			
+			if(parentitem>-1)
+			{
+				cont_sfx(itemsbuf[parentitem].usesound);
+			}
+			
+			break;
+		}
+		
+		case wWhistle:
+		{
+			xofs=1000;                                            // don't show
+			x=y=hxofs=hyofs=0;
+			hxsz=hysz=255;                                        // hit the whole screen
+			//Port Item Editor Weapon Size Values
+		
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_whistle);
+			}
+			
+			if ( parentitem > -1 )
+			{
+				//Whistle damage
+				if ((itemsbuf[parentitem].flags & ITEM_FLAG2)!=0 ) //Flags[1]
+				{
+					power = itemsbuf[parentitem].misc5; //Attributews[5]
+				}
+				
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+			break;
+		}
+			
+		case wWind:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_whistle);
+			}
+			clk=-14;
+			step=2;
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn;
+			}
+			else
+				defaultw = wWIND;
+				
+			LOADGFX(defaultw);
+			
+			if(get_bit(quest_rules,qr_MORESOUNDS))
+				cont_sfx(WAV_ZN1WHIRLWIND);
+				
+			
+			break;
+		}
+		
+		case wBeam:
+		case wRefBeam:
+		{
+			step = 3;
+			
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_sword);
+			}
+			
+			if(itemid>-1 && id!=wRefBeam)
+				defaultw = itemsbuf[itemid].wpn3;
+			else
+				defaultw = ewSWORD;
+				
+			LOADGFX(defaultw);
+			flash = 1;
+			cs = 6;
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+						flip=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
+						
+					//if ( itemid > -1 ) 
+					//{
+					//	This requires special cases. 	The sword beams need a special size field!!!
+					//}
+					case up:
+						hyofs=2;
+						hysz=12;
+						break;
+						
+					case left:
+					//case l_down:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						hxofs=2;
+						hxsz=12;
+						yofs = playing_field_offset+(BSZ ? 3 : 1);
+						break;
+				}
+				
+			}
+			if(id==wRefBeam)
+			{
+				ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
+			}
+			
+			break;
+		}
+		case wArrow:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_arrow);
+			}
+			
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn;
+			}
+			else
+			{
+				defaultw = wARROW;
+			}
+			LOADGFX(defaultw);
+			step=3;
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}    
+			
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+						flip=2;
+						
+					case up:
+						//hyofs=2;
+						//hysz=12;
+					hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
+						//2;
+					hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
+						//12;
+						break;
+						
+					case left:
+					case l_down:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=playing_field_offset + 1;
+						
+						
+						hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
+						//2;
+						hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 14;
+						//14;
+						hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
+						//2;
+						hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
+						//12;
+						//hyofs=2;
+						//hysz=14;
+						//hxofs=2;
+						//hxsz=12;
+						break;
+				}
+			}       
+			if(itemid >-1)
+				misc = itemsbuf[itemid].misc1;
+				
+			break;
+		}
+			
+		case wSSparkle:
+		{
+			/* Sparkles would be broken if we allowed them to be sized from here. 
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+playing_field_offset;}
+					// yofs+playing_field_offset == yofs+56.
+					//It is needed for the passive subscreen offset.
+					
+				}
+			}
+			*/
+			LOADGFX(linked_parent ? linked_parent : wSSPARKLE);
+			step=0;
+			break;
+		}
+			
+		case wFSparkle:
+		{
+			/* Sparkes would break if we sized them from the parent item.
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+playing_field_offset;}
+					// yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					
+				}
+			}
+			*/
+			LOADGFX(linked_parent ? linked_parent : wFSPARKLE);
+			step=0;
+			break;
+		}
+			
+		case wFire:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_candle);
+			}
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+				
+				switch(itemsbuf[parentitem].family)
+				{
+					case itype_dinsfire: // Din's Fire. This uses magicitem rather than itemid
+						if(magicitem >-1 && !isDummy)
+						defaultw = itemsbuf[magicitem].wpn5;
+						else defaultw = wFIRE;
+						step = 0; 
+						break;
+						
+					case itype_wand: // Wand
+						if(itemid>-1 && !isDummy)
+						defaultw = itemsbuf[itemid].wpn2;
+						else defaultw = wFIRE; //this is why setting ->type as weapon Level, for fire weapons has issues. 
+						step = 0;
+						break;
+						
+					case itype_candle: // Candles
+						hxofs = hyofs=1;
+						hxsz = hysz = 14;    
+						step = 0.5;
+						if ( parentitem > -1 )
+						{
+							//Port Item Editor Weapon Size Values
+							if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+								extend = 3; 
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+								/* yofs+playing_field_offset == yofs+56.
+								It is needed for the passive subscreen offset.
+								*/
+							}
+						}
+						if(itemid>-1 && !isDummy)
+						{
+							defaultw = itemsbuf[itemid].wpn3;
+							break;
+						}
+					
+					default:
+						defaultw = wFIRE;
+				}
+			}
+			else { defaultw = wFIRE; step = 0; }
+			
+			LOADGFX(defaultw);
+			glowRad = game->get_light_rad(); //Default light radius for fires
+			//step = (type<2)?.5:0;
+			
+			
+			if(BSZ)
+				yofs+=2;
+				
+			break;
+		}
+			
+		case wLitBomb:
+		case wBomb:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_bomb);
+			}
+			hxofs=hyofs=4;
+			hxsz=hysz=8;
+		
+		
+			if(itemid >-1)
+			{
+				defaultw = itemsbuf[itemid].wpn;
+				misc = (id==wBomb ? 1 : itemsbuf[itemid].misc1);
+			}
+			else
+			{
+				defaultw = wBOMB;
+				misc = (id==wBomb ? 1 : 50);
+			}
+			//This may not work for bombs, as they need special size data. We need a 'Special Size' tab.
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+		
+			LOADGFX(defaultw);
+			
+			break;
+		}
+		
+		case wLitSBomb:
+		case wSBomb:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
+			}
+			hxofs=hyofs=4;
+			hxsz=hysz=8;
+		
+			if ( parentitem > -1 )
+			{
+				defaultw = itemsbuf[itemid].wpn;
+					misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc1);
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+			else
+			{
+				defaultw = wSBOMB;
+				misc = (id==wSBomb ? 1 : 50);
+			}
+			
+			LOADGFX(defaultw);
+			
+			break;
+		}
+		
+		case wBait:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_bait);
+			}
+			
+			if(itemid >-1)
+				defaultw = itemsbuf[itemid].wpn;
+			else
+				defaultw = wBAIT;
+		
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+		
+			LOADGFX(defaultw);
+			break;
+		}
+			
+		case wMagic:
+		{
+			itemid = current_item_id(itype_book);
+			bool book = true;
+			
+			if(itemid<0)
+			{
+				itemid = directWpn>-1 ? directWpn : current_item_id(itype_wand);
+				book = false;
+			}
+			
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_wand);
+				book = false;
+			}
+			
+			if(itemid >-1)
+				// Book Magic sprite is wpn, Wand Magic sprite is wpn3.
+				defaultw = book ? itemsbuf[itemid].wpn : itemsbuf[itemid].wpn3;
+			else
+				defaultw = wMAGIC;
+			//Z_message("itemid: %d\n",itemid);
+			//Z_message("parentitem: %d\n",parentitem);
+		
+		
+			LOADGFX(defaultw);
+			if ( itemid > -1 )
+			{
+				Z_message("Flags: %d\n",itemsbuf[itemid].weapoverrideFLAGS);
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[itemid].weap_tilew;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[itemid].weap_tileh;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[itemid].weap_hxsz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[itemid].weap_hysz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[itemid].weap_hzsz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[itemid].weap_hxofs;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[itemid].weap_hyofs;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[itemid].weap_xofs;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[itemid].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+			//Z_message("Flags: %d\n",itemsbuf[itemid].weapoverrideFLAGS);
+			//Z_message("Extend: %d\n",extend);
+			//Z_message("TileWidth: %d\n",txsz);
+			//Z_message("TileHeight: %d\n",tysz);
+			step = (BSZ ? 3 : 2.5);
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+						flip=2;
+						
+					case up:
+						hyofs = ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
+						//2;
+						hysz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
+						//12;
+						break;
+						
+					case left:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
+						//2;
+						hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
+						//12;
+						break;
+				}
+			}
+			break;
+		}
+		
+		case wBrang:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_brang);
+			}
+			hxofs=4;
+			hxsz=7;
+			hyofs=2;
+			hysz=11;
+			if ( parentitem > -1 )
+			{
+				//Port Item Editor Weapon Size Values
+				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+					extend = 3; 
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+					/* yofs+playing_field_offset == yofs+56.
+					It is needed for the passive subscreen offset.
+					*/
+				}
+			}
+			
+			Z_message("itemid: %d\n",itemid);
+			Z_message("parentitem: %d\n",parentitem);
+			Z_message("extend: %d\n",extend);
+			Z_message("size flags: %d\n",itemsbuf[parentitem].weapoverrideFLAGS);
+			Z_message("TileWidth: %d\n",txsz);
+			Z_message("TileHeight: %d\n",tysz);
+			Z_message("HitWidth: %d\n",hxsz);
+			Z_message("HitHeight: %d\n",hysz);
+			Z_message("HitZHeight: %d\n",hzsz);
+			Z_message("HitXOffset: %d\n",hxofs);
+			Z_message("HitYOffset: %d\n",(int32_t)xofs);
+			Z_message("DrawYOffset: %d\n",(int32_t)yofs);
+			
+			
+			if(itemid >-1)
+				defaultw = itemsbuf[itemid].wpn;
+			else
+				defaultw = wBRANG;
+				
+			LOADGFX(defaultw);
+			
+			dummy_bool[0]=false;                                  //grenade armed?
+			break;
+		}
+			
+		case wHookshot:
+		{
+			hookshot_used=true;
+			
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
+			}
+			
+			if(itemid >-1)
+				defaultw = itemsbuf[itemid].wpn;
+			else
+				defaultw = wHSHEAD;
+				
+			LOADGFX(defaultw);
+			step = 4;
+			clk2=256;
+			
+			//Size Tab Settings here would be broken, IMO. -Z
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+						flip=2;
+						xofs+=4;
+						yofs+=1;
+						hyofs=2;
+						hysz=12;
+						break;
+						
+					case up:
+						yofs+=3;
+						xofs-=5;
+						hyofs=2;
+						hysz=12;
+						break;
+						
+					case left:
+						flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						xofs+=2;
+						yofs=playing_field_offset+4;
+						hxofs=2;
+						hxsz=12;
+						break;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						xofs-=2;
+						yofs=playing_field_offset+4;
+						hxofs=2;
+						hxsz=12;
+						break;
+					//Diagonal Hookshot (1)
+					case l_up:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						yofs+=3;
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=0;
+						break;
+					case r_down:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						yofs+=3; //check numbers ater
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=3;
+						break;
+					case l_down:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						yofs+=3;
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=2;
+						break;
+					case r_up:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						yofs+=3;
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=1;
+						break;
+				}
+				
+			}
+			break;
+		}
+			
+		case wHSHandle:
+		{
+			step = 0;
+			
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
+			}
+			
+			if(itemid >-1)
+				defaultw = itemsbuf[itemid].wpn4;
+			else
+				defaultw = wHSHANDLE;
+				
+			LOADGFX(defaultw);
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+						flip=2;
+						xofs+=4;
+						yofs+=1;
+						hyofs=2;
+						hysz=12;
+						break;
+						
+					case up:
+						yofs+=3;
+						xofs-=5;
+						hyofs=2;
+						hysz=12;
+						break;
+						
+					case left:
+						flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						xofs+=2;
+						yofs=playing_field_offset+4;
+						hxofs=2;
+						hxsz=12;
+						break;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						xofs-=2;
+						yofs=playing_field_offset+4;
+						hxofs=2;
+						hxsz=12;
+						break;
+				
+					//Diagonal Hookshot (5)
+					case r_down:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						yofs+=3; //check numbers ater
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=3;
+						break;
+					case l_down:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						yofs+=3;
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=2;
+						break;
+					case r_up:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						yofs+=3;
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=1;
+						break;
+					case l_up:
+						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						yofs+=3;
+						xofs-=3;
+						hysz=12;
+						hxsz=12;
+						//update gfx here
+						update_weapon_frame(((frames>1)?frames:0),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						flip=0;
+						break;
+				}
+				
+			}
+			break;
+		}
+			
+		case wHSChain:
+		{
+			if(isDummy || itemid<0)
+			{
+				itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
+			}
+			
+			if(itemid >-1)
+				defaultw = (dir<left) ? itemsbuf[itemid].wpn3 : itemsbuf[itemid].wpn2;
+			else
+				defaultw = (dir<left) ? wHSCHAIN_V : wHSCHAIN_H;
+				
+			step = 0;
+			
+			switch(dir)
+			{
+				case down:
+					LOADGFX(defaultw);
+					xofs+=4;
+					yofs-=7;
+					break;
+					
+				case up:
+					LOADGFX(defaultw);
+					xofs-=5;
+					yofs+=11;
+					break;
+					
+				case left:
+					LOADGFX(defaultw);
+					xofs+=10;
+					yofs=playing_field_offset+4;
+					break;
+					
+				case right:
+					LOADGFX(defaultw);
+					xofs-=10;
+					yofs=playing_field_offset+4;
+					break;
+				
+				//Diagonal Hookshot (4)
+				//Try drawing diagonal. -Z
+				//Sprites wpn5: Head, diagonal
+				//	  wpn6: handle, diagonal
+				//	  wpn7: chainlink, diagonal
+				//
+				case r_up:
+					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					xofs-=10;
+					yofs+=7;
+					update_weapon_frame(((frames>1)?frames:0),o_tile);
+					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					flip=1;
+					break;
+				case r_down:
+					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					xofs-=10;
+					yofs-=7;
+					update_weapon_frame(((frames>1)?frames:0),o_tile);
+					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					flip=3;
+					break;
+				case l_up:
+					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					xofs+=10;
+					yofs+=7;
+					update_weapon_frame(((frames>1)?frames:0),o_tile);
+					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					flip=0;
+					break;
+				case l_down:
+					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					xofs+=10;
+					yofs-=7;
+					update_weapon_frame(((frames>1)?frames:0),o_tile);
+					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					flip=2;
+					break;
+			}
+		}
+		break;
+		
+		//EWeapons 
+		//The ENemy Editor Needs a Weapon Tab for Sizing and other values. The Weapon Sprite field can move to /that/. -Z
+		case ewLitBomb:
+		case ewBomb:
+		{
+			if ( parentid > -1 )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite;
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				
+				else LOADGFX(ewBOMB);
+			}
+			else LOADGFX(ewBOMB);
+			hxofs=0;
+			hxsz=16;
+			
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hyofs=0;
+				hysz=16;
+			}
+			
+			if(id==ewBomb)
+				misc=2;
+			else
+				step=3;
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+					case l_down:
+					case r_down:
+						flip=2;
+						
+					case l_up:
+					case r_up:
+					case up:
+						break;
+						
+					case left:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						break;
+				}
+			}
+			break;
+		}
+			
+		case ewLitSBomb:
+		case ewSBomb:
+		{
+			if ( parentid > -1 )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewSBOMB);
+			}
+			else LOADGFX(ewSBOMB);
+			hxofs=0;
+			hxsz=16;
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hyofs=0;
+				hysz=16;
+			}
+			
+			if(id==ewSBomb)
+				misc=2;
+			else
+				step=3;
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+					case l_down:
+					case r_down:
+						flip=2;
+						
+					case up:
+					case r_up:
+					case l_up:
+						break;
+						
+					case left:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						break;
+				}
+				
+			}
+			break;
+		}
+			
+		case ewBrang:
+		{
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=0;
+				hxsz=16;
+				hyofs=0;
+				hysz=16;
+			}
+			else
+			{
+				hxofs=4;
+				hxsz=8;
+			}
+			
+			wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
+			if ( parentid > -1 )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(wid);
+			}
+			else LOADGFX(wid);
+			break;
+		}
+			
+		case ewFireball2:
+		{
+			if(dir < 8)
+				misc=dir;
+			else
+			{
+				misc = -1;
+			}
+		}
+		//fallthrough
+		case ewFireball:
+		{
+			if ( parentid > -1 && !isLWeapon )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewFIREBALL);
+			}
+			else LOADGFX(ewFIREBALL);
+			step=1.75;
+			
+			if(Type&2)
+			{
+				seekLink();
+			}
+			else misc=-1;
+			
+			break;
+		}
+		case wRefFireball:
+		{
+			LOADGFX(ewFIREBALL);
+			step=1.75;
+			
+			if(Type&2)
+			{
+				seekLink();
+			}
+			else misc=-1;
+			
+			break;
+		}
+			
+		case ewRock:
+		{
+			if ( parentid > -1 && !isLWeapon )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewROCK);
+			}
+			else LOADGFX(ewROCK);
+			
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=0;
+				hxsz=16;
+				hyofs=0;
+				hysz=16;
+			}
+			else
+			{
+				hxofs=4;
+				hxsz=8;
+			}
+			
+			step=3;
+			break;
+		}
+			
+		case ewArrow:
+		{
+			if ( parentid > -1 && !isLWeapon )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewARROW);
+			}
+			else LOADGFX(ewARROW);
+			step=2;
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+					case l_down:
+					case r_down:
+						flip=2;
+						
+					case r_up:
+					case l_up:
+					case up:
+						xofs=-4;
+						hxsz=8;
+						break;
+						
+					case left:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=playing_field_offset+1;
+						break;
+				}
+			}
+			break;
+		}
+			
+		case ewSword:
+		{
+			if ( parentid > -1 && !isLWeapon )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewSWORD);
+			}
+			else LOADGFX(ewSWORD);
+			
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=0;
+				hxsz=16;
+				hyofs=0;
+				hysz=16;
+			}
+			else
+			{
+				hxofs=4;
+				hxsz=8;
+			}
+			
+			step=3;
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+					case l_down:
+					case r_down:
+						flip=2;
+						
+					case up:
+					case r_up:
+					case l_up:
+						break;
+						
+					case left:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=playing_field_offset+1;
+						break;
+				}
+			}
+			break;
+		}
+			
+		case wRefMagic:
+		case ewMagic:
+		{
+			//reached case wRefMagic in weapons.cpp
+			//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1734);
+			if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewMAGIC);
+			}
+			else LOADGFX(ewMAGIC);
+			
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=0;
+				hxsz=16;
+				hyofs=0;
+				hysz=16;
+			}
+			else
+			{
+				hxofs=4;
+				hxsz=8;
+			}
+			
+			step=3;
+			if ( do_animation ) 
+			{
+				switch(dir)
+				{
+					case down:
+					case l_down:
+					case r_down:
+						flip=2;
+						
+					case up:
+					case r_up:
+					case l_up:
+						break;
+						
+					case left:
+						flip=1;
+						
+					case right: /*tile=o_tile+((frames>1)?frames:1)*/
+						update_weapon_frame(((frames>1)?frames:1),o_tile);
+						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=playing_field_offset+1;
+						break;
+				}
+			}
+			if(id==wRefMagic)
+			{
+				//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1779);
+				ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
+			}
+			
+			break;
+		}
+		case ewFlame:
+		case ewFlame2:
+		{
+			if(id==ewFlame)
+			{
+				if ( parentid > -1  && !script_gen && !isLWeapon)
+				{
+					enemy *e = (enemy*)guys.getByUID(parentid);
+					int32_t enemy_wpnsprite = e->wpnsprite; 
+					if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+					else LOADGFX(ewFLAME);
+				}
+				else LOADGFX(ewFLAME);
+			}
+			else
+			{
+				if ( parentid > -1 && !script_gen &&!isLWeapon )
+				{
+					enemy *e = (enemy*)guys.getByUID(parentid);
+					int32_t enemy_wpnsprite = e->wpnsprite; 
+					if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+					else LOADGFX(ewFLAME2);
+				}
+				else LOADGFX(ewFLAME2);
+			}
+			if(dir==255)
+			{
+				step=2;
+				seekLink();
+			}
+			else
+			{
+				/*if(Dir<0)
+				{
+					step = 0;
+				}*/
+				if(dir>right)
+				{
+					step = .707;
+				}
+				else
+				{
+					step = 1;
+				}
+			}
+			
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=hyofs=0;
+				hxsz=hysz=16;
+			}
+			else
+			{
+				hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
+				hxsz = hysz = 14;
+			}
+			
+			if(BSZ)
+				yofs+=2;
+				
+			break;
+		}
+			
+		case ewFireTrail:
+		{
+			if ( parentid > -1 && !script_gen &&!isLWeapon)
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite; 
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewFIRETRAIL);
+			}
+			else LOADGFX(ewFIRETRAIL);
+			step=0;
+			dir=-1;
+			
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=hyofs=0;
+				hxsz=hysz=16;
+			}
+			else
+			{
+				hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
+				hxsz = hysz = 15;
+			}
+			
+			if(BSZ)
+				yofs+=2;
+				
+			break;
+		}
+			
+		case ewWind:
+		{
+			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			{
+				hxofs=hyofs=0;
+				hxsz=hysz=16;
+			}
+			
+			if ( parentid > -1 && !script_gen &&!isLWeapon)
+			{
+				enemy *e = (enemy*)guys.getByUID(parentid);
+				int32_t enemy_wpnsprite = e->wpnsprite;
+				if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
+				else LOADGFX(ewWIND);
+			}
+			else LOADGFX(ewWIND);
+			clk=0;
+			step=3;
+			break;
+		}
+			
+		case wPhantom:
+		{
+			switch(type)
+			{
+				case pDINSFIREROCKET:
+					if(get_bit(quest_rules,qr_MORESOUNDS))
+						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
+						
+					LOADGFX(itemsbuf[parentitem].wpn);
+					step = 4;
+					break;
+					
+				case pDINSFIREROCKETRETURN:
+					if(get_bit(quest_rules,qr_MORESOUNDS))
+						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
+						
+					LOADGFX(itemsbuf[parentitem].wpn2);
+					step = 4;
+					break;
+					
+				case pDINSFIREROCKETTRAIL:
+					LOADGFX(itemsbuf[parentitem].wpn3);
+					break;
+					
+				case pDINSFIREROCKETTRAILRETURN:
+					LOADGFX(itemsbuf[parentitem].wpn4);
+					break;
+					
+				case pMESSAGEMORE:
+					LOADGFX(iwMore);
+					break;
+					
+				case pNAYRUSLOVEROCKET1:
+					LOADGFX(itemsbuf[parentitem].wpn);
+					
+					if(get_bit(quest_rules,qr_MORESOUNDS))
+						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
+						
+					step = 4;
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKETRETURN1:
+					LOADGFX(itemsbuf[parentitem].wpn2);
+					
+					if(get_bit(quest_rules,qr_MORESOUNDS))
+						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
+						
+					step = 4;
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKETTRAIL1:
+					LOADGFX(itemsbuf[parentitem].wpn3);
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKETTRAILRETURN1:
+					LOADGFX(itemsbuf[parentitem].wpn4);
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKET2:
+					LOADGFX(itemsbuf[parentitem].wpn6);
+					step = 4;
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKETRETURN2:
+					LOADGFX(itemsbuf[parentitem].wpn7);
+					step = 4;
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKETTRAIL2:
+					LOADGFX(itemsbuf[parentitem].wpn8);
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				case pNAYRUSLOVEROCKETTRAILRETURN2:
+					LOADGFX(itemsbuf[parentitem].wpn9);
+					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
+					break;
+					
+				default:
+					tile=0;
+					break;
+			}
+			
+			break;
+		}
 		
 		default:
-		    defaultw = wFIRE;
-		}
-	}
-        else { defaultw = wFIRE; step = 0; }
-        
-        LOADGFX(defaultw);
-		glowRad = game->get_light_rad(); //Default light radius for fires
-        //step = (type<2)?.5:0;
-        
-        
-        if(BSZ)
-            yofs+=2;
-            
-        break;
-        
-    case wLitBomb:
-    case wBomb:
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_bomb);
-        }
-        hxofs=hyofs=4;
-        hxsz=hysz=8;
-	
-	
-        if(itemid >-1)
-        {
-            defaultw = itemsbuf[itemid].wpn;
-            misc = (id==wBomb ? 1 : itemsbuf[itemid].misc1);
-        }
-        else
-        {
-            defaultw = wBOMB;
-            misc = (id==wBomb ? 1 : 50);
-        }
-        //This may not work for bombs, as they need special size data. We need a 'Special Size' tab.
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
+			LOADGFX(0);
+			break;
 	}
 	
-        LOADGFX(defaultw);
-        
-        break;
-    }
-    
-    case wLitSBomb:
-    case wSBomb:
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
-        }
-        hxofs=hyofs=4;
-        hxsz=hysz=8;
-	
-	if ( parentitem > -1 )
+	if(id>wEnemyWeapons && id!=ewBrang && (Type&4)!=0)  // Increase speed of Aquamentus 2 fireballs
 	{
-		defaultw = itemsbuf[itemid].wpn;
-            misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc1);
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
+		step *=2;
 	}
-        else
-        {
-            defaultw = wSBOMB;
-            misc = (id==wSBomb ? 1 : 50);
-        }
-        
-        LOADGFX(defaultw);
-        
-        break;
-    }
-    
-    case wBait:
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_bait);
-        }
-        
-        if(itemid >-1)
-            defaultw = itemsbuf[itemid].wpn;
-        else
-            defaultw = wBAIT;
-	
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}
-	
-        LOADGFX(defaultw);
-        break;
-        
-    case wMagic:
-    {
-        itemid = current_item_id(itype_book);
-        bool book = true;
-        
-        if(itemid<0)
-        {
-            itemid = directWpn>-1 ? directWpn : current_item_id(itype_wand);
-            book = false;
-        }
-        
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_wand);
-            book = false;
-        }
-        
-        if(itemid >-1)
-            // Book Magic sprite is wpn, Wand Magic sprite is wpn3.
-            defaultw = book ? itemsbuf[itemid].wpn : itemsbuf[itemid].wpn3;
-        else
-            defaultw = wMAGIC;
-	//Z_message("itemid: %d\n",itemid);
-	//Z_message("parentitem: %d\n",parentitem);
-	
-	
-        LOADGFX(defaultw);
-	if ( itemid > -1 )
-	{
-		Z_message("Flags: %d\n",itemsbuf[itemid].weapoverrideFLAGS);
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[itemid].weap_tilew;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[itemid].weap_tileh;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[itemid].weap_hxsz;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[itemid].weap_hysz;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[itemid].weap_hzsz;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[itemid].weap_hxofs;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[itemid].weap_hyofs;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[itemid].weap_xofs;}
-			if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[itemid].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}
-	//Z_message("Flags: %d\n",itemsbuf[itemid].weapoverrideFLAGS);
-	//Z_message("Extend: %d\n",extend);
-	//Z_message("TileWidth: %d\n",txsz);
-	//Z_message("TileHeight: %d\n",tysz);
-        step = (BSZ ? 3 : 2.5);
-        if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-            flip=2;
-            
-        case up:
-            hyofs = ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
-	//2;
-            hysz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
-	//12;
-            break;
-            
-        case left:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
-	//2;
-            hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
-	//12;
-            break;
-        }
-	}
-        break;
-	
-    }
-    
-    case wBrang:
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_brang);
-        }
-        hxofs=4;
-        hxsz=7;
-        hyofs=2;
-        hysz=11;
-	if ( parentitem > -1 )
-	{
-		//Port Item Editor Weapon Size Values
-		if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-			extend = 3; 
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-			if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-			/* yofs+playing_field_offset == yofs+56.
-			It is needed for the passive subscreen offset.
-			*/
-		}
-	}
-	
-	Z_message("itemid: %d\n",itemid);
-	Z_message("parentitem: %d\n",parentitem);
-	Z_message("extend: %d\n",extend);
-	Z_message("size flags: %d\n",itemsbuf[parentitem].weapoverrideFLAGS);
-	Z_message("TileWidth: %d\n",txsz);
-	Z_message("TileHeight: %d\n",tysz);
-	Z_message("HitWidth: %d\n",hxsz);
-	Z_message("HitHeight: %d\n",hysz);
-	Z_message("HitZHeight: %d\n",hzsz);
-	Z_message("HitXOffset: %d\n",hxofs);
-	Z_message("HitYOffset: %d\n",(int32_t)xofs);
-	Z_message("DrawYOffset: %d\n",(int32_t)yofs);
-	
-	
-        if(itemid >-1)
-            defaultw = itemsbuf[itemid].wpn;
-        else
-            defaultw = wBRANG;
-            
-        LOADGFX(defaultw);
-        
-        dummy_bool[0]=false;                                  //grenade armed?
-        break;
-        
-    case wHookshot:
-    {
-        hookshot_used=true;
-        
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
-        }
-        
-        if(itemid >-1)
-            defaultw = itemsbuf[itemid].wpn;
-        else
-            defaultw = wHSHEAD;
-            
-        LOADGFX(defaultw);
-        step = 4;
-        clk2=256;
-        
-	//Size Tab Settings here would be broken, IMO. -Z
-	if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-            flip=2;
-            xofs+=4;
-            yofs+=1;
-            hyofs=2;
-            hysz=12;
-            break;
-            
-        case up:
-            yofs+=3;
-            xofs-=5;
-            hyofs=2;
-            hysz=12;
-            break;
-            
-        case left:
-            flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            xofs+=2;
-            yofs=playing_field_offset+4;
-            hxofs=2;
-            hxsz=12;
-            break;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            xofs-=2;
-            yofs=playing_field_offset+4;
-            hxofs=2;
-            hxsz=12;
-            break;
-	//Diagonal Hookshot (1)
-	case l_up:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
-		yofs+=3;
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=0;
-		break;
-	case r_down:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
-		yofs+=3; //check numbers ater
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=3;
-		break;
-	case l_down:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
-		yofs+=3;
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=2;
-		break;
-	case r_up:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
-		yofs+=3;
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=1;
-		break;
-	
-        }
-        
-	}
-	break;
-    }
-        
-    case wHSHandle:
-        step = 0;
-        
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
-        }
-        
-        if(itemid >-1)
-            defaultw = itemsbuf[itemid].wpn4;
-        else
-            defaultw = wHSHANDLE;
-            
-        LOADGFX(defaultw);
-        if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-            flip=2;
-            xofs+=4;
-            yofs+=1;
-            hyofs=2;
-            hysz=12;
-            break;
-            
-        case up:
-            yofs+=3;
-            xofs-=5;
-            hyofs=2;
-            hysz=12;
-            break;
-            
-        case left:
-            flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            xofs+=2;
-            yofs=playing_field_offset+4;
-            hxofs=2;
-            hxsz=12;
-            break;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            xofs-=2;
-            yofs=playing_field_offset+4;
-            hxofs=2;
-            hxsz=12;
-            break;
-	
-	//Diagonal Hookshot (5)
-	case r_down:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
-		yofs+=3; //check numbers ater
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=3;
-		break;
-	case l_down:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
-		yofs+=3;
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=2;
-		break;
-	case r_up:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
-		yofs+=3;
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=1;
-		break;
-	case l_up:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
-		yofs+=3;
-		xofs-=3;
-		hysz=12;
-		hxsz=12;
-		//update gfx here
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=0;
-		break;
-        }
-        
-	}
-	break;
-        
-    case wHSChain:
-    {
-        if(isDummy || itemid<0)
-        {
-            itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
-        }
-        
-        if(itemid >-1)
-            defaultw = (dir<left) ? itemsbuf[itemid].wpn3 : itemsbuf[itemid].wpn2;
-        else
-            defaultw = (dir<left) ? wHSCHAIN_V : wHSCHAIN_H;
-            
-        step = 0;
-        
-        switch(dir)
-        {
-        case down:
-            LOADGFX(defaultw);
-            xofs+=4;
-            yofs-=7;
-            break;
-            
-        case up:
-            LOADGFX(defaultw);
-            xofs-=5;
-            yofs+=11;
-            break;
-            
-        case left:
-            LOADGFX(defaultw);
-            xofs+=10;
-            yofs=playing_field_offset+4;
-            break;
-            
-        case right:
-            LOADGFX(defaultw);
-            xofs-=10;
-            yofs=playing_field_offset+4;
-            break;
-	
-	//Diagonal Hookshot (4)
-	//Try drawing diagonal. -Z
-	//Sprites wpn5: Head, diagonal
-	//	  wpn6: handle, diagonal
-	//	  wpn7: chainlink, diagonal
-	//
-	case r_up:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
-		xofs-=10;
-		yofs+=7;
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=1;
-		break;
-	case r_down:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
-		xofs-=10;
-		yofs-=7;
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=3;
-		break;
-	case l_up:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
-		xofs+=10;
-		yofs+=7;
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=0;
-		break;
-	case l_down:
-		LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
-		xofs+=10;
-		yofs-=7;
-		update_weapon_frame(((frames>1)?frames:0),o_tile);
-		if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-		flip=2;
-		break;
-        }
-    }
-    break;
-    
-    //EWeapons 
-    //The ENemy Editor Needs a Weapon Tab for Sizing and other values. The Weapon Sprite field can move to /that/. -Z
-    case ewLitBomb:
-    case ewBomb:
-        if ( parentid > -1 )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite;
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		
-		else LOADGFX(ewBOMB);
-	}
-	
-	else LOADGFX(ewBOMB);
-        hxofs=0;
-        hxsz=16;
-        
-		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-		{
-			hyofs=0;
-			hysz=16;
-		}
-        
-        if(id==ewBomb)
-            misc=2;
-        else
-            step=3;
-	if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-	case l_down:
-	case r_down:
-            flip=2;
-            
-	case l_up:
-	case r_up:
-        case up:
-            break;
-            
-        case left:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            break;
-        }
-	}
-        break;
-        
-    case ewLitSBomb:
-    case ewSBomb:
-        if ( parentid > -1 )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewSBOMB);
-	}
-	else LOADGFX(ewSBOMB);
-        hxofs=0;
-        hxsz=16;
-		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-		{
-			hyofs=0;
-			hysz=16;
-		}
-        
-        if(id==ewSBomb)
-            misc=2;
-        else
-            step=3;
-	if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-	case l_down:
-	case r_down:
-            flip=2;
-            
-        case up:
-	case r_up:
-	case l_up:
-            break;
-            
-        case left:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            break;
-        }
-        
-	}
-	break;
-        
-    case ewBrang:
-        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-        {
-            hxofs=0;
-            hxsz=16;
-			hyofs=0;
-			hysz=16;
-        }
-        else
-        {
-            hxofs=4;
-            hxsz=8;
-        }
-        
-        wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
-        if ( parentid > -1 )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(wid);
-	}
-	else LOADGFX(wid);
-        break;
-        
-    case ewFireball2:
-        if(dir < 8)
-            misc=dir;
-        else
-        {
-            misc = -1;
-        }
-        
-        //fallthrough
-    case ewFireball:
-    {
-        if ( parentid > -1 && !isLWeapon )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewFIREBALL);
-	}
-	else LOADGFX(ewFIREBALL);
-        step=1.75;
-        
-        if(Type&2)
-        {
-            seekLink();
-        }
-        else misc=-1;
-        
-        break;
-    }
-    case wRefFireball:
-    {
-        LOADGFX(ewFIREBALL);
-        step=1.75;
-        
-        if(Type&2)
-        {
-            seekLink();
-        }
-        else misc=-1;
-        
-        break;
-    }
-        
-    case ewRock:
-        if ( parentid > -1 && !isLWeapon )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewROCK);
-	}
-	else LOADGFX(ewROCK);
-        
-        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-        {
-            hxofs=0;
-            hxsz=16;
-			hyofs=0;
-			hysz=16;
-        }
-        else
-        {
-            hxofs=4;
-            hxsz=8;
-        }
-        
-        step=3;
-        break;
-        
-    case ewArrow:
-        if ( parentid > -1 && !isLWeapon )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewARROW);
-	}
-	else LOADGFX(ewARROW);
-        step=2;
-        if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-	case l_down:
-	case r_down:
-            flip=2;
-            
-	case r_up:
-	case l_up:
-        case up:
-            xofs=-4;
-            hxsz=8;
-            break;
-            
-        case left:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            yofs=playing_field_offset+1;
-            break;
-        }
-        
-	}
-	break;
-        
-    case ewSword:
-        if ( parentid > -1 && !isLWeapon )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewSWORD);
-	}
-	else LOADGFX(ewSWORD);
-        
-        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-        {
-            hxofs=0;
-            hxsz=16;
-			hyofs=0;
-			hysz=16;
-        }
-        else
-        {
-            hxofs=4;
-            hxsz=8;
-        }
-        
-        step=3;
-        if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-	case l_down:
-	case r_down:
-            flip=2;
-            
-        case up:
-	case r_up:
-	case l_up:
-            break;
-            
-        case left:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            yofs=playing_field_offset+1;
-            break;
-        }
-        
-	}
-	break;
-        
-    case wRefMagic:
-    case ewMagic:
-    {
-        //reached case wRefMagic in weapons.cpp
-        //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1734);
-        if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewMAGIC);
-	}
-	else LOADGFX(ewMAGIC);
-        
-        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-        {
-            hxofs=0;
-            hxsz=16;
-			hyofs=0;
-			hysz=16;
-        }
-        else
-        {
-            hxofs=4;
-            hxsz=8;
-        }
-        
-        step=3;
-        if ( do_animation ) 
-	{
-        switch(dir)
-        {
-        case down:
-	case l_down:
-	case r_down:
-            flip=2;
-            
-        case up:
-	case r_up:
-	case l_up:
-            break;
-            
-        case left:
-            flip=1;
-            
-        case right: /*tile=o_tile+((frames>1)?frames:1)*/
-            update_weapon_frame(((frames>1)?frames:1),o_tile);
-	    if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-            yofs=playing_field_offset+1;
-            break;
-        }
-        
-	}
-	if(id==wRefMagic)
-        {
-            //al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",1779);
-            ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
-        }
-        
-        break;
-    }
-    case ewFlame:
-    case ewFlame2:
-	if(id==ewFlame)
-	{
-		if ( parentid > -1  && !script_gen && !isLWeapon)
-		{
-			enemy *e = (enemy*)guys.getByUID(parentid);
-			int32_t enemy_wpnsprite = e->wpnsprite; 
-			if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-			else LOADGFX(ewFLAME);
-		}
-		else LOADGFX(ewFLAME);
-	}
-        else
-	{
-		if ( parentid > -1 && !script_gen &&!isLWeapon )
-		{
-			enemy *e = (enemy*)guys.getByUID(parentid);
-			int32_t enemy_wpnsprite = e->wpnsprite; 
-			if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-			else LOADGFX(ewFLAME2);
-		}
-		else LOADGFX(ewFLAME2);
-	}
-        if(dir==255)
-        {
-            step=2;
-            seekLink();
-        }
-        else
-        {
-            /*if(Dir<0)
-            {
-            	step = 0;
-            }*/
-            if(dir>right)
-            {
-                step = .707;
-            }
-            else
-            {
-                step = 1;
-            }
-        }
-        
-		if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-		{
-			hxofs=hyofs=0;
-			hxsz=hysz=16;
-		}
-		else
-		{
-			hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
-			hxsz = hysz = 14;
-		}
-        
-        if(BSZ)
-            yofs+=2;
-            
-        break;
-        
-    case ewFireTrail:
-        if ( parentid > -1 && !script_gen &&!isLWeapon)
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite; 
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewFIRETRAIL);
-	}
-	else LOADGFX(ewFIRETRAIL);
-        step=0;
-        dir=-1;
-        
-        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-		{
-			hxofs=hyofs=0;
-			hxsz=hysz=16;
-		}
-		else
-		{
-			hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
-			hxsz = hysz = 15;
-		}
-        
-        if(BSZ)
-            yofs+=2;
-            
-        break;
-        
-    case ewWind:
-        if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
-		{
-			hxofs=hyofs=0;
-			hxsz=hysz=16;
-		}
-		
-        if ( parentid > -1 && !script_gen &&!isLWeapon)
-	{
-		enemy *e = (enemy*)guys.getByUID(parentid);
-		int32_t enemy_wpnsprite = e->wpnsprite;
-		if ( enemy_wpnsprite > 0 ) LOADGFX(enemy_wpnsprite);
-		else LOADGFX(ewWIND);
-	}
-	else LOADGFX(ewWIND);
-        clk=0;
-        step=3;
-        break;
-        
-    case wPhantom:
-        switch(type)
-        {
-        case pDINSFIREROCKET:
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int32_t)x);
-                
-            LOADGFX(itemsbuf[parentitem].wpn);
-            step = 4;
-            break;
-            
-        case pDINSFIREROCKETRETURN:
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
-                
-            LOADGFX(itemsbuf[parentitem].wpn2);
-            step = 4;
-            break;
-            
-        case pDINSFIREROCKETTRAIL:
-            LOADGFX(itemsbuf[parentitem].wpn3);
-            break;
-            
-        case pDINSFIREROCKETTRAILRETURN:
-            LOADGFX(itemsbuf[parentitem].wpn4);
-            break;
-            
-        case pMESSAGEMORE:
-            LOADGFX(iwMore);
-            break;
-            
-        case pNAYRUSLOVEROCKET1:
-            LOADGFX(itemsbuf[parentitem].wpn);
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETUP,(int32_t)x);
-                
-            step = 4;
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETRETURN1:
-            LOADGFX(itemsbuf[parentitem].wpn2);
-            
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
-                
-            step = 4;
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAIL1:
-            LOADGFX(itemsbuf[parentitem].wpn3);
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAILRETURN1:
-            LOADGFX(itemsbuf[parentitem].wpn4);
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKET2:
-            LOADGFX(itemsbuf[parentitem].wpn6);
-            step = 4;
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETRETURN2:
-            LOADGFX(itemsbuf[parentitem].wpn7);
-            step = 4;
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAIL2:
-            LOADGFX(itemsbuf[parentitem].wpn8);
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        case pNAYRUSLOVEROCKETTRAILRETURN2:
-            LOADGFX(itemsbuf[parentitem].wpn9);
-            drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
-            break;
-            
-        default:
-            tile=0;
-            break;
-        }
-        
-        break;
-        
-//	case wScript1:
-//	case wScript2:
-//	case wScript3:
-//	case wScript4:
-//	case wScript5:
-//	case wScript6:
-//	case wScript7:
-//	case wScript8:
-//	case wScript9:
-//	case wScript10:
-//	{
-		//LOADGFX(0);
-		//if ( do_animation ) update_weapon_frame(((frames>1)?frames:1),o_tile);
-		//break;
-//	}
-	
-    default:
-        LOADGFX(0);
-        break;
-    }
-    
-    if(id>wEnemyWeapons && id!=ewBrang && (Type&4)!=0)  // Increase speed of Aquamentus 2 fireballs
-    {
-        step *=2;
-    }
 }
 
 int32_t weapon::getScriptUID() { return script_UID; }
@@ -4362,6 +4375,7 @@ bool weapon::animate(int32_t index)
 			}
 		case wWand:
 		case wHammer:
+		case wBugNet:
 			if(LinkAction()!=attacking && LinkAction()!=sideswimattacking && LinkAction()!=ischarging && !LinkCharged())
 			{
 				dead=0;
@@ -7366,6 +7380,7 @@ offscreenCheck:
     case wSword:
     case wWand:
     case wHammer:
+    case wBugNet:
         break;
         
     case ewBomb:
@@ -7574,6 +7589,7 @@ bool weapon::hit(sprite *s)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
+	if(id==wBugNet) return false;
     if(id==ewBrang && misc)
         return false;
         
@@ -7584,6 +7600,7 @@ bool weapon::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,in
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
+	if(id==wBugNet) return false;
     if(id==ewBrang && misc)
         return false;
         

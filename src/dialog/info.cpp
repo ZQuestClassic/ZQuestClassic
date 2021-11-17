@@ -2,6 +2,11 @@
 #include <gui/builder.h>
 #include <utility>
 
+void displayinfo(std::string title, std::string text)
+{
+	InfoDialog(title,text).show();
+}
+
 InfoDialog::InfoDialog(std::string title, std::string text):
 	dlgTitle(title),
 	dlgText(text)

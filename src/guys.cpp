@@ -18689,6 +18689,12 @@ void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 	items.add(i);
 }
 
+void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
+{
+	item *i = new item((zfix)x,(zfix)y-(get_bit(quest_rules, qr_NOITEMOFFSET)),(zfix)0,id,pickup,0,true);
+	items.add(i);
+}
+
 void kill_em_all()
 {
 	for(int32_t i=0; i<guys.Count(); i++)
@@ -21251,6 +21257,88 @@ void setupscreen()
 		
 		break;
 	}
+	case rBOTTLESHOP:                                       // bottle shop
+	{
+		int32_t count = 0;
+		int32_t base  = 88;
+		int32_t step  = 5;
+		
+		moneysign();
+		bottleshoptype const& bst = QMisc.bottle_shop_types[tmpscr[t].catchall];
+		//count and align the stuff
+		for(int32_t i=0; i<3; ++i)
+		{
+			if(bst.fill[count] != 0)
+			{
+				++count;
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		if(count==1)
+		{
+			base = 88+32;
+		}
+		
+		if(count==2)
+		{
+			step = 6;
+		}
+		
+		for(int32_t i=0; i<count; i++)
+		{
+			adddummyitem((i<<step)+base, 89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
+			//{ Setup dummy item
+			item* curItem = ((item*)items.spr(items.Count()-1));
+			curItem->PriceIndex = i;
+			newcombo const& cmb = combobuf[bst.comb[i]];
+			curItem->o_tile = cmb.o_tile;
+			curItem->o_cset = bst.cset[i];
+			curItem->cs = curItem->o_cset;
+			curItem->tile = cmb.o_tile;
+			curItem->o_speed = cmb.speed;
+			curItem->o_delay = 0;
+			curItem->frames = cmb.frames;
+			curItem->flip = cmb.flip;
+			curItem->family = itype_bottlefill; //no pickup w/o empty bottle
+			curItem->pstring = 0;
+			curItem->pickup = ipHOLDUP+ipFADE+ipCHECK;
+			curItem->flash = false;
+			curItem->twohand = false;
+			curItem->anim = true;
+			curItem->hxsz=1;
+			curItem->hyofs=4;
+			curItem->hysz=12;
+			curItem->script=0;
+			curItem->txsz=1;
+			curItem->tysz=1;
+			//}
+			
+			prices[i] = bst.price[i];
+			if(prices[i]==0)
+				prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
+			int32_t itemid = current_item_id(itype_wealthmedal);
+			
+			if(itemid>=0 && prices[i]!=100000)
+			{
+				if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
+				else
+					prices[i]+=itemsbuf[itemid].misc1;
+				prices[i]=vbound(prices[i], 0, 99999);
+				if(prices[i]==0)
+					prices[i]=100000;
+			}
+			
+			if((bst.price[i])>1 && prices[i]<1)
+				prices[i]=1;
+		}
+		
+		break;
+	}
 	
 	case rBOMBS:                                            // more bombs
 		additem(120,89,iRupy,ipDUMMY+ipMONEY);
@@ -21414,6 +21502,7 @@ bool parsemsgcode()
 		case MSGC_GIVEITEM:
 		{
 			int32_t itemID = grab_next_argument();
+			
 			getitem(itemID, true);
 			if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
 			{

@@ -117,6 +117,7 @@ public:
 	static ListData itemclass(bool numbered = false);
 	static ListData counters();
 	static ListData miscsprites();
+	static ListData bottletype();
 	
 	static ListData lweaptypes();
 	static ListData const& deftypes();

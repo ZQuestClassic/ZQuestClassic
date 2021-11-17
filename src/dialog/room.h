@@ -23,8 +23,8 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	GUI::ListData itemListData, shopListData, infoShopListData, stringListData;
-	std::shared_ptr<GUI::DropDownList> shopDD, infoShopDD, itemDD;
+	GUI::ListData itemListData, shopListData, bshopListData, infoShopListData, stringListData;
+	std::shared_ptr<GUI::DropDownList> shopDD, bshopDD, infoShopDD, itemDD;
 	std::shared_ptr<GUI::TextField> argTF;
 	std::shared_ptr<GUI::Switcher> argSwitcher;
 	std::shared_ptr<GUI::Label> argLabel;

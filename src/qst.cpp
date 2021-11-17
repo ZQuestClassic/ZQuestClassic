@@ -5047,692 +5047,691 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdat
 
 int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
 {
-    word maxinfos=256;
-    word maxshops=256;
-    word shops=16, infos=16, warprings=8, palcycles=256, windwarps=9, triforces=8, icons=4;
-    word ponds=16, pondsize=72, expansionsize=98*2;
-    byte tempbyte, padding;
-    miscQdata temp_misc;
-    word s_version=0, s_cversion=0;
-    word swaptmp;
-    int32_t tempsize=0;
-    
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
-    
-    for(int32_t i=0; i<maxshops; ++i)
-    {
-        memset(&temp_misc.shop, 0, sizeof(shoptype)*256);
-    }
-    
-    for(int32_t i=0; i<maxinfos; ++i)
-    {
-        memset(&temp_misc.info, 0, sizeof(infotype)*256);
-    }
-    
-    if(Header->zelda_version > 0x192)
-    {
-        //section version info
-        if(!p_igetw(&s_version,f,true))
-        {
-            return qe_invalid;
-        }
+	word maxinfos=256;
+	word maxshops=256;
+	word shops=16, infos=16, warprings=8, palcycles=256, windwarps=9, triforces=8, icons=4;
+	word ponds=16, pondsize=72, expansionsize=98*2;
+	byte tempbyte, padding;
+	miscQdata temp_misc;
+	word s_version=0, s_cversion=0;
+	word swaptmp;
+	int32_t tempsize=0;
 	
-	FFCore.quest_format[vMisc] = s_version;
-        
-        //al_trace("Misc. data version %d\n", s_version);
-        if(!p_igetw(&s_cversion,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        
-        //section size
-        if(!p_igetl(&tempsize,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    //finally...  section data
-    readsize=0;
-    
-    //shops
-    if(Header->zelda_version > 0x192)
-    {
-        if(!p_igetw(&shops,f,true))
-        {
-            return qe_invalid;
-        }
-        
-    }
-    
-    for(int32_t i=0; i<shops; i++)
-    {
-        if(s_version > 6)
-        {
-            if(!pfread(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name),f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        for(int32_t j=0; j<3; j++)
-        {
-            if(!p_getc(&temp_misc.shop[i].item[j],f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version < 4)
-            {
-                temp_misc.shop[i].hasitem[j] = (temp_misc.shop[i].item[j] == 0) ? 0 : 1;
-            }
-        }
-        
-        if(Header->zelda_version < 0x193)
-        {
-            if(!p_getc(&tempbyte,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        for(int32_t j=0; j<3; j++)
-        {
-            if(!p_igetw(&temp_misc.shop[i].price[j],f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(s_version > 3)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_getc(&temp_misc.shop[i].hasitem[j],f,true))
-                    return qe_invalid;
-            }
-        }
+	memcpy(&temp_misc,Misc,sizeof(temp_misc));
+	
+	for(int32_t i=0; i<maxshops; ++i)
+	{
+		memset(&temp_misc.shop, 0, sizeof(shoptype)*256);
+	}
+	
+	for(int32_t i=0; i<maxinfos; ++i)
+	{
+		memset(&temp_misc.info, 0, sizeof(infotype)*256);
+	}
+	
+	if(Header->zelda_version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&s_version,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		FFCore.quest_format[vMisc] = s_version;
+		
+		//al_trace("Misc. data version %d\n", s_version);
+		if(!p_igetw(&s_cversion,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		
+		//section size
+		if(!p_igetl(&tempsize,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	//finally...  section data
+	readsize=0;
+	
+	//shops
+	if(Header->zelda_version > 0x192)
+	{
+		if(!p_igetw(&shops,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	for(int32_t i=0; i<shops; i++)
+	{
+		if(s_version > 6)
+		{
+			if(!pfread(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name),f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		for(int32_t j=0; j<3; j++)
+		{
+			if(!p_getc(&temp_misc.shop[i].item[j],f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(s_version < 4)
+			{
+				temp_misc.shop[i].hasitem[j] = (temp_misc.shop[i].item[j] == 0) ? 0 : 1;
+			}
+		}
+		
+		if(Header->zelda_version < 0x193)
+		{
+			if(!p_getc(&tempbyte,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		for(int32_t j=0; j<3; j++)
+		{
+			if(!p_igetw(&temp_misc.shop[i].price[j],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(s_version > 3)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_getc(&temp_misc.shop[i].hasitem[j],f,true))
+					return qe_invalid;
+			}
+		}
 	
 	/*
 	if(s_version < 8)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                (&temp_misc.shop[i].str[j])=0; //initialise.
-            }
-        }
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				(&temp_misc.shop[i].str[j])=0; //initialise.
+			}
+		}
 	*/
-    }
-    
-    //filter all the 0 items to the end (yeah, bubble sort; sue me)
-    for(int32_t i=0; i<maxshops; ++i)
-    {
-        for(int32_t j=0; j<3-1; j++)
-        {
-            for(int32_t k=0; k<2-j; k++)
-            {
-                if(temp_misc.shop[i].hasitem[k]==0)
-                {
-                    swaptmp = temp_misc.shop[i].item[k];
-                    temp_misc.shop[i].item[k] = temp_misc.shop[i].item[k+1];
-                    temp_misc.shop[i].item[k+1] = swaptmp;
-                    swaptmp = temp_misc.shop[i].price[k];
-                    temp_misc.shop[i].price[k] = temp_misc.shop[i].price[k+1];
-                    temp_misc.shop[i].price[k+1] = swaptmp;
-                    swaptmp = temp_misc.shop[i].hasitem[k];
-                    temp_misc.shop[i].hasitem[k] = temp_misc.shop[i].hasitem[k+1];
-                    temp_misc.shop[i].hasitem[k+1] = swaptmp;
-                }
-            }
-        }
-    }
-    
-    //infos
-    if(Header->zelda_version > 0x192)
-    {
-        if(!p_igetw(&infos,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t i=0; i<infos; i++)
-    {
-        if(s_version > 6)
-        {
-            if(!pfread(temp_misc.info[i].name,sizeof(temp_misc.info[i].name),f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        for(int32_t j=0; j<3; j++)
-        {
-            if((Header->zelda_version < 0x192)||
-                    ((Header->zelda_version == 0x192)&&(Header->build<146)))
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_misc.info[i].str[j]=tempbyte;
-            }
-            else
-            {
-                if(!p_igetw(&temp_misc.info[i].str[j],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if(Header->zelda_version < 0x193)
-        {
-            if(!p_getc(&tempbyte,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if((Header->zelda_version == 0x192)&&(Header->build>145))
-        {
-            if(!p_getc(&padding,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        for(int32_t j=0; j<3; j++)
-        {
-            if(!p_igetw(&temp_misc.info[i].price[j],f,true))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    //filter all the 0 strings to the end (yeah, bubble sort; sue me)
-    for(int32_t i=0; i<maxinfos; ++i)
-    {
-        for(int32_t j=0; j<3-1; j++)
-        {
-            for(int32_t k=0; k<2-j; k++)
-            {
-                if(temp_misc.info[i].str[k]==0)
-                {
-                    swaptmp = temp_misc.info[i].str[k];
-                    temp_misc.info[i].str[k] = temp_misc.info[i].str[k+1];
-                    temp_misc.info[i].str[k+1] = swaptmp;
-                    swaptmp = temp_misc.info[i].price[k];
-                    temp_misc.info[i].price[k] = temp_misc.info[i].price[k+1];
-                    temp_misc.info[i].price[k+1] = swaptmp;
-                }
-            }
-        }
-    }
-    
-    
-    //warp rings
-    if(s_version > 5)
-        warprings++;
-        
-    if(Header->zelda_version > 0x192)
-    {
-        if(!p_igetw(&warprings,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    for(int32_t i=0; i<warprings; i++)
-    {
-        for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
-        {
-            if(s_version <= 3)
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_misc.warp[i].dmap[j]=(word)tempbyte;
-            }
-            else
-            {
-                if(!p_igetw(&temp_misc.warp[i].dmap[j],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
-        {
-            if(!p_getc(&temp_misc.warp[i].scr[j],f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(!p_getc(&temp_misc.warp[i].size,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(Header->zelda_version < 0x193)
-        {
-            if(!p_getc(&tempbyte,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    //palette cycles
-    if(Header->zelda_version < 0x193)                         //in 1.93+, palette cycling is saved with the palettes
-    {
-        for(int32_t i=0; i<256; i++)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                temp_misc.cycles[i][j].first=0;
-                temp_misc.cycles[i][j].count=0;
-                temp_misc.cycles[i][j].speed=0;
-            }
-        }
-        
-        if((Header->zelda_version < 0x192)||
-                ((Header->zelda_version == 0x192)&&(Header->build<73)))
-        {
-            palcycles=16;
-        }
-        
-        for(int32_t i=0; i<palcycles; i++)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-    }
-    
-    //Wind warps are now just another warp ring.
-    if(s_version <= 5)
-    {
-        if(Header->zelda_version > 0x192)
-        {
-            if(!p_igetw(&windwarps,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        for(int32_t i=0; i<windwarps; i++)
-        {
-            if(s_version <= 3)
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                temp_misc.warp[8].dmap[i]=tempbyte;
-            }
-            else
-            {
-                if(!p_igetw(&temp_misc.warp[8].dmap[i],f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            if(!p_getc(&temp_misc.warp[8].scr[i],f,true))
-            {
-                return qe_invalid;
-            }
-            
-            temp_misc.warp[8].size = 9;
-            
-            if(s_version == 5)
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-    }
-    
-    
-    //triforce pieces
-    for(int32_t i=0; i<triforces; i++)
-    {
-        if(!p_getc(&temp_misc.triforce[i],f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    //misc color data
-    if(s_version<3)
-    {
-        if(!p_getc(&temp_misc.colors.text,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.caption,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.overw_bg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.dngn_bg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.dngn_fg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.cave_fg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.bs_dk,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.bs_goal,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.compass_lt,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.compass_dk,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.subscr_bg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.triframe_color,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.link_dot,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.bmap_bg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.bmap_fg,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.triforce_cset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.triframe_cset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.overworld_map_cset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.dungeon_map_cset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.blueframe_cset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_misc.colors.triforce_tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_misc.colors.triframe_tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_misc.colors.overworld_map_tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_misc.colors.dungeon_map_tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_misc.colors.blueframe_tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_igetw(&temp_misc.colors.HCpieces_tile,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(!p_getc(&temp_misc.colors.HCpieces_cset,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        temp_misc.colors.msgtext = 0x01;
-        
-        if(Header->zelda_version < 0x193)
-        {
-            for(int32_t i=0; i<7; i++)
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if((Header->zelda_version == 0x192)&&(Header->build>145))
-        {
-            for(int32_t i=0; i<256; i++)
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if(s_version>1)
-        {
-            if(!p_getc(&temp_misc.colors.subscr_shadow,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        //save game icons
-        if((Header->zelda_version < 0x192)||
-                ((Header->zelda_version == 0x192)&&(Header->build<73)))
-        {
-            icons=3;
-        }
-        
-        for(int32_t i=0; i<icons; i++)
-        {
-            if(!p_igetw(&temp_misc.icons[i],f,true))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    
-    if((Header->zelda_version < 0x192)||
-            ((Header->zelda_version == 0x192)&&(Header->build<30)))
-    {
-        if(keepdata==true)
-        {
-            memcpy(Misc, &temp_misc, sizeof(temp_misc));
-        }
-        
-        return 0;
-    }
-    
-    //pond information
-    if(Header->zelda_version < 0x193)
-    {
-        if((Header->zelda_version == 0x192)&&(Header->build<146))
-        {
-            pondsize=25;
-        }
-        
-        for(int32_t i=0; i<ponds; i++)
-        {
-            for(int32_t j=0; j<pondsize; j++)
-            {
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                    
-                }
-            }
-        }
-    }
-    
-    //end string
-    if((Header->zelda_version < 0x192)||
-            ((Header->zelda_version == 0x192)&&(Header->build<146)))
-    {
-        if(!p_getc(&tempbyte,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        temp_misc.endstring=tempbyte;
-        
-        if(!p_getc(&tempbyte,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    else
-    {
-        if(!p_igetw(&temp_misc.endstring,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    //expansion
-    if(Header->zelda_version < 0x193)
-    {
-        if((Header->zelda_version == 0x192)&&(Header->build<73))
-        {
-            expansionsize=99*2;
-        }
-        
-        for(int32_t i=0; i<expansionsize; i++)
-        {
-            if(!p_getc(&tempbyte,f,true))
-            {
-                return qe_invalid;
-            }
-        }
-    }
-    //shops v8
-    
-    
-    if(s_version >= 8)
-    {
-	for(int32_t i=0; i<shops; i++)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
-                    return qe_invalid;
-            }
-        }
-    }
-    
-    memset(&temp_misc.questmisc, 0, sizeof(int32_t)*32);
-    memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
-    memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(int32_t));
-    
-    //v9 includes quest misc[32]
-    if(s_version >= 9)
-    {
-	for ( int32_t q = 0; q < 32; q++ ) 
-	{
-		if(!p_igetl(&temp_misc.questmisc[q],f,true))
-                    return qe_invalid;
 	}
-	for ( int32_t q = 0; q < 32; q++ ) 
+	
+	//filter all the 0 items to the end (yeah, bubble sort; sue me)
+	for(int32_t i=0; i<maxshops; ++i)
 	{
-		for ( int32_t j = 0; j < 128; j++ )
-		if(!p_getc(&temp_misc.questmisc_strings[q][j],f,true))
-                    return qe_invalid;
+		for(int32_t j=0; j<3-1; j++)
+		{
+			for(int32_t k=0; k<2-j; k++)
+			{
+				if(temp_misc.shop[i].hasitem[k]==0)
+				{
+					swaptmp = temp_misc.shop[i].item[k];
+					temp_misc.shop[i].item[k] = temp_misc.shop[i].item[k+1];
+					temp_misc.shop[i].item[k+1] = swaptmp;
+					swaptmp = temp_misc.shop[i].price[k];
+					temp_misc.shop[i].price[k] = temp_misc.shop[i].price[k+1];
+					temp_misc.shop[i].price[k+1] = swaptmp;
+					swaptmp = temp_misc.shop[i].hasitem[k];
+					temp_misc.shop[i].hasitem[k] = temp_misc.shop[i].hasitem[k+1];
+					temp_misc.shop[i].hasitem[k+1] = swaptmp;
+				}
+			}
+		}
 	}
-    }
-    
-    if(s_version >= 11 )
-    {
-	    if(!p_igetl(&temp_misc.zscript_last_compiled_version,f,true))
-                    return qe_invalid;
-    }
-    else if(s_version < 11 )
-    {
-	    temp_misc.zscript_last_compiled_version = -1;
-    }
-   
-    FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
-    
+	
+	//infos
+	if(Header->zelda_version > 0x192)
+	{
+		if(!p_igetw(&infos,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	for(int32_t i=0; i<infos; i++)
+	{
+		if(s_version > 6)
+		{
+			if(!pfread(temp_misc.info[i].name,sizeof(temp_misc.info[i].name),f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		for(int32_t j=0; j<3; j++)
+		{
+			if((Header->zelda_version < 0x192)||
+					((Header->zelda_version == 0x192)&&(Header->build<146)))
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_misc.info[i].str[j]=tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_misc.info[i].str[j],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if(Header->zelda_version < 0x193)
+		{
+			if(!p_getc(&tempbyte,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if((Header->zelda_version == 0x192)&&(Header->build>145))
+		{
+			if(!p_getc(&padding,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		for(int32_t j=0; j<3; j++)
+		{
+			if(!p_igetw(&temp_misc.info[i].price[j],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	
+	//filter all the 0 strings to the end (yeah, bubble sort; sue me)
+	for(int32_t i=0; i<maxinfos; ++i)
+	{
+		for(int32_t j=0; j<3-1; j++)
+		{
+			for(int32_t k=0; k<2-j; k++)
+			{
+				if(temp_misc.info[i].str[k]==0)
+				{
+					swaptmp = temp_misc.info[i].str[k];
+					temp_misc.info[i].str[k] = temp_misc.info[i].str[k+1];
+					temp_misc.info[i].str[k+1] = swaptmp;
+					swaptmp = temp_misc.info[i].price[k];
+					temp_misc.info[i].price[k] = temp_misc.info[i].price[k+1];
+					temp_misc.info[i].price[k+1] = swaptmp;
+				}
+			}
+		}
+	}
+	
+	
+	//warp rings
+	if(s_version > 5)
+		warprings++;
+		
+	if(Header->zelda_version > 0x192)
+	{
+		if(!p_igetw(&warprings,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	for(int32_t i=0; i<warprings; i++)
+	{
+		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
+		{
+			if(s_version <= 3)
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_misc.warp[i].dmap[j]=(word)tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_misc.warp[i].dmap[j],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
+		{
+			if(!p_getc(&temp_misc.warp[i].scr[j],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(!p_getc(&temp_misc.warp[i].size,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(Header->zelda_version < 0x193)
+		{
+			if(!p_getc(&tempbyte,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	
+	//palette cycles
+	if(Header->zelda_version < 0x193)                         //in 1.93+, palette cycling is saved with the palettes
+	{
+		for(int32_t i=0; i<256; i++)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				temp_misc.cycles[i][j].first=0;
+				temp_misc.cycles[i][j].count=0;
+				temp_misc.cycles[i][j].speed=0;
+			}
+		}
+		
+		if((Header->zelda_version < 0x192)||
+				((Header->zelda_version == 0x192)&&(Header->build<73)))
+		{
+			palcycles=16;
+		}
+		
+		for(int32_t i=0; i<palcycles; i++)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+	}
+	
+	//Wind warps are now just another warp ring.
+	if(s_version <= 5)
+	{
+		if(Header->zelda_version > 0x192)
+		{
+			if(!p_igetw(&windwarps,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		for(int32_t i=0; i<windwarps; i++)
+		{
+			if(s_version <= 3)
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				temp_misc.warp[8].dmap[i]=tempbyte;
+			}
+			else
+			{
+				if(!p_igetw(&temp_misc.warp[8].dmap[i],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			if(!p_getc(&temp_misc.warp[8].scr[i],f,true))
+			{
+				return qe_invalid;
+			}
+			
+			temp_misc.warp[8].size = 9;
+			
+			if(s_version == 5)
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+	}
+	
+	
+	//triforce pieces
+	for(int32_t i=0; i<triforces; i++)
+	{
+		if(!p_getc(&temp_misc.triforce[i],f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	//misc color data
+	if(s_version<3)
+	{
+		if(!p_getc(&temp_misc.colors.text,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.caption,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.overw_bg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.dngn_bg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.dngn_fg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.cave_fg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.bs_dk,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.bs_goal,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.compass_lt,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.compass_dk,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.subscr_bg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.triframe_color,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.link_dot,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.bmap_bg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.bmap_fg,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.triforce_cset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.triframe_cset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.overworld_map_cset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.dungeon_map_cset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.blueframe_cset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_misc.colors.triforce_tile,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_misc.colors.triframe_tile,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_misc.colors.overworld_map_tile,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_misc.colors.dungeon_map_tile,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_misc.colors.blueframe_tile,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_igetw(&temp_misc.colors.HCpieces_tile,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(!p_getc(&temp_misc.colors.HCpieces_cset,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		temp_misc.colors.msgtext = 0x01;
+		
+		if(Header->zelda_version < 0x193)
+		{
+			for(int32_t i=0; i<7; i++)
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if((Header->zelda_version == 0x192)&&(Header->build>145))
+		{
+			for(int32_t i=0; i<256; i++)
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if(s_version>1)
+		{
+			if(!p_getc(&temp_misc.colors.subscr_shadow,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		//save game icons
+		if((Header->zelda_version < 0x192)||
+				((Header->zelda_version == 0x192)&&(Header->build<73)))
+		{
+			icons=3;
+		}
+		
+		for(int32_t i=0; i<icons; i++)
+		{
+			if(!p_igetw(&temp_misc.icons[i],f,true))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	
+	if((Header->zelda_version < 0x192)||
+			((Header->zelda_version == 0x192)&&(Header->build<30)))
+	{
+		if(keepdata==true)
+		{
+			memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		}
+		
+		return 0;
+	}
+	
+	//pond information
+	if(Header->zelda_version < 0x193)
+	{
+		if((Header->zelda_version == 0x192)&&(Header->build<146))
+		{
+			pondsize=25;
+		}
+		
+		for(int32_t i=0; i<ponds; i++)
+		{
+			for(int32_t j=0; j<pondsize; j++)
+			{
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+					
+				}
+			}
+		}
+	}
+	
+	//end string
+	if((Header->zelda_version < 0x192)||
+			((Header->zelda_version == 0x192)&&(Header->build<146)))
+	{
+		if(!p_getc(&tempbyte,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		temp_misc.endstring=tempbyte;
+		
+		if(!p_getc(&tempbyte,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		if(!p_igetw(&temp_misc.endstring,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	
+	//expansion
+	if(Header->zelda_version < 0x193)
+	{
+		if((Header->zelda_version == 0x192)&&(Header->build<73))
+		{
+			expansionsize=99*2;
+		}
+		
+		for(int32_t i=0; i<expansionsize; i++)
+		{
+			if(!p_getc(&tempbyte,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+	}
+	//shops v8
+	
+	
+	if(s_version >= 8)
+	{
+		for(int32_t i=0; i<shops; i++)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
+					return qe_invalid;
+			}
+		}
+	}
+	
+	memset(&temp_misc.questmisc, 0, sizeof(int32_t)*32);
+	memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
+	memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(int32_t));
+	
+	//v9 includes quest misc[32]
+	if(s_version >= 9)
+	{
+		for ( int32_t q = 0; q < 32; q++ ) 
+		{
+			if(!p_igetl(&temp_misc.questmisc[q],f,true))
+						return qe_invalid;
+		}
+		for ( int32_t q = 0; q < 32; q++ ) 
+		{
+			for ( int32_t j = 0; j < 128; j++ )
+			if(!p_getc(&temp_misc.questmisc_strings[q][j],f,true))
+						return qe_invalid;
+		}
+	}
+	
+	if(s_version >= 11 )
+	{
+		if(!p_igetl(&temp_misc.zscript_last_compiled_version,f,true))
+			return qe_invalid;
+	}
+	else if(s_version < 11 )
+	{
+		temp_misc.zscript_last_compiled_version = -1;
+	}
+	
+	FFCore.quest_format[vLastCompile] = temp_misc.zscript_last_compiled_version;
+	
 	if(s_version >= 12)
 	{
 		byte spr;
@@ -5749,12 +5748,59 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		//temp_misc.sprites[sprFALL] = ;
 	}
 	
-    if(keepdata==true)
-    {
-        memcpy(Misc, &temp_misc, sizeof(temp_misc));
-    }
-    
-    return 0;
+	if(s_version >= 13)
+	{
+		for(size_t q = 0; q < 64; ++q)
+		{
+			bottletype* bt = &(temp_misc.bottle_types[q]);
+            if (!pfread(bt->name, 32, f, true))
+                return qe_invalid;
+			for(size_t j = 0; j < 3; ++j)
+			{
+                if (!p_getc(&(bt->counter[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bt->amount[j]), f, true))
+                    return qe_invalid;
+			}
+            if (!p_getc(&(bt->flags), f, true))
+                return qe_invalid;
+            if (!p_getc(&(bt->next_type), f, true))
+                return qe_invalid;
+		}
+		for(size_t q = 0; q < 256; ++q)
+		{
+			bottleshoptype* bst = &(temp_misc.bottle_shop_types[q]);
+            if (!pfread(bst->name, 32, f, true))
+                return qe_invalid;
+			for(size_t j = 0; j < 3; ++j)
+			{
+                if (!p_getc(&(bst->fill[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bst->comb[j]), f, true))
+                    return qe_invalid;
+                if (!p_getc(&(bst->cset[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bst->price[j]), f, true))
+                    return qe_invalid;
+                if (!p_igetw(&(bst->str[j]), f, true))
+                    return qe_invalid;
+			}
+		}
+	}
+	else
+	{
+		for(size_t q = 0; q < 64; ++q)
+			temp_misc.bottle_types[q].clear();
+		for(size_t q = 0; q < 256; ++q)
+			temp_misc.bottle_shop_types[q].clear();
+	}
+	
+	if(keepdata==true)
+	{
+		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	}
+	
+	return 0;
 }
 
 extern char *item_string[ITEMCNT];

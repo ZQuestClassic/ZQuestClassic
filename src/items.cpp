@@ -43,7 +43,9 @@ item::~item()
 {
 	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_bit(quest_rules,qr_FIXED_FAIRY_LIMIT))
 		killfairynew(*this);
+#ifndef IS_ZQUEST
 	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());
+#endif
 }
 
 bool item::animate(int32_t)
@@ -221,7 +223,7 @@ bool item::animate(int32_t)
 		}
 	}
 	
-	if(do_animation && (get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)))
+	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itemsbuf[id].family==itype_bottle))
 	{
 		int32_t spd = o_speed;
 		
@@ -250,6 +252,16 @@ bool item::animate(int32_t)
 		}
 		else
 			tile = o_tile + aframe;
+#ifndef IS_ZQUEST
+		//Bottles offset based on their slot's fill
+		if(itemsbuf[id].family == itype_bottle)
+		{
+			int32_t slot = itemsbuf[id].misc1;
+			size_t btype = game->get_bottle_slot(slot);
+			int32_t offset = (frames ? frames : 1) * btype;
+			tile += offset;
+		}
+#endif
 	}
 	
 	if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)

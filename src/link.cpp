@@ -1399,7 +1399,111 @@ int32_t LinkClass::weaponattackpower()
     return power;
 }
 
+#define NET_CLK_TOTAL 30
+#define NET_DIR_INC (NET_CLK_TOTAL/3)
 // Must only be called once per frame!
+void LinkClass::positionNet(weapon *w, int32_t itemid)
+{
+	itemid = vbound(itemid, 0, MAXITEMS-1);
+	int32_t t = w->o_tile,
+		wx = 1, wy = 1;
+	
+	//Invert positioning clock if right-handed animation
+	int32_t clock = (itemsbuf[itemid].flags&ITEM_FLAG2 ? (NET_CLK_TOTAL-1)-attackclk : attackclk);
+	if(clock >= NET_CLK_TOTAL)
+		w->dead = 0;
+	int32_t tiledir = dir;
+	switch(dir)
+	{
+		case up:
+		{
+			if(clock < NET_DIR_INC) tiledir = l_up;
+			else if(clock >= NET_DIR_INC*2) tiledir = r_up;
+			break;
+		}
+		case down:
+		{
+			if(clock < NET_DIR_INC) tiledir = r_down;
+			else if(clock >= NET_DIR_INC*2) tiledir = l_down;
+			break;
+		}
+		case left:
+		{
+			if(clock < NET_DIR_INC) tiledir = l_down;
+			else if(clock >= NET_DIR_INC*2) tiledir = l_up;
+			break;
+		}
+		case right:
+		{
+			if(clock < NET_DIR_INC) tiledir = r_up;
+			else if(clock >= NET_DIR_INC*2) tiledir = r_down;
+			break;
+		}
+	}
+	int32_t offs = 0;
+	if(tiledir > right)
+		offs = ((clock%NET_DIR_INC)<NET_DIR_INC/2) ? 1 : 0;
+	else offs = vbound(((clock%NET_DIR_INC)/(NET_DIR_INC/3))-1,-1,1);
+	//One of 8 positions
+	switch(tiledir)
+	{
+		case up:
+		{
+			wx = 6*offs;
+			wy = -14;
+			break;
+		}
+		case r_up:
+		{
+			wx = (offs ? 10 : 14);
+			wy = (offs ? -12 : -10);
+			break;
+		}
+		case right:
+		{
+			wx = 14;
+			wy = 6*offs;
+			break;
+		}
+		case r_down:
+		{
+			wx = (offs ? 14 : 10);
+			wy = (offs ? 10 : 12);
+			break;
+		}
+		case down:
+		{
+			wx = -6*offs;
+			wy = 14;
+			break;
+		}
+		case l_down:
+		{
+			wx = (offs ? -10 : -14);
+			wy = (offs ? 12 : 10);
+			break;
+		}
+		case left:
+		{
+			wx = -14;
+			wy = -6*offs;
+			break;
+		}
+		case l_up:
+		{
+			wx = (offs ? -14 : -10);
+			wy = (offs ? -10 : -12);
+			break;
+		}
+	}
+	
+    w->x = x+wx;
+    w->y = y+wy-(54-(yofs));
+    w->z = (z+zofs);
+    w->tile = t+tiledir;
+    w->power = 0;
+    w->dir = dir;
+}
 void LinkClass::positionSword(weapon *w, int32_t itemid)
 {
 	//if ( w->ScriptGenerated ) return; //t/b/a for script-generated swords.
@@ -1700,8 +1804,8 @@ void LinkClass::draw(BITMAP* dest)
 	{
 		if(!invisible)
 		{
-		if ( script_link_cset > -1 ) cs = script_link_cset;
-		sprite::draw(dest);
+			if ( script_link_cset > -1 ) cs = script_link_cset;
+				sprite::draw(dest);
 		}
 		return;
 	}
@@ -1745,7 +1849,7 @@ void LinkClass::draw(BITMAP* dest)
 	
 	cs = 6;
 	if ( script_link_cset > -1 ) cs = script_link_cset;
-	 if(!get_bit(quest_rules,qr_LINKFLICKER))
+	if(!get_bit(quest_rules,qr_LINKFLICKER))
 	{
 		if(superman && getCanLinkFlicker())
 		{
@@ -1767,13 +1871,34 @@ attack:
 		* - which must be converted to an item ID...
 		* - which is used to acquire a wpn ID! Aack!
 		*/
-		int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
+		int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : attack==wBugNet ? itype_bugnet : itype_sword);
 		int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 		itemid=vbound(itemid, 0, MAXITEMS-1);
 		// if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
-		if(attackclk>4||(attack==wSword&&game->get_canslash()))
+		if(attackclk>4||attack==wBugNet||(attack==wSword&&game->get_canslash()))
 		{
-			if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].newtile)
+			if(attack == wBugNet)
+			{
+				weapon *w=NULL;
+				bool found = false;
+				for(int32_t q = 0; q < Lwpns.Count(); ++q)
+				{
+					w = (weapon*)Lwpns.spr(q);
+					if(w->id == wBugNet)
+					{
+						found = true;
+						break;
+					}
+				}
+				if(!found)
+				{
+					Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wBugNet,0,0,dir,itemid,getUID(),false,false,true));
+					
+					w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
+				}
+				positionNet(w, itemid);
+			}
+			else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].newtile)
 			{
 				// Create a sword weapon at the right spot.
 				weapon *w=NULL;
@@ -1793,13 +1918,6 @@ attack:
 				
 				if(!found)  // Create one if sword nonexistant
 				{
-			
-					//check magic cost for sword -Z	
-					
-					//if(!checkmagiccost(itemid)) return;
-					//else paymagiccost(itemid);
-					//placing this here causes the sword to use magic more than one time per use, and when Link
-					//is out of MP, he flickers and the sword slash sound still plays. 
 					Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
 					w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
 					
@@ -1843,21 +1961,21 @@ attack:
 				{
 					if ( script_link_sprite <= 0 ) tile+=getTileModifier();
 				}
-				
+			
 				// Stone of Agony
 				if(agony)
 				{
 					yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
 				}
-				
-				 //Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
-					if (!(get_bit(quest_rules, qr_LINKFLICKER) && ((superman || hclk) && (frame & 1))))
-					{
-						masked_draw(dest);
-					}
 
-					//Prevent flickering -Z
-					if (!getCanLinkFlicker()) masked_draw(dest);
+				//Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
+				if (!(get_bit(quest_rules, qr_LINKFLICKER) && ((superman || hclk) && (frame & 1))))
+				{
+					masked_draw(dest);
+				}
+
+				//Prevent flickering -Z
+				if (!getCanLinkFlicker()) masked_draw(dest);
 			}
 			
 			if(attack!=wHammer)
@@ -2514,7 +2632,7 @@ void LinkClass::masked_draw(BITMAP* dest)
 // the main weapon checking is in the global function check_collisions()
 bool LinkClass::checkstab()
 {
-    if(action!=attacking && action!=sideswimattacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire)
+    if(action!=attacking && action!=sideswimattacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire && attack != wBugNet)
             || (attackclk<=4))
         return false;
         
@@ -2534,7 +2652,7 @@ bool LinkClass::checkstab()
             found = true;
             melee_weapon_index = i+1;
             // Position the sword as Link slashes with it.
-            if(w->id!=wHammer)
+            if(w->id!=wHammer&&w->id!=wBugNet)
                 positionSword(w,w->parentitem);
                 
             wx=w->x;
@@ -2546,133 +2664,133 @@ bool LinkClass::checkstab()
             break;
         }
     }
-    
+	
     if(attack==wSword && attackclk>=14 && charging==0)
         return false;
         
     if(!found)
         return false;
-    
+		
 	if(attack == wFire)
 		return false;
 	
-		if(attack==wHammer)
-		{
-			if(attackclk<15)
-			{
-				switch(w->dir)
-				{
-				case up:
-					wx=x-1;
-					wy=y-4;
-					break;
-					
-				case down:
-					wx=x+8;
-					wy=y+28;
-					break; // This is consistent with 2.10
-					
-				case left:
-					wx=x-13;
-					wy=y+14;
-					break;
-					
-				case right:
-					wx=x+21;
-					wy=y+14;
-					break;
-				}
-				
-				if(attackclk==12 && z==0 && sideviewhammerpound())
-				{
-			//decorations.add(new dHammerSmack((zfix)wx, (zfix)wy, dHAMMERSMACK, 0));
-					/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
-			switch(dir)
-					{
-					case up:
-						decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
-						break;
-						
-					case down:
-						decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
-						break;
-						
-					case left:
-						decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
-						break;
-						
-					case right:
-						decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
-						break;
-					}
-			*/
-				}
-				
-				return false;
-			}
-			else if(attackclk==15)
-			{
-				// Hammer's reach needs adjusted slightly for backward compatibility
-				if(w->dir==up)
-					w->hyofs-=1;
-				else if(w->dir==left)
-					w->hxofs-=2;
-			}
-		}
-		
-		// The return of Spaghetti Code Constants!
-		int32_t itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : attack==wCByrna ? itype_cbyrna : itype_hammer);
-		int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-		itemid = vbound(itemid, 0, MAXITEMS-1);
-		
-		// The sword offsets aren't based on anything other than what felt about right
-		// compared to the NES game and what mostly kept it from hitting things that
-		// should clearly be out of range. They could probably still use more tweaking.
-		// Don't use 2.10 for reference; it's pretty far off.
-		// - Saf
-		
-		if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
+	if(attack==wHammer)
+	{
+		if(attackclk<15)
 		{
 			switch(w->dir)
 			{
 			case up:
-				if(attackclk<8)
-				{
-					wy-=4;
-				}
-				
+				wx=x-1;
+				wy=y-4;
 				break;
 				
 			case down:
-				//if(attackclk<8)
-			{
-				wy-=2;
-			}
-			break;
-			
+				wx=x+8;
+				wy=y+28;
+				break; // This is consistent with 2.10
+				
 			case left:
-			
-				//if(attackclk<8)
-			{
-				wx+=2;
-			}
-			
-			break;
-			
+				wx=x-13;
+				wy=y+14;
+				break;
+				
 			case right:
+				wx=x+21;
+				wy=y+14;
+				break;
+			}
 			
-				//if(attackclk<8)
+			if(attackclk==12 && z==0 && sideviewhammerpound())
 			{
-				wx-=3;
-				//wy+=((spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX)) ? -4 : 4);
+		//decorations.add(new dHammerSmack((zfix)wx, (zfix)wy, dHAMMERSMACK, 0));
+				/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
+		switch(dir)
+				{
+				case up:
+					decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
+					break;
+					
+				case down:
+					decorations.add(new dHammerSmack(x+8, y+28, dHAMMERSMACK, 0));
+					break;
+					
+				case left:
+					decorations.add(new dHammerSmack(x-13, y+14, dHAMMERSMACK, 0));
+					break;
+					
+				case right:
+					decorations.add(new dHammerSmack(x+21, y+14, dHAMMERSMACK, 0));
+					break;
+				}
+		*/
 			}
 			
-			break;
-			}
+			return false;
 		}
-		
+		else if(attackclk==15)
+		{
+			// Hammer's reach needs adjusted slightly for backward compatibility
+			if(w->dir==up)
+				w->hyofs-=1;
+			else if(w->dir==left)
+				w->hxofs-=2;
+		}
+	}
+	
+	// The return of Spaghetti Code Constants!
+	int32_t itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : attack==wCByrna ? itype_cbyrna : attack==wBugNet ? itype_bugnet : itype_hammer);
+	int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+	itemid = vbound(itemid, 0, MAXITEMS-1);
+	
+	// The sword offsets aren't based on anything other than what felt about right
+	// compared to the NES game and what mostly kept it from hitting things that
+	// should clearly be out of range. They could probably still use more tweaking.
+	// Don't use 2.10 for reference; it's pretty far off.
+	// - Saf
+	
+	if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
+	{
 		switch(w->dir)
 		{
+		case up:
+			if(attackclk<8)
+			{
+				wy-=4;
+			}
+			
+			break;
+			
+		case down:
+			//if(attackclk<8)
+		{
+			wy-=2;
+		}
+		break;
+		
+		case left:
+		
+			//if(attackclk<8)
+		{
+			wx+=2;
+		}
+		
+		break;
+		
+		case right:
+		
+			//if(attackclk<8)
+		{
+			wx-=3;
+			//wy+=((spins>0 || get_bit(quest_rules, qr_SLASHFLIPFIX)) ? -4 : 4);
+		}
+		
+		break;
+		}
+	}
+	
+	switch(w->dir)
+	{
 		case up:
 			wx+=2;
 			break;
@@ -2687,76 +2805,85 @@ bool LinkClass::checkstab()
 		case right:
 			wy-=3;
 			break;
-		}
-		
-		wx+=w->hxofs;
-		wy+=w->hyofs;
-		
-		for(int32_t i=0; i<guys.Count(); i++)
-		{
-			// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
-			if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
-					|| ((attack==wWand || attack==wCByrna) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
-					|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & ITEM_FLAG3)))
-			{
-				// Checking the whimsical ring for every collision check causes
-				// an odd bug. It's much more likely to activate on a 0-damage
-				// weapon, since a 0-damage hit won't make the enemy invulnerable
-				// to damaging hits in the following frames.
-				
-				int32_t whimsyid = current_item_id(itype_whimsicalring);
-				
-				int32_t dmg = weaponattackpower();
-				if(whimsyid>-1)
-				{
-					if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
-						dmg += current_item_power(itype_whimsicalring);
-					else whimsyid = -1;
-				}
-				int32_t atkringid = current_item_id(itype_atkring);
-				if(atkringid>-1)
-				{
-					dmg *= itemsbuf[atkringid].misc2; //Multiplier
-					dmg += itemsbuf[atkringid].misc1; //Additive
-				}
-				
-				int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
-				enemy *e = (enemy*)guys.spr(i);
-				if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
-				//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
-				
-				if(h<0 && whimsyid>-1)
-				{
-					sfx(itemsbuf[whimsyid].usesound);
-				}
-				
-				if(h && charging>0)
-				{
-					attackclk = SWORDTAPFRAME;
-					spins=0;
-				}
-				
-				if(h && hclk==0 && inlikelike != 1)
-				{
-					if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
-					{
-						hitlink(i);
-					}
-				}
-				
-				if(h==2)
-					break;
-			}
-		}
+	}
 	
-	if(((parentitem==-1&&!get_bit(quest_rules,qr_NOITEMMELEE))||parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
+	wx+=w->hxofs;
+	wy+=w->hyofs;
+	
+	for(int32_t i=0; i<guys.Count(); i++)
 	{
+		if(attack==wBugNet) break;
+		// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
+		if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
+				|| ((attack==wWand || attack==wCByrna) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
+				|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & ITEM_FLAG3)))
+		{
+			// Checking the whimsical ring for every collision check causes
+			// an odd bug. It's much more likely to activate on a 0-damage
+			// weapon, since a 0-damage hit won't make the enemy invulnerable
+			// to damaging hits in the following frames.
+			
+			int32_t whimsyid = current_item_id(itype_whimsicalring);
+			
+			int32_t dmg = weaponattackpower();
+			if(whimsyid>-1)
+			{
+				if(!(zc_oldrand()%zc_max(itemsbuf[whimsyid].misc1,1)))
+					dmg += current_item_power(itype_whimsicalring);
+				else whimsyid = -1;
+			}
+			int32_t atkringid = current_item_id(itype_atkring);
+			if(atkringid>-1)
+			{
+				dmg *= itemsbuf[atkringid].misc2; //Multiplier
+				dmg += itemsbuf[atkringid].misc1; //Additive
+			}
+			
+			int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
+			enemy *e = (enemy*)guys.spr(i);
+			if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
+			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
+			
+			if(h<0 && whimsyid>-1)
+			{
+				sfx(itemsbuf[whimsyid].usesound);
+			}
+			
+			if(h && charging>0)
+			{
+				attackclk = SWORDTAPFRAME;
+				spins=0;
+			}
+			
+			if(h && hclk==0 && inlikelike != 1)
+			{
+				if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
+				{
+					hitlink(i);
+				}
+			}
+			
+			if(h==2)
+				break;
+		}
+	}
+		
+	if(attack == wBugNet
+		|| (parentitem==-1&&!get_bit(quest_rules,qr_NOITEMMELEE))
+		|| (parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
+	{
+		int32_t bugnetid = attack != wBugNet ? -1 : (parentitem > -1 ? parentitem : current_item_id(itype_bugnet));
 		for(int32_t j=0; j<items.Count(); j++)
 		{
-			item* ptr = (item*)items.spr(j); 
-			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER))
+			item* ptr = (item*)items.spr(j);
+			bool dofairy = (attack==wBugNet && itemsbuf[ptr->id].family == itype_fairy)
+				&& (bugnetid > -1 && !(itemsbuf[bugnetid].flags & ITEM_FLAG1));
+			
+			if((itemsbuf[ptr->id].family == itype_bottlefill || dofairy) && !game->canFillBottle())
+				continue; //No picking these up unless you have a bottle to fill!
+			if((ptr->pickup & ipCANGRAB) || (ptr->pickup & ipTIMER) || dofairy)
 			{
-				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= 32) && !ptr->fallclk && !ptr->drownclk)
+				if(((ptr->pickup & ipCANGRAB) || ptr->clk2 >= 32 || dofairy) && !ptr->fallclk && !ptr->drownclk)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8,z,wxsz,wysz,1)))
@@ -2767,61 +2894,69 @@ bool LinkClass::checkstab()
 							setmapflag(mITEM);
 						else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
 							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
-				
-					if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
-					{
-						if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-						hidden_entrance(0, true, false, -5);
-					}
-						//!DIMI
-						if(itemsbuf[ptr->id].collect_script)
+						
+						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-				//clear item script stack. 
-				//ri = &(itemScriptData[ptr->id]);
-				//ri->Clear();
-				//itemCollectScriptData[ptr->id].Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
-				ri = &(itemCollectScriptData[ptr->id]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
-				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
-				
-				if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
-				{
-					item_collect_doscript[ptr->id] = 1;
-					itemscriptInitialised[ptr->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
-					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
-				}
-				else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
-				{
-					item_collect_doscript[ptr->id] = 1;
-					itemscriptInitialised[ptr->id] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-				}
-	
-				//runningItemScripts[ptr->id] = 0;
-				
+							if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+							hidden_entrance(0, true, false, -5);
 						}
-			
-			//Passive item scripts on colelction
-						if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-			{
-				ri = &(itemScriptData[ptr->id]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
-				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-				item_doscript[ptr->id] = 1;
-				itemscriptInitialised[ptr->id] = 0;
-				//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
-							
-			}
-			
-						getitem(ptr->id);
+						//!DIMI
+						
+						if(dofairy)
+						{
+							game->fillBottle(itemsbuf[ptr->id].misc4);
+						}
+						else
+						{
+							if(itemsbuf[ptr->id].collect_script)
+							{
+								//clear item script stack. 
+								//ri = &(itemScriptData[ptr->id]);
+								//ri->Clear();
+								//itemCollectScriptData[ptr->id].Clear();
+								//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
+								ri = &(itemCollectScriptData[ptr->id]);
+								for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
+								ri->Clear();
+								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
+								
+								if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
+								{
+									item_collect_doscript[ptr->id] = 1;
+									itemscriptInitialised[ptr->id] = 0;
+									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
+									//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+										FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
+								}
+								else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
+								{
+									item_collect_doscript[ptr->id] = 1;
+									itemscriptInitialised[ptr->id] = 0;
+									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+									//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+										FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+								}
+					
+								//runningItemScripts[ptr->id] = 0;
+					
+							}
+				
+							//Passive item scripts on colelction
+							if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+							{
+								ri = &(itemScriptData[ptr->id]);
+								for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
+								ri->Clear();
+								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+								item_doscript[ptr->id] = 1;
+								itemscriptInitialised[ptr->id] = 0;
+								//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
+											
+							}
+				
+							getitem(ptr->id);
+						}
 						items.del(j);
 						
 						for(int32_t i=0; i<Lwpns.Count(); i++)
@@ -2845,7 +2980,8 @@ bool LinkClass::checkstab()
 		}
 	}
 	
-	if(attack==wCByrna)return false;
+	if(attack==wCByrna || attack==wBugNet)
+		return false;
 	
 	if(attack==wSword)
 	{
@@ -3064,7 +3200,7 @@ bool LinkClass::checkstab()
 	}
 	else
 	{
-	return false;
+		return false;
 	}
 	
 	return true;
@@ -6991,6 +7127,47 @@ void LinkClass::PhantomsCleanup()
 	}
 }
 
+//Waitframe handler for refilling operations
+static void do_refill_waitframe()
+{
+	put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+	if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
+	{
+		script_drawing_commands.Clear();
+		if(DMaps[currdmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			passive_subscreen_waitdraw = false;
+		}	
+		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+	}
+	advanceframe(true);
+}
+//Special handler if it's a "fairy revive"
+static void do_death_refill_waitframe()
+{
+	//!TODO Run a new script slot each frame here, before calling do_refill_waitframe()
+	//This script should be able to draw a 'fairy saving the player' animation -Em
+	do_refill_waitframe();
+}
+
+static size_t find_bottle_for_slot(size_t slot, bool unowned=false)
+{
+	int32_t found_unowned = -1;
+	for(int q = 0; q < MAXITEMS; ++q)
+	{
+		if(itemsbuf[q].family == itype_bottle && itemsbuf[q].misc1 == slot)
+		{
+			if(game->get_item(q))
+				return q;
+			if(unowned)
+				found_unowned = q;
+		}
+	}
+	return found_unowned;
+}
 // returns true when game over
 bool LinkClass::animate(int32_t)
 {
@@ -7791,30 +7968,113 @@ bool LinkClass::animate(int32_t)
 	if(game->get_life()<=0)
 	{
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-		{	
-			// So scripts can have one frame to handle hp zero events
-			if(false == (last_hurrah = !last_hurrah))
+		{
+			for(size_t slot = 0; slot < 256; ++slot)
 			{
-				drunkclk=0;
-				lstunclock = 0;
-				FFCore.setLinkAction(dying);
-				FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-				FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
-				ALLOFF(true,true);
-				Playing = false; //Disallow F6
-				if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+				if(size_t bind = game->get_bottle_slot(slot))
 				{
-					FFCore.runOnDeathEngine();
-					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					bottletype const* bt = &QMisc.bottle_types[bind-1];
+					if(!(bt->flags&BTFLAG_AUTOONDEATH))
+						continue;
+					word toFill[3] = { 0 };
+					for(size_t q = 0; q < 3; ++q)
+					{
+						char c = bt->counter[q];
+						if(c > -1)
+						{
+							if(bt->flags & (1<<q))
+							{
+								toFill[q] = (bt->amount[q]==100)
+									? game->get_maxcounter(c)
+									: word((game->get_maxcounter(c)/100.0)*bt->amount[q]);
+							}
+							else toFill[q] = bt->amount[q];
+							if(toFill[q] + game->get_counter(c) > game->get_maxcounter(c))
+							{
+								toFill[q] = game->get_maxcounter(c) - game->get_counter(c);
+							}
+						}
+					}
+					if(bt->flags & BTFLAG_CURESWJINX)
+						swordclk = 0;
+					if(bt->flags & BTFLAG_CUREITJINX)
+						itemclk = 0;
+					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
+					{
+						int32_t itemid = find_bottle_for_slot(slot,true);
+						stop_sfx(WAV_ER); //stop heart beep!
+						if(itemid > -1)
+							sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+						for(size_t q = 0; q < 20; ++q)
+							do_death_refill_waitframe();
+						double inc = max/60.0; //1 second
+						double xtra[3]{ 0 };
+						for(size_t q = 0; q < 60; ++q)
+						{
+							if(!(q%6) && (toFill[0]||toFill[1]||toFill[2]))
+								sfx(WAV_MSG); //!TODO Need to make this configurable at some point... -Em
+							for(size_t j = 0; j < 3; ++j)
+							{
+								xtra[j] += inc;
+								word f = floor(xtra[j]);
+								xtra[j] -= f;
+								if(toFill[j] > f)
+								{
+									toFill[j] -= f;
+									game->change_counter(f,bt->counter[j]);
+								}
+								else if(toFill[j])
+								{
+									game->change_counter(toFill[j],bt->counter[j]);
+									toFill[j] = 0;
+								}
+							}
+							do_death_refill_waitframe();
+						}
+						for(size_t j = 0; j < 3; ++j)
+						{
+							if(toFill[j])
+							{
+								game->change_counter(toFill[j],bt->counter[j]);
+								toFill[j] = 0;
+							}
+						}
+						for(size_t q = 0; q < 20; ++q)
+							do_death_refill_waitframe();
+					}
+					game->set_bottle_slot(slot,bt->next_type);
+					if(game->get_life() > 0)
+					{
+						break; //Revived! Stop drinking things...
+					}
 				}
-				heroDeathAnimation();
-				if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+			}
+			if(game->get_life()<=0) //Not saved by fairy
+			{
+				// So scripts can have one frame to handle hp zero events
+				if(false == (last_hurrah = !last_hurrah))
 				{
-					FFCore.runOnDeathEngine();
-					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					drunkclk=0;
+					lstunclock = 0;
+					FFCore.setLinkAction(dying);
+					FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
+					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+					ALLOFF(true,true);
+					Playing = false; //Disallow F6
+					if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+					{
+						FFCore.runOnDeathEngine();
+						FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					}
+					heroDeathAnimation();
+					if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
+					{
+						FFCore.runOnDeathEngine();
+						FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+					}
+					ALLOFF(true,true);
+					return true;
 				}
-				ALLOFF(true,true);
-				return true;
 			}
 		}
 		else //2.50.x
@@ -8632,6 +8892,7 @@ bool LinkClass::startwpn(int32_t itemid)
 	switch(itemsbuf[itemid].family)
 	{
 		case itype_potion:
+		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 				return false;
 				
@@ -8647,22 +8908,10 @@ bool LinkClass::startwpn(int32_t itemid)
 				
 				//add a quest rule or an item option that lets you specify whether or not to pause music during refilling
 				//music_pause();
+				stop_sfx(WAV_ER); //stop heart beep!
 				while(refill())
 				{
-					put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-					if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
-					{
-						script_drawing_commands.Clear();
-						if(DMaps[currdmap].passive_sub_script != 0)
-							ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-						if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
-						{
-							ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-							passive_subscreen_waitdraw = false;
-						}	
-						do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
-					}
-					advanceframe(true);
+					do_refill_waitframe();
 				}
 				
 				//add a quest rule or an item option that lets you specify whether or not to pause music during refilling
@@ -8671,7 +8920,121 @@ bool LinkClass::startwpn(int32_t itemid)
 			}
 			
 			break;
+		}
+		case itype_bottle:
+		{
+			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+				return false;
+			if(itemsbuf[itemid].script!=0 && item_doscript[itemid])
+				return false;
 			
+			size_t bind = game->get_bottle_slot(itemsbuf[itemid].misc1);
+			bool paidmagic = false;
+			if(itemsbuf[itemid].script)
+			{
+				paidmagic = true;
+				paymagiccost(itemid);
+			}
+			
+			if(itemsbuf[itemid].script)
+			{
+				ri = &(itemScriptData[itemid]);
+				for ( int32_t q = 0; q < 1024; q++ )
+					item_stack[itemid][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[itemid] = 1;
+				itemscriptInitialised[itemid] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+				bind = game->get_bottle_slot(itemsbuf[itemid].misc1);
+			}
+			bottletype const* bt = bind ? &(QMisc.bottle_types[bind-1]) : NULL;
+			if(bt)
+			{
+				word toFill[3] = { 0 };
+				for(size_t q = 0; q < 3; ++q)
+				{
+					char c = bt->counter[q];
+					if(c > -1)
+					{
+						if(bt->flags & (1<<q))
+						{
+							toFill[q] = (bt->amount[q]==100)
+								? game->get_maxcounter(c)
+								: word((game->get_maxcounter(c)/100.0)*bt->amount[q]);
+						}
+						else toFill[q] = bt->amount[q];
+						if(toFill[q] + game->get_counter(c) > game->get_maxcounter(c))
+						{
+							toFill[q] = game->get_maxcounter(c) - game->get_counter(c);
+						}
+					}
+				}
+				word max = std::max(toFill[0], std::max(toFill[1], toFill[2]));
+				bool run = max > 0;
+				if(get_bit(quest_rules, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL))
+					run = ((bt->counter[0] > -1 && !toFill[0]) || (bt->counter[1] > -1 && !toFill[1]) || (bt->counter[2] > -1 && !toFill[2]));
+				else
+				{
+					if((bt->flags & BTFLAG_CURESWJINX) && swordclk)
+						run = true;
+					else if((bt->flags & BTFLAG_CUREITJINX) && itemclk)
+						run = true;
+				}
+				if(run || (bt->flags&BTFLAG_ALLOWIFFULL))
+				{
+					if(bt->flags & BTFLAG_CURESWJINX)
+						swordclk = 0;
+					if(bt->flags & BTFLAG_CUREITJINX)
+						itemclk = 0;
+					if(!paidmagic)
+						paymagiccost(itemid);
+					stop_sfx(WAV_ER); //stop heart beep!
+					sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+					for(size_t q = 0; q < 20; ++q)
+						do_refill_waitframe();
+					double inc = max/60.0; //1 second
+					double xtra[3]{ 0 };
+					for(size_t q = 0; q < 60; ++q)
+					{
+						if(!(q%6) && (toFill[0]||toFill[1]||toFill[2]))
+							sfx(WAV_MSG); //!TODO Need to make this configurable at some point... -Em
+						for(size_t j = 0; j < 3; ++j)
+						{
+							xtra[j] += inc;
+							word f = floor(xtra[j]);
+							xtra[j] -= f;
+							if(toFill[j] > f)
+							{
+								toFill[j] -= f;
+								game->change_counter(f,bt->counter[j]);
+							}
+							else if(toFill[j])
+							{
+								game->change_counter(toFill[j],bt->counter[j]);
+								toFill[j] = 0;
+							}
+						}
+						do_refill_waitframe();
+					}
+					for(size_t j = 0; j < 3; ++j)
+					{
+						if(toFill[j])
+						{
+							game->change_counter(toFill[j],bt->counter[j]);
+							toFill[j] = 0;
+						}
+					}
+					for(size_t q = 0; q < 20; ++q)
+						do_refill_waitframe();
+					game->set_bottle_slot(itemsbuf[itemid].misc1, bt->next_type);
+				}
+			}
+			
+			dowpn = -1;
+			ret = false;
+			break;
+		}
+		
 		case itype_rocs:
 		{
 			if(!inlikelike && charging==0)
@@ -9592,245 +9955,254 @@ bool LinkClass::startwpn(int32_t itemid)
 
 bool LinkClass::doattack()
 {
-    //int32_t s = BSZ ? 0 : 11;
-    int32_t s = (zinit.linkanimationstyle==las_bszelda) ? 0 : 11;
-    
-    // Abort attack if attackclk has run out and:
-    // * the attack is not Hammer, Sword with Spin Scroll, Candle, or Wand, OR
-    // * you aren't holding down the A button, you're not charging, and/or you're still spinning
-    
-    if(attackclk>=(spins>0?8:14) && attack!=wHammer &&
-            (((attack!=wSword || !current_item(itype_spinscroll) || inlikelike) && attack!=wWand && attack!=wFire && attack!=wCByrna) || !((attack==wSword && isWpnPressed(itype_sword) && spins==0) || charging>0)))
-    {
-        tapping=false;
-        return false;
-    }
-    
-    if(attackclk>29)
-    {
-        tapping=false;
-        return false;
-    }
-    
-    int32_t candleid = (directWpn>-1 && itemsbuf[directWpn].family==itype_candle) ? directWpn : current_item_id(itype_candle);
-    int32_t byrnaid = (directWpn>-1 && itemsbuf[directWpn].family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
-    
-    // An attack can be "walked out-of" after 8 frames, unless it's:
-    // * a sword stab
-    // * a hammer pound
-    // * a wand thrust
-    // * a candle thrust
-    // * a cane thrust
-    // In which case it should continue.
-    if((attack==wCatching && attackclk>4)||(attack!=wWand && attack!=wSword && attack!=wHammer
-                                            && (attack!=wFire || (candleid!=-1 && !(itemsbuf[candleid].wpn)))
-                                            && (attack!=wCByrna || (byrnaid!=-1 && !(itemsbuf[byrnaid].wpn))) && attackclk>7))
-    {
-        if(DrunkUp()||DrunkDown()||DrunkLeft()||DrunkRight())
-        {
-            lstep = s;
-            return false;
-        }
-    }
-    
-    if(charging==0)
-    {
-        lstep=0;
-    }
-    
-    // Work out the sword charge-up delay
-    int32_t magiccharge = 192, normalcharge = 64;
-    int32_t itemid = current_item_id(itype_chargering);
-    
-    if(itemid>=0)
-    {
-        normalcharge = itemsbuf[itemid].misc1;
-        magiccharge = itemsbuf[itemid].misc2;
-    }
-    
-    itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
-    
-    bool doCharge=true;
-    if(z!=0)
-        doCharge=false;
-    if(attack==wSword)
-    {
-        if(!(attackclk==SWORDCHARGEFRAME && isWpnPressed(itype_sword)))
-            doCharge=false;
-        else if(charging<=normalcharge)
-        {
-            if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
-                doCharge=false;
-        }
-    }
-    else if(attack==wHammer)
-    {
-        if(!(attackclk==HAMMERCHARGEFRAME && isWpnPressed(itype_hammer)))
-            doCharge=false;
-        else if(charging<=normalcharge)
-        {
-            if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
-                doCharge=false;
-        }
-    }
-    else
-        doCharge=false;
-    
-    // Now work out the magic cost
-    itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
-    
-    // charging up weapon...
-    //
-    if(doCharge)
-    {
-        // Increase charging while holding down button.
-        if(spins==0 && charging<magiccharge)
-            charging++;
-            
-        // Once a charging threshold is reached, play the sound.
-        if(charging==normalcharge)
-        {
-            paymagiccost(itemid); //!DIMITODO: Can this underflow or even just do it even if you don't have magic?
-            sfx(WAV_ZN1CHARGE,pan(x.getInt()));
-        }
-        else if(charging==magiccharge)
-        {
-            itemid = current_item_id(attack==wHammer ? itype_quakescroll2 : itype_spinscroll2);
-            
-            if(itemid>-1 && checkbunny(itemid) && checkmagiccost(itemid))
-            {
-                paymagiccost(itemid);
-                charging++; // charging>magiccharge signifies a successful supercharge.
-                sfx(WAV_ZN1CHARGE2,pan(x.getInt()));
-            }
-        }
-    }
-    else if(attack==wCByrna && byrnaid!=-1)
-    {
-        if(!(itemsbuf[byrnaid].wpn))
-        {
-            attack = wNone;
-            return startwpn(attackid); // Beam if the Byrna stab animation WASN'T used.
-        }
-        
-        bool beamcount = false;
-        
-        for(int32_t i=0; i<Lwpns.Count(); i++)
-        {
-            weapon *w = ((weapon*)Lwpns.spr(i));
-            
-            if(w->id==wCByrna)
-            {
-                beamcount = true;
-                break;
-            }
-        }
-        
-        // If beams already deployed, remove them
-        if(!attackclk && beamcount)
-        {
-            return startwpn(attackid); // Remove beams instantly
-        }
-        
-        // Otherwise, continue
-        ++attackclk;
-    }
-    else
-    {
-        ++attackclk;
-        
-        if(attackclk==SWORDCHARGEFRAME && charging>0 && !tapping)  //Signifies a tapped enemy
-        {
-            ++attackclk; // Won't continue charging
-            charging=0;
-        }
-        
-        // Faster if spinning.
-        if(spins>0)
-            ++attackclk;
-            
-        // Even faster if hurricane spinning.
-        if(spins>5)
-            attackclk+=2;
-            
-        // If at a charging threshold, do a charged attack.
-        if(charging>=normalcharge && (attack!=wSword || attackclk>=SWORDCHARGEFRAME) && !tapping)
-        {
-            if(attack==wSword)
-            {
-                spins=(charging>magiccharge ? (itemsbuf[current_item_id(itype_spinscroll2)].misc1*4)-3
-                       : (itemsbuf[current_item_id(itype_spinscroll)].misc1*4)+1);
-                attackclk=1;
-                sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(x.getInt()));
-            }
-            /*
-            else if(attack==wWand)
-            {
-                //Not reachable.. yet
-                spins=1;
-            }
-            */
-            else if(attack==wHammer && sideviewhammerpound())
-            {
-                spins=1; //signifies the quake hammer
-                bool super = (charging>magiccharge && current_item(itype_quakescroll2));
-                sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(x.getInt()));
-                quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
-                
-                // general area stun
-                for(int32_t i=0; i<GuyCount(); i++)
-                {
-                    if(!isflier(GuyID(i)))
-                    {
-                        StunGuy(i,(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc2)-
-                                distance(x,y,GuyX(i),GuyY(i)));
-                    }
-                }
-            }
-        }
-        else if(tapping && attackclk<SWORDCHARGEFRAME && charging<magiccharge)
-            charging++;
-            
-        if(!isWpnPressed(attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword))
-            charging=0;
-            
-        if(attackclk>=SWORDCHARGEFRAME)
-            tapping = false;
-    }
-    
-    if(attackclk==1 && attack==wFire && candleid!=-1 && !(itemsbuf[candleid].wpn))
-    {
-        return startwpn(attackid); // Flame if the Candle stab animation WASN'T used.
-    }
-    
-    int32_t crossid = current_item_id(itype_crossscroll);  //has Cross Beams scroll
-    
-    if(attackclk==13 || (attackclk==7 && spins>1 && crossid >=0 && checkbunny(crossid) && checkmagiccost(crossid)))
-    {
-    
-        int32_t wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
-        int64_t templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
-        
-        if(wpnid>=0 && itemsbuf[wpnid].flags & ITEM_FLAG1)
-        {
-            templife=templife*game->get_maxlife();
-            templife=templife/100;
-        }
-        else
-        {
-            templife*=game->get_hp_per_heart();
-        }
-        
-        bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
-        int32_t perilid = current_item_id(itype_perilscroll);
-        bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
-                          && checkbunny(perilid) && checkmagiccost(perilid)
-                          // Must actually be able to shoot sword beams
-                          && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
-                              || itemsbuf[wpnid].misc1 <= game->get_maxlife()/game->get_hp_per_heart()));
-                              
-        if(attack==wSword && !tapping)
-        {
+	//int32_t s = BSZ ? 0 : 11;
+	int32_t s = (zinit.linkanimationstyle==las_bszelda) ? 0 : 11;
+	
+	int32_t bugnetid = (directWpn>-1 && itemsbuf[directWpn].family==itype_bugnet) ? directWpn : current_item_id(itype_bugnet);
+	if(attack==wBugNet && bugnetid!=-1)
+	{
+		if(++attackclk >= NET_CLK_TOTAL)
+			return false;
+		
+		return true;
+	}
+	
+	// Abort attack if attackclk has run out and:
+	// * the attack is not Hammer, Sword with Spin Scroll, Candle, or Wand, OR
+	// * you aren't holding down the A button, you're not charging, and/or you're still spinning
+	
+	if(attackclk>=(spins>0?8:14) && attack!=wHammer &&
+			(((attack!=wSword || !current_item(itype_spinscroll) || inlikelike) && attack!=wWand && attack!=wFire && attack!=wCByrna) || !((attack==wSword && isWpnPressed(itype_sword) && spins==0) || charging>0)))
+	{
+		tapping=false;
+		return false;
+	}
+	
+	if(attackclk>29)
+	{
+		tapping=false;
+		return false;
+	}
+	
+	int32_t candleid = (directWpn>-1 && itemsbuf[directWpn].family==itype_candle) ? directWpn : current_item_id(itype_candle);
+	int32_t byrnaid = (directWpn>-1 && itemsbuf[directWpn].family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
+	// An attack can be "walked out-of" after 8 frames, unless it's:
+	// * a sword stab
+	// * a hammer pound
+	// * a wand thrust
+	// * a candle thrust
+	// * a cane thrust
+	// In which case it should continue.
+	if((attack==wCatching && attackclk>4)||(attack!=wWand && attack!=wSword && attack!=wHammer
+											&& (attack!=wFire || (candleid!=-1 && !(itemsbuf[candleid].wpn)))
+											&& (attack!=wCByrna || (byrnaid!=-1 && !(itemsbuf[byrnaid].wpn)))
+											&& (attack != wBugNet) && attackclk>7))
+	{
+		if(DrunkUp()||DrunkDown()||DrunkLeft()||DrunkRight())
+		{
+			lstep = s;
+			return false;
+		}
+	}
+	
+	if(charging==0)
+	{
+		lstep=0;
+	}
+	
+	// Work out the sword charge-up delay
+	int32_t magiccharge = 192, normalcharge = 64;
+	int32_t itemid = current_item_id(itype_chargering);
+	
+	if(itemid>=0)
+	{
+		normalcharge = itemsbuf[itemid].misc1;
+		magiccharge = itemsbuf[itemid].misc2;
+	}
+	
+	itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
+	
+	bool doCharge=true;
+	if(z!=0)
+		doCharge=false;
+	if(attack==wSword)
+	{
+		if(!(attackclk==SWORDCHARGEFRAME && isWpnPressed(itype_sword)))
+			doCharge=false;
+		else if(charging<=normalcharge)
+		{
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
+				doCharge=false;
+		}
+	}
+	else if(attack==wHammer)
+	{
+		if(!(attackclk==HAMMERCHARGEFRAME && isWpnPressed(itype_hammer)))
+			doCharge=false;
+		else if(charging<=normalcharge)
+		{
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
+				doCharge=false;
+		}
+	}
+	else
+		doCharge=false;
+	
+	// Now work out the magic cost
+	itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
+	
+	// charging up weapon...
+	//
+	if(doCharge)
+	{
+		// Increase charging while holding down button.
+		if(spins==0 && charging<magiccharge)
+			charging++;
+			
+		// Once a charging threshold is reached, play the sound.
+		if(charging==normalcharge)
+		{
+			paymagiccost(itemid); //!DIMITODO: Can this underflow or even just do it even if you don't have magic?
+			sfx(WAV_ZN1CHARGE,pan(x.getInt()));
+		}
+		else if(charging==magiccharge)
+		{
+			itemid = current_item_id(attack==wHammer ? itype_quakescroll2 : itype_spinscroll2);
+			
+			if(itemid>-1 && checkbunny(itemid) && checkmagiccost(itemid))
+			{
+				paymagiccost(itemid);
+				charging++; // charging>magiccharge signifies a successful supercharge.
+				sfx(WAV_ZN1CHARGE2,pan(x.getInt()));
+			}
+		}
+	}
+	else if(attack==wCByrna && byrnaid!=-1)
+	{
+		if(!(itemsbuf[byrnaid].wpn))
+		{
+			attack = wNone;
+			return startwpn(attackid); // Beam if the Byrna stab animation WASN'T used.
+		}
+		
+		bool beamcount = false;
+		
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = ((weapon*)Lwpns.spr(i));
+			
+			if(w->id==wCByrna)
+			{
+				beamcount = true;
+				break;
+			}
+		}
+		
+		// If beams already deployed, remove them
+		if(!attackclk && beamcount)
+		{
+			return startwpn(attackid); // Remove beams instantly
+		}
+		
+		// Otherwise, continue
+		++attackclk;
+	}
+	else
+	{
+		++attackclk;
+		
+		if(attackclk==SWORDCHARGEFRAME && charging>0 && !tapping)  //Signifies a tapped enemy
+		{
+			++attackclk; // Won't continue charging
+			charging=0;
+		}
+		
+		// Faster if spinning.
+		if(spins>0)
+			++attackclk;
+			
+		// Even faster if hurricane spinning.
+		if(spins>5)
+			attackclk+=2;
+			
+		// If at a charging threshold, do a charged attack.
+		if(charging>=normalcharge && (attack!=wSword || attackclk>=SWORDCHARGEFRAME) && !tapping)
+		{
+			if(attack==wSword)
+			{
+				spins=(charging>magiccharge ? (itemsbuf[current_item_id(itype_spinscroll2)].misc1*4)-3
+					   : (itemsbuf[current_item_id(itype_spinscroll)].misc1*4)+1);
+				attackclk=1;
+				sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(x.getInt()));
+			}
+			/*
+			else if(attack==wWand)
+			{
+				//Not reachable.. yet
+				spins=1;
+			}
+			*/
+			else if(attack==wHammer && sideviewhammerpound())
+			{
+				spins=1; //signifies the quake hammer
+				bool super = (charging>magiccharge && current_item(itype_quakescroll2));
+				sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(x.getInt()));
+				quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
+				
+				// general area stun
+				for(int32_t i=0; i<GuyCount(); i++)
+				{
+					if(!isflier(GuyID(i)))
+					{
+						StunGuy(i,(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc2)-
+								distance(x,y,GuyX(i),GuyY(i)));
+					}
+				}
+			}
+		}
+		else if(tapping && attackclk<SWORDCHARGEFRAME && charging<magiccharge)
+			charging++;
+			
+		if(!isWpnPressed(attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword))
+			charging=0;
+			
+		if(attackclk>=SWORDCHARGEFRAME)
+			tapping = false;
+	}
+	
+	if(attackclk==1 && attack==wFire && candleid!=-1 && !(itemsbuf[candleid].wpn))
+	{
+		return startwpn(attackid); // Flame if the Candle stab animation WASN'T used.
+	}
+	
+	int32_t crossid = current_item_id(itype_crossscroll);  //has Cross Beams scroll
+	
+	if(attackclk==13 || (attackclk==7 && spins>1 && crossid >=0 && checkbunny(crossid) && checkmagiccost(crossid)))
+	{
+	
+		int32_t wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
+		int64_t templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
+		
+		if(wpnid>=0 && itemsbuf[wpnid].flags & ITEM_FLAG1)
+		{
+			templife=templife*game->get_maxlife();
+			templife=templife/100;
+		}
+		else
+		{
+			templife*=game->get_hp_per_heart();
+		}
+		
+		bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
+		int32_t perilid = current_item_id(itype_perilscroll);
+		bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
+						  && checkbunny(perilid) && checkmagiccost(perilid)
+						  // Must actually be able to shoot sword beams
+						  && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
+							  || itemsbuf[wpnid].misc1 <= game->get_maxlife()/game->get_hp_per_heart()));
+							  
+		if(attack==wSword && !tapping)
+		{
 			if(perilbeam || normalbeam)
 			{
 				if(attackclk==7)
@@ -9845,22 +10217,22 @@ bool LinkClass::doattack()
 				startwpn(attackid);
 			}
 			else misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
-        }
-        
-        if(attack==wWand)
-            startwpn(attackid); // Flame if the Wand stab animation WAS used (it always is).
-            
-        if(attack==wFire && candleid!=-1 && itemsbuf[candleid].wpn) // Flame if the Candle stab animation WAS used.
-            startwpn(attackid);
-            
-        if(attack==wCByrna && byrnaid!=-1 && itemsbuf[byrnaid].wpn) // Beam if the Byrna stab animation WAS used.
-            startwpn(attackid);
-    }
-    
-    if(attackclk==14)
-        lstep = s;
-        
-    return true;
+		}
+		
+		if(attack==wWand)
+			startwpn(attackid); // Flame if the Wand stab animation WAS used (it always is).
+			
+		if(attack==wFire && candleid!=-1 && itemsbuf[candleid].wpn) // Flame if the Candle stab animation WAS used.
+			startwpn(attackid);
+			
+		if(attack==wCByrna && byrnaid!=-1 && itemsbuf[byrnaid].wpn) // Beam if the Byrna stab animation WAS used.
+			startwpn(attackid);
+	}
+	
+	if(attackclk==14)
+		lstep = s;
+		
+	return true;
 }
 
 bool LinkClass::can_attack()
@@ -11111,6 +11483,19 @@ void LinkClass::movelink()
 				SetAttack();
 				attack=wCByrna;
 				attackclk=0;
+			}
+		}
+		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
+		{
+			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
+			if(checkbunny(attackid) && checkmagiccost(attackid))
+			{
+				paymagiccost(attackid);
+				SetAttack();
+				attack = wBugNet;
+				attackclk = 0;
+				sfx(itemsbuf[attackid].usesound);
 			}
 		}
 		else
@@ -23736,9 +24121,9 @@ void dospecialmoney(int32_t index)
 				price+=itemsbuf[wmedal].misc1;
 		}
 		
-	int32_t total = game->get_drupy()-price;
-	total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
-	game->set_drupy(game->get_drupy()-total);
+		int32_t total = game->get_drupy()-price;
+		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+		game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
         setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
         game->change_maxbombs(4);
@@ -23837,99 +24222,99 @@ void getitem(int32_t id, bool nosound)
     {
         return;
     }
-    
-    if(itemsbuf[id].family!=0xFF)
+    itemdata const& idat = itemsbuf[id&0xFF];
+    if(idat.family!=0xFF)
     {
-        if(itemsbuf[id].flags & ITEM_GAMEDATA && itemsbuf[id].family != itype_triforcepiece)
+        if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
         {
             // Fix boomerang sounds.
-            int32_t itemid = current_item_id(itemsbuf[id].family);
+            int32_t itemid = current_item_id(idat.family);
             
-            if(itemid>=0 && (itemsbuf[id].family == itype_brang || itemsbuf[id].family == itype_nayruslove
-                             || itemsbuf[id].family == itype_hookshot || itemsbuf[id].family == itype_cbyrna)
+            if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
+                             || idat.family == itype_hookshot || idat.family == itype_cbyrna)
                     && sfx_allocated(itemsbuf[itemid].usesound)
-                    && itemsbuf[id].usesound != itemsbuf[itemid].usesound)
+                    && idat.usesound != itemsbuf[itemid].usesound)
             {
                 stop_sfx(itemsbuf[itemid].usesound);
-                cont_sfx(itemsbuf[id].usesound);
+                cont_sfx(idat.usesound);
             }
             
             game->set_item(id,true);
             
-            if(!(itemsbuf[id].flags & ITEM_KEEPOLD))
+            if(!(idat.flags & ITEM_KEEPOLD))
             {
-                if(current_item(itemsbuf[id].family)<itemsbuf[id].fam_type)
+                if(current_item(idat.family)<idat.fam_type)
                 {
-                    removeLowerLevelItemsOfFamily(game,itemsbuf,itemsbuf[id].family, itemsbuf[id].fam_type);
+                    removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
                 }
             }
             
             // NES consistency: replace all flying boomerangs with the current boomerang.
-            if(itemsbuf[id].family==itype_brang)
+            if(idat.family==itype_brang)
                 for(int32_t i=0; i<Lwpns.Count(); i++)
                 {
                     weapon *w = ((weapon*)Lwpns.spr(i));
                     
                     if(w->id==wBrang)
                     {
-                        w->LOADGFX(itemsbuf[id].wpn);
+                        w->LOADGFX(idat.wpn);
                     }
                 }
         }
         
-        if(itemsbuf[id].count!=-1)
+        if(idat.count!=-1)
         {
-            if(itemsbuf[id].setmax)
+            if(idat.setmax)
             {
                 // Bomb bags are a special case; they may be set not to increase super bombs
-                if(itemsbuf[id].family==itype_bombbag && itemsbuf[id].count==2 && (itemsbuf[id].flags&16)==0)
+                if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
                 {
                     int32_t max = game->get_maxbombs();
                     
-                    if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+                    if(max<idat.max) max=idat.max;
                     
-                    game->set_maxbombs(zc_min(game->get_maxbombs()+itemsbuf[id].setmax,max), false);
+                    game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
                 }
                 else
                 {
-                    int32_t max = game->get_maxcounter(itemsbuf[id].count);
+                    int32_t max = game->get_maxcounter(idat.count);
                     
-                    if(max<itemsbuf[id].max) max=itemsbuf[id].max;
+                    if(max<idat.max) max=idat.max;
                     
-                    game->set_maxcounter(zc_min(game->get_maxcounter(itemsbuf[id].count)+itemsbuf[id].setmax,max), itemsbuf[id].count);
+                    game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
                 }
             }
             
             // Amount is an uint16_t, but the range is -9999 to 16383
             // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
-            if(itemsbuf[id].amount&0x3FFF)
+            if(idat.amount&0x3FFF)
             {
-                if(itemsbuf[id].amount&0x8000)
+                if(idat.amount&0x8000)
                     game->set_dcounter(
-                        game->get_dcounter(itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+                        game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
                 else
                 {
-                    if(itemsbuf[id].amount>=16385 && game->get_counter(0)<=itemsbuf[id].amount-16384)
-                        game->set_counter(0, itemsbuf[id].count);
+                    if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
+                        game->set_counter(0, idat.count);
                     else
                         // This is too confusing to try and change...
-                        game->set_counter(zc_min(game->get_counter(itemsbuf[id].count)+((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF),game->get_maxcounter(itemsbuf[id].count)), itemsbuf[id].count);
+                        game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
                 }
             }
         }
     }
     
-    if(itemsbuf[id].playsound&&!nosound)
+    if(idat.playsound&&!nosound)
     {
-        sfx(itemsbuf[id].playsound);
+        sfx(idat.playsound);
     }
     
     //add lower-level items
-    if(itemsbuf[id].flags&ITEM_GAINOLD)
+    if(idat.flags&ITEM_GAINOLD)
     {
-        for(int32_t i=itemsbuf[id].fam_type-1; i>0; i--)
+        for(int32_t i=idat.fam_type-1; i>0; i--)
         {
-            int32_t potid = getItemID(itemsbuf, itemsbuf[id].family, i);
+            int32_t potid = getItemID(itemsbuf, idat.family, i);
             
             if(potid != -1)
             {
@@ -23938,92 +24323,101 @@ void getitem(int32_t id, bool nosound)
         }
     }
     
-    switch(itemsbuf[id&0xFF].family)
+    switch(idat.family)
     {
-    case itype_clock:
-    {
-        setClock(watch=true);
-        
-        for(int32_t i=0; i<eMAXGUYS; i++)
-            clock_zoras[i]=0;
-            
-        clockclk=itemsbuf[id&0xFF].misc1;
-    }
-    break;
-    
-    case itype_lkey:
-        if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
-        
-        break;
-        
-    case itype_ring:
-    case itype_magicring:
-        if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
-        {
-            ringcolor(false);
-        }
-        
-        break;
-        
-    case itype_whispring:
-    {
-        if(itemsbuf[id].flags & ITEM_FLAG1)
-        {
-            if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
-            
-            if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
-        }
-        
-        if(itemsbuf[id].power==0)
-        {
-            setSwordClk(0);
-            setItemClk(0);
-        }
-        
-        break;
-    }
-    
-    
-    case itype_map:
-        game->lvlitems[dlevel]|=liMAP;
-        break;
-        
-    case itype_compass:
-        game->lvlitems[dlevel]|=liCOMPASS;
-        break;
-        
-    case itype_bosskey:
-        game->lvlitems[dlevel]|=liBOSSKEY;
-        break;
-        
-    case itype_fairy:
-    
-        game->set_life(zc_min(game->get_life()+(itemsbuf[id].flags&ITEM_FLAG1 ?(int32_t)(game->get_maxlife()*(itemsbuf[id].misc1/100.0)):((itemsbuf[id].misc1*game->get_hp_per_heart()))),game->get_maxlife()));
-        game->set_magic(zc_min(game->get_magic()+(itemsbuf[id].flags&ITEM_FLAG2 ?(int32_t)(game->get_maxmagic()*(itemsbuf[id].misc2/100.0)):((itemsbuf[id].misc2*game->get_mp_per_block()))),game->get_maxmagic()));
-        break;
-        
-    case itype_heartpiece:
-        game->change_HCpieces(1);
-        
-        if(game->get_HCpieces()<game->get_hcp_per_hc())
-            break;
-            
-        game->set_HCpieces(0);
-        
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            if(itemsbuf[i].family == itype_heartcontainer)
-            {
-                getitem(i);
-                break;
-            }
-        }
-        
-        break;
-        
-    case itype_killem:
-        kill_em_all();
-        break;
+		case itype_bottlefill:
+		{
+			if(idat.misc1)
+			{
+				game->fillBottle(idat.misc1);
+			}
+		}
+		break;
+		
+		case itype_clock:
+		{
+			setClock(watch=true);
+			
+			for(int32_t i=0; i<eMAXGUYS; i++)
+				clock_zoras[i]=0;
+				
+			clockclk=itemsbuf[id&0xFF].misc1;
+		}
+		break;
+		
+		case itype_lkey:
+			if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
+			
+			break;
+			
+		case itype_ring:
+		case itype_magicring:
+			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+			{
+				ringcolor(false);
+			}
+			
+			break;
+			
+		case itype_whispring:
+		{
+			if(idat.flags & ITEM_FLAG1)
+			{
+				if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
+				
+				if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
+			}
+			
+			if(idat.power==0)
+			{
+				setSwordClk(0);
+				setItemClk(0);
+			}
+			
+			break;
+		}
+		
+		
+		case itype_map:
+			game->lvlitems[dlevel]|=liMAP;
+			break;
+			
+		case itype_compass:
+			game->lvlitems[dlevel]|=liCOMPASS;
+			break;
+			
+		case itype_bosskey:
+			game->lvlitems[dlevel]|=liBOSSKEY;
+			break;
+			
+		case itype_fairy:
+		
+			game->set_life(zc_min(game->get_life()+(idat.flags&ITEM_FLAG1 ?(int32_t)(game->get_maxlife()*(idat.misc1/100.0)):((idat.misc1*game->get_hp_per_heart()))),game->get_maxlife()));
+			game->set_magic(zc_min(game->get_magic()+(idat.flags&ITEM_FLAG2 ?(int32_t)(game->get_maxmagic()*(idat.misc2/100.0)):((idat.misc2*game->get_mp_per_block()))),game->get_maxmagic()));
+			break;
+			
+		case itype_heartpiece:
+			game->change_HCpieces(1);
+			
+			if(game->get_HCpieces()<game->get_hcp_per_hc())
+				break;
+				
+			game->set_HCpieces(0);
+			
+			for(int32_t i=0; i<MAXITEMS; i++)
+			{
+				if(itemsbuf[i].family == itype_heartcontainer)
+				{
+					getitem(i);
+					break;
+				}
+			}
+			
+			break;
+			
+		case itype_killem:
+			kill_em_all();
+			break;
     }
     
     update_subscreens();
@@ -24108,280 +24502,326 @@ void takeitem(int32_t id)
 // Attempt to pick up an item. (-1 = check items touching Link.)
 void LinkClass::checkitems(int32_t index)
 {
-    int32_t tmp=currscr>=128?1:0;
-    
-    if(index==-1)
-    {
-        if(diagonalMovement)
-        {
-            index=items.hit(x,y+(bigHitbox?0:8),z,6,6,1);
-        }
-        else index=items.hit(x,y+(bigHitbox?0:8),z,1,1,1);
-    }
-    
-    if(index==-1)
-        return;
-        
-    // if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
-    //   return;
-    item* ptr = (item*)items.spr(index);
-    int32_t pickup = ((item*)items.spr(index))->pickup;
-    int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
-    int32_t id2 = ((item*)items.spr(index))->id;
-    int32_t pstr = ((item*)items.spr(index))->pstring;
-    int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-    //int32_t tempnextmsg;
-    
-	if(ptr->fallclk > 0) return; //Don't pick up a falling item
+	int32_t tmp=currscr>=128?1:0;
 	
-    if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
-        if(items.spr(index)->id!=iFairyMoving)
-            // wait for it to stop flashing, doesn't check for other items yet
-            return;
-            
-    if(pickup&ipENEMY)                                        // item was being carried by enemy
-        if(more_carried_items()<=1)  // 1 includes this own item.
-            hasitem &= ~2;
-            
-    if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
-    {
-        if(pickup&ipMONEY)
-            dospecialmoney(index);
-            
-        return;
-    }
-    
-    if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
-        return;
-        
-    if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
-        // Item upgrade routine.
-    {
-        int32_t nextitem = -1;
-        
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            // Find the item which is as close to this item's fam_type as possible.
-            if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-                    && (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
-            {
-                nextitem = i;
-            }
-        }
-        
-        if(nextitem>-1)
-            id2 = nextitem;
-    }
-    
-    if(pickup&ipCHECK)                                        // check restrictions
-        switch(tmpscr[tmp].room)
-        {
-        case rSP_ITEM:                                        // special item
-            if(!canget(id2)) // These ones always need the Hearts Required check
-                return;
-                
-            break;
-            
-        case rP_SHOP:                                         // potion shop
-            if(msg_active)
-                return;
-                
-        case rSHOP:                                           // shop
-            if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
-            {
-                
-		if(!current_item_power(itype_wallet))
+	if(index==-1)
+	{
+		if(diagonalMovement)
 		{
-			if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
-			int32_t tmpprice = -abs(prices[PriceIndex]);
-			//game->change_drupy(-abs(prices[priceindex]));
-			int32_t total = game->get_drupy()-tmpprice;
-			total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
-			game->set_drupy(game->get_drupy()-total);
+			index=items.hit(x,y+(bigHitbox?0:8),z,6,6,1);
 		}
-		else //infinite wallet
-		{
-                    game->change_drupy(0);
-		}
-            }
-            boughtsomething=true;
-            //make the other shop items untouchable after
-            //you buy something
-            int32_t count = 0;
-	    
-	    
-	    //Show a message string, if set.
-	    /*if ( QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] < msg_count )
-	    {
-		    donewmsg(QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex]);
-	    }*/
-	    
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
-                {
-                    ++count;
-                }
-            }
-            
-            for(int32_t i=0; i<items.Count(); i++)
-            {
-                if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
-                    ((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
-            }
-            
-            break;
-        }
-        
-    if(pickup&ipONETIME)    // set mITEM for one-time-only items
-    {
-		setmapflag(mITEM);
-
-		//Okay so having old source files is a godsend. You wanna know why?
-		//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
-		//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
-		//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mBELOW if in a cave.
-		//However, now the check just always defaults to mBELOW, which causes this bug.
-		//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
+		else index=items.hit(x,y+(bigHitbox?0:8),z,1,1,1);
+	}
+	
+	if(index==-1)
+		return;
 		
-		/*
-		// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
-		// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
-
-		// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
-		// What is etc?! We need to check for every valid state here. ~Gleeok
-		if(get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
+	// if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
+	//   return;
+	item* ptr = (item*)items.spr(index);
+	int32_t pickup = ((item*)items.spr(index))->pickup;
+	int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
+	int32_t id2 = ((item*)items.spr(index))->id;
+	int32_t pstr = ((item*)items.spr(index))->pstring;
+	int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
+	//int32_t tempnextmsg;
+	bool bottledummy = (pickup&ipCHECK) && tmpscr[tmp].room == rBOTTLESHOP;
+	
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
+	if(bottledummy) //Dummy bullshit! 
+	{
+		if(!game->canFillBottle())
+			return;
+		if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
 		{
-			// Most older quests need one-time-pickups to not remove special items, etc.
-			if(tmpscr->room==rGRUMBLE)
+			if(!current_item_power(itype_wallet))
 			{
-				setmapflag(mBELOW);
+				if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+				int32_t tmpprice = -abs(prices[PriceIndex]);
+				//game->change_drupy(-abs(prices[priceindex]));
+				int32_t total = game->get_drupy()-tmpprice;
+				total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+				game->set_drupy(game->get_drupy()-total);
+			}
+			else //infinite wallet
+			{
+				game->change_drupy(0);
 			}
 		}
-		*/
-    }
-    else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
-        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
-	
-    if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
-    {
-	if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-	hidden_entrance(0, true, false, -5);
-    }
-        
-    if(itemsbuf[id2].collect_script)
-    {
-	    //clear the item script stack for a new script
-		ri = &(itemCollectScriptData[id2]);
-	        for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
-		ri->Clear();
-	        //itemCollectScriptData[(id2 & 0xFFF)].Clear();
-		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
-		if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
+		boughtsomething=true;
+		//make the other shop items untouchable after
+		//you buy something
+		int32_t count = 0;
+		
+		for(int32_t i=0; i<3; i++)
 		{
-			item_collect_doscript[id2] = 1;
-			itemscriptInitialised[id2] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
-			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
-		}
-		else if (!id2 && !item_collect_doscript[id2]) //item 0
-		{
-			item_collect_doscript[id2] = 1;
-			itemscriptInitialised[id2] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+			if(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[i] != 0)
+			{
+				++count;
+			}
 		}
 		
+		for(int32_t i=0; i<items.Count(); i++)
+		{
+			if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
+				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
+		}
 		
-    }
-    //Passive item scripts on colelction
-	if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-	{
-		ri = &(itemScriptData[id2]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
-		ri->Clear();
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-		item_doscript[id2] = 1;
-		itemscriptInitialised[id2] = 0;
-		//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
-					
+		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[PriceIndex]);
+		id2 = find_bottle_for_slot(slot);
+		ptr->id = id2;
+		pstr = 0;
+		pickup |= ipHOLDUP;
 	}
-    getitem(id2);
-    
-    if(pickup&ipHOLDUP)
-    {
-	    
+	else
+	{
+		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
+			return; //No picking these up unless you have a bottle to fill!
+		
+		if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+			if(items.spr(index)->id!=iFairyMoving)
+				// wait for it to stop flashing, doesn't check for other items yet
+				return;
+				
+		if(pickup&ipENEMY)                                        // item was being carried by enemy
+			if(more_carried_items()<=1)  // 1 includes this own item.
+				hasitem &= ~2;
+				
+		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
+		{
+			if(pickup&ipMONEY)
+				dospecialmoney(index);
+				
+			return;
+		}
+		
+		if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
+			return;
+			
+		if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
+			// Item upgrade routine.
+		{
+			int32_t nextitem = -1;
+			
+			for(int32_t i=0; i<MAXITEMS; i++)
+			{
+				// Find the item which is as close to this item's fam_type as possible.
+				if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
+						&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+				{
+					nextitem = i;
+				}
+			}
+			
+			if(nextitem>-1)
+				id2 = nextitem;
+		}
+		
+		if(pickup&ipCHECK)                                        // check restrictions
+			switch(tmpscr[tmp].room)
+			{
+			case rSP_ITEM:                                        // special item
+				if(!canget(id2)) // These ones always need the Hearts Required check
+					return;
+					
+				break;
+				
+			case rP_SHOP:                                         // potion shop
+				if(msg_active)
+					return;
+					
+			case rSHOP:                                           // shop
+				if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
+				{
+					if(!current_item_power(itype_wallet))
+					{
+						if( game->get_spendable_rupies()<abs(prices[PriceIndex]) ) return;
+						int32_t tmpprice = -abs(prices[PriceIndex]);
+						//game->change_drupy(-abs(prices[priceindex]));
+						int32_t total = game->get_drupy()-tmpprice;
+						total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
+						game->set_drupy(game->get_drupy()-total);
+					}
+					else //infinite wallet
+					{
+						game->change_drupy(0);
+					}
+				}
+				boughtsomething=true;
+				//make the other shop items untouchable after
+				//you buy something
+				int32_t count = 0;
+				
+				for(int32_t i=0; i<3; i++)
+				{
+					if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
+					{
+						++count;
+					}
+				}
+				
+				for(int32_t i=0; i<items.Count(); i++)
+				{
+					if(((item*)items.spr(i))->PriceIndex >-1 && i!=index)
+						((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
+				}
+				
+				break;
+			}
+			
+		if(pickup&ipONETIME)    // set mITEM for one-time-only items
+		{
+			setmapflag(mITEM);
+
+			//Okay so having old source files is a godsend. You wanna know why?
+			//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
+			//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
+			//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mBELOW if in a cave.
+			//However, now the check just always defaults to mBELOW, which causes this bug.
+			//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
+			
+			/*
+			// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
+			// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
+
+			// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
+			// What is etc?! We need to check for every valid state here. ~Gleeok
+			if(get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW))
+			{
+				// Most older quests need one-time-pickups to not remove special items, etc.
+				if(tmpscr->room==rGRUMBLE)
+				{
+					setmapflag(mBELOW);
+				}
+			}
+			*/
+		}
+		else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
+			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+		
+		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
+		{
+			if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+			hidden_entrance(0, true, false, -5);
+		}
+			
+		if(itemsbuf[id2].collect_script)
+		{
+			//clear the item script stack for a new script
+			ri = &(itemCollectScriptData[id2]);
+				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
+			ri->Clear();
+				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
+			//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
+			if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
+			{
+				item_collect_doscript[id2] = 1;
+				itemscriptInitialised[id2] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
+				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
+			}
+			else if (!id2 && !item_collect_doscript[id2]) //item 0
+			{
+				item_collect_doscript[id2] = 1;
+				itemscriptInitialised[id2] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+			}
+		}
+		//Passive item scripts on colelction
+		if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+		{
+			ri = &(itemScriptData[id2]);
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
+			ri->Clear();
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+			item_doscript[id2] = 1;
+			itemscriptInitialised[id2] = 0;
+			//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
+						
+		}
+		getitem(id2);
+	}
 	
-	    
-        attackclk=0;
-        reset_swordcharge();
-        
-        if(action!=swimming && !IsSideSwim())
-            reset_hookshot();
-            
-        if(msg_onscreen)
-        {
-            dismissmsg();
-        }
-        
-        clear_bitmap(pricesdisplaybuf);
-        
-        if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
-        {
-            fadeclk=66;
-        }
-        
-        if(id2!=iBombs || action==swimming || get_bit(quest_rules,qr_BOMBHOLDFIX))
-        {
-            // don't hold up bombs unless swimming or the bomb hold fix quest rule is on
-            if(action==swimming)
-            {
-                action=waterhold1; FFCore.setLinkAction(waterhold1);
-            }
-	    else if(IsSideSwim())
-            {
-                action=sidewaterhold1; FFCore.setLinkAction(sidewaterhold1);
-            }
-            else
-            {
-                action=landhold1; FFCore.setLinkAction(landhold1);
-            }
-            
-            if(((item*)items.spr(index))->twohand)
-            {
-                if(action==waterhold1)
-                {
-                    action=waterhold2; FFCore.setLinkAction(waterhold2);
-                }
-		else if(action==sidewaterhold1)
-                {
-                    action=sidewaterhold2; FFCore.setLinkAction(sidewaterhold2);
-                }
-                else
-                {
-                    action=landhold2; FFCore.setLinkAction(landhold2);
-                }
-            }
-            
-            holdclk=130;
-            
-            //restart music
-            if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
-                music_stop();
-                
-            holditem=((item*)items.spr(index))->id; // NES consistency: when combining blue potions, hold up the blue potion.
-            freeze_guys=true;
+	if(pickup&ipHOLDUP)
+	{
+		attackclk=0;
+		reset_swordcharge();
+		
+		if(action!=swimming && !IsSideSwim())
+			reset_hookshot();
+			
+		if(msg_onscreen)
+		{
+			dismissmsg();
+		}
+		
+		clear_bitmap(pricesdisplaybuf);
+		
+		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
+		{
+			fadeclk=66;
+		}
+		
+		if(id2!=iBombs || action==swimming || get_bit(quest_rules,qr_BOMBHOLDFIX))
+		{
+			// don't hold up bombs unless swimming or the bomb hold fix quest rule is on
+			if(action==swimming)
+			{
+				action=waterhold1; FFCore.setLinkAction(waterhold1);
+			}
+			else if(IsSideSwim())
+			{
+				action=sidewaterhold1; FFCore.setLinkAction(sidewaterhold1);
+			}
+			else
+			{
+				action=landhold1; FFCore.setLinkAction(landhold1);
+			}
+			
+			if(ptr->twohand)
+			{
+				if(action==waterhold1)
+				{
+					action=waterhold2; FFCore.setLinkAction(waterhold2);
+				}
+				else if(action==sidewaterhold1)
+				{
+					action=sidewaterhold2; FFCore.setLinkAction(sidewaterhold2);
+				}
+				else
+				{
+					action=landhold2; FFCore.setLinkAction(landhold2);
+				}
+			}
+			
+			holdclk=130;
+			
+			//restart music
+			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
+				music_stop();
+				
+			holditem=ptr->id; // NES consistency: when combining blue potions, hold up the blue potion.
+			freeze_guys=true;
 			//show the info string
 			 
 			
 			//if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
 			
-			int32_t shop_pstr = ( tmpscr[tmp].room == rSHOP && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+			int32_t shop_pstr = 0;
+			switch(tmpscr[tmp].room)
+			{
+				case rSHOP:
+					shop_pstr = QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex];
+					break;
+				case rBOTTLESHOP:
+					shop_pstr = QMisc.bottle_shop_types[tmpscr[tmp].catchall].str[PriceIndex];
+					break;
+			}
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
 				if ( (pstr > 0 && pstr < msg_count) && ( ( ( pstr_flags&itemdataPSTRING_ALWAYS || pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_IP_HOLDUP || (!(FFCore.GetItemMessagePlayed(id2)))  ) ) ) )
@@ -24401,86 +24841,86 @@ void LinkClass::checkitems(int32_t index)
 			}
 			
 		}
-        
-        if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
-        {
-            sfx(tmpscr[0].holdupsfx);
-        }
-        
-        items.del(index);
-        
-        for(int32_t i=0; i<Lwpns.Count(); i++)
-        {
-            weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->dragging==index)
-            {
-                w->dragging=-1;
-            }
-            else if(w->dragging>index)
-            {
-                w->dragging-=1;
-            }
-        }
-        
-        // clear up shop stuff
-        if((isdungeon()==0)&&(index!=0))
-        {
-            if(boughtsomething)
-            {
-                fadeclk=66;
-                
-                if(((item*)items.spr(0))->id == iRupy && ((item*)items.spr(0))->pickup & ipDUMMY)
-                    items.del(0);
-                    
-                for(int32_t i=0; i<Lwpns.Count(); i++)
-                {
-                    weapon *w = (weapon*)Lwpns.spr(i);
-                    
-                    if(w->dragging==0)
-                    {
-                        w->dragging=-1;
-                    }
-                    else if(w->dragging>0)
-                    {
-                        w->dragging-=1;
-                    }
-                }
-            }
-            
-            if(msg_onscreen)
-            {
-                dismissmsg();
-            }
-            
-            clear_bitmap(pricesdisplaybuf);
-            set_clip_state(pricesdisplaybuf, 1);
-        }
-        
-        //   items.del(index);
-    }
-    else
-    {
-        items.del(index);
-        
-        for(int32_t i=0; i<Lwpns.Count(); i++)
-        {
-            weapon *w = (weapon*)Lwpns.spr(i);
-            
-            if(w->dragging==index)
-            {
-                w->dragging=-1;
-            }
-            else if(w->dragging>index)
-            {
-                w->dragging-=1;
-            }
-        }
-        
-        if(msg_onscreen)
-        {
-            dismissmsg();
-        }
+		
+		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
+		{
+			sfx(tmpscr[0].holdupsfx);
+		}
+		
+		items.del(index);
+		
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = (weapon*)Lwpns.spr(i);
+			
+			if(w->dragging==index)
+			{
+				w->dragging=-1;
+			}
+			else if(w->dragging>index)
+			{
+				w->dragging-=1;
+			}
+		}
+		
+		// clear up shop stuff
+		if((isdungeon()==0)&&(index!=0))
+		{
+			if(boughtsomething)
+			{
+				fadeclk=66;
+				
+				if(((item*)items.spr(0))->id == iRupy && ((item*)items.spr(0))->pickup & ipDUMMY)
+					items.del(0);
+					
+				for(int32_t i=0; i<Lwpns.Count(); i++)
+				{
+					weapon *w = (weapon*)Lwpns.spr(i);
+					
+					if(w->dragging==0)
+					{
+						w->dragging=-1;
+					}
+					else if(w->dragging>0)
+					{
+						w->dragging-=1;
+					}
+				}
+			}
+			
+			if(msg_onscreen)
+			{
+				dismissmsg();
+			}
+			
+			clear_bitmap(pricesdisplaybuf);
+			set_clip_state(pricesdisplaybuf, 1);
+		}
+		
+		//   items.del(index);
+	}
+	else
+	{
+		items.del(index);
+		
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = (weapon*)Lwpns.spr(i);
+			
+			if(w->dragging==index)
+			{
+				w->dragging=-1;
+			}
+			else if(w->dragging>index)
+			{
+				w->dragging-=1;
+			}
+		}
+		
+		if(msg_onscreen)
+		{
+			dismissmsg();
+		}
 	
 		//general item pickup message
 		//show the info string
@@ -24506,21 +24946,21 @@ void LinkClass::checkitems(int32_t index)
 		}
 		
 		
-        clear_bitmap(pricesdisplaybuf);
-        set_clip_state(pricesdisplaybuf, 1);
-    }
-    
-    if(itemsbuf[id2].family==itype_triforcepiece)
-    {
-        if(itemsbuf[id2].misc2>0) //Small TF Piece
-	{
-            getTriforce(id2);
+		clear_bitmap(pricesdisplaybuf);
+		set_clip_state(pricesdisplaybuf, 1);
 	}
-        else
+	
+	if(itemsbuf[id2].family==itype_triforcepiece)
 	{
-            getBigTri(id2);
+		if(itemsbuf[id2].misc2>0) //Small TF Piece
+		{
+				getTriforce(id2);
+		}
+		else
+		{
+				getBigTri(id2);
+		}
 	}
-    }
 }
 
 void LinkClass::StartRefill(int32_t refillWhat)
@@ -24623,12 +25063,12 @@ bool LinkClass::refill()
                 game->set_life(refill_heart_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
-		{
-			if ( q == (int32_t)tmpscr->oceansfx ) continue;
-			if ( q == (int32_t)tmpscr->bosssfx ) continue;
-			stop_sfx(q);
-		}
-		sfx(WAV_MSG);
+				{
+					if ( q == (int32_t)tmpscr->oceansfx ) continue;
+					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					stop_sfx(q);
+				}
+				sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
             }
@@ -24643,11 +25083,11 @@ bool LinkClass::refill()
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
-		{
-			if ( q == (int32_t)tmpscr->oceansfx ) continue;
-			if ( q == (int32_t)tmpscr->bosssfx ) continue;
-			stop_sfx(q);
-		}
+				{
+					if ( q == (int32_t)tmpscr->oceansfx ) continue;
+					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					stop_sfx(q);
+				}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;
@@ -24665,11 +25105,11 @@ bool LinkClass::refill()
                 game->set_magic(refill_magic_stop);
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
-		{
-			if ( q == (int32_t)tmpscr->oceansfx ) continue;
-			if ( q == (int32_t)tmpscr->bosssfx ) continue;
-			stop_sfx(q);
-		}
+				{
+					if ( q == (int32_t)tmpscr->oceansfx ) continue;
+					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					stop_sfx(q);
+				}
                 sfx(WAV_MSG);
                 refilling=REFILL_NONE;
                 return false;

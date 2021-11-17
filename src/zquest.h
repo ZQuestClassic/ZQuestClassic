@@ -760,6 +760,8 @@ enum
     cmdScreenSnapshot,
 	cmdViewL2BG,
 	cmdViewL3BG,
+	cmdBottleTypes,
+	cmdBottleShopTypes,
     cmdMAX
 };
 
@@ -969,31 +971,21 @@ int32_t onSideWarp();
 void EditWindWarp(int32_t level);
 int32_t onWhistle();
 
-/*******************************/
-/*********** onPath ************/
-/*******************************/
+
 
 const char *dirlist(int32_t index, int32_t *list_size);
 
 int32_t onPath();
 
-/********************************/
-/********* onInfoTypes **********/
-/********************************/
-
 void EditInfoType(int32_t index);
 int32_t onInfoTypes();
-
-/********************************/
-/********* onShopTypes **********/
-/********************************/
 
 void EditShopType(int32_t index);
 int32_t onShopTypes();
 
-/***********************************/
-/********* onItemDropSets **********/
-/***********************************/
+int32_t onBottleTypes();
+
+int32_t onBottleShopTypes();
 
 int32_t count_item_drop_sets();
 void EditItemDropSet(int32_t index);

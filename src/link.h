@@ -363,6 +363,7 @@ private:
     void masked_draw(BITMAP *dest);
     void getTriforce(int32_t id);
     int32_t weaponattackpower();
+    void positionNet(weapon* w,int32_t itemid);
     void positionSword(weapon* w,int32_t itemid);
     bool checkstab();
     void fairycircle(int32_t type);

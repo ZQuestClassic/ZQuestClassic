@@ -5,7 +5,7 @@
 #include <boost/format.hpp>
 
 // Used as a indices into argSwitcher. Make sure the order matches.
-enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST };
+enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST, argBSHOP_LIST };
 
 static const GUI::ListData guyListData {
 	{ "(None)", 0 },
@@ -31,7 +31,7 @@ static const GUI::ListData roomListData {
 	{ "Red Potion or Heart Container", rRP_HC },
 	{ "Feed the Goriya", rGRUMBLE },
 	{ "Level 9 Entrance", rTRIFORCE },
-	{ "Potion Shop", rP_SHOP },
+	{ "Letter Shop", rP_SHOP },
 	{ "Shop", rSHOP },
 	{ "More Bombs", rBOMBS },
 	{ "Leave Money or Life", rSWINDLE },
@@ -42,7 +42,8 @@ static const GUI::ListData roomListData {
 	{ "1/2 Magic Upgrade", rMUPGRADE },
 	{ "Learn Slash", rLEARNSLASH },
 	{ "More Arrows", rARROWS },
-	{ "Take One Item", rTAKEONE }
+	{ "Take One Item", rTAKEONE },
+	{ "Bottle Shop", rBOTTLESHOP }
 };
 
 static const auto specialItemDesc =
@@ -87,6 +88,12 @@ static const auto shopDesc =
 	"The Guy offers three items for a fee. "
 	"You can use the Shop as often as you want. "
 	"Items and prices are set in Misc. Data -> Shop Types.";
+
+static const auto bshopDesc =
+	"The Guy offers three bottle fills for a fee. "
+	"You must have an empty bottle to make a purchase. "
+	"You can use the Shop as often as you want. "
+	"Fills and prices are set in Misc. Data -> Bottle Shop Types.";
 
 static const auto moreBombsDesc =
 	"The Guy offers to increase Link's Bombs "
@@ -136,6 +143,7 @@ RoomDialog::RoomDialog(int32_t room, int32_t argument, int32_t guy, int32_t stri
 	std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars):
 		itemListData(getItemListData(false)),
 		shopListData(getShopListData()),
+		bshopListData(getBShopListData()),
 		infoShopListData(getInfoShopListData()),
 		stringListData(getStringListData()),
 		room({ room, argument, guy, string }),
@@ -171,6 +179,11 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 		infoShopDD = DropDownList(
 			fitParent = true,
 			data = infoShopListData,
+			selectedValue = room.argument,
+			onSelectionChanged = message::SET_ARGUMENT),
+		bshopDD = DropDownList(
+			fitParent = true,
+			data = bshopListData,
 			selectedValue = room.argument,
 			onSelectionChanged = message::SET_ARGUMENT)
 	);
@@ -295,6 +308,11 @@ void RoomDialog::setArgField()
 		shopDD->setSelectedValue(room.argument);
 		argLabel->setText("Shop:");
 		break;
+	case rBOTTLESHOP:
+		argSwitcher->switchTo(argBSHOP_LIST);
+		bshopDD->setSelectedValue(room.argument);
+		argLabel->setText("B. Shop:");
+		break;
 	default:
 		argSwitcher->switchTo(argTEXT_FIELD);
 		argTF->setText(std::to_string(room.argument));
@@ -311,6 +329,8 @@ int32_t RoomDialog::getArgument() const
 		return itemDD->getSelectedValue();
 	case argSHOP_LIST:
 		return shopDD->getSelectedValue();
+	case argBSHOP_LIST:
+		return bshopDD->getSelectedValue();
 	case argINFO_LIST:
 		return infoShopDD->getSelectedValue();
 	default:
@@ -342,6 +362,7 @@ const char* RoomDialog::getRoomInfo() const
 		case rLEARNSLASH: return learnSlashDesc;
 		case rARROWS: return moreArrowsDesc;
 		case rTAKEONE: return takeOneDesc;
+		case rBOTTLESHOP: return bshopDesc;
 		default: return defaultDesc;
 	}
 }

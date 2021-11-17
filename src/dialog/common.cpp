@@ -65,6 +65,21 @@ GUI::ListData getShopListData()
 		});
 }
 
+GUI::ListData getBShopListData()
+{
+	return GUI::ListData(256,
+		[](size_t index)
+		{
+			return boost::str(boost::format("%1%:  %2%")
+				% index
+				% misc.bottle_shop_types[index].name);
+		},
+		[](size_t index)
+		{
+			return index;
+		});
+}
+
 GUI::ListData getInfoShopListData()
 {
 	return GUI::ListData(256,

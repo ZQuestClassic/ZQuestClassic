@@ -15,6 +15,7 @@ namespace GUI
 
 Window::Window(): content(nullptr), title(""), closeMessage(-1), use_vsync(false)
 {
+	helptext = "";
 	setPadding(0_px);
 	capWidth(Size::pixels(zq_screen_w));
 	capHeight(Size::pixels(zq_screen_h));
@@ -26,6 +27,18 @@ void Window::setTitle(std::string newTitle)
 	if(alDialog)
 	{
 		alDialog->dp = title.data();
+		pendDraw();
+	}
+}
+
+void Window::setHelp(std::string newHelp)
+{
+	helptext = std::move(newHelp);
+	if(alDialog)
+	{
+		if(helptext[0])
+			alDialog->dp3 = helptext.data();
+		else alDialog->dp3 = nullptr;
 		pendDraw();
 	}
 }
@@ -62,14 +75,14 @@ void Window::calculateSize()
 		{
 			setPreferredWidth(Size::pixels(max(
 				content->getTotalWidth()+8,
-				text_length(lfont, title.c_str())+20)));
+				text_length(lfont, title.c_str())+40)));
 			setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
 		}
 		else
 		{
 			setPreferredWidth(Size::pixels(max(
 				content->getTotalWidth()+12,
-				text_length(lfont, title.c_str())+30)));
+				text_length(lfont, title.c_str())+50)));
 			setPreferredHeight(Size::pixels(content->getTotalHeight()+26));
 		}
 	}
@@ -105,7 +118,7 @@ void Window::realize(DialogRunner& runner)
 		0, // key
 		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
 		0, 0, // d1, d2
-		title.data(), lfont, nullptr // dp, dp2, dp3
+		title.data(), lfont, (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
 	});
 
 	if(content)

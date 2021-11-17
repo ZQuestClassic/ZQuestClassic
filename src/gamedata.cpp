@@ -78,6 +78,8 @@ void gamedata::Clear()
     forced_bwpn = -1;
     forced_xwpn = -1; 
     forced_ywpn = -1;
+	
+	memset(bottleSlots, 0, sizeof(bottleSlots));
     isclearing=false;
 }
 
@@ -163,6 +165,9 @@ void gamedata::Copy(const gamedata& g)
     forced_bwpn = g.forced_bwpn;
     forced_xwpn = g.forced_xwpn; 
     forced_ywpn = g.forced_ywpn;
+	
+	for(size_t q = 0; q < 256; ++q)
+		bottleSlots[q] = g.bottleSlots[q];
 }
 
 char *gamedata::get_name()
@@ -966,6 +971,53 @@ void gamedata::set_item_no_flush(int32_t id, bool value)
         Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, item_string[id]);
         
     item[id]=value;
+}
+int32_t gamedata::fillBottle(byte val)
+{
+	bool temp[256] = {false};
+	for(size_t q = 0; q < MAXITEMS; ++q)
+	{
+		if(get_item(q) && itemsbuf[q].family == itype_bottle)
+		{
+			size_t bind = itemsbuf[q].misc1;
+			if(bind < 256)
+			{
+				temp[bind] = true;
+			}
+		}
+	}
+	for(size_t q = 0; q < 256; ++q)
+	{
+		if(!temp[q]) continue; //don't own bottle
+		if(bottleSlots[q] == 0)
+		{
+			set_bottle_slot(q, val);
+			return q;
+		}
+	}
+	return -1;
+}
+bool gamedata::canFillBottle()
+{
+	bool temp[256] = {false};
+	for(size_t q = 0; q < MAXITEMS; ++q)
+	{
+		if(get_item(q) && itemsbuf[q].family == itype_bottle)
+		{
+			size_t bind = itemsbuf[q].misc1;
+			if(bind < 256)
+			{
+				temp[bind] = true;
+			}
+		}
+	}
+	for(size_t q = 0; q < 256; ++q)
+	{
+		if(!temp[q]) continue; //don't own bottle
+		if(bottleSlots[q] == 0)
+			return true;
+	}
+	return false;
 }
 
 /*** end of gamedata.cpp ***/

@@ -24,6 +24,7 @@
 #include "window.h"
 #include "widget.h"
 #include "seltile_swatch.h"
+#include "selcombo_swatch.h"
 #include "tileanim_frame.h"
 #include <initializer_list>
 #include <memory>
@@ -175,6 +176,11 @@ inline std::shared_ptr<DummyWidget> makeDummyWidget()
 inline std::shared_ptr<SelTileSwatch> makeSelTileSwatch()
 {
 	return std::make_shared<SelTileSwatch>();
+}
+
+inline std::shared_ptr<SelComboSwatch> makeSelComboSwatch()
+{
+	return std::make_shared<SelComboSwatch>();
 }
 
 inline std::shared_ptr<TileFrame> makeTileFrame()
@@ -348,6 +354,7 @@ ZCGUI_BUILDER_FUNCTION(ColorSel, ColorSel, makeColorSel)
 
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
+	ZCGUI_ACCEPT_PROP(info, setHelp, std::string)
 	ZCGUI_ACCEPT_PROP(onClose, onClose, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onEnter, onEnter, Dialog::message)
 	ZCGUI_ACCEPT_PROP(use_vsync, setVSync, bool)
@@ -370,6 +377,14 @@ ZCGUI_BUILDER_START(SelTileSwatch)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(SelTileSwatch, SelTileSwatch, makeSelTileSwatch)
+
+ZCGUI_BUILDER_START(SelComboSwatch)
+	ZCGUI_ACCEPT_PROP(combo, setCombo, int32_t)
+	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(SelComboSwatch, SelComboSwatch, makeSelComboSwatch)
 
 ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)

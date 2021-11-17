@@ -2943,6 +2943,13 @@ int LItems[512];
 int LKeys[512];
  * The size of this array has been corrected to 512, from the prior size of 256.
 
+long LSwitches[512];
+ * The crystal switch state for each of the 256 levels
+ * All 32 bits are used, wherein '1Lb<<n' represents the 'nth' switch state, for n = 0-31
+
+int BottleState[256];
+ * The contents of empty bottles, up to 256 slots
+
 combodata LoadComboData(int id);
  * Loads a Combo Editor table data ref for combo 'id', to a 'combodata' typed pointer.
 

@@ -6948,6 +6948,12 @@ int32_t get_register(const int32_t arg)
 		case GAMELITEMSD:
 			ret=game->lvlitems[(ri->d[rINDEX])/10000]*10000;
 			break;
+		case GAMELSWITCH:
+			ret=game->lvlswitches[(ri->d[rINDEX])/10000];
+			break;
+		case GAMEBOTTLEST:
+			ret=game->get_bottle_slot((ri->d[rINDEX])/10000)*10000;
+			break;
 			
 		case GAMELKEYSD:
 			ret=game->lvlkeys[(ri->d[rINDEX])/10000]*10000;
@@ -15020,6 +15026,12 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case GAMELITEMSD:
 			game->lvlitems[(ri->d[rINDEX])/10000]=value/10000;
+			break;
+		case GAMELSWITCH:
+			game->lvlswitches[(ri->d[rINDEX])/10000]=value;
+			break;
+		case GAMEBOTTLEST:
+			game->set_bottle_slot((ri->d[rINDEX])/10000,value/10000);
 			break;
 		
 		case TANGOARR:
@@ -30170,14 +30182,15 @@ bool ZModule::init(bool d) //bool default
 		{
 			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
 			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
-			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE"
+			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE","rBOTTLESHOP"
 		};
 		const char roomtype_defaults[rMAX][255] =
 		{
 			"(None)","Special Item","Pay for Info","Secret Money","Gamble",
 			"Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
 			"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-			"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+			"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
+			"More Arrows","Take One Item","Bottle Shop"
 		};
 		for ( int32_t q = 0; q < rMAX; q++ )
 		{
@@ -34935,6 +34948,9 @@ script_variable ZASMVars[]=
 	{ "PUSHBLOCKLAYER",           PUSHBLOCKLAYER,            0,             0 },
 	{ "LINKGRABBED",           LINKGRABBED,            0,             0 },
 	{ "HEROBUNNY",           HEROBUNNY,            0,             0 },
+	
+	{ "GAMELSWITCH",           GAMELSWITCH,            0,             0 },
+	{ "GAMEBOTTLEST",           GAMEBOTTLEST,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

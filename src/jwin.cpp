@@ -39,6 +39,7 @@
 #include "util.h"
 #include "pal.h"
 #include "gui/tabpanel.h"
+#include "dialog/info.h"
 using namespace util;
 
 //#ifndef _MSC_VER
@@ -405,7 +406,7 @@ char *shorten_string(char *dest, char *src, FONT *usefont, int32_t maxchars, int
     return dest;
 }
 
-void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button)
+void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn)
 {
     char buf[512];
     int32_t len = (int32_t)strlen(str);
@@ -453,12 +454,35 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
     {
         draw_x_button(dest, x + w - 18, y+2, 0);
     }
+	
+	if(helpbtn)
+	{
+		draw_question_button(dest, x + w - (draw_button ? 36 : 18), y+2, 0);
+	}
     
+}
+
+void draw_question_button(BITMAP* dest, int32_t x, int32_t y, int32_t state)
+{
+    int32_t c = scheme[jcBOXFG];
+    
+    jwin_draw_button(dest,x,y,16,14,state,0);
+    x += 4 + (state?1:0);
+    y += 3 + (state?1:0);
+    
+    line(dest, x+2, y+0, x+5, y+0, palette_color[c]);
+    line(dest, x+1, y+1, x+2, y+1, palette_color[c]);
+    line(dest, x+5, y+1, x+6, y+1, palette_color[c]);
+    line(dest, x+4, y+2, x+5, y+2, palette_color[c]);
+    line(dest, x+3, y+3, x+4, y+3, palette_color[c]);
+    line(dest, x+3, y+4, x+4, y+4, palette_color[c]);
+    line(dest, x+3, y+6, x+4, y+6, palette_color[c]);
+    line(dest, x+3, y+7, x+4, y+7, palette_color[c]);
 }
 
 void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state)
 {
-    int32_t c = scheme[jcDARK];
+    int32_t c = scheme[jcBOXFG];
     
     jwin_draw_button(dest,x,y,16,14,state,0);
     x += 4 + (state?1:0);
@@ -724,54 +748,57 @@ int32_t jwin_guitest_proc(int32_t msg, DIALOG *d, int32_t c)
   *  it won't draw a title bar. If the D_EXIT flag is set, it will also
   *  draw an "X" button on the title bar that can be used to close the
   *  dialog.
+  *  If d->dp3 is non-null, it will be read as a help text string, and
+  *  a ? button will be drawn, that upon clicking will display the helptext.
   */
 int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
-    rest(1);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-        jwin_draw_win(screen, d->x, d->y, d->w, d->h, FR_WIN);
-        
-        if(d->dp)
-        {
-            FONT *oldfont = font;
-            
-            if(d->dp2)
-            {
-                font = (FONT*)d->dp2;
-            }
-            
-            jwin_draw_titlebar(screen, d->x+3, d->y+3, d->w-6, 18, (char*)d->dp, d->flags & D_EXIT);
-            font = oldfont;
-        }
-        
-        /*
-          if(d->flags & D_EXIT)
-          {
-          draw_x_button(screen, d->x + d->w - 21, d->y+5, 0);
-          }
-          */
-        break;
-        
-    case MSG_CLICK:
-        if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
-        {
-            if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
-            {
-                GUI_EVENT(d, geCLOSE);
-                return D_CLOSE;
-            }
-        }
-        
-        break;
-    }
-    
-    return D_O_K;
+	//these are here to bypass compiler warnings about unused arguments
+	c=c;
+	
+	rest(1);
+	
+	switch(msg)
+	{
+		case MSG_DRAW:
+			jwin_draw_win(screen, d->x, d->y, d->w, d->h, FR_WIN);
+			
+			if(d->dp)
+			{
+				FONT *oldfont = font;
+				
+				if(d->dp2)
+				{
+					font = (FONT*)d->dp2;
+				}
+				
+				jwin_draw_titlebar(screen, d->x+3, d->y+3, d->w-6, 18, (char*)d->dp, d->flags & D_EXIT, d->dp3!=NULL);
+				font = oldfont;
+			}
+			break;
+			
+		case MSG_CLICK:
+		{
+			if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
+			{
+				if(jwin_do_x_button(screen, d->x+d->w-21, d->y+5))
+				{
+					GUI_EVENT(d, geCLOSE);
+					return D_CLOSE;
+				}
+			}
+			if(char const* helpstr = (char const*)d->dp3)
+			{
+				if(mouse_in_rect(d->x+d->w-((d->flags&D_EXIT)?39:21), d->y+5, 16, 14))
+				{
+					InfoDialog("Info", helpstr).show();
+				}
+			}
+		}
+		break;
+	}
+	
+	return D_O_K;
 }
 
 /* jwin_text_proc:

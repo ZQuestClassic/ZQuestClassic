@@ -5,6 +5,8 @@
 #include "../zc_alleg.h"
 #include <utility>
 
+void displayinfo(std::string, std::string);
+
 namespace GUI
 {
 
@@ -16,6 +18,23 @@ int32_t TopLevelWidget::proc(int32_t msg, DIALOG* d, int32_t c)
 		if(actual == d->d1)
 			// Abusing the mechanism here slightly...
 			GUI_EVENT(d, (guiEvent)d->d2);
+	}
+	return D_O_K;
+}
+
+int32_t TopLevelWidget::helpproc(int32_t msg, DIALOG* d, int32_t c)
+{
+	if(!d->dp) return D_O_K;
+	std::string const& helptext = *((std::string*)d->dp);
+	if(helptext.size() < 1)
+		return D_O_K;
+	switch(msg)
+	{
+		case MSG_XCHAR:
+			if((c>>8) != KEY_F1)
+				break;
+			displayinfo("Info", helptext);
+			return D_USED_CHAR;
 	}
 	return D_O_K;
 }
@@ -50,6 +69,16 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 			this, nullptr, nullptr // dp, dp2, dp3
 		});
 	}
+	//Helptext handler
+	runner.push(shared_from_this(), DIALOG {
+		helpproc,
+		0, 0, 0, 0, // x, y, w, h
+		0, 0, // fg, bg
+		0, // key
+		D_NEW_GUI, // flags
+		0, 0, // d1, d2
+		&helptext, nullptr, nullptr // dp, dp2, dp3
+	});
 }
 
 int32_t TopLevelWidget::onEvent(int32_t event, MessageDispatcher& sendMessage)

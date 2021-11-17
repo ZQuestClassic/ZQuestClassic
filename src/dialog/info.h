@@ -8,6 +8,9 @@
 #include <string>
 #include <string_view>
 
+//A basic handler function
+void displayinfo(std::string title, std::string text);
+
 // A basic dialog that just shows some lines of text and a close button.
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
