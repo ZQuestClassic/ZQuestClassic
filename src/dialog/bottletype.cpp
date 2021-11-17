@@ -140,6 +140,24 @@ std::shared_ptr<GUI::Widget> BottleTypeDialog::view()
 					{
 						SETFLAG(tempBottle.flags,BTFLAG_ALLOWIFFULL,state);
 					}
+				),
+				Checkbox(
+					text = "Cure Sword Jinx",
+					colSpan = 3, hAlign = 0.0,
+					checked = tempBottle.flags & BTFLAG_CURESWJINX,
+					onToggleFunc = [&](bool state)
+					{
+						SETFLAG(tempBottle.flags,BTFLAG_CURESWJINX,state);
+					}
+				),
+				Checkbox(
+					text = "Cure Item Jinx",
+					colSpan = 3, hAlign = 0.0,
+					checked = tempBottle.flags & BTFLAG_CUREITJINX,
+					onToggleFunc = [&](bool state)
+					{
+						SETFLAG(tempBottle.flags,BTFLAG_CUREITJINX,state);
+					}
 				)
 			),
 			Row(

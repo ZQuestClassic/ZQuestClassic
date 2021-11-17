@@ -7995,6 +7995,10 @@ bool LinkClass::animate(int32_t)
 							}
 						}
 					}
+					if(bt->flags & BTFLAG_CURESWJINX)
+						swordclk = 0;
+					if(bt->flags & BTFLAG_CUREITJINX)
+						itemclk = 0;
 					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
 					{
 						int32_t itemid = find_bottle_for_slot(slot,true);
@@ -8966,11 +8970,22 @@ bool LinkClass::startwpn(int32_t itemid)
 					}
 				}
 				word max = std::max(toFill[0], std::max(toFill[1], toFill[2]));
-				bool run = get_bit(quest_rules, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL)
-					? ((bt->counter[0] > -1 && !toFill[0]) || (bt->counter[1] > -1 && !toFill[1]) || (bt->counter[2] > -1 && !toFill[2]))
-					: max > 0;
+				bool run = max > 0;
+				if(get_bit(quest_rules, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL))
+					run = ((bt->counter[0] > -1 && !toFill[0]) || (bt->counter[1] > -1 && !toFill[1]) || (bt->counter[2] > -1 && !toFill[2]));
+				else
+				{
+					if((bt->flags & BTFLAG_CURESWJINX) && swordclk)
+						run = true;
+					else if((bt->flags & BTFLAG_CUREITJINX) && itemclk)
+						run = true;
+				}
 				if(run || (bt->flags&BTFLAG_ALLOWIFFULL))
 				{
+					if(bt->flags & BTFLAG_CURESWJINX)
+						swordclk = 0;
+					if(bt->flags & BTFLAG_CUREITJINX)
+						itemclk = 0;
 					if(!paidmagic)
 						paymagiccost(itemid);
 					stop_sfx(WAV_ER); //stop heart beep!
