@@ -3567,12 +3567,12 @@ struct bottleshoptype
 	word str[3];
     void clear()
     {
-        memset(name, 0, 32);
-        memset(fill, 0, 3);
-        memset(comb, 0, 3);
-        memset(cset, 0, 3);
-        memset(price, 0, 3);
-        memset(str, 0, 3);
+        memset(name, 0, sizeof(name));
+        memset(fill, 0, sizeof(fill));
+        memset(comb, 0, sizeof(comb));
+        memset(cset, 0, sizeof(cset));
+        memset(price, 0, sizeof(price));
+        memset(str, 0, sizeof(str));
     }
 };
 
