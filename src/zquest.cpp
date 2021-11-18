@@ -30012,7 +30012,7 @@ int32_t main(int32_t argc,char **argv)
 { 
 #if (defined(_DEBUG) && defined(_MSC_VER))
 #if (VLD_FORCE_ENABLE == 0)
-	::InitCrtDebug();
+	//::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
 	

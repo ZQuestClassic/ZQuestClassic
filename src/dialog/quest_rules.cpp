@@ -568,6 +568,19 @@ static const GUI::ListData compatRulesList
 	{ "Hardcoded LItem/Bomb/Clock/Magic Tile Mods", qr_HARDCODED_LITEM_LTMS,
 		"Tile modifiers for level items, bombs/superbombs, clocks, and magic containers are"
 		" (incorrectly) hardcoded to their classic item IDs"},
+	{ "Hardcoded BS Patras", qr_HARDCODED_BS_PATRA,
+		"If enabled, BS Patras are incredibly hardcoded and disobey most of the enemy editor."
+		" If enabled, they are just a branch of the regular Patra enemy and are able to use anything"
+		" a regular Patra can use."},
+	{ "Hardcoded Patra Inner Eye offsets", qr_PATRAS_USE_HARDCODED_OFFSETS,
+		"If enabled, patras use hardcoded offsets from the main body for their inner eyes."
+		" If disabled, they will use the enemy's 'special tile' to figure out what tiles to use."
+		" When disabled, the special tile for patras should be set to the first inner eye tile."
+		" When enabled, the tile used will be the next row of tiles after the main body tiles,"
+		" Which is of variable length depending on whether or not the Center Eye shoots or not."},
+	{ "Old custom tilewidth enemy tile setup", qr_OLD_ENEMY_TILEWIDTH,
+		"If enabled, the old tilewidth setup for enemies is used. The old setup used the whole"
+		" row for the tiles. If disabled, only 16 tiles per row are used before skipping 4 tiles."},
 };
 
 static const GUI::ListData enemiesRulesList

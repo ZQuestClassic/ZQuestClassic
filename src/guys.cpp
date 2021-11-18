@@ -4264,13 +4264,16 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					{
 						case 1:
 						{
-						enemy *e = new ePatraBS(x,y,new_id,clk);
-						guys.add(e);
-							e->x = x;
-							e->y = y;
+							if (get_bit(quest_rules,qr_HARDCODED_BS_PATRA))
+							{
+								enemy *e = new ePatraBS(x,y,new_id,clk);
+								guys.add(e);
+								e->x = x;
+								e->y = y;
+								break;
+							}
 						}
-						break;
-					
+						//fallthrough
 						case 0:
 						default:
 						{
@@ -4492,7 +4495,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				
 				for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
 				{
-					if(!(guysbuf[new_id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
+					if(!((guysbuf[new_id].misc10&&get_bit(quest_rules,qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
 					{
 					al_trace("Patra outer eye %d could not be created!\n",i+1);
 					
@@ -8373,6 +8376,11 @@ void enemy::update_enemy_frame()
 	{  
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
 	}
+	if(extend > 2 && !get_bit(quest_rules,qr_OLD_ENEMY_TILEWIDTH)) 
+	{
+		update_enemy_frame_extend();
+		return;
+	}
 	int32_t newfrate = zc_max(frate,4);
 	int32_t f4=abs(clk/(newfrate/4)); // casts clk to [0,1,2,3]
 	int32_t f2=abs(clk/(newfrate/2)); // casts clk to [0,1]
@@ -9352,8 +9360,1101 @@ waves2:
 	}
 	
 	int32_t change = tile-o_tile;
+	/*
+	if (!get_bit(quest_rules,qr_OLD_ENEMY_TILEWIDTH))
+	{
+		if (extend > 2 && txsz > 1)
+		{
+			change*=txsz;
+			switch (dir)
+			{
+				case r_down:
+				case 11:
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case l_down:
+				case 13:
+					change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case r_up:
+				case 9: //for some reason, directions above 8 go in a clockwise order.
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case l_up:
+				case 15:
+					change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case right:
+				case 10:
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case left:
+				case 14:
+					change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case down:
+				case 12:
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				default:
+					break;
+			}
+		}
+	}*/
 	
 	if(extend > 2)
+	{
+		if(o_tile/TILES_PER_ROW==(o_tile+((txsz*change)/tilerows))/TILES_PER_ROW)
+		{
+			tile=o_tile+txsz*change;
+		}
+		else
+		{
+			tile=o_tile+(txsz*change)+((tysz-1)*TILES_PER_ROW)*(((o_tile+txsz*change)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW));
+		}
+	}
+	else
+	{
+		tile=o_tile+change;
+	}
+}
+
+int enemy::extend_tile(int w1, int w2, int w3) //if extend is greater than 2, most tile offsets are gonna be the same past that point.
+{
+	if (txsz <= 0) return w1;
+	if (txsz == 2) return w2;
+	return w3;
+}
+
+void enemy::update_enemy_frame_extend()
+{
+	if(fallclk||drownclk) return;
+	if (!do_animation) 
+	{  
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) return; //Anim == none, don't animate. -Z
+	}
+	int32_t newfrate = zc_max(frate,4);
+	int32_t f4=abs(clk/(newfrate/4)); // casts clk to [0,1,2,3]
+	int32_t f2=abs(clk/(newfrate/2)); // casts clk to [0,1]
+	int32_t fx = get_bit(quest_rules, qr_NEWENEMYTILES) ? f4 : f2;
+	tile = o_tile;
+	int32_t tilerows = 1; // How many rows of tiles? The Extend code needs to know.
+	switch(anim)
+	{
+	
+	case aDONGO:
+	{
+		int32_t fr = stunclk>0 ? 16 : 8;
+		
+		if(!dying && clk2>0 && clk2<=64)
+		{
+			// bloated
+			switch(dir)
+			{
+			case up:
+				tile+=extend_tile(9, );
+				flip=0;
+				xofs=0;
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case down:
+				tile+=7;
+				flip=0;
+				xofs=0;
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case left:
+				flip=1;
+				tile+=4;
+				xofs=16;
+				dummy_int[1]=1; //second tile is next tile
+				break;
+				
+			case right:
+				flip=0;
+				tile+=5;
+				xofs=16;
+				dummy_int[1]=-1; //second tile is previous tile
+				break;
+			}
+		}
+		else if(!dying || clk2>19)
+		{
+			// normal
+			switch(dir)
+			{
+			case up:
+				tile+=8;
+				flip=(clk&fr)?1:0;
+				xofs=0;
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case down:
+				tile+=6;
+				flip=(clk&fr)?1:0;
+				xofs=0;
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case left:
+				flip=1;
+				tile+=(clk&fr)?2:0;
+				xofs=16;
+				dummy_int[1]=1; //second tile is next tile
+				break;
+				
+			case right:
+				flip=0;
+				tile+=(clk&fr)?3:1;
+				xofs=16;
+				dummy_int[1]=-1; //second tile is next tile
+				break;
+			}
+		}
+	}
+	break;
+	
+	case aNEWDONGO:
+	{
+		int32_t fr4=0;
+		
+		if(!dying && clk2>0 && clk2<=64)
+		{
+			// bloated
+			if(clk2>=0)
+			{
+				fr4=3;
+			}
+			
+			if(clk2>=16)
+			{
+				fr4=2;
+			}
+			
+			if(clk2>=32)
+			{
+				fr4=1;
+			}
+			
+			if(clk2>=48)
+			{
+				fr4=0;
+			}
+			
+			switch(dir)
+			{
+			case up:
+				xofs=0;
+				tile+=8+fr4;
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case down:
+				xofs=0;
+				tile+=12+fr4;
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case left:
+				tile+=29+(2*fr4);
+				xofs=16;
+				dummy_int[1]=-1; //second tile is previous tile
+				break;
+				
+			case right:
+				tile+=49+(2*fr4);
+				xofs=16;
+				dummy_int[1]=-1; //second tile is previous tile
+				break;
+			}
+		}
+		else if(!dying || clk2>19)
+		{
+			// normal
+			switch(dir)
+			{
+			case up:
+				xofs=0;
+				tile+=((clk&12)>>2);
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case down:
+				xofs=0;
+				tile+=4+((clk&12)>>2);
+				dummy_int[1]=0; //no additional tiles
+				break;
+				
+			case left:
+				tile+=21+((clk&12)>>1);
+				xofs=16;
+				dummy_int[1]=-1; //second tile is previous tile
+				break;
+				
+			case right:
+				flip=0;
+				tile+=41+((clk&12)>>1);
+				xofs=16;
+				dummy_int[1]=-1; //second tile is previous tile
+				break;
+			}
+		}
+	}
+	break;
+	
+	case aDONGOBS:
+	{
+		int32_t fr4=0;
+		
+		if(!dying && clk2>0 && clk2<=64)
+		{
+			// bloated
+			if(clk2>=0)
+			{
+				fr4=3;
+			}
+			
+			if(clk2>=16)
+			{
+				fr4=2;
+			}
+			
+			if(clk2>=32)
+			{
+				fr4=1;
+			}
+			
+			if(clk2>=48)
+			{
+				fr4=0;
+			}
+			
+			switch(dir)
+			{
+			case up:
+				tile+=28+fr4;
+				yofs+=8;
+				dummy_int[1]=-20; //second tile change
+				dummy_int[2]=0;   //new xofs change
+				dummy_int[3]=-16; //new xofs change
+				break;
+				
+			case down:
+				tile+=12+fr4;
+				yofs-=8;
+				dummy_int[1]=20; //second tile change
+				dummy_int[2]=0;  //new xofs change
+				dummy_int[3]=16; //new xofs change
+				break;
+				
+			case left:
+				tile+=49+(2*fr4);
+				xofs+=8;
+				dummy_int[1]=-1; //second tile change
+				dummy_int[2]=-16; //new xofs change
+				dummy_int[3]=0;  //new xofs change
+				break;
+				
+			case right:
+				tile+=69+(2*fr4);
+				xofs+=8;
+				dummy_int[1]=-1; //second tile change
+				dummy_int[2]=-16; //new xofs change
+				dummy_int[3]=0;  //new xofs change
+				break;
+			}
+		}
+		else if(!dying || clk2>19)
+		{
+			// normal
+			switch(dir)
+			{
+			case up:
+				tile+=20+((clk&24)>>3);
+				yofs+=8;
+				dummy_int[1]=-20; //second tile change
+				dummy_int[2]=0;   //new xofs change
+				dummy_int[3]=-16; //new xofs change
+				break;
+				
+			case down:
+				tile+=4+((clk&24)>>3);
+				yofs-=8;
+				dummy_int[1]=20; //second tile change
+				dummy_int[2]=0;  //new xofs change
+				dummy_int[3]=16; //new xofs change
+				break;
+				
+			case left:
+				xofs=-8;
+				tile+=40+((clk&24)>>2);
+				dummy_int[1]=1; //second tile change
+				dummy_int[2]=16; //new xofs change
+				dummy_int[3]=0; //new xofs change
+				break;
+				
+			case right:
+				tile+=60+((clk&24)>>2);
+				xofs=-8;
+				dummy_int[1]=1; //second tile change
+				dummy_int[2]=16; //new xofs change
+				dummy_int[3]=0; //new xofs change
+				break;
+			}
+		}
+	}
+	break;
+	
+	case aWIZZ:
+	{
+//      if(d->misc1)
+		if(dmisc1)
+		{
+			if(clk&8)
+			{
+				++tile;
+			}
+		}
+		else
+		{
+			if(frame&4)
+			{
+				++tile;
+			}
+		}
+		
+		switch(dir)
+		{
+		case 9:
+		case 15:
+		case up:
+			tile+=2;
+			break;
+			
+		case down:
+			break;
+			
+		case 13:
+		case left:
+			flip=1;
+			break;
+			
+		default:
+			flip=0;
+			break;
+		}
+	}
+	break;
+	
+	case aNEWWIZZ:
+	{
+		tiledir(dir,true);
+		
+//      if(d->misc1)                                            //walking wizzrobe
+		if(dmisc1)                                            //walking wizzrobe
+		{
+			if(clk&8)
+			{
+				tile+=2;
+			}
+			
+			if(clk&4)
+			{
+				tile+=1;
+			}
+			
+			if(!(dummy_bool[1]||dummy_bool[2]))                               //should never be charging or firing for these wizzrobes
+			{
+				if(dummy_int[1]>0)
+				{
+					tile+=40;
+				}
+			}
+		}
+		else
+		{
+			if(dummy_bool[1]||dummy_bool[2])
+			{
+				tile+=20;
+				
+				if(dummy_bool[2])
+				{
+					tile+=20;
+				}
+			}
+			
+			tile+=((frame>>1)&3);
+		}
+	}
+	break;
+	
+	case a3FRM:
+	{
+		n_frame_n_dir(3, 0, (f4==3) ? 1 : f4);
+	}
+	break;
+	
+	case a3FRM4DIR:
+	{
+		n_frame_n_dir(3, 4, (f4==3) ? 1 : f4);
+	}
+	break;
+	
+	case aVIRE:
+	{
+		if(dir==up)
+		{
+			tile+=2;
+		}
+		
+		tile+=fx;
+	}
+	break;
+	
+	case aROPE:
+	{
+		tile+=(1-fx);
+		flip = dir==left ? 1:0;
+	}
+	break;
+	
+	case aZORA:
+	{
+		int32_t dl;
+		
+		if(clk<36)
+		{
+			dl=clk+5;
+			goto waves2;
+		}
+		
+		if(clk<36+66)
+			tile=(dir==up)?o_tile+1:o_tile;
+		else
+		{
+			dl=clk-36-66;
+waves2:
+			tile=((dl/11)&1)+s_tile;
+		}
+	}
+	break;
+	
+	case aNEWZORA:
+	{
+		f4=(clk/16)%4;
+		
+		tiledir(dir,true);
+		int32_t dl;
+		
+		if((clk>35)&&(clk<36+67))                               //surfaced
+		{
+			if((clk>=(35+10))&&(clk<(38+56)))                     //mouth open
+			{
+				tile+=80;
+			}                                                     //mouth closed
+			else
+			{
+				tile+=40;
+			}
+			
+			tile+=f4;
+		}
+		else
+		{
+			if(clk<36)
+			{
+				dl=clk+5;
+			}
+			else
+			{
+				dl=clk-36-66;
+			}
+			
+			tile+=((dl/5)&3);
+		}
+	}
+	break;
+	
+	case a4FRM4EYE:
+	case a2FRM4EYE:
+	case a4FRM8EYE:
+	{
+		tilerows = 2;
+		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		int32_t lookat=zc_oldrand()&15;
+		
+		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+		{
+			lookat=l_down;
+		}
+		else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+		{
+			lookat=down;
+		}
+		else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+		{
+			lookat=r_down;
+		}
+		else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+		{
+			lookat=right;
+		}
+		else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+		{
+			lookat=r_up;
+		}
+		else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+		{
+			lookat=up;
+		}
+		else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+		{
+			lookat=l_up;
+		}
+		else
+		{
+			lookat=left;
+		}
+		
+		int32_t dir2 = dir;
+		dir = lookat;
+		n_frame_n_dir(anim==a2FRM4EYE ? 2:4, anim==a4FRM8EYE ? 8 : 4, anim==a2FRM4EYE ? (f2&1):f4);
+		dir = dir2;
+	}
+	break;
+	
+	case aFLIP:
+	{
+		flip = f2&1;
+	}
+	break;
+	
+	case a2FRM:
+	{
+		tile += (1-f2);
+	}
+	break;
+	
+	case a2FRMB:
+	{
+		tile+= 2*(1-f2);
+	}
+	break;
+	
+	case a2FRM4DIR:
+	{
+		n_frame_n_dir(2, 4, f2&1);
+	}
+	break;
+	
+	case a4FRM4DIRF:
+	{
+		n_frame_n_dir(4,4,f4);
+		
+		if(clk2>0)                                              //stopped to fire
+		{
+			tile+=20;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=20;
+			}
+		}
+	}
+	break;
+	
+	case a4FRM4DIR:
+	{
+		n_frame_n_dir(4,4,f4);
+	}
+	break;
+	
+	case a4FRM8DIRF:
+	{
+		tilerows = 2;
+		n_frame_n_dir(4,8,f4);
+		
+		if(clk2>0)                                              //stopped to fire
+		{
+			tile+=40;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=40;
+			}
+		}
+	}
+	break;
+	
+	case a4FRM8DIRB:
+	{
+		tilerows = 2;
+		tiledir_big(dir,false);
+		tile+=2*f4;
+	}
+	break;
+	
+	case aOCTO:
+	{
+		switch(dir)
+		{
+		case up:
+			flip = 2;
+			break;
+			
+		case down:
+			flip = 0;
+			break;
+			
+		case left:
+			flip = 0;
+			tile += 2;
+			break;
+			
+		case right:
+			flip = 1;
+			tile += 2;
+			break;
+		}
+		
+		tile+=f2;
+	}
+	break;
+	
+	case aWALK:
+	{
+		switch(dir)
+		{
+		case up:
+			tile+=3;
+			flip = f2;
+			break;
+			
+		case down:
+			tile+=2;
+			flip = f2;
+			break;
+			
+		case left:
+			flip=1;
+			tile += f2;
+			break;
+			
+		case right:
+			flip=0;
+			tile += f2;
+			break;
+		}
+	}
+	break;
+	
+	case aDWALK:
+	{
+		if((get_bit(quest_rules,qr_BRKNSHLDTILES)) && (dummy_bool[1]==true))
+		{
+			tile=s_tile;
+		}
+		
+		switch(dir)
+		{
+		case up:
+			tile+=2;
+			flip=f2;
+			break;
+			
+		case down:
+			flip=0;
+			tile+=(1-f2);
+			break;
+			
+		case left:
+			flip=1;
+			tile+=(3+f2);
+			break;
+			
+		case right:
+			flip=0;
+			tile+=(3+f2);
+			break;
+		}
+	}
+	break;
+	
+	case aTEK:
+	{
+		if(misc==0)
+		{
+			tile += f2;
+		}
+		else if(misc!=1)
+		{
+			++tile;
+		}
+	}
+	break;
+	
+	case aNEWTEK:
+	{
+		if(step<0)                                              //up
+		{
+			switch(clk3)
+			{
+			case left:
+				flip=0;
+				tile+=20;
+				break;
+				
+			case right:
+				flip=0;
+				tile+=24;
+				break;
+			}
+		}
+		else if(step==0)
+		{
+			switch(clk3)
+			{
+			case left:
+				flip=0;
+				tile+=8;
+				break;
+				
+			case right:
+				flip=0;
+				tile+=12;
+				break;
+			}
+		}                                                       //down
+		else
+		{
+			switch(clk3)
+			{
+			case left:
+				flip=0;
+				tile+=28;
+				break;
+				
+			case right:
+				flip=0;
+				tile+=32;
+				break;
+			}
+		}
+		
+		if(misc==0)
+		{
+			tile+=f4;
+		}
+		else if(misc!=1)
+		{
+			tile+=2;
+		}
+	}
+	break;
+	
+	case aARMOS:
+	{
+		if(!fading)
+		{
+			tile += fx;
+			
+			if(dir==up)
+				tile += 2;
+		}
+	}
+	break;
+	
+	case aARMOS4:
+	{
+		switch(dir)
+		{
+		case up:
+			flip=0;
+			break;
+			
+		case down:
+			flip=0;
+			tile+=4;
+			break;
+			
+		case left:
+			flip=0;
+			tile+=8;
+			break;
+			
+		case right:
+			flip=0;
+			tile+=12;
+			break;
+		}
+		
+		if(!fading)
+		{
+			tile+=f4;
+		}
+	}
+	break;
+	
+	case aGHINI:
+	{
+		switch(dir)
+		{
+		case 8:
+		case 9:
+		case up:
+			++tile;
+			flip=0;
+			break;
+			
+		case 15:
+			++tile;
+			flip=1;
+			break;
+			
+		case 10:
+		case 11:
+		case right:
+			flip=1;
+			break;
+			
+		default:
+			flip=0;
+			break;
+		}
+	}
+	break;
+	
+	case a2FRMPOS:
+	{
+		tile+=posframe;
+	}
+	break;
+	
+	case a4FRMPOS4DIR:
+	{
+		n_frame_n_dir(4,4,0);
+		//        tile+=f2;
+		tile+=posframe;
+	}
+	break;
+	
+	case a4FRMPOS4DIRF:
+	{
+		n_frame_n_dir(4,4,0);
+		
+		if(clk2>0)                                              //stopped to fire
+		{
+			tile+=20;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=20;
+			}
+		}
+		
+		//        tile+=f2;
+		tile+=posframe;
+	}
+	break;
+	
+	case a4FRMPOS8DIR:
+	{
+		tilerows = 2;
+		int32_t n = tile;
+		n_frame_n_dir(4,8,0);
+		//        tile+=f2;
+		tile+=posframe;
+	}
+	break;
+	
+	case a4FRMPOS8DIRF:
+	{
+		tilerows = 2;
+		n_frame_n_dir(4,8,0);
+		
+		if(clk2>0)                                              //stopped to fire
+		{
+			tile+=40;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=40;
+			}
+		}
+		
+		tile+=posframe;
+	}
+	break;
+	
+	case aNEWLEV:
+	{
+		tiledir(dir,true);
+		
+		switch(misc)
+		{
+		case -1:
+		case 0:
+			return;
+			
+		case 1:
+		
+//        case 5: cs = d->misc2; break;
+		case 5:
+			cs = dmisc2;
+			break;
+			
+		case 2:
+		case 4:
+			tile += 20;
+			break;
+			
+		case 3:
+			tile += 40;
+			break;
+		}
+		
+		tile+=f4;
+	}
+	break;
+	
+	case aLEV:
+	{
+		f4 = ((clk/5)&1);
+		
+		switch(misc)
+		{
+		case -1:
+		case 0:
+			return;
+			
+		case 1:
+		
+//        case 5: tile += (f2) ? 1 : 0; cs = d->misc2; break;
+		case 5:
+			tile += (f2) ? 1 : 0;
+			cs = dmisc2;
+			break;
+			
+		case 2:
+		case 4:
+			tile += 2;
+			break;
+			
+		case 3:
+			tile += (f4) ? 4 : 3;
+			break;
+		}
+	}
+	break;
+	
+	case aWALLM:
+	{
+		if(!dummy_bool[1])
+		{
+			tile += f2;
+		}
+	}
+	break;
+	
+	case aNEWWALLM:
+	{
+		int32_t tempdir=0;
+		
+		switch(misc)
+		{
+		case 1:
+		case 2:
+			tempdir=clk3;
+			break;
+			
+		case 3:
+		case 4:
+		case 5:
+			tempdir=dir;
+			break;
+			
+		case 6:
+		case 7:
+			tempdir=clk3^1;
+			break;
+		}
+		
+		tiledir(tempdir,true);
+		
+		if(!dummy_bool[1])
+		{
+			tile+=f4;
+		}
+	}
+	break;
+	
+	case a4FRMNODIR:
+	{
+		tile+=f4;
+	}
+	break;
+	
+	}                                                         // switch(d->anim)
+	
+	// flashing
+//  if(d->flags2 & guy_flashing)
+	if(flags2 & guy_flashing)
+	{
+		cs = (frame&3) + 6;
+	}
+	
+	if(flags2&guy_transparent)
+	{
+		drawstyle=1;
+	}
+	
+	int32_t change = tile-o_tile;
+	
+	if (!get_bit(quest_rules,qr_OLD_ENEMY_TILEWIDTH))
+	{
+		if (extend > 2 && txsz > 1)
+		{
+			change*=txsz;
+			switch (dir)
+			{
+				case r_down:
+				case 11:
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case l_down:
+				case 13:
+					change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case r_up:
+				case 9: //for some reason, directions above 8 go in a clockwise order.
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case l_up:
+				case 15:
+					change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case right:
+				case 10:
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case left:
+				case 14:
+					change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				case down:
+				case 12:
+					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
+					//fallthrough
+				default:
+					break;
+			}
+		}
+	}
+	
+	if(extend > 2 && get_bit(quest_rules,qr_OLD_ENEMY_TILEWIDTH))
 	{
 		if(o_tile/TILES_PER_ROW==(o_tile+((txsz*change)/tilerows))/TILES_PER_ROW)
 		{
@@ -17456,9 +18557,11 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = hxsz;
+	else if (dmisc10 == 1) hxsz = 32;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = hxofs;
+	else if (dmisc10 == 1) hxofs = -8;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = hyofs;
 //    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)xofs;
@@ -17483,6 +18586,13 @@ bool ePatra::animate(int32_t index)
 		
 		return Dead(index);
 	}
+	
+	double basesize = 84;
+	if (dmisc10) basesize = 90;
+	double halfsize = basesize / 2;
+	double quartersize = halfsize / 2;
+	double twothirdsize = (basesize / 3)*2;
+	double onethirdsize = (basesize / 3);
 
 	
 	if(clk==0)
@@ -17494,10 +18604,10 @@ bool ePatra::animate(int32_t index)
 	{
 		if (!dmisc22 || loopcnt == 0 || (dmisc22 == 1 && loopcnt < 0)) variable_walk_8(rate,homing,hrate,spw_floater);
 		if (loopcnt < 0) ++clk2;
-		if(++clk2>84)
+		if(++clk2>basesize)
 		{
 			clk2=0;
-			if (!dmisc26 || (dmisc26 == 1 && flycnt) || (dmisc26 == 2 && !flycnt))
+			if ((!dmisc26 || (dmisc26 == 1 && flycnt) || (dmisc26 == 2 && !flycnt)) && (!(editorflags & ENEMY_FLAG10) || flycnt || flycnt2)) 
 			{
 				if(loopcnt > 0)
 					--loopcnt;
@@ -17583,20 +18693,20 @@ bool ePatra::animate(int32_t index)
 		else
 		{
 			int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-			double a2 = (clk2-pos2*84.0/(dmisc1 == 0 ? 1 : dmisc1))*PI/42;
+			double a2 = (clk2-pos2*(double)basesize/(dmisc1 == 0 ? 1 : dmisc1))*PI/halfsize;
 			
 			if(!dmisc4)
 			{
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
-					guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
+					guys.spr(i)->x =  cos(a2+PI/2)*twothirdsize*size - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*onethirdsize*size;
+					guys.spr(i)->y = -sin(a2+PI/2)*twothirdsize*size + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*onethirdsize*size;
 				}
 				else
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*28*size;
-					guys.spr(i)->y = -sin(a2+PI/2)*28*size;
+					guys.spr(i)->x =  cos(a2+PI/2)*onethirdsize*size;
+					guys.spr(i)->y = -sin(a2+PI/2)*onethirdsize*size;
 				}
 				
 				temp_x=guys.spr(i)->x;
@@ -17604,13 +18714,13 @@ bool ePatra::animate(int32_t index)
 			}
 			else
 			{
-				circle_x =  cos(a2+PI/2)*42;
-				circle_y = -sin(a2+PI/2)*42;
+				circle_x =  cos(a2+PI/2)*halfsize;
+				circle_y = -sin(a2+PI/2)*halfsize;
 				
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*42;
-					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*21;
+					guys.spr(i)->x =  cos(a2+PI/2)*halfsize;
+					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*quartersize;
 				}
 				else
 				{
@@ -17662,7 +18772,7 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2))))
+	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2)) || (dmisc25 == 3 && flycnt2 && !flycnt)))
 	{
 		int timeneeded = 48;
 		int patbreath = (zc_oldrand()%50+50);
@@ -17675,11 +18785,13 @@ bool ePatra::animate(int32_t index)
 		{
 			timeneeded = 48 + 96;
 		}
-		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || //New 1/N chance
-		(!dmisc18 && !(zc_oldrand()&127))) //Old hardcoded firing chance
+		if (((((dmisc18 > 0 || ((editorflags & ENEMY_FLAG10) && !flycnt && !flycnt2)) && !(zc_oldrand() % zc_max(dmisc18, 1))) || //New 1/N chance
+		(dmisc18 == 0 && !(zc_oldrand()&127)) //Old hardcoded firing chance
+		|| (dmisc18 == -1 && loopcnt > 0 && (clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+		|| (clk4 == 10 && (editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)))))
 		&& (clk6 >= 0) //if not in the middle of firing...
 		&& clk6 >= dmisc19) //if over the set cooldown between shots...
-		&& (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > timeneeded))) //And lastly, if not in danger of starting a loop during the attack.
+		&& ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (basesize*(dmisc6 - (misc%dmisc6))) > timeneeded)) || dmisc18 == -1)) //And lastly, if not in danger of starting a loop during the attack.
 		{
 			switch(dmisc28)
 			{
@@ -17744,16 +18856,39 @@ bool ePatra::animate(int32_t index)
 	}
 	
 	size=.5;
-	int randeye = ((flycnt2 > 0) ? (zc_oldrand() % zc_max(1,flycnt2)) : 0);
-	randeye += (index+flycnt+1);
+	int randattempts = 0;
+	int randeye = 0;
+	if (flycnt2 > 0)
+	{
+		do
+		{
+			randeye = ((flycnt2 > 0) ? (zc_oldrand() % zc_max(1, flycnt2)) : 0);
+			randeye += (index + flycnt + 1);
+			++randattempts;
+		} while (((esPatra*)guys.spr(randeye))->clk5 < 0 && randattempts < 10);
+	}
 	bool dofire = false;
 	if (dmisc20)
 	{
-		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
-		(!dmisc18 && !(zc_oldrand()&127))) && (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-		&& clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-		(dmisc20 == 2 && (84*(dmisc6 - (misc%dmisc6))) > (48 + (12*flycnt2))) ||
-		(dmisc20 != 2 && (84*(dmisc6 - (misc%dmisc6))) > 48))))  dofire = true;
+		if ((dmisc18 > 0 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+		(dmisc18 == 0 && !(zc_oldrand()&127)) || 
+		(dmisc18 == -1 && (loopcnt > 0 || dmisc20 == 4) && ((clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES)) && dmisc20 != 2 && dmisc20 != 4)
+		|| (clk2 == 10 && dmisc20 != 4 && ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) || dmisc20 == 2))
+		|| ((((((misc%dmisc6) == 0 && (loopcnt == 0 && !dmisc21)) || loopcnt > 1 || loopcnt == -1) && clk2 <= 53 && clk2 >= 51 && (editorflags & ENEMY_FLAG3)) || (!(editorflags & ENEMY_FLAG3) && loopcnt > 0 && clk2 == 1)) && dmisc20 == 4))))
+		{
+			if (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES)) 
+			{
+				if (clk5 >= dmisc19)
+				{
+					if ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
+					(dmisc20 == 2 && (basesize*(dmisc6 - (misc%dmisc6))) > (48 + (12*flycnt2))) ||
+					(dmisc20 == 4 && (basesize*(dmisc6 - (misc%dmisc6))) > (48 + 96)) ||
+					(dmisc20 != 2 && dmisc20 != 4 && (basesize*(dmisc6 - (misc%dmisc6))) > 48)))
+					|| dmisc18 == -1)  
+						dofire = true;
+				}
+			}
+		}
 	}
 	if(flycnt2)
 	{
@@ -17765,20 +18900,24 @@ bool ePatra::animate(int32_t index)
 				
 				if(get_bit(quest_rules,qr_NEWENEMYTILES))
 				{
-					switch(dmisc5)
+					if (get_bit(quest_rules,qr_PATRAS_USE_HARDCODED_OFFSETS))
 					{
-						// Center eye shoots projectiles; make room for its firing tiles
-					case 1:
-					case 3:
-						((enemy*)guys.spr(i))->o_tile=d->e_tile+120;
-						break;
-						
-						// Center eyes does not shoot; use tiles two rows below for inner eyes.
-					default:
-					case 2:
-						((enemy*)guys.spr(i))->o_tile=d->e_tile+40;
-						break;
+						switch(dmisc5)
+						{
+							// Center eye shoots projectiles; make room for its firing tiles
+						case 1:
+						case 3:
+							((enemy*)guys.spr(i))->o_tile=d->e_tile+120;
+							break;
+							
+							// Center eyes does not shoot; use tiles two rows below for inner eyes.
+						default:
+						case 2:
+							((enemy*)guys.spr(i))->o_tile=d->e_tile+40;
+							break;
+						}
 					}
+					else ((enemy*)guys.spr(i))->o_tile = d->s_tile;
 				}
 				else
 				{
@@ -17820,26 +18959,55 @@ bool ePatra::animate(int32_t index)
 					*/
 					if (((esPatra*)guys.spr(i))->clk5 < 0 && (editorflags & ENEMY_FLAG3))
 					{
-						if (dmisc5 == 3)
+						if (((esPatra*)guys.spr(i))->clk4 <= 0 || ((esPatra*)guys.spr(i))->clk5 != -16) ++((esPatra*)guys.spr(i))->clk5;
+						if (get_bit(quest_rules,qr_PATRAS_USE_HARDCODED_OFFSETS))
 						{
-							if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+200;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+160;
-							else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+							if (dmisc5 == 3)
+							{
+								if (((esPatra*)guys.spr(i))->clk5 >= 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+200;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+160;
+								else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+							}
+							else
+							{
+								if (((esPatra*)guys.spr(i))->clk5 >= 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
+								else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+							}
 						}
 						else
 						{
-							if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
-							else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+							if (((esPatra*)guys.spr(i))->clk5 >= 0) ((esPatra*)guys.spr(i))->o_tile=d->s_tile;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->s_tile+80;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->s_tile+40;
+							else ((esPatra*)guys.spr(i))->o_tile=d->s_tile;
 						}
 					}
-					else if (dmisc19 || ((esPatra*)guys.spr(i))->clk5) ++((esPatra*)guys.spr(i))->clk5;
-					if (!dmisc25 || (dmisc25 == 1 && !((enemy*)guys.spr(i))->superman) || (dmisc25 == 2 && ((enemy*)guys.spr(i))->superman))
+					else if ((dmisc19 || ((esPatra*)guys.spr(i))->clk5) && (((esPatra*)guys.spr(i))->clk4 <= 0 || ((esPatra*)guys.spr(i))->clk5 != -16)) ++((esPatra*)guys.spr(i))->clk5;
+					if (((esPatra*)guys.spr(i))->clk4 > 0) --((esPatra*)guys.spr(i))->clk4;
+					if (!dmisc25 || (dmisc25 == 1 && !((enemy*)guys.spr(i))->superman) || ((dmisc25 == 2 || dmisc25 == 3) && ((enemy*)guys.spr(i))->superman))
 					{
 						switch(dmisc20) //Patra Attack Patterns
 						{
+							case 4: //Single one rapidfires
+							{
+								if (dofire && i == randeye)
+								{
+									((esPatra*)guys.spr(i))->clk5 = -16;
+									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) ((esPatra*)guys.spr(i))->clk5 = -48;
+									((esPatra*)guys.spr(i))->clk4 = 96;
+									clk5 = -3;
+									if (editorflags & ENEMY_FLAG6) clk4 = abs(clk5) + 16;
+								}
+								if (((esPatra*)guys.spr(i))->clk5 == -16 && (((esPatra*)guys.spr(i))->clk4 % 12) == 0)
+								{
+									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+									sfx(wpnsfx(wpn),pan(int32_t(x)));
+								}
+								break;
+							}
 							case 3: //Ring
 							{
 								if (dofire)
@@ -17920,7 +19088,7 @@ bool ePatra::animate(int32_t index)
 								if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
 								(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
 								&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-								(dmisc20 != 2 && (84*(dmisc6 - (misc%dmisc6))) > 48))))
+								(dmisc20 != 2 && (basesize*(dmisc6 - (misc%dmisc6))) > 48))))
 								{
 									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
 									{
@@ -17947,19 +19115,19 @@ bool ePatra::animate(int32_t index)
 				}
 				
 				int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-				double a2 = ((clk2-pos2*84/(dmisc2==0 ? 1 : dmisc2))*PI/(42));
+				double a2 = ((clk2-pos2*basesize/(dmisc2==0 ? 1 : dmisc2))*PI/(halfsize));
 				
 				if(dmisc4==0)
 				{
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc2==0? 1 : dmisc2))*28*size;
-						guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*28*size;
+						guys.spr(i)->x =  cos(a2+PI/2)*twothirdsize*size - sin(pos2*PI*2/(dmisc2==0? 1 : dmisc2))*onethirdsize*size;
+						guys.spr(i)->y = -sin(a2+PI/2)*twothirdsize*size + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*onethirdsize*size;
 					}
 					else
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*28*size;
-						guys.spr(i)->y = -sin(a2+PI/2)*28*size;
+						guys.spr(i)->x =  cos(a2+PI/2)*onethirdsize*size;
+						guys.spr(i)->y = -sin(a2+PI/2)*onethirdsize*size;
 					}
 					
 					temp_x=guys.spr(i)->x;
@@ -17967,13 +19135,13 @@ bool ePatra::animate(int32_t index)
 				}
 				else
 				{
-					circle_x =  cos(a2+PI/2)*42*size;
-					circle_y = -sin(a2+PI/2)*42*size;
+					circle_x =  cos(a2+PI/2)*halfsize*size;
+					circle_y = -sin(a2+PI/2)*halfsize*size;
 					
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*42*size;
-						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*21*size;
+						guys.spr(i)->x =  cos(a2+PI/2)*halfsize*size;
+						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*quartersize*size;
 					}
 					else
 					{
@@ -19079,9 +20247,12 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		switch(guysbuf[id&0xFFF].misc10)
 		{
 		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
-			
+			if (get_bit(quest_rules,qr_HARDCODED_BS_PATRA))
+			{
+				e = new ePatraBS((zfix)x,(zfix)y,id,clk);
+				break;
+			}
+			//fallthrough
 		case 0:
 		default:
 			e = new ePatra((zfix)x,(zfix)y,id,clk);
@@ -19525,9 +20696,12 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		switch(guysbuf[id&0xFFF].misc10)
 		{
 		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
-			
+			if (get_bit(quest_rules,qr_HARDCODED_BS_PATRA))
+			{
+				e = new ePatraBS((zfix)x,(zfix)y,id,clk);
+				break;
+			}
+			//fallthrough
 		case 0:
 		default:
 			e = new ePatra((zfix)x,(zfix)y,id,clk);

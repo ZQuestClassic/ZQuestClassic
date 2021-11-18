@@ -816,7 +816,7 @@ public:
 class esPatra : public enemy
 {
 public:
-	int32_t clk4, //Unused
+	int32_t clk4, //Breath clock
 		clk5; //Firing clock
 	//esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk,sprite * prnt);                    // : enemy(X,Y,Id,Clk)
