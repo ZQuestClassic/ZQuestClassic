@@ -9360,47 +9360,6 @@ waves2:
 	}
 	
 	int32_t change = tile-o_tile;
-	/*
-	if (!get_bit(quest_rules,qr_OLD_ENEMY_TILEWIDTH))
-	{
-		if (extend > 2 && txsz > 1)
-		{
-			change*=txsz;
-			switch (dir)
-			{
-				case r_down:
-				case 11:
-					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				case l_down:
-				case 13:
-					change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				case r_up:
-				case 9: //for some reason, directions above 8 go in a clockwise order.
-					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				case l_up:
-				case 15:
-					change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				case right:
-				case 10:
-					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				case left:
-				case 14:
-					change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				case down:
-				case 12:
-					if (txsz > 2) change += TILES_PER_ROW*zc_max(1,tysz);
-					//fallthrough
-				default:
-					break;
-			}
-		}
-	}*/
 	
 	if(extend > 2)
 	{
