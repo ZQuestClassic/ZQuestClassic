@@ -2740,7 +2740,7 @@ static EnemyNameInfo enameinf[]=
 		(char *)"Transformation Inv Time:",(char *)"Shot chance (1/N per frame):",(char *)"Firing cooldown:",(char *)"Inner Eyes Firing Pattern:",
 		(char *)"Warning Spins:",(char *)"Stays still:",(char *)"Outer Ring Loss Speed Boost:",(char *)"Inner Ring Loss Speed Boost:",
 		(char *)"Can Fire:",(char *)"Can Expand:",(char *)"Inner Eye HP:",(char *)"Center Eye Firing Pattern:",
-		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
+		(char *)"Outer Eye Radius:",(char *)"Inner Eye Radius:",(char *)"Outer Eye Expand Radius:",(char *)"Inner Eye Expand Radius:",
 	}	
 	},
 	{

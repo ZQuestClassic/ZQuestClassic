@@ -578,9 +578,9 @@ static const GUI::ListData compatRulesList
 		" When disabled, the special tile for patras should be set to the first inner eye tile."
 		" When enabled, the tile used will be the next row of tiles after the main body tiles,"
 		" Which is of variable length depending on whether or not the Center Eye shoots or not."},
-	{ "Old custom tilewidth enemy tile setup", qr_OLD_ENEMY_TILEWIDTH,
-		"If enabled, the old tilewidth setup for enemies is used. The old setup used the whole"
-		" row for the tiles. If disabled, only 16 tiles per row are used before skipping 4 tiles."},
+	{ "Broken 'Big enemy' animation style", qr_BROKEN_BIG_ENEMY_ANIMATION,
+		"If enabled, Big Enemies will have buggy undefined behavior with large tilewidth/tileheight custom enemies."
+		" Disabling this will result in more expected behavior."},
 };
 
 static const GUI::ListData enemiesRulesList
