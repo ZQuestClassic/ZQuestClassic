@@ -2357,7 +2357,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	dmisc29=d->misc29;
 	dmisc30=d->misc30;
 	dmisc31=d->misc31;
-	dmisc31=d->misc32;
+	dmisc32=d->misc32;
 	spr_shadow=d->spr_shadow;
 	spr_death=d->spr_death;
 	spr_spawn=d->spr_spawn;
@@ -17662,13 +17662,13 @@ bool ePatra::animate(int32_t index)
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*twothirdsize*size - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*onethirdsize*size;
-					guys.spr(i)->y = -sin(a2+PI/2)*twothirdsize*size + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*onethirdsize*size;
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc31) - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*(abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc31) + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*(abs(dmisc31)-abs(dmisc29));
 				}
 				else
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*onethirdsize*size;
-					guys.spr(i)->y = -sin(a2+PI/2)*onethirdsize*size;
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc29);
 				}
 				
 				temp_x=guys.spr(i)->x;
@@ -17676,13 +17676,13 @@ bool ePatra::animate(int32_t index)
 			}
 			else //Oval
 			{
-				circle_x =  cos(a2+PI/2)*halfsize;
-				circle_y = -sin(a2+PI/2)*halfsize;
+				circle_x =  cos(a2+PI/2)*abs(dmisc29);
+				circle_y = -sin(a2+PI/2)*abs(dmisc29);
 				
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*halfsize;
-					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*quartersize;
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*abs(dmisc31);
 				}
 				else
 				{
@@ -17910,6 +17910,83 @@ bool ePatra::animate(int32_t index)
 			}
 			else
 			{
+				int32_t pos2 = ((enemy*)guys.spr(i))->misc;
+				double a2 = ((clk2-pos2*basesize/(dmisc2==0 ? 1 : dmisc2))*PI/(halfsize));
+				
+				if(dmisc4==0)
+				{
+					if(loopcnt>0)
+					{
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc32) - sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*(abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc32) + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*(abs(dmisc32)-abs(dmisc30));
+					}
+					else
+					{
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc30);
+					}
+					
+					temp_x=guys.spr(i)->x;
+					temp_y=guys.spr(i)->y;
+				}
+				else
+				{
+					circle_x =  cos(a2+PI/2)*abs(dmisc30);
+					circle_y = -sin(a2+PI/2)*abs(dmisc30);
+					
+					if(loopcnt>0)
+					{
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*abs(dmisc32);
+					}
+					else
+					{
+						guys.spr(i)->x = circle_x;
+						guys.spr(i)->y = circle_y;
+					}
+					
+					temp_x=circle_x;
+					temp_y=circle_y;
+				}
+				
+				double ddir=atan2(double(temp_y),double(temp_x));
+				
+				if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+				{
+					guys.spr(i)->dir=l_down;
+				}
+				else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+				{
+					guys.spr(i)->dir=left;
+				}
+				else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+				{
+					guys.spr(i)->dir=l_up;
+				}
+				else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+				{
+					guys.spr(i)->dir=up;
+				}
+				else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+				{
+					guys.spr(i)->dir=r_up;
+				}
+				else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+				{
+					guys.spr(i)->dir=right;
+				}
+				else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+				{
+					guys.spr(i)->dir=r_down;
+				}
+				else
+				{
+					guys.spr(i)->dir=down;
+				}
+				
+				guys.spr(i)->x += x;
+				guys.spr(i)->y = y-guys.spr(i)->y;
+				
 				if(dmisc5==2 || dmisc5== 3)
 				{
 					/*
@@ -18075,83 +18152,6 @@ bool ePatra::animate(int32_t index)
 						}
 					}
 				}
-				
-				int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-				double a2 = ((clk2-pos2*basesize/(dmisc2==0 ? 1 : dmisc2))*PI/(halfsize));
-				
-				if(dmisc4==0)
-				{
-					if(loopcnt>0)
-					{
-						guys.spr(i)->x =  cos(a2+PI/2)*twothirdsize*size - sin(pos2*PI*2/(dmisc2==0? 1 : dmisc2))*onethirdsize*size;
-						guys.spr(i)->y = -sin(a2+PI/2)*twothirdsize*size + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*onethirdsize*size;
-					}
-					else
-					{
-						guys.spr(i)->x =  cos(a2+PI/2)*onethirdsize*size;
-						guys.spr(i)->y = -sin(a2+PI/2)*onethirdsize*size;
-					}
-					
-					temp_x=guys.spr(i)->x;
-					temp_y=guys.spr(i)->y;
-				}
-				else
-				{
-					circle_x =  cos(a2+PI/2)*halfsize*size;
-					circle_y = -sin(a2+PI/2)*halfsize*size;
-					
-					if(loopcnt>0)
-					{
-						guys.spr(i)->x =  cos(a2+PI/2)*halfsize*size;
-						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*quartersize*size;
-					}
-					else
-					{
-						guys.spr(i)->x = circle_x;
-						guys.spr(i)->y = circle_y;
-					}
-					
-					temp_x=circle_x;
-					temp_y=circle_y;
-				}
-				
-				double ddir=atan2(double(temp_y),double(temp_x));
-				
-				if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-				{
-					guys.spr(i)->dir=l_down;
-				}
-				else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-				{
-					guys.spr(i)->dir=left;
-				}
-				else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-				{
-					guys.spr(i)->dir=l_up;
-				}
-				else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-				{
-					guys.spr(i)->dir=up;
-				}
-				else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-				{
-					guys.spr(i)->dir=r_up;
-				}
-				else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-				{
-					guys.spr(i)->dir=right;
-				}
-				else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-				{
-					guys.spr(i)->dir=r_down;
-				}
-				else
-				{
-					guys.spr(i)->dir=down;
-				}
-				
-				guys.spr(i)->x += x;
-				guys.spr(i)->y = y-guys.spr(i)->y;
 				
 			}
 		}
