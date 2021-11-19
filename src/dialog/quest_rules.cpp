@@ -581,6 +581,12 @@ static const GUI::ListData compatRulesList
 	{ "Broken 'Big enemy' animation style", qr_BROKEN_BIG_ENEMY_ANIMATION,
 		"If enabled, Big Enemies will have buggy undefined behavior with large tilewidth/tileheight custom enemies."
 		" Disabling this will result in more expected behavior."},
+	{ "Broken Attribute 31/32", qr_BROKEN_ATTRIBUTE_31_32,
+		"Prior to this compat rule existing, enemy attribute 31 was set by attribute 32,"
+		" and attribute 32 returned random memory. Though allowing it to return random"
+		" memory is a security risk (and thus isn't allowed), this rule recreates this"
+		" behavior as safely as possible by having attribute 32 return 0 and attribute"
+		" 31 be set to attribute 32."},
 };
 
 static const GUI::ListData enemiesRulesList

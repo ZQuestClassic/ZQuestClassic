@@ -2358,6 +2358,11 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	dmisc30=d->misc30;
 	dmisc31=d->misc31;
 	dmisc32=d->misc32;
+	if (get_bit(quest_rules, qr_BROKEN_ATTRIBUTE_31_32))
+	{
+		dmisc31 = dmisc32;
+		dmisc32 = 0;
+	}
 	spr_shadow=d->spr_shadow;
 	spr_death=d->spr_death;
 	spr_spawn=d->spr_spawn;
@@ -8825,9 +8830,13 @@ waves2:
 	case a4FRM4EYE:
 	case a2FRM4EYE:
 	case a4FRM8EYE:
+	case a4FRM8EYEB: //big version
+	case a4FRM4EYEB:
 	{
 		tilerows = 2;
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		int fakex = x + 8*(zc_max(1,txsz)-1);
+		int fakey = y + 8*(zc_max(1,tysz)-1);
+		double ddir=atan2(double(fakey-(Link.y)),double(Link.x-fakex));
 		int32_t lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
@@ -8865,7 +8874,13 @@ waves2:
 		
 		int32_t dir2 = dir;
 		dir = lookat;
-		n_frame_n_dir(anim==a2FRM4EYE ? 2:4, anim==a4FRM8EYE ? 8 : 4, anim==a2FRM4EYE ? (f2&1):f4);
+		if (anim != a4FRM8EYEB && anim != a4FRM4EYEB) n_frame_n_dir(anim==a2FRM4EYE ? 2:4, anim==a4FRM8EYE ? 8 : 4, anim==a2FRM4EYE ? (f2&1):f4);
+		else 
+		{
+			tiledir_big(dir,(anim == a4FRM4EYEB));
+			tile+=2*f4;
+			ignore_extend = true;
+		}
 		dir = dir2;
 	}
 	break;
@@ -8935,10 +8950,39 @@ waves2:
 	break;
 	
 	case a4FRM8DIRB:
+	case a4FRM8DIRFB:
 	{
 		tilerows = 2;
 		tiledir_big(dir,false);
 		tile+=2*f4;
+		if(clk2>0 && anim == a4FRM8DIRFB)                         //stopped to fire
+		{
+			tile+=80;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=80;
+			}
+		}
+		ignore_extend = true;
+	}
+	break;
+	
+	case a4FRM4DIRB:
+	case a4FRM4DIRFB:
+	{
+		tilerows = 2;
+		tiledir_big(dir,true);
+		tile+=2*f4;
+		if(clk2>0 && anim == a4FRM4DIRFB)                         //stopped to fire
+		{
+			tile+=40;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=40;
+			}
+		}
 		ignore_extend = true;
 	}
 	break;
