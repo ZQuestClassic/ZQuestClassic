@@ -2444,10 +2444,12 @@ const char *patramisc20list(int32_t index, int32_t *list_size)
 	{
 		switch(index)
 		{
+			case 4:
+				return "Stream";
 			case 3:
 				return "Ring";
 			case 2:
-				return "Stream";
+				return "Barrage";
 			case 1:
 				return "Random (Single)";
 			default:
@@ -2455,7 +2457,7 @@ const char *patramisc20list(int32_t index, int32_t *list_size)
 		}
 	}
 	
-	*list_size = 4;
+	*list_size = 5;
 	return NULL;
 }
 
@@ -2484,6 +2486,8 @@ const char *patramisc25list(int32_t index, int32_t *list_size)
 	{
 		switch(index)
 		{
+			case 3:
+				return "When behind 1 layer";
 			case 2:
 				return "When Invulnerable";
 			case 1:
@@ -2493,7 +2497,7 @@ const char *patramisc25list(int32_t index, int32_t *list_size)
 		}
 	}
 	
-	*list_size = 3;
+	*list_size = 4;
 	return NULL;
 }
 
@@ -2774,14 +2778,14 @@ static EnemyNameInfo enameinf[]=
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, (void*)&patramisc20_list, NULL,  //21
 		(void*)&patramisc22_list, NULL, NULL, (void*)&patramisc25_list, (void*)&patramisc26_list, NULL, (void*)&patramisc28_list, NULL, NULL, NULL, NULL}, //32
 	{ (char *)"Enemy is Completely Invisible",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Has Firing Animation",(char *)"Draw Invisible as Cloaked",(char *)"Obeys Spawn Points",(char *)"Slow down when Firing",(char *)"Don't attack when expanding",
-		(char *)"Don't expand when spawned",(char *)"Pattern Odds reset when Expanding",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
+		(char *)"Don't expand when spawned",(char *)"Pattern Odds reset when Expanding",(char *)"Don't 'expand' without orbiters",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11:",(char*)"Misc Attr. 12:",
 		(char *)"This Item Dispels Invisibility:",(char *)"Misc Attr. 14:",(char *)"Transform Effect:",(char *)"Transform Into Enemy:",
 		(char *)"Transformation Inv Time:",(char *)"Shot chance (1/N per frame):",(char *)"Firing cooldown:",(char *)"Inner Eyes Firing Pattern:",
 		(char *)"Warning Spins:",(char *)"Stays still:",(char *)"Outer Ring Loss Speed Boost:",(char *)"Inner Ring Loss Speed Boost:",
 		(char *)"Can Fire:",(char *)"Can Expand:",(char *)"Inner Eye HP:",(char *)"Center Eye Firing Pattern:",
-		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
+		(char *)"Outer Eye Radius:",(char *)"Inner Eye Radius:",(char *)"Outer Eye Expand Radius:",(char *)"Inner Eye Expand Radius:",
 	}	
 	},
 	{

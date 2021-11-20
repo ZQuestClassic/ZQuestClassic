@@ -3303,6 +3303,18 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_HARDCODED_LITEM_LTMS,1);
 	}
 	
+	if(compatrule_version < 9)
+	{
+		//Hardcoded BS Patras
+		set_bit(quest_rules,qr_HARDCODED_BS_PATRA,1);
+		//Hardcoded Patra Inner Eye offsets
+		set_bit(quest_rules,qr_PATRAS_USE_HARDCODED_OFFSETS,1);
+		//Broken 'Big enemy' animation style
+		set_bit(quest_rules,qr_BROKEN_BIG_ENEMY_ANIMATION,1);
+		//Broken Attribute 31/32
+		set_bit(quest_rules,qr_BROKEN_ATTRIBUTE_31_32,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

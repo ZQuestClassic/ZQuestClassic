@@ -30092,7 +30092,7 @@ int32_t main(int32_t argc,char **argv)
 {
 #if (defined(_DEBUG) && defined(_MSC_VER))
 #if (VLD_FORCE_ENABLE == 0)
-	::InitCrtDebug();
+	//::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
 	if ( V_ZC_ALPHA )
@@ -35333,7 +35333,8 @@ bool ZModule::init(bool d) //bool default
 			"4-Frame Flying 8-Dir","-Unused","4-Frame 8-Dir Big","Tektite (4-Frame)","3-Frame 4-Dir",
 			"2-Frame 4-Dir","Leever (4-Frame)","2-Frame 4-Dir + Tracking","Wizzrobe (4-Frame)","Dodongo (4-Frame)",
 			"Dodongo BS (4-Frame)","4-Frame Flying 8-Dir + Firing","4-Frame Flying 4-Dir + Firing","4-Frame","Ganon",
-			"2-Frame Big"
+			"2-Frame Big", "4-Frame 8-Dir Big + Tracking", "4-Frame 4-Dir Big + Tracking", "4-Frame 8-Dir Big + Firing",
+			"4-Frame 4-Dir Big", "4-Frame 4-Dir Big + Firing"
 		};
 		const char enemy_anim_strings[aMAX][255] =
 		{

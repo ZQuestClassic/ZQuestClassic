@@ -2357,7 +2357,12 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	dmisc29=d->misc29;
 	dmisc30=d->misc30;
 	dmisc31=d->misc31;
-	dmisc31=d->misc32;
+	dmisc32=d->misc32;
+	if (get_bit(quest_rules, qr_BROKEN_ATTRIBUTE_31_32))
+	{
+		dmisc31 = dmisc32;
+		dmisc32 = 0;
+	}
 	spr_shadow=d->spr_shadow;
 	spr_death=d->spr_death;
 	spr_spawn=d->spr_spawn;
@@ -2484,7 +2489,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -2700,7 +2705,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
@@ -4264,13 +4269,16 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					{
 						case 1:
 						{
-						enemy *e = new ePatraBS(x,y,new_id,clk);
-						guys.add(e);
-							e->x = x;
-							e->y = y;
+							if (get_bit(quest_rules,qr_HARDCODED_BS_PATRA))
+							{
+								enemy *e = new ePatraBS(x,y,new_id,clk);
+								guys.add(e);
+								e->x = x;
+								e->y = y;
+								break;
+							}
 						}
-						break;
-					
+						//fallthrough
 						case 0:
 						default:
 						{
@@ -4492,7 +4500,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				
 				for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
 				{
-					if(!(guysbuf[new_id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
+					if(!((guysbuf[new_id].misc10&&get_bit(quest_rules,qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
 					{
 					al_trace("Patra outer eye %d could not be created!\n",i+1);
 					
@@ -8379,6 +8387,7 @@ void enemy::update_enemy_frame()
 	int32_t fx = get_bit(quest_rules, qr_NEWENEMYTILES) ? f4 : f2;
 	tile = o_tile;
 	int32_t tilerows = 1; // How many rows of tiles? The Extend code needs to know.
+	bool ignore_extend = false;
 	switch(anim)
 	{
 	
@@ -8821,9 +8830,13 @@ waves2:
 	case a4FRM4EYE:
 	case a2FRM4EYE:
 	case a4FRM8EYE:
+	case a4FRM8EYEB: //big version
+	case a4FRM4EYEB:
 	{
 		tilerows = 2;
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		int fakex = x + 8*(zc_max(1,txsz)-1);
+		int fakey = y + 8*(zc_max(1,tysz)-1);
+		double ddir=atan2(double(fakey-(Link.y)),double(Link.x-fakex));
 		int32_t lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
@@ -8861,7 +8874,13 @@ waves2:
 		
 		int32_t dir2 = dir;
 		dir = lookat;
-		n_frame_n_dir(anim==a2FRM4EYE ? 2:4, anim==a4FRM8EYE ? 8 : 4, anim==a2FRM4EYE ? (f2&1):f4);
+		if (anim != a4FRM8EYEB && anim != a4FRM4EYEB) n_frame_n_dir(anim==a2FRM4EYE ? 2:4, anim==a4FRM8EYE ? 8 : 4, anim==a2FRM4EYE ? (f2&1):f4);
+		else 
+		{
+			tiledir_big(dir,(anim == a4FRM4EYEB));
+			tile+=2*f4;
+			ignore_extend = true;
+		}
 		dir = dir2;
 	}
 	break;
@@ -8881,6 +8900,7 @@ waves2:
 	case a2FRMB:
 	{
 		tile+= 2*(1-f2);
+		ignore_extend = true;
 	}
 	break;
 	
@@ -8930,10 +8950,40 @@ waves2:
 	break;
 	
 	case a4FRM8DIRB:
+	case a4FRM8DIRFB:
 	{
 		tilerows = 2;
 		tiledir_big(dir,false);
 		tile+=2*f4;
+		if(clk2>0 && anim == a4FRM8DIRFB)                         //stopped to fire
+		{
+			tile+=80;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=80;
+			}
+		}
+		ignore_extend = true;
+	}
+	break;
+	
+	case a4FRM4DIRB:
+	case a4FRM4DIRFB:
+	{
+		tilerows = 2;
+		tiledir_big(dir,true);
+		tile+=2*f4;
+		if(clk2>0 && anim == a4FRM4DIRFB)                         //stopped to fire
+		{
+			tile+=40;
+			
+			if(clk2<17)                                           //firing
+			{
+				tile+=40;
+			}
+		}
+		ignore_extend = true;
 	}
 	break;
 	
@@ -9353,7 +9403,7 @@ waves2:
 	
 	int32_t change = tile-o_tile;
 	
-	if(extend > 2)
+	if(extend > 2 && (!ignore_extend || get_bit(quest_rules, qr_BROKEN_BIG_ENEMY_ANIMATION)))
 	{
 		if(o_tile/TILES_PER_ROW==(o_tile+((txsz*change)/tilerows))/TILES_PER_ROW)
 		{
@@ -9519,7 +9569,7 @@ eFire::eFire(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) d->zofs = (int32_t)zofs;
@@ -9631,7 +9681,7 @@ eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -9744,7 +9794,7 @@ eScript::eScript(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -9857,7 +9907,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -10000,7 +10050,7 @@ eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -10081,7 +10131,7 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -10356,7 +10406,7 @@ eItemFairy::eItemFairy(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
@@ -10412,7 +10462,7 @@ ePeahat::ePeahat(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -10549,7 +10599,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -10812,7 +10862,7 @@ eWallM::eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -11060,7 +11110,7 @@ eTrap::eTrap(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -11399,7 +11449,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -11547,7 +11597,7 @@ eRock::eRock(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 		{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 		}
   
 		if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;																
@@ -11685,7 +11735,7 @@ eBoulder::eBoulder(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -11851,7 +11901,7 @@ eProjectile::eProjectile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -11980,7 +12030,7 @@ eNPC::eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -12079,7 +12129,7 @@ eSpinTile::eSpinTile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -12211,7 +12261,7 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -12408,7 +12458,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -13400,7 +13450,7 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -13531,7 +13581,7 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -14084,7 +14134,7 @@ eDodongo::eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
@@ -14230,7 +14280,7 @@ eDodongo2::eDodongo2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
@@ -14438,7 +14488,7 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -14641,7 +14691,7 @@ eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // ene
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
@@ -14855,7 +14905,7 @@ eLilDig::eLilDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -14971,7 +15021,7 @@ eBigDig::eBigDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
@@ -17452,24 +17502,83 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 	if(dmisc6<int16_t(1))dmisc6=1; // ratio cannot be 0!
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	else if (dmisc10 == 1) { txsz = 2; extend = 3; }
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
+	else if (dmisc10 == 1) { tysz = 2; extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = hxsz;
+	else if (dmisc10 == 1) hxsz = 32;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = hxofs;
+	else if (dmisc10 == 1) hxofs = -8;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = hyofs;
 //    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)xofs;
+	else if (dmisc10 == 1) xofs = -8;
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
+	else if (dmisc10 == 1) yofs = playing_field_offset-8;
 	if (editorflags & ENEMY_FLAG8) misc = 1;
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)zofs;
+	
+	if (dmisc29 == 0)
+	{
+		if(!dmisc4)
+		{
+			if (dmisc10) dmisc29 = (90 / 3);
+			else dmisc29 = (84 / 3);
+		}
+		else
+		{
+			if (dmisc10) dmisc29 = (90 / 2);
+			else dmisc29 = (84 / 2);
+		}
+	}
+	if (dmisc30 == 0)
+	{
+		if(!dmisc4)
+		{
+			if (dmisc10) dmisc30 = (90 / 3)*0.5;
+			else dmisc30 = (84 / 3)*0.5;
+		}
+		else
+		{
+			if (dmisc10) dmisc30 = (90 / 2)*0.5;
+			else dmisc30 = (84 / 2)*0.5;
+		}
+	}
+	if (dmisc31 == 0)
+	{
+		if(!dmisc4)
+		{
+			if (dmisc10) dmisc31 = (90 / 3)*2;
+			else dmisc31 = (84 / 3)*2;
+		}
+		else
+		{
+			if (dmisc10) dmisc31 = (90 / 2)*0.5;
+			else dmisc31 = (84 / 2)*0.5;
+		}
+	}
+	if (dmisc32 == 0)
+	{
+		if(!dmisc4)
+		{
+			if (dmisc10) dmisc32 = (90 / 3);
+			else dmisc32 = (84 / 3);
+		}
+		else
+		{
+			if (dmisc10) dmisc32 = (90 / 2)*0.25;
+			else dmisc32 = (84 / 2)*0.25;
+		}
+	}
 }
 
 bool ePatra::animate(int32_t index)
@@ -17483,6 +17592,13 @@ bool ePatra::animate(int32_t index)
 		
 		return Dead(index);
 	}
+	
+	double basesize = 84;
+	if (dmisc10) basesize = 90;
+	double halfsize = basesize / 2;
+	double quartersize = halfsize / 2;
+	double twothirdsize = (basesize / 3)*2;
+	double onethirdsize = (basesize / 3);
 
 	
 	if(clk==0)
@@ -17494,10 +17610,10 @@ bool ePatra::animate(int32_t index)
 	{
 		if (!dmisc22 || loopcnt == 0 || (dmisc22 == 1 && loopcnt < 0)) variable_walk_8(rate,homing,hrate,spw_floater);
 		if (loopcnt < 0) ++clk2;
-		if(++clk2>84)
+		if(++clk2>basesize)
 		{
 			clk2=0;
-			if (!dmisc26 || (dmisc26 == 1 && flycnt) || (dmisc26 == 2 && !flycnt))
+			if ((!dmisc26 || (dmisc26 == 1 && flycnt) || (dmisc26 == 2 && !flycnt)) && (!(editorflags & ENEMY_FLAG10) || flycnt || flycnt2)) 
 			{
 				if(loopcnt > 0)
 					--loopcnt;
@@ -17583,34 +17699,34 @@ bool ePatra::animate(int32_t index)
 		else
 		{
 			int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-			double a2 = (clk2-pos2*84.0/(dmisc1 == 0 ? 1 : dmisc1))*PI/42;
+			double a2 = (clk2-pos2*(double)basesize/(dmisc1 == 0 ? 1 : dmisc1))*PI/halfsize;
 			
-			if(!dmisc4)
+			if(!dmisc4) //Big Ring
 			{
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
-					guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*28*size;
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc31) - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*(abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc31) + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*(abs(dmisc31)-abs(dmisc29));
 				}
 				else
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*28*size;
-					guys.spr(i)->y = -sin(a2+PI/2)*28*size;
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc29);
 				}
 				
 				temp_x=guys.spr(i)->x;
 				temp_y=guys.spr(i)->y;
 			}
-			else
+			else //Oval
 			{
-				circle_x =  cos(a2+PI/2)*42;
-				circle_y = -sin(a2+PI/2)*42;
+				circle_x =  cos(a2+PI/2)*abs(dmisc29);
+				circle_y = -sin(a2+PI/2)*abs(dmisc29);
 				
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*42;
-					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*21;
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc29);
+					guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1)))*abs(dmisc31);
 				}
 				else
 				{
@@ -17662,7 +17778,7 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2))))
+	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2)) || (dmisc25 == 3 && flycnt2 && !flycnt)))
 	{
 		int timeneeded = 48;
 		int patbreath = (zc_oldrand()%50+50);
@@ -17675,11 +17791,13 @@ bool ePatra::animate(int32_t index)
 		{
 			timeneeded = 48 + 96;
 		}
-		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || //New 1/N chance
-		(!dmisc18 && !(zc_oldrand()&127))) //Old hardcoded firing chance
+		if (((((dmisc18 > 0 || ((editorflags & ENEMY_FLAG10) && !flycnt && !flycnt2)) && !(zc_oldrand() % zc_max(dmisc18, 1))) || //New 1/N chance
+		(dmisc18 == 0 && !(zc_oldrand()&127)) //Old hardcoded firing chance
+		|| (dmisc18 == -1 && loopcnt > 0 && (clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
+		|| (clk4 == 10 && (editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)))))
 		&& (clk6 >= 0) //if not in the middle of firing...
 		&& clk6 >= dmisc19) //if over the set cooldown between shots...
-		&& (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (84*(dmisc6 - (misc%dmisc6))) > timeneeded))) //And lastly, if not in danger of starting a loop during the attack.
+		&& ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (basesize*(dmisc6 - (misc%dmisc6))) > timeneeded)) || dmisc18 == -1)) //And lastly, if not in danger of starting a loop during the attack.
 		{
 			switch(dmisc28)
 			{
@@ -17744,16 +17862,39 @@ bool ePatra::animate(int32_t index)
 	}
 	
 	size=.5;
-	int randeye = ((flycnt2 > 0) ? (zc_oldrand() % zc_max(1,flycnt2)) : 0);
-	randeye += (index+flycnt+1);
+	int randattempts = 0;
+	int randeye = 0;
+	if (flycnt2 > 0)
+	{
+		do
+		{
+			randeye = ((flycnt2 > 0) ? (zc_oldrand() % zc_max(1, flycnt2)) : 0);
+			randeye += (index + flycnt + 1);
+			++randattempts;
+		} while (((esPatra*)guys.spr(randeye))->clk5 < 0 && randattempts < 10);
+	}
 	bool dofire = false;
 	if (dmisc20)
 	{
-		if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
-		(!dmisc18 && !(zc_oldrand()&127))) && (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
-		&& clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-		(dmisc20 == 2 && (84*(dmisc6 - (misc%dmisc6))) > (48 + (12*flycnt2))) ||
-		(dmisc20 != 2 && (84*(dmisc6 - (misc%dmisc6))) > 48))))  dofire = true;
+		if ((dmisc18 > 0 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
+		(dmisc18 == 0 && !(zc_oldrand()&127)) || 
+		(dmisc18 == -1 && (loopcnt > 0 || dmisc20 == 4) && ((clk2 == round(halfsize) && (!(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES)) && dmisc20 != 2 && dmisc20 != 4)
+		|| (clk2 == 10 && dmisc20 != 4 && ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES) || dmisc20 == 2))
+		|| ((((((misc%dmisc6) == 0 && (loopcnt == 0 && !dmisc21)) || loopcnt > 1 || loopcnt == -1) && clk2 <= 53 && clk2 >= 51 && (editorflags & ENEMY_FLAG3)) || (!(editorflags & ENEMY_FLAG3) && loopcnt > 0 && clk2 == 1)) && dmisc20 == 4))))
+		{
+			if (clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES)) 
+			{
+				if (clk5 >= dmisc19)
+				{
+					if ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
+					(dmisc20 == 2 && (basesize*(dmisc6 - (misc%dmisc6))) > (48 + (12*flycnt2))) ||
+					(dmisc20 == 4 && (basesize*(dmisc6 - (misc%dmisc6))) > (48 + 96)) ||
+					(dmisc20 != 2 && dmisc20 != 4 && (basesize*(dmisc6 - (misc%dmisc6))) > 48)))
+					|| dmisc18 == -1)  
+						dofire = true;
+				}
+			}
+		}
 	}
 	if(flycnt2)
 	{
@@ -17765,20 +17906,24 @@ bool ePatra::animate(int32_t index)
 				
 				if(get_bit(quest_rules,qr_NEWENEMYTILES))
 				{
-					switch(dmisc5)
+					if (get_bit(quest_rules,qr_PATRAS_USE_HARDCODED_OFFSETS))
 					{
-						// Center eye shoots projectiles; make room for its firing tiles
-					case 1:
-					case 3:
-						((enemy*)guys.spr(i))->o_tile=d->e_tile+120;
-						break;
-						
-						// Center eyes does not shoot; use tiles two rows below for inner eyes.
-					default:
-					case 2:
-						((enemy*)guys.spr(i))->o_tile=d->e_tile+40;
-						break;
+						switch(dmisc5)
+						{
+							// Center eye shoots projectiles; make room for its firing tiles
+						case 1:
+						case 3:
+							((enemy*)guys.spr(i))->o_tile=d->e_tile+120;
+							break;
+							
+							// Center eyes does not shoot; use tiles two rows below for inner eyes.
+						default:
+						case 2:
+							((enemy*)guys.spr(i))->o_tile=d->e_tile+40;
+							break;
+						}
 					}
+					else ((enemy*)guys.spr(i))->o_tile = d->s_tile;
 				}
 				else
 				{
@@ -17809,6 +17954,83 @@ bool ePatra::animate(int32_t index)
 			}
 			else
 			{
+				int32_t pos2 = ((enemy*)guys.spr(i))->misc;
+				double a2 = ((clk2-pos2*basesize/(dmisc2==0 ? 1 : dmisc2))*PI/(halfsize));
+				
+				if(dmisc4==0)
+				{
+					if(loopcnt>0)
+					{
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc32) - sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*(abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc32) + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*(abs(dmisc32)-abs(dmisc30));
+					}
+					else
+					{
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc30);
+					}
+					
+					temp_x=guys.spr(i)->x;
+					temp_y=guys.spr(i)->y;
+				}
+				else
+				{
+					circle_x =  cos(a2+PI/2)*abs(dmisc30);
+					circle_y = -sin(a2+PI/2)*abs(dmisc30);
+					
+					if(loopcnt>0)
+					{
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc30);
+						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*abs(dmisc32);
+					}
+					else
+					{
+						guys.spr(i)->x = circle_x;
+						guys.spr(i)->y = circle_y;
+					}
+					
+					temp_x=circle_x;
+					temp_y=circle_y;
+				}
+				
+				double ddir=atan2(double(temp_y),double(temp_x));
+				
+				if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+				{
+					guys.spr(i)->dir=l_down;
+				}
+				else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+				{
+					guys.spr(i)->dir=left;
+				}
+				else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+				{
+					guys.spr(i)->dir=l_up;
+				}
+				else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+				{
+					guys.spr(i)->dir=up;
+				}
+				else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+				{
+					guys.spr(i)->dir=r_up;
+				}
+				else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+				{
+					guys.spr(i)->dir=right;
+				}
+				else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+				{
+					guys.spr(i)->dir=r_down;
+				}
+				else
+				{
+					guys.spr(i)->dir=down;
+				}
+				
+				guys.spr(i)->x += x;
+				guys.spr(i)->y = y-guys.spr(i)->y;
+				
 				if(dmisc5==2 || dmisc5== 3)
 				{
 					/*
@@ -17820,26 +18042,55 @@ bool ePatra::animate(int32_t index)
 					*/
 					if (((esPatra*)guys.spr(i))->clk5 < 0 && (editorflags & ENEMY_FLAG3))
 					{
-						if (dmisc5 == 3)
+						if (((esPatra*)guys.spr(i))->clk4 <= 0 || ((esPatra*)guys.spr(i))->clk5 != -16) ++((esPatra*)guys.spr(i))->clk5;
+						if (get_bit(quest_rules,qr_PATRAS_USE_HARDCODED_OFFSETS))
 						{
-							if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+200;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+160;
-							else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+							if (dmisc5 == 3)
+							{
+								if (((esPatra*)guys.spr(i))->clk5 >= 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+200;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+160;
+								else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+							}
+							else
+							{
+								if (((esPatra*)guys.spr(i))->clk5 >= 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
+								else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
+								else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+							}
 						}
 						else
 						{
-							if (++((esPatra*)guys.spr(i))->clk5 == 0) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+120;
-							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->e_tile+80;
-							else ((esPatra*)guys.spr(i))->o_tile=d->e_tile+40;
+							if (((esPatra*)guys.spr(i))->clk5 >= 0) ((esPatra*)guys.spr(i))->o_tile=d->s_tile;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -16) ((esPatra*)guys.spr(i))->o_tile=d->s_tile+80;
+							else if (((esPatra*)guys.spr(i))->clk5 >= -48) ((esPatra*)guys.spr(i))->o_tile=d->s_tile+40;
+							else ((esPatra*)guys.spr(i))->o_tile=d->s_tile;
 						}
 					}
-					else if (dmisc19 || ((esPatra*)guys.spr(i))->clk5) ++((esPatra*)guys.spr(i))->clk5;
-					if (!dmisc25 || (dmisc25 == 1 && !((enemy*)guys.spr(i))->superman) || (dmisc25 == 2 && ((enemy*)guys.spr(i))->superman))
+					else if ((dmisc19 || ((esPatra*)guys.spr(i))->clk5) && (((esPatra*)guys.spr(i))->clk4 <= 0 || ((esPatra*)guys.spr(i))->clk5 != -16)) ++((esPatra*)guys.spr(i))->clk5;
+					if (((esPatra*)guys.spr(i))->clk4 > 0) --((esPatra*)guys.spr(i))->clk4;
+					if (!dmisc25 || (dmisc25 == 1 && !((enemy*)guys.spr(i))->superman) || ((dmisc25 == 2 || dmisc25 == 3) && ((enemy*)guys.spr(i))->superman))
 					{
 						switch(dmisc20) //Patra Attack Patterns
 						{
+							case 4: //Single one rapidfires
+							{
+								if (dofire && i == randeye)
+								{
+									((esPatra*)guys.spr(i))->clk5 = -16;
+									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) ((esPatra*)guys.spr(i))->clk5 = -48;
+									((esPatra*)guys.spr(i))->clk4 = 96;
+									clk5 = -3;
+									if (editorflags & ENEMY_FLAG6) clk4 = abs(clk5) + 16;
+								}
+								if (((esPatra*)guys.spr(i))->clk5 == -16 && (((esPatra*)guys.spr(i))->clk4 % 12) == 0)
+								{
+									addEwpn(guys.spr(i)->x,guys.spr(i)->y,guys.spr(i)->z,wpn,3,wdp,dir,getUID());
+									sfx(wpnsfx(wpn),pan(int32_t(x)));
+								}
+								break;
+							}
 							case 3: //Ring
 							{
 								if (dofire)
@@ -17920,7 +18171,7 @@ bool ePatra::animate(int32_t index)
 								if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
 								(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
 								&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-								(dmisc20 != 2 && (84*(dmisc6 - (misc%dmisc6))) > 48))))
+								(dmisc20 != 2 && (basesize*(dmisc6 - (misc%dmisc6))) > 48))))
 								{
 									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
 									{
@@ -17945,83 +18196,6 @@ bool ePatra::animate(int32_t index)
 						}
 					}
 				}
-				
-				int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-				double a2 = ((clk2-pos2*84/(dmisc2==0 ? 1 : dmisc2))*PI/(42));
-				
-				if(dmisc4==0)
-				{
-					if(loopcnt>0)
-					{
-						guys.spr(i)->x =  cos(a2+PI/2)*56*size - sin(pos2*PI*2/(dmisc2==0? 1 : dmisc2))*28*size;
-						guys.spr(i)->y = -sin(a2+PI/2)*56*size + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*28*size;
-					}
-					else
-					{
-						guys.spr(i)->x =  cos(a2+PI/2)*28*size;
-						guys.spr(i)->y = -sin(a2+PI/2)*28*size;
-					}
-					
-					temp_x=guys.spr(i)->x;
-					temp_y=guys.spr(i)->y;
-				}
-				else
-				{
-					circle_x =  cos(a2+PI/2)*42*size;
-					circle_y = -sin(a2+PI/2)*42*size;
-					
-					if(loopcnt>0)
-					{
-						guys.spr(i)->x =  cos(a2+PI/2)*42*size;
-						guys.spr(i)->y = (-sin(a2+PI/2)-cos(pos2*PI*2/(dmisc2 == 0 ? 1 : dmisc2)))*21*size;
-					}
-					else
-					{
-						guys.spr(i)->x = circle_x;
-						guys.spr(i)->y = circle_y;
-					}
-					
-					temp_x=circle_x;
-					temp_y=circle_y;
-				}
-				
-				double ddir=atan2(double(temp_y),double(temp_x));
-				
-				if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
-				{
-					guys.spr(i)->dir=l_down;
-				}
-				else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
-				{
-					guys.spr(i)->dir=left;
-				}
-				else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
-				{
-					guys.spr(i)->dir=l_up;
-				}
-				else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
-				{
-					guys.spr(i)->dir=up;
-				}
-				else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
-				{
-					guys.spr(i)->dir=r_up;
-				}
-				else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
-				{
-					guys.spr(i)->dir=right;
-				}
-				else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
-				{
-					guys.spr(i)->dir=r_down;
-				}
-				else
-				{
-					guys.spr(i)->dir=down;
-				}
-				
-				guys.spr(i)->x += x;
-				guys.spr(i)->y = y-guys.spr(i)->y;
 				
 			}
 		}
@@ -18155,33 +18329,41 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	clk5 = 0;
 	clk = -((misc*21)>>1)-1;
 	yofs=playing_field_offset;
-	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
-	int32_t prntSIZEflags = prntenemy->SIZEflags;
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
-   // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = prntenemy->hxsz;
-	else
-		hxsz=12;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = prntenemy->hysz;
-	else 
-		hysz=12;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = prntenemy->hzsz;
-	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = prntenemy->hxofs;
-	else 
-		hxofs=2;
-	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = prntenemy->hyofs;
-	else hyofs=2;
-//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)prntenemy->xofs;
-	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
-	{
-		yofs = (int32_t)prntenemy->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-	}
-  
-	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)prntenemy->zofs;
-	
+	hxsz=12;
+	hysz=12;
+	hxofs=2;
+	hyofs=2;
+	extend = 0;
+	txsz = 1;
+	tysz = 1;
+	/* //These need to be separate enemy editor fields. This enemy class also it's draw altered to correctly support big stuff.
+		enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
+		int32_t prntSIZEflags = prntenemy->SIZEflags;
+		if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+		//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
+	   // al_trace("Enemy txsz:%i\n", txsz);
+		if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
+		if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = prntenemy->hxsz;
+		else
+			hxsz=12;
+		if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = prntenemy->hysz;
+		else 
+			hysz=12;
+		if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = prntenemy->hzsz;
+		if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = prntenemy->hxofs;
+		else 
+			hxofs=2;
+		if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = prntenemy->hyofs;
+		else hyofs=2;
+	//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
+		if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)prntenemy->xofs;
+		if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+		{
+			yofs = (int32_t)prntenemy->yofs; //This seems to be setting to +48 or something with any value set?! -Z
+		}
+	  
+		if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)prntenemy->zofs;
+	*/
 	mainguy=count_enemy=false;
 	bgsfx=-1;
 	//o_tile=0;
@@ -18286,7 +18468,7 @@ ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)4
 	if ( (SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
-		yofs += 56 ; //this offset fixes yofs not plaing properly. -Z
+		yofs += playing_field_offset ; //this offset fixes yofs not plaing properly. -Z
 	}
   
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
@@ -19085,9 +19267,12 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		switch(guysbuf[id&0xFFF].misc10)
 		{
 		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
-			
+			if (get_bit(quest_rules,qr_HARDCODED_BS_PATRA))
+			{
+				e = new ePatraBS((zfix)x,(zfix)y,id,clk);
+				break;
+			}
+			//fallthrough
 		case 0:
 		default:
 			e = new ePatra((zfix)x,(zfix)y,id,clk);
@@ -19269,7 +19454,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		
 		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
 		{
-			if(!(guysbuf[id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
+			if(!((guysbuf[id].misc10&&get_bit(quest_rules,qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
 			{
 				al_trace("Patra outer eye %d could not be created!\n",i+1);
 				
@@ -19531,9 +19716,12 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		switch(guysbuf[id&0xFFF].misc10)
 		{
 		case 1:
-			e = new ePatraBS((zfix)x,(zfix)y,id,clk);
-			break;
-			
+			if (get_bit(quest_rules,qr_HARDCODED_BS_PATRA))
+			{
+				e = new ePatraBS((zfix)x,(zfix)y,id,clk);
+				break;
+			}
+			//fallthrough
 		case 0:
 		default:
 			e = new ePatra((zfix)x,(zfix)y,id,clk);
@@ -19709,7 +19897,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		
 		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
 		{
-			if(!(guysbuf[id].misc10?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
+			if(!((guysbuf[id].misc10&&get_bit(quest_rules,qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
 			{
 				al_trace("Patra outer eye %d could not be created!\n",i+1);
 				

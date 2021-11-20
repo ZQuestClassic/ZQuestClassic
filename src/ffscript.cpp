@@ -6805,18 +6805,8 @@ int32_t get_register(const int32_t arg)
 		//Game Info
 		
 		
-		case GAMESUBSCHEIGHT:
-		{
-			ret = passive_subscreen_height*10000;    
-		}
-		break;
-		
 		case GAMEPLAYFIELDOFS:
 			ret = playing_field_offset*10000;
-			break;
-		
-		case PASSSUBOFS:
-			ret = passive_subscreen_offset * 10000;
 			break;
 		
 		case GETPIXEL:
@@ -15085,33 +15075,6 @@ void set_register(const int32_t arg, const int32_t value)
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Game Information
-		
-		case GAMESUBSCHEIGHT:
-		{
-			int32_t v = vbound(value,0,256);
-			passive_subscreen_height = (v/10000);   
-		}
-		break;
-		
-		case GAMEPLAYFIELDOFS:
-		{
-			int32_t v = vbound(value,-256, 256);
-			playing_field_offset = (v/10000);
-		}
-		break;
-		
-		case PASSSUBOFS:
-		{
-			int32_t v = vbound(value,-256, 256);
-			passive_subscreen_offset = (v/10000);
-		}
-		break;
-
-		case ZSCRIPTVERSION:
-		{
-			(FFCore.quest_format[vLastCompile]) = value/10000;
-			break;
-		}
 		
 		case GAMEDEATHS:
 			game->set_deaths(value/10000);
@@ -34701,7 +34664,7 @@ script_variable ZASMVars[]=
 	{"GAMENUMMESSAGES", GAMENUMMESSAGES, 0, 0 },
 	{"GAMESUBSCHEIGHT", GAMESUBSCHEIGHT, 0, 0 },
 	{"GAMEPLAYFIELDOFS", GAMEPLAYFIELDOFS, 0, 0 },
-	{"PASSSUBOFS", PASSSUBOFS, 0, 0 },
+	{"PASSSUBOFS", PASSSUBOFS, 0, 0 }, //
 	
 
 	//NPCData

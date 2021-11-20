@@ -1162,7 +1162,12 @@ const char *eneanim_string[aMAX] =
     "4-Frame Flying 4-Dir + Firing",
     "4-Frame",
     "Ganon",
-    "2-Frame Big"
+    "2-Frame Big",
+    "4-Frame 8-Dir Big + Tracking", 
+    "4-Frame 4-Dir Big + Tracking", 
+    "4-Frame 8-Dir Big + Firing",
+    "4-Frame 4-Dir Big", 
+    "4-Frame 4-Dir Big + Firing"
 };
 
 /*
