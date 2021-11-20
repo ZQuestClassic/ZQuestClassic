@@ -546,6 +546,31 @@ string ZScript::VarToString(int32_t ID)
 	case GAMEBOTTLEST:
 		return "GAMEBOTTLEST";
 		
+	case REFBOTTLETYPE:
+		return "REFBOTTLETYPE";
+	case REFBOTTLESHOP:
+		return "REFBOTTLESHOP";
+	case BOTTLECOUNTER:
+		return "BOTTLECOUNTER";
+	case BOTTLEAMOUNT:
+		return "BOTTLEAMOUNT";
+	case BOTTLEPERCENT:
+		return "BOTTLEPERCENT";
+	case BOTTLEFLAGS:
+		return "BOTTLEFLAGS";
+	case BOTTLENEXT:
+		return "BOTTLENEXT";
+	case BSHOPFILL:
+		return "BSHOPFILL";
+	case BSHOPCOMBO:
+		return "BSHOPCOMBO";
+	case BSHOPCSET:
+		return "BSHOPCSET";
+	case BSHOPPRICE:
+		return "BSHOPPRICE";
+	case BSHOPSTR:
+		return "BSHOPSTR";
+		
 	case SCREENSTATED:
 		return "SCREENSTATED";
 		
@@ -2682,6 +2707,36 @@ string OLoadRNG::toString()
 string OLoadDropsetRegister	::toString()
 {
     return "LOADDROPSETR " + getArgument()->toString();
+}
+
+string OGetBottleShopName::toString()
+{
+    return "BSHOPNAMEGET " + getArgument()->toString();
+}
+
+string OSetBottleShopName::toString()
+{
+    return "BSHOPNAMESET " + getArgument()->toString();
+}
+
+string OGetBottleName::toString()
+{
+    return "BOTTLENAMEGET " + getArgument()->toString();
+}
+
+string OSetBottleName::toString()
+{
+    return "BOTTLENAMESET " + getArgument()->toString();
+}
+
+string OLoadBottleTypeRegister::toString()
+{
+    return "LOADBOTTLETYPE " + getArgument()->toString();
+}
+
+string OLoadBShopRegister::toString()
+{
+    return "LOADBSHOPDATA " + getArgument()->toString();
 }
 
 string ODMapDataGetNameRegister::toString()

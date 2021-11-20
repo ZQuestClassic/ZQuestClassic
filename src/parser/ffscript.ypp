@@ -155,6 +155,8 @@ extern YYLTYPE noloc;
 %token FILE
 %token DIRECTORY
 %token RANDGEN
+%token BOTTLEDATA
+%token BOTTLESHOPDATA
 %token SUBSCREENDATA
 %token PARTICLE
 %token DECORATION
@@ -544,6 +546,8 @@ DataType : ZCONST DataType {
 	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
 	| DIRECTORY {$$ = new ASTDataType(DataType::DIRECTORY, @$);}
 	| RANDGEN {$$ = new ASTDataType(DataType::RNG, @$);}
+	| BOTTLEDATA {$$ = new ASTDataType(DataType::BOTTLETYPE, @$);}
+	| BOTTLESHOPDATA {$$ = new ASTDataType(DataType::BOTTLESHOP, @$);}
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}

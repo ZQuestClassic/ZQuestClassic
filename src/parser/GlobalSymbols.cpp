@@ -404,6 +404,8 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_DIRECTORY: return &DirectorySymbols::getInst();
 	case ZVARTYPEID_MODULE: return &ModuleSymbols::getInst();
 	case ZVARTYPEID_RNG: return &RNGSymbols::getInst();
+	case ZVARTYPEID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
+	case ZVARTYPEID_BOTTLESHOP: return &BottleShopSymbols::getInst();
     default: return NULL;
     }
 }
@@ -4273,10 +4275,9 @@ ItemclassSymbols::ItemclassSymbols()
 
 void ItemclassSymbols::generateCode()
 {
-
     //void GetName(itemclass, int32_t)
     {
-	Function* function = getFunction("GetName", 2);
+		Function* function = getFunction("GetName", 2);
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         //pop off the param
@@ -4582,6 +4583,8 @@ static AccessorTable gameTable[] =
 	{ "LoadDMapData",                  ZVARTYPEID_DMAPDATA,      FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadDropset",                   ZVARTYPEID_DROPSET,       FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "LoadRNG",                       ZVARTYPEID_RNG,           FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "LoadBottleData",                ZVARTYPEID_BOTTLETYPE,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "LoadBottleShopData",            ZVARTYPEID_BOTTLESHOP,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "CreateBitmap",                  ZVARTYPEID_BITMAP,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "PlayOgg",                       ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_GAME,          ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "GetOggPos",                     ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_GAME,          -1,         -1,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -4679,7 +4682,38 @@ void GameSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    //Messagedata
+    //BottleData
+    {
+	    Function* function = getFunction("LoadBottleData", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OLoadBottleTypeRegister(new VarArgument(EXP1)));
+        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLETYPE)));
+        RETURN();
+        function->giveCode(code);
+    }
+	//BottleShopData
+    {
+	    Function* function = getFunction("LoadBottleShopData", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OLoadBShopRegister(new VarArgument(EXP1)));
+        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLESHOP)));
+        RETURN();
+        function->giveCode(code);
+    }
+	
+	//Messagedata
     {
 	    Function* function = getFunction("LoadMessageData", 2);
         int32_t label = function->getLabel();
@@ -13694,6 +13728,122 @@ void ModuleSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+}
+
+BottleTypeSymbols BottleTypeSymbols::singleton = BottleTypeSymbols();
+
+static AccessorTable BottleTypeTable[] =
+{
+	//name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
+	{ "GetName",                ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetName",                ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCounter[]",           ZVARTYPEID_FLOAT,         GETTER,       BOTTLECOUNTER,    3,             0,                                    2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setCounter[]",           ZVARTYPEID_VOID,          SETTER,       BOTTLECOUNTER,    3,             0,                                    3,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getAmount[]",            ZVARTYPEID_FLOAT,         GETTER,       BOTTLEAMOUNT,     3,             0,                                    2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setAmount[]",            ZVARTYPEID_VOID,          SETTER,       BOTTLEAMOUNT,     3,             0,                                    3,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getIsPercent[]",         ZVARTYPEID_BOOL,          GETTER,       BOTTLEPERCENT,    3,             0,                                    2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setIsPercent[]",         ZVARTYPEID_VOID,          SETTER,       BOTTLEPERCENT,    3,             0,                                    3,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFlags[]",             ZVARTYPEID_BOOL,          GETTER,       BOTTLEFLAGS,      4,             0,                                    2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFlags[]",             ZVARTYPEID_VOID,          SETTER,       BOTTLEFLAGS,      4,             0,                                    3,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getNextType",            ZVARTYPEID_FLOAT,         GETTER,       BOTTLENEXT,       1,             0,                                    1,           {  ZVARTYPEID_BOTTLETYPE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setNextType",            ZVARTYPEID_VOID,          SETTER,       BOTTLENEXT,       1,             0,                                    2,           {  ZVARTYPEID_BOTTLETYPE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+};
+
+BottleTypeSymbols::BottleTypeSymbols()
+{
+    table = BottleTypeTable;
+    refVar = REFBOTTLETYPE;
+}
+
+void BottleTypeSymbols::generateCode()
+{
+    //void GetName(bottledata, int32_t)
+    {
+		Function* function = getFunction("GetName", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer
+        POPREF();
+        addOpcode2 (code, new OGetBottleName(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void SetName(bottledata, int32_t)
+    {
+		Function* function = getFunction("SetName", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer
+        POPREF();
+        addOpcode2 (code, new OSetBottleName(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+}
+
+BottleShopSymbols BottleShopSymbols::singleton = BottleShopSymbols();
+
+static AccessorTable BottleShopTable[] =
+{
+	//name,                     rettype,                  setorget,     var,              numindex,      funcFlags,                            numParams,   params
+	{ "GetName",                ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SetName",                ZVARTYPEID_VOID,          FUNCTION,     0,                1,             FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFill[]",              ZVARTYPEID_FLOAT,         GETTER,       BSHOPFILL,        3,             0,                                    2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFill[]",              ZVARTYPEID_VOID,          SETTER,       BSHOPFILL,        3,             0,                                    3,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCombo[]",             ZVARTYPEID_FLOAT,         GETTER,       BSHOPCOMBO,       3,             0,                                    2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setCombo[]",             ZVARTYPEID_VOID,          SETTER,       BSHOPCOMBO,       3,             0,                                    3,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getCSet[]",              ZVARTYPEID_FLOAT,         GETTER,       BSHOPCSET,        3,             0,                                    2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setCSet[]",              ZVARTYPEID_VOID,          SETTER,       BSHOPCSET,        3,             0,                                    3,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getPrice[]",             ZVARTYPEID_FLOAT,         GETTER,       BSHOPPRICE,       3,             0,                                    2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setPrice[]",             ZVARTYPEID_VOID,          SETTER,       BSHOPPRICE,       3,             0,                                    3,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getInfoString[]",        ZVARTYPEID_FLOAT,         GETTER,       BSHOPSTR,         3,             0,                                    2,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setInfoString[]",        ZVARTYPEID_VOID,          SETTER,       BSHOPSTR,         3,             0,                                    3,           {  ZVARTYPEID_BOTTLESHOP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "",                       -1,                       -1,           -1,               -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+};
+
+BottleShopSymbols::BottleShopSymbols()
+{
+    table = BottleShopTable;
+    refVar = REFBOTTLESHOP;
+}
+
+void BottleShopSymbols::generateCode()
+{
+    //void GetName(bottleshopdata, int32_t)
+    {
+		Function* function = getFunction("GetName", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer
+        POPREF();
+        addOpcode2 (code, new OGetBottleShopName(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void SetName(bottleshopdata, int32_t)
+    {
+		Function* function = getFunction("SetName", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer
+        POPREF();
+        addOpcode2 (code, new OSetBottleShopName(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 

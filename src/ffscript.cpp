@@ -3389,8 +3389,32 @@ user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
 		return &nulrng;
 	}
 	if(skipError) return NULL;
-	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	Z_scripterrlog("Script attempted to reference a nonexistent RNG!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+bottletype *checkBottleData(int32_t ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= 64)
+	{
+		return &QMisc.bottle_types[ref-1];
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent BottleData!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a BottleData with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+bottleshoptype *checkBottleShopData(int32_t ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= 256)
+	{
+		return &QMisc.bottle_shop_types[ref-1];
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent BottleShopData!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a BottleShopData with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -7189,8 +7213,180 @@ int32_t get_register(const int32_t arg)
 		
 		case NOACTIVESUBSC:
 			ret=Link.stopSubscreenFalling()?10000:0;
-			break;
-				
+			break;///----------------------------------------------------------------------------------------------------//
+	//BottleTypes
+		case BOTTLECOUNTER:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Counter[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->Counter[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->counter[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BOTTLEAMOUNT:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Amount[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->Amount[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->amount[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BOTTLEPERCENT:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "IsPercent[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->IsPercent[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = (ptr->flags & (1<<indx)) ? 10000L : 0;
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BOTTLEFLAGS:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Flags[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 3)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->Flags[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				int32_t flag = 0;
+				switch(indx)
+				{
+					case 0: flag = BTFLAG_AUTOONDEATH; break;
+					case 1: flag = BTFLAG_ALLOWIFFULL; break;
+					case 2: flag = BTFLAG_CURESWJINX; break;
+					case 3: flag = BTFLAG_CUREITJINX; break;
+				}
+				ret = (ptr->flags & flag) ? 10000L : 0;
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BOTTLENEXT:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "NextType"))
+			{
+				ret = 10000L * ptr->next_type;
+			}
+			else ret = -10000L;
+		}
+		break;
+	///----------------------------------------------------------------------------------------------------//
+	//BottleShops
+		case BSHOPFILL:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Fill[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Fill[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->fill[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BSHOPCOMBO:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Combo[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Combo[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->comb[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BSHOPCSET:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "CSet[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->CSet[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->cset[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BSHOPPRICE:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Price[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Price[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->price[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
+		case BSHOPSTR:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "InfoString[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->InfoString[].\n", indx);
+					ret = -10000L;
+					break;
+				}
+				ret = 10000L * ptr->str[indx];
+			}
+			else ret = -10000L;
+		}
+		break;
+		
 		///----------------------------------------------------------------------------------------------------//
 		//DMap Information
 
@@ -10962,6 +11158,8 @@ int32_t get_register(const int32_t arg)
 		case REFUNTYPED: ret = ri->untypedref; break;
 		
 		case REFDROPS: ret = ri->dropsetref; break;
+		case REFBOTTLETYPE: ret = ri->bottletyperef; break;
+		case REFBOTTLESHOP: ret = ri->bottleshopref; break;
 		case REFPONDS: ret = ri->pondref; break;
 		case REFWARPRINGS: ret = ri->warpringref; break;
 		case REFDOORS: ret = ri->doorsref; break;
@@ -13204,7 +13402,7 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
-			itemsbuf[ri->idata].cost_counter=(vbound(value/10000,0,255));
+			itemsbuf[ri->idata].cost_counter=(vbound(value/10000,-1,32));
 			break;
 		//min hearts to pick up
 		case IDATAMINHEARTS:
@@ -15137,6 +15335,162 @@ void set_register(const int32_t arg, const int32_t value)
 			Link.stopSubscreenFalling((value/10000)?1:0);
 			break;
 			
+	///----------------------------------------------------------------------------------------------------//
+	//BottleTypes
+		case BOTTLECOUNTER:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Counter[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				int32_t ctr = vbound(value/10000, -1, MAX_COUNTERS-1);
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->Counter[].\n", indx);
+					break;
+				}
+				ptr->counter[indx] = ctr;
+			}
+		}
+		break;
+		
+		case BOTTLEAMOUNT:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Amount[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				int32_t amnt = vbound(value/10000, 0, 65535);
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->Amount[].\n", indx);
+					break;
+				}
+				ptr->amount[indx] = amnt;
+			}
+		}
+		break;
+		
+		case BOTTLEPERCENT:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "IsPercent[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->IsPercent[].\n", indx);
+					break;
+				}
+				SETFLAG(ptr->flags, 1<<indx, value);
+			}
+		}
+		break;
+		
+		case BOTTLEFLAGS:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "Flags[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 3)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottledata->Flags[].\n", indx);
+					break;
+				}
+				int32_t flag = 0;
+				switch(indx)
+				{
+					case 0: flag = BTFLAG_AUTOONDEATH; break;
+					case 1: flag = BTFLAG_ALLOWIFFULL; break;
+					case 2: flag = BTFLAG_CURESWJINX; break;
+					case 3: flag = BTFLAG_CUREITJINX; break;
+				}
+				SETFLAG(ptr->flags, flag, value);
+			}
+		}
+		break;
+		
+		case BOTTLENEXT:
+		{
+			if(bottletype* ptr = checkBottleData(ri->bottletyperef, "NextType"))
+			{
+				ptr->next_type = vbound(value/10000, 0, 64);
+			}
+		}
+		break;
+	///----------------------------------------------------------------------------------------------------//
+	//BottleShops
+		case BSHOPFILL:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Fill[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Fill[].\n", indx);
+					break;
+				}
+				ptr->fill[indx] = vbound(value/10000, 0, 64);
+			}
+		}
+		break;
+		
+		case BSHOPCOMBO:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Combo[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Combo[].\n", indx);
+					break;
+				}
+				ptr->comb[indx] = vbound(value/10000, 0, MAXCOMBOS-1);
+			}
+		}
+		break;
+		
+		case BSHOPCSET:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "CSet[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->CSet[].\n", indx);
+					break;
+				}
+				ptr->cset[indx] = vbound(value/10000, 0, 11);
+			}
+		}
+		break;
+		
+		case BSHOPPRICE:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "Price[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->Price[].\n", indx);
+					break;
+				}
+				ptr->price[indx] = vbound(value/10000, 0, 65535);
+			}
+		}
+		break;
+		
+		case BSHOPSTR:
+		{
+			if(bottleshoptype* ptr = checkBottleShopData(ri->bottleshopref, "InfoString[]"))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(unsigned(indx) > 2)
+				{
+					Z_scripterrlog("Invalid index %d supplied to bottleshopdata->InfoString[].\n", indx);
+					break;
+				}
+				ptr->str[indx] = vbound(value/10000, 0, 65535);
+			}
+		}
+		break;
 	///----------------------------------------------------------------------------------------------------//
 	//DMap Information
 
@@ -19065,6 +19419,8 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		
 		case REFDROPS:  ri->dropsetref = value; break;
+		case REFBOTTLETYPE:  ri->bottletyperef = value; break;
+		case REFBOTTLESHOP:  ri->bottleshopref = value; break;
 		case REFPONDS:  ri->pondref = value; break;
 		case REFWARPRINGS:  ri->warpringref = value; break;
 		case REFDOORS:  ri->doorsref = value; break;
@@ -21077,11 +21433,35 @@ void FFScript::do_loaddropset(const bool v)
 	
 	if ( ID < 0 || ID > MAXITEMDROPSETS )
 	{
-	Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
-	ri->dropsetref = LONG_MAX;
+		Z_scripterrlog("Invalid Dropset ID passed to Game->LoadDropset(): %d\n", ID);
+		ri->dropsetref = LONG_MAX;
 	}
 		
 	else ri->dropsetref = ID;
+}
+
+void FFScript::do_loadbottle(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if ( ID < 1 || ID > 64 )
+	{
+		Z_scripterrlog("Invalid BottleType ID passed to Game->LoadBottleData(): %d\n", ID);
+		ri->bottletyperef = 0;
+	}
+	else ri->bottletyperef = ID;
+}
+
+void FFScript::do_loadbottleshop(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if ( ID < 0 || ID > 255 )
+	{
+		Z_scripterrlog("Invalid BottleShopType ID passed to Game->LoadBottleShopData(): %d\n", ID);
+		ri->bottleshopref = 0;
+	}
+	else ri->bottleshopref = ID+1;
 }
 
 void FFScript::do_getDMapData_dmapname(const bool v)
@@ -25340,6 +25720,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_loaddropset(false); break;
 			case LOADRNG: //command
 				FFCore.do_loadrng(); break;
+			case LOADBOTTLETYPE: //command
+				FFCore.do_loadbottle(false); break;
+			case LOADBSHOPDATA: //command
+				FFCore.do_loadbottleshop(false); break;
 
 
 			case DMAPDATAGETNAMER: //command
@@ -26181,6 +26565,63 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				}
 				break;
 			}
+				
+			case BOTTLENAMEGET:
+			{
+				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t id = ri->bottletyperef-1;
+				if(unsigned(id) > 63)
+				{
+					Z_scripterrlog("Invalid bottledata ID (%d) passed to bottledata->GetName().\n", id);
+					break;
+				}
+				
+				if(ArrayH::setArray(arrayptr, QMisc.bottle_types[id].name) == SH::_Overflow)
+					Z_scripterrlog("Array supplied to 'bottledata->GetName()' not large enough\n");
+				break;
+			}
+			case BOTTLENAMESET:
+			{
+				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t id = ri->bottletyperef-1;
+				if(unsigned(id) > 63)
+				{
+					Z_scripterrlog("Invalid bottledata ID (%d) passed to bottledata->SetName().\n", id+1);
+					break;
+				}
+				string name;
+				ArrayH::getString(arrayptr, name, 31);
+				strcpy(QMisc.bottle_types[id].name, name.c_str());
+				break;
+			}
+			case BSHOPNAMEGET:
+			{
+				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t id = ri->bottleshopref-1;
+				if(unsigned(id) > 255)
+				{
+					Z_scripterrlog("Invalid bottleshopdata ID (%d) passed to bottleshopdata->GetName().\n", id+1);
+					break;
+				}
+				
+				if(ArrayH::setArray(arrayptr, QMisc.bottle_shop_types[id].name) == SH::_Overflow)
+					Z_scripterrlog("Array supplied to 'bottleshopdata->GetName()' not large enough\n");
+				break;
+			}
+			case BSHOPNAMESET:
+			{
+				int32_t arrayptr = get_register(sarg1) / 10000;
+				int32_t id = ri->bottleshopref;
+				if(unsigned(id) > 255)
+				{
+					Z_scripterrlog("Invalid bottleshopdata ID (%d) passed to bottleshopdata->SetName().\n", id);
+					break;
+				}
+				string name;
+				ArrayH::getString(arrayptr, name, 31);
+				strcpy(QMisc.bottle_shop_types[id].name, name.c_str());
+				break;
+			}
 			
 			case RUNITEMSCRIPT:
 			{
@@ -26209,7 +26650,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 							}
 							else
 							{
-								//Rob, clear the stack here, clear refinfo, and set up to run again on the next frame from the beginning.
+								//Emily, clear the stack here, clear refinfo, and set up to run again on the next frame from the beginning.
 							}
 						}
 						break;
@@ -33722,6 +34163,12 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
 	{ "BMPMASKDRAW",           0,   0,   0,   0},
 	{ "RESIZEARRAYR",           2,   0,   0,   0},
+	{ "BSHOPNAMEGET",           1,   0,   0,   0},
+	{ "BSHOPNAMESET",           1,   0,   0,   0},
+	{ "BOTTLENAMEGET",           1,   0,   0,   0},
+	{ "BOTTLENAMESET",           1,   0,   0,   0},
+	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
+	{ "LOADBSHOPDATA",           1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -34951,6 +35398,19 @@ script_variable ZASMVars[]=
 	
 	{ "GAMELSWITCH",           GAMELSWITCH,            0,             0 },
 	{ "GAMEBOTTLEST",           GAMEBOTTLEST,            0,             0 },
+	
+	{ "REFBOTTLETYPE",           REFBOTTLETYPE,            0,             0 },
+	{ "REFBOTTLESHOP",           REFBOTTLESHOP,            0,             0 },
+	{ "BOTTLECOUNTER",           BOTTLECOUNTER,            0,             0 },
+	{ "BOTTLEAMOUNT",           BOTTLEAMOUNT,            0,             0 },
+	{ "BOTTLEPERCENT",           BOTTLEPERCENT,            0,             0 },
+	{ "BOTTLEFLAGS",           BOTTLEFLAGS,            0,             0 },
+	{ "BOTTLENEXT",           BOTTLENEXT,            0,             0 },
+	{ "BSHOPFILL",           BSHOPFILL,            0,             0 },
+	{ "BSHOPCOMBO",           BSHOPCOMBO,            0,             0 },
+	{ "BSHOPCSET",           BSHOPCSET,            0,             0 },
+	{ "BSHOPPRICE",           BSHOPPRICE,            0,             0 },
+	{ "BSHOPSTR",           BSHOPSTR,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

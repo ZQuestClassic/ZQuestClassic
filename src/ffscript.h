@@ -1610,6 +1610,8 @@ static void setLinkBigHitbox(bool v);
 	
 	static void do_loaddmapdata(const bool v);
 	static void do_loaddropset(const bool v);
+	static void do_loadbottle(const bool v);
+	static void do_loadbottleshop(const bool v);
 	static void do_getDMapData_dmapname(const bool v);
 	static void do_setDMapData_dmapname(const bool v);
 	static void do_getDMapData_dmaptitle(const bool v);
@@ -2949,6 +2951,13 @@ enum ASM_DEFINE
 	BMPSHIFTCOLOR,
 	BMPMASKDRAW,
 	RESIZEARRAYR,
+	
+	BSHOPNAMEGET,
+	BSHOPNAMESET,
+	BOTTLENAMEGET,
+	BOTTLENAMESET,
+	LOADBOTTLETYPE,
+	LOADBSHOPDATA,
 	
 	NUMCOMMANDS           //0x01A5
 };
@@ -4339,7 +4348,20 @@ enum ASM_DEFINE
 #define GAMELSWITCH             0x13FD
 #define GAMEBOTTLEST            0x13FE
 
-#define NUMVARIABLES         	0x13FF
+#define REFBOTTLETYPE           0x13FF
+#define REFBOTTLESHOP           0x1400
+#define BOTTLECOUNTER           0x1401
+#define BOTTLEAMOUNT            0x1402
+#define BOTTLEPERCENT           0x1403
+#define BOTTLEFLAGS             0x1404
+#define BOTTLENEXT              0x1405
+#define BSHOPFILL               0x1406
+#define BSHOPCOMBO              0x1407
+#define BSHOPCSET               0x1408
+#define BSHOPPRICE              0x1409
+#define BSHOPSTR                0x140A
+
+#define NUMVARIABLES         	0x140B
 
 //} End variables
 

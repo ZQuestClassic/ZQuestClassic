@@ -637,7 +637,6 @@ private:
     void generateCode();
 };
 
-//Filesystem->
 class ModuleSymbols : public LibrarySymbols
 {
 public:
@@ -649,6 +648,34 @@ protected:
 private:
     static ModuleSymbols singleton;
     ModuleSymbols();
+    void generateCode();
+};
+
+class BottleTypeSymbols : public LibrarySymbols
+{
+public:
+    static BottleTypeSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static BottleTypeSymbols singleton;
+    BottleTypeSymbols();
+    void generateCode();
+};
+
+class BottleShopSymbols : public LibrarySymbols
+{
+public:
+    static BottleShopSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static BottleShopSymbols singleton;
+    BottleShopSymbols();
     void generateCode();
 };
 

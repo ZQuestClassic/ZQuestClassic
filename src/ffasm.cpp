@@ -1000,6 +1000,12 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BMPSHIFTCOLOR",           0,   0,   0,   0},
 	{ "BMPMASKDRAW",           0,   0,   0,   0},
 	{ "RESIZEARRAYR",           2,   0,   0,   0},
+	{ "BSHOPNAMEGET",           1,   0,   0,   0},
+	{ "BSHOPNAMESET",           1,   0,   0,   0},
+	{ "BOTTLENAMEGET",           1,   0,   0,   0},
+	{ "BOTTLENAMESET",           1,   0,   0,   0},
+	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
+	{ "LOADBSHOPDATA",           1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2240,6 +2246,19 @@ script_variable variable_list[]=
 	
 	{ "GAMELSWITCH",           GAMELSWITCH,            0,             0 },
 	{ "GAMEBOTTLEST",           GAMEBOTTLEST,            0,             0 },
+	
+	{ "REFBOTTLETYPE",           REFBOTTLETYPE,            0,             0 },
+	{ "REFBOTTLESHOP",           REFBOTTLESHOP,            0,             0 },
+	{ "BOTTLECOUNTER",           BOTTLECOUNTER,            0,             0 },
+	{ "BOTTLEAMOUNT",           BOTTLEAMOUNT,            0,             0 },
+	{ "BOTTLEPERCENT",           BOTTLEPERCENT,            0,             0 },
+	{ "BOTTLEFLAGS",           BOTTLEFLAGS,            0,             0 },
+	{ "BOTTLENEXT",           BOTTLENEXT,            0,             0 },
+	{ "BSHOPFILL",           BSHOPFILL,            0,             0 },
+	{ "BSHOPCOMBO",           BSHOPCOMBO,            0,             0 },
+	{ "BSHOPCSET",           BSHOPCSET,            0,             0 },
+	{ "BSHOPPRICE",           BSHOPPRICE,            0,             0 },
+	{ "BSHOPSTR",           BSHOPSTR,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

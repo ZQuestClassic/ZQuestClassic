@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 99
-Document Revision: 21st Oct, 2021
+Document Revision: 19th Nov, 2021
 
 
  __           _   _                 
@@ -543,6 +543,12 @@ untyped : A special datatype that can be cast to and from any other type.
 	
 	randgen :
 		Object type for seeded random number generation.
+	
+	bottledata :
+		Object type for modifying bottle type data
+	
+	bottleshopdata :
+		Object type for modifying bottle shop type data
 	
 	//Planned/Incomplete
 	warpringdata : t/b/a
@@ -2979,6 +2985,14 @@ dmapdata LoadDMapData(int dmap);
 dropsetdata LoadDropset(int ID);
  * Loads a dropsetdata ref for dropset number 'ID' to a 'dropset' typed pointer.
 
+bottledata LoadBottleData(int ID);
+ * Loads a bottledata ref for bottledata number 'ID' to a 'bottledata' typed pointer.
+ * Range 1-64
+
+bottleshopdata LoadBottleShopData(int ID);
+ * Loads a bottleshopdata ref for bottleshopdata number 'ID' to a 'bottleshopdata' typed pointer.
+ * Range 0-255
+
 spritedata LoadSpriteData(int id);
  * Loads an Weapon Sprite Editor table data ref for sprite 'id', to a 'spritedata' typed pointer.
 
@@ -3596,6 +3610,59 @@ void Free();
 
 /************************************************************************************************************/
 
+////////////////////
+///  bottledata  ///
+////////////////////
+
+void GetName(char32 str);
+ * Loads the name of the bottletype into the provided string
+void SetName(char32 str);
+ * Sets the name of the bottletype to the provided string (max 31 chars)
+
+int Counter[3];
+ * The refill counters of this bottle type
+ * Use the 'CR_' constants from std_constants.zh to access this.
+
+int Amount[3];
+ * The amount to refill of each counter (0-65535)
+
+bool IsPercent[3];
+ * Whether the given counter's refill is a percentage or not
+
+bool Flags[4];
+ * A set of flags. Use the 'BTF_' constants from std_constants.zh to access this.
+
+int NextType;
+ * What bottle type will be left in the bottle after drinking the current type
+
+/************************************************************************************************************/
+
+////////////////////////
+///  bottleshopdata  ///
+////////////////////////
+
+void GetName(char32 str);
+ * Loads the name of the bottletype into the provided string
+void SetName(char32 str);
+ * Sets the name of the bottletype to the provided string (max 31 chars)
+
+int Fill[3];
+ * Which bottle type the given index fills a bottle with
+
+int Combo[3];
+ * Which combo is displayed as the visual for the fill
+
+int CSet[3];
+ * Which CSet the combo displays in
+
+int Price[3];
+ * The price of the bottle fill (0-65535)
+
+int InfoString[3];
+ * The message string to display upon purchasing the given fill.
+
+/************************************************************************************************************/
+
 ////////////////
 ///  Screen  ///
 ////////////////								// Screen
@@ -3607,14 +3674,14 @@ npc LoadNPCByUID(int uid);
  * If you load npcs by UID, remember to always run an isValid() check on their
  * pointer, prior to performing any actions with it, as UIDs can become stale.
  
- lweapon LoadLWeaponByUID(int uid);
+lweapon LoadLWeaponByUID(int uid);
  * Returns an lweapon pointer to an lweapon on the screen if its UID matches
  * the input 'uid'.
  * Returns -1 on no match. 
  * If you load lweapon by UID, remember to always run an isValid() check on their
  * pointer, prior to performing any actions with it, as UIDs can become stale.
  
- eweapon LoadEWeaponByUID(int uid);
+eweapon LoadEWeaponByUID(int uid);
  * Returns an eweapon pointer to an eweapon on the screen if its UID matches
  * the input 'uid'.
  * Returns -1 on no match. 

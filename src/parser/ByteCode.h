@@ -1305,8 +1305,20 @@
 #define HEROBUNNY               1222
 #define GAMELSWITCH             1223
 #define GAMEBOTTLEST            1224
+#define REFBOTTLETYPE           1225
+#define REFBOTTLESHOP           1226
+#define BOTTLECOUNTER           1227
+#define BOTTLEAMOUNT            1228
+#define BOTTLEPERCENT           1229
+#define BOTTLEFLAGS             1230
+#define BOTTLENEXT              1231
+#define BSHOPFILL               1232
+#define BSHOPCOMBO              1233
+#define BSHOPCSET               1234
+#define BSHOPPRICE              1235
+#define BSHOPSTR                1236
 
-#define LAST_BYTECODE           1225
+#define LAST_BYTECODE           1237
 
 //} END OF BYTECODE
 
@@ -2991,6 +3003,72 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadDropsetRegister(a->clone());
+		}
+	};
+
+	class OGetBottleShopName : public UnaryOpcode
+	{
+	public:
+		OGetBottleShopName(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGetBottleShopName(a->clone());
+		}
+	};
+
+	class OSetBottleShopName : public UnaryOpcode
+	{
+	public:
+		OSetBottleShopName(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSetBottleShopName(a->clone());
+		}
+	};
+
+	class OGetBottleName : public UnaryOpcode
+	{
+	public:
+		OGetBottleName(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGetBottleName(a->clone());
+		}
+	};
+
+	class OSetBottleName : public UnaryOpcode
+	{
+	public:
+		OSetBottleName(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSetBottleName(a->clone());
+		}
+	};
+
+	class OLoadBottleTypeRegister : public UnaryOpcode
+	{
+	public:
+		OLoadBottleTypeRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadBottleTypeRegister(a->clone());
+		}
+	};
+
+	class OLoadBShopRegister : public UnaryOpcode
+	{
+	public:
+		OLoadBShopRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadBShopRegister(a->clone());
 		}
 	};
 

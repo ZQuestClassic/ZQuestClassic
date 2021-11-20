@@ -1,5 +1,5 @@
 // std_constants.zh
-// 4th Oct, 2021 for ZC 2.55 Alpha 97
+// 19th Nov, 2021 for ZC 2.55 Alpha 99
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -421,6 +421,7 @@ const int EXT_NOSHADOW          = 4; // Extended; NPC has no shadow.
 //! We need some better names for Extend constants. 
 
 //Generic counters. Use with itemclass->Counter, Game->Counter[], Game->MCounter[] and Game->DCounter[]
+const int CR_NONE               = -1;
 const int CR_LIFE               = 0;
 const int CR_RUPEES             = 1;
 const int CR_BOMBS              = 2;
@@ -3287,4 +3288,13 @@ enum ditherType
 	DITH_STATIC2, DITH_STATIC2_INV,
 	DITH_STATIC3, DITH_STATIC3_INV,
 	DITH_MAX
+};
+
+enum BottleFlag
+{
+	BTF_REVIVE,
+	BTF_USEWHENFULL,
+	BTF_CURESWORDJINX,
+	BTF_CUREITEMJINX,
+	BTF_MAX
 };

@@ -2132,6 +2132,7 @@ public:
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
 	dword fileref, subscreenref, comboidref, directoryref, rngref;
+	dword bottletyperef, bottleshopref;
 	int32_t combosref, comboposref;
     //byte ewpnclass, lwpnclass, guyclass; //Not implemented
     
@@ -2149,7 +2150,7 @@ public:
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
-		comboidref = 0; directoryref = 0; rngref = 0;
+		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0;
 		comboposref = 0;
         memset(d, 0, 8 * sizeof(int32_t));
         a[0] = a[1] = 0;
@@ -2180,6 +2181,7 @@ public:
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
+		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref;
         memcpy(d, rhs.d, 8 * sizeof(int32_t));
         memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
@@ -3592,9 +3594,9 @@ struct bottletype
 #define BTFLAG_AUTOONDEATH 0x80
     void clear()
     {
-        memset(name, 0, 32);
-        memset(counter, -1, 3);
-        memset(amount, 0, 3);
+        memset(name, 0, sizeof(name));
+        memset(counter, -1, sizeof(counter));
+        memset(amount, 0, sizeof(amount));
         flags = 0;
         next_type = 0;
     }

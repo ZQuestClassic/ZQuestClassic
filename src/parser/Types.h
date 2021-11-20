@@ -121,6 +121,8 @@ namespace ZScript
 		ZVARTYPEID_MODULE,
 		ZVARTYPEID_DIRECTORY,
 		ZVARTYPEID_RNG,
+		ZVARTYPEID_BOTTLETYPE,
+		ZVARTYPEID_BOTTLESHOP,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -218,6 +220,10 @@ namespace ZScript
 				return "DIRECTORY";
 			case ZVARTYPEID_RNG:
 				return "RNG";
+			case ZVARTYPEID_BOTTLETYPE:
+				return "BOTTLETYPE";
+			case ZVARTYPEID_BOTTLESHOP:
+				return "BOTTLESHOP";
 			case ZVARTYPEID_MODULE:
 				return "MODULE";
 			default:
@@ -323,6 +329,10 @@ namespace ZScript
 			return ZVARTYPEID_MODULE;
 		else if(name == "RNG")
 			return ZVARTYPEID_RNG;
+		else if(name == "BOTTLETYPE")
+			return ZVARTYPEID_BOTTLETYPE;
+		else if(name == "BOTTLESHOP")
+			return ZVARTYPEID_BOTTLESHOP;
 		
 		return ZVARTYPEID_VOID;
 	}
@@ -442,6 +452,8 @@ namespace ZScript
 		static DataTypeClassConst CFILE;
 		static DataTypeClassConst CDIRECTORY;
 		static DataTypeClassConst CRNG;
+		static DataTypeClassConst CBOTTLETYPE;
+		static DataTypeClassConst CBOTTLESHOP;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -472,6 +484,8 @@ namespace ZScript
 		static DataTypeClass FILE;
 		static DataTypeClass DIRECTORY;
 		static DataTypeClass RNG;
+		static DataTypeClass BOTTLETYPE;
+		static DataTypeClass BOTTLESHOP;
 	};
 
 	bool operator==(DataType const&, DataType const&);
