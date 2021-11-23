@@ -5915,40 +5915,7 @@ void enemy::draw(BITMAP *dest)
 	{
 		//new enemy editor behaviour flags for Ganon
 	
-	if ( family == eeGANON ) return;
-	/*
-	{
-		//if ( editorflags & ENEMY_FLAG1 || ( (editorflags & ENEMY_FLAG2) && ( misc13 >= 0 : game->item[misc13] ? (linkhasitemclass((misc13*-1)) ) ) //ganon is visible to level 2 amulet
-		if ( editorflags & ENEMY_FLAG1 && current_item_power(itype_amulet) >= 2 ) //ganon is visible to level 2 amulet
-		{
-		
-		if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
-		{
-			sprite::drawcloaked(dest);
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		
-		}
-		else if ( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) )
-		{
-		if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
-		{
-			sprite::drawcloaked(dest);
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		}
-		
-	}
-	
-	else return;
-	*/
-	return;
+		return;
 	}
 	
 	if(fallclk||drownclk)
@@ -7028,43 +6995,69 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 	// can move straight, check if it wants to turn
 	if(canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 	{
-		if(grumble && (zc_oldrand()&4)<grumble) //Homing
+		if(grumble && (zc_oldrand()&4)<abs(grumble)) //Homing
 		{
-			int32_t w = Lwpns.idFirst(wBait);
-			
-			if(w>=0)
+			int32_t i = Lwpns.idFirst(wBait);
+			if(i >= 0) //idfirst returns -1 if it can't find any
 			{
-				int32_t bx = Lwpns.spr(w)->x;
-				int32_t by = Lwpns.spr(w)->y;
-				
-				ndir = (bx<x) ? left : (bx!=x) ? right : 0;
-				
-				if(abs(int32_t(y)-by)>14)
+				weapon *w  = (weapon*)Lwpns.spr(i);
+				if (get_bit(quest_rules, qr_FIND_CLOSEST_BAIT))
 				{
-					if(ndir>0)  // Already left or right
+					int32_t currentrange;
+					if (distance(x, y, w->x, w->y) < w->misc2 || w->misc2 == 0) currentrange = distance(x, y, w->x, w->y);
+					else currentrange = -1;
+					int curid = i;
+					++i; //increment beforehand cause we just checked the first bait weapon and all others must be after it. ...otherwise it wouldn't be the first. -Deedee
+					for(; i<Lwpns.Count(); ++i)
 					{
-						// Making the diagonal directions
-						ndir += (by<y) ? 2 : 4;
+						weapon *lw = (weapon*)Lwpns.spr(i);
+						if (lw->id == wBait && distance(x, y, lw->x, lw->y) < currentrange && (distance(x, y, lw->x, lw->y) < lw->misc2 || lw->misc2 == 0)) 
+						{
+							currentrange = distance(x, y, lw->x, lw->y);
+							curid = i;
+						}
 					}
-					else
-					{
-						ndir = (by<y) ? up : down;
-					}
+					i = curid;
+					if (currentrange == -1) i = -1;
 				}
-				
-				if(canmove(ndir,special,false))
+				else
 				{
-					dir=ndir;
-					return;
+					if (!(distance(x, y, w->x, w->y) < w->misc2 || w->misc2 == 0)) i = -1;
+				}
+				if(i>=0)
+				{
+					int32_t bx = Lwpns.spr(i)->x;
+					int32_t by = Lwpns.spr(i)->y;
+					
+					ndir = (bx<x) ? left : (bx!=x) ? right : 0;
+					
+					if(abs(int32_t(y)-by)>14)
+					{
+						if(ndir>0)  // Already left or right
+						{
+							// Making the diagonal directions
+							ndir += (by<y) ? 2 : 4;
+						}
+						else
+						{
+							ndir = (by<y) ? up : down;
+						}
+					}
+					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & ITEM_FLAG1)) ndir = oppositeDir[ndir];
+					if(canmove(ndir,special,false))
+					{
+						dir=ndir;
+						return;
+					}
 				}
 			}
 		}
 		
 		// Homing added.
-		if(newhoming && (zc_oldrand()&255)<newhoming)
+		if(newhoming && (zc_oldrand()&255)<abs(newhoming))
 		{
 			ndir = lined_up(8,true);
-			
+			if (newhoming < 0 && ndir >= 0) ndir = oppositeDir[ndir];
 			if(ndir>=0 && canmove(ndir,special,false))
 			{
 				dir=ndir;
@@ -7501,40 +7494,66 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 {
 	int32_t ndir=-1;
 	
-	if(grumble && (zc_oldrand()&3)<grumble)
+	if(grumble != 0 && (zc_oldrand()&3)<abs(grumble)) //yes, I know checking if grumble is equal to if grumble == 0, but the latter makes the intention more clear to less experienced coders who might join.
 	{
-		int32_t w = Lwpns.idFirst(wBait);
-		
-		if(w>=0)
+		int32_t i = Lwpns.idFirst(wBait);
+		if(i >= 0) //idfirst returns -1 if it can't find any
 		{
-			int32_t bx = Lwpns.spr(w)->x;
-			int32_t by = Lwpns.spr(w)->y;
-			
-			if(abs(int32_t(y)-by)>14)
+			weapon *w  = (weapon*)Lwpns.spr(i);
+			if (get_bit(quest_rules, qr_FIND_CLOSEST_BAIT))
 			{
-				ndir = (by<y) ? up : down;
+				int32_t currentrange;
+				if (distance(x, y, w->x, w->y) < w->misc2 || w->misc2 == 0) currentrange = distance(x, y, w->x, w->y);
+				else currentrange = -1;
+				int curid = i;
+				++i; //increment beforehand cause we just checked the first bait weapon and all others must be after it. ...otherwise it wouldn't be the first. -Deedee
+				for(; i<Lwpns.Count(); ++i)
+				{
+					weapon *lw = (weapon*)Lwpns.spr(i);
+					if (lw->id == wBait && distance(x, y, lw->x, lw->y) < currentrange && (distance(x, y, lw->x, lw->y) < lw->misc2 || lw->misc2 == 0)) 
+					{
+						currentrange = distance(x, y, lw->x, lw->y);
+						curid = i;
+					}
+				}
+				i = curid;
+				if (currentrange == -1) i = -1;
+			}
+			else
+			{
+				if (!(distance(x, y, w->x, w->y) < w->misc2 || w->misc2 == 0)) i = -1;
+			}
+			if (i >= 0)
+			{
+				int32_t bx = Lwpns.spr(i)->x;
+				int32_t by = Lwpns.spr(i)->y;
 				
+				if(abs(int32_t(y)-by)>14)
+				{
+					ndir = (by<y) ? up : down;
+					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & ITEM_FLAG1)) ndir = oppositeDir[ndir];
+					if(canmove(ndir,special,false))
+					{
+						dir=ndir;
+						return;
+					}
+				}
+				
+				ndir = (bx<x) ? left : right;
+				if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & ITEM_FLAG1)) ndir = oppositeDir[ndir];
 				if(canmove(ndir,special,false))
 				{
 					dir=ndir;
 					return;
 				}
 			}
-			
-			ndir = (bx<x) ? left : right;
-			
-			if(canmove(ndir,special,false))
-			{
-				dir=ndir;
-				return;
-			}
 		}
 	}
 	
-	if((zc_oldrand()&255)<newhoming)
+	if((zc_oldrand()&255)<abs(newhoming))
 	{
 		ndir = lined_up(8,false);
-		
+		if (newhoming < 0 && ndir >= 0) ndir = oppositeDir[ndir];
 		if(ndir>=0 && canmove(ndir,special,false))
 		{
 			dir=ndir;
@@ -7566,6 +7585,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 		}
 		
 		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1; // Sideview enemies get trapped if their dir becomes -1
+		//...Isn't that the point? I'm not sure I understand. Certainly beats phasing through walls... -Dimi
 	}
 	
 ok:
@@ -15482,6 +15502,13 @@ void eGanon::draw_flash(BITMAP *dest)
 eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	hxofs=hyofs=8;
+	if (editorflags & ENEMY_FLAG3)
+	{
+		hxofs = 4;
+		hyofs = 4;
+		hxsz = 24;
+		hysz = 24;
+	}
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
@@ -15659,6 +15686,38 @@ void eGanon::draw(BITMAP *dest)
 		if((clk&3)==3)
 			tile=(zc_oldrand()%5)*2+o_tile;
 			
+		if ( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 ) //ganon is visible to level 2 amulet
+		{
+		
+			if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
+			{
+				int odraw = drawstyle;
+				drawstyle = 2;
+				drawblock(dest,15);
+				drawstyle = odraw;
+			}
+			else
+			{
+				drawblock(dest,15);
+			}
+			break;
+		
+		}
+		else if ( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) )
+		{
+			if ( editorflags & ENEMY_FLAG16 ) //draw cloaked
+			{
+				int odraw = drawstyle;
+				drawstyle = 2;
+				drawblock(dest,15);
+				drawstyle = odraw;
+			}
+			else
+			{
+				drawblock(dest,15);
+			}
+			break;
+		}
 		if(db!=999)
 			break;
 			
@@ -17651,8 +17710,8 @@ bool ePatra::animate(int32_t index)
 				if (clk6 == 0) o_tile=d->e_tile;
 				else
 				{
-					if (clk6 >= -16) o_tile=d->e_tile + 80;
-					else o_tile=d->e_tile + 40;
+					if (clk6 >= -16) o_tile=d->e_tile + (IsBigAnim() ? 320 : 80);
+					else o_tile=d->e_tile + (IsBigAnim() ? 160 : 40);
 				}
 			}
 			else clk6 = 0;
@@ -17778,7 +17837,7 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	if((dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2)) || (dmisc25 == 3 && flycnt2 && !flycnt)))
+	if((wpn>wEnemyWeapons || (wpn >= wScript1 && wpn <= wScript10)) && (dmisc5==1 || dmisc5== 3) && (!dmisc25 || (dmisc25 == 1 && !flycnt && !flycnt2) || (dmisc25 == 2 && (flycnt || flycnt2)) || (dmisc25 == 3 && flycnt2 && !flycnt)))
 	{
 		int timeneeded = 48;
 		int patbreath = (zc_oldrand()%50+50);
@@ -18031,7 +18090,7 @@ bool ePatra::animate(int32_t index)
 				guys.spr(i)->x += x;
 				guys.spr(i)->y = y-guys.spr(i)->y;
 				
-				if(dmisc5==2 || dmisc5== 3)
+				if((wpn>wEnemyWeapons || (wpn >= wScript1 && wpn <= wScript10)) && (dmisc5==2 || dmisc5== 3))
 				{
 					/*
 					if(!(zc_oldrand()&127))
@@ -20381,9 +20440,6 @@ bool ok2add(int32_t id)
 	case eePROJECTILE:
 		return true;
 		
-	case eeGANON:
-	case eeTRAP:
-		return false;
 		
 	case eeDIG:
 	{
@@ -20400,6 +20456,13 @@ bool ok2add(int32_t id)
 			return true;
 		}
 	}
+	case eeGANON:
+	case eeTRAP:
+		if ((guysbuf[id].family == eeGANON && !get_bit(quest_rules, qr_CAN_PLACE_GANON))
+		|| (guysbuf[id].family == eeTRAP && !get_bit(quest_rules, qr_CAN_PLACE_TRAPS))) return false;
+	default:
+		if (guysbuf[id].flags2&guy_ignoretmpnr) return true;
+		break;
 	}
 	
 	if(!get_bit(quest_rules,qr_NOTMPNORET))
@@ -22736,6 +22799,13 @@ void roaming_item()
 			}
 		}
 	}
+}
+
+bool enemy::IsBigAnim()
+{
+	return (anim == a2FRMB || anim == a4FRM8EYEB || anim == a4FRM4EYEB
+	|| anim == a4FRM8DIRFB || anim == a4FRM4DIRB || anim == a4FRM4DIRFB
+	|| anim == a4FRM8DIRB);
 }
 
 const char *old_guy_string[OLDMAXGUYS] =

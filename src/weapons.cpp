@@ -2795,7 +2795,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = itemsbuf[itemid].wpn;
 			else
 				defaultw = wBAIT;
-		
+			
+			misc2 = itemsbuf[itemid].misc2;
+			
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values

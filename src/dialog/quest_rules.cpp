@@ -622,7 +622,17 @@ static const GUI::ListData enemiesRulesList
 	{ "No Statue Minimum Range Or Double Fireballs", qr_BROKENSTATUES },
 	{ "Use Super Bomb Explosions for Explode on Contact", qr_BOMBCHUSUPERBOMB },
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES },
-	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES }
+	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES },
+	{ "Allow Placing Ganon as Screen Enemy", qr_CAN_PLACE_GANON,
+		"If enabled, Ganon-type enemies are allowed to spawn when placed as a screen enemy."
+		" If disabled, Ganon can only be spawned by Ganon type rooms or scripts."},
+	{ "Allow Placing Traps as Screen Enemies", qr_CAN_PLACE_TRAPS,
+		"If enabled, Trap-type enemies are allowed to spawn when placed as a screen enemy."
+		" If disabled, Traps can only be spawned by Trap flags or scripts."},
+	{ "Enemies check closest bait", qr_FIND_CLOSEST_BAIT,
+		"If enabled, enemies will check all bait on screen and home towards"
+		" the closest one in range if they have hunger. If disabled, they will"
+		" instead check only the oldest-placed bait on the screen."}
 };
 
 static const GUI::ListData itemRulesList

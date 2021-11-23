@@ -1023,6 +1023,7 @@ enum
 	qr_OLD_SECRETMONEY, qr_OLD_DOORREPAIR, qr_OLD_POTION_OR_HC, qr_NO_LANMOLA_RINGLEADER,
 	//37
 	qr_HARDCODED_BS_PATRA, qr_PATRAS_USE_HARDCODED_OFFSETS, qr_BROKEN_BIG_ENEMY_ANIMATION, qr_BROKEN_ATTRIBUTE_31_32,
+	qr_CAN_PLACE_GANON, qr_CAN_PLACE_TRAPS, qr_FIND_CLOSEST_BAIT,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -1980,6 +1981,8 @@ struct item_drop_object
 #define eneflag_ganon   0x00002000
 #define guy_blinking    0x00004000
 #define guy_transparent 0x00008000
+
+#define guy_ignoretmpnr 0x00010000
 
 // Old flags
 #define weak_arrow		0x20000000

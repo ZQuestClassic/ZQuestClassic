@@ -61,7 +61,7 @@ public:
 	guydata *d;
 	// Approximately all of these variables are accessed by either ffscript.cpp or inherited classes
 	int32_t o_tile, frate, hp, hclk, clk3, stunclk, timer, fading, superman, mainguy, did_armos;
-	byte movestatus, item_set, grumble, posframe;
+	byte movestatus, item_set, posframe;
 	bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
 	zfix  step, floor_y;
 	
@@ -72,7 +72,7 @@ public:
 	int16_t  family, dcset, anim;
 	int16_t  dp, wdp, wpn;
 	
-	int16_t  rate, hrate, homing;
+	int16_t  rate, hrate, homing, grumble;
 	zfix dstep;
 	int32_t dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
 	int16_t bgsfx, bosspal;
@@ -248,7 +248,7 @@ public:
 	{
 		return false;
 	}
-	
+	bool IsBigAnim();
 	virtual int32_t run_script(int32_t mode);
 
 protected:
@@ -668,6 +668,11 @@ class eGanon : public enemy
 {
 public:
 	int32_t Stunclk;
+	int32_t fakeX;
+	int32_t fakeY;
+	int32_t fakeTile;
+	int32_t AmuletClk;
+	int32_t AmuletClk2;
 	eGanon(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);

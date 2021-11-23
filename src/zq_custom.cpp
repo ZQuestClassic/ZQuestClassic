@@ -1816,7 +1816,7 @@ static int32_t enedata_flags_list[] =
 
 static int32_t enedata_flags2_list[] =
 {
-	90,91,92,93,94,95,96,97,-1
+	90,91,92,93,94,95,96,97,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,-1
 };
 
 static int32_t enedata_editorflags_list[]=
@@ -1827,8 +1827,8 @@ static int32_t enedata_editorflags_list[]=
 
 static int32_t enedata_flags3_list[] =
 {
-	107,108,109,110,111,112,113,114,115,116,117,118,119,185,186,-1
-};
+	107,108,109,110,111,112,113,114,115,116,117,118,119,185,186,399,-1
+}; //REMEMBER: If you undummy anything from 400-414, make sure to remove it from enedata_flags2_list! That list gets everything in it disabled.
 
 static int32_t enedata_defense_list[] =
 {
@@ -3626,7 +3626,7 @@ static EnemyNameInfo enameinf[]=
 		{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, //10
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,  //21
 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}, //32
-	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"BFlags[2]:",(char *)"BFlags[3]:",
+	{ (char *)"Visible if the player has an Level 2 (or higher) Amulet item.",(char *)"Item Specified in Attributes 13 Dispels Invisibility",(char *)"Uses Full Hitbox",(char *)"BFlags[3]:",
 		(char *)"BFlags[4]:",(char *)"BFlags[5]:",(char *)"BFlags[6]:",(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",
 		(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",(char *)"Use Editor ",(char *)"When Not Invisible, Also Show Weapon Shots.",(char *)"Draw Cloaked When Not Invisible" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11:",(char*)"Misc Attr. 12:",
@@ -4002,11 +4002,11 @@ static DIALOG enedata_dlg[] =
 	{  jwin_edit_proc,         166,     68,     40,     16,    vc(12),                 vc(1),                   0,    0,           5,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         166,     86,     40,     16,    vc(12),                 vc(1),                   0,    0,           5,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         166,    104,     40,     16,    vc(12),                 vc(1),                   0,    0,           5,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         186,    122,     20,     16,    vc(12),                 vc(1),                   0,    0,           1,    0,  NULL,                                                           NULL,   NULL                 },
+	{  jwin_edit_proc,         186,    122,     20,     16,    vc(12),                 vc(1),                   0,    0,           2,    0,  NULL,                                                           NULL,   NULL                 },
 	//41
 	{  jwin_edit_proc,         280,     68,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         280,     86,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         280,    104,     30,     16,    vc(12),                 vc(1),                   0,    0,           3,    0,  NULL,                                                           NULL,   NULL                 },
+	{  jwin_edit_proc,         280,    104,     30,     16,    vc(12),                 vc(1),                   0,    0,           4,    0,  NULL,                                                           NULL,   NULL                 },
 	{  jwin_edit_proc,         280,    122,     30,     16,    vc(12),                 vc(1),                   0,    0,           4,    0,  NULL,                                                           NULL,   NULL                 },
 	//45
 	{  jwin_droplist_proc,      51,    122,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &eweapon_list,                                         NULL,   NULL                 },
@@ -4167,8 +4167,8 @@ static DIALOG enedata_dlg[] =
 	{  jwin_droplist_proc,      86,    157,     100,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &sfx__list,                                           NULL,   NULL                 },
 	{  jwin_droplist_proc,      86,    172,     100,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &sfx__list,                                           NULL,   NULL                 },
 	{  jwin_droplist_proc,      86,    187,     100,     16,   jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &sfx__list,                                           NULL,   NULL                 },
-	{  jwin_text_proc,          6,     184,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Animation:",                               NULL,   NULL                 },
-	{  jwin_droplist_proc,      86,    180,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &walkerspawn_list,                                     NULL,   NULL                 },
+	{  jwin_text_proc,          6,     214,     95,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Animation:",                               NULL,   NULL                 },
+	{  jwin_droplist_proc,      86,    210,     85,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &walkerspawn_list,                                     NULL,   NULL                 },
 //moved to attributes tabs  
 	{  d_dummy_proc,         160,    126-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 11:",                                  NULL,   NULL                 },
 	{  d_dummy_proc,         160,    144-4,     50+30,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Misc Attr. 12:",                                  NULL,   NULL                 },
@@ -4491,7 +4491,25 @@ static DIALOG enedata_dlg[] =
 	{  jwin_droplist_proc,  126,   122-36,   151,    16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
 	{  jwin_text_proc,        9,   144-36,    80,     8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Spawn Sprite:",                              NULL,   NULL                 },
 	{  jwin_droplist_proc,  126,   140-36,   151,    16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
-
+	//399
+	{  jwin_check_proc,          6,    180,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Ignores \"Temp No Return\".",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00020000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00040000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00080000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00100000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00200000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00400000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00800000",                                         NULL,   NULL                 },
+	//407
+	{  d_dummy_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x01000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x02000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x04000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x08000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x10000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    180,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x20000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    190,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x40000000",                                         NULL,   NULL                 },
+	{  d_dummy_proc,          6,    200,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x80000000",                                         NULL,   NULL                 },
+	//415
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
@@ -5123,6 +5141,9 @@ void edit_enemydata(int32_t index)
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
 	
+	for(int32_t i=0; i<16; i++)
+		enedata_dlg[399+i].flags = (guysbuf[index].flags2 & (1<<(i+16))) ? D_SELECTED : 0;
+	
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
 	enedata_dlg[372].flags = (guysbuf[index].moveflags & FLAG_CAN_PITFALL) ? D_SELECTED : 0;
 	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
@@ -5258,11 +5279,11 @@ void edit_enemydata(int32_t index)
 		test.hp = vbound(atoi(hp), 0, 32767); //0x7FFF, not 0xFFFF?
 		test.dp = vbound(atoi(dp), 0, 32767);
 		test.wdp = vbound(atoi(wdp), 0, 32767);
-		test.grumble = vbound(atoi(grm), 0, 4);
+		test.grumble = vbound(atoi(grm), -4, 4);
 		
 		test.rate = vbound(atoi(rat), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
 		test.hrate = vbound(atoi(hrt), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:16);
-		test.homing = vbound(atoi(hom), 0, (test.family == eeFIRE || test.family == eeOTHER)?32767:256);
+		test.homing = vbound(atoi(hom), -256, (test.family == eeFIRE || test.family == eeOTHER)?32767:256);
 		test.step = vbound(atoi(spd),0, (test.family == eeFIRE || test.family == eeOTHER)?32767:1000);
 		
 		test.frate = vbound(atoi(frt),0,256);
@@ -5337,6 +5358,9 @@ void edit_enemydata(int32_t index)
 		
 		for(int32_t i=0; i<16; i++)
 			test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
+		
+		for(int32_t i=0; i<16; i++)
+			test.flags2 |= (enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0;
 			
 		if(enedata_dlg[143].flags & D_SELECTED)
 		{
