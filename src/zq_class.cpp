@@ -7470,6 +7470,10 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 					}
 				}
 			}
+			if(!p_iputw(DMaps[i].mirrorDMap,f))
+			{
+				new_return(41);
+			}
         }
         
         if(writecycle==0)

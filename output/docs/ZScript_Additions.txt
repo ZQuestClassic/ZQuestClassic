@@ -5055,11 +5055,12 @@ void WarpEx(int ptr[])
 		Either raw pixel coordinates, or a warp return square ID.
 		
 			Link->WarpEx() Coordinates Versus Warp Return Square:
-				If 'x' and 'y' are both > -1, then they are raw coordinates as always.
-				If 'x' < 0, THEN 'y' is the warp return square type, using positive integers.
+				- If 'x' and 'y' are both > -1, then they are raw coordinates as always.
+				- If 'x' < 0, THEN 'y' is the warp return square type, using positive integers.
 
-				This allows using the warp return constants in std.zh, and it prevents a 
-				possible ID clash from both values trying to establish the square ID. 
+					This allows using the warp return constants in std.zh, and it prevents a 
+					possible ID clash from both values trying to establish the square ID. 
+				- If BOTH are < 0, then it acts as a pitwarp (player stays in place)
 
 	effect:
 		Warp Effects are:

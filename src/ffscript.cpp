@@ -22714,6 +22714,31 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 }
 
+void doWarpEffect(int32_t warpEffect, bool out)
+{
+	switch(warpEffect)
+	{
+		case warpEffectZap:
+			if(out) zapout();
+			else zapin();
+			break;
+		case warpEffectWave:
+			if(out) wavyout(false);
+			else wavyin(false);
+			break;
+		case warpEffectInstant:
+			if(out) blackscr(30,true);
+			break;
+		case warpEffectMozaic:
+			//!TODO Unimplemented
+			break;
+		case warpEffectOpen:
+			if(out) closescreen();
+			else openscreen();
+			break;
+	}
+}
+
 //enum { warpFlagDONTKILLSCRIPTDRAWS, warpFlagDONTKILLSOUNDS, warpFlagDONTKILLMUSIC };
 //enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
 //valid warpTypes: tile, side, exit, cancel, instant
@@ -22767,17 +22792,20 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 	int32_t wx = 0, wy = 0;
 	if ( warpDestX < 0 )
 	{
-		zprint("WarpEx() was set to warp return point:%d\n", warpDestY); 
+		if(DEVLOGGING) zprint("WarpEx() was set to warp return point:%d\n", warpDestY); 
 		if ( (unsigned)warpDestY < 4 )
 		{
 			wx = m->warpreturnx[warpDestY];
 			wy = m->warpreturny[warpDestY];
-			zprint("WarpEx Return Point X is: %d\n",wx);
-			zprint("WarpEx Return Point Y is: %d\n",wy);
+			if(DEVLOGGING)
+			{
+				zprint("WarpEx Return Point X is: %d\n",wx);
+				zprint("WarpEx Return Point Y is: %d\n",wy);
+			}
 		}
 		else
 		{
-			if ( (unsigned)warpDestY == 5 )
+			if ( warpDestY == 5 || warpDestY < 0)
 			{
 				//Pit warp
 				wx = Link.getX();
@@ -22855,30 +22883,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 				Link.diveclk = 0;
 			}
 			//zprint("FFCore.warp_link reached line: %d \n", 15948);
-			switch(warpEffect)
-			{
-				case warpEffectZap: zapout(); break;
-				case warpEffectWave: wavyout(false); break;
-				case warpEffectInstant: 
-				{
-					//bool b2 = COOLSCROLL&&cavewarp;
-					//blackscr(30,b2?false:true);
-					blackscr(30,true);
-					break;
-				}
-				case warpEffectMozaic: 
-				{
-					
-					break;
-				}
-				case warpEffectOpen:
-				{
-					
-					break;
-				}
-				case warpEffectNONE:
-				default: break;
-			}
+			doWarpEffect(warpEffect, false);
 			//zprint("FFCore.warp_link reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
 			currdmap = dmapID;
@@ -22950,23 +22955,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			putscr(scrollbuf,0,0,tmpscr);
 			putscrdoors(scrollbuf,0,0,tmpscr);
 			
-			switch(warpEffect)
-			{
-				case warpEffectZap:  zapin(); break;
-				case warpEffectWave: wavyin(); break;
-				case warpEffectMozaic: 
-				{
-					
-					break;
-				}
-				case warpEffectOpen:
-				{
-					openscreen();
-					break;
-				}
-				case warpEffectNONE:
-				default: break;
-			}
+			doWarpEffect(warpEffect, true);
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
@@ -23216,8 +23205,8 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 		{
 			if(guys.spr(i)->z > 0)
 			{
-			guys.spr(i)->y -= guys.spr(i)->z;
-			guys.spr(i)->z = 0;
+				guys.spr(i)->y -= guys.spr(i)->z;
+				guys.spr(i)->z = 0;
 			}
 			
 			if(((enemy*)guys.spr(i))->family!=eeTRAP && ((enemy*)guys.spr(i))->family!=eeSPINTILE)

@@ -265,6 +265,15 @@ public:
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
 };
+
+class portal : public sprite
+{
+public:
+	int32_t destdmap, destscr, weffect, wsfx;
+    int32_t aclk, aframe, o_tile, aspd, frames;
+	portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr);
+	virtual bool animate();
+};
 #endif
 /*** end of sprite.cc ***/
 

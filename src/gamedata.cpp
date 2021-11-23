@@ -21,6 +21,9 @@
 
 using namespace util;
 
+#ifndef IS_ZQUEST
+extern portal* mirror_portal;
+#endif
 extern int32_t dlevel;
 extern void flushItemCache();
 extern zinitdata zinit;
@@ -80,6 +83,7 @@ void gamedata::Clear()
     forced_ywpn = -1;
 	
 	memset(bottleSlots, 0, sizeof(bottleSlots));
+	clear_portal();
     isclearing=false;
 }
 
@@ -168,6 +172,15 @@ void gamedata::Copy(const gamedata& g)
 	
 	for(size_t q = 0; q < 256; ++q)
 		bottleSlots[q] = g.bottleSlots[q];
+	
+	portaldestdmap = g.portaldestdmap;
+	portalsrcdmap = g.portalsrcdmap;
+	portalscr = g.portalscr;
+	portalx = g.portalx;
+	portaly = g.portaly;
+	portalsfx = g.portalsfx;
+	portalwarpfx = g.portalwarpfx;
+	portalspr = g.portalspr;
 }
 
 char *gamedata::get_name()
@@ -1018,6 +1031,46 @@ bool gamedata::canFillBottle()
 			return true;
 	}
 	return false;
+}
+
+void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite)
+{
+	portaldestdmap = destdmap;
+	portalsrcdmap = srcdmap;
+	portalscr = scr;
+	portalx = x;
+	portaly = y;
+	portalwarpfx = weffect;
+	portalsfx = sfx;
+	portalspr = psprite;
+}
+
+void gamedata::load_portal()
+{
+#ifndef IS_ZQUEST
+	if(mirror_portal)
+		delete mirror_portal;
+	if(currdmap == portalsrcdmap && currscr == portalscr)
+	{
+		mirror_portal = new portal(portaldestdmap, portalscr+DMaps[portaldestdmap].xoff,
+			portalwarpfx, portalsfx, portalspr);
+		mirror_portal->x = zslongToFix(portalx);
+		mirror_portal->y = zslongToFix(portaly);
+	}
+	else mirror_portal = NULL;
+#endif
+}
+
+void gamedata::clear_portal()
+{
+	portalsrcdmap = -1;
+	portaldestdmap = -1;
+	portalscr = 0;
+	portalx = 0;
+	portaly = 0;
+	portalsfx = 0;
+	portalwarpfx = 0;
+	portalspr = 0;
 }
 
 /*** end of gamedata.cpp ***/

@@ -15781,7 +15781,7 @@ char dmap_intro[73];
 static int32_t editdmap_mechanics_list[] =
 {
     // dialog control number
-    19, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, -1
+    19, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 213, 214, -1
 };
 
 /*
@@ -15817,7 +15817,7 @@ static int32_t editdmap_disableitems_list[] =
 
 static int32_t editdmap_flags_list[] =
 {
-    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,211,-1
+    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,211,212,-1
 };
 
 static int32_t editdmap_script_active[] =
@@ -15950,7 +15950,7 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,               10,     29,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Name: ",                                     NULL,                 NULL                  },
     {  jwin_edit_proc,               40,     25,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          20,             0,  NULL,                                                  NULL,                 NULL                  },
     //5
-    {  jwin_tab_proc,                 6,     45,    310,    179,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
+    {  jwin_tab_proc,                 6,     45,    310,    180,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmap_tabs,                                NULL, (void *)editdmap_dlg  },
     {  jwin_tab_proc,                 8,     62,    306,    159,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) editdmapmap_tabs,                             NULL, (void *)editdmap_dlg  },
     {  jwin_ctext_proc,              67,     87,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Minimap",                                    NULL,                 NULL                  },
     {  jwin_frame_proc,              31,     95,     84,     52,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
@@ -16211,14 +16211,17 @@ static DIALOG editdmap_dlg[] =
 	{ jwin_swapbtn_proc,  158,     205,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
     //211
 	{  jwin_check_proc,              12,    205,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Become Bunny with no Pearl",      NULL,                 NULL                  },
-    
+	{  jwin_check_proc,              12,    215,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Mirror Continues instead of Warping",      NULL,                 NULL                  },
+    {  jwin_text_proc,              162,    191,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Mirror DMap:",                               NULL,                 NULL                  },
+    {  jwin_edit_proc,              218,    187,     21,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           2,             0,  NULL,                                                  NULL,                 NULL                  },
+	
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
 void editdmap(int32_t index)
 {
     //DMapEditorLastMaptileUsed = 0;
-    char levelstr[4], compassstr[4], contstr[4], tmusicstr[56], dmapnumstr[60];
+    char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
     char *tmfname;
     byte gridstring[8];
     static int32_t xy[2];
@@ -16249,6 +16252,7 @@ void editdmap(int32_t index)
     sprintf(dmapnumstr,"Edit DMap (%d)",index);
     sprintf(compassstr,"%02X",DMaps[index].compass);
     sprintf(contstr,"%02X",DMaps[index].cont);
+    sprintf(mirrordmapstr,"%d",DMaps[index].mirrorDMap);
     sprintf(dmap_title,"%s",DMaps[index].title);
     sprintf(dmap_name,"%s",DMaps[index].name);
     sprintf(dmap_intro,"%s",DMaps[index].intro);
@@ -16324,6 +16328,7 @@ void editdmap(int32_t index)
     editdmap_dlg[58].dp=gridstring;
     editdmap_dlg[60].dp=compassstr;
     editdmap_dlg[62].dp=contstr;
+    editdmap_dlg[214].dp=mirrordmapstr;
     editdmap_dlg[63].flags = (DMaps[index].type&dmfCONTINUE) ? D_SELECTED : 0;
     editdmap_dlg[65].d1=DMaps[index].color;
     editdmap_dlg[75].d1=DMaps[index].active_subscreen;
@@ -16383,6 +16388,7 @@ void editdmap(int32_t index)
     
     editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
     editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
+    editdmap_dlg[212].flags = (DMaps[index].flags& dmfMIRRORCONTINUE) ? D_SELECTED : 0;
     
     if(is_large)
     {
@@ -16396,6 +16402,7 @@ void editdmap(int32_t index)
             editdmap_dlg[27].y-=12;
             editdmap_dlg[59].x+=10;
             editdmap_dlg[61].x+=10;
+            editdmap_dlg[213].x+=10;
         }
         
         large_dialog(editdmap_dlg);
@@ -16512,6 +16519,7 @@ void editdmap(int32_t index)
         
         DMaps[index].compass = zc_xtoi(compassstr);
         DMaps[index].cont = vbound(zc_xtoi(contstr), -DMaps[index].xoff, 0x7F-DMaps[index].xoff);
+        DMaps[index].mirrorDMap = vbound(atoi(mirrordmapstr), -1, 511);
         DMaps[index].color = editdmap_dlg[65].d1;
         DMaps[index].active_subscreen=editdmap_dlg[75].d1;
         DMaps[index].passive_subscreen=editdmap_dlg[77].d1;
@@ -16543,6 +16551,7 @@ void editdmap(int32_t index)
         f |= editdmap_dlg[129].flags & D_SELECTED ? dmfLAYER2BG:0;
         f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
         f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
+        f |= editdmap_dlg[212].flags & D_SELECTED ? dmfMIRRORCONTINUE:0;
         DMaps[index].flags = f;
 	
 	DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;
@@ -34785,6 +34794,8 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"Fills the first empty bottle you have with a particular content", //Bottlefill
 	//270
 	"Can be swung, does not collide with enemies. Can catch fairies to put in bottles.", //Bugnet
+	"Either warps to the continue point or warps to another dmap at the same screen location,"
+		" depending on dmap settings. May or may not leave a return portal.", //Mirrors
 	""
 };
 

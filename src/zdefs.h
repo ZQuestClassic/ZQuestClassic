@@ -232,7 +232,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS           19
 #define V_CSETS            4
 #define V_MAPS            22
-#define V_DMAPS            15
+#define V_DMAPS            16
 #define V_DOORS            1
 #define V_ITEMS           48
 #define V_WEAPONS          7
@@ -243,7 +243,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        22 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        23 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_LINKSPRITES      14
 #define V_SUBSCREEN        6
@@ -3505,6 +3505,7 @@ struct dmap
 	word onmap_script;
 	int32_t onmap_initD[8];
 	char onmap_initD_label[8][65];
+	int16_t mirrorDMap;
 };
 
 // DMap flags
@@ -3529,6 +3530,7 @@ struct dmap
 #define dmfLAYER2BG         0x040000
 #define dmfNEWCELLARENEMIES 0x080000
 #define dmfBUNNYIFNOPEARL   0x100000
+#define dmfMIRRORCONTINUE   0x200000
 
 
 #define OLDMAXCOMBOALIASES 256
@@ -3876,6 +3878,7 @@ enum // used for gamedata ITEMS
 	itype_bottle,
 	itype_bottlefill,
 	itype_bugnet,
+	itype_mirror,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -4045,6 +4048,15 @@ struct gamedata
 	bool isclearing; // The gamedata is being cleared
 	//115456 (260)
 	byte bottleSlots[256];
+	
+	int16_t portaldestdmap;
+	int16_t portalsrcdmap;
+	byte portalscr;
+	int32_t portalx;
+	int32_t portaly;
+	byte portalsfx;
+	int32_t portalwarpfx;
+	int16_t portalspr;
 	
 	// member functions
 	// public:
@@ -4255,18 +4267,22 @@ struct gamedata
 	
 	byte get_bottle_slot(dword slot)
 	{
-		if(slot > 256) return 0;
+		if(slot > 255) return 0;
 		return bottleSlots[slot];
 	}
 	void set_bottle_slot(dword slot, byte val)
 	{
-		if(slot > 256) return;
+		if(slot > 255) return;
 		if(val > 64) val = 0;
 		bottleSlots[slot] = val;
 	}
 	
 	int32_t fillBottle(byte val);
 	bool canFillBottle();
+	
+	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
+	void load_portal();
+	void clear_portal();
 };
 
 // "initialization data" flags (bit numbers in bit string)

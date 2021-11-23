@@ -59,6 +59,7 @@
 
 //Visual Warp Effect Types for Link->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
+void doWarpEffect(int32_t warpEffect, bool out);
 
 #define svALL 		0
 #define svGUYS 		0x01

@@ -52,6 +52,7 @@ extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 extern byte dmapscriptInitialised;
 extern word item_doscript[256];
 extern word item_collect_doscript[256];
+extern portal* mirror_portal;
 using std::set;
 
 extern int32_t skipcont;
@@ -1205,6 +1206,7 @@ void LinkClass::init()
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
 	is_warping = false;
+	can_mirror_portal = true;
 	
 	hammer_swim_up_offset = hammeroffsets[0];
 	hammer_swim_down_offset = hammeroffsets[1];
@@ -7205,6 +7207,25 @@ bool LinkClass::animate(int32_t)
 		climb_cover_y=-1000;
 	}
 	
+	if(mirror_portal)
+	{
+		mirror_portal->animate();
+		if(abs(x - mirror_portal->x) < 12
+			&& abs(y - mirror_portal->y) < 12)
+		{
+			if(can_mirror_portal)
+			{
+				x = mirror_portal->x;
+				y = mirror_portal->y;
+				
+				FFCore.warp_link(wtIWARP, mirror_portal->destdmap, mirror_portal->destscr,
+					-1, -1, mirror_portal->weffect, mirror_portal->wsfx, warpFlagNOSTEPFORWARD, -1);
+				game->clear_portal(); //Remove portal once used
+			}
+		}
+		else can_mirror_portal = true;
+	}
+	
 	if(isGrassType(COMBOTYPE(x,y+15)) && isGrassType(COMBOTYPE(x+15,y+15))&& z<=8)
 	{
 		if(decorations.idCount(dTALLGRASS)==0)
@@ -7212,6 +7233,7 @@ bool LinkClass::animate(int32_t)
 			decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
 		}
 	}
+	
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
 		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && !IsSideSwim())
@@ -8169,6 +8191,7 @@ bool LinkClass::animate(int32_t)
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			x=entry_x;
 			y=entry_y;
+			can_mirror_portal = false; //incase entry is on a portal!
 			if (canSideviewLadder()) setOnSideviewLadder(true);
 			warpx=x;
 			warpy=y;
@@ -8631,16 +8654,16 @@ bool LinkClass::animate(int32_t)
 	//Link->WarpEx
 	if ( FFCore.warpex[wexActive] )
 	{
-	if(DEVLOGGING) zprint("Running warpex from Link.cpp\n");
-	FFCore.warpex[wexActive] = 0;
-	int32_t temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
-	for ( int32_t q = 0; q < wexActive; q++ ) 
-	{
-		temp_warpex[q] = FFCore.warpex[q];
-		FFCore.warpex[q] = 0;
-	}
-	FFCore.warp_link( temp_warpex[wexType], temp_warpex[wexDMap], temp_warpex[wexScreen], temp_warpex[wexX],
-		temp_warpex[wexY], temp_warpex[wexEffect], temp_warpex[wexSound], temp_warpex[wexFlags], temp_warpex[wexDir]); 
+		if(DEVLOGGING) zprint("Running warpex from Link.cpp\n");
+		FFCore.warpex[wexActive] = 0;
+		int32_t temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
+		for ( int32_t q = 0; q < wexActive; q++ ) 
+		{
+			temp_warpex[q] = FFCore.warpex[q];
+			FFCore.warpex[q] = 0;
+		}
+		FFCore.warp_link( temp_warpex[wexType], temp_warpex[wexDMap], temp_warpex[wexScreen], temp_warpex[wexX],
+			temp_warpex[wexY], temp_warpex[wexEffect], temp_warpex[wexSound], temp_warpex[wexFlags], temp_warpex[wexDir]); 
 	}
 	
 	// walk through bombed doors and fake walls
@@ -8854,6 +8877,160 @@ void LinkClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
+void LinkClass::doMirror(int32_t mirrorid)
+{
+	if(z > 0) return; //No mirror in air
+	if(mirrorid < 0)
+		mirrorid = current_item_id(itype_mirror);
+	if(mirrorid < 0) return;
+	
+	if(!(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
+		return;
+	itemdata const& mirror = itemsbuf[mirrorid];
+	if(DMaps[currdmap].flags & dmfMIRRORCONTINUE)
+	{
+		paymagiccost(mirrorid);
+		sfx(mirror.usesound);
+		
+		doWarpEffect(mirror.misc1, true);
+		if(mirror.flags & ITEM_FLAG2) //Act as F6->Continue
+		{
+			Quit = qCONT;
+			skipcont = 1;
+		}
+		else //Act as Farore's Wind
+		{
+            int32_t nayrutemp=nayruitem;
+            restart_level();
+            nayruitem=nayrutemp;
+            magicitem=-1;
+            magiccastclk=0;
+            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
+		}
+	}
+	else
+	{
+		int32_t destdmap = DMaps[currdmap].mirrorDMap;
+		int32_t offscr = currscr - DMaps[currdmap].xoff;
+		if(destdmap < 0)
+			return;
+		int32_t destscr = DMaps[destdmap].xoff + offscr;
+		if((offscr%16 != destscr%16) || unsigned(destscr) >= 0x80)
+			return;
+		paymagiccost(mirrorid);
+		
+		//Store some values to restore if 'warp fails'
+		int32_t tLastEntrance = lastentrance,
+				tLastEntranceDMap = lastentrance_dmap,
+				tContScr = game->get_continue_scrn(),
+				tContDMap = game->get_continue_dmap(),
+				tPortalDMap = game->portalsrcdmap;
+		game->portalsrcdmap = -1;
+		int32_t sourcescr = currscr, sourcedmap = currdmap;
+		zfix tx = x, ty = y, tz = z;
+		action = none; FFCore.setLinkAction(none);
+		
+		//Warp to new dmap
+		FFCore.warp_link(wtIWARP, destdmap, destscr, -1, -1, mirror.misc1,
+			mirror.usesound, warpFlagNOSTEPFORWARD, -1);
+		
+		//Check for valid landing location
+		WalkflagInfo info = walkflag(x,y+(bigHitbox?0:8),2,up);
+		if(blockmoving)
+			info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8));
+		execute(info);
+		bool fail = info.isUnwalkable();
+		
+		if(!fail) //not solid, but check for water/pits...
+		{
+			//{ Check water collision.... GAAAAAAAH THIS IS A MESS
+			int32_t water = 0;
+			int32_t types[4] = {0};
+			int32_t x1 = x+4, x2 = x+11,
+				y1 = y+9, y2 = y+15;
+			if (get_bit(quest_rules, qr_SMARTER_WATER))
+			{
+				if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
+				iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
+				iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
+				iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
+			}
+			else
+			{
+				types[0] = COMBOTYPE(x1,y1);
+				
+				if(MAPFFCOMBO(x1,y1))
+					types[0] = FFCOMBOTYPE(x1,y1);
+					
+				types[1] = COMBOTYPE(x1,y2);
+				
+				if(MAPFFCOMBO(x1,y2))
+					types[1] = FFCOMBOTYPE(x1,y2);
+					
+				types[2] = COMBOTYPE(x2,y1);
+				
+				if(MAPFFCOMBO(x2,y1))
+					types[2] = FFCOMBOTYPE(x2,y1);
+					
+				types[3] = COMBOTYPE(x2,y2);
+				
+				if(MAPFFCOMBO(x2,y2))
+					types[3] = FFCOMBOTYPE(x2,y2);
+					
+				int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+				if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
+					typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
+					
+				if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
+						combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
+					water = typec;
+			}
+			if(water > 0)
+			{
+				if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+				{
+					fail = true;
+				}
+			}
+			//}
+			if(pitslide() || fallclk)
+				fail = true;
+			fallclk = 0;
+		}
+		if(fail) //Invalid landing, warp back!
+		{
+			action = none; FFCore.setLinkAction(none);
+			lastentrance = tLastEntrance;
+			lastentrance_dmap = tLastEntranceDMap;
+			game->set_continue_scrn(tContScr);
+			game->set_continue_dmap(tContDMap);
+			x = tx;
+			y = ty;
+			z = tz;
+			game->portalsrcdmap = tPortalDMap;
+			FFCore.warp_link(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
+				mirror.usesound, warpFlagNOSTEPFORWARD, -1);
+		}
+		else if(mirror.flags & ITEM_FLAG1) //Place portal!
+		{
+			//Place the portal
+			game->set_portal(sourcedmap, destdmap, offscr, x.getZLong(), y.getZLong(), mirror.usesound, mirror.misc1, mirror.wpn);
+			//Since it was placed after loading this screen, load the portal object now
+			game->load_portal();
+			//Don't immediately trigger the warp back
+			can_mirror_portal = false;
+			
+			//Set continue point
+			if(currdmap != game->get_continue_dmap())
+			{
+				game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+			}
+			game->set_continue_dmap(currdmap);
+			lastentrance_dmap = currdmap;
+			lastentrance = game->get_continue_scrn();
+		}
+	}
+}
 bool LinkClass::startwpn(int32_t itemid)
 {
 	if(itemid < 0) return false;
@@ -9034,6 +9211,13 @@ bool LinkClass::startwpn(int32_t itemid)
 			ret = false;
 			break;
 		}
+		
+		case itype_mirror:
+			doMirror(itemid);
+			if(Quit)
+				return false;
+			ret = false;
+			break;
 		
 		case itype_rocs:
 		{
@@ -11229,6 +11413,7 @@ void LinkClass::pitfall()
 			{
 				x=entry_x;
 				y=entry_y;
+				can_mirror_portal = false; //incase entry is on a portal!
 				warpx=x;
 				warpy=y;
 			}

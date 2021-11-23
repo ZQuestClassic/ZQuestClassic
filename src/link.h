@@ -268,6 +268,7 @@ public:
     byte defence[wMax];
 	int32_t subscr_speed;
 	bool is_warping;
+	bool can_mirror_portal;
 	
 	bool can_pitfall(bool ignore_hover = false);
 	
@@ -335,7 +336,8 @@ public:
     void checklocked();
     void deselectbombs(int32_t super); // switch Link's weapon if his current weapon (bombs) was depleted.
     bool startwpn(int32_t itemid);
-    bool doattack();
+    void doMirror(int32_t mirrorid);
+	bool doattack();
     bool can_attack();
     void do_rafting();
     void do_hopping();
