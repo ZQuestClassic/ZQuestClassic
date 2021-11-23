@@ -1240,26 +1240,26 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	FFCore.kb_typing_mode = false;
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
+		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+		midi_volume = FFCore.usr_midi_volume;
+		//	master_volume(-1,FFCore.usr_midi_volume);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
 	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
+		digi_volume = FFCore.usr_digi_volume;
+		//master_volume((int32_t)(FFCore.usr_digi_volume),1);
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
 	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
+		emusic_volume = (int32_t)FFCore.usr_music_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
 	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
+		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	FFCore.skip_ending_credits = 0;
 	//word item_count;
@@ -1784,26 +1784,25 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			I needed to path this to ensure that the s_v is specific to the build.
 			I also skipped 13 to 15 so that 2.53.1 an use these if needed with the current patch. -Z
 			*/
-		{
-			for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 			{
-			if(!p_igetl(&savedata[i].global_d[j],f,true))
+				for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
+				{
+				if(!p_igetl(&savedata[i].global_d[j],f,true))
+				{
+					return 45;
+				}
+				}
+			}
+			else
 			{
-				return 45;
+				for(int32_t j=0; j<256; j++)
+				{
+					if(!p_igetl(&savedata[i].global_d[j],f,true))
+					{
+						return 45;
+					}
+				}
 			}
-			}
-		}
-		else
-		{
-		for(int32_t j=0; j<256; j++)
-		{
-			if(!p_igetl(&savedata[i].global_d[j],f,true))
-			{
-				return 45;
-			}
-		}    
-			
-		}
 		}
 		
 		if(section_version>2)
@@ -1906,7 +1905,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 						return 55;
 			}
 		}
-	if((section_version > 11 && FFCore.getQuestHeaderInfo(vZelda) < 0x255) || (section_version > 15 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255))
+		if((section_version > 11 && FFCore.getQuestHeaderInfo(vZelda) < 0x255) || (section_version > 15 && FFCore.getQuestHeaderInfo(vZelda) >= 0x255))
 		{
 			if(!p_igetw(&tempword2, f, true))
 			{
@@ -2009,6 +2008,42 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			memset(savedata[i].bottleSlots, 0, sizeof(savedata[i].bottleSlots));
 		}
+		if(section_version >= 23)
+		{
+			if(!p_igetw(&(savedata[i].portaldestdmap), f, true))
+			{
+				return 65;
+			}
+			if(!p_igetw(&(savedata[i].portalsrcdmap), f, true))
+			{
+				return 66;
+			}
+			if(!p_getc(&(savedata[i].portalscr),f,true))
+			{
+				return 67;
+			}
+			if(!p_igetl(&(savedata[i].portalx), f, true))
+			{
+				return 68;
+			}
+			if(!p_igetl(&(savedata[i].portaly), f, true))
+			{
+				return 69;
+			}
+			if(!p_getc(&(savedata[i].portalsfx),f,true))
+			{
+				return 70;
+			}
+			if(!p_igetl(&(savedata[i].portalwarpfx), f, true))
+			{
+				return 71;
+			}
+			if(!p_igetw(&(savedata[i].portalspr), f, true))
+			{
+				return 72;
+			}
+		}
+		else savedata[i].clear_portal();
 	}
 	
 	
@@ -2535,6 +2570,38 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		if(!pfwrite(savedata[i].bottleSlots,256*sizeof(byte),f))
 		{
 			return 62;
+		}
+		if(!p_iputw(savedata[i].portaldestdmap, f))
+		{
+			return 63;
+		}
+		if(!p_iputw(savedata[i].portalsrcdmap, f))
+		{
+			return 64;
+		}
+		if(!p_putc(savedata[i].portalscr,f))
+		{
+			return 65;
+		}
+		if(!p_iputl(savedata[i].portalx, f))
+		{
+			return 66;
+		}
+		if(!p_iputl(savedata[i].portaly, f))
+		{
+			return 67;
+		}
+		if(!p_putc(savedata[i].portalsfx,f))
+		{
+			return 68;
+		}
+		if(!p_iputl(savedata[i].portalwarpfx, f))
+		{
+			return 69;
+		}
+		if(!p_iputw(savedata[i].portalspr, f))
+		{
+			return 70;
 		}
 	}
 	

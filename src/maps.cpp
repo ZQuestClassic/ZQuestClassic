@@ -67,6 +67,7 @@ FONT *get_zc_font(int32_t index);
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
+extern portal* mirror_portal;
 extern zinitdata zinit;
 extern LinkClass Link;
 int32_t current_ffcombo=-1;
@@ -3734,6 +3735,9 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		guys.draw2(framebuf,true);
 	}
 	
+	if(mirror_portal)
+		mirror_portal->draw(framebuf);
+	
 	if(showlink && ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom)))
 	{
 		mblock2.draw(framebuf);
@@ -4487,7 +4491,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	mapscr ffscr = tmpscr[tmp];
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	
-	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
 	tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
@@ -4802,6 +4805,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			}
 		}
 	}
+	game->load_portal();
 }
 
 // Screen is being viewed by the Overworld Map viewer.

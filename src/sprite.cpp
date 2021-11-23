@@ -2890,6 +2890,35 @@ void movingblock::draw(BITMAP *dest)
     }
 }
 
+//Portal
+portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
+	: destdmap(dm), destscr(scr), weffect(gfx), wsfx(sfx)
+{
+	wpndata const& portalsprite = wpnsbuf[spr];
+	o_tile = portalsprite.newtile;
+	aspd = portalsprite.speed ? portalsprite.speed : 1;
+	frames = portalsprite.frames ? portalsprite.frames : 1;
+	aframe = 0;
+	aclk = 0;
+	cs = portalsprite.csets & 0xF;
+	tile = o_tile;
+	id = 0; //negative id doesn't draw!
+}
+
+bool portal::animate()
+{
+	if(++aclk >= aspd)
+	{
+		aclk = 0;
+		if(++aframe > frames)
+		{
+			aframe = 0;
+		}
+	}
+	tile = o_tile + aframe;
+	return false;
+}
+
 
 /*** end of sprite.cc ***/
 
