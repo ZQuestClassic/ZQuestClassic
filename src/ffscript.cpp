@@ -22724,7 +22724,7 @@ void doWarpEffect(int32_t warpEffect, bool out)
 			break;
 		case warpEffectWave:
 			if(out) wavyout(false);
-			else wavyin(false);
+			else wavyin();
 			break;
 		case warpEffectInstant:
 			if(out) blackscr(30,true);
