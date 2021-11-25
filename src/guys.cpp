@@ -6573,7 +6573,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 	int32_t usexoffs = (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? hxofs : 0;
 	int32_t useyoffs = (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hysz : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
 	bool offgrid = OFFGRID_ENEMY;
 	if(!offgrid)
 	{
@@ -6675,6 +6675,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			dx = dx2+s;
 			dy = dy1-s;
 			int32_t tries_x = usewid/(offgrid ? 8 : 16);
+			sv = ((isSideViewGravity())?7:0);
 			for ( ; tries_x > 0; --tries_x )
 			{
 				int32_t tries_y = usehei/(offgrid ? 8 : 16);
@@ -6721,6 +6722,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			dx = dx2+s;
 			dx = dy2+s;
 			int32_t tries_x = usewid/(offgrid ? 8 : 16);
+			//sv = ((isSideViewGravity())?7:0);
 			for ( ; tries_x > 0; --tries_x )
 			{
 				int32_t tries_y = usehei/(offgrid ? 8 : 16);
@@ -6767,6 +6769,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			dx = dx1-s;
 			dy = dy2+s;
 			int32_t tries_x = usewid/(offgrid ? 8 : 16);
+			//sv = ((isSideViewGravity())?7:0);
 			for ( ; tries_x > 0; --tries_x )
 			{
 				int32_t tries_y = usehei/(offgrid ? 8 : 16);
@@ -6813,6 +6816,7 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 			dx = dx1-s;
 			dy = dy1-s;
 			int32_t tries_x = usewid/(offgrid ? 8 : 16);
+			sv = ((isSideViewGravity())?7:0);
 			for ( ; tries_x > 0; --tries_x )
 			{
 				int32_t tries_y = usehei/(offgrid ? 8 : 16);
@@ -6864,7 +6868,13 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 
 bool enemy::canmove(int32_t ndir,zfix s,int32_t special, bool kb)
 {
-	return canmove(ndir,s,special,0,-8,15,15,kb);
+	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	if (usewid % 16 != 0) usewid += (16 - (usewid%16));
+	if (usehei % 16 != 0) usehei += (16 - (usehei%16));
+	--usewid;
+	--usehei;
+	return canmove(ndir,s,special,0,-8,usewid,usehei,kb);
 }
 
 bool enemy::canmove(int32_t ndir,int32_t special, bool kb)
@@ -6875,8 +6885,13 @@ bool enemy::canmove(int32_t ndir,int32_t special, bool kb)
 	{
 		dodongo_move=canmove(ndir,(zfix)1,special,0,-8,31,15,kb);
 	}
-	
-	return canmove(ndir,(zfix)1,special,0,-8,15,15,kb)&&dodongo_move;
+	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	if (usewid % 16 != 0) usewid += (16 - (usewid%16));
+	if (usehei % 16 != 0) usehei += (16 - (usehei%16));
+	--usewid;
+	--usehei;
+	return canmove(ndir,(zfix)1,special,0,-8,usewid,usehei,kb)&&dodongo_move;
 }
 
 bool enemy::canmove(int32_t ndir, bool kb)
@@ -15508,6 +15523,8 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		hyofs = 4;
 		hxsz = 24;
 		hysz = 24;
+		SIZEflags|=guyflagOVERRIDE_HIT_WIDTH;
+		SIZEflags|=guyflagOVERRIDE_HIT_HEIGHT;
 	}
 	hzsz=16; //can't be jumped.
 	clk2=70;
