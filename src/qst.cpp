@@ -6638,38 +6638,38 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             {
                 switch(i)
                 {
-                case iRocsFeather:
-                case iHoverBoots:
-                case iSpinScroll:
-                case iL2SpinScroll:
-                case iCrossScroll:
-                case iQuakeScroll:
-                case iL2QuakeScroll:
-                case iWhispRing:
-                case iL2WhispRing:
-                case iChargeRing:
-                case iL2ChargeRing:
-                case iPerilScroll:
-                case iWalletL3:
-                case iQuiverL4:
-                case iBombBagL4:
-                case iBracelet:
-                case iL2Bracelet:
-                case iOldGlove:
-                case iL2Ladder:
-                case iWealthMedal:
-                case iL2WealthMedal:
-                case iL3WealthMedal:
-                    reset_itembuf(&tempitem, i);
-                    strcpy(item_string[i],old_item_string[i]);
-                    break;
-                    
-                case iSShield:
-                    reset_itembuf(&tempitem, i);
-                    strcpy(item_string[i],old_item_string[i]);
-                    strcpy(item_string[iShield],old_item_string[iShield]);
-                    strcpy(item_string[iMShield],old_item_string[iMShield]);
-                    break;
+					case iRocsFeather:
+					case iHoverBoots:
+					case iSpinScroll:
+					case iL2SpinScroll:
+					case iCrossScroll:
+					case iQuakeScroll:
+					case iL2QuakeScroll:
+					case iWhispRing:
+					case iL2WhispRing:
+					case iChargeRing:
+					case iL2ChargeRing:
+					case iPerilScroll:
+					case iWalletL3:
+					case iQuiverL4:
+					case iBombBagL4:
+					case iBracelet:
+					case iL2Bracelet:
+					case iOldGlove:
+					case iL2Ladder:
+					case iWealthMedal:
+					case iL2WealthMedal:
+					case iL3WealthMedal:
+						reset_itembuf(&tempitem, i);
+						strcpy(item_string[i],old_item_string[i]);
+						break;
+						
+					case iSShield:
+						reset_itembuf(&tempitem, i);
+						strcpy(item_string[i],old_item_string[i]);
+						strcpy(item_string[iShield],old_item_string[iShield]);
+						strcpy(item_string[iMShield],old_item_string[iMShield]);
+						break;
                 }
             }
             
@@ -6677,16 +6677,16 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             {
                 switch(i)
                 {
-                case iHeartRing:
-                case iL2HeartRing:
-                case iL3HeartRing:
-                case iMagicRing:
-                case iL2MagicRing:
-                case iL3MagicRing:
-                case iL4MagicRing:
-                    reset_itembuf(&tempitem, i);
-                    strcpy(item_string[i],old_item_string[i]);
-                    break;
+					case iHeartRing:
+					case iL2HeartRing:
+					case iL3HeartRing:
+					case iMagicRing:
+					case iL2MagicRing:
+					case iL3MagicRing:
+					case iL4MagicRing:
+						reset_itembuf(&tempitem, i);
+						strcpy(item_string[i],old_item_string[i]);
+						break;
                 }
             }
             
@@ -6697,291 +6697,291 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     
                 switch(i)
                 {
-                case iTriforce:
-                    tempitem.fam_type=1;
-                    break;
-                    
-                case iBigTri:
-                    tempitem.fam_type=0;
-                    break;
-                    
-                case iBombs:
-                    tempitem.fam_type=i_bomb;
-                    tempitem.power=4;
-                    tempitem.wpn=wBOMB;
-                    tempitem.wpn2=wBOOM;
-                    tempitem.misc1 = 50;
-                    
-                    if(get_bit(deprecated_rules,116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
-                    
-                    break;
-                    
-                case iSBomb:
-                    tempitem.fam_type=i_sbomb;
-                    tempitem.power=16;
-                    tempitem.wpn=wSBOMB;
-                    tempitem.wpn2=wSBOOM;
-                    tempitem.misc1 = 50;
-                    
-                    if(get_bit(deprecated_rules,116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
-                    
-                    break;
-                    
-                case iBook:
-                    if(get_bit(deprecated_rules, 113))
-                        tempitem.wpn = wFIREMAGIC; //qr_FIREMAGICSPRITE
-                        
-                    break;
-                    
-                case iSArrow:
-                    tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
-                    tempitem.power=4;
-                    tempitem.flags|=ITEM_GAMEDATA;
-                    tempitem.wpn=wSARROW;
-                    break;
-                    
-                case iGArrow:
-                    tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
-                    tempitem.power=8;
-                    tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
-                    tempitem.wpn=wGARROW;
-                    break;
-                    
-                case iBrang:
-                    tempitem.power=0;
-                    tempitem.wpn=wBRANG;
-                    tempitem.misc1=36;
-                    break;
-                    
-                case iMBrang:
-                    tempitem.wpn2 = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
-                    tempitem.power=0;
-                    tempitem.wpn=wMBRANG;
-                    break;
-                    
-                case iFBrang:
-                    tempitem.wpn3 = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
-                    tempitem.power=2;
-                    tempitem.wpn=wFBRANG;
-                    break;
-                    
-                case iBoots:
-                    tempitem.magic = get_bit(deprecated_rules,51) ? 1 : 0;
-                    tempitem.power=7;
-                    break;
-                    
-                case iWand:
-                    tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
-                    tempitem.power=2;
-                    tempitem.wpn=wWAND;
-                    tempitem.wpn3=wMAGIC;
-                    break;
-                    
-                case iBCandle:
-                    tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
-                    tempitem.power=1;
-                    tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
-                    tempitem.wpn3=wFIRE;
-                    break;
-                    
-                case iRCandle:
-                    tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
-                    tempitem.power=1;
-                    tempitem.wpn3=wFIRE;
-                    break;
-                    
-                case iSword:
-                    tempitem.power=1;
-                    tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-                    tempitem.wpn=tempitem.wpn3=wSWORD;
-                    tempitem.wpn2=wSWORDSLASH;
-                    break;
-                    
-                case iWSword:
-                    tempitem.power=2;
-                    tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-                    tempitem.wpn=tempitem.wpn3=wWSWORD;
-                    tempitem.wpn2=wWSWORDSLASH;
-                    break;
-                    
-                case iMSword:
-                    tempitem.power=4;
-                    tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-                    tempitem.wpn=tempitem.wpn3=wMSWORD;
-                    tempitem.wpn2=wMSWORDSLASH;
-                    break;
-                    
-                case iXSword:
-                    tempitem.power=8;
-                    tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-                    tempitem.wpn=tempitem.wpn3=wXSWORD;
-                    tempitem.wpn2=wXSWORDSLASH;
-                    break;
-                    
-                case iNayrusLove:
-                    tempitem.flags |= get_bit(deprecated_rules,76) ? ITEM_FLAG1 : 0;
-                    tempitem.flags |= get_bit(deprecated_rules,75) ? ITEM_FLAG2 : 0;
-                    tempitem.wpn=wNAYRUSLOVE1A;
-                    tempitem.wpn2=wNAYRUSLOVE1B;
-                    tempitem.wpn3=wNAYRUSLOVES1A;
-                    tempitem.wpn4=wNAYRUSLOVES1B;
-                    tempitem.wpn6=wNAYRUSLOVE2A;
-                    tempitem.wpn7=wNAYRUSLOVE2B;
-                    tempitem.wpn8=wNAYRUSLOVES2A;
-                    tempitem.wpn9=wNAYRUSLOVES2B;
-                    tempitem.wpn5 = iwNayrusLoveShieldFront;
-                    tempitem.wpn10 = iwNayrusLoveShieldBack;
-                    tempitem.misc1=512;
-                    tempitem.magic=64;
-                    break;
-                    
-                case iLens:
-                    tempitem.misc1=60;
-                    tempitem.flags |= get_bit(quest_rules,qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
-                    tempitem.magic = get_bit(quest_rules,qr_ENABLEMAGIC) ? 2 : 1;
-                    break;
-                    
-                case iArrow:
-                    tempitem.power=2;
-                    tempitem.wpn=wARROW;
-                    break;
-                    
-                case iHoverBoots:
-                    tempitem.misc1=45;
-                    tempitem.wpn=iwHover;
-                    break;
-                    
-                case iDinsFire:
-                    tempitem.power=8;
-                    tempitem.wpn=wDINSFIRE1A;
-                    tempitem.wpn2=wDINSFIRE1B;
-                    tempitem.wpn3=wDINSFIRES1A;
-                    tempitem.wpn4=wDINSFIRES1B;
-                    tempitem.misc1 = 32;
-                    tempitem.misc2 = 200;
-                    tempitem.magic=32;
-                    break;
-                    
-                case iFaroresWind:
-                    tempitem.magic=32;
-                    break;
-                    
-                case iHookshot:
-                    tempitem.power=0;
-                    tempitem.flags&=~ITEM_FLAG1;
-                    tempitem.wpn=wHSHEAD;
-                    tempitem.wpn2=wHSCHAIN_H;
-                    tempitem.wpn4=wHSHANDLE;
-                    tempitem.wpn3=wHSCHAIN_V;
-                    tempitem.misc1=50;
-                    tempitem.misc2=100;
-                    break;
-                    
-                case iLongshot:
-                    tempitem.power=0;
-                    tempitem.flags&=~ITEM_FLAG1;
-                    tempitem.wpn=wLSHEAD;
-                    tempitem.wpn2=wLSCHAIN_H;
-                    tempitem.wpn4=wLSHANDLE;
-                    tempitem.wpn3=wLSCHAIN_V;
-                    tempitem.misc1=99;
-                    tempitem.misc2=100;
-                    break;
-                    
-                case iHammer:
-                    tempitem.power=4;
-                    tempitem.wpn=wHAMMER;
-                    tempitem.wpn2=iwHammerSmack;
-                    break;
-                    
-                case iCByrna:
-                    tempitem.power=1;
-                    tempitem.wpn=wCBYRNA;
-                    tempitem.wpn2=wCBYRNASLASH;
-                    tempitem.wpn3=wCBYRNAORB;
-                    tempitem.misc1=4;
-                    tempitem.misc2=16;
-                    tempitem.misc3=1;
-                    tempitem.magic=1;
-                    break;
-                    
-                case iWhistle:
-                    tempitem.wpn=wWIND;
-                    tempitem.misc1=3;
-                    tempitem.flags|=ITEM_FLAG1;
-                    break;
-                    
-                case iBRing:
-                    tempitem.power=2;
-                    tempitem.misc1=spBLUE;
-                    break;
-                    
-                case iRRing:
-                    tempitem.power=4;
-                    tempitem.misc1=spRED;
-                    break;
-                    
-                case iGRing:
-                    tempitem.power=8;
-                    tempitem.misc1=spGOLD;
-                    break;
-                    
-                case iSpinScroll:
-                    tempitem.power = 2;
-                    tempitem.misc1 = 1;
-                    break;
-                    
-                case iL2SpinScroll:
-                    tempitem.family=itype_spinscroll2;
-                    tempitem.fam_type=1;
-                    tempitem.magic=8;
-                    tempitem.power=2;
-                    tempitem.misc1 = 20;
-                    break;
-                    
-                case iQuakeScroll:
-                    tempitem.misc1=0x10;
-                    tempitem.misc2=64;
-                    break;
-                    
-                case iL2QuakeScroll:
-                    tempitem.family=itype_quakescroll2;
-                    tempitem.fam_type=1;
-                    tempitem.power = 2;
-                    tempitem.misc1=0x20;
-                    tempitem.misc2=192;
-                    tempitem.magic=8;
-                    break;
-                    
-                case iChargeRing:
-                    tempitem.misc1=64;
-                    tempitem.misc2=128;
-                    break;
-                    
-                case iL2ChargeRing:
-                    tempitem.misc1=32;
-                    tempitem.misc2=64;
-                    break;
-                    
-                case iOldGlove:
-                    tempitem.flags |= ITEM_FLAG1;
-                    
-                    //fallthrough
-                case iBombBagL4:
-                case iWalletL3:
-                case iQuiverL4:
-                case iBracelet:
-                    tempitem.power = 1;
-                    break;
-                    
-                case iL2Bracelet:
-                    tempitem.power = 2;
-                    break;
-                    
-                case iMKey:
-                    tempitem.power=0xFF;
-                    tempitem.flags |= ITEM_FLAG1;
-                    break;
+					case iTriforce:
+						tempitem.fam_type=1;
+						break;
+						
+					case iBigTri:
+						tempitem.fam_type=0;
+						break;
+						
+					case iBombs:
+						tempitem.fam_type=i_bomb;
+						tempitem.power=4;
+						tempitem.wpn=wBOMB;
+						tempitem.wpn2=wBOOM;
+						tempitem.misc1 = 50;
+						
+						if(get_bit(deprecated_rules,116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
+						
+						break;
+						
+					case iSBomb:
+						tempitem.fam_type=i_sbomb;
+						tempitem.power=16;
+						tempitem.wpn=wSBOMB;
+						tempitem.wpn2=wSBOOM;
+						tempitem.misc1 = 50;
+						
+						if(get_bit(deprecated_rules,116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
+						
+						break;
+						
+					case iBook:
+						if(get_bit(deprecated_rules, 113))
+							tempitem.wpn = wFIREMAGIC; //qr_FIREMAGICSPRITE
+							
+						break;
+						
+					case iSArrow:
+						tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
+						tempitem.power=4;
+						tempitem.flags|=ITEM_GAMEDATA;
+						tempitem.wpn=wSARROW;
+						break;
+						
+					case iGArrow:
+						tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
+						tempitem.power=8;
+						tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
+						tempitem.wpn=wGARROW;
+						break;
+						
+					case iBrang:
+						tempitem.power=0;
+						tempitem.wpn=wBRANG;
+						tempitem.misc1=36;
+						break;
+						
+					case iMBrang:
+						tempitem.wpn2 = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
+						tempitem.power=0;
+						tempitem.wpn=wMBRANG;
+						break;
+						
+					case iFBrang:
+						tempitem.wpn3 = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
+						tempitem.power=2;
+						tempitem.wpn=wFBRANG;
+						break;
+						
+					case iBoots:
+						tempitem.magic = get_bit(deprecated_rules,51) ? 1 : 0;
+						tempitem.power=7;
+						break;
+						
+					case iWand:
+						tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
+						tempitem.power=2;
+						tempitem.wpn=wWAND;
+						tempitem.wpn3=wMAGIC;
+						break;
+						
+					case iBCandle:
+						tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
+						tempitem.power=1;
+						tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
+						tempitem.wpn3=wFIRE;
+						break;
+						
+					case iRCandle:
+						tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
+						tempitem.power=1;
+						tempitem.wpn3=wFIRE;
+						break;
+						
+					case iSword:
+						tempitem.power=1;
+						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+						tempitem.wpn=tempitem.wpn3=wSWORD;
+						tempitem.wpn2=wSWORDSLASH;
+						break;
+						
+					case iWSword:
+						tempitem.power=2;
+						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+						tempitem.wpn=tempitem.wpn3=wWSWORD;
+						tempitem.wpn2=wWSWORDSLASH;
+						break;
+						
+					case iMSword:
+						tempitem.power=4;
+						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+						tempitem.wpn=tempitem.wpn3=wMSWORD;
+						tempitem.wpn2=wMSWORDSLASH;
+						break;
+						
+					case iXSword:
+						tempitem.power=8;
+						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+						tempitem.wpn=tempitem.wpn3=wXSWORD;
+						tempitem.wpn2=wXSWORDSLASH;
+						break;
+						
+					case iNayrusLove:
+						tempitem.flags |= get_bit(deprecated_rules,76) ? ITEM_FLAG1 : 0;
+						tempitem.flags |= get_bit(deprecated_rules,75) ? ITEM_FLAG2 : 0;
+						tempitem.wpn=wNAYRUSLOVE1A;
+						tempitem.wpn2=wNAYRUSLOVE1B;
+						tempitem.wpn3=wNAYRUSLOVES1A;
+						tempitem.wpn4=wNAYRUSLOVES1B;
+						tempitem.wpn6=wNAYRUSLOVE2A;
+						tempitem.wpn7=wNAYRUSLOVE2B;
+						tempitem.wpn8=wNAYRUSLOVES2A;
+						tempitem.wpn9=wNAYRUSLOVES2B;
+						tempitem.wpn5 = iwNayrusLoveShieldFront;
+						tempitem.wpn10 = iwNayrusLoveShieldBack;
+						tempitem.misc1=512;
+						tempitem.magic=64;
+						break;
+						
+					case iLens:
+						tempitem.misc1=60;
+						tempitem.flags |= get_bit(quest_rules,qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
+						tempitem.magic = get_bit(quest_rules,qr_ENABLEMAGIC) ? 2 : 1;
+						break;
+						
+					case iArrow:
+						tempitem.power=2;
+						tempitem.wpn=wARROW;
+						break;
+						
+					case iHoverBoots:
+						tempitem.misc1=45;
+						tempitem.wpn=iwHover;
+						break;
+						
+					case iDinsFire:
+						tempitem.power=8;
+						tempitem.wpn=wDINSFIRE1A;
+						tempitem.wpn2=wDINSFIRE1B;
+						tempitem.wpn3=wDINSFIRES1A;
+						tempitem.wpn4=wDINSFIRES1B;
+						tempitem.misc1 = 32;
+						tempitem.misc2 = 200;
+						tempitem.magic=32;
+						break;
+						
+					case iFaroresWind:
+						tempitem.magic=32;
+						break;
+						
+					case iHookshot:
+						tempitem.power=0;
+						tempitem.flags&=~ITEM_FLAG1;
+						tempitem.wpn=wHSHEAD;
+						tempitem.wpn2=wHSCHAIN_H;
+						tempitem.wpn4=wHSHANDLE;
+						tempitem.wpn3=wHSCHAIN_V;
+						tempitem.misc1=50;
+						tempitem.misc2=100;
+						break;
+						
+					case iLongshot:
+						tempitem.power=0;
+						tempitem.flags&=~ITEM_FLAG1;
+						tempitem.wpn=wLSHEAD;
+						tempitem.wpn2=wLSCHAIN_H;
+						tempitem.wpn4=wLSHANDLE;
+						tempitem.wpn3=wLSCHAIN_V;
+						tempitem.misc1=99;
+						tempitem.misc2=100;
+						break;
+						
+					case iHammer:
+						tempitem.power=4;
+						tempitem.wpn=wHAMMER;
+						tempitem.wpn2=iwHammerSmack;
+						break;
+						
+					case iCByrna:
+						tempitem.power=1;
+						tempitem.wpn=wCBYRNA;
+						tempitem.wpn2=wCBYRNASLASH;
+						tempitem.wpn3=wCBYRNAORB;
+						tempitem.misc1=4;
+						tempitem.misc2=16;
+						tempitem.misc3=1;
+						tempitem.magic=1;
+						break;
+						
+					case iWhistle:
+						tempitem.wpn=wWIND;
+						tempitem.misc1=3;
+						tempitem.flags|=ITEM_FLAG1;
+						break;
+						
+					case iBRing:
+						tempitem.power=2;
+						tempitem.misc1=spBLUE;
+						break;
+						
+					case iRRing:
+						tempitem.power=4;
+						tempitem.misc1=spRED;
+						break;
+						
+					case iGRing:
+						tempitem.power=8;
+						tempitem.misc1=spGOLD;
+						break;
+						
+					case iSpinScroll:
+						tempitem.power = 2;
+						tempitem.misc1 = 1;
+						break;
+						
+					case iL2SpinScroll:
+						tempitem.family=itype_spinscroll2;
+						tempitem.fam_type=1;
+						tempitem.magic=8;
+						tempitem.power=2;
+						tempitem.misc1 = 20;
+						break;
+						
+					case iQuakeScroll:
+						tempitem.misc1=0x10;
+						tempitem.misc2=64;
+						break;
+						
+					case iL2QuakeScroll:
+						tempitem.family=itype_quakescroll2;
+						tempitem.fam_type=1;
+						tempitem.power = 2;
+						tempitem.misc1=0x20;
+						tempitem.misc2=192;
+						tempitem.magic=8;
+						break;
+						
+					case iChargeRing:
+						tempitem.misc1=64;
+						tempitem.misc2=128;
+						break;
+						
+					case iL2ChargeRing:
+						tempitem.misc1=32;
+						tempitem.misc2=64;
+						break;
+						
+					case iOldGlove:
+						tempitem.flags |= ITEM_FLAG1;
+						
+						//fallthrough
+					case iBombBagL4:
+					case iWalletL3:
+					case iQuiverL4:
+					case iBracelet:
+						tempitem.power = 1;
+						break;
+						
+					case iL2Bracelet:
+						tempitem.power = 2;
+						break;
+						
+					case iMKey:
+						tempitem.power=0xFF;
+						tempitem.flags |= ITEM_FLAG1;
+						break;
                 }
             }
             
@@ -6989,15 +6989,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             {
                 switch(i)
                 {
-                case iStoneAgony:
-                case iStompBoots:
-                case iPerilRing:
-                case iWhimsicalRing:
-                {
-                    reset_itembuf(&tempitem, i);
-                    strcpy(item_string[i],old_item_string[i]);
-                    break;
-                }
+					case iStoneAgony:
+					case iStompBoots:
+					case iPerilRing:
+					case iWhimsicalRing:
+					{
+						reset_itembuf(&tempitem, i);
+						strcpy(item_string[i],old_item_string[i]);
+						break;
+					}
                 }
             }
             
@@ -7005,48 +7005,47 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             {
                 switch(i)
                 {
-                case iMShield:
-                    tempitem.misc1|=shFLAME;
-                    tempitem.misc2|=shFIREBALL|shMAGIC;
-                    
-                    if(get_bit(quest_rules, qr_SWORDMIRROR))
-                    {
-                        tempitem.misc2 |= shSWORD;
-                    }
-                    
-                    // fallthrough
-                case iShield:
-                    tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
-                    
-                    // fallthrough
-                case iSShield:
-                    tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
-                    
-                    if(get_bit(deprecated_rules,102))  //qr_REFLECTROCKS
-                    {
-                        tempitem.misc2 |= shROCK;
-                    }
-                    
-                    break;
-                    
-                case iWhispRing:
-                    tempitem.power=1;
-                    tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
-                    tempitem.misc1 = 3;
-                    break;
-                    
-                case iL2WhispRing:
-                    tempitem.power=0;
-                    tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
-                    tempitem.misc1 = 3;
-                    break;
-                    
-                case iL2Ladder:
-                case iBow:
-                case iCByrna:
-                    tempitem.power = 1;
-                    break;
-                    break;
+					case iMShield:
+						tempitem.misc1|=shFLAME;
+						tempitem.misc2|=shFIREBALL|shMAGIC;
+						
+						if(get_bit(quest_rules, qr_SWORDMIRROR))
+						{
+							tempitem.misc2 |= shSWORD;
+						}
+						
+						// fallthrough
+					case iShield:
+						tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
+						
+						// fallthrough
+					case iSShield:
+						tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
+						
+						if(get_bit(deprecated_rules,102))  //qr_REFLECTROCKS
+						{
+							tempitem.misc2 |= shROCK;
+						}
+						
+						break;
+						
+					case iWhispRing:
+						tempitem.power=1;
+						tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
+						tempitem.misc1 = 3;
+						break;
+						
+					case iL2WhispRing:
+						tempitem.power=0;
+						tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
+						tempitem.misc1 = 3;
+						break;
+						
+					case iL2Ladder:
+					case iBow:
+					case iCByrna:
+						tempitem.power = 1;
+						break;
                 }
             }
             
@@ -7280,1627 +7279,1628 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
             }
             
-	    if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
-		{
-			switch(tempitem.family)
+			if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
 			{
-				case itype_sword:
+				switch(tempitem.family)
 				{
-					tempitem.flags &= ~(ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_brang:
-				{
-					tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_arrow:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_candle:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_whistle:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_bait:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_letter:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_potion:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_wand:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_ring:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_wallet:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_amulet:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_shield:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_bow:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_raft:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_ladder:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_book:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_magickey:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_bracelet:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_flippers:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_boots:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_hookshot:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_lens:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_hammer:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_dinsfire:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_faroreswind:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_nayruslove:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					break;
-				}
-				case itype_bomb:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_sbomb:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_clock:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_key:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_magiccontainer:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_triforcepiece:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_map:	case itype_compass:	case itype_bosskey:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_quiver:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_lkey:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_cbyrna:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_rupee: case itype_arrowammo:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_fairy:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_bombbag:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_rocs:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_hoverboots:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_spinscroll:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_crossscroll:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_quakescroll:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_whispring:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_chargering:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_perilscroll:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_wealthmedal:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_heartring:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_magicring:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_spinscroll2:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_quakescroll2:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_agony:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_stompboots:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_whimsicalring:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_perilring:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
-				}
-				case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
-				case itype_custom6: case itype_custom7: case itype_custom8: case itype_custom9: case itype_custom10:
-				case itype_custom11: case itype_custom12: case itype_custom13: case itype_custom14: case itype_custom15:
-				case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
-				case itype_bowandarrow: case itype_letterpotion: case itype_misc:
-				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-					tempitem.misc1 = 0;
-					tempitem.misc2 = 0;
-					tempitem.misc3 = 0;
-					tempitem.misc4 = 0;
-					tempitem.misc5 = 0;
-					tempitem.misc6 = 0;
-					tempitem.misc7 = 0;
-					tempitem.misc8 = 0;
-					tempitem.misc9 = 0;
-					tempitem.misc10 = 0;
-					tempitem.wpn = 0;
-					tempitem.wpn2 = 0;
-					tempitem.wpn3 = 0;
-					tempitem.wpn4 = 0;
-					tempitem.wpn5 = 0;
-					tempitem.wpn6 = 0;
-					tempitem.wpn7 = 0;
-					tempitem.wpn8 = 0;
-					tempitem.wpn9 = 0;
-					tempitem.wpn10 = 0;
-					break;
+					case itype_sword:
+					{
+						tempitem.flags &= ~(ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_brang:
+					{
+						tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_arrow:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_candle:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_whistle:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_bait:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_letter:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_potion:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_wand:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_ring:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_wallet:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_amulet:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_shield:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_bow:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_raft:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_ladder:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_book:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_magickey:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_bracelet:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_flippers:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_boots:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_hookshot:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_lens:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_hammer:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_dinsfire:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_faroreswind:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_nayruslove:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						break;
+					}
+					case itype_bomb:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_sbomb:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_clock:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_key:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_magiccontainer:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_triforcepiece:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_map:	case itype_compass:	case itype_bosskey:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_quiver:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_lkey:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_cbyrna:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_rupee: case itype_arrowammo:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_fairy:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_bombbag:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_rocs:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_hoverboots:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_spinscroll:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_crossscroll:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_quakescroll:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_whispring:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_chargering:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_perilscroll:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_wealthmedal:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_heartring:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_magicring:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_spinscroll2:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_quakescroll2:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_agony:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_stompboots:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_whimsicalring:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_perilring:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
+					case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
+					case itype_custom6: case itype_custom7: case itype_custom8: case itype_custom9: case itype_custom10:
+					case itype_custom11: case itype_custom12: case itype_custom13: case itype_custom14: case itype_custom15:
+					case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
+					case itype_bowandarrow: case itype_letterpotion: case itype_misc:
+					{
+						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+						tempitem.misc1 = 0;
+						tempitem.misc2 = 0;
+						tempitem.misc3 = 0;
+						tempitem.misc4 = 0;
+						tempitem.misc5 = 0;
+						tempitem.misc6 = 0;
+						tempitem.misc7 = 0;
+						tempitem.misc8 = 0;
+						tempitem.misc9 = 0;
+						tempitem.misc10 = 0;
+						tempitem.wpn = 0;
+						tempitem.wpn2 = 0;
+						tempitem.wpn3 = 0;
+						tempitem.wpn4 = 0;
+						tempitem.wpn5 = 0;
+						tempitem.wpn6 = 0;
+						tempitem.wpn7 = 0;
+						tempitem.wpn8 = 0;
+						tempitem.wpn9 = 0;
+						tempitem.wpn10 = 0;
+						break;
+					}
 				}
 			}
-		}
-	    //Port quest rules to items
-	    if( s_version <= 31) 
-	    {
-		if(tempitem.family == itype_bomb)
-		{
-			if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
-			else tempitem.flags &= ~ ITEM_FLAG2;
-		}
-		else if(tempitem.family == itype_sbomb)
-		{
-			if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
-			else tempitem.flags &= ~ ITEM_FLAG2;
-		}
-		
-		else if(tempitem.family == itype_brang)
-		{
-			if ( get_bit(quest_rules,qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
-			else tempitem.flags &= ~ ITEM_FLAG4;
-		}	
-		else if(tempitem.family == itype_wand)
-		{
-			if ( get_bit(quest_rules,qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
-			else tempitem.flags &= ~ ITEM_FLAG3;
-		}
-		
-	    }
-	    
-		//Port quest rules to items
-		if( s_version <= 37) 
-		{
-			if(tempitem.family == itype_flippers)
+			//Port quest rules to items
+			if( s_version <= 31) 
 			{
-				if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
-				else tempitem.flags &= ~ ITEM_FLAG1;
-			}
-			else if(tempitem.family == itype_sword)
-			{
-				if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-				else tempitem.flags &= ~ ITEM_FLAG5;
-			}
-			else if(tempitem.family == itype_wand)
-			{
-				if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-				else tempitem.flags &= ~ ITEM_FLAG5;
-			}
-			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
-			{
-				//@Emily: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
-				if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ ITEM_FLAG3;
-			}
-		}
-		
-		if( s_version < 38)
-		{
-			if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
-			{
-				if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ITEM_FLAG4;
+				if(tempitem.family == itype_bomb)
+				{
+					if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+					else tempitem.flags &= ~ ITEM_FLAG2;
+				}
+				else if(tempitem.family == itype_sbomb)
+				{
+					if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+					else tempitem.flags &= ~ ITEM_FLAG2;
+				}
 				
-				if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
-				else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
-			} 
-			else if(tempitem.family == itype_arrow)
-			{
-				if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ITEM_FLAG4;
-				
-				if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
-				else tempitem.flags |= ITEM_FLAG2;
-			}
-		}
-		
-		if( s_version < 39)
-		{
-			if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
-			{
-				if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
-				else tempitem.flags &= ~ITEM_FLAG5;
-			}
-			else if(tempitem.family == itype_potion)
-			{
-				if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
+				else if(tempitem.family == itype_brang)
 				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
-				}
-				else
+					if ( get_bit(quest_rules,qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ ITEM_FLAG4;
+				}	
+				else if(tempitem.family == itype_wand)
 				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+					if ( get_bit(quest_rules,qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
+					else tempitem.flags &= ~ ITEM_FLAG3;
 				}
 			}
-			else if(tempitem.family == itype_triforcepiece)
-			{
-				if(get_bit(quest_rules,qr_NONBUBBLETRIFORCE))
-				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
-				}
-				else
-				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
-				}
-			}
-		}
-		
-		if( s_version < 40)
-		{
-			if(tempitem.family == itype_ring)
-			{
-				if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
-				else tempitem.flags &= ~ITEM_FLAG1;
-			} 
-			else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
-			{
-				if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
-				else tempitem.flags &= ~ITEM_FLAG8;
-			}
-			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
-			{
-				if(get_bit(quest_rules,qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
-				else tempitem.flags &= ~ITEM_FLAG7;
-			} 
-			else if(tempitem.family == itype_cbyrna)
-			{
-				tempitem.flags |= ITEM_FLAG7;
-			}
-		}
-		
-		if( s_version < 41 )
-		{
-			if(tempitem.family == itype_sword)
-			{
-				if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
-				else tempitem.flags &= ~ITEM_FLAG9;
-				
-				if(get_bit(quest_rules,qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
-				else tempitem.flags &= ~ITEM_FLAG10;
-			}
-		}
-		
-		if( s_version < 42 )
-		{
-			if(tempitem.family == itype_wand)
-			{
-				if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ITEM_FLAG3;
-				
-				tempitem.flags &= ~ITEM_FLAG6;
-			} 
-			else if(tempitem.family == itype_hammer)
-			{
-				tempitem.flags &= ~ITEM_FLAG3;
-			} 
-			else if(tempitem.family == itype_cbyrna)
-			{
-				tempitem.flags |= ITEM_FLAG3;
-				
-				tempitem.flags &= ~ITEM_FLAG6;
-			} 
-			else if(tempitem.family == itype_sword)
-			{
-				if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
-				else tempitem.flags &= ~ITEM_FLAG6;
-			}
-		}
-		
-		if( s_version < 43 )
-		{
-			if(tempitem.family == itype_whistle)
-			{
-				if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ITEM_FLAG3;
-			}
-		}
-		
-		if( s_version < 45 )
-		{
-			if(tempitem.family == itype_flippers)
-			{
-				tempitem.misc1 = 50; //Dive length, default 50 frames -V
-				tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
-			}
-		}
-		
-		if( s_version < 46 )
-		{
-			if(tempitem.family == itype_raft)
-			{
-				tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
-			}
-		}
-		if ( s_version < 34 )  //! set the default counter for older quests. 
-		{
-			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
-			{
-				tempitem.cost_counter = 1;
-			}
-			else 
-			{
-				tempitem.cost_counter = 4;
-			}
-		}
-		
-		if ( s_version < 35 ) //new Lens of Truth flags		
-		{
-			if ( tempitem.family == itype_lens )
-			{
-				if ( get_bit(quest_rules,qr_RAFTLENS) ) 
-				{
-					tempitem.flags |= ITEM_FLAG4;
-				}
-				if ( get_bit(quest_rules,qr_LENSHINTS) ) 
-				{
-					tempitem.flags |= ITEM_FLAG1;
-				}
-				if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
-				{
-					tempitem.flags |= ITEM_FLAG5;
-				}
-				//if ( get_bit(quest_rules,qr_RAFTLENS) ) tempitem.flags &= lensflagHIDESECRETS;
-				//What controlled this before? -Z
-				//lensflagNOXRAY New option, not an old rule. -Z
-			}
-		}
-		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
-		{
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
-				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
-				tempitem.sprite_initiald[q] = 0;
-			}
-			for ( int32_t q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
-			tempitem.sprite_script = 0;
-		}
-		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
-		{
-			tempitem.pickupflag = 0;
-		}
-		
-		if(tempitem.fam_type==0)  // Always do this
-			tempitem.fam_type=1;
 			
-		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
-            
+			//Port quest rules to items
+			if( s_version <= 37) 
+			{
+				if(tempitem.family == itype_flippers)
+				{
+					if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
+					else tempitem.flags &= ~ ITEM_FLAG1;
+				}
+				else if(tempitem.family == itype_sword)
+				{
+					if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+					else tempitem.flags &= ~ ITEM_FLAG5;
+				}
+				else if(tempitem.family == itype_wand)
+				{
+					if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+					else tempitem.flags &= ~ ITEM_FLAG5;
+				}
+				else if(tempitem.family == itype_book || tempitem.family == itype_candle)
+				{
+					//@Emily: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
+					if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
+					else tempitem.flags &= ~ ITEM_FLAG3;
+				}
+			}
+			
+			if( s_version < 38)
+			{
+				if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
+				{
+					if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
+					
+					if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
+					else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
+				} 
+				else if(tempitem.family == itype_arrow)
+				{
+					if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
+					
+					if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
+					else tempitem.flags |= ITEM_FLAG2;
+				}
+			}
+			
+			if( s_version < 39)
+			{
+				if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
+				{
+					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
+					else tempitem.flags &= ~ITEM_FLAG5;
+				}
+				else if(tempitem.family == itype_potion)
+				{
+					if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
+					{
+						tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					}
+					else
+					{
+						tempitem.flags |= ITEM_FLAG3;
+						if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+						else tempitem.flags &= ~ITEM_FLAG4;
+					}
+				}
+				else if(tempitem.family == itype_triforcepiece)
+				{
+					if(get_bit(quest_rules,qr_NONBUBBLETRIFORCE))
+					{
+						tempitem.flags |= ITEM_FLAG3;
+						if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+						else tempitem.flags &= ~ITEM_FLAG4;
+					}
+					else
+					{
+						tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					}
+				}
+			}
+			
+			if( s_version < 40)
+			{
+				if(tempitem.family == itype_ring)
+				{
+					if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
+					else tempitem.flags &= ~ITEM_FLAG1;
+				} 
+				else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
+				{
+					if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
+					else tempitem.flags &= ~ITEM_FLAG8;
+				}
+				if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
+				{
+					if(get_bit(quest_rules,qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
+					else tempitem.flags &= ~ITEM_FLAG7;
+				} 
+				else if(tempitem.family == itype_cbyrna)
+				{
+					tempitem.flags |= ITEM_FLAG7;
+				}
+			}
+			
+			if( s_version < 41 )
+			{
+				if(tempitem.family == itype_sword)
+				{
+					if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
+					else tempitem.flags &= ~ITEM_FLAG9;
+					
+					if(get_bit(quest_rules,qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
+					else tempitem.flags &= ~ITEM_FLAG10;
+				}
+			}
+			
+			if( s_version < 42 )
+			{
+				if(tempitem.family == itype_wand)
+				{
+					if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
+					else tempitem.flags &= ~ITEM_FLAG3;
+					
+					tempitem.flags &= ~ITEM_FLAG6;
+				} 
+				else if(tempitem.family == itype_hammer)
+				{
+					tempitem.flags &= ~ITEM_FLAG3;
+				} 
+				else if(tempitem.family == itype_cbyrna)
+				{
+					tempitem.flags |= ITEM_FLAG3;
+					
+					tempitem.flags &= ~ITEM_FLAG6;
+				} 
+				else if(tempitem.family == itype_sword)
+				{
+					if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
+					else tempitem.flags &= ~ITEM_FLAG6;
+				}
+			}
+			
+			if( s_version < 43 )
+			{
+				if(tempitem.family == itype_whistle)
+				{
+					if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
+					else tempitem.flags &= ~ITEM_FLAG3;
+				}
+			}
+			
+			if( s_version < 45 )
+			{
+				if(tempitem.family == itype_flippers)
+				{
+					tempitem.misc1 = 50; //Dive length, default 50 frames -V
+					tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
+				}
+			}
+			
+			if( s_version < 46 )
+			{
+				if(tempitem.family == itype_raft)
+				{
+					tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
+				}
+			}
+			if ( s_version < 34 )  //! set the default counter for older quests. 
+			{
+				if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
+				{
+					tempitem.cost_counter = 1;
+				}
+				else 
+				{
+					if(get_bit(quest_rules,qr_ENABLEMAGIC))
+						tempitem.cost_counter = 4;
+					else
+					{
+						tempitem.magic = 0;
+						tempitem.cost_counter = -1;
+					}
+				}
+			}
+			
+			if ( s_version < 35 ) //new Lens of Truth flags		
+			{
+				if ( tempitem.family == itype_lens )
+				{
+					if ( get_bit(quest_rules,qr_RAFTLENS) ) 
+					{
+						tempitem.flags |= ITEM_FLAG4;
+					}
+					if ( get_bit(quest_rules,qr_LENSHINTS) ) 
+					{
+						tempitem.flags |= ITEM_FLAG1;
+					}
+					if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
+					{
+						tempitem.flags |= ITEM_FLAG5;
+					}
+				}
+			}
+			if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+			{
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					sprintf(tempitem.initD_label[q],"InitD[%d]",q);
+					sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
+					sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+					tempitem.sprite_initiald[q] = 0;
+				}
+				for ( int32_t q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+				tempitem.sprite_script = 0;
+			}
+			if ( s_version < 47 ) //InitD Labels and Sprite Script Data
+			{
+				tempitem.pickupflag = 0;
+			}
+			
+			if(tempitem.fam_type==0)  // Always do this
+				tempitem.fam_type=1;
+				
+			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
 		}
 	}
 	
