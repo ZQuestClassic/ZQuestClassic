@@ -23579,121 +23579,97 @@ bool checkbunny(int32_t itemid)
 
 bool checkmagiccost(int32_t itemid)
 {
-    if(itemid < 0)
-    {
-        return false;
-    }
-    /*
-    else if(itemsbuf[itemid].cost_counter == 1)
-    {
-        return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
-    }
-    
-    else if(get_bit(quest_rules,qr_ENABLEMAGIC))
-    {
-        return (((current_item_power(itype_magicring) > 0)
-                 ? game->get_maxmagic()
-                 : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
-    }
-    
-    */
-    //! New handling for custom cost counters int32_t he item editor, 25th Dec 2017. -Z
-    switch (itemsbuf[itemid].cost_counter )
-    {
-	case 1: //rupees
+	if(itemid < 0)
 	{
-		if ( current_item_power(itype_wallet) ) return true;
-		return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
-		//break;
-	}
-	case 4: //magic
-	{
-		if (get_bit(quest_rules,qr_ENABLEMAGIC))
-		{
-			return (((current_item_power(itype_magicring) > 0)
-				 ? game->get_maxmagic()
-				 : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
-		}
-		else 
-		{
-			return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
-		}
-		//break;
+		return false;
 	}
 	
-	default:
-	{ 
-		//all other counters.
-		//no need for the QR here, as old quests could only use specific counters.
-		return (game->get_counter(itemsbuf[itemid].cost_counter)+game->get_dcounter(itemsbuf[itemid].cost_counter)>=itemsbuf[itemid].magic);
-		//break;
+	switch (itemsbuf[itemid].cost_counter )
+	{
+		case 1: //rupees
+		{
+			if ( current_item_power(itype_wallet) ) return true;
+			return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
+		}
+		case 4: //magic
+		{
+			if (get_bit(quest_rules,qr_ENABLEMAGIC))
+			{
+				return (((current_item_power(itype_magicring) > 0)
+					 ? game->get_maxmagic()
+					 : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
+			}
+			return true;
+		}
 	}
-	    
-    }
-    
-    
-    //return 1;
+	return (game->get_counter(itemsbuf[itemid].cost_counter)+game->get_dcounter(itemsbuf[itemid].cost_counter)>=itemsbuf[itemid].magic);
 }
 
 void paymagiccost(int32_t itemid, bool ignoreTimer)
 {
-    if(itemid < 0)
-    {
-        return;
-    }
-    else if(itemsbuf[itemid].magic <= 0)
-    {
-	    return;
-    }
+	if(itemid < 0)
+	{
+		return;
+	}
+	else if(itemsbuf[itemid].magic <= 0)
+	{
+		return;
+	}
 	else if(itemsbuf[itemid].flags&ITEM_VALIDATEONLY) //Only validate, not pay, the cost. -V
 	{
 		return;
 	}
-    else if((current_item_power(itype_magicring) > 0 && (itemsbuf[itemid].cost_counter == 4 || (itemsbuf[itemid].cost_counter == 1 && get_bit(quest_rules,qr_OLDINFMAGIC)))) || (!get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_wallet) > 0 && itemsbuf[itemid].cost_counter == 1))
-    {
-        return;
-    }
-        
-    if(itemsbuf[itemid].cost_counter == 1) //rupees
-    {
-	if ( current_item_power(itype_wallet) ) return;
-	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
+	
+	switch(itemsbuf[itemid].cost_counter)
 	{
-		//get_counter
-		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_drupy(-itemsbuf[itemid].magic);
-		return;
+		case 4: //magic
+		{
+			if(!get_bit(quest_rules,qr_ENABLEMAGIC))
+				return;
+			if(current_item_power(itype_magicring) > 0)
+				return;
+			if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
+			{
+				if ( frame % itemsbuf[itemid].magiccosttimer == 0 )
+					game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+				return;
+			}
+			else 
+			{	game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
+				return;
+			}
+			break;
+		}
+		case 1:
+		{
+			if ( current_item_power(itype_wallet) )
+				return;
+			if(get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_magicring) > 0)
+				return;
+			if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
+			{
+				if ( frame % itemsbuf[itemid].magiccosttimer == 0 )
+					game->change_drupy(-itemsbuf[itemid].magic);
+				return;
+			}
+			else 
+			{
+				game->change_drupy(-itemsbuf[itemid].magic);
+				return;
+			}
+			break;
+		}
 	}
-	else 
-	{
-		game->change_drupy(-itemsbuf[itemid].magic);
-		return;
-	}
-    }
-    else if (itemsbuf[itemid].cost_counter == 4) //magic
-    {
-	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
-	{
-		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )  game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
-	}
-	else 
-	{	game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
-		return;
-	}
-    }
-    else //other counters
-    {
-	    
 	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
 	{
 		//game->set_counter
-		if ( frame % itemsbuf[itemid].magiccosttimer == 0 ) game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
+		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )
+			game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
 	}
 	else 
 	{
 		game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
-		return;
 	}
-    }
 }
 
 int32_t Bweapon(int32_t pos)
