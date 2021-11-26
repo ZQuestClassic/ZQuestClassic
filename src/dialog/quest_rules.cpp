@@ -100,7 +100,13 @@ static const GUI::ListData animRulesList
 		"When enabled, bombs won't flash the screen when exploding." },
 	{ "Layers 1 and 2 Are Drawn Under Caves", qr_LAYER12UNDERCAVE, 
 		"If enabled, the Player and the cave they're exiting/entering are"
-		" drawn above Layer 1 and 2 when entering/exiting a cave." }
+		" drawn above Layer 1 and 2 when entering/exiting a cave." },
+	{ "Translucent Shadows", qr_TRANSSHADOWS,
+		"If enabled, the shadows of all sprites are drawn as translucent."
+		" This includes the Player, Weapons, Enemies, and Items."},
+	{ "Shadows Flicker", qr_SHADOWSFLICKER,
+		" If enabled, Link's Shadow and Enemy Shadows only draw every other frame."
+		" Items and Weapons are not affected by this."}
 };
 
 static const GUI::ListData comboRulesList
@@ -296,7 +302,7 @@ static const GUI::ListData compatRulesList
 		"If enabled, Lens hints will draw on layer 0 and hide"
 		" Layer 1 and 2 if there is a secret on that combo."
 		" If disabled, hints will draw above Layer 2 without"
-		" hiding Layers 1 and 2. "},
+		" hiding Layers 1 and 2."},
 	{ "No Fairy Guy Fires", qr_NOFAIRYGUYFIRES, 
 		"If enabled, Fairy Guys will not have fires, and will"
 		" not block the upper portion of the screen."},
@@ -498,7 +504,7 @@ static const GUI::ListData compatRulesList
 		" it will run immediately after."},
 	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT, 
 		"If this rule is enabled, there is no longer a single spawn limit on the number"
-		" of fairies onscreen. This lets enemies and other things drop fairies while "
+		" of fairies onscreen. This lets enemies and other things drop fairies while"
 		" there is a fairy onscreen." },
 	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP, 
 		"If this rule is enabled, arrows will still check for secrets even while they"
@@ -587,16 +593,48 @@ static const GUI::ListData compatRulesList
 		" memory is a security risk (and thus isn't allowed), this rule recreates this"
 		" behavior as safely as possible by having attribute 32 return 0 and attribute"
 		" 31 be set to attribute 32."},
+	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+		"Prior to 2.55 Alpha 46, Script and Friendly class enemies did not exist."
+		" This rule prevents spawning those enemies if scripts in older versions"
+		" were attempting to spawn them and relied on it failing."}
 };
 
 static const GUI::ListData enemiesRulesList
 {
-	{ "Use New Enemy Tiles", qr_NEWENEMYTILES },
-	{ "Enemies Jump/Fly Through Z-Axis", qr_ENEMIESZAXIS },
-	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS },
-	{ "Enemies Always Return", qr_ALWAYSRET },
-	{ "Temporary No Return Disabled", qr_NOTMPNORET },
-	{ "Must Kill All Bosses To Set 'No Return' Screen State", qr_KILLALL },
+	{ "Use New Enemy Tiles", qr_NEWENEMYTILES,
+		"If enabled, enemies will use different, more modern animation instead of their"
+		" more NES-styled animation. Enemies will use New Tile and E. Anim in the enemy editor"
+		" instead of Old Tile and O. Anim, and enemies will have access to features such as"
+		" firing animations, tiles for all 4/8 directions, unique segment tiles, and etc."
+		" If disabled, enemies will use more basic, more limited animation."},
+	{ "Enemies Jump/Fly Through Z-Axis", qr_ENEMIESZAXIS,
+		"If enabled, certain enemies will make use of the Z-Axis in their behaviors."
+		" Tektites, Vires, Pols Voice, Rocks, and Boulders will jump/bounce through"
+		" the Z-Axis instead of faking it via the Y-Axis, Peahats will lose their"
+		" invulnerability while flying but will instead fly high enough that most"
+		" weapons can't hit it without the player jumping, and Summoner Wizzrobes"
+		" will spawn their summoned enemies in the air."},
+	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS, 
+		"If enabled, enemy-carried items are moved offscreen whenever the item"
+		"-carrying enemy spawns, and is only moved back whenever the enemy dies."
+		" This prevents the player from bumping into the enemy to pick up the item"
+		" before the enemy is killed. The exact coordinates the item is set to is"
+		" -128, -128."},
+	{ "Enemies Always Return", qr_ALWAYSRET,
+		"If enabled, regular enemies will always return when you leave the screen"
+		" and come back, regardless of how many you killed before leaving. This"
+		" does not affect 'dungeon boss' screen flagged enemies if the screen is"
+		" cleared, nor does it affect enemies which are flagged to 'never return"
+		" after death'; enemies in these conditions will stay dead regardless of"
+		" this rule."},
+	{ "Must Kill All Bosses To Set 'No Return' Screen State", qr_KILLALL,
+		"If enabled, killing an enemy that has 'Never Returns After Death' set will"
+		" will not set the screen flag that keeps them dead if there are any other"
+		" enemies currently on screen that have that flag set. This means that"
+		" only after killing all enemies with the flag set will the screen be"
+		" marked as having killed the not-returning enemy. Otherwise, if disabled,"
+		" killing any enemy with 'Never Returns After Death' will prevent any other"
+		" enemy in the room with that flag set from also returning."},
 	{ "Line of Sight Traps Obey Solidity And Don't Have Hardcoded Directions", qr_MEANTRAPS, 
 		"If enabled, Line of Sight traps will return when they hit a solid object."
 		" If disabled, they will only return depending on their position as"
@@ -611,18 +649,33 @@ static const GUI::ListData enemiesRulesList
 		" And Don't Have Hardcoded Directions' is enabled, by hitting a"
 		" solid object. If disabled, they will arbitrarily stop at the"
 		" middle of the screen either vertically or horizontally."},
-	{ "Constant Traps Can Pass Through Enemies", qr_PHANTOMPLACEDTRAPS },
-	{ "Flying Enemies Can Appear on Unwalkable Combos", qr_WALLFLIERS },
-	{ "Broken Enemy Shield Tiles", qr_BRKNSHLDTILES },
-	{ "Enemies Don't Flash When Dying", qr_NOFLASHDEATH },
-	{ "Show Shadows", qr_SHADOWS },
-	{ "Translucent Shadows", qr_TRANSSHADOWS },
-	{ "Shadows Flicker", qr_SHADOWSFLICKER },
-	{ "Enemies Flicker When Hit", qr_ENEMIESFLICKER },
-	{ "No Statue Minimum Range Or Double Fireballs", qr_BROKENSTATUES },
-	{ "Use Super Bomb Explosions for Explode on Contact", qr_BOMBCHUSUPERBOMB },
-	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES },
-	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES },
+	{ "Constant Traps Can Pass Through Enemies", qr_PHANTOMPLACEDTRAPS,
+		"Normally, Constant Traps have collision with enemies, and will richochet"
+		" and come back when they hit any enemy, including other traps. Enabling"
+		" this rule disables this behavior."},
+	{ "Flying Enemies Can Spawn on Solid Combos", qr_WALLFLIERS,
+		"If enabled, flying enemies can spawn naturally on solid, non-'No Flying Enemy' flagged"
+		" combos. Otherwise, they can only spawn on non-solid combos. Note that flying enemies"
+		" can naturally move over solid combos regardless of this rule. This rule only affects"
+		" if they can spawn over the Combos if they're solid."},
+	{ "Broken Enemy Shield Tiles", qr_BRKNSHLDTILES,
+		"If enabled, enemies who have their shield broken with the hammer will switch to their"
+		" special tile. If 'Use New Enemy Tiles' is disabled, this only affects enemies that have"
+		" the 'Darknut (NES)' animation style."},
+	{ "Show Shadows", qr_SHADOWS,
+		"If enabled, enemies will draw shadows below them if they are in the air or if they are"
+		" a flying enemy. How these shadows appear are affected by 'Translucent Shadows' and"
+		" 'Shadows Flicker', both of which are found in Animation Rules."},
+	{ "Enemies Flicker When Hit", qr_ENEMIESFLICKER,
+		"If enabled, all enemies flicker when they take damage instead of flashing."
+		" Does not apply to Ganon-type enemies."},
+	{ "Use Super Bomb Explosions for Explode on Contact", qr_BOMBCHUSUPERBOMB,
+		"If enabled, enemies that explode on contact (like bombchus) will use super bomb explosions."
+		" If disabled, they will use regular bomb explosions."},
+	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
+		"If enabled, enemies can go out of bounds without getting removed. This is"
+		" mainly intended for script use and should not be turned on unless a script"
+		" requires it."},
 	{ "Allow Placing Ganon as Screen Enemy", qr_CAN_PLACE_GANON,
 		"If enabled, Ganon-type enemies are allowed to spawn when placed as a screen enemy."
 		" If disabled, Ganon can only be spawned by Ganon type rooms or scripts."},
@@ -726,7 +779,23 @@ static const GUI::ListData nesfixesRulesList
 	{ "Invincible Player Isn't Hurt By Own Fire Weapons", qr_FIREPROOFLINK2 },
 	{ "No Position Offset Of Screen Items", qr_NOITEMOFFSET },
 	{ "Allow Ladder Anywhere", qr_LADDERANYWHERE },
-	{ "Actually Fixed Bomb/Darknut Interaction", qr_TRUEFIXEDBOMBSHIELD }
+	{ "Actually Fixed Bomb/Darknut Interaction", qr_TRUEFIXEDBOMBSHIELD },
+	{ "Lanmolas/Traps don't keep room dead.", qr_NOTMPNORET,
+		"If enabled, Lanmolas don't keep the entire room marked as dead when"
+		" you kill one, and rooms with traps don't keep the room marked as dead"
+		" when you kill the entire room. If disabled, either of these will keep"
+		" enemies from respawning until you leave and re-enter the dungeon."},
+	{ "Enemies Don't Flash When Dying", qr_NOFLASHDEATH,
+		"If enabled, the cset of the enemy's death animation will not flash."
+		" This rule is ignored if the rule 'BS-Zelda Animation Quirks'"
+		" is enabled, as enemies will not flash during their death animation"
+		" if that rule is enabled regardless."},
+	{ "No Statue Minimum Range Or Double Fireballs", qr_BROKENSTATUES,
+		"If enabled, statues will still fire at the player even if the player is close."
+		" Statues also have a 1 in 16 chance to double shoot if enabled, with the second"
+		" shot being 4 pixels to the left. If disabled, statues cannot double shoot, and"
+		" they have a minimum range where they won't fire if the player is within 24 pixels"
+		" of the statue."}
 };
 
 static const GUI::ListData playerRulesList
