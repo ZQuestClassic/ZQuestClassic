@@ -1,7 +1,26 @@
 // 2.55 Change Log
-// Updated 15th Nov, 2021
+// Updated 25th Nov, 2021
 
 //Recent Changes (Since A99)
+
+Fix Din's fire cost compatability bug for old quests
+	( EmilyV, Nov 25th, 2021 )
+
+New homing/bait options
+	( Deedee, Nov 23rd, 2021 )
+
+Add Magic Mirrors
+	( EmilyV, Nov 23rd, 2021 )
+
+Add Bug Net / catching fairies
+	( EmilyV, Nov 17th, 2021 )
+
+New Patra enemy editor options
+	( Deedee, Nov 16th, 2021 )
+
+Fix 'counter %' SCCs which never worked to begin with
+Added Fillable Bottles
+	( EmilyV, Nov 16th, 2021 )
 
 Add bunny/Moon Pearl feature (dmap flag, pearl item class, init data LTM)
 	( EmilyV, Nov 15th, 2021 )
