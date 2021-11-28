@@ -7034,7 +7034,7 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if(clk==640)
+			if((get_bit(quest_rules, qr_OLD_FLAMETRAIL_DURATION) && clk==640) || (!get_bit(quest_rules, qr_OLD_FLAMETRAIL_DURATION) && clk == 180))
 			{
 				dead=1;
 				

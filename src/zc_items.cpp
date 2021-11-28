@@ -121,6 +121,13 @@ int32_t select_dropitem(int32_t item_set)
 					current_chance = 0;
 				}
 			}
+			if(get_bit(quest_rules, qr_SMARTER_DROPS))
+			{
+				if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
+				{
+					current_chance = 0;
+				}
+			}
         }
         
         total_chance+=current_chance;
@@ -154,6 +161,14 @@ int32_t select_dropitem(int32_t item_set)
 			if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
 			{
 				current_chance = 0;
+			}
+		}
+		
+		if(get_bit(quest_rules, qr_SMARTER_DROPS)) //OH SHIT EMILY
+		{											//DEEDEE 'BOUT TO DAB ON YOU
+			if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
+			{
+				current_chance = 0;	//Item droprate being set to 0 faster than I can chug an entire coffee (read: fast)
 			}
 		}
 		

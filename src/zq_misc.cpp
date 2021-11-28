@@ -409,7 +409,7 @@ char ns_string[4];
 const char *roomtype_string[MAXROOMTYPES] =
 {
     "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
     "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };

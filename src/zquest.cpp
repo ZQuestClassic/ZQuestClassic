@@ -7619,7 +7619,7 @@ void refresh(int32_t flags)
             break;
             
         case rTRIFORCE:
-            show_screen_error("Level 9 Entrance",i++, vc(15));
+            show_screen_error("Triforce Check",i++, vc(15));
             break;
             
         case rP_SHOP:
@@ -35550,7 +35550,7 @@ bool ZModule::init(bool d) //bool default
 		const char roomtype_defaults[rMAX][255] =
 		{
 		    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
 		    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
 		    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
 			"More Arrows","Take One Item","Bottle Shop"

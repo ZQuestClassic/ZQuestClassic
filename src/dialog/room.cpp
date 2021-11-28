@@ -30,7 +30,7 @@ static const GUI::ListData roomListData {
 	{ "Door Repair", rREPAIR },
 	{ "Red Potion or Heart Container", rRP_HC },
 	{ "Feed the Goriya", rGRUMBLE },
-	{ "Level 9 Entrance", rTRIFORCE },
+	{ "Triforce Check", rTRIFORCE },
 	{ "Letter Shop", rP_SHOP },
 	{ "Shop", rSHOP },
 	{ "More Bombs", rBOMBS },

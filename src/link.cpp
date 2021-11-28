@@ -9310,7 +9310,7 @@ bool LinkClass::startwpn(int32_t itemid)
 			
 			Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID(),false,0,1,0));
 			
-			if(whistleflag=findentrance(x,y,mfWHISTLE,false))
+			if(whistleflag=findentrance(x,y,mfWHISTLE,get_bit(quest_rules, qr_PERMANENT_WHISTLE_SECRETS)))
 				didstuff |= did_whistle;
 				
 			if((didstuff&did_whistle && itemsbuf[itemid].flags&ITEM_FLAG1) || currscr>=128)
@@ -19738,7 +19738,7 @@ void LinkClass::setEntryPoints(int32_t x2, int32_t y2)
 const char *roomtype_string[rMAX] =
 {
     "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
     "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
@@ -25132,8 +25132,17 @@ void LinkClass::StartRefill(int32_t refillWhat)
         stop_sfx(WAV_ER);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
-	if(FFCore.quest_format[vZelda] < 0x255)//use old behavior
+	if(FFCore.quest_format[vZelda] < 0x255) 
 	{
+		//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
+		//I attempted to change this check to a quest rule, but here's the issue: this affects
+		//triforces and potions as well, not just fairy flags. This means that having a compat rule
+		//would result in a rule that is checked by default for every tileset or quest made before
+		//2.55, one in a place most people won't check. That means that if they were to go to use
+		//the new potion or triforce flags for jinx curing behavior, they'd find that it doesn't work,
+		//all because of an obscure compat rule being checked. Most peoples instincts are sadly not
+		//"go through the compat rules and turn them all off", so this remains a version check instead
+		//of a qr check. Don't make my mistake and waste time trying to change this in vain. -Deedee
 		Start250Refill(refillWhat);
 	}
 	else //use 2.55+ behavior

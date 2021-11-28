@@ -289,7 +289,15 @@ static const GUI::ListData comboRulesList
 		" check if the Player is standing on solid ground and is"
 		" mostly on the damage combo. This does not affect the"
 		" check for bonking your head on a damaging ceiling; see"
-		" 'Sideview Spike Detection Prior to 2.50.1RC3' for that."}
+		" 'Sideview Spike Detection Prior to 2.50.1RC3' for that."},
+	{ "Fairy Rings Don't Remove Sword Jinxes", qr_NONBUBBLEFAIRIES,
+		"If enabled, fairy ring flags won't heal sword jinxes when the player steps on them."
+		" This used to prevent 'Fairy Combos Remove Item Jinxes' from working, but"
+		" this has since been patched and both quest rules can work independently."},
+	{ "Fairy Rings Remove Item Jinxes", qr_ITEMBUBBLE,
+		"If enabled, fairy ring flags will heal item jinxes when the player steps on them."
+		" This used to also affect potions and triforce pieces, but this behavior has since"
+		" been relocated to the respective item flags."}
 };
 
 static const GUI::ListData compatRulesList
@@ -596,7 +604,15 @@ static const GUI::ListData compatRulesList
 	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
 		"Prior to 2.55 Alpha 46, Script and Friendly class enemies did not exist."
 		" This rule prevents spawning those enemies if scripts in older versions"
-		" were attempting to spawn them and relied on it failing."}
+		" were attempting to spawn them and relied on it failing."},
+	{ "Old fire trail duration", qr_OLD_FLAMETRAIL_DURATION,
+		"Prior to 2.55 Alpha 100, Fire Trails lasted for 640 frames by default, or a little"
+		" over 10 and a half seconds. They have since been reduced to 180 frames, or 3 seconds."
+		" Enabling this will revert back to the old duration."},
+	{ "Broken Magic Book Costs", qr_BROKENBOOKCOST,
+		"In older versions, the magic check for the Magic Book was broken. It paid the cost correctly,"
+		" but if it couldn't pay the cost, it would still create the flame and trigger fire secrets."
+		" Enabling this recreates this bug."}
 };
 
 static const GUI::ListData enemiesRulesList
@@ -672,10 +688,6 @@ static const GUI::ListData enemiesRulesList
 	{ "Use Super Bomb Explosions for Explode on Contact", qr_BOMBCHUSUPERBOMB,
 		"If enabled, enemies that explode on contact (like bombchus) will use super bomb explosions."
 		" If disabled, they will use regular bomb explosions."},
-	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
-		"If enabled, enemies can go out of bounds without getting removed. This is"
-		" mainly intended for script use and should not be turned on unless a script"
-		" requires it."},
 	{ "Allow Placing Ganon as Screen Enemy", qr_CAN_PLACE_GANON,
 		"If enabled, Ganon-type enemies are allowed to spawn when placed as a screen enemy."
 		" If disabled, Ganon can only be spawned by Ganon type rooms or scripts."},
@@ -685,31 +697,62 @@ static const GUI::ListData enemiesRulesList
 	{ "Enemies check closest bait", qr_FIND_CLOSEST_BAIT,
 		"If enabled, enemies will check all bait on screen and home towards"
 		" the closest one in range if they have hunger. If disabled, they will"
-		" instead check only the oldest-placed bait on the screen."}
+		" instead check only the oldest-placed bait on the screen."},
+		
+	//Maybe we should keep this one last always? -Deedee
+	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
+		"If enabled, enemies can go out of bounds without getting removed. This is"
+		" mainly intended for script use and should not be turned on unless a script"
+		" requires it."}
 };
 
 static const GUI::ListData itemRulesList
 {
-	{ "Enable Magic", qr_ENABLEMAGIC },
-	{ "True Arrows", qr_TRUEARROWS },
-	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT },
-	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFLINK },
-	{ "Scripted Bomb LWeapons Hurt Player", qr_OUCHBOMBS },
-	{ "Scripted Melee Weapons Can't Pick Up Items", qr_NOITEMMELEE },
-	{ "'Hearts Required' Affects Non-Special Items", qr_HEARTSREQUIREDFIX },
-	{ "Big Triforce Pieces", qr_4TRI },
-	{ "3 or 6 Triforce Total", qr_3TRI },
-	{ "Fairy Combos Don't Remove Sword Jinxes", qr_NONBUBBLEFAIRIES },
-	{ "Fairy Combos Remove Item Jinxes", qr_ITEMBUBBLE },
-	{ "Broken Magic Book Costs", qr_BROKENBOOKCOST },
-	{ "Reroll Useless Drops", qr_SMARTDROPS },
+	{ "Enable Magic Counter", qr_ENABLEMAGIC,
+		"Enables Magic. Magic drops become enabled in dropsets, items that"
+		" use magic will check for it, and magic meters on subscreens"
+		" are enabled. If disabled, items set to use magic as their cost"
+		" are instead free, and nothing will drop magic."},
+	{ "Enable Arrow Counter", qr_TRUEARROWS,
+		"Enables arrow ammo. Arrow ammo becomes enabled in dropsets, and"
+		" the Bow and Arrow both check and use this arrow counter. If disabled,"
+		" the Bow and Arrow will instead use Rupees, as in NES Zelda."},
+	{ "'Hearts Required' Affects Non-Special Items", qr_HEARTSREQUIREDFIX,
+		"If enabled, the heart requirement check applies no matter where the item"
+		" is picked up. If disabled, it only applies to Special Items in the Special"
+		" Item Roomtype, specifically the ones given by Room Guys."},
+	{ "Big Triforce Pieces", qr_4TRI,
+		"If enabled, the triforce requirement for the Triforce Check roomtype is"
+		" reduced, and each triforce that you pick up will fill in 2 slots instead"
+		" of 1 on the subscreen triforce frame. The extra slot it fills is equal to"
+		" the level number of the triforce you picked up + 4."},
+	{ "3 or 6 Triforce Total", qr_3TRI,
+		"If enabled, the triforce requirement for the Triforce Check roomtype is"
+		" lowered to 6 triforce pieces, from 8. This is further reduced by the"
+		" 'Big Triforce Pieces' rule, which halves the requirement to 3."},
+	{ "Reroll Drops If Capacity is Zero", qr_SMARTDROPS,
+		"If enabled, drops are rerolled if the item tries to increase a counter"
+		" by 1 or more, but that counter has a max capacity of 0. A possible use"
+		" for this would be having Bombs or Arrows not drop until you get the Bomb"
+		" Bag or the Bow and Arrow, for example. Not to be confused with rerolling"
+		" drops when that counter is full; see 'Reroll Drops If Capacity is Full' for"
+		" that behavior."},
+	{ "Reroll Drops If Capacity is Full", qr_SMARTER_DROPS,
+		"If enabled, drops are rerolled if the item tries to increase a counter"
+		" by 1 or more, but that counter is already at or above it's max capacity."
+		" This would, for example, prevent arrows from dropping if you already have"
+		" max arrows, potentially rerolling it with a more useful item."},
 	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS },
 	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION },
 	{ "Fairies spawn with random direction", qr_FAIRYDIR },
 	{ "Bottles can't be used with any maxed counter", qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
 		"If enabled, bottled items cannot be used if ANY of the 3 (non-None) counters it fills "
 		" are already at maximum capacity.\n"
-		"Otherwise, bottled items can be used if AT LEAST ONE of it's counters is not full."}
+		"Otherwise, bottled items can be used if AT LEAST ONE of it's counters is not full."},
+	{ "Whistle triggers can be permanent", qr_PERMANENT_WHISTLE_SECRETS,
+		"If enabled, whistle triggers are allowed to be permanent. This means that whistle triggers"
+		" will set the secret screen state, unless 'Screen->Secrets are Temporary' is checked for the"
+		" current screen."}
 };
 
 static const GUI::ListData miscRulesList
@@ -821,6 +864,25 @@ static const GUI::ListData weaponsRulesList
 	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE },
 	{ "Boomerang EWeapons Corrected Animation", qr_CORRECTED_EW_BRANG_ANIM },
 	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD },
+	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT,
+		"If enabled, script created and enemy created fires will only light up"
+		" the room temporarily, and will unlight the room when the last one"
+		" disappears. This used to affect Player-created fire, but that functionality"
+		" can now be toggled on a per-candle or per-book basis in the item editor."},
+	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFLINK,
+		"If enabled, script-created Fire LWeapons will not hurt the Player. In the original"
+		" NES Zelda, the Player took damage from their own fire weapons. Though Candle and Book"
+		"-created fire weapons are determined by the item editor for those items now, this rule"
+		" still affects script-created player fire weapons."
+		" If disabled, the Player will take damage from script created player fire weapons, even though"
+		" they are player weapons and not enemy weapons."},
+	{ "Scripted Bomb LWeapons Hurt Player", qr_OUCHBOMBS,
+		"If enabled, script-created player Bomb Explosions hurt the player. This mimics more modern"
+		" Zelda games where the players own bombs can hurt them. This used to affect player-placed bombs,"
+		" but that functionality has since been moved to the bomb item in the item editor. This rule now"
+		" only determines if script-created player bombs can hurt the player."},
+	
+	//should maybe keep this last as well? -Deedee
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN }
 };
 
