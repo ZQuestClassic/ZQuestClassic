@@ -238,7 +238,7 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	setPreferredHeight(Size::pixels(contH));
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
-		content->arrange(x, y, content->getTotalWidth(), content->getTotalHeight());
+		content->arrange(x, y, contW, std::max(contH,content->getTotalHeight()));
 }
 
 void ScrollingPane::realize(DialogRunner& runner)

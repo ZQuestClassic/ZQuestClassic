@@ -693,6 +693,16 @@ TextField( \
 		local_comboref.attributes[ind] = val; \
 	})
 
+#define TRIGFLAG(ind, str) \
+Checkbox( \
+	text = str, hAlign = 0.0, \
+	checked = (local_comboref.triggerflags[ind/32] & (1<<(ind%32))), \
+	fitParent = true, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(local_comboref.triggerflags[ind/32],(1<<(ind%32)),state); \
+	} \
+)
 
 //}
 
@@ -980,6 +990,66 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							CMB_ATTRIBUTE(1), DummyWidget(colSpan = 2),
 							CMB_ATTRIBUTE(2), DummyWidget(colSpan = 2),
 							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 2)
+						)
+					)),
+					TabRef(name = "Triggers", Column(//ScrollingPane(
+						Column(
+							padding = 0_px,
+							Row(
+								padding = 0_px,
+								Label(text = "Min Level (Applies to all):"),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 214748, val = local_comboref.triggerlevel,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.triggerlevel = val;
+									})
+							),
+							Rows<4>(
+								framed = true,
+								TRIGFLAG(0,"Sword"),
+								TRIGFLAG(1,"Sword Beam"),
+								TRIGFLAG(2,"Boomerang"),
+								TRIGFLAG(3,"Bomb"),
+								TRIGFLAG(4,"Super Bomb"),
+								TRIGFLAG(5,"Lit Bomb"),
+								TRIGFLAG(6,"Lit Super Bomb"),
+								TRIGFLAG(7,"Arrow"),
+								TRIGFLAG(8,"Fire"),
+								TRIGFLAG(9,"Whistle"),
+								TRIGFLAG(10,"Bait"),
+								TRIGFLAG(11,"Wand"),
+								TRIGFLAG(12,"Magic"),
+								TRIGFLAG(13,"Wind"),
+								TRIGFLAG(14,"Refl. Magic"),
+								TRIGFLAG(15,"Refl. Fireball"),
+								TRIGFLAG(16,"Refl. Rock"),
+								TRIGFLAG(17,"Hammer"),
+								TRIGFLAG(32,"Hookshot"),
+								TRIGFLAG(33,"Sparkle"),
+								TRIGFLAG(34,"Byrna"),
+								TRIGFLAG(35,"Refl. Beam"),
+								TRIGFLAG(36,"Stomp"),
+								DummyWidget(),
+								TRIGFLAG(37,"Custom Weapon 1"),
+								TRIGFLAG(38,"Custom Weapon 2"),
+								TRIGFLAG(39,"Custom Weapon 3"),
+								TRIGFLAG(40,"Custom Weapon 4"),
+								TRIGFLAG(41,"Custom Weapon 5"),
+								TRIGFLAG(42,"Custom Weapon 6"),
+								TRIGFLAG(43,"Custom Weapon 7"),
+								TRIGFLAG(44,"Custom Weapon 8"),
+								TRIGFLAG(45,"Custom Weapon 9"),
+								TRIGFLAG(46,"Custom Weapon 10")
+							),
+							Rows<4>(
+								framed = true,
+								TRIGFLAG(47,"Always Triggered"),
+								TRIGFLAG(48,"Triggers Secrets")
+							)
 						)
 					))
 				),
