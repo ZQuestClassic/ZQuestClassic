@@ -10447,39 +10447,43 @@ int32_t get_register(const int32_t arg)
 		case COMBODATTRIBYTES: 		GET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATTRISHORTS: 		GET_COMBO_VAR_INDEX(attrishorts,	"Attrishorts[]", 8); break;			//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGARR:
+		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Flags[]", (ri->combosref*10000));
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Flags[]", (ri->combosref * 10000));
 				ret = 0;
 			}
-			else if ( ((unsigned)indx) > 15 )
-			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Flags[]", indx); 
+			else if (((unsigned)indx) > 15)
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Flags[]", indx);
 				ret = 0;
-			} 
-			else 
-			{ 
-				ret = (combobuf[ri->combosref].usrflags & 1<<indx) ? 10000L : 0L;
-			} 
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].usrflags & 1 << indx) ? 10000L : 0L;
+			}
 			break;
+		}
 		case COMBODGENFLAGARR:
+		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref*10000));
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
 				ret = 0;
 			}
-			else if ( ((unsigned)indx) > 0 )
-			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx); 
+			else if (((unsigned)indx) > 0)
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
 				ret = 0;
-			} 
-			else 
-			{ 
-				ret = (combobuf[ri->combosref].genflags & 1<<indx) ? 10000L : 0L;
-			} 
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].genflags & 1 << indx) ? 10000L : 0L;
+			}
 			break;
+		}
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -18761,35 +18765,39 @@ void set_register(const int32_t arg, const int32_t value)
 		case COMBODATTRIBYTES: 	SET_COMBO_VAR_INDEX(attribytes,	"Attribytes[]", 8); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODATTRISHORTS: 	SET_COMBO_VAR_INDEX2(attrishorts,	"Attrishorts[]", 8, -32768, 32767); break;				//LONG, 4 INDICES, INDIVIDUAL VALUES
 		case COMBODUSRFLAGARR:
+		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Flags[]", (ri->combosref*10000));
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "Flags[]", (ri->combosref * 10000));
 			}
-			else if ( ((unsigned)indx) > 15 )
-			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Flags[]", indx); 
-			} 
-			else 
-			{ 
-				SETFLAG(combobuf[ri->combosref].usrflags, 1<<indx, value);
-			} 
+			else if (((unsigned)indx) > 15)
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "Flags[]", indx);
+			}
+			else
+			{
+				SETFLAG(combobuf[ri->combosref].usrflags, 1 << indx, value);
+			}
 			break;
+		}
 		case COMBODGENFLAGARR:
+		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
 			{
-				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref*10000));
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
 			}
-			else if ( ((unsigned)indx) > 0 )
-			{ 
-				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx); 
-			} 
-			else 
-			{ 
-				SETFLAG(combobuf[ri->combosref].genflags, 1<<indx, value);
-			} 
+			else if (((unsigned)indx) > 0)
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
+			}
+			else
+			{
+				SETFLAG(combobuf[ri->combosref].genflags, 1 << indx, value);
+			}
 			break;
+		}
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
