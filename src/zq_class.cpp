@@ -9417,83 +9417,85 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
             {
                 new_return(19);
             }
-	    
-	    for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-	    {
-		if(!p_iputl(combobuf[i].attributes[q],f))
-		{
-			new_return(20);
-		}
-	    }
-	    if(!p_iputl(combobuf[i].usrflags,f))
-	    {
-			new_return(21);
-	    }	 
-	    for ( int32_t q = 0; q < 3; q++ ) 
-	    {
-	        if(!p_iputl(combobuf[i].triggerflags[q],f))
-	        {
-			new_return(22);
-	        }
-	    }
-	   
-	    if(!p_iputl(combobuf[i].triggerlevel,f))
-	    {
-			new_return(23);
-	    }	
-	    for ( int32_t q = 0; q < 11; q++ ) 
-	    {
-	        if(!p_putc(combobuf[i].label[q],f))
-	        {
-			new_return(24);
-	        }
-	    }
-	    for ( int32_t q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
-	    {
-		if(!p_putc(combobuf[i].attribytes[q],f))
-		{
-			new_return(25);
-		}
-	    }
-	    if(!p_iputw(combobuf[i].script,f))
-		{
-			new_return(26);
-		}
-	    for ( int32_t q = 0; q < 2; q++ )
-	    {
-		if(!p_iputl(combobuf[i].initd[q],f))
-		{
-			new_return(27);
-		}
-	    }
-	    if(!p_iputl(combobuf[i].o_tile,f))
-		{
-			new_return(28);
-		}
-	    if(!p_putc(combobuf[i].cur_frame,f))
-		{
-			new_return(29);
-		}
-	    if(!p_putc(combobuf[i].aclk,f))
-		{
-			new_return(30);
-		}
-	    for ( int32_t q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
-	    {
-		if(!p_putc(combobuf[i].attribytes[q],f))
-		{
-			new_return(31);
-		}
-	    }
-	    for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
-	    {
-		if(!p_iputw(combobuf[i].attrishorts[q],f))
-		{
-			new_return(32);
-		}
-	    }
-	    
-		    
+			
+			for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
+			{
+				if(!p_iputl(combobuf[i].attributes[q],f))
+				{
+					new_return(20);
+				}
+			}
+			if(!p_iputl(combobuf[i].usrflags,f))
+			{
+				new_return(21);
+			}	 
+			if(!p_iputw(combobuf[i].genflags,f))
+			{
+				new_return(33);
+			}	 
+			for ( int32_t q = 0; q < 3; q++ ) 
+			{
+				if(!p_iputl(combobuf[i].triggerflags[q],f))
+				{
+					new_return(22);
+				}
+			}
+		   
+			if(!p_iputl(combobuf[i].triggerlevel,f))
+			{
+				new_return(23);
+			}	
+			for ( int32_t q = 0; q < 11; q++ ) 
+			{
+				if(!p_putc(combobuf[i].label[q],f))
+				{
+					new_return(24);
+				}
+			}
+			for ( int32_t q = 0; q < 4; q++ ) //attribytes were sized 4 in this version, I bumped them up.
+			{
+				if(!p_putc(combobuf[i].attribytes[q],f))
+				{
+					new_return(25);
+				}
+			}
+			if(!p_iputw(combobuf[i].script,f))
+			{
+				new_return(26);
+			}
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				if(!p_iputl(combobuf[i].initd[q],f))
+				{
+					new_return(27);
+				}
+			}
+			if(!p_iputl(combobuf[i].o_tile,f))
+			{
+				new_return(28);
+			}
+			if(!p_putc(combobuf[i].cur_frame,f))
+			{
+				new_return(29);
+			}
+			if(!p_putc(combobuf[i].aclk,f))
+			{
+				new_return(30);
+			}
+			for ( int32_t q = 4; q < 8; q++ ) //I bumped up attribytes -Dimi
+			{
+				if(!p_putc(combobuf[i].attribytes[q],f))
+				{
+					new_return(31);
+				}
+			}
+			for ( int32_t q = 0; q < 8; q++ ) //I also added attrishorts -Dimi
+			{
+				if(!p_iputw(combobuf[i].attrishorts[q],f))
+				{
+					new_return(32);
+				}
+			}
         }
         
         if(writecycle==0)

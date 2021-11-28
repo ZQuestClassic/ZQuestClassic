@@ -10,52 +10,6 @@ extern zcmodule moduledata;
 extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t edit_combo_cset;
-bool isHSComboFlagType(int32_t type)
-{
-	switch(type)
-	{
-		case cPUSH_WAIT:
-		case cPUSH_HEAVY:
-		case cPUSH_HW:
-		case cL_STATUE:
-		case cR_STATUE:
-		case cPUSH_HEAVY2:
-		case cPUSH_HW2:
-		case cPOUND:
-		case cC_STATUE:
-		case cMIRROR:
-		case cMIRRORSLASH:
-		case cMIRRORBACKSLASH:
-		case cMAGICPRISM:
-		case cMAGICPRISM4:
-		case cMAGICSPONGE:
-		case cEYEBALL_A:
-		case cEYEBALL_B:
-		case cEYEBALL_4:
-		case cBUSH:
-		case cFLOWERS:
-		case cLOCKBLOCK:
-		case cLOCKBLOCK2:
-		case cBOSSLOCKBLOCK:
-		case cBOSSLOCKBLOCK2:
-		case cCHEST:
-		case cCHEST2:
-		case cLOCKEDCHEST:
-		case cLOCKEDCHEST2:
-		case cBOSSCHEST:
-		case cBOSSCHEST2:
-		case cBUSHNEXT:
-		case cBUSHTOUCHY:
-		case cFLOWERSTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		case cSIGNPOST:
-		case cCSWITCHBLOCK:
-		case cLANTERN:
-		case cTRIGGERGENERIC:
-			return true;
-	}
-	return false;
-}
 using std::string;
 using std::to_string;
 
@@ -329,8 +283,6 @@ void ComboEditorDialog::loadComboType()
 				attributestrs[q] = "Attributes["+to_string(q)+"]:";
 		}
 	}
-	if(isHSComboFlagType(lasttype))
-		flagstrs[15] = "Hook-Grabbable";
 	switch(lasttype) //Label names
 	{
 		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
@@ -698,6 +650,16 @@ l_flags[ind] = Checkbox( \
 		} \
 	)
 
+#define CMB_GEN_FLAG(ind,str) \
+Checkbox(text = str, \
+		minwidth = FLAGS_WID, hAlign = 0.0, \
+		checked = local_comboref.genflags & (1<<ind), fitParent = true, \
+		onToggleFunc = [&](bool state) \
+		{ \
+			SETFLAG(local_comboref.genflags,(1<<ind),state); \
+		} \
+	)
+
 #define CMB_ATTRIBYTE(ind) \
 l_attribytes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
 TextField( \
@@ -729,7 +691,7 @@ TextField( \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_comboref.attributes[ind] = val; \
-	}) \
+	})
 
 
 //}
@@ -799,6 +761,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					ptr = &cmb_tab1,
 					TabRef(name = "Basic", Row(
 						Rows<2>(
+							Label(text = "Label:", hAlign = 1.0),
+							TextField(
+								fitParent = true,
+								type = GUI::TextField::type::TEXT,
+								maxLength = 10,
+								text = std::string(local_comboref.label),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+								{
+									std::string foo;
+									foo.assign(text);
+									strncpy(local_comboref.label, foo.c_str(), 10);
+								}),
 							Label(text = "CSet 2:", hAlign = 1.0),
 							TextField(
 								fitParent = true,
@@ -946,23 +920,39 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Flags", Columns<8>(
-						CMB_FLAG(0),
-						CMB_FLAG(1),
-						CMB_FLAG(2),
-						CMB_FLAG(3),
-						CMB_FLAG(4),
-						CMB_FLAG(5),
-						CMB_FLAG(6),
-						CMB_FLAG(7),
-						CMB_FLAG(8),
-						CMB_FLAG(9),
-						CMB_FLAG(10),
-						CMB_FLAG(11),
-						CMB_FLAG(12),
-						CMB_FLAG(13),
-						CMB_FLAG(14),
-						CMB_FLAG(15)
+					TabRef(name = "Flags", Column(
+						padding = 0_px,
+						Columns<2>(
+							framed = true,
+							frameText = "General Flags",
+							topPadding = DEFAULT_PADDING+0.4_em,
+							bottomPadding = DEFAULT_PADDING+1_px,
+							bottomMargin = 1_em,
+							CMB_GEN_FLAG(0,"Hook-Grabbable")
+						),
+						Columns<8>(
+							framed = true,
+							frameText = "Variable Flags",
+							topPadding = DEFAULT_PADDING+0.4_em,
+							bottomPadding = DEFAULT_PADDING+1_px,
+							bottomMargin = 1_em,
+							CMB_FLAG(0),
+							CMB_FLAG(1),
+							CMB_FLAG(2),
+							CMB_FLAG(3),
+							CMB_FLAG(4),
+							CMB_FLAG(5),
+							CMB_FLAG(6),
+							CMB_FLAG(7),
+							CMB_FLAG(8),
+							CMB_FLAG(9),
+							CMB_FLAG(10),
+							CMB_FLAG(11),
+							CMB_FLAG(12),
+							CMB_FLAG(13),
+							CMB_FLAG(14),
+							CMB_FLAG(15)
+						)
 					)),
 					TabRef(name = "Attribs", ScrollingPane(
 						fitParent = true,

@@ -3299,3 +3299,9 @@ enum BottleFlag
 	BTF_CUREITEMJINX,
 	BTF_MAX
 };
+
+enum ComboGenFlag
+{
+	GENFLAG_HOOKSHOTTABLE,
+	GENFLAG_MAX
+};
