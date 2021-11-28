@@ -115,6 +115,8 @@ public:
 	}
 	//Static constructors for specific lists
 	static ListData itemclass(bool numbered = false);
+	static ListData combotype(bool numbered = false);
+	static ListData mapflag();
 	static ListData counters();
 	static ListData miscsprites();
 	static ListData bottletype();

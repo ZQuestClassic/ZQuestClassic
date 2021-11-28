@@ -776,7 +776,12 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 				font = oldfont;
 			}
 			break;
-			
+		
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS|D_REDRAW;
+		case MSG_LOSTFOCUS:
+			return D_REDRAW;
+		
 		case MSG_CLICK:
 		{
 			if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
@@ -791,6 +796,7 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(mouse_in_rect(d->x+d->w-((d->flags&D_EXIT)?39:21), d->y+5, 16, 14))
 				{
+					broadcast_dialog_message(MSG_DRAW,0);
 					InfoDialog("Info", helpstr).show();
 				}
 			}
@@ -7099,6 +7105,11 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		}
 		break;
 		
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS|D_REDRAW;
+		case MSG_LOSTFOCUS:
+			return D_REDRAW;
+			
 		case MSG_CLICK:
 		{
 			// is the mouse on one of the tab arrows (if visible) or in the tab area?

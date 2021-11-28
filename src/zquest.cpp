@@ -35461,29 +35461,49 @@ bool ZModule::init(bool d) //bool default
 		
 		const char default_ctype_strings[cMAX][255] = 
 		{
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
-			"Switch", "Switch Block", "Lantern"
+			"(None)", "Stairs [A]", "Cave (Walk Down) [A]", "Liquid", "Armos",
+			"Grave", "Dock", "-UNDEF", "Push (Wait)", "Push (Heavy)",
+			"Push (Heavy, Wait)", "Left Statue", "Right Statue", "Slow Walk", "Conveyor Up",
+			"Conveyor Down", "Conveyor Left", "Conveyor Right", "Swim Warp [A]", "Dive Warp [A]",
+			"Ladder or Hookshot", "Step->Secrets (Temporary)", "Step->Secrets (Permanent)", "-WINGAME", "Slash",
+			"Slash (Item)", "Push (Very Heavy)", "Push (Very Heavy, Wait)", "Pound", "Hookshot Grab",
+			"-HSBRIDGE", "Damage (1/2 Heart)", "Damage (1 Heart)", "Damage (2 hearts)", "Damage (4 Hearts)",
+			"Center Statue", "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way)", "Trap (Horizontal, Constant)",
+			"Trap (Vertical, Constant)", "Direct Warp [A]", "Hookshot Only", "Overhead", "No Flying Enemies",
+			"Magic Mirror (4-Way)", "Magic Mirror (Up-Left, Down-Right)", "Magic Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)", "Magic Prism (4-Way)",
+			"Block Magic", "Cave (Walk Up) [A]", "Eyeball (8-Way A)", "Eyeball (8-Way B)", "No Jumping Enemies",
+			"Bush", "Flowers", "Tall Grass", "Shallow Liquid", "Lock Block (Normal)",
+			"Lock Block (Normal, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
+			"Treasure Chest (Normal)", "Treasure Chest (Normal, Copycat)", "Treasure Chest (Locked)", "Treasure Chest (Locked, Copycat)", "Treasure Chest (Boss)",
+			"Treasure Chest (Boss, Copycat)", "Reset Room", "Save Point", "Save-Quit Point", "Cave (Walk Down) [B]",
+			"Cave (Walk Down) [C]", "Cave (Walk Down) [D]", "Stairs [B]", "Stairs [C]", "Stairs [D]",
+			"Direct Warp [B]", "Direct Warp [C]", "Direct Warp [D]", "Cave (Walk Up) [B]", "Cave (Walk Up) [C]",
+			"Cave (Walk Up) [D]", "Swim Warp [B]", "Swim Warp [C]", "Swim Warp [D]", "Dive Warp [B]",
+			"Dive Warp [C]", "Dive Warp [D]", "Stairs [Random]", "Direct Warp [Random]", "Auto Side Warp [A]",
+			"Auto Side Warp [B]","Auto Side Warp [C]","Auto Side Warp [D]","Auto Side Warp [Random]","Sensitive Warp [A]",
+			"Sensitive Warp [B]","Sensitive Warp [C]","Sensitive Warp [D]","Sensitive Warp [Random]","Step->Secrets (Sensitive, Temp)",
+			"Step->Secrets (Sensitive, Perm.)","Step->Next","Step->Next (Same)","Step->Next (All)","Step->Next (Copycat)",
+			"No Enemies","Block Arrow (L1)","Block Arrow (L1, L2)","Block Arrow (All)","Block Brang (L1)",
+			"Block Brang (L1, L2)","Block Brang (All)","Block Sword Beam","Block All","Block Fireball",
+			"Damage (8 hearts)","Damage (16 hearts)","Damage (32 hearts)","-Unused","Spinning Tile (Immediate)",
+			"-Unused","Screen Freeze (Except FFCs)","Screen Freeze (FFCs Only)","No Ground Enemies","Slash->Next",
+			"Slash->Next (Item)","Bush->Next","Slash (Continuous)","Slash (Item, Continuous)","Bush (Continuous)",
+			"Flowers (Continuous)","Tall Grass (Continuous)","Slash->Next (Continuous)","Slash->Next (Item, Continuous)","Bush->Next (Continuous)",
+			"Eyeball (4-Way)","Tall Grass->Next","Script 01","Script 02","Script 03",
+			"Script 04","Script 05","Script 06","Script 07","Script 08",
+			"Script 09","Script 10","Script 11","Script 12","Script 13",
+			"Script 14","Script 15","Script 16","Script 17","Script 18",
+			"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
+			"Bridge", "Signpost", "Switch", "Switch Block", "Lantern"
 		};
 		
 		for ( int32_t q = 0; q < cMAX; q++ )
 		{
-			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
+			if(!default_ctype_strings[q] || default_ctype_strings[q][0]=='-')
+			{
+				strcpy(moduledata.combo_type_names[q],"-");
+			}
+			else strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
 		}
 		
 		//map flags
