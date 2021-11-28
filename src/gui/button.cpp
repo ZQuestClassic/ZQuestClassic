@@ -12,7 +12,7 @@ namespace GUI
 
 Button::Button(): text(), message(-1)
 {
-	setPreferredHeight(2.5_em);
+	setPreferredHeight(3_em);
 }
 
 void Button::setText(std::string newText)
@@ -33,7 +33,7 @@ void Button::applyVisibility(bool visible)
 
 void Button::calculateSize()
 {
-	setPreferredWidth(8_spx+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	setPreferredWidth(sized(10_px,16_px)+Size::pixels(gui_text_width(widgFont, text.c_str())));
 }
 
 void Button::applyFont(FONT* newFont)

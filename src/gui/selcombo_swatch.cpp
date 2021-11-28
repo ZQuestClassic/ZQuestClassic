@@ -44,7 +44,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				if(d->d1)
 					overtile16(buf,combobuf[d->d1].o_tile,2,2,d->d2,0);
 					
-				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-2, d->h-2);
+				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
 				destroy_bitmap(buf);
 				jwin_draw_frame(bigbmp,0,0,d->h,d->h,FR_DEEP);
 				blit(bigbmp,screen,0,0,d->x,d->y,d->h,d->h);

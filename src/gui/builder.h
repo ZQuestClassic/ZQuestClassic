@@ -434,8 +434,8 @@ using ::GUI::operator ""_spx;
 #define _d DummyWidget()
 
 #define INITD_ROW(ind, d_mem, lab_mem) \
-	Row(vPadding = 0_px, \
-		TextField(maxLength = 64, \
+Row(vPadding = 0_px, \
+	TextField(maxLength = 64, \
 		text = std::string(lab_mem[ind]), \
 		type = GUI::TextField::type::TEXT, \
 		width = 8_em, \
@@ -450,6 +450,25 @@ using ::GUI::operator ""_spx;
 					lab_mem[ind][q] = 0; \
 			} \
 		} \
+	), \
+	TextField( \
+		type = GUI::TextField::type::SWAP_ZSINT, \
+		val = d_mem[ind], \
+		width = 6.5_em+16_px, \
+		leftPadding = 0_px, \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+		{ \
+			d_mem[ind] = val; \
+		} \
+	) \
+)
+
+#define INITD_ROW2(ind, d_mem) \
+Row(vPadding = 0_px, \
+	Label( text = "InitD["+std::to_string(ind)+"]:", \
+		textAlign = 2, \
+		width = 6_em, \
+		rightPadding = 0_px \
 	), \
 	TextField( \
 		type = GUI::TextField::type::SWAP_ZSINT, \

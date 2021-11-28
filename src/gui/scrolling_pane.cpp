@@ -181,6 +181,7 @@ ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
 
 void ScrollingPane::scroll(int32_t amount) noexcept
 {
+	if(maxScrollPos < 0) return; //No scrolling
 	int32_t newPos=std::clamp(scrollPos+amount, 0, maxScrollPos);
 	amount=newPos-scrollPos;
 	scrollPos=newPos;
@@ -221,7 +222,7 @@ void ScrollingPane::applyVisibility(bool visible)
 void ScrollingPane::calculateSize()
 {
 	setPreferredWidth(25_em);
-	setPreferredHeight(18_em);
+	setPreferredHeight(10_em);
 	if(content)
 	{
 		content->calculateSize();
@@ -238,7 +239,11 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	setPreferredHeight(Size::pixels(contH));
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
-		content->arrange(x, y, contW, std::max(contH,content->getTotalHeight()));
+	{
+		content->arrange(x, y, getWidth(), std::max(getHeight(),content->getTotalHeight()));
+		contentHeight=content->getTotalHeight();
+		maxScrollPos=contentHeight-getHeight();
+	}
 }
 
 void ScrollingPane::realize(DialogRunner& runner)

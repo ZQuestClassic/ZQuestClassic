@@ -15,7 +15,7 @@
 #include <string_view>
 #include <map>
 
-void call_combo_editor(int32_t index);
+bool call_combo_editor(int32_t index);
 
 class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
@@ -48,9 +48,9 @@ private:
 	newcombo local_comboref;
 	std::string typehelp, flaghelp;
 	int32_t lasttype;
-	GUI::ListData list_ctype, list_flag,
+	GUI::ListData list_ctype, list_flag, list_combscript,
 		list_counters, list_sprites, list_weaptype, list_deftypes;
-	friend void call_combo_editor(int32_t index);
+	friend bool call_combo_editor(int32_t index);
 };
 
 #endif

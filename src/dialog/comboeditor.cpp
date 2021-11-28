@@ -9,21 +9,28 @@ extern bool saved;
 extern zcmodule moduledata;
 extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
-extern int32_t edit_combo_cset;
+extern int32_t CSet;
+char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
-static size_t cmb_tab1 = 0;
+static size_t cmb_tab1 = 0, cmb_tab2 = 0;
 
-void call_combo_editor(int32_t index)
+static bool edited = false;
+bool call_combo_editor(int32_t index)
 {
+	int32_t cs = CSet;
+	edited = false;
 	ComboEditorDialog(index).show();
+	if(!edited) CSet = cs;
+	return edited;
 }
 
 ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	local_comboref(ref), index(index),
 	list_ctype(GUI::ListData::combotype(true)),
-	list_flag(GUI::ListData::mapflag()),
+	list_flag(GUI::ListData::mapflag(true)),
+	list_combscript(GUI::ListData::combodata_script()),
 	list_counters(GUI::ListData::counters()),
 	list_sprites(GUI::ListData::miscsprites()),
 	list_weaptype(GUI::ListData::lweaptypes()),
@@ -209,64 +216,292 @@ static const char *combotype_help_string[cMAX] =
 	"Switchblock combos change based on switch states toggled by switch combos. See combos.txt for details.",
 	"Emits light in a radius in dark rooms (when \"Quest->Options->Other->New Dark Rooms\" is enabled)"
 };
+
+static const char *flag_help_string[mfMAX] =
+{
+    "",
+    "Allows Link to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    "Allows Link to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    "Triggers Screen Secrets when Link plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.",
+    "Triggers Screen Secrets when Link touches it with fire from any source (Candle, Wand, Din's Fire, etc.) Is replaced with the 'Blue Candle' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
+    "Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
+    "Makes a heart circle appear on screen when Link steps on it, and refills his life. See also the Heart Circle-related Quest Rules.",
+    "Place in paths to define the path Link travels when using the Raft. Use with Dock-type combos. If a path branches, Link takes the clockwise-most path.",
+    "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.",
+    "When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.",
+    "Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.",
+    "Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.",
+    "When Link dives on a flagged water-type combo he will recieve the screen's Special Item. Requires the 'Special Item' Room Type.",
+    "Combos with this flag will flash white when viewed with the Lens of Truth item.",
+    "When Link steps on this flag, the quest will end, and the credits will roll.",
+    // 16-31
+    "",
+    "",
+    "",//18
+    "",
+    "",
+    "",//21
+    "",
+    "",
+    "",//24
+    "",
+    "",
+    "",//27
+    "",
+    "",
+    "",//30
+    "",
+    // Anyway...
+    "Creates the lowest-numbered enemy with the 'Spawned by 'Horz Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the 'Spawned by 'Vert Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the 'Spawned by '4-Way Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the 'Spawned by 'LR Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+    "Creates the lowest-numbered enemy with the 'Spawned by 'UD Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+    // Enemy 0-9
+    "",
+    "",
+    "",//2
+    "",
+    "",
+    "",//5
+    "",
+    "",
+    "",//8
+    "",
+    //Anyway...
+    "Allows Link to push the combo left or right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    "Allows Link to push the combo up once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    "Allows Link to push the combo down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    "Allows Link to push the combo left once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    "Allows Link to push the combo right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+    // Push Silent
+    "",//52
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",//59
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    //Anyway...
+    "Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters.",
+    "Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.",
+    "Triggers Screen Secrets when Link touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with fire from a level 2 Candle, a Wand, or Din's Fire. Is replaced with the 'Red Candle' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with fire from a Wand, or Din's Fire. Is replaced with the 'Wand Fire' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with Din's Fire. Is replaced with the 'Din's Fire' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.",
+    "Triggers Screen Secrets when Link pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.",
+    "Triggers Screen Secrets when Link touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.",
+    "A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it.",
+    "Makes a heart circle appear on screen when Link steps on it, and refills his magic. See also the Heart Circle-related Quest Rules.",
+    "Makes a heart circle appear on screen when Link steps on it, and refills his life and magic. See also the Heart Circle-related Quest Rules.",
+    "When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.",
+    "Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)",
+    "Enemies cannot enter or appear on the flagged combo.",
+    "Enemies that don't fly or jump cannot enter or appear on the flagged combo.",
+    //Script Flags follow.
+    "",
+    "",
+    "",
+    "",
+    "",
+    //Raft bounce flag! ^_^
+    "When Link is rafting, and hits this flag, he will be turned around."
+};
 //}
 
 
+std::string getTypeHelpText(int32_t id)
+{
+	std::string typehelp;
+	switch(id)
+	{
+		case cNONE:
+			typehelp = "Select a Type, then click this button to find out what it does.";
+			break;
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		{
+			char buf[512];
+			int32_t lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
+			int32_t d = -combo_class_buf[id].modify_hp_amount/8;
+			char buf2[80];
+			if(d==1)
+				sprintf(buf2,"1/2 of a heart.");
+			else
+				sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
+			sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, he is damaged for %s.",lvl,buf2);
+			typehelp = buf;
+			break;
+		}
+		
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+			typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned:"
+				"\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)(sum all the buttons you want to be usable)\n"
+				"then when the button is pressed while facing the chest from a valid side.\n"
+				"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the player will recieve the item set in the screen's catchall value, and the combo will advance to the next combo.";
+			if(id==cLOCKEDCHEST)
+				typehelp += "\nRequires a key to open.";
+			else if(id==cBOSSCHEST)
+				typehelp += "\nRequires the Boss Key to open.";
+			break;
+		case cCHEST2:
+			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Normal)' is opened on the screen.";
+			break;
+		case cLOCKEDCHEST2:
+			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Locked)' is opened on the screen.";
+			break;
+		case cBOSSCHEST2:
+			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Boss)' is opened on the screen.";
+			break;
+		
+		case cHSBRIDGE: case cZELDA: case cUNDEF: case cCHANGE: case cSPINTILE2:
+			typehelp = "Unimplemented type, do not use!";
+			break;
+		
+		default:
+			typehelp = combotype_help_string[id];
+			break;
+	}
+	return typehelp;
+}
+std::string getFlagHelpText(int32_t id)
+{
+	std::string flaghelp = "Help text here!";
+	if(flag_help_string[id] && flag_help_string[id][0])
+		flaghelp = flag_help_string[id];
+	switch(id)
+	{
+		case 0:
+			flaghelp = "Select a Flag, then click this button to find out what it does.";
+			break;
+		case mfSECRETS01: case mfSECRETS02: case mfSECRETS03: case mfSECRETS04:
+		case mfSECRETS05: case mfSECRETS06: case mfSECRETS07: case mfSECRETS08:
+		case mfSECRETS09: case mfSECRETS10: case mfSECRETS11: case mfSECRETS12:
+		case mfSECRETS13: case mfSECRETS14: case mfSECRETS15: case mfSECRETS16:
+			flaghelp = "When Screen Secrets are triggered, this is replaced with Secret Combo "
+				+ std::to_string(id) + ". (Also, flagged Destructible Combos"
+				" will use that Secret Combo instead of the Under Combo.)";
+			break;
+		case mfENEMY0: case mfENEMY1: case mfENEMY2: case mfENEMY3: case mfENEMY4:
+		case mfENEMY5: case mfENEMY6: case mfENEMY7: case mfENEMY8: case mfENEMY9:
+		{
+			int32_t enemynum = id - 37 + 1;
+			flaghelp = "When the "+std::to_string(enemynum)+ordinal(enemynum)+" enemy in the Enemy List is spawned,"
+				" it appears on this flag instead of using the Enemy Pattern."
+				" The uppermost, then leftmost, instance of this flag is used.";
+			break;
+		}
+		case mfPUSHUDNS: case mfPUSHLRNS: case mfPUSH4NS: case mfPUSHUNS:
+		case mfPUSHDNS: case mfPUSHLNS: case mfPUSHRNS: case mfPUSHUDINS:
+		case mfPUSHLRINS: case mfPUSH4INS: case mfPUSHUINS: case mfPUSHDINS:
+		case mfPUSHLINS: case mfPUSHRINS:
+		{
+			int32_t t = ((id-mfPUSHUDNS) % 7);
+			flaghelp = "Allows the Player to push the combo "
+				+ std::string((t == 0) ? "up and down" : (t == 1) ? "left and right" : (t == 2) ? "in any direction" : (t == 3) ? "up" : (t == 4) ? "down" : (t == 5) ? "left" : "right")
+				+ std::string((id>=mfPUSHUDINS) ? "many times":"once")
+				+ " triggering Block->Shutters but not Screen Secrets.";
+			break;
+		}
+		case mfPUSHED:
+		{
+			flaghelp = "This flag is placed on Push blocks with the 'Once' property after they have been pushed.";
+			break;
+		}
+		case mfSIDEVIEWLADDER:
+		{
+			flaghelp = "On a sideview screen, allows climbing. The topmost ladder in a column doubles as a Sideview Platform.";
+			break;
+		}
+		case mfSIDEVIEWPLATFORM:
+		{
+			flaghelp = "On a sideview screen, can be stood on top of, even when nonsolid. Can be jumped through"
+				" from below, and depending on QRs, can also be dropped through.";
+			break;
+		}
+		case mfNOENEMYSPAWN:
+		{
+			flaghelp = "No enemies will spawn on this flag.";
+			break;
+		}
+		case mfENEMYALL:
+		{
+			flaghelp = "All enemies will spawn on this flag instead of using the spawn pattern.";
+			break;
+		}
+		case mfSECRETSNEXT:
+		{
+			flaghelp = "When secrets are triggered, the combo in this position becomes the next"
+				" combo in the list.";
+			break;
+		}
+		case mfSCRIPT1: case mfSCRIPT2: case mfSCRIPT3: case mfSCRIPT4: case mfSCRIPT5:
+		case mfSCRIPT6: case mfSCRIPT7: case mfSCRIPT8: case mfSCRIPT9: case mfSCRIPT10:
+		case mfSCRIPT11: case mfSCRIPT12: case mfSCRIPT13: case mfSCRIPT14: case mfSCRIPT15:
+		case mfSCRIPT16: case mfSCRIPT17: case mfSCRIPT18: case mfSCRIPT19: case mfSCRIPT20:
+		case mfPITHOLE: case mfPITFALLFLOOR: case mfLAVA: case mfICE: case mfICEDAMAGE:
+		case mfDAMAGE1: case mfDAMAGE2: case mfDAMAGE4: case mfDAMAGE8: case mfDAMAGE16:
+		case mfDAMAGE32: case mfTROWEL: case mfTROWELNEXT: case mfTROWELSPECIALITEM:
+		case mfSLASHPOT: case mfLIFTPOT: case mfLIFTORSLASH: case mfLIFTROCK:
+		case mfLIFTROCKHEAVY: case mfDROPITEM: case mfSPECIALITEM: case mfDROPKEY:
+		case mfDROPLKEY: case mfDROPCOMPASS: case mfDROPMAP: case mfDROPBOSSKEY:
+		case mfSPAWNNPC: case mfSWITCHHOOK:
+		{
+			flaghelp = "These flags have no built-in effect,"
+				" but can be given special significance with ZASM or ZScript.";
+			break;
+		}
+		case mfFREEZEALL: case mfFREZEALLANSFFCS: case mfFREEZEFFCSOLY: case mfSCRITPTW1TRIG:
+		case mfSCRITPTW2TRIG: case mfSCRITPTW3TRIG: case mfSCRITPTW4TRIG: case mfSCRITPTW5TRIG:
+		case mfSCRITPTW6TRIG: case mfSCRITPTW7TRIG: case mfSCRITPTW8TRIG: case mfSCRITPTW9TRIG:
+		case mfSCRITPTW10TRIG:
+		{
+			flaghelp = "Not yet implemented";
+			break;
+		}
+	}
+	return flaghelp;
+}
+void ctype_help(int32_t id)
+{
+	InfoDialog(moduledata.combo_type_names[id],getTypeHelpText(id)).show();
+}
+void cflag_help(int32_t id)
+{
+	InfoDialog(moduledata.combo_flag_names[id],getFlagHelpText(id)).show();
+}
 //Load all the info for the combo type and checked flags
 void ComboEditorDialog::loadComboType()
 {
 	if(lasttype != local_comboref.type) //Load type helpinfo
 	{
 		lasttype = local_comboref.type;
-		switch(lasttype)
-		{
-			case cNONE:
-				typehelp = "Select a Type, then click this button to find out what it does.";
-				break;
-			case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
-			case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-			{
-				char buf[512];
-				int32_t lvl = (lasttype < cDAMAGE5 ? (lasttype - cDAMAGE1 + 1) : (lasttype - cDAMAGE5 + 1));
-				int32_t d = -combo_class_buf[lasttype].modify_hp_amount/8;
-				char buf2[80];
-				if(d==1)
-					sprintf(buf2,"1/2 of a heart.");
-				else
-					sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
-				sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, he is damaged for %s.",lvl,buf2);
-				typehelp = buf;
-				break;
-			}
-			
-			case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-				typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned:"
-					"\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)(sum all the buttons you want to be usable)\n"
-					"then when the button is pressed while facing the chest from a valid side.\n"
-					"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the player will recieve the item set in the screen's catchall value, and the combo will advance to the next combo.";
-				if(lasttype==cLOCKEDCHEST)
-					typehelp += "\nRequires a key to open.";
-				else if(lasttype==cBOSSCHEST)
-					typehelp += "\nRequires the Boss Key to open.";
-				break;
-			case cCHEST2:
-				typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Normal)' is opened on the screen.";
-				break;
-			case cLOCKEDCHEST2:
-				typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Locked)' is opened on the screen.";
-				break;
-			case cBOSSCHEST2:
-				typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Boss)' is opened on the screen.";
-				break;
-			
-			case cHSBRIDGE: case cZELDA: case cUNDEF: case cCHANGE: case cSPINTILE2:
-				typehelp = "Unimplemented type, do not use!";
-				break;
-			
-			default:
-				typehelp = combotype_help_string[lasttype];
-				break;
-		}
+		typehelp = getTypeHelpText(lasttype);
 	}
 	string flagstrs[16];
 	string attribytestrs[8];
@@ -581,20 +816,16 @@ void ComboEditorDialog::loadComboType()
 }
 void ComboEditorDialog::loadComboFlag()
 {
-	flaghelp = "Flag Info"; //!TODO flag help text
-	// switch(local_comboref.flag)
-	// {
-		
-	// }
+	flaghelp = getFlagHelpText(local_comboref.flag);
 }
 void ComboEditorDialog::updateCSet()
 {
-	tswatch->setCSet(edit_combo_cset);
+	tswatch->setCSet(CSet);
 	if(local_comboref.animflags&AF_CYCLENOCSET)
-		cycleswatch->setCSet(edit_combo_cset);
+		cycleswatch->setCSet(CSet);
 	else cycleswatch->setCSet(local_comboref.nextcset);
-	animFrame->setCSet(edit_combo_cset);
-	l_cset->setText(std::to_string(edit_combo_cset));
+	animFrame->setCSet(CSet);
+	l_cset->setText(std::to_string(CSet));
 }
 void ComboEditorDialog::updateAnimation()
 {
@@ -743,6 +974,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Rows<3>(padding = 0_px,
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_ctype, fitParent = true,
+						maxwidth = sized(220_px, 400_px),
 						padding = 0_px, selectedValue = local_comboref.type,
 						onSelectionChanged = message::COMBOTYPE
 					),
@@ -755,6 +987,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
+						maxwidth = sized(220_px, 400_px),
 						padding = 0_px, selectedValue = local_comboref.flag,
 						onSelectionChanged = message::COMBOFLAG
 					),
@@ -762,8 +995,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						width = 1.5_em, padding = 0_px, forceFitH = true,
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
-							//!TODO Combo flag help text
-							InfoDialog(moduledata.combo_type_names[local_comboref.type],flaghelp).show();
+							InfoDialog(moduledata.combo_flag_names[local_comboref.flag],flaghelp).show();
 						}
 					)
 				),
@@ -805,7 +1037,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Label(text = "Flip:", hAlign = 1.0),
 							l_flip = Label(text = std::to_string(local_comboref.flip), hAlign = 0.0),
 							Label(text = "CSet:", hAlign = 1.0),
-							l_cset = Label(text = std::to_string(edit_combo_cset), hAlign = 0.0)
+							l_cset = Label(text = std::to_string(CSet), hAlign = 0.0)
 						),
 						Column(padding = 0_px,
 							Rows<6>(
@@ -827,12 +1059,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								tswatch = SelTileSwatch(
 									colSpan = 2,
 									tile = local_comboref.tile,
-									cset = edit_combo_cset,
+									cset = CSet,
 									showvals = false,
 									onSelectFunc = [&](int32_t t, int32_t c)
 									{
 										local_comboref.tile = t;
-										edit_combo_cset = (c&0xF)%12;
+										CSet = (c&0xF)%12;
 										updateAnimation();
 									}
 								),
@@ -858,7 +1090,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								animFrame = TileFrame(
 									colSpan = 2,
 									tile = local_comboref.tile,
-									cset = edit_combo_cset,
+									cset = CSet,
 									cset2 = local_comboref.csets,
 									frames = local_comboref.frames,
 									speed = local_comboref.speed,
@@ -1051,6 +1283,381 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(48,"Triggers Secrets")
 							)
 						)
+					)),
+					TabRef(name = "Script", Column(
+						INITD_ROW2(0, local_comboref.initd),
+						INITD_ROW2(1, local_comboref.initd),
+						Row(
+							padding = 0_px,
+							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
+						)
+					))
+				),
+				Row(
+					vAlign = 1.0,
+					spacing = 2_em,
+					Button(
+						focused = true,
+						text = "OK",
+						minwidth = 90_lpx,
+						onClick = message::OK),
+					Button(
+						text = "Cancel",
+						minwidth = 90_lpx,
+						onClick = message::CANCEL)
+				)
+			)
+		);
+	}
+	else
+	{
+		window = Window(
+			use_vsync = true,
+			title = titlebuf,
+			info = "Edit combos, setting up their graphics, effects, and attributes.\n"
+				"Hotkeys:\n"
+				"-/+: Change CSet\n"
+				"H/V/R: Flip (Horz,Vert,Rotate)",
+			onEnter = message::OK,
+			onClose = message::CANCEL,
+			shortcuts={
+				V=message::VFLIP,
+				H=message::HFLIP,
+				R=message::ROTATE,
+				PlusPad=message::PLUSCS,
+				Equals=message::PLUSCS,
+				MinusPad=message::MINUSCS,
+				Minus=message::MINUSCS,
+			},
+			Column(
+				Rows<3>(padding = 0_px,
+					Label(text = "Type:", hAlign = 1.0),
+					DropDownList(data = list_ctype, fitParent = true,
+						maxwidth = sized(220_px, 400_px),
+						padding = 0_px, selectedValue = local_comboref.type,
+						onSelectionChanged = message::COMBOTYPE
+					),
+					Button(
+						width = 1.5_em, padding = 0_px, forceFitH = true,
+						text = "?", hAlign = 1.0, onPressFunc = [&]()
+						{
+							InfoDialog(moduledata.combo_type_names[local_comboref.type],typehelp).show();
+						}
+					),
+					Label(text = "Inherent Flag:", hAlign = 1.0),
+					DropDownList(data = list_flag, fitParent = true,
+						maxwidth = sized(220_px, 400_px),
+						padding = 0_px, selectedValue = local_comboref.flag,
+						onSelectionChanged = message::COMBOFLAG
+					),
+					Button(
+						width = 1.5_em, padding = 0_px, forceFitH = true,
+						text = "?", hAlign = 1.0, onPressFunc = [&]()
+						{
+							//!TODO Combo flag help text
+							InfoDialog(moduledata.combo_type_names[local_comboref.type],flaghelp).show();
+						}
+					)
+				),
+				TabPanel(
+					ptr = &cmb_tab1,
+					TabRef(name = "Basic", Row(
+						Rows<2>(
+							Label(text = "Label:", hAlign = 1.0),
+							TextField(
+								fitParent = true,
+								type = GUI::TextField::type::TEXT,
+								maxLength = 10,
+								text = std::string(local_comboref.label),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+								{
+									std::string foo;
+									foo.assign(text);
+									strncpy(local_comboref.label, foo.c_str(), 10);
+								}),
+							Label(text = "CSet 2:", hAlign = 1.0),
+							TextField(
+								fitParent = true,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -8, high = 7, val = (local_comboref.csets&8) ? ((local_comboref.csets&0xF)|~int32_t(0xF)) : (local_comboref.csets&0xF),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.csets &= ~0xF;
+									local_comboref.csets |= val&0xF;
+									updateAnimation();
+								}),
+							Label(text = "A. Frames:", hAlign = 1.0),
+							ANIM_FIELD(frames, 0, 255),
+							Label(text = "A. Speed:", hAlign = 1.0),
+							ANIM_FIELD(speed, 0, 255),
+							Label(text = "A. SkipX:", hAlign = 1.0),
+							ANIM_FIELD(skipanim, 0, 255),
+							Label(text = "A. SkipY:", hAlign = 1.0),
+							ANIM_FIELD(skipanimy, 0, 255),
+							Label(text = "Flip:", hAlign = 1.0),
+							l_flip = Label(text = std::to_string(local_comboref.flip), hAlign = 0.0),
+							Label(text = "CSet:", hAlign = 1.0),
+							l_cset = Label(text = std::to_string(CSet), hAlign = 0.0)
+						),
+						Column(padding = 0_px,
+							Rows<6>(
+								Label(text = "Tile", hAlign = 0.5, colSpan = 2),
+								Label(text = "Solid", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("Solidity","The pink-highlighted corners of the combo will be treated"
+											" as solid walls.").show();
+									}),
+								Label(text = "CSet2", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("CSet2","The cyan-highlighted corners of the combo will be drawn"
+											" in a different cset, offset by the value in the 'CSet2' field.").show();
+									}),
+								tswatch = SelTileSwatch(
+									colSpan = 2,
+									tile = local_comboref.tile,
+									cset = CSet,
+									showvals = false,
+									onSelectFunc = [&](int32_t t, int32_t c)
+									{
+										local_comboref.tile = t;
+										CSet = (c&0xF)%12;
+										updateAnimation();
+									}
+								),
+								cswatchs[0] = CornerSwatch(colSpan = 2,
+									val = solidity_to_flag(local_comboref.walk&0xF),
+									color = vc(12),
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.walk &= ~0xF;
+										local_comboref.walk |= solidity_to_flag(val);
+									}
+								),
+								cswatchs[1] = CornerSwatch(colSpan = 2,
+									val = (local_comboref.csets&0xF0)>>4,
+									color = vc(11),
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.csets &= ~0xF0;
+										local_comboref.csets |= val<<4;
+										updateAnimation();
+									}
+								),
+								animFrame = TileFrame(
+									colSpan = 2,
+									tile = local_comboref.tile,
+									cset = CSet,
+									cset2 = local_comboref.csets,
+									frames = local_comboref.frames,
+									speed = local_comboref.speed,
+									skipx = local_comboref.skipanim,
+									skipy = local_comboref.skipanimy,
+									flip = local_comboref.flip
+								),
+								cycleswatch = SelComboSwatch(colSpan = 2,
+									showvals = false,
+									combo = local_comboref.nextcombo,
+									cset = local_comboref.nextcset,
+									onSelectFunc = [&](int32_t cmb, int32_t c)
+									{
+										local_comboref.nextcombo = cmb;
+										local_comboref.nextcset = c;
+										updateCSet();
+									}
+								),
+								cswatchs[2] = CornerSwatch(colSpan = 2,
+									val = solidity_to_flag((local_comboref.walk&0xF0)>>4),
+									color = vc(10),
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.walk &= ~0xF0;
+										local_comboref.walk |= solidity_to_flag(val)<<4;
+									}
+								),
+								Label(text = "Preview", hAlign = 0.5,colSpan = 2),
+								Label(text = "Cycle", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("Cycle","When the combo's animation has completed once,"
+											" the combo will be changed to the 'Cycle' combo, unless the 'Cycle'"
+											" combo is set to Combo 0.").show();
+									}),
+								Label(text = "Effect", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("Effect","The combo type takes effect only in the lime-highlighted"
+											" corners of the combo.").show();
+									})
+							),
+							Checkbox(
+								text = "Refresh Animation on Room Entry", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_FRESH,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_FRESH,state);
+								}
+							),
+							Checkbox(
+								text = "Restart Animation when Cycled To", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLE,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLE,state);
+								}
+							),
+							Checkbox(
+								text = "Cycle Ignores CSet", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLENOCSET,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLENOCSET,state);
+									updateCSet();
+								}
+							)
+						)
+					)),
+					TabRef(name = "Flags", Column(
+						padding = 0_px,
+						Columns<2>(
+							framed = true,
+							frameText = "General Flags",
+							topPadding = DEFAULT_PADDING+0.4_em,
+							bottomPadding = DEFAULT_PADDING+1_px,
+							bottomMargin = 1_em,
+							CMB_GEN_FLAG(0,"Hook-Grabbable")
+						),
+						Columns<8>(
+							framed = true,
+							frameText = "Variable Flags",
+							topPadding = DEFAULT_PADDING+0.4_em,
+							bottomPadding = DEFAULT_PADDING+1_px,
+							bottomMargin = 1_em,
+							CMB_FLAG(0),
+							CMB_FLAG(1),
+							CMB_FLAG(2),
+							CMB_FLAG(3),
+							CMB_FLAG(4),
+							CMB_FLAG(5),
+							CMB_FLAG(6),
+							CMB_FLAG(7),
+							CMB_FLAG(8),
+							CMB_FLAG(9),
+							CMB_FLAG(10),
+							CMB_FLAG(11),
+							CMB_FLAG(12),
+							CMB_FLAG(13),
+							CMB_FLAG(14),
+							CMB_FLAG(15)
+						)
+					)),
+					TabRef(name = "Attribs", TabPanel(
+							ptr = &cmb_tab2,
+							TabRef(name = "Bytes", ScrollingPane(fitParent = true,
+								Rows<2>(
+									CMB_ATTRIBYTE(0),
+									CMB_ATTRIBYTE(1),
+									CMB_ATTRIBYTE(2),
+									CMB_ATTRIBYTE(3),
+									CMB_ATTRIBYTE(4),
+									CMB_ATTRIBYTE(5),
+									CMB_ATTRIBYTE(6),
+									CMB_ATTRIBYTE(7)
+								)
+							)),
+							TabRef(name = "Shorts", ScrollingPane(fitParent = true,
+								Rows<2>(
+									CMB_ATTRISHORT(0),
+									CMB_ATTRISHORT(1),
+									CMB_ATTRISHORT(2),
+									CMB_ATTRISHORT(3),
+									CMB_ATTRISHORT(4),
+									CMB_ATTRISHORT(5),
+									CMB_ATTRISHORT(6),
+									CMB_ATTRISHORT(7)
+								)
+							)),
+							TabRef(name = "Attributes", ScrollingPane(fitParent = true,
+								Rows<2>(
+									CMB_ATTRIBUTE(0),
+									CMB_ATTRIBUTE(1),
+									CMB_ATTRIBUTE(2),
+									CMB_ATTRIBUTE(3)
+								)
+							))
+					)),
+					TabRef(name = "Triggers", ScrollingPane(
+						Column(
+							margins = DEFAULT_PADDING,
+							Row(
+								Label(text = "Min Level (Applies to all):"),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 214748, val = local_comboref.triggerlevel,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.triggerlevel = val;
+									})
+							),
+							Rows<3>(
+								framed = true,
+								padding = DEFAULT_PADDING+2_px,
+								TRIGFLAG(0,"Sword"),
+								TRIGFLAG(1,"Sword Beam"),
+								TRIGFLAG(2,"Boomerang"),
+								TRIGFLAG(3,"Bomb"),
+								TRIGFLAG(4,"Super Bomb"),
+								TRIGFLAG(5,"Lit Bomb"),
+								TRIGFLAG(6,"Lit Super Bomb"),
+								TRIGFLAG(7,"Arrow"),
+								TRIGFLAG(8,"Fire"),
+								TRIGFLAG(9,"Whistle"),
+								TRIGFLAG(10,"Bait"),
+								TRIGFLAG(11,"Wand"),
+								TRIGFLAG(12,"Magic"),
+								TRIGFLAG(13,"Wind"),
+								TRIGFLAG(14,"Refl. Magic"),
+								TRIGFLAG(15,"Refl. Fireball"),
+								TRIGFLAG(16,"Refl. Rock"),
+								TRIGFLAG(17,"Hammer"),
+								TRIGFLAG(32,"Hookshot"),
+								TRIGFLAG(33,"Sparkle"),
+								TRIGFLAG(34,"Byrna"),
+								TRIGFLAG(35,"Refl. Beam"),
+								TRIGFLAG(36,"Stomp"),
+								DummyWidget(),
+								TRIGFLAG(37,"C. Weapon 1"),
+								TRIGFLAG(38,"C. Weapon 2"),
+								TRIGFLAG(39,"C. Weapon 3"),
+								TRIGFLAG(40,"C. Weapon 4"),
+								TRIGFLAG(41,"C. Weapon 5"),
+								TRIGFLAG(42,"C. Weapon 6"),
+								TRIGFLAG(43,"C. Weapon 7"),
+								TRIGFLAG(44,"C. Weapon 8"),
+								TRIGFLAG(45,"C. Weapon 9"),
+								TRIGFLAG(46,"C. Weapon 10")
+							),
+							Rows<3>(
+								framed = true,
+								padding = DEFAULT_PADDING+2_px,
+								TRIGFLAG(47,"Always Triggered"),
+								TRIGFLAG(48,"Triggers Secrets")
+							)
+						)
+					)),
+					TabRef(name = "Script", Column(
+						INITD_ROW2(0, local_comboref.initd),
+						INITD_ROW2(1, local_comboref.initd),
+						Row(
+							padding = 0_px,
+							SCRIPT_LIST("Combo Script:", list_combscript, local_comboref.script)
+						)
 					))
 				),
 				Row(
@@ -1092,6 +1699,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::HFLIP:
 		{
+			if(cmb_tab1) break;
 			local_comboref.flip ^= 1;
 			for(auto crn : cswatchs)
 			{
@@ -1104,6 +1712,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::VFLIP:
 		{
+			if(cmb_tab1) break;
 			local_comboref.flip ^= 2;
 			for(auto crn : cswatchs)
 			{
@@ -1116,6 +1725,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::ROTATE:
 		{
+			if(cmb_tab1) break;
 			local_comboref.flip = rotate_value(local_comboref.flip);
 			for(auto crn : cswatchs)
 			{
@@ -1137,24 +1747,28 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::PLUSCS:
 		{
-			edit_combo_cset = (edit_combo_cset+1)%12;
+			if(cmb_tab1) break;
+			CSet = (CSet+1)%12;
 			updateCSet();
 			return false;
 		}
 		case message::MINUSCS:
 		{
-			edit_combo_cset = (edit_combo_cset+11)%12;
+			if(cmb_tab1) break;
+			CSet = (CSet+11)%12;
 			updateCSet();
 			return false;
 		}
 		case message::OK:
 			saved = false;
 			combobuf[index] = local_comboref;
+			edited = true;
 			return true;
 
 		case message::CANCEL:
 		default:
 			return true;
 	}
+	return false;
 }
 

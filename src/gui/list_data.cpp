@@ -146,13 +146,21 @@ ListData ListData::combotype(bool numbered)
 	return ls;
 }
 
-ListData ListData::mapflag()
+ListData ListData::mapflag(bool numbered)
 {
 	ListData ls;
 	
 	for(int32_t q = 0; q < mfMAX; ++q)
 	{
-		ls.add(moduledata.combo_flag_names[q], q);
+		char const* module_str = moduledata.combo_flag_names[q];
+		if(module_str[0] == '-')
+			continue; //Hidden
+		char* name = new char[strlen(module_str) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", module_str, q);
+		else strcpy(name, module_str);
+		string sname(name);
+		ls.add(name, q);
 	}
 	
 	return ls;
@@ -285,6 +293,19 @@ ListData ListData::lweapon_script()
 	set<string> names;
 	
 	load_scriptnames(names,vals,lwpnmap,NUMSCRIPTWEAPONS-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::combodata_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
 	
 	ListData ls;
 	ls.add("(None)", 0);

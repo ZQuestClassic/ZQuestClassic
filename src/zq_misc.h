@@ -81,7 +81,6 @@ extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
 //extern const char *combotype_string[MAXCOMBOTYPES];
 extern const char *flag_string[MAXFLAGS];
-extern const char *flag_help_string[(mfMAX)*3];
 extern const char *itemclass_help_string[(itype_last-20)*3];
 extern const char *combotype_help_string[cMAX];
 extern const char	*old_guy_string[OLDMAXGUYS];
