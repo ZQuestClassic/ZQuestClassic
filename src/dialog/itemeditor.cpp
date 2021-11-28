@@ -1453,12 +1453,15 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Button(
 						focused = true,
 						text = "OK",
+						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
+						minwidth = 90_lpx,
 						onClick = message::CANCEL),
 					Button(
 						text = "Default",
+						minwidth = 90_lpx,
 						onClick = message::DEFAULT)
 				)
 			)
@@ -2630,12 +2633,15 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Button(
 						focused = true,
 						text = "OK",
+						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
+						minwidth = 90_lpx,
 						onClick = message::CANCEL),
 					Button(
 						text = "Default",
+						minwidth = 90_lpx,
 						onClick = message::DEFAULT)
 				)
 			)

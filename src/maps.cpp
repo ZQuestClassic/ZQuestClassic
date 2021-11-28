@@ -1259,12 +1259,10 @@ bool isstepable(int32_t combo)                                  //can use ladder
 	return false;
 }
 
-bool isHSGrabbable(newcombo const& cmb)
+bool isHSComboFlagType(int32_t type)
 {
-	switch(cmb.type)
+	switch(type)
 	{
-		case cHSGRAB:
-			return true;
 		case cPUSH_WAIT:
 		case cPUSH_HEAVY:
 		case cPUSH_HW:
@@ -1303,10 +1301,17 @@ bool isHSGrabbable(newcombo const& cmb)
 		case cCSWITCHBLOCK:
 		case cLANTERN:
 		case cTRIGGERGENERIC:
-			return (cmb.usrflags&cflag16)?true:false;
-		default:
-			return false;
+			return true;
 	}
+	return false;
+}
+
+bool isHSGrabbable(newcombo const& cmb)
+{
+	if(cmb.type == cHSGRAB) return true;
+	if(isHSComboFlagType(cmb.type))
+		return (cmb.usrflags&cflag16)?true:false;
+	return false;
 }
 
 bool ishookshottable(int32_t bx, int32_t by)

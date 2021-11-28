@@ -8,6 +8,7 @@
 #include <gui/window.h>
 #include <gui/list_data.h>
 #include <gui/seltile_swatch.h>
+#include <gui/selcombo_swatch.h>
 #include <gui/tileanim_frame.h>
 #include <gui/cornerselect.h>
 #include <functional>
@@ -36,11 +37,12 @@ private:
 	std::shared_ptr<GUI::Label> l_attributes[4];
 	std::shared_ptr<GUI::Label> l_attribytes[8];
 	std::shared_ptr<GUI::Label> l_attrishorts[8];
+	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_flip;
 	std::shared_ptr<GUI::Label> l_cset;
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
-	std::shared_ptr<GUI::Checkbox> l_flags[16];
+	std::shared_ptr<GUI::SelComboSwatch> cycleswatch;
 	std::shared_ptr<GUI::TileFrame> animFrame;
 	int32_t index;
 	newcombo local_comboref;

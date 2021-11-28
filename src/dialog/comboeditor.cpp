@@ -10,6 +10,57 @@ extern zcmodule moduledata;
 extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t edit_combo_cset;
+bool isHSComboFlagType(int32_t type)
+{
+	switch(type)
+	{
+		case cPUSH_WAIT:
+		case cPUSH_HEAVY:
+		case cPUSH_HW:
+		case cL_STATUE:
+		case cR_STATUE:
+		case cPUSH_HEAVY2:
+		case cPUSH_HW2:
+		case cPOUND:
+		case cC_STATUE:
+		case cMIRROR:
+		case cMIRRORSLASH:
+		case cMIRRORBACKSLASH:
+		case cMAGICPRISM:
+		case cMAGICPRISM4:
+		case cMAGICSPONGE:
+		case cEYEBALL_A:
+		case cEYEBALL_B:
+		case cEYEBALL_4:
+		case cBUSH:
+		case cFLOWERS:
+		case cLOCKBLOCK:
+		case cLOCKBLOCK2:
+		case cBOSSLOCKBLOCK:
+		case cBOSSLOCKBLOCK2:
+		case cCHEST:
+		case cCHEST2:
+		case cLOCKEDCHEST:
+		case cLOCKEDCHEST2:
+		case cBOSSCHEST:
+		case cBOSSCHEST2:
+		case cBUSHNEXT:
+		case cBUSHTOUCHY:
+		case cFLOWERSTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		case cSIGNPOST:
+		case cCSWITCHBLOCK:
+		case cLANTERN:
+		case cTRIGGERGENERIC:
+			return true;
+	}
+	return false;
+}
+using std::string;
+using std::to_string;
+
+static size_t cmb_tab1 = 0;
+
 void call_combo_editor(int32_t index)
 {
 	ComboEditorDialog(index).show();
@@ -263,10 +314,318 @@ void ComboEditorDialog::loadComboType()
 				break;
 		}
 	}
-	// switch(lasttype) //Label names
-	// {
-		
-	// }
+	string flagstrs[16];
+	string attribytestrs[8];
+	string attrishortstrs[8];
+	string attributestrs[4];
+	for(size_t q = 0; q < 16; ++q)
+	{
+		flagstrs[q] = "Flags["+to_string(q)+"]";
+		if(q < 8)
+		{
+			attribytestrs[q] = "Attribytes["+to_string(q)+"]:";
+			attrishortstrs[q] = "Attrishorts["+to_string(q)+"]:";
+			if(q < 4)
+				attributestrs[q] = "Attributes["+to_string(q)+"]:";
+		}
+	}
+	if(isHSComboFlagType(lasttype))
+		flagstrs[15] = "Hook-Grabbable";
+	switch(lasttype) //Label names
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+		case cTRIGNOFLAG: case cSTRIGNOFLAG:
+		case cTRIGFLAG: case cSTRIGFLAG:
+		{
+			attribytestrs[0] = "Sound:";
+			break;
+		}
+		case cSTEP: case cSTEPSAME: case cSTEPALL:
+		{
+			flagstrs[0] = "Heavy";
+			attribytestrs[0] = "Sound:";
+			attribytestrs[1] = "Req. Item";
+			break;
+		}
+		case cSTEPCOPY:
+		{
+			flagstrs[0] = "Heavy";
+			break;
+		}
+		case cWATER:
+		{
+			flagstrs[0] = "Is Lava"; flagstrs[1] = "Modify HP (Passive)";
+			flagstrs[2] = "Solid is Land"; flagstrs[3] = "Solid is Shallow Liquid";
+			attributestrs[0] = "Drown Damage:"; attribytestrs[0] = "Flipper Level:";
+			if(local_comboref.usrflags & cflag2) //Modify HP
+			{
+				flagstrs[4] = "Rings affect HP Mod";
+				flagstrs[5] = "Mod SFX only on HP change";
+				flagstrs[6] = "Damage causes hit anim";
+				attributestrs[1] = "HP Modification:";
+				attributestrs[2] = "HP Mod SFX:";
+				attribytestrs[1] = "HP Delay:";
+				attribytestrs[2] = "Req Itemclass:";
+				attribytestrs[3] = "Req Itemlevel:";
+			}
+			break;
+		}
+		case cSHALLOWWATER:
+		{
+			flagstrs[1] = "Modify HP (Passive)";
+			attribytestrs[0] = "Sound";
+			if(local_comboref.usrflags & cflag2) //Modify HP
+			{
+				attributestrs[1] = "HP Modification:";
+				attributestrs[2] = "HP Mod SFX:";
+				attribytestrs[1] = "HP Delay:";
+				attribytestrs[2] = "Req Itemclass:";
+				attribytestrs[3] = "Req Itemlevel:";
+			}
+			break;
+		}
+		case cARMOS:
+		{
+			flagstrs[0] = "Specify";
+			flagstrs[1] = "Random";
+			attribytestrs[0] = "Enemy 1:";
+			attribytestrs[1] = "Enemy 2:";
+			break;
+		}
+		case cCVUP:
+		case cCVDOWN:
+		case cCVLEFT:
+		case cCVRIGHT:
+		{
+			flagstrs[1] = "Custom Speed";
+			if(local_comboref.usrflags & cflag2) //Custom speed
+			{
+				attributestrs[0] = "X Speed:";
+				attributestrs[1] = "Y Speed:";
+				attribytestrs[0] = "Rate:";
+			}
+			break;
+		}
+		case cTALLGRASS:
+		{
+			flagstrs[0] = "Visuals";
+			flagstrs[1] = "Itemdrop";
+			attribytestrs[0] = "Sprite:";
+			attribytestrs[1] = "Dropset:";
+			attribytestrs[2] = "Sound:";
+			break;
+		}
+		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
+		{
+			flagstrs[0] = "Visuals";
+			flagstrs[1] = "Itemdrop";
+			attribytestrs[0] = "Sprite:";
+			attribytestrs[1] = "Dropset:";
+			break;
+		}
+		case cSLASHITEM:
+		{
+			flagstrs[1] = "Itemdrop";
+			attribytestrs[1] = "Dropset:";
+			break;
+		}
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		{
+			flagstrs[0] = "Custom";
+			flagstrs[1] = "No Knockback";
+			attributestrs[0] = "Amount:";
+			break;
+		}
+		case cLOCKBLOCK:
+		{
+			flagstrs[0] = "Require";
+			flagstrs[1] = "Only";
+			flagstrs[2] = "SFX";
+			flagstrs[3] = "Counter";
+			flagstrs[4] = "Eat Item";
+			flagstrs[5] = "Thief";
+			flagstrs[7] = "No Drain";
+			attributestrs[0] = "Amount";
+			attribytestrs[0] = "Item";
+			attribytestrs[1] = "Counter";
+			attribytestrs[3] = "Sound";
+			break;
+		}
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		{
+			flagstrs[8] = "Can't use from top";
+			flagstrs[9] = "Can't use from bottom";
+			flagstrs[10] = "Can't use from left";
+			flagstrs[11] = "Can't use from right";
+			attribytestrs[2] = "Button:";
+			break;
+		}
+		case cSIGNPOST:
+		{
+			flagstrs[8] = "Can't use from top";
+			flagstrs[9] = "Can't use from bottom";
+			flagstrs[10] = "Can't use from left";
+			flagstrs[11] = "Can't use from right";
+			attribytestrs[2] = "Button:";
+			attributestrs[0] = "String:";
+			break;
+		}
+		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
+		{
+			flagstrs[0] = "Visuals";
+			flagstrs[1] = "Itemdrop";
+			flagstrs[9] = "Clippings";
+			flagstrs[10] = "Specific Item";
+			attribytestrs[0] = "Sprite:";
+			attribytestrs[1] = "Dropset:";
+			attribytestrs[2] = "Sound:";
+			break;
+		}
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
+		{
+			flagstrs[0] = "Visuals";
+			flagstrs[1] = "Itemdrop";
+			flagstrs[9] = "Clippings";
+			flagstrs[10] = "Specific Item";
+			attribytestrs[0] = "Sprite:";
+			attribytestrs[1] = "Dropset:";
+			break;
+		}
+		case cSLASHNEXT:
+		{
+			flagstrs[0] = "Visuals";
+			flagstrs[9] = "Clippings";
+			flagstrs[10] = "Specific Item";
+			attribytestrs[0] = "Sprite:";
+			break;
+		}
+		case cSLASHNEXTITEMTOUCHY:
+		{
+			flagstrs[1] = "Itemdrop";
+			flagstrs[9] = "Clippings";
+			flagstrs[10] = "Specific Item";
+			attribytestrs[1] = "Dropset:";
+			break;
+		}
+		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+		case cSCRIPT11: case cSCRIPT12: case cSCRIPT13: case cSCRIPT14: case cSCRIPT15:
+		case cSCRIPT16: case cSCRIPT17: case cSCRIPT18: case cSCRIPT19: case cSCRIPT20:
+		{
+			flagstrs[8] = "Engine";
+			if(local_comboref.usrflags & cflag9) //Engine flag
+			{
+				flagstrs[0] = "Visuals"; flagstrs[1] = "Itemdrop";
+				flagstrs[2] = "SFX"; flagstrs[3] = "Next";
+				flagstrs[4] = "Continuous"; flagstrs[6] = "Secrets";
+				flagstrs[7] = "Kill Wpn"; flagstrs[9] = "Clippings";
+				flagstrs[10] = "Specific Item"; flagstrs[11] = "Undercombo";
+				flagstrs[12] = "Always Drop"; flagstrs[13] = "Drop Enemy";
+				attribytestrs[0] = "Sprite:"; attribytestrs[1] = "Dropset:";
+				attribytestrs[2] = "Sound:"; attribytestrs[3] = "Secret Type:";
+				if(local_comboref.usrflags & cflag14) //Drop Enemy flag
+				{
+					flagstrs[5] = "No Poof";
+				}
+				else flagstrs[5] = "Room Item";
+			}
+			break;
+		}
+		case cTRIGGERGENERIC:
+		{
+			flagstrs[0] = "Visuals"; flagstrs[1] = "Itemdrop";
+			flagstrs[2] = "SFX"; flagstrs[3] = "Next";
+			flagstrs[4] = "Continuous"; flagstrs[6] = "Singular Secret";
+			flagstrs[7] = "Kill Wpn"; flagstrs[9] = "Clippings";
+			flagstrs[10] = "Specific Item"; flagstrs[11] = "Undercombo";
+			flagstrs[12] = "Always Drop"; flagstrs[13] = "Drop Enemy";
+			attribytestrs[0] = "Sprite:"; attribytestrs[1] = "Dropset:";
+			attribytestrs[2] = "Sound:"; attribytestrs[3] = "Singular Secret:";
+			if(local_comboref.usrflags & cflag14) //Drop Enemy flag
+			{
+				flagstrs[5] = "No Poof";
+			}
+			else flagstrs[5] = "Room Item";
+			break;
+		}
+		case cPITFALL:
+		{
+			flagstrs[0] = "Warp"; flagstrs[2] = "Damage is Percent";
+			flagstrs[3] = "Allow Ladder"; flagstrs[4] = "No Pull";
+			attributestrs[0] = "Damage:"; attribytestrs[0] = "Fall SFX:";
+			if(local_comboref.usrflags & cflag1) //Warp enabled
+			{
+				flagstrs[1] = "Direct Warp";
+				attribytestrs[1] = "TileWarp ID";
+			}
+			if(!(local_comboref.usrflags & cflag5)) //"No Pull"
+				attribytestrs[2] = "Pull Sensitivity:";
+			break;
+		}
+		case cSTEPSFX:
+		{
+			flagstrs[0] = "Landmine";
+			flagstrs[1] = "wCustom is LWeapon";
+			flagstrs[2] = "Don't Advance";
+			flagstrs[3] = "Direct Damage";
+			attributestrs[0] = "Damage:";
+			attribytestrs[0] = "Sound:";
+			attribytestrs[1] = "Weapon Type:";
+			attribytestrs[2] = "Initial Dir:";
+			attribytestrs[3] = "Sprite:";
+			break;
+		}
+		case cCSWITCH:
+		{
+			flagstrs[0] = "Kill Wpn";
+			flagstrs[7] = "Skip Cycle on Screen Entry";
+			attributestrs[0] = "Combo Change:";
+			attributestrs[1] = "CSet Change:";
+			attribytestrs[0] = "State Num:";
+			attribytestrs[1] = "SFX:";
+			break;
+		}
+		case cCSWITCHBLOCK:
+		{
+			flagstrs[0] = "Change L0"; flagstrs[1] = "Change L1";
+			flagstrs[2] = "Change L2"; flagstrs[3] = "Change L3";
+			flagstrs[4] = "Change L4"; flagstrs[5] = "Change L5";
+			flagstrs[6] = "Change L6";
+			flagstrs[7] = "Skip Cycle on Screen Entry";
+			flagstrs[8] = "Allow walk-on-top";
+			attributestrs[0] = "Combo Change:";
+			attributestrs[1] = "CSet Change:";
+			attribytestrs[0] = "State Num:";
+			if(local_comboref.usrflags & cflag9) //Allow walk-on-top
+			{
+				flagstrs[9] = "-8px DrawYOffset";
+				attributestrs[2] = "Z-value:";
+				attributestrs[3] = "Step Height:";
+			}
+			break;
+		}
+		case cLANTERN:
+		{
+			attribytestrs[0] = "Radius:";
+			break;
+		}
+	}
+	for(size_t q = 0; q < 16; ++q)
+	{
+		l_flags[q]->setText(flagstrs[q]);
+		if(q > 7) continue;
+		l_attribytes[q]->setText(attribytestrs[q]);
+		l_attrishorts[q]->setText(attrishortstrs[q]);
+		if(q > 3) continue;
+		l_attributes[q]->setText(attributestrs[q]);
+	}
 }
 void ComboEditorDialog::loadComboFlag()
 {
@@ -279,6 +638,9 @@ void ComboEditorDialog::loadComboFlag()
 void ComboEditorDialog::updateCSet()
 {
 	tswatch->setCSet(edit_combo_cset);
+	if(local_comboref.animflags&AF_CYCLENOCSET)
+		cycleswatch->setCSet(edit_combo_cset);
+	else cycleswatch->setCSet(local_comboref.nextcset);
 	animFrame->setCSet(edit_combo_cset);
 	l_cset->setText(std::to_string(edit_combo_cset));
 }
@@ -302,7 +664,7 @@ void ComboEditorDialog::updateAnimation()
 #define SPR_LAB_WID sized(14_em,10_em)
 #define ACTION_LAB_WID 6_em
 #define ACTION_FIELD_WID 6_em
-#define FLAGS_WID 20_em
+#define FLAGS_WID 16_em
 
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
@@ -325,11 +687,56 @@ TextField( \
 		updateAnimation(); \
 	})
 
+#define CMB_FLAG(ind) \
+l_flags[ind] = Checkbox( \
+		minwidth = FLAGS_WID, hAlign = 0.0, \
+		checked = local_comboref.usrflags & (1<<ind), fitParent = true, \
+		onToggleFunc = [&](bool state) \
+		{ \
+			SETFLAG(local_comboref.usrflags,(1<<ind),state); \
+			loadComboType(); \
+		} \
+	)
+
+#define CMB_ATTRIBYTE(ind) \
+l_attribytes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+TextField( \
+	fitParent = true, minwidth = 8_em, \
+	type = GUI::TextField::type::SWAP_BYTE, \
+	low = 0, high = 255, val = local_comboref.attribytes[ind], \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_comboref.attribytes[ind] = val; \
+	})
+
+#define CMB_ATTRISHORT(ind) \
+l_attrishorts[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+TextField( \
+	fitParent = true, minwidth = 8_em, \
+	type = GUI::TextField::type::SWAP_SSHORT, \
+	low = -32768, high = 32767, val = local_comboref.attrishorts[ind], \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_comboref.attrishorts[ind] = val; \
+	})
+
+#define CMB_ATTRIBUTE(ind) \
+l_attributes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+TextField( \
+	fitParent = true, minwidth = 8_em, \
+	type = GUI::TextField::type::SWAP_ZSINT, \
+	val = local_comboref.attributes[ind], \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_comboref.attributes[ind] = val; \
+	}) \
+
+
 //}
 
 int32_t solidity_to_flag(int32_t val)
 {
-	return (val&0b1001) | (val&0b0100?0b0010:0) | (val&0b0010?0b0100:0);
+	return (val&0b1001) | (val&0b0100)>>1 | (val&0b0010)<<1;
 }
 
 std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
@@ -389,6 +796,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				),
 				TabPanel(
+					ptr = &cmb_tab1,
 					TabRef(name = "Basic", Row(
 						Rows<2>(
 							Label(text = "CSet 2:", hAlign = 1.0),
@@ -417,12 +825,21 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						),
 						Column(padding = 0_px,
 							Rows<6>(
-								Label(text = "Tile", hAlign = 1.0),
-								DummyWidget(),
-								Label(text = "Solid", hAlign = 1.0),
-								DummyWidget(),
-								Label(text = "CSet2", hAlign = 1.0),
-								DummyWidget(),
+								Label(text = "Tile", hAlign = 0.5, colSpan = 2),
+								Label(text = "Solid", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("Solidity","The pink-highlighted corners of the combo will be treated"
+											" as solid walls.").show();
+									}),
+								Label(text = "CSet2", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("CSet2","The cyan-highlighted corners of the combo will be drawn"
+											" in a different cset, offset by the value in the 'CSet2' field.").show();
+									}),
 								tswatch = SelTileSwatch(
 									colSpan = 2,
 									tile = local_comboref.tile,
@@ -465,7 +882,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									skipy = local_comboref.skipanimy,
 									flip = local_comboref.flip
 								),
-								DummyWidget(colSpan = 2),
+								cycleswatch = SelComboSwatch(colSpan = 2,
+									showvals = false,
+									combo = local_comboref.nextcombo,
+									cset = local_comboref.nextcset,
+									onSelectFunc = [&](int32_t cmb, int32_t c)
+									{
+										local_comboref.nextcombo = cmb;
+										local_comboref.nextcset = c;
+										updateCSet();
+									}
+								),
 								cswatchs[2] = CornerSwatch(colSpan = 2,
 									val = solidity_to_flag((local_comboref.walk&0xF0)>>4),
 									color = vc(10),
@@ -476,14 +903,95 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									}
 								),
 								Label(text = "Preview", hAlign = 0.5,colSpan = 2),
-								Label(text = "Cycle", hAlign = 1.0),
-								DummyWidget(),
-								Label(text = "Effect", hAlign = 1.0),
-								DummyWidget()
+								Label(text = "Cycle", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("Cycle","When the combo's animation has completed once,"
+											" the combo will be changed to the 'Cycle' combo, unless the 'Cycle'"
+											" combo is set to Combo 0.").show();
+									}),
+								Label(text = "Effect", hAlign = 1.0, rightPadding = 0_px),
+								Button(leftPadding = 0_px, forceFitH = true, text = "?",
+									onPressFunc = []()
+									{
+										InfoDialog("Effect","The combo type takes effect only in the lime-highlighted"
+											" corners of the combo.").show();
+									})
+							),
+							Checkbox(
+								text = "Refresh Animation on Room Entry", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_FRESH,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_FRESH,state);
+								}
+							),
+							Checkbox(
+								text = "Restart Animation when Cycled To", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLE,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLE,state);
+								}
+							),
+							Checkbox(
+								text = "Cycle Ignores CSet", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_CYCLENOCSET,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_CYCLENOCSET,state);
+									updateCSet();
+								}
 							)
 						)
 					)),
-					TabRef(name = "2", DummyWidget())
+					TabRef(name = "Flags", Columns<8>(
+						CMB_FLAG(0),
+						CMB_FLAG(1),
+						CMB_FLAG(2),
+						CMB_FLAG(3),
+						CMB_FLAG(4),
+						CMB_FLAG(5),
+						CMB_FLAG(6),
+						CMB_FLAG(7),
+						CMB_FLAG(8),
+						CMB_FLAG(9),
+						CMB_FLAG(10),
+						CMB_FLAG(11),
+						CMB_FLAG(12),
+						CMB_FLAG(13),
+						CMB_FLAG(14),
+						CMB_FLAG(15)
+					)),
+					TabRef(name = "Attribs", ScrollingPane(
+						fitParent = true,
+						Rows<4>(
+							Label(text = "Attribytes", colSpan = 2),
+							Label(text = "Attrishorts", colSpan = 2),
+							CMB_ATTRIBYTE(0),
+							CMB_ATTRISHORT(0),
+							CMB_ATTRIBYTE(1),
+							CMB_ATTRISHORT(1),
+							CMB_ATTRIBYTE(2),
+							CMB_ATTRISHORT(2),
+							CMB_ATTRIBYTE(3),
+							CMB_ATTRISHORT(3),
+							CMB_ATTRIBYTE(4),
+							CMB_ATTRISHORT(4),
+							CMB_ATTRIBYTE(5),
+							CMB_ATTRISHORT(5),
+							CMB_ATTRIBYTE(6),
+							CMB_ATTRISHORT(6),
+							CMB_ATTRIBYTE(7),
+							CMB_ATTRISHORT(7),
+							Label(text = "Attributes", colSpan = 2), DummyWidget(colSpan = 2),
+							CMB_ATTRIBUTE(0), DummyWidget(colSpan = 2),
+							CMB_ATTRIBUTE(1), DummyWidget(colSpan = 2),
+							CMB_ATTRIBUTE(2), DummyWidget(colSpan = 2),
+							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 2)
+						)
+					))
 				),
 				Row(
 					vAlign = 1.0,
@@ -491,9 +999,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					Button(
 						focused = true,
 						text = "OK",
+						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
+						minwidth = 90_lpx,
 						onClick = message::CANCEL)
 				)
 			)

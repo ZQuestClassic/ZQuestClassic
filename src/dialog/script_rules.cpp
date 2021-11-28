@@ -147,9 +147,11 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
+					minwidth = 90_lpx,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
+					minwidth = 90_lpx,
 					onClick = message::CANCEL)
 			)
 		)

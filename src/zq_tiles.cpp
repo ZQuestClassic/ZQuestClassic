@@ -18836,11 +18836,13 @@ static ListData combotype_list(combotypelist, &font);
 void call_combo_editor(int32_t);
 bool edit_combo(int32_t c,bool freshen,int32_t cs)
 {
+	FONT* ofont = font;
 	jwin_auto_alert("CEdit","Start New",256,2,"O&K",NULL,'k',0,lfont);
 	edit_combo_cset = cs;
 	call_combo_editor(c);
+	CSet = edit_combo_cset;
 	jwin_auto_alert("CEdit","Start Old",256,2,"O&K",NULL,'k',0,lfont);
-	
+	font = ofont;
 	
 	combo_dlg[0].dp2=lfont;
 	

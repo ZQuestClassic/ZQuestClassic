@@ -27,14 +27,15 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 			return ret;
 		}
 	}
-	else if(msg == MSG_IDLE && dr->redrawPending)
+	else if((msg == MSG_IDLE || msg == MSG_VSYNC) && dr->redrawPending)
 	{
 		// In the old system, many things sent messages by closing the dialog,
 		// and the return value from do_zqdialog() became the message.
 		// Some widgets don't have code to indicate that they need redrawn
 		// since the dialog would be closed and reopened in that case.
+		broadcast_dialog_message(MSG_DRAW, 0);
 		dr->redrawPending = false;
-		return D_REDRAW;
+		return D_O_K;
 	}
 	else
 		return D_O_K;

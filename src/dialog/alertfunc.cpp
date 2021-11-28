@@ -72,6 +72,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 				buttons.push_back(
 					Button(
 						text = btntext,
+						minwidth = 90_lpx,
 						onPressFunc = func,
 						focused = (q==focused_button)
 					));
@@ -81,6 +82,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 				buttons.push_back(
 					Button(
 						text = btntext,
+						minwidth = 90_lpx,
 						onClick = message::OK,
 						focused = (q==focused_button)
 					));
@@ -92,6 +94,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 		buttons.push_back(
 			Button(
 				text = "OK",
+				minwidth = 90_lpx,
 				onClick = message::OK,
 				focused = true
 			));

@@ -166,9 +166,11 @@ std::shared_ptr<GUI::Widget> BottleTypeDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
+					minwidth = 90_lpx,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
+					minwidth = 90_lpx,
 					onClick = message::CANCEL)
 			)
 		)

@@ -17,8 +17,6 @@ Button::Button(): text(), message(-1)
 
 void Button::setText(std::string newText)
 {
-	Size targetWidth = Size::em(newText.size());
-	setPreferredWidth(std::max(targetWidth, 90_lpx));
 	text = std::move(newText);
 }
 
@@ -31,6 +29,11 @@ void Button::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
+}
+
+void Button::calculateSize()
+{
+	setPreferredWidth(8_spx+Size::pixels(gui_text_width(widgFont, text.c_str())));
 }
 
 void Button::applyFont(FONT* newFont)

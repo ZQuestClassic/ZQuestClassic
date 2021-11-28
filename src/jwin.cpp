@@ -757,10 +757,16 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 	c=c;
 	
 	rest(1);
+	static bool skipredraw = false;
 	
 	switch(msg)
 	{
 		case MSG_DRAW:
+			if(skipredraw)
+			{
+				skipredraw = false;
+				break;
+			}
 			jwin_draw_win(screen, d->x, d->y, d->w, d->h, FR_WIN);
 			
 			if(d->dp)
@@ -778,9 +784,13 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 		
 		case MSG_WANTFOCUS:
-			return D_WANTFOCUS|D_REDRAW;
+			if(gui_mouse_b())
+				return D_WANTFOCUS|D_REDRAW;
+			else return D_O_K;
+		case MSG_GOTFOCUS:
 		case MSG_LOSTFOCUS:
-			return D_REDRAW;
+			skipredraw = true;
+			return D_O_K;
 		
 		case MSG_CLICK:
 		{
@@ -977,6 +987,8 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 		destroy_bitmap(screen);
 		screen = oldscreen;
 	}
+	if(msg==MSG_WANTFOCUS && gui_mouse_b())
+		ret |= D_WANTFOCUS|D_REDRAW;
 	return ret;
 }
 
@@ -1685,11 +1697,11 @@ int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 	{
 		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
 		d->dp = swp[d->d1&0xF];
+		d->flags &= ~D_SELECTED;
 		if(relproc)
 		{
 			object_message(relproc, MSG_DRAW, 0);
 		}
-		d->flags &= ~D_SELECTED;
 		object_message(d, MSG_DRAW, 0);
 	}
 	return ret;
@@ -1702,7 +1714,7 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 		swapbtn = d+(int32_t)(d->dp3);
 	}
 	else swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
+	if(!swapbtn) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		d->bg = 0;
@@ -1782,7 +1794,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		swapbtn = d+(int32_t)(d->dp3);
 	}
 	else swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
+	if(!swapbtn) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		d->bg = 0;
@@ -1921,7 +1933,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		swapbtn = d+(int32_t)(d->dp3);
 	}
 	else swapbtn = (DIALOG*)d->dp3;
-	if(!swapbtn || swapbtn->proc != jwin_swapbtn_proc) return D_O_K;
+	if(!swapbtn) return D_O_K;
 	if(msg==MSG_START) //Setup the swapbtn
 	{
 		d->bg = 0;
@@ -7017,6 +7029,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
     int32_t tx;
 	int32_t ret = D_O_K;
     int32_t sd=2; //selected delta
+	static bool skipredraw = false;
 	GUI::TabPanel *panel=(GUI::TabPanel*)d->dp;
     ASSERT(d);
     
@@ -7032,6 +7045,11 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		case MSG_DRAW:
 		{
+			if(skipredraw)
+			{
+				skipredraw = false;
+				break;
+			}
 			if(d->x<zq_screen_w&&d->y<zq_screen_h)
 			{
 				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
@@ -7106,9 +7124,13 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		break;
 		
 		case MSG_WANTFOCUS:
-			return D_WANTFOCUS|D_REDRAW;
+			if(gui_mouse_b())
+				ret = D_WANTFOCUS|D_REDRAW;
+			break;
+		case MSG_GOTFOCUS:
 		case MSG_LOSTFOCUS:
-			return D_REDRAW;
+			skipredraw = true;
+			break;
 			
 		case MSG_CLICK:
 		{
