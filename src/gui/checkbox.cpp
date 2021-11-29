@@ -56,6 +56,12 @@ void Checkbox::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Checkbox::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void Checkbox::applyFont(FONT* newFont)
 {
 	if(alDialog)

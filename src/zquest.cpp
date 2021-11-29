@@ -35398,7 +35398,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN", "cSPOTLIGHT", "cGLASS", "cLIGHTTARGET"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -35416,8 +35416,8 @@ bool ZModule::init(bool d) //bool default
 			"Block Magic", "Cave (Walk Up) [A]", "Eyeball (8-Way A)", "Eyeball (8-Way B)", "No Jumping Enemies",
 			"Bush", "Flowers", "Tall Grass", "Shallow Liquid", "Lock Block (Normal)",
 			"Lock Block (Normal, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
-			"Treasure Chest (Normal)", "Treasure Chest (Normal, Copycat)", "Treasure Chest (Locked)", "Treasure Chest (Locked, Copycat)", "Treasure Chest (Boss)",
-			"Treasure Chest (Boss, Copycat)", "Reset Room", "Save Point", "Save-Quit Point", "Cave (Walk Down) [B]",
+			"Chest (Basic)", "Chest (Basic, Copycat)", "Chest (Locked)", "Chest (Locked, Copycat)", "Chest (Boss)",
+			"Chest (Boss, Copycat)", "Reset Room", "Save Point", "Save-Quit Point", "Cave (Walk Down) [B]",
 			"Cave (Walk Down) [C]", "Cave (Walk Down) [D]", "Stairs [B]", "Stairs [C]", "Stairs [D]",
 			"Direct Warp [B]", "Direct Warp [C]", "Direct Warp [D]", "Cave (Walk Up) [B]", "Cave (Walk Up) [C]",
 			"Cave (Walk Up) [D]", "Swim Warp [B]", "Swim Warp [C]", "Swim Warp [D]", "Dive Warp [B]",
@@ -35436,7 +35436,8 @@ bool ZModule::init(bool d) //bool default
 			"Script 09","Script 10","Script 11","Script 12","Script 13",
 			"Script 14","Script 15","Script 16","Script 17","Script 18",
 			"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
-			"Bridge", "Signpost", "Switch", "Switch Block", "Lantern"
+			"Bridge", "Signpost", "Switch", "Switch Block", "Lantern",
+			"Spotlight", "Glass", "Light Trigger"
 		};
 		
 		for ( int32_t q = 0; q < cMAX; q++ )

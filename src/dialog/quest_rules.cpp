@@ -283,7 +283,9 @@ static const GUI::ListData comboRulesList
 		" check if the Player is standing on solid ground and is"
 		" mostly on the damage combo. This does not affect the"
 		" check for bonking your head on a damaging ceiling; see"
-		" 'Sideview Spike Detection Prior to 2.50.1RC3' for that."}
+		" 'Sideview Spike Detection Prior to 2.50.1RC3' for that."},
+	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
+		"Light Beams from Spotlight combos are transparently drawn."}
 };
 
 static const GUI::ListData compatRulesList

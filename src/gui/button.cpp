@@ -31,6 +31,12 @@ void Button::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Button::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void Button::calculateSize()
 {
 	setPreferredWidth(sized(10_px,16_px)+Size::pixels(gui_text_width(widgFont, text.c_str())));

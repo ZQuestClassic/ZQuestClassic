@@ -60,6 +60,14 @@ void TabPanel::applyVisibility(bool visible)
 		child->setExposed(visible);
 }
 
+void TabPanel::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+	for(auto& child: children)
+		child->setDisabled(dis);
+}
+
 void TabPanel::applyFont(FONT* newFont)
 {
 	if(alDialog)

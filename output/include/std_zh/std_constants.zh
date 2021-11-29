@@ -1,5 +1,5 @@
 // std_constants.zh
-// 25th Nov, 2021 for ZC 2.55 Alpha 100
+// 29th Nov, 2021 for ZC 2.55 Alpha 100
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -2095,21 +2095,22 @@ const int DMFS_LAYER2ISBACKGROUND 	= 18; //Layer 2 is bBackground
 const int DMFS_TRUECELLARENEMIES 	= 19; //True Cellar Enemies
 
 //Screen states. Use these with Screen->State[], etc.
-const int ST_DOORUP			= 0; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_DOORDOWN			= 1; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_DOORLEFT			= 2; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_DOORRIGHT			= 3; // The locked/bomb door has been permanently unlocked/bombed
-const int ST_ITEM			= 4; // If set, the item is gone
-const int ST_SPECIALITEM		= 5; // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
-const int ST_ENEMYNORETURN		= 6; // If set, enemies won't return
-const int ST_TEMPNORETURN		= 7; // If set, enemies won't return. This is automatically unset when you leave the DMap
-const int ST_LOCKBLOCK			= 8; // The lock block on the screen has been triggered
-const int ST_BOSSLOCKBLOCK		= 9; // The boss lock block on the screen has been triggered
-const int ST_CHEST			= 10; // The unlocked chest on this screen has been opened
-const int ST_LOCKEDCHEST		= 11; // The locked chest on this screen has been opened
-const int ST_BOSSCHEST			= 12; // The boss chest on this screen has been opened
-const int ST_SECRET			= 13; // Screen Secrets have been made permanent
-const int ST_VISITED			= 14; // If set, this screen will appear on the Overworld Map
+const int ST_DOORUP             = 0; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_DOORDOWN           = 1; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_DOORLEFT           = 2; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_DOORRIGHT          = 3; // The locked/bomb door has been permanently unlocked/bombed
+const int ST_ITEM               = 4; // If set, the item is gone
+const int ST_SPECIALITEM        = 5; // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
+const int ST_ENEMYNORETURN      = 6; // If set, enemies won't return
+const int ST_TEMPNORETURN       = 7; // If set, enemies won't return. This is automatically unset when you leave the DMap
+const int ST_LOCKBLOCK          = 8; // The lock block on the screen has been triggered
+const int ST_BOSSLOCKBLOCK      = 9; // The boss lock block on the screen has been triggered
+const int ST_CHEST              = 10; // The unlocked chest on this screen has been opened
+const int ST_LOCKEDCHEST        = 11; // The locked chest on this screen has been opened
+const int ST_BOSSCHEST          = 12; // The boss chest on this screen has been opened
+const int ST_SECRET             = 13; // Screen Secrets have been made permanent
+const int ST_VISITED            = 14; // If set, this screen will appear on the Overworld Map
+const int ST_LIGHTBEAM          = 15; // If set, the light triggers on the screen have been triggered
 
 //Door Positions; indices of Screen->Door[]
 const int DOOR_UP               = 0;
@@ -3305,3 +3306,15 @@ enum ComboGenFlag
 	GENFLAG_HOOKSHOTTABLE,
 	GENFLAG_MAX
 };
+
+DEFINE BLOCKFLAG_ROCK = 0x001;
+DEFINE BLOCKFLAG_ARROW = 0x002;
+DEFINE BLOCKFLAG_BRANG = 0x004;
+DEFINE BLOCKFLAG_FIREBALL = 0x008;
+DEFINE BLOCKFLAG_SWORD = 0x010;
+DEFINE BLOCKFLAG_MAGIC = 0x020;
+DEFINE BLOCKFLAG_FLAME = 0x040;
+DEFINE BLOCKFLAG_SCRIPT = 0x080;
+DEFINE BLOCKFLAG_FIREBALL2 = 0x100;
+DEFINE BLOCKFLAG_LIGHTBEAM = 0x200;
+

@@ -62,6 +62,7 @@ private:
 	/* If a value was set rather than an index, find an index to select. */
 	void setIndex();
 	void applyVisibility(bool visible) override;
+	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 };

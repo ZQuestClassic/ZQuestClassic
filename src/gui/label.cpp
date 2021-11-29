@@ -41,6 +41,12 @@ void Label::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Label::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void Label::applyFont(FONT* newFont)
 {
 	if(alDialog)

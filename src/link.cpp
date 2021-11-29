@@ -7170,6 +7170,7 @@ static size_t find_bottle_for_slot(size_t slot, bool unowned=false)
 	}
 	return found_unowned;
 }
+
 // returns true when game over
 bool LinkClass::animate(int32_t)
 {
@@ -8822,6 +8823,8 @@ bool LinkClass::animate(int32_t)
 	}
 	
 	}
+	
+	handleSpotlights();
 	
 	if(getOnSideviewLadder())
 	{
@@ -17819,6 +17822,468 @@ static int32_t GridX(int32_t x)
 static int32_t GridY(int32_t y) 
 {
 	return (y >> 4) << 4;
+}
+
+static int32_t typeMap[176];
+static int32_t istrig[176];
+static const int32_t SPTYPE_SOLID = -1;
+#define SP_VISITED 0x1
+#define SPFLAG(dir) (0x2<<dir)
+#define BEAM_AGE_LIMIT 32
+void LinkClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
+{
+	int32_t trigflag = set ? (1 << (set-1)) : ~0;
+	if(spotdir > 3) return; //invalid dir
+	bool doAge = true;
+	byte f = 0;
+	while(unsigned(curpos) < 176)
+	{
+		f = SPFLAG(spotdir);
+		if((grid[curpos] & f) != f)
+		{
+			grid[curpos] |= f;
+			istrig[curpos] |= trigflag;
+			doAge = false;
+			age = 0;
+		}
+		switch(spotdir)
+		{
+			case up:
+				curpos -= 0x10;
+				break;
+			case down:
+				curpos += 0x10;
+				break;
+			case left:
+				if(!(curpos%0x10))
+					curpos = -1;
+				else --curpos;
+				break;
+			case right:
+				++curpos;
+				if(!(curpos%0x10))
+					curpos = -1;
+				break;
+		}
+		if(unsigned(curpos) >= 176) break;
+		switch(typeMap[curpos])
+		{
+			case SPTYPE_SOLID: case cBLOCKALL:
+				curpos = -1;
+				break;
+		}
+		if((curpos==COMBOPOS(x.getInt()+8,y.getInt()+8)) && block && (spotdir == oppositeDir[dir]))
+			curpos = -1;
+		if(unsigned(curpos) >= 176) break;
+		
+		f = SPFLAG(oppositeDir[spotdir]);
+		if((grid[curpos] & f) != f)
+		{
+			grid[curpos] |= f;
+			istrig[curpos] |= trigflag;
+			doAge = false;
+			age = 0;
+		}
+		if(doAge)
+		{
+			if(++age > BEAM_AGE_LIMIT)
+				break;
+		}
+		else doAge = true;
+		
+		if(curpos==COMBOPOS(x.getInt()+8,y.getInt() +8) && refl)
+			spotdir = dir;
+		else switch(typeMap[curpos])
+		{
+			case cMIRROR:
+				spotdir = oppositeDir[spotdir];
+				break;
+			case cMIRRORSLASH:
+				switch(spotdir)
+				{
+					case up:
+						spotdir = right; break;
+					case right:
+						spotdir = up; break;
+					case down:
+						spotdir = left; break;
+					case left:
+						spotdir = down; break;
+				}
+				break;
+			case cMIRRORBACKSLASH:
+				switch(spotdir)
+				{
+					case up:
+						spotdir = left; break;
+					case left:
+						spotdir = up; break;
+					case down:
+						spotdir = right; break;
+					case right:
+						spotdir = down; break;
+				}
+				break;
+			case cMAGICPRISM:
+				for(byte d = 0; d < 4; ++d)
+				{
+					if(d == oppositeDir[spotdir]) continue;
+					handleBeam(grid, age, d, curpos, set, block, refl);
+				}
+				return;
+			case cMAGICPRISM4:
+				for(byte d = 0; d < 4; ++d)
+				{
+					handleBeam(grid, age, d, curpos, set, block, refl);
+				}
+				return;
+		}
+	}
+}
+
+void LinkClass::handleSpotlights()
+{
+	typedef byte spot_t;
+	//Store each different tile/color as grids
+	std::map<int32_t, spot_t*> maps;
+	int32_t shieldid = current_item_id(itype_shield);
+	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
+	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
+	int32_t linkpos = COMBOPOS(x.getInt()+8,y.getInt()+8);
+	memset(istrig, 0, sizeof(istrig));
+	clear_bitmap(lightbeam_bmp);
+	
+	for(size_t pos = 0; pos < 176; ++pos)
+	{
+		typeMap[pos] = 0;
+		for(int32_t lyr = 6; lyr > -1; --lyr)
+		{
+			newcombo const* cmb = &combobuf[FFCore.tempScreens[lyr]->data[pos]];
+			switch(cmb->type)
+			{
+				case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
+				case cMAGICPRISM: case cMAGICPRISM4:
+				case cBLOCKALL:
+					typeMap[pos] = cmb->type;
+					break;
+				case cGLASS:
+					typeMap[pos] = 0;
+					break;
+				default:
+				{
+					if(lyr < 3 && (cmb->walk & 0xF))
+					{
+						typeMap[pos] = SPTYPE_SOLID;
+					}
+					continue; //next layer
+				}
+			}
+			break; //hit a combo type
+		}
+	}
+	if(unsigned(linkpos) < 176)
+	{
+		switch(typeMap[linkpos])
+		{
+			case SPTYPE_SOLID: case cBLOCKALL:
+				linkpos = -1; //Blocked from hitting player
+		}
+	}
+	
+	for(size_t layer = 0; layer < 7; ++layer)
+	{
+		mapscr* curlayer = FFCore.tempScreens[layer];
+		for(size_t pos = 0; pos < 176; ++pos)
+		{
+			//For each spotlight combo on each layer...
+			newcombo const& cmb = combobuf[curlayer->data[pos]];
+			if(cmb.type == cSPOTLIGHT)
+			{
+				//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
+				int32_t id = (cmb.usrflags&cflag1)
+					? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
+					: -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
+				if(!id) continue;
+				// zprint2("ID = %ld\n", id);
+				//Get the grid array for this tile/color
+				spot_t* grid;
+				if(maps[id])
+					grid = maps[id];
+				else
+				{
+					grid = new spot_t[176];
+					memset(grid, 0, sizeof(spot_t)*176);
+					maps[id] = grid;
+				}
+				byte spotdir = cmb.attribytes[0];
+				int32_t curpos = pos;
+				if(spotdir > 3)
+				{
+					grid[curpos] |= SP_VISITED;
+					istrig[curpos] |= cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
+				}
+				if(refl && curpos == linkpos)
+				{
+					spotdir = dir;
+				}
+				handleBeam(grid, 0, spotdir, curpos, cmb.attribytes[4], block, refl);
+			}
+		}
+	}
+	
+	//Draw visuals
+	for(auto it = maps.begin(); it != maps.end();)
+	{
+		int32_t id = it->first;
+		spot_t* grid = it->second;
+		//
+		enum {t_gr, t_up, t_down, t_left, t_right, t_uleft, t_uright, t_dleft, t_dright, t_vert, t_horz, t_notup, t_notdown, t_notleft, t_notright, t_all, t_max };
+		int32_t tile = (id&0xFFFFFF);
+		int32_t cs = (id>>24);
+		byte c_inner = ((-id)&0x0000FF);
+		byte c_middle = ((-id)&0x00FF00)>>8;
+		byte c_outter = ((-id)&0xFF0000)>>16;
+		//{ Setup color bitmap
+		BITMAP* cbmp = NULL;
+		if(id < 0)
+		{
+			//zprint2("Creating with colors: %02X,%02X,%02X\n", c_inner, c_middle, c_outter);
+			cbmp = create_bitmap_ex(8, 16*t_max, 16);
+			clear_bitmap(cbmp);
+			for(size_t q = 1; q < t_max; ++q)
+			{
+				circlefill(cbmp, 16*q+8, 8, 3, c_outter);
+				circlefill(cbmp, 16*q+7, 8, 3, c_outter);
+				circlefill(cbmp, 16*q+8, 7, 3, c_outter);
+				circlefill(cbmp, 16*q+7, 7, 3, c_outter);
+				circlefill(cbmp, 16*q+8, 8, 1, c_middle);
+				circlefill(cbmp, 16*q+7, 8, 1, c_middle);
+				circlefill(cbmp, 16*q+8, 7, 1, c_middle);
+				circlefill(cbmp, 16*q+7, 7, 1, c_middle);
+				circlefill(cbmp, 16*q+8, 8, 0, c_inner);
+				circlefill(cbmp, 16*q+7, 8, 0, c_inner);
+				circlefill(cbmp, 16*q+8, 7, 0, c_inner);
+				circlefill(cbmp, 16*q+7, 7, 0, c_inner);
+			}
+			//t_gr
+			circlefill(cbmp, 16*t_gr+8, 8, 7, c_outter);
+			circlefill(cbmp, 16*t_gr+7, 8, 7, c_outter);
+			circlefill(cbmp, 16*t_gr+8, 7, 7, c_outter);
+			circlefill(cbmp, 16*t_gr+7, 7, 7, c_outter);
+			circlefill(cbmp, 16*t_gr+8, 8, 5, c_middle);
+			circlefill(cbmp, 16*t_gr+7, 8, 5, c_middle);
+			circlefill(cbmp, 16*t_gr+8, 7, 5, c_middle);
+			circlefill(cbmp, 16*t_gr+7, 7, 5, c_middle);
+			circlefill(cbmp, 16*t_gr+8, 8, 3, c_inner);
+			circlefill(cbmp, 16*t_gr+7, 8, 3, c_inner);
+			circlefill(cbmp, 16*t_gr+8, 7, 3, c_inner);
+			circlefill(cbmp, 16*t_gr+7, 7, 3, c_inner);
+			//t_up
+			rectfill(cbmp, 16*t_up+4, 0, 16*t_up+11, 7, c_outter);
+			rectfill(cbmp, 16*t_up+6, 0, 16*t_up+9, 7, c_middle);
+			rectfill(cbmp, 16*t_up+7, 0, 16*t_up+8, 7, c_inner);
+			//t_down
+			rectfill(cbmp, 16*t_down+4, 8, 16*t_down+11, 15, c_outter);
+			rectfill(cbmp, 16*t_down+6, 8, 16*t_down+9, 15, c_middle);
+			rectfill(cbmp, 16*t_down+7, 8, 16*t_down+8, 15, c_inner);
+			//t_left
+			rectfill(cbmp, 16*t_left, 4, 16*t_left+7, 11, c_outter);
+			rectfill(cbmp, 16*t_left, 6, 16*t_left+7, 9, c_middle);
+			rectfill(cbmp, 16*t_left, 7, 16*t_left+7, 8, c_inner);
+			//t_right
+			rectfill(cbmp, 16*t_right+8, 4, 16*t_right+15, 11, c_outter);
+			rectfill(cbmp, 16*t_right+8, 6, 16*t_right+15, 9, c_middle);
+			rectfill(cbmp, 16*t_right+8, 7, 16*t_right+15, 8, c_inner);
+			//t_uleft
+			rectfill(cbmp, 16*t_uleft+4, 0, 16*t_uleft+11, 7, c_outter);
+			rectfill(cbmp, 16*t_uleft, 4, 16*t_uleft+7, 11, c_outter);
+			rectfill(cbmp, 16*t_uleft, 6, 16*t_uleft+7, 9, c_middle);
+			rectfill(cbmp, 16*t_uleft+6, 0, 16*t_uleft+9, 7, c_middle);
+			rectfill(cbmp, 16*t_uleft+7, 0, 16*t_uleft+8, 7, c_inner);
+			rectfill(cbmp, 16*t_uleft, 7, 16*t_uleft+7, 8, c_inner);
+			//t_uright
+			rectfill(cbmp, 16*t_uright+4, 0, 16*t_uright+11, 7, c_outter);
+			rectfill(cbmp, 16*t_uright+8, 4, 16*t_uright+15, 11, c_outter);
+			rectfill(cbmp, 16*t_uright+8, 6, 16*t_uright+15, 9, c_middle);
+			rectfill(cbmp, 16*t_uright+6, 0, 16*t_uright+9, 7, c_middle);
+			rectfill(cbmp, 16*t_uright+7, 0, 16*t_uright+8, 7, c_inner);
+			rectfill(cbmp, 16*t_uright+8, 7, 16*t_uright+15, 8, c_inner);
+			//t_dleft
+			rectfill(cbmp, 16*t_dleft+4, 8, 16*t_dleft+11, 15, c_outter);
+			rectfill(cbmp, 16*t_dleft, 4, 16*t_dleft+7, 11, c_outter);
+			rectfill(cbmp, 16*t_dleft, 6, 16*t_dleft+7, 9, c_middle);
+			rectfill(cbmp, 16*t_dleft+6, 8, 16*t_dleft+9, 15, c_middle);
+			rectfill(cbmp, 16*t_dleft+7, 8, 16*t_dleft+8, 15, c_inner);
+			rectfill(cbmp, 16*t_dleft, 7, 16*t_dleft+7, 8, c_inner);
+			//t_dright
+			rectfill(cbmp, 16*t_dright+4, 8, 16*t_dright+11, 15, c_outter);
+			rectfill(cbmp, 16*t_dright+8, 4, 16*t_dright+15, 11, c_outter);
+			rectfill(cbmp, 16*t_dright+8, 6, 16*t_dright+15, 9, c_middle);
+			rectfill(cbmp, 16*t_dright+6, 8, 16*t_dright+9, 15, c_middle);
+			rectfill(cbmp, 16*t_dright+7, 8, 16*t_dright+8, 15, c_inner);
+			rectfill(cbmp, 16*t_dright+8, 7, 16*t_dright+15, 8, c_inner);
+			//t_vert
+			rectfill(cbmp, 16*t_vert+4, 0, 16*t_vert+11, 15, c_outter);
+			rectfill(cbmp, 16*t_vert+6, 0, 16*t_vert+9, 15, c_middle);
+			rectfill(cbmp, 16*t_vert+7, 0, 16*t_vert+8, 15, c_inner);
+			//t_horz
+			rectfill(cbmp, 16*t_horz, 4, 16*t_horz+15, 11, c_outter);
+			rectfill(cbmp, 16*t_horz, 6, 16*t_horz+15, 9, c_middle);
+			rectfill(cbmp, 16*t_horz, 7, 16*t_horz+15, 8, c_inner);
+			//t_notup
+			rectfill(cbmp, 16*t_notup, 4, 16*t_notup+15, 11, c_outter);
+			rectfill(cbmp, 16*t_notup+4, 8, 16*t_notup+11, 15, c_outter);
+			rectfill(cbmp, 16*t_notup+6, 8, 16*t_notup+9, 15, c_middle);
+			rectfill(cbmp, 16*t_notup, 6, 16*t_notup+15, 9, c_middle);
+			rectfill(cbmp, 16*t_notup, 7, 16*t_notup+15, 8, c_inner);
+			rectfill(cbmp, 16*t_notup+7, 8, 16*t_notup+8, 15, c_inner);
+			//t_notdown
+			rectfill(cbmp, 16*t_notdown, 4, 16*t_notdown+15, 11, c_outter);
+			rectfill(cbmp, 16*t_notdown+4, 0, 16*t_notdown+11, 7, c_outter);
+			rectfill(cbmp, 16*t_notdown+6, 0, 16*t_notdown+9, 7, c_middle);
+			rectfill(cbmp, 16*t_notdown, 6, 16*t_notdown+15, 9, c_middle);
+			rectfill(cbmp, 16*t_notdown, 7, 16*t_notdown+15, 8, c_inner);
+			rectfill(cbmp, 16*t_notdown+7, 0, 16*t_notdown+8, 7, c_inner);
+			//t_notleft
+			rectfill(cbmp, 16*t_notleft+4, 0, 16*t_notleft+11, 15, c_outter);
+			rectfill(cbmp, 16*t_notleft+8, 4, 16*t_notleft+15, 11, c_outter);
+			rectfill(cbmp, 16*t_notleft+8, 6, 16*t_notleft+15, 9, c_middle);
+			rectfill(cbmp, 16*t_notleft+6, 0, 16*t_notleft+9, 15, c_middle);
+			rectfill(cbmp, 16*t_notleft+7, 0, 16*t_notleft+8, 15, c_inner);
+			rectfill(cbmp, 16*t_notleft+8, 7, 16*t_notleft+15, 8, c_inner);
+			//t_notright
+			rectfill(cbmp, 16*t_notright+4, 0, 16*t_notright+11, 15, c_outter);
+			rectfill(cbmp, 16*t_notright, 4, 16*t_notright+7, 11, c_outter);
+			rectfill(cbmp, 16*t_notright, 6, 16*t_notright+7, 9, c_middle);
+			rectfill(cbmp, 16*t_notright+6, 0, 16*t_notright+9, 15, c_middle);
+			rectfill(cbmp, 16*t_notright+7, 0, 16*t_notright+8, 15, c_inner);
+			rectfill(cbmp, 16*t_notright, 7, 16*t_notright+7, 8, c_inner);
+			//t_all
+			rectfill(cbmp, 16*t_all+4, 0, 16*t_all+11, 15, c_outter);
+			rectfill(cbmp, 16*t_all, 4, 16*t_all+15, 11, c_outter);
+			rectfill(cbmp, 16*t_all, 6, 16*t_all+15, 9, c_middle);
+			rectfill(cbmp, 16*t_all+6, 0, 16*t_all+9, 15, c_middle);
+			rectfill(cbmp, 16*t_all+7, 0, 16*t_all+8, 15, c_inner);
+			rectfill(cbmp, 16*t_all, 7, 16*t_all+15, 8, c_inner);
+		}
+		//}
+		//
+		for(size_t pos = 0; pos < 176; ++pos)
+		{
+			int32_t offs = -1;
+			switch(grid[pos]>>1)
+			{
+				case 0: default:
+					if(grid[pos])
+					{
+						offs = t_gr;
+						break;
+					}
+					continue; //no draw this pos
+				case 0b0001:
+					offs = t_up;
+					break;
+				case 0b0010:
+					offs = t_down;
+					break;
+				case 0b0100:
+					offs = t_left;
+					break;
+				case 0b1000:
+					offs = t_right;
+					break;
+				case 0b0011:
+					offs = t_vert;
+					break;
+				case 0b1100:
+					offs = t_horz;
+					break;
+				case 0b0101:
+					offs = t_uleft;
+					break;
+				case 0b1001:
+					offs = t_uright;
+					break;
+				case 0b0110:
+					offs = t_dleft;
+					break;
+				case 0b1010:
+					offs = t_dright;
+					break;
+				case 0b1110:
+					offs = t_notup;
+					break;
+				case 0b1101:
+					offs = t_notdown;
+					break;
+				case 0b1011:
+					offs = t_notleft;
+					break;
+				case 0b0111:
+					offs = t_notright;
+					break;
+				case 0b1111:
+					offs = t_all;
+					break;
+			}
+			if(id > 0) //tile
+			{
+				//Draw 'tile' at 'pos'
+				overtile16(lightbeam_bmp, tile+offs, COMBOX(pos), COMBOY(pos), cs, 0);
+			}
+			else //colors
+			{
+				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX(pos), COMBOY(pos), 16, 16);
+			}
+		}
+		//
+		if(cbmp) destroy_bitmap(cbmp);
+		delete[] it->second;
+		it = maps.erase(it);
+	}
+	//Check triggers
+	bool hastrigs = false, istrigged = true;
+	bool alltrig = getmapflag(mLIGHTBEAM);
+	for(size_t layer = 0; layer < 7; ++layer)
+	{
+		mapscr* curlayer = FFCore.tempScreens[layer];
+		for(size_t pos = 0; pos < 176; ++pos)
+		{
+			newcombo const* cmb = &combobuf[curlayer->data[pos]];
+			if(cmb->type == cLIGHTTARGET)
+			{
+				int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
+				hastrigs = true;
+				bool trigged = (istrig[pos]&trigflag);
+				if(cmb->usrflags&cflag2) //Invert
+					trigged = !trigged;
+				if(cmb->usrflags&cflag1) //Solved Version
+				{
+					if(!(alltrig || trigged)) //Revert
+					{
+						curlayer->data[pos] -= 1;
+						istrigged = false;
+					}
+				}
+				else //Unsolved version
+				{
+					if(alltrig || trigged) //Light
+						curlayer->data[pos] += 1;
+					else istrigged = false;
+				}
+			}
+		}
+	}
+	if(hastrigs && istrigged && !alltrig)
+	{
+		hidden_entrance(0,true,false,-7);
+		sfx(tmpscr->secretsfx);
+		if(!(tmpscr->flags5&fTEMPSECRETS))
+		{
+			setmapflag(mSECRET);
+			setmapflag(mLIGHTBEAM);
+		}
+	}
 }
 
 void LinkClass::checktouchblk()

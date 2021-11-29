@@ -51,6 +51,12 @@ void RadioSet::applyVisibility(bool visible)
 	if(content) content->applyVisibility(visible);
 }
 
+void RadioSet::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if (content) content->setDisabled(dis);
+}
+
 void RadioSet::loadList(GUI::ListData radiolist)
 {
 	content = Grid::rows(1);

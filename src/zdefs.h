@@ -780,6 +780,8 @@ enum
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
 	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cLANTERN,
+	//170
+	cSPOTLIGHT, cGLASS, cLIGHTTARGET,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1013,7 +1015,7 @@ enum
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2, qr_NEWDARK_SCROLLEDGE,
 	//32
 	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
-	
+	qr_LIGHTBEAM_TRANSPARENT,
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -1157,6 +1159,7 @@ enum                                                        // value matters bec
 #define shFLAME		0x040
 #define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
+#define shLIGHTBEAM 0x200 //Light puzzle beams
 
 
 // item sets

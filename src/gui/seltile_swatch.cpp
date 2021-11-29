@@ -123,6 +123,12 @@ void SelTileSwatch::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void SelTileSwatch::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void SelTileSwatch::applyFont(FONT* newFont)
 {
 	if(alDialog)

@@ -60,6 +60,12 @@ void ColorSel::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void ColorSel::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 int32_t ColorSel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	int32_t message = -1;

@@ -131,6 +131,13 @@ void Widget::applyVisibility(bool visible)
 	pendDraw();
 }
 
+void Widget::applyDisabled(bool dis)
+{
+	if(frameDialog) frameDialog.applyDisabled(dis);
+	if(frameTextDialog) frameTextDialog.applyDisabled(dis);
+	pendDraw();
+}
+
 void Widget::setVisible(bool visible)
 {
 	bool wasVisible = (flags&f_INVISIBLE) == 0;
@@ -253,6 +260,7 @@ void Widget::setDisabled(bool disabled) noexcept
 		flags |= f_DISABLED;
 	else
 		flags &= ~f_DISABLED;
+	applyDisabled(disabled);
 }
 
 void Widget::setFramed(bool framed) noexcept

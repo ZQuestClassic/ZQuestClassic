@@ -219,6 +219,18 @@ void ScrollingPane::applyVisibility(bool visible)
 	}
 }
 
+void ScrollingPane::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+	if(content)
+	{
+		START_CLIP(alDialog);
+		content->applyDisabled(dis);
+		END_CLIP();
+	}
+}
+
 void ScrollingPane::calculateSize()
 {
 	setPreferredWidth(25_em);

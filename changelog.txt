@@ -1,7 +1,10 @@
 // 2.55 Change Log
-// Updated 28th Nov, 2021
+// Updated 29th Nov, 2021
 
 //Recent Changes (Since A99)
+
+Light beam puzzles - "Spotlight", "Glass", and "Light Trigger" combo types
+	( EmilyV, Nov 29th, 2021 )
 
 New Combo Editor
 	( EmilyV, Nov 28th, 2021 )

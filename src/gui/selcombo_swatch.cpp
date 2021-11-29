@@ -122,6 +122,12 @@ void SelComboSwatch::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void SelComboSwatch::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void SelComboSwatch::applyFont(FONT* newFont)
 {
 	if(alDialog)

@@ -360,14 +360,18 @@ std::string getTypeHelpText(int32_t id)
 		}
 		
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-			typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned:"
-				"\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)(sum all the buttons you want to be usable)\n"
-				"then when the button is pressed while facing the chest from a valid side.\n"
+			typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned,"
+				" then when the button is pressed while facing the chest from a valid side.\n"
 				"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the player will recieve the item set in the screen's catchall value, and the combo will advance to the next combo.";
 			if(id==cLOCKEDCHEST)
 				typehelp += "\nRequires a key to open.";
 			else if(id==cBOSSCHEST)
 				typehelp += "\nRequires the Boss Key to open.";
+			break;
+		case cSIGNPOST:
+			typehelp = "Signpost combos can be set to display a string. This can be hard-coded,"
+				" or variable. The message will display either on button press of a"
+				" set button or walking into the sign if no button is set.";
 			break;
 		case cCHEST2:
 			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Normal)' is opened on the screen.";
@@ -383,15 +387,29 @@ std::string getTypeHelpText(int32_t id)
 			typehelp = "Unimplemented type, do not use!";
 			break;
 		
+		case cSPOTLIGHT:
+			typehelp = "Shoots a beam of light which reflects off of mirrors, and can trigger light triggers.";
+			break;
+		
+		case cGLASS:
+			typehelp = "Does not block light beams, even if solid";
+			break;
+		
+		case cLIGHTTARGET:
+			typehelp = "If all targets onscreen are lit by light beams, secrets will be triggered.";
+			break;
+		
 		default:
-			typehelp = combotype_help_string[id];
+			if(combotype_help_string[id] && combotype_help_string[id][0])
+				typehelp = combotype_help_string[id];
+			else typehelp = "?? Missing documentation! ??";
 			break;
 	}
 	return typehelp;
 }
 std::string getFlagHelpText(int32_t id)
 {
-	std::string flaghelp = "Help text here!";
+	std::string flaghelp = "?? Missing documentation! ??";
 	if(flag_help_string[id] && flag_help_string[id][0])
 		flaghelp = flag_help_string[id];
 	switch(id)
@@ -510,13 +528,15 @@ void ComboEditorDialog::loadComboType()
 	for(size_t q = 0; q < 16; ++q)
 	{
 		flagstrs[q] = "Flags["+to_string(q)+"]";
-		if(q < 8)
-		{
-			attribytestrs[q] = "Attribytes["+to_string(q)+"]:";
-			attrishortstrs[q] = "Attrishorts["+to_string(q)+"]:";
-			if(q < 4)
-				attributestrs[q] = "Attributes["+to_string(q)+"]:";
-		}
+		h_flag[q].clear();
+		if(q > 7) continue;
+		attribytestrs[q] = "Attribytes["+to_string(q)+"]:";
+		attrishortstrs[q] = "Attrishorts["+to_string(q)+"]:";
+		h_attribyte[q].clear();
+		h_attrishort[q].clear();
+		if(q > 3) continue;
+		attributestrs[q] = "Attributes["+to_string(q)+"]:";
+		h_attribute[q].clear();
 	}
 	switch(lasttype) //Label names
 	{
@@ -584,10 +604,7 @@ void ComboEditorDialog::loadComboType()
 			attribytestrs[1] = "Enemy 2:";
 			break;
 		}
-		case cCVUP:
-		case cCVDOWN:
-		case cCVLEFT:
-		case cCVRIGHT:
+		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
 			flagstrs[1] = "Custom Speed";
 			if(local_comboref.usrflags & cflag2) //Custom speed
@@ -651,6 +668,8 @@ void ComboEditorDialog::loadComboType()
 			flagstrs[10] = "Can't use from left";
 			flagstrs[11] = "Can't use from right";
 			attribytestrs[2] = "Button:";
+			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+				"If no buttons are selected, walking into the chest will trigger it.";
 			break;
 		}
 		case cSIGNPOST:
@@ -660,7 +679,13 @@ void ComboEditorDialog::loadComboType()
 			flagstrs[10] = "Can't use from left";
 			flagstrs[11] = "Can't use from right";
 			attribytestrs[2] = "Button:";
+			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+				"If no buttons are selected, walking into the signpost will trigger it.";
 			attributestrs[0] = "String:";
+			h_attribute[0] = "1+: Use specified string\n"
+				"-1: Use screen string\n"
+				"-2: Use screen catchall as string\n"
+				"-10 to -17: Use Screen->D[0] to [7] as string";
 			break;
 		}
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
@@ -803,16 +828,54 @@ void ComboEditorDialog::loadComboType()
 			attribytestrs[0] = "Radius:";
 			break;
 		}
+		case cSPOTLIGHT:
+		{
+			flagstrs[0] = "Use Tiles instead of Colors";
+			h_flag[0] = "Uses a set of tiles in a preset order, instead of a set of 3 colors, to represent the light beam.";
+			attribytestrs[0] = "Dir:";
+			h_attribyte[0] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
+			attribytestrs[4] = "Trigger Set:";
+			h_attribyte[4] = "0-32; if 0 will trigger any targets, otherwise only triggers matching targets";
+			if(local_comboref.usrflags & cflag1)
+			{
+				attributestrs[0] = "Start Tile:";
+				h_attribute[0] = "Tiles in order: Ground, Up, Down, Left, Right, U+L, U+R, D+L, D+R, U+D, L+R, D+L+R, U+L+R, U+D+R, U+D+L, U+D+L+R";
+				attribytestrs[1] = "CSet (0-11):";
+			}
+			else
+			{
+				attribytestrs[1] = "Inner Color:";
+				attribytestrs[2] = "Middle Color:";
+				attribytestrs[3] = "Outer Color:";
+			}
+			break;
+		}
+		case cLIGHTTARGET:
+		{
+			flagstrs[0] = "Lit Version";
+			h_flag[0] = "If checked, reverts to previous combo when not hit by a spotlight."
+				"\nIf unchecked, becomes the next combo when hit by a spotlight.";
+			flagstrs[1] = "Invert";
+			h_flag[1] = "If checked, counts as triggered when light is NOT hitting it.";
+			attribytestrs[4] = "Trigger Set:";
+			h_attribyte[4] = "0-32; if 0 will be triggered by any beams, otherwise only by matching beams";
+			break;
+		}
 	}
 	for(size_t q = 0; q < 16; ++q)
 	{
 		l_flags[q]->setText(flagstrs[q]);
+		ib_flags[q]->setDisabled(h_flag[q].empty());
 		if(q > 7) continue;
+		ib_attribytes[q]->setDisabled(h_attribyte[q].empty());
 		l_attribytes[q]->setText(attribytestrs[q]);
+		ib_attrishorts[q]->setDisabled(h_attrishort[q].empty());
 		l_attrishorts[q]->setText(attrishortstrs[q]);
 		if(q > 3) continue;
+		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(attributestrs[q]);
 	}
+	pendDraw();
 }
 void ComboEditorDialog::loadComboFlag()
 {
@@ -871,7 +934,14 @@ TextField( \
 	})
 
 #define CMB_FLAG(ind) \
-l_flags[ind] = Checkbox( \
+Row(padding = 0_px, \
+	ib_flags[ind] = Button(forceFitH = true, text = "?", \
+		disabled = true, \
+		onPressFunc = [&]() \
+		{ \
+			InfoDialog("Flag Info",h_flag[ind]).show(); \
+		}), \
+	l_flags[ind] = Checkbox( \
 		minwidth = FLAGS_WID, hAlign = 0.0, \
 		checked = local_comboref.usrflags & (1<<ind), fitParent = true, \
 		onToggleFunc = [&](bool state) \
@@ -879,7 +949,8 @@ l_flags[ind] = Checkbox( \
 			SETFLAG(local_comboref.usrflags,(1<<ind),state); \
 			loadComboType(); \
 		} \
-	)
+	) \
+)
 
 #define CMB_GEN_FLAG(ind,str) \
 Checkbox(text = str, \
@@ -893,6 +964,12 @@ Checkbox(text = str, \
 
 #define CMB_ATTRIBYTE(ind) \
 l_attribytes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+ib_attribytes[ind] = Button(forceFitH = true, text = "?", \
+	disabled = true, \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Attribyte Info",h_attribyte[ind]).show(); \
+	}), \
 TextField( \
 	fitParent = true, minwidth = 8_em, \
 	type = GUI::TextField::type::SWAP_BYTE, \
@@ -904,6 +981,12 @@ TextField( \
 
 #define CMB_ATTRISHORT(ind) \
 l_attrishorts[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+ib_attrishorts[ind] = Button(forceFitH = true, text = "?", \
+	disabled = true, \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Attrishort Info",h_attrishort[ind]).show(); \
+	}), \
 TextField( \
 	fitParent = true, minwidth = 8_em, \
 	type = GUI::TextField::type::SWAP_SSHORT, \
@@ -915,6 +998,12 @@ TextField( \
 
 #define CMB_ATTRIBUTE(ind) \
 l_attributes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+ib_attributes[ind] = Button(forceFitH = true, text = "?", \
+	disabled = true, \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Attribute Info",h_attribute[ind]).show(); \
+	}), \
 TextField( \
 	fitParent = true, minwidth = 8_em, \
 	type = GUI::TextField::type::SWAP_ZSINT, \
@@ -1064,6 +1153,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									onSelectFunc = [&](int32_t t, int32_t c)
 									{
 										local_comboref.tile = t;
+										local_comboref.o_tile = t;
 										CSet = (c&0xF)%12;
 										updateAnimation();
 									}
@@ -1198,9 +1288,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)),
 					TabRef(name = "Attribs", ScrollingPane(
 						fitParent = true,
-						Rows<4>(
-							Label(text = "Attribytes", colSpan = 2),
-							Label(text = "Attrishorts", colSpan = 2),
+						Rows<6>(
+							Label(text = "Attribytes", colSpan = 3),
+							Label(text = "Attrishorts", colSpan = 3),
 							CMB_ATTRIBYTE(0),
 							CMB_ATTRISHORT(0),
 							CMB_ATTRIBYTE(1),
@@ -1217,11 +1307,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							CMB_ATTRISHORT(6),
 							CMB_ATTRIBYTE(7),
 							CMB_ATTRISHORT(7),
-							Label(text = "Attributes", colSpan = 2), DummyWidget(colSpan = 2),
-							CMB_ATTRIBUTE(0), DummyWidget(colSpan = 2),
-							CMB_ATTRIBUTE(1), DummyWidget(colSpan = 2),
-							CMB_ATTRIBUTE(2), DummyWidget(colSpan = 2),
-							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 2)
+							Label(text = "Attributes", colSpan = 3), DummyWidget(colSpan = 3),
+							CMB_ATTRIBUTE(0), DummyWidget(colSpan = 3),
+							CMB_ATTRIBUTE(1), DummyWidget(colSpan = 3),
+							CMB_ATTRIBUTE(2), DummyWidget(colSpan = 3),
+							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 3)
 						)
 					)),
 					TabRef(name = "Triggers", Column(//ScrollingPane(
@@ -1424,6 +1514,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									onSelectFunc = [&](int32_t t, int32_t c)
 									{
 										local_comboref.tile = t;
+										local_comboref.o_tile = t;
 										CSet = (c&0xF)%12;
 										updateAnimation();
 									}
@@ -1559,7 +1650,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					TabRef(name = "Attribs", TabPanel(
 							ptr = &cmb_tab2,
 							TabRef(name = "Bytes", ScrollingPane(fitParent = true,
-								Rows<2>(
+								Rows<3>(
 									CMB_ATTRIBYTE(0),
 									CMB_ATTRIBYTE(1),
 									CMB_ATTRIBYTE(2),
@@ -1571,7 +1662,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								)
 							)),
 							TabRef(name = "Shorts", ScrollingPane(fitParent = true,
-								Rows<2>(
+								Rows<3>(
 									CMB_ATTRISHORT(0),
 									CMB_ATTRISHORT(1),
 									CMB_ATTRISHORT(2),
@@ -1583,7 +1674,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								)
 							)),
 							TabRef(name = "Attributes", ScrollingPane(fitParent = true,
-								Rows<2>(
+								Rows<3>(
 									CMB_ATTRIBUTE(0),
 									CMB_ATTRIBUTE(1),
 									CMB_ATTRIBUTE(2),
@@ -1761,7 +1852,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		case message::OK:
 			saved = false;
-			combobuf[index] = local_comboref;
+			memcpy(&combobuf[index], &local_comboref, sizeof(local_comboref));
 			edited = true;
 			return true;
 

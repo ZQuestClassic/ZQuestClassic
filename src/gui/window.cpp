@@ -56,6 +56,14 @@ void Window::applyVisibility(bool visible)
 		content->applyVisibility(visible);
 }
 
+void Window::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+	if(content)
+		content->setDisabled(dis);
+}
+
 void Window::applyFont(FONT* newFont)
 {
 	if(alDialog)

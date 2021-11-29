@@ -45,6 +45,7 @@ private:
 
 	/* Sets or unsets D_HIDDEN for each of the child's DIALOGs. */
 	void applyVisibility(bool visible) override;
+	void applyDisabled(bool dis) override;
 	void calculateSize() override;
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;

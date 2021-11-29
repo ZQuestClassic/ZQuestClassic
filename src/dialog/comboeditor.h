@@ -2,6 +2,7 @@
 #define ZC_DIALOG_COMBOEDITOR_H
 
 #include <gui/dialog.h>
+#include <gui/button.h>
 #include <gui/checkbox.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
@@ -38,12 +39,17 @@ private:
 	std::shared_ptr<GUI::Label> l_attribytes[8];
 	std::shared_ptr<GUI::Label> l_attrishorts[8];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
+	std::shared_ptr<GUI::Button> ib_attributes[4];
+	std::shared_ptr<GUI::Button> ib_attribytes[8];
+	std::shared_ptr<GUI::Button> ib_attrishorts[8];
+	std::shared_ptr<GUI::Button> ib_flags[16];
 	std::shared_ptr<GUI::Label> l_flip;
 	std::shared_ptr<GUI::Label> l_cset;
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
 	std::shared_ptr<GUI::SelComboSwatch> cycleswatch;
 	std::shared_ptr<GUI::TileFrame> animFrame;
+	std::string h_attribute[4], h_attribyte[8], h_attrishort[8], h_flag[16];
 	int32_t index;
 	newcombo local_comboref;
 	std::string typehelp, flaghelp;

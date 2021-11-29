@@ -321,6 +321,7 @@ bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
 BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL,
          *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL;
+BITMAP *lightbeam_bmp = NULL;
 FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
@@ -5088,6 +5089,7 @@ int32_t main(int32_t argc, char* argv[])
 	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 176);
+	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
 	
 	if(!framebuf || !scrollbuf || !tmp_bmp || !fps_undo || !tmp_scr
 			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
@@ -6032,6 +6034,7 @@ void quit_game()
 	destroy_bitmap(darkscr_bmp_curscr_trans);
 	destroy_bitmap(darkscr_bmp_scrollscr);
 	destroy_bitmap(darkscr_bmp_scrollscr_trans);
+	destroy_bitmap(lightbeam_bmp);
     
     al_trace("Subscreens... \n");
     

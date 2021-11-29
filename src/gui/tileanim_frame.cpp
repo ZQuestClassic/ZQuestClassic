@@ -176,6 +176,12 @@ void TileFrame::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void TileFrame::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void TileFrame::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);

@@ -328,6 +328,13 @@ void TextField::applyVisibility(bool visible)
 	if(swapBtnDialog) swapBtnDialog.applyVisibility(visible);
 }
 
+void TextField::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+	if(swapBtnDialog) swapBtnDialog.applyDisabled(dis);
+}
+
 void TextField::applyFont(FONT* newFont)
 {
 	if(alDialog)

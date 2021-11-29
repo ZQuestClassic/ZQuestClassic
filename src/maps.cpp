@@ -486,6 +486,20 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 		hiddenstair2(&scr, false);
 		hidden_entrance2(&scr, (mapscr*)NULL, false, -3);
 	}
+	if(flags & mLIGHTBEAM)
+	{
+		for(size_t pos = 0; pos < 176; ++pos)
+		{
+			newcombo const* cmb = &combobuf[scr.data[pos]];
+			if(cmb->type == cLIGHTTARGET)
+			{
+				if(!(cmb->usrflags&cflag1)) //Unlit version
+				{
+					scr.data[pos] += 1;
+				}
+			}
+		}
+	}
 	if(flags&mLOCKBLOCK)              // if special stuff done before
 	{
 	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cLOCKBLOCK, cLOCKBLOCK2);
@@ -588,11 +602,11 @@ void setmapflag(int32_t flag)
     setmapflag((currmap*MAPSCRSNORMAL)+homescr,flag);
 }
 
-const char *screenstate_string[15] =
+const char *screenstate_string[16] =
 {
     "Door Up", "Door Down", "Door Left", "Door Right", "Item", "Special Item", "No Return",
-    "Temporary No Return", "Lock Blocks", "Boss Lock Blocks", "Treasure Chests", "Locked Chests",
-    "Boss Locked Chests", "Secrets", "Visited"
+    "Temporary No Return", "Lock Blocks", "Boss Lock Blocks", "Chests", "Locked Chests",
+    "Boss Locked Chests", "Secrets", "Visited", "Light Beams"
 };
 
 void eventlog_mapflag_line(word* g, word flag, int32_t ss_s_index)
@@ -1559,6 +1573,7 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			   single==-4? " by a script":
 			   single==-5? " by Items->Secret":
 			   single==-6? " by Generic Combo":
+			   single==-7? " by Light Triggers":
 			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;
@@ -3830,6 +3845,13 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
+	color_map = &trans_table2;
+	if(get_bit(quest_rules,qr_LIGHTBEAM_TRANSPARENT))
+		draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
+	else 
+		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
+	color_map = &trans_table;
+	
 	do_layer(temp_buf,4, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 4, this_screen, 0, 0, 2);
 	
@@ -4642,6 +4664,24 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			hiddenstair(tmp,false);
 			hidden_entrance(tmp,false,false,-3);
 		}
+		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
+		{
+			for(size_t layer = 0; layer < 7; ++layer)
+			{
+				mapscr* tscr = (tmp==0) ? FFCore.tempScreens[layer] : FFCore.ScrollingScreens[layer];
+				for(size_t pos = 0; pos < 176; ++pos)
+				{
+					newcombo const* cmb = &combobuf[tscr->data[pos]];
+					if(cmb->type == cLIGHTTARGET)
+					{
+						if(!(cmb->usrflags&cflag1)) //Unlit version
+						{
+							tscr->data[pos] += 1;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmpscr + tmp, tmpscr2);
@@ -4816,6 +4856,24 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		{
 			hiddenstair(tmp,false);
 			hidden_entrance(tmp,false,false,-3);
+		}
+		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
+		{
+			for(size_t layer = 0; layer < 7; ++layer)
+			{
+				mapscr* tscr = (tmp==0) ? FFCore.tempScreens[layer] : FFCore.ScrollingScreens[layer];
+				for(size_t pos = 0; pos < 176; ++pos)
+				{
+					newcombo const* cmb = &combobuf[tscr->data[pos]];
+					if(cmb->type == cLIGHTTARGET)
+					{
+						if(!(cmb->usrflags&cflag1)) //Unlit version
+						{
+							tscr->data[pos] += 1;
+						}
+					}
+				}
+			}
 		}
 	}
 	

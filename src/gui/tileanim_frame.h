@@ -32,6 +32,7 @@ private:
 	DialogRef alDialog;
 	
 	void applyVisibility(bool visible) override;
+	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
 	friend int ::tile_anim_proc(int32_t,DIALOG *,int32_t);
 };
