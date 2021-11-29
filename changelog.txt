@@ -3,6 +3,7 @@
 
 //Recent Changes (Since A99)
 
+Item and Combo editor help text for attribs/flags
 Light beam puzzles - "Spotlight", "Glass", and "Light Trigger" combo types
 	( EmilyV, Nov 29th, 2021 )
 

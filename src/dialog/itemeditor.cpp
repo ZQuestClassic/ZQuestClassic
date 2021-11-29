@@ -51,104 +51,720 @@ static const GUI::ListData WeapMoveTypeList
 };
 
 //Sets the Item Editor Field Names
-ItemNameInfo inameinf[]=
-{
-	//itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1 (Sprites[0])                            wpn2 (Sprites[1])                               wpn3 (Sprites[2])                               wpn4 (Sprites[3])                               wpn5 (Sprites[4])                               wpn6 (Sprites[5])                               wpn7 (Sprites[6])                               wpn8 (Sprites[7])                               wpn9 (Sprites[8])                               wpn10 (Sprites[9])                              action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
-	{ itype_fairy,                    NULL,                                     "HP Regained:",                             "MP Regained:",                                 "Step Speed:",                          "Bottle Fill:",                         NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "HP. R. Is Percent",                    "MP. R. Is Percent",                    NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Item Drop Sound:",                        NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_triforcepiece,            NULL,                                     "Cutscene MIDI:",                           "Cutscene Type (0-1):",                         "Second Collect Sound:",                "Custom Cutscene Duration",             "Custom Refill Frame",             NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Side Warp Out",                        NULL,                                   "Removes Sword Jinxes",                                                 "Removes Item Jinxes",                  NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           "Don't Dismiss Messages",                                   "Cutscene Interrupts Action Script",            "Don't Affect Music",                           "No Cutscene",                                  "Run Action Script on Collection",              "Play Second Sound Effect",                     "Don't Play MIDI",                              NULL                 },
-	{ itype_shield,                   NULL,                                     "Block Flags:",                             "Reflect Flags:",                               NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "De/Reflection Sound:",                    NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_agony,                    "Sensitivity:",                           "Vibration Frequency",                      NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_wealthmedal,              NULL,                                     "Discount Amount:",                         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "D. A. Is Percent",                     NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_cbyrna,                   "Beam Damage:",                           "Beam Speed Divisor:",                      "Orbit Radius:",                                "Number Of Beams:",                     "Melee Damage:",                        NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        "Slash Sound:",                         "Penetrates Enemies",                   "Invincible Player",                    "No Melee Attack",                                                      "Can Slash",                            NULL,                                   "Stab Sprite:",                              "Slash Sprite:",                                "Beam Sprite:",                                 "Sparkle Sprite:",                              "Damaging Sparkle Sprite:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Orbit Sound:",                            "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_whispring,                "Jinx Divisor:",                          "Jinx Type:",                               NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Perm. Jinx Are Temp.",                 NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_ladder,                   "Four-Way:",                              NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Can Ladder Over Pitfalls",             NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_magickey,                 "Dungeon Level:",                         NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Lesser D. Levels Also",                NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_wallet,                   "Infinite Supply:",                       "Increase Amount:",                         "Delay Duration:",                              NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_quiver,                   "Infinite Supply:",                       "Increase Amount:",                         "Delay Duration:",                              NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bombbag,                  "Infinite Supply:",                       "Increase Amount:",                         "Delay Duration:",                              NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Super Bombs Also",                     NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_quakescroll2,             "Damage Multiplier:",                     "Stun Duration:",                           "Stun Radius:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Quake Sound:",                            NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_quakescroll,              "Damage Multiplier:",                     "Stun Duration:",                           "Stun Radius:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Quake Sound:",                            NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_perilscroll,              NULL,                                     "Maximum Hearts:",                          NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_spinscroll2,              "Damage Multiplier:",                     "Number of Spins:",                         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Spinning Sound:",                         NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_spinscroll,               "Damage Multiplier:",                     "Number of Spins:",                         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Spinning Sound:",                         NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_clock,                    NULL,                                     "Duration (0 = Infinite):",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_magicring,                "Infinite Magic:",                        "Increase Amount:",                         "Delay Duration:",                              NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_heartring,                NULL,                                     "Increase Amount:",                         "Delay Duration:",                              NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	//itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1                                         wpn2                                            wpn3                                            wpn4                                            wpn5                                            wpn6                                            wpn7                                            wpn8                                            wpn9                                            wpn10                                           action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
-	{ itype_chargering,               NULL,                                     "Charging Duration:",                       "Magic C. Duration:",                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_hoverboots,               NULL,                                     "Hover Duration:",                          NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Timer only resets on landing",         NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   "Halo Sprite:",                              NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Hovering Sound:",                         NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_rocs,                     "Jump Power:",                            "Extra Jumps:",                             NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Jump is Power/100",                    NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Jumping Sound:",                          NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_sbomb,                    "Damage:",                                "Fuse Duration (0 = Remote):",              "Max. On Screen:",                              "Damage to Player:",                    NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   "Explosion Hurts Player",               NULL,                                                                   NULL,                                   NULL,                                   "Bomb Sprite:",                              "Explosion Sprite:",                            NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Explosion Sound:",                        NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bomb,                     "Damage:",                                "Fuse Duration (0 = Remote):",              "Max. On Screen:",                              "Damage to Player:",                    NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Use 1.92 Timing",                      "Explosion Hurts Player",               NULL,                                                                   NULL,                                   NULL,                                   "Bomb Sprite:",                              "Explosion Sprite:",                            NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Explosion Sound:",                        NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_nayruslove,               NULL,                                     "Duration:",                                NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Rocket Flickers",                      "Translucent Rocket",                   "Translucent Shield",                                                   "Shield Flickers",                      NULL,                                   "Left Rocket Sprite:",                       "L. Rocket Return Sprite:",                     "L. Rocket Sparkle Sprite:",                    "L. Return Sparkle Sprite:",                    "Shield Sprite (2x2, Over):",                   "Right Rocket Sprite:",                         "R. Rocket Return Sprite:",                     "R. Rocket Sparkle Sprite:",                    "R. Return Sparkle Sprite:",                    "Shield Sprite (2x2, Under):",                  "Shield Sound:",                           NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_faroreswind,              NULL,                                     "Warp Animation (0-2):",                    NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Wind Sound:",                             NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_dinsfire,                 "Damage:",                                "Number of Flames:",                        "Circle Width:",                                NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   "Don't Provide Light",                  "Falls in Sideview",                                                    NULL,                                   "Temporary Light",                      "Rocket Up Sprite:",                         "Rocket Down Sprite:",                          "R. Up Sparkle Sprite:",                        "R. Down Sparkle Sprite:",                      "Flame Sprite:",                                NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Ring Sound:",                             NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_hammer,                   "Damage:",                                NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   "No Melee Attack",                                                      NULL,                                   NULL,                                   "Hammer Sprite:",                            "Smack Sprite:",                                NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Pound Sound:",                            NULL,                                           "Doesn't Pick Up Dropped Items",                                                  NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_lens,                     NULL,                                     "Lens Width:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Show Hints",                           "Hide Secret Combos",                   "No X-Ray for Items",                                                   "Show Raft Paths",                      "Show Invis. Enemies",                  NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Activation Sound:",                       NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_hookshot,                 "Damage:",                                "Chain Length:",                            "Chain Links:",                                 "Block Flags:",                         "Reflect Flags:",                       NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Handle Damage",                     "Allow Diagonal",                       NULL,                                                                   "Pick Up Anything",                     "Drags Items",                          "Tip Sprite:",                               "Chain Sprite (H):",                            "Chain Sprite (V):",                            "Handle Sprite:",                               "Diagonal Tip Sprite:",                         "Diagonal Handle Sprite:",                      "Diagonal Chain Sprite:",                       NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           "Reflects Enemy Projectiles",                   "Picks Up Keys",                                                                  NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_boots,                    "Damage Combo Level:",                    NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Not Solid Combos",                     "Iron",                                 NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bracelet,                 "Push Combo Level:",                      NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Once Per Screen",                      NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_book,                     "M. Damage:",                             "W. Damage:",                               "Wand Sound",                                   "Special Step",                         "Fire Damage",                          NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Fire Magic",                           "Override Wand Damage",                 "Fire Doesn't Hurt Player",                                             "Override Wand SFX",                    "Temporary Light",                      "Magic Sprite:",                             "Projectile Sprite:",                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           "Replace Wand Weapon",                          NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_ring,                     "Damage Divisor:",                        "Player Sprite Pal:",                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Affects Damage Combos",                "Divisor is Percentage Multiplier",     NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_wand,                     "Damage:",                                "M. Damage",                                "W. Type:",                                     "W. Speed:",                            "W. Range:",                            "Move Effect:",                    "Mvt Arg1:",                       "Mvt Arg2:",                       "No. of Clones:",                  "Clone Pattern:",                            "Slash Sound:",                         "Allow Magic w/o Book",                 "Wand Moves",                           "No Melee Attack",                                                      "Can Slash",                            "No Melee Cooldown",                    "Stab Sprite:",                              "Slash Sprite:",                                "Projectile Sprite:",                           "Projectile Misc:",                             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      "Light Torches",                                            NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	//itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1                                         wpn2                                            wpn3                                            wpn4                                            wpn5                                            wpn6                                            wpn7                                            wpn8                                            wpn9                                            wpn10                                           action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
-	{ itype_bait,                     NULL,                                     "Duration:",                                "Bait Range (0 = infinite)",                    NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Repels enemies",                       NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   "Bait Sprite:",                              NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Baiting Sound:",                          NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_potion,                   NULL,                                     "HP Regained:",                             "MP Regained:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "HP R. Is Percent",                     "MP R. Is Percent",                     "Removes Sword Jinxes",                                                 "Removes Item Jinxes",                  NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_whistle,                  NULL,                                     "Whirlwind Direction:",                     "Warp Ring:",                                   NULL,                                   NULL,                                   "Weapon Damage",                   NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "One W.Wind Per Scr.",                  "Has Damage",                           "Whirlwinds Reflect off Prism/Mirror Combos",                           NULL,                                   NULL,                                   "Whirlwind Sprite:",                         NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Music Sound:",                            NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_candle,                   "Damage:",                                "Damage to Player:",                        NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Once Per Screen",                      "Don't Provide Light",                  "Fire Doesn't Hurt Player",                                             "Can Slash",                            "Temporary Light",                      "Stab Sprite:",                              "Slash Sprite:",                                "Flame Sprite:",                                NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           NULL,                                           NULL,                                                                             "Flip Right-Facing Slash",                      NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_arrow,                    "Damage:",                                "Duration (0 = Infinite):",                 NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Penetrate Enemies",                    "Allow Item Pickup",                    NULL,                                                                   "Pick Up Anything",                     NULL,                                   "Arrow Sprite:",                             "Sparkle Sprite:",                              "Damaging Sparkle Sprite:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Firing Sound:",                           NULL,                                           "Picks Up Keys",                                                                  NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_brang,                    "Damage:",                                "Range (0 = Infinite):",                    NULL,                                           "Block Flags:",                         "Reflect Flags:",                       NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Corrected Animation",                  "Directional Sprites",                  "Do Not Return",                                                        "Pick Up Anything",                     "Drags Items",                          "Boomerang Sprite:",                         "Sparkle Sprite:",                              "Damaging Sparkle Sprite:",                     NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Spinning Sound:",                         "Reflects Enemy Projectiles",                   "Picks Up Keys",                                                                  "Triggers 'Fire(Any)'",                         NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_sword,                    "Damage:",                                "Beam Hearts:",                             "Beam Damage:",                                 NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Beam Hearts Is Percent",               "Beam Damage Is Percent",               "Beam Penetrates Enemies",                                              "Can Slash",                            "No Melee Cooldown",                    "Stab Sprite:",                              "Slash Sprite:",                                "Beam Sprite:",                                 NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Slash/Stab Sound",                        "Melee Weapons Use Magic Cost",                 "Doesn't Pick Up Dropped Items",                                                  "Flip Right-Facing Slash",                      "Sword Beams Reflect off Prism/Mirror Combos",              "Walk slowly while charging",                   NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_whimsicalring,            "Damage Bonus:",                          "Chance (1 in n):",                         NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           "Whimsy Sound:",                           NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_perilring,                "Damage Divisor:",                        "Maximum Hearts:",                          NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   "Divisor is Percentage Multiplier",     NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_stompboots,               "Damage:",                                NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bow,                      "Arrow Speed:",                           NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script1,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script2,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script3,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script4,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script5,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script6,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script7,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script8,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script9,                  "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_script10,                 "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom1,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom2,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom3,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom4,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom5,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom6,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom7,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom8,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom9,                  NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_custom10,                 NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_icerod,                   "W. Power:",                              "Step Speed:",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Gfx Flip",                          NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_flippers,                 NULL,                                     "Dive Length:",                             "Dive Cooldown:",                               NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "No Diving",                            "Cancellable Diving",                   "Can Swim in Lava",                                                     NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_raft,                     NULL,                                     "Speed Modifier:",                          NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	//itemclass                       power                                     misc1                                       misc2                                           misc3                                   misc4                                   misc5                              misc6                              misc7                              misc8                              misc9                                        misc10                                  flag1                                   flag2                                   flag3                                                                   flag4                                   flag5                                   wpn1                                         wpn2                                            wpn3                                            wpn4                                            wpn5                                            wpn6                                            wpn7                                            wpn8                                            wpn9                                            wpn10                                           action sound                               flag6,                                          flag7,                                                                            flag8,                                          flag9,                                                      flag10,                                         flag11.                                         flag12,                                         flag13,                                         flag14,                                         flag15,                                         flag16               },
-	{ itype_atkring,                  NULL,                                     "Bonus Damage",                             "Damage Multiplier",                            NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_lantern,                  NULL,                                     "Shape",                                    "Range",                                        NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_pearl,                    NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bottle,                   NULL,                                     "Slot:",                                    NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bottlefill,               NULL,                                     "Contents:",                                NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_bugnet,                   NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Can't catch fairies",                  "Right-handed",                         NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ itype_mirror,                   NULL,                                     "Warp Effect",                              NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   "Place Return Portal",                  "Continue acts as F6->Continue",        NULL,                                                                   NULL,                                   NULL,                                   "Portal Sprite",                             NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 },
-	{ -1,                             NULL,                                     NULL,                                       NULL,                                           NULL,                                   NULL,                                   NULL,                              NULL,                              NULL,                              NULL,                              NULL,                                        NULL,                                   NULL,                                   NULL,                                   NULL,                                                                   NULL,                                   NULL,                                   NULL,                                        NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                      NULL,                                           NULL,                                                                             NULL,                                           NULL,                                                       NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL,                                           NULL                 }
-};
+ItemNameInfo inameinf[itype_max];
 
 ItemNameInfo defInfo =
 {
-	-1, "Power:", "Attributes[0]:", "Attributes[1]:", "Attributes[2]:",
-	"Attributes[3]:", "Attributes[4]:","Attributes[5]:","Attributes[6]:",
-	"Attributes[7]:","Attributes[8]:","Attributes[9]:", "Flags[0]",
-	"Flags[1]", "Flags[2]", "Flags[3]", "Flags[4]", "Sprites[0]:",
-	"Sprites[1]:","Sprites[2]:","Sprites[3]:","Sprites[4]:","Sprites[5]:",
-	"Sprites[6]:","Sprites[7]:","Sprites[8]:","Sprites[9]:","UseSound",
-	"Flags[5]", "Flags[6]", "Flags[7]", "Flags[8]", "Flags[9]", "Flags[10]",
-	"Flags[11]","Flags[12]","Flags[13]", "Flags[14]","Constant Script"
+	-1,
+	"Power:",
+	{
+		"Attributes[0]:", "Attributes[1]:", "Attributes[2]:",
+		"Attributes[3]:", "Attributes[4]:","Attributes[5]:","Attributes[6]:",
+		"Attributes[7]:","Attributes[8]:","Attributes[9]:"
+	},
+	{
+		"Flags[0]", "Flags[1]", "Flags[2]", "Flags[3]", "Flags[4]", "Flags[5]",
+		"Flags[6]", "Flags[7]", "Flags[8]", "Flags[9]", "Flags[10]", "Flags[11]",
+		"Flags[12]", "Flags[13]", "Flags[14]","Constant Script"
+	},
+	{
+		"Sprites[0]:", "Sprites[1]:","Sprites[2]:","Sprites[3]:","Sprites[4]:",
+		"Sprites[5]:","Sprites[6]:","Sprites[7]:","Sprites[8]:","Sprites[9]:"
+	},
+	"UseSound"
 };
 
+void loadinfo(ItemNameInfo * inf, int itype)
+{
+	inf->clear();
+	inf->iclass = itype;
+	switch(itype)
+	{
+		case itype_fairy:
+		{
+			inf->misc[0] = "HP Regained:";
+			inf->misc[1] = "MP Regained:";
+			inf->misc[2] = "Step Speed:";
+			inf->misc[3] = "Bottle Fill:";
+			inf->h_misc[3] = "What bottle type to fill an empty bottle with if caught using a Bug Net";
+			inf->flag[0] = "HP. R. Is Percent";
+			inf->flag[1] = "MP. R. Is Percent";
+			inf->actionsnd = "Item Drop Sound:";
+			break;
+		}
+		case itype_triforcepiece:
+		{
+			inf->misc[0] = "Cutscene MIDI:";
+			inf->misc[1] = "Cutscene Type (0-1):";
+			inf->misc[2] = "Second Collect Sound:";
+			inf->misc[3] = "Custom Cutscene Duration";
+			inf->misc[4] = "Custom Refill Frame";
+			inf->flag[0] = "Side Warp Out";
+			inf->flag[2] = "Removes Sword Jinxes";
+			inf->flag[3] = "Removes Item Jinxes";
+			inf->flag[8] = "Don't Dismiss Messages";
+			inf->flag[9] = "Cutscene Interrupts Action Script";
+			inf->flag[10] = "Don't Affect Music";
+			inf->flag[11] = "No Cutscene";
+			inf->flag[12] = "Run Action Script on Collection";
+			inf->flag[13] = "Play Second Sound Effect";
+			inf->flag[14] = "Don't Play MIDI";
+			break;
+		}
+		case itype_shield:
+		{
+			inf->misc[0] = "Block Flags:";
+			inf->h_misc[0] = "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
+				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.";
+			inf->misc[1] = "Reflect Flags:";
+			inf->h_misc[1] = "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
+				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
+				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.";
+			inf->actionsnd = "De/Reflection Sound:";
+			break;
+		}
+		case itype_agony:
+		{
+			inf->power = "Sensitivity:";
+			inf->misc[0] = "Vibration Frequency";
+			break;
+		}
+		case itype_wealthmedal:
+		{
+			inf->misc[0] = "Discount Amount:";
+			inf->flag[0] = "D. A. Is Percent";
+			break;
+		}
+		case itype_cbyrna:
+		{
+			inf->power = "Beam Damage:";
+			inf->misc[0] = "Beam Speed Divisor:";
+			inf->misc[1] = "Orbit Radius:";
+			inf->misc[2] = "Number Of Beams:";
+			inf->misc[3] = "Melee Damage:";
+			inf->misc[9] = "Slash Sound:";
+			inf->flag[0] = "Penetrates Enemies";
+			inf->flag[1] = "Invincible Player";
+			inf->flag[2] = "No Melee Attack";
+			inf->flag[3] = "Can Slash";
+			inf->flag[5] = "Melee Weapons Use Magic Cost";
+			inf->flag[6] = "Doesn't Pick Up Dropped Items";
+			inf->flag[7] = "Flip Right-Facing Slash";
+			inf->wpn[0] = "Stab Sprite:";
+			inf->wpn[1] = "Slash Sprite:";
+			inf->wpn[2] = "Beam Sprite:";
+			inf->wpn[3] = "Sparkle Sprite:";
+			inf->wpn[4] = "Damaging Sparkle Sprite:";
+			inf->actionsnd = "Orbit Sound:";
+			break;
+		}
+		case itype_whispring:
+		{
+			inf->power = "Jinx Divisor:";
+			inf->misc[0] = "Jinx Type:";
+			inf->flag[0] = "Perm. Jinx Are Temp.";
+			break;
+		}
+		case itype_ladder:
+		{
+			inf->power = "Four-Way:";
+			inf->flag[0] = "Can Ladder Over Pitfalls";
+			break;
+		}
+		case itype_magickey:
+		{
+			inf->power = "Dungeon Level:";
+			inf->flag[0] = "Lesser D. Levels Also";
+			break;
+		}
+		case itype_wallet:
+		{
+			inf->power = "Infinite Supply:";
+			inf->misc[0] = "Increase Amount:";
+			inf->misc[1] = "Delay Duration:";
+			break;
+		}
+		case itype_quiver:
+		{
+			inf->power = "Infinite Supply:";
+			inf->misc[0] = "Increase Amount:";
+			inf->misc[1] = "Delay Duration:";
+			break;
+		}
+		case itype_bombbag:
+		{
+			inf->power = "Infinite Supply:";
+			inf->misc[0] = "Increase Amount:";
+			inf->misc[1] = "Delay Duration:";
+			inf->flag[0] = "Super Bombs Also";
+			break;
+		}
+		case itype_quakescroll2:
+		{
+			inf->power = "Damage Multiplier:";
+			inf->misc[0] = "Stun Duration:";
+			inf->misc[1] = "Stun Radius:";
+			inf->actionsnd = "Quake Sound:";
+			break;
+		}
+		case itype_quakescroll:
+		{
+			inf->power = "Damage Multiplier:";
+			inf->misc[0] = "Stun Duration:";
+			inf->misc[1] = "Stun Radius:";
+			inf->actionsnd = "Quake Sound:";
+			break;
+		}
+		case itype_perilscroll:
+		{
+			inf->misc[0] = "Maximum Hearts:";
+			break;
+		}
+		case itype_spinscroll2:
+		{
+			inf->power = "Damage Multiplier:";
+			inf->misc[0] = "Number of Spins:";
+			inf->actionsnd = "Spinning Sound:";
+			break;
+		}
+		case itype_spinscroll:
+		{
+			inf->power = "Damage Multiplier:";
+			inf->misc[0] = "Number of Spins:";
+			inf->actionsnd = "Spinning Sound:";
+			break;
+		}
+		case itype_clock:
+		{
+			inf->misc[0] = "Duration (0 = Infinite):";
+			break;
+		}
+		case itype_magicring:
+		{
+			inf->power = "Infinite Magic:";
+			inf->misc[0] = "Increase Amount:";
+			inf->misc[1] = "Delay Duration:";
+			break;
+		}
+		case itype_heartring:
+		{
+			inf->misc[0] = "Increase Amount:";
+			inf->misc[1] = "Delay Duration:";
+			break;
+		}
+		case itype_chargering:
+		{
+			inf->misc[0] = "Charging Duration:";
+			inf->misc[1] = "Magic C. Duration:";
+			break;
+		}
+		case itype_hoverboots:
+		{
+			inf->misc[0] = "Hover Duration:";
+			inf->flag[0] = "Timer only resets on landing";
+			inf->wpn[0] = "Halo Sprite:";
+			inf->actionsnd = "Hovering Sound:";
+			break;
+		}
+		case itype_rocs:
+		{
+			inf->power = "Jump Power:";
+			inf->misc[0] = "Extra Jumps:";
+			inf->flag[0] = "Jump is Power/100";
+			inf->actionsnd = "Jumping Sound:";
+			break;
+		}
+		case itype_sbomb:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Fuse Duration (0 = Remote):";
+			inf->misc[1] = "Max. On Screen:";
+			inf->misc[2] = "Damage to Player:";
+			inf->flag[1] = "Explosion Hurts Player";
+			inf->wpn[0] = "Bomb Sprite:";
+			inf->wpn[1] = "Explosion Sprite:";
+			inf->actionsnd = "Explosion Sound:";
+			break;
+		}
+		case itype_bomb:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Fuse Duration (0 = Remote):";
+			inf->misc[1] = "Max. On Screen:";
+			inf->misc[2] = "Damage to Player:";
+			inf->flag[0] = "Use 1.92 Timing";
+			inf->flag[1] = "Explosion Hurts Player";
+			inf->wpn[0] = "Bomb Sprite:";
+			inf->wpn[1] = "Explosion Sprite:";
+			inf->actionsnd = "Explosion Sound:";
+			break;
+		}
+		case itype_nayruslove:
+		{
+			inf->misc[0] = "Duration:";
+			inf->flag[0] = "Rocket Flickers";
+			inf->flag[1] = "Translucent Rocket";
+			inf->flag[2] = "Translucent Shield";
+			inf->flag[3] = "Shield Flickers";
+			inf->wpn[0] = "Left Rocket Sprite:";
+			inf->wpn[1] = "L. Rocket Return Sprite:";
+			inf->wpn[2] = "L. Rocket Sparkle Sprite:";
+			inf->wpn[3] = "L. Return Sparkle Sprite:";
+			inf->wpn[4] = "Shield Sprite (2x2, Over):";
+			inf->wpn[5] = "Right Rocket Sprite:";
+			inf->wpn[6] = "R. Rocket Return Sprite:";
+			inf->wpn[7] = "R. Rocket Sparkle Sprite:";
+			inf->wpn[8] = "R. Return Sparkle Sprite:";
+			inf->wpn[9] = "Shield Sprite (2x2, Under):";
+			inf->actionsnd = "Shield Sound:";
+			break;
+		}
+		case itype_faroreswind:
+		{
+			inf->misc[0] = "Warp Animation (0-2):";
+			inf->actionsnd = "Wind Sound:";
+			break;
+		}
+		case itype_dinsfire:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Number of Flames:";
+			inf->misc[1] = "Circle Width:";
+			inf->flag[1] = "Don't Provide Light";
+			inf->flag[2] = "Falls in Sideview";
+			inf->flag[4] = "Temporary Light";
+			inf->wpn[0] = "Rocket Up Sprite:";
+			inf->wpn[1] = "Rocket Down Sprite:";
+			inf->wpn[2] = "R. Up Sparkle Sprite:";
+			inf->wpn[3] = "R. Down Sparkle Sprite:";
+			inf->wpn[4] = "Flame Sprite:";
+			inf->actionsnd = "Ring Sound:";
+			break;
+		}
+		case itype_hammer:
+		{
+			inf->power = "Damage:";
+			inf->flag[2] = "No Melee Attack";
+			inf->wpn[0] = "Hammer Sprite:";
+			inf->wpn[1] = "Smack Sprite:";
+			inf->actionsnd = "Pound Sound:";
+			inf->flag[6] = "Doesn't Pick Up Dropped Items";
+			break;
+		}
+		case itype_lens:
+		{
+			inf->misc[0] = "Lens Width:";
+			inf->flag[0] = "Show Hints";
+			inf->flag[1] = "Hide Secret Combos";
+			inf->flag[2] = "No X-Ray for Items";
+			inf->flag[3] = "Show Raft Paths";
+			inf->flag[4] = "Show Invis. Enemies";
+			inf->actionsnd = "Activation Sound:";
+			break;
+		}
+		case itype_hookshot:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Chain Length:";
+			inf->misc[1] = "Chain Links:";
+			inf->misc[2] = "Block Flags:";
+			inf->misc[3] = "Reflect Flags:";
+			inf->flag[0] = "No Handle Damage";
+			inf->flag[1] = "Allow Diagonal";
+			inf->flag[3] = "Pick Up Anything";
+			inf->flag[4] = "Drags Items";
+			inf->flag[5] = "Reflects Enemy Projectiles";
+			inf->flag[6] = "Picks Up Keys";
+			inf->wpn[0] = "Tip Sprite:";
+			inf->wpn[1] = "Chain Sprite (H):";
+			inf->wpn[2] = "Chain Sprite (V):";
+			inf->wpn[3] = "Handle Sprite:";
+			inf->wpn[4] = "Diagonal Tip Sprite:";
+			inf->wpn[5] = "Diagonal Handle Sprite:";
+			inf->wpn[6] = "Diagonal Chain Sprite:";
+			inf->actionsnd = "Firing Sound:";
+			break;
+		}
+		case itype_boots:
+		{
+			inf->power = "Damage Combo Level:";
+			inf->flag[0] = "Not Solid Combos";
+			inf->flag[1] = "Iron";
+			break;
+		}
+		case itype_bracelet:
+		{
+			inf->power = "Push Combo Level:";
+			inf->flag[0] = "Once Per Screen";
+			break;
+		}
+		case itype_book:
+		{
+			inf->power = "M. Damage:";
+			inf->misc[0] = "W. Damage:";
+			inf->misc[1] = "Wand Sound";
+			inf->misc[2] = "Special Step";
+			inf->misc[3] = "Fire Damage";
+			inf->flag[0] = "Fire Magic";
+			inf->flag[1] = "Override Wand Damage";
+			inf->flag[2] = "Fire Doesn't Hurt Player";
+			inf->flag[3] = "Override Wand SFX";
+			inf->flag[4] = "Temporary Light";
+			inf->flag[5] = "Replace Wand Weapon";
+			inf->wpn[0] = "Magic Sprite:";
+			inf->wpn[1] = "Projectile Sprite:";
+			inf->actionsnd = "Firing Sound:";
+			break;
+		}
+		case itype_ring:
+		{
+			inf->power = "Damage Divisor:";
+			inf->misc[0] = "Player Sprite Pal:";
+			inf->flag[0] = "Affects Damage Combos";
+			inf->flag[1] = "Divisor is Percentage Multiplier";
+			break;
+		}
+		case itype_wand:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "M. Damage";
+			inf->misc[1] = "W. Type:";
+			inf->misc[2] = "W. Speed:";
+			inf->misc[3] = "W. Range:";
+			inf->misc[4] = "Move Effect:";
+			inf->misc[5] = "Mvt Arg1:";
+			inf->misc[6] = "Mvt Arg2:";
+			inf->misc[7] = "No. of Clones:";
+			inf->misc[8] = "Clone Pattern:";
+			inf->misc[9] = "Slash Sound:";
+			inf->flag[0] = "Allow Magic w/o Book";
+			inf->flag[1] = "Wand Moves";
+			inf->flag[2] = "No Melee Attack";
+			inf->flag[3] = "Can Slash";
+			inf->flag[4] = "No Melee Cooldown";
+			inf->flag[5] = "Melee Weapons Use Magic Cost";
+			inf->flag[6] = "Doesn't Pick Up Dropped Items";
+			inf->flag[7] = "Flip Right-Facing Slash";
+			inf->flag[8] = "Light Torches";
+			inf->wpn[0] = "Stab Sprite:";
+			inf->wpn[1] = "Slash Sprite:";
+			inf->wpn[2] = "Projectile Sprite:";
+			inf->wpn[3] = "Projectile Misc:";
+			inf->actionsnd = "Firing Sound:";
+			break;
+		}
+		case itype_bait:
+		{
+			inf->misc[0] = "Duration:";
+			inf->misc[1] = "Bait Range (0 = infinite)";
+			inf->flag[0] = "Repels enemies";
+			inf->wpn[0] = "Bait Sprite:";
+			inf->actionsnd = "Baiting Sound:";
+			break;
+		}
+		case itype_potion:
+		{
+			inf->misc[0] = "HP Regained:";
+			inf->misc[1] = "MP Regained:";
+			inf->flag[0] = "HP R. Is Percent";
+			inf->flag[1] = "MP R. Is Percent";
+			inf->flag[2] = "Removes Sword Jinxes";
+			inf->flag[3] = "Removes Item Jinxes";
+			break;
+		}
+		case itype_whistle:
+		{
+			inf->misc[0] = "Whirlwind Direction:";
+			inf->misc[1] = "Warp Ring:";
+			inf->misc[4] = "Weapon Damage";
+			inf->flag[0] = "One W.Wind Per Scr.";
+			inf->flag[1] = "Has Damage";
+			inf->flag[2] = "Whirlwinds Reflect off Prism/Mirror Combos";
+			inf->wpn[0] = "Whirlwind Sprite:";
+			inf->actionsnd = "Music Sound:";
+			break;
+		}
+		case itype_candle:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Damage to Player:";
+			inf->flag[0] = "Once Per Screen";
+			inf->flag[1] = "Don't Provide Light";
+			inf->flag[2] = "Fire Doesn't Hurt Player";
+			inf->flag[3] = "Can Slash";
+			inf->flag[4] = "Temporary Light";
+			inf->wpn[0] = "Stab Sprite:";
+			inf->wpn[1] = "Slash Sprite:";
+			inf->wpn[2] = "Flame Sprite:";
+			inf->actionsnd = "Firing Sound:";
+			inf->flag[7] = "Flip Right-Facing Slash";
+			break;
+		}
+		case itype_arrow:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Duration (0 = Infinite):";
+			inf->flag[0] = "Penetrate Enemies";
+			inf->flag[1] = "Allow Item Pickup";
+			inf->flag[3] = "Pick Up Anything";
+			inf->wpn[0] = "Arrow Sprite:";
+			inf->wpn[1] = "Sparkle Sprite:";
+			inf->wpn[2] = "Damaging Sparkle Sprite:";
+			inf->actionsnd = "Firing Sound:";
+			inf->flag[6] = "Picks Up Keys";
+			break;
+		}
+		case itype_brang:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Range (0 = Infinite):";
+			inf->misc[2] = "Block Flags:";
+			inf->misc[3] = "Reflect Flags:";
+			inf->flag[0] = "Corrected Animation";
+			inf->flag[1] = "Directional Sprites";
+			inf->flag[2] = "Do Not Return";
+			inf->flag[3] = "Pick Up Anything";
+			inf->flag[4] = "Drags Items";
+			inf->flag[5] = "Reflects Enemy Projectiles";
+			inf->flag[6] = "Picks Up Keys";
+			inf->flag[7] = "Triggers 'Fire(Any)'";
+			inf->wpn[0] = "Boomerang Sprite:";
+			inf->wpn[1] = "Sparkle Sprite:";
+			inf->wpn[2] = "Damaging Sparkle Sprite:";
+			inf->actionsnd = "Spinning Sound:";
+			break;
+		}
+		case itype_sword:
+		{
+			inf->power = "Damage:";
+			inf->misc[0] = "Beam Hearts:";
+			inf->misc[1] = "Beam Damage:";
+			inf->flag[0] = "Beam Hearts Is Percent";
+			inf->flag[1] = "Beam Damage Is Percent";
+			inf->flag[2] = "Beam Penetrates Enemies";
+			inf->flag[3] = "Can Slash";
+			inf->flag[4] = "No Melee Cooldown";
+			inf->flag[5] = "Melee Weapons Use Magic Cost";
+			inf->flag[6] = "Doesn't Pick Up Dropped Items";
+			inf->flag[7] = "Flip Right-Facing Slash";
+			inf->flag[8] = "Sword Beams Reflect off Prism/Mirror Combos";
+			inf->flag[9] = "Walk slowly while charging";
+			inf->wpn[0] = "Stab Sprite:";
+			inf->wpn[1] = "Slash Sprite:";
+			inf->wpn[2] = "Beam Sprite:";
+			inf->actionsnd = "Slash/Stab Sound";
+			break;
+		}
+		case itype_whimsicalring:
+		{
+			inf->power = "Damage Bonus:";
+			inf->misc[0] = "Chance (1 in n):";
+			inf->actionsnd = "Whimsy Sound:";
+			break;
+		}
+		case itype_perilring:
+		{
+			inf->power = "Damage Divisor:";
+			inf->misc[0] = "Maximum Hearts:";
+			inf->flag[1] = "Divisor is Percentage Multiplier";
+			break;
+		}
+		case itype_stompboots:
+		{
+			inf->power = "Damage:";
+			break;
+		}
+		case itype_bow:
+		{
+			inf->power = "Arrow Speed:";
+			break;
+		}
+		case itype_script1:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script2:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script3:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script4:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script5:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script6:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script7:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script8:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script9:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_script10:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_custom1:
+		{
+			break;
+		}
+		case itype_custom2:
+		{
+			break;
+		}
+		case itype_custom3:
+		{
+			break;
+		}
+		case itype_custom4:
+		{
+			break;
+		}
+		case itype_custom5:
+		{
+			break;
+		}
+		case itype_custom6:
+		{
+			break;
+		}
+		case itype_custom7:
+		{
+			break;
+		}
+		case itype_custom8:
+		{
+			break;
+		}
+		case itype_custom9:
+		{
+			break;
+		}
+		case itype_custom10:
+		{
+			break;
+		}
+		case itype_icerod:
+		{
+			inf->power = "W. Power:";
+			inf->misc[0] = "Step Speed:";
+			inf->flag[0] = "No Gfx Flip";
+			break;
+		}
+		case itype_flippers:
+		{
+			inf->misc[0] = "Dive Length:";
+			inf->misc[1] = "Dive Cooldown:";
+			inf->flag[0] = "No Diving";
+			inf->flag[1] = "Cancellable Diving";
+			inf->flag[2] = "Can Swim in Lava";
+			break;
+		}
+		case itype_raft:
+		{
+			inf->misc[0] = "Speed Modifier:";
+			break;
+		}
+		case itype_atkring:
+		{
+			inf->misc[0] = "Bonus Damage";
+			inf->misc[1] = "Damage Multiplier";
+			break;
+		}
+		case itype_lantern:
+		{
+			inf->misc[0] = "Shape";
+			inf->h_misc[0] = "What shape to use for the light area emitted.\n"
+				"0 = circular, 1 = cone in front";
+			inf->misc[1] = "Range";
+			inf->h_misc[1] = "The range, in pixels, of the light.";
+			break;
+		}
+		case itype_pearl:
+		{
+			break;
+		}
+		case itype_bottle:
+		{
+			inf->misc[0] = "Slot:";
+			inf->h_misc[0] = "Which slot this bottle item is attached to. Valid vals 0-255.";
+			break;
+		}
+		case itype_bottlefill:
+		{
+			inf->misc[0] = "Contents:";
+			inf->h_misc[0] = "What contents to place in an empty bottle when picked up";
+			break;
+		}
+		case itype_bugnet:
+		{
+			inf->flag[0] = "Can't catch fairies";
+			inf->h_flag[0] = "If checked, no longer catches fairies it collides with";
+			inf->flag[1] = "Right-handed";
+			inf->h_flag[1] = "Swaps swing direction of the weapon";
+			break;
+		}
+		case itype_mirror:
+		{
+			inf->misc[0] = "Warp Effect";
+			inf->h_misc[0] = "What warp effect to use during the warp.\n"
+				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe";
+			inf->flag[0] = "Place Return Portal";
+			inf->h_flag[0] = "If checked, places a return portal when mirroring to a new dmap";
+			inf->flag[1] = "Continue acts as F6->Continue";
+			inf->h_flag[1] = "When used on a dmap with 'Mirror Continues instead of Warping' checked,"
+				"activates F6->Continue instead of Farore's Wind effect if enabled.";
+			inf->wpn[0] = "Portal Sprite";
+			inf->h_wpn[0] = "Sprite of the Return Portal";
+			break;
+		}
+	}
+}
 std::map<int32_t, ItemNameInfo *> *inamemap = NULL;
 
 std::map<int32_t, ItemNameInfo *> *getItemNameMap()
@@ -157,12 +773,11 @@ std::map<int32_t, ItemNameInfo *> *getItemNameMap()
 	{
 		inamemap = new std::map<int32_t, ItemNameInfo *>();
 		
-		for(int32_t i=0;; i++)
+		for(int32_t i=0; i < itype_max; i++)
 		{
 			ItemNameInfo *inf = &inameinf[i];
 			
-			if(inf->iclass == -1)
-				break;
+			loadinfo(inf, i);
 				
 			(*inamemap)[inf->iclass] = inf;
 		}
@@ -207,18 +822,39 @@ TextField( \
 	})
 
 #define ATTRIB_FIELD(member, index) \
-Row(vPadding = 0_px, \
-	l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID), \
-	TextField(maxLength = 11, \
-		type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID, \
-		val = local_itemref.member, \
-		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-		{ \
-			local_itemref.member = val; \
-		}) \
-)
+l_attribs[index] = Label(textAlign = 2, width = ATTR_LAB_WID), \
+ib_attribs[index] = Button(forceFitH = true, text = "?", \
+	disabled = true, \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Attribute Info",h_attribs[index]).show(); \
+	}), \
+TextField(maxLength = 11, \
+	type = GUI::TextField::type::INT_DECIMAL, width = ATTR_WID, \
+	val = local_itemref.member, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_itemref.member = val; \
+	})
 
 #define FLAG_CHECK(index, bit) \
+Row(padding = 0_px, \
+	ib_flags[index] = Button(forceFitH = true, text = "?", \
+		disabled = true, \
+		onPressFunc = [&]() \
+		{ \
+			InfoDialog("Flags Info",h_flags[index]).show(); \
+		}), \
+	l_flags[index] = Checkbox( \
+		width = FLAGS_WID, \
+		checked = (local_itemref.flags & bit), \
+		onToggleFunc = [&](bool state) \
+		{ \
+			SETFLAG(local_itemref.flags,bit,state); \
+		} \
+	) \
+)
+#define FLAG_CHECK_NOINFO(index, bit) \
 l_flags[index] = Checkbox( \
 	width = FLAGS_WID, \
 	checked = (local_itemref.flags & bit), \
@@ -226,11 +862,17 @@ l_flags[index] = Checkbox( \
 	{ \
 		SETFLAG(local_itemref.flags,bit,state); \
 	} \
-)
+) \
 
 #define SPRITE_DROP(ind, mem) \
-Rows<2>(vPadding = 0_px, \
+Row(vPadding = 0_px, \
 	l_spr[ind] = Label(textAlign = 2, width = SPR_LAB_WID, topMargin = 1_px), \
+	ib_spr[ind] = Button(forceFitH = true, text = "?", \
+		disabled = true, \
+		onPressFunc = [&]() \
+		{ \
+			InfoDialog("Sprite Info",h_spr[ind]).show(); \
+		}), \
 	DropDownList( \
 		maxwidth = sized(18_em, 14_em), \
 		data = list_sprites, \
@@ -308,24 +950,38 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					TabRef(name = "Data", TabPanel(
 						ptr = &itmtabs[1],
 						TabRef(name = "Attrib", Column(
-							Columns<6>(padding = 0_px,
-								Row(
-									Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
-									NUM_FIELD(fam_type, 1, 255, ATTR_WID)
-								),
+							Rows<6>(framed = true,
+								Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
+								Button(forceFitH = true, text = "?",
+									onPressFunc = [&]()
+									{
+										InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
+											"By default, subscreens use the highest level item of an itemclass for displaying.").show();
+									}),
+								NUM_FIELD(fam_type, 1, 255, ATTR_WID),
+								l_power = Label(width=ATTR_LAB_WID,textAlign=2),
+								ib_power = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("Power Info",h_power).show();
+									}),
+								NUM_FIELD(power, 0, 255, ATTR_WID)
+							),
+							Rows<6>(framed = true,
 								ATTRIB_FIELD(misc1,0),
-								ATTRIB_FIELD(misc2,1),
-								ATTRIB_FIELD(misc3,2),
-								ATTRIB_FIELD(misc4,3),
-								ATTRIB_FIELD(misc5,4),
-								Row(
-									l_power = Label(width=ATTR_LAB_WID,textAlign=2),
-									NUM_FIELD(power, 0, 255, ATTR_WID)
-								),
 								ATTRIB_FIELD(misc6,5),
+								
+								ATTRIB_FIELD(misc2,1),
 								ATTRIB_FIELD(misc7,6),
+								
+								ATTRIB_FIELD(misc3,2),
 								ATTRIB_FIELD(misc8,7),
+								
+								ATTRIB_FIELD(misc4,3),
 								ATTRIB_FIELD(misc9,8),
+								
+								ATTRIB_FIELD(misc5,4),
 								ATTRIB_FIELD(misc10,9)
 							)
 						)),
@@ -345,7 +1001,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
 									}
 								),
-								FLAG_CHECK(15,ITEM_PASSIVESCRIPT),
+								FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
 								Checkbox(
 									width = FLAGS_WID,
 									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
@@ -423,6 +1079,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							),
 							Row(
 								l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("SFX Info",h_sfx).show();
+									}),
 								TextField(
 									val = local_itemref.usesound,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -1527,21 +2189,31 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					)),
 					TabRef(name = "Data", TabPanel(
 						ptr = &itmtabs[1],
-						TabRef(name = "Attrib", Column(
-							Columns<6>(padding = 0_px,
-								Row(
-									Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
-									NUM_FIELD(fam_type, 1, 255, ATTR_WID)
-								),
+						TabRef(name = "Attrib", ScrollingPane(
+							Rows<3>(
+								Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
+								Button(forceFitH = true, text = "?",
+									onPressFunc = [&]()
+									{
+										InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
+											"By default, subscreens use the highest level item of an itemclass for displaying.").show();
+									}),
+								NUM_FIELD(fam_type, 1, 255, ATTR_WID),
+								
+								l_power = Label(width=ATTR_LAB_WID,textAlign=2),
+								ib_power = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("Attribute Info",h_power).show();
+									}),
+								NUM_FIELD(power, 0, 255, ATTR_WID),
+								
 								ATTRIB_FIELD(misc1,0),
 								ATTRIB_FIELD(misc2,1),
 								ATTRIB_FIELD(misc3,2),
 								ATTRIB_FIELD(misc4,3),
 								ATTRIB_FIELD(misc5,4),
-								Row(
-									l_power = Label(width=ATTR_LAB_WID,textAlign=2),
-									NUM_FIELD(power, 0, 255, ATTR_WID)
-								),
 								ATTRIB_FIELD(misc6,5),
 								ATTRIB_FIELD(misc7,6),
 								ATTRIB_FIELD(misc8,7),
@@ -1549,62 +2221,65 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								ATTRIB_FIELD(misc10,9)
 							)
 						)),
-						TabRef(name = "Flags", Column(padding = 0_px,
-							Rows<2>(
-								framed = true,
-								frameText = "General Flags",
-								topPadding = DEFAULT_PADDING+0.4_em,
-								bottomPadding = DEFAULT_PADDING+1_px,
-								bottomMargin = 1_em,
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_EDIBLE),
-									text = "Can Be Eaten By Enemies",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
-									}
+						TabRef(name = "Flags", ScrollingPane(
+							Column(
+								topMargin = 6_px,
+								Column(
+									framed = true,
+									frameText = "General Flags",
+									topPadding = DEFAULT_PADDING+0.4_em,
+									bottomPadding = DEFAULT_PADDING+1_px,
+									bottomMargin = 1_em,
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_EDIBLE),
+										text = "Can Be Eaten By Enemies",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
+										}
+									),
+									FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
+										text = "Disabled In Sideview Water",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
+										}
+									),
+									Checkbox(
+										width = FLAGS_WID,
+										checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
+										text = "Usable as a Bunny",
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+										}
+									)
 								),
-								FLAG_CHECK(15,ITEM_PASSIVESCRIPT),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
-									text = "Disabled In Sideview Water",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
-									}
-								),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
-									text = "Usable as a Bunny",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
-									}
+								Column(
+									framed = true,
+									frameText = "Variable Flags",
+									topPadding = DEFAULT_PADDING+0.4_em,
+									bottomPadding = DEFAULT_PADDING+1_px,
+									FLAG_CHECK(0,ITEM_FLAG1),
+									FLAG_CHECK(1,ITEM_FLAG2),
+									FLAG_CHECK(2,ITEM_FLAG3),
+									FLAG_CHECK(3,ITEM_FLAG4),
+									FLAG_CHECK(4,ITEM_FLAG5),
+									FLAG_CHECK(5,ITEM_FLAG6),
+									FLAG_CHECK(6,ITEM_FLAG7),
+									FLAG_CHECK(7,ITEM_FLAG8),
+									FLAG_CHECK(8,ITEM_FLAG9),
+									FLAG_CHECK(9,ITEM_FLAG10),
+									FLAG_CHECK(10,ITEM_FLAG11),
+									FLAG_CHECK(11,ITEM_FLAG12),
+									FLAG_CHECK(12,ITEM_FLAG13),
+									FLAG_CHECK(13,ITEM_FLAG14),
+									FLAG_CHECK(14,ITEM_FLAG15)
 								)
-							),
-							Columns<8>(
-								framed = true,
-								frameText = "Variable Flags",
-								topPadding = DEFAULT_PADDING+0.4_em,
-								bottomPadding = DEFAULT_PADDING+1_px,
-								FLAG_CHECK(0,ITEM_FLAG1),
-								FLAG_CHECK(1,ITEM_FLAG2),
-								FLAG_CHECK(2,ITEM_FLAG3),
-								FLAG_CHECK(3,ITEM_FLAG4),
-								FLAG_CHECK(4,ITEM_FLAG5),
-								FLAG_CHECK(5,ITEM_FLAG6),
-								FLAG_CHECK(6,ITEM_FLAG7),
-								FLAG_CHECK(7,ITEM_FLAG8),
-								FLAG_CHECK(8,ITEM_FLAG9),
-								FLAG_CHECK(9,ITEM_FLAG10),
-								FLAG_CHECK(10,ITEM_FLAG11),
-								FLAG_CHECK(11,ITEM_FLAG12),
-								FLAG_CHECK(12,ITEM_FLAG13),
-								FLAG_CHECK(13,ITEM_FLAG14),
-								FLAG_CHECK(14,ITEM_FLAG15)
 							)
 						)),
 						TabRef(name = "Action", Columns<4>(
@@ -1643,6 +2318,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							),
 							Row(
 								l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("Attribute Info",h_sfx).show();
+									}),
 								TextField(
 									val = local_itemref.usesound,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2670,50 +3351,53 @@ void ItemEditorDialog::loadItemClass()
 		inf = it->second;
 	
 	#define __SET(obj, mem) \
-	obj->setText(inf ? (inf->mem ? inf->mem : defInfo.mem) : defInfo.mem);
+	l_##obj->setText(inf ? (inf->mem.size() ? inf->mem : defInfo.mem) : defInfo.mem); \
+	h_##obj = inf ? (inf->h_##mem.size() ? inf->h_##mem : "") : ""; \
+	if(ib_##obj) \
+		ib_##obj->setDisabled(h_##obj.empty());
 	
-	__SET(l_power, power);
+	__SET(power, power);
 	
-	__SET(l_attribs[0], misc1);
-	__SET(l_attribs[1], misc2);
-	__SET(l_attribs[2], misc3);
-	__SET(l_attribs[3], misc4);
-	__SET(l_attribs[4], misc5);
-	__SET(l_attribs[5], misc6);
-	__SET(l_attribs[6], misc7);
-	__SET(l_attribs[7], misc8);
-	__SET(l_attribs[8], misc9);
-	__SET(l_attribs[9], misc10);
+	__SET(attribs[0], misc[0]);
+	__SET(attribs[1], misc[1]);
+	__SET(attribs[2], misc[2]);
+	__SET(attribs[3], misc[3]);
+	__SET(attribs[4], misc[4]);
+	__SET(attribs[5], misc[5]);
+	__SET(attribs[6], misc[6]);
+	__SET(attribs[7], misc[7]);
+	__SET(attribs[8], misc[8]);
+	__SET(attribs[9], misc[9]);
 	
-	__SET(l_flags[0], flag1);
-	__SET(l_flags[1], flag2);
-	__SET(l_flags[2], flag3);
-	__SET(l_flags[3], flag4);
-	__SET(l_flags[4], flag5);
-	__SET(l_flags[5], flag6);
-	__SET(l_flags[6], flag7);
-	__SET(l_flags[7], flag8);
-	__SET(l_flags[8], flag9);
-	__SET(l_flags[9], flag10);
-	__SET(l_flags[10], flag11);
-	__SET(l_flags[11], flag12);
-	__SET(l_flags[12], flag13);
-	__SET(l_flags[13], flag14);
-	__SET(l_flags[14], flag15);
-	__SET(l_flags[15], flag16);
+	__SET(flags[0], flag[0]);
+	__SET(flags[1], flag[1]);
+	__SET(flags[2], flag[2]);
+	__SET(flags[3], flag[3]);
+	__SET(flags[4], flag[4]);
+	__SET(flags[5], flag[5]);
+	__SET(flags[6], flag[6]);
+	__SET(flags[7], flag[7]);
+	__SET(flags[8], flag[8]);
+	__SET(flags[9], flag[9]);
+	__SET(flags[10], flag[10]);
+	__SET(flags[11], flag[11]);
+	__SET(flags[12], flag[12]);
+	__SET(flags[13], flag[13]);
+	__SET(flags[14], flag[14]);
+	__SET(flags[15], flag[15]);
 	
-	__SET(l_sfx, actionsnd);
+	__SET(sfx, actionsnd);
 	
-	__SET(l_spr[0], wpn1);
-	__SET(l_spr[1], wpn2);
-	__SET(l_spr[2], wpn3);
-	__SET(l_spr[3], wpn4);
-	__SET(l_spr[4], wpn5);
-	__SET(l_spr[5], wpn6);
-	__SET(l_spr[6], wpn7);
-	__SET(l_spr[7], wpn8);
-	__SET(l_spr[8], wpn9);
-	__SET(l_spr[9], wpn10);
+	__SET(spr[0], wpn[0]);
+	__SET(spr[1], wpn[1]);
+	__SET(spr[2], wpn[2]);
+	__SET(spr[3], wpn[3]);
+	__SET(spr[4], wpn[4]);
+	__SET(spr[5], wpn[5]);
+	__SET(spr[6], wpn[6]);
+	__SET(spr[7], wpn[7]);
+	__SET(spr[8], wpn[8]);
+	__SET(spr[9], wpn[9]);
 }
 
 bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)

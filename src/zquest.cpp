@@ -1557,12 +1557,11 @@ static MENU export_250_menu[] =
 
 static MENU zq_help_menu[] =
 {
-    { (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
-    { (char *)"&Shield Help",                     onshieldblockhelp,            NULL,                     0,            NULL   },
-    { (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
-    { (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
-    
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
+	{ (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
+	{ (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
+	
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU export_graphics[]=
