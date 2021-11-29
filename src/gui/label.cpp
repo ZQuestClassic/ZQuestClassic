@@ -111,8 +111,8 @@ void Label::fitText()
 	if(alDialog)
 	{
 		Widget::arrange(contX, contY, contW, contH);
-		alDialog->x = x;
-		alDialog->y = y;
+		// alDialog->x = x;
+		// alDialog->y = y;
 		alDialog->h = getHeight();
 		alDialog->w = getWidth();
 		alDialog->dp = text_fit.data();

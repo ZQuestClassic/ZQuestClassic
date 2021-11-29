@@ -6281,9 +6281,12 @@ int Attributes[4];
  * 	tab in the Combo Editor.
  * Min value MIN_SHORT, max value MAX_SHORT.
 
-int UserFlags;
- * Corresponds to the 'Misc Flags' on the Flags tab of the Combo Editor.
- * These values are ORd together.
+bool Flags[16];
+ * The 16 user flags of the combo
+
+bool GenFlags[1];
+ * The generic flags of the combo
+ * Use the 'GENFLAG_' constants from 'std_constants.zh'
 
 int TriggerFlags[3]; 
  * Corresponds to the flags on the 'Triggers' tabs of the Combo Editor

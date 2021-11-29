@@ -14,6 +14,7 @@ public:
 
 	void setCombo(int32_t value);
 	void setCSet(int32_t value);
+	void setShowVals(bool showVals);
 
 	int32_t getCombo();
 	int32_t getCSet();
@@ -32,6 +33,7 @@ protected:
 	int32_t message;
 private:
 	int32_t combo, cset;
+	bool showsVals;
 	DialogRef alDialog;
 	std::function<void(int32_t,int32_t)> onSelectFunc;
 	

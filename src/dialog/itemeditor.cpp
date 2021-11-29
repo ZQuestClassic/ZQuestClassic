@@ -244,6 +244,7 @@ Rows<2>(vPadding = 0_px, \
 
 //}
 
+static size_t itmtabs[4] = {0};
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -303,7 +304,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					)
 				),
 				TabPanel(
+					ptr = &itmtabs[0],
 					TabRef(name = "Data", TabPanel(
+						ptr = &itmtabs[1],
 						TabRef(name = "Attrib", Column(
 							Columns<6>(padding = 0_px,
 								Row(
@@ -869,6 +872,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						))
 					)),
 					TabRef(name = "Graphics", TabPanel(
+						ptr = &itmtabs[2],
 						TabRef(name = "GFX", Row(
 							Rows<3>(
 								Label(text = "Flash CSet:", hAlign = 1.0),
@@ -1388,6 +1392,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						))
 					)),
 					TabRef(name = "Scripts", TabPanel(
+						ptr = &itmtabs[3],
 						TabRef(name = "Item", Row(
 							Column(
 								INITD_ROW(0, local_itemref.initiald, local_itemref.initD_label),
@@ -1453,12 +1458,15 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Button(
 						focused = true,
 						text = "OK",
+						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
+						minwidth = 90_lpx,
 						onClick = message::CANCEL),
 					Button(
 						text = "Default",
+						minwidth = 90_lpx,
 						onClick = message::DEFAULT)
 				)
 			)
@@ -1473,6 +1481,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 			onClose = message::CANCEL,
 			Column(
 				TabPanel(
+					ptr = &itmtabs[0],
 					TabRef(name = "Basic", Column(
 						Rows<2>(padding = 0_px,
 							Label(text = "Name:"),
@@ -1517,6 +1526,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Data", TabPanel(
+						ptr = &itmtabs[1],
 						TabRef(name = "Attrib", Column(
 							Columns<6>(padding = 0_px,
 								Row(
@@ -2072,6 +2082,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						))
 					)),
 					TabRef(name = "Graphics", TabPanel(
+						ptr = &itmtabs[2],
 						TabRef(name = "GFX", Row(
 							Rows<3>(
 								Label(text = "Flash CSet:", hAlign = 1.0),
@@ -2565,6 +2576,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						))
 					)),
 					TabRef(name = "Scripts", TabPanel(
+						ptr = &itmtabs[3],
 						TabRef(name = "Item", Row(
 							Column(
 								INITD_ROW(0, local_itemref.initiald, local_itemref.initD_label),
@@ -2630,12 +2642,15 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					Button(
 						focused = true,
 						text = "OK",
+						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
+						minwidth = 90_lpx,
 						onClick = message::CANCEL),
 					Button(
 						text = "Default",
+						minwidth = 90_lpx,
 						onClick = message::DEFAULT)
 				)
 			)

@@ -22,6 +22,7 @@ public:
 
 	/* Makes the widget with the given index visible, hiding all others. */
 	void switchTo(size_t index);
+	void setPtr(size_t* ptr);
 
 	/* Returns the index of the currently visible widget. */
 	inline size_t getCurrentIndex() const
@@ -50,6 +51,7 @@ private:
 	std::vector<std::shared_ptr<TabRef>> children;
 	DialogRef alDialog;
 	size_t visibleChild;
+	size_t* indexptr;
 
 	/* Sets or unsets D_HIDDEN for each of the child's DIALOGs. */
 	void applyVisibility(bool visible) override;

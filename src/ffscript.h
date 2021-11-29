@@ -4361,8 +4361,10 @@ enum ASM_DEFINE
 #define BSHOPCSET               0x1408
 #define BSHOPPRICE              0x1409
 #define BSHOPSTR                0x140A
+#define COMBODUSRFLAGARR        0x140B
+#define COMBODGENFLAGARR        0x140C
 
-#define NUMVARIABLES         	0x140B
+#define NUMVARIABLES         	0x140D
 
 //} End variables
 

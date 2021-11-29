@@ -48,6 +48,7 @@ src/gui/colorsel.cpp
 src/gui/seltile_swatch.cpp
 src/gui/selcombo_swatch.cpp
 src/gui/tileanim_frame.cpp
+src/gui/cornerselect.cpp
 
 src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
@@ -66,6 +67,7 @@ src/dialog/alertfunc.cpp
 src/dialog/options.cpp
 src/dialog/bottletype.cpp
 src/dialog/bottleshop.cpp
+src/dialog/comboeditor.cpp
 
 ## End of ZQuest GUI module
 )

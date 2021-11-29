@@ -26,6 +26,7 @@
 #include "seltile_swatch.h"
 #include "selcombo_swatch.h"
 #include "tileanim_frame.h"
+#include "cornerselect.h"
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -183,6 +184,11 @@ inline std::shared_ptr<SelComboSwatch> makeSelComboSwatch()
 	return std::make_shared<SelComboSwatch>();
 }
 
+inline std::shared_ptr<CornerSwatch> makeCornerSwatch()
+{
+	return std::make_shared<CornerSwatch>();
+}
+
 inline std::shared_ptr<TileFrame> makeTileFrame()
 {
 	return std::make_shared<TileFrame>();
@@ -312,6 +318,8 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, makeSwitcher)
 
 ZCGUI_BUILDER_START(TabPanel)
+	ZCGUI_ACCEPT_PROP(index, switchTo, size_t)
+	ZCGUI_ACCEPT_PROP(ptr, setPtr, size_t*)
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TabPanel, TabPanel, makeTabPanel)
@@ -373,6 +381,7 @@ ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
 ZCGUI_BUILDER_START(SelTileSwatch)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
 	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
+	ZCGUI_ACCEPT_PROP(showvals, setShowVals, bool)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
@@ -381,17 +390,30 @@ ZCGUI_BUILDER_FUNCTION(SelTileSwatch, SelTileSwatch, makeSelTileSwatch)
 ZCGUI_BUILDER_START(SelComboSwatch)
 	ZCGUI_ACCEPT_PROP(combo, setCombo, int32_t)
 	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
+	ZCGUI_ACCEPT_PROP(showvals, setShowVals, bool)
 	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(SelComboSwatch, SelComboSwatch, makeSelComboSwatch)
 
+ZCGUI_BUILDER_START(CornerSwatch)
+	ZCGUI_ACCEPT_PROP(val, setVal, int32_t)
+	ZCGUI_ACCEPT_PROP(color, setColor, int32_t)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(CornerSwatch, CornerSwatch, makeCornerSwatch)
+
 ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
 	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
+	ZCGUI_ACCEPT_PROP(cset2, setCSet2, int32_t)
 	ZCGUI_ACCEPT_PROP(speed, setSpeed, int32_t)
 	ZCGUI_ACCEPT_PROP(frames, setFrames, int32_t)
 	ZCGUI_ACCEPT_PROP(delay, setDelay, int32_t)
+	ZCGUI_ACCEPT_PROP(skipx, setSkipX, int32_t)
+	ZCGUI_ACCEPT_PROP(skipy, setSkipY, int32_t)
+	ZCGUI_ACCEPT_PROP(flip, setFlip, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 
@@ -412,8 +434,8 @@ using ::GUI::operator ""_spx;
 #define _d DummyWidget()
 
 #define INITD_ROW(ind, d_mem, lab_mem) \
-	Row(vPadding = 0_px, \
-		TextField(maxLength = 64, \
+Row(vPadding = 0_px, \
+	TextField(maxLength = 64, \
 		text = std::string(lab_mem[ind]), \
 		type = GUI::TextField::type::TEXT, \
 		width = 8_em, \
@@ -428,6 +450,25 @@ using ::GUI::operator ""_spx;
 					lab_mem[ind][q] = 0; \
 			} \
 		} \
+	), \
+	TextField( \
+		type = GUI::TextField::type::SWAP_ZSINT, \
+		val = d_mem[ind], \
+		width = 6.5_em+16_px, \
+		leftPadding = 0_px, \
+		onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+		{ \
+			d_mem[ind] = val; \
+		} \
+	) \
+)
+
+#define INITD_ROW2(ind, d_mem) \
+Row(vPadding = 0_px, \
+	Label( text = "InitD["+std::to_string(ind)+"]:", \
+		textAlign = 2, \
+		width = 6_em, \
+		rightPadding = 0_px \
 	), \
 	TextField( \
 		type = GUI::TextField::type::SWAP_ZSINT, \

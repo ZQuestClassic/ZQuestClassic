@@ -83,6 +83,7 @@ bool isTouchyType(int32_t type);
 bool isCuttableType(int32_t type);
 bool isCuttableItemType(int32_t type);
 bool isstepable(int32_t combo);                                 //can use ladder on it
+bool isHSComboFlagType(int32_t type);
 bool isHSGrabbable(newcombo const& cmb);
 bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);

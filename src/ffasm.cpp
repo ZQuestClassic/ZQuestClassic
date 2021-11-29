@@ -2259,6 +2259,8 @@ script_variable variable_list[]=
 	{ "BSHOPCSET",           BSHOPCSET,            0,             0 },
 	{ "BSHOPPRICE",           BSHOPPRICE,            0,             0 },
 	{ "BSHOPSTR",           BSHOPSTR,            0,             0 },
+	{ "COMBODUSRFLAGARR",           COMBODUSRFLAGARR,            0,             0 },
+	{ "COMBODGENFLAGARR",           COMBODGENFLAGARR,            0,             0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

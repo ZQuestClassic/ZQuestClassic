@@ -229,7 +229,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          8
 #define V_MISC             13
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           19
+#define V_COMBOS           20
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -3062,6 +3062,7 @@ struct newcombo
 	
 	int32_t attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
+	int16_t genflags; //!TODO ZScript Access 16 bits ; general flags
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
 	char label[11];
@@ -3107,6 +3108,7 @@ struct newcombo
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 			attributes[q] = 0;
 		usrflags = 0;
+		genflags = 0;
 		for(int32_t q = 0; q < 3; ++q)
 			triggerflags[q] = 0;
 		triggerlevel = 0;

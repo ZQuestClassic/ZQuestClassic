@@ -1261,52 +1261,8 @@ bool isstepable(int32_t combo)                                  //can use ladder
 
 bool isHSGrabbable(newcombo const& cmb)
 {
-	switch(cmb.type)
-	{
-		case cHSGRAB:
-			return true;
-		case cPUSH_WAIT:
-		case cPUSH_HEAVY:
-		case cPUSH_HW:
-		case cL_STATUE:
-		case cR_STATUE:
-		case cPUSH_HEAVY2:
-		case cPUSH_HW2:
-		case cPOUND:
-		case cC_STATUE:
-		case cMIRROR:
-		case cMIRRORSLASH:
-		case cMIRRORBACKSLASH:
-		case cMAGICPRISM:
-		case cMAGICPRISM4:
-		case cMAGICSPONGE:
-		case cEYEBALL_A:
-		case cEYEBALL_B:
-		case cEYEBALL_4:
-		case cBUSH:
-		case cFLOWERS:
-		case cLOCKBLOCK:
-		case cLOCKBLOCK2:
-		case cBOSSLOCKBLOCK:
-		case cBOSSLOCKBLOCK2:
-		case cCHEST:
-		case cCHEST2:
-		case cLOCKEDCHEST:
-		case cLOCKEDCHEST2:
-		case cBOSSCHEST:
-		case cBOSSCHEST2:
-		case cBUSHNEXT:
-		case cBUSHTOUCHY:
-		case cFLOWERSTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		case cSIGNPOST:
-		case cCSWITCHBLOCK:
-		case cLANTERN:
-		case cTRIGGERGENERIC:
-			return (cmb.usrflags&cflag16)?true:false;
-		default:
-			return false;
-	}
+	if(cmb.type == cHSGRAB) return true;
+	return cmb.genflags & cflag1;
 }
 
 bool ishookshottable(int32_t bx, int32_t by)

@@ -218,7 +218,7 @@ void Widget::realize(DialogRunner& runner)
 	if(flags&f_FRAMED)
 	{
 		frameDialog = runner.push(shared_from_this(), DIALOG {
-			jwin_frame_proc,
+			newGUIProc<jwin_frame_proc>,
 			x-leftPadding, y-topPadding, getPaddedWidth(), getPaddedHeight(),
 			fgColor, bgColor,
 			0,
@@ -227,7 +227,7 @@ void Widget::realize(DialogRunner& runner)
 			nullptr, nullptr, nullptr // dp, dp2, dp3
 		});
 		frameTextDialog = runner.push(shared_from_this(), DIALOG {
-			new_text_proc,
+			newGUIProc<new_text_proc>,
 			x-leftPadding+4_spx, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-4_spx, text_height(widgFont),
 			fgColor, bgColor,
 			0,

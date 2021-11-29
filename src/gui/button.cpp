@@ -12,13 +12,11 @@ namespace GUI
 
 Button::Button(): text(), message(-1)
 {
-	setPreferredHeight(2.5_em);
+	setPreferredHeight(3_em);
 }
 
 void Button::setText(std::string newText)
 {
-	Size targetWidth = Size::em(newText.size());
-	setPreferredWidth(std::max(targetWidth, 90_lpx));
 	text = std::move(newText);
 }
 
@@ -31,6 +29,11 @@ void Button::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
+}
+
+void Button::calculateSize()
+{
+	setPreferredWidth(sized(10_px,16_px)+Size::pixels(gui_text_width(widgFont, text.c_str())));
 }
 
 void Button::applyFont(FONT* newFont)

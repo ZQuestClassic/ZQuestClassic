@@ -508,9 +508,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					Button(
 						focused = true,
 						text = "OK",
+						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
+						minwidth = 90_lpx,
 						onClick = message::CANCEL)
 				)
 			)
@@ -792,9 +794,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
+					minwidth = 90_lpx,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
+					minwidth = 90_lpx,
 					onClick = message::CANCEL)
 			)
 		)

@@ -570,6 +570,10 @@ string ZScript::VarToString(int32_t ID)
 		return "BSHOPPRICE";
 	case BSHOPSTR:
 		return "BSHOPSTR";
+	case COMBODUSRFLAGARR:
+		return "COMBODUSRFLAGARR";
+	case COMBODGENFLAGARR:
+		return "COMBODGENFLAGARR";
 		
 	case SCREENSTATED:
 		return "SCREENSTATED";

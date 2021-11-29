@@ -232,8 +232,8 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 			),
 			Row(
 				spacing = 2_em,
-				Button(text = "OK", onClick = message::OK),
-				Button(text = "Cancel", onClick = message::CANCEL)
+				Button(text = "OK", minwidth = 90_lpx, onClick = message::OK),
+				Button(text = "Cancel", minwidth = 90_lpx, onClick = message::CANCEL)
 			)
 		)
 	);

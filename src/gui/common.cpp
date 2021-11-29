@@ -35,10 +35,6 @@ int32_t newGUIProcImpl(int32_t msg, DIALOG* d, int32_t c, int32_t (*base)(int32_
 			return sp->proc(msg, sp, c);
 
 		case MSG_GOTFOCUS:
-			// This will be followed by MSG_DRAW...
-			d->flags |= D_NEEDSCLIPPED;
-			[[fallthrough]];
-
 		case MSG_CLICK:
 		{
 			findScrollingPane(d, &sp, &index);
@@ -46,12 +42,8 @@ int32_t newGUIProcImpl(int32_t msg, DIALOG* d, int32_t c, int32_t (*base)(int32_
 			return base(msg, d, c)|ret;                    // should be first
 		}
 
-		case MSG_LOSTFOCUS:
-			d->flags |= D_NEEDSCLIPPED;
-			break;
-
 		case MSG_DRAW:
-			if(d->flags&D_NEEDSCLIPPED)
+			if(!(d->flags&D_ISCLIPPED))
 			{
 				findScrollingPane(d, &sp, &index);
 				return sp->proc(MSG_DRAWCLIPPED, sp, index);

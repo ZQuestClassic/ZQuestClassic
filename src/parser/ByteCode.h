@@ -1317,8 +1317,10 @@
 #define BSHOPCSET               1234
 #define BSHOPPRICE              1235
 #define BSHOPSTR                1236
+#define COMBODUSRFLAGARR        1237
+#define COMBODGENFLAGARR        1238
 
-#define LAST_BYTECODE           1237
+#define LAST_BYTECODE           1239
 
 //} END OF BYTECODE
 

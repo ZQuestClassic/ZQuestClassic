@@ -115,6 +115,8 @@ public:
 	}
 	//Static constructors for specific lists
 	static ListData itemclass(bool numbered = false);
+	static ListData combotype(bool numbered = false);
+	static ListData mapflag(bool numbered = false);
 	static ListData counters();
 	static ListData miscsprites();
 	static ListData bottletype();
@@ -125,6 +127,7 @@ public:
 	static ListData itemdata_script();
 	static ListData itemsprite_script();
 	static ListData lweapon_script();
+	static ListData combodata_script();
 	
 private:
 	std::vector<ListItem> listItems;
