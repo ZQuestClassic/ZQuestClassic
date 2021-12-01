@@ -24185,6 +24185,17 @@ int32_t selectSword()
     return ret;
 }
 
+// Adding code here for allowing hardcoding a button to a specific itemclass.
+int32_t selectItemclass(int32_t itemclass)
+{
+    int32_t ret = current_item_id(itemclass);
+    
+    if(ret == -1)
+        ret = 0;
+        
+    return ret;
+}
+
 // Used for the 'Pickup Hearts' item pickup condition.
 bool canget(int32_t id)
 {

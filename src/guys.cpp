@@ -5751,205 +5751,93 @@ bool enemy::dont_draw()
 	if(flags&lens_only && !lensclk)
 		return true;
 		
+	if(lensclk && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG7) &&
+	!((flags&lens_only) && (get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5))))
+		return true;
+		
 	return false;
 }
 
-// drawingng used in 2.50.x
-void enemy::old_draw(BITMAP *dest)
-{
-	if(dont_draw())
-		return;
-		
-	int32_t cshold=cs;
-	
-	if(dying)
-	{
-		if(clk2>=19)
-		{
-			if(!(clk2&2))
-				sprite::draw(dest);
-				
-			return;
-		}
-		
-		flip = 0;
-		tile = wpnsbuf[spr_death].newtile;
-		//The scale of this tile shouldx be based on the enemy size. -Z
-		if ( do_animation ) 
-		{
-			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
-			{
-				if(clk2 > 2)
-				{
-					spr_death_anim_clk=0;
-					clk2=1;
-					death_sfx();
-				}
-				if(clk2==1 && spr_death_anim_clk>-1)
-				{
-					++clk2;
-					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
-					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
-					{
-						spr_death_anim_clk=-1;
-						clk2=1;
-					}
-				}
-				tile += spr_death_anim_frm;
-			}
-			else if(BSZ)
-				tile += zc_min((15-clk2)/3,4);
-			else if(clk2>6 && clk2<=12)
-				++tile;
-		}
-		
-		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
-			cs = wpnsbuf[spr_death].csets&15;
-		else
-			cs = (((clk2+5)>>1)&3)+6;
-	}
-	else if(hclk>0)
-	{
-		if(family==eeGANON)
-			cs=(((hclk-1)>>1)&3)+6;
-		else if(hclk<33 && !get_bit(quest_rules,qr_ENEMIESFLICKER))
-			cs=(((hclk-1)>>1)&3)+6;
-	}
-	
-	if((tmpscr->flags3&fINVISROOM) &&
-			!(current_item(itype_amulet)) &&
-			!((get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) ) &&
-			  lensclk) && family!=eeGANON)
-	{
-		sprite::drawcloaked(dest);
-	}
-	else
-	{
-		if ( frozenclock < 0 )
-		{
-		if ( frozentile > 0 ) tile = frozentile;
-		loadpalset(csBOSS,frozencset);
-		}
-		if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
-		{
-			if((frame&1)==1)
-				sprite::draw(dest);
-		}
-		else
-			sprite::draw(dest);
-	}
-	
-	cs=cshold;
-}
-
-#define DRAW_NORMAL 1
+#define DRAW_NORMAL 2
 #define DRAW_CLOAKED 1
 #define DRAW_INVIS 0
 // base drawing function to be used by all derived classes instead of
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
-	//Temporary fix for bugs when drawing some enemies. -Z
-	//Statues need the invis flag set by the quest loader.
-	//I'm not sure what specifiuc segment of lanmolas is intended to be invisible.
-	//if ( family == eePROJECTILE || family == eeGANON || family == eeLANM ) 
-	//{
-	//    old_draw(dest);
-	//    return;
-	//}
-	//Let's clen up this logic; shall we?
-	byte canSee = DRAW_INVIS;
+	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
+		return;
+	if(flags&guy_invisible)
+		return;
+	if(lensclk && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG7) && !(flags&lens_only))
+		return;
+	
+	//We did the normal don't_draw stuff here so we can make exceptions; specifically the lens check (which should make enemies
+	// be cloaked if they have "invisible displays as cloaked" checked.
+	
+	byte canSee = DRAW_NORMAL;
+	//Enemy specific stuff
 	if ( editorflags & ENEMY_FLAG1 )
 	{
-	if ( dmisc13 >= 0 )
-	{
-		if  (!( game->item[dmisc13] ))
+		canSee = DRAW_INVIS;
+		if (editorflags & ENEMY_FLAG4) canSee = DRAW_CLOAKED;
+		if (dmisc13 >= 0 && (editorflags & ENEMY_FLAG2))
 		{
-			if ( editorflags & ENEMY_FLAG16 )
+			if (game->item[dmisc13])
 			{
-				canSee = DRAW_CLOAKED;
+				canSee = DRAW_NORMAL;
 			}
-			else canSee = DRAW_NORMAL;
-		}
-		//else if ( lensclk && getlensid.flags SHOWINVIS )
-		//{
-		//
-		//}
-		//else
-		//{
-		//	if ( (editorflags & ENEMY_FLAG4) ) canSee = DRAW_CLOAKED;
-		//	//otherwisem invisible
-		//}
+			//else if ( lensclk && getlensid.flags SHOWINVIS )
+			//{
+			//
+			//}
+			//else
+			//{
+			//	if ( (editorflags & ENEMY_FLAG4) ) canSee = DRAW_CLOAKED;
+			//	//otherwisem invisible
+			//}
+		}	
 	}
-		
-	}
-	
-	/*
-	if (!(game->item[dmisc13]))
-			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
-				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
-				}
-				else
-				{
-					sprite::draw(dest);
-				}
-			}
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-	*/
-	
-	if(dont_draw())
+	//Room specific
+	if (tmpscr->flags3&fINVISROOM)
 	{
-		//new enemy editor behaviour flags for Ganon
+		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
+		!((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
+	}
+	//Lens check
+	if (lensclk)
+	{
+		if((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG6) && !(flags&lens_only))
+		{
+			if (canSee == DRAW_NORMAL) 
+			{
+				if (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG7) canSee = DRAW_CLOAKED;
+				else canSee = DRAW_INVIS; //Should never happen cause dont_draw should catch this, but just in case.
+			}
+		}
+		if(flags&lens_only)
+		{
+			if (canSee == DRAW_INVIS) canSee = DRAW_NORMAL;
+		}
+	}
+	else
+	{
+		if(flags&lens_only)
+			canSee = DRAW_INVIS;
+	}
+	if (canSee == DRAW_INVIS && (editorflags & ENEMY_FLAG4)) canSee = DRAW_CLOAKED;
+	if (canSee == DRAW_NORMAL && (editorflags & ENEMY_FLAG16)) canSee = DRAW_CLOAKED;
 	
+	if (canSee == DRAW_INVIS)
 		return;
-	}
 	
 	if(fallclk||drownclk)
 	{
-		if((tmpscr->flags3&fINVISROOM) &&
-				!(current_item(itype_amulet)) &&
-				!((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) &&
-				  lensclk) && family!=eeGANON)//eeGANON check for handling his invis seperately? -V
+		if (canSee == DRAW_CLOAKED)
 		{
 			sprite::drawcloaked(dest);
 		}
-		else if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
-			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
-				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
-				}
-				else
-				{
-					sprite::draw(dest);
-				}
-			}
-		}
-		else
+		else if (canSee == DRAW_NORMAL)
 		{
 			sprite::draw(dest);
 		}
@@ -5962,36 +5850,17 @@ void enemy::draw(BITMAP *dest)
 		if(clk2>=19)
 		{
 			if(!(clk2&2))
-		{
-		//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
-		if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
 			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
+				//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+				if (canSee == DRAW_CLOAKED)
 				{
 					sprite::drawcloaked(dest);
 				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
-				}
-				else
+				else if (canSee == DRAW_NORMAL)
 				{
 					sprite::draw(dest);
 				}
-			}
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		}
-				
+			}	
 			return;
 		}
 		
@@ -6038,93 +5907,24 @@ void enemy::draw(BITMAP *dest)
 		else if(hclk<33 && !get_bit(quest_rules,qr_ENEMIESFLICKER))
 			cs=(((hclk-1)>>1)&3)+6;
 	}
-	
-	if((tmpscr->flags3&fINVISROOM) &&
-			!(current_item(itype_amulet)) &&
-			!((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) &&
-			  lensclk) && family!=eeGANON)//eeGANON check for handling his invis seperately? -V
+	//draw every other frame for flickering enemies
+	if((frame&1)==1 || !(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER)))
 	{
-		sprite::drawcloaked(dest);
-	}
-	else
-	{
-		if ( frozenclock < 0 )
+		if (canSee == DRAW_CLOAKED)
 		{
-		if ( frozentile > 0 ) tile = frozentile;
-		loadpalset(csBOSS,frozencset);
+			sprite::drawcloaked(dest);
 		}
-		
-		//draw every other frame for flickering enemies
-		if(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER))
+		else if (canSee == DRAW_NORMAL)
 		{
-			if((frame&1)==1)
-		{
-		//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
-		if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
+			if ( frozenclock < 0 )
 			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
-				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
+				if ( frozentile > 0 ) tile = frozentile;
+				loadpalset(csBOSS,frozencset);
 			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
-				}
-				else
-				{
-					sprite::draw(dest);
-				}
-			}
-		}
-		else
-		{
-			sprite::draw(dest);
-		}
-		}
-		}
-		else
-	{
-			//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
-		if ( (editorflags & ENEMY_FLAG1) )
-		{
-			if (!(game->item[dmisc13]))
-			{
-				if ( (editorflags & ENEMY_FLAG4) ) //draw cloaked
-				{
-					sprite::drawcloaked(dest);
-				}
-				//al_trace("Required invisibility item id is: %d\n",dmisc13);
-			}
-			else
-			{
-				if ( (editorflags & ENEMY_FLAG16) )
-				{
-					sprite::drawcloaked(dest);
-				}
-				else
-				{
-					sprite::draw(dest);
-				}
-			}
-		}
-		else
-		{
 			sprite::draw(dest);
 		}
 	}
-	}
-	
-	
-	
 	cs=cshold;
-	
-
 }
 
 //old zc bosses
@@ -17254,16 +17054,6 @@ void eGleeok::draw2(BITMAP *dest)
 		tile+=((clk&24)>>3);
 	}
 	
-	/*
-	  else
-	  {
-		tile=145;
-	  }
-	*/
-	/*
-	  if(hp>0 && !dont_draw())
-	  sprite::draw(dest);
-	  */
 	if(hp > 0 && !dont_draw())
 	{
 		if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))

@@ -742,9 +742,17 @@ static const GUI::ListData itemRulesList
 		" by 1 or more, but that counter is already at or above it's max capacity."
 		" This would, for example, prevent arrows from dropping if you already have"
 		" max arrows, potentially rerolling it with a more useful item."},
-	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS },
-	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION },
-	{ "Fairies spawn with random direction", qr_FAIRYDIR },
+	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
+		"If enabled, Items will fall through combos flagged with the 'Sideview Platform' flag"
+		" or the 'Sideview Ladder' flag. If disabled, they will land on and not fall through"
+		" either of these."},
+	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION,
+		"If enabled, when the player holds an item above their head, the item"
+		" will continue to animate. If disabled, the item will be static and"
+		" only use the first frame of their animation."},
+	{ "Fairies spawn with random direction", qr_FAIRYDIR,
+		"If enabled, fairies will spawn facing one of 8 directions randomly."
+		" If disabled, fairies will spawn facing up, the default direction."},
 	{ "Bottles can't be used with any maxed counter", qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
 		"If enabled, bottled items cannot be used if ANY of the 3 (non-None) counters it fills "
 		" are already at maximum capacity.\n"
@@ -757,20 +765,73 @@ static const GUI::ListData itemRulesList
 
 static const GUI::ListData miscRulesList
 {
-	{ "Can Select A-Button Weapon On Subscreen", qr_SELECTAWPN },
-	{ "More Sound Effects", qr_MORESOUNDS },
-	{ "Fast Heart Refill", qr_FASTFILL },
-	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART },
-	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG },
-	{ "Messages Can Be Bypassed With The B Button", qr_ALLOWMSGBYPASS },
-	{ "Messages Freeze All Action", qr_MSGFREEZE },
-	{ "Messages Disappear", qr_MSGDISAPPEAR },
-	{ "Show Time On Subscreen", qr_TIME },
-	{ "Healing Fairy Heart Circle Is Centered Around Player", qr_HEARTRINGFIX },
-	{ "No Healing Fairy Heart Circle", qr_NOHEARTRING },
-	{ "No Saving When Continuing", qr_NOSAVE },
-	{ "Skip Continue Screen", qr_NOCONTINUE },
-	{ "No Fires In Special Rooms", qr_NOGUYFIRES },
+	{ "Allow Setting A Button Items", qr_SELECTAWPN,
+		"If enabled, you can select what item goes on the A button on the subscreen."
+		" If disabled, the A Button is hardcoded to the highest leveled Sword item"
+		" that you possess, and you are prevented from equipping Sword-class items"
+		" on the B button."},
+	{ "Allow Setting X Button Items", qr_SET_XBUTTON_ITEMS,
+		"If enabled, allows setting items to the X (Ex1) button. If disabled, the"
+		" X/Ex1 button has no usage outside of scripting."},
+	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
+		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
+		" Y/Ex2 button has no usage outside of scripting."},
+	{ "More Sound Effects", qr_MORESOUNDS,
+		"If enabled, more things use unique sounds. Summoning enemies use the Summon"
+		" SFX instead of the Fire SFX, Fireballs and Rock Weapons have firing sounds,"
+		" Traps make a sound when richocheting, Hammer makes a splash sound when pounding"
+		" water, bushes/flowers/tall grass make a sound when cut, Hammer posts make"
+		" a sound when pounded, the Lens of Truth play a sound when both used and unused,"
+		" Push Blocks make a sound when pushed, Whistle Whirlwinds make a continuous sound when"
+		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Goddess Spells"
+		" (Nayru's Love, Farore's Wind, and Din's Fire) all use sound effects for everything they do."},
+	{ "Fast Heart Refill", qr_FASTFILL,
+		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
+		" If disabled, they will restore half a heart every 22 frames."},
+	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
+		"If enabled, the Life Meter subscreen item will display quarter hearts if the Player"
+		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
+	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG,
+		"If enabled, holding the A button will prevent any message delay from occuring, displaying"
+		" 60 characters per second."},
+	{ "Messages Can Be Bypassed With The B Button", qr_ALLOWMSGBYPASS,
+		"If enabled, pressing B during a message will cause the rest of the message to be displayed"
+		" immediately with no regards for message speed."},
+	{ "Messages Freeze All Action", qr_MSGFREEZE,
+		"If enabled, everything on screen except for combo animation and combo cycling will freeze"
+		" while a message is being displayed."},
+	{ "Messages Disappear", qr_MSGDISAPPEAR,
+		"If enabled, messages will disappear if their next string is '0'. This also has the side effect"
+		" of removing the barrier Guys put across the top of the screen, with the exception of 'Feed"
+		" the Goriya' rooms, which will still have this barrier. \nIf this rule is disabled, the current"
+		" message will remain onscreen whenever the next string is '0', until an item is picked up."
+		" Note that while picking up an item removes the string, it may not remove the Guy Barrier"
+		" depending on whether or not 'Items Disappear During Hold-Up' is checked and depending on"
+		" whether or not picking up an item is what solves the Guy Room."},
+	{ "Show Time On Subscreen", qr_TIME,
+		"If enabled, current Game Time can be shown on the subscreen. This displays how long you've"
+		" been playing on that save file. Note that having cheats turned on will prevent the Game Time"
+		" from displaying, even if this quest rule is enabled."},
+	{ "Healing Fairy Heart Circle Is Centered Around Player", qr_HEARTRINGFIX,
+		"If enabled, the circle of hearts that display around the player when they step on a Fairy"
+		" Circle will be centered around the Player. If disabled, they will center on the center of the"
+		" screen, or 125, 88."},
+	{ "No Healing Fairy Heart Circle", qr_NOHEARTRING,
+		"If enabled, the circle of hearts that normally display around the player when they step on a Fairy" 
+		" Circle will not display."},
+	{ "No Saving When Continuing", qr_NOSAVE,
+		"If enabled, removes the 'Save' option from the Game Over screen. Saving must be done through other methods."},
+	{ "Return To File Select On Death/F6", qr_NOCONTINUE,
+		"If enabled, the Continue Screen is skipped, and the player is returned to the file select screen on Death or Game->End."
+		" Note that this means all progress is lost since last save."},
+	{ "Instant Reload On Death", qr_INSTANT_RESPAWN,
+		"If enabled, dying will reload your last save immediately after the death animation finishes, losing all progress since the last save."
+		" Having both this and Instant Continue on Death enabled will cancel each other out."},
+	{ "Instant Continue on Death", qr_INSTANT_CONTINUE
+	"	If enabled, dying will respawn you immediately after the death animation finishes, skipping the Game Over screen."
+		" Having both this and Instant Reload on Death enabled will cancel each other out."},
+	{ "No Fires In Special Rooms", qr_NOGUYFIRES,
+		"If enabled, Guys in Special Rooms will not create Flames. This also means they cannot shoot fireballs when hit."},
 	{ "Special Room Guys Don't Create A Puff When Appearing", qr_NOGUYPOOF },
 	{ "Log Game Events To Allegro.log", qr_LOG },
 	{ "Log Script Errors To Allegro.log", qr_SCRIPTERRLOG },
@@ -784,11 +845,7 @@ static const GUI::ListData miscRulesList
 	{ "Disable Fast Mode (Uncap)", qr_NOFASTMODE },
 	{ "Allow permanent secrets on Dungeon-type dmaps", qr_DUNGEON_DMAPS_PERM_SECRETS },
 	{ "No Scrolling Screen While In Air", qr_NO_SCROLL_WHILE_IN_AIR },
-	{ "Instant Reload On Death", qr_INSTANT_RESPAWN },
 	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME },
-	{ "Allow Setting X Button Items", qr_SET_XBUTTON_ITEMS },
-	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS },
-	{ "Instant Continue on Death", qr_INSTANT_CONTINUE },
 	{ "New Dark Rooms", qr_NEW_DARKROOM },
 	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6 },
 	{ "Item Cellars/Passageways/Caves use own music", qr_SCREEN80_OWN_MUSIC },

@@ -570,6 +570,7 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1,
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
 int32_t selectSword();
+int32_t selectItemclass(int32_t itemclass);
 void selectNextAWpn(int32_t type);
 void selectNextBWpn(int32_t type);
 void verifyBothWeapons();

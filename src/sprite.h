@@ -138,7 +138,6 @@ public:
 	virtual void handle_sprlighting();
     virtual void draw(BITMAP* dest);                        // main layer
     virtual void drawzcboss(BITMAP* dest);                        // main layer
-    virtual void old_draw(BITMAP* dest);                        // main layer
     virtual void draw8(BITMAP* dest);                       // main layer
     virtual void drawcloaked(BITMAP* dest);                 // main layer
     virtual void drawshadow(BITMAP* dest, bool translucent);// main layer
