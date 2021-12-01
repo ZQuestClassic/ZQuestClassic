@@ -54,4 +54,16 @@ void DialogRef::applyVisibility(bool visible, int32_t offs)
 	}
 }
 
+void DialogRef::applyDisabled(bool dis, int32_t offs)
+{
+	if(dis)
+	{
+		owner->alDialog[index+offs].flags |= D_DISABLED;
+	}
+	else
+	{
+		owner->alDialog[index+offs].flags &= ~D_DISABLED;
+	}
+}
+
 }

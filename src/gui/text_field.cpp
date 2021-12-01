@@ -276,7 +276,7 @@ void TextField::realize(DialogRunner& runner)
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 		});
 		swapBtnDialog = runner.push(shared_from_this(), DIALOG {
-			jwin_swapbtn_proc,
+			newGUIProc<jwin_swapbtn_proc>,
 			x+txtfwid, y, btnwid, getHeight(),
 			0, 0,
 			0, // key
@@ -326,6 +326,13 @@ void TextField::applyVisibility(bool visible)
 	Widget::applyVisibility(visible);
 	if(alDialog) alDialog.applyVisibility(visible);
 	if(swapBtnDialog) swapBtnDialog.applyVisibility(visible);
+}
+
+void TextField::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+	if(swapBtnDialog) swapBtnDialog.applyDisabled(dis);
 }
 
 void TextField::applyFont(FONT* newFont)

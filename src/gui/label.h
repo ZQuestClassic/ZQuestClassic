@@ -30,6 +30,7 @@ private:
 	int32_t textAlign;
 
 	void applyVisibility(bool visible) override;
+	void applyDisabled(bool dis) override;
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 	void applyFont(FONT* newFont) override;

@@ -26,6 +26,18 @@ void Frame::applyVisibility(bool visible)
 		content->applyVisibility(visible);
 }
 
+void Frame::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog)
+	{
+		alDialog.applyDisabled(dis);
+		alDialog.applyDisabled(dis,1);
+	}
+	if(content)
+		content->applyDisabled(dis);
+}
+
 void Frame::calculateSize()
 {
 	if(content)

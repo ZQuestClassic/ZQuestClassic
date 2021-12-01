@@ -297,7 +297,9 @@ static const GUI::ListData comboRulesList
 	{ "Fairy Rings Remove Item Jinxes", qr_ITEMBUBBLE,
 		"If enabled, fairy ring flags will heal item jinxes when the player steps on them."
 		" This used to also affect potions and triforce pieces, but this behavior has since"
-		" been relocated to the respective item flags."}
+		" been relocated to the respective item flags."},
+	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
+		"Light Beams from Spotlight combos are transparently drawn."}
 };
 
 static const GUI::ListData compatRulesList
@@ -1097,9 +1099,11 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
+					minwidth = 90_lpx,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
+					minwidth = 90_lpx,
 					onClick = message::CANCEL)
 			)
 		)

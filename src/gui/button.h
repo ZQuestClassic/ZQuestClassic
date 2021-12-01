@@ -40,7 +40,9 @@ private:
 	std::function<void()> onPress;
 
 	void applyVisibility(bool visible) override;
+	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
+	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 };

@@ -41,6 +41,12 @@ void Label::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Label::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void Label::applyFont(FONT* newFont)
 {
 	if(alDialog)
@@ -111,8 +117,8 @@ void Label::fitText()
 	if(alDialog)
 	{
 		Widget::arrange(contX, contY, contW, contH);
-		alDialog->x = x;
-		alDialog->y = y;
+		// alDialog->x = x;
+		// alDialog->y = y;
 		alDialog->h = getHeight();
 		alDialog->w = getWidth();
 		alDialog->dp = text_fit.data();

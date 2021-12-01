@@ -16780,12 +16780,50 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			{
 				if(!p_igetl(&temp_combo.attributes[q],f,true))
 				{
-				return qe_invalid;
+					return qe_invalid;
 				}
 			}
 			if(!p_igetl(&temp_combo.usrflags,f,true))
 			{
 				return qe_invalid;
+			}
+			if(section_version >= 20)
+			{
+				if(!p_igetw(&temp_combo.genflags,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				temp_combo.genflags = 0;
+				switch(temp_combo.type)
+				{
+					case cPUSH_WAIT: case cPUSH_HEAVY:
+					case cPUSH_HW: case cL_STATUE:
+					case cR_STATUE: case cPUSH_HEAVY2:
+					case cPUSH_HW2: case cPOUND:
+					case cC_STATUE: case cMIRROR:
+					case cMIRRORSLASH: case cMIRRORBACKSLASH:
+					case cMAGICPRISM: case cMAGICPRISM4:
+					case cMAGICSPONGE: case cEYEBALL_A:
+					case cEYEBALL_B: case cEYEBALL_4:
+					case cBUSH: case cFLOWERS:
+					case cLOCKBLOCK: case cLOCKBLOCK2:
+					case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+					case cCHEST: case cCHEST2:
+					case cLOCKEDCHEST: case cLOCKEDCHEST2:
+					case cBOSSCHEST: case cBOSSCHEST2:
+					case cBUSHNEXT: case cBUSHTOUCHY:
+					case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
+					case cSIGNPOST: case cCSWITCHBLOCK:
+					case cLANTERN: case cTRIGGERGENERIC:
+						if(temp_combo.usrflags & cflag16)
+						{
+							temp_combo.genflags |= cflag1;
+							temp_combo.usrflags &= ~cflag16;
+						}
+						break;				}
 			}
 		}
 		if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]

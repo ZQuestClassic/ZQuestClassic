@@ -103,6 +103,12 @@ void DropDownList::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void DropDownList::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void DropDownList::applyFont(FONT* newFont)
 {
 	Widget::applyFont(newFont);

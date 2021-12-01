@@ -58,6 +58,12 @@ void Radio::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void Radio::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void Radio::applyFont(FONT* newFont)
 {
 	if(alDialog)

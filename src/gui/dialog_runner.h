@@ -91,6 +91,7 @@ private:
 
 	friend class DialogRef;
 	friend int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c);
+	template<typename T> friend class Dialog;
 	template<typename T> friend void showDialog(T& dlg);
 };
 

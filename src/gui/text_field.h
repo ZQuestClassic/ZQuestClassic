@@ -107,6 +107,7 @@ private:
 	std::function<void(type,std::string_view,int32_t)> onValChanged;
 
 	void applyVisibility(bool visible) override;
+	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;

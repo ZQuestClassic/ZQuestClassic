@@ -1557,12 +1557,11 @@ static MENU export_250_menu[] =
 
 static MENU zq_help_menu[] =
 {
-    { (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
-    { (char *)"&Shield Help",                     onshieldblockhelp,            NULL,                     0,            NULL   },
-    { (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
-    { (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
-    
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
+	{ (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
+	{ (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
+	
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU export_graphics[]=
@@ -11769,65 +11768,6 @@ void questminrev_help()
 	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,lfont);
 }
 
-void ctype_help(int32_t id)
-{
-	if(id < 0 || id >= cMAX) return;  // Sanity check
-	
-	if((id >= cDAMAGE1 && id <= cDAMAGE4) || (id >= cDAMAGE5 && id <= cDAMAGE7))
-	{
-		char buf[512];
-		int32_t lvl = (id < cDAMAGE5 ? (id - cDAMAGE1 + 1) : (id - cDAMAGE5 + 1));
-		int32_t d = -combo_class_buf[id].modify_hp_amount/8;
-		char buf2[80];
-		if(d==1)
-			sprintf(buf2,"1/2 of a heart.");
-		else
-			sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
-		sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, he is damaged for %s.",lvl,buf2);
-		
-		jwin_auto_alert(combo_class_buf[id].name,buf,256,2, "O&K",NULL,'k',0,lfont);
-	}
-	else
-	{
-		jwin_auto_alert(combo_class_buf[id].name,combotype_help_string[id],256,2,"O&K",NULL,'k',0,lfont);
-	}
-}
-
-void cflag_help(int32_t id)
-{
-    if(id < 0 || id >= mfMAX) return;  // Sanity check
-    
-    if(id==0)
-    {
-        jwin_alert("Help","Select a Flag, then click","this button to find out what it does.",NULL,"O&K",NULL,'k',0,lfont);
-    }
-    else  if(id>=mfSECRETS01 && id <=mfSECRETS16)
-    {
-        char buf1[80];
-        sprintf(buf1,"with Secret Combo %d. (Also, flagged Destructible Combos",id);
-        jwin_alert(flag_string[id],"When Screen Secrets are triggered, this is replaced",buf1,"will use that Secret Combo instead of the Under Combo.)","O&K",NULL,'k',0,lfont);
-    }
-    else if(id >=37 && id <= 46)
-    {
-        char buf1[80];
-        sprintf(buf1,"When the %d%s enemy in the Enemy List is spawned, it appears",(id-37)+1,((id-37)+1)==1?"st":((id-37)+1)==2?"nd":((id-37)+1)==3?"rd":"th");
-        jwin_alert(flag_string[id],buf1,"on this flag instead of using the Enemy Pattern.","The uppermost, then leftmost, instance of this flag is used.","O&K",NULL,'k',0,lfont);
-    }
-    else if(id >= mfPUSHUDNS && id <= mfPUSHRINS)
-    {
-        char buf1[80];
-        int32_t t = ((id-mfPUSHUDNS) % 7);
-        sprintf(buf1,"Allows Link to push the combo %s %s,",
-                (t == 0) ? "up and down" : (t == 1) ? "left and right" : (t == 2) ? "in any direction" : (t == 3) ? "up" : (t == 4) ? "down" : (t == 5) ? "left" : "right",
-                (id>=mfPUSHUDINS) ? "many times":"once");
-        jwin_alert(flag_string[id],buf1,"triggering Block->Shutters but not Screen Secrets.","","O&K",NULL,'k',0,lfont);
-    }
-    else if(id >= mfSCRIPT1 && id <= mfSCRIPT5)
-        jwin_alert(flag_string[id],"These flags have no built-in effect, but can be","given special significance with ZASM or ZScript.",NULL,"O&K",NULL,'k',0,lfont);
-    else
-        jwin_alert(flag_string[id],flag_help_string[id*3],flag_help_string[1+(id*3)],flag_help_string[2+(id*3)],"O&K",NULL,'k',0,lfont);
-}
-
 int32_t select_cflag(const char *prompt,int32_t index)
 {
     cflag_dlg[0].dp=(void *)prompt;
@@ -13988,13 +13928,14 @@ const char *nslist(int32_t index, int32_t *list_size)
 
 const char *flaglist(int32_t index, int32_t *list_size)
 {
+	static char buf[300] = {0};
     if(index>=0)
     {
         if(index>=MAXFLAGS)
             index=MAXFLAGS-1;
-	
-	return (char *)moduledata.combo_flag_names[index];
-        //return flag_string[index];
+		
+		sprintf(buf, "%s (%03d)\0", moduledata.combo_flag_names[index], index);
+		return buf;
     }
     
     *list_size=MAXFLAGS;
@@ -35456,34 +35397,55 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN", "cSPOTLIGHT", "cGLASS", "cLIGHTTARGET"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
 		{
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "", "", "", "", "", "", "", "",
-			"", "", "Generic", "Pitfall", "Step->Effects", "Bridge", "Signpost",
-			"Switch", "Switch Block", "Lantern"
+			"(None)", "Stairs [A]", "Cave (Walk Down) [A]", "Liquid", "Armos",
+			"Grave", "Dock", "-UNDEF", "Push (Wait)", "Push (Heavy)",
+			"Push (Heavy, Wait)", "Left Statue", "Right Statue", "Slow Walk", "Conveyor Up",
+			"Conveyor Down", "Conveyor Left", "Conveyor Right", "Swim Warp [A]", "Dive Warp [A]",
+			"Ladder or Hookshot", "Step->Secrets (Temporary)", "Step->Secrets (Permanent)", "-WINGAME", "Slash",
+			"Slash (Item)", "Push (Very Heavy)", "Push (Very Heavy, Wait)", "Pound", "Hookshot Grab",
+			"-HSBRIDGE", "Damage (1/2 Heart)", "Damage (1 Heart)", "Damage (2 hearts)", "Damage (4 Hearts)",
+			"Center Statue", "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way)", "Trap (Horizontal, Constant)",
+			"Trap (Vertical, Constant)", "Direct Warp [A]", "Hookshot Only", "Overhead", "No Flying Enemies",
+			"Magic Mirror (4-Way)", "Magic Mirror (Up-Left, Down-Right)", "Magic Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)", "Magic Prism (4-Way)",
+			"Block Magic", "Cave (Walk Up) [A]", "Eyeball (8-Way A)", "Eyeball (8-Way B)", "No Jumping Enemies",
+			"Bush", "Flowers", "Tall Grass", "Shallow Liquid", "Lock Block (Normal)",
+			"Lock Block (Normal, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
+			"Chest (Basic)", "Chest (Basic, Copycat)", "Chest (Locked)", "Chest (Locked, Copycat)", "Chest (Boss)",
+			"Chest (Boss, Copycat)", "Reset Room", "Save Point", "Save-Quit Point", "Cave (Walk Down) [B]",
+			"Cave (Walk Down) [C]", "Cave (Walk Down) [D]", "Stairs [B]", "Stairs [C]", "Stairs [D]",
+			"Direct Warp [B]", "Direct Warp [C]", "Direct Warp [D]", "Cave (Walk Up) [B]", "Cave (Walk Up) [C]",
+			"Cave (Walk Up) [D]", "Swim Warp [B]", "Swim Warp [C]", "Swim Warp [D]", "Dive Warp [B]",
+			"Dive Warp [C]", "Dive Warp [D]", "Stairs [Random]", "Direct Warp [Random]", "Auto Side Warp [A]",
+			"Auto Side Warp [B]","Auto Side Warp [C]","Auto Side Warp [D]","Auto Side Warp [Random]","Sensitive Warp [A]",
+			"Sensitive Warp [B]","Sensitive Warp [C]","Sensitive Warp [D]","Sensitive Warp [Random]","Step->Secrets (Sensitive, Temp)",
+			"Step->Secrets (Sensitive, Perm.)","Step->Next","Step->Next (Same)","Step->Next (All)","Step->Next (Copycat)",
+			"No Enemies","Block Arrow (L1)","Block Arrow (L1, L2)","Block Arrow (All)","Block Brang (L1)",
+			"Block Brang (L1, L2)","Block Brang (All)","Block Sword Beam","Block All","Block Fireball",
+			"Damage (8 hearts)","Damage (16 hearts)","Damage (32 hearts)","-Unused","Spinning Tile (Immediate)",
+			"-Unused","Screen Freeze (Except FFCs)","Screen Freeze (FFCs Only)","No Ground Enemies","Slash->Next",
+			"Slash->Next (Item)","Bush->Next","Slash (Continuous)","Slash (Item, Continuous)","Bush (Continuous)",
+			"Flowers (Continuous)","Tall Grass (Continuous)","Slash->Next (Continuous)","Slash->Next (Item, Continuous)","Bush->Next (Continuous)",
+			"Eyeball (4-Way)","Tall Grass->Next","Script 01","Script 02","Script 03",
+			"Script 04","Script 05","Script 06","Script 07","Script 08",
+			"Script 09","Script 10","Script 11","Script 12","Script 13",
+			"Script 14","Script 15","Script 16","Script 17","Script 18",
+			"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
+			"Bridge", "Signpost", "Switch", "Switch Block", "Lantern",
+			"Spotlight", "Glass", "Light Trigger"
 		};
 		
 		for ( int32_t q = 0; q < cMAX; q++ )
 		{
-			strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
+			if(!default_ctype_strings[q] || default_ctype_strings[q][0]=='-')
+			{
+				strcpy(moduledata.combo_type_names[q],"-");
+			}
+			else strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
 		}
 		
 		//map flags
@@ -35509,37 +35471,38 @@ bool ZModule::init(bool d) //bool default
 		};
 		const char map_flag_default_string[mfMAX][255] =
 		{
-		    "  0 (None)",    "  1 Push Block (Vertical, Trigger)",    "  2 Push Block (4-Way, Trigger)",    "  3 Whistle Trigger",    "  4 Burn Trigger (Any)",    "  5 Arrow Trigger (Any)",    "  6 Bomb Trigger (Any)",    "  7 Fairy Ring (Life)",
-		    "  8 Raft Path",    "  9 Armos -> Secret",    " 10 Armos/Chest -> Item",    " 11 Bomb (Super)",    " 12 Raft Branch",    " 13 Dive -> Item",    " 14 Lens Marker",    " 15 Zelda (Win Game)",
-		    " 16 Secret Tile 0",    " 17 Secret Tile 1",    " 18 Secret Tile 2",    " 19 Secret Tile 3",    " 20 Secret Tile 4",    " 21 Secret Tile 5",    " 22 Secret Tile 6",    " 23 Secret Tile 7",
-		    " 24 Secret Tile 8",    " 25 Secret Tile 9",    " 26 Secret Tile 10",    " 27 Secret Tile 11",    " 28 Secret Tile 12",    " 29 Secret Tile 13",    " 30 Secret Tile 14",    " 31 Secret Tile 15",
-		    " 32 Trap (Horizontal, Line of Sight)",    " 33 Trap (Vertical, Line of Sight)",    " 34 Trap (4-Way, Line of Sight)",    " 35 Trap (Horizontal, Constant)",    " 36 Trap (Vertical, Constant)",    " 37 Enemy 0",    " 38 Enemy 1",    " 39 Enemy 2",
-		    " 40 Enemy 3",    " 41 Enemy 4",    " 42 Enemy 5",    " 43 Enemy 6",    " 44 Enemy 7",    " 45 Enemy 8",    " 46 Enemy 9",    " 47 Push Block (Horiz, Once, Trigger)",
-		    " 48 Push Block (Up, Once, Trigger)",    " 49 Push Block (Down, Once, Trigger)",    " 50 Push Block (Left, Once, Trigger)",    " 51 Push Block (Right, Once, Trigger)",    " 52 Push Block (Vert, Once)",    " 53 Push Block (Horizontal, Once)",    " 54 Push Block (4-Way, Once)",    " 55 Push Block (Up, Once)",
-		    " 56 Push Block (Down, Once)",    " 57 Push Block (Left, Once)",    " 58 Push Block (Right, Once)",    " 59 Push Block (Vertical, Many)",    " 60 Push Block (Horizontal, Many)",    " 61 Push Block (4-Way, Many)",    " 62 Push Block (Up, Many)",    " 63 Push Block (Down, Many)",
-		    " 64 Push Block (Left, Many)",    " 65 Push Block (Right, Many)",    " 66 Block Trigger",    " 67 No Push Blocks",    " 68 Boomerang Trigger (Any)",    " 69 Boomerang Trigger (Magic +)",    " 70 Boomerang Trigger (Fire)",    " 71 Arrow Trigger (Silver +)",
-		    " 72 Arrow Trigger (Golden)",    " 73 Burn Trigger (Red Candle +)",    " 74 Burn Trigger (Wand Fire)",    " 75 Burn Trigger (Din's Fire)",    " 76 Magic Trigger (Wand)",    " 77 Magic Trigger (Reflected)",    " 78 Fireball Trigger (Reflected)",    " 79 Sword Trigger (Any)",
-		    " 80 Sword Trigger (White +)",    " 81 Sword Trigger (Magic +)",    " 82 Sword Trigger (Master)",    " 83 Sword Beam Trigger (Any)",    " 84 Sword Beam Trigger (White +)",    " 85 Sword Beam Trigger (Magic +)",    " 86 Sword Beam Trigger (Master)",    " 87 Hookshot Trigger",
-		    " 88 Wand Trigger",    " 89 Hammer Trigger",    " 90 Strike Trigger",    " 91 Block Hole (Block -> Next)",    " 92 Fairy Ring (Magic)",    " 93 Fairy Ring (All)",    " 94 Trigger -> Self Only",    " 95 Trigger -> Self, Secret Tiles",
-		    " 96 No Enemies",    " 97 No Ground Enemies",    " 98 General Purpose 1 (Scripts)",    " 99 General Purpose 2 (Scripts)",    "100 General Purpose 3 (Scripts)",    "101 General Purpose 4 (Scripts)",    "102 General Purpose 5 (Scripts)",    "103 Raft Bounce",
-		     "104 Pushed",    "105 General Purpose 6 (Scripts)",    "106 General Purpose 7 (Scripts)",    "107 General Purpose 8 (Scripts)",    "108 General Purpose 9 (Scripts)",    "109 General Purpose 10 (Scripts)",    "110 General Purpose 11 (Scripts)",    "111 General Purpose 12 (Scripts)",
-		    "112 General Purpose 13 (Scripts)",    "113 General Purpose 14 (Scripts)",    "114 General Purpose 15 (Scripts)",    "115 General Purpose 16 (Scripts)",    "116 General Purpose 17 (Scripts)",    "117 General Purpose 18 (Scripts)",    "118 General Purpose 19 (Scripts)",    "119 General Purpose 20 (Scripts)",
-		    "120 Pit or Hole (Scripted)",    "121 Pit or Hole, Fall Down Floor (Scripted)",    "122 Fire or Lava (Scripted)",    "123 Ice (Scripted)",    "124 Ice, Damaging (Scripted)",    "125 Damage-1 (Scripted)",    "126 Damage-2 (Scripted)",    "127 Damage-4 (Scripted)",
-		    "128 Damage-8 (Scripted)",    "129 Damage-16 (Scripted)",    "130 Damage-32 (Scripted)",    "131 Freeze Screen (Unimplemented)",    "132 Freeze Screen, Except FFCs (Unimplemented)",    "133 Freeze FFCs Only (Unimplemented)",    "134 Trigger LW_SCRIPT1 (Unimplemented)",    "135 Trigger LW_SCRIPT2 (Unimplemented)",
-		    "136 Trigger LW_SCRIPT3 (Unimplemented)",    "137 Trigger LW_SCRIPT4 (Unimplemented)",    "138 Trigger LW_SCRIPT5 (Unimplemented)",    "139 Trigger LW_SCRIPT6 (Unimplemented)",    "140 Trigger LW_SCRIPT7 (Unimplemented)",    "141 Trigger LW_SCRIPT8 (Unimplemented)",    "142 Trigger LW_SCRIPT9 (Unimplemented)",    "143 Trigger LW_SCRIPT10 (Unimplemented)",
-		    "144 Dig Spot (Scripted)",    "145 Dig Spot, Next (Scripted)",    "146 Dig Spot, Special Item (Scripted)",    "147 Pot, Slashable (Scripted)",    "148 Pot, Liftable (Scripted)",    "149 Pot, Slash or Lift (Scripted)",    "150 Rock, Lift Normal (Scripted)",    "151 Rock, Lift Heavy (Scripted)",
-		    "152 Dropset Item (Scripted)",    "153 Special Item (Scripted)",    "154 Drop Key (Scripted)",    "155 Drop level-Specific Key (Scripted)",    "156 Drop Compass (Scripted)",    "157 Drop Map (Scripted)",    "158 Drop Bosskey (Scripted)",    "159 Spawn NPC (Scripted)",
-		    "160 SwitchHook Spot (Scripted)",    "161 Sideview Ladder",    "162 Sideview Platform","163 Spawn No Enemies","164 Spawn All Enemies","165 Secrets->Next","166 mf166","167 mf167","168 mf168","169 mf169",    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
-		    "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",    "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
-		    "200 mf200","201 mf201","202 mf202","203 mf203","204 mf204","205 mf205","206 mf206","207 mf207","208 mf208","209 mf209",    "210 mf210","211 mf211","212 mf212","213 mf213","214 mf214","215 mf215","216 mf216","217 mf217","218 mf218","219 mf219",
-		    "220 mf220","221 mf221","222 mf222","223 mf223","224 mf224","225 mf225","226 mf226","227 mf227","228 mf228","229 mf229",    "230 mf230","231 mf231","232 mf232","233 mf233","234 mf234","235 mf235","236 mf236","237 mf237","238 mf238","239 mf239",
-		    "240 mf240","241 mf241","242 mf242","243 mf243","244 mf244","245 mf245","246 mf246","247 mf247","248 mf248","249 mf249",    "250 mf250","251 mf251","252 mf252","253 mf253","254 mf254",
-		    "255 Extended (Extended Flag Editor)"
+			"(None)", "Push Block (Vertical, Trigger)", "Push Block (4-Way, Trigger)", "Whistle Trigger", "Burn Trigger (Any)", "Arrow Trigger (Any)", "Bomb Trigger (Any)", "Fairy Ring (Life)",
+			"Raft Path", "Armos -> Secret", "Armos/Chest -> Item", "Bomb (Super)", "Raft Branch", "Dive -> Item", "Lens Marker", "Zelda (Win Game)",
+			"Secret Tile 0", "Secret Tile 1", "Secret Tile 2", "Secret Tile 3", "Secret Tile 4", "Secret Tile 5", "Secret Tile 6", "Secret Tile 7",
+			"Secret Tile 8", "Secret Tile 9", "Secret Tile 10", "Secret Tile 11", "Secret Tile 12", "Secret Tile 13", "Secret Tile 14", "Secret Tile 15",
+			"Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way, Line of Sight)", "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Enemy 0", "Enemy 1", "Enemy 2",
+			"Enemy 3", "Enemy 4", "Enemy 5", "Enemy 6", "Enemy 7", "Enemy 8", "Enemy 9", "Push Block (Horiz, Once, Trigger)",
+			"Push Block (Up, Once, Trigger)", "Push Block (Down, Once, Trigger)", "Push Block (Left, Once, Trigger)", "Push Block (Right, Once, Trigger)", "Push Block (Vert, Once)", "Push Block (Horizontal, Once)", "Push Block (4-Way, Once)", "Push Block (Up, Once)",
+			"Push Block (Down, Once)", "Push Block (Left, Once)", "Push Block (Right, Once)", "Push Block (Vertical, Many)", "Push Block (Horizontal, Many)", "Push Block (4-Way, Many)", "Push Block (Up, Many)", "Push Block (Down, Many)",
+			"Push Block (Left, Many)", "Push Block (Right, Many)", "Block Trigger", "No Push Blocks", "Boomerang Trigger (Any)", "Boomerang Trigger (Magic +)", "Boomerang Trigger (Fire)", "Arrow Trigger (Silver +)",
+			"Arrow Trigger (Golden)", "Burn Trigger (Red Candle +)", "Burn Trigger (Wand Fire)", "Burn Trigger (Din's Fire)", "Magic Trigger (Wand)", "Magic Trigger (Reflected)", "Fireball Trigger (Reflected)", "Sword Trigger (Any)",
+			"Sword Trigger (White +)", "Sword Trigger (Magic +)", "Sword Trigger (Master)", "Sword Beam Trigger (Any)", "Sword Beam Trigger (White +)", "Sword Beam Trigger (Magic +)", "Sword Beam Trigger (Master)", "Hookshot Trigger",
+			"Wand Trigger", "Hammer Trigger", "Strike Trigger", "Block Hole (Block -> Next)", "Fairy Ring (Magic)", "Fairy Ring (All)", "Trigger -> Self Only", "Trigger -> Self, Secret Tiles",
+			"No Enemies", "No Ground Enemies", "General Purpose 1 (Scripts)", "General Purpose 2 (Scripts)", "General Purpose 3 (Scripts)", "General Purpose 4 (Scripts)", "General Purpose 5 (Scripts)", "Raft Bounce",
+			 "Pushed", "General Purpose 6 (Scripts)", "General Purpose 7 (Scripts)", "General Purpose 8 (Scripts)", "General Purpose 9 (Scripts)", "General Purpose 10 (Scripts)", "General Purpose 11 (Scripts)", "General Purpose 12 (Scripts)",
+			"General Purpose 13 (Scripts)", "General Purpose 14 (Scripts)", "General Purpose 15 (Scripts)", "General Purpose 16 (Scripts)", "General Purpose 17 (Scripts)", "General Purpose 18 (Scripts)", "General Purpose 19 (Scripts)", "General Purpose 20 (Scripts)",
+			"Pit or Hole (Scripted)", "Pit or Hole, Fall Down Floor (Scripted)", "Fire or Lava (Scripted)", "Ice (Scripted)", "Ice, Damaging (Scripted)", "Damage-1 (Scripted)", "Damage-2 (Scripted)", "Damage-4 (Scripted)",
+			"Damage-8 (Scripted)", "Damage-16 (Scripted)", "Damage-32 (Scripted)", "Freeze Screen (Unimplemented)", "Freeze Screen, Except FFCs (Unimplemented)", "Freeze FFCs Only (Unimplemented)", "Trigger LW_SCRIPT1 (Unimplemented)", "Trigger LW_SCRIPT2 (Unimplemented)",
+			"Trigger LW_SCRIPT3 (Unimplemented)", "Trigger LW_SCRIPT4 (Unimplemented)", "Trigger LW_SCRIPT5 (Unimplemented)", "Trigger LW_SCRIPT6 (Unimplemented)", "Trigger LW_SCRIPT7 (Unimplemented)", "Trigger LW_SCRIPT8 (Unimplemented)", "Trigger LW_SCRIPT9 (Unimplemented)", "Trigger LW_SCRIPT10 (Unimplemented)",
+			"Dig Spot (Scripted)", "Dig Spot, Next (Scripted)", "Dig Spot, Special Item (Scripted)", "Pot, Slashable (Scripted)", "Pot, Liftable (Scripted)", "Pot, Slash or Lift (Scripted)", "Rock, Lift Normal (Scripted)", "Rock, Lift Heavy (Scripted)",
+			"Dropset Item (Scripted)", "Special Item (Scripted)", "Drop Key (Scripted)", "Drop level-Specific Key (Scripted)", "Drop Compass (Scripted)", "Drop Map (Scripted)", "Drop Bosskey (Scripted)", "Spawn NPC (Scripted)",
+			"SwitchHook Spot (Scripted)", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","-mf166","-mf167","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
+			"-mf180","-mf181","-mf182","-mf183","-mf184","-mf185","-mf186","-mf187","-mf188","-mf189", "-mf190","-mf191","-mf192","-mf193","-mf194","-mf195","-mf196","-mf197","-mf198","-mf199",
+			"-mf200","-mf201","-mf202","-mf203","-mf204","-mf205","-mf206","-mf207","-mf208","-mf209", "-mf210","-mf211","-mf212","-mf213","-mf214","-mf215","-mf216","-mf217","-mf218","-mf219",
+			"-mf220","-mf221","-mf222","-mf223","-mf224","-mf225","-mf226","-mf227","-mf228","-mf229", "-mf230","-mf231","-mf232","-mf233","-mf234","-mf235","-mf236","-mf237","-mf238","-mf239",
+			"-mf240","-mf241","-mf242","-mf243","-mf244","-mf245","-mf246","-mf247","-mf248","-mf249", "-mf250","-mf251","-mf252","-mf253","-mf254",
+			"Extended (Extended Flag Editor)"
 		};
 		for ( int32_t q = 0; q < mfMAX; q++ )
 		{
-			strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
-			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.combo_flag_names[q]);
+			if(map_flag_default_string[q][0] == '-')
+				strcpy(moduledata.combo_flag_names[q], map_flag_default_string[q]);
+			else strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
 		}
 		const char roomtype_cats[rMAX][256] =
 		{

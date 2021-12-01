@@ -32,6 +32,13 @@ void Switcher::applyVisibility(bool visible)
 		child->setExposed(visible);
 }
 
+void Switcher::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	for(auto& child: children)
+		child->setDisabled(dis);
+}
+
 void Switcher::calculateSize()
 {
 	// The switcher is as large as its largest child.

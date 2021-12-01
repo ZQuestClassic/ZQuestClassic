@@ -21,6 +21,12 @@ void TabRef::applyVisibility(bool visible)
 	content->applyVisibility(visible);
 }
 
+void TabRef::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	content->setDisabled(dis);
+}
+
 void TabRef::calculateSize()
 {
 	content->calculateSize();

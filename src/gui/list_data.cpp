@@ -94,10 +94,75 @@ ListData ListData::itemclass(bool numbered)
 	
 	ListData ls;
 	
-	for(set<string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
+	for(auto it = famnames.begin(); it != famnames.end(); ++it)
 	{
 		ls.add(*it, fams[*it]);
 	}
+	return ls;
+}
+
+ListData ListData::combotype(bool numbered)
+{
+	map<string, int32_t> types;
+	set<string> typenames;
+	
+	for(int32_t i=0; i<cMAX; ++i)
+	{
+		if(moduledata.combo_type_names[i][0] == '-')
+			continue; //Hidden
+        if(moduledata.combo_type_names[i][0])
+		{
+            char const* module_str = moduledata.combo_type_names[i];
+            char* name = new char[strlen(module_str) + 7];
+            if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+            else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+		else 
+		{
+			char *name = new char[12];
+			if(numbered)
+				sprintf(name, "zz%03d (%03d)", i, i);
+			else sprintf(name, "zz%03d", i);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+	}
+	
+	ListData ls;
+	
+	for(auto it = typenames.begin(); it != typenames.end(); ++it)
+	{
+		ls.add(*it, types[*it]);
+	}
+	return ls;
+}
+
+ListData ListData::mapflag(bool numbered)
+{
+	ListData ls;
+	
+	for(int32_t q = 0; q < mfMAX; ++q)
+	{
+		char const* module_str = moduledata.combo_flag_names[q];
+		if(module_str[0] == '-')
+			continue; //Hidden
+		char* name = new char[strlen(module_str) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", module_str, q);
+		else strcpy(name, module_str);
+		string sname(name);
+		ls.add(name, q);
+	}
+	
 	return ls;
 }
 
@@ -228,6 +293,19 @@ ListData ListData::lweapon_script()
 	set<string> names;
 	
 	load_scriptnames(names,vals,lwpnmap,NUMSCRIPTWEAPONS-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::combodata_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
 	
 	ListData ls;
 	ls.add("(None)", 0);

@@ -95,9 +95,9 @@ extern "C"
 #define D_SCROLLING (D_USER<<3)
 
 /* Set on widgets in a scrolling pane to indicate that the screen bitmap
- * needs clipped before redrawing.
+ * is clipped before redrawing.
  */
-#define D_NEEDSCLIPPED (D_USER<<4)
+#define D_ISCLIPPED (D_USER<<4)
 
 /* Sent to newgui_dialog_proc to tell it to handle an event. */
 #define MSG_GUI_EVENT MSG_USER

@@ -31,11 +31,13 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
+					minwidth = 90_lpx,
 					onClick = message::OK,
 					focused=true
 				),
 				Button(
 					text = "Cancel",
+					minwidth = 90_lpx,
 					onClick = message::CANCEL
 				)
 			)

@@ -22,6 +22,16 @@ void Grid::applyVisibility(bool visible)
 	}
 }
 
+void Grid::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	for(auto& child: children)
+	{
+		if(child.second)
+			child.second->setDisabled(dis);
+	}
+}
+
 void Grid::add(std::shared_ptr<Widget> child)
 {
 	for(size_t q = 0;;++q)

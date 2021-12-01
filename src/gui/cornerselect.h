@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_SELTILE_SWATCH_H
-#define ZC_GUI_SELTILE_SWATCH_H
+#ifndef ZC_GUI_CORNERSELECT_H
+#define ZC_GUI_CORNERSELECT_H
 
 #include "widget.h"
 #include "dialog_ref.h"
@@ -7,19 +7,18 @@
 namespace GUI
 {
 
-class SelTileSwatch: public Widget
+class CornerSwatch: public Widget
 {
 public:
-	SelTileSwatch();
+	CornerSwatch();
+	
+	void setVal(int32_t value);
+	void setColor(int32_t value);
+	
+	int32_t getVal();
+	int32_t getColor();
 
-	void setTile(int32_t value);
-	void setCSet(int32_t value);
-	void setShowVals(bool showVals);
-
-	int32_t getTile();
-	int32_t getCSet();
-
-	void setOnSelectFunc(std::function<void(int32_t,int32_t)> newOnSelect)
+	void setOnSelectFunc(std::function<void(int32_t)> newOnSelect)
 	{
 		onSelectFunc = newOnSelect;
 	}
@@ -32,17 +31,15 @@ public:
 protected:
 	int32_t message;
 private:
-	int32_t tile, cset;
-	bool showsVals;
+	int32_t val;
 	DialogRef alDialog;
-	std::function<void(int32_t,int32_t)> onSelectFunc;
+	std::function<void(int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
-	void applyFont(FONT* newFont) override;
 };
 
 }

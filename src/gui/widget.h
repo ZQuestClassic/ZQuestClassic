@@ -201,6 +201,7 @@ public:
 	* This is only public so containers can call it on their children.
 	*/
 	virtual void applyVisibility(bool visible);
+	virtual void applyDisabled(bool dis);
 
 	/* If this is true, this widget should be focused when the dialog opens.
 	 * This does not give the widget focus if the dialog is open already.

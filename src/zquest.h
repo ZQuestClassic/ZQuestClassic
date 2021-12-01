@@ -1207,28 +1207,24 @@ void questminrev_help();
 extern int32_t midi_strict;
 #endif
 
-// game.maps[] flags
-#define mSECRET             8192                                 // only overworld and caves use this
-#define mVISITED            16384                                 // only overworld uses this
+#define mDOOR_UP         0x0001                               // only dungeons use this
+#define mDOOR_DOWN       0x0002                               //        ''
+#define mDOOR_LEFT       0x0004                               //        ''
+#define mDOOR_RIGHT      0x0008                               //        ''
 
-#define mDOOR_UP            1                                 // only dungeons use this
-#define mDOOR_DOWN          2                                 //        ''
-#define mDOOR_LEFT          4                                 //        ''
-#define mDOOR_RIGHT         8                                 //        ''
+#define mITEM            0x0010                               // item (main screen)
+#define mBELOW           0x0020                               // special item (underground)
+#define mNEVERRET        0x0040                               // enemy never returns
+#define mTMPNORET        0x0080                               // enemies don't return until you leave the dungeon
 
-#define mITEM              16                                 // item (main screen)
-#define mBELOW             32                                 // special item (underground)
-#define mNEVERRET          64                                 // enemy never returns
-#define mTMPNORET         128                                 // enemies don't return until you leave the dungeon
+#define mLOCKBLOCK       0x0100                               // if the lockblock on the screen has been triggered
+#define mBOSSLOCKBLOCK   0x0200                               // if the bosslockblock on the screen has been triggered
+#define mCHEST           0x0400                               // if the unlocked check on this screen has been opened
+#define mLOCKEDCHEST     0x0800                               // if the locked chest on this screen has been opened
 
-#define mLOCKBLOCK        256                                 // if the lockblock on the screen has been triggered
-#define mBOSSLOCKBLOCK    512                                 // if the bosslockblock on the screen has been triggered
-
-#define mCHEST           1024                                 // if the unlocked check on this screen has been opened
-#define mLOCKEDCHEST     2048                                 // if the locked chest on this screen has been opened
-#define mBOSSCHEST       4096                                 // if the boss chest on this screen has been opened
-//#define mOTHER           8192                                 // overwrite this value, use for expansion
-//#define mOTHER2         16384                                 // overwrite this value, use for expansion
-#define mOTHER3         32768                                 // overwrite this value, use for expansion
+#define mBOSSCHEST       0x1000                               // if the boss chest on this screen has been opened
+#define mSECRET          0x2000                               // only overworld and caves use this
+#define mVISITED         0x4000                               // only overworld uses this
+#define mLIGHTBEAM       0x8000                               // light beam triggers completed
 #endif
 /* end */

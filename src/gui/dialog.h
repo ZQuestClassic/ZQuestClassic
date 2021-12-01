@@ -17,11 +17,18 @@ public:
 
 	/* Creates and initializes the dialog's window. */
 	virtual std::shared_ptr<Widget> view()=0;
-
+	
+	DialogRunner runner;
+	
 	inline void show()
 	{
-		// Implemented elsewhere to work around type resolution limitations.
-		showDialog(*static_cast<T*>(this));
+		runner = DialogRunner();
+		runner.run(*static_cast<T*>(this));
+	}
+	
+	inline void pendDraw()
+	{
+		runner.pendDraw();
 	}
 
 	/* Subclasses must define an int32_t-convertible type called `message`

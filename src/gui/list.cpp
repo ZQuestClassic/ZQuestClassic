@@ -99,6 +99,12 @@ void List::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 }
 
+void List::applyDisabled(bool dis)
+{
+	Widget::applyVisibility(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+}
+
 void List::realize(DialogRunner& runner)
 {
 	// An empty list might logically be valid, but there's currently

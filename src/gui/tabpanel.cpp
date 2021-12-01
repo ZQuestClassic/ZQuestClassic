@@ -8,13 +8,18 @@
 namespace GUI
 {
 
-TabPanel::TabPanel(): visibleChild(0)
+TabPanel::TabPanel(): visibleChild(0), indexptr(NULL)
 {
 	setFitParent(true);
 }
 
 void TabPanel::switchTo(size_t index)
 {
+	if(!alDialog) //Not realized yet?
+	{
+		visibleChild = index;
+		return;
+	}
 	if(index == visibleChild)
 		return;
 
@@ -22,8 +27,16 @@ void TabPanel::switchTo(size_t index)
 	
 	children[visibleChild]->setExposed(false); //Hide the old child
 	visibleChild = index;
+	if(indexptr) *indexptr = index;
 	pendDraw(); //Draw the tabpanel again, with the correct tab selected
 	children[index]->setExposed(true); //Show the new child
+}
+
+void TabPanel::setPtr(size_t* ptr)
+{
+	indexptr = ptr;
+	if(ptr)
+		switchTo(*ptr);
 }
 
 void TabPanel::add(std::shared_ptr<Widget> child)
@@ -45,6 +58,14 @@ void TabPanel::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 	for(auto& child: children)
 		child->setExposed(visible);
+}
+
+void TabPanel::applyDisabled(bool dis)
+{
+	Widget::applyDisabled(dis);
+	if(alDialog) alDialog.applyDisabled(dis);
+	for(auto& child: children)
+		child->setDisabled(dis);
 }
 
 void TabPanel::applyFont(FONT* newFont)
@@ -127,6 +148,9 @@ void TabPanel::realize(DialogRunner& runner)
 		child->realize(runner);
 		child->setExposed(false);
 	}
+	if(visibleChild >= children.size())
+		visibleChild = 0;
+	if(indexptr) *indexptr = visibleChild;
 	children[visibleChild]->setExposed(true);
 }
 

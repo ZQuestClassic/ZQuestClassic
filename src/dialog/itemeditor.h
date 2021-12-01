@@ -3,6 +3,7 @@
 
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
+#include <gui/button.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
 #include <gui/window.h>
@@ -17,44 +18,34 @@ void call_item_editor(int32_t index);
 struct ItemNameInfo
 {
 	int32_t iclass;
-	char *power;
-	char *misc1;
-	char *misc2;
-	char *misc3;
-	char *misc4;
-	char *misc5;
-	char *misc6;
-	char *misc7;
-	char *misc8;
-	char *misc9;
-	char *misc10;
-	char *flag1;
-	char *flag2;
-	char *flag3;
-	char *flag4;
-	char *flag5;
-	char *wpn1;
-	char *wpn2;
-	char *wpn3;
-	char *wpn4;
-	char *wpn5;
-	char *wpn6;
-	char *wpn7;
-	char *wpn8;
-	char *wpn9;
-	char *wpn10;
-	char *actionsnd;
-	char *flag6;
-	char *flag7;
-	char *flag8;
-	char *flag9;
-	char *flag10;
-	char *flag11;
-	char *flag12;
-	char *flag13;
-	char *flag14;
-	char *flag15;
-	char *flag16;
+	std::string power;
+	std::string misc[10];
+	std::string flag[16];
+	std::string wpn[10];
+	std::string actionsnd;
+	std::string h_power;
+	std::string h_misc[10];
+	std::string h_flag[16];
+	std::string h_wpn[10];
+	std::string h_actionsnd;
+	void clear()
+	{
+		iclass = -1;
+		for(size_t q = 0; q < 16; ++q)
+		{
+			flag[q].clear();
+			h_flag[q].clear();
+			if(q > 9) continue;
+			misc[q].clear();
+			h_misc[q].clear();
+			wpn[q].clear();
+			h_wpn[q].clear();
+		}
+		power.clear();
+		actionsnd.clear();
+		h_power.clear();
+		h_actionsnd.clear();
+	}
 };
 
 extern ItemNameInfo inameinf[];
@@ -80,6 +71,16 @@ private:
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_power;
 	std::shared_ptr<GUI::Label> l_sfx;
+	std::string h_attribs[10];
+	std::string h_spr[10];
+	std::string h_flags[16];
+	std::string h_power;
+	std::string h_sfx;
+	std::shared_ptr<GUI::Button> ib_attribs[10];
+	std::shared_ptr<GUI::Button> ib_spr[10];
+	std::shared_ptr<GUI::Button> ib_flags[16];
+	std::shared_ptr<GUI::Button> ib_power;
+	std::shared_ptr<GUI::Button> ib_sfx;
 	std::shared_ptr<GUI::TileFrame> animFrame;
 	std::string itemname;
 	int32_t index;

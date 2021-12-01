@@ -356,6 +356,8 @@ public:
     int32_t defend(weapon *w);
     
 private:
+	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl);
+	void handleSpotlights();
     void walkdown(bool opening);
     void walkup(bool opening);
     void walkdown2(bool opening);

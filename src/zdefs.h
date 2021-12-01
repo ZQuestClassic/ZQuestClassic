@@ -229,7 +229,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          8
 #define V_MISC             13
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           19
+#define V_COMBOS           20
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -780,6 +780,8 @@ enum
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
 	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cLANTERN,
+	//170
+	cSPOTLIGHT, cGLASS, cLIGHTTARGET,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1013,7 +1015,7 @@ enum
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2, qr_NEWDARK_SCROLLEDGE,
 	//32
 	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
-	
+	qr_LIGHTBEAM_TRANSPARENT,
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -1159,6 +1161,7 @@ enum                                                        // value matters bec
 #define shFLAME		0x040
 #define shSCRIPT	0x080
 #define shFIREBALL2	0x100 // Boss fireball, not ewFireball2
+#define shLIGHTBEAM 0x200 //Light puzzle beams
 
 
 // item sets
@@ -3064,6 +3067,7 @@ struct newcombo
 	
 	int32_t attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
+	int16_t genflags; //!TODO ZScript Access 16 bits ; general flags
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
 	char label[11];
@@ -3109,6 +3113,7 @@ struct newcombo
 		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
 			attributes[q] = 0;
 		usrflags = 0;
+		genflags = 0;
 		for(int32_t q = 0; q < 3; ++q)
 			triggerflags[q] = 0;
 		triggerlevel = 0;
