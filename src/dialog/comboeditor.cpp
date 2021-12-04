@@ -618,24 +618,69 @@ void ComboEditorDialog::loadComboType()
 		case cTALLGRASS:
 		{
 			flagstrs[0] = "Visuals";
-			flagstrs[1] = "Itemdrop";
+			flagstrs[1] = "Set Dropset";
+			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
 			attribytestrs[0] = "Sprite:";
-			attribytestrs[1] = "Dropset:";
+			if(local_comboref.usrflags & cflag2)
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(local_comboref.usrflags & cflag11)
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
 			attribytestrs[2] = "Sound:";
 			break;
 		}
 		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
 		{
 			flagstrs[0] = "Visuals";
-			flagstrs[1] = "Itemdrop";
+			flagstrs[1] = "Set Dropset";
+			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
 			attribytestrs[0] = "Sprite:";
-			attribytestrs[1] = "Dropset:";
+			if(local_comboref.usrflags & cflag2)
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(local_comboref.usrflags & cflag11)
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
 			break;
 		}
 		case cSLASHITEM:
 		{
-			flagstrs[1] = "Itemdrop";
-			attribytestrs[1] = "Dropset:";
+			flagstrs[1] = "Set Dropset";
+			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
+			if(local_comboref.usrflags & cflag2)
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(local_comboref.usrflags & cflag11)
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
 			break;
 		}
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
@@ -691,39 +736,80 @@ void ComboEditorDialog::loadComboType()
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
 		{
 			flagstrs[0] = "Visuals";
-			flagstrs[1] = "Itemdrop";
+			flagstrs[1] = "Set Dropset";
+			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
 			flagstrs[9] = "Clippings";
-			flagstrs[10] = "Specific Item";
 			attribytestrs[0] = "Sprite:";
-			attribytestrs[1] = "Dropset:";
+			if(local_comboref.usrflags & cflag2)
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(local_comboref.usrflags & cflag11)
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
 			attribytestrs[2] = "Sound:";
 			break;
 		}
 		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
 		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
+			flagstrs[1] = "Set Dropset";
+			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
 			flagstrs[0] = "Visuals";
-			flagstrs[1] = "Itemdrop";
 			flagstrs[9] = "Clippings";
-			flagstrs[10] = "Specific Item";
 			attribytestrs[0] = "Sprite:";
-			attribytestrs[1] = "Dropset:";
+			if(local_comboref.usrflags & cflag2)
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(local_comboref.usrflags & cflag11)
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
 			break;
 		}
 		case cSLASHNEXT:
 		{
 			flagstrs[0] = "Visuals";
 			flagstrs[9] = "Clippings";
-			flagstrs[10] = "Specific Item";
 			attribytestrs[0] = "Sprite:";
 			break;
 		}
 		case cSLASHNEXTITEMTOUCHY:
 		{
-			flagstrs[1] = "Itemdrop";
+			flagstrs[1] = "Set Dropset";
+			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
 			flagstrs[9] = "Clippings";
-			flagstrs[10] = "Specific Item";
-			attribytestrs[1] = "Dropset:";
+			if(local_comboref.usrflags & cflag2)
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(local_comboref.usrflags & cflag11)
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
 			break;
 		}
 		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
