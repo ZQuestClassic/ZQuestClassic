@@ -3762,7 +3762,7 @@ public:
     }
     
     zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume, void *_data, byte _format)
-        : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), data(_data), format(_format)
+        : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), data(_data), format(_format), flags(0)
     {
         //memcpy(title, _title, 20); //NOT SAFE for int16_t strings
         strncpy(title, _title, 36);
@@ -4516,8 +4516,8 @@ struct zcmodule
 
 
 #define titleScreen250 0
-#define titleScreen210 11
-#define titleScreenMAIN 21
+#define titleScreen210 10
+#define titleScreenMAIN 20
 
 /******************/
 /**  Misc Stuff  **/

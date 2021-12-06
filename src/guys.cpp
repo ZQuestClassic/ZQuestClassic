@@ -3115,7 +3115,7 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 	{
 	case spw_clipbottomright:
 		if(dy>=128 || dx>=208) return true;
-		
+		break;
 	case spw_clipright:
 		break; //if(x>=208) return true; break;
 		
@@ -3250,7 +3250,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	{
 		case spw_clipbottomright:
 			if(dy>=128 || dx>=208) return true;
-			
+			break;
 		case spw_clipright:
 			break; //if(input_x>=208) return true; break;
 			
@@ -3405,26 +3405,26 @@ void enemy::FireBreath(bool seeklink)
 		switch(dir)
 		{
 		case down:
-			fire_angle=PI*((zc_oldrand()%20)+10)/40;
+			fire_angle=PI*(int64_t(zc_oldrand()%20)+10)/40;
 			wx=x;
 			wy=y+8;
 			break;
 			
 		case -1:
 		case up:
-			fire_angle=PI*((zc_oldrand()%20)+50)/40;
+			fire_angle=PI*(int64_t(zc_oldrand()%20)+50)/40;
 			wx=x;
 			wy=y-8;
 			break;
 			
 		case left:
-			fire_angle=PI*((zc_oldrand()%20)+30)/40;
+			fire_angle=PI*(int64_t(zc_oldrand()%20)+30)/40;
 			wx=x-8;
 			wy=y;
 			break;
 			
 		case right:
-			fire_angle=PI*((zc_oldrand()%20)+70)/40;
+			fire_angle=PI*(int64_t(zc_oldrand()%20)+70)/40;
 			wx=x+8;
 			wy=y;
 			break;
@@ -3509,13 +3509,13 @@ void enemy::FireWeapon()
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
 		
-		//fallthrough
+		[[fallthrough]];
 	case e1t3SHOTSFAST:
 	case e1t3SHOTS: //Aquamentus
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
-		
-		//fallthrough
+
+		[[fallthrough]];
 	default:
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
@@ -3544,8 +3544,8 @@ void enemy::FireWeapon()
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
-		
-		//fallthrough
+
+		[[fallthrough]];
 	case e1t4SHOTS: //Stalfos 3
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
@@ -4278,7 +4278,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 								break;
 							}
 						}
-						//fallthrough
+						[[fallthrough]];
 						case 0:
 						default:
 						{
@@ -4560,21 +4560,25 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			{
 				weapon *w = new weapon(x,y,z,wBomb,0,wdp,0,-1,getUID(),false, 0);
 				Lwpns.add(w);
+				break;
 			}
 			case -6:
 			{
 				weapon *w = new weapon(x,y,z,wSBomb,0,wdp,0,-1,getUID(),false, 0);
 				Lwpns.add(w);
+				break;
 			}
 			case -5: 
 			{
 				weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
 				Lwpns.add(w);
+				break;
 			}
 			case -4:
 			{
 				weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
 				Lwpns.add(w);
+				break;
 			}
 			case -3: explode(1); break;
 			case -2: explode(2); break;
@@ -4715,6 +4719,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			sfx(WAV_CHINK,pan(int32_t(x)));
 			return 1;
 		}
+		break;
 		
 	case edSTUNORIGNORE:
 		if (stunclk && get_bit(quest_rules, qr_NO_STUNLOCK))
@@ -4724,6 +4729,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		else if(*power <= 0)
 			return 0;
+		break;
 			
 	case edSTUNONLY:
 		if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
@@ -4747,22 +4753,22 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 	case edCHINKL1:
 		if(*power >= 1*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL2:
 		if(*power >= 2*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL4:
 		if(*power >= 4*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL6:
 		if(*power >= 6*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL8:
 		if(*power >= 8*game->get_hero_dmgmult()) break;
-	
+		[[fallthrough]];
 	case edCHINKL10:
 		if(*power >= 10*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINK:
 		//al_trace("defendNew() is at: %s\n", "returning edCHINK");
 		sfx(WAV_CHINK,pan(int32_t(x)));
@@ -4770,6 +4776,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 	case edIGNOREL1:
 		if(*power > 0)  break;
+		[[fallthrough]];
 		
 	case edIGNORE:
 		return 0;
@@ -4829,8 +4836,8 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 	
 	case edQUARTDAMAGE:
 		*power = zc_max(1,*power/2);
-		
-		//fallthrough
+
+		[[fallthrough]];
 	case edHALFDAMAGE:
 		*power = zc_max(1,*power/2);
 		break;
@@ -5012,11 +5019,13 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 			sfx(WAV_CHINK,pan(int32_t(x)));
 			return 1;
 		}
-		
+
+		[[fallthrough]];
 	case edSTUNORIGNORE:
 		if(*power <= 0)
 			return 0;
-			
+
+		[[fallthrough]];
 	case edSTUNONLY:
 		if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
 			return 1;
@@ -5032,34 +5041,32 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		
 	case edCHINKL1:
 		if(*power >= 1*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL2:
 		if(*power >= 2*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL4:
 		if(*power >= 4*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL6:
 		if(*power >= 6*game->get_hero_dmgmult()) break;
-		
+		[[fallthrough]];
 	case edCHINKL8:
 		if(*power >= 8*game->get_hero_dmgmult()) break;
+		[[fallthrough]];
 	case edCHINKL10:
-	if(*power >= 10*game->get_hero_dmgmult()) break;
-		
-	
-	case edTRIGGERSECRETS:
- 	    hidden_entrance(0, true, false, -4);
- 	break;
-	
-	
+		if(*power >= 10*game->get_hero_dmgmult()) break;
+		[[fallthrough]];
 	case edCHINK:
 		sfx(WAV_CHINK,pan(int32_t(x)));
 		return 1;
+	case edTRIGGERSECRETS:
+		hidden_entrance(0, true, false, -4);
+		break;
 		
 	case edIGNOREL1:
 		if(*power > 0)  break;
-		
+		[[fallthrough]];
 	case edIGNORE:
 		return 0;
 		
@@ -5119,8 +5126,8 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		
 	case edQUARTDAMAGE:
 		*power = zc_max(1,*power/2);
-		
-		//fallthrough
+
+		[[fallthrough]];
 	case edHALFDAMAGE:
 		*power = zc_max(1,*power/2);
 		break;
@@ -5389,8 +5396,8 @@ int32_t enemy::takehit(weapon *w)
 		case wWand:
 			if(Link.getCharging()>0)
 				Link.setAttackClk(Link.getAttackClk()+1); //Cancel charging
-				
-			//fallthrough
+
+			[[fallthrough]];
 		case wHookshot:
 		case wHSHandle:
 		case wBrang:
@@ -5411,8 +5418,8 @@ int32_t enemy::takehit(weapon *w)
 			}
 			
 #endif
-			
-			//fallthrough
+
+			[[fallthrough]];
 		case wRefRock:
 		case wRefFireball:
 		case wMagic:
@@ -5427,8 +5434,8 @@ int32_t enemy::takehit(weapon *w)
 			
 			if(wpnId>wEnemyWeapons)
 				return 0;
-				
-			//fallthrough
+
+			[[fallthrough]];
 		default:
 			shieldCanBlock=true;
 			break;
@@ -5457,7 +5464,8 @@ int32_t enemy::takehit(weapon *w)
 		case wSSparkle:
 		case wBait:
 			return 0;
-			
+
+			[[fallthrough]];
 		case wFire:
 #if 0
 			if(false /*flags2&guy_mirror*/)
@@ -5625,11 +5633,11 @@ int32_t enemy::takehit(weapon *w)
 			return 0;
 			
 		power = game->get_hero_dmgmult();
-		//fallthrough
 	}
 	
 fsparkle:
 
+	[[fallthrough]];
 	default:
 		// Work out the defenses!
 	{
@@ -8187,13 +8195,16 @@ void enemy::tiledir_three(int32_t ndir)
 	switch(ndir)
 	{
 	case right:
-		tile+=3; // fallthrough
+		tile+=3;
+		[[fallthrough]];
 		
 	case left:
-		tile+=3;  // fallthrough
+		tile+=3;
+		[[fallthrough]];
 		
 	case down:
-		tile+=3;  // fallthrough
+		tile+=3;
+		[[fallthrough]];
 		
 	case up:
 		break;
@@ -9474,6 +9485,7 @@ int32_t wpnsfx(int32_t wpn)
 		
 	case ewRock:
 		if(get_bit(quest_rules,qr_MORESOUNDS)) return WAV_ZN1ROCK;
+		break;
 		
 	case ewFireball2:
 	case ewFireball:
@@ -13798,8 +13810,8 @@ bool eWizzrobe::animate(int32_t index)
 			case 146:
 				fading=fade_invisible;
 				hxofs=1000;
-				
-				//Fall through
+
+				[[fallthrough]];
 			default:
 				if(clk>=(146+zc_max(0,dmisc5)))
 					clk=-1;
@@ -14007,14 +14019,14 @@ void eWizzrobe::wizzrobe_attack()
 				break;
 			}
 		}
-		
+		[[fallthrough]];
 		case 3:
 			dir&=3;
 			misc=0;
-			
+			[[fallthrough]];
 		case 0:
 			wizzrobe_newdir(64);
-			
+			[[fallthrough]];
 		default:
 			if(!canmove(dir,(zfix)1,spw_door,false))
 			{
@@ -14278,7 +14290,8 @@ int32_t eDodongo::takehit(weapon *w)
 			fading=0;                                           // don't flash
 			return 1;
 		}
-		
+
+		[[fallthrough]];
 	default:
 		sfx(WAV_CHINK,pan(int32_t(x)));
 	}
@@ -14473,7 +14486,8 @@ int32_t eDodongo2::takehit(weapon *w)
 			fading=0;                                           // don't flash
 			return 1;
 		}
-		
+
+		[[fallthrough]];
 	default:
 		sfx(WAV_CHINK,pan(int32_t(x)));
 	}
@@ -15547,7 +15561,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 	{
 	case -1:
 		misc=0;
-		
+		[[fallthrough]];
 	case 0:
 		if(++clk2>72 && !(zc_oldrand()&3))
 		{
@@ -15737,15 +15751,15 @@ void eGanon::draw(BITMAP *dest)
 		}
 		if(db!=999)
 			break;
-			
+		[[fallthrough]];
 	case 2:
 		if(Stunclk<64 && (Stunclk&1))
 			break;
-			
+		[[fallthrough]];
 	case -1:
 		tile=o_tile;
 		
-		//fall through
+		[[fallthrough]];
 	case 1:
 	case 3:
 		drawblock(dest,15);
@@ -16587,7 +16601,7 @@ bool eManhandla::animate(int32_t index)
 	else
 	{
 		// Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-		step=zc_min(4.5,(((!dmisc2)?4:8)-armcnt)*0.5+zslongToFix(dstep*100));
+		step=zc_min(4.5,(((!dmisc2)?4:8)-int64_t(armcnt))*0.5+zslongToFix(dstep*100));
 		int32_t dx1=0, dy1=-8, dx2=15, dy2=15;
 		
 		if(!dmisc2)
@@ -16985,13 +16999,15 @@ void esManhandla::draw(BITMAP *dest)
 		{
 		case down:
 			flip=2;
-			
+
+			[[fallthrough]];
 		case up:
 			tile=(clk3)?188:189;
 			break;
 			
 		case right:
 			flip=1;
+			[[fallthrough]];
 			
 		case left:
 			tile=(clk3)?186:187;
@@ -17782,8 +17798,8 @@ bool ePatra::animate(int32_t index)
 				//maybe playing_field_offset here?
 				if(loopcnt>0)
 				{
-					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc31) - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*(abs(dmisc31)-abs(dmisc29));
-					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc31) + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*(abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc31) - sin(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
+					guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc31) + cos(pos2*PI*2/(dmisc1 == 0 ? 1 : dmisc1))*((int64_t)abs(dmisc31)-abs(dmisc29));
 				}
 				else
 				{
@@ -17873,7 +17889,7 @@ bool ePatra::animate(int32_t index)
 		|| (clk4 == 10 && (editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)))))
 		&& (clk6 >= 0) //if not in the middle of firing...
 		&& clk6 >= dmisc19) //if over the set cooldown between shots...
-		&& ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (basesize*(dmisc6 - (misc%dmisc6))) > timeneeded)) || dmisc18 == -1)) //And lastly, if not in danger of starting a loop during the attack.
+		&& ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > timeneeded)) || dmisc18 == -1)) //And lastly, if not in danger of starting a loop during the attack.
 		{
 			switch(dmisc28)
 			{
@@ -17963,9 +17979,9 @@ bool ePatra::animate(int32_t index)
 				if (clk5 >= dmisc19)
 				{
 					if ((!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-					(dmisc20 == 2 && (basesize*(dmisc6 - (misc%dmisc6))) > (48 + (12*flycnt2))) ||
-					(dmisc20 == 4 && (basesize*(dmisc6 - (misc%dmisc6))) > (48 + 96)) ||
-					(dmisc20 != 2 && dmisc20 != 4 && (basesize*(dmisc6 - (misc%dmisc6))) > 48)))
+					(dmisc20 == 2 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > ((int64_t)48 + (int64_t(12)*flycnt2))) ||
+					(dmisc20 == 4 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > ((int64_t)48 + 96)) ||
+					(dmisc20 != 2 && dmisc20 != 4 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > 48)))
 					|| dmisc18 == -1)  
 						dofire = true;
 				}
@@ -18037,8 +18053,8 @@ bool ePatra::animate(int32_t index)
 				{
 					if(loopcnt>0)
 					{
-						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc32) - sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*(abs(dmisc32)-abs(dmisc30));
-						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc32) + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*(abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->x =  cos(a2+PI/2)*abs(dmisc32) - sin(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
+						guys.spr(i)->y = -sin(a2+PI/2)*abs(dmisc32) + cos(pos2*PI*2/(dmisc2==0?1:dmisc2))*((int64_t)abs(dmisc32)-abs(dmisc30));
 					}
 					else
 					{
@@ -18247,7 +18263,7 @@ bool ePatra::animate(int32_t index)
 								if ((((dmisc18 && !(zc_oldrand() % zc_max(dmisc18, 1))) || 
 								(!dmisc18 && !(zc_oldrand()&127))) && (((esPatra*)guys.spr(i))->clk5 >= 0 || !(editorflags & ENEMY_FLAG3) || !get_bit(quest_rules,qr_NEWENEMYTILES))
 								&& ((esPatra*)guys.spr(i))->clk5 >= dmisc19) && (!(editorflags & ENEMY_FLAG7) || (loopcnt == 0 &&
-								(dmisc20 != 2 && (basesize*(dmisc6 - (misc%dmisc6))) > 48))))
+								(dmisc20 != 2 && (basesize*((int64_t)dmisc6 - (misc%dmisc6))) > 48))))
 								{
 									if ((editorflags & ENEMY_FLAG3) && get_bit(quest_rules,qr_NEWENEMYTILES)) 
 									{
@@ -18322,7 +18338,7 @@ void ePatra::FirePatraWeapon()
 				if (dmisc28 == patrat4SHOTDIAG || dmisc28 == patrat4SHOTRAND) break;
 			}	
 			
-			//fallthrough
+			[[fallthrough]];
 		case patrat4SHOTCARD: //Stalfos 3
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,up,-1, getUID(),false));
 			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
@@ -18612,7 +18628,7 @@ bool ePatraBS::animate(int32_t index)
 		else
 		{
 			int32_t pos2 = ((enemy*)guys.spr(i))->misc;
-			double a2 = (clk2-pos2*90/(dmisc1==0?1:dmisc1))*PI/45;
+			double a2 = ((int64_t)clk2-pos2*90/(dmisc1==0?1:dmisc1))*PI/45;
 			temp_x =  cos(a2+PI/2)*45;
 			temp_y = -sin(a2+PI/2)*45;
 			
@@ -19348,7 +19364,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 				e = new ePatraBS((zfix)x,(zfix)y,id,clk);
 				break;
 			}
-			//fallthrough
+			[[fallthrough]];
 		case 0:
 		default:
 			e = new ePatra((zfix)x,(zfix)y,id,clk);
@@ -19382,7 +19398,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 			break;
 			break;
 		}
-		
+		[[fallthrough]];
 	default:
 	
 		return 0;
@@ -19797,7 +19813,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 				e = new ePatraBS((zfix)x,(zfix)y,id,clk);
 				break;
 			}
-			//fallthrough
+			[[fallthrough]];
 		case 0:
 		default:
 			e = new ePatra((zfix)x,(zfix)y,id,clk);
@@ -19831,7 +19847,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 			break;
 			break;
 		}
-		
+		[[fallthrough]];
 	default:
 	
 		return 0;
@@ -20477,6 +20493,7 @@ bool ok2add(int32_t id)
 	case eeTRAP:
 		if ((guysbuf[id].family == eeGANON && !get_bit(quest_rules, qr_CAN_PLACE_GANON))
 		|| (guysbuf[id].family == eeTRAP && !get_bit(quest_rules, qr_CAN_PLACE_TRAPS))) return false;
+		[[fallthrough]];
 	default:
 		if (guysbuf[id].flags2&guy_ignoretmpnr) return true;
 		break;
@@ -21459,9 +21476,8 @@ void setupscreen()
 			str=0;
 			break;
 		}
-		
-		// fall through
-		
+
+		[[fallthrough]];
 	case rTAKEONE:                                          // take one
 	case rSHOP:                                             // shop
 	{

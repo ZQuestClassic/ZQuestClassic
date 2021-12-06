@@ -712,7 +712,7 @@ int32_t CConsoleLogger::printf(const char *format,...)
 	#else
 	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
-	tmp[ret]=0;
+	tmp[vbound(ret,0,1023)]=0;
 
 
 	va_end(argList);
@@ -903,7 +903,7 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	#else
 	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
-	tmp[ret]=0;
+	tmp[vbound(ret, 0, 1023)]=0;
 
 
 	va_end(argList);
@@ -932,7 +932,7 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	#else
 	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	#endif
-	tmp[ret]=0;
+	tmp[vbound(ret, 0, 1023)]=0;
 
 
 	va_end(argList);
@@ -4158,7 +4158,7 @@ int32_t get_register(const int32_t arg)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
@@ -4380,7 +4380,7 @@ int32_t get_register(const int32_t arg)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
@@ -5818,6 +5818,7 @@ int32_t get_register(const int32_t arg)
 				break;
 			}
 		}
+		break;
 		
 		case NPCFROZENTILE:
 			GET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
@@ -6824,6 +6825,7 @@ int32_t get_register(const int32_t arg)
 		case ZSCRIPTVERSION: 
 		{
 			ret = (FFCore.quest_format[vLastCompile]) * 10000;
+			break;
 		}
 		
 		case ZELDABETA:
@@ -10523,7 +10525,7 @@ int32_t get_register(const int32_t arg)
 		case COMBODPLACENPC:		GET_COMBOCLASS_VAR_BYTE(place_enemy, "PlaceNPC"); break;			//C
 		case COMBODPUSHDIR:		GET_COMBOCLASS_VAR_BYTE(push_direction,	"PushDir"); break; 			//C
 		case COMBODPUSHWAIT:		GET_COMBOCLASS_VAR_BYTE(push_wait, "PushDelay"); break;				//C
-		case COMBODPUSHHEAVY:		GET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy");				//C
+		case COMBODPUSHHEAVY:		GET_COMBOCLASS_VAR_BYTE(push_weight, "PushHeavy"); break;				//C
 		case COMBODPUSHED:		GET_COMBOCLASS_VAR_BYTE(pushed, "Pushed"); break;				//C
 		case COMBODRAFT:		GET_COMBOCLASS_VAR_BYTE(raft, "Raft"); break;					//C
 		case COMBODRESETROOM:		GET_COMBOCLASS_VAR_BYTE(reset_room, "ResetRoom"); break;			//C
@@ -10863,6 +10865,7 @@ int32_t get_register(const int32_t arg)
 				}
 			} 
 		}
+		break;
 
 		case NPCDSHADOWSPR:
 		{
@@ -11031,6 +11034,7 @@ int32_t get_register(const int32_t arg)
 				}
 			}
 		}
+		break;
 
 		case AUDIOPAN:
 		{
@@ -12360,7 +12364,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
@@ -12516,7 +12520,7 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
@@ -14969,6 +14973,7 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 			}
 		}
+		break;
 		
 		case NPCFROZENTILE:
 			SET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
@@ -16231,7 +16236,7 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				Link.entry_x = (zfix)(newx);
 			}
-			
+			break;
 		}
 		case SCREENDATAENTRYY: 		
 		{
@@ -17562,6 +17567,7 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","D[]");
 			}
+			break;
 		}
 
 
@@ -18138,6 +18144,7 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			if ( value ) DMaps[ri->dmapsref].flags |= (1<<indx);
 			else DMaps[ri->dmapsref].flags &= ~(1<<indx);
+			break;
 		}
 		case DMAPDATAFLAGS:	 //int32_t
 		{
@@ -18811,7 +18818,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case COMBODBLOCKNPC:		SET_COMBOCLASS_VAR_BYTE(block_enemies, "BlockNPC"); break;			//C
 		case COMBODBLOCKHOLE:		SET_COMBOCLASS_VAR_BYTE(block_hole, "BlockHole"); break;			//C
 		case COMBODBLOCKTRIG:		SET_COMBOCLASS_VAR_BYTE(block_trigger,	"BlockTrigger"); break; 		//C
-		case COMBODBLOCKWEAPON:		SET_COMBOCLASS_BYTE_INDEX(block_weapon,	"BlockWeapon[]", 32); 			//C, 32 INDICES
+		case COMBODBLOCKWEAPON:		SET_COMBOCLASS_BYTE_INDEX(block_weapon, "BlockWeapon[]", 32); break;			//C, 32 INDICES
 		case COMBODCONVXSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_x_speed, "ConveyorSpeedX"); break;		//SHORT
 		case COMBODCONVYSPEED:		SET_COMBOCLASS_VAR_DWORD(conveyor_y_speed, "ConveyorSpeedY"); break;		//SHORT
 		case COMBODSPAWNNPC:		SET_COMBOCLASS_VAR_DWORD(create_enemy, "SpawnNPC"); break;			//W
@@ -19746,7 +19753,7 @@ void do_loada(const byte a)
 		
 	int32_t reg = get_register(sarg2); //Register in FFC 2
 	
-	if(reg >= D(0) || reg <= D(7))
+	if(reg >= D(0) && reg <= D(7))
 		set_register(sarg1, ffcScriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
 	else if(reg == A(0) || reg == A(1))
 		set_register(sarg1, ffcScriptData[ffcref].a[reg - A(0)]);
@@ -19771,7 +19778,7 @@ void do_seta(const byte a)
 		
 	int32_t reg = get_register(sarg2); //Register in FFC 2
 	
-	if(reg >= D(0) || reg <= D(7))
+	if(reg >= D(0) && reg <= D(7))
 		ffcScriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
 	else if(reg == A(0) || reg == A(1))
 		ffcScriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
@@ -19969,7 +19976,7 @@ void do_srnd(const bool v)
 void do_srndrnd()
 {
 	//Randomize the seed to the current system time, + or - the product of 2 random numbers.
-	int32_t seed = time(0) + ((zc_rand() * zc_rand()) * (zc_rand(1) ? 1 : -1));
+	int32_t seed = time(0) + ((zc_rand() * int64_t(zc_rand())) * (zc_rand(1) ? 1 : -1));
 	set_register(sarg1, seed);
 	zc_srand(seed);
 }
@@ -21524,9 +21531,9 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 		return;
 		
 		
-	ArrayH::getString(arrayptr, filename_str, 73);
-	strncpy(DMaps[ID].name, filename_str.c_str(), 72);
-	DMaps[ID].name[72]='\0';
+	ArrayH::getString(arrayptr, filename_str, 22);
+	strncpy(DMaps[ID].name, filename_str.c_str(), 21);
+	DMaps[ID].name[20]='\0';
 }
 
 void FFScript::do_getDMapData_dmaptitle(const bool v)
@@ -23707,9 +23714,9 @@ void do_setdmapname(const bool v)
 	if(BC::checkDMapID(ID, "Game->Game->SetDMapName") != SH::_NoError)
 		return;
 		
-	ArrayH::getString(arrayptr, filename_str, 73);
-	strncpy(DMaps[ID].name, filename_str.c_str(), 72);
-	DMaps[ID].name[72]='\0';
+	ArrayH::getString(arrayptr, filename_str, 22);
+	strncpy(DMaps[ID].name, filename_str.c_str(), 21);
+	DMaps[ID].name[20]='\0';
 }
 
 void do_getdmaptitle(const bool v)
@@ -30590,7 +30597,7 @@ bool ZModule::init(bool d) //bool default
 		
 		//item families
 							 
-		const char itype_fields[itype_max][255] =
+		static const char itype_fields[itype_max][255] =
 		{
 			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
 			"ic_meat", "ic_rx", "ic_potion", 
@@ -30643,13 +30650,13 @@ bool ZModule::init(bool d) //bool default
 			else sprintf(moduledata.item_editor_type_names[q], "-zz%03d",q);
 		}
 		
-		const char roomtype_cats[rMAX][256] =
+		static const char roomtype_cats[rMAX][256] =
 		{
 			"rNONE","rSP_ITEM","rINFO","rMONEY","rGAMBLE","rREPAIR","rRP_HC","rGRUMBLE",
 			"rQUESTOBJ","rP_SHOP","rSHOP","rBOMBS","rSWINDLE","r10RUPIES","rWARP","rMAINBOSS","rWINGAME",
 			"rITEMPOND","rMUPGRADE","rLEARNSLASH","rARROWS","rTAKEONE","rBOTTLESHOP"
 		};
-		const char roomtype_defaults[rMAX][255] =
+		static const char roomtype_defaults[rMAX][255] =
 		{
 			"(None)","Special Item","Pay for Info","Secret Money","Gamble",
 			"Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
@@ -30662,7 +30669,7 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
-		const char lweapon_cats[wIce+1][255]=
+		static const char lweapon_cats[wIce+1][255]=
 		{
 			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
 			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
@@ -30671,7 +30678,7 @@ bool ZModule::init(bool d) //bool default
 			"lwCane","lwRefBeam", "lwStomp","lwScript1", "lwScript2", "lwScript3", 
 			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce"
 		};
-		const char lweapon_default_names[wIce+1][255]=
+		static const char lweapon_default_names[wIce+1][255]=
 		{
 			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
 			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
@@ -30686,7 +30693,7 @@ bool ZModule::init(bool d) //bool default
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 			//al_trace("LWEAPONS %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
-		const char counter_cats[33][255]=
+		static const char counter_cats[33][255]=
 		{
 			"crNONE","crLIFE","crMONEY","crBOMBS","crARROWS","crMAGIC","crKEYS",
 			"crSBOMBS","crCUSTOM1","crCUSTOM2","crCUSTOM3","crCUSTOM4","crCUSTOM5","crCUSTOM6",
@@ -30695,7 +30702,7 @@ bool ZModule::init(bool d) //bool default
 			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
 		};
 
-		const char counter_default_names[33][255]=
+		static const char counter_default_names[33][255]=
 		{
 			"None","Life","Rupees", "Bombs","Arrows","Magic",
 			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
@@ -35907,7 +35914,7 @@ string zs_sprintf(char const* format, int32_t num_args)
 					}
 					case 'x':
 						hex_upper = false;
-						//Fallthrough
+						[[fallthrough]];
 					case 'X':
 					{
 						char argbuf[32] = {0};
@@ -40105,31 +40112,31 @@ int32_t FFScript::getLinkOTile(int32_t index1, int32_t index2)
 		int32_t the_ret = 0;
 		switch(lst)
 		{
-			case LSprwalkspr: the_ret = walkspr[dir][0];
-			case LSprstabspr: the_ret = stabspr[dir][0];
-			case LSprslashspr: the_ret = slashspr[dir][0];
-			case LSprfloatspr: the_ret = floatspr[dir][0];
-			case LSprswimspr: the_ret = swimspr[dir][0];
-			case LSprdivespr: the_ret = divespr[dir][0];
-			case LSprdrownspr: the_ret = drowningspr[dir][0];
-			case LSprsidedrownspr: the_ret = sidedrowningspr[dir][0];
-			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0];
-			case LSprsideswimspr: the_ret = sideswimspr[dir][0];
-			case LSprsideswimslashspr: the_ret = sideswimslashspr[dir][0];
-			case LSprsideswimstabspr: the_ret = sideswimstabspr[dir][0];
-			case LSprsideswimpoundspr: the_ret = sideswimpoundspr[dir][0];
-			case LSprsideswimchargespr: the_ret = sideswimchargespr[dir][0];
-			case LSprpoundspr: the_ret = poundspr[dir][0];
-			case LSprjumpspr: the_ret = jumpspr[dir][0];
-			case LSprchargespr: the_ret = chargespr[dir][0];
-			case LSprcastingspr: the_ret = castingspr[0];
-			case LSprsideswimcastingspr: the_ret = sideswimcastingspr[0];
-			case LSprholdspr1: the_ret = holdspr[0][0][0];
-			case LSprholdspr2:  the_ret = holdspr[0][1][0];
-			case LSprholdsprw1: the_ret = holdspr[1][0][0];
-			case LSprholdsprw2: the_ret = holdspr[1][1][0];
-			case LSprholdsprSw1: the_ret = sideswimholdspr[0][0];
-			case LSprholdsprSw2: the_ret = sideswimholdspr[1][0];
+		case LSprwalkspr: the_ret = walkspr[dir][0]; break;
+			case LSprstabspr: the_ret = stabspr[dir][0]; break;
+			case LSprslashspr: the_ret = slashspr[dir][0]; break;
+			case LSprfloatspr: the_ret = floatspr[dir][0]; break;
+			case LSprswimspr: the_ret = swimspr[dir][0]; break;
+			case LSprdivespr: the_ret = divespr[dir][0]; break;
+			case LSprdrownspr: the_ret = drowningspr[dir][0]; break;
+			case LSprsidedrownspr: the_ret = sidedrowningspr[dir][0]; break;
+			case LSprlavadrownspr: the_ret = drowning_lavaspr[dir][0]; break;
+			case LSprsideswimspr: the_ret = sideswimspr[dir][0]; break;
+			case LSprsideswimslashspr: the_ret = sideswimslashspr[dir][0]; break;
+			case LSprsideswimstabspr: the_ret = sideswimstabspr[dir][0]; break;
+			case LSprsideswimpoundspr: the_ret = sideswimpoundspr[dir][0]; break;
+			case LSprsideswimchargespr: the_ret = sideswimchargespr[dir][0]; break;
+			case LSprpoundspr: the_ret = poundspr[dir][0]; break;
+			case LSprjumpspr: the_ret = jumpspr[dir][0]; break;
+			case LSprchargespr: the_ret = chargespr[dir][0]; break;
+			case LSprcastingspr: the_ret = castingspr[0]; break;
+			case LSprsideswimcastingspr: the_ret = sideswimcastingspr[0]; break;
+			case LSprholdspr1: the_ret = holdspr[0][0][0]; break;
+			case LSprholdspr2:  the_ret = holdspr[0][1][0]; break;
+			case LSprholdsprw1: the_ret = holdspr[1][0][0]; break;
+			case LSprholdsprw2: the_ret = holdspr[1][1][0]; break;
+			case LSprholdsprSw1: the_ret = sideswimholdspr[0][0]; break;
+			case LSprholdsprSw2: the_ret = sideswimholdspr[1][0]; break;
 			default: the_ret = 0;
 		}
 	
@@ -40346,7 +40353,7 @@ void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
 	combo_initialised[pos] &= ~(1<<lyr);
 	FFCore.clear_combo_stack(ind);
 	comboScriptData[ind].Clear();
-	combo_waitdraw[ind] &= ~(1<<lyr);
+	combo_waitdraw[pos] &= ~(1<<lyr);
 }
 
 int32_t FFScript::getComboDataLayer(int32_t c, int32_t scripttype)

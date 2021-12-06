@@ -200,7 +200,8 @@ void dBushLeaves::draw(BITMAP *dest)
 }
 
 
-comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
+comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
+	decoration(X,Y,Id,Clk), timer(0), initialized(false)
 {
 	id=Id;
 	clk=Clk;

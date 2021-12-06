@@ -444,7 +444,7 @@ struct user_rng
 	}
 	int32_t srand()
 	{
-		int32_t seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+		int32_t seed = time(0) + ((int64_t(rand()) * int64_t(rand())) * ((rand() % 2) ? 1 : -1));
 		srand(seed);
 		return seed;
 	}

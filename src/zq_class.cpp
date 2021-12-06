@@ -110,7 +110,8 @@ zmap::zmap()
     prv_advance=0;
     prv_freeze=0;
     copyffc=-1;
-    
+
+    memset(scrpos, 0, sizeof(scrpos));
     screens=NULL;
     prv_time=0;
     prv_scr=0;
@@ -209,8 +210,8 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    char *deletefilename;
-    deletefilename=(char *)zc_malloc(1);
+    char *deletefilename=(char *)zc_malloc(1);
+    ASSERT(deletefilename);
     deletefilename[0]=0;
     
     //int32_t ret;
@@ -2612,7 +2613,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     {
     case dBOMB:
         over_door(dest,39,up,x,y,false, scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2643,7 +2644,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     {
     case dBOMB:
         over_door(dest,135,down,x,y,false,scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2673,7 +2674,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     {
     case dBOMB:
         over_door(dest,66,left,x,y,false,scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2704,7 +2705,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     
     case dBOMB:
         over_door(dest,77,right,x,y,false,scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -3827,7 +3828,8 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
     {
         if(LayerMaskInt[CurrentLayer]!=0)
         {
-            for(int32_t i=c; i==c; i++)
+            int32_t i = c;
+            //for(int32_t i=c; i==c; i++)
             {
                 if(CurrentLayer==0)
                 {
@@ -4723,8 +4725,8 @@ void zmap::update_combo_cycling()
     int32_t x;
     int32_t newdata[176];
     int32_t newcset[176];
-    bool restartanim[MAXCOMBOS];
-    bool restartanim2[MAXCOMBOS];
+    static bool restartanim[MAXCOMBOS];
+    static bool restartanim2[MAXCOMBOS];
     
     memset(restartanim, 0, MAXCOMBOS);
     memset(restartanim2, 0, MAXCOMBOS);
@@ -6338,8 +6340,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     {
         char password[256];
         PACKFILE *fp = pack_fopen_password(pwdfilename, F_READ, "");
-        char msg[80];
-        memset(msg,0,80);
+        char msg[81] = { 0 };
         pfread(msg, 80, fp,true);
         
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)

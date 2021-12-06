@@ -227,7 +227,7 @@ void ending()
 	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
 	//	FFCore.Waitframe();
 	//}while(link_doscript);
-	game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
+	game->set_cheat(game->get_cheat() | ((cheat>1)?1:0));
 	
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
@@ -676,7 +676,7 @@ void ending_scripted()
 	//sfx(WAV_ZELDA);
 	Quit=0;
     
-	game->set_cheat(game->get_cheat() | (cheat>1)?1:0);
+	game->set_cheat(game->get_cheat() | ((cheat>1)?1:0));
     
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;

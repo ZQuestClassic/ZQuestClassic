@@ -62,7 +62,7 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 		case dithStatic:
 		{
 		dthr_static:
-			double diff = abs(sin((double)((x*x)+(y*y))) - (cos((double)(x*y))));
+			double diff = abs(sin((double)((x*double(x))+(y*double(y)))) - (cos((double(x)*y))));
 			double filt = ((arg/255.0)*(2000))/1000.0;
 			ret = diff < filt;
 			break;

@@ -1544,7 +1544,7 @@ int32_t findtrigger(int32_t scombo, bool ff)
                 case mfSTRIKE:
                     if(scombo!=j)
                         ret += 1;
-                        
+					[[fallthrough]];
                 default:
                     break;
                 }
@@ -3956,6 +3956,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
 {
 	int32_t d=tmpscr[t].door_combo_set;
+	if (type > 8) return;
 	
 	switch(type)
 	{
@@ -3963,11 +3964,11 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 	case dt_walk:
 		if(!even_walls)
 			break;
-			
+		[[fallthrough]];
 	case dt_pass:
 		if(!get_bit(quest_rules, qr_REPLACEOPENDOORS) && !even_walls)
 			break;
-			
+		[[fallthrough]];
 	case dt_lock:
 	case dt_shut:
 	case dt_boss:
@@ -4204,8 +4205,8 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			opendoors=-4;
 			break;
 		}
-		
-		//fallthrough
+
+		[[fallthrough]];
 	case d1WAYSHUTTER:
 		doortype=dt_shut;
 		break;
@@ -4240,7 +4241,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,39,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,7,side,doortype,redraw, even_walls);
 			break;
@@ -4256,7 +4257,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,135,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,151,side,doortype,redraw, even_walls);
 			break;
@@ -4272,7 +4273,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,66,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,64,side,doortype,redraw, even_walls);
 			break;
@@ -4288,7 +4289,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,77,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,78,side,doortype,redraw, even_walls);
 			break;
@@ -5969,15 +5970,15 @@ void ViewMap()
 		{
 			clear_to_color(framebuf,BLACK);
 			stretch_blit(mappic,framebuf,0,0,mappic->w,mappic->h,
-						 int32_t(256+(px-mappic->w)*scale)/2,int32_t(224+(py-mappic->h)*scale)/2,
+						 int32_t(256+(int64_t(px)-mappic->w)*scale)/2,int32_t(224+(int64_t(py)-mappic->h)*scale)/2,
 						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
 						 
 			blit(framebuf,scrollbuf,0,0,256,0,256,224);
 			redraw=false;
 		}
 		
-		int32_t x = int32_t(256+(px-((2048-lx)*2))*scale)/2;
-		int32_t y = int32_t(224+(py-((704-ly)*2))*scale)/2;
+		int32_t x = int32_t(256+(px-((2048-int64_t(lx))*2))*scale)/2;
+		int32_t y = int32_t(224+(py-((704-int64_t(ly))*2))*scale)/2;
 		
 		if(show&1)
 		{

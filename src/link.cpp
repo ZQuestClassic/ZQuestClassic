@@ -154,7 +154,7 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 {
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	
-		if ( ( wid == wSword && wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
+		if ( ( wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
 		
 		else if ( ( wid == wBeam && c[comboid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
 		
@@ -2572,7 +2572,7 @@ attack:
 		return;
 	}
 	
-	double a2 = fairyclk*2*PI/80 + (PI/2);
+	double a2 = fairyclk*int64_t(2)*PI/80 + (PI/2);
 	int32_t hearts=0;
 	//  int32_t htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
 	int32_t htile = 2;
@@ -3322,10 +3322,10 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -3341,10 +3341,10 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -3360,10 +3360,10 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -3379,10 +3379,10 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
 				}
 			}
 			else 
@@ -3645,10 +3645,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -3664,10 +3664,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -3683,10 +3683,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -3702,10 +3702,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
 				}
 			}
 			else 
@@ -3771,10 +3771,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -3790,10 +3790,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -3809,10 +3809,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -3828,10 +3828,10 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
 				}
 			}
 			else 
@@ -3868,6 +3868,7 @@ void LinkClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 			findentrance(bx,by,mfARROW,true);
 			findentrance(bx,by,mfSARROW,true);
 			findentrance(bx,by,mfGARROW,true);
+			break;
 		case wBeam:
 			for(int32_t i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
 			break;
@@ -4066,10 +4067,10 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -4085,10 +4086,10 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -4104,10 +4105,10 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -4123,10 +4124,10 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
 				}
 			}
 			else 
@@ -4408,10 +4409,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -4427,10 +4428,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -4446,10 +4447,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -4465,10 +4466,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
 				}
 			}
 			else 
@@ -4542,10 +4543,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -4561,10 +4562,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -4580,10 +4581,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -4599,10 +4600,10 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 			{
 				switch( combobuf[cid].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
 				}
 			}
 			else 
@@ -5097,10 +5098,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -5116,10 +5117,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -5135,10 +5136,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -5154,10 +5155,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0])); break;
 				}
 			}
 			else 
@@ -5234,10 +5235,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 				}
 			}
 			else 
@@ -5253,10 +5254,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -5272,10 +5273,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 				}
 			}
 			else 
@@ -5291,10 +5292,10 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx, by) - 1].attribytes[0])); break;
 				}
 			}
 			else 
@@ -8384,9 +8385,9 @@ bool LinkClass::animate(int32_t)
 			else damageovertimeclk = -1;
 			//combobuf[watercheck].attributes[0]
 		}
-			
-		// fall through
-	}	
+
+	}
+	[[fallthrough]];
 	default:
 		movelink();										   // call the main movement routine
 	}
@@ -10380,7 +10381,7 @@ bool LinkClass::doattack()
 			templife*=game->get_hp_per_heart();
 		}
 		
-		bool normalbeam = (game->get_life()+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
+		bool normalbeam = (int64_t(game->get_life())+(get_bit(quest_rules,qr_QUARTERHEART)?((game->get_hp_per_heart()/4)-1):((game->get_hp_per_heart()/2)-1))>=templife);
 		int32_t perilid = current_item_id(itype_perilscroll);
 		bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
 						  && checkbunny(perilid) && checkmagiccost(perilid)
@@ -11399,7 +11400,7 @@ void LinkClass::pitfall()
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
-				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-dmg)),0,game->get_maxlife()));
+				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-int64_t(dmg))),0,game->get_maxlife()));
 			}
 			if(warp) //Warp
 			{
@@ -15674,8 +15675,8 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         return ret;
                         
                     }
-                    
-                    // no break
+
+					[[fallthrough]];
                 case down:
                     if((wy&0xF0)==laddery)
                     {
@@ -16684,7 +16685,7 @@ void LinkClass::oldcheckchest(int32_t type)
 		case left:
 		case right:
 			if(isSideViewLink()) break;
-			
+			[[fallthrough]];
 		case down:
 			return;
 	}
@@ -17798,8 +17799,8 @@ int32_t touchcombo(int32_t x,int32_t y)
 			{
 				break;
 			}
-        
-		// fall through
+
+			[[fallthrough]];
 		case cARMOS:
 		{
 			return combobuf[MAPCOMBO(x,y)].type;
@@ -18484,6 +18485,7 @@ void LinkClass::checktouchblk()
 							}
 							//zprint("xpos is: %d\n", xpos);
 						}
+						[[fallthrough]];
 						case left: //touched right edge of armos
 						{
 							while(searching == 1) //find the top edge of an armos block
@@ -18540,7 +18542,8 @@ void LinkClass::checktouchblk()
 					
 					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
 					{
-						guygrid[id3+m]=61;
+						if (id3 + m < 176)
+							guygrid[(id3+m)]=61;
 						//zprint2("oof: %d\n", id3+m);
 					}
 					id3+=16;
@@ -18607,8 +18610,8 @@ void LinkClass::checktouchblk()
                     
                 case cBSGRAVE:
                     tmpscr->data[di]++;
-                    
-                    //fall through
+
+					[[fallthrough]];
                 case cGRAVE:
                     for(int32_t i=0; i<eMAXGUYS; i++)
                     {
@@ -19594,7 +19597,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
 			(!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
 		)
 		
 		{
@@ -19608,7 +19611,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
 			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
 		)
 			{
 				int32_t stepc = tmpscr->data[stepnext];
@@ -19627,7 +19630,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 			COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
 			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !combobuf[tmpscr->data[stepnext]].usrflags&cflag1 ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
 		)
 			{
 		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int32_t)x));
@@ -23117,7 +23120,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		case dmOVERW: case dmBSOVERW:
 			if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
 				break;
-			
+			[[fallthrough]];
 		case dmCAVE:
 			markBmap(scrolldir);
 			break;
@@ -23856,6 +23859,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 // How much to reduce Link's damage, taking into account various rings.
 int32_t LinkClass::ringpower(int32_t dmg)
 {
+	if(dmg < 0) return dmg; //Don't reduce healing
 	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
 	{
 		int32_t divisor = 1;
@@ -25255,7 +25259,7 @@ void LinkClass::checkitems(int32_t index)
 			case rP_SHOP:                                         // potion shop
 				if(msg_active)
 					return;
-					
+				[[fallthrough]];
 			case rSHOP:                                           // shop
 				if(prices[PriceIndex]!=100000) // 100000 is a placeholder price for free items
 				{
@@ -25956,7 +25960,7 @@ void LinkClass::getTriforce(int32_t id2)
 				{
 					case 5:
 						c=0;
-		    
+						[[fallthrough]];
 					case 0:
 					case 2:
 					case 3:
