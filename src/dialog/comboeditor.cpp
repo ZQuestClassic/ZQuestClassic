@@ -921,7 +921,7 @@ void ComboEditorDialog::loadComboType()
 			flagstrs[2] = "Damage is Percent";
 			h_flag[2] = "The damage amount is a percentage of the player's max life";
 			flagstrs[3] = "Allow Ladder";
-			h_flag[3] = "The ladder can step over this combo";
+			h_flag[3] = "A ladder with 'Can step over pitfalls' checked can step over this combo";
 			flagstrs[4] = "No Pull";
 			h_flag[4] = "Don't suck in the player at all";
 			attributestrs[0] = "Damage:";
@@ -962,11 +962,12 @@ void ComboEditorDialog::loadComboType()
 				attributestrs[0] = "Damage:";
 				h_attribute[0] = "The damage value for the spawned weapon. If this is < 1, it will default to 4 damage.";
 				attribytestrs[1] = "Weapon Type:";
-				h_attribyte[1] = "The weapon type to spawn. Script1-10 weapon types are eweapons by default.";
+				h_attribyte[1] = "The weapon type to spawn. Script1-10 weapon types are eweapons by default."
+					" If 0 or invalid, uses an enemy bomb type as a default.";
 				attribytestrs[2] = "Weapon Dir:";
-				h_attribyte[2] = "SFX to play when stepped on";
+				h_attribyte[2] = "Direction for the weapon. 0-7 are the standard dirs, 8+ selects a random dir.";
 				attribytestrs[3] = "Wpn Sprite:";
-				h_attribyte[3] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 0 to 255.";
+				h_attribyte[3] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 1 to 255.";
 			}
 			break;
 		}
