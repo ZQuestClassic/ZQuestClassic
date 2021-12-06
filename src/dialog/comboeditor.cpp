@@ -45,292 +45,293 @@ ComboEditorDialog::ComboEditorDialog(int32_t index):
 //{ Help Strings
 static const char *combotype_help_string[cMAX] =
 {
-    "Select a Type, then click this button to find out what it does.",
-    "The player is warped via Tile Warp A if they step on the bottom half of this combo.",
-    "The player marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it.",
-    "When touched, this combo produces an Armos and changes to the screen's Under Combo.",
-    "When touched, this combo produces one Ghini.",
-    "Raft paths must begin on a Dock-type combo. (Use the Raft combo flag to create raft paths.)",
-    "", //cUNDEF
-    "A Bracelet is not needed to push this combo, but it can't be pushed until the enemies are cleared from the screen.",
-    "A Bracelet is needed to push this combo. The screen's Under Combo will appear beneath it when it is pushed aside.",
-    "A Bracelet is needed to push this combo, and it can't be pushed until the enemies are cleared from the screen.",
-    "If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
-    "If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
-    "The player's movement speed is reduced while they walk on this combo. Enemies will not be affected.",
-    "While the player is standing on top of this, they will be moved upward at 1/4 of their normal walking speed (or some dir at a custom-set speed), until they collide with a solid combo.",
-    "While the player is standing on top of this, they will be moved downward at 1/4 of their normal walking speed (or some dir at a custom-set speed), until they collide with a solid combo.",
-    "While the player is standing on top of this, they will be moved leftward at 1/4 of their normal walking speed (or some dir at a custom-set speed), until they collide with a solid combo.",
-    "While the player is standing on top of this, they will be moved rightward at 1/4 of their normal walking speed (or some dir at a custom-set speed), until they collide with a solid combo.",
-    "The player is warped via Tile Warp A if they swim on this combo. Otherwise, this is identical to Water.",
-    "The player is warped via Tile Warp A if they dive on this combo. Otherwise, this is identical to Water.",
-    "If this combo is solid, the Ladder and Hookshot can be used to cross over it. It only permits the Ladder if it's on Layer 0.",
-    "This triggers Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
-    "This triggers Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
-    "", // Unused
-    "When stabbed or slashed with a Sword, this combo changes into the screen's Under Combo.",
-    "Identical to Slash, but an item from Item Drop Set 12 is created when this combo is slashed.",
-    "A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy).",
-    "A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy, Wait).",
-    "When hit by a Hammer, this combo changes into the next combo in the list.",
-    "If this combo is struck by the Hookshot, the player is pulled towards the combo.",
-    "", //cHSBRIDGE (Unimplemented)
-    // Damage Combos
-    "",
-    "",
-    "",
-    "",
-    // Anyway...
-    "If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
-    "This flag is obsolete. It behaves identically to Combo Flag 32, Trap (Horizontal, Line of Sight).",
-    "This flag is obsolete. It behaves identically to Combo Flag 33, Trap (Vertical, Line of Sight).",
-    "This flag is obsolete. It behaves identically to Combo Flag 34, Trap (4-Way, Line of Sight).",
-    "This flag is obsolete. It behaves identically to Combo Flag 35, Trap (Horizontal, Constant).",
-    "This flag is obsolete. It behaves identically to Combo Flag 36, Trap (Vertical Constant).",
-    "The player is warped via Tile Warp A if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-    "If this combo is solid, the Hookshot can be used to cross over it.",
-    "This combo's tile is drawn between layers 3 and 4 if it is placed on layer 0.",
-    "Flying enemies (Keese, Peahats, Moldorms, Patras, Fairys, Digdogger, Manhandla, Ghinis, Gleeok heads) can't fly over or appear on this combo.",
-    "Wand magic and enemy magic that hits  this combo is reflected 180 degrees, and becomes 'reflected magic'.",
-    "Wand magic and enemy magic that hits  this combo is reflected 90 degrees, and become 'reflected magic'.",
-    "Wand magic and enemy magic that hits  this combo is reflected 90 degrees, and become 'reflected magic'.",
-    "Wand magic and enemy magic that hits  this combo is duplicated twice, causing three shots to be fired in three directions.",
-    "Wand magic and enemy magic that hits  this combo is duplicated thrice, causing four shots to be fired from each direction.",
-    "Wand magic and enemy magic that hits this combo is destroyed.",
-    "The player marches up into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The combo's tile changes depending on the player's position relative to the combo. It uses eight tiles per animation frame.",
-    "Identical to Eyeball (8-Way A), but the angles at which the tile will change are offset by 22.5 degrees (pi/8 radians).",
-    "Tektites cannot jump through or appear on this combo.",
-    "Identical to Slash->Item, but when it is slashed, Bush Leaves sprites are drawn and the 'Tall Grass slashed' sound plays.",
-    "Identical to Slash->Item, but when it is slashed, Flower Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
-    "Identical to Slash->Item, but when it is slashed, Grass Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
-    "Ripples sprites are drawn on the player when they walk on this combo. Also, Quake Hammer pounds are nullified by this combo.",
-    "If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up.",
-    "Identical to Lock Block, but if any other Lock Blocks are opened on the same screen, this changes to the next combo.",
-    "If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set.",
-    "Identical to Lock Block (Boss), but if any other Boss Lock Blocks are opened on the same screen, this changes to the next combo.",
-    "If this combo is solid, the Ladder can be used to cross over it. Only works on layer 0.",
-    "When touched, this combo produces a Ghini and changes to the next combo in the list.",
+	"Select a Type, then click this button to find out what it does.",
+	"The player is warped via Tile Warp A if they step on the bottom half of this combo.",
+	"The player marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it.",
+	"When touched, this combo produces an Armos and changes to the screen's Under Combo.",
+	"When touched, this combo produces one Ghini.",
+	"Raft paths must begin on a Dock-type combo. (Use the Raft combo flag to create raft paths.)",
+	"", //cUNDEF
+	"A Bracelet is not needed to push this combo, but it can't be pushed until the enemies are cleared from the screen.",
+	"A Bracelet is needed to push this combo. The screen's Under Combo will appear beneath it when it is pushed aside.",
+	"A Bracelet is needed to push this combo, and it can't be pushed until the enemies are cleared from the screen.",
+	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
+	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
+	"The player's movement speed is reduced while they walk on this combo. Enemies will not be affected.",
+	"While the player is standing on top of this, they will be moved upward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"While the player is standing on top of this, they will be moved downward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"While the player is standing on top of this, they will be moved leftward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"While the player is standing on top of this, they will be moved rightward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"The player is warped via Tile Warp A if they swim on this combo. Otherwise, this is identical to Water.",
+	"The player is warped via Tile Warp A if they dive on this combo. Otherwise, this is identical to Water.",
+	"If this combo is solid, the Ladder and Hookshot can be used to cross over it. It only permits the Ladder if it's on Layer 0.",
+	"This triggers Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
+	"This triggers Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
+	"", // Unused
+	"When stabbed or slashed with a Sword, this combo changes into the screen's Under Combo.",
+	"Identical to Slash, but an item from Item Drop Set 12 is created when this combo is slashed.",
+	"A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy).",
+	"A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy, Wait).",
+	"When hit by a Hammer, this combo changes into the next combo in the list.",
+	"If this combo is struck by the Hookshot, the player is pulled towards the combo.",
+	"", //cHSBRIDGE (Unimplemented)
+	// Damage Combos
+	"",
+	"",
+	"",
+	"",
+	// Anyway...
+	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
+	"This flag is obsolete. It behaves identically to Combo Flag 32, Trap (Horizontal, Line of Sight).",
+	"This flag is obsolete. It behaves identically to Combo Flag 33, Trap (Vertical, Line of Sight).",
+	"This flag is obsolete. It behaves identically to Combo Flag 34, Trap (4-Way, Line of Sight).",
+	"This flag is obsolete. It behaves identically to Combo Flag 35, Trap (Horizontal, Constant).",
+	"This flag is obsolete. It behaves identically to Combo Flag 36, Trap (Vertical Constant).",
+	"The player is warped via Tile Warp A if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"If this combo is solid, the Hookshot can be used to cross over it.",
+	"This combo's tile is drawn between layers 3 and 4 if it is placed on layer 0.",
+	"Flying enemies (Keese, Peahats, Moldorms, Patras, Fairys, Digdogger, Manhandla, Ghinis, Gleeok heads) can't fly over or appear on this combo.",
+	"Wand magic and enemy magic that hits  this combo is reflected 180 degrees, and becomes 'reflected magic'.",
+	"Wand magic and enemy magic that hits  this combo is reflected 90 degrees, and become 'reflected magic'.",
+	"Wand magic and enemy magic that hits  this combo is reflected 90 degrees, and become 'reflected magic'.",
+	"Wand magic and enemy magic that hits  this combo is duplicated twice, causing three shots to be fired in three directions.",
+	"Wand magic and enemy magic that hits  this combo is duplicated thrice, causing four shots to be fired from each direction.",
+	"Wand magic and enemy magic that hits this combo is destroyed.",
+	"The player marches up into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The combo's tile changes depending on the player's position relative to the combo. It uses eight tiles per animation frame.",
+	"Identical to Eyeball (8-Way A), but the angles at which the tile will change are offset by 22.5 degrees (pi/8 radians).",
+	"Tektites cannot jump through or appear on this combo.",
+	"Identical to Slash->Item, but when it is slashed, Bush Leaves sprites are drawn and the 'Tall Grass slashed' sound plays.",
+	"Identical to Slash->Item, but when it is slashed, Flower Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
+	"Identical to Slash->Item, but when it is slashed, Grass Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
+	"Ripples sprites are drawn on the player when they walk on this combo. Also, Quake Hammer pounds are nullified by this combo.",
+	"If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up.",
+	"Identical to Lock Block, but if any other Lock Blocks are opened on the same screen, this changes to the next combo.",
+	"If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set.",
+	"Identical to Lock Block (Boss), but if any other Boss Lock Blocks are opened on the same screen, this changes to the next combo.",
+	"If this combo is solid, the Ladder can be used to cross over it. Only works on layer 0.",
+	"When touched, this combo produces a Ghini and changes to the next combo in the list.",
 	//Chests
-    "", "", "", "", "", "",
-    "If the player touches this, the Screen States are cleared, and the player is re-warped back into the screen, effectively resetting the screen entirely.",
-    "Press the 'Start' button when the player is standing on the bottom of this combo, and the Save menu appears. Best used with the Save Point->Continue Here Screen Flag.",
-    "Identical to Save Point, but the Quit option is also available in the menu.",
-    "The player marches down into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The player marches down into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The player marches down into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The player is warped via Tile Warp B if they step on the bottom half of this combo.",
-    "The player is warped via Tile Warp C if they step on the bottom half of this combo.",
-    "The player is warped via Tile Warp D if they step on the bottom half of this combo.",
-    "The player is warped via Tile Warp B if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-    "The player is warped via Tile Warp C if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-    "The player is warped via Tile Warp D if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-    "The player marches up into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The player marches up into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The player marches up into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the player during this animation.",
-    "The player is warped via Tile Warp B if they swim on this combo. Otherwise, this is identical to Water.",
-    "The player is warped via Tile Warp C if they swim on this combo. Otherwise, this is identical to Water.",
-    "The player is warped via Tile Warp D if they swim on this combo. Otherwise, this is identical to Water.",
-    "The player is warped via Tile Warp B if they dive on this combo. Otherwise, this is identical to Water.",
-    "The player is warped via Tile Warp C if they dive on this combo. Otherwise, this is identical to Water.",
-    "The player is warped via Tile Warp D if they dive on this combo. Otherwise, this is identical to Water.",
-    "Identical to Stairs [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
-    "Identical to Direct Warp [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
-    "As soon as this combo appears on the screen, Side Warp A is triggered. This is best used with secret combos or combo cycling.",
-    "As soon as this combo appears on the screen, Side Warp B is triggered. This is best used with secret combos or combo cycling.",
-    "As soon as this combo appears on the screen, Side Warp C is triggered. This is best used with secret combos or combo cycling.",
-    "As soon as this combo appears on the screen, Side Warp D is triggered. This is best used with secret combos or combo cycling.",
-    "Identical to Auto Side Warp [A], but the Side Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Side Warps are defined.",
-    "Identical to Stairs [A], but the player will be warped as soon as they touch the edge of this combo.",
-    "Identical to Stairs [B], but the player will be warped as soon as they touch the edge of this combo.",
-    "Identical to Stairs [C], but the player will be warped as soon as they touch the edge of this combo.",
-    "Identical to Stairs [D], but the player will be warped as soon as they touch the edge of this combo.",
-    "Identical to Stairs [Random], but the player will be warped as soon as they touch the edge of this combo.",
-    "Identical to Step->Secrets (Temporary), but Screen Secrets are triggered as soon as the player touches the edge of this combo.",
-    "Identical to Step->Secrets (Permanent), but Screen Secrets are triggered as soon as the player touches the edge of this combo.",
-    "When the player steps on this combo, it will change into the next combo in the list.",
-    "Identical to Step->Next, but if other instances of this particular combo are stepped on, this also changes to the next combo in the list.",
-    "When the player steps on this combo, each of the Step->Next combos on screen will change to the next combo after them in the list.",
-    "When the player steps on a Step->Next (All) type combo, this will change into the next combo in the list.",
-    "Enemies cannot enter or appear on this combo.",
-    "Level 1 player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
-    "Level 1 or 2 player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
-    "All player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
-    "Level 1 player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
-    "Level 1 or 2 player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
-    "All player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
-    "The player's sword beams or enemy sword beams that hit this combo are destroyed.",
-    "All weapons that hit this combo are either destroyed, or bounce off.",
-    "Enemy fireballs and reflected fireballs that hit this combo are destroyed.",
-    // More damage
-    "", "", "",
+	"", "", "", "", "", "",
+	"If the player touches this, the Screen States are cleared, and the player is re-warped back into the screen, effectively resetting the screen entirely.",
+	"Press the 'Start' button when the player is standing on the bottom of this combo, and the Save menu appears. Best used with the Save Point->Continue Here Screen Flag.",
+	"Identical to Save Point, but the Quit option is also available in the menu.",
+	"The player marches down into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The player marches down into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The player marches down into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The player is warped via Tile Warp B if they step on the bottom half of this combo.",
+	"The player is warped via Tile Warp C if they step on the bottom half of this combo.",
+	"The player is warped via Tile Warp D if they step on the bottom half of this combo.",
+	"The player is warped via Tile Warp B if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The player is warped via Tile Warp C if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The player is warped via Tile Warp D if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The player marches up into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The player marches up into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The player marches up into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The player is warped via Tile Warp B if they swim on this combo. Otherwise, this is identical to Water.",
+	"The player is warped via Tile Warp C if they swim on this combo. Otherwise, this is identical to Water.",
+	"The player is warped via Tile Warp D if they swim on this combo. Otherwise, this is identical to Water.",
+	"The player is warped via Tile Warp B if they dive on this combo. Otherwise, this is identical to Water.",
+	"The player is warped via Tile Warp C if they dive on this combo. Otherwise, this is identical to Water.",
+	"The player is warped via Tile Warp D if they dive on this combo. Otherwise, this is identical to Water.",
+	"Identical to Stairs [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
+	"Identical to Direct Warp [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
+	"As soon as this combo appears on the screen, Side Warp A is triggered. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp B is triggered. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp C is triggered. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp D is triggered. This is best used with secret combos or combo cycling.",
+	"Identical to Auto Side Warp [A], but the Side Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Side Warps are defined.",
+	"Identical to Stairs [A], but the player will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [B], but the player will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [C], but the player will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [D], but the player will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [Random], but the player will be warped as soon as they touch the edge of this combo.",
+	"Identical to Step->Secrets (Temporary), but Screen Secrets are triggered as soon as the player touches the edge of this combo.",
+	"Identical to Step->Secrets (Permanent), but Screen Secrets are triggered as soon as the player touches the edge of this combo.",
+	"When the player steps on this combo, it will change into the next combo in the list.",
+	"Identical to Step->Next, but if other instances of this particular combo are stepped on, this also changes to the next combo in the list.",
+	"When the player steps on this combo, each of the Step->Next combos on screen will change to the next combo after them in the list.",
+	"When the player steps on a Step->Next (All) type combo, this will change into the next combo in the list.",
+	"Enemies cannot enter or appear on this combo.",
+	"Level 1 player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
+	"Level 1 or 2 player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
+	"All player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
+	"Level 1 player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
+	"Level 1 or 2 player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
+	"All player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
+	"The player's sword beams or enemy sword beams that hit this combo are destroyed.",
+	"All weapons that hit this combo are either destroyed, or bounce off.",
+	"Enemy fireballs and reflected fireballs that hit this combo are destroyed.",
+	// More damage
+	"", "", "",
 	"", //Unused
 	"A Spinning Tile immediately appears on this combo, using the combo's tile to determine its sprite. The combo then changes to the next in the list.",
-    "", // Unused
-    "While this combo is on the screen, all action is frozen, except for FFC animation and all scripts. Best used in conjunction with Changer FFCs or scripts.",
-    "While this combo is on the screen, FFCs and FFC scripts will be frozen. Best used in conjunction with combo cycling, screen secrets or global scripts.",
-    "Enemies that don't fly or jump cannot enter or appear on this combo.",
-    "Identical to Slash, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
-    "Identical to Slash (Item), but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
-    "Identical to Bush, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
-    // Continuous variation
-    "Identical to Slash, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Slash->Item, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Bush, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Flowers, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Tall Grass, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Slash->Next, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Slash->Next (Item), but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Bush->Next, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
-    "Identical to Eyeball (8-Way A), but only the four cardinal directions/sets of tiles are used (up, down, left and right, respectively).",
-    "Identical to Tall Grass, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
-    // Script types
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //1
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //5
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //10
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //15
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
-    "This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //20
+	"", // Unused
+	"While this combo is on the screen, all action is frozen, except for FFC animation and all scripts. Best used in conjunction with Changer FFCs or scripts.",
+	"While this combo is on the screen, FFCs and FFC scripts will be frozen. Best used in conjunction with combo cycling, screen secrets or global scripts.",
+	"Enemies that don't fly or jump cannot enter or appear on this combo.",
+	"Identical to Slash, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
+	"Identical to Slash (Item), but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
+	"Identical to Bush, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
+	// Continuous variation
+	"Identical to Slash, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Slash->Item, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Bush, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Flowers, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Tall Grass, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Slash->Next, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Slash->Next (Item), but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Bush->Next, but if slashing this combo changes it to another slash-affected combo, then that combo will also change.",
+	"Identical to Eyeball (8-Way A), but only the four cardinal directions/sets of tiles are used (up, down, left and right, respectively).",
+	"Identical to Tall Grass, but instead of changing into the Under Combo when slashed, this changes to the next combo in the list.",
+	// Script types
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //1
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //5
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //10
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //15
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.",
+	"This type has no built-in effect, but can be given special significance with ZASM or ZScript.", //20
 	//Generic
-	"Generic combos can be configured to do a wide variety of things based on attributes. See combos.txt for details.",
-	"Pitfall combos act as either bottomless pits or warps, including a fall animation. See combos.txt for details.",
-	"Step->Effects combos can cause SFX, and also act like a landmine, spawning an EWeapon. See combos.txt for details.",
+	"Generic combos can be configured to do a wide variety of things based on attributes.",
+	"Pitfall combos act as either bottomless pits or warps, including a fall animation.",
+	"Step->Effects combos can cause SFX, and also act like a landmine, spawning a weapon.",
 	"Bridge combos can be used to block combos under them from having an effect.",
-	"Signpost combos can be set to display a string This can be hard-coded, or variable. See combos.txt for details.",
-	"Switch combos, when triggered, toggle a switch state for the current 'level'. See combos.txt for details.",
-	"Switchblock combos change based on switch states toggled by switch combos. See combos.txt for details.",
-	"Emits light in a radius in dark rooms (when \"Quest->Options->Other->New Dark Rooms\" is enabled)"
+	"",
+	"",
+	"Switchblock combos change based on switch states toggled by Switch combos. They can also change"
+		" the combo at the same position on any layer.",
+	"Emits light in a radius in dark rooms (when \"Quest->Options->Misc->New Dark Rooms\" is enabled)"
 };
 
 static const char *flag_help_string[mfMAX] =
 {
-    "",
-    "Allows Link to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    "Allows Link to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    "Triggers Screen Secrets when Link plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.",
-    "Triggers Screen Secrets when Link touches it with fire from any source (Candle, Wand, Din's Fire, etc.) Is replaced with the 'Blue Candle' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
-    "Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
-    "Makes a heart circle appear on screen when Link steps on it, and refills his life. See also the Heart Circle-related Quest Rules.",
-    "Place in paths to define the path Link travels when using the Raft. Use with Dock-type combos. If a path branches, Link takes the clockwise-most path.",
-    "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.",
-    "When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.",
-    "Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.",
-    "Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.",
-    "When Link dives on a flagged water-type combo he will recieve the screen's Special Item. Requires the 'Special Item' Room Type.",
-    "Combos with this flag will flash white when viewed with the Lens of Truth item.",
-    "When Link steps on this flag, the quest will end, and the credits will roll.",
-    // 16-31
-    "",
-    "",
-    "",//18
-    "",
-    "",
-    "",//21
-    "",
-    "",
-    "",//24
-    "",
-    "",
-    "",//27
-    "",
-    "",
-    "",//30
-    "",
-    // Anyway...
-    "Creates the lowest-numbered enemy with the 'Spawned by 'Horz Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-    "Creates the lowest-numbered enemy with the 'Spawned by 'Vert Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-    "Creates the lowest-numbered enemy with the 'Spawned by '4-Way Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-    "Creates the lowest-numbered enemy with the 'Spawned by 'LR Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-    "Creates the lowest-numbered enemy with the 'Spawned by 'UD Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-    // Enemy 0-9
-    "",
-    "",
-    "",//2
-    "",
-    "",
-    "",//5
-    "",
-    "",
-    "",//8
-    "",
-    //Anyway...
-    "Allows Link to push the combo left or right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    "Allows Link to push the combo up once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    "Allows Link to push the combo down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    "Allows Link to push the combo left once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    "Allows Link to push the combo right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-    // Push Silent
-    "",//52
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",//59
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    //Anyway...
-    "Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters.",
-    "Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.",
-    "Triggers Screen Secrets when Link touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with fire from a level 2 Candle, a Wand, or Din's Fire. Is replaced with the 'Red Candle' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with fire from a Wand, or Din's Fire. Is replaced with the 'Wand Fire' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with Din's Fire. Is replaced with the 'Din's Fire' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.",
-    "Triggers Screen Secrets when Link pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.",
-    "Triggers Screen Secrets when Link touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.",
-    "A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it.",
-    "Makes a heart circle appear on screen when Link steps on it, and refills his magic. See also the Heart Circle-related Quest Rules.",
-    "Makes a heart circle appear on screen when Link steps on it, and refills his life and magic. See also the Heart Circle-related Quest Rules.",
-    "When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.",
-    "Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)",
-    "Enemies cannot enter or appear on the flagged combo.",
-    "Enemies that don't fly or jump cannot enter or appear on the flagged combo.",
-    //Script Flags follow.
-    "",
-    "",
-    "",
-    "",
-    "",
-    //Raft bounce flag! ^_^
-    "When Link is rafting, and hits this flag, he will be turned around."
+	"",
+	"Allows Link to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	"Allows Link to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	"Triggers Screen Secrets when Link plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.",
+	"Triggers Screen Secrets when Link touches it with fire from any source (Candle, Wand, Din's Fire, etc.) Is replaced with the 'Blue Candle' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
+	"Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
+	"Makes a heart circle appear on screen when Link steps on it, and refills his life. See also the Heart Circle-related Quest Rules.",
+	"Place in paths to define the path Link travels when using the Raft. Use with Dock-type combos. If a path branches, Link takes the clockwise-most path.",
+	"When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.",
+	"When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.",
+	"Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.",
+	"Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.",
+	"When Link dives on a flagged water-type combo he will recieve the screen's Special Item. Requires the 'Special Item' Room Type.",
+	"Combos with this flag will flash white when viewed with the Lens of Truth item.",
+	"When Link steps on this flag, the quest will end, and the credits will roll.",
+	// 16-31
+	"",
+	"",
+	"",//18
+	"",
+	"",
+	"",//21
+	"",
+	"",
+	"",//24
+	"",
+	"",
+	"",//27
+	"",
+	"",
+	"",//30
+	"",
+	// Anyway...
+	"Creates the lowest-numbered enemy with the 'Spawned by 'Horz Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+	"Creates the lowest-numbered enemy with the 'Spawned by 'Vert Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+	"Creates the lowest-numbered enemy with the 'Spawned by '4-Way Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+	"Creates the lowest-numbered enemy with the 'Spawned by 'LR Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+	"Creates the lowest-numbered enemy with the 'Spawned by 'UD Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
+	// Enemy 0-9
+	"",
+	"",
+	"",//2
+	"",
+	"",
+	"",//5
+	"",
+	"",
+	"",//8
+	"",
+	//Anyway...
+	"Allows Link to push the combo left or right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	"Allows Link to push the combo up once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	"Allows Link to push the combo down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	"Allows Link to push the combo left once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	"Allows Link to push the combo right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
+	// Push Silent
+	"",//52
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",//59
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	//Anyway...
+	"Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters.",
+	"Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.",
+	"Triggers Screen Secrets when Link touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with fire from a level 2 Candle, a Wand, or Din's Fire. Is replaced with the 'Red Candle' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with fire from a Wand, or Din's Fire. Is replaced with the 'Wand Fire' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with Din's Fire. Is replaced with the 'Din's Fire' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.",
+	"Triggers Screen Secrets when Link pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.",
+	"Triggers Screen Secrets when Link touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.",
+	"A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it.",
+	"Makes a heart circle appear on screen when Link steps on it, and refills his magic. See also the Heart Circle-related Quest Rules.",
+	"Makes a heart circle appear on screen when Link steps on it, and refills his life and magic. See also the Heart Circle-related Quest Rules.",
+	"When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.",
+	"Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)",
+	"Enemies cannot enter or appear on the flagged combo.",
+	"Enemies that don't fly or jump cannot enter or appear on the flagged combo.",
+	//Script Flags follow.
+	"",
+	"",
+	"",
+	"",
+	"",
+	//Raft bounce flag! ^_^
+	"When Link is rafting, and hits this flag, he will be turned around."
 };
 //}
 
@@ -398,7 +399,10 @@ std::string getTypeHelpText(int32_t id)
 		case cLIGHTTARGET:
 			typehelp = "If all targets onscreen are lit by light beams, secrets will be triggered.";
 			break;
-		
+		case cCSWITCH:
+			typehelp = "Switch combos, when triggered (Triggers tab), toggle a switch state for the current 'level'."
+				" These states affect Switchblock combos in any dmaps of the same level, and are saved between sessions.";
+			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
 				typehelp = combotype_help_string[id];
@@ -516,6 +520,7 @@ void cflag_help(int32_t id)
 //Load all the info for the combo type and checked flags
 void ComboEditorDialog::loadComboType()
 {
+	static std::string dirstr[] = {"up","down","left","right"};
 	if(lasttype != local_comboref.type) //Load type helpinfo
 	{
 		lasttype = local_comboref.type;
@@ -546,53 +551,90 @@ void ComboEditorDialog::loadComboType()
 		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+		{
+			attribytestrs[0] = "Sound:";
+			h_attribyte[0] = "SFX to play during the warp";
+			break;
+		}
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
 		{
 			attribytestrs[0] = "Sound:";
+			h_attribyte[0] = "SFX to play when triggered";
 			break;
 		}
 		case cSTEP: case cSTEPSAME: case cSTEPALL:
 		{
 			flagstrs[0] = "Heavy";
+			h_flag[0] = "Requires 'Iron' Boots to trigger";
 			attribytestrs[0] = "Sound:";
+			h_attribyte[0] = "SFX to play when triggered";
 			attribytestrs[1] = "Req. Item";
+			h_attribyte[1] = "Item ID that must be owned in order to trigger. If '0', no item is required.";
 			break;
 		}
 		case cSTEPCOPY:
 		{
 			flagstrs[0] = "Heavy";
+			h_flag[0] = "Requires 'Iron' Boots to trigger";
 			break;
 		}
 		case cWATER:
 		{
-			flagstrs[0] = "Is Lava"; flagstrs[1] = "Modify HP (Passive)";
-			flagstrs[2] = "Solid is Land"; flagstrs[3] = "Solid is Shallow Liquid";
-			attributestrs[0] = "Drown Damage:"; attribytestrs[0] = "Flipper Level:";
+			flagstrs[0] = "Is Lava";
+			h_flag[0] = "If a liquid is Lava, it uses a different drowning sprite, and only flippers with the"
+				" 'Can Swim In Lava' flag set will apply.";
+			flagstrs[1] = "Modify HP (Passive)";
+			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
+				" (either healing or damaging).";
+			flagstrs[2] = "Solid is Land";
+			h_flag[2] = "Solid areas of the combo are treated as non-solid land";
+			flagstrs[3] = "Solid is Shallow Liquid";
+			h_flag[3] = "Solid areas of the combo are treated as non-solid Shallow Liquid combo";
+			attributestrs[0] = "Drown Damage:";
+			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
+			attribytestrs[0] = "Flipper Level:";
+			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
 			if(local_comboref.usrflags & cflag2) //Modify HP
 			{
 				flagstrs[4] = "Rings affect HP Mod";
+				h_flag[4] = "Ring items defense reduces damage from HP Mod";
 				flagstrs[5] = "Mod SFX only on HP change";
+				h_flag[5] = "Only play the HP Mod SFX when HP actually changes";
 				flagstrs[6] = "Damage causes hit anim";
+				h_flag[6] = "HP Mod Damage triggers the hit animation and invincibility frames";
 				attributestrs[1] = "HP Modification:";
+				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				attributestrs[2] = "HP Mod SFX:";
+				h_attribute[2] = "What SFX should play when HP is modified";
 				attribytestrs[1] = "HP Delay:";
+				h_attribyte[1] = "The number of frames between HP modifications";
 				attribytestrs[2] = "Req Itemclass:";
+				h_attribyte[2] = "If non-zero, an itemclass number which, if owned, will prevent HP modification.";
 				attribytestrs[3] = "Req Itemlevel:";
+				h_attribyte[3] = "A minimum item level to go with 'Req Itemclass'.";
 			}
 			break;
 		}
 		case cSHALLOWWATER:
 		{
 			flagstrs[1] = "Modify HP (Passive)";
+			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
+				" (either healing or damaging).";
 			attribytestrs[0] = "Sound";
+			h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
 			if(local_comboref.usrflags & cflag2) //Modify HP
 			{
 				attributestrs[1] = "HP Modification:";
+				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				attributestrs[2] = "HP Mod SFX:";
+				h_attribute[2] = "What SFX should play when HP is modified";
 				attribytestrs[1] = "HP Delay:";
+				h_attribyte[1] = "The number of frames between HP modifications";
 				attribytestrs[2] = "Req Itemclass:";
+				h_attribyte[2] = "If non-zero, an itemclass number which, if owned, will prevent HP modification.";
 				attribytestrs[3] = "Req Itemlevel:";
+				h_attribyte[3] = "A minimum item level to go with 'Req Itemclass'.";
 			}
 			break;
 		}
@@ -607,11 +649,15 @@ void ComboEditorDialog::loadComboType()
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
 			flagstrs[1] = "Custom Speed";
+			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[lasttype-cCVUP] + "ward direction.";
 			if(local_comboref.usrflags & cflag2) //Custom speed
 			{
 				attributestrs[0] = "X Speed:";
+				h_attribute[0] = "Pixels moved in the X direction per rate frames";
 				attributestrs[1] = "Y Speed:";
+				h_attribute[1] = "Pixels moved in the Y direction per rate frames";
 				attribytestrs[0] = "Rate:";
+				h_attribyte[0] = "Every this many frames the conveyor moves by the set speeds. If set to 0, acts as if set to 1.";
 			}
 			break;
 		}
@@ -686,9 +732,18 @@ void ComboEditorDialog::loadComboType()
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		{
-			flagstrs[0] = "Custom";
+			flagstrs[0] = "Custom Damage";
+			h_flag[0] = "Uses custom damage amount";
 			flagstrs[1] = "No Knockback";
-			attributestrs[0] = "Amount:";
+			h_flag[1] = "Does not knock the player back when damaging them if checked. Otherwise, knocks the player in the direction"
+				" opposite the one they face.";
+			if(local_comboref.usrflags & cflag1)
+			{
+				attributestrs[0] = "Damage:";
+				h_attribute[0] = "The amount of damage, in HP, to deal. Negative amounts heal."
+					"\nFor healing, the lowest healing amount combo you are standing on takes effect."
+					"\nFor damage, the greatest amount takes priority unless 'Quest->Options->Combos->Lesser Damage Combos Take Priority' is checked.";
+			}
 			break;
 		}
 		case cLOCKBLOCK:
@@ -709,9 +764,13 @@ void ComboEditorDialog::loadComboType()
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		{
 			flagstrs[8] = "Can't use from top";
+			h_flag[8] = "Cannot be activated standing to the top side if checked";
 			flagstrs[9] = "Can't use from bottom";
+			h_flag[8] = "Cannot be activated standing to the bottom side if checked";
 			flagstrs[10] = "Can't use from left";
+			h_flag[8] = "Cannot be activated standing to the left side if checked";
 			flagstrs[11] = "Can't use from right";
+			h_flag[8] = "Cannot be activated standing to the right side if checked";
 			attribytestrs[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the chest will trigger it.";
@@ -720,9 +779,13 @@ void ComboEditorDialog::loadComboType()
 		case cSIGNPOST:
 		{
 			flagstrs[8] = "Can't use from top";
+			h_flag[8] = "Cannot be activated standing to the top side if checked";
 			flagstrs[9] = "Can't use from bottom";
+			h_flag[8] = "Cannot be activated standing to the bottom side if checked";
 			flagstrs[10] = "Can't use from left";
+			h_flag[8] = "Cannot be activated standing to the left side if checked";
 			flagstrs[11] = "Can't use from right";
+			h_flag[8] = "Cannot be activated standing to the right side if checked";
 			attribytestrs[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the signpost will trigger it.";
@@ -817,77 +880,111 @@ void ComboEditorDialog::loadComboType()
 		case cSCRIPT11: case cSCRIPT12: case cSCRIPT13: case cSCRIPT14: case cSCRIPT15:
 		case cSCRIPT16: case cSCRIPT17: case cSCRIPT18: case cSCRIPT19: case cSCRIPT20:
 		{
-			flagstrs[8] = "Engine";
-			if(local_comboref.usrflags & cflag9) //Engine flag
-			{
-				flagstrs[0] = "Visuals"; flagstrs[1] = "Itemdrop";
-				flagstrs[2] = "SFX"; flagstrs[3] = "Next";
-				flagstrs[4] = "Continuous"; flagstrs[6] = "Secrets";
-				flagstrs[7] = "Kill Wpn"; flagstrs[9] = "Clippings";
-				flagstrs[10] = "Specific Item"; flagstrs[11] = "Undercombo";
-				flagstrs[12] = "Always Drop"; flagstrs[13] = "Drop Enemy";
-				attribytestrs[0] = "Sprite:"; attribytestrs[1] = "Dropset:";
-				attribytestrs[2] = "Sound:"; attribytestrs[3] = "Secret Type:";
-				if(local_comboref.usrflags & cflag14) //Drop Enemy flag
-				{
-					flagstrs[5] = "No Poof";
-				}
-				else flagstrs[5] = "Room Item";
-			}
-			break;
+			flagstrs[8] = "Generic";
+			h_flag[8] = "Attributes/flags act like the Generic combo type.";
+			if(!(local_comboref.usrflags & cflag9)) //Generic flag not set
+				break;
 		}
+		[[fallthrough]];
 		case cTRIGGERGENERIC:
 		{
-			flagstrs[0] = "Visuals"; flagstrs[1] = "Itemdrop";
-			flagstrs[2] = "SFX"; flagstrs[3] = "Next";
-			flagstrs[4] = "Continuous"; flagstrs[6] = "Singular Secret";
-			flagstrs[7] = "Kill Wpn"; flagstrs[9] = "Clippings";
-			flagstrs[10] = "Specific Item"; flagstrs[11] = "Undercombo";
-			flagstrs[12] = "Always Drop"; flagstrs[13] = "Drop Enemy";
-			attribytestrs[0] = "Sprite:"; attribytestrs[1] = "Dropset:";
-			attribytestrs[2] = "Sound:"; attribytestrs[3] = "Singular Secret:";
+			flagstrs[0] = "Visuals";
+			flagstrs[1] = "Itemdrop";
+			flagstrs[2] = "SFX";
+			flagstrs[3] = "Next";
+			flagstrs[4] = "Continuous";
+			flagstrs[6] = "Singular Secret";
+			flagstrs[7] = "Kill Wpn";
+			flagstrs[9] = "Clippings";
+			flagstrs[10] = "Specific Item";
+			flagstrs[11] = "Undercombo";
+			flagstrs[12] = "Always Drop";
+			flagstrs[13] = "Drop Enemy";
+			attribytestrs[0] = "Sprite:";
+			attribytestrs[1] = "Dropset:";
+			attribytestrs[2] = "Sound:";
+			attribytestrs[3] = "Singular Secret:";
 			if(local_comboref.usrflags & cflag14) //Drop Enemy flag
 			{
 				flagstrs[5] = "No Poof";
 			}
-			else flagstrs[5] = "Room Item";
+			else
+			{
+				flagstrs[5] = "Room Item";
+			}
 			break;
 		}
 		case cPITFALL:
 		{
-			flagstrs[0] = "Warp"; flagstrs[2] = "Damage is Percent";
-			flagstrs[3] = "Allow Ladder"; flagstrs[4] = "No Pull";
-			attributestrs[0] = "Damage:"; attribytestrs[0] = "Fall SFX:";
+			flagstrs[0] = "Warp";
+			h_flag[0] = "Warp to another screen using a tile warp when falling";
+			flagstrs[2] = "Damage is Percent";
+			h_flag[2] = "The damage amount is a percentage of the player's max life";
+			flagstrs[3] = "Allow Ladder";
+			h_flag[3] = "The ladder can step over this combo";
+			flagstrs[4] = "No Pull";
+			h_flag[4] = "Don't suck in the player at all";
+			attributestrs[0] = "Damage:";
+			h_attribute[0] = "The amount of damage, in HP, to take when falling. Negative values heal.";
+			attribytestrs[0] = "Fall SFX:";
+			h_attribyte[0] = "The SFX to play when falling";
 			if(local_comboref.usrflags & cflag1) //Warp enabled
 			{
 				flagstrs[1] = "Direct Warp";
+				h_flag[1] = "The warp keeps the player at the same x/y position";
 				attribytestrs[1] = "TileWarp ID";
+				h_attribyte[1] = "0 = A, 1 = B, 2 = C, 3 = D";
 			}
 			if(!(local_comboref.usrflags & cflag5)) //"No Pull"
+			{
 				attribytestrs[2] = "Pull Sensitivity:";
+				h_attribyte[2] = "Pull the player 1 pixel every this many frames.\n"
+					"If set to 0, pulls 2 pixels every frame.";
+			}
 			break;
 		}
 		case cSTEPSFX:
 		{
-			flagstrs[0] = "Landmine";
-			flagstrs[1] = "wCustom is LWeapon";
-			flagstrs[2] = "Don't Advance";
-			flagstrs[3] = "Direct Damage";
-			attributestrs[0] = "Damage:";
+			flagstrs[0] = "Landmine (Step->Wpn)";
+			h_flag[0] = "Spawns a weapon when triggered, and by default advances to the next combo in the combo list.";
 			attribytestrs[0] = "Sound:";
-			attribytestrs[1] = "Weapon Type:";
-			attribytestrs[2] = "Initial Dir:";
-			attribytestrs[3] = "Sprite:";
+			h_attribyte[0] = "SFX to play when stepped on";
+			if(local_comboref.usrflags & cflag1) //Landmine
+			{
+				flagstrs[1] = "Script weapon IDs spawn LWeapons";
+				h_flag[1] = "Script weapon IDs for 'Weapon Type' are EWeapons by default; if checked, they will be LWeapons instead.";
+				flagstrs[2] = "Don't Advance";
+				h_flag[2] = "If checked, the combo will not advance to the next combo when triggered."
+					" This may cause the landmine to trigger multiple times in a row.";
+				flagstrs[3] = "Direct Damage from Script LWs & Sparkles";
+				h_flag[3] = "If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
+					" a sparkle type, it will immediately damage the player (knocking them back none).";
+				attributestrs[0] = "Damage:";
+				h_attribute[0] = "The damage value for the spawned weapon. If this is < 1, it will default to 4 damage.";
+				attribytestrs[1] = "Weapon Type:";
+				h_attribyte[1] = "The weapon type to spawn. Script1-10 weapon types are eweapons by default.";
+				attribytestrs[2] = "Weapon Dir:";
+				h_attribyte[2] = "SFX to play when stepped on";
+				attribytestrs[3] = "Wpn Sprite:";
+				h_attribyte[3] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 0 to 255.";
+			}
 			break;
 		}
 		case cCSWITCH:
 		{
 			flagstrs[0] = "Kill Wpn";
+			h_flag[0] = "Destroy the weapon that triggers the combo";
 			flagstrs[7] = "Skip Cycle on Screen Entry";
+			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any switching animation";
+			
 			attributestrs[0] = "Combo Change:";
+			h_attribute[0] = "Value to add to the combo ID when triggered";
 			attributestrs[1] = "CSet Change:";
+			h_attribute[1] = "Value to add to the cset when triggered";
 			attribytestrs[0] = "State Num:";
+			h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
 			attribytestrs[1] = "SFX:";
+			h_attribyte[2] = "SFX to play when triggered";
 			break;
 		}
 		case cCSWITCHBLOCK:
@@ -896,22 +993,41 @@ void ComboEditorDialog::loadComboType()
 			flagstrs[2] = "Change L2"; flagstrs[3] = "Change L3";
 			flagstrs[4] = "Change L4"; flagstrs[5] = "Change L5";
 			flagstrs[6] = "Change L6";
+			h_flag[0] = "Changes the combo on layer 0 in the same pos as this combo when triggered.";
+			h_flag[1] = "Changes the combo on layer 1 in the same pos as this combo when triggered.";
+			h_flag[2] = "Changes the combo on layer 2 in the same pos as this combo when triggered.";
+			h_flag[3] = "Changes the combo on layer 3 in the same pos as this combo when triggered.";
+			h_flag[4] = "Changes the combo on layer 4 in the same pos as this combo when triggered.";
+			h_flag[5] = "Changes the combo on layer 5 in the same pos as this combo when triggered.";
+			h_flag[6] = "Changes the combo on layer 6 in the same pos as this combo when triggered.";
 			flagstrs[7] = "Skip Cycle on Screen Entry";
+			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any rising/falling animation";
 			flagstrs[8] = "Allow walk-on-top";
+			h_flag[7] = "Allows the player to walk along solid switchblocks if they are on them";
 			attributestrs[0] = "Combo Change:";
+			h_attribute[0] = "Value to add to the combo ID when triggered";
 			attributestrs[1] = "CSet Change:";
+			h_attribute[1] = "Value to add to the cset when triggered";
 			attribytestrs[0] = "State Num:";
+			h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
 			if(local_comboref.usrflags & cflag9) //Allow walk-on-top
 			{
 				flagstrs[9] = "-8px DrawYOffset";
+				h_flag[9] = "If enabled, when the Player stands atop the block (solid area), the player's DrawYOffset is decremented by 8."
+					" When the Player leaves the block, the DrawYOffset is incremented back by 8.";
 				attributestrs[2] = "Z-value:";
+				h_attribute[2] = "A Z-height for the block, allowing you to jump atop it, and from block to block."
+					" If set to 0, acts as infinitely tall.";
 				attributestrs[3] = "Step Height:";
+				h_attribute[3] = "The Z amount below the block's Z-height that you can jump atop it from. This allows"
+					" for 'walking up stairs' type effects.";
 			}
 			break;
 		}
 		case cLANTERN:
 		{
 			attribytestrs[0] = "Radius:";
+			h_attribyte[0] = "The radius of light, in pixels, to light up in dark rooms.";
 			break;
 		}
 		case cSPOTLIGHT:
@@ -927,12 +1043,16 @@ void ComboEditorDialog::loadComboType()
 				attributestrs[0] = "Start Tile:";
 				h_attribute[0] = "Tiles in order: Ground, Up, Down, Left, Right, U+L, U+R, D+L, D+R, U+D, L+R, D+L+R, U+L+R, U+D+R, U+D+L, U+D+L+R";
 				attribytestrs[1] = "CSet (0-11):";
+				h_attribyte[1] = "CSet for the light beam graphic";
 			}
 			else
 			{
 				attribytestrs[1] = "Inner Color:";
+				h_attribyte[1] = "One of the colors used to generate the light beam graphic";
 				attribytestrs[2] = "Middle Color:";
+				h_attribyte[2] = "One of the colors used to generate the light beam graphic";
 				attribytestrs[3] = "Outer Color:";
+				h_attribyte[3] = "One of the colors used to generate the light beam graphic";
 			}
 			break;
 		}
