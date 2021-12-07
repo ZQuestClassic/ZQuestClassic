@@ -589,6 +589,8 @@ static const GUI::ListData compatRulesList
 		" memory is a security risk (and thus isn't allowed), this rule recreates this"
 		" behavior as safely as possible by having attribute 32 return 0 and attribute"
 		" 31 be set to attribute 32."},
+	{ "Candle use limit is shared", qr_CANDLES_SHARED_LIMIT,
+		"Candle limited uses per screen is shared between candles" }
 };
 
 static const GUI::ListData enemiesRulesList

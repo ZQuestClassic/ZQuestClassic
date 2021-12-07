@@ -74,11 +74,15 @@ ItemNameInfo defInfo =
 	"UseSound"
 };
 
-void loadinfo(ItemNameInfo * inf, int itype)
+void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 {
 	inf->clear();
-	inf->iclass = itype;
-	switch(itype)
+	inf->iclass = ref.family;
+	#define _SET(mem, str, helpstr) \
+		inf->mem = str; \
+		inf->h_##mem = helpstr
+	#define FLAG(val) (ref.flags & ITEM_FLAG##val)
+	switch(ref.family)
 	{
 		case itype_fairy:
 		{
@@ -100,7 +104,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->h_actionsnd = "Plays SFX when dropped";
 			break;
 		}
-		case itype_triforcepiece:
+		case itype_triforcepiece: //!TODO Help Text
 		{
 			inf->misc[0] = "Cutscene MIDI:";
 			inf->misc[1] = "Cutscene Type (0-1):";
@@ -131,19 +135,19 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "De/Reflection Sound:";
 			break;
 		}
-		case itype_agony:
+		case itype_agony: //!TODO Help Text
 		{
 			inf->power = "Sensitivity:";
 			inf->misc[0] = "Vibration Frequency";
 			break;
 		}
-		case itype_wealthmedal:
+		case itype_wealthmedal: //!TODO Help Text
 		{
 			inf->misc[0] = "Discount Amount:";
 			inf->flag[0] = "D. A. Is Percent";
 			break;
 		}
-		case itype_cbyrna:
+		case itype_cbyrna: //!TODO Help Text
 		{
 			inf->power = "Beam Damage:";
 			inf->misc[0] = "Beam Speed Divisor:";
@@ -166,40 +170,40 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Orbit Sound:";
 			break;
 		}
-		case itype_whispring:
+		case itype_whispring: //!TODO Help Text
 		{
 			inf->power = "Jinx Divisor:";
 			inf->misc[0] = "Jinx Type:";
 			inf->flag[0] = "Perm. Jinx Are Temp.";
 			break;
 		}
-		case itype_ladder:
+		case itype_ladder: //!TODO Help Text
 		{
 			inf->power = "Four-Way:";
 			inf->flag[0] = "Can Ladder Over Pitfalls";
 			break;
 		}
-		case itype_magickey:
+		case itype_magickey: //!TODO Help Text
 		{
 			inf->power = "Dungeon Level:";
 			inf->flag[0] = "Lesser D. Levels Also";
 			break;
 		}
-		case itype_wallet:
+		case itype_wallet: //!TODO Help Text
 		{
 			inf->power = "Infinite Supply:";
 			inf->misc[0] = "Increase Amount:";
 			inf->misc[1] = "Delay Duration:";
 			break;
 		}
-		case itype_quiver:
+		case itype_quiver: //!TODO Help Text
 		{
 			inf->power = "Infinite Supply:";
 			inf->misc[0] = "Increase Amount:";
 			inf->misc[1] = "Delay Duration:";
 			break;
 		}
-		case itype_bombbag:
+		case itype_bombbag: //!TODO Help Text
 		{
 			inf->power = "Infinite Supply:";
 			inf->misc[0] = "Increase Amount:";
@@ -207,7 +211,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[0] = "Super Bombs Also";
 			break;
 		}
-		case itype_quakescroll2:
+		case itype_quakescroll2: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Stun Duration:";
@@ -215,7 +219,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Quake Sound:";
 			break;
 		}
-		case itype_quakescroll:
+		case itype_quakescroll: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Stun Duration:";
@@ -223,50 +227,50 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Quake Sound:";
 			break;
 		}
-		case itype_perilscroll:
+		case itype_perilscroll: //!TODO Help Text
 		{
 			inf->misc[0] = "Maximum Hearts:";
 			break;
 		}
-		case itype_spinscroll2:
+		case itype_spinscroll2: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Number of Spins:";
 			inf->actionsnd = "Spinning Sound:";
 			break;
 		}
-		case itype_spinscroll:
+		case itype_spinscroll: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Number of Spins:";
 			inf->actionsnd = "Spinning Sound:";
 			break;
 		}
-		case itype_clock:
+		case itype_clock: //!TODO Help Text
 		{
 			inf->misc[0] = "Duration (0 = Infinite):";
 			break;
 		}
-		case itype_magicring:
+		case itype_magicring: //!TODO Help Text
 		{
 			inf->power = "Infinite Magic:";
 			inf->misc[0] = "Increase Amount:";
 			inf->misc[1] = "Delay Duration:";
 			break;
 		}
-		case itype_heartring:
+		case itype_heartring: //!TODO Help Text
 		{
 			inf->misc[0] = "Increase Amount:";
 			inf->misc[1] = "Delay Duration:";
 			break;
 		}
-		case itype_chargering:
+		case itype_chargering: //!TODO Help Text
 		{
 			inf->misc[0] = "Charging Duration:";
 			inf->misc[1] = "Magic C. Duration:";
 			break;
 		}
-		case itype_hoverboots:
+		case itype_hoverboots: //!TODO Help Text
 		{
 			inf->misc[0] = "Hover Duration:";
 			inf->flag[0] = "Timer only resets on landing";
@@ -274,7 +278,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Hovering Sound:";
 			break;
 		}
-		case itype_rocs:
+		case itype_rocs: //!TODO Help Text
 		{
 			inf->power = "Jump Power:";
 			inf->misc[0] = "Extra Jumps:";
@@ -282,7 +286,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Jumping Sound:";
 			break;
 		}
-		case itype_sbomb:
+		case itype_sbomb: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
@@ -294,7 +298,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Explosion Sound:";
 			break;
 		}
-		case itype_bomb:
+		case itype_bomb: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
@@ -307,7 +311,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Explosion Sound:";
 			break;
 		}
-		case itype_nayruslove:
+		case itype_nayruslove: //!TODO Help Text
 		{
 			inf->misc[0] = "Duration:";
 			inf->flag[0] = "Rocket Flickers";
@@ -327,13 +331,13 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Shield Sound:";
 			break;
 		}
-		case itype_faroreswind:
+		case itype_faroreswind: //!TODO Help Text
 		{
 			inf->misc[0] = "Warp Animation (0-2):";
 			inf->actionsnd = "Wind Sound:";
 			break;
 		}
-		case itype_dinsfire:
+		case itype_dinsfire: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Number of Flames:";
@@ -349,7 +353,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Ring Sound:";
 			break;
 		}
-		case itype_hammer:
+		case itype_hammer: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->flag[2] = "No Melee Attack";
@@ -359,7 +363,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[6] = "Doesn't Pick Up Dropped Items";
 			break;
 		}
-		case itype_lens:
+		case itype_lens: //!TODO Help Text
 		{
 			inf->misc[0] = "Lens Width:";
 			inf->flag[0] = "Show Hints";
@@ -370,7 +374,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Activation Sound:";
 			break;
 		}
-		case itype_hookshot:
+		case itype_hookshot: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Chain Length:";
@@ -393,7 +397,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Firing Sound:";
 			break;
 		}
-		case itype_boots:
+		case itype_boots: //!TODO Help Text
 		{
 			inf->power = "Damage Combo Level:";
 			inf->flag[0] = "Not Solid Combos";
@@ -402,11 +406,15 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_bracelet:
 		{
-			inf->power = "Push Combo Level:";
-			inf->flag[0] = "Once Per Screen";
+			_SET(power, "Push Combo Level:", "If 1 or higher, can push 'Heavy' blocks. If 2 or higher, can push 'Very Heavy' blocks.");
+			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
+			if(FLAG(1))
+			{
+				_SET(misc[2], "Uses Per Screen", "How many times this bracelet can be used per screen. Minimum 1.");
+			}
 			break;
 		}
-		case itype_book:
+		case itype_book: //!TODO Help Text
 		{
 			inf->power = "M. Damage:";
 			inf->misc[0] = "W. Damage:";
@@ -426,13 +434,16 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_ring:
 		{
-			inf->power = "Damage Divisor:";
-			inf->misc[0] = "Player Sprite Pal:";
+			_SET(misc[0], "Player Sprite Pal:", "The Sprite Palette row to load into CSet 6");
 			inf->flag[0] = "Affects Damage Combos";
-			inf->flag[1] = "Divisor is Percentage Multiplier";
+			inf->flag[1] = "Percentage Multiplier";
+			if(FLAG(2))
+				inf->power = "Damage % Mult:";
+			else
+				inf->power = "Damage Divisor:";
 			break;
 		}
-		case itype_wand:
+		case itype_wand: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "M. Damage";
@@ -461,7 +472,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Firing Sound:";
 			break;
 		}
-		case itype_bait:
+		case itype_bait: //!TODO Help Text
 		{
 			inf->misc[0] = "Duration:";
 			inf->misc[1] = "Bait Range (0 = infinite)";
@@ -470,7 +481,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Baiting Sound:";
 			break;
 		}
-		case itype_potion:
+		case itype_potion: //!TODO Help Text
 		{
 			inf->misc[0] = "HP Regained:";
 			inf->misc[1] = "MP Regained:";
@@ -480,7 +491,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[3] = "Removes Item Jinxes";
 			break;
 		}
-		case itype_whistle:
+		case itype_whistle: //!TODO Help Text
 		{
 			inf->misc[0] = "Whirlwind Direction:";
 			inf->misc[1] = "Warp Ring:";
@@ -495,20 +506,31 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		case itype_candle:
 		{
 			inf->power = "Damage:";
-			inf->misc[0] = "Damage to Player:";
-			inf->flag[0] = "Once Per Screen";
-			inf->flag[1] = "Don't Provide Light";
+			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 2");
+			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
+			_SET(flag[1], "Don't Provide Light", "Does not light up dark rooms");
 			inf->flag[2] = "Fire Doesn't Hurt Player";
-			inf->flag[3] = "Can Slash";
-			inf->flag[4] = "Temporary Light";
-			inf->wpn[0] = "Stab Sprite:";
-			inf->wpn[1] = "Slash Sprite:";
-			inf->wpn[2] = "Flame Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			_SET(flag[3], "Can Slash", "The candle slashes instead of stabs");
 			inf->flag[7] = "Flip Right-Facing Slash";
+			_SET(wpn[0], "Stab Sprite:", "The sprite for the candle stabbing");
+			_SET(wpn[1], "Slash Sprite:", "The sprite for the candle slashing");
+			_SET(wpn[2], "Fire Sprite:", "The sprite for the candle fire");
+			inf->actionsnd = "Firing Sound:";
+			if(FLAG(1))
+			{
+				_SET(misc[2], "Uses Per Screen", "How many times this candle can be used per screen. Minimum 1.");
+			}
+			if(!FLAG(2))
+			{
+				_SET(flag[4], "Temporary Light", "In Old-style Dark Rooms, only keeps the room lit while it exists.");
+			}
+			if(FLAG(3))
+			{
+				_SET(misc[0], "Damage to Player:", "Damage value to be used for self-damage");
+			}
 			break;
 		}
-		case itype_arrow:
+		case itype_arrow: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Duration (0 = Infinite):";
@@ -522,7 +544,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[6] = "Picks Up Keys";
 			break;
 		}
-		case itype_brang:
+		case itype_brang: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Range (0 = Infinite):";
@@ -542,7 +564,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Spinning Sound:";
 			break;
 		}
-		case itype_sword:
+		case itype_sword: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Beam Hearts:";
@@ -563,7 +585,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->actionsnd = "Slash/Stab Sound";
 			break;
 		}
-		case itype_whimsicalring:
+		case itype_whimsicalring: //!TODO Help Text
 		{
 			inf->power = "Damage Bonus:";
 			inf->misc[0] = "Chance (1 in n):";
@@ -572,9 +594,12 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_perilring:
 		{
-			inf->power = "Damage Divisor:";
-			inf->misc[0] = "Maximum Hearts:";
-			inf->flag[1] = "Divisor is Percentage Multiplier";
+			_SET(misc[0], "Maximum Hearts:", "Takes effect when below this number of hearts");
+			inf->flag[1] = "Percentage Multiplier";
+			if(FLAG(2))
+				inf->power = "Damage % Mult:";
+			else
+				inf->power = "Damage Divisor:";
 			break;
 		}
 		case itype_stompboots:
@@ -584,153 +609,60 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_bow:
 		{
-			inf->power = "Arrow Speed:";
+			_SET(power, "Arrow Speed Mod:", "Arrow moves at 3 pixels per frame, multiplied by '(1+n)/2', where 'n' is this value.");
 			break;
 		}
-		case itype_script1:
+		case itype_script1: case itype_script2: case itype_script3: case itype_script4:
+		case itype_script5: case itype_script6: case itype_script7: case itype_script8:
+		case itype_script9: case itype_script10:
 		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
+			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
+			_SET(flag[0], "No Gfx Flip", "If checked, the sprite is not flipped based on direction.");
 			break;
 		}
-		case itype_script2:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script3:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script4:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script5:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script6:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script7:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script8:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script9:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script10:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_custom1:
-		{
-			break;
-		}
-		case itype_custom2:
-		{
-			break;
-		}
-		case itype_custom3:
-		{
-			break;
-		}
-		case itype_custom4:
-		{
-			break;
-		}
-		case itype_custom5:
-		{
-			break;
-		}
-		case itype_custom6:
-		{
-			break;
-		}
-		case itype_custom7:
-		{
-			break;
-		}
-		case itype_custom8:
-		{
-			break;
-		}
-		case itype_custom9:
-		{
-			break;
-		}
-		case itype_custom10:
+		case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4:
+		case itype_custom5: case itype_custom6: case itype_custom7: case itype_custom8:
+		case itype_custom9: case itype_custom10:
 		{
 			break;
 		}
 		case itype_icerod:
 		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
+			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
+			_SET(flag[0], "No Gfx Flip", "If checked, the sprite is not flipped based on direction.");
 			break;
 		}
 		case itype_flippers:
 		{
-			inf->misc[0] = "Dive Length:";
-			inf->misc[1] = "Dive Cooldown:";
-			inf->flag[0] = "No Diving";
-			inf->flag[1] = "Cancellable Diving";
-			inf->flag[2] = "Can Swim in Lava";
+			_SET(flag[0], "No Diving", "If checked, these flippers cannot dive.");
+			_SET(flag[2], "Can Swim in Lava", "These flippers will be able to swim in liquid marked as 'Lava'.");
+			if(!FLAG(1))
+			{
+				_SET(flag[1], "Cancellable Diving", "Pressing B will immediately cancel a dive");
+				_SET(misc[0], "Dive Length:", "Length, in frames, of the dive.");
+				_SET(misc[1], "Dive Cooldown:", "Cooldown, in frames, between coming up from a dive and being able to dive again.");
+			}
 			break;
 		}
 		case itype_raft:
 		{
-			inf->misc[0] = "Speed Modifier:";
+			_SET(misc[0], "Speed Modifier:", "Valid values -8 to 5."
+				"\nIf positive, move 2^n pixels per frame."
+				"\nIf negative, move 1 pixel per 2^n frames."
+				"\nA value of 0 will stop the raft dead. This is useless unless combined with scripts.");
 			break;
 		}
 		case itype_atkring:
 		{
-			inf->misc[0] = "Bonus Damage";
-			inf->misc[1] = "Damage Multiplier";
+			_SET(misc[0], "Bonus Damage", "This amount of damage is *added* to the damage, *after* the multiplier.");
+			_SET(misc[1], "Damage Multiplier", "The amount of damage dealt is multiplied by this value.");
 			break;
 		}
 		case itype_lantern:
 		{
-			inf->misc[0] = "Shape";
-			inf->h_misc[0] = "What shape to use for the light area emitted.\n"
-				"0 = circular, 1 = cone in front";
-			inf->misc[1] = "Range";
-			inf->h_misc[1] = "The range, in pixels, of the light.";
+			_SET(misc[0], "Shape", "What shape to use for the light area emitted.\n"
+				"0 = circular, 1 = cone in front");
+			_SET(misc[1], "Range", "The range, in pixels, of the light.");
 			break;
 		}
 		case itype_pearl:
@@ -739,59 +671,36 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_bottle:
 		{
-			inf->misc[0] = "Slot:";
-			inf->h_misc[0] = "Which slot this bottle item is attached to. Valid vals 0-255.";
+			_SET(misc[0], "Slot:", "Which slot this bottle item is attached to. Valid vals 0-255.");
 			break;
 		}
 		case itype_bottlefill:
 		{
-			inf->misc[0] = "Contents:";
-			inf->h_misc[0] = "What contents to place in an empty bottle when picked up";
+			_SET(misc[0], "Contents:", "What contents to place in an empty bottle when picked up");
 			break;
 		}
 		case itype_bugnet:
 		{
-			inf->flag[0] = "Can't catch fairies";
-			inf->h_flag[0] = "If checked, no longer catches fairies it collides with";
-			inf->flag[1] = "Right-handed";
-			inf->h_flag[1] = "Swaps swing direction of the weapon";
+			_SET(flag[0], "Can't catch fairies", "If checked, no longer catches fairies"
+				" it collides with");
+			_SET(flag[1], "Right-handed", "Swaps swing direction of the weapon");
 			break;
 		}
 		case itype_mirror:
 		{
-			inf->misc[0] = "Warp Effect";
-			inf->h_misc[0] = "What warp effect to use during the warp.\n"
-				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe";
-			inf->flag[0] = "Place Return Portal";
-			inf->h_flag[0] = "If checked, places a return portal when mirroring to a new dmap";
-			inf->flag[1] = "Continue acts as F6->Continue";
-			inf->h_flag[1] = "When used on a dmap with 'Mirror Continues instead of Warping' checked,"
-				"activates F6->Continue instead of Farore's Wind effect if enabled.";
-			inf->wpn[0] = "Portal Sprite";
-			inf->h_wpn[0] = "Sprite of the Return Portal";
+			_SET(misc[0], "Warp Effect", "What warp effect to use during the warp.\n"
+				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe");
+			_SET(flag[0], "Place Return Portal", "If checked, places a return portal when"
+				" mirroring to a new dmap");
+			_SET(flag[1], "Continue acts as F6->Continue",
+				"When used on a dmap with 'Mirror Continues instead of Warping' checked, "
+				"activates F6->Continue instead of Farore's Wind effect if enabled.");
+			_SET(wpn[0], "Portal Sprite", "Sprite of the Return Portal");
 			break;
 		}
 	}
-}
-std::map<int32_t, ItemNameInfo *> *inamemap = NULL;
-
-std::map<int32_t, ItemNameInfo *> *getItemNameMap()
-{
-	if(inamemap == NULL)
-	{
-		inamemap = new std::map<int32_t, ItemNameInfo *>();
-		
-		for(int32_t i=0; i < itype_max; i++)
-		{
-			ItemNameInfo *inf = &inameinf[i];
-			
-			loadinfo(inf, i);
-				
-			(*inamemap)[inf->iclass] = inf;
-		}
-	}
-	
-	return inamemap;
+	#undef _SET
+	#undef FLAG
 }
 
 ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
@@ -859,6 +768,7 @@ Row(padding = 0_px, \
 		onToggleFunc = [&](bool state) \
 		{ \
 			SETFLAG(local_itemref.flags,bit,state); \
+			loadItemClass(); \
 		} \
 	) \
 )
@@ -3351,16 +3261,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 
 void ItemEditorDialog::loadItemClass()
 {
-	std::map<int32_t, ItemNameInfo *> *nmap = getItemNameMap();
-	std::map<int32_t, ItemNameInfo *>::iterator it = nmap->find(local_itemref.family);
-	ItemNameInfo *inf = NULL;
-	
-	if(it != nmap->end())
-		inf = it->second;
+	ItemNameInfo inf;
+	loadinfo(&inf, local_itemref);
 	
 	#define __SET(obj, mem) \
-	l_##obj->setText(inf ? (inf->mem.size() ? inf->mem : defInfo.mem) : defInfo.mem); \
-	h_##obj = inf ? (inf->h_##mem.size() ? inf->h_##mem : "") : ""; \
+	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \
+	h_##obj = (inf.h_##mem.size() ? inf.h_##mem : ""); \
 	if(ib_##obj) \
 		ib_##obj->setDisabled(h_##obj.empty());
 	
@@ -3406,6 +3312,7 @@ void ItemEditorDialog::loadItemClass()
 	__SET(spr[7], wpn[7]);
 	__SET(spr[8], wpn[8]);
 	__SET(spr[9], wpn[9]);
+	#undef __SET
 }
 
 bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)

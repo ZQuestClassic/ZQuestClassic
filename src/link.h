@@ -190,6 +190,7 @@ class LinkClass : public sprite
     
     
 public:
+	std::map<int16_t, int32_t> usecounts;
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
     int32_t refilling,
         ladderx,
