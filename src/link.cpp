@@ -3210,7 +3210,6 @@ bool LinkClass::checkstab()
 
 void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 {
-	
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
     {
 	    //zprint("bit off\n");
@@ -3249,26 +3248,26 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     
     if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
     {
-	return;
+		return;
         //ignorescreen = true;
-	//zprint("ignoring\n");
+		//zprint("ignoring\n");
     }
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     if(!ignorescreen)
     {
 	    if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
-            if(isCuttableNextType(type) || isCuttableNextType(type))
-            {
-                FFCore.tempScreens[layer]->data[i]++;
-            }
-            else
-            {
-                FFCore.tempScreens[layer]->data[i] = tmpscr->undercombo;
-                FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
-                FFCore.tempScreens[layer]->sflag[i] = 0;
-            }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+		if(isCuttableNextType(type) || isCuttableNextType(type))
+		{
+			FFCore.tempScreens[layer]->data[i]++;
+		}
+		else
+		{
+			FFCore.tempScreens[layer]->data[i] = tmpscr->undercombo;
+			FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
+			FFCore.tempScreens[layer]->sflag[i] = 0;
+		}
+		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -3276,14 +3275,12 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
         else if(isCuttableItemType(type))
         {
             int32_t it = -1;
-		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 			
-		}
+			//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
+			if ( (combobuf[cid].usrflags&cflag2) )
+			{
+				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			}
             if(it!=-1)
             {
                 items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -3292,105 +3289,38 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
         
-        //if(isCuttableType(type) || isGenericType(type))
-        //{
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		//if ( isGenericType(type) )
-		if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
+		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[cid].usrflags&cflag3)
+			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-		}
-		else
-		{
-			if (combobuf[cid].usrflags&cflag3)
-			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-		}
-            }
-            
-            if(isBushType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
+		
+		int16_t type = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(type > 3) type = 0;
+		if(!type) type = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(type)
 		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
+			case -2: break; //nothing
+			case -1:
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else
-	    {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-            }
-        //}
-            
     }
     
 }
@@ -3471,8 +3401,6 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     
     if(!ignorescreen && !skipsecrets)
     {
-	
-	
         if((flag >= 16)&&(flag <= 31))
         {  
             s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
@@ -3535,17 +3463,16 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     }
     else if(!ignorescreen && skipsecrets)
     {
-	if(isCuttableNextType(type))
-            {
-                s->data[i]++;
-            }
-            else
-            {
-                s->data[i] = s->undercombo;
-                s->cset[i] = s->undercset;
-                s->sflag[i] = 0;
-            }
-	    
+		if(isCuttableNextType(type))
+		{
+			s->data[i]++;
+		}
+		else
+		{
+			s->data[i] = s->undercombo;
+			s->cset[i] = s->undercset;
+			s->sflag[i] = 0;
+		}
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
@@ -3581,167 +3508,99 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
         }
         else if(isCuttableItemType(type))
         {
-		int32_t it = -1;
-		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
-		{
-			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
-			if ( combobuf[cid].usrflags&cflag11 ) 
+			int32_t it = -1;
+			//zprint("reached iscuttableitem, with cid: %d\n", cid);
+			//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
+			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
-				it = combobuf[cid].attribytes[1];
+				//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
+				if ( combobuf[cid].usrflags&cflag11 ) 
+				{
+					//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
+					it = combobuf[cid].attribytes[1];
+				}
+				else
+				{
+					//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					
+					
+				}
+				//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+				
 			}
+			//old style slash item and tall grass
 			else
 			{
-				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-				it = select_dropitem(combobuf[cid].attribytes[1]); 
-				
-				
+				//zprint("Standard tall grass drop.\n");
+				it = select_dropitem(12, bx, by);
 			}
-			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
-			
-		}
-		//old style slash item and tall grass
-		else if ( !(combobuf[cid].usrflags&cflag2) )
-		{
-			//zprint("Standard tall grass drop.\n");
-			it = select_dropitem(12, bx, by);
-		}
-		if(it!=-1)
-		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-		}
+			if(it!=-1)
+			{
+				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
         
-        //if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        //{
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if(!(isBushType(type) || isFlowersType(type) || isGrassType(type)))
+		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[cid].usrflags&cflag3)
+			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-		}
-		else
-		{
-			if (combobuf[cid].usrflags&cflag3)
-			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-		}
-            }
-            
-            if(isBushType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
+			case -2: break; //nothing
+			case -1:
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else
-	    {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-            }
-        //}
     }
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
-		if ( (combobuf[cid].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
-			
-		}
-		
-		else
-		{
-			int32_t r=zc_oldrand()%100;
-            
-			if(r<15)
+			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it=iHeart;                                // 15%
+				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 			}
-			else if(r<35)
+			else
 			{
-				it=iRupy;                                 // 20%
+				int32_t r=zc_oldrand()%100;
+				
+				if(r<15)
+				{
+					it=iHeart;                                // 15%
+				}
+				else if(r<35)
+				{
+					it=iRupy;                                 // 20%
+				}
 			}
-		}
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -3749,96 +3608,38 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
             }
         }
         
-        if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
-        {
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if ( isGenericType(type) )
+		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[cid].usrflags&cflag3)
+			if (!isBushType(type2) && !isFlowersType(type2) && !isGrassType(type2))
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-		}
-                else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-            }
-            
-            if(isBushType(type2))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type2))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type2))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
+			case -2: break; //nothing
+			case -1:
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else if (isGenericType(type2))
-	    {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-            }
-        }
     }
 }
 
@@ -4044,106 +3845,42 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
         
-        if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        {
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if ( isGenericType(type) )
+        if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[cid].usrflags&cflag3)
+			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-		}
-		else
-			sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-            }
-            
-            if(isBushType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
+			case -2: break; //nothing
+			case -1:
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else if (isGenericType(type))
-	    {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-            }
-        }
             
     }
     
 }
-
-
-
-
-
 
 void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 {
@@ -4387,101 +4124,43 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
         
-        if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        {
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if ( isGenericType(type) )
+        if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[cid].usrflags&cflag3)
+			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-		}
-                else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-            }
-            
-            if(isBushType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
+			case -2: break; //nothing
+			case -1:
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else if (isGenericType(type))
-	    {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-            }
-        }
     }
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -4514,106 +4193,40 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             }
         }
         
-        //if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
-        //{
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if(!(isBushType(type2) || isFlowersType(type2) || isGrassType(type2)))
+        if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[cid].usrflags&cflag3)
+			if (!isBushType(type2) && !isFlowersType(type2) && !isGrassType(type2))
 			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-		}
-                else 
-		{
-			if (combobuf[cid].usrflags&cflag3)
-			{
-				sfx(combobuf[cid].attribytes[2],int32_t(bx));
-			}
-			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-		}
-            }
-            
-            if(isBushType(type2))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type2))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[cid].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type2))
-            {
-		if ( combobuf[cid].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
+			case -2: break; //nothing
+			case -1:
 				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else if (isGenericType(type2))
-	    {
-		if ( combobuf[cid].usrflags&cflag1 )
-		{
-			if ( combobuf[cid].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[cid].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-		}
-            }
-        //}
     }
 }
-
 
 void LinkClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
 {
@@ -4852,8 +4465,6 @@ void LinkClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     return;
 }
 
-
-
 void LinkClass::check_slash_block(weapon *w)
 {
 	//first things 
@@ -5069,133 +4680,64 @@ void LinkClass::check_slash_block(weapon *w)
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
         
-        //if(isBushType(type) || isFlowersType(type) || isGrassType(type) || isGenericType(type))
-        //{
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if(!(isBushType(type) || isFlowersType(type) || isGrassType(type)))
+        if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
-			}
-		}
-                else 
-		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
-			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
-			}
-			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-		}
-            }
-            
-            if(isBushType(type))
-            {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
-		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type))
-            {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
-		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type))
-            {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+			case -2: break; //nothing
+			case -1:
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else
-	    {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
-		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
-		}
-            }
-        //}
     }
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
         
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
-		if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
-			
-		}
-		
-		
-		else
-		{
-			int32_t r=zc_oldrand()%100;
-            
-			if(r<15)
+			if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 			{
-				it=iHeart;                                // 15%
+				it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			}
-			else if(r<35)
+			else
 			{
-				it=iRupy;                                 // 20%
+				int32_t r=zc_oldrand()%100;
+				
+				if(r<15)
+				{
+					it=iHeart;                                // 15%
+				}
+				else if(r<35)
+				{
+					it=iRupy;                                 // 20%
+				}
 			}
-		}
 		
 		
             
@@ -5206,103 +4748,38 @@ void LinkClass::check_slash_block(weapon *w)
             }
         }
         
-        //if(isBushType(type2) || isFlowersType(type2) || isGrassType(type2) || isGenericType(type2))
-        //{
-            if(get_bit(quest_rules,qr_MORESOUNDS))
-            {
-		if(!(isBushType(type2) || isFlowersType(type2) || isGrassType(type2)))
+		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
+			if (!isBushType(type2) && !isFlowersType(type2) && !isGrassType(type2))
 			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
-			}
-		}
-                else 
-		{
-			if (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag3)
-			{
-				sfx(combobuf[MAPCOMBO(bx,by)-1].attribytes[2],int32_t(bx));
-			}
-			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-		}
-            }
-            
-            if(isBushType(type2))
-            {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
-		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
-		}
-		else decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0));
-            }
-            else if(isFlowersType(type2))
-            {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
-		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
+			else
 			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
+				if (combobuf[cid].usrflags&cflag3)
 				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
+				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
 			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
 		}
-		else decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0));
-            }
-            else if(isGrassType(type2))
-            {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
+		
+		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		if(decotype > 3) decotype = 0;
+		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		switch(decotype)
 		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
+			case -2: break; //nothing
+			case -1:
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				break;
+			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-                else decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0));
-            }
-	    else if (isGenericType(type2))
-	    {
-		if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag1 )
-		{
-			if ( combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag10 ) //select sys sprite
-			{
-				switch( combobuf[MAPCOMBO(bx,by)-1].attribytes[0] )
-				{
-					case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-					case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-					case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-					default: decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx, by) - 1].attribytes[0])); break;
-				}
-			}
-			else 
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[MAPCOMBO(bx,by)-1].attribytes[0]));
-		}
-            }
-        //}
     }
 }
 
@@ -16514,23 +15991,24 @@ void LinkClass::checklockblock()
 	    }
 	    goto unlock;
     }
+	else if((combobuf[cid].usrflags&cflag1) && itemonly) return; //Nothing but item works
     else if ( (combobuf[cid].usrflags&cflag4) )
     {
-	if ( game->get_counter(thecounter) >= ctr_amount )
-	{
-		//flag 6 only checks the required count; it doesn't drain it
-		if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
-		goto unlock; 
-	}
-	else if ( game->get_counter(thecounter) < ctr_amount && (combobuf[cid].usrflags&cflag6) ) //eat counter even if insufficient, but don't unlock
-	{
-		//shadowtiger requested this on 29th Dec, 2019 -Z
-		if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
-		return;
-	}
+		if ( game->get_counter(thecounter) >= ctr_amount )
+		{
+			//flag 6 only checks the required count; it doesn't drain it
+			if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
+			goto unlock; 
+		}
+		else if (combobuf[cid].usrflags&cflag6) //eat counter even if insufficient, but don't unlock
+		{
+			//shadowtiger requested this on 29th Dec, 2019 -Z
+			if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
+			return;
+		}
     }
     else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
-    else if(!ctr_amount && !requireditem && usekey() && !itemonly ) goto unlock;
+    else if(!ctr_amount && !requireditem && !itemonly && usekey() ) goto unlock;
     
     
     return;
@@ -16543,10 +16021,9 @@ void LinkClass::checklockblock()
     remove_lockblocks((currscr>=128)?1:0);
     if ( combobuf[cid].usrflags&cflag3 )
     {
-	if ( (combobuf[cid].attribytes[3]) )
-		sfx(combobuf[cid].attribytes[3]);
+		if ( (combobuf[cid].attribytes[3]) )
+			sfx(combobuf[cid].attribytes[3]);
     }
-	    
     else sfx(WAV_DOOR);
 }
 
@@ -16661,7 +16138,12 @@ void LinkClass::checkbosslockblock()
     
     setmapflag(mBOSSLOCKBLOCK);
     remove_bosslockblocks((currscr>=128)?1:0);
-    sfx(WAV_DOOR);
+    if ( combobuf[cid].usrflags&cflag3 )
+    {
+		if ( (combobuf[cid].attribytes[3]) )
+			sfx(combobuf[cid].attribytes[3]);
+    }
+    else sfx(WAV_DOOR);
 }
 
 void LinkClass::oldcheckchest(int32_t type)
@@ -18289,349 +17771,348 @@ void LinkClass::handleSpotlights()
 
 void LinkClass::checktouchblk()
 {
-    if(toogam) return;
-    
-    if(!pushing)
-        return;
-        
-    int32_t tdir = dir; //Bad hack #2. _L_, your welcome to fix this properly. ;)
-    
-    if(charging > 0 || spins > 0) //if not I probably will at some point...
-    {
-        if(Up()&&Left())tdir = (charging%2)*2;
-        else if(Up()&&Right())tdir = (charging%2)*3;
-        else if(Down()&&Left())tdir = 1+(charging%2)*1;
-        else if(Down()&&Right())tdir = 1+(charging%2)*2;
-        else
-        {
-            if(Up())tdir=0;
-            else if(Down())tdir=1;
-            else if(Left())tdir=2;
-            else if(Right())tdir=3;
-        }
-    }
-    
-    int32_t tx=0,ty=-1;
-    
-    switch(tdir)
-    {
-    case up:
-        if(touchcombo(x,y+(bigHitbox?0:7)))
-        {
-            tx=x;
-            ty=y+(bigHitbox?0:7);
-        }
-        else if(touchcombo(x+8,y+(bigHitbox?0:7)))
-        {
-            tx=x+8;
-            ty=y+(bigHitbox?0:7);
-        }
-        
-        break;
-        
-    case down:
-        if(touchcombo(x,y+16))
-        {
-            tx=x;
-            ty=y+16;
-        }
-        else if(touchcombo(x+8,y+16))
-        {
-            tx=x+8;
-            ty=y+16;
-        }
-        
-        break;
-        
-    case left:
-        if(touchcombo(x-1,y+15))
-        {
-            tx=x-1;
-            ty=y+15;
-        }
-        
-        break;
-        
-    case right:
-        if(touchcombo(x+16,y+15))
-        {
-            tx=x+16;
-            ty=y+15;
-        }
-        
-        break;
-    }
-    
-    if(ty>=0)
-    {
-        ty&=0xF0;
-        tx&=0xF0;
-        int32_t di = ty+(tx>>4);
-        int32_t gc=0;
-        int32_t eclk=-14;
-        
-        for(int32_t i=0; i<guys.Count(); ++i)
-        {
-            if(((enemy*)guys.spr(i))->mainguy)
-            {
-                ++gc;
-            }
-        }
-        
-        if(di<176 && !guygrid[di] && gc<11)
-        {
-            if((getAction() != hopping || isSideViewLink()))
-            {
-                guygrid[di]=61; //Note: not 60.
-		//zprint2("oof: %d\n", di);
-                int32_t id2=0; 
-                int32_t cid = MAPCOMBO(tx,ty);
-		int32_t cpos = COMBOPOS(tx,ty);
-                switch(combobuf[MAPCOMBO(tx,ty)].type)
-                {
-                case cARMOS: //id2=eARMOS; break;
-			
-			if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
+	if(toogam) return;
+	
+	if(!pushing)
+		return;
+		
+	int32_t tdir = dir; //Bad hack #2. _L_, your welcome to fix this properly. ;)
+	
+	if(charging > 0 || spins > 0) //if not I probably will at some point...
+	{
+		if(Up()&&Left())tdir = (charging%2)*2;
+		else if(Up()&&Right())tdir = (charging%2)*3;
+		else if(Down()&&Left())tdir = 1+(charging%2)*1;
+		else if(Down()&&Right())tdir = 1+(charging%2)*2;
+		else
+		{
+			if(Up())tdir=0;
+			else if(Down())tdir=1;
+			else if(Left())tdir=2;
+			else if(Right())tdir=3;
+		}
+	}
+	
+	int32_t tx=0,ty=-1;
+	
+	switch(tdir)
+	{
+	case up:
+		if(touchcombo(x,y+(bigHitbox?0:7)))
+		{
+			tx=x;
+			ty=y+(bigHitbox?0:7);
+		}
+		else if(touchcombo(x+8,y+(bigHitbox?0:7)))
+		{
+			tx=x+8;
+			ty=y+(bigHitbox?0:7);
+		}
+		
+		break;
+		
+	case down:
+		if(touchcombo(x,y+16))
+		{
+			tx=x;
+			ty=y+16;
+		}
+		else if(touchcombo(x+8,y+16))
+		{
+			tx=x+8;
+			ty=y+16;
+		}
+		
+		break;
+		
+	case left:
+		if(touchcombo(x-1,y+15))
+		{
+			tx=x-1;
+			ty=y+15;
+		}
+		
+		break;
+		
+	case right:
+		if(touchcombo(x+16,y+15))
+		{
+			tx=x+16;
+			ty=y+15;
+		}
+		
+		break;
+	}
+	
+	if(ty>=0)
+	{
+		ty&=0xF0;
+		tx&=0xF0;
+		int32_t di = ty+(tx>>4);
+		int32_t gc=0;
+		int32_t eclk=-14;
+		
+		for(int32_t i=0; i<guys.Count(); ++i)
+		{
+			if(((enemy*)guys.spr(i))->mainguy)
 			{
-				int32_t r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
-				id2 = combobuf[cid].attribytes[0+r];
-				//if(guysbuf[id2].family==eeWALK)
-				//{
-				//	eclk=0;
-				//}
-				
-				//! To-do Adjust for larger enemies, but we need it to be directional. 
-				int32_t ypos = 0; int32_t xpos = 0;
-				int32_t chy = 0; int32_t chx = 0;
-				//nmew idea = check while the upper-left corner combo is armos
-				///move up one and check if it is armos, check the next, and stop as soon as that is not armos
-				///then do the same going left
-				
-				int32_t searching = 1;
-				int32_t armosxsz = 1;
-				int32_t armosysz = 1;
-				switch(guysbuf[id2].family)
-				{
-					case eeGHOMA:
-						armosxsz = 3;
-						break;
-					case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
-					case eeDIG:
-						armosxsz = 2;
-						armosysz = 2;
-						break;
-					default:
-						break;
-				}
-				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
-				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
-				
-				if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
-				{
-					switch(dir)
-					{
-						case up: //touched armos from below
-						{
-							while(searching == 1) //find the top edge of an armos block
-							{
-								chy += 16;
-								if ( cpos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
-								{
-									ypos -=16;
-								}
-								else searching = 2;
-							}
-							while(searching == 2) //find the left edge of an armos block
-							{
-								if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
-								++chx;
-								if ( cpos - chx < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
-								{
-									xpos -=16;
-								}
-								else searching = 3;
-							}
-							
-							break;
-						}
-						case down: //touched armos from above
-						{
-							//zprint("touched armos from above\n");
-							//zprint("cpos: %d\n", cpos);
-							//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
-							//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
-							//tx2 = GridX(tx2);
-							//ty2 = GridY(ty2);
-							while(searching == 1) //find the left edge of an armos block
-							{
-								//zprint("searching\n");
-								if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
-								++chx;
-								
-								
-								//zprint("chx: %d\n", chx);
-								//zprint("tx2: %d\n", tx2);
-								//zprint("ty2: %d\n", ty2);
-								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
-								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
-								if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
-								{
-									//zprint("found match\n");
-									xpos -=16;
-								}
-								else searching = 3;
-							}
-							//zprint("xpos is: %d\n", xpos);
-						}
-						[[fallthrough]];
-						case left: //touched right edge of armos
-						{
-							while(searching == 1) //find the top edge of an armos block
-							{
-								chy += 16;
-								if ( cpos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
-								{
-									ypos -=16;
-								}
-								else searching = 2;
-							}
-							while(searching == 2) //find the left edge of an armos block
-							{
-								if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
-								++chx;
-								if ( cpos - chx < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
-								{
-									xpos -=16;
-								}
-								else searching = 3;
-							}
-							break;
-						}
-							
-						case right: //touched left edge of armos
-						{
-							//zprint("touched armos on left\n");
-							while(searching == 1) //find the top edge of an armos block
-							{
-								chy += 16;
-								if ( cpos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
-								{
-									//zprint("found match\n");
-									ypos -=16;
-								}
-								else searching = 2;
-							}
-							break;
-						}
-					
-						
-					}
-				}
-				//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
-				//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
-				int32_t xpos2 = tx+xpos;
-				int32_t ypos2 = ty+ypos;
-				int32_t id3 = COMBOPOS(xpos2, ypos2);
-				for (int32_t n = 0; n < armosysz && id3 < 176; n++)
-				{
-					
-					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
-					{
-						if (id3 + m < 176)
-							guygrid[(id3+m)]=61;
-						//zprint2("oof: %d\n", id3+m);
-					}
-					id3+=16;
-				}
-				if (guysbuf[id2].family == eeGHOMA) 
-				{
-					if ( ( combobuf[(tmpscr->data[cpos-chx+1])].type == cARMOS ) ) xpos += 16;
-				}
-				addenemy(tx+xpos,ty+1+ypos,id2,0);
-				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
-				((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
-				//((enemy*)guys.spr(guys.Count()-1))->dir = down;
-				//((enemy*)guys.spr(guys.Count()-1))->xofs = 0;
-				//((enemy*)guys.spr(guys.Count()-1))->yofs = 0;
-				/*
-				int32_t cd = (tx>>4)+ty;
-				int32_t f = MAPFLAG(tx,ty);
-				int32_t f2 = MAPCOMBOFLAG(tx,ty);
-				tmpscr->data[cd] = tmpscr->undercombo;
-				tmpscr->cset[cd] = tmpscr->undercset;
-				tmpscr->sflag[cd] = 0;
-				    
-				if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
-				{
-					tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
-					tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
-					tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
-					sfx(tmpscr->secretsfx);
-				}
-				    
-				if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
-				{
-					if(!getmapflag())
-					{
-					    additem(tx,ty,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
-					    sfx(tmpscr->secretsfx);
-					}
-				}
-				    
-				putcombo(scrollbuf,tx,ty,tmpscr->data[cd],tmpscr->cset[cd]);
-				return;
-				*/
-				return;
+				++gc;
 			}
+		}
+		
+		if(di<176 && !guygrid[di] && gc<11)
+		{
+			if((getAction() != hopping || isSideViewLink()))
+			{
+				guygrid[di]=61; //Note: not 60.
+				//zprint2("oof: %d\n", di);
+				int32_t id2=0; 
+				int32_t cid = MAPCOMBO(tx,ty);
+				int32_t cpos = COMBOPOS(tx,ty);
+				switch(combobuf[MAPCOMBO(tx,ty)].type)
+				{
+				case cARMOS: //id2=eARMOS; break;
+					if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
+					{
+						int32_t r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
+						id2 = combobuf[cid].attribytes[0+r];
+						//if(guysbuf[id2].family==eeWALK)
+						//{
+						//	eclk=0;
+						//}
+						
+						//! To-do Adjust for larger enemies, but we need it to be directional. 
+						int32_t ypos = 0; int32_t xpos = 0;
+						int32_t chy = 0; int32_t chx = 0;
+						//nmew idea = check while the upper-left corner combo is armos
+						///move up one and check if it is armos, check the next, and stop as soon as that is not armos
+						///then do the same going left
+						
+						int32_t searching = 1;
+						int32_t armosxsz = 1;
+						int32_t armosysz = 1;
+						switch(guysbuf[id2].family)
+						{
+							case eeGHOMA:
+								armosxsz = 3;
+								break;
+							case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
+							case eeDIG:
+								armosxsz = 2;
+								armosysz = 2;
+								break;
+							default:
+								break;
+						}
+						if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+						if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
+						
+						if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
+						{
+							switch(dir)
+							{
+								case up: //touched armos from below
+								{
+									while(searching == 1) //find the top edge of an armos block
+									{
+										chy += 16;
+										if ( cpos - chy < 0 ) break; //don't go out of bounds
+										if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+										{
+											ypos -=16;
+										}
+										else searching = 2;
+									}
+									while(searching == 2) //find the left edge of an armos block
+									{
+										if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+										++chx;
+										if ( cpos - chx < 0 ) break; //don't go out of bounds
+										if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+										{
+											xpos -=16;
+										}
+										else searching = 3;
+									}
+									
+									break;
+								}
+								case down: //touched armos from above
+								{
+									//zprint("touched armos from above\n");
+									//zprint("cpos: %d\n", cpos);
+									//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
+									//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
+									//tx2 = GridX(tx2);
+									//ty2 = GridY(ty2);
+									while(searching == 1) //find the left edge of an armos block
+									{
+										//zprint("searching\n");
+										if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+										++chx;
+										
+										
+										//zprint("chx: %d\n", chx);
+										//zprint("tx2: %d\n", tx2);
+										//zprint("ty2: %d\n", ty2);
+										//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
+										//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
+										if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+										{
+											//zprint("found match\n");
+											xpos -=16;
+										}
+										else searching = 3;
+									}
+									//zprint("xpos is: %d\n", xpos);
+								}
+								[[fallthrough]];
+								case left: //touched right edge of armos
+								{
+									while(searching == 1) //find the top edge of an armos block
+									{
+										chy += 16;
+										if ( cpos - chy < 0 ) break; //don't go out of bounds
+										if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+										{
+											ypos -=16;
+										}
+										else searching = 2;
+									}
+									while(searching == 2) //find the left edge of an armos block
+									{
+										if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+										++chx;
+										if ( cpos - chx < 0 ) break; //don't go out of bounds
+										if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+										{
+											xpos -=16;
+										}
+										else searching = 3;
+									}
+									break;
+								}
+									
+								case right: //touched left edge of armos
+								{
+									//zprint("touched armos on left\n");
+									while(searching == 1) //find the top edge of an armos block
+									{
+										chy += 16;
+										if ( cpos - chy < 0 ) break; //don't go out of bounds
+										if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+										{
+											//zprint("found match\n");
+											ypos -=16;
+										}
+										else searching = 2;
+									}
+									break;
+								}
+							
+								
+							}
+						}
+						//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
+						//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
+						int32_t xpos2 = tx+xpos;
+						int32_t ypos2 = ty+ypos;
+						int32_t id3 = COMBOPOS(xpos2, ypos2);
+						for (int32_t n = 0; n < armosysz && id3 < 176; n++)
+						{
+							
+							for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
+							{
+								if (id3 + m < 176)
+									guygrid[(id3+m)]=61;
+								//zprint2("oof: %d\n", id3+m);
+							}
+							id3+=16;
+						}
+						if (guysbuf[id2].family == eeGHOMA) 
+						{
+							if ( ( combobuf[(tmpscr->data[cpos-chx+1])].type == cARMOS ) ) xpos += 16;
+						}
+						addenemy(tx+xpos,ty+1+ypos,id2,0);
+						((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+						((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
+						((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
+						//((enemy*)guys.spr(guys.Count()-1))->dir = down;
+						//((enemy*)guys.spr(guys.Count()-1))->xofs = 0;
+						//((enemy*)guys.spr(guys.Count()-1))->yofs = 0;
+						/*
+						int32_t cd = (tx>>4)+ty;
+						int32_t f = MAPFLAG(tx,ty);
+						int32_t f2 = MAPCOMBOFLAG(tx,ty);
+						tmpscr->data[cd] = tmpscr->undercombo;
+						tmpscr->cset[cd] = tmpscr->undercset;
+						tmpscr->sflag[cd] = 0;
+							
+						if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
+						{
+							tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
+							tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
+							tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
+							sfx(tmpscr->secretsfx);
+						}
+							
+						if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
+						{
+							if(!getmapflag())
+							{
+								additem(tx,ty,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
+								sfx(tmpscr->secretsfx);
+							}
+						}
+							
+						putcombo(scrollbuf,tx,ty,tmpscr->data[cd],tmpscr->cset[cd]);
+						return;
+						*/
+						return;
+					}
 			
-                    for(int32_t i=0; i<eMAXGUYS; i++)
-                    {
-                        if(guysbuf[i].flags2&cmbflag_armos)
-                        {
-                            id2=i;
-                            
-                            // This is mostly for backwards-compatability
-                            if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
-                            {
-                                eclk=0;
-                            }
-                            
-                            break;
-                        }
-                    }
-                    
-                    break;
-                    
-                case cBSGRAVE:
-                    tmpscr->data[di]++;
+					for(int32_t i=0; i<eMAXGUYS; i++)
+					{
+						if(guysbuf[i].flags2&cmbflag_armos)
+						{
+							id2=i;
+							
+							// This is mostly for backwards-compatability
+							if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+							{
+								eclk=0;
+							}
+							
+							break;
+						}
+					}
+					
+					break;
+					
+				case cBSGRAVE:
+					tmpscr->data[di]++;
 
 					[[fallthrough]];
-                case cGRAVE:
-                    for(int32_t i=0; i<eMAXGUYS; i++)
-                    {
-                        if(guysbuf[i].flags2&cmbflag_ghini)
-                        {
-                            id2=i;
-                            eclk=0; // This is mostly for backwards-compatability
-                            break;
-                        }
-                    }
-                    
-                    //id2=eGHINI2;
-                    break;
-                }
-                
-                addenemy(tx,ty+3,id2,eclk);
-                ((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-            }
-        }
-    }
+				case cGRAVE:
+					for(int32_t i=0; i<eMAXGUYS; i++)
+					{
+						if(guysbuf[i].flags2&cmbflag_ghini)
+						{
+							id2=i;
+							eclk=0; // This is mostly for backwards-compatability
+							break;
+						}
+					}
+					
+					//id2=eGHINI2;
+					break;
+				}
+				
+				addenemy(tx,ty+3,id2,eclk);
+				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+			}
+		}
+	}
 }
 
 int32_t LinkClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)

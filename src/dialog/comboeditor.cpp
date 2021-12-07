@@ -530,6 +530,7 @@ void ComboEditorDialog::loadComboType()
 	string attribytestrs[8];
 	string attrishortstrs[8];
 	string attributestrs[4];
+	#define FL(fl) (local_comboref.usrflags & (fl))
 	for(size_t q = 0; q < 16; ++q)
 	{
 		flagstrs[q] = "Flags["+to_string(q)+"]";
@@ -595,7 +596,7 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
 			attribytestrs[0] = "Flipper Level:";
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
-			if(local_comboref.usrflags & cflag2) //Modify HP
+			if(FL(cflag2)) //Modify HP
 			{
 				flagstrs[4] = "Rings affect HP Mod";
 				h_flag[4] = "Ring items defense reduces damage from HP Mod";
@@ -623,7 +624,7 @@ void ComboEditorDialog::loadComboType()
 				" (either healing or damaging).";
 			attribytestrs[0] = "Sound";
 			h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
-			if(local_comboref.usrflags & cflag2) //Modify HP
+			if(FL(cflag2)) //Modify HP
 			{
 				attributestrs[1] = "HP Modification:";
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
@@ -641,16 +642,32 @@ void ComboEditorDialog::loadComboType()
 		case cARMOS:
 		{
 			flagstrs[0] = "Specify";
-			flagstrs[1] = "Random";
-			attribytestrs[0] = "Enemy 1:";
-			attribytestrs[1] = "Enemy 2:";
+			h_flag[0] = "If checked, attribytes are used to specify enemy IDs. Otherwise, the lowest"
+				" enemy ID with the armos flag checked will be spawned.";
+			if(FL(cflag1))
+			{
+				flagstrs[1] = "Random";
+				h_flag[1] = "Randomly choose between two enemy IDs (50/50)";
+				if(FL(cflag2))
+				{
+					attribytestrs[0] = "Enemy 1:";
+					h_attribyte[0] = "The first enemy ID, 50% chance of being spawned";
+					attribytestrs[1] = "Enemy 2:";
+					h_attribyte[1] = "The second enemy ID, 50% chance of being spawned";
+				}
+				else
+				{
+					attribytestrs[0] = "Enemy:";
+					h_attribyte[0] = "The enemy ID to be spawned";
+				}
+			}
 			break;
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
 			flagstrs[1] = "Custom Speed";
 			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[lasttype-cCVUP] + "ward direction.";
-			if(local_comboref.usrflags & cflag2) //Custom speed
+			if(FL(cflag2)) //Custom speed
 			{
 				attributestrs[0] = "X Speed:";
 				h_attribute[0] = "Pixels moved in the X direction per rate frames";
@@ -663,15 +680,32 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cTALLGRASS:
 		{
-			flagstrs[0] = "Visuals";
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
 			flagstrs[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			attribytestrs[0] = "Sprite:";
-			if(local_comboref.usrflags & cflag2)
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag2))
 			{
 				flagstrs[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(local_comboref.usrflags & cflag11)
+				if(FL(cflag11))
 				{
 					attribytestrs[1] = "Item:";
 					h_attribyte[1] = "The item ID to drop";
@@ -682,20 +716,41 @@ void ComboEditorDialog::loadComboType()
 					h_attribyte[1] = "The dropset to select a drop item from";
 				}
 			}
-			attribytestrs[2] = "Sound:";
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
+			}
 			break;
 		}
 		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
 		{
-			flagstrs[0] = "Visuals";
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
 			flagstrs[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			attribytestrs[0] = "Sprite:";
-			if(local_comboref.usrflags & cflag2)
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag2))
 			{
 				flagstrs[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(local_comboref.usrflags & cflag11)
+				if(FL(cflag11))
 				{
 					attribytestrs[1] = "Item:";
 					h_attribyte[1] = "The item ID to drop";
@@ -705,18 +760,42 @@ void ComboEditorDialog::loadComboType()
 					attribytestrs[1] = "Dropset:";
 					h_attribyte[1] = "The dropset to select a drop item from";
 				}
+			}
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
 			}
 			break;
 		}
 		case cSLASHITEM:
 		{
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
 			flagstrs[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			if(local_comboref.usrflags & cflag2)
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag2))
 			{
 				flagstrs[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(local_comboref.usrflags & cflag11)
+				if(FL(cflag11))
 				{
 					attribytestrs[1] = "Item:";
 					h_attribyte[1] = "The item ID to drop";
@@ -726,6 +805,11 @@ void ComboEditorDialog::loadComboType()
 					attribytestrs[1] = "Dropset:";
 					h_attribyte[1] = "The dropset to select a drop item from";
 				}
+			}
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
 			}
 			break;
 		}
@@ -737,7 +821,7 @@ void ComboEditorDialog::loadComboType()
 			flagstrs[1] = "No Knockback";
 			h_flag[1] = "Does not knock the player back when damaging them if checked. Otherwise, knocks the player in the direction"
 				" opposite the one they face.";
-			if(local_comboref.usrflags & cflag1)
+			if(FL(cflag1))
 			{
 				attributestrs[0] = "Damage:";
 				h_attribute[0] = "The amount of damage, in HP, to deal. Negative amounts heal."
@@ -748,17 +832,66 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cLOCKBLOCK:
 		{
-			flagstrs[0] = "Require";
-			flagstrs[1] = "Only";
-			flagstrs[2] = "SFX";
+			flagstrs[0] = "Require Item";
+			h_flag[0] = "Require an item in your inventory to unlock the block";
+			if(FL(cflag1))
+			{
+				flagstrs[4] = "Eat Item";
+				h_flag[4] = "Consume the required item instead of simply requiring its presence";
+				if(FL(cflag5))
+				{
+					attribytestrs[0] = "Consumed Item";
+					h_attribyte[0] = "The Item ID required to open the lock block. Consumed.";
+				}
+				else
+				{
+					attribytestrs[0] = "Held Item";
+					h_attribyte[0] = "The Item ID required to open the lock block. Not consumed.";
+				}
+				flagstrs[1] = "Only Item";
+				h_flag[1] = "Only the required item can open this block";
+			}
+			else
+			{
+				attributestrs[0] = "Amount:";
+				if(FL(cflag4))
+					h_attribute[0] = "The amount of the arbitrary counter required to open this block";
+				else
+					h_attribute[0] = "The amount of keys required to open this block";
+			}
 			flagstrs[3] = "Counter";
-			flagstrs[4] = "Eat Item";
-			flagstrs[5] = "Thief";
-			flagstrs[7] = "No Drain";
-			attributestrs[0] = "Amount";
-			attribytestrs[0] = "Item";
-			attribytestrs[1] = "Counter";
-			attribytestrs[3] = "Sound";
+			h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
+			if(FL(cflag4))
+			{
+				attribytestrs[1] = "Counter:";
+				h_attribyte[1] = "The counter to use to open this block";
+				flagstrs[7] = "No Drain";
+				h_flag[7] = "Requires the counter have the amount, but do not consume from it";
+				if(!FL(cflag8))
+				{
+					flagstrs[5] = "Thief";
+					h_flag[5] = "Consumes from counter even if you don't have enough";
+				}
+			}
+			
+			flagstrs[2] = "Custom Unlock Sound";
+			h_flag[2] = "Play a custom sound when unlocked";
+			if(FL(cflag3))
+			{
+				attribytestrs[3] = "Unlock Sound:";
+				h_attribyte[3] = "The sound to play when unlocking the block";
+			}
+			break;
+		}
+		case cBOSSLOCKBLOCK:
+		{
+			flagstrs[2] = "Custom Unlock Sound";
+			h_flag[2] = "Play a custom sound when unlocked";
+			if(FL(cflag3))
+			{
+				attribytestrs[3] = "Unlock Sound:";
+				h_attribyte[3] = "The sound to play when unlocking the block";
+			}
 			break;
 		}
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
@@ -798,16 +931,32 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
 		{
-			flagstrs[0] = "Visuals";
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
 			flagstrs[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			flagstrs[9] = "Clippings";
-			attribytestrs[0] = "Sprite:";
-			if(local_comboref.usrflags & cflag2)
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag2))
 			{
 				flagstrs[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(local_comboref.usrflags & cflag11)
+				if(FL(cflag11))
 				{
 					attribytestrs[1] = "Item:";
 					h_attribyte[1] = "The item ID to drop";
@@ -818,22 +967,42 @@ void ComboEditorDialog::loadComboType()
 					h_attribyte[1] = "The dropset to select a drop item from";
 				}
 			}
-			attribytestrs[2] = "Sound:";
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
+			}
 			break;
 		}
 		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
 		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
 			flagstrs[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			flagstrs[0] = "Visuals";
-			flagstrs[9] = "Clippings";
-			attribytestrs[0] = "Sprite:";
-			if(local_comboref.usrflags & cflag2)
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag2))
 			{
 				flagstrs[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(local_comboref.usrflags & cflag11)
+				if(FL(cflag11))
 				{
 					attribytestrs[1] = "Item:";
 					h_attribyte[1] = "The item ID to drop";
@@ -844,25 +1013,69 @@ void ComboEditorDialog::loadComboType()
 					h_attribyte[1] = "The dropset to select a drop item from";
 				}
 			}
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
+			}
 			break;
 		}
 		case cSLASHNEXT:
 		{
-			flagstrs[0] = "Visuals";
-			flagstrs[9] = "Clippings";
-			attribytestrs[0] = "Sprite:";
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
+			}
 			break;
 		}
 		case cSLASHNEXTITEMTOUCHY:
 		{
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when slashed";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
 			flagstrs[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			flagstrs[9] = "Clippings";
-			if(local_comboref.usrflags & cflag2)
+			flagstrs[2] = "Custom SFX";
+			h_flag[2] = "Specify a custom slash SFX";
+			if(FL(cflag2))
 			{
 				flagstrs[10] = "Specific Item";
 				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(local_comboref.usrflags & cflag11)
+				if(FL(cflag11))
 				{
 					attribytestrs[1] = "Item:";
 					h_attribyte[1] = "The item ID to drop";
@@ -872,6 +1085,11 @@ void ComboEditorDialog::loadComboType()
 					attribytestrs[1] = "Dropset:";
 					h_attribyte[1] = "The dropset to select a drop item from";
 				}
+			}
+			if(FL(cflag3))
+			{
+				attribytestrs[2] = "Slash Sound:";
+				h_attribyte[2] = "The SFX to play when slashed";
 			}
 			break;
 		}
@@ -882,36 +1100,98 @@ void ComboEditorDialog::loadComboType()
 		{
 			flagstrs[8] = "Generic";
 			h_flag[8] = "Attributes/flags act like the Generic combo type.";
-			if(!(local_comboref.usrflags & cflag9)) //Generic flag not set
+			if(!(FL(cflag9))) //Generic flag not set
 				break;
 		}
 		[[fallthrough]];
 		case cTRIGGERGENERIC:
 		{
-			flagstrs[0] = "Visuals";
-			flagstrs[1] = "Itemdrop";
-			flagstrs[2] = "SFX";
-			flagstrs[3] = "Next";
-			flagstrs[4] = "Continuous";
-			flagstrs[6] = "Singular Secret";
+			flagstrs[0] = "Decoration Sprite";
+			h_flag[0] = "Spawn a decoration when triggered";
+			if(FL(cflag1))
+			{
+				flagstrs[9] = "Use Clippings Sprite";
+				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
+				if(FL(cflag10))
+				{
+					attribytestrs[0] = "Clipping Sprite:";
+					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
+				}
+				else
+				{
+					attribytestrs[0] = "Sprite:";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+				}
+			}
+			flagstrs[1] = "Drop Item";
+			h_flag[1] = "Drop an item when triggered";
+			if(FL(cflag2)) //Drop item
+			{
+				flagstrs[10] = "Specific Item";
+				h_flag[10] = "Drop a specific item instead of an item from a dropset";
+				if(FL(cflag11))
+				{
+					attribytestrs[1] = "Item:";
+					h_attribyte[1] = "The item ID to drop";
+				}
+				else
+				{
+					attribytestrs[1] = "Dropset:";
+					h_attribyte[1] = "The dropset to select a drop item from";
+				}
+			}
+			flagstrs[3] = "Change Combo";
+			h_flag[3] = "Become the next combo in the combo list when triggered";
+			if(FL(cflag4))
+			{
+				flagstrs[11] = "Undercombo";
+				h_flag[11] = "Becomes the screen undercombo instead of next combo in the list";
+				if(!FL(cflag12))
+				{
+					flagstrs[4] = "Continuous Trigger";
+					h_flag[4] = "When changing to a new combo, if the new combo is a generic combo with continuous flag set, skip it";
+				}
+			}
 			flagstrs[7] = "Kill Wpn";
-			flagstrs[9] = "Clippings";
-			flagstrs[10] = "Specific Item";
-			flagstrs[11] = "Undercombo";
-			flagstrs[12] = "Always Drop";
+			h_flag[7] = "Destroy the weapon that triggers this combo";
 			flagstrs[13] = "Drop Enemy";
-			attribytestrs[0] = "Sprite:";
-			attribytestrs[1] = "Dropset:";
-			attribytestrs[2] = "Sound:";
-			attribytestrs[3] = "Singular Secret:";
-			if(local_comboref.usrflags & cflag14) //Drop Enemy flag
+			h_flag[13] = "Spawn an Enemy when triggered"
+			if(FL(cflag14))
 			{
-				flagstrs[5] = "No Poof";
+				attribytestrs[4] = "Enemy ID";
+				h_attribyte[4] = "The Enemy ID to spawn";
 			}
-			else
+			
+			flagstrs[6] = "Trigger Singular Secret";
+			h_flag[6] = "Triggers a single secret flag temporarily";
+			if(FL(cflag7|cflag4))
 			{
-				flagstrs[5] = "Room Item";
+				attribytestrs[2] = "SFX:";
+				switch(FL(cflag7|cflag4))
+				{
+					case cflag4:
+						h_attribyte[2] = "SFX to play when changing combo.";
+						break;
+					case cflag7:
+						h_attribyte[2] = "SFX to play when triggering singular secret.";
+						break;
+					case cflag4|cflag7:
+						h_attribyte[2] = "SFX to play when triggering singular secret or changing combo";
+						break;
+				}
 			}
+			if(FL(cflag7))
+			{
+				attribytestrs[3] = "Singular Secret:";
+				h_attribyte[3] = "Which single secret combo to trigger, using the 'SECCMB_' constants from 'include/std_zh/std_constants.zh'";
+			}
+			if(FL(cflag14)) //Drop Enemy flag
+			{
+				flagstrs[12] = "No Poof";
+				h_flag[12] = "Skip spawn poof for dropped enemy";
+			}
+			flagstrs[5] = "Room Item";
+			h_flag[5] = "Drop the room's Item on trigger";
 			break;
 		}
 		case cPITFALL:
@@ -928,14 +1208,14 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[0] = "The amount of damage, in HP, to take when falling. Negative values heal.";
 			attribytestrs[0] = "Fall SFX:";
 			h_attribyte[0] = "The SFX to play when falling";
-			if(local_comboref.usrflags & cflag1) //Warp enabled
+			if(FL(cflag1)) //Warp enabled
 			{
 				flagstrs[1] = "Direct Warp";
 				h_flag[1] = "The warp keeps the player at the same x/y position";
 				attribytestrs[1] = "TileWarp ID";
 				h_attribyte[1] = "0 = A, 1 = B, 2 = C, 3 = D";
 			}
-			if(!(local_comboref.usrflags & cflag5)) //"No Pull"
+			if(!(FL(cflag5))) //"No Pull"
 			{
 				attribytestrs[2] = "Pull Sensitivity:";
 				h_attribyte[2] = "Pull the player 1 pixel every this many frames.\n"
@@ -949,7 +1229,7 @@ void ComboEditorDialog::loadComboType()
 			h_flag[0] = "Spawns a weapon when triggered, and by default advances to the next combo in the combo list.";
 			attribytestrs[0] = "Sound:";
 			h_attribyte[0] = "SFX to play when stepped on";
-			if(local_comboref.usrflags & cflag1) //Landmine
+			if(FL(cflag1)) //Landmine
 			{
 				flagstrs[1] = "Script weapon IDs spawn LWeapons";
 				h_flag[1] = "Script weapon IDs for 'Weapon Type' are EWeapons by default; if checked, they will be LWeapons instead.";
@@ -1011,7 +1291,7 @@ void ComboEditorDialog::loadComboType()
 			h_attribute[1] = "Value to add to the cset when triggered";
 			attribytestrs[0] = "State Num:";
 			h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
-			if(local_comboref.usrflags & cflag9) //Allow walk-on-top
+			if(FL(cflag9)) //Allow walk-on-top
 			{
 				flagstrs[9] = "-8px DrawYOffset";
 				h_flag[9] = "If enabled, when the Player stands atop the block (solid area), the player's DrawYOffset is decremented by 8."
@@ -1039,7 +1319,7 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[0] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
 			attribytestrs[4] = "Trigger Set:";
 			h_attribyte[4] = "0-32; if 0 will trigger any targets, otherwise only triggers matching targets";
-			if(local_comboref.usrflags & cflag1)
+			if(FL(cflag1))
 			{
 				attributestrs[0] = "Start Tile:";
 				h_attribute[0] = "Tiles in order: Ground, Up, Down, Left, Right, U+L, U+R, D+L, D+R, U+D, L+R, D+L+R, U+L+R, U+D+R, U+D+L, U+D+L+R";

@@ -40488,18 +40488,18 @@ int32_t FFScript::combo_script_engine(const bool preload)
 			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
 			int32_t cid = m->data[c];
 			int32_t type = combobuf[cid].type;
-			if ( type == cTRIGGERGENERIC )
-			{
-				//run local trigger effects
-				if ( combobuf[cid].usrflags&cflag13 ) //spawn an item on room entry
-				{
-					//need a way to set a bit as to not do this again, similar to screengrid
-				}
-				if ( combobuf[cid].usrflags&cflag14 ) //spawn an item on room entry
-				{
-					//need a way to set a bit as to not do this again, similar to screengrid
-				}
-			}
+			// if ( type == cTRIGGERGENERIC )
+			// {
+				// //run local trigger effects
+				// if ( combobuf[cid].usrflags&cflag13 ) //spawn an item on room entry
+				// {
+					// //need a way to set a bit as to not do this again, similar to screengrid
+				// }
+				// if ( combobuf[cid].usrflags&cflag14 ) //spawn an item on room entry
+				// {
+					// //need a way to set a bit as to not do this again, similar to screengrid
+				// }
+			// }
 			
 			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
 			if ( combobuf[cid].script )

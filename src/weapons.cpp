@@ -1085,29 +1085,33 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		if ((c[cid].usrflags&cflag1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0] / 10000L);
-			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
-				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
-			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
-				decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
-			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 3 ) )
-				decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
-			else if ( c[cid].attribytes[0] > 0 )
-				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
+			if (c[cid].usrflags&cflag10)
+			{
+				switch(c[cid].attribytes[0])
+				{
+					case 1:
+						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
+						break;
+					case 2:
+						decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
+						break;
+					case 3:
+						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+						break;
+					default:
+						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
+				}
 		}
+		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		int32_t it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
 		{
-			
 			if ( c[cid].usrflags&cflag11 ) //specific item
 			{
 				it = c[cid].attribytes[1];
 			}
 			else it = select_dropitem(c[cid].attribytes[1]); 
-			
 		}
-		//zprint("dropset: %d\n", c[cid].attributes[1] / 10000L);
-		//zprint("drops enabled: %s\n", (c[cid].usrflags&cflag2) ? "true":"false");
-		//zprint("it: %d\n", it);
 		if( it != -1 )
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -1184,8 +1188,9 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
-				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				if ( c[cid].usrflags&cflag8 ) w->dead = 1;
+				if((c[cid].usrflags&cflag12)) break; //No continuous for undercombo
+				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				//tmpscr->sflag[scombo] = c[cid].sflag;
 				//c[tmpscr->data[cid]].cset;
 				//c[tmpscr->data[cid]].cset;
@@ -1201,7 +1206,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		}
 		if((c[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[1]),((c[cid].usrflags&cflag6) ? 0 : -15));
+			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[4]),((c[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		//zprint("continuous\n");
 		
@@ -1213,59 +1218,43 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer)
 {
-/*
-int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int32_t cid = MAPCOMBO(bx,by);
-	int32_t flag = MAPFLAG(bx,by);
-	int32_t flag2 = MAPCOMBOFLAG(bx,by);
-	int32_t ft = c[cid].attributes[3] / 10000L;
-	//if (!ft) return;
-	//zprint("ft: %d\n", ft);
-	int32_t scombo=COMBOPOS(bx,by);
-	bool single16 = false;
-
-*/
-
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
 	{ 
-		//zprint("cGeneric abort on c[cid].type %d\n", c[cid].type); 
 		return;
 	} 
-	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	//zprint("swordbeam\n");
-	//zprint("sfx is: %d\n", c[cid].attributes[2] / 10000L);
-	//zprint("scombo is: %d\n", scombo);
-	//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-	//if ( !(get_bit(grid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
 	if (true) // Probably needs a way to only be triggered once...
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", combobuf[cid].attributes[0] / 10000L);
-			if ((combobuf[cid].usrflags&cflag10) && ( combobuf[cid].attribytes[0] == 1 ) )
-				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
-			if ((combobuf[cid].usrflags&cflag10) && ( combobuf[cid].attribytes[0] == 2 ) )
-				decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
-			if ((combobuf[cid].usrflags&cflag10) && ( combobuf[cid].attribytes[0] == 3 ) )
-				decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
-			else if ( combobuf[cid].attribytes[0] > 0 )
-				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+			if (combobuf[cid].usrflags&cflag10)
+			{
+				switch(combobuf[cid].attribytes[0])
+				{
+					case 1:
+						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
+						break;
+					case 2:
+						decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
+						break;
+					case 3:
+						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+						break;
+					default:
+						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+				}
 		}
+		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 		int32_t it = -1; 
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
-			
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
 				it = combobuf[cid].attribytes[1];
 			}
 			else it = select_dropitem(combobuf[cid].attribytes[1]); 
-			
 		}
-		//zprint("dropset: %d\n", combobuf[cid].attributes[1] / 10000L);
-		//zprint("drops enabled: %s\n", (combobuf[cid].usrflags&cflag2) ? "true":"false");
-		//zprint("it: %d\n", it);
 		if( it != -1 )
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -1342,6 +1331,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
+				if((c[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				//if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
 				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
@@ -1359,7 +1349,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ComboX(scombo),ComboY(scombo),(combobuf[cid].attribytes[1]),((combobuf[cid].usrflags&cflag6) ? 0 : -15));
+			addenemy(ComboX(scombo),ComboY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		//zprint("continuous\n");
 		
