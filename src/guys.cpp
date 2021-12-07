@@ -21806,7 +21806,7 @@ bool parsemsgcode()
 			int32_t    dy =  grab_next_argument();
 			int32_t    wfx =  grab_next_argument();
 			int32_t    sfx =  grab_next_argument();
-			FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, 0, 0);
+			FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, warpFlagDONTKILLMUSIC, 0);
 			return true;
 		}
 		
