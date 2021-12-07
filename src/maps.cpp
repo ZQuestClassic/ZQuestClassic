@@ -3330,9 +3330,9 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 	}
 }
 
-void doLampCirc(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
+void doTorchCircle(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
 {
-	if(cmb.type != cLANTERN) return;
+	if(cmb.type != cTORCH) return;
 	doDarkroomCircle(MAPCOMBOX(pos)+8+xoffs, MAPCOMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
 }
 
@@ -3358,11 +3358,11 @@ void calc_darkroom_combos(bool scrolling)
 	for(int32_t q = 0; q < 176; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr->data[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
-			doLampCirc(darkscr_bmp_curscr, q, cmb);
+			doTorchCircle(darkscr_bmp_curscr, q, cmb);
 			if(scrolldir > -1)
-				doLampCirc(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -3371,18 +3371,18 @@ void calc_darkroom_combos(bool scrolling)
 		for(int32_t q = 0; q < 176; ++q)
 		{
 			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
-			if(cmb.type == cLANTERN)
+			if(cmb.type == cTORCH)
 			{
-				doLampCirc(darkscr_bmp_curscr, q, cmb);
+				doTorchCircle(darkscr_bmp_curscr, q, cmb);
 				if(scrolldir > -1)
-					doLampCirc(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+					doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
 			}
 		}
 	}
 	for(int q = 0; q < 32; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr->ffdata[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
 			doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
 			if(scrolldir > -1)
@@ -3395,11 +3395,11 @@ void calc_darkroom_combos(bool scrolling)
 	for(int32_t q = 0; q < 176; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
-			doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+			doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
 			if(scrolldir > -1)
-				doLampCirc(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+				doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -3408,18 +3408,18 @@ void calc_darkroom_combos(bool scrolling)
 		for(int32_t q = 0; q < 176; ++q)
 		{
 			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
-			if(cmb.type == cLANTERN)
+			if(cmb.type == cTORCH)
 			{
-				doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+				doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
 				if(scrolldir > -1)
-					doLampCirc(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+					doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 			}
 		}
 	}
 	for(int q = 0; q < 32; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr[1].ffdata[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
 			doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
 			if(scrolldir > -1)

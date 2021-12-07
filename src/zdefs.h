@@ -779,7 +779,7 @@ enum
 	//160
 	cSCRIPT19, cSCRIPT20, cTRIGGERGENERIC, cPITFALL, cSTEPSFX,
 	//165
-	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cLANTERN,
+	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cTORCH,
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET,
     cMAX,
@@ -3127,6 +3127,46 @@ struct newcombo
 		o_tile = 0;
 		cur_frame = 0;
 		aclk = 0;
+	}
+
+	bool is_blank(bool ignoreEff = false)
+	{
+		if(tile) return false;
+		if(flip) return false;
+		if(walk&0xF) return false;
+		if(!ignoreEff && (walk&0xF0)!=0xF0) return false;
+		if(type) return false;
+		if(csets) return false;
+		if(frames) return false;
+		if(speed) return false;
+		if(nextcombo) return false;
+		if(nextcset) return false;
+		if(flag) return false;
+		if(skipanim) return false;
+		if(nexttimer) return false;
+		if(skipanimy) return false;
+		if(animflags) return false;
+		for(auto q = 0; q < 6; ++q)
+			if(expansion[q]) return false;
+		for(auto q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			if(attributes[q]) return false;
+		if(usrflags) return false;
+		if(genflags) return false;
+		for(auto q = 0; q < 3; ++q)
+			if(triggerflags[q]) return false;
+		if(triggerlevel) return false;
+		if(strlen(label)) return false;
+		for(auto q = 0; q < 8; ++q)
+			if(attribytes[q]) return false;
+		for(auto q = 0; q < 8; ++q)
+			if(attrishorts[q]) return false;
+		if(script) return false;
+		for(auto q = 0; q < 2; ++q)
+			if(initd[q]) return false;
+		if(o_tile) return false;
+		if(cur_frame) return false;
+		if(aclk) return false;
+		return true;
 	}
 };
 

@@ -83,13 +83,21 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		case itype_fairy:
 		{
 			inf->misc[0] = "HP Regained:";
+			inf->h_misc[0] = "Life restored when collected. This is in HP points, unless"
+				" 'Life is Percent' is checked, then it's a percentage of max life.";
 			inf->misc[1] = "MP Regained:";
+			inf->h_misc[0] = "Magic restored when collected. This is in MP points, unless"
+				" 'Magic is Percent' is checked, then it's a percentage of max magic.";
 			inf->misc[2] = "Step Speed:";
+			inf->h_misc[2] = "The movement speed of the fairy, in 100ths of pixel/frame";
 			inf->misc[3] = "Bottle Fill:";
 			inf->h_misc[3] = "What bottle type to fill an empty bottle with if caught using a Bug Net";
-			inf->flag[0] = "HP. R. Is Percent";
-			inf->flag[1] = "MP. R. Is Percent";
+			inf->flag[0] = "Life is Percent";
+			inf->h_flag[0] = "HP Regained is a percentage out of max HP";
+			inf->flag[1] = "Magic is Percent";
+			inf->h_flag[0] = "MP Regained is a percentage out of max MP";
 			inf->actionsnd = "Item Drop Sound:";
+			inf->h_actionsnd = "Plays SFX when dropped";
 			break;
 		}
 		case itype_triforcepiece:

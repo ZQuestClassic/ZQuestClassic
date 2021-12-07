@@ -1824,19 +1824,27 @@ static MENU quest_reports_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU fixtools_menu[] =
+{
+    { (char*)"&Color Set Fix",             onCSetFix,                 NULL,                     0,            NULL   },
+    { (char*)"&Water Solidity Fix",        onWaterSolidity,           NULL,                     0,            NULL   },
+    { (char*)"&Effect Square Fix",         onEffectFix,               NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU tool_menu[] =
 {
-    { (char *)"Combo &Flags\tF8",           onFlags,                   NULL,                     0,            NULL   },
-    { (char *)"&Color Set Fix",             onCSetFix,                 NULL,                     0,            NULL   },
-    { (char *)"&NES Dungeon Template",      onTemplate,                NULL,                     0,            NULL   },
-    { (char *)"&Apply Template to All",     onReTemplate,              NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Preview Mode\tX",           onPreviewMode,             NULL,                     0,            NULL   },
-    { (char *)"Drawing &Mode\t ",           NULL,                      drawing_mode_menu,        0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&List Combos Used\t'",       onUsedCombos,              NULL,                     0,            NULL   },
-    { (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"Combo &Flags\tF8",           onFlags,                   NULL,                     0,            NULL   },
+	{ (char *)"Fix &Tools\t ",              NULL,                      fixtools_menu,            0,            NULL   },
+	{ (char *)"&NES Dungeon Template",      onTemplate,                NULL,                     0,            NULL   },
+	{ (char *)"&Apply Template to All",     onReTemplate,              NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Preview Mode\tX",           onPreviewMode,             NULL,                     0,            NULL   },
+	{ (char *)"Drawing &Mode\t ",           NULL,                      drawing_mode_menu,        0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&List Combos Used\t'",       onUsedCombos,              NULL,                     0,            NULL   },
+	{ (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 int32_t onLayer3BG()
@@ -11502,6 +11510,71 @@ int32_t onCSetFix()
         saved = false;
     }
     
+    return D_O_K;
+}
+static bool doAllSolidWater()
+{
+	for(int32_t i=0; i < MAXCOMBOS; ++i)
+	{
+		if(combo_class_buf[combobuf[i].type].water!=0)
+		{
+			combobuf[i].walk |= 0x0F; //Solid
+		}
+	}
+	return true;
+}
+static bool doNoSolidWater()
+{
+	for(int32_t i=0; i < MAXCOMBOS; ++i)
+	{
+		if(combo_class_buf[combobuf[i].type].water!=0)
+		{
+			combobuf[i].walk &= ~0x0F; //Non-solid
+		}
+	}
+	return true;
+}
+int32_t onWaterSolidity()
+{
+	AlertFuncDialog("Water Conversion",
+		"Forcibly set the solidity of all 'Liquid' combos in the quest?",
+		3, 2, //3 buttons, where buttons[2] is focused
+		"Solid", doAllSolidWater,
+		"Non-Solid", doNoSolidWater,
+		"Cancel", NULL
+	).show();
+    return D_O_K;
+}
+
+static bool doAllEffectSquare()
+{
+	for(int32_t i=0; i < MAXCOMBOS; ++i)
+	{
+		combobuf[i].walk |= 0xF0; //Effect
+	}
+	return true;
+}
+static bool doBlankEffectSquare()
+{
+	for(int32_t i=0; i < MAXCOMBOS; ++i)
+	{
+		if(combobuf[i].is_blank(true))
+		{
+			combobuf[i].walk |= 0xF0; //Effect
+		}
+	}
+	return true;
+}
+
+int32_t onEffectFix()
+{
+	AlertFuncDialog("Effect Square Conversion",
+		"Forcibly fill the green effect square of all combos in the quest?",
+		3, 2, //3 buttons, where buttons[2] is focused
+		"All", doAllEffectSquare,
+		"Blank Only", doBlankEffectSquare,
+		"Cancel", NULL
+	).show();
     return D_O_K;
 }
 
@@ -25493,7 +25566,7 @@ int32_t onCompileScript()
 						"Ensure that both versions are higher than \"Quest Ver\" was previously, "
 						"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
 						2, 1, //2 buttons, where buttons[1] is focused
-						"Header", call_header_dlg,
+						"Header", [&](){call_header_dlg(); return false;},
 						"OK", NULL
 					).show();
 				}
@@ -31395,7 +31468,6 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 		exit(0);
 	}
-	
 	zcmusic_init();
 	zcmusic_init();
 	
@@ -33845,174 +33917,176 @@ int32_t onCmdExit()
 //Starting with a space in the name invalidates it- it will not appear in the dialog, and will be set to 0 in configs. -Em
 command_pair commands[cmdMAX]=
 {
-    { "(None)",                             0, NULL                                                    },
-    { "About",                              0, (intF) onAbout                                          },
-    { " Catch All",                         0, NULL                                                    },
-    { "Change track",                       0, (intF) changeTrack                                      },
-    { "Cheats",                             0, (intF) onCheats                                         },
-    { "Color Set Fix",                      0, (intF) onCSetFix                                        },
-    { "Combo Alias Mode",                   0, (intF) onDrawingModeAlias                               },
-    { "Edit Combo Aliases",                 0, (intF) onEditComboAlias                                 },
-    { "Combos",                             0, (intF) onCombos                                         },
-    { "Compile ZScript",                    0, (intF) onCompileScript                                  },
-    { "Copy",                               0, (intF) onCopy                                           },
-    { "Default Combos",                     0, (intF) onDefault_Combos                                 },
-    { "Delete Map",                         0, (intF) onDeleteMap                                      },
-    { "Delete Screen",                      0, (intF) onDelete                                         },
-    { "DMaps",                              0, (intF) onDmaps                                          },
-    { "Door Combo Sets",                    0, (intF) onDoorCombos                                     },
-    { "Edit Doors",                         0, (intF) onDoors                                          },
-    { "Paste Doors",                        0, (intF) onPasteDoors                                     },
-    { "Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon                             },
-    { "End String",                         0, (intF) onEndString                                      },
-    { "Enemy Editor",                       0, (intF) onCustomEnemies                                  },
-    { "Default Enemies",                    0, (intF) onDefault_Guys                                   },
-    { "Set Enemies",                        0, (intF) onEnemies                                        },
-    { "Paste Enemies",                      0, (intF) onPasteEnemies                                   },
-    { " Enhanced Music",                    0, (intF) onEnhancedMusic                                  },
-    { "Exit",                               0, (intF) onCmdExit                                        },
-    { "Export Combos",                      0, (intF) onExport_Combos                                  },
-    { "Export DMaps",                       0, (intF) onExport_DMaps                                   },
-    { "Export Map",                         0, (intF) onExport_Map                                     },
-    { "Export Palettes",                    0, (intF) onExport_Pals                                    },
-    { "Export Quest Template",              0, (intF) onExport_ZQT                                     },
-    { "Export Strings",                     0, (intF) onExport_Msgs                                    },
-    { "Export Subscreen",                   0, (intF) onExport_Subscreen                               },
-    { "Export Tiles",                       0, (intF) onExport_Tiles                                   },
-    { "Export Unencoded Quest",             0, (intF) onExport_UnencodedQuest                          },
-    { "Export Graphics Pack",               0, (intF) onExport_ZGP                                     },
-    { "Flags",                              0, (intF) onFlags                                          },
-    { "Paste Freeform Combos",              0, (intF) onPasteFFCombos                                  },
-    { "Freeform Combos",                    0, (intF) onSelectFFCombo                                  },
-    { "Toggle Fullscreen",                  0, (intF) onFullScreen                                     },
-    { "Game icons",                         0, (intF) onIcons                                          },
-    { "Goto Map",                           0, (intF) onGotoMap                                        },
-    { " Guy",                               0,  NULL                                                   },
-    { "Paste Guy/String",                   0, (intF) onPasteGuy                                       },
-    { "Header",                             0, (intF) onHeader                                         },
-    { "Help",                               0, (intF) onHelp                                           },
-    { "Import ZASM",                        0, (intF) onImportZASM                                     },
-    { " Import Global ASM Script",          0, NULL                                                    },
-    { " Import Item ASM Script",            0, NULL                                                    },
-    { "Import Combos",                      0, (intF) onImport_Combos                                  },
-    { "Import DMaps",                       0, (intF) onImport_DMaps                                   },
-    { "Import Graphics Pack",               0, (intF) onImport_ZGP                                     },
-    { "Import Map",                         0, (intF) onImport_Map                                     },
-    { "Import Palettes",                    0, (intF) onImport_Pals                                    },
-    { "Import Quest Template",              0, (intF) onImport_ZQT                                     },
-    { "Import Strings",                     0, (intF) onImport_Msgs                                    },
-    { "Import Subscreen",                   0, (intF) onImport_Subscreen                               },
-    { "Import Tiles",                       0, (intF) onImport_Tiles                                   },
-    { "Import Unencoded Quest",             0, (intF) onImport_UnencodedQuest                          },
-    { "Info Types",                         0, (intF) onInfoTypes                                      },
-    { "Init Data",                          0, (intF) onInit                                           },
-    { "Integ. Check (All)",                 0, (intF) onIntegrityCheckAll                              },
-    { "Integ. Check (Screens)",             0, (intF) onIntegrityCheckRooms                            },
-    { "Integ. Check (Warps)",               0, (intF) onIntegrityCheckWarps                            },
-    { "Set Item",                           0, (intF) onItem                                           },
-    { "Item Editor",                        0, (intF) onCustomItems                                    },
-    { "Layers",                             0, (intF) onLayers                                         },
-    { "Paste Layers",                       0, (intF) onPasteLayers                                    },
-    { "Palettes - Levels",                  0, (intF) onColors_Levels                                  },
-    { "Link Sprite",                        0, (intF) onCustomLink                                     },
-    { "List Combos Used",                   0, (intF) onUsedCombos                                     },
-    { "Palettes - Main",                    0, (intF) onColors_Main                                    },
-    { " Map Count",                         0, NULL                                                    },
-    { "Default Map Styles",                 0, (intF) onDefault_MapStyles                              },
-    { "Map Styles",                         0, (intF) onMapStyles                                      },
-    { "Master Subscreen Type",              0, (intF) onSubscreen                                      },
-    { " Message String",                    0, NULL                                                    },
-    { "MIDIs",                              0, (intF) onMidis                                          },
-    { "Misc Colors",                        0, (intF) onMiscColors                                     },
-    { "New",                                0, (intF) do_NewQuest                                      },
-    { "Normal Mode",                        0, (intF) onDrawingModeNormal                              },
-    { "Open",                               0, (intF) do_OpenQuest                                     },
-    { "Options",                            0, (intF) onOptions                                        },
-    { "Palette",                            0, (intF) onScreenPalette                                  },
-    { "Default Palettes",                   0, (intF) onDefault_Pals                                   },
-    { "Paste",                              0, (intF) onPaste                                          },
-    { "Paste All",                          0, (intF) onPasteAll                                       },
-    { "Paste All To All",                   0, (intF) onPasteAllToAll                                  },
-    { "Paste To All",                       0, (intF) onPasteToAll                                     },
-    { "Maze Path",                          0, (intF) onPath                                           },
-    { "Play Music",                         0, (intF) playMusic                                        },
-    { "Preview Mode",                       0, (intF) onPreviewMode                                    },
-    { "Quest Templates",                    0, (intF) onQuestTemplates                                 },
-    { "Apply Template to All",              0, (intF) onReTemplate                                     },
-    { "Relational Mode",                    0, (intF) onDrawingModeRelational                          },
-    { "Revert",                             0, (intF) onRevert                                         },
-    { "Room Data",                          0, (intF) onRoom                                           },
-    { "Paste Room Type Data",               0, (intF) onPasteRoom                                      },
-    { " Rules - Animation",                 0, NULL                                                    },
-    { "Save",                               0, (intF) onSave                                           },
-    { "Save as",                            0, (intF) onSaveAs                                         },
-    { "Paste Screen Data",                  0, (intF) onPasteScreenData                                },
-    { "Screen Data",                        0, (intF) onScrData                                        },
-    { "Paste Secret Combos",                0, (intF) onPasteSecretCombos                              },
-    { "Secret Combos",                      0, (intF) onSecretCombo                                    },
-    { "SFX Data",                           0, (intF) onSelectSFX                                      },
-    { "Shop Types",                         0, (intF) onShopTypes                                      },
-    { "Side Warp",                          0, (intF) onSideWarp                                       },
-    { "Palettes - Sprites",                 0, (intF) onColors_Sprites                                 },
-    { "Default Weapon Sprites",             0, (intF) onDefault_Weapons                                },
-    { "Stop Tunes",                         0, (intF) stopMusic                                        },
-    { "Strings",                            0, (intF) onStrings                                        },
-    { "Subscreens",                         0, (intF) onEditSubscreens                                 },
-    { "Take ZQ Snapshot",                   0, (intF) onSnapshot                                       },
-    { "Ambient Music",                      0, (intF) playTune1                                        },
-    { "NES Dungeon Template",               0, (intF) onTemplate                                       },
-    { "Edit Templates",                     0, (intF) onTemplates                                      },
-    { "Tile Warp",                          0, (intF) onTileWarp                                       },
-    { "Default Tiles",                      0, (intF) onDefault_Tiles                                  },
-    { "Tiles",                              0, (intF) onTiles                                          },
-    { "Toggle Grid",                        0, (intF) onToggleGrid                                     },
-    { "Triforce Pieces",                    0, (intF) onTriPieces                                      },
-    { "Under Combo",                        0, (intF) onUnderCombo                                     },
-    { "Paste Undercombo",                   0, (intF) onPasteUnderCombo                                },
-    { "Undo",                               0, (intF) onUndo                                           },
-    { "Video Mode",                         0, (intF) onZQVidMode                                      },
-    { "View Map",                           0, (intF) onViewMap                                        },
-    { "View Palette",                       0, (intF) onShowPal                                        },
-    { "View Pic",                           0, (intF) onViewPic                                        },
-    { "Paste Warp Return",                  0, (intF) onPasteWarpLocations                             },
-    { "Warp Rings",                         0, (intF) onWarpRings                                      },
-    { "Paste Warps",                        0, (intF) onPasteWarps                                     },
-    { "Sprite Data",                        0, (intF) onCustomWpns                                     },
-    { "View Darkness",                      0, (intF) onShowDarkness                                   },
-    { "Toggle Walkability",                 0, (intF) onShowWalkability                                },
-    { "Toggle Flags",                       0, (intF) onShowFlags                                      },
-    { "Toggle CSets",                       0, (intF) onShowCSet                                       },
-    { "Toggle Types",                       0, (intF) onShowCType                                      },
-    { " Rules - Combos",                    0, NULL                                                    },
-    { " Rules - Items",                     0, NULL                                                    },
-    { " Rules - Enemies",                   0, NULL                                                    },
-    { " Rules - NES Fixes",                 0, NULL                                                    },
-    { " Rules - Other",                     0, NULL                                                    },
-    { "Default Items",                      0, (intF) onDefault_Items                                  },
-    { "Item Drop Set Editor",               0, (intF) onItemDropSets                                   },
-    { "Paste Palette",                      0, (intF) onPastePalette                                   },
-    { "Quest Rules",                        0, (intF) onRulesDlg                                       },
-    { "Report: Combo Locations",            0, (intF) onComboLocationReport                            },
-    { "Report: Combo Type Locs.",           0, (intF) onComboTypeLocationReport                        },
-    { "Report: Enemy Locations",            0, (intF) onEnemyLocationReport                            },
-    { "Report: Item Locations",             0, (intF) onItemLocationReport                             },
-    { "Report: Script Locations",           0, (intF) onScriptLocationReport                           },
-    { "Report: What Links Here",            0, (intF) onWhatWarpsReport                                },
-    { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll                              },
-    { "Save ZQuest Settings",               0, (intF) onSaveZQuestSettings                             },
-    { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath                             },
-    { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport                  },
-    { "Rules - ZScript",                    0, (intF) onZScriptSettings                                },
-    { "Export ZASM",                        0, (intF) onExportZASM                                     },
-    { " Rules - Hero",                      0, NULL                                                    },
-    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings                        },
-    { " Rules - Weapons",                   0, NULL                                                    },
-    { "Screen Script",                      0, (intF) onScreenScript                                   },
-    { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot                                 },
-    { "View L2 as BG",                      0, (intF) onLayer2BG                                       },
-    { "View L3 as BG",                      0, (intF) onLayer3BG                                       },
-    { "Bottle Types",                       0, (intF) onBottleTypes                                    },
-    { "Bottle Shop Types",                  0, (intF) onBottleShopTypes                                }
+    { "(None)",                             0, NULL },
+    { "About",                              0, (intF) onAbout },
+    { " Catch All",                         0, NULL },
+    { "Change track",                       0, (intF) changeTrack },
+    { "Cheats",                             0, (intF) onCheats },
+    { "Color Set Fix",                      0, (intF) onCSetFix },
+    { "Combo Alias Mode",                   0, (intF) onDrawingModeAlias },
+    { "Edit Combo Aliases",                 0, (intF) onEditComboAlias },
+    { "Combos",                             0, (intF) onCombos },
+    { "Compile ZScript",                    0, (intF) onCompileScript },
+    { "Copy",                               0, (intF) onCopy },
+    { "Default Combos",                     0, (intF) onDefault_Combos },
+    { "Delete Map",                         0, (intF) onDeleteMap },
+    { "Delete Screen",                      0, (intF) onDelete },
+    { "DMaps",                              0, (intF) onDmaps },
+    { "Door Combo Sets",                    0, (intF) onDoorCombos },
+    { "Edit Doors",                         0, (intF) onDoors },
+    { "Paste Doors",                        0, (intF) onPasteDoors },
+    { "Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon },
+    { "End String",                         0, (intF) onEndString },
+    { "Enemy Editor",                       0, (intF) onCustomEnemies },
+    { "Default Enemies",                    0, (intF) onDefault_Guys },
+    { "Set Enemies",                        0, (intF) onEnemies },
+    { "Paste Enemies",                      0, (intF) onPasteEnemies },
+    { " Enhanced Music",                    0, (intF) onEnhancedMusic },
+    { "Exit",                               0, (intF) onCmdExit },
+    { "Export Combos",                      0, (intF) onExport_Combos },
+    { "Export DMaps",                       0, (intF) onExport_DMaps },
+    { "Export Map",                         0, (intF) onExport_Map },
+    { "Export Palettes",                    0, (intF) onExport_Pals },
+    { "Export Quest Template",              0, (intF) onExport_ZQT },
+    { "Export Strings",                     0, (intF) onExport_Msgs },
+    { "Export Subscreen",                   0, (intF) onExport_Subscreen },
+    { "Export Tiles",                       0, (intF) onExport_Tiles },
+    { "Export Unencoded Quest",             0, (intF) onExport_UnencodedQuest },
+    { "Export Graphics Pack",               0, (intF) onExport_ZGP },
+    { "Flags",                              0, (intF) onFlags },
+    { "Paste Freeform Combos",              0, (intF) onPasteFFCombos },
+    { "Freeform Combos",                    0, (intF) onSelectFFCombo },
+    { "Toggle Fullscreen",                  0, (intF) onFullScreen },
+    { "Game icons",                         0, (intF) onIcons },
+    { "Goto Map",                           0, (intF) onGotoMap },
+    { " Guy",                               0,  NULL },
+    { "Paste Guy/String",                   0, (intF) onPasteGuy },
+    { "Header",                             0, (intF) onHeader },
+    { "Help",                               0, (intF) onHelp },
+    { "Import ZASM",                        0, (intF) onImportZASM },
+    { " Import Global ASM Script",          0, NULL },
+    { " Import Item ASM Script",            0, NULL },
+    { "Import Combos",                      0, (intF) onImport_Combos },
+    { "Import DMaps",                       0, (intF) onImport_DMaps },
+    { "Import Graphics Pack",               0, (intF) onImport_ZGP },
+    { "Import Map",                         0, (intF) onImport_Map },
+    { "Import Palettes",                    0, (intF) onImport_Pals },
+    { "Import Quest Template",              0, (intF) onImport_ZQT },
+    { "Import Strings",                     0, (intF) onImport_Msgs },
+    { "Import Subscreen",                   0, (intF) onImport_Subscreen },
+    { "Import Tiles",                       0, (intF) onImport_Tiles },
+    { "Import Unencoded Quest",             0, (intF) onImport_UnencodedQuest },
+    { "Info Types",                         0, (intF) onInfoTypes },
+    { "Init Data",                          0, (intF) onInit },
+    { "Integ. Check (All)",                 0, (intF) onIntegrityCheckAll },
+    { "Integ. Check (Screens)",             0, (intF) onIntegrityCheckRooms },
+    { "Integ. Check (Warps)",               0, (intF) onIntegrityCheckWarps },
+    { "Set Item",                           0, (intF) onItem },
+    { "Item Editor",                        0, (intF) onCustomItems },
+    { "Layers",                             0, (intF) onLayers },
+    { "Paste Layers",                       0, (intF) onPasteLayers },
+    { "Palettes - Levels",                  0, (intF) onColors_Levels },
+    { "Link Sprite",                        0, (intF) onCustomLink },
+    { "List Combos Used",                   0, (intF) onUsedCombos },
+    { "Palettes - Main",                    0, (intF) onColors_Main },
+    { " Map Count",                         0, NULL },
+    { "Default Map Styles",                 0, (intF) onDefault_MapStyles },
+    { "Map Styles",                         0, (intF) onMapStyles },
+    { "Master Subscreen Type",              0, (intF) onSubscreen },
+    { " Message String",                    0, NULL },
+    { "MIDIs",                              0, (intF) onMidis },
+    { "Misc Colors",                        0, (intF) onMiscColors },
+    { "New",                                0, (intF) do_NewQuest },
+    { "Normal Mode",                        0, (intF) onDrawingModeNormal },
+    { "Open",                               0, (intF) do_OpenQuest },
+    { "Options",                            0, (intF) onOptions },
+    { "Palette",                            0, (intF) onScreenPalette },
+    { "Default Palettes",                   0, (intF) onDefault_Pals },
+    { "Paste",                              0, (intF) onPaste },
+    { "Paste All",                          0, (intF) onPasteAll },
+    { "Paste All To All",                   0, (intF) onPasteAllToAll },
+    { "Paste To All",                       0, (intF) onPasteToAll },
+    { "Maze Path",                          0, (intF) onPath },
+    { "Play Music",                         0, (intF) playMusic },
+    { "Preview Mode",                       0, (intF) onPreviewMode },
+    { "Quest Templates",                    0, (intF) onQuestTemplates },
+    { "Apply Template to All",              0, (intF) onReTemplate },
+    { "Relational Mode",                    0, (intF) onDrawingModeRelational },
+    { "Revert",                             0, (intF) onRevert },
+    { "Room Data",                          0, (intF) onRoom },
+    { "Paste Room Type Data",               0, (intF) onPasteRoom },
+    { " Rules - Animation",                 0, NULL },
+    { "Save",                               0, (intF) onSave },
+    { "Save as",                            0, (intF) onSaveAs },
+    { "Paste Screen Data",                  0, (intF) onPasteScreenData },
+    { "Screen Data",                        0, (intF) onScrData },
+    { "Paste Secret Combos",                0, (intF) onPasteSecretCombos },
+    { "Secret Combos",                      0, (intF) onSecretCombo },
+    { "SFX Data",                           0, (intF) onSelectSFX },
+    { "Shop Types",                         0, (intF) onShopTypes },
+    { "Side Warp",                          0, (intF) onSideWarp },
+    { "Palettes - Sprites",                 0, (intF) onColors_Sprites },
+    { "Default Weapon Sprites",             0, (intF) onDefault_Weapons },
+    { "Stop Tunes",                         0, (intF) stopMusic },
+    { "Strings",                            0, (intF) onStrings },
+    { "Subscreens",                         0, (intF) onEditSubscreens },
+    { "Take ZQ Snapshot",                   0, (intF) onSnapshot },
+    { "Ambient Music",                      0, (intF) playTune1 },
+    { "NES Dungeon Template",               0, (intF) onTemplate },
+    { "Edit Templates",                     0, (intF) onTemplates },
+    { "Tile Warp",                          0, (intF) onTileWarp },
+    { "Default Tiles",                      0, (intF) onDefault_Tiles },
+    { "Tiles",                              0, (intF) onTiles },
+    { "Toggle Grid",                        0, (intF) onToggleGrid },
+    { "Triforce Pieces",                    0, (intF) onTriPieces },
+    { "Under Combo",                        0, (intF) onUnderCombo },
+    { "Paste Undercombo",                   0, (intF) onPasteUnderCombo },
+    { "Undo",                               0, (intF) onUndo },
+    { "Video Mode",                         0, (intF) onZQVidMode },
+    { "View Map",                           0, (intF) onViewMap },
+    { "View Palette",                       0, (intF) onShowPal },
+    { "View Pic",                           0, (intF) onViewPic },
+    { "Paste Warp Return",                  0, (intF) onPasteWarpLocations },
+    { "Warp Rings",                         0, (intF) onWarpRings },
+    { "Paste Warps",                        0, (intF) onPasteWarps },
+    { "Sprite Data",                        0, (intF) onCustomWpns },
+    { "View Darkness",                      0, (intF) onShowDarkness },
+    { "Toggle Walkability",                 0, (intF) onShowWalkability },
+    { "Toggle Flags",                       0, (intF) onShowFlags },
+    { "Toggle CSets",                       0, (intF) onShowCSet },
+    { "Toggle Types",                       0, (intF) onShowCType },
+    { " Rules - Combos",                    0, NULL },
+    { " Rules - Items",                     0, NULL },
+    { " Rules - Enemies",                   0, NULL },
+    { " Rules - NES Fixes",                 0, NULL },
+    { " Rules - Other",                     0, NULL },
+    { "Default Items",                      0, (intF) onDefault_Items },
+    { "Item Drop Set Editor",               0, (intF) onItemDropSets },
+    { "Paste Palette",                      0, (intF) onPastePalette },
+    { "Quest Rules",                        0, (intF) onRulesDlg },
+    { "Report: Combo Locations",            0, (intF) onComboLocationReport },
+    { "Report: Combo Type Locs.",           0, (intF) onComboTypeLocationReport },
+    { "Report: Enemy Locations",            0, (intF) onEnemyLocationReport },
+    { "Report: Item Locations",             0, (intF) onItemLocationReport },
+    { "Report: Script Locations",           0, (intF) onScriptLocationReport },
+    { "Report: What Links Here",            0, (intF) onWhatWarpsReport },
+    { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll },
+    { "Save ZQuest Settings",               0, (intF) onSaveZQuestSettings },
+    { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath },
+    { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport },
+    { "Rules - ZScript",                    0, (intF) onZScriptSettings },
+    { "Export ZASM",                        0, (intF) onExportZASM },
+    { " Rules - Hero",                      0, NULL },
+    { "Rules - Compiler",                   0, (intF) onZScriptCompilerSettings },
+    { " Rules - Weapons",                   0, NULL },
+    { "Screen Script",                      0, (intF) onScreenScript },
+    { "Take Screen Snapshot",               0, (intF) onMapscrSnapshot },
+    { "View L2 as BG",                      0, (intF) onLayer2BG },
+    { "View L3 as BG",                      0, (intF) onLayer3BG },
+    { "Bottle Types",                       0, (intF) onBottleTypes },
+    { "Bottle Shop Types",                  0, (intF) onBottleShopTypes },
+    { "Water Solidity Fix",                 0, (intF) onWaterSolidity },
+    { "Effect Square Fix",                  0, (intF) onEffectFix }
 };
 
 /********************************/
@@ -35397,7 +35471,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK", "cLANTERN", "cSPOTLIGHT", "cGLASS", "cLIGHTTARGET"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cTORCH", "cSPOTLIGHT", "cGLASS", "cLIGHTTARGET"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -35435,7 +35509,7 @@ bool ZModule::init(bool d) //bool default
 			"Script 09","Script 10","Script 11","Script 12","Script 13",
 			"Script 14","Script 15","Script 16","Script 17","Script 18",
 			"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
-			"Bridge", "Signpost", "Switch", "Switch Block", "Lantern",
+			"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
 			"Spotlight", "Glass", "Light Trigger"
 		};
 		

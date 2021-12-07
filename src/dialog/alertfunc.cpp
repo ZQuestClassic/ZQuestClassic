@@ -6,7 +6,7 @@
 extern int32_t zq_screen_w;
 
 AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, uint32_t numButtons, uint32_t focused_button, ...):
-	InfoDialog(title,text)
+	InfoDialog(title,text), didend(false)
 {
 	va_list args;
 	va_start(args, focused_button);
@@ -15,7 +15,7 @@ AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, uint32_t n
 }
 
 AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines, uint32_t numButtons, uint32_t focused_button,  ...):
-	InfoDialog(title,lines)
+	InfoDialog(title,lines), didend(false)
 {
 	va_list args;
 	va_start(args, focused_button);
@@ -65,15 +65,19 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 		for(uint32_t q = 0; q < numButtons; ++q)
 		{
 			std::string btntext(va_arg(args, char*));
-			typedef void (*funcType)(void);
-			std::function<void()> func = va_arg(args, funcType);
+			typedef bool (*funcType)(void);
+			std::function<bool()> func = va_arg(args, funcType);
 			if(func)
 			{
 				buttons.push_back(
 					Button(
 						text = btntext,
 						minwidth = 90_lpx,
-						onPressFunc = func,
+						onPressFunc = [&,func]()
+						{
+							didend = func();
+						},
+						onClick = message::BTN,
 						focused = (q==focused_button)
 					));
 			}
@@ -103,5 +107,12 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 
 bool AlertFuncDialog::handleMessage(const GUI::DialogMessage<int32_t>& msg)
 {
+	switch(msg.message)
+	{
+		case message::OK:
+			return true;
+		case message::BTN:
+			return didend;
+	}
 	return true;
 }

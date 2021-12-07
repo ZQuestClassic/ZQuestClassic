@@ -16,17 +16,22 @@ using std::to_string;
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0;
 
-static bool edited = false;
+static bool edited = false, cleared = false;
 bool call_combo_editor(int32_t index)
 {
 	int32_t cs = CSet;
-	edited = false;
+	edited = false; cleared = false;
 	ComboEditorDialog(index).show();
+	while(cleared)
+	{
+		cleared = false;
+		ComboEditorDialog(index, true).show();
+	}
 	if(!edited) CSet = cs;
 	return edited;
 }
 
-ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
+ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd):
 	local_comboref(ref), index(index),
 	list_ctype(GUI::ListData::combotype(true)),
 	list_flag(GUI::ListData::mapflag(true)),
@@ -36,10 +41,17 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_weaptype(GUI::ListData::lweaptypes()),
 	list_deftypes(GUI::ListData::deftypes()),
 	lasttype(-1), typehelp(""), flaghelp("")
-{}
+{
+	if(clrd)
+	{
+		word foo = local_comboref.foo; //Might need to store this?
+		local_comboref.clear();
+		local_comboref.foo = foo;
+	}
+}
 
-ComboEditorDialog::ComboEditorDialog(int32_t index):
-	ComboEditorDialog(combobuf[index], index)
+ComboEditorDialog::ComboEditorDialog(int32_t index, bool clrd):
+	ComboEditorDialog(combobuf[index], index, clrd)
 {}
 
 //{ Help Strings
@@ -1305,7 +1317,7 @@ void ComboEditorDialog::loadComboType()
 			}
 			break;
 		}
-		case cLANTERN:
+		case cTORCH:
 		{
 			attribytestrs[0] = "Radius:";
 			h_attribyte[0] = "The radius of light, in pixels, to light up in dark rooms.";
@@ -1881,7 +1893,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					Button(
 						text = "Cancel",
 						minwidth = 90_lpx,
-						onClick = message::CANCEL)
+						onClick = message::CANCEL),
+					Button(
+						text = "Clear",
+						minwidth = 90_lpx,
+						onClick = message::CLEAR)
 				)
 			)
 		);
@@ -2249,7 +2265,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					Button(
 						text = "Cancel",
 						minwidth = 90_lpx,
-						onClick = message::CANCEL)
+						onClick = message::CANCEL),
+					Button(
+						text = "Clear",
+						minwidth = 90_lpx,
+						onClick = message::CLEAR)
 				)
 			)
 		);
@@ -2337,6 +2357,15 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			updateCSet();
 			return false;
 		}
+		case message::CLEAR:
+			AlertDialog("Are you sure?",
+				"Clearing the combo will reset all values",
+				[&](bool ret)
+				{
+					cleared = ret;
+				}).show();
+			if(cleared) return true;
+			break;
 		case message::OK:
 			saved = false;
 			memcpy(&combobuf[index], &local_comboref, sizeof(local_comboref));

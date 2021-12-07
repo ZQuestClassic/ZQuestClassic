@@ -1533,8 +1533,7 @@ static MIDI *read_midi(PACKFILE *f, bool)
 
 void clear_combo(int32_t i)
 {
-    memset(combobuf+i,0,sizeof(newcombo));
-	combobuf[i].walk = 0xF0; //Green square default on!
+	combobuf[i].clear();
 }
 
 void clear_combos()
@@ -16592,7 +16591,8 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 
 	if(keepdata==true)
 	{
-		memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
+		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
+			combobuf[q].clear();
 	}
 
 	if(version > 0x192)
@@ -16811,7 +16811,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 					case cBUSHNEXT: case cBUSHTOUCHY:
 					case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 					case cSIGNPOST: case cCSWITCHBLOCK:
-					case cLANTERN: case cTRIGGERGENERIC:
+					case cTORCH: case cTRIGGERGENERIC:
 						if(temp_combo.usrflags & cflag16)
 						{
 							temp_combo.genflags |= cflag1;

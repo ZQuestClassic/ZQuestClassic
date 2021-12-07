@@ -21,15 +21,15 @@ bool call_combo_editor(int32_t index);
 class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP, ROTATE, PLUSCS, MINUSCS };
+	enum class message { OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP, ROTATE, PLUSCS, MINUSCS, CLEAR };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	ComboEditorDialog(newcombo const& ref, int32_t index);
-	ComboEditorDialog(int32_t index);
+	ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd = false);
+	ComboEditorDialog(int32_t index, bool clrd = false);
 	void loadComboType();
 	void loadComboFlag();
 	void updateCSet();

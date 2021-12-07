@@ -698,8 +698,8 @@ static const GUI::ListData miscRulesList
 	{ "New Dark Rooms", qr_NEW_DARKROOM },
 	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6 },
 	{ "Item Cellars/Passageways/Caves use own music", qr_SCREEN80_OWN_MUSIC },
-	{ "New Darkroom Lanterns Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
-		"When in a dark room with 'New Dark Rooms' enabled, lanterns will light across"
+	{ "New Darkroom Torches Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
+		"When in a dark room with 'New Dark Rooms' enabled, torches will light across"
 		" the boundary between screens *during scrolling*." }
 };
 
