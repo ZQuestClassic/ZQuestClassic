@@ -15875,55 +15875,53 @@ void LinkClass::checklockblock()
     
     switch(dir)
     {
-    case up:
-        if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+		case up:
+			if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
-        break;
+			break;
         
-    case down:
-        by+=16;
-        break;
+		case down:
+			by+=16;
+			break;
         
-    case left:
-        if((((int32_t)x)&0x0F)<8)
-            bx-=16;
+		case left:
+			if((((int32_t)x)&0x0F)<8)
+				bx-=16;
         
-        if(y.getInt()&8)
-        {
-            by+=16;
-        }
+			if(y.getInt()&8)
+			{
+				by+=16;
+			}
         
-        bx2=bx;
-        break;
+			bx2=bx;
+			break;
         
-    case right:
-        bx+=16;
+		case right:
+			bx+=16;
         
-        if(y.getInt()&8)
-        {
-            by+=16;
-        }
+			if(y.getInt()&8)
+			{
+				by+=16;
+			}
         
-        bx2=bx;
-        break;
+			bx2=bx;
+			break;
     }
     
     bool found1=false;
     bool found2=false;
     int32_t foundlayer = -1;
-    int32_t cid = 0;
+    int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
     // Layer 0 is overridden by Locked Doors
-    if((combobuf[MAPCOMBO(bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
+    if((combobuf[cid1].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
     {
-	found1=true;
-	cid = MAPCOMBO(bx,by);
-	foundlayer = 0;
+		found1=true;
+		foundlayer = 0;
     }
-    else if (combobuf[MAPCOMBO(bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
+    else if (combobuf[cid2].type==cLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
     {
         found2=true;
-	cid = MAPCOMBO(bx2,by);
-	foundlayer = 0;
+		foundlayer = 0;
     }
     
 	for (int32_t i = 0; i <= 1; ++i)
@@ -15939,33 +15937,31 @@ void LinkClass::checklockblock()
     // Layers
     if(!(found1 || found2))
     {
-	cid = 0;
-	foundlayer = -1;
+		foundlayer = -1;
         for(int32_t i=0; i<2; i++)
         {
-	    if (i == 0)
-	    {
-		if(tmpscr2[1].valid!=0)
-		{
-			if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
-		} 
-	    }
+			cid1 = MAPCOMBO2(i, bx, by);
+			cid2 = MAPCOMBO2(i, bx2, by);
+			if (i == 0)
+			{
+				if(tmpscr2[1].valid!=0)
+				{
+					if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+					if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+				} 
+			}
             if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, i))
-	    {
+			{
                 found1=true;
-		foundlayer = i;
-		cid = MAPCOMBO2(i,bx,by);
-		//zprint("Found layer: %d \n", i);
+				foundlayer = i;
+				//zprint("Found layer: %d \n", i);
                 break;
             }
-		    
-	    else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, i))
+			else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, i))
             {
                 found2=true;
-		foundlayer = i;
-		cid = MAPCOMBO2(i,bx,by);
-		//zprint("Found layer: %d \n", i);
+				foundlayer = i;
+				//zprint("Found layer: %d \n", i);
                 break;
             }
         }
@@ -15975,6 +15971,7 @@ void LinkClass::checklockblock()
     {
         return;
     }
+	int32_t cid = found1 ? cid1 : cid2;
     //zprint("foundlayer: %d\n", foundlayer);
     //zprint("cid: %d\n", cid);
     //zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
@@ -16037,81 +16034,102 @@ void LinkClass::checkbosslockblock()
     
     switch(dir)
     {
-    case up:
-        if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
+		case up:
+			if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
         
-        break;
+			break;
         
-    case down:
-        by+=16;
-        break;
+		case down:
+			by+=16;
+			break;
         
-    case left:
-        if((((int32_t)x)&0x0F)<8)
-            bx-=16;
+		case left:
+			if((((int32_t)x)&0x0F)<8)
+				bx-=16;
         
-        if(y.getInt()&8)
-        {
-            by+=16;
-        }
+			if(y.getInt()&8)
+			{
+				by+=16;
+			}
         
-        bx2=bx;
-        break;
+			bx2=bx;
+			break;
         
-    case right:
-        bx+=16;
+		case right:
+			bx+=16;
         
-        if(y.getInt()&8)
-        {
-            by+=16;
-        }
+			if(y.getInt()&8)
+			{
+				by+=16;
+			}
         
-        bx2=bx;
-        break;
+			bx2=bx;
+			break;
     }
-    
-    bool found=false;
-    
-    if((combobuf[MAPCOMBO(bx,by)].type==cBOSSLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dBOSS))||
-            (combobuf[MAPCOMBO(bx2,by)].type==cBOSSLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx,by,dBOSS)))
-    {
-        found=true;
-    }
-    
-    for (int32_t i = 0; i <= 1; ++i)
+	
+
+	bool found1 = false;
+	bool found2 = false;
+	int32_t foundlayer = -1;
+	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
+	// Layer 0 is overridden by Locked Doors
+	if ((combobuf[cid1].type == cBOSSLOCKBLOCK && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
 	{
-		if(tmpscr2[i].valid!=0)
+		found1 = true;
+		foundlayer = 0;
+	}
+	else if (combobuf[cid2].type == cBOSSLOCKBLOCK && _effectflag(bx2, by, 1, -1) && !islockeddoor(bx2, by, dLOCKED))
+	{
+		found2 = true;
+		foundlayer = 0;
+	}
+
+	for (int32_t i = 0; i <= 1; ++i)
+	{
+		if (tmpscr2[i].valid != 0)
 		{
-			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
-			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[i]))) found1 = false;
+			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[i]))) found2 = false;
 		}
 	}
-    
-    if(!found)
-    {
-        for(int32_t i=0; i<2; i++)
-        {
-	    if (i == 0)
-	    {
-		if(tmpscr2[1].valid!=0)
+
+
+	// Layers
+	if (!(found1 || found2))
+	{
+		foundlayer = -1;
+		for (int32_t i = 0; i < 2; i++)
 		{
-			if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-			if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
-		} 
-	    }
-            if((combobuf[MAPCOMBO2(i,bx,by)].type==cBOSSLOCKBLOCK && _effectflag(bx,by,1, i))||
-                    (combobuf[MAPCOMBO2(i,bx2,by)].type==cBOSSLOCKBLOCK && _effectflag(bx2,by,1, i)))
-            {
-                found=true;
-                break;
-            }
-        }
-    }
-    
-    if(!found || pushing<8)
-    {
-        return;
-    }
+			cid1 = MAPCOMBO2(i, bx, by);
+			cid2 = MAPCOMBO2(i, bx2, by);
+			if (i == 0)
+			{
+				if (tmpscr2[1].valid != 0)
+				{
+					if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[1]))) continue;
+					if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[1]))) continue;
+				}
+			}
+			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBOSSLOCKBLOCK && _effectflag(bx, by, 1, i))
+			{
+				found1 = true;
+				foundlayer = i;
+				break;
+			}
+			else if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBOSSLOCKBLOCK && _effectflag(bx2, by, 1, i))
+			{
+				found2 = true;
+				foundlayer = i;
+				break;
+			}
+		}
+	}
+
+	if (!(found1 || found2) || pushing < 8)
+	{
+		return;
+	}
+	int32_t cid = found1 ? cid1 : cid2;
     
     if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
 	

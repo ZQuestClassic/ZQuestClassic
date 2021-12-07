@@ -1155,7 +1155,7 @@ void ComboEditorDialog::loadComboType()
 			flagstrs[7] = "Kill Wpn";
 			h_flag[7] = "Destroy the weapon that triggers this combo";
 			flagstrs[13] = "Drop Enemy";
-			h_flag[13] = "Spawn an Enemy when triggered"
+			h_flag[13] = "Spawn an Enemy when triggered";
 			if(FL(cflag14))
 			{
 				attribytestrs[4] = "Enemy ID";
