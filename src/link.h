@@ -403,7 +403,6 @@ public:
     void setStunClock(int32_t v);
     int32_t BunnyClock();
     void setBunnyClock(int32_t v);
-    void setEntryPoints(int32_t x, int32_t y);
     LinkClass();
     void init();
     virtual void drawshadow(BITMAP* dest, bool translucent);
