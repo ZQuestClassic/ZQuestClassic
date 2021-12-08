@@ -4363,8 +4363,12 @@ enum ASM_DEFINE
 #define BSHOPSTR                0x140A
 #define COMBODUSRFLAGARR        0x140B
 #define COMBODGENFLAGARR        0x140C
+#define HERORESPAWNX            0x140D
+#define HERORESPAWNY            0x140E
+#define HERORESPAWNDMAP         0x140F
+#define HERORESPAWNSCR          0x1410
 
-#define NUMVARIABLES         	0x140D
+#define NUMVARIABLES         	0x1411
 
 //} End variables
 

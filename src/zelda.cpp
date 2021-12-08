@@ -2428,7 +2428,7 @@ int32_t init_game()
 			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
 		}
 		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
-		Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+		Link.set_respawn_point(); //This should be after the init script, so that Link->X and Link->Y set by the script
 						//are properly set by the engine.
 	}
 	Link.resetflags(true); //This should probably occur after running Link's init script. 
@@ -2850,7 +2850,8 @@ void restart_level()
     currcset=DMaps[currdmap].color;
     openscreen();
     map_bkgsfx(true);
-    Link.setEntryPoints(LinkX(),LinkY());
+    Link.set_respawn_point();
+	Link.trySideviewLadder();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
     loadguys();

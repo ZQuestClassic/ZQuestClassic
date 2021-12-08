@@ -2261,6 +2261,10 @@ script_variable variable_list[]=
 	{ "BSHOPSTR",           BSHOPSTR,            0,             0 },
 	{ "COMBODUSRFLAGARR",           COMBODUSRFLAGARR,            0,             0 },
 	{ "COMBODGENFLAGARR",           COMBODGENFLAGARR,            0,             0 },
+	{ "HERORESPAWNX",    HERORESPAWNX,    0, 0 },
+	{ "HERORESPAWNY",    HERORESPAWNY,    0, 0 },
+	{ "HERORESPAWNDMAP", HERORESPAWNDMAP, 0, 0 },
+	{ "HERORESPAWNSCR",  HERORESPAWNSCR,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

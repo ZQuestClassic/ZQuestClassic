@@ -575,6 +575,15 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODGENFLAGARR:
 		return "COMBODGENFLAGARR";
 		
+	case HERORESPAWNX:
+		return "HERORESPAWNX";
+	case HERORESPAWNY:
+		return "HERORESPAWNY";
+	case HERORESPAWNDMAP:
+		return "HERORESPAWNDMAP";
+	case HERORESPAWNSCR:
+		return "HERORESPAWNSCR";
+		
 	case SCREENSTATED:
 		return "SCREENSTATED";
 		

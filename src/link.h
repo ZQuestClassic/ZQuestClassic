@@ -256,8 +256,12 @@ public:
     byte conveyor_flags;
 	byte raftclk; // for slow rafting movement
     zfix climb_cover_x, climb_cover_y;
-    zfix entry_x, entry_y; // When drowning, re-create Link here
-    zfix falling_oldy; // Used by the Stomp Boots in sideview
+	
+	// Respawn point when drowning/etc
+    zfix respawn_x, respawn_y;
+	uint16_t respawn_dmap, respawn_scr;
+    
+	zfix falling_oldy; // Used by the Stomp Boots in sideview
     byte dontdraw;
     byte warp_sound;
     bool diagonalMovement;
@@ -271,6 +275,8 @@ public:
 	bool is_warping;
 	bool can_mirror_portal;
 	
+	void set_respawn_point();
+	void go_respawn_point();
 	bool can_pitfall(bool ignore_hover = false);
 	
     void check_slash_block(weapon *w);
@@ -539,6 +545,7 @@ public:
 	bool getOnSideviewLadder();
 	void setOnSideviewLadder(bool val);
 	bool canSideviewLadder(bool down = false);
+	void trySideviewLadder();
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
 };
 

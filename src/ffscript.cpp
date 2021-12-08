@@ -4074,6 +4074,30 @@ int32_t get_register(const int32_t arg)
 		case CLOCKCLK:
 			ret=clockclk*10000;
 			break;
+			
+		case HERORESPAWNX:
+		{
+			ret = Link.respawn_x.getZLong();
+			break;
+		}
+		
+		case HERORESPAWNY:
+		{
+			ret = Link.respawn_y.getZLong();
+			break;
+		}
+		
+		case HERORESPAWNDMAP:
+		{
+			ret = Link.respawn_dmap * 10000;
+			break;
+		}
+		
+		case HERORESPAWNSCR:
+		{
+			ret = Link.respawn_scr * 10000;
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -12175,6 +12199,32 @@ void set_register(const int32_t arg, const int32_t value)
 			clockclk = vbound((value/10000), 0, 214748);
 			break;
 		
+		case HERORESPAWNX:
+		{
+			zfix zx = zslongToFix(value);
+			Link.respawn_x = vbound(zx, 0, 240);
+			break;
+		}
+		
+		case HERORESPAWNY:
+		{
+			zfix zy = zslongToFix(value);
+			Link.respawn_y = vbound(zy, 0, 160);
+			break;
+		}
+		
+		case HERORESPAWNDMAP:
+		{
+			Link.respawn_dmap = vbound(value/10000, 0, MAXDMAPS-1);
+			break;
+		}
+		
+		case HERORESPAWNSCR:
+		{
+			Link.respawn_scr = vbound(value/10000, 0, 0x7F);
+			break;
+		}
+		
 	///----------------------------------------------------------------------------------------------------//
 	//Input States
 		case INPUTSTART:
@@ -16234,7 +16284,7 @@ void set_register(const int32_t arg, const int32_t value)
 			tmpscr->entry_x = newx;
 			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
-				Link.entry_x = (zfix)(newx);
+				Link.respawn_x = (zfix)(newx);
 			}
 			break;
 		}
@@ -16245,7 +16295,7 @@ void set_register(const int32_t arg, const int32_t value)
 			tmpscr->entry_y = newy;
 			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
-				Link.entry_y = (zfix)(newy);
+				Link.respawn_y = (zfix)(newy);
 			}
 			break;	//B
 		}
@@ -23040,7 +23090,8 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
-			Link.setEntryPoints((int32_t)Link.x,(int32_t)Link.y);
+			Link.set_respawn_point();
+			Link.trySideviewLadder();
 			
 			break;
 		}
@@ -23154,7 +23205,8 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
-			Link.setEntryPoints((int32_t)Link.x,(int32_t)Link.y);
+			Link.set_respawn_point();
+			Link.trySideviewLadder();
 			
 			for(int32_t i=0; i<6; i++)
 				visited[i]=-1;
@@ -35445,6 +35497,10 @@ script_variable ZASMVars[]=
 	{ "BSHOPSTR",           BSHOPSTR,            0,             0 },
 	{ "COMBODUSRFLAGARR",           COMBODUSRFLAGARR,            0,             0 },
 	{ "COMBODGENFLAGARR",           COMBODGENFLAGARR,            0,             0 },
+	{ "HERORESPAWNX",    HERORESPAWNX,    0, 0 },
+	{ "HERORESPAWNY",    HERORESPAWNY,    0, 0 },
+	{ "HERORESPAWNDMAP", HERORESPAWNDMAP, 0, 0 },
+	{ "HERORESPAWNSCR",  HERORESPAWNSCR,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

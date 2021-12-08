@@ -4044,35 +4044,6 @@ int SecretCSet[128];
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
  * See SECCMB_* in std_constants.zh for more information.
-	
-int ViewX;
- * Unused at this time. Represents the visible width of the screen.
-
-int ViewY;
- * Unused at this time. Represents the visible height of the screen.
-
-int Width;
- * Unused at this time. Represents the physical;e width of the screen.
-
-int Height;
- * Unused at this time. Represents the physical height of the screen.
-
-int EntryX;
- * The X-coordinate at which Link entered the screen (his last spawn point).
- * If Link is respawned by falling in water, he will appear at this X-component. 
-
-int EntryY;
- * The Y-coordinate at which Link entered the screen (his last spawn point).
- * If Link is respawned by falling in water, he will appear at this Y-component. 
-
-int ScriptEntry;
- * Unused. Originally intended as a way to detect if ffcs should run on loading a screen.
-
-int ScriptOccupancy;
- * Unused. Originally intended as a way to detect if ffcs should run while a screen is active.
-
-int ExitScript;
- * Unused. Originally intended as a way to detect if ffcs should run on leaving a screen.
 
 int OceanSFX;
  * The 'Ambient Sound' under S.Data2. 
@@ -4875,6 +4846,22 @@ bool Item[256];
 untyped Misc[32];		
  * Expanded from a size of [16] to [32]. An array of 32 miscellaneous variables for you to use as you please.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
+
+int RespawnX;
+ * The X-coordinate at which the player will respawn upon drowning or such.
+ * The engine may overwrite this value upon changing screens or standing on safe ground.
+
+int RespawnY;
+ * The Y-coordinate at which the player will respawn upon drowning or such.
+ * The engine may overwrite this value upon changing screens or standing on safe ground.
+
+int RespawnDMap;
+ * The DMap at which the player will respawn upon drowning or such.
+ * The engine may overwrite this value upon changing screens or standing on safe ground.
+
+int RespawnScreen;
+ * The screen at which the player will respawn upon drowning or such.
+ * The engine may overwrite this value upon changing screens or standing on safe ground.
 
 **************************************************************
 
@@ -5967,35 +5954,6 @@ int SecretCSet[128];
 int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
  * See SECCMB_* in std_constants.zh for more information.
-	
-int ViewX;
- * Unused at this time. Represents the visible width of the screen.
-
-int ViewY;
- * Unused at this time. Represents the visible height of the screen.
-
-int Width;
- * Unused at this time. Represents the physical;e width of the screen.
-
-int Height;
- * Unused at this time. Represents the physical height of the screen.
-
-int EntryX;
- * The X-coordinate at which Link entered the screen (his last spawn point).
- * If Link is respawned by falling in water, he will appear at this X-component. 
-
-int EntryY;
- * The Y-coordinate at which Link entered the screen (his last spawn point).
- * If Link is respawned by falling in water, he will appear at this Y-component. 
-
-int ScriptEntry;
- * Unused. Originally intended as a way to detect if ffcs should run on loading a screen.
-
-int ScriptOccupancy;
- * Unused. Originally intended as a way to detect if ffcs should run while a screen is active.
-
-int ExitScript;
- * Unused. Originally intended as a way to detect if ffcs should run on leaving a screen.
 
 int OceanSFX;
  * The 'Ambient Sound' under S.Data2. 

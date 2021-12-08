@@ -1319,8 +1319,12 @@
 #define BSHOPSTR                1236
 #define COMBODUSRFLAGARR        1237
 #define COMBODGENFLAGARR        1238
+#define HERORESPAWNX            1239
+#define HERORESPAWNY            1240
+#define HERORESPAWNDMAP         1241
+#define HERORESPAWNSCR          1242
 
-#define LAST_BYTECODE           1239
+#define LAST_BYTECODE           1243
 
 //} END OF BYTECODE
 

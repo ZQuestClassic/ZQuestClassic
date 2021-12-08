@@ -590,7 +590,10 @@ static const GUI::ListData compatRulesList
 		" behavior as safely as possible by having attribute 32 return 0 and attribute"
 		" 31 be set to attribute 32."},
 	{ "Candle use limit is shared", qr_CANDLES_SHARED_LIMIT,
-		"Candle limited uses per screen is shared between candles" }
+		"Candle limited uses per screen is shared between candles" },
+	{ "Old Respawn Points", qr_OLD_RESPAWN_POINTS,
+		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
+		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." }
 };
 
 static const GUI::ListData enemiesRulesList

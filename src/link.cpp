@@ -229,6 +229,51 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		else return 0;
 }
 
+void LinkClass::set_respawn_point()
+{
+	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
+	{
+		switch(action)
+		{
+			case none: case walking:
+				break;
+			default:
+				return; //Not a 'safe action'
+		}
+		if(z > 0 || hoverclk) return; //in air
+		if(check_pitslide(true) != -1) return; //On a pit
+	}
+	respawn_x = x;
+	respawn_y = y;
+	respawn_scr = currscr;
+	respawn_dmap = currdmap;
+}
+
+void LinkClass::go_respawn_point()
+{
+	x = respawn_x;
+	y = respawn_y;
+	can_mirror_portal = false; //incase entry is on a portal!
+	warpx=x;
+	warpy=y;
+	trySideviewLadder(); //Cling to ladder automatically
+	
+	if(get_bit(quest_rules, qr_OLD_RESPAWN_POINTS))
+		return; //No cross-screen return
+	
+	if(currdmap != respawn_dmap || currscr != respawn_scr)
+	{
+		FFCore.warp_link(wtIWARP, respawn_dmap, respawn_scr,
+			-1, -1, 0, 0, warpFlagNOSTEPFORWARD|warpFlagDONTKILLMUSIC, -1);
+	}
+}
+
+void LinkClass::trySideviewLadder()
+{
+	if(canSideviewLadder() && !on_sideview_solid(x,y))
+		setOnSideviewLadder(true);
+}
+
 bool LinkClass::can_pitfall(bool ignore_hover)
 {
 	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
@@ -1265,8 +1310,10 @@ void LinkClass::init()
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
     stepnext=stepsecret=-1;
     ffpit = false;
-    entry_x=x;
-    entry_y=y;
+    respawn_x=x;
+    respawn_y=y;
+	respawn_dmap=currdmap;
+	respawn_scr=currscr;
     falling_oldy = y;
     magiccastclk=0;
     magicitem = nayruitem = -1;
@@ -1303,7 +1350,7 @@ void LinkClass::init()
 		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); 
 		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
 		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
-		setEntryPoints(LinkX(),LinkY()); //screen entry at spawn; //This should be after the init script, so that Link->X and Link->Y set by the script
+		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Link->X and Link->Y set by the script
 						//are properly set by the engine.
 	}
 	FFCore.nostepforward = 0;
@@ -7670,12 +7717,7 @@ bool LinkClass::animate(int32_t)
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
-			x=entry_x;
-			y=entry_y;
-			can_mirror_portal = false; //incase entry is on a portal!
-			if (canSideviewLadder()) setOnSideviewLadder(true);
-			warpx=x;
-			warpy=y;
+			go_respawn_point();
 			hclk=48;
 		}
 		
@@ -7776,8 +7818,7 @@ bool LinkClass::animate(int32_t)
 				whirlwind=0;
 				lstep=0;
 				if ( dontdraw < 2 ) dontdraw=0;
-				entry_x=x;
-				entry_y=y;
+				set_respawn_point();
 			}
 		}
 		/*
@@ -7870,6 +7911,9 @@ bool LinkClass::animate(int32_t)
 	default:
 		movelink();										   // call the main movement routine
 	}
+	
+	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
+		set_respawn_point(); //Keep the 'last safe location' updated!
 	
 	// check for ladder removal
 	if(diagonalMovement)
@@ -10897,11 +10941,7 @@ void LinkClass::pitfall()
 			}
 			else //Reset to screen entry
 			{
-				x=entry_x;
-				y=entry_y;
-				can_mirror_portal = false; //incase entry is on a portal!
-				warpx=x;
-				warpy=y;
+				go_respawn_point();
 			}
 		}
 	}
@@ -10970,7 +11010,8 @@ void LinkClass::movelink()
 			return;
 		}
 		
-		setEntryPoints(x,y);
+		set_respawn_point();
+		trySideviewLadder();
 	}
 	
 	int32_t olddirectwpn = directWpn; // To be reinstated if startwpn() fails
@@ -19695,17 +19736,6 @@ bool LinkClass::HasHeavyBoots()
 	return false;
 }
 
-void LinkClass::setEntryPoints(int32_t x2, int32_t y2)
-{
-    mapscr *m = &tmpscr[0];
-	m->entry_x = x2;
-	m->entry_y = y2;
-	//m->entry_x = entry_x;
-	//m->entry_y = entry_y;
-    entry_x=warpx=x2;
-    entry_y=warpy=y2;
-}
-
 const char *roomtype_string[rMAX] =
 {
     "(None)","Special Item","Pay for Info","Secret Money","Gamble",
@@ -19982,7 +20012,9 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			y=pity;
 		}
 		
-		setEntryPoints(x,y=0);
+		y=0;
+		set_respawn_point();
+		trySideviewLadder();
 		reset_hookshot();
 		if(reposition_sword_postwarp)
 		{
@@ -20186,7 +20218,8 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		playLevelMusic();
 		currcset=DMaps[currdmap].color;
 		dointro();
-		setEntryPoints(x,y);
+		set_respawn_point();
+		trySideviewLadder();
 		
 		for(int32_t i=0; i<6; i++)
 			visited[i]=-1;
@@ -20489,7 +20522,8 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		playLevelMusic();
 		currcset=DMaps[currdmap].color;
 		dointro();
-		setEntryPoints(x,y);
+		set_respawn_point();
+		trySideviewLadder();
 	}
 	break;
 	
@@ -20651,7 +20685,8 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			playLevelMusic();
 			currcset=DMaps[currdmap].color;
 			dointro();
-			setEntryPoints(x,y);
+			set_respawn_point();
+			trySideviewLadder();
 			break;
 		}
 		else
@@ -20930,7 +20965,7 @@ void LinkClass::exitcave()
     newscr_clk=frame;
     activated_timed_warp=false;
     dir=down;
-    setEntryPoints(x,y);
+    set_respawn_point();
     eat_buttons();
     didstuff=0;
 	usecounts.clear();
@@ -21176,7 +21211,7 @@ void LinkClass::stepforward(int32_t steps, bool adjust)
 		x = x.getInt();
 		y = y.getInt();
 	}
-    setEntryPoints(x,y);
+    set_respawn_point();
     draw_screen(tmpscr);
     eat_buttons();
     shiftdir=sh;
@@ -21461,7 +21496,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
         
     dir=down;
     
-    setEntryPoints(x,y);
+    set_respawn_point();
     
     // Let's use the 'exit cave' animation if we entered this cellar via a cave combo.
     int32_t type = combobuf[MAPCOMBO(tmpscr->warpreturnx[stepoutwr],tmpscr->warpreturny[stepoutwr])].type;
@@ -23236,8 +23271,8 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z = 0;
 	}
 	
-	entry_x = x;
-	entry_y = y;
+	set_respawn_point();
+	trySideviewLadder();
 	warpx   = -1;
 	warpy   = -1;
 	
