@@ -22962,7 +22962,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 				Link.diveclk = 0;
 			}
 			//zprint("FFCore.warp_link reached line: %d \n", 15948);
-			doWarpEffect(warpEffect, false);
+			doWarpEffect(warpEffect, true);
 			//zprint("FFCore.warp_link reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
 			currdmap = dmapID;
@@ -23034,7 +23034,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			putscr(scrollbuf,0,0,tmpscr);
 			putscrdoors(scrollbuf,0,0,tmpscr);
 			
-			doWarpEffect(warpEffect, true);
+			doWarpEffect(warpEffect, false);
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
@@ -23260,6 +23260,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 	if(warpType!=wtIWARP) { Link.attackclk=0; }
 		
 	Link.didstuff=0;
+	Link.usecounts.clear();
 	map_bkgsfx(true);
 	loadside=Link.dir^1;
 	whistleclk=-1;
