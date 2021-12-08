@@ -1287,24 +1287,26 @@ map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,
 
 static int32_t do_OpenQuest()
 {
-    //clear the panel recent screen buttons to prevent crashes from invalid maps
-    for ( int32_t q = 0; q < 9; q++ )
-    {
-	map_page[q].map = 0;
-	map_page[q].screen = 0;
-    }
-    return onOpen();
+	//clear the panel recent screen buttons to prevent crashes from invalid maps
+	for ( int32_t q = 0; q < 9; q++ )
+	{
+		map_page[q].map = 0;
+		map_page[q].screen = 0;
+	}
+	return onOpen();
 }
 
 static int32_t do_NewQuest()
 {
-    //clear the panel recent screen buttons to prevent crashes from invalid maps
-    for ( int32_t q = 0; q < 9; q++ )
-    {
-	map_page[q].map = 0;
-	map_page[q].screen = 0;
-    }
-    return onNew();
+	//clear the panel recent screen buttons to prevent crashes from invalid maps
+	for ( int32_t q = 0; q < 9; q++ )
+	{
+		map_page[q].map = 0;
+		map_page[q].screen = 0;
+	}
+	Map.setCurrMap(0);
+	Map.setCurrScr(0);
+	return onNew();
 }
 
 int32_t alignment_arrow_timer=0;
