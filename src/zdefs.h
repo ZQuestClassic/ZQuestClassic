@@ -781,7 +781,7 @@ enum
 	//165
 	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cTORCH,
 	//170
-	cSPOTLIGHT, cGLASS, cLIGHTTARGET,
+	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK,
     cMAX,
 //! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
