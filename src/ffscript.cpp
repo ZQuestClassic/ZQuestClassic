@@ -5001,6 +5001,10 @@ int32_t get_register(const int32_t arg)
 			ret=(itemsbuf[ri->idata].usesound)*10000;
 			break;
 			
+		case IDATAUSESOUND2:
+			ret=(itemsbuf[ri->idata].usesound2)*10000;
+			break;
+			
 		case IDATAPOWER:
 			ret=(itemsbuf[ri->idata].power)*10000;
 			break;
@@ -13277,6 +13281,10 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case IDATAUSESOUND:
 			(itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
+			break;
+			
+		case IDATAUSESOUND2:
+			(itemsbuf[ri->idata].usesound2)=vbound(value/10000, 0, 255);
 			break;
 		
 		//2.54
@@ -35501,6 +35509,7 @@ script_variable ZASMVars[]=
 	{ "HERORESPAWNY",    HERORESPAWNY,    0, 0 },
 	{ "HERORESPAWNDMAP", HERORESPAWNDMAP, 0, 0 },
 	{ "HERORESPAWNSCR",  HERORESPAWNSCR,  0, 0 },
+	{ "IDATAUSESOUND2",  IDATAUSESOUND2,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
@@ -38283,6 +38292,11 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",48);
 			}
+			
+			if(!p_putc(itemsbuf[i].usesound2,f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",48);
+			}
 		
 		//New itemdata vars -Z
 		//! version 27
@@ -38712,6 +38726,11 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 			}
 			
 			if(!p_getc(&itemsbuf[i].usesound,f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",48);
+			}
+			
+			if(!p_getc(&itemsbuf[i].usesound2,f,true))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",48);
 			}

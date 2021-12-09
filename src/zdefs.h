@@ -234,7 +234,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           48
+#define V_ITEMS           49
 #define V_WEAPONS          7
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -1832,7 +1832,7 @@ struct itemdata
     int32_t misc9;
     int32_t misc10;
     byte magic; // Magic usage!
-    byte usesound;
+    byte usesound, usesound2;
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
@@ -3907,23 +3907,9 @@ enum // used for gamedata ITEMS
 	itype_bowandarrow, itype_letterpotion,
 	itype_last, 
 	itype_script1 = 256, //Scripted Weapons
-	itype_script2, 
-	itype_script3,
-	itype_script4,
-	itype_script5,
-	itype_script6,
-	itype_script7,
-	itype_script8,
-	itype_script9,
-	itype_script10,
-	itype_icerod, //ice Rod
-	itype_atkring,
-	itype_lantern,
-	itype_pearl,
-	itype_bottle,
-	itype_bottlefill,
-	itype_bugnet,
-	itype_mirror,
+	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
+	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
+	itype_mirror, itype_switchhook,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 

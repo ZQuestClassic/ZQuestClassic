@@ -4367,8 +4367,9 @@ enum ASM_DEFINE
 #define HERORESPAWNY            0x140E
 #define HERORESPAWNDMAP         0x140F
 #define HERORESPAWNSCR          0x1410
+#define IDATAUSESOUND2          0x1411
 
-#define NUMVARIABLES         	0x1411
+#define NUMVARIABLES         	0x1412
 
 //} End variables
 

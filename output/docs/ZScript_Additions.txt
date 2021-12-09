@@ -5240,7 +5240,9 @@ int CostTimer;
  * 	upkeep cost, such as Boots and Cane items.
 
 int UseSound;
- * The sound that will play when the item is used.
+ * The sound that may play when the item is used. When it plays differs depending on itemclass.
+int UseSound2;
+ * A second sound that may play when the item is used. When it plays differs depending on itemclass.
 
 int Pickup; 
  * The Pickup type for this item See IP_* in std_constants.zh.

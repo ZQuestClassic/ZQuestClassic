@@ -8279,6 +8279,11 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
             {
                 new_return(48);
             }
+            
+            if(!p_putc(itemsbuf[i].usesound2,f))
+            {
+                new_return(48);
+            }
 	    
 	    //New itemdata vars -Z
 	    //! version 27

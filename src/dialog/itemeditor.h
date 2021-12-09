@@ -22,12 +22,12 @@ struct ItemNameInfo
 	std::string misc[10];
 	std::string flag[16];
 	std::string wpn[10];
-	std::string actionsnd;
+	std::string actionsnd[2];
 	std::string h_power;
 	std::string h_misc[10];
 	std::string h_flag[16];
 	std::string h_wpn[10];
-	std::string h_actionsnd;
+	std::string h_actionsnd[2];
 	void clear()
 	{
 		iclass = -1;
@@ -40,11 +40,12 @@ struct ItemNameInfo
 			h_misc[q].clear();
 			wpn[q].clear();
 			h_wpn[q].clear();
+			if (q > 1) continue;
+			actionsnd[q].clear();
+			h_actionsnd[q].clear();
 		}
 		power.clear();
-		actionsnd.clear();
 		h_power.clear();
-		h_actionsnd.clear();
 	}
 };
 
@@ -70,17 +71,17 @@ private:
 	std::shared_ptr<GUI::Label> l_spr[10];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Label> l_power;
-	std::shared_ptr<GUI::Label> l_sfx;
+	std::shared_ptr<GUI::Label> l_sfx[2];
 	std::string h_attribs[10];
 	std::string h_spr[10];
 	std::string h_flags[16];
 	std::string h_power;
-	std::string h_sfx;
+	std::string h_sfx[2];
 	std::shared_ptr<GUI::Button> ib_attribs[10];
 	std::shared_ptr<GUI::Button> ib_spr[10];
 	std::shared_ptr<GUI::Button> ib_flags[16];
 	std::shared_ptr<GUI::Button> ib_power;
-	std::shared_ptr<GUI::Button> ib_sfx;
+	std::shared_ptr<GUI::Button> ib_sfx[2];
 	std::shared_ptr<GUI::TileFrame> animFrame;
 	std::string itemname;
 	int32_t index;

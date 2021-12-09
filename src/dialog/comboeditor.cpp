@@ -1373,12 +1373,10 @@ void ComboEditorDialog::loadComboType()
 			h_flag[2] = "The combo will 'break' upon swapping, displaying a break sprite and potentially dropping an item.";
 			l_attribyte[0] = "Hook Level:";
 			h_attribyte[0] = "The minimum level of SwitchHook that can swap this combo";
-			l_attribyte[1] = "SFX:";
-			h_attribyte[1] = "SFX to play upon swapping this combo";
 			if(FL(cflag3)) //break info
 			{
-				l_attribyte[2] = "Break Sprite:";
-				h_attribyte[2] = "Sprite Data sprite ID to display when broken";
+				l_attribyte[1] = "Break Sprite:";
+				h_attribyte[1] = "Sprite Data sprite ID to display when broken";
 				l_flag[3] = "Drop Item";
 				h_flag[3] = "Will drop an item upon breaking.";
 				if(FL(cflag4))
@@ -1387,13 +1385,13 @@ void ComboEditorDialog::loadComboType()
 					h_flag[4] = "Drop a specific item instead of an item from a dropset";
 					if(FL(cflag5))
 					{
-						l_attribyte[3] = "Item:";
-						h_attribyte[3] = "The item ID to drop";
+						l_attribyte[2] = "Item:";
+						h_attribyte[2] = "The item ID to drop";
 					}
 					else
 					{
-						l_attribyte[3] = "Dropset:";
-						h_attribyte[3] = "The dropset to select a drop item from";
+						l_attribyte[2] = "Dropset:";
+						h_attribyte[2] = "The dropset to select a drop item from";
 					}
 				}
 			}

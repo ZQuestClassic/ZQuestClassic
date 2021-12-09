@@ -6350,6 +6350,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     {
                         return qe_invalid;
                     }
+					
+					if(s_version >= 49)
+					{
+						if(!p_getc(&tempitem.usesound2,f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					else tempitem.usesound2 = 0;
                 }
             }
 	    

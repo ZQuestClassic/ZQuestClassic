@@ -691,6 +691,11 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
+	if(!p_getc(&tempitem.usesound2,f,true))
+	{
+		return 0;
+	}
+	
 	if ( zversion >= 0x255 )
 	{
 		if  ( section_version >= 45 )
@@ -1170,6 +1175,11 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 			}
 			
 			if(!p_putc(itemsbuf[i].usesound,f))
+			{
+				new_return(48);
+			}
+			
+			if(!p_putc(itemsbuf[i].usesound2,f))
 			{
 				new_return(48);
 			}

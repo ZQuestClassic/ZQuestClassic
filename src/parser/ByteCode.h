@@ -1323,8 +1323,9 @@
 #define HERORESPAWNY            1240
 #define HERORESPAWNDMAP         1241
 #define HERORESPAWNSCR          1242
+#define IDATAUSESOUND2          1243
 
-#define LAST_BYTECODE           1243
+#define LAST_BYTECODE           1244
 
 //} END OF BYTECODE
 

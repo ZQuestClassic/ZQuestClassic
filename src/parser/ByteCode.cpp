@@ -427,6 +427,8 @@ string ZScript::VarToString(int32_t ID)
 		
 	case ITEMCLASSUSESOUND:
 		return "IDATAUSESOUND";
+	case IDATAUSESOUND2:
+		return "IDATAUSESOUND2";
 		
 	case ITEMCLASSPOWER:
 		return "IDATAPOWER";

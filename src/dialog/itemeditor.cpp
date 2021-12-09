@@ -71,7 +71,7 @@ ItemNameInfo defInfo =
 		"Sprites[0]:", "Sprites[1]:","Sprites[2]:","Sprites[3]:","Sprites[4]:",
 		"Sprites[5]:","Sprites[6]:","Sprites[7]:","Sprites[8]:","Sprites[9]:"
 	},
-	"UseSound"
+	{ "UseSound", "UseSound2" }
 };
 
 void loadinfo(ItemNameInfo * inf, itemdata const& ref)
@@ -100,8 +100,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->h_flag[0] = "HP Regained is a percentage out of max HP";
 			inf->flag[1] = "Magic is Percent";
 			inf->h_flag[0] = "MP Regained is a percentage out of max MP";
-			inf->actionsnd = "Item Drop Sound:";
-			inf->h_actionsnd = "Plays SFX when dropped";
+			inf->actionsnd[0] = "Item Drop Sound:";
+			inf->h_actionsnd[0] = "Plays SFX when dropped";
 			break;
 		}
 		case itype_triforcepiece: //!TODO Help Text
@@ -132,7 +132,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->h_misc[1] = "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.";
-			inf->actionsnd = "De/Reflection Sound:";
+			inf->actionsnd[0] = "De/Reflection Sound:";
 			break;
 		}
 		case itype_agony: //!TODO Help Text
@@ -167,7 +167,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[2] = "Beam Sprite:";
 			inf->wpn[3] = "Sparkle Sprite:";
 			inf->wpn[4] = "Damaging Sparkle Sprite:";
-			inf->actionsnd = "Orbit Sound:";
+			inf->actionsnd[0] = "Orbit Sound:";
 			break;
 		}
 		case itype_whispring: //!TODO Help Text
@@ -216,7 +216,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Stun Duration:";
 			inf->misc[1] = "Stun Radius:";
-			inf->actionsnd = "Quake Sound:";
+			inf->actionsnd[0] = "Quake Sound:";
 			break;
 		}
 		case itype_quakescroll: //!TODO Help Text
@@ -224,7 +224,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Stun Duration:";
 			inf->misc[1] = "Stun Radius:";
-			inf->actionsnd = "Quake Sound:";
+			inf->actionsnd[0] = "Quake Sound:";
 			break;
 		}
 		case itype_perilscroll: //!TODO Help Text
@@ -236,14 +236,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Number of Spins:";
-			inf->actionsnd = "Spinning Sound:";
+			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
 		case itype_spinscroll: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Number of Spins:";
-			inf->actionsnd = "Spinning Sound:";
+			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
 		case itype_clock: //!TODO Help Text
@@ -275,7 +275,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[0] = "Hover Duration:";
 			inf->flag[0] = "Timer only resets on landing";
 			inf->wpn[0] = "Halo Sprite:";
-			inf->actionsnd = "Hovering Sound:";
+			inf->actionsnd[0] = "Hovering Sound:";
 			break;
 		}
 		case itype_rocs: //!TODO Help Text
@@ -283,7 +283,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->power = "Jump Power:";
 			inf->misc[0] = "Extra Jumps:";
 			inf->flag[0] = "Jump is Power/100";
-			inf->actionsnd = "Jumping Sound:";
+			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}
 		case itype_sbomb: //!TODO Help Text
@@ -295,7 +295,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[1] = "Explosion Hurts Player";
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
-			inf->actionsnd = "Explosion Sound:";
+			inf->actionsnd[0] = "Explosion Sound:";
 			break;
 		}
 		case itype_bomb: //!TODO Help Text
@@ -308,7 +308,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[1] = "Explosion Hurts Player";
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
-			inf->actionsnd = "Explosion Sound:";
+			inf->actionsnd[0] = "Explosion Sound:";
 			break;
 		}
 		case itype_nayruslove: //!TODO Help Text
@@ -328,13 +328,13 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[7] = "R. Rocket Sparkle Sprite:";
 			inf->wpn[8] = "R. Return Sparkle Sprite:";
 			inf->wpn[9] = "Shield Sprite (2x2, Under):";
-			inf->actionsnd = "Shield Sound:";
+			inf->actionsnd[0] = "Shield Sound:";
 			break;
 		}
 		case itype_faroreswind: //!TODO Help Text
 		{
 			inf->misc[0] = "Warp Animation (0-2):";
-			inf->actionsnd = "Wind Sound:";
+			inf->actionsnd[0] = "Wind Sound:";
 			break;
 		}
 		case itype_dinsfire: //!TODO Help Text
@@ -350,7 +350,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[2] = "R. Up Sparkle Sprite:";
 			inf->wpn[3] = "R. Down Sparkle Sprite:";
 			inf->wpn[4] = "Flame Sprite:";
-			inf->actionsnd = "Ring Sound:";
+			inf->actionsnd[0] = "Ring Sound:";
 			break;
 		}
 		case itype_hammer: //!TODO Help Text
@@ -359,7 +359,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[2] = "No Melee Attack";
 			inf->wpn[0] = "Hammer Sprite:";
 			inf->wpn[1] = "Smack Sprite:";
-			inf->actionsnd = "Pound Sound:";
+			inf->actionsnd[0] = "Pound Sound:";
 			inf->flag[6] = "Doesn't Pick Up Dropped Items";
 			break;
 		}
@@ -371,22 +371,21 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[2] = "No X-Ray for Items";
 			inf->flag[3] = "Show Raft Paths";
 			inf->flag[4] = "Show Invis. Enemies";
-			inf->actionsnd = "Activation Sound:";
+			inf->actionsnd[0] = "Activation Sound:";
 			break;
 		}
-		case itype_hookshot: //!TODO Help Text
+		case itype_hookshot:
 		{
 			inf->power = "Damage:";
-			inf->misc[0] = "Chain Length:";
-			inf->misc[1] = "Chain Links:";
-			inf->misc[2] = "Block Flags:";
-			inf->misc[3] = "Reflect Flags:";
-			inf->flag[0] = "No Handle Damage";
-			inf->flag[1] = "Allow Diagonal";
-			inf->flag[3] = "Pick Up Anything";
-			inf->flag[4] = "Drags Items";
-			inf->flag[5] = "Reflects Enemy Projectiles";
-			inf->flag[6] = "Picks Up Keys";
+			_SET(misc[0], "Chain Length:", "Max length, in tiles, of the hookshot chain");
+			_SET(misc[1], "Chain Links:", "Max number of chain link sprites to display (less = a more stretched chain)");
+			_SET(flag[0], "No Handle Damage", "The handle does not collide with enemies");
+			_SET(flag[1], "Allow Diagonal", "The hookshot can be fired diagonally. (EXPERIMENTAL)");
+			_SET(flag[3], "Pick Up Anything", "Any collided item will be grabbed, not just dropped items");
+			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
+			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
+			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
+			
 			inf->wpn[0] = "Tip Sprite:";
 			inf->wpn[1] = "Chain Sprite (H):";
 			inf->wpn[2] = "Chain Sprite (V):";
@@ -394,7 +393,50 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[4] = "Diagonal Tip Sprite:";
 			inf->wpn[5] = "Diagonal Handle Sprite:";
 			inf->wpn[6] = "Diagonal Chain Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			_SET(actionsnd[0], "Firing Sound:", "Sound plays while the hookshot extends");
+			if(FLAG(6))
+			{
+				_SET(misc[2], "Block Flags:",
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
+				_SET(misc[3], "Reflect Flags:",
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
+					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
+			}
+			break;
+		}
+		case itype_switchhook: //!TODO Help Text
+		{
+			inf->power = "Damage:";
+			_SET(misc[0], "Chain Length:", "Max length, in tiles, of the switchhook chain");
+			_SET(misc[1], "Chain Links:", "Max number of chain link sprites to display (less = a more stretched chain)");
+			_SET(flag[0], "No Handle Damage", "The handle does not collide with enemies");
+			_SET(flag[1], "Allow Diagonal", "The switchhook can be fired diagonally. (EXPERIMENTAL)");
+			_SET(flag[3], "Pick Up Anything", "Any collided item will be grabbed, not just dropped items");
+			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
+			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
+			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
+			
+			inf->wpn[0] = "Tip Sprite:";
+			inf->wpn[1] = "Chain Sprite (H):";
+			inf->wpn[2] = "Chain Sprite (V):";
+			inf->wpn[3] = "Handle Sprite:";
+			inf->wpn[4] = "Diagonal Tip Sprite:";
+			inf->wpn[5] = "Diagonal Handle Sprite:";
+			inf->wpn[6] = "Diagonal Chain Sprite:";
+			_SET(actionsnd[0], "Firing Sound:", "Sound plays while the hookshot extends");
+			_SET(actionsnd[1], "Switch Sound:", "Sound plays when a switch occurs");
+			if(FLAG(6))
+			{
+				_SET(misc[2], "Block Flags:",
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
+				_SET(misc[3], "Reflect Flags:",
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
+					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
+			}
 			break;
 		}
 		case itype_boots: //!TODO Help Text
@@ -429,7 +471,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[5] = "Replace Wand Weapon";
 			inf->wpn[0] = "Magic Sprite:";
 			inf->wpn[1] = "Projectile Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			break;
 		}
 		case itype_ring:
@@ -469,7 +511,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[1] = "Slash Sprite:";
 			inf->wpn[2] = "Projectile Sprite:";
 			inf->wpn[3] = "Projectile Misc:";
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			break;
 		}
 		case itype_bait: //!TODO Help Text
@@ -478,7 +520,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[1] = "Bait Range (0 = infinite)";
 			inf->flag[0] = "Repels enemies";
 			inf->wpn[0] = "Bait Sprite:";
-			inf->actionsnd = "Baiting Sound:";
+			inf->actionsnd[0] = "Baiting Sound:";
 			break;
 		}
 		case itype_potion: //!TODO Help Text
@@ -500,7 +542,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[1] = "Has Damage";
 			inf->flag[2] = "Whirlwinds Reflect off Prism/Mirror Combos";
 			inf->wpn[0] = "Whirlwind Sprite:";
-			inf->actionsnd = "Music Sound:";
+			inf->actionsnd[0] = "Music Sound:";
 			break;
 		}
 		case itype_candle:
@@ -515,7 +557,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(wpn[0], "Stab Sprite:", "The sprite for the candle stabbing");
 			_SET(wpn[1], "Slash Sprite:", "The sprite for the candle slashing");
 			_SET(wpn[2], "Fire Sprite:", "The sprite for the candle fire");
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			if(FLAG(1))
 			{
 				_SET(misc[2], "Uses Per Screen", "How many times this candle can be used per screen. Minimum 1.");
@@ -540,7 +582,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[0] = "Arrow Sprite:";
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			inf->flag[6] = "Picks Up Keys";
 			break;
 		}
@@ -561,7 +603,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[0] = "Boomerang Sprite:";
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
-			inf->actionsnd = "Spinning Sound:";
+			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
 		case itype_sword: //!TODO Help Text
@@ -582,14 +624,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->wpn[0] = "Stab Sprite:";
 			inf->wpn[1] = "Slash Sprite:";
 			inf->wpn[2] = "Beam Sprite:";
-			inf->actionsnd = "Slash/Stab Sound";
+			inf->actionsnd[0] = "Slash/Stab Sound";
 			break;
 		}
 		case itype_whimsicalring: //!TODO Help Text
 		{
 			inf->power = "Damage Bonus:";
 			inf->misc[0] = "Chance (1 in n):";
-			inf->actionsnd = "Whimsy Sound:";
+			inf->actionsnd[0] = "Whimsy Sound:";
 			break;
 		}
 		case itype_perilring:
@@ -961,8 +1003,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								FLAG_CHECK(14,ITEM_FLAG15)
 							)
 						)),
-						TabRef(name = "Action", Columns<4>(
+						TabRef(name = "Action", Columns<5>(
 							Row(
+								hAlign = 1.0,
 								Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
 								TextField(
 									val = local_itemref.magic,
@@ -984,6 +1027,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								}
 							),
 							Row(
+								hAlign = 1.0,
 								Label(text = "Timer:", textAlign = 2, width = ACTION_LAB_WID),
 								TextField(
 									val = local_itemref.magiccosttimer,
@@ -996,12 +1040,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							),
 							Row(
-								l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
-								ib_sfx = Button(forceFitH = true, text = "?",
+								hAlign = 1.0,
+								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
 									onPressFunc = [&]()
 									{
-										InfoDialog("SFX Info",h_sfx).show();
+										InfoDialog("SFX Info",h_sfx[0]).show();
 									}),
 								TextField(
 									val = local_itemref.usesound,
@@ -1010,6 +1055,25 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.usesound = val;
+									}
+								)
+							),
+							Row(
+								hAlign = 1.0,
+								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[1] = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("SFX Info",h_sfx[1]).show();
+									}),
+								TextField(
+									val = local_itemref.usesound2,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.usesound2 = val;
 									}
 								)
 							),
@@ -2200,7 +2264,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							)
 						)),
-						TabRef(name = "Action", Columns<4>(
+						TabRef(name = "Action", Columns<5>(
 							Row(
 								Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
 								TextField(
@@ -2235,12 +2299,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							),
 							Row(
-								l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
-								ib_sfx = Button(forceFitH = true, text = "?",
+								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
 									onPressFunc = [&]()
 									{
-										InfoDialog("Attribute Info",h_sfx).show();
+										InfoDialog("Attribute Info",h_sfx[0]).show();
 									}),
 								TextField(
 									val = local_itemref.usesound,
@@ -2249,6 +2313,24 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.usesound = val;
+									}
+								)
+							),
+							Row(
+								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[1] = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("Attribute Info",h_sfx[1]).show();
+									}),
+								TextField(
+									val = local_itemref.usesound2,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.usesound2 = val;
 									}
 								)
 							),
@@ -3300,7 +3382,8 @@ void ItemEditorDialog::loadItemClass()
 	__SET(flags[14], flag[14]);
 	__SET(flags[15], flag[15]);
 	
-	__SET(sfx, actionsnd);
+	__SET(sfx[0], actionsnd[0]);
+	__SET(sfx[1], actionsnd[1]);
 	
 	__SET(spr[0], wpn[0]);
 	__SET(spr[1], wpn[1]);

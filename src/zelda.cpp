@@ -3287,15 +3287,16 @@ void update_hookshot()
     
     if(check_hs)
     {
-        int32_t parentitem = ((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
-        hs_x=Lwpns.spr(Lwpns.idFirst(wHookshot))->x;
-        hs_y=Lwpns.spr(Lwpns.idFirst(wHookshot))->y;
-        hs_z=Lwpns.spr(Lwpns.idFirst(wHookshot))->z;
+		weapon* hookweap = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
+        int32_t parentitem = hookweap->parentitem;
+        hs_x=hookweap->x;
+        hs_y=hookweap->y;
+        hs_z=hookweap->z;
         hs_dx=hs_x-hs_startx;
         hs_dy=hs_y-hs_starty;
         
         //extending
-        if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
+        if(hookweap->misc==0)
         {
             int32_t maxchainlinks=itemsbuf[parentitem].misc2;
             
@@ -3343,7 +3344,7 @@ void update_hookshot()
                 }
             }
         }                                                       //retracting
-        else if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==1)
+        else if(hookweap->misc==1)
         {
             dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
             dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);

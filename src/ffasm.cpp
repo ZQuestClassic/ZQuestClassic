@@ -2265,6 +2265,7 @@ script_variable variable_list[]=
 	{ "HERORESPAWNY",    HERORESPAWNY,    0, 0 },
 	{ "HERORESPAWNDMAP", HERORESPAWNDMAP, 0, 0 },
 	{ "HERORESPAWNSCR",  HERORESPAWNSCR,  0, 0 },
+	{ "IDATAUSESOUND2",  IDATAUSESOUND2,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

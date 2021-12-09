@@ -2965,7 +2965,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = itemsbuf[itemid].wpn;
 			else
 				defaultw = wHSHEAD;
-				
+			
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 			LOADGFX(defaultw);
 			step = 4;
 			clk2=256;
@@ -3009,7 +3010,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						break;
 					//Diagonal Hookshot (1)
 					case l_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3019,7 +3020,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=0;
 						break;
 					case r_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3; //check numbers ater
 						xofs-=3;
 						hysz=12;
@@ -3030,7 +3031,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=3;
 						break;
 					case l_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3041,7 +3042,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=2;
 						break;
 					case r_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3070,6 +3071,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = itemsbuf[itemid].wpn4;
 			else
 				defaultw = wHSHANDLE;
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 				
 			LOADGFX(defaultw);
 			if ( do_animation ) 
@@ -3111,7 +3113,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				
 					//Diagonal Hookshot (5)
 					case r_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3; //check numbers ater
 						xofs-=3;
 						hysz=12;
@@ -3122,7 +3124,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=3;
 						break;
 					case l_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3133,7 +3135,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=2;
 						break;
 					case r_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3144,7 +3146,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=1;
 						break;
 					case l_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3171,6 +3173,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = (dir<left) ? itemsbuf[itemid].wpn3 : itemsbuf[itemid].wpn2;
 			else
 				defaultw = (dir<left) ? wHSCHAIN_V : wHSCHAIN_H;
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 				
 			step = 0;
 			
@@ -3207,7 +3210,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//	  wpn7: chainlink, diagonal
 				//
 				case r_up:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs-=10;
 					yofs+=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -3215,7 +3218,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					flip=1;
 					break;
 				case r_down:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs-=10;
 					yofs-=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -3223,7 +3226,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					flip=3;
 					break;
 				case l_up:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs+=10;
 					yofs+=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -3231,7 +3234,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					flip=0;
 					break;
 				case l_down:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs+=10;
 					yofs-=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -5454,7 +5457,8 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			//Diagonal Hookshot (8)
-			byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
+			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5477,7 +5481,7 @@ bool weapon::animate(int32_t index)
 					//zprint2("UP\n");
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5499,7 +5503,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5529,7 +5533,7 @@ bool weapon::animate(int32_t index)
 					
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5551,7 +5555,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5894,7 +5898,8 @@ bool weapon::animate(int32_t index)
 				dead=0;
 			}
 			//Diagonal Hookshot Handle
-			byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
+			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5910,7 +5915,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5932,7 +5937,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5963,7 +5968,7 @@ bool weapon::animate(int32_t index)
 					
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5985,7 +5990,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6015,7 +6020,8 @@ bool weapon::animate(int32_t index)
 		{
 			
 			//Diagonal Hookshot Handle
-			byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
+			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -6031,7 +6037,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6053,7 +6059,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6084,7 +6090,7 @@ bool weapon::animate(int32_t index)
 					
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6106,7 +6112,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
