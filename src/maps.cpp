@@ -61,6 +61,18 @@ float log2(float n)
 }
 #endif
 
+int32_t COMBOPOS(int32_t x, int32_t y)
+{
+    return (((y) & 0xF0) + ((x) >> 4));
+}
+int32_t COMBOX(int32_t pos)
+{
+    return ((pos) % 16 * 16);
+}
+int32_t COMBOY(int32_t pos)
+{
+    return ((pos) & 0xF0);
+}
 
 FONT *get_zc_font(int32_t index);
 
@@ -1277,6 +1289,18 @@ bool isHSGrabbable(newcombo const& cmb)
 {
 	if(cmb.type == cHSGRAB) return true;
 	return cmb.genflags & cflag1;
+}
+
+bool isSwitchHookable(newcombo const& cmb)
+{
+	if(cmb.type == cSWITCHHOOK) return true;
+	return cmb.genflags & cflag2;
+}
+
+int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook)
+{
+	newcombo const& cmb = combobuf[MAPCOMBO2(layer-1,x,y)];
+	return (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS(x,y) : -1;
 }
 
 bool ishookshottable(int32_t bx, int32_t by)

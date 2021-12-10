@@ -1371,6 +1371,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "Placed flags on the same layer and position as this combo will be swapped along with the combo";
 			l_flag[2] = "Break upon swap";
 			h_flag[2] = "The combo will 'break' upon swapping, displaying a break sprite and potentially dropping an item.";
+			l_flag[5] = "Undercombo";
+			h_flag[5] = "Replace with undercombo instead of swapped combo";
 			l_attribyte[0] = "Hook Level:";
 			h_attribyte[0] = "The minimum level of SwitchHook that can swap this combo";
 			if(FL(cflag3)) //break info

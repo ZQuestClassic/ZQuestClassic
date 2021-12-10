@@ -83,6 +83,19 @@ int32_t ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
 
 bool save_warn=true;
 
+int32_t COMBOPOS(int32_t x, int32_t y)
+{
+    return (((y) & 0xF0) + ((x) >> 4));
+}
+int32_t COMBOX(int32_t pos)
+{
+    return ((pos) % 16 * 16);
+}
+int32_t COMBOY(int32_t pos)
+{
+    return ((pos) & 0xF0);
+}
+
 void reset_dmap(int32_t index)
 {
     bound(index,0,MAXDMAPS-1);

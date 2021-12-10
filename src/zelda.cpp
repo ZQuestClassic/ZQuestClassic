@@ -396,10 +396,11 @@ bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEW
 bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= false,Sdown= false,Mdown= false,LBdown= false,RBdown= false,Pdown= false,Ex1down= false,Ex2down= false,Ex3down= false,Ex4down= false,AUdown= false,ADdown= false,ALdown= false,ARdown= false,F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
-     pull_link=false, add_chainlink=false, del_chainlink=false, hs_fix=false,
+     pull_link=false, hs_fix=false, hs_switcher=false,
      cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
+int32_t hooked_combopos = -1;
 
 byte COOLSCROLL = 0;
 

@@ -406,7 +406,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			}
 			break;
 		}
-		case itype_switchhook: //!TODO Help Text
+		case itype_switchhook:
 		{
 			inf->power = "Damage:";
 			_SET(misc[0], "Chain Length:", "Max length, in tiles, of the switchhook chain");

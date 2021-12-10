@@ -235,7 +235,8 @@ public:
 	ladderstart, // starting direction of ladder...?
 	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
 	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
-	newconveyorclk; // clock for determining when Link gets moved by a conveyor
+	newconveyorclk, // clock for determining when Link gets moved by a conveyor
+	switchhookclk; //clock for switchhook animation timing
     int32_t shiftdir, // shift direction when walking into corners of solid combos
     lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
 	lbunnyclock,

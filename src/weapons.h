@@ -85,7 +85,7 @@ public:
     int32_t clocks[WEAPON_CLOCKS];
     int32_t tilemod;
     byte drawlayer;
-    byte family_class;												
+    word family_class;												
     byte family_level;
     word flags;
     int32_t collectflags; //items that this weapon can collect on contact.
