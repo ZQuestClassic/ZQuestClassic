@@ -86,65 +86,58 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 	{
 		case itype_fairy:
 		{
-			inf->misc[0] = "HP Regained:";
-			inf->h_misc[0] = "Life restored when collected. This is in HP points, unless"
-				" 'Life is Percent' is checked, then it's a percentage of max life.";
-			inf->misc[1] = "MP Regained:";
-			inf->h_misc[0] = "Magic restored when collected. This is in MP points, unless"
-				" 'Magic is Percent' is checked, then it's a percentage of max magic.";
-			inf->misc[2] = "Step Speed:";
-			inf->h_misc[2] = "The movement speed of the fairy, in 100ths of pixel/frame";
-			inf->misc[3] = "Bottle Fill:";
-			inf->h_misc[3] = "What bottle type to fill an empty bottle with if caught using a Bug Net";
-			inf->flag[0] = "Life is Percent";
-			inf->h_flag[0] = "HP Regained is a percentage out of max HP";
-			inf->flag[1] = "Magic is Percent";
-			inf->h_flag[0] = "MP Regained is a percentage out of max MP";
-			inf->actionsnd[0] = "Item Drop Sound:";
-			inf->h_actionsnd[0] = "Plays SFX when dropped";
+			_SET(misc[0], "HP Regained:", "Life restored when collected. This is in HP points, unless"
+				" 'Life is Percent' is checked, then it's a percentage of max life.");
+			_SET(misc[1], "MP Regained:", "Magic restored when collected. This is in MP points, unless"
+				" 'Magic is Percent' is checked, then it's a percentage of max magic.");
+			_SET(misc[2], "Step Speed:", "The movement speed of the fairy, in 100ths of pixel/frame");
+			_SET(misc[3], "Bottle Fill:", "What bottle type to fill an empty bottle with if caught using a Bug Net");
+			_SET(flag[0], "Life is Percent", "HP Regained is a percentage out of max HP");
+			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
+			_SET(actionsnd[0], "Item Drop Sound:", "Plays SFX when dropped");
 			break;
 		}
-		case itype_triforcepiece: //!TODO Help Text
+		case itype_triforcepiece:
 		{
-			inf->misc[0] = "Cutscene MIDI:";
-			inf->misc[1] = "Cutscene Type (0-1):";
-			inf->misc[2] = "Second Collect Sound:";
-			inf->misc[3] = "Custom Cutscene Duration";
-			inf->misc[4] = "Custom Refill Frame";
-			inf->flag[0] = "Side Warp Out";
-			inf->flag[2] = "Removes Sword Jinxes";
-			inf->flag[3] = "Removes Item Jinxes";
-			inf->flag[8] = "Don't Dismiss Messages";
-			inf->flag[9] = "Cutscene Interrupts Action Script";
-			inf->flag[10] = "Don't Affect Music";
-			inf->flag[11] = "No Cutscene";
-			inf->flag[12] = "Run Action Script on Collection";
-			inf->flag[13] = "Play Second Sound Effect";
-			inf->flag[14] = "Don't Play MIDI";
+			_SET(misc[0], "Cutscene MIDI:", "If non-zero, overrides the cutscene midi");
+			_SET(misc[1], "Cutscene Type (0-1):", "If >0, uses the 'big triforce' cutscene style");
+			_SET(misc[2], "Second Collect Sound:", "A second sound to play on pickup, played only if flag 'Play Second SFX' is checked.");
+			_SET(misc[3], "Custom Cutscene Duration", "If nonzero, overrides the duration of the cutscene, in frames");
+			_SET(misc[4], "Custom Refill Frame", "If non-zero, changes the timing of the triforce's life refill.");
+			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
+			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
+			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
+			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
+			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
+			_SET(flag[10], "Don't Affect Music", "If not checked, music is stopped for the cutscene");
+			_SET(flag[11], "No Cutscene", "Skip the cutscene animation");
+			_SET(flag[12], "Run Action Script on Collection", "Item action script runs when it is collected");
+			_SET(flag[13], "Play Second SFX", "Plays the 'Second Collect Sound' SFX on pickup");
+			_SET(flag[14], "Don't Play MIDI", "Don't play a cutscene midi if checked");
+			_SET(actionsnd[0], "Collect Sound:", "First sound played on pickup");
 			break;
 		}
 		case itype_shield:
 		{
-			inf->misc[0] = "Block Flags:";
-			inf->h_misc[0] = "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
-				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.";
-			inf->misc[1] = "Reflect Flags:";
-			inf->h_misc[1] = "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
+			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
+				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.");
+			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
-				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.";
-			inf->actionsnd[0] = "De/Reflection Sound:";
+				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
+			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
 			break;
 		}
-		case itype_agony: //!TODO Help Text
+		case itype_agony:
 		{
-			inf->power = "Sensitivity:";
-			inf->misc[0] = "Vibration Frequency";
+			_SET(power, "Sensitivity:", "The radius in which flags are checked for");
+			_SET(misc[0], "Vibration Frequency", "0-58, higher = faster vibrations");
 			break;
 		}
-		case itype_wealthmedal: //!TODO Help Text
+		case itype_wealthmedal:
 		{
-			inf->misc[0] = "Discount Amount:";
-			inf->flag[0] = "D. A. Is Percent";
+			_SET(misc[0], "Discount Amount:", "If 'Discount is Percent' is checked, this is the percentage of the price that will still be charged.\n"
+				"else, this many rupees are ADDED to the price (use negative to subtract)");
+			_SET(flag[0], "Discount Is Percent", "Makes the discount percentage-based");
 			break;
 		}
 		case itype_cbyrna: //!TODO Help Text
@@ -170,45 +163,49 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Orbit Sound:";
 			break;
 		}
-		case itype_whispring: //!TODO Help Text
+		case itype_whispring:
 		{
-			inf->power = "Jinx Divisor:";
-			inf->misc[0] = "Jinx Type:";
-			inf->flag[0] = "Perm. Jinx Are Temp.";
+			_SET(power, "Jinx Divisor:", "Amount to divide jinx duration by.\n"
+				"If 'Perm. Jinx Are Temp' is checked, perm jinxes last for 150/[divisor] frames."
+				" If divisor is 0, player is immune to affected jinxes.\n"
+				"When picked up, regardless of flags, perm jinxes matching the Jinx Type become 150-frame temp jinxes.");
+			_SET(misc[0], "Jinx Type:", "1 = sword, 2 = item, 3 = both");
+			_SET(flag[0], "Perm. Jinx Are Temp.", "Perm jinxes inflicted instead are temp for 150/[divisor] frames");
 			break;
 		}
-		case itype_ladder: //!TODO Help Text
+		case itype_ladder:
 		{
-			inf->power = "Four-Way:";
-			inf->flag[0] = "Can Ladder Over Pitfalls";
+			_SET(power, "Four-Way:", "If >0, the player can exit the ladder in all 4 directions.\n"
+				"If ==0, the player can only exit parallel to the direction they entered from.");
+			_SET(flag[0], "Can Ladder Over Pitfalls", "Can be used to cross Pitfall combos");
 			break;
 		}
-		case itype_magickey: //!TODO Help Text
+		case itype_magickey:
 		{
-			inf->power = "Dungeon Level:";
-			inf->flag[0] = "Lesser D. Levels Also";
+			_SET(power, "Dungeon Level:", "What dungeon level to grant infinite keys for");
+			_SET(flag[0], "Lesser D. Levels Also", "If checked, lower levels are also affected");
 			break;
 		}
-		case itype_wallet: //!TODO Help Text
+		case itype_wallet:
 		{
-			inf->power = "Infinite Supply:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(power, "Infinite Supply:", "If >0, grants infinite money");
+			_SET(misc[0], "Increase Amount:", "How much money regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often money regenerates from having this, in frames");
 			break;
 		}
-		case itype_quiver: //!TODO Help Text
+		case itype_quiver:
 		{
-			inf->power = "Infinite Supply:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(power, "Infinite Supply:", "If >0, grants infinite arrows");
+			_SET(misc[0], "Increase Amount:", "How much arrows regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often arrows regenerates from having this, in frames");
 			break;
 		}
-		case itype_bombbag: //!TODO Help Text
+		case itype_bombbag:
 		{
-			inf->power = "Infinite Supply:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
-			inf->flag[0] = "Super Bombs Also";
+			_SET(power, "Infinite Supply:", "If >0, grants infinite bombs");
+			_SET(misc[0], "Increase Amount:", "How much bombs regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often bombs regenerates from having this, in frames");
+			_SET(flag[0], "Super Bombs Also", "Also Regenerates S. Bombs");
 			break;
 		}
 		case itype_quakescroll2: //!TODO Help Text
@@ -246,22 +243,22 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
-		case itype_clock: //!TODO Help Text
+		case itype_clock:
 		{
-			inf->misc[0] = "Duration (0 = Infinite):";
+			_SET(misc[0], "Duration:", "How long the invincibility lasts, in frames. 0 = infinite.");
 			break;
 		}
-		case itype_magicring: //!TODO Help Text
+		case itype_magicring:
 		{
-			inf->power = "Infinite Magic:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(power, "Infinite Magic:", "If >0, grants infinite magic");
+			_SET(misc[0], "Increase Amount:", "How much magic regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often magic regenerates from having this, in frames");
 			break;
 		}
-		case itype_heartring: //!TODO Help Text
+		case itype_heartring:
 		{
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(misc[0], "Increase Amount:", "How much life regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often life regenerates from having this, in frames");
 			break;
 		}
 		case itype_chargering: //!TODO Help Text
@@ -705,10 +702,6 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[0], "Shape", "What shape to use for the light area emitted.\n"
 				"0 = circular, 1 = cone in front");
 			_SET(misc[1], "Range", "The range, in pixels, of the light.");
-			break;
-		}
-		case itype_pearl:
-		{
 			break;
 		}
 		case itype_bottle:
