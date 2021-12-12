@@ -36,6 +36,7 @@
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
 #include "dialog/misc_sfx.h"
+#include "dialog/misc_sprs.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -1609,87 +1610,14 @@ int32_t onCustomWpns()
 /******  onMiscSprites ******/
 /****************************/
 
-static int32_t miscspr_tab_1[] =
-{
-	// dialog control number
-	5, 6,
-	-1
-};
-
-static TABPANEL miscspr_tabs[] =
-{
-	// (text)
-	{ (char *)"1",            D_SELECTED,    miscspr_tab_1,               0, NULL },
-	{ NULL,                   0,             NULL,                        0, NULL }
-};
-
-static DIALOG miscspr_dlg[] =
-{
-	// (dialog proc)           (x)     (y)     (w)     (h)    (fg)                   (bg)                   (key)      (flags)     (d1)     (d2)    (dp)                                           (dp2)   (dp3)
-	{ jwin_win_proc,            0,      0,    320,    237,    vc(14),                vc(1),                   0,       D_EXIT,       0,       0,    (void *) "Misc Sprites",                        NULL,   NULL                  },
-	{ d_timer_proc,             0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  },
-	{ jwin_tab_proc,            4,     25,    312,    182,    0,                     0,                       0,       0,            0,       0,    (void *) miscspr_tabs,                          NULL,  (void *)miscspr_dlg    },
-	{ jwin_button_proc,        94,    212,     61,     21,    vc(14),                vc(1),                  13,       D_EXIT,       0,       0,    (void *) "OK",                                  NULL,   NULL                  },
-	{ jwin_button_proc,       165,    212,     61,     21,    vc(14),                vc(1),                  27,       D_EXIT,       0,       0,    (void *) "Cancel",                              NULL,   NULL                  },
-	
-	//5
-	{ jwin_text_proc,           8,     45,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Falling Sprite:",                     NULL,   NULL                  },
-	{ jwin_droplist_proc,       8,     55,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
-	//7
-	{ jwin_text_proc,           8,     75,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Liquid) Sprite:",                     NULL,   NULL                  },
-	{ jwin_droplist_proc,       8,     85,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
-	//9
-	{ jwin_text_proc,           8,     105,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Lava) Sprite:",                     NULL,   NULL                  },
-	{ jwin_droplist_proc,       8,     115,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
-	
-	{ NULL,                     0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  }
-};
-
 int32_t onMiscSprites()
 {
-	al_trace("Starting misc sprites...\n");
-	if(biw_cnt==-1)
-	{
-		al_trace("Building biw_list...\n");
-		build_biw_list();
-		al_trace("Built biw_list.\n");
-	}
-	al_trace("Looping biw_cnt...\n");
-	for(int32_t j=0; j<biw_cnt; j++)
-	{
-		al_trace("%d ", j);
-		if(biw[j].i == misc.sprites[sprFALL]){ al_trace("\nFound 'sprFALL' val %d\n",j);
-			miscspr_dlg[6].d1 = j;}
-		if(biw[j].i == misc.sprites[sprDROWN]){ al_trace("\nFound 'sprDROWN' val %d\n",j);
-			miscspr_dlg[8].d1 = j;}
-		if(biw[j].i == misc.sprites[sprLAVADROWN]){ al_trace("\nFound 'sprLAVADROWN' val %d\n",j);
-			miscspr_dlg[10].d1 = j;}
-	}
-	al_trace("Done looping biw_cnt.\n");
-	miscspr_dlg[0].dp2 = lfont;
-	
-	if(is_large)
-	{
-		large_dialog(miscspr_dlg);
-	}
-	
-	int32_t ret;
-	al_trace("Popping up dlg...\n");
-	ret = zc_popup_dialog(miscspr_dlg,3);
-	al_trace("Returned %d\n",ret);
-	if(ret == 3)
+	MiscSprsDialog(misc.sprites, (is_large?20:13), [](int32_t* newsprs)
 	{
 		saved = false;
-		for(int32_t j=0; j<biw_cnt; j++)
-		{
-			if(miscspr_dlg[6].d1 == j)
-				misc.sprites[sprFALL] = biw[j].i;
-			if(miscspr_dlg[8].d1 == j)
-				misc.sprites[sprDROWN] = biw[j].i;
-			if(miscspr_dlg[10].d1 == j)
-				misc.sprites[sprLAVADROWN] = biw[j].i;
-		}
-	}
+		for(auto q = 0; q < sprMAX; ++q)
+			misc.sprites[q] = byte(newsprs[q]);
+	}).show();
 	return D_O_K;
 }
 

@@ -3746,7 +3746,7 @@ enum miscsprite
 	sprFALL,
 	sprDROWN,
 	sprLAVADROWN,
-	spr_NUMUSED,
+	sprSWITCHPOOF,
 	sprMAX = 256
 };
 enum miscsfx

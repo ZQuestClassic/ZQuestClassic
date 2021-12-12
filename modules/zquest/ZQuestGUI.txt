@@ -70,6 +70,7 @@ src/dialog/bottletype.cpp
 src/dialog/bottleshop.cpp
 src/dialog/comboeditor.cpp
 src/dialog/misc_sfx.cpp
+src/dialog/misc_sprs.cpp
 
 ## End of ZQuest GUI module
 )
