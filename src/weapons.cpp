@@ -5604,12 +5604,12 @@ bool weapon::animate(int32_t index)
 				{
 					hookedpos = check_hshot(-1,x+2,y+7,sw);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+2,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+2,y+7,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+2,y+7,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 						
@@ -5623,12 +5623,12 @@ bool weapon::animate(int32_t index)
 				{
 					hookedpos = check_hshot(-1,x+12,y+12,sw);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+12,y+12,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+12,y+12,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+12,y+12,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5640,18 +5640,18 @@ bool weapon::animate(int32_t index)
 				
 				if(dir==left)
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
 						hookedpos = check_hshot(-1,x+6,y+7,sw);
 					}
 					else hookedpos = check_hshot(-1,x+6,y+13,sw);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+6,y+13,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+6,y+13,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5663,18 +5663,18 @@ bool weapon::animate(int32_t index)
 				
 				if(dir==right)
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
 						hookedpos = check_hshot(-1,x+9,y+7,sw);
 					}
 					else hookedpos = check_hshot(-1,x+9,y+13,sw);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+9,y+13,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+9,y+13,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5688,7 +5688,7 @@ bool weapon::animate(int32_t index)
 				//! -Z Hookshot diagonals. Will need bugtesting galore. 
 				if ( dir == r_down ) 
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
 						hookedpos = check_hshot(-1,x+9,y+7,sw);
 						if(hookedpos<0)
@@ -5701,16 +5701,14 @@ bool weapon::animate(int32_t index)
 							hookedpos = check_hshot(-1,x+12,y+12,sw);
 					}
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+12,y+12,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+12,y+12,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+9,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+12,y+12,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5724,7 +5722,7 @@ bool weapon::animate(int32_t index)
 				}
 				if ( dir == l_down ) 
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
 						hookedpos = check_hshot(-1,x+6,y+7,sw);
 						if(hookedpos<0)
@@ -5737,16 +5735,14 @@ bool weapon::animate(int32_t index)
 							hookedpos = check_hshot(-1,x+12,y+12,sw);
 					}
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+12,y+12,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+12,y+12,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+6,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+12,y+12,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5759,7 +5755,7 @@ bool weapon::animate(int32_t index)
 				}
 				if ( dir == r_up ) 
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
 						hookedpos = check_hshot(-1,x+9,y+7,sw);
 						if(hookedpos<0)
@@ -5772,16 +5768,14 @@ bool weapon::animate(int32_t index)
 							hookedpos = check_hshot(-1,x+2,y+7,sw);
 					}
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+2,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+2,y+7,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+9,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+2,y+7,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5794,7 +5788,7 @@ bool weapon::animate(int32_t index)
 				}
 				if ( dir == l_up ) 
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
 						hookedpos = check_hshot(-1,x+6,y+7,sw);
 						if(hookedpos<0)
@@ -5807,16 +5801,14 @@ bool weapon::animate(int32_t index)
 							hookedpos = check_hshot(-1,x+2,y+7,sw);
 					}
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(0,x+2,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(1,x+2,y+7,sw);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+6,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+2,y+7,sw);
+						}
 					}
 					if(hookedpos>-1) hooked = true;
 					
@@ -5833,11 +5825,11 @@ bool weapon::animate(int32_t index)
 			{
 				hooked_combopos = hookedpos;
 				misc=sw?2:1;
-				pull_link=true;
-				Link.switchhookclk = 60;
 				step=0;
+				pull_link=true;
 				if(sw) //Switchhook sound
 				{
+					Link.switchhookclk = 60;
 					sfx(hshot.usesound2,pan(int32_t(x)));
 					stop_sfx(hshot.usesound);
 					hs_switcher = sw;
@@ -5850,7 +5842,7 @@ bool weapon::animate(int32_t index)
 			{
 				++clk;
 				
-				sfx(hshot.usesound,pan(int32_t(x)),true);
+				if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true);
 				if ( doscript )
 				{
 					if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
@@ -5861,11 +5853,10 @@ bool weapon::animate(int32_t index)
 			if(dead==1)
 			{
 				dead=-1;
-				
 				if(step > 0)
 					step = -step;
 					
-				misc=1;
+				if(!misc) misc=1;
 			}
 			
 			if(misc==1)                                           // returning
@@ -7293,12 +7284,12 @@ bool weapon::animate(int32_t index)
 	return dead==0;
 }
 
-void weapon::onhit(bool clipped)
+void weapon::onhit(bool clipped, enemy* e)
 {
-    onhit(clipped, 0, -1);
+    onhit(clipped, 0, -1, e);
 }
 
-void weapon::onhit(bool clipped, int32_t special, int32_t linkdir)
+void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e)
 {
     if((scriptcoldet&1) == 0 || fallclk || drownclk)
     {
@@ -7523,12 +7514,19 @@ offscreenCheck:
     case wHookshot:
         if(misc==0)
         {
-            clk2=256;
-            
-            if(clipped)
-                dead=4;
-            else
-                dead=1;
+			if(family_class==itype_switchhook)
+			{
+				//Swapping enemy code?
+			}
+			else
+			{
+				clk2=256;
+				
+				if(clipped)
+					dead=4;
+				else
+					dead=1;
+			}
         }
         
         break;

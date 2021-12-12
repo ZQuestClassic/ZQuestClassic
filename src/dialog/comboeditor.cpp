@@ -1792,13 +1792,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)),
 					TabRef(name = "Flags", Column(
 						padding = 0_px,
-						Columns<2>(
+						Rows<2>(
 							framed = true,
 							frameText = "General Flags",
 							topPadding = DEFAULT_PADDING+0.4_em,
 							bottomPadding = DEFAULT_PADDING+1_px,
 							bottomMargin = 1_em,
-							CMB_GEN_FLAG(0,"Hook-Grabbable")
+							CMB_GEN_FLAG(0,"Hook-Grabbable"),
+							CMB_GEN_FLAG(1,"Switch-Hookable")
 						),
 						Columns<8>(
 							framed = true,
@@ -2157,13 +2158,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)),
 					TabRef(name = "Flags", Column(
 						padding = 0_px,
-						Columns<2>(
+						Rows<2>(
 							framed = true,
 							frameText = "General Flags",
 							topPadding = DEFAULT_PADDING+0.4_em,
 							bottomPadding = DEFAULT_PADDING+1_px,
 							bottomMargin = 1_em,
-							CMB_GEN_FLAG(0,"Hook-Grabbable")
+							CMB_GEN_FLAG(0,"Hook-Grabbable"),
+							CMB_GEN_FLAG(1,"Switch-Hookable")
 						),
 						Columns<8>(
 							framed = true,

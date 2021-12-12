@@ -3303,7 +3303,7 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	
 	if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
-	if(isCuttableNextType(type) || isCuttableNextType(type))
+	if(isCuttableNextType(type))
 	{
 		FFCore.tempScreens[layer]->data[i]++;
 	}
@@ -3327,6 +3327,7 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		{
 			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 		}
+		else it = select_dropitem(12);
 		if(it!=-1)
 		{
 			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -3553,32 +3554,19 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
         else if(isCuttableItemType(type))
         {
 			int32_t it = -1;
-			//zprint("reached iscuttableitem, with cid: %d\n", cid);
-			//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
 				if ( combobuf[cid].usrflags&cflag11 ) 
 				{
-					//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
 					it = combobuf[cid].attribytes[1];
 				}
 				else
 				{
-					//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-					it = select_dropitem(combobuf[cid].attribytes[1]); 
-					
-					
+					it = select_dropitem(combobuf[cid].attribytes[1]);
 				}
-				//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
-				
 			}
-			//old style slash item and tall grass
-			else
-			{
-				//zprint("Standard tall grass drop.\n");
-				it = select_dropitem(12, bx, by);
-			}
+			else it = select_dropitem(12);
+			
 			if(it!=-1)
 			{
 				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -3874,13 +3862,12 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
         {
             int32_t it = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			if ( (combobuf[cid].usrflags&cflag2) )
+			{
+				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			}
+			else it = select_dropitem(12);
 			
-		}
             if(it!=-1)
             {
                 items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -4088,15 +4075,15 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     else if(skipsecrets && (!ignorescreen || dontignore))
     {
 	    if(isCuttableNextType(type))
-            {
-                s->data[i]++;
-            }
-            else
-            {
-                s->data[i] = s->undercombo;
-                s->cset[i] = s->undercset;
-                s->sflag[i] = 0;
-            }
+		{
+			s->data[i]++;
+		}
+		else
+		{
+			s->data[i] = s->undercombo;
+			s->cset[i] = s->undercset;
+			s->sflag[i] = 0;
+		}
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
@@ -4130,39 +4117,26 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
-	else if(isCuttableItemType(type))
+		else if(isCuttableItemType(type))
         {
-		int32_t it = -1;
-		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
-		{
-			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
-			if ( combobuf[cid].usrflags&cflag11 ) 
+			int32_t it = -1;
+			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
-				it = combobuf[cid].attribytes[1];
+				if ( combobuf[cid].usrflags&cflag11 ) 
+				{
+					it = combobuf[cid].attribytes[1];
+				}
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]);
+				}
 			}
-			else
-			{
-				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-				it = select_dropitem(combobuf[cid].attribytes[1]); 
-				
-				
-			}
-			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			else it = select_dropitem(12);
 			
-		}
-		//old style slash item and tall grass
-		else if ( !(combobuf[cid].usrflags&cflag2) )
-		{
-			//zprint("Standard tall grass drop.\n");
-			it = select_dropitem(12, bx, by);
-		}
-		if(it!=-1)
-		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-		}
+			if(it!=-1)
+			{
+				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			}
         }
         
         
@@ -4209,27 +4183,23 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
-		if ( (combobuf[cid].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
-			
-		}
-           
-		
-		else
-		{
-			int32_t r=zc_oldrand()%100;
-            
-			if(r<15)
+			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it=iHeart;                                // 15%
+				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 			}
-			else if(r<35)
+			else
 			{
-				it=iRupy;                                 // 20%
+				int32_t r=zc_oldrand()%100;
+				
+				if(r<15)
+				{
+					it=iHeart;                                // 15%
+				}
+				else if(r<35)
+				{
+					it=iRupy;                                 // 20%
+				}
 			}
-		}
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -4689,37 +4659,24 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(isCuttableItemType(type))
         {
-		int32_t it = -1;
-		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
-		{
-			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
-			if ( combobuf[cid].usrflags&cflag11 ) 
+			int32_t it = -1;
+			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
-				it = combobuf[cid].attribytes[1];
+				if ( combobuf[cid].usrflags&cflag11 ) 
+				{
+					it = combobuf[cid].attribytes[1];
+				}
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]);
+				}
 			}
-			else
-			{
-				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-				it = select_dropitem(combobuf[cid].attribytes[1]); 
-				
-				
-			}
-			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			else it = select_dropitem(12);
 			
-		}
-		//old style slash item and tall grass
-		else if ( !(combobuf[cid].usrflags&cflag2) )
-		{
-			//zprint("Standard tall grass drop.\n");
-			it = select_dropitem(12, bx, by);
-		}
-		if(it!=-1)
-		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-		}
+			if(it!=-1)
+			{
+				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
@@ -4769,22 +4726,7 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			}
-			else
-			{
-				int32_t r=zc_oldrand()%100;
-				
-				if(r<15)
-				{
-					it=iHeart;                                // 15%
-				}
-				else if(r<35)
-				{
-					it=iRupy;                                 // 20%
-				}
-			}
-		
-		
-            
+			else it = select_dropitem(12);
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -7271,7 +7213,6 @@ bool LinkClass::animate(int32_t)
 				if(hs_switcher)
 				{
 					hs_fix = false;
-					zprint2("hs_switcher: %d", switchhookclk);
 					if(switchhookclk)
 					{
 						--switchhookclk;
@@ -7282,11 +7223,11 @@ bool LinkClass::animate(int32_t)
 							
 							itemdata const& itm = itemsbuf[w->parentitem>-1 ? w->parentitem : current_item_id(itype_switchhook)];
 							uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
-							zprint2(", swap %d with %d", targpos, plpos);
 							if(targpos < 176 && plpos < 176)
 							{
 								bool didswap = false;
-								for(int q = 6; q > -1; --q)
+								int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+								for(int q = max_layer; q > -1; --q)
 								{
 									mapscr* scr = FFCore.tempScreens[q];
 									newcombo const& cmb = combobuf[scr->data[targpos]];
@@ -7338,14 +7279,15 @@ bool LinkClass::animate(int32_t)
 										}
 										else if(isCuttableType(cmb.type)) //Break and drop effects
 										{
-											if(isCuttableNextType(cmb.type)) //next instead of swap
+											if(isCuttableNextType(cmb.type)) //next instead of undercmb
 											{
 												scr->data[targpos]++;
 											}
 											else
 											{
-												scr->data[targpos] = c;
-												scr->cset[targpos] = cs;
+												scr->data[targpos] = scr->undercombo;
+												scr->cset[targpos] = scr->undercset;
+												scr->sflag[targpos] = 0;
 											}
 											
 											if(isCuttableItemType(cmb.type)) //Drop an item
@@ -7357,6 +7299,8 @@ bool LinkClass::animate(int32_t)
 														? cmb.attribytes[1]
 														: select_dropitem(cmb.attribytes[1]); 
 												}
+												else it = select_dropitem(12);
+												
 												if(it!=-1)
 												{
 													items.add(new item(x, y, z, it, ipBIGRANGE + ipTIMER, 0));
@@ -7383,10 +7327,10 @@ bool LinkClass::animate(int32_t)
 											}
 											
 											//Clipping sprite
-											int16_t type = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
-											if(type > 3) type = 0;
-											if(!type) type = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
-											switch(type)
+											int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
+											if(decotype > 3) decotype = 0;
+											if(!decotype) decotype = (isBushType(cmb.type) ? 1 : (isFlowersType(cmb.type) ? 2 : (isGrassType(cmb.type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
+											switch(decotype)
 											{
 												case -2: break; //nothing
 												case -1:
@@ -7452,7 +7396,6 @@ bool LinkClass::animate(int32_t)
 							reset_hookshot();
 						}
 					}
-					zprint2("\n");
 				}
 				else
 				{
@@ -9555,69 +9498,71 @@ bool LinkClass::startwpn(int32_t itemid)
 			paymagiccost(itemid);
 			
 			bool use_hookshot=true;
-			if(!sw) //Normal hook can't be used against a wall/hookable tile, switchhook doesn't care
-				for(int32_t i=-1; i<2; i++)
+			bool hit_hs = false, hit_solid = false, insta_switch = false;
+			int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+			int32_t cpos = -1;
+			for(int32_t i=0; i<=max_layer && !hit_hs; ++i)
+			{
+				if(dir==up)
 				{
-					if(dir==up)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x,y-7)])||
-								(_walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int32_t(y+4))))
-						{
-							use_hookshot=false;
-						}
-					}
-					else if(dir==down)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+12,y+23)]))
-						{
-							use_hookshot=false;
-						}
-					}
-					else if(dir==left)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x-7,y+12)]))
-						{
-							use_hookshot=false;
-						}
-					}
-					else if(dir==right)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+23,y+12)]))
-						{
-							use_hookshot=false;
-						}
-					}
-					//Diagonal Hookshot (6)
-					else if(dir==r_down)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+9,y+13)]))
-						{
-							use_hookshot=false;
-						}
-					}
-					else if(dir==l_down)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+6,y+13)]))
-						{
-							use_hookshot=false;
-						}
-					}
-					else if(dir==r_up)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+9,y+13)]))
-						{
-							use_hookshot=false;
-						}
-					}
-					else if(dir==l_up)
-					{
-						if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+6,y+13)]))
-						{
-							use_hookshot=false;
-						}
-					}
+					cpos = check_hshot(i,x+2,y-7,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
-			
+				else if(dir==down)
+				{
+					cpos = check_hshot(i,x+12,y+23,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+				else if(dir==left)
+				{
+					cpos = check_hshot(i,x-7,y+12,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+				else if(dir==right)
+				{
+					cpos = check_hshot(i,x+23,y+12,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+				//Diagonal Hookshot (6)
+				else if(dir==r_down)
+				{
+					cpos = check_hshot(i,x+9,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+				else if(dir==l_down)
+				{
+					cpos = check_hshot(i,x+6,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+				else if(dir==r_up)
+				{
+					cpos = check_hshot(i,x+9,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+				else if(dir==l_up)
+				{
+					cpos = check_hshot(i,x+6,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
+				}
+			}
+			if(dir==up && _walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int32_t(y+4)))
+				hit_solid = true;
+			if(hit_hs)
+			{
+				if(sw)
+					insta_switch = true; //switch immediately
+				else use_hookshot = false; //No hooking against grabbable
+			}
+			if(hit_solid && !insta_switch)
+				use_hookshot = false;
 			if(use_hookshot)
 			{
 				int32_t hookitem = itm.fam_type;
@@ -9760,6 +9705,19 @@ bool LinkClass::startwpn(int32_t itemid)
 					break;
 				}
 				hookshot_frozen=true;
+			}
+			if(insta_switch)
+			{
+				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
+				zprint2("Insta-switching to %d, from %d\n", cpos, COMBOPOS(x+8,y+8));
+				hooked_combopos = cpos;
+				w->misc=2;
+				w->step=0;
+				pull_link=true;
+				switchhookclk = 60;
+				sfx(itemsbuf[itemid].usesound2,pan(int32_t(x)));
+				stop_sfx(itemsbuf[itemid].usesound);
+				hs_switcher = true;
 			}
 		}
 		break;

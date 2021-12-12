@@ -1299,7 +1299,9 @@ bool isSwitchHookable(newcombo const& cmb)
 
 int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook)
 {
-	newcombo const& cmb = combobuf[MAPCOMBO2(layer-1,x,y)];
+	int32_t id = MAPCOMBO2(layer-1,x,y);
+	if(id < 1) return -1; //Never hook combo 0
+	newcombo const& cmb = combobuf[id];
 	return (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS(x,y) : -1;
 }
 
