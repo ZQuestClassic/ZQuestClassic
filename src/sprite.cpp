@@ -158,6 +158,7 @@ sprite::sprite()
     }
 	glowRad = 0;
 	glowShape = 0;
+	switch_hooked = false;
 	spr_shadow = iwShadow;
 	spr_death = iwDeath;
 	spr_spawn = iwSpawn;
@@ -237,6 +238,7 @@ drownCombo(other.drownCombo),
 do_animation(other.do_animation),
 glowRad(other.glowRad),
 glowShape(other.glowShape),
+switch_hooked(other.switch_hooked),
 spr_shadow(other.spr_shadow),
 spr_death(other.spr_death),
 spr_spawn(other.spr_spawn),
@@ -363,6 +365,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     scrmem = NULL;
 	glowRad = 0;
 	glowShape = 0;
+	switch_hooked = false;
 	
 	//Defaults for old hardcoded sprites
 	spr_shadow = iwShadow;

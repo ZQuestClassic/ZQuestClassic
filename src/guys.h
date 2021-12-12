@@ -37,6 +37,8 @@ int32_t link_on_wall();
 bool tooclose(int32_t x,int32_t y,int32_t d);
 bool isflier(int32_t id);
 bool never_in_air(int32_t id);
+int32_t weaponToDefence(int32_t wid);
+int32_t getWeaponID(weapon *w);
 
 // Start spinning tiles - called by load_default_enemies
 void awaken_spinning_tile(mapscr *s, int32_t pos);
@@ -265,8 +267,6 @@ protected:
 	virtual bool hitshield(int32_t wpnx, int32_t wpny, int32_t xdir);
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 //New 2.55 Weapon System
-	int32_t weaponToDefence(int32_t wid);
-	int32_t getWeaponID(weapon *w);
 	int32_t resolveEnemyDefence(weapon *w);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
 	//virtual int32_t defend_wdmg(int32_t wpnId, int32_t dmg, int32_t edef);

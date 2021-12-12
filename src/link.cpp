@@ -7201,16 +7201,16 @@ bool LinkClass::animate(int32_t)
 		}
 	}
 	
-	if(hookshot_frozen)
+	if(hookshot_frozen || switching_object)
 	{
-		if(hookshot_used)
+		if(hookshot_used || switching_object)
 		{
 			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
 			else {action=freeze; FFCore.setLinkAction(freeze);} //could be LA_HOOKSHOT for FFCore. -Z
 			
-			if(pull_link)
+			if(pull_link || switching_object)
 			{
-				if(hs_switcher)
+				if(hs_switcher || switching_object)
 				{
 					hs_fix = false;
 					if(switchhookclk)
@@ -7218,146 +7218,200 @@ bool LinkClass::animate(int32_t)
 						--switchhookclk;
 						if(switchhookclk==30)
 						{
-							weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
-							weapon* hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
+							weapon *w = NULL, *hw = NULL;
+							int32_t w_ind = Lwpns.idFirst(wHookshot),
+								hw_ind = Lwpns.idFirst(wHSHandle);
+							if(w_ind > -1)
+								w = (weapon*)Lwpns.spr(w_ind);
+							if(hw_ind > -1)
+								hw = (weapon*)Lwpns.spr(hw_ind);
 							
-							itemdata const& itm = itemsbuf[w->parentitem>-1 ? w->parentitem : current_item_id(itype_switchhook)];
-							uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
-							if(targpos < 176 && plpos < 176)
+							if(hooked_combopos > -1) //Switching a combo
 							{
-								bool didswap = false;
-								int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
-								for(int q = max_layer; q > -1; --q)
+								uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
+								if(targpos < 176 && plpos < 176 && w && hw)
 								{
-									mapscr* scr = FFCore.tempScreens[q];
-									newcombo const& cmb = combobuf[scr->data[targpos]];
-									if(isSwitchHookable(cmb))
+									itemdata const& itm = itemsbuf[w->parentitem>-1 ? w->parentitem : current_item_id(itype_switchhook)];
+									bool didswap = false;
+									int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+									for(int q = max_layer; q > -1; --q)
 									{
-										int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
-										if(cmb.type == cSWITCHHOOK) //custom flags and such
+										mapscr* scr = FFCore.tempScreens[q];
+										newcombo const& cmb = combobuf[scr->data[targpos]];
+										if(isSwitchHookable(cmb))
 										{
-											if((cmb.usrflags&cflag1) && scr->data[plpos])
-												continue; //don't swap with non-zero combo
-											if(zc_max(1,itm.fam_type) < cmb.attribytes[0])
-												continue; //Too low level a switchhook
-											if(cmb.usrflags&cflag3) //Breaks on swap
+											int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
+											if(cmb.type == cSWITCHHOOK) //custom flags and such
 											{
-												if(cmb.attribytes[1])
+												if((cmb.usrflags&cflag1) && scr->data[plpos])
+													continue; //don't swap with non-zero combo
+												if(zc_max(1,itm.fam_type) < cmb.attribytes[0])
+													continue; //Too low level a switchhook
+												if(cmb.usrflags&cflag3) //Breaks on swap
 												{
-													decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[1]));
-												}
-												if(cmb.usrflags&cflag4) //drop item
-												{
-													int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
-													if(it>-1)
+													if(cmb.attribytes[1])
 													{
-														items.add(new item(x, y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+														decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[1]));
 													}
-												}
-											}
-											else
-											{
-												scr->data[plpos] = scr->data[targpos];
-												scr->cset[plpos] = scr->cset[targpos];
-												if(cmb.usrflags&cflag2)
-													scr->sflag[plpos] = scr->sflag[targpos];
-											}
-											if(cmb.usrflags&cflag6)
-											{
-												scr->data[targpos] =  scr->undercombo;
-												scr->cset[targpos] =  scr->undercset;
-												if(cmb.usrflags&cflag2)
-													scr->sflag[targpos] = 0;
-											}
-											else
-											{
-												scr->data[targpos] =  c;
-												scr->cset[targpos] =  cs;
-												if(cmb.usrflags&cflag2)
-													scr->sflag[targpos] = fl;
-											}
-										}
-										else if(isCuttableType(cmb.type)) //Break and drop effects
-										{
-											if(isCuttableNextType(cmb.type)) //next instead of undercmb
-											{
-												scr->data[targpos]++;
-											}
-											else
-											{
-												scr->data[targpos] = scr->undercombo;
-												scr->cset[targpos] = scr->undercset;
-												scr->sflag[targpos] = 0;
-											}
-											
-											if(isCuttableItemType(cmb.type)) //Drop an item
-											{
-												int32_t it = -1;
-												if ( (cmb.usrflags&cflag2) )
-												{
-													it = (cmb.usrflags&cflag11)
-														? cmb.attribytes[1]
-														: select_dropitem(cmb.attribytes[1]); 
-												}
-												else it = select_dropitem(12);
-												
-												if(it!=-1)
-												{
-													items.add(new item(x, y, z, it, ipBIGRANGE + ipTIMER, 0));
-												}
-											}
-											
-											if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
-											{
-												if (!isBushType(cmb.type) && !isFlowersType(cmb.type) && !isGrassType(cmb.type))
-												{
-													if (cmb.usrflags&cflag3)
+													if(cmb.usrflags&cflag4) //drop item
 													{
-														sfx(cmb.attribytes[2],int32_t(x));
+														int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+														if(it>-1)
+														{
+															items.add(new item(x, y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+														}
 													}
 												}
 												else
 												{
-													if (cmb.usrflags&cflag3)
-													{
-														sfx(cmb.attribytes[2],int32_t(x));
-													}
-													else sfx(WAV_ZN1GRASSCUT,int32_t(x));
+													scr->data[plpos] = scr->data[targpos];
+													scr->cset[plpos] = scr->cset[targpos];
+													if(cmb.usrflags&cflag2)
+														scr->sflag[plpos] = scr->sflag[targpos];
+												}
+												if(cmb.usrflags&cflag6)
+												{
+													scr->data[targpos] =  scr->undercombo;
+													scr->cset[targpos] =  scr->undercset;
+													if(cmb.usrflags&cflag2)
+														scr->sflag[targpos] = 0;
+												}
+												else
+												{
+													scr->data[targpos] =  c;
+													scr->cset[targpos] =  cs;
+													if(cmb.usrflags&cflag2)
+														scr->sflag[targpos] = fl;
 												}
 											}
-											
-											//Clipping sprite
-											int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
-											if(decotype > 3) decotype = 0;
-											if(!decotype) decotype = (isBushType(cmb.type) ? 1 : (isFlowersType(cmb.type) ? 2 : (isGrassType(cmb.type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
-											switch(decotype)
+											else if(isCuttableType(cmb.type)) //Break and drop effects
 											{
-												case -2: break; //nothing
-												case -1:
-													decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[0]));
-													break;
-												case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
-												case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
-												case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
+												if(isCuttableNextType(cmb.type)) //next instead of undercmb
+												{
+													scr->data[targpos]++;
+												}
+												else
+												{
+													scr->data[targpos] = scr->undercombo;
+													scr->cset[targpos] = scr->undercset;
+													scr->sflag[targpos] = 0;
+												}
+												
+												if(isCuttableItemType(cmb.type)) //Drop an item
+												{
+													int32_t it = -1;
+													if ( (cmb.usrflags&cflag2) )
+													{
+														it = (cmb.usrflags&cflag11)
+															? cmb.attribytes[1]
+															: select_dropitem(cmb.attribytes[1]); 
+													}
+													else it = select_dropitem(12);
+													
+													if(it!=-1)
+													{
+														items.add(new item(x, y, z, it, ipBIGRANGE + ipTIMER, 0));
+													}
+												}
+												
+												if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
+												{
+													if (!isBushType(cmb.type) && !isFlowersType(cmb.type) && !isGrassType(cmb.type))
+													{
+														if (cmb.usrflags&cflag3)
+														{
+															sfx(cmb.attribytes[2],int32_t(x));
+														}
+													}
+													else
+													{
+														if (cmb.usrflags&cflag3)
+														{
+															sfx(cmb.attribytes[2],int32_t(x));
+														}
+														else sfx(WAV_ZN1GRASSCUT,int32_t(x));
+													}
+												}
+												
+												//Clipping sprite
+												int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
+												if(decotype > 3) decotype = 0;
+												if(!decotype) decotype = (isBushType(cmb.type) ? 1 : (isFlowersType(cmb.type) ? 2 : (isGrassType(cmb.type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
+												switch(decotype)
+												{
+													case -2: break; //nothing
+													case -1:
+														decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[0]));
+														break;
+													case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
+													case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
+													case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
+												}
 											}
+											else //Unknown type, just swap combos.
+											{
+												scr->data[plpos] = scr->data[targpos];
+												scr->cset[plpos] = scr->cset[targpos];
+												scr->data[targpos] = c;
+												scr->cset[targpos] = cs;
+											}
+											didswap = true;
 										}
-										else //Unknown type, just swap combos.
+									}
+									if(didswap) //!TODO No fucking clue if diagonals work
+									{
+										zfix tx = x, ty = y;
+										//Position the player at the combo
+										x = COMBOX(targpos);
+										y = COMBOY(targpos);
+										dir = oppositeDir[dir];
+										//Calculate chain shift
+										zfix dx = (x-tx);
+										zfix dy = (y-ty);
+										if(w->dir < 4)
 										{
-											scr->data[plpos] = scr->data[targpos];
-											scr->cset[plpos] = scr->cset[targpos];
-											scr->data[targpos] = c;
-											scr->cset[targpos] = cs;
+											if(w->dir & 2)
+												dx = 0;
+											else dy = 0;
 										}
-										didswap = true;
+										//Position the hook head at the handle
+										w->x = hw->x + dx;
+										w->y = hw->y + dy;
+										w->dir = oppositeDir[w->dir];
+										byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
+										w->flip ^= hflip;
+										//Position the handle appropriately
+										hw->x = x-(hw->x-tx);
+										hw->y = y-(hw->y-ty);
+										hw->dir = oppositeDir[hw->dir];
+										hw->flip ^= hflip;
+										//Move chains
+										for(int32_t j=0; j<chainlinks.Count(); j++)
+										{
+											chainlinks.spr(j)->x += dx;
+											chainlinks.spr(j)->y += dy;
+										}
+									}
+									else
+									{
+										reset_hookshot();
 									}
 								}
-								if(didswap) //!TODO No fucking clue if diagonals work
+							}
+							else if(switching_object) //Switching an object
+							{
+								zfix tx = x, ty = y;
+								//Position the player at the object
+								x = switching_object->x;
+								y = switching_object->y;
+								dir = oppositeDir[dir];
+								//Position the object at the player
+								switching_object->x = tx;
+								switching_object->y = ty;
+								if(switching_object->dir == dir || switching_object->dir == oppositeDir[dir])
+									switching_object->dir = oppositeDir[switching_object->dir];
+								if(w && hw)
 								{
-									zfix tx = x, ty = y;
-									//Position the player at the hook head
-									x = COMBOX(targpos);
-									y = COMBOY(targpos);
-									dir = oppositeDir[dir];
 									//Calculate chain shift
 									zfix dx = (x-tx);
 									zfix dy = (y-ty);
@@ -7385,16 +7439,24 @@ bool LinkClass::animate(int32_t)
 										chainlinks.spr(j)->y += dy;
 									}
 								}
-								else
-								{
-									reset_hookshot();
-								}
 							}
 						}
 						else if(!switchhookclk)
 						{
+							if(switching_object)
+								switching_object->switch_hooked = false;
+							switching_object = NULL;
+							hooked_combopos = -1;
 							reset_hookshot();
 						}
+					}
+					else
+					{
+						if(switching_object)
+							switching_object->switch_hooked = false;
+						switching_object = NULL;
+						hooked_combopos = -1;
+						reset_hookshot();
 					}
 				}
 				else

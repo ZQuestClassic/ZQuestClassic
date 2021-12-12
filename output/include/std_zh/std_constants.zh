@@ -1394,25 +1394,26 @@ const int NPCA_TEKTITE_JUMP_CONT 	= 1;
 const int NPCA_TEKTITE_JUMP_VELOCITY 	= 2;
 
 //NPC Defenses. Use as indices to npc->Defense[].
-const int NPCD_ARROW			= 3;
-const int NPCD_BEAM			= 10;
-const int NPCD_BRANG			= 0;
-const int NPCD_BOMB			= 1;
-const int NPCD_BYRNA			= 16;
-const int NPCD_FIRE			= 4;
-const int NPCD_HAMMER			= 8;
-const int NPCD_HOOKSHOT			= 7;
-const int NPCD_MAGIC			= 6;
-const int NPCD_REFBEAM			= 11;
-const int NPCD_REFMAGIC			= 12;
-const int NPCD_REFFIREBALL		= 13;
-const int NPCD_REFROCK			= 14;
-const int NPCD_SBOMB			= 2;
-const int NPCD_SCRIPT			= 17;
-const int NPCD_STOMP			= 15;
-const int NPCD_SWORD			= 9;
-const int NPCD_WAND			= 5;
-const int NPCD_WHISTLE			= 35; //whistle lweapon
+const int NPCD_ARROW            = 3;
+const int NPCD_BEAM             = 10;
+const int NPCD_BRANG            = 0;
+const int NPCD_BOMB             = 1;
+const int NPCD_BYRNA            = 16;
+const int NPCD_FIRE             = 4;
+const int NPCD_HAMMER           = 8;
+const int NPCD_HOOKSHOT         = 7;
+const int NPCD_MAGIC            = 6;
+const int NPCD_REFBEAM          = 11;
+const int NPCD_REFMAGIC         = 12;
+const int NPCD_REFFIREBALL      = 13;
+const int NPCD_REFROCK          = 14;
+const int NPCD_SBOMB            = 2;
+const int NPCD_SCRIPT           = 17;
+const int NPCD_STOMP            = 15;
+const int NPCD_SWITCHHOOK       = 36;
+const int NPCD_SWORD            = 9;
+const int NPCD_WAND             = 5;
+const int NPCD_WHISTLE          = 35; //whistle lweapon
 
 //NPC Script Weapon Defences
 const int NPCD_SCRIPT1 = 20;
@@ -1470,6 +1471,7 @@ const int NPCDT_3XDAMAGE		= 17;
 const int NPCDT_4XDAMAGE		= 18;
 const int NPCDT_HEAL			= 19;
 const int NPCDT_TRIGGERSECRETS		= 20;
+const int NPCDT_SWITCH		= 50;
 
 /*
 const int NPCDT_FREEZE			= 21; //not implemented

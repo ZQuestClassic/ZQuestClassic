@@ -30,6 +30,8 @@
 #include "util.h"
 #include "fonts.h"
 
+class sprite;
+
 int32_t isFullScreen();
 int32_t onFullscreen();
 
@@ -409,6 +411,7 @@ extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
 extern int32_t hooked_combopos;
+extern sprite* switching_object;
 
 extern byte COOLSCROLL;
 

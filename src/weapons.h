@@ -23,6 +23,7 @@
 /***********  Weapon Class  ***********/
 /**************************************/
 
+class enemy;
 extern byte boomframe[16];
 extern byte bszboomflip[4];
 
@@ -130,8 +131,8 @@ public:
     bool blocked();
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     virtual bool animate(int32_t index);
-    virtual void onhit(bool clipped);
-    virtual void onhit(bool clipped, int32_t special, int32_t linkdir);
+    virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);
+    virtual void onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e = NULL, int32_t ehitType = -1);
     // override hit detection to check for invicibility, etc
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);

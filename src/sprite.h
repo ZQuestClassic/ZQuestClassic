@@ -130,6 +130,7 @@ public:
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	
 	byte glowRad, glowShape;
+	bool switch_hooked;
     
     sprite();
     sprite(sprite const & other);

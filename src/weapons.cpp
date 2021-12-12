@@ -7284,12 +7284,12 @@ bool weapon::animate(int32_t index)
 	return dead==0;
 }
 
-void weapon::onhit(bool clipped, enemy* e)
+void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
 {
-    onhit(clipped, 0, -1, e);
+    onhit(clipped, 0, -1, e, ehitType);
 }
 
-void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e)
+void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType)
 {
     if((scriptcoldet&1) == 0 || fallclk || drownclk)
     {
@@ -7481,52 +7481,82 @@ offscreenCheck:
             
         break;
         
-    case wBrang:
-        if(misc==0)
-        {
-            clk2=256;
-            int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
-	    if(clipped)
-            {
-                dead=deadval;
-            }
-            else
-            {
-                if(deadval==-2)
-                {
-                    dead=deadval;
-                }
-                
-                misc=1;
-                /*
-                  if (current_item(itype_brang,true)>1) {
-                  if (dummy_bool[0]) {
-                  add_grenade(x,y,z,current_item(itype_brang,true)>2);
-                  dummy_bool[0]=false;
-                  }
-                  }
-                  */
-            }
-        }
-        
-        break;
+	case wBrang:
+	{
+		if(e && e->switch_hooked && ehitType == 1)
+		{
+			dead = 0;
+			break;
+		}
+		if(misc==0)
+		{
+			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
+			clk2=256;
+			if(clipped)
+			{
+				dead=deadval;
+			}
+			else
+			{
+				if(deadval==-2)
+				{
+					dead=deadval;
+				}
+				
+				misc=1;
+				/*
+				  if (current_item(itype_brang,true)>1) {
+				  if (dummy_bool[0]) {
+				  add_grenade(x,y,z,current_item(itype_brang,true)>2);
+				  dummy_bool[0]=false;
+				  }
+				  }
+				  */
+			}
+		}
+	}
+	break;
         
     case wHookshot:
         if(misc==0)
         {
 			if(family_class==itype_switchhook)
 			{
-				//Swapping enemy code?
+				if(e && !switching_object && ehitType == -1)
+				{
+					switch(e->family)
+					{
+						case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
+						case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
+							break; //No segmented/z1boss allowed!
+						default:
+							switching_object = e;
+					}
+					if(switching_object)
+					{
+						switching_object->switch_hooked = true;
+						hooked_combopos = -1;
+						misc=2;
+						step=0;
+						pull_link=true;
+						Link.switchhookclk = 60;
+						hs_switcher = true;
+						if(parentitem > -1)
+						{
+							sfx(itemsbuf[parentitem].usesound2,pan(int32_t(x)));
+							stop_sfx(itemsbuf[parentitem].usesound);
+						}
+						break;
+					}
+				}
 			}
+			
+			clk2=256;
+			
+			if(clipped)
+				dead=4;
 			else
-			{
-				clk2=256;
-				
-				if(clipped)
-					dead=4;
-				else
-					dead=1;
-			}
+				dead=1;
         }
         
         break;

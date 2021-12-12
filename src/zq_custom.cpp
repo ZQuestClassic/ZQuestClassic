@@ -265,93 +265,97 @@ const char *defenselist(int32_t index, int32_t *list_size)
 		
 		switch(index)
 		{
-		default:
-			return "(None)";
-			
-		case edHALFDAMAGE:
-			return "1/2 Damage";
-			
-		case edQUARTDAMAGE:
-			return "1/4 Damage";
-	
-			
-		case edSTUNONLY:
-			return "Stun";
-			
-		case edSTUNORCHINK:
-			return "Stun Or Block";
-			
-		case edSTUNORIGNORE:
-			return "Stun Or Ignore";
-			
-		case edCHINKL1:
-			return "Block If < 1";
-			
-		case edCHINKL2:
-			return "Block If < 2";
-			
-		case edCHINKL4:
-			return "Block If < 4";
-			
-		case edCHINKL6:
-			return "Block If < 6";
-			
-		case edCHINKL8:
-			return "Block If < 8";
-	
-	
-			
-		case edCHINK:
-			return "Block";
-			
-		case edIGNOREL1:
-			return "Ignore If < 1";
-			
-		case edIGNORE:
-			return "Ignore";
-	
-		
-	
-			
-		case ed1HKO:
-			return "One-Hit-Kill";
-	
-	case edCHINKL10: //If damage is less than 10
-		return "Block if Power < 10";
-	
-	case ed2x: //Double damage
-		return "Double Damage";
-	case ed3x: //Triple Damage
-		return "Triple Damage";
-	case ed4x: //4x damage
-		return "Quadruple Damage";
-	
-	case edHEAL: //recover the weapon damage in HP
-		return "Enemy Gains HP = Damage";
-	
-	case edTRIGGERSECRETS: //Triggers screen secrets. 
-		return "Trigger Screen Secrets";
-	
-	case edSPLIT: 
-		return "Split";
-	case edREPLACE: return "Transform";
-	
-	case edSUMMON: 
-		return "Summon";
-	
-	case edEXPLODESMALL: 
-		return "Bomb Explosion";
-	
-	case edEXPLODELARGE: 
-		return "Superbomb Explosion";
-	
-	case edEXPLODEHARMLESS: 
-		return "Harmless Explosion";
-	
-	case edFREEZE: //Hit by ice.. 
-		return "Freeze Solid";
-	
-	
+			case 0:
+				return "(None)";
+
+			case edHALFDAMAGE:
+				return "1/2 Damage";
+
+			case edQUARTDAMAGE:
+				return "1/4 Damage";
+
+
+			case edSTUNONLY:
+				return "Stun";
+
+			case edSTUNORCHINK:
+				return "Stun Or Block";
+
+			case edSTUNORIGNORE:
+				return "Stun Or Ignore";
+
+			case edCHINKL1:
+				return "Block If < 1";
+
+			case edCHINKL2:
+				return "Block If < 2";
+
+			case edCHINKL4:
+				return "Block If < 4";
+
+			case edCHINKL6:
+				return "Block If < 6";
+
+			case edCHINKL8:
+				return "Block If < 8";
+
+
+
+			case edCHINK:
+				return "Block";
+
+			case edIGNOREL1:
+				return "Ignore If < 1";
+
+			case edIGNORE:
+				return "Ignore";
+
+
+
+
+			case ed1HKO:
+				return "One-Hit-Kill";
+
+			case edCHINKL10: //If damage is less than 10
+				return "Block if Power < 10";
+
+			case ed2x: //Double damage
+				return "Double Damage";
+			case ed3x: //Triple Damage
+				return "Triple Damage";
+			case ed4x: //4x damage
+				return "Quadruple Damage";
+
+			case edHEAL: //recover the weapon damage in HP
+				return "Enemy Gains HP = Damage";
+
+			case edTRIGGERSECRETS: //Triggers screen secrets. 
+				return "Trigger Screen Secrets";
+
+			case edSPLIT: 
+				return "Split";
+			case edREPLACE:
+				return "Transform";
+
+			case edSUMMON: 
+				return "Summon";
+
+			case edEXPLODESMALL: 
+				return "Bomb Explosion";
+
+			case edEXPLODELARGE: 
+				return "Superbomb Explosion";
+
+			case edEXPLODEHARMLESS: 
+				return "Harmless Explosion";
+
+			case edFREEZE: //Hit by ice.. 
+				return "Freeze Solid";
+				
+			case edSWITCH:
+				return "Switch w/ Player";
+			default:
+				return "[reserved]";
 		}
 	}
 	
@@ -1750,7 +1754,7 @@ static int32_t enedata_defense_list[] =
 
 static int32_t enedata_defense2_list[] =
 {
-	153,154,155,156,157,158,159,160,170,171,172,173,174,175,176,177,191,192,-1
+	153,154,155,156,157,158,159,160,170,171,172,173,174,175,176,177,191,192,415,416,-1
 };
 
 static int32_t enedata_defense3_list[] =
@@ -4423,6 +4427,9 @@ static DIALOG enedata_dlg[] =
 	{  d_dummy_proc,          6,    190,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x40000000",                                         NULL,   NULL                 },
 	{  d_dummy_proc,          6,    200,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x80000000",                                         NULL,   NULL                 },
 	//415
+	{  jwin_text_proc,           6,    216,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "SwitchHook Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 216-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
@@ -4927,6 +4934,7 @@ void edit_enemydata(int32_t index)
 	}
 	
 	enedata_dlg[192].d1 = guysbuf[index].defense[edefWhistle];
+	enedata_dlg[416].d1 = guysbuf[index].defense[edefSwitchHook];
 	
 	
 	//Script Defenses
@@ -5260,6 +5268,7 @@ void edit_enemydata(int32_t index)
 		}
 		
 		test.defense[edefWhistle] = enedata_dlg[192].d1;
+		test.defense[edefSwitchHook] = enedata_dlg[416].d1;
 		//Are the new defs missing here? -Z
 		
 		

@@ -1671,6 +1671,7 @@ enum
 	edJUMP, //Z3 stalfos
 	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
 	edSHOWMESSAGE, //Shows a ZString when hit. e.g., Z3 Ganon
+	edSWITCH, //Switch places with the player, as a switchhook does
 	
     edLAST
 };
