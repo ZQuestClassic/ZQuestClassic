@@ -7543,7 +7543,9 @@ offscreenCheck:
 						hs_switcher = true;
 						if(parentitem > -1)
 						{
-							sfx(itemsbuf[parentitem].usesound2,pan(int32_t(x)));
+							if(itemsbuf[parentitem].usesound2)
+								sfx(itemsbuf[parentitem].usesound2,pan(int32_t(x)));
+							else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 							stop_sfx(itemsbuf[parentitem].usesound);
 						}
 						break;

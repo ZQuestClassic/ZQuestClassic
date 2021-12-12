@@ -3351,7 +3351,7 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 			{
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
-			else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+			else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 		}
 	}
 	
@@ -3590,7 +3590,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -3655,7 +3655,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -3891,7 +3891,7 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4157,7 +4157,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4222,7 +4222,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4696,7 +4696,7 @@ void LinkClass::check_slash_block(weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4749,7 +4749,7 @@ void LinkClass::check_slash_block(weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -7329,7 +7329,7 @@ bool LinkClass::animate(int32_t)
 														{
 															sfx(cmb.attribytes[2],int32_t(x));
 														}
-														else sfx(WAV_ZN1GRASSCUT,int32_t(x));
+														else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
 													}
 												}
 												
@@ -9777,7 +9777,9 @@ bool LinkClass::startwpn(int32_t itemid)
 				w->step=0;
 				pull_link=true;
 				switchhookclk = 60;
-				sfx(itemsbuf[itemid].usesound2,pan(int32_t(x)));
+				if(itemsbuf[itemid].usesound2)
+					sfx(itemsbuf[itemid].usesound2,pan(int32_t(x)));
+				else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 				stop_sfx(itemsbuf[itemid].usesound);
 				hs_switcher = true;
 			}

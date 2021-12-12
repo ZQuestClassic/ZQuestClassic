@@ -35,6 +35,7 @@
 #include "zc_malloc.h"
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
+#include "dialog/misc_sfx.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -1689,6 +1690,17 @@ int32_t onMiscSprites()
 				misc.sprites[sprLAVADROWN] = biw[j].i;
 		}
 	}
+	return D_O_K;
+}
+
+int32_t onMiscSFX()
+{
+	MiscSFXDialog(misc.miscsfx, (is_large?20:13), [](int32_t* newsfx)
+	{
+		saved = false;
+		for(auto q = 0; q < sfxMAX; ++q)
+			misc.miscsfx[q] = byte(newsfx[q]);
+	}).show();
 	return D_O_K;
 }
 

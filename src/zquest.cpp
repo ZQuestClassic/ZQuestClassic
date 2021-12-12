@@ -1695,6 +1695,7 @@ static MENU audio_menu[] =
 {
     { (char *)"SF&X Data",                  onSelectSFX,               NULL,                     0,            NULL   },
     { (char *)"&MIDIs",                     onMidis,                   NULL,                     0,            NULL   },
+    { (char *)"Mis&c SFX",                  onMiscSFX,                 NULL,                     0,            NULL   },
 // { (char *)"&Enhanced Music",            onEnhancedMusic,           NULL,                     D_DISABLED,   NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };

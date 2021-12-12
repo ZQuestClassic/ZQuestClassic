@@ -7967,37 +7967,44 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 			bottletype* bt = &(Misc->bottle_types[q]);
             if (!pfwrite(bt->name, 32, f))
-                return qe_invalid;
+                new_return(25);
 			for(size_t j = 0; j < 3; ++j)
 			{
                 if (!p_putc(bt->counter[j], f))
-                    return qe_invalid;
+                    new_return(25);
                 if (!p_iputw(bt->amount[j], f))
-                    return qe_invalid;
+                    new_return(25);
 			}
             if (!p_putc(bt->flags, f))
-                return qe_invalid;
+                new_return(25);
             if (!p_putc(bt->next_type, f))
-                return qe_invalid;
+                new_return(25);
 		}
 		for(size_t q = 0; q < 256; ++q)
 		{
 			bottleshoptype* bst = &(Misc->bottle_shop_types[q]);
             if (!pfwrite(bst->name, 32, f))
-                return qe_invalid;
+                new_return(26);
 			for(size_t j = 0; j < 3; ++j)
 			{
                 if (!p_putc(bst->fill[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_iputw(bst->comb[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_putc(bst->cset[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_iputw(bst->price[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_iputw(bst->str[j], f))
-                    return qe_invalid;
+                    new_return(26);
 			}
+		}
+		
+		//V_MISC >= 14
+		for(int32_t q = 0; q < sfxMAX; ++q)
+		{
+			if(!p_putc(Misc->miscsfx[q],f))
+				new_return(27);
 		}
 		
 		if(writecycle==0)

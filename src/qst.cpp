@@ -5826,6 +5826,22 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			temp_misc.bottle_shop_types[q].clear();
 	}
 	
+	if(s_version >= 14)
+	{
+		byte msfx;
+		for(int32_t q = 0; q < sfxMAX; ++q)
+		{
+			if(!p_getc(&msfx,f,true))
+				return qe_invalid;
+			temp_misc.miscsfx[q] = msfx;
+		}
+	}
+	else
+	{
+		memset(&(temp_misc.miscsfx), 0, sizeof(temp_misc.miscsfx));
+		temp_misc.miscsfx[sfxBUSHGRASS] = WAV_ZN1GRASSCUT;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(Misc, &temp_misc, sizeof(temp_misc));

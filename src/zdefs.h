@@ -227,7 +227,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           5
 #define V_RULES           17
 #define V_STRINGS          8
-#define V_MISC             13
+#define V_MISC             14
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           20
 #define V_CSETS            4
@@ -2753,6 +2753,13 @@ struct ffscript
     int32_t arg1;
     int32_t arg2;
     char *ptr;
+	void clear()
+	{
+		command = 0xFFFF;
+		arg1 = 0;
+		arg2 = 0;
+		ptr = NULL;
+	}
 };
 
 struct script_data
@@ -2765,7 +2772,7 @@ struct script_data
 		if(zasm)
 			delete[] zasm;
 		zasm = new ffscript[1];
-		zasm[0].command = 0xFFFF;
+		zasm[0].clear();
 	}
 	
 	bool valid() const
@@ -2776,7 +2783,7 @@ struct script_data
 	void disable()
 	{
 		if(zasm)
-			zasm[0].command = 0xFFFF;
+			zasm[0].clear();
 	}
 	
 	uint32_t size() const
@@ -2812,7 +2819,11 @@ struct script_data
 	script_data(int32_t cmds) : zasm(NULL)
 	{
 		if(cmds > 0)
+		{
 			zasm = new ffscript[cmds];
+			for(int32_t q = 0; q < cmds; ++q)
+				zasm[q].clear();
+		}
 		else
 			null_script();
 	}
@@ -3738,6 +3749,12 @@ enum miscsprite
 	spr_NUMUSED,
 	sprMAX = 256
 };
+enum miscsfx
+{
+	sfxBUSHGRASS,
+	sfxSWITCHED,
+	sfxMAX = 256
+};
 struct miscQdata
 {
     shoptype shop[256];
@@ -3769,6 +3786,8 @@ struct miscQdata
 	
 	bottletype bottle_types[64];
 	bottleshoptype bottle_shop_types[256];
+	
+	byte miscsfx[sfxMAX];
 };
 
 #define MFORMAT_MIDI 0

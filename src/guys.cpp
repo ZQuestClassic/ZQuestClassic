@@ -4866,6 +4866,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			switching_object = this;
 			switch_hooked = true;
 			Link.switchhookclk = 60;
+			sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 			return 1;
 		}
 		
