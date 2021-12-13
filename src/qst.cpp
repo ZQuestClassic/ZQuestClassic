@@ -5840,6 +5840,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	{
 		memset(&(temp_misc.miscsfx), 0, sizeof(temp_misc.miscsfx));
 		temp_misc.miscsfx[sfxBUSHGRASS] = WAV_ZN1GRASSCUT;
+		temp_misc.miscsfx[sfxLOWHEART] = WAV_ER;
 	}
 	
 	if(keepdata==true)

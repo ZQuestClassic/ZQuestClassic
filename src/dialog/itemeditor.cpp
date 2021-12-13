@@ -408,6 +408,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->power = "Damage:";
 			_SET(misc[0], "Chain Length:", "Max length, in tiles, of the switchhook chain");
 			_SET(misc[1], "Chain Links:", "Max number of chain link sprites to display (less = a more stretched chain)");
+			_SET(misc[4], "Switch FX Type:", "The visual effect to use when switching."
+				"\n0 = Poof, 1 = Flicker, 2 = Rise/Fall");
 			_SET(flag[0], "No Handle Damage", "The handle does not collide with enemies");
 			_SET(flag[1], "Allow Diagonal", "The switchhook can be fired diagonally. (EXPERIMENTAL)");
 			_SET(flag[3], "Pick Up Anything", "Any collided item will be grabbed, not just dropped items");

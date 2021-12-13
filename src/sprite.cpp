@@ -24,7 +24,16 @@
 #include "tiles.h"
 #include "particles.h"
 #include "maps.h"
+
+#ifndef IS_ZQUEST
+#include "link.h"
+#include "decorations.h"
+#include "items.h"
+extern LinkClass Link;
+extern sprite_list decorations;
+#endif
 extern particle_list particles;
+
 extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
 extern bool halt;
@@ -1085,14 +1094,39 @@ void sprite::draw(BITMAP* dest)
 	{
 		return;
 	}
+	zfix tyoffs = yofs;
+#ifndef IS_ZQUEST
+	if(switch_hooked)
+	{
+		switch(Link.switchhookstyle)
+		{
+			default: case swPOOF:
+				break; //Nothing special here
+			case swFLICKER:
+			{
+				if(abs(Link.switchhookclk-33)&0b1000)
+					break; //Drawn this frame
+				return; //Not drawn this frame
+			}
+			case swRISE:
+			{
+				//Draw rising up
+				yofs -= 8-(abs(Link.switchhookclk-32)/4);
+				break;
+			}
+		}
+	}
+#endif
 	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ))
 	{
 		drawzcboss(dest);
+		yofs = tyoffs;
 		return; //don't run the rest, use the old code
 	}
 	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
 	{
 		drawzcboss(dest);
+		yofs = tyoffs;
 		return; //don't run the rest, use the old code
 	}
 	int32_t sx = real_x(x+xofs);
@@ -1101,6 +1135,7 @@ void sprite::draw(BITMAP* dest)
     
 	if(id<0)
 	{
+		yofs = tyoffs;
 		return;
 	}
 	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
@@ -1527,6 +1562,7 @@ void sprite::draw(BITMAP* dest)
 		destroy_bitmap(sprBMP2);
 	}
 	
+	yofs = tyoffs;
 }
 
 
@@ -2830,9 +2866,7 @@ void sprite::explode(int32_t type)
 }
 */
 
-/**********************************/
-/********** Moving Block **********/
-/**********************************/
+//Moving Block 
 
 movingblock::movingblock() : sprite(), blockLayer(0)
 {
@@ -2908,12 +2942,12 @@ portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 	id = 0; //negative id doesn't draw!
 }
 
-bool portal::animate()
+bool portal::animate(int32_t)
 {
 	if(++aclk >= aspd)
 	{
 		aclk = 0;
-		if(++aframe > frames)
+		if(++aframe >= frames)
 		{
 			aframe = 0;
 		}
@@ -2922,6 +2956,73 @@ bool portal::animate()
 	return false;
 }
 
+//BreakableCombo
+
+breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset)
+	: cmb(cmb), dropitem(-1), breaksfx(0), breaksprtype(0),
+	breakspr(0), breaktimer(0)
+{
+	x = X; y = Y; z = Z;
+	o_tile = cmb.o_tile;
+	aspd = zc_max(1,cmb.speed);
+	frames = zc_max(1,cmb.frames);
+	aframe = 0;
+	aclk = 0;
+	cs = cset;
+	tile = cmb.tile;
+	id = 0; //negative id doesn't draw!
+}
+
+breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem,
+	byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer)
+	: cmb(cmb), dropitem(dropitem), breaksfx(breaksfx), breaksprtype(breaksprtype),
+	breakspr(breakspr), breaktimer(breaktimer)
+{
+	x = X; y = Y; z = Z;
+	o_tile = cmb.o_tile;
+	aspd = zc_max(1,cmb.speed);
+	frames = zc_max(1,cmb.frames);
+	aframe = 0;
+	aclk = 0;
+	cs = cset;
+	tile = cmb.tile;
+	id = 0; //negative id doesn't draw!
+}
+
+bool breakable::animate(int32_t)
+{
+#ifndef IS_ZQUEST
+	if(++aclk >= aspd)
+	{
+		aclk = 0;
+		if(++aframe >= frames)
+		{
+			aframe = 0;
+		}
+	}
+	tile = o_tile + aframe;
+	if(breaktimer > 0)
+	{
+		if(!--breaktimer)
+		{
+			switch(breaksprtype)
+			{
+				case -1:
+					decorations.add(new comboSprite(x, y, 0, 0, breakspr));
+					break;
+				case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
+				case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
+				case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
+			}
+			if(breaksfx) sfx(breaksfx,int32_t(x));
+			if(dropitem > -1)
+				items.add(new item(x, y, z, dropitem, ipBIGRANGE + ipTIMER, 0));
+			return true; //sprite dead
+		}
+	}
+#endif
+	return false;
+}
 
 /*** end of sprite.cc ***/
 

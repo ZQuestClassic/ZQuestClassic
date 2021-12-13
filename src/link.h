@@ -225,18 +225,21 @@ public:
         slashxofs, slashyofs; // used by positionSword() and draw()
 	//spacing so no confusion between byte and int32_t
     byte skipstep,lstep, 
-	hopclk, // hopping into water timeout.
-	diveclk, // diving timeout.
-	whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
-	specialcave, // is Link inside a special cave?
-	hitdir, // direction from which damage was taken.
-	ladderdir, // direction of ladder
-	lastdir[4], // used in Maze Path screens
-	ladderstart, // starting direction of ladder...?
-	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
-	newconveyorclk, // clock for determining when Link gets moved by a conveyor
-	switchhookclk; //clock for switchhook animation timing
+		hopclk, // hopping into water timeout.
+		diveclk, // diving timeout.
+		whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
+		specialcave, // is Link inside a special cave?
+		hitdir, // direction from which damage was taken.
+		ladderdir, // direction of ladder
+		lastdir[4], // used in Maze Path screens
+		ladderstart, // starting direction of ladder...?
+		inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
+		damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
+		newconveyorclk, // clock for determining when Link gets moved by a conveyor
+		switchhookclk, //clock for switchhook animation timing
+		switchhookmaxtime, //the switchhookclk starting value
+		switchhookstyle, //the switchhook animation style
+		switchhookarg; //a parameter based on the switchhook style
     int32_t shiftdir, // shift direction when walking into corners of solid combos
     lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
 	lbunnyclock,
@@ -306,6 +309,7 @@ public:
 	byte hoverflags;
 	int32_t extra_jump_count;
     // Methods below here.
+	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
     void explode(int32_t type);
     int32_t getTileModifier();

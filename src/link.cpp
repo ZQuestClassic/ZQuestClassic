@@ -507,7 +507,9 @@ void LinkClass::resetflags(bool all)
     }
     damageovertimeclk = -1;
     newconveyorclk = 0;
-    switchhookclk = 0;
+    switchhookclk = switchhookstyle = switchhookarg = switchhookmaxtime = 0;
+	for(auto q = 0; q < 7; ++q)
+		hooked_undercombos[q] = -1;
     hopclk=0;
     hopdir=-1;
     attackclk=0;
@@ -1242,7 +1244,9 @@ void LinkClass::init()
     dir = up;
     damageovertimeclk = -1;
     newconveyorclk = 0;
-    switchhookclk = 0;
+    switchhookclk = switchhookstyle = switchhookarg = switchhookmaxtime = 0;
+	for(auto q = 0; q < 7; ++q)
+		hooked_undercombos[q] = -1;
     shiftdir = -1;
     sideswimdir = right;
     holddir = -1;
@@ -6674,7 +6678,7 @@ bool LinkClass::animate(int32_t)
 	
 	if(mirror_portal)
 	{
-		mirror_portal->animate();
+		mirror_portal->animate(0);
 		if(abs(x - mirror_portal->x) < 12
 			&& abs(y - mirror_portal->y) < 12)
 		{
@@ -7216,7 +7220,7 @@ bool LinkClass::animate(int32_t)
 					if(switchhookclk)
 					{
 						--switchhookclk;
-						if(switchhookclk==30)
+						if(switchhookclk==switchhookmaxtime/2) //Perform swaps
 						{
 							weapon *w = NULL, *hw = NULL;
 							int32_t w_ind = Lwpns.idFirst(wHookshot),
@@ -7226,145 +7230,139 @@ bool LinkClass::animate(int32_t)
 							if(hw_ind > -1)
 								hw = (weapon*)Lwpns.spr(hw_ind);
 							
-							if(hooked_combopos > -1) //Switching a combo
+							if(hooked_combopos > -1) //Switching combos
 							{
 								uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
-								if(targpos < 176 && plpos < 176 && w && hw)
+								if(targpos < 176 && plpos < 176 && hooked_layerbits)
 								{
-									itemdata const& itm = itemsbuf[w->parentitem>-1 ? w->parentitem : current_item_id(itype_switchhook)];
-									bool didswap = false;
 									int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 									for(int q = max_layer; q > -1; --q)
 									{
+										if(!(hooked_layerbits & (1<<q)))
+											continue; //non-switching layer
 										mapscr* scr = FFCore.tempScreens[q];
 										newcombo const& cmb = combobuf[scr->data[targpos]];
-										if(isSwitchHookable(cmb))
+										int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
+										if(cmb.type == cSWITCHHOOK) //custom flags and such
 										{
-											int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
-											if(cmb.type == cSWITCHHOOK) //custom flags and such
+											if(cmb.usrflags&cflag3) //Breaks on swap
 											{
-												if((cmb.usrflags&cflag1) && scr->data[plpos])
-													continue; //don't swap with non-zero combo
-												if(zc_max(1,itm.fam_type) < cmb.attribytes[0])
-													continue; //Too low level a switchhook
-												if(cmb.usrflags&cflag3) //Breaks on swap
+												int32_t it = -1;
+												if(cmb.usrflags&cflag4) //drop item
 												{
-													if(cmb.attribytes[1])
-													{
-														decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[1]));
-													}
-													if(cmb.usrflags&cflag4) //drop item
-													{
-														int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
-														if(it>-1)
-														{
-															items.add(new item(x, y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-														}
-													}
+													int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+												}
+												
+												breakable* br = new breakable(x, y, zfix(0),
+													cmb, scr->cset[targpos], it, cmb.attribytes[2],
+													cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
+												br->switch_hooked = true;
+												decorations.add(br);
+												hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
+												hooked_undercombos[q] = -1;
+												
+												if(cmb.usrflags&cflag6)
+												{
+													scr->data[targpos]++;
 												}
 												else
-												{
-													scr->data[plpos] = scr->data[targpos];
-													scr->cset[plpos] = scr->cset[targpos];
-													if(cmb.usrflags&cflag2)
-														scr->sflag[plpos] = scr->sflag[targpos];
-												}
-												if(cmb.usrflags&cflag6)
 												{
 													scr->data[targpos] =  scr->undercombo;
 													scr->cset[targpos] =  scr->undercset;
 													if(cmb.usrflags&cflag2)
 														scr->sflag[targpos] = 0;
 												}
-												else
-												{
-													scr->data[targpos] =  c;
-													scr->cset[targpos] =  cs;
-													if(cmb.usrflags&cflag2)
-														scr->sflag[targpos] = fl;
-												}
 											}
-											else if(isCuttableType(cmb.type)) //Break and drop effects
-											{
-												if(isCuttableNextType(cmb.type)) //next instead of undercmb
-												{
-													scr->data[targpos]++;
-												}
-												else
-												{
-													scr->data[targpos] = scr->undercombo;
-													scr->cset[targpos] = scr->undercset;
-													scr->sflag[targpos] = 0;
-												}
-												
-												if(isCuttableItemType(cmb.type)) //Drop an item
-												{
-													int32_t it = -1;
-													if ( (cmb.usrflags&cflag2) )
-													{
-														it = (cmb.usrflags&cflag11)
-															? cmb.attribytes[1]
-															: select_dropitem(cmb.attribytes[1]); 
-													}
-													else it = select_dropitem(12);
-													
-													if(it!=-1)
-													{
-														items.add(new item(x, y, z, it, ipBIGRANGE + ipTIMER, 0));
-													}
-												}
-												
-												if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
-												{
-													if (!isBushType(cmb.type) && !isFlowersType(cmb.type) && !isGrassType(cmb.type))
-													{
-														if (cmb.usrflags&cflag3)
-														{
-															sfx(cmb.attribytes[2],int32_t(x));
-														}
-													}
-													else
-													{
-														if (cmb.usrflags&cflag3)
-														{
-															sfx(cmb.attribytes[2],int32_t(x));
-														}
-														else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
-													}
-												}
-												
-												//Clipping sprite
-												int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
-												if(decotype > 3) decotype = 0;
-												if(!decotype) decotype = (isBushType(cmb.type) ? 1 : (isFlowersType(cmb.type) ? 2 : (isGrassType(cmb.type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
-												switch(decotype)
-												{
-													case -2: break; //nothing
-													case -1:
-														decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[0]));
-														break;
-													case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
-													case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
-													case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
-												}
-											}
-											else //Unknown type, just swap combos.
+											else
 											{
 												scr->data[plpos] = scr->data[targpos];
 												scr->cset[plpos] = scr->cset[targpos];
-												scr->data[targpos] = c;
-												scr->cset[targpos] = cs;
+												if(cmb.usrflags&cflag2)
+													scr->sflag[plpos] = scr->sflag[targpos];
+												scr->data[targpos] =  c;
+												scr->cset[targpos] =  cs;
+												if(cmb.usrflags&cflag2)
+													scr->sflag[targpos] = fl;
 											}
-											didswap = true;
+										}
+										else if(isCuttableType(cmb.type)) //Break and drop effects
+										{
+											int32_t breakcs = scr->cset[targpos];
+											if(isCuttableNextType(cmb.type)) //next instead of undercmb
+											{
+												scr->data[targpos]++;
+											}
+											else
+											{
+												scr->data[targpos] = scr->undercombo;
+												scr->cset[targpos] = scr->undercset;
+												scr->sflag[targpos] = 0;
+											}
+											
+											int32_t it = -1;
+											if(isCuttableItemType(cmb.type)) //Drop an item
+											{
+												if ( (cmb.usrflags&cflag2) )
+												{
+													it = (cmb.usrflags&cflag11)
+														? cmb.attribytes[1]
+														: select_dropitem(cmb.attribytes[1]); 
+												}
+												else it = select_dropitem(12);
+											}
+											
+											byte breaksfx = 0;
+											if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
+											{
+												if (cmb.usrflags&cflag3)
+												{
+													breaksfx = cmb.attribytes[2];
+												}
+												else if(isBushType(cmb.type)
+													|| isFlowersType(cmb.type)
+												|| isGrassType(cmb.type))
+												{
+													breaksfx = QMisc.miscsfx[sfxBUSHGRASS];
+												}
+											}
+											
+											//Clipping sprite
+											int16_t decotype = (cmb.usrflags & cflag1) ?
+												((cmb.usrflags & cflag10)
+													? (cmb.attribytes[0])
+													: (-1))
+												: (0);
+											if(decotype > 3) decotype = 0;
+											if(!decotype)
+												decotype = (isBushType(cmb.type) ? 1
+													: (isFlowersType(cmb.type) ? 2
+													: (isGrassType(cmb.type) ? 3
+													: ((cmb.usrflags & cflag1) ? -1
+													: -2))));
+											
+											breakable* br = new breakable(x, y, zfix(0),
+												cmb, breakcs, it, breaksfx,
+												decotype, cmb.attribytes[0], switchhookclk);
+											br->switch_hooked = true;
+											decorations.add(br);
+											hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
+											hooked_undercombos[q] = -1;
+										}
+										else //Unknown type, just swap combos.
+										{
+											scr->data[plpos] = scr->data[targpos];
+											scr->cset[plpos] = scr->cset[targpos];
+											scr->data[targpos] = c;
+											scr->cset[targpos] = cs;
 										}
 									}
-									if(didswap) //!TODO No fucking clue if diagonals work
+									zfix tx = x, ty = y;
+									//Position the player at the combo
+									x = COMBOX(targpos);
+									y = COMBOY(targpos);
+									dir = oppositeDir[dir];
+									if(w && hw)
 									{
-										zfix tx = x, ty = y;
-										//Position the player at the combo
-										x = COMBOX(targpos);
-										y = COMBOY(targpos);
-										dir = oppositeDir[dir];
 										//Calculate chain shift
 										zfix dx = (x-tx);
 										zfix dy = (y-ty);
@@ -7392,11 +7390,9 @@ bool LinkClass::animate(int32_t)
 											chainlinks.spr(j)->y += dy;
 										}
 									}
-									else
-									{
-										reset_hookshot();
-									}
+									hooked_combopos = plpos; //flip positions
 								}
+								else reset_hookshot();
 							}
 							else if(switching_object) //Switching an object
 							{
@@ -7410,7 +7406,7 @@ bool LinkClass::animate(int32_t)
 								switching_object->y = ty;
 								if(switching_object->dir == dir || switching_object->dir == oppositeDir[dir])
 									switching_object->dir = oppositeDir[switching_object->dir];
-								if(w && hw)
+								if(w && hw) //!TODO No fucking clue if diagonals work
 								{
 									//Calculate chain shift
 									zfix dx = (x-tx);
@@ -7443,21 +7439,10 @@ bool LinkClass::animate(int32_t)
 						}
 						else if(!switchhookclk)
 						{
-							if(switching_object)
-								switching_object->switch_hooked = false;
-							switching_object = NULL;
-							hooked_combopos = -1;
 							reset_hookshot();
 						}
 					}
-					else
-					{
-						if(switching_object)
-							switching_object->switch_hooked = false;
-						switching_object = NULL;
-						hooked_combopos = -1;
-						reset_hookshot();
-					}
+					else reset_hookshot();
 				}
 				else
 				{
@@ -7741,7 +7726,7 @@ bool LinkClass::animate(int32_t)
 					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
 					{
 						int32_t itemid = find_bottle_for_slot(slot,true);
-						stop_sfx(WAV_ER); //stop heart beep!
+						stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 						if(itemid > -1)
 							sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
 						for(size_t q = 0; q < 20; ++q)
@@ -8433,7 +8418,7 @@ bool LinkClass::animate(int32_t)
 	{
 		if(heart_beep)
 		{
-			cont_sfx(WAV_ER);
+			cont_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		}
 		else
 		{
@@ -8445,11 +8430,11 @@ bool LinkClass::animate(int32_t)
 			if ( heart_beep_timer > 0 )
 			{
 				--heart_beep_timer;
-				cont_sfx(WAV_ER);
+				cont_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 			else
 			{
-				stop_sfx(WAV_ER);
+				stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 		}
 	}
@@ -8458,7 +8443,7 @@ bool LinkClass::animate(int32_t)
 	if ( heart_beep_timer > -2 )
 	{
 		heart_beep_timer = -1;
-		stop_sfx(WAV_ER);
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	}
 	}
 	
@@ -8747,6 +8732,113 @@ void LinkClass::doMirror(int32_t mirrorid)
 		}
 	}
 }
+
+void LinkClass::doSwitchHook(byte style)
+{
+	//{ Load hook weapons, set them to obey special drawing
+	weapon *w = NULL, *hw = NULL;
+	int32_t w_ind = Lwpns.idFirst(wHookshot),
+		hw_ind = Lwpns.idFirst(wHSHandle);
+	if(w_ind > -1)
+	{
+		w = (weapon*)Lwpns.spr(w_ind);
+		w->switch_hooked = true;
+	}
+	if(hw_ind > -1)
+	{
+		hw = (weapon*)Lwpns.spr(hw_ind);
+		hw->switch_hooked = true;
+	}
+	for(int32_t j=0; j<chainlinks.Count(); j++)
+	{
+		chainlinks.spr(j)->switch_hooked = true;
+	}
+	//}
+	if(hooked_combopos > -1)
+	{
+		int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+		hooked_layerbits = 0;
+		for(auto q = 0; q < 7; ++q)
+			hooked_undercombos[q] = -1;
+		for(auto q = max_layer; q > -1; --q)
+		{
+			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[hooked_combopos]];
+			if(isSwitchHookable(cmb))
+			{
+				if(cmb.type == cSWITCHHOOK)
+				{
+					uint16_t plpos = COMBOPOS(x+8,y+8);
+					if((cmb.usrflags&cflag1) && FFCore.tempScreens[q]->data[plpos])
+						continue; //don't swap with non-zero combo
+					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].fam_type) < cmb.attribytes[0])
+						continue; //too low a switchhook level
+					hooked_layerbits |= 1<<q; //Swapping
+					if(cmb.usrflags&cflag3)
+					{
+						if(cmb.usrflags&cflag6)
+						{
+							hooked_undercombos[q] = FFCore.tempScreens[q]->data[hooked_combopos]+1;
+							hooked_undercombos[q+7] = FFCore.tempScreens[q]->cset[hooked_combopos];
+						}
+						else
+						{
+							hooked_undercombos[q] = FFCore.tempScreens[q]->undercombo;
+							hooked_undercombos[q+7] = FFCore.tempScreens[q]->undercset;
+						}
+					}
+					else
+						hooked_layerbits |= 1<<(q+8); //Swapping BACK
+				}
+				else if(isCuttableType(cmb.type))
+				{
+					if(isCuttableNextType(cmb.type))
+					{
+						hooked_undercombos[q] = FFCore.tempScreens[q]->data[hooked_combopos]+1;
+						hooked_undercombos[q+7] = FFCore.tempScreens[q]->cset[hooked_combopos];
+					}
+					else
+					{
+						hooked_undercombos[q] = FFCore.tempScreens[q]->undercombo;
+						hooked_undercombos[q+7] = FFCore.tempScreens[q]->undercset;
+					}
+					hooked_layerbits |= 1<<q; //Swapping
+				}
+				else
+				{
+					hooked_layerbits |= 1<<q; //Swapping
+					hooked_layerbits |= 1<<(q+8); //Swapping BACK
+				}
+			}
+		}
+	}
+	switch_hooked = true;
+	switchhookstyle = style;
+	switch(style)
+	{
+		default: case swPOOF:
+		{
+			wpndata const& spr = wpnsbuf[QMisc.sprites[sprSWITCHPOOF]];
+			switchhookmaxtime = switchhookclk = zc_max(spr.frames,1) * zc_max(spr.speed,1);
+			decorations.add(new comboSprite(x, y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			if(hooked_combopos > -1)
+				decorations.add(new comboSprite((zfix)COMBOX(hooked_combopos), (zfix)COMBOY(hooked_combopos), 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			else if(switching_object)
+				decorations.add(new comboSprite(switching_object->x, switching_object->y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			break;
+		}
+		case swFLICKER:
+		{
+			switchhookmaxtime = switchhookclk = 64;
+			break;
+		}
+		case swRISE:
+		{
+			switchhookmaxtime = switchhookclk = 64;
+			break;
+		}
+	}
+}
+
 bool LinkClass::startwpn(int32_t itemid)
 {
 	if(itemid < 0) return false;
@@ -8799,7 +8891,7 @@ bool LinkClass::startwpn(int32_t itemid)
 				
 				//add a quest rule or an item option that lets you specify whether or not to pause music during refilling
 				//music_pause();
-				stop_sfx(WAV_ER); //stop heart beep!
+				stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 				while(refill())
 				{
 					do_refill_waitframe();
@@ -8879,7 +8971,7 @@ bool LinkClass::startwpn(int32_t itemid)
 						itemclk = 0;
 					if(!paidmagic)
 						paymagiccost(itemid);
-					stop_sfx(WAV_ER); //stop heart beep!
+					stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 					sfx(itm.usesound,pan(x.getInt()));
 					for(size_t q = 0; q < 20; ++q)
 						do_refill_waitframe();
@@ -9556,7 +9648,7 @@ bool LinkClass::startwpn(int32_t itemid)
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 				return false;
 			bool sw = itm.family == itype_switchhook;
-				
+			
 			paymagiccost(itemid);
 			
 			bool use_hookshot=true;
@@ -9771,16 +9863,15 @@ bool LinkClass::startwpn(int32_t itemid)
 			if(insta_switch)
 			{
 				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
-				zprint2("Insta-switching to %d, from %d\n", cpos, COMBOPOS(x+8,y+8));
 				hooked_combopos = cpos;
 				w->misc=2;
 				w->step=0;
 				pull_link=true;
-				switchhookclk = 60;
-				if(itemsbuf[itemid].usesound2)
-					sfx(itemsbuf[itemid].usesound2,pan(int32_t(x)));
+				doSwitchHook(itm.misc5);
+				if(itm.usesound2)
+					sfx(itm.usesound2,pan(int32_t(x)));
 				else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
-				stop_sfx(itemsbuf[itemid].usesound);
+				stop_sfx(itm.usesound);
 				hs_switcher = true;
 			}
 		}
@@ -19817,7 +19908,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 				music_stop();
 		}
 		
-		stop_sfx(WAV_ER);
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
 						? false : COOLSCROLL);
 						
@@ -21150,7 +21241,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 
 void LinkClass::exitcave()
 {
-    stop_sfx(WAV_ER);
+    stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     currscr=homescr;
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
     x = tmpscr->warpreturnx[0];
@@ -21664,7 +21755,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
 {
     int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
-    stop_sfx(WAV_ER);
+    stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     map_bkgsfx(false);
     kill_enemy_sfx();
     draw_screen(tmpscr,false);
@@ -22726,7 +22817,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		return;
 		
 	kill_enemy_sfx();
-	stop_sfx(WAV_ER);
+	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	switch(scrolldir)
@@ -25375,7 +25466,7 @@ void LinkClass::StartRefill(int32_t refillWhat)
     if(!refilling)
     {
         refillclk=21;
-        stop_sfx(WAV_ER);
+        stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
 	if(FFCore.quest_format[vZelda] < 0x255)//use old behavior
@@ -25410,7 +25501,7 @@ void LinkClass::Start250Refill(int32_t refillWhat){
 	if(!refilling)
 	{
 		refillclk=21;
-		stop_sfx(WAV_ER);
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		sfx(WAV_REFILL,128,true);
 		refilling=refillWhat;
 		
@@ -26530,30 +26621,37 @@ void LinkClass::reset_swordcharge()
 
 void LinkClass::reset_hookshot()
 {
-    if(action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
-    {
-        action=none; FFCore.setLinkAction(none);
-    }
-    
-    hookshot_frozen=false;
-    hookshot_used=false;
-    pull_link=false;
-	switchhookclk=0;
-    hs_fix=false;
-	hooked_combopos = -1;
-    Lwpns.del(Lwpns.idFirst(wHSHandle));
-    Lwpns.del(Lwpns.idFirst(wHookshot));
-    chainlinks.clear();
-    int32_t index=directItem>-1 ? directItem : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
-    hs_switcher = false;
+	if(action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
+	{
+		action=none; FFCore.setLinkAction(none);
+	}
 	
-    if(index>=0)
-    {
-        stop_sfx(itemsbuf[index].usesound);
-    }
-    
-    hs_xdist=0;
-    hs_ydist=0;
+	hookshot_frozen=false;
+	hookshot_used=false;
+	pull_link=false;
+	hs_fix=false;
+	switchhookclk = switchhookmaxtime = switchhookstyle = switchhookarg = 0;
+	switch_hooked = false;
+	if(switching_object)
+		switching_object->switch_hooked = false;
+	switching_object = NULL;
+	hooked_combopos = -1;
+	hooked_layerbits = 0;
+	for(auto q = 0; q < 7; ++q)
+		hooked_undercombos[q] = -1;
+	Lwpns.del(Lwpns.idFirst(wHSHandle));
+	Lwpns.del(Lwpns.idFirst(wHookshot));
+	chainlinks.clear();
+	int32_t index=directItem>-1 ? directItem : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
+	hs_switcher = false;
+	
+	if(index>=0)
+	{
+		stop_sfx(itemsbuf[index].usesound);
+	}
+	
+	hs_xdist=0;
+	hs_ydist=0;
 }
 
 

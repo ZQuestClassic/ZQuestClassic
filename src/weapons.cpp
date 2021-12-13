@@ -5827,12 +5827,12 @@ bool weapon::animate(int32_t index)
 				misc=sw?2:1;
 				step=0;
 				pull_link=true;
-				if(sw) //Switchhook sound
+				if(sw)
 				{
-					Link.switchhookclk = 60;
+					Link.doSwitchHook(hshot.misc5);
 					sfx(hshot.usesound2,pan(int32_t(x)));
 					stop_sfx(hshot.usesound);
-					hs_switcher = sw;
+					hs_switcher = true;
 				}
 			}
 			
@@ -7536,10 +7536,11 @@ offscreenCheck:
 					{
 						switching_object->switch_hooked = true;
 						hooked_combopos = -1;
+						hooked_layerbits = 0;
 						misc=2;
 						step=0;
 						pull_link=true;
-						Link.switchhookclk = 60;
+						Link.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : 0); //!TODO init data switch style
 						hs_switcher = true;
 						if(parentitem > -1)
 						{

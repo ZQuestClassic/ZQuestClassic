@@ -11567,11 +11567,11 @@ void set_register(const int32_t arg, const int32_t value)
 			heart_beep_timer = beep;
 			if ( heart_beep_timer > -1 )
 			{
-				cont_sfx(WAV_ER);
+				cont_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 			else
 			{
-				stop_sfx(WAV_ER);
+				stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 			break;
 		}

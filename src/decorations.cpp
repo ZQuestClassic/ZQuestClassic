@@ -220,7 +220,7 @@ bool comboSprite::animate(int32_t index)
 	//if ( clk > tframes ) dead=1;
 	return clk()<=0;
 	*/
-	int32_t dur = wpnsbuf[the_deco_sprite].frames * wpnsbuf[the_deco_sprite].speed;
+	int32_t dur = zc_max(1,wpnsbuf[the_deco_sprite].frames) * zc_max(1,wpnsbuf[the_deco_sprite].speed);
 	//al_trace("dur: %d\n", dur);
 	//al_trace("clk: %d\n", clk);
 	return (clk++>=dur);

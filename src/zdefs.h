@@ -783,7 +783,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK,
     cMAX,
-//! potential new stuff that I might decide it is worth adding. 
+	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
     
     //165
@@ -3079,7 +3079,7 @@ struct newcombo
 	
 	int32_t attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
-	int16_t genflags; //!TODO ZScript Access 16 bits ; general flags
+	int16_t genflags; //16 bits ; general flags
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
 	char label[11];
@@ -3753,6 +3753,7 @@ enum miscsfx
 {
 	sfxBUSHGRASS,
 	sfxSWITCHED,
+	sfxLOWHEART,
 	sfxMAX = 256
 };
 struct miscQdata
@@ -5154,6 +5155,11 @@ enum //Mapscr hardcodes for temp mapscrs
 
 //MIDI States
 enum { midissuspNONE, midissuspHALTED, midissuspRESUME };
+
+enum swStyle //Switchhook animation styles
+{
+	swPOOF, swFLICKER, swRISE
+};
 
 #endif                                                      //_ZDEFS_H_
 

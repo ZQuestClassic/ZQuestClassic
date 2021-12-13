@@ -4863,9 +4863,10 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					return 0;
 			}
 			hooked_combopos = -1;
+			hooked_layerbits = 0;
 			switching_object = this;
 			switch_hooked = true;
-			Link.switchhookclk = 60;
+			Link.doSwitchHook(0); //!TODO init data switch style
 			sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 			return 1;
 		}
@@ -5555,7 +5556,8 @@ int32_t enemy::takehit(weapon *w)
 		
 		if(!(flags & guy_bhit))
 		{
-			stunclk=160;
+			if(!switch_hooked && w->family_class != itype_switchhook)
+				stunclk=160;
 			
 			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
 			{
@@ -5612,11 +5614,13 @@ fsparkle:
 			hp-=1;
 		else
 		{
-			// Don't make a int32_t chain of 'stun' hits
+			// Don't make a long chain of 'stun' hits
 			if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wSword) && stunclk>0)
 				return 1;
-				
-			stunclk=160;
+			
+			
+			if(!switch_hooked)
+				stunclk=160;
 			break;
 		}
 	}

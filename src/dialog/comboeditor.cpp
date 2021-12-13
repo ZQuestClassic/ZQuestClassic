@@ -1370,17 +1370,21 @@ void ComboEditorDialog::loadComboType()
 			l_flag[1] = "Swap Placed Flags";
 			h_flag[1] = "Placed flags on the same layer and position as this combo will be swapped along with the combo";
 			l_flag[2] = "Break upon swap";
-			h_flag[2] = "The combo will 'break' upon swapping, displaying a break sprite and potentially dropping an item.";
-			l_flag[5] = "Undercombo";
-			h_flag[5] = "Replace with undercombo instead of swapped combo";
+			h_flag[2] = "The combo will 'break' upon swapping, displaying a break sprite and potentially"
+				" dropping an item. Instead of swapping with the combo under the player,"
+				" it will be replaced by the screen's Undercombo.";
 			l_attribyte[0] = "Hook Level:";
 			h_attribyte[0] = "The minimum level of SwitchHook that can swap this combo";
 			if(FL(cflag3)) //break info
 			{
 				l_attribyte[1] = "Break Sprite:";
 				h_attribyte[1] = "Sprite Data sprite ID to display when broken";
+				l_attribyte[2] = "Break SFX:";
+				h_attribyte[2] = "SFX to be played when broken";
 				l_flag[3] = "Drop Item";
 				h_flag[3] = "Will drop an item upon breaking.";
+				l_flag[5] = "Next instead of Undercombo";
+				h_flag[5] = "Replace with the Next combo instead of the screen's Undercombo";
 				if(FL(cflag4))
 				{
 					l_flag[4] = "Specific Item";
@@ -1987,7 +1991,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						width = 1.5_em, padding = 0_px, forceFitH = true,
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
-							//!TODO Combo flag help text
 							InfoDialog(moduledata.combo_type_names[local_comboref.type],flaghelp).show();
 						}
 					)

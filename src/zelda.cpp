@@ -401,6 +401,8 @@ bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= fal
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
 int32_t hooked_combopos = -1;
+uint16_t hooked_layerbits = 0;
+int32_t hooked_undercombos[14] = {0};
 sprite* switching_object = NULL;
 
 byte COOLSCROLL = 0;
