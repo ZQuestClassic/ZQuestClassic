@@ -1971,6 +1971,8 @@ attack:
 				}
 
 				//Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
+				
+				//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
 				if (!(get_bit(quest_rules, qr_LINKFLICKER) && ((superman || hclk) && (frame & 1))))
 				{
 					masked_draw(dest);
@@ -2857,7 +2859,7 @@ bool LinkClass::checkstab()
 				spins=0;
 			}
 			
-			if(h && hclk==0 && inlikelike != 1)
+			if(h && hclk==0 && inlikelike != 1 && !get_bit(quest_rules, qr_DYING_ENEMIES_IGNORE_STUN))
 			{
 				if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
 				{
@@ -20342,7 +20344,6 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			dir=up;
 			x=112;
 			y=160;
-			
 			if(didpit)
 			{
 				didpit=false;
@@ -20423,7 +20424,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			if ( dontdraw < 2 ) { dontdraw=0; }
 			stepforward(diagonalMovement?16:18, false);
 		}
-		
+		if (get_bit(quest_rules,qr_SCREEN80_OWN_MUSIC)) playLevelMusic();
 		break;
 	}
 	
@@ -21653,6 +21654,7 @@ void LinkClass::stepforward(int32_t steps, bool adjust)
 	}
 	
         draw_screen(tmpscr);
+	if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
         
         if(Quit)
@@ -25399,7 +25401,8 @@ void LinkClass::checkitems(int32_t index)
 		
 		clear_bitmap(pricesdisplaybuf);
 		
-		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
+		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)) || 
+		(get_bit(quest_rules, qr_SHOP_ITEMS_VANISH) && (tmpscr[tmp].room==rBOTTLESHOP || tmpscr[tmp].room==rSHOP) && (pickup&ipCHECK)))
 		{
 			fadeclk=66;
 		}
@@ -26732,9 +26735,13 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    if ( !get_bit(quest_rules, qr_NOGANONINTRO) ) 
+    if (get_bit(quest_rules, qr_GANONINTRO) ) 
     {
-	    dointro();
+	dointro();
+	//Yes, I checked. This is literally in 2.10 (minus this if statement of course).
+	//I have no clue why it's here; Literally the only difference between dointro in 2.10 and dointro in this version is an 'else' that sets introclk and intropos to 74.
+	//I have no idea what was going through the original devs heads and I'm extremely worried I'm missing something, cause at first glance this looks like 
+	//a hack solution to an underlying bug, but no! There's just a fucking dointro() call in older versions and I don't know *why*. -Deedee
     }
     //dointro(); //This is likely what causes Ganon Rooms to repeat the DMap intro.  
     //I suppose it is to allow the user to make Gaanon rooms have their own dialogue, if they are
