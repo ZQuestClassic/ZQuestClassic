@@ -8185,7 +8185,8 @@ void enemy::update_enemy_frame()
 	if(fallclk||drownclk) return;
 	if (!do_animation)
 		return;
-	if(anim == aNONE && family != eeGUY)
+	if(get_bit(quest_rules,qr_ANONE_NOANIM)
+		&& anim == aNONE && family != eeGUY)
 		return;
 	int32_t newfrate = zc_max(frate,4);
 	int32_t f4=abs(clk/(newfrate/4)); // casts clk to [0,1,2,3]

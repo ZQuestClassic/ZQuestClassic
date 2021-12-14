@@ -3335,6 +3335,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		else set_bit(quest_rules,qr_GANONINTRO,1);
 	}
 	
+	if(compatrule_version < 13)
+	{
+		//ANone doesn't reset to originaltile
+		set_bit(quest_rules,qr_ANONE_NOANIM,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);

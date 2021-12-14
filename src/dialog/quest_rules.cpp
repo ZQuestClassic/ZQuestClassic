@@ -626,7 +626,10 @@ static const GUI::ListData compatRulesList
 		"Candle limited uses per screen is shared between candles" },
 	{ "Old Respawn Points", qr_OLD_RESPAWN_POINTS,
 		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
-		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." }
+		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
+	{ "Enemies with 'None' animation don't obey OriginalTile changes", qr_ANONE_NOANIM,
+		"Enemies with the 'None' animation style will not reset their displayed tile to"
+		" their 'OriginalTile' every frame if this is enabled." }
 };
 
 static const GUI::ListData enemiesRulesList
