@@ -1533,8 +1533,7 @@ static MIDI *read_midi(PACKFILE *f, bool)
 
 void clear_combo(int32_t i)
 {
-    memset(combobuf+i,0,sizeof(newcombo));
-	combobuf[i].walk = 0xF0; //Green square default on!
+	combobuf[i].clear();
 }
 
 void clear_combos()
@@ -3317,12 +3316,20 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(compatrule_version < 10)
 	{
-		//Old fire trail duration
-		set_bit(quest_rules,qr_OLD_FLAMETRAIL_DURATION,1);
+		//Shared candle use limits
+		set_bit(quest_rules,qr_CANDLES_SHARED_LIMIT,1);
 	}
 	
-	if(compatrule_version < 11) //Ganon Intro bvehavior got flipped so it could be moved to compatrules.
+	if(compatrule_version < 11)
 	{
+		//No cross-screen return points
+		set_bit(quest_rules,qr_OLD_RESPAWN_POINTS,1);
+	}
+
+	if(compatrule_version < 12)
+	{
+		//Old fire trail duration
+		set_bit(quest_rules,qr_OLD_FLAMETRAIL_DURATION,1);
 		//Old Intro String in Ganon Room Behavior
 		if(get_bit(quest_rules,qr_GANONINTRO)) set_bit(quest_rules,qr_GANONINTRO,0);
 		else set_bit(quest_rules,qr_GANONINTRO,1);
@@ -5828,6 +5835,23 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			temp_misc.bottle_shop_types[q].clear();
 	}
 	
+	if(s_version >= 14)
+	{
+		byte msfx;
+		for(int32_t q = 0; q < sfxMAX; ++q)
+		{
+			if(!p_getc(&msfx,f,true))
+				return qe_invalid;
+			temp_misc.miscsfx[q] = msfx;
+		}
+	}
+	else
+	{
+		memset(&(temp_misc.miscsfx), 0, sizeof(temp_misc.miscsfx));
+		temp_misc.miscsfx[sfxBUSHGRASS] = WAV_ZN1GRASSCUT;
+		temp_misc.miscsfx[sfxLOWHEART] = WAV_ER;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(Misc, &temp_misc, sizeof(temp_misc));
@@ -6352,6 +6376,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     {
                         return qe_invalid;
                     }
+					
+					if(s_version >= 49)
+					{
+						if(!p_getc(&tempitem.usesound2,f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					else tempitem.usesound2 = 0;
                 }
             }
 	    
@@ -16605,7 +16638,8 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 
 	if(keepdata==true)
 	{
-		memset(combobuf+start_combo,0,sizeof(newcombo)*max_combos);
+		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
+			combobuf[q].clear();
 	}
 
 	if(version > 0x192)
@@ -16824,7 +16858,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 					case cBUSHNEXT: case cBUSHTOUCHY:
 					case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 					case cSIGNPOST: case cCSWITCHBLOCK:
-					case cLANTERN: case cTRIGGERGENERIC:
+					case cTORCH: case cTRIGGERGENERIC:
 						if(temp_combo.usrflags & cflag16)
 						{
 							temp_combo.genflags |= cflag1;
@@ -19366,6 +19400,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	else
 	{
 		temp_zinit.bunny_ltm = 0;
+	}
+	
+	if(s_version > 30)
+	{
+		if(!p_getc(&temp_zinit.switchhookstyle,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.switchhookstyle = 1;
 	}
 	
 	if(keepdata==true)

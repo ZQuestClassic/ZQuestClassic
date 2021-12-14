@@ -251,7 +251,7 @@ extern "C"
                     poll_ogg_ex_file((OGGEXFILE*)*b);
                     break;
                 }
-                
+                [[fallthrough]];
             case ZCM_PAUSED:
                 b++;
             }
@@ -713,8 +713,8 @@ error:
                         else
                             al_resume_duh(((DUHFILE*)zcm)->p);
                             
-                        break;
                     }
+                    break;
                     
                 case ZCMF_OGG:
                     if(p == ZCM_PAUSED)
@@ -744,8 +744,8 @@ error:
                             voice_start(((GMEFILE*)zcm)->stream->voice);
                         }
                         
-                        break;
                     }
+                    break;
                 
 		case ZCMF_OGGEX:
                     if(p == ZCM_PAUSED)

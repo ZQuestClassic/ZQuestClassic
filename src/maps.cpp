@@ -61,6 +61,18 @@ float log2(float n)
 }
 #endif
 
+int32_t COMBOPOS(int32_t x, int32_t y)
+{
+    return (((y) & 0xF0) + ((x) >> 4));
+}
+int32_t COMBOX(int32_t pos)
+{
+    return ((pos) % 16 * 16);
+}
+int32_t COMBOY(int32_t pos)
+{
+    return ((pos) & 0xF0);
+}
 
 FONT *get_zc_font(int32_t index);
 
@@ -1279,6 +1291,20 @@ bool isHSGrabbable(newcombo const& cmb)
 	return cmb.genflags & cflag1;
 }
 
+bool isSwitchHookable(newcombo const& cmb)
+{
+	if(cmb.type == cSWITCHHOOK) return true;
+	return cmb.genflags & cflag2;
+}
+
+int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook)
+{
+	int32_t id = MAPCOMBO2(layer-1,x,y);
+	if(id < 1) return -1; //Never hook combo 0
+	newcombo const& cmb = combobuf[id];
+	return (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS(x,y) : -1;
+}
+
 bool ishookshottable(int32_t bx, int32_t by)
 {
     if(!_walkflag(bx,by,1))
@@ -1544,7 +1570,7 @@ int32_t findtrigger(int32_t scombo, bool ff)
                 case mfSTRIKE:
                     if(scombo!=j)
                         ret += 1;
-                        
+					[[fallthrough]];
                 default:
                     break;
                 }
@@ -2715,9 +2741,63 @@ void bombdoor(int32_t x,int32_t y)
     }
 }
 
+void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
+	bool over, bool transp)
+{
+	if(over)
+	{
+		if(transp)
+			overcombotranslucent(dest, x, y, cid, cset, 128);
+		else overcombo(dest, x, y, cid, cset);
+	}
+	else putcombo(dest, x, y, cid, cset);
+}
+void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
+	int32_t cset, byte layer, bool over, bool transp)
+{
+	byte plpos = COMBOPOS(Link.x+8, Link.y+8);
+	bool dosw = false;
+	if(pos == hooked_combopos && (hooked_layerbits & (1<<layer)))
+	{
+		if(hooked_undercombos[layer] > -1)
+		{
+			draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y,
+				hooked_undercombos[layer], hooked_undercombos[layer+7], over, transp);
+		}
+		dosw = true;
+	}
+	else if(pos == plpos && (hooked_layerbits & (1<<(layer+8))))
+	{
+		dosw = true;
+	}
+	if(dosw)
+	{
+		switch(Link.switchhookstyle)
+		{
+			default: case swPOOF:
+				break; //Nothing special here
+			case swFLICKER:
+			{
+				if(abs(Link.switchhookclk-33)&0b1000)
+					break; //Drawn this frame
+				return; //Not drawn this frame
+			}
+			case swRISE:
+			{
+				//Draw rising up
+				y -= 8-(abs(Link.switchhookclk-32)/4);
+				break;
+			}
+		}
+	}
+	draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y, cid, cset, over, transp);
+}
+
 void do_scrolling_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
 {
 	static int32_t mf;
+	mapscr const* tmp = NULL;
+	bool over = true, transp = false;
 	
 	switch(type)
 	{
@@ -2754,7 +2834,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int
 				}
 			}
 			
-			break;
+			return;
 			
 		case -2:                                                //push blocks
 			for(int32_t i=0; i<176; i++)
@@ -2776,7 +2856,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int
 				}
 			}
 			
-			break;
+			return;
 			
 		case -1:                                                //over combo
 			for(int32_t i=0; i<176; i++)
@@ -2836,228 +2916,63 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int
 				}
 			}
 			
-			break;
+			return;
 			
 		case 0:
-		
-			//case 1:
-			//case 2:
 		case 3:
 		case 4:
 		case 5:
 			if(TransLayers || layer->layeropacity[type]==255)
 			{
-				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
-				if(tmp.valid)
+				tmp = &(tempscreen==2?tmpscr2[type]:tmpscr3[type]);
+				if(tmp->valid)
 				{
-					if(scrolling)
-					{
-						if(layer->layeropacity[type]==255)
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-							}
-						}
-						else
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
-							}
-						}
-					}
-					else
-					{
-						if(layer->layeropacity[type]==255)
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-							}
-						}
-						else
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
-							}
-						}
-					}
+					if(layer->layeropacity[type]!=255)
+						transp = true;
+					break;
 				}
 			}
-			
-			break;
+			return;
 			
 		case 1:
 			if(TransLayers || layer->layeropacity[type]==255)
 			{
-				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
-				if(tmp.valid)
+				tmp = &(tempscreen==2?tmpscr2[type]:tmpscr3[type]);
+				if(tmp->valid)
 				{
-					if(scrolling)
-					{
-						if(layer->layeropacity[type]==255)
-						{
-							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-						}
-						else
-						{
-							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
-								}
-							}
-						}
-					}
-					else
-					{
-						if(layer->layeropacity[type]==255)
-						{
-							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-						}
-						else
-						{
-							if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
-								}
-							}
-						}
-					}
+					if(layer->layeropacity[type]!=255)
+						transp = true;
+					
+					if(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)
+						over = false;
+					
+					break;
 				}
 			}
-			
-			break;
+			return;
 			
 		case 2:
 			if(TransLayers || layer->layeropacity[type]==255)
 			{
-				mapscr const& tmp = (tempscreen==2?tmpscr2[type]:tmpscr3[type]);
-				if(tmp.valid)
+				tmp = &(tempscreen==2?tmpscr2[type]:tmpscr3[type]);
+				if(tmp->valid)
 				{
-					if(scrolling)
-					{
-						if(layer->layeropacity[type]==255)
-						{
-							if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-						}
-						else
-						{
-							if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) && !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
-								}
-							}
-						}
-					}
-					else
-					{
-						if(layer->layeropacity[type]==255)
-						{
-							if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-						}
-						else
-						{
-							if((layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG) &&!(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									putcombo(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i]);
-								}
-							}
-							else
-							{
-								for(int32_t i=0; i<176; i++)
-								{
-									overcombotranslucent(bmp,((i&15)<<4)-x,(i&0xF0)+playing_field_offset-y,tmp.data[i],tmp.cset[i],layer->layeropacity[type]);
-								}
-							}
-						}
-					}
+					if(layer->layeropacity[type]!=255)
+						transp = true;
+					
+					if( (layer->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )
+						&& !(layer->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG))
+						over = false;
+					
+					break;
 				}
 			}
-			
-			break;
+			return;
+	}
+	
+	for(int32_t i=0; i<176; i++)
+	{
+		draw_cmb_pos(bmp, x, playing_field_offset-y, i, tmp->data[i], tmp->cset[i], type+1, over, transp);
 	}
 }
 
@@ -3330,9 +3245,9 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 	}
 }
 
-void doLampCirc(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
+void doTorchCircle(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
 {
-	if(cmb.type != cLANTERN) return;
+	if(cmb.type != cTORCH) return;
 	doDarkroomCircle(MAPCOMBOX(pos)+8+xoffs, MAPCOMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
 }
 
@@ -3358,11 +3273,11 @@ void calc_darkroom_combos(bool scrolling)
 	for(int32_t q = 0; q < 176; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr->data[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
-			doLampCirc(darkscr_bmp_curscr, q, cmb);
+			doTorchCircle(darkscr_bmp_curscr, q, cmb);
 			if(scrolldir > -1)
-				doLampCirc(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -3371,18 +3286,18 @@ void calc_darkroom_combos(bool scrolling)
 		for(int32_t q = 0; q < 176; ++q)
 		{
 			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
-			if(cmb.type == cLANTERN)
+			if(cmb.type == cTORCH)
 			{
-				doLampCirc(darkscr_bmp_curscr, q, cmb);
+				doTorchCircle(darkscr_bmp_curscr, q, cmb);
 				if(scrolldir > -1)
-					doLampCirc(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+					doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
 			}
 		}
 	}
 	for(int q = 0; q < 32; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr->ffdata[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
 			doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
 			if(scrolldir > -1)
@@ -3395,11 +3310,11 @@ void calc_darkroom_combos(bool scrolling)
 	for(int32_t q = 0; q < 176; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
-			doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+			doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
 			if(scrolldir > -1)
-				doLampCirc(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+				doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -3408,18 +3323,18 @@ void calc_darkroom_combos(bool scrolling)
 		for(int32_t q = 0; q < 176; ++q)
 		{
 			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
-			if(cmb.type == cLANTERN)
+			if(cmb.type == cTORCH)
 			{
-				doLampCirc(darkscr_bmp_scrollscr, q, cmb);
+				doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
 				if(scrolldir > -1)
-					doLampCirc(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+					doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 			}
 		}
 	}
 	for(int q = 0; q < 32; ++q)
 	{
 		newcombo const& cmb = combobuf[tmpscr[1].ffdata[q]];
-		if(cmb.type == cLANTERN)
+		if(cmb.type == cTORCH)
 		{
 			doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
 			if(scrolldir > -1)
@@ -3956,6 +3871,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
 {
 	int32_t d=tmpscr[t].door_combo_set;
+	if (type > 8) return;
 	
 	switch(type)
 	{
@@ -3963,11 +3879,11 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 	case dt_walk:
 		if(!even_walls)
 			break;
-			
+		[[fallthrough]];
 	case dt_pass:
 		if(!get_bit(quest_rules, qr_REPLACEOPENDOORS) && !even_walls)
 			break;
-			
+		[[fallthrough]];
 	case dt_lock:
 	case dt_shut:
 	case dt_boss:
@@ -4204,8 +4120,8 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			opendoors=-4;
 			break;
 		}
-		
-		//fallthrough
+
+		[[fallthrough]];
 	case d1WAYSHUTTER:
 		doortype=dt_shut;
 		break;
@@ -4240,7 +4156,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,39,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,7,side,doortype,redraw, even_walls);
 			break;
@@ -4256,7 +4172,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,135,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,151,side,doortype,redraw, even_walls);
 			break;
@@ -4272,7 +4188,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,66,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,64,side,doortype,redraw, even_walls);
 			break;
@@ -4288,7 +4204,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 			{
 				over_door(dest,t,77,side,0,0);
 			}
-			
+			[[fallthrough]];
 		default:
 			put_door(dest,t,78,side,doortype,redraw, even_walls);
 			break;
@@ -5002,19 +4918,12 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 		return;
 	}
 	
-	if(scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG)
+	bool over = (scrn->flags7&fLAYER2BG||scrn->flags7&fLAYER3BG
+		|| DMaps[currdmap].flags&dmfLAYER2BG || DMaps[currdmap].flags&dmfLAYER3BG);
+
+	for(int32_t i=0; i<176; ++i)
 	{
-		for(int32_t i=0; i<176; ++i)
-		{
-			overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
-		}
-	}
-	else
-	{
-		for(int32_t i=0; i<176; ++i)
-		{
-			putcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,scrn->data[i],scrn->cset[i]);
-		}
+		draw_cmb_pos(dest, x, y, i, scrn->data[i], scrn->cset[i], 0, over, false);
 	}
 }
 
@@ -5969,15 +5878,15 @@ void ViewMap()
 		{
 			clear_to_color(framebuf,BLACK);
 			stretch_blit(mappic,framebuf,0,0,mappic->w,mappic->h,
-						 int32_t(256+(px-mappic->w)*scale)/2,int32_t(224+(py-mappic->h)*scale)/2,
+						 int32_t(256+(int64_t(px)-mappic->w)*scale)/2,int32_t(224+(int64_t(py)-mappic->h)*scale)/2,
 						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
 						 
 			blit(framebuf,scrollbuf,0,0,256,0,256,224);
 			redraw=false;
 		}
 		
-		int32_t x = int32_t(256+(px-((2048-lx)*2))*scale)/2;
-		int32_t y = int32_t(224+(py-((704-ly)*2))*scale)/2;
+		int32_t x = int32_t(256+(px-((2048-int64_t(lx))*2))*scale)/2;
+		int32_t y = int32_t(224+(py-((704-int64_t(ly))*2))*scale)/2;
 		
 		if(show&1)
 		{

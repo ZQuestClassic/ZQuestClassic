@@ -234,8 +234,8 @@ namespace util
 			val<<=4;
 			
 			if(*hexstr<='9')
-				val += *hexstr-'0';
-			else val+= ((*hexstr)|0x20)-'a'+10;
+				val += (*hexstr-'0');
+			else val+= ((*hexstr)|0x20)-('a'+10);
 			
 			++hexstr;
 		}

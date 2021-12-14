@@ -444,7 +444,7 @@ struct user_rng
 	}
 	int32_t srand()
 	{
-		int32_t seed = time(0) + ((rand() * rand()) * ((rand() % 2) ? 1 : -1));
+		int32_t seed = time(0) + ((int64_t(rand()) * int64_t(rand())) * ((rand() % 2) ? 1 : -1));
 		srand(seed);
 		return seed;
 	}
@@ -2960,7 +2960,10 @@ enum ASM_DEFINE
 	LOADBOTTLETYPE,
 	LOADBSHOPDATA,
 	
-	NUMCOMMANDS           //0x01A5
+	SWITCHNPC,
+	SWITCHCMB,
+	
+	NUMCOMMANDS           //0x01A7
 };
 
 
@@ -4363,8 +4366,18 @@ enum ASM_DEFINE
 #define BSHOPSTR                0x140A
 #define COMBODUSRFLAGARR        0x140B
 #define COMBODGENFLAGARR        0x140C
+#define HERORESPAWNX            0x140D
+#define HERORESPAWNY            0x140E
+#define HERORESPAWNDMAP         0x140F
+#define HERORESPAWNSCR          0x1410
+#define IDATAUSESOUND2          0x1411
+#define HEROSWITCHTIMER         0x1412
+#define HEROSWITCHMAXTIMER      0x1413
+#define NPCSWHOOKED             0x1414
+#define GAMEMISCSPR             0x1415
+#define GAMEMISCSFX             0x1416
 
-#define NUMVARIABLES         	0x140D
+#define NUMVARIABLES         	0x1417
 
 //} End variables
 

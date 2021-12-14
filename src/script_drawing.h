@@ -380,7 +380,7 @@ protected:
     SmallBitmapTextureCache small_tex_cache;
     
 private:
-    CScriptDrawingCommands(const CScriptDrawingCommands&) {}
+    CScriptDrawingCommands(const CScriptDrawingCommands&) : count(0) {}
     // Warning: no return statement in function returning non-void
     //CScriptDrawingCommands& operator =(const CScriptDrawingCommands&) {}
 };

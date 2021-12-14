@@ -8128,24 +8128,24 @@ static MENU settings_menu[] =
 
 static MENU misc_menu[] =
 {
-    { (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
-    { (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
-    { (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
-    { (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
-    { (char *)"",                           NULL,                    NULL,                      0, NULL },
-    { (char *)"&Quest Info...",             onQuest,                 NULL,                      0, NULL },
-    { (char *)"Quest &MIDI Info...",        onMIDICredits,           NULL,                      0, NULL },
-    { (char *)"Quest &Directory...",        onQstPath,               NULL,                      0, NULL },
-    { (char *)"",                           NULL,                    NULL,                      0, NULL },
-    { (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
-    { (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
-    { (char *)"Save ZC Configuration",           OnSaveZCConfig,           NULL,                      0, NULL },
-     { (char *)"Show ZASM Debugger",           onConsoleZASM,           NULL,                      0, NULL },
-     { (char *)"Show ZScript Debugger",           onConsoleZScript,           NULL,                      0, NULL },
-    { (char *)"Clear Directory Cache",           OnnClearQuestDir,           NULL,                      0, NULL },
-    { (char *)"Modules",           NULL,           zcmodule_menu,                      0, NULL },
-     
-     { NULL,                                 NULL,                    NULL,                      0, NULL }
+	{ (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
+	{ (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
+	{ (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
+	{ (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
+	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
+	{ (char *)"&Quest Info...",             onQuest,                 NULL,                      0, NULL },
+	{ (char *)"Quest &MIDI Info...",        onMIDICredits,           NULL,                      0, NULL },
+	{ (char *)"Quest &Directory...",        onQstPath,               NULL,                      0, NULL },
+	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
+	{ (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
+	{ (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+	{ (char *)"Save ZC Configuration",      OnSaveZCConfig,          NULL,                      0, NULL },
+	{ (char *)"Show ZASM Debugger",         onConsoleZASM,           NULL,                      0, NULL },
+	{ (char *)"Show ZScript Debugger",      onConsoleZScript,        NULL,                      0, NULL },
+	{ (char *)"Clear Directory Cache",      OnnClearQuestDir,        NULL,                      0, NULL },
+	{ (char *)"Modules",                    NULL,                    zcmodule_menu,             0, NULL },
+
+	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
 static MENU refill_menu[] =
@@ -9389,9 +9389,8 @@ void System()
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
 	
-	misc_menu[12].flags =(zconsole)?D_SELECTED:0;
-	misc_menu[13].flags =(zasm_debugger)?D_SELECTED:0;
-	misc_menu[14].flags =(zscript_debugger)?D_SELECTED:0;
+	misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
+	misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
 	zcmodule_menu[2].flags = ((moduledata.ignore)?D_SELECTED:0);
         
         /*

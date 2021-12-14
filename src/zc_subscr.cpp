@@ -69,7 +69,7 @@ void dosubscr(miscQdata *misc)
     if(current_item_id(itype_hookshot)>=0)
         pause_sfx(itemsbuf[current_item_id(itype_hookshot)].usesound);
         
-    adjust_sfx(WAV_ER,128,false);
+    adjust_sfx(QMisc.miscsfx[sfxLOWHEART],128,false);
     adjust_sfx(WAV_MSG,128,false);
     
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);

@@ -35,6 +35,8 @@
 #include "zc_malloc.h"
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
+#include "dialog/misc_sfx.h"
+#include "dialog/misc_sprs.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -265,93 +267,97 @@ const char *defenselist(int32_t index, int32_t *list_size)
 		
 		switch(index)
 		{
-		default:
-			return "(None)";
-			
-		case edHALFDAMAGE:
-			return "1/2 Damage";
-			
-		case edQUARTDAMAGE:
-			return "1/4 Damage";
-	
-			
-		case edSTUNONLY:
-			return "Stun";
-			
-		case edSTUNORCHINK:
-			return "Stun Or Block";
-			
-		case edSTUNORIGNORE:
-			return "Stun Or Ignore";
-			
-		case edCHINKL1:
-			return "Block If < 1";
-			
-		case edCHINKL2:
-			return "Block If < 2";
-			
-		case edCHINKL4:
-			return "Block If < 4";
-			
-		case edCHINKL6:
-			return "Block If < 6";
-			
-		case edCHINKL8:
-			return "Block If < 8";
-	
-	
-			
-		case edCHINK:
-			return "Block";
-			
-		case edIGNOREL1:
-			return "Ignore If < 1";
-			
-		case edIGNORE:
-			return "Ignore";
-	
-		
-	
-			
-		case ed1HKO:
-			return "One-Hit-Kill";
-	
-	case edCHINKL10: //If damage is less than 10
-		return "Block if Power < 10";
-	
-	case ed2x: //Double damage
-		return "Double Damage";
-	case ed3x: //Triple Damage
-		return "Triple Damage";
-	case ed4x: //4x damage
-		return "Quadruple Damage";
-	
-	case edHEAL: //recover the weapon damage in HP
-		return "Enemy Gains HP = Damage";
-	
-	case edTRIGGERSECRETS: //Triggers screen secrets. 
-		return "Trigger Screen Secrets";
-	
-	case edSPLIT: 
-		return "Split";
-	case edREPLACE: return "Transform";
-	
-	case edSUMMON: 
-		return "Summon";
-	
-	case edEXPLODESMALL: 
-		return "Bomb Explosion";
-	
-	case edEXPLODELARGE: 
-		return "Superbomb Explosion";
-	
-	case edEXPLODEHARMLESS: 
-		return "Harmless Explosion";
-	
-	case edFREEZE: //Hit by ice.. 
-		return "Freeze Solid";
-	
-	
+			case 0:
+				return "(None)";
+
+			case edHALFDAMAGE:
+				return "1/2 Damage";
+
+			case edQUARTDAMAGE:
+				return "1/4 Damage";
+
+
+			case edSTUNONLY:
+				return "Stun";
+
+			case edSTUNORCHINK:
+				return "Stun Or Block";
+
+			case edSTUNORIGNORE:
+				return "Stun Or Ignore";
+
+			case edCHINKL1:
+				return "Block If < 1";
+
+			case edCHINKL2:
+				return "Block If < 2";
+
+			case edCHINKL4:
+				return "Block If < 4";
+
+			case edCHINKL6:
+				return "Block If < 6";
+
+			case edCHINKL8:
+				return "Block If < 8";
+
+
+
+			case edCHINK:
+				return "Block";
+
+			case edIGNOREL1:
+				return "Ignore If < 1";
+
+			case edIGNORE:
+				return "Ignore";
+
+
+
+
+			case ed1HKO:
+				return "One-Hit-Kill";
+
+			case edCHINKL10: //If damage is less than 10
+				return "Block if Power < 10";
+
+			case ed2x: //Double damage
+				return "Double Damage";
+			case ed3x: //Triple Damage
+				return "Triple Damage";
+			case ed4x: //4x damage
+				return "Quadruple Damage";
+
+			case edHEAL: //recover the weapon damage in HP
+				return "Enemy Gains HP = Damage";
+
+			case edTRIGGERSECRETS: //Triggers screen secrets. 
+				return "Trigger Screen Secrets";
+
+			case edSPLIT: 
+				return "Split";
+			case edREPLACE:
+				return "Transform";
+
+			case edSUMMON: 
+				return "Summon";
+
+			case edEXPLODESMALL: 
+				return "Bomb Explosion";
+
+			case edEXPLODELARGE: 
+				return "Superbomb Explosion";
+
+			case edEXPLODEHARMLESS: 
+				return "Harmless Explosion";
+
+			case edFREEZE: //Hit by ice.. 
+				return "Freeze Solid";
+				
+			case edSWITCH:
+				return "Switch w/ Player";
+			default:
+				return "[reserved]";
 		}
 	}
 	
@@ -687,6 +693,11 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	}
 	
 	if(!p_getc(&tempitem.usesound,f,true))
+	{
+		return 0;
+	}
+	
+	if(!p_getc(&tempitem.usesound2,f,true))
 	{
 		return 0;
 	}
@@ -1173,6 +1184,11 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 			{
 				new_return(48);
 			}
+			
+			if(!p_putc(itemsbuf[i].usesound2,f))
+			{
+				new_return(48);
+			}
 		
 		//New itemdata vars -Z
 		//! version 27
@@ -1594,87 +1610,25 @@ int32_t onCustomWpns()
 /******  onMiscSprites ******/
 /****************************/
 
-static int32_t miscspr_tab_1[] =
-{
-	// dialog control number
-	5, 6,
-	-1
-};
-
-static TABPANEL miscspr_tabs[] =
-{
-	// (text)
-	{ (char *)"1",            D_SELECTED,    miscspr_tab_1,               0, NULL },
-	{ NULL,                   0,             NULL,                        0, NULL }
-};
-
-static DIALOG miscspr_dlg[] =
-{
-	// (dialog proc)           (x)     (y)     (w)     (h)    (fg)                   (bg)                   (key)      (flags)     (d1)     (d2)    (dp)                                           (dp2)   (dp3)
-	{ jwin_win_proc,            0,      0,    320,    237,    vc(14),                vc(1),                   0,       D_EXIT,       0,       0,    (void *) "Misc Sprites",                        NULL,   NULL                  },
-	{ d_timer_proc,             0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  },
-	{ jwin_tab_proc,            4,     25,    312,    182,    0,                     0,                       0,       0,            0,       0,    (void *) miscspr_tabs,                          NULL,  (void *)miscspr_dlg    },
-	{ jwin_button_proc,        94,    212,     61,     21,    vc(14),                vc(1),                  13,       D_EXIT,       0,       0,    (void *) "OK",                                  NULL,   NULL                  },
-	{ jwin_button_proc,       165,    212,     61,     21,    vc(14),                vc(1),                  27,       D_EXIT,       0,       0,    (void *) "Cancel",                              NULL,   NULL                  },
-	
-	//5
-	{ jwin_text_proc,           8,     45,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Falling Sprite:",                     NULL,   NULL                  },
-	{ jwin_droplist_proc,       8,     55,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
-	//7
-	{ jwin_text_proc,           8,     75,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Liquid) Sprite:",                     NULL,   NULL                  },
-	{ jwin_droplist_proc,       8,     85,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
-	//9
-	{ jwin_text_proc,           8,     105,     35,      8,    vc(14),                vc(1),                   0,       0,            0,       0,    (void *) "Drowning (Lava) Sprite:",                     NULL,   NULL                  },
-	{ jwin_droplist_proc,       8,     115,    151,     16,    jwin_pal[jcTEXTFG],    jwin_pal[jcTEXTBG],      0,       0,            0,       0,    (void *) &weapon_list,                          NULL,   NULL                  },
-	
-	{ NULL,                     0,      0,      0,      0,    0,                     0,                       0,       0,            0,       0,     NULL,                                          NULL,   NULL                  }
-};
-
 int32_t onMiscSprites()
 {
-	al_trace("Starting misc sprites...\n");
-	if(biw_cnt==-1)
-	{
-		al_trace("Building biw_list...\n");
-		build_biw_list();
-		al_trace("Built biw_list.\n");
-	}
-	al_trace("Looping biw_cnt...\n");
-	for(int32_t j=0; j<biw_cnt; j++)
-	{
-		al_trace("%d ", j);
-		if(biw[j].i == misc.sprites[sprFALL]){ al_trace("\nFound 'sprFALL' val %d\n",j);
-			miscspr_dlg[6].d1 = j;}
-		if(biw[j].i == misc.sprites[sprDROWN]){ al_trace("\nFound 'sprDROWN' val %d\n",j);
-			miscspr_dlg[8].d1 = j;}
-		if(biw[j].i == misc.sprites[sprLAVADROWN]){ al_trace("\nFound 'sprLAVADROWN' val %d\n",j);
-			miscspr_dlg[10].d1 = j;}
-	}
-	al_trace("Done looping biw_cnt.\n");
-	miscspr_dlg[0].dp2 = lfont;
-	
-	if(is_large)
-	{
-		large_dialog(miscspr_dlg);
-	}
-	
-	int32_t ret;
-	al_trace("Popping up dlg...\n");
-	ret = zc_popup_dialog(miscspr_dlg,3);
-	al_trace("Returned %d\n",ret);
-	if(ret == 3)
+	MiscSprsDialog(misc.sprites, (is_large?20:13), [](int32_t* newsprs)
 	{
 		saved = false;
-		for(int32_t j=0; j<biw_cnt; j++)
-		{
-			if(miscspr_dlg[6].d1 == j)
-				misc.sprites[sprFALL] = biw[j].i;
-			if(miscspr_dlg[8].d1 == j)
-				misc.sprites[sprDROWN] = biw[j].i;
-			if(miscspr_dlg[10].d1 == j)
-				misc.sprites[sprLAVADROWN] = biw[j].i;
-		}
-	}
+		for(auto q = 0; q < sprMAX; ++q)
+			misc.sprites[q] = byte(newsprs[q]);
+	}).show();
+	return D_O_K;
+}
+
+int32_t onMiscSFX()
+{
+	MiscSFXDialog(misc.miscsfx, (is_large?20:13), [](int32_t* newsfx)
+	{
+		saved = false;
+		for(auto q = 0; q < sfxMAX; ++q)
+			misc.miscsfx[q] = byte(newsfx[q]);
+	}).show();
 	return D_O_K;
 }
 
@@ -1740,7 +1694,7 @@ static int32_t enedata_defense_list[] =
 
 static int32_t enedata_defense2_list[] =
 {
-	153,154,155,156,157,158,159,160,170,171,172,173,174,175,176,177,191,192,-1
+	153,154,155,156,157,158,159,160,170,171,172,173,174,175,176,177,191,192,415,416,-1
 };
 
 static int32_t enedata_defense3_list[] =
@@ -4413,6 +4367,9 @@ static DIALOG enedata_dlg[] =
 	{  d_dummy_proc,          6,    190,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x40000000",                                         NULL,   NULL                 },
 	{  d_dummy_proc,          6,    200,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x80000000",                                         NULL,   NULL                 },
 	//415
+	{  jwin_text_proc,           6,    216,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "SwitchHook Weapon Defense:",                              NULL,   NULL                 },
+	{  jwin_droplist_proc,      126, 216-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
 
@@ -4917,6 +4874,7 @@ void edit_enemydata(int32_t index)
 	}
 	
 	enedata_dlg[192].d1 = guysbuf[index].defense[edefWhistle];
+	enedata_dlg[416].d1 = guysbuf[index].defense[edefSwitchHook];
 	
 	
 	//Script Defenses
@@ -5250,6 +5208,7 @@ void edit_enemydata(int32_t index)
 		}
 		
 		test.defense[edefWhistle] = enedata_dlg[192].d1;
+		test.defense[edefSwitchHook] = enedata_dlg[416].d1;
 		//Are the new defs missing here? -Z
 		
 		

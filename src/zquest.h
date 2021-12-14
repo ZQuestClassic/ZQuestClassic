@@ -496,6 +496,8 @@ void restore_mouse();
 int32_t onShowPal();
 int32_t onTestGUI();
 int32_t onCSetFix();
+int32_t onWaterSolidity();
+int32_t onEffectFix();
 int32_t onTemplate();
 int32_t onComboPage();
 const char *flaglist(int32_t index, int32_t *list_size);
@@ -762,6 +764,8 @@ enum
 	cmdViewL3BG,
 	cmdBottleTypes,
 	cmdBottleShopTypes,
+	cmdWaterSolidFix,
+	cmdEffectSquareFix,
     cmdMAX
 };
 

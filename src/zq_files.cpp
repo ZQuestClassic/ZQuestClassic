@@ -708,14 +708,6 @@ void applyRuleset(int32_t newRuleset)
 			//{Z3
 			//Make water drownable
 			set_bit(quest_rules, qr_DROWN, 1);
-			if(jwin_alert("Water Conversion","Convert all water to non-solid?", NULL, NULL, "&Yes", "&No", 'y', 'n',lfont) == 1)
-				for(int32_t i=0; i < MAXCOMBOS; ++i)
-				{
-					if(combo_class_buf[combobuf[i].type].water!=0)
-					{
-						combobuf[i].walk &= ~0x0F; //Non-solid
-					}
-				}
 			set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
 			set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
 			set_bit(quest_rules, qr_ALLOWFASTMSG, 1);
@@ -754,14 +746,6 @@ void applyRuleset(int32_t newRuleset)
 			//{from Z3
 			//Make water drownable
 			set_bit(quest_rules, qr_DROWN, 1);
-			if(jwin_alert("Water Conversion","Convert all water to non-solid?", NULL, NULL, "&Yes", "&No", 'y', 'n',lfont) == 1)
-				for(int32_t i=0; i < MAXCOMBOS; ++i)
-				{
-					if(combo_class_buf[combobuf[i].type].water!=0)
-					{
-						combobuf[i].walk &= ~0x0F; //Non-solid
-					}
-				}
 			set_bit(quest_rules, qr_HIDECARRIEDITEMS, 1);
 			set_bit(quest_rules, qr_ALLOWMSGBYPASS, 1);
 			set_bit(quest_rules, qr_ALLOWFASTMSG, 1);

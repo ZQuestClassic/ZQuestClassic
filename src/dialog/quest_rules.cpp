@@ -192,8 +192,10 @@ static const GUI::ListData comboRulesList
 		" not evenly divisible by 8."},
 	{ "Damage Combos Work On Layers 1 And 2", qr_DMGCOMBOLAYERFIX, 
 		"Allows Damage Combos to work on Layers 1 and 2."},
-	{ "Hookshot Grab Combos Work On Layers 1 And 2", qr_HOOKSHOTLAYERFIX, 
-		"Allows the Hookshot to grab onto combos on Layers 1 and 2." },
+	{ "Hookshot/SwitchHook Combos Work On Layers 1 And 2", qr_HOOKSHOTLAYERFIX, 
+		"Allows the Hookshot/SwitchHook to grab onto combos on Layers 1 and 2." },
+	{ "Hookshot/SwitchHook Combos Work On All Layers", qr_HOOKSHOTALLLAYER, 
+		"Allows the Hookshot/SwitchHook to grab onto combos on any layer." },
 	{ "Broken Mirror And Sword Beam Interaction", qr_OLDMIRRORCOMBOS, 
 		"If enabled, the positioning of reflected sword weapons is"
 		" positioned incorrectly, usually leading to it being more"
@@ -619,7 +621,12 @@ static const GUI::ListData compatRulesList
 		"In older versions, Ganon Rooms used to call the function that reset the dmap's intro clock."
 		" This normally wouldn't do anythingas it checks if you've already visited the dmap, but in"
 		" certain circumstances this could allow Ganon to repeat the dmap's intro string."
-		" Enabling this will recreate this behavior."}
+		" Enabling this will recreate this behavior."},
+	{ "Candle use limit is shared", qr_CANDLES_SHARED_LIMIT,
+		"Candle limited uses per screen is shared between candles" },
+	{ "Old Respawn Points", qr_OLD_RESPAWN_POINTS,
+		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
+		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -977,7 +984,7 @@ static const GUI::ListData nesfixesRulesList
 	{ "Items Disappear During Hold-Up", qr_OLDPICKUP,
 		"If enabled, all items are deleted whenever you hold up an item. If disabled, they won't be deleted when you hold"
 		" up an item. Is required to make Shop Items disappear after buying one if 'Shop Items Disappear on Pickup' is disabled."},
-	{ "Subscreen Appears Above Sprites", qr_SUBSCREENOVERSPRITES
+	{ "Subscreen Appears Above Sprites", qr_SUBSCREENOVERSPRITES,
 		"If enabled, the subscreen is drawn above Layer 6, and the use of Layer 7 is enabled."
 		" If disabled, the subscreen is drawn above layer 4 but below flying/jumping enemies,"
 		" an airborne player, etc; and Layer 7 is not drawn."},
@@ -1051,12 +1058,12 @@ static const GUI::ListData playerRulesList
 	{ "Diagonal Movement", qr_LTTPWALK,
 		"If enabled, disables the built in player gridlock, and allows the player to move diagonally."
 		" \nDiagonal Movement also uses different logic for determining how many pixels the Player should"
-		" move from  non-Diagonal Movement (or '4-way Movement', from here out) when 'New Player Movement'" 
+		" move from  non-Diagonal Movement (or '4-way Movement', from here out) when 'New Player Movement'"
 		" is disabled; 4-way Movement gives a different step speed depending on the player's current X/Y"
 		" position, usually averaging out to 1.3333 pixels of movement per frame; while Diagonal Movement"
-		" alternates between 1 and 2 pixels every frame, averaging out to 1.5 pixels of movement per frame."}
+		" alternates between 1 and 2 pixels every frame, averaging out to 1.5 pixels of movement per frame."
 		" \nIf 'New Player Movement' is enabled, there is no speed difference between 4-Way Movement and"
-		" Diagonal Movement, as the Player's position and speed use decimal precision.",
+		" Diagonal Movement, as the Player's position and speed use decimal precision."},
 	{ "Large Hitbox", qr_LTTPCOLLISION,
 		"If enabled, the player's walking hitbox is changed from 16x8 (the bottom half of the player's sprite)"
 		" to 16x16 (their entire sprite). The player cannot walk halfway into a solid combo from the bottom, and"

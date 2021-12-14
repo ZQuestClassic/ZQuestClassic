@@ -71,71 +71,76 @@ ItemNameInfo defInfo =
 		"Sprites[0]:", "Sprites[1]:","Sprites[2]:","Sprites[3]:","Sprites[4]:",
 		"Sprites[5]:","Sprites[6]:","Sprites[7]:","Sprites[8]:","Sprites[9]:"
 	},
-	"UseSound"
+	{ "UseSound", "UseSound2" }
 };
 
-void loadinfo(ItemNameInfo * inf, int itype)
+void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 {
 	inf->clear();
-	inf->iclass = itype;
-	switch(itype)
+	inf->iclass = ref.family;
+	#define _SET(mem, str, helpstr) \
+		inf->mem = str; \
+		inf->h_##mem = helpstr
+	#define FLAG(val) (ref.flags & ITEM_FLAG##val)
+	switch(ref.family)
 	{
 		case itype_fairy:
 		{
-			inf->misc[0] = "HP Regained:";
-			inf->misc[1] = "MP Regained:";
-			inf->misc[2] = "Step Speed:";
-			inf->misc[3] = "Bottle Fill:";
-			inf->h_misc[3] = "What bottle type to fill an empty bottle with if caught using a Bug Net";
-			inf->flag[0] = "HP. R. Is Percent";
-			inf->flag[1] = "MP. R. Is Percent";
-			inf->actionsnd = "Item Drop Sound:";
+			_SET(misc[0], "HP Regained:", "Life restored when collected. This is in HP points, unless"
+				" 'Life is Percent' is checked, then it's a percentage of max life.");
+			_SET(misc[1], "MP Regained:", "Magic restored when collected. This is in MP points, unless"
+				" 'Magic is Percent' is checked, then it's a percentage of max magic.");
+			_SET(misc[2], "Step Speed:", "The movement speed of the fairy, in 100ths of pixel/frame");
+			_SET(misc[3], "Bottle Fill:", "What bottle type to fill an empty bottle with if caught using a Bug Net");
+			_SET(flag[0], "Life is Percent", "HP Regained is a percentage out of max HP");
+			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
+			_SET(actionsnd[0], "Item Drop Sound:", "Plays SFX when dropped");
 			break;
 		}
 		case itype_triforcepiece:
 		{
-			inf->misc[0] = "Cutscene MIDI:";
-			inf->misc[1] = "Cutscene Type (0-1):";
-			inf->misc[2] = "Second Collect Sound:";
-			inf->misc[3] = "Custom Cutscene Duration";
-			inf->misc[4] = "Custom Refill Frame";
-			inf->flag[0] = "Side Warp Out";
-			inf->flag[2] = "Removes Sword Jinxes";
-			inf->flag[3] = "Removes Item Jinxes";
-			inf->flag[8] = "Don't Dismiss Messages";
-			inf->flag[9] = "Cutscene Interrupts Action Script";
-			inf->flag[10] = "Don't Affect Music";
-			inf->flag[11] = "No Cutscene";
-			inf->flag[12] = "Run Action Script on Collection";
-			inf->flag[13] = "Play Second Sound Effect";
-			inf->flag[14] = "Don't Play MIDI";
+			_SET(misc[0], "Cutscene MIDI:", "If non-zero, overrides the cutscene midi");
+			_SET(misc[1], "Cutscene Type (0-1):", "If >0, uses the 'big triforce' cutscene style");
+			_SET(misc[2], "Second Collect Sound:", "A second sound to play on pickup, played only if flag 'Play Second SFX' is checked.");
+			_SET(misc[3], "Custom Cutscene Duration", "If nonzero, overrides the duration of the cutscene, in frames");
+			_SET(misc[4], "Custom Refill Frame", "If non-zero, changes the timing of the triforce's life refill.");
+			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
+			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
+			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
+			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
+			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
+			_SET(flag[10], "Don't Affect Music", "If not checked, music is stopped for the cutscene");
+			_SET(flag[11], "No Cutscene", "Skip the cutscene animation");
+			_SET(flag[12], "Run Action Script on Collection", "Item action script runs when it is collected");
+			_SET(flag[13], "Play Second SFX", "Plays the 'Second Collect Sound' SFX on pickup");
+			_SET(flag[14], "Don't Play MIDI", "Don't play a cutscene midi if checked");
+			_SET(actionsnd[0], "Collect Sound:", "First sound played on pickup");
 			break;
 		}
 		case itype_shield:
 		{
-			inf->misc[0] = "Block Flags:";
-			inf->h_misc[0] = "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
-				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.";
-			inf->misc[1] = "Reflect Flags:";
-			inf->h_misc[1] = "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
+			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256, Lightbeam=512)\n"
+				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.");
+			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256, Lightbeam=512)\n"
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
-				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.";
-			inf->actionsnd = "De/Reflection Sound:";
+				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
+			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
 			break;
 		}
 		case itype_agony:
 		{
-			inf->power = "Sensitivity:";
-			inf->misc[0] = "Vibration Frequency";
+			_SET(power, "Sensitivity:", "The radius in which flags are checked for");
+			_SET(misc[0], "Vibration Frequency", "0-58, higher = faster vibrations");
 			break;
 		}
 		case itype_wealthmedal:
 		{
-			inf->misc[0] = "Discount Amount:";
-			inf->flag[0] = "D. A. Is Percent";
+			_SET(misc[0], "Discount Amount:", "If 'Discount is Percent' is checked, this is the percentage of the price that will still be charged.\n"
+				"else, this many rupees are ADDED to the price (use negative to subtract)");
+			_SET(flag[0], "Discount Is Percent", "Makes the discount percentage-based");
 			break;
 		}
-		case itype_cbyrna:
+		case itype_cbyrna: //!TODO Help Text
 		{
 			inf->power = "Beam Damage:";
 			inf->misc[0] = "Beam Speed Divisor:";
@@ -155,126 +160,130 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[2] = "Beam Sprite:";
 			inf->wpn[3] = "Sparkle Sprite:";
 			inf->wpn[4] = "Damaging Sparkle Sprite:";
-			inf->actionsnd = "Orbit Sound:";
+			inf->actionsnd[0] = "Orbit Sound:";
 			break;
 		}
 		case itype_whispring:
 		{
-			inf->power = "Jinx Divisor:";
-			inf->misc[0] = "Jinx Type:";
-			inf->flag[0] = "Perm. Jinx Are Temp.";
+			_SET(power, "Jinx Divisor:", "Amount to divide jinx duration by.\n"
+				"If 'Perm. Jinx Are Temp' is checked, perm jinxes last for 150/[divisor] frames."
+				" If divisor is 0, player is immune to affected jinxes.\n"
+				"When picked up, regardless of flags, perm jinxes matching the Jinx Type become 150-frame temp jinxes.");
+			_SET(misc[0], "Jinx Type:", "1 = sword, 2 = item, 3 = both");
+			_SET(flag[0], "Perm. Jinx Are Temp.", "Perm jinxes inflicted instead are temp for 150/[divisor] frames");
 			break;
 		}
 		case itype_ladder:
 		{
-			inf->power = "Four-Way:";
-			inf->flag[0] = "Can Ladder Over Pitfalls";
+			_SET(power, "Four-Way:", "If >0, the player can exit the ladder in all 4 directions.\n"
+				"If ==0, the player can only exit parallel to the direction they entered from.");
+			_SET(flag[0], "Can Ladder Over Pitfalls", "Can be used to cross Pitfall combos");
 			break;
 		}
 		case itype_magickey:
 		{
-			inf->power = "Dungeon Level:";
-			inf->flag[0] = "Lesser D. Levels Also";
+			_SET(power, "Dungeon Level:", "What dungeon level to grant infinite keys for");
+			_SET(flag[0], "Lesser D. Levels Also", "If checked, lower levels are also affected");
 			break;
 		}
 		case itype_wallet:
 		{
-			inf->power = "Infinite Supply:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(power, "Infinite Supply:", "If >0, grants infinite money");
+			_SET(misc[0], "Increase Amount:", "How much money regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often money regenerates from having this, in frames");
 			break;
 		}
 		case itype_quiver:
 		{
-			inf->power = "Infinite Supply:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(power, "Infinite Supply:", "If >0, grants infinite arrows");
+			_SET(misc[0], "Increase Amount:", "How much arrows regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often arrows regenerates from having this, in frames");
 			break;
 		}
 		case itype_bombbag:
 		{
-			inf->power = "Infinite Supply:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
-			inf->flag[0] = "Super Bombs Also";
+			_SET(power, "Infinite Supply:", "If >0, grants infinite bombs");
+			_SET(misc[0], "Increase Amount:", "How much bombs regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often bombs regenerates from having this, in frames");
+			_SET(flag[0], "Super Bombs Also", "Also Regenerates S. Bombs");
 			break;
 		}
-		case itype_quakescroll2:
+		case itype_quakescroll2: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Stun Duration:";
 			inf->misc[1] = "Stun Radius:";
-			inf->actionsnd = "Quake Sound:";
+			inf->actionsnd[0] = "Quake Sound:";
 			break;
 		}
-		case itype_quakescroll:
+		case itype_quakescroll: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Stun Duration:";
 			inf->misc[1] = "Stun Radius:";
-			inf->actionsnd = "Quake Sound:";
+			inf->actionsnd[0] = "Quake Sound:";
 			break;
 		}
-		case itype_perilscroll:
+		case itype_perilscroll: //!TODO Help Text
 		{
 			inf->misc[0] = "Maximum Hearts:";
 			break;
 		}
-		case itype_spinscroll2:
+		case itype_spinscroll2: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Number of Spins:";
-			inf->actionsnd = "Spinning Sound:";
+			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
-		case itype_spinscroll:
+		case itype_spinscroll: //!TODO Help Text
 		{
 			inf->power = "Damage Multiplier:";
 			inf->misc[0] = "Number of Spins:";
-			inf->actionsnd = "Spinning Sound:";
+			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
 		case itype_clock:
 		{
-			inf->misc[0] = "Duration (0 = Infinite):";
+			_SET(misc[0], "Duration:", "How long the invincibility lasts, in frames. 0 = infinite.");
 			break;
 		}
 		case itype_magicring:
 		{
-			inf->power = "Infinite Magic:";
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(power, "Infinite Magic:", "If >0, grants infinite magic");
+			_SET(misc[0], "Increase Amount:", "How much magic regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often magic regenerates from having this, in frames");
 			break;
 		}
 		case itype_heartring:
 		{
-			inf->misc[0] = "Increase Amount:";
-			inf->misc[1] = "Delay Duration:";
+			_SET(misc[0], "Increase Amount:", "How much life regenerates over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often life regenerates from having this, in frames");
 			break;
 		}
-		case itype_chargering:
+		case itype_chargering: //!TODO Help Text
 		{
 			inf->misc[0] = "Charging Duration:";
 			inf->misc[1] = "Magic C. Duration:";
 			break;
 		}
-		case itype_hoverboots:
+		case itype_hoverboots: //!TODO Help Text
 		{
 			inf->misc[0] = "Hover Duration:";
 			inf->flag[0] = "Timer only resets on landing";
 			inf->wpn[0] = "Halo Sprite:";
-			inf->actionsnd = "Hovering Sound:";
+			inf->actionsnd[0] = "Hovering Sound:";
 			break;
 		}
-		case itype_rocs:
+		case itype_rocs: //!TODO Help Text
 		{
 			inf->power = "Jump Power:";
 			inf->misc[0] = "Extra Jumps:";
 			inf->flag[0] = "Jump is Power/100";
-			inf->actionsnd = "Jumping Sound:";
+			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}
-		case itype_sbomb:
+		case itype_sbomb: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
@@ -283,10 +292,10 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[1] = "Explosion Hurts Player";
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
-			inf->actionsnd = "Explosion Sound:";
+			inf->actionsnd[0] = "Explosion Sound:";
 			break;
 		}
-		case itype_bomb:
+		case itype_bomb: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
@@ -296,10 +305,10 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[1] = "Explosion Hurts Player";
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
-			inf->actionsnd = "Explosion Sound:";
+			inf->actionsnd[0] = "Explosion Sound:";
 			break;
 		}
-		case itype_nayruslove:
+		case itype_nayruslove: //!TODO Help Text
 		{
 			inf->misc[0] = "Duration:";
 			inf->flag[0] = "Rocket Flickers";
@@ -316,16 +325,16 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[7] = "R. Rocket Sparkle Sprite:";
 			inf->wpn[8] = "R. Return Sparkle Sprite:";
 			inf->wpn[9] = "Shield Sprite (2x2, Under):";
-			inf->actionsnd = "Shield Sound:";
+			inf->actionsnd[0] = "Shield Sound:";
 			break;
 		}
-		case itype_faroreswind:
+		case itype_faroreswind: //!TODO Help Text
 		{
 			inf->misc[0] = "Warp Animation (0-2):";
-			inf->actionsnd = "Wind Sound:";
+			inf->actionsnd[0] = "Wind Sound:";
 			break;
 		}
-		case itype_dinsfire:
+		case itype_dinsfire: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Number of Flames:";
@@ -338,20 +347,20 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[2] = "R. Up Sparkle Sprite:";
 			inf->wpn[3] = "R. Down Sparkle Sprite:";
 			inf->wpn[4] = "Flame Sprite:";
-			inf->actionsnd = "Ring Sound:";
+			inf->actionsnd[0] = "Ring Sound:";
 			break;
 		}
-		case itype_hammer:
+		case itype_hammer: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->flag[2] = "No Melee Attack";
 			inf->wpn[0] = "Hammer Sprite:";
 			inf->wpn[1] = "Smack Sprite:";
-			inf->actionsnd = "Pound Sound:";
+			inf->actionsnd[0] = "Pound Sound:";
 			inf->flag[6] = "Doesn't Pick Up Dropped Items";
 			break;
 		}
-		case itype_lens:
+		case itype_lens: //!TODO Help Text
 		{
 			inf->misc[0] = "Lens Width:";
 			inf->flag[0] = "Show Hints";
@@ -359,22 +368,21 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[2] = "No X-Ray for Items";
 			inf->flag[3] = "Show Raft Paths";
 			inf->flag[4] = "Show Invis. Enemies";
-			inf->actionsnd = "Activation Sound:";
+			inf->actionsnd[0] = "Activation Sound:";
 			break;
 		}
 		case itype_hookshot:
 		{
 			inf->power = "Damage:";
-			inf->misc[0] = "Chain Length:";
-			inf->misc[1] = "Chain Links:";
-			inf->misc[2] = "Block Flags:";
-			inf->misc[3] = "Reflect Flags:";
-			inf->flag[0] = "No Handle Damage";
-			inf->flag[1] = "Allow Diagonal";
-			inf->flag[3] = "Pick Up Anything";
-			inf->flag[4] = "Drags Items";
-			inf->flag[5] = "Reflects Enemy Projectiles";
-			inf->flag[6] = "Picks Up Keys";
+			_SET(misc[0], "Chain Length:", "Max length, in tiles, of the hookshot chain");
+			_SET(misc[1], "Chain Links:", "Max number of chain link sprites to display (less = a more stretched chain)");
+			_SET(flag[0], "No Handle Damage", "The handle does not collide with enemies");
+			_SET(flag[1], "Allow Diagonal", "The hookshot can be fired diagonally. (EXPERIMENTAL)");
+			_SET(flag[3], "Pick Up Anything", "Any collided item will be grabbed, not just dropped items");
+			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
+			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
+			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
+			
 			inf->wpn[0] = "Tip Sprite:";
 			inf->wpn[1] = "Chain Sprite (H):";
 			inf->wpn[2] = "Chain Sprite (V):";
@@ -382,10 +390,55 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[4] = "Diagonal Tip Sprite:";
 			inf->wpn[5] = "Diagonal Handle Sprite:";
 			inf->wpn[6] = "Diagonal Chain Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			_SET(actionsnd[0], "Firing Sound:", "Sound plays while the hookshot extends");
+			if(FLAG(6))
+			{
+				_SET(misc[2], "Block Flags:",
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
+				_SET(misc[3], "Reflect Flags:",
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
+					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
+			}
 			break;
 		}
-		case itype_boots:
+		case itype_switchhook:
+		{
+			inf->power = "Damage:";
+			_SET(misc[0], "Chain Length:", "Max length, in tiles, of the switchhook chain");
+			_SET(misc[1], "Chain Links:", "Max number of chain link sprites to display (less = a more stretched chain)");
+			_SET(misc[4], "Switch FX Type:", "The visual effect to use when switching."
+				"\n0 = Poof, 1 = Flicker, 2 = Rise/Fall");
+			_SET(flag[0], "No Handle Damage", "The handle does not collide with enemies");
+			_SET(flag[1], "Allow Diagonal", "The switchhook can be fired diagonally. (EXPERIMENTAL)");
+			_SET(flag[3], "Pick Up Anything", "Any collided item will be grabbed, not just dropped items");
+			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
+			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
+			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
+			
+			inf->wpn[0] = "Tip Sprite:";
+			inf->wpn[1] = "Chain Sprite (H):";
+			inf->wpn[2] = "Chain Sprite (V):";
+			inf->wpn[3] = "Handle Sprite:";
+			inf->wpn[4] = "Diagonal Tip Sprite:";
+			inf->wpn[5] = "Diagonal Handle Sprite:";
+			inf->wpn[6] = "Diagonal Chain Sprite:";
+			_SET(actionsnd[0], "Firing Sound:", "Sound plays while the hookshot extends");
+			_SET(actionsnd[1], "Switch Sound:", "Sound plays when a switch occurs");
+			if(FLAG(6))
+			{
+				_SET(misc[2], "Block Flags:",
+					"(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be blocked by the weapon.");
+				_SET(misc[3], "Reflect Flags:",
+					"(Rock=1, Fireball=8, Sword=16, Magic=32, Script=128, Fireball2=256)\n"
+					"Sum all of the values you want to apply. Weapons with their flags set will be reflected by the weapon.\n"
+					"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
+			}
+			break;
+		}
+		case itype_boots: //!TODO Help Text
 		{
 			inf->power = "Damage Combo Level:";
 			inf->flag[0] = "Not Solid Combos";
@@ -394,11 +447,15 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_bracelet:
 		{
-			inf->power = "Push Combo Level:";
-			inf->flag[0] = "Once Per Screen";
+			_SET(power, "Push Combo Level:", "If 1 or higher, can push 'Heavy' blocks. If 2 or higher, can push 'Very Heavy' blocks.");
+			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
+			if(FLAG(1))
+			{
+				_SET(misc[2], "Uses Per Screen", "How many times this bracelet can be used per screen. Minimum 1.");
+			}
 			break;
 		}
-		case itype_book:
+		case itype_book: //!TODO Help Text
 		{
 			inf->power = "M. Damage:";
 			inf->misc[0] = "W. Damage:";
@@ -413,18 +470,21 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[5] = "Replace Wand Weapon";
 			inf->wpn[0] = "Magic Sprite:";
 			inf->wpn[1] = "Projectile Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			break;
 		}
 		case itype_ring:
 		{
-			inf->power = "Damage Divisor:";
-			inf->misc[0] = "Player Sprite Pal:";
+			_SET(misc[0], "Player Sprite Pal:", "The Sprite Palette row to load into CSet 6");
 			inf->flag[0] = "Affects Damage Combos";
-			inf->flag[1] = "Divisor is Percentage Multiplier";
+			inf->flag[1] = "Percentage Multiplier";
+			if(FLAG(2))
+				inf->power = "Damage % Mult:";
+			else
+				inf->power = "Damage Divisor:";
 			break;
 		}
-		case itype_wand:
+		case itype_wand: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "M. Damage";
@@ -450,19 +510,19 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[1] = "Slash Sprite:";
 			inf->wpn[2] = "Projectile Sprite:";
 			inf->wpn[3] = "Projectile Misc:";
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			break;
 		}
-		case itype_bait:
+		case itype_bait: //!TODO Help Text
 		{
 			inf->misc[0] = "Duration:";
 			inf->misc[1] = "Bait Range (0 = infinite)";
 			inf->flag[0] = "Repels enemies";
 			inf->wpn[0] = "Bait Sprite:";
-			inf->actionsnd = "Baiting Sound:";
+			inf->actionsnd[0] = "Baiting Sound:";
 			break;
 		}
-		case itype_potion:
+		case itype_potion: //!TODO Help Text
 		{
 			inf->misc[0] = "HP Regained:";
 			inf->misc[1] = "MP Regained:";
@@ -472,7 +532,7 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[3] = "Removes Item Jinxes";
 			break;
 		}
-		case itype_whistle:
+		case itype_whistle: //!TODO Help Text
 		{
 			inf->misc[0] = "Whirlwind Direction:";
 			inf->misc[1] = "Warp Ring:";
@@ -481,26 +541,37 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->flag[1] = "Has Damage";
 			inf->flag[2] = "Whirlwinds Reflect off Prism/Mirror Combos";
 			inf->wpn[0] = "Whirlwind Sprite:";
-			inf->actionsnd = "Music Sound:";
+			inf->actionsnd[0] = "Music Sound:";
 			break;
 		}
 		case itype_candle:
 		{
 			inf->power = "Damage:";
-			inf->misc[0] = "Damage to Player:";
-			inf->flag[0] = "Once Per Screen";
-			inf->flag[1] = "Don't Provide Light";
+			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 2");
+			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
+			_SET(flag[1], "Don't Provide Light", "Does not light up dark rooms");
 			inf->flag[2] = "Fire Doesn't Hurt Player";
-			inf->flag[3] = "Can Slash";
-			inf->flag[4] = "Temporary Light";
-			inf->wpn[0] = "Stab Sprite:";
-			inf->wpn[1] = "Slash Sprite:";
-			inf->wpn[2] = "Flame Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			_SET(flag[3], "Can Slash", "The candle slashes instead of stabs");
 			inf->flag[7] = "Flip Right-Facing Slash";
+			_SET(wpn[0], "Stab Sprite:", "The sprite for the candle stabbing");
+			_SET(wpn[1], "Slash Sprite:", "The sprite for the candle slashing");
+			_SET(wpn[2], "Fire Sprite:", "The sprite for the candle fire");
+			inf->actionsnd[0] = "Firing Sound:";
+			if(FLAG(1))
+			{
+				_SET(misc[2], "Uses Per Screen", "How many times this candle can be used per screen. Minimum 1.");
+			}
+			if(!FLAG(2))
+			{
+				_SET(flag[4], "Temporary Light", "In Old-style Dark Rooms, only keeps the room lit while it exists.");
+			}
+			if(FLAG(3))
+			{
+				_SET(misc[0], "Damage to Player:", "Damage value to be used for self-damage");
+			}
 			break;
 		}
-		case itype_arrow:
+		case itype_arrow: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Duration (0 = Infinite):";
@@ -510,11 +581,11 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[0] = "Arrow Sprite:";
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
-			inf->actionsnd = "Firing Sound:";
+			inf->actionsnd[0] = "Firing Sound:";
 			inf->flag[6] = "Picks Up Keys";
 			break;
 		}
-		case itype_brang:
+		case itype_brang: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Range (0 = Infinite):";
@@ -531,10 +602,10 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[0] = "Boomerang Sprite:";
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
-			inf->actionsnd = "Spinning Sound:";
+			inf->actionsnd[0] = "Spinning Sound:";
 			break;
 		}
-		case itype_sword:
+		case itype_sword: //!TODO Help Text
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Beam Hearts:";
@@ -552,21 +623,24 @@ void loadinfo(ItemNameInfo * inf, int itype)
 			inf->wpn[0] = "Stab Sprite:";
 			inf->wpn[1] = "Slash Sprite:";
 			inf->wpn[2] = "Beam Sprite:";
-			inf->actionsnd = "Slash/Stab Sound";
+			inf->actionsnd[0] = "Slash/Stab Sound";
 			break;
 		}
-		case itype_whimsicalring:
+		case itype_whimsicalring: //!TODO Help Text
 		{
 			inf->power = "Damage Bonus:";
 			inf->misc[0] = "Chance (1 in n):";
-			inf->actionsnd = "Whimsy Sound:";
+			inf->actionsnd[0] = "Whimsy Sound:";
 			break;
 		}
 		case itype_perilring:
 		{
-			inf->power = "Damage Divisor:";
-			inf->misc[0] = "Maximum Hearts:";
-			inf->flag[1] = "Divisor is Percentage Multiplier";
+			_SET(misc[0], "Maximum Hearts:", "Takes effect when below this number of hearts");
+			inf->flag[1] = "Percentage Multiplier";
+			if(FLAG(2))
+				inf->power = "Damage % Mult:";
+			else
+				inf->power = "Damage Divisor:";
 			break;
 		}
 		case itype_stompboots:
@@ -576,214 +650,94 @@ void loadinfo(ItemNameInfo * inf, int itype)
 		}
 		case itype_bow:
 		{
-			inf->power = "Arrow Speed:";
+			_SET(power, "Arrow Speed Mod:", "Arrow moves at 3 pixels per frame, multiplied by '(1+n)/2', where 'n' is this value.");
 			break;
 		}
-		case itype_script1:
+		case itype_script1: case itype_script2: case itype_script3: case itype_script4:
+		case itype_script5: case itype_script6: case itype_script7: case itype_script8:
+		case itype_script9: case itype_script10:
 		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
+			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
+			_SET(flag[0], "No Gfx Flip", "If checked, the sprite is not flipped based on direction.");
 			break;
 		}
-		case itype_script2:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script3:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script4:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script5:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script6:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script7:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script8:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script9:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_script10:
-		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
-			break;
-		}
-		case itype_custom1:
-		{
-			break;
-		}
-		case itype_custom2:
-		{
-			break;
-		}
-		case itype_custom3:
-		{
-			break;
-		}
-		case itype_custom4:
-		{
-			break;
-		}
-		case itype_custom5:
-		{
-			break;
-		}
-		case itype_custom6:
-		{
-			break;
-		}
-		case itype_custom7:
-		{
-			break;
-		}
-		case itype_custom8:
-		{
-			break;
-		}
-		case itype_custom9:
-		{
-			break;
-		}
-		case itype_custom10:
+		case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4:
+		case itype_custom5: case itype_custom6: case itype_custom7: case itype_custom8:
+		case itype_custom9: case itype_custom10:
 		{
 			break;
 		}
 		case itype_icerod:
 		{
-			inf->power = "W. Power:";
-			inf->misc[0] = "Step Speed:";
-			inf->flag[0] = "No Gfx Flip";
+			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
+			_SET(flag[0], "No Gfx Flip", "If checked, the sprite is not flipped based on direction.");
 			break;
 		}
 		case itype_flippers:
 		{
-			inf->misc[0] = "Dive Length:";
-			inf->misc[1] = "Dive Cooldown:";
-			inf->flag[0] = "No Diving";
-			inf->flag[1] = "Cancellable Diving";
-			inf->flag[2] = "Can Swim in Lava";
+			_SET(flag[0], "No Diving", "If checked, these flippers cannot dive.");
+			_SET(flag[2], "Can Swim in Lava", "These flippers will be able to swim in liquid marked as 'Lava'.");
+			if(!FLAG(1))
+			{
+				_SET(flag[1], "Cancellable Diving", "Pressing B will immediately cancel a dive");
+				_SET(misc[0], "Dive Length:", "Length, in frames, of the dive.");
+				_SET(misc[1], "Dive Cooldown:", "Cooldown, in frames, between coming up from a dive and being able to dive again.");
+			}
 			break;
 		}
 		case itype_raft:
 		{
-			inf->misc[0] = "Speed Modifier:";
+			_SET(misc[0], "Speed Modifier:", "Valid values -8 to 5."
+				"\nIf positive, move 2^n pixels per frame."
+				"\nIf negative, move 1 pixel per 2^n frames."
+				"\nA value of 0 will stop the raft dead. This is useless unless combined with scripts.");
 			break;
 		}
 		case itype_atkring:
 		{
-			inf->misc[0] = "Bonus Damage";
-			inf->misc[1] = "Damage Multiplier";
+			_SET(misc[0], "Bonus Damage", "This amount of damage is *added* to the damage, *after* the multiplier.");
+			_SET(misc[1], "Damage Multiplier", "The amount of damage dealt is multiplied by this value.");
 			break;
 		}
 		case itype_lantern:
 		{
-			inf->misc[0] = "Shape";
-			inf->h_misc[0] = "What shape to use for the light area emitted.\n"
-				"0 = circular, 1 = cone in front";
-			inf->misc[1] = "Range";
-			inf->h_misc[1] = "The range, in pixels, of the light.";
-			break;
-		}
-		case itype_pearl:
-		{
+			_SET(misc[0], "Shape", "What shape to use for the light area emitted.\n"
+				"0 = circular, 1 = cone in front");
+			_SET(misc[1], "Range", "The range, in pixels, of the light.");
 			break;
 		}
 		case itype_bottle:
 		{
-			inf->misc[0] = "Slot:";
-			inf->h_misc[0] = "Which slot this bottle item is attached to. Valid vals 0-255.";
+			_SET(misc[0], "Slot:", "Which slot this bottle item is attached to. Valid vals 0-255.");
 			break;
 		}
 		case itype_bottlefill:
 		{
-			inf->misc[0] = "Contents:";
-			inf->h_misc[0] = "What contents to place in an empty bottle when picked up";
+			_SET(misc[0], "Contents:", "What contents to place in an empty bottle when picked up");
 			break;
 		}
 		case itype_bugnet:
 		{
-			inf->flag[0] = "Can't catch fairies";
-			inf->h_flag[0] = "If checked, no longer catches fairies it collides with";
-			inf->flag[1] = "Right-handed";
-			inf->h_flag[1] = "Swaps swing direction of the weapon";
+			_SET(flag[0], "Can't catch fairies", "If checked, no longer catches fairies"
+				" it collides with");
+			_SET(flag[1], "Right-handed", "Swaps swing direction of the weapon");
 			break;
 		}
 		case itype_mirror:
 		{
-			inf->misc[0] = "Warp Effect";
-			inf->h_misc[0] = "What warp effect to use during the warp.\n"
-				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe";
-			inf->flag[0] = "Place Return Portal";
-			inf->h_flag[0] = "If checked, places a return portal when mirroring to a new dmap";
-			inf->flag[1] = "Continue acts as F6->Continue";
-			inf->h_flag[1] = "When used on a dmap with 'Mirror Continues instead of Warping' checked,"
-				"activates F6->Continue instead of Farore's Wind effect if enabled.";
-			inf->wpn[0] = "Portal Sprite";
-			inf->h_wpn[0] = "Sprite of the Return Portal";
+			_SET(misc[0], "Warp Effect", "What warp effect to use during the warp.\n"
+				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe");
+			_SET(flag[0], "Place Return Portal", "If checked, places a return portal when"
+				" mirroring to a new dmap");
+			_SET(flag[1], "Continue acts as F6->Continue",
+				"When used on a dmap with 'Mirror Continues instead of Warping' checked, "
+				"activates F6->Continue instead of Farore's Wind effect if enabled.");
+			_SET(wpn[0], "Portal Sprite", "Sprite of the Return Portal");
 			break;
 		}
 	}
-}
-std::map<int32_t, ItemNameInfo *> *inamemap = NULL;
-
-std::map<int32_t, ItemNameInfo *> *getItemNameMap()
-{
-	if(inamemap == NULL)
-	{
-		inamemap = new std::map<int32_t, ItemNameInfo *>();
-		
-		for(int32_t i=0; i < itype_max; i++)
-		{
-			ItemNameInfo *inf = &inameinf[i];
-			
-			loadinfo(inf, i);
-				
-			(*inamemap)[inf->iclass] = inf;
-		}
-	}
-	
-	return inamemap;
+	#undef _SET
+	#undef FLAG
 }
 
 ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
@@ -851,6 +805,7 @@ Row(padding = 0_px, \
 		onToggleFunc = [&](bool state) \
 		{ \
 			SETFLAG(local_itemref.flags,bit,state); \
+			loadItemClass(); \
 		} \
 	) \
 )
@@ -1043,8 +998,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								FLAG_CHECK(14,ITEM_FLAG15)
 							)
 						)),
-						TabRef(name = "Action", Columns<4>(
+						TabRef(name = "Action", Columns<5>(
 							Row(
+								hAlign = 1.0,
 								Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
 								TextField(
 									val = local_itemref.magic,
@@ -1066,6 +1022,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								}
 							),
 							Row(
+								hAlign = 1.0,
 								Label(text = "Timer:", textAlign = 2, width = ACTION_LAB_WID),
 								TextField(
 									val = local_itemref.magiccosttimer,
@@ -1078,12 +1035,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							),
 							Row(
-								l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
-								ib_sfx = Button(forceFitH = true, text = "?",
+								hAlign = 1.0,
+								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
 									onPressFunc = [&]()
 									{
-										InfoDialog("SFX Info",h_sfx).show();
+										InfoDialog("SFX Info",h_sfx[0]).show();
 									}),
 								TextField(
 									val = local_itemref.usesound,
@@ -1092,6 +1050,25 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.usesound = val;
+									}
+								)
+							),
+							Row(
+								hAlign = 1.0,
+								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[1] = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("SFX Info",h_sfx[1]).show();
+									}),
+								TextField(
+									val = local_itemref.usesound2,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.usesound2 = val;
 									}
 								)
 							),
@@ -2282,7 +2259,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							)
 						)),
-						TabRef(name = "Action", Columns<4>(
+						TabRef(name = "Action", Columns<5>(
 							Row(
 								Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
 								TextField(
@@ -2317,12 +2294,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							),
 							Row(
-								l_sfx = Label(textAlign = 2, width = ACTION_LAB_WID),
-								ib_sfx = Button(forceFitH = true, text = "?",
+								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
 									onPressFunc = [&]()
 									{
-										InfoDialog("Attribute Info",h_sfx).show();
+										InfoDialog("Attribute Info",h_sfx[0]).show();
 									}),
 								TextField(
 									val = local_itemref.usesound,
@@ -2331,6 +2308,24 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.usesound = val;
+									}
+								)
+							),
+							Row(
+								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[1] = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("Attribute Info",h_sfx[1]).show();
+									}),
+								TextField(
+									val = local_itemref.usesound2,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.usesound2 = val;
 									}
 								)
 							),
@@ -3343,16 +3338,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 
 void ItemEditorDialog::loadItemClass()
 {
-	std::map<int32_t, ItemNameInfo *> *nmap = getItemNameMap();
-	std::map<int32_t, ItemNameInfo *>::iterator it = nmap->find(local_itemref.family);
-	ItemNameInfo *inf = NULL;
-	
-	if(it != nmap->end())
-		inf = it->second;
+	ItemNameInfo inf;
+	loadinfo(&inf, local_itemref);
 	
 	#define __SET(obj, mem) \
-	l_##obj->setText(inf ? (inf->mem.size() ? inf->mem : defInfo.mem) : defInfo.mem); \
-	h_##obj = inf ? (inf->h_##mem.size() ? inf->h_##mem : "") : ""; \
+	l_##obj->setText(inf.mem.size() ? inf.mem : defInfo.mem); \
+	h_##obj = (inf.h_##mem.size() ? inf.h_##mem : ""); \
 	if(ib_##obj) \
 		ib_##obj->setDisabled(h_##obj.empty());
 	
@@ -3386,7 +3377,8 @@ void ItemEditorDialog::loadItemClass()
 	__SET(flags[14], flag[14]);
 	__SET(flags[15], flag[15]);
 	
-	__SET(sfx, actionsnd);
+	__SET(sfx[0], actionsnd[0]);
+	__SET(sfx[1], actionsnd[1]);
 	
 	__SET(spr[0], wpn[0]);
 	__SET(spr[1], wpn[1]);
@@ -3398,6 +3390,7 @@ void ItemEditorDialog::loadItemClass()
 	__SET(spr[7], wpn[7]);
 	__SET(spr[8], wpn[8]);
 	__SET(spr[9], wpn[9]);
+	#undef __SET
 }
 
 bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)

@@ -200,7 +200,8 @@ void dBushLeaves::draw(BITMAP *dest)
 }
 
 
-comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
+comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
+	decoration(X,Y,Id,Clk), timer(0), initialized(false)
 {
 	id=Id;
 	clk=Clk;
@@ -219,7 +220,7 @@ bool comboSprite::animate(int32_t index)
 	//if ( clk > tframes ) dead=1;
 	return clk()<=0;
 	*/
-	int32_t dur = wpnsbuf[the_deco_sprite].frames * wpnsbuf[the_deco_sprite].speed;
+	int32_t dur = zc_max(1,wpnsbuf[the_deco_sprite].frames) * zc_max(1,wpnsbuf[the_deco_sprite].speed);
 	//al_trace("dur: %d\n", dur);
 	//al_trace("clk: %d\n", clk);
 	return (clk++>=dur);

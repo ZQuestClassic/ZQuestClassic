@@ -49,11 +49,8 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onCustomLink();
 void center_zq_custom_dialogs();
 
-/****************************/
-/******  onMiscSprites ******/
-/****************************/
-
 int32_t onMiscSprites();
+int32_t onMiscSFX();
 
 #endif
 

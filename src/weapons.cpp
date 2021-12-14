@@ -1085,29 +1085,34 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		if ((c[cid].usrflags&cflag1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", c[cid].attributes[0] / 10000L);
-			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 1 ) )
-				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
-			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 2 ) )
-				decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
-			if ((c[cid].usrflags&cflag10) && ( c[cid].attribytes[0] == 3 ) )
-				decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
-			else if ( c[cid].attribytes[0] > 0 )
-				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
+			if (c[cid].usrflags & cflag10)
+			{
+				switch (c[cid].attribytes[0])
+				{
+					case 1:
+						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo), dBUSHLEAVES, 0, 0));
+						break;
+					case 2:
+						decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dFLOWERCLIPPINGS, 0, 0));
+						break;
+					case 3:
+						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+						break;
+					default:
+						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
+				}
+			}
 		}
+		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		int32_t it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
 		{
-			
 			if ( c[cid].usrflags&cflag11 ) //specific item
 			{
 				it = c[cid].attribytes[1];
 			}
 			else it = select_dropitem(c[cid].attribytes[1]); 
-			
 		}
-		//zprint("dropset: %d\n", c[cid].attributes[1] / 10000L);
-		//zprint("drops enabled: %s\n", (c[cid].usrflags&cflag2) ? "true":"false");
-		//zprint("it: %d\n", it);
 		if( it != -1 )
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -1184,8 +1189,9 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
-				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				if ( c[cid].usrflags&cflag8 ) w->dead = 1;
+				if((c[cid].usrflags&cflag12)) break; //No continuous for undercombo
+				if ( (c[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				//tmpscr->sflag[scombo] = c[cid].sflag;
 				//c[tmpscr->data[cid]].cset;
 				//c[tmpscr->data[cid]].cset;
@@ -1201,7 +1207,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		}
 		if((c[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[1]),((c[cid].usrflags&cflag6) ? 0 : -15));
+			addenemy(ComboX(scombo),ComboY(scombo),(c[cid].attribytes[4]),((c[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		//zprint("continuous\n");
 		
@@ -1213,59 +1219,44 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer)
 {
-/*
-int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int32_t cid = MAPCOMBO(bx,by);
-	int32_t flag = MAPFLAG(bx,by);
-	int32_t flag2 = MAPCOMBOFLAG(bx,by);
-	int32_t ft = c[cid].attributes[3] / 10000L;
-	//if (!ft) return;
-	//zprint("ft: %d\n", ft);
-	int32_t scombo=COMBOPOS(bx,by);
-	bool single16 = false;
-
-*/
-
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
 	{ 
-		//zprint("cGeneric abort on c[cid].type %d\n", c[cid].type); 
 		return;
 	} 
-	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	//zprint("swordbeam\n");
-	//zprint("sfx is: %d\n", c[cid].attributes[2] / 10000L);
-	//zprint("scombo is: %d\n", scombo);
-	//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-	//if ( !(get_bit(grid,(((bx>>4) + by)))) || (c[cid].usrflags&cflag5) ) 
 	if (true) // Probably needs a way to only be triggered once...
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
 			//zprint("Adding decoration, sprite: %d\n", combobuf[cid].attributes[0] / 10000L);
-			if ((combobuf[cid].usrflags&cflag10) && ( combobuf[cid].attribytes[0] == 1 ) )
-				decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo),dBUSHLEAVES, 0, 0));
-			if ((combobuf[cid].usrflags&cflag10) && ( combobuf[cid].attribytes[0] == 2 ) )
-				decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo),dFLOWERCLIPPINGS, 0, 0));
-			if ((combobuf[cid].usrflags&cflag10) && ( combobuf[cid].attribytes[0] == 3 ) )
-				decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
-			else if ( combobuf[cid].attribytes[0] > 0 )
-				decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+			if (combobuf[cid].usrflags & cflag10)
+			{
+				switch (combobuf[cid].attribytes[0])
+				{
+					case 1:
+						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo), dBUSHLEAVES, 0, 0));
+						break;
+					case 2:
+						decorations.add(new dFlowerClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dFLOWERCLIPPINGS, 0, 0));
+						break;
+					case 3:
+						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
+						break;
+					default:
+						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+				}
+			}
 		}
+		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 		int32_t it = -1; 
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
-			
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
 				it = combobuf[cid].attribytes[1];
 			}
 			else it = select_dropitem(combobuf[cid].attribytes[1]); 
-			
 		}
-		//zprint("dropset: %d\n", combobuf[cid].attributes[1] / 10000L);
-		//zprint("drops enabled: %s\n", (combobuf[cid].usrflags&cflag2) ? "true":"false");
-		//zprint("it: %d\n", it);
 		if( it != -1 )
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -1342,6 +1333,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
+				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				//if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
 				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
@@ -1359,7 +1351,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ComboX(scombo),ComboY(scombo),(combobuf[cid].attribytes[1]),((combobuf[cid].usrflags&cflag6) ? 0 : -15));
+			addenemy(ComboX(scombo),ComboY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		//zprint("continuous\n");
 		
@@ -2614,6 +2606,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				itemid = getCanonicalItemID(itemsbuf, itype_candle);
 			}
+			glowRad = game->get_light_rad(); //Default light radius for fires
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
@@ -2640,6 +2633,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						defaultw = itemsbuf[magicitem].wpn5;
 						else defaultw = wFIRE;
 						step = 0; 
+						if(itemsbuf[magicitem].flags & ITEM_FLAG2)
+							glowRad = 0;
 						break;
 						
 					case itype_wand: // Wand
@@ -2650,27 +2645,26 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						break;
 						
 					case itype_candle: // Candles
+						if(itemsbuf[parentitem].flags & ITEM_FLAG2)
+							glowRad = 0;
 						hxofs = hyofs=1;
 						hxsz = hysz = 14;    
 						step = 0.5;
-						if ( parentitem > -1 )
-						{
-							//Port Item Editor Weapon Size Values
-							if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
-								extend = 3; 
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-								if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
-								/* yofs+playing_field_offset == yofs+56.
-								It is needed for the passive subscreen offset.
-								*/
-							}
+						//Port Item Editor Weapon Size Values
+						if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+							extend = 3; 
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+playing_field_offset;}
+							/* yofs+playing_field_offset == yofs+56.
+							It is needed for the passive subscreen offset.
+							*/
 						}
 						if(itemid>-1 && !isDummy)
 						{
@@ -2685,7 +2679,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			else { defaultw = wFIRE; step = 0; }
 			
 			LOADGFX(defaultw);
-			glowRad = game->get_light_rad(); //Default light radius for fires
 			//step = (type<2)?.5:0;
 			
 			
@@ -2962,17 +2955,19 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wHookshot:
 		{
 			hookshot_used=true;
+			hs_switcher = family_class == itype_switchhook;
 			
 			if(isDummy || itemid<0)
 			{
-				itemid = getCanonicalItemID(itemsbuf, itype_hookshot);
+				itemid = getCanonicalItemID(itemsbuf, family_class);
 			}
 			
 			if(itemid >-1)
 				defaultw = itemsbuf[itemid].wpn;
 			else
 				defaultw = wHSHEAD;
-				
+			
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(family_class)];
 			LOADGFX(defaultw);
 			step = 4;
 			clk2=256;
@@ -3016,7 +3011,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						break;
 					//Diagonal Hookshot (1)
 					case l_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3026,7 +3021,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=0;
 						break;
 					case r_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3; //check numbers ater
 						xofs-=3;
 						hysz=12;
@@ -3037,7 +3032,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=3;
 						break;
 					case l_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3048,7 +3043,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=2;
 						break;
 					case r_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3077,6 +3072,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = itemsbuf[itemid].wpn4;
 			else
 				defaultw = wHSHANDLE;
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 				
 			LOADGFX(defaultw);
 			if ( do_animation ) 
@@ -3118,7 +3114,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				
 					//Diagonal Hookshot (5)
 					case r_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3; //check numbers ater
 						xofs-=3;
 						hysz=12;
@@ -3129,7 +3125,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=3;
 						break;
 					case l_down:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3140,7 +3136,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=2;
 						break;
 					case r_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3151,7 +3147,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						flip=1;
 						break;
 					case l_up:
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
 						hysz=12;
@@ -3178,6 +3174,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				defaultw = (dir<left) ? itemsbuf[itemid].wpn3 : itemsbuf[itemid].wpn2;
 			else
 				defaultw = (dir<left) ? wHSCHAIN_V : wHSCHAIN_H;
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 				
 			step = 0;
 			
@@ -3214,7 +3211,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//	  wpn7: chainlink, diagonal
 				//
 				case r_up:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs-=10;
 					yofs+=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -3222,7 +3219,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					flip=1;
 					break;
 				case r_down:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs-=10;
 					yofs-=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -3230,7 +3227,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					flip=3;
 					break;
 				case l_up:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs+=10;
 					yofs+=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -3238,7 +3235,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					flip=0;
 					break;
 				case l_down:
-					LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+					LOADGFX(hshot.wpn7);
 					xofs+=10;
 					yofs-=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
@@ -5461,7 +5458,9 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			//Diagonal Hookshot (8)
-			byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(family_class)];
+			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0;
+			bool sw = family_class == itype_switchhook;
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5484,7 +5483,7 @@ bool weapon::animate(int32_t index)
 					//zprint2("UP\n");
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5506,7 +5505,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5536,7 +5535,7 @@ bool weapon::animate(int32_t index)
 					
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5558,7 +5557,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn5);
+						LOADGFX(hshot.wpn5);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5583,10 +5582,12 @@ bool weapon::animate(int32_t index)
 			
 			// Hookshot grab and retract code 
 			//Diagonal Hookshot (2)
-		
+			
+			int32_t hookedpos = -1;
+			
 			if(misc==0)
 			{
-				int32_t maxlength=parentitem>-1 ? 16*itemsbuf[parentitem].misc1 : 0;
+				int32_t maxlength=16*hshot.misc1;
 				//If the hookshot has extended to maxlength, retract it.
 				//Needa an option to measure in pixels, instead of tiles. -Z
 				if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
@@ -5601,13 +5602,16 @@ bool weapon::animate(int32_t index)
 				//Look for grab combos based on direction.
 				if(dir==up)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]))
-					{
-						hooked=true;
-					}
+					hookedpos = check_hshot(-1,x+2,y+7,sw);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
+					{
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+2,y+7,sw);
+						}
+					}
+					if(hookedpos>-1) hooked = true;
 						
 					if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7))
 					{
@@ -5617,14 +5621,17 @@ bool weapon::animate(int32_t index)
 				
 				if(dir==down)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]))
-					{
-						hooked=true;
-					}
+					hookedpos = check_hshot(-1,x+12,y+12,sw);
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
-						
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
+					{
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+12,y+12,sw);
+						}
+					}
+					if(hookedpos>-1) hooked = true;
+					
 					if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12))
 					{
 						dead=1;
@@ -5633,21 +5640,21 @@ bool weapon::animate(int32_t index)
 				
 				if(dir==left)
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]))
+						hookedpos = check_hshot(-1,x+6,y+7,sw);
+					}
+					else hookedpos = check_hshot(-1,x+6,y+13,sw);
+					
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
+					{
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hooked=true;
+							hookedpos = check_hshot(lyr,x+6,y+13,sw);
 						}
 					}
-					else if(isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)]))
-					{
-						hooked=true;
-					}
+					if(hookedpos>-1) hooked = true;
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]);
-						
 					if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13))
 					{
 						dead=1;
@@ -5656,21 +5663,21 @@ bool weapon::animate(int32_t index)
 				
 				if(dir==right)
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]))
+						hookedpos = check_hshot(-1,x+9,y+7,sw);
+					}
+					else hookedpos = check_hshot(-1,x+9,y+13,sw);
+					
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
+					{
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hooked=true;
+							hookedpos = check_hshot(lyr,x+9,y+13,sw);
 						}
 					}
-					else if(isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)]))
-					{
-						hooked=true;
-					}
+					if(hookedpos>-1) hooked = true;
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]);
-						
 					if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13))
 					{
 						dead=1;
@@ -5681,24 +5688,29 @@ bool weapon::animate(int32_t index)
 				//! -Z Hookshot diagonals. Will need bugtesting galore. 
 				if ( dir == r_down ) 
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
-						{
-							hooked=true;
-						}
+						hookedpos = check_hshot(-1,x+9,y+7,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+12,y+12,sw);
 					}
-					else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
+					else
 					{
-						hooked=true;
+						hookedpos = check_hshot(-1,x+9,y+13,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+12,y+12,sw);
 					}
 					
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
-						//down
-						isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+9,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+12,y+12,sw);
+						}
 					}
+					if(hookedpos>-1) hooked = true;
 					
 					//right
 					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
@@ -5710,61 +5722,63 @@ bool weapon::animate(int32_t index)
 				}
 				if ( dir == l_down ) 
 				{
-					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-					{	//left						//down
-						if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
-						{
-							hooked=true;
-						}
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
+					{
+						hookedpos = check_hshot(-1,x+6,y+7,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+12,y+12,sw);
+					}
+					else
+					{
+						hookedpos = check_hshot(-1,x+6,y+13,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+12,y+12,sw);
 					}
 					
-
-							//left						//down
-					else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+12,y+12)]) )
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						hooked=true;
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						{
+							hookedpos = check_hshot(lyr,x+6,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+12,y+12,sw);
+						}
 					}
-
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))
-					{
-									//left
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
-							//down
-						isHSGrabbable(combobuf[MAPCOMBO2(0,x+12,y+12)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+12,y+12)]);
-					}
-					//left
+					if(hookedpos>-1) hooked = true;
+					
 					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
 						//down
 						(_walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12)) ) )
 					{
 						dead=1;
 					}
-					
-					
 				}
 				if ( dir == r_up ) 
 				{
-						if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-					{	//right						//up
-						if( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
+					{
+						hookedpos = check_hshot(-1,x+9,y+7,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+2,y+7,sw);
+					}
+					else
+					{
+						hookedpos = check_hshot(-1,x+9,y+13,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+2,y+7,sw);
+					}
+					
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
+					{
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hooked=true;
+							hookedpos = check_hshot(lyr,x+9,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+2,y+7,sw);
 						}
 					}
-
-							//right						//up
-					else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+9,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
-					{
-						hooked=true;
-					}
-
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//right
-					{
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+9,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+9,y+13)]) || 
-						//up
-						isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
-					}
-					//right
+					if(hookedpos>-1) hooked = true;
+					
 					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
 						//up
 						(_walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7)) ) )
@@ -5774,27 +5788,30 @@ bool weapon::animate(int32_t index)
 				}
 				if ( dir == l_up ) 
 				{
-						if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB))
-					{	//left						//up
-						if( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
+					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
+					{
+						hookedpos = check_hshot(-1,x+6,y+7,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+2,y+7,sw);
+					}
+					else
+					{
+						hookedpos = check_hshot(-1,x+6,y+13,sw);
+						if(hookedpos<0)
+							hookedpos = check_hshot(-1,x+2,y+7,sw);
+					}
+					
+					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
+					{
+						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hooked=true;
+							hookedpos = check_hshot(lyr,x+6,y+13,sw);
+							if(hookedpos<0)
+								hookedpos = check_hshot(lyr,x+2,y+7,sw);
 						}
 					}
-
-							//left						//up
-					else if( ( isHSGrabbable(combobuf[MAPCOMBO(x+6,y+13)])) || isHSGrabbable(combobuf[MAPCOMBO(x+2,y+7)]) )
-					{
-						hooked=true;
-					}
-
-					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX))			//left
-					{
-						hooked = hooked || isHSGrabbable(combobuf[MAPCOMBO2(0,x+6,y+13)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+6,y+13)]) || 
-						//up
-						isHSGrabbable(combobuf[MAPCOMBO2(0,x+2,y+7)]) || isHSGrabbable(combobuf[MAPCOMBO2(1,x+2,y+7)]);
-					}
-									//left
+					if(hookedpos>-1) hooked = true;
+					
 					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
 						//up
 						(_walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7)) ) )
@@ -5804,11 +5821,19 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if(hooked==true)
+			if(hooked)
 			{
-				misc=1;
-				pull_link=true;
+				hooked_combopos = hookedpos;
+				misc=sw?2:1;
 				step=0;
+				pull_link=true;
+				if(sw)
+				{
+					Link.doSwitchHook(hshot.misc5);
+					sfx(hshot.usesound2,pan(int32_t(x)));
+					stop_sfx(hshot.usesound);
+					hs_switcher = true;
+				}
 			}
 			
 			++clk2;
@@ -5817,10 +5842,7 @@ bool weapon::animate(int32_t index)
 			{
 				++clk;
 				
-				if(parentitem>-1)
-				{
-					sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true);
-				}
+				if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true);
 				if ( doscript )
 				{
 					if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
@@ -5831,11 +5853,10 @@ bool weapon::animate(int32_t index)
 			if(dead==1)
 			{
 				dead=-1;
-				
 				if(step > 0)
 					step = -step;
 					
-				misc=1;
+				if(!misc) misc=1;
 			}
 			
 			if(misc==1)                                           // returning
@@ -5870,10 +5891,7 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if(parentitem>-1)
-			{
-				sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true,false);
-			}
+			if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true,false);
 			
 			if(blocked())
 			{
@@ -5881,10 +5899,10 @@ bool weapon::animate(int32_t index)
 				if(dead != -1)
 					dead=1;
 			}
-		}
-		if ( doscript )
-		{
-			if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+			if ( doscript )
+			{
+				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+			}
 		}
 		break;
 		
@@ -5901,7 +5919,8 @@ bool weapon::animate(int32_t index)
 				dead=0;
 			}
 			//Diagonal Hookshot Handle
-			byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
+			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5917,7 +5936,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5939,7 +5958,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5970,7 +5989,7 @@ bool weapon::animate(int32_t index)
 					
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -5992,7 +6011,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn6);
+						LOADGFX(hshot.wpn6);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6022,7 +6041,8 @@ bool weapon::animate(int32_t index)
 		{
 			
 			//Diagonal Hookshot Handle
-			byte allow_diagonal = (itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].flags & ITEM_FLAG2) ? 1 : 0; 
+			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
+			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -6038,7 +6058,7 @@ bool weapon::animate(int32_t index)
 				{
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6060,7 +6080,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6091,7 +6111,7 @@ bool weapon::animate(int32_t index)
 					
 					if(Left() )  
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -6113,7 +6133,7 @@ bool weapon::animate(int32_t index)
 					
 					else if(Right() ) 
 					{
-						LOADGFX(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)].wpn7);
+						LOADGFX(hshot.wpn7);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -7264,12 +7284,12 @@ bool weapon::animate(int32_t index)
 	return dead==0;
 }
 
-void weapon::onhit(bool clipped)
+void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
 {
-    onhit(clipped, 0, -1);
+    onhit(clipped, 0, -1, e, ehitType);
 }
 
-void weapon::onhit(bool clipped, int32_t special, int32_t linkdir)
+void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int32_t ehitType)
 {
     if((scriptcoldet&1) == 0 || fallclk || drownclk)
     {
@@ -7461,45 +7481,85 @@ offscreenCheck:
             
         break;
         
-    case wBrang:
-        if(misc==0)
-        {
-            clk2=256;
-            int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
-	    if(clipped)
-            {
-                dead=deadval;
-            }
-            else
-            {
-                if(deadval==-2)
-                {
-                    dead=deadval;
-                }
-                
-                misc=1;
-                /*
-                  if (current_item(itype_brang,true)>1) {
-                  if (dummy_bool[0]) {
-                  add_grenade(x,y,z,current_item(itype_brang,true)>2);
-                  dummy_bool[0]=false;
-                  }
-                  }
-                  */
-            }
-        }
-        
-        break;
+	case wBrang:
+	{
+		if(e && e->switch_hooked && ehitType == 1)
+		{
+			dead = 0;
+			break;
+		}
+		if(misc==0)
+		{
+			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
+			clk2=256;
+			if(clipped)
+			{
+				dead=deadval;
+			}
+			else
+			{
+				if(deadval==-2)
+				{
+					dead=deadval;
+				}
+				
+				misc=1;
+				/*
+				  if (current_item(itype_brang,true)>1) {
+				  if (dummy_bool[0]) {
+				  add_grenade(x,y,z,current_item(itype_brang,true)>2);
+				  dummy_bool[0]=false;
+				  }
+				  }
+				  */
+			}
+		}
+	}
+	break;
         
     case wHookshot:
         if(misc==0)
         {
-            clk2=256;
-            
-            if(clipped)
-                dead=4;
-            else
-                dead=1;
+			if(family_class==itype_switchhook)
+			{
+				if(e && !switching_object && ehitType == -1)
+				{
+					switch(e->family)
+					{
+						case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
+						case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
+							break; //No segmented/z1boss allowed!
+						default:
+							switching_object = e;
+					}
+					if(switching_object)
+					{
+						switching_object->switch_hooked = true;
+						hooked_combopos = -1;
+						hooked_layerbits = 0;
+						misc=2;
+						step=0;
+						pull_link=true;
+						Link.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : game->get_switchhookstyle());
+						hs_switcher = true;
+						if(parentitem > -1)
+						{
+							if(itemsbuf[parentitem].usesound2)
+								sfx(itemsbuf[parentitem].usesound2,pan(int32_t(x)));
+							else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+							stop_sfx(itemsbuf[parentitem].usesound);
+						}
+						break;
+					}
+				}
+			}
+			
+			clk2=256;
+			
+			if(clipped)
+				dead=4;
+			else
+				dead=1;
         }
         
         break;

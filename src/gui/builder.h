@@ -12,6 +12,7 @@
 #include "key.h"
 #include "label.h"
 #include "qrpanel.h"
+#include "ddpanel.h"
 #include "radio.h"
 #include "radioset.h"
 #include "size.h"
@@ -152,6 +153,11 @@ inline std::shared_ptr<TabPanel> makeTabPanel()
 inline std::shared_ptr<QRPanel> makeQRPanel()
 {
 	return std::make_shared<QRPanel>();
+}
+
+inline std::shared_ptr<DDPanel> makeDDPanel()
+{
+	return std::make_shared<DDPanel>();
 }
 
 inline std::shared_ptr<TabRef> makeTabRef()
@@ -331,6 +337,15 @@ ZCGUI_BUILDER_START(QRPanel)
 	ZCGUI_ACCEPT_PROP(data, loadList, const ::GUI::ListData&)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(QRPanel, QRPanel, makeQRPanel)
+
+ZCGUI_BUILDER_START(DDPanel)
+	ZCGUI_ACCEPT_PROP(onSelectionChanged, onSelectionChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(values, linkVals, int32_t*)
+	ZCGUI_ACCEPT_PROP(count, setCount, size_t)
+	ZCGUI_ACCEPT_PROP(ddlist, loadDDList, const ::GUI::ListData&)
+	ZCGUI_ACCEPT_PROP(data, loadList, const ::GUI::ListData&)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DDPanel, DDPanel, makeDDPanel)
 
 ZCGUI_BUILDER_START(TabRef)
 	ZCGUI_ACCEPT_PROP(name, setName, std::string)

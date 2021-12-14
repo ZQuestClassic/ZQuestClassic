@@ -2302,6 +2302,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 	game2->set_sideswim_down(zinit2->heroSideswimDownStep);
 	game2->set_sideswim_jump(zinit2->exitWaterJump);
 	game2->set_bunny_ltm(zinit2->bunny_ltm);
+	game2->set_switchhookstyle(zinit2->switchhookstyle);
     
     for(int32_t i=0; i<MAXLEVELS; i++)
     {

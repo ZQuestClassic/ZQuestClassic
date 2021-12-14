@@ -396,10 +396,14 @@ bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEW
 bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= false,Sdown= false,Mdown= false,LBdown= false,RBdown= false,Pdown= false,Ex1down= false,Ex2down= false,Ex3down= false,Ex4down= false,AUdown= false,ADdown= false,ALdown= false,ARdown= false,F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
-     pull_link=false, add_chainlink=false, del_chainlink=false, hs_fix=false,
+     pull_link=false, hs_fix=false, hs_switcher=false,
      cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
+int32_t hooked_combopos = -1;
+uint16_t hooked_layerbits = 0;
+int32_t hooked_undercombos[14] = {0};
+sprite* switching_object = NULL;
 
 byte COOLSCROLL = 0;
 
@@ -2428,7 +2432,7 @@ int32_t init_game()
 			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
 		}
 		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
-		Link.setEntryPoints(LinkX(),LinkY()); //This should be after the init script, so that Link->X and Link->Y set by the script
+		Link.set_respawn_point(); //This should be after the init script, so that Link->X and Link->Y set by the script
 						//are properly set by the engine.
 	}
 	Link.resetflags(true); //This should probably occur after running Link's init script. 
@@ -2640,14 +2644,14 @@ int32_t init_game()
     {
 	    if(firstplay)
 	    {
-		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
-		if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 	    }
 	    else
 	    {
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-		if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
 	    }    
     }
     
@@ -2850,7 +2854,8 @@ void restart_level()
     currcset=DMaps[currdmap].color;
     openscreen();
     map_bkgsfx(true);
-    Link.setEntryPoints(LinkX(),LinkY());
+    Link.set_respawn_point();
+	Link.trySideviewLadder();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
     loadguys();
@@ -3286,15 +3291,16 @@ void update_hookshot()
     
     if(check_hs)
     {
-        int32_t parentitem = ((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->parentitem;
-        hs_x=Lwpns.spr(Lwpns.idFirst(wHookshot))->x;
-        hs_y=Lwpns.spr(Lwpns.idFirst(wHookshot))->y;
-        hs_z=Lwpns.spr(Lwpns.idFirst(wHookshot))->z;
+		weapon* hookweap = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
+        int32_t parentitem = hookweap->parentitem;
+        hs_x=hookweap->x;
+        hs_y=hookweap->y;
+        hs_z=hookweap->z;
         hs_dx=hs_x-hs_startx;
         hs_dy=hs_y-hs_starty;
         
         //extending
-        if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==0)
+        if(hookweap->misc==0)
         {
             int32_t maxchainlinks=itemsbuf[parentitem].misc2;
             
@@ -3342,7 +3348,7 @@ void update_hookshot()
                 }
             }
         }                                                       //retracting
-        else if(((weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)))->misc==1)
+        else if(hookweap->misc==1)
         {
             dist_bx=(abs(hs_dx)-(8*chainlinks.Count()))/(chainlinks.Count()+1);
             dist_by=(abs(hs_dy)-(8*chainlinks.Count()))/(chainlinks.Count()+1);

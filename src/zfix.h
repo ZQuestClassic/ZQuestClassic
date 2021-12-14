@@ -122,13 +122,13 @@ public:
 	zfix& operator -=  (const float v)	{ val -= v*10000L; return *this; }
 	zfix& operator -=  (const double v)	{ val -= v*10000L; return *this; }
 	
-	static int32_t longMul(int32_t a, int32_t b)	{ zint64 c = a*b; return (int32_t)(c/10000L);}
+	static int32_t longMul(int32_t a, int32_t b)	{ zint64 c = int64_t(a)*b; return (int32_t)(c/10000L);}
 	zfix& operator *=  (const zfix fx)	{ val = longMul(val, fx.val); return *this; }
 	zfix& operator *=  (const int32_t v)	{ val *= v; return *this; }
 	zfix& operator *=  (const float v)	{ val = longMul(val, toZLong(v)); return *this; }
 	zfix& operator *=  (const double v)	{ val = longMul(val, toZLong(v)); return *this; }
 	
-	static int32_t longDiv(int32_t a, int32_t b)	{ zint64 c = a*10000L; return (int32_t)(c/b); }
+	static int32_t longDiv(int32_t a, int32_t b)	{ zint64 c = int64_t(a)*10000L; return (int32_t)(c/b); }
 	zfix& operator /=  (const zfix fx)	{
 		if(fx.val == 0) val = toZLong(FIX_NAN);
 		else val = longDiv(val, fx.val); return *this; }

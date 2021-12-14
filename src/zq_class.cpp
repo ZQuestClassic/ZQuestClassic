@@ -83,6 +83,19 @@ int32_t ffprvy[32]= {-10000000,-10000000,-10000000,-10000000,-10000000,-10000000
 
 bool save_warn=true;
 
+int32_t COMBOPOS(int32_t x, int32_t y)
+{
+    return (((y) & 0xF0) + ((x) >> 4));
+}
+int32_t COMBOX(int32_t pos)
+{
+    return ((pos) % 16 * 16);
+}
+int32_t COMBOY(int32_t pos)
+{
+    return ((pos) & 0xF0);
+}
+
 void reset_dmap(int32_t index)
 {
     bound(index,0,MAXDMAPS-1);
@@ -110,7 +123,8 @@ zmap::zmap()
     prv_advance=0;
     prv_freeze=0;
     copyffc=-1;
-    
+
+    memset(scrpos, 0, sizeof(scrpos));
     screens=NULL;
     prv_time=0;
     prv_scr=0;
@@ -209,8 +223,8 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    char *deletefilename;
-    deletefilename=(char *)zc_malloc(1);
+    char *deletefilename=(char *)zc_malloc(1);
+    ASSERT(deletefilename);
     deletefilename[0]=0;
     
     //int32_t ret;
@@ -2612,7 +2626,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     {
     case dBOMB:
         over_door(dest,39,up,x,y,false, scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2643,7 +2657,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     {
     case dBOMB:
         over_door(dest,135,down,x,y,false,scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2673,7 +2687,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     {
     case dBOMB:
         over_door(dest,66,left,x,y,false,scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -2704,7 +2718,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     
     case dBOMB:
         over_door(dest,77,right,x,y,false,scr);
-        
+        [[fallthrough]];
     case dOPEN:
     case dLOCKED:
     case d1WAYSHUTTER:
@@ -3827,7 +3841,8 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
     {
         if(LayerMaskInt[CurrentLayer]!=0)
         {
-            for(int32_t i=c; i==c; i++)
+            int32_t i = c;
+            //for(int32_t i=c; i==c; i++)
             {
                 if(CurrentLayer==0)
                 {
@@ -4723,8 +4738,8 @@ void zmap::update_combo_cycling()
     int32_t x;
     int32_t newdata[176];
     int32_t newcset[176];
-    bool restartanim[MAXCOMBOS];
-    bool restartanim2[MAXCOMBOS];
+    static bool restartanim[MAXCOMBOS];
+    static bool restartanim2[MAXCOMBOS];
     
     memset(restartanim, 0, MAXCOMBOS);
     memset(restartanim2, 0, MAXCOMBOS);
@@ -6338,8 +6353,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     {
         char password[256];
         PACKFILE *fp = pack_fopen_password(pwdfilename, F_READ, "");
-        char msg[80];
-        memset(msg,0,80);
+        char msg[81] = { 0 };
         pfread(msg, 80, fp,true);
         
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
@@ -7953,37 +7967,44 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 			bottletype* bt = &(Misc->bottle_types[q]);
             if (!pfwrite(bt->name, 32, f))
-                return qe_invalid;
+                new_return(25);
 			for(size_t j = 0; j < 3; ++j)
 			{
                 if (!p_putc(bt->counter[j], f))
-                    return qe_invalid;
+                    new_return(25);
                 if (!p_iputw(bt->amount[j], f))
-                    return qe_invalid;
+                    new_return(25);
 			}
             if (!p_putc(bt->flags, f))
-                return qe_invalid;
+                new_return(25);
             if (!p_putc(bt->next_type, f))
-                return qe_invalid;
+                new_return(25);
 		}
 		for(size_t q = 0; q < 256; ++q)
 		{
 			bottleshoptype* bst = &(Misc->bottle_shop_types[q]);
             if (!pfwrite(bst->name, 32, f))
-                return qe_invalid;
+                new_return(26);
 			for(size_t j = 0; j < 3; ++j)
 			{
                 if (!p_putc(bst->fill[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_iputw(bst->comb[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_putc(bst->cset[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_iputw(bst->price[j], f))
-                    return qe_invalid;
+                    new_return(26);
                 if (!p_iputw(bst->str[j], f))
-                    return qe_invalid;
+                    new_return(26);
 			}
+		}
+		
+		//V_MISC >= 14
+		for(int32_t q = 0; q < sfxMAX; ++q)
+		{
+			if(!p_putc(Misc->miscsfx[q],f))
+				new_return(27);
 		}
 		
 		if(writecycle==0)
@@ -8275,6 +8296,11 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
             }
             
             if(!p_putc(itemsbuf[i].usesound,f))
+            {
+                new_return(48);
+            }
+            
+            if(!p_putc(itemsbuf[i].usesound2,f))
             {
                 new_return(48);
             }
@@ -12931,6 +12957,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_iputl(zinit.bunny_ltm,f))
 		{
 			new_return(90);
+		}
+		if(!p_putc(zinit.switchhookstyle,f))
+		{
+			new_return(91);
 		}
 		if(writecycle==0)
 		{

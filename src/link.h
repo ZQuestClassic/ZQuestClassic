@@ -190,6 +190,7 @@ class LinkClass : public sprite
     
     
 public:
+	std::map<int16_t, int32_t> usecounts;
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
     int32_t refilling,
         ladderx,
@@ -224,17 +225,21 @@ public:
         slashxofs, slashyofs; // used by positionSword() and draw()
 	//spacing so no confusion between byte and int32_t
     byte skipstep,lstep, 
-	hopclk, // hopping into water timeout.
-	diveclk, // diving timeout.
-	whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
-	specialcave, // is Link inside a special cave?
-	hitdir, // direction from which damage was taken.
-	ladderdir, // direction of ladder
-	lastdir[4], // used in Maze Path screens
-	ladderstart, // starting direction of ladder...?
-	inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-	damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
-	newconveyorclk; // clock for determining when Link gets moved by a conveyor
+		hopclk, // hopping into water timeout.
+		diveclk, // diving timeout.
+		whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
+		specialcave, // is Link inside a special cave?
+		hitdir, // direction from which damage was taken.
+		ladderdir, // direction of ladder
+		lastdir[4], // used in Maze Path screens
+		ladderstart, // starting direction of ladder...?
+		inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
+		damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
+		newconveyorclk, // clock for determining when Link gets moved by a conveyor
+		switchhookclk, //clock for switchhook animation timing
+		switchhookmaxtime, //the switchhookclk starting value
+		switchhookstyle, //the switchhook animation style
+		switchhookarg; //a parameter based on the switchhook style
     int32_t shiftdir, // shift direction when walking into corners of solid combos
     lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
 	lbunnyclock,
@@ -255,8 +260,12 @@ public:
     byte conveyor_flags;
 	byte raftclk; // for slow rafting movement
     zfix climb_cover_x, climb_cover_y;
-    zfix entry_x, entry_y; // When drowning, re-create Link here
-    zfix falling_oldy; // Used by the Stomp Boots in sideview
+	
+	// Respawn point when drowning/etc
+    zfix respawn_x, respawn_y;
+	uint16_t respawn_dmap, respawn_scr;
+    
+	zfix falling_oldy; // Used by the Stomp Boots in sideview
     byte dontdraw;
     byte warp_sound;
     bool diagonalMovement;
@@ -270,6 +279,8 @@ public:
 	bool is_warping;
 	bool can_mirror_portal;
 	
+	void set_respawn_point();
+	void go_respawn_point();
 	bool can_pitfall(bool ignore_hover = false);
 	
     void check_slash_block(weapon *w);
@@ -298,6 +309,7 @@ public:
 	byte hoverflags;
 	int32_t extra_jump_count;
     // Methods below here.
+	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
     void explode(int32_t type);
     int32_t getTileModifier();
@@ -396,7 +408,6 @@ public:
     void setStunClock(int32_t v);
     int32_t BunnyClock();
     void setBunnyClock(int32_t v);
-    void setEntryPoints(int32_t x, int32_t y);
     LinkClass();
     void init();
     virtual void drawshadow(BITMAP* dest, bool translucent);
@@ -538,6 +549,7 @@ public:
 	bool getOnSideviewLadder();
 	void setOnSideviewLadder(bool val);
 	bool canSideviewLadder(bool down = false);
+	void trySideviewLadder();
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
 };
 

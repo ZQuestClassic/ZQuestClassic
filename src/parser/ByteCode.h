@@ -1319,8 +1319,18 @@
 #define BSHOPSTR                1236
 #define COMBODUSRFLAGARR        1237
 #define COMBODGENFLAGARR        1238
+#define HERORESPAWNX            1239
+#define HERORESPAWNY            1240
+#define HERORESPAWNDMAP         1241
+#define HERORESPAWNSCR          1242
+#define IDATAUSESOUND2          1243
+#define HEROSWITCHTIMER         1244
+#define HEROSWITCHMAXTIMER      1245
+#define NPCSWHOOKED             1246
+#define GAMEMISCSPR             1247
+#define GAMEMISCSFX             1248
 
-#define LAST_BYTECODE           1239
+#define LAST_BYTECODE           1249
 
 //} END OF BYTECODE
 
@@ -8084,6 +8094,27 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLinkExplodeRegister(a->clone());
+		}
+	};
+	
+	class OSwitchNPC : public BinaryOpcode
+	{
+	public:
+		OSwitchNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSwitchNPC(a->clone(),b->clone());
+		}
+	};
+	class OSwitchCombo : public BinaryOpcode
+	{
+	public:
+		OSwitchCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSwitchCombo(a->clone(),b->clone());
 		}
 	};
 	

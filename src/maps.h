@@ -13,7 +13,9 @@
 #include "zdefs.h"
 
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
-#define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
+int32_t COMBOPOS(int32_t x, int32_t y);
+int32_t COMBOX(int32_t pos);
+int32_t COMBOY(int32_t pos);
 
 extern bool triggered_screen_secrets;
 
@@ -85,6 +87,8 @@ bool isCuttableItemType(int32_t type);
 bool isstepable(int32_t combo);                                 //can use ladder on it
 bool isHSComboFlagType(int32_t type);
 bool isHSGrabbable(newcombo const& cmb);
+bool isSwitchHookable(newcombo const& cmb);
+int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook);
 bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index of tmpscr[]
