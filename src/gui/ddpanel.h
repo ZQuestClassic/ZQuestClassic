@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_QRPANEL_H
-#define ZC_GUI_QRPANEL_H
+#ifndef ZC_GUI_DDPANEL_H
+#define ZC_GUI_DDPANEL_H
 
 #include "widget.h"
 #include "tabpanel.h"
@@ -12,24 +12,26 @@
 namespace GUI
 {
 
-class QRPanel: public TabPanel
+class DDPanel: public TabPanel
 {
 public:
-	QRPanel();
+	DDPanel();
 	
-	void loadQRs(byte const* qrs);
+	void linkVals(int32_t* vals);
 	void setCount(size_t count);
+	void loadDDList(GUI::ListData const& theData);
 	void loadList(GUI::ListData qrlist);
 
 	template<typename T>
-	RequireMessage<T> onToggle(T m)
+	RequireMessage<T> onSelectionChanged(T m)
 	{
 		message = static_cast<int32_t>(m);
 	}
 private:
 	int32_t message;
-	byte const* init_qrs;
-	size_t qrCount;
+	int32_t* theVals;
+	GUI::ListData const* dataList;
+	size_t ddCount;
 };
 
 }

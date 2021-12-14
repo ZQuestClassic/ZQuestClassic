@@ -113,6 +113,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->heroSideswimDownStep = gdata->get_sideswim_down();
 	zinit2->exitWaterJump = gdata->get_sideswim_jump();
 	zinit2->bunny_ltm = gdata->get_bunny_ltm();
+	zinit2->switchhookstyle = gdata->get_switchhookstyle();
 	
 	for(int32_t q = 0; q < 25; ++q)
 	{

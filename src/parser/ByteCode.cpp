@@ -427,6 +427,8 @@ string ZScript::VarToString(int32_t ID)
 		
 	case ITEMCLASSUSESOUND:
 		return "IDATAUSESOUND";
+	case IDATAUSESOUND2:
+		return "IDATAUSESOUND2";
 		
 	case ITEMCLASSPOWER:
 		return "IDATAPOWER";
@@ -583,6 +585,16 @@ string ZScript::VarToString(int32_t ID)
 		return "HERORESPAWNDMAP";
 	case HERORESPAWNSCR:
 		return "HERORESPAWNSCR";
+	case HEROSWITCHTIMER:
+		return "HEROSWITCHTIMER";
+	case HEROSWITCHMAXTIMER:
+		return "HEROSWITCHMAXTIMER";
+	case NPCSWHOOKED:
+		return "NPCSWHOOKED";
+	case GAMEMISCSPR:
+		return "GAMEMISCSPR";
+	case GAMEMISCSFX:
+		return "GAMEMISCSFX";
 		
 	case SCREENSTATED:
 		return "SCREENSTATED";
@@ -4881,6 +4893,15 @@ string OLinkWarpExRegister::toString()
 string OLinkExplodeRegister::toString()
 {
     return "LINKEXPLODER " + getArgument()->toString();
+}
+
+string OSwitchNPC::toString()
+{
+	return "SWITCHNPC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OSwitchCombo::toString()
+{
+	return "SWITCHCMB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 

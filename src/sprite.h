@@ -130,6 +130,7 @@ public:
 	byte spr_death_anim_frm, spr_spawn_anim_frm;
 	
 	byte glowRad, glowShape;
+	bool switch_hooked;
     
     sprite();
     sprite(sprite const & other);
@@ -272,7 +273,23 @@ public:
 	int32_t destdmap, destscr, weffect, wsfx;
     int32_t aclk, aframe, o_tile, aspd, frames;
 	portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr);
-	virtual bool animate();
+	virtual bool animate(int32_t);
+};
+
+class breakable : public sprite
+{
+public:
+    int32_t aclk, aframe, o_tile, aspd, frames;
+	newcombo const& cmb;
+	int32_t dropitem, breaktimer;
+	int8_t breaksprtype;
+	byte breaksfx,breakspr;
+	
+	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset);
+	breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem,
+		byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer);
+	
+	virtual bool animate(int32_t);
 };
 #endif
 /*** end of sprite.cc ***/

@@ -507,6 +507,9 @@ void LinkClass::resetflags(bool all)
     }
     damageovertimeclk = -1;
     newconveyorclk = 0;
+    switchhookclk = switchhookstyle = switchhookarg = switchhookmaxtime = 0;
+	for(auto q = 0; q < 7; ++q)
+		hooked_undercombos[q] = -1;
     hopclk=0;
     hopdir=-1;
     attackclk=0;
@@ -1241,6 +1244,9 @@ void LinkClass::init()
     dir = up;
     damageovertimeclk = -1;
     newconveyorclk = 0;
+    switchhookclk = switchhookstyle = switchhookarg = switchhookmaxtime = 0;
+	for(auto q = 0; q < 7; ++q)
+		hooked_undercombos[q] = -1;
     shiftdir = -1;
     sideswimdir = right;
     holddir = -1;
@@ -3296,82 +3302,76 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     bool ignorescreen=false;
     
     if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
-    {
 		return;
-        //ignorescreen = true;
-		//zprint("ignoring\n");
-    }
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
-    if(!ignorescreen)
-    {
-	    if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
-		if(isCuttableNextType(type) || isCuttableNextType(type))
+	
+	if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
+	if(isCuttableNextType(type))
+	{
+		FFCore.tempScreens[layer]->data[i]++;
+	}
+	else
+	{
+		FFCore.tempScreens[layer]->data[i] = tmpscr->undercombo;
+		FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
+		FFCore.tempScreens[layer]->sflag[i] = 0;
+	}
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+	{
+		items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(tmpscr->secretsfx);
+	}
+	else if(isCuttableItemType(type))
+	{
+		int32_t it = -1;
+		
+		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
+		if ( (combobuf[cid].usrflags&cflag2) )
 		{
-			FFCore.tempScreens[layer]->data[i]++;
+			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+		}
+		else it = select_dropitem(12);
+		if(it!=-1)
+		{
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+		}
+	}
+	
+	putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
+	
+	if(get_bit(quest_rules,qr_MORESOUNDS))
+	{
+		if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
+		{
+			if (combobuf[cid].usrflags&cflag3)
+			{
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
+			}
 		}
 		else
 		{
-			FFCore.tempScreens[layer]->data[i] = tmpscr->undercombo;
-			FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
-			FFCore.tempScreens[layer]->sflag[i] = 0;
-		}
-		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
-        {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
-        }
-        else if(isCuttableItemType(type))
-        {
-            int32_t it = -1;
-			
-			//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
-			if ( (combobuf[cid].usrflags&cflag2) )
+			if (combobuf[cid].usrflags&cflag3)
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 			}
-            if(it!=-1)
-            {
-                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
-        }
-        
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
-        
-		if(get_bit(quest_rules,qr_MORESOUNDS))
-		{
-			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
-			{
-				if (combobuf[cid].usrflags&cflag3)
-				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
-				}
-			}
-			else
-			{
-				if (combobuf[cid].usrflags&cflag3)
-				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
-				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
-			}
+			else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 		}
-		
-		int16_t type = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
-		if(type > 3) type = 0;
-		if(!type) type = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
-		switch(type)
-		{
-			case -2: break; //nothing
-			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-				break;
-			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-		}
-    }
-    
+	}
+	
+	int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+	if(decotype > 3) decotype = 0;
+	if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+	switch(decotype)
+	{
+		case -2: break; //nothing
+		case -1:
+			decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+			break;
+		case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
+		case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
+		case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
+	}
 }
 
 
@@ -3558,32 +3558,19 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
         else if(isCuttableItemType(type))
         {
 			int32_t it = -1;
-			//zprint("reached iscuttableitem, with cid: %d\n", cid);
-			//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
 				if ( combobuf[cid].usrflags&cflag11 ) 
 				{
-					//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
 					it = combobuf[cid].attribytes[1];
 				}
 				else
 				{
-					//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-					it = select_dropitem(combobuf[cid].attribytes[1]); 
-					
-					
+					it = select_dropitem(combobuf[cid].attribytes[1]);
 				}
-				//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
-				
 			}
-			//old style slash item and tall grass
-			else
-			{
-				//zprint("Standard tall grass drop.\n");
-				it = select_dropitem(12, bx, by);
-			}
+			else it = select_dropitem(12);
+			
 			if(it!=-1)
 			{
 				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -3607,7 +3594,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -3672,7 +3659,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -3879,13 +3866,12 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
         {
             int32_t it = -1;
 		
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			if ( (combobuf[cid].usrflags&cflag2) )
+			{
+				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			}
+			else it = select_dropitem(12);
 			
-		}
             if(it!=-1)
             {
                 items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
@@ -3909,7 +3895,7 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4093,15 +4079,15 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     else if(skipsecrets && (!ignorescreen || dontignore))
     {
 	    if(isCuttableNextType(type))
-            {
-                s->data[i]++;
-            }
-            else
-            {
-                s->data[i] = s->undercombo;
-                s->cset[i] = s->undercset;
-                s->sflag[i] = 0;
-            }
+		{
+			s->data[i]++;
+		}
+		else
+		{
+			s->data[i] = s->undercombo;
+			s->cset[i] = s->undercset;
+			s->sflag[i] = 0;
+		}
     }
     
     if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
@@ -4135,39 +4121,26 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
         }
-	else if(isCuttableItemType(type))
+		else if(isCuttableItemType(type))
         {
-		int32_t it = -1;
-		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
-		{
-			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
-			if ( combobuf[cid].usrflags&cflag11 ) 
+			int32_t it = -1;
+			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
-				it = combobuf[cid].attribytes[1];
+				if ( combobuf[cid].usrflags&cflag11 ) 
+				{
+					it = combobuf[cid].attribytes[1];
+				}
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]);
+				}
 			}
-			else
-			{
-				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-				it = select_dropitem(combobuf[cid].attribytes[1]); 
-				
-				
-			}
-			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			else it = select_dropitem(12);
 			
-		}
-		//old style slash item and tall grass
-		else if ( !(combobuf[cid].usrflags&cflag2) )
-		{
-			//zprint("Standard tall grass drop.\n");
-			it = select_dropitem(12, bx, by);
-		}
-		if(it!=-1)
-		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-		}
+			if(it!=-1)
+			{
+				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			}
         }
         
         
@@ -4188,7 +4161,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4214,27 +4187,23 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
-		if ( (combobuf[cid].usrflags&cflag2) )
-		{
-		
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
-			
-		}
-           
-		
-		else
-		{
-			int32_t r=zc_oldrand()%100;
-            
-			if(r<15)
+			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it=iHeart;                                // 15%
+				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
 			}
-			else if(r<35)
+			else
 			{
-				it=iRupy;                                 // 20%
+				int32_t r=zc_oldrand()%100;
+				
+				if(r<15)
+				{
+					it=iHeart;                                // 15%
+				}
+				else if(r<35)
+				{
+					it=iRupy;                                 // 20%
+				}
 			}
-		}
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -4257,7 +4226,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4694,37 +4663,24 @@ void LinkClass::check_slash_block(weapon *w)
         }
         else if(isCuttableItemType(type))
         {
-		int32_t it = -1;
-		//zprint("reached iscuttableitem, with cid: %d\n", cid);
-		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1] / 10000L) : 12, bx, by);
-		if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
-		{
-			//zprint("Custom itemset: %d\n", combobuf[cid].attribytes[1]);
-			if ( combobuf[cid].usrflags&cflag11 ) 
+			int32_t it = -1;
+			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
-				//zprint("specific item %d\n", combobuf[cid].attribytes[1]);
-				it = combobuf[cid].attribytes[1];
+				if ( combobuf[cid].usrflags&cflag11 ) 
+				{
+					it = combobuf[cid].attribytes[1];
+				}
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]);
+				}
 			}
-			else
-			{
-				//zprint("specific dropset %d\n", combobuf[cid].attribytes[1]);
-				it = select_dropitem(combobuf[cid].attribytes[1]); 
-				
-				
-			}
-			//it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+			else it = select_dropitem(12);
 			
-		}
-		//old style slash item and tall grass
-		else if ( !(combobuf[cid].usrflags&cflag2) )
-		{
-			//zprint("Standard tall grass drop.\n");
-			it = select_dropitem(12, bx, by);
-		}
-		if(it!=-1)
-		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-		}
+			if(it!=-1)
+			{
+				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
@@ -4744,7 +4700,7 @@ void LinkClass::check_slash_block(weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -4774,22 +4730,7 @@ void LinkClass::check_slash_block(weapon *w)
 			{
 				it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
 			}
-			else
-			{
-				int32_t r=zc_oldrand()%100;
-				
-				if(r<15)
-				{
-					it=iHeart;                                // 15%
-				}
-				else if(r<35)
-				{
-					it=iRupy;                                 // 20%
-				}
-			}
-		
-		
-            
+			else it = select_dropitem(12);
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
@@ -4812,7 +4753,7 @@ void LinkClass::check_slash_block(weapon *w)
 				{
 					sfx(combobuf[cid].attribytes[2],int32_t(bx));
 				}
-				else sfx(WAV_ZN1GRASSCUT,int32_t(bx));
+				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
@@ -5893,10 +5834,10 @@ void LinkClass::checkhit()
         //
         if(itemsbuf[itemid].flags & ITEM_FLAG6)
         {
-            if(s->id==wBrang || s->id==wHookshot)
+            if(s->id==wBrang || (s->id==wHookshot&&!pull_link))
             {
                 int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
-                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? itype_hookshot : itype_brang);
+                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (hs_switcher ? itype_switchhook : itype_hookshot) : itype_brang);
                 itemid = vbound(itemid, 0, MAXITEMS-1);
                 
                 for(int32_t j=0; j<Ewpns.Count(); j++)
@@ -6737,7 +6678,7 @@ bool LinkClass::animate(int32_t)
 	
 	if(mirror_portal)
 	{
-		mirror_portal->animate();
+		mirror_portal->animate(0);
 		if(abs(x - mirror_portal->x) < 12
 			&& abs(y - mirror_portal->y) < 12)
 		{
@@ -7264,90 +7205,318 @@ bool LinkClass::animate(int32_t)
 		}
 	}
 	
-	if(hookshot_frozen==true)
+	if(hookshot_frozen || switch_hooked)
 	{
-		if(hookshot_used==true)
+		if(hookshot_used || switch_hooked)
 		{
 			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
 			else {action=freeze; FFCore.setLinkAction(freeze);} //could be LA_HOOKSHOT for FFCore. -Z
 			
-			if(pull_link==true)
+			if(pull_link || switch_hooked)
 			{
-				sprite *t;
-				int32_t i;
-				
-				for(i=0; i<Lwpns.Count() && (Lwpns.spr(i)->id!=wHSHandle); i++)
+				if(hs_switcher || switch_hooked)
 				{
-					/* do nothing */
-				}
-				
-				t = Lwpns.spr(i);
-				
-				for(i=0; i<Lwpns.Count(); i++)
-				{
-					sprite *s = Lwpns.spr(i);
-					
-					if(s->id==wHookshot)
+					hs_fix = false;
+					if(switchhookclk)
 					{
-						if (abs((s->y) - y) >= 1)
+						--switchhookclk;
+						if(switchhookclk==switchhookmaxtime/2) //Perform swaps
 						{
-							if((s->y)>y)
-							{
-								y+=4;
-								
-								if(Lwpns.idFirst(wHSHandle)!=-1)
-								{
-									t->y+=4;
-								}
-								
-								hs_starty+=4;
-							}
+							weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+								*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
 							
-							if((s->y)<y)
+							if(hooked_combopos > -1) //Switching combos
 							{
-								y-=4;
-								
-								if(Lwpns.idFirst(wHSHandle)!=-1)
+								uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
+								if(targpos < 176 && plpos < 176 && hooked_layerbits)
 								{
-									t->y-=4;
+									int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+									for(int q = max_layer; q > -1; --q)
+									{
+										if(!(hooked_layerbits & (1<<q)))
+											continue; //non-switching layer
+										mapscr* scr = FFCore.tempScreens[q];
+										newcombo const& cmb = combobuf[scr->data[targpos]];
+										int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
+										if(cmb.type == cSWITCHHOOK) //custom flags and such
+										{
+											if(cmb.usrflags&cflag3) //Breaks on swap
+											{
+												int32_t it = -1;
+												if(cmb.usrflags&cflag4) //drop item
+												{
+													int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+												}
+												
+												breakable* br = new breakable(x, y, zfix(0),
+													cmb, scr->cset[targpos], it, cmb.attribytes[2],
+													cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
+												br->switch_hooked = true;
+												decorations.add(br);
+												hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
+												hooked_undercombos[q] = -1;
+												
+												if(cmb.usrflags&cflag6)
+												{
+													scr->data[targpos]++;
+												}
+												else
+												{
+													scr->data[targpos] =  scr->undercombo;
+													scr->cset[targpos] =  scr->undercset;
+													if(cmb.usrflags&cflag2)
+														scr->sflag[targpos] = 0;
+												}
+											}
+											else
+											{
+												scr->data[plpos] = scr->data[targpos];
+												scr->cset[plpos] = scr->cset[targpos];
+												if(cmb.usrflags&cflag2)
+													scr->sflag[plpos] = scr->sflag[targpos];
+												scr->data[targpos] =  c;
+												scr->cset[targpos] =  cs;
+												if(cmb.usrflags&cflag2)
+													scr->sflag[targpos] = fl;
+											}
+										}
+										else if(isCuttableType(cmb.type)) //Break and drop effects
+										{
+											int32_t breakcs = scr->cset[targpos];
+											if(isCuttableNextType(cmb.type)) //next instead of undercmb
+											{
+												scr->data[targpos]++;
+											}
+											else
+											{
+												scr->data[targpos] = scr->undercombo;
+												scr->cset[targpos] = scr->undercset;
+												scr->sflag[targpos] = 0;
+											}
+											
+											int32_t it = -1;
+											if(isCuttableItemType(cmb.type)) //Drop an item
+											{
+												if ( (cmb.usrflags&cflag2) )
+												{
+													it = (cmb.usrflags&cflag11)
+														? cmb.attribytes[1]
+														: select_dropitem(cmb.attribytes[1]); 
+												}
+												else it = select_dropitem(12);
+											}
+											
+											byte breaksfx = 0;
+											if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
+											{
+												if (cmb.usrflags&cflag3)
+												{
+													breaksfx = cmb.attribytes[2];
+												}
+												else if(isBushType(cmb.type)
+													|| isFlowersType(cmb.type)
+												|| isGrassType(cmb.type))
+												{
+													breaksfx = QMisc.miscsfx[sfxBUSHGRASS];
+												}
+											}
+											
+											//Clipping sprite
+											int16_t decotype = (cmb.usrflags & cflag1) ?
+												((cmb.usrflags & cflag10)
+													? (cmb.attribytes[0])
+													: (-1))
+												: (0);
+											if(decotype > 3) decotype = 0;
+											if(!decotype)
+												decotype = (isBushType(cmb.type) ? 1
+													: (isFlowersType(cmb.type) ? 2
+													: (isGrassType(cmb.type) ? 3
+													: ((cmb.usrflags & cflag1) ? -1
+													: -2))));
+											
+											breakable* br = new breakable(x, y, zfix(0),
+												cmb, breakcs, it, breaksfx,
+												decotype, cmb.attribytes[0], switchhookclk);
+											br->switch_hooked = true;
+											decorations.add(br);
+											hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
+											hooked_undercombos[q] = -1;
+										}
+										else //Unknown type, just swap combos.
+										{
+											scr->data[plpos] = scr->data[targpos];
+											scr->cset[plpos] = scr->cset[targpos];
+											scr->data[targpos] = c;
+											scr->cset[targpos] = cs;
+										}
+									}
+									zfix tx = x, ty = y;
+									//Position the player at the combo
+									x = COMBOX(targpos);
+									y = COMBOY(targpos);
+									dir = oppositeDir[dir];
+									if(w && hw)
+									{
+										//Calculate chain shift
+										zfix dx = (x-tx);
+										zfix dy = (y-ty);
+										if(w->dir < 4)
+										{
+											if(w->dir & 2)
+												dx = 0;
+											else dy = 0;
+										}
+										//Position the hook head at the handle
+										w->x = hw->x + dx;
+										w->y = hw->y + dy;
+										w->dir = oppositeDir[w->dir];
+										byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
+										w->flip ^= hflip;
+										//Position the handle appropriately
+										hw->x = x-(hw->x-tx);
+										hw->y = y-(hw->y-ty);
+										hw->dir = oppositeDir[hw->dir];
+										hw->flip ^= hflip;
+										//Move chains
+										for(int32_t j=0; j<chainlinks.Count(); j++)
+										{
+											chainlinks.spr(j)->x += dx;
+											chainlinks.spr(j)->y += dy;
+										}
+									}
+									hooked_combopos = plpos; //flip positions
 								}
-								
-								hs_starty-=4;
+								else reset_hookshot();
+							}
+							else if(switching_object) //Switching an object
+							{
+								zfix tx = x, ty = y;
+								//Position the player at the object
+								x = switching_object->x;
+								y = switching_object->y;
+								dir = oppositeDir[dir];
+								//Position the object at the player
+								switching_object->x = tx;
+								switching_object->y = ty;
+								if(switching_object->dir == dir || switching_object->dir == oppositeDir[dir])
+									switching_object->dir = oppositeDir[switching_object->dir];
+								if(w && hw) //!TODO No fucking clue if diagonals work
+								{
+									//Calculate chain shift
+									zfix dx = (x-tx);
+									zfix dy = (y-ty);
+									if(w->dir < 4)
+									{
+										if(w->dir & 2)
+											dx = 0;
+										else dy = 0;
+									}
+									//Position the hook head at the handle
+									w->x = hw->x + dx;
+									w->y = hw->y + dy;
+									w->dir = oppositeDir[w->dir];
+									byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
+									w->flip ^= hflip;
+									//Position the handle appropriately
+									hw->x = x-(hw->x-tx);
+									hw->y = y-(hw->y-ty);
+									hw->dir = oppositeDir[hw->dir];
+									hw->flip ^= hflip;
+									//Move chains
+									for(int32_t j=0; j<chainlinks.Count(); j++)
+									{
+										chainlinks.spr(j)->x += dx;
+										chainlinks.spr(j)->y += dy;
+									}
+								}
 							}
 						}
-						else 
+						else if(!switchhookclk)
 						{
-							y = (s->y);
+							reset_hookshot();
 						}
-						if (abs((s->x) - x) >= 1)
+					}
+					else reset_hookshot();
+				}
+				else
+				{
+					sprite *t;
+					int32_t i;
+					
+					for(i=0; i<Lwpns.Count() && (Lwpns.spr(i)->id!=wHSHandle); i++)
+					{
+						/* do nothing */
+					}
+					
+					t = Lwpns.spr(i);
+					
+					for(i=0; i<Lwpns.Count(); i++)
+					{
+						sprite *s = Lwpns.spr(i);
+						
+						if(s->id==wHookshot)
 						{
-							if((s->x)>x)
+							if (abs((s->y) - y) >= 1)
 							{
-								x+=4;
-								
-								if(Lwpns.idFirst(wHSHandle)!=-1)
+								if((s->y)>y)
 								{
-									t->x+=4;
+									y+=4;
+									
+									if(Lwpns.idFirst(wHSHandle)!=-1)
+									{
+										t->y+=4;
+									}
+									
+									hs_starty+=4;
 								}
 								
-								hs_startx+=4;
-							}
-							
-							if((s->x)<x)
-							{
-								x-=4;
-								
-								if(Lwpns.idFirst(wHSHandle)!=-1)
+								if((s->y)<y)
 								{
-									t->x-=4;
+									y-=4;
+									
+									if(Lwpns.idFirst(wHSHandle)!=-1)
+									{
+										t->y-=4;
+									}
+									
+									hs_starty-=4;
+								}
+							}
+							else 
+							{
+								y = (s->y);
+							}
+							if (abs((s->x) - x) >= 1)
+							{
+								if((s->x)>x)
+								{
+									x+=4;
+									
+									if(Lwpns.idFirst(wHSHandle)!=-1)
+									{
+										t->x+=4;
+									}
+									
+									hs_startx+=4;
 								}
 								
-								hs_startx-=4;
+								if((s->x)<x)
+								{
+									x-=4;
+									
+									if(Lwpns.idFirst(wHSHandle)!=-1)
+									{
+										t->x-=4;
+									}
+									
+									hs_startx-=4;
+								}
 							}
-						}
-						else 
-						{
-							x = (s->x);
+							else 
+							{
+								x = (s->x);
+							}
 						}
 					}
 				}
@@ -7552,7 +7721,7 @@ bool LinkClass::animate(int32_t)
 					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
 					{
 						int32_t itemid = find_bottle_for_slot(slot,true);
-						stop_sfx(WAV_ER); //stop heart beep!
+						stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 						if(itemid > -1)
 							sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
 						for(size_t q = 0; q < 20; ++q)
@@ -8244,7 +8413,7 @@ bool LinkClass::animate(int32_t)
 	{
 		if(heart_beep)
 		{
-			cont_sfx(WAV_ER);
+			cont_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		}
 		else
 		{
@@ -8256,11 +8425,11 @@ bool LinkClass::animate(int32_t)
 			if ( heart_beep_timer > 0 )
 			{
 				--heart_beep_timer;
-				cont_sfx(WAV_ER);
+				cont_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 			else
 			{
-				stop_sfx(WAV_ER);
+				stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 		}
 	}
@@ -8269,7 +8438,7 @@ bool LinkClass::animate(int32_t)
 	if ( heart_beep_timer > -2 )
 	{
 		heart_beep_timer = -1;
-		stop_sfx(WAV_ER);
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	}
 	}
 	
@@ -8558,6 +8727,107 @@ void LinkClass::doMirror(int32_t mirrorid)
 		}
 	}
 }
+
+void LinkClass::doSwitchHook(byte style)
+{
+	//{ Load hook weapons, set them to obey special drawing
+	weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+		*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
+		
+	if(w)
+		w->switch_hooked = true;
+	if(hw)
+		hw->switch_hooked = true;
+	for(int32_t j=0; j<chainlinks.Count(); j++)
+	{
+		chainlinks.spr(j)->switch_hooked = true;
+	}
+	//}
+	if(hooked_combopos > -1)
+	{
+		int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+		hooked_layerbits = 0;
+		for(auto q = 0; q < 7; ++q)
+			hooked_undercombos[q] = -1;
+		for(auto q = max_layer; q > -1; --q)
+		{
+			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[hooked_combopos]];
+			if(isSwitchHookable(cmb))
+			{
+				if(cmb.type == cSWITCHHOOK)
+				{
+					uint16_t plpos = COMBOPOS(x+8,y+8);
+					if((cmb.usrflags&cflag1) && FFCore.tempScreens[q]->data[plpos])
+						continue; //don't swap with non-zero combo
+					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].fam_type) < cmb.attribytes[0])
+						continue; //too low a switchhook level
+					hooked_layerbits |= 1<<q; //Swapping
+					if(cmb.usrflags&cflag3)
+					{
+						if(cmb.usrflags&cflag6)
+						{
+							hooked_undercombos[q] = FFCore.tempScreens[q]->data[hooked_combopos]+1;
+							hooked_undercombos[q+7] = FFCore.tempScreens[q]->cset[hooked_combopos];
+						}
+						else
+						{
+							hooked_undercombos[q] = FFCore.tempScreens[q]->undercombo;
+							hooked_undercombos[q+7] = FFCore.tempScreens[q]->undercset;
+						}
+					}
+					else
+						hooked_layerbits |= 1<<(q+8); //Swapping BACK
+				}
+				else if(isCuttableType(cmb.type))
+				{
+					if(isCuttableNextType(cmb.type))
+					{
+						hooked_undercombos[q] = FFCore.tempScreens[q]->data[hooked_combopos]+1;
+						hooked_undercombos[q+7] = FFCore.tempScreens[q]->cset[hooked_combopos];
+					}
+					else
+					{
+						hooked_undercombos[q] = FFCore.tempScreens[q]->undercombo;
+						hooked_undercombos[q+7] = FFCore.tempScreens[q]->undercset;
+					}
+					hooked_layerbits |= 1<<q; //Swapping
+				}
+				else
+				{
+					hooked_layerbits |= 1<<q; //Swapping
+					hooked_layerbits |= 1<<(q+8); //Swapping BACK
+				}
+			}
+		}
+	}
+	switch_hooked = true;
+	switchhookstyle = style;
+	switch(style)
+	{
+		default: case swPOOF:
+		{
+			wpndata const& spr = wpnsbuf[QMisc.sprites[sprSWITCHPOOF]];
+			switchhookmaxtime = switchhookclk = zc_max(spr.frames,1) * zc_max(spr.speed,1);
+			decorations.add(new comboSprite(x, y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			if(hooked_combopos > -1)
+				decorations.add(new comboSprite((zfix)COMBOX(hooked_combopos), (zfix)COMBOY(hooked_combopos), 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			else if(switching_object)
+				decorations.add(new comboSprite(switching_object->x, switching_object->y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			break;
+		}
+		case swFLICKER:
+		{
+			switchhookmaxtime = switchhookclk = 64;
+			break;
+		}
+		case swRISE:
+		{
+			switchhookmaxtime = switchhookclk = 64;
+			break;
+		}
+	}
+}
+
 bool LinkClass::startwpn(int32_t itemid)
 {
 	if(itemid < 0) return false;
@@ -8591,8 +8861,6 @@ bool LinkClass::startwpn(int32_t itemid)
 	}
 	if (IsSideSwim() && (itm.flags & ITEM_SIDESWIM_DISABLED)) return false;
 	
-	bool use_hookshot=true;
-	
 	switch(itm.family)
 	{
 		case itype_potion:
@@ -8612,7 +8880,7 @@ bool LinkClass::startwpn(int32_t itemid)
 				
 				//add a quest rule or an item option that lets you specify whether or not to pause music during refilling
 				//music_pause();
-				stop_sfx(WAV_ER); //stop heart beep!
+				stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 				while(refill())
 				{
 					do_refill_waitframe();
@@ -8692,7 +8960,7 @@ bool LinkClass::startwpn(int32_t itemid)
 						itemclk = 0;
 					if(!paidmagic)
 						paymagiccost(itemid);
-					stop_sfx(WAV_ER); //stop heart beep!
+					stop_sfx(QMisc.miscsfx[sfxLOWHEART]); //stop heart beep!
 					sfx(itm.usesound,pan(x.getInt()));
 					for(size_t q = 0; q < 20; ++q)
 						do_refill_waitframe();
@@ -9145,7 +9413,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script2:
@@ -9160,7 +9427,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script3:
@@ -9175,7 +9441,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script4:
@@ -9190,7 +9455,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script5:
@@ -9205,7 +9469,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script6:
@@ -9220,7 +9483,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script7:
@@ -9235,7 +9497,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script8:
@@ -9250,7 +9511,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script9:
@@ -9265,7 +9525,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_script10:
@@ -9280,7 +9539,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_icerod:
@@ -9295,7 +9553,6 @@ bool LinkClass::startwpn(int32_t itemid)
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
-		
 		break;
 		
 		case itype_arrow:
@@ -9372,76 +9629,83 @@ bool LinkClass::startwpn(int32_t itemid)
 		break;
 		
 		case itype_hookshot:
+		case itype_switchhook:
+		{
 			if(inlikelike || Lwpns.idCount(wHookshot))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 				return false;
-				
+			bool sw = itm.family == itype_switchhook;
+			
 			paymagiccost(itemid);
 			
-			for(int32_t i=-1; i<2; i++)
+			bool use_hookshot=true;
+			bool hit_hs = false, hit_solid = false, insta_switch = false;
+			int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+			int32_t cpos = -1;
+			for(int32_t i=0; i<=max_layer && !hit_hs; ++i)
 			{
 				if(dir==up)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x,y-7)])||
-							(_walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int32_t(y+4))))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+2,y-7,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				else if(dir==down)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+12,y+23)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+12,y+23,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				else if(dir==left)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x-7,y+12)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x-7,y+12,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				else if(dir==right)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+23,y+12)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+23,y+12,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				//Diagonal Hookshot (6)
 				else if(dir==r_down)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+9,y+13)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+9,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				else if(dir==l_down)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+6,y+13)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+6,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				else if(dir==r_up)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+9,y+13)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+9,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 				else if(dir==l_up)
 				{
-					if(isHSGrabbable(combobuf[MAPCOMBO2(i,x+6,y+13)]))
-					{
-						use_hookshot=false;
-					}
+					cpos = check_hshot(i,x+6,y+13,sw);
+					if(cpos > -1)
+						hit_hs = true;
 				}
 			}
-			
+			if(dir==up && _walkflag(x+2,y+4,1,SWITCHBLOCK_STATE) && !ishookshottable(x.getInt(),int32_t(y+4)))
+				hit_solid = true;
+			if(hit_hs)
+			{
+				if(sw)
+					insta_switch = true; //switch immediately
+				else use_hookshot = false; //No hooking against grabbable
+			}
+			if(hit_solid && !insta_switch)
+				use_hookshot = false;
 			if(use_hookshot)
 			{
 				int32_t hookitem = itm.fam_type;
@@ -9458,97 +9722,149 @@ bool LinkClass::startwpn(int32_t itemid)
 					Lwpns.del(0);
 				}
 				
-				if(dir==up)
+				switch(dir)
 				{
-					hookshot_used=true;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx;
-					hs_starty=wy-4;
-				}
+					case up:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy-4,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx;
+						hs_starty=wy-4;
+					}
+					break;
 				
-				if(dir==down)
-				{
-					int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
-					hookshot_used=true;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx;
-					hs_starty=wy;
-				}
+					case down:
+					{
+						int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+						hookshot_used=true;
+						hs_switcher = sw;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx;
+						hs_starty=wy;
+					}
+					break;
 				
-				if(dir==left)
-				{
-					hookshot_used=true;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx-4;
-					hs_starty=wy;
-				}
+					case left:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx-4;
+						hs_starty=wy;
+					}
+					break;
 				
-				if(dir==right)
-				{
-					hookshot_used=true;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx+4;
-					hs_starty=wy;
-				}
-				//Diagonal Hookshot (7)
-				if(dir==r_down)
-				{
-					hookshot_used=true;
-					int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx+4;
-					hs_starty=wy;
-				}
-				if(dir==r_up)
-				{
-					hookshot_used=true;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx+4;
-					hs_starty=wy;
-				}
-				if(dir==l_down)
-				{
-					hookshot_used=true;
-					int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx+4;
-					hs_starty=wy;
-				}
-				if(dir==l_up)
-				{
-					hookshot_used=true;
-					Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
-										 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					hs_startx=wx+4;
-					hs_starty=wy;
+					case right:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx+4;
+						hs_starty=wy;
+					}
+					break;
+					//Diagonal Hookshot (7)
+					case r_down:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx+4;
+						hs_starty=wy;
+					}
+					break;
+					
+					case r_up:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)(wx+4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx+4;
+						hs_starty=wy;
+					}
+					break;
+					
+					case l_down:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						int32_t offset=get_bit(quest_rules,qr_HOOKSHOTDOWNBUG)?4:0;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy+offset,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy+offset,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx+4;
+						hs_starty=wy;
+					}
+					break;
+					
+					case l_up:
+					{
+						hookshot_used=true;
+						hs_switcher = sw;
+						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						Lwpns.add(new weapon((zfix)(wx-4),(zfix)wy,(zfix)wz,wHookshot,hookitem,
+											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
+						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
+						hs_startx=wx+4;
+						hs_starty=wy;
+					}
+					break;
 				}
 				hookshot_frozen=true;
 			}
-			
-			break;
+			if(insta_switch)
+			{
+				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
+				hooked_combopos = cpos;
+				w->misc=2;
+				w->step=0;
+				pull_link=true;
+				doSwitchHook(itm.misc5);
+				if(itm.usesound2)
+					sfx(itm.usesound2,pan(int32_t(x)));
+				else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+				stop_sfx(itm.usesound);
+				hs_switcher = true;
+			}
+		}
+		break;
 			
 		case itype_dinsfire:
 			if(z!=0 || (isSideViewLink() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
@@ -19581,7 +19897,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 				music_stop();
 		}
 		
-		stop_sfx(WAV_ER);
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
 						? false : COOLSCROLL);
 						
@@ -20914,7 +21230,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 
 void LinkClass::exitcave()
 {
-    stop_sfx(WAV_ER);
+    stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     currscr=homescr;
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
     x = tmpscr->warpreturnx[0];
@@ -21428,7 +21744,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
 {
     int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
-    stop_sfx(WAV_ER);
+    stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     map_bkgsfx(false);
     kill_enemy_sfx();
     draw_screen(tmpscr,false);
@@ -22490,7 +22806,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		return;
 		
 	kill_enemy_sfx();
-	stop_sfx(WAV_ER);
+	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	switch(scrolldir)
@@ -24402,7 +24718,7 @@ void getitem(int32_t id, bool nosound)
             int32_t itemid = current_item_id(idat.family);
             
             if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
-                             || idat.family == itype_hookshot || idat.family == itype_cbyrna)
+                             || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
                     && sfx_allocated(itemsbuf[itemid].usesound)
                     && idat.usesound != itemsbuf[itemid].usesound)
             {
@@ -25139,7 +25455,7 @@ void LinkClass::StartRefill(int32_t refillWhat)
     if(!refilling)
     {
         refillclk=21;
-        stop_sfx(WAV_ER);
+        stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
 	if(FFCore.quest_format[vZelda] < 0x255)//use old behavior
@@ -25174,7 +25490,7 @@ void LinkClass::Start250Refill(int32_t refillWhat){
 	if(!refilling)
 	{
 		refillclk=21;
-		stop_sfx(WAV_ER);
+		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		sfx(WAV_REFILL,128,true);
 		refilling=refillWhat;
 		
@@ -26294,29 +26610,37 @@ void LinkClass::reset_swordcharge()
 
 void LinkClass::reset_hookshot()
 {
-    if(action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
-    {
-        action=none; FFCore.setLinkAction(none);
-    }
-    
-    hookshot_frozen=false;
-    hookshot_used=false;
-    pull_link=false;
-    add_chainlink=false;
-    del_chainlink=false;
-    hs_fix=false;
-    Lwpns.del(Lwpns.idFirst(wHSHandle));
-    Lwpns.del(Lwpns.idFirst(wHookshot));
-    chainlinks.clear();
-    int32_t index=directItem>-1 ? directItem : current_item_id(itype_hookshot);
-    
-    if(index>=0)
-    {
-        stop_sfx(itemsbuf[index].usesound);
-    }
-    
-    hs_xdist=0;
-    hs_ydist=0;
+	if(action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
+	{
+		action=none; FFCore.setLinkAction(none);
+	}
+	
+	hookshot_frozen=false;
+	hookshot_used=false;
+	pull_link=false;
+	hs_fix=false;
+	switchhookclk = switchhookmaxtime = switchhookstyle = switchhookarg = 0;
+	switch_hooked = false;
+	if(switching_object)
+		switching_object->switch_hooked = false;
+	switching_object = NULL;
+	hooked_combopos = -1;
+	hooked_layerbits = 0;
+	for(auto q = 0; q < 7; ++q)
+		hooked_undercombos[q] = -1;
+	Lwpns.del(Lwpns.idFirst(wHSHandle));
+	Lwpns.del(Lwpns.idFirst(wHookshot));
+	chainlinks.clear();
+	int32_t index=directItem>-1 ? directItem : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
+	hs_switcher = false;
+	
+	if(index>=0)
+	{
+		stop_sfx(itemsbuf[index].usesound);
+	}
+	
+	hs_xdist=0;
+	hs_ydist=0;
 }
 
 

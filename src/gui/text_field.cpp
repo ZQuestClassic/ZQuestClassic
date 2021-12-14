@@ -149,15 +149,18 @@ int32_t TextField::getVal()
 			char buf[32] = {0};
 			char* decptr = NULL;
 			strcpy(buf, buffer.get());
-			for(size_t q = strlen(buf); q < 31; ++q)
-				buf[q] = '0';
-			for(size_t q = 0;;++q)
+			buf[31] = 0;
+			for(size_t q = 0;q<31;++q)
 			{
 				if(buf[q] == '.')
 				{
 					buf[q] = 0;
 					decptr = buf+q+1;
+					for(int32_t j = 0; j < fixedPlaces; ++j)
+						if(decptr[j] == 0)
+							decptr[j] = '0';
 					decptr[fixedPlaces] = 0;
+					break;
 				}
 				if(buf[q] == 0)
 					break;

@@ -30,6 +30,8 @@
 #include "util.h"
 #include "fonts.h"
 
+class sprite;
+
 int32_t isFullScreen();
 int32_t onFullscreen();
 
@@ -404,11 +406,14 @@ extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
 extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
-extern bool hookshot_used, hookshot_frozen, pull_link, add_chainlink;
-extern bool del_chainlink, hs_fix, cheat_superman, gofast, checklink;
+extern bool hookshot_used, hookshot_frozen, pull_link, hs_fix, hs_switcher, cheat_superman, gofast, checklink;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
+extern int32_t hooked_combopos;
+extern uint16_t hooked_layerbits;
+extern int32_t hooked_undercombos[14];
+extern sprite* switching_object;
 
 extern byte COOLSCROLL;
 

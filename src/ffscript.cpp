@@ -4099,6 +4099,18 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case HEROSWITCHTIMER:
+		{
+			ret = Link.switchhookclk * 10000;
+			break;
+		}
+		
+		case HEROSWITCHMAXTIMER:
+		{
+			ret = Link.switchhookmaxtime * 10000;
+			break;
+		}
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -4999,6 +5011,10 @@ int32_t get_register(const int32_t arg)
 			
 		case IDATAUSESOUND:
 			ret=(itemsbuf[ri->idata].usesound)*10000;
+			break;
+			
+		case IDATAUSESOUND2:
+			ret=(itemsbuf[ri->idata].usesound2)*10000;
 			break;
 			
 		case IDATAPOWER:
@@ -5965,6 +5981,12 @@ int32_t get_register(const int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->spr_death * 10000;
+			}
+			break;
+		case NPCSWHOOKED:
+			if(GuyH::loadNPC(ri->guyref, "npc->SwitchHooked") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->switch_hooked ? 10000 : 0;
 			}
 			break;
 		
@@ -7044,6 +7066,36 @@ int32_t get_register(const int32_t arg)
 				break;
 			}
 		}
+		
+		case GAMEMISCSPR:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			if ( ((unsigned)inx) > sprMAX )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->MiscSprites[].\n", inx);
+				ret = -10000;
+			}
+			else
+			{
+				ret = QMisc.sprites[inx] * 10000;
+			}
+			break;
+		}
+		case GAMEMISCSFX:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			if ( ((unsigned)inx) > sfxMAX )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->MiscSFX[].\n", inx);
+				ret = -10000;
+			}
+			else
+			{
+				ret = QMisc.miscsfx[inx] * 10000;
+			}
+			break;
+		}
+		
 		case GAMEGRAVITY:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
@@ -11563,11 +11615,11 @@ void set_register(const int32_t arg, const int32_t value)
 			heart_beep_timer = beep;
 			if ( heart_beep_timer > -1 )
 			{
-				cont_sfx(WAV_ER);
+				cont_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 			else
 			{
-				stop_sfx(WAV_ER);
+				stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 			}
 			break;
 		}
@@ -12224,6 +12276,11 @@ void set_register(const int32_t arg, const int32_t value)
 			Link.respawn_scr = vbound(value/10000, 0, 0x7F);
 			break;
 		}
+		
+		
+		case HEROSWITCHMAXTIMER:
+		case HEROSWITCHTIMER:
+			break; //read-only
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Input States
@@ -13277,6 +13334,10 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case IDATAUSESOUND:
 			(itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
+			break;
+			
+		case IDATAUSESOUND2:
+			(itemsbuf[ri->idata].usesound2)=vbound(value/10000, 0, 255);
 			break;
 		
 		//2.54
@@ -15164,6 +15225,8 @@ void set_register(const int32_t arg, const int32_t value)
 				GuyH::getNPC()->spr_death = vbound(value/10000,0,255);
 			}
 			break;
+		case NPCSWHOOKED:
+			break; //read-only
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -15332,6 +15395,34 @@ void set_register(const int32_t arg, const int32_t value)
 				break;
 			}
 		}
+		
+		case GAMEMISCSPR:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			if ( ((unsigned)inx) > sprMAX )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->MiscSprites[].\n", inx);
+			}
+			else
+			{
+				QMisc.sprites[inx] = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case GAMEMISCSFX:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			if ( ((unsigned)inx) > sfxMAX )
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->MiscSFX[].\n", inx);
+			}
+			else
+			{
+				QMisc.miscsfx[inx] = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		
 		case GAMELKEYSD:
 			game->lvlkeys[(ri->d[rINDEX])/10000]=value/10000;
 			break;
@@ -26534,6 +26625,40 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				break;
 			}
 			
+			case SWITCHNPC:
+			{
+				int32_t npcref = get_register(sarg1);
+				set_register(sarg1,0);
+				if(Link.switchhookclk) break; //Already switching!
+				if(GuyH::loadNPC(npcref, "Hero->Switch(npc,int)") == SH::_NoError)
+				{
+					switching_object = guys.spr(GuyH::getNPCIndex(ri->guyref));
+					hooked_combopos = -1;
+					hooked_layerbits = 0;
+					switching_object->switch_hooked = true;
+					Link.doSwitchHook(get_register(sarg2)/10000);
+					set_register(sarg1,10000);
+				}
+				break;
+			}
+			
+			case SWITCHCMB:
+			{
+				int32_t pos = get_register(sarg1)/10000;
+				set_register(sarg1,0);
+				if(Link.switchhookclk) break; //Already switching!
+				if(unsigned(pos) > 176)
+					break;
+				switching_object = NULL;
+				hooked_combopos = pos;
+				hooked_layerbits = 0;
+				Link.doSwitchHook(get_register(sarg2)/10000);
+				if(!hooked_layerbits) //failed
+					Link.reset_hookshot();
+				else set_register(sarg1,10000); //success return
+				break;
+			}
+			
 			case LINKWARPEXR:
 			{
 				
@@ -30693,7 +30818,7 @@ bool ZModule::init(bool d) //bool default
 			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
 			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
 			//266
-			"ic_icerod","ic_atkring","ic_lantern","ic_pearl"
+			"ic_icerod","ic_atkring","ic_lantern","ic_pearl", "ic_bottle", "ic_bottlefill", "ic_bugnet", "ic_mirror", "ic_switchhook"
 			//270
 		};
 		for ( int32_t q = 0; q < itype_max; q++ )
@@ -34253,6 +34378,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BOTTLENAMESET",           1,   0,   0,   0},
 	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
 	{ "LOADBSHOPDATA",           1,   0,   0,   0},
+	{ "SWITCHNPC",           2,   0,   0,   0},
+	{ "SWITCHCMB",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -34281,9 +34408,9 @@ script_variable ZASMVars[]=
 	{ "FFTWIDTH",          FFTWIDTH,             0,             0 },
 	{ "FFTHEIGHT",         FFTHEIGHT,            0,             0 },
 	{ "FFLINK",            FFLINK,               0,             0 },
-	//{ "COMBOD",            COMBOD(0),          176,             3 },
-	//{ "COMBOC",            COMBOC(0),          176,             3 },
-	//{ "COMBOF",            COMBOF(0),          176,             3 },
+	// { "COMBOD",            COMBOD(0),          176,             3 },
+	// { "COMBOC",            COMBOC(0),          176,             3 },
+	// { "COMBOF",            COMBOF(0),          176,             3 },
 	{ "INPUTSTART",        INPUTSTART,           0,             0 },
 	{ "INPUTUP",           INPUTUP,              0,             0 },
 	{ "INPUTDOWN",         INPUTDOWN,            0,             0 },
@@ -34723,11 +34850,11 @@ script_variable ZASMVars[]=
 	{ "LINKUSINGITEMA", LINKUSINGITEMA, 0, 0 },
 	{ "LINKUSINGITEMB", LINKUSINGITEMB, 0, 0 },
 	//    { "DMAPLEVELPAL",         DMAPLEVELPAL,          0,             0 },
-	//{ "LINKZHEIGHT",           LINKZHEIGHT,            0,             0 },
-		//{ "ITEMINDEX",         ITEMINDEX,          0,             0 },
-		//{ "LWPNINDEX",         LWPNINDEX,          0,             0 },
-		//{ "EWPNINDEX",         EWPNINDEX,          0,             0 },
-		//{ "NPCINDEX",         NPCINDEX,          0,             0 },
+	// { "LINKZHEIGHT",           LINKZHEIGHT,            0,             0 },
+		// { "ITEMINDEX",         ITEMINDEX,          0,             0 },
+		// { "LWPNINDEX",         LWPNINDEX,          0,             0 },
+		// { "EWPNINDEX",         EWPNINDEX,          0,             0 },
+		// { "NPCINDEX",         NPCINDEX,          0,             0 },
 		//TABLE END
 	{ "IDATAUSEWPN", IDATAUSEWPN, 0, 0 }, //UseWeapon
 	{ "IDATAUSEDEF", IDATAUSEDEF, 0, 0 }, //UseDefense
@@ -35129,8 +35256,8 @@ script_variable ZASMVars[]=
 	{"LINKSTUN", LINKSTUN, 0, 0 },
 	{"IDATACOSTCOUNTER", IDATACOSTCOUNTER, 0, 0 },
 	{"TYPINGMODE", TYPINGMODE, 0, 0 },
-	//{"DMAPDATAGRAVITY", DMAPDATAGRAVITY, 0, 0 },
-	//{"DMAPDATAJUMPLAYER", DMAPDATAJUMPLAYER, 0, 0 },
+	// {"DMAPDATAGRAVITY", DMAPDATAGRAVITY, 0, 0 },
+	// {"DMAPDATAJUMPLAYER", DMAPDATAJUMPLAYER, 0, 0 },
 	//end ffscript vars
 	//END VARS END OF BYTECODE
 	
@@ -35501,6 +35628,12 @@ script_variable ZASMVars[]=
 	{ "HERORESPAWNY",    HERORESPAWNY,    0, 0 },
 	{ "HERORESPAWNDMAP", HERORESPAWNDMAP, 0, 0 },
 	{ "HERORESPAWNSCR",  HERORESPAWNSCR,  0, 0 },
+	{ "IDATAUSESOUND2",  IDATAUSESOUND2,  0, 0 },
+	{ "HEROSWITCHTIMER",  HEROSWITCHTIMER,  0, 0 },
+	{ "HEROSWITCHMAXTIMER",  HEROSWITCHMAXTIMER,  0, 0 },
+	{ "NPCSWHOOKED",  NPCSWHOOKED,  0, 0 },
+	{ "GAMEMISCSPR", GAMEMISCSPR, 0, 0 },
+	{ "GAMEMISCSFX", GAMEMISCSFX, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
@@ -38283,6 +38416,11 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",48);
 			}
+			
+			if(!p_putc(itemsbuf[i].usesound2,f))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",48);
+			}
 		
 		//New itemdata vars -Z
 		//! version 27
@@ -38712,6 +38850,11 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 			}
 			
 			if(!p_getc(&itemsbuf[i].usesound,f,true))
+			{
+				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",48);
+			}
+			
+			if(!p_getc(&itemsbuf[i].usesound2,f,true))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",48);
 			}

@@ -227,19 +227,19 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           5
 #define V_RULES           17
 #define V_STRINGS          8
-#define V_MISC             13
+#define V_MISC             14
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           20
 #define V_CSETS            4
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           48
+#define V_ITEMS           49
 #define V_WEAPONS          7
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        30
+#define V_INITDATA        31
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -781,9 +781,9 @@ enum
 	//165
 	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cTORCH,
 	//170
-	cSPOTLIGHT, cGLASS, cLIGHTTARGET,
+	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK,
     cMAX,
-//! potential new stuff that I might decide it is worth adding. 
+	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
     
     //165
@@ -1015,7 +1015,8 @@ enum
 	qr_SIDESWIM, qr_SIDESWIMDIR, qr_PUSHBLOCK_LAYER_1_2, qr_NEWDARK_SCROLLEDGE,
 	//32
 	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
-	qr_LIGHTBEAM_TRANSPARENT, qr_CANDLES_SHARED_LIMIT, qr_OLD_RESPAWN_POINTS,
+	qr_LIGHTBEAM_TRANSPARENT, qr_CANDLES_SHARED_LIMIT, qr_OLD_RESPAWN_POINTS, qr_HOOKSHOTALLLAYER,
+	//33
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -1588,13 +1589,14 @@ enum
 	edefSCRIPT01, 	edefSCRIPT02,	edefSCRIPT03,	edefSCRIPT04,	edefSCRIPT05,	//24
 	edefSCRIPT06, 	edefSCRIPT07,	edefSCRIPT08,	edefSCRIPT09,	edefSCRIPT10,	//29
 	edefICE,	edefBAIT, 	edefWIND,	edefSPARKLE,	edefSONIC,	//34
-	edefWhistle,	edefRES006,	edefRES007,	edefRES008,	edefRES009,	//39
+	edefWhistle,	edefSwitchHook,	edefRES007,	edefRES008,	edefRES009,	//39
 	edefRES010,	//x40
-	edefLAST255, //41
+	edefLAST255 //41
+	/*
 	edef42,	edefETHER, 	edefBOMBOS,	edefPOT,	edefTHROWNROCK,	//46
 	edefELECTRIC,	edefSHIELD,	edefTROWEL,	edefSPINATTK,	edefZ3SWORD,	//51
 	edefLASWORD,	//x52
-	edefLASTEND  //53
+	edefLASTEND  //53*/
     // Reserved for future use.
 	 //edefSCRIPT used to be unused edefSPIN
 
@@ -1669,6 +1671,7 @@ enum
 	edJUMP, //Z3 stalfos
 	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
 	edSHOWMESSAGE, //Shows a ZString when hit. e.g., Z3 Ganon
+	edSWITCH, //Switch places with the player, as a switchhook does
 	
     edLAST
 };
@@ -1832,7 +1835,7 @@ struct itemdata
     int32_t misc9;
     int32_t misc10;
     byte magic; // Magic usage!
-    byte usesound;
+    byte usesound, usesound2;
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
@@ -2750,6 +2753,13 @@ struct ffscript
     int32_t arg1;
     int32_t arg2;
     char *ptr;
+	void clear()
+	{
+		command = 0xFFFF;
+		arg1 = 0;
+		arg2 = 0;
+		ptr = NULL;
+	}
 };
 
 struct script_data
@@ -2762,7 +2772,7 @@ struct script_data
 		if(zasm)
 			delete[] zasm;
 		zasm = new ffscript[1];
-		zasm[0].command = 0xFFFF;
+		zasm[0].clear();
 	}
 	
 	bool valid() const
@@ -2773,7 +2783,7 @@ struct script_data
 	void disable()
 	{
 		if(zasm)
-			zasm[0].command = 0xFFFF;
+			zasm[0].clear();
 	}
 	
 	uint32_t size() const
@@ -2809,7 +2819,11 @@ struct script_data
 	script_data(int32_t cmds) : zasm(NULL)
 	{
 		if(cmds > 0)
+		{
 			zasm = new ffscript[cmds];
+			for(int32_t q = 0; q < cmds; ++q)
+				zasm[q].clear();
+		}
 		else
 			null_script();
 	}
@@ -3065,7 +3079,7 @@ struct newcombo
 	
 	int32_t attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
-	int16_t genflags; //!TODO ZScript Access 16 bits ; general flags
+	int16_t genflags; //16 bits ; general flags
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
 	char label[11];
@@ -3732,8 +3746,15 @@ enum miscsprite
 	sprFALL,
 	sprDROWN,
 	sprLAVADROWN,
-	spr_NUMUSED,
+	sprSWITCHPOOF,
 	sprMAX = 256
+};
+enum miscsfx
+{
+	sfxBUSHGRASS,
+	sfxSWITCHED,
+	sfxLOWHEART,
+	sfxMAX = 256
 };
 struct miscQdata
 {
@@ -3766,6 +3787,8 @@ struct miscQdata
 	
 	bottletype bottle_types[64];
 	bottleshoptype bottle_shop_types[256];
+	
+	byte miscsfx[sfxMAX];
 };
 
 #define MFORMAT_MIDI 0
@@ -3907,23 +3930,9 @@ enum // used for gamedata ITEMS
 	itype_bowandarrow, itype_letterpotion,
 	itype_last, 
 	itype_script1 = 256, //Scripted Weapons
-	itype_script2, 
-	itype_script3,
-	itype_script4,
-	itype_script5,
-	itype_script6,
-	itype_script7,
-	itype_script8,
-	itype_script9,
-	itype_script10,
-	itype_icerod, //ice Rod
-	itype_atkring,
-	itype_lantern,
-	itype_pearl,
-	itype_bottle,
-	itype_bottlefill,
-	itype_bugnet,
-	itype_mirror,
+	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
+	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
+	itype_mirror, itype_switchhook,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
@@ -4009,7 +4018,7 @@ enum generic_ind
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
 	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP,
-	genBUNNY_LTM, genLAST,
+	genBUNNY_LTM, genSWITCHSTYLE, genLAST,
 	genMAX = 256
 };
 enum glow_shape
@@ -4268,6 +4277,9 @@ struct gamedata
 	int32_t get_bunny_ltm();
 	void set_bunny_ltm(int32_t val);
 	
+	byte get_switchhookstyle();
+	void set_switchhookstyle(byte val);
+	
 	byte get_continue_scrn();
 	void set_continue_scrn(byte s);
 	void change_continue_scrn(int16_t s);
@@ -4410,6 +4422,7 @@ struct zinitdata
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 	
 	int32_t bunny_ltm;
+	byte switchhookstyle;
 };
 
 struct zcmap
@@ -5146,6 +5159,11 @@ enum //Mapscr hardcodes for temp mapscrs
 
 //MIDI States
 enum { midissuspNONE, midissuspHALTED, midissuspRESUME };
+
+enum swStyle //Switchhook animation styles
+{
+	swPOOF, swFLICKER, swRISE
+};
 
 #endif                                                      //_ZDEFS_H_
 

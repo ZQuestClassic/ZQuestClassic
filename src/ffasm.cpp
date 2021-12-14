@@ -1006,6 +1006,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BOTTLENAMESET",           1,   0,   0,   0},
 	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
 	{ "LOADBSHOPDATA",           1,   0,   0,   0},
+	{ "SWITCHNPC",           2,   0,   0,   0},
+	{ "SWITCHCMB",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2265,6 +2267,12 @@ script_variable variable_list[]=
 	{ "HERORESPAWNY",    HERORESPAWNY,    0, 0 },
 	{ "HERORESPAWNDMAP", HERORESPAWNDMAP, 0, 0 },
 	{ "HERORESPAWNSCR",  HERORESPAWNSCR,  0, 0 },
+	{ "IDATAUSESOUND2",  IDATAUSESOUND2,  0, 0 },
+	{ "HEROSWITCHTIMER",  HEROSWITCHTIMER,  0, 0 },
+	{ "HEROSWITCHMAXTIMER",  HEROSWITCHMAXTIMER,  0, 0 },
+	{ "NPCSWHOOKED",  NPCSWHOOKED,  0, 0 },
+	{ "GAMEMISCSPR", GAMEMISCSPR, 0, 0 },
+	{ "GAMEMISCSFX", GAMEMISCSFX, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

@@ -2756,8 +2756,14 @@ __________      .__        __                    _____                ___.
 
 ////////////
 //  Game  //
-////////////	
-							// Game
+//////////// Game
+
+int MiscSprites[MISCSPR_MAX];
+ * The quest's misc sprites. Use the 'MISCSPR_' constants to access this array.
+
+int MiscSFX[MISCSFX_MAX];
+ * The quest's misc sfx. Use the 'MISCSFX_' constants to access this array.
+
 int SubscreenSpeed;
  * The speed multiplier for the active subscreen falling or raising.
  * The base speed (1) is 3 pixels per frame. The maximum value is 85.
@@ -4641,6 +4647,10 @@ bool Shield[5];
 bool Core;
  * This returns true if the NPC is the core segment of a segmented engine enemy.
 
+bool SwitchHooked;
+ * READ-ONLY
+ * Returns true if the NPC is currently grabbed by a switchhook effect
+
 **************************************************************
 
 untyped HitBy[10];
@@ -4862,6 +4872,27 @@ int RespawnDMap;
 int RespawnScreen;
  * The screen at which the player will respawn upon drowning or such.
  * The engine may overwrite this value upon changing screens or standing on safe ground.
+
+int SwitchTimer;
+ * READ-ONLY
+ * The timer for the switchhook effect. If > 0, a switch effect is active.
+ * The player will swap positions with the target when this is equal to
+ *     (Hero->SwitchMaxTimer / 2), and the animation completes when this
+ *     reaches 0.
+
+int SwitchMaxTimer;
+ * READ-ONLY
+ * The starting (max) value of the switch timer.
+
+bool SwitchNPC(npc n, int effect);
+ * Switch the player with the given npc
+ * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
+ * Returns true if it is successful
+
+bool SwitchCombo(int pos, int effect);
+ * Switch the player with the given combo position
+ * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
+ * Returns true if it is successful
 
 **************************************************************
 
@@ -5240,7 +5271,9 @@ int CostTimer;
  * 	upkeep cost, such as Boots and Cane items.
 
 int UseSound;
- * The sound that will play when the item is used.
+ * The sound that may play when the item is used. When it plays differs depending on itemclass.
+int UseSound2;
+ * A second sound that may play when the item is used. When it plays differs depending on itemclass.
 
 int Pickup; 
  * The Pickup type for this item See IP_* in std_constants.zh.

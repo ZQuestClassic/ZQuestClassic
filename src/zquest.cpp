@@ -1695,6 +1695,7 @@ static MENU audio_menu[] =
 {
     { (char *)"SF&X Data",                  onSelectSFX,               NULL,                     0,            NULL   },
     { (char *)"&MIDIs",                     onMidis,                   NULL,                     0,            NULL   },
+    { (char *)"Mis&c SFX",                  onMiscSFX,                 NULL,                     0,            NULL   },
 // { (char *)"&Enhanced Music",            onEnhancedMusic,           NULL,                     D_DISABLED,   NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -35431,7 +35432,7 @@ bool ZModule::init(bool d) //bool default
 			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
 			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
 			//266
-			"ic_icerod","ic_atkring","ic_lantern","ic_pearl"
+			"ic_icerod","ic_atkring","ic_lantern","ic_pearl", "ic_bottle", "ic_bottlefill", "ic_bugnet", "ic_mirror", "ic_switchhook"
 			//270
 		};
 		for ( int32_t q = 0; q < itype_max; q++ )
@@ -35473,7 +35474,7 @@ bool ZModule::init(bool d) //bool default
 		    "cSCRIPT11", "cSCRIPT12", "cSCRIPT13", "cSCRIPT14", "cSCRIPT15",
 		    "cSCRIPT16", "cSCRIPT17", "cSCRIPT18", "cSCRIPT19", "cSCRIPT20",
 		    "cTRIGGERGENERIC", "cPITFALL", "cSTEPSFX", "cBRIDGE", "cSIGNPOST",
-		    "cCSWITCH", "cCSWITCHBLOCK", "cTORCH", "cSPOTLIGHT", "cGLASS", "cLIGHTTARGET"
+		    "cCSWITCH", "cCSWITCHBLOCK", "cTORCH", "cSPOTLIGHT", "cGLASS", "cLIGHTTARGET", "cSWITCHHOOK"
 		};
 		
 		const char default_ctype_strings[cMAX][255] = 
@@ -35512,7 +35513,7 @@ bool ZModule::init(bool d) //bool default
 			"Script 14","Script 15","Script 16","Script 17","Script 18",
 			"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
 			"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
-			"Spotlight", "Glass", "Light Trigger"
+			"Spotlight", "Glass", "Light Trigger", "SwitchHook Block"
 		};
 		
 		for ( int32_t q = 0; q < cMAX; q++ )

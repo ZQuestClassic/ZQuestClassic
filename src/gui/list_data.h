@@ -122,6 +122,8 @@ public:
 	static ListData bottletype();
 	
 	static ListData lweaptypes();
+	static ListData sfxnames();
+	
 	static ListData const& deftypes();
 	
 	static ListData itemdata_script();

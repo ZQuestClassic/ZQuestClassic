@@ -5826,6 +5826,23 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			temp_misc.bottle_shop_types[q].clear();
 	}
 	
+	if(s_version >= 14)
+	{
+		byte msfx;
+		for(int32_t q = 0; q < sfxMAX; ++q)
+		{
+			if(!p_getc(&msfx,f,true))
+				return qe_invalid;
+			temp_misc.miscsfx[q] = msfx;
+		}
+	}
+	else
+	{
+		memset(&(temp_misc.miscsfx), 0, sizeof(temp_misc.miscsfx));
+		temp_misc.miscsfx[sfxBUSHGRASS] = WAV_ZN1GRASSCUT;
+		temp_misc.miscsfx[sfxLOWHEART] = WAV_ER;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(Misc, &temp_misc, sizeof(temp_misc));
@@ -6350,6 +6367,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     {
                         return qe_invalid;
                     }
+					
+					if(s_version >= 49)
+					{
+						if(!p_getc(&tempitem.usesound2,f,true))
+						{
+							return qe_invalid;
+						}
+					}
+					else tempitem.usesound2 = 0;
                 }
             }
 	    
@@ -19365,6 +19391,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	else
 	{
 		temp_zinit.bunny_ltm = 0;
+	}
+	
+	if(s_version > 30)
+	{
+		if(!p_getc(&temp_zinit.switchhookstyle,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.switchhookstyle = 1;
 	}
 	
 	if(keepdata==true)

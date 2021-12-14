@@ -2960,7 +2960,10 @@ enum ASM_DEFINE
 	LOADBOTTLETYPE,
 	LOADBSHOPDATA,
 	
-	NUMCOMMANDS           //0x01A5
+	SWITCHNPC,
+	SWITCHCMB,
+	
+	NUMCOMMANDS           //0x01A7
 };
 
 
@@ -4367,8 +4370,14 @@ enum ASM_DEFINE
 #define HERORESPAWNY            0x140E
 #define HERORESPAWNDMAP         0x140F
 #define HERORESPAWNSCR          0x1410
+#define IDATAUSESOUND2          0x1411
+#define HEROSWITCHTIMER         0x1412
+#define HEROSWITCHMAXTIMER      0x1413
+#define NPCSWHOOKED             0x1414
+#define GAMEMISCSPR             0x1415
+#define GAMEMISCSFX             0x1416
 
-#define NUMVARIABLES         	0x1411
+#define NUMVARIABLES         	0x1417
 
 //} End variables
 

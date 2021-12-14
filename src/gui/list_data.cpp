@@ -4,6 +4,7 @@
 #include "../qst.h"
 extern zcmodule moduledata;
 extern char *weapon_string[];
+extern char *sfx_string[];
 
 #ifdef IS_ZQUEST
 extern miscQdata misc;
@@ -238,6 +239,22 @@ ListData ListData::lweaptypes()
 			continue;
 		
 		string sname(moduledata.player_weapon_names[i]);
+		ls.add(sname, i);
+	}
+	
+	return ls;
+}
+
+ListData ListData::sfxnames()
+{
+	map<string, int32_t> vals;
+	set<string> sprnames;
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	for(int32_t i=1; i<WAV_COUNT; ++i)
+	{
+		string sname(sfx_string[i]);
 		ls.add(sname, i);
 	}
 	

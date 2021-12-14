@@ -15,9 +15,9 @@
 #include <stdio.h>
 #include <string_view>
 
-#define COMBOPOS(x,y) (((y)&0xF0)+((x)>>4))
-#define COMBOX(pos) ((pos)%16*16)
-#define COMBOY(pos) ((pos)&0xF0)
+int32_t COMBOPOS(int32_t x, int32_t y);
+int32_t COMBOX(int32_t pos);
+int32_t COMBOY(int32_t pos);
 
 void set_preview_mode(int32_t prv);
 

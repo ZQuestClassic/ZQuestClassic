@@ -186,8 +186,10 @@ static const GUI::ListData comboRulesList
 		" not evenly divisible by 8."},
 	{ "Damage Combos Work On Layers 1 And 2", qr_DMGCOMBOLAYERFIX, 
 		"Allows Damage Combos to work on Layers 1 and 2."},
-	{ "Hookshot Grab Combos Work On Layers 1 And 2", qr_HOOKSHOTLAYERFIX, 
-		"Allows the Hookshot to grab onto combos on Layers 1 and 2." },
+	{ "Hookshot/SwitchHook Combos Work On Layers 1 And 2", qr_HOOKSHOTLAYERFIX, 
+		"Allows the Hookshot/SwitchHook to grab onto combos on Layers 1 and 2." },
+	{ "Hookshot/SwitchHook Combos Work On All Layers", qr_HOOKSHOTALLLAYER, 
+		"Allows the Hookshot/SwitchHook to grab onto combos on any layer." },
 	{ "Broken Mirror And Sword Beam Interaction", qr_OLDMIRRORCOMBOS, 
 		"If enabled, the positioning of reflected sword weapons is"
 		" positioned incorrectly, usually leading to it being more"

@@ -1,5 +1,5 @@
 // std_constants.zh
-// 29th Nov, 2021 for ZC 2.55 Alpha 100
+// 12th Dec, 2021 for ZC 2.55 Alpha 100
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -509,6 +509,7 @@ const int GEN_SIDESWIM_EXITJUMP  = 21; //Jump value when exiting water from the 
                                        //If 0, Link can only leave the top of the water via
                                        //sideview ladder.
 const int GEN_BUNNY_TILEMOD      = 22; //Tile modifier to apply while player is bunnified
+const int GEN_SWITCHHOOK_STYLE   = 23; //Which 'SW_EFF' style to use for the 'Switch w/ Player' enemy defense
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 const int LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
@@ -1394,25 +1395,26 @@ const int NPCA_TEKTITE_JUMP_CONT 	= 1;
 const int NPCA_TEKTITE_JUMP_VELOCITY 	= 2;
 
 //NPC Defenses. Use as indices to npc->Defense[].
-const int NPCD_ARROW			= 3;
-const int NPCD_BEAM			= 10;
-const int NPCD_BRANG			= 0;
-const int NPCD_BOMB			= 1;
-const int NPCD_BYRNA			= 16;
-const int NPCD_FIRE			= 4;
-const int NPCD_HAMMER			= 8;
-const int NPCD_HOOKSHOT			= 7;
-const int NPCD_MAGIC			= 6;
-const int NPCD_REFBEAM			= 11;
-const int NPCD_REFMAGIC			= 12;
-const int NPCD_REFFIREBALL		= 13;
-const int NPCD_REFROCK			= 14;
-const int NPCD_SBOMB			= 2;
-const int NPCD_SCRIPT			= 17;
-const int NPCD_STOMP			= 15;
-const int NPCD_SWORD			= 9;
-const int NPCD_WAND			= 5;
-const int NPCD_WHISTLE			= 35; //whistle lweapon
+const int NPCD_ARROW            = 3;
+const int NPCD_BEAM             = 10;
+const int NPCD_BRANG            = 0;
+const int NPCD_BOMB             = 1;
+const int NPCD_BYRNA            = 16;
+const int NPCD_FIRE             = 4;
+const int NPCD_HAMMER           = 8;
+const int NPCD_HOOKSHOT         = 7;
+const int NPCD_MAGIC            = 6;
+const int NPCD_REFBEAM          = 11;
+const int NPCD_REFMAGIC         = 12;
+const int NPCD_REFFIREBALL      = 13;
+const int NPCD_REFROCK          = 14;
+const int NPCD_SBOMB            = 2;
+const int NPCD_SCRIPT           = 17;
+const int NPCD_STOMP            = 15;
+const int NPCD_SWITCHHOOK       = 36;
+const int NPCD_SWORD            = 9;
+const int NPCD_WAND             = 5;
+const int NPCD_WHISTLE          = 35; //whistle lweapon
 
 //NPC Script Weapon Defences
 const int NPCD_SCRIPT1 = 20;
@@ -1470,6 +1472,7 @@ const int NPCDT_3XDAMAGE		= 17;
 const int NPCDT_4XDAMAGE		= 18;
 const int NPCDT_HEAL			= 19;
 const int NPCDT_TRIGGERSECRETS		= 20;
+const int NPCDT_SWITCH		= 50;
 
 /*
 const int NPCDT_FREEZE			= 21; //not implemented
@@ -3320,4 +3323,30 @@ DEFINE BLOCKFLAG_FLAME = 0x040;
 DEFINE BLOCKFLAG_SCRIPT = 0x080;
 DEFINE BLOCKFLAG_FIREBALL2 = 0x100;
 DEFINE BLOCKFLAG_LIGHTBEAM = 0x200;
+
+enum SwitchEffect
+{
+	SW_EFF_POOF,
+	SW_EFF_FLICKER,
+	SW_EFF_RISE
+};
+
+enum miscSpr
+{
+	MISCSPR_FALL,
+	MISCSPR_DROWN,
+	MISCSPR_LAVADROWN,
+	MISCSPR_SWITCHPOOF,
+	
+	MISCSPR_MAX
+};
+
+enum miscSFX
+{
+	MISCSFX_BUSH,
+	MISCSFX_SWITCHED,
+	MISCSFX_LOWHEART,
+	
+	MISCSFX_MAX
+};
 
