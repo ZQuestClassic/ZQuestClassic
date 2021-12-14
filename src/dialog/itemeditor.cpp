@@ -79,21 +79,27 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 	inf->clear();
 	inf->iclass = ref.family;
 	#define _SET(mem, str, helpstr) \
+	do{ \
 		inf->mem = str; \
-		inf->h_##mem = helpstr
+		inf->h_##mem = helpstr; \
+	}while(false)
 	#define FLAG(val) (ref.flags & ITEM_FLAG##val)
 	switch(ref.family)
 	{
 		case itype_fairy:
 		{
-			_SET(misc[0], "HP Regained:", "Life restored when collected. This is in HP points, unless"
-				" 'Life is Percent' is checked, then it's a percentage of max life.");
-			_SET(misc[1], "MP Regained:", "Magic restored when collected. This is in MP points, unless"
-				" 'Magic is Percent' is checked, then it's a percentage of max magic.");
 			_SET(misc[2], "Step Speed:", "The movement speed of the fairy, in 100ths of pixel/frame");
 			_SET(misc[3], "Bottle Fill:", "What bottle type to fill an empty bottle with if caught using a Bug Net");
 			_SET(flag[0], "Life is Percent", "HP Regained is a percentage out of max HP");
 			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
+			if(FLAG(1))
+				_SET(misc[0], "% HP Regained:", "Percentage of max life restored when collected.");
+			else
+				_SET(misc[0], "HP Regained:", "Life (in points) restored when collected.");
+			if(FLAG(2))
+				_SET(misc[1], "% MP Regained:", "Percentage of max magic restored when collected.");
+			else
+				_SET(misc[1], "MP Regained:", "Magic (in points) restored when collected.");
 			_SET(actionsnd[0], "Item Drop Sound:", "Plays SFX when dropped");
 			break;
 		}
@@ -438,11 +444,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			}
 			break;
 		}
-		case itype_boots: //!TODO Help Text
+		case itype_boots:
 		{
-			inf->power = "Damage Combo Level:";
-			inf->flag[0] = "Not Solid Combos";
-			inf->flag[1] = "Iron";
+			_SET(power, "Protection Power:", "Protects against damage combos that deal up to 16*power points of damage.");
+			_SET(flag[0], "Not Solid Combos", "Does not protect against solid damage combos");
+			_SET(flag[1], "Heavy", "Some step combo types are only triggered if the player has boots with this flag checked.");
 			break;
 		}
 		case itype_bracelet:
@@ -522,14 +528,22 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Baiting Sound:";
 			break;
 		}
-		case itype_potion: //!TODO Help Text
+		case itype_potion:
 		{
-			inf->misc[0] = "HP Regained:";
-			inf->misc[1] = "MP Regained:";
-			inf->flag[0] = "HP R. Is Percent";
-			inf->flag[1] = "MP R. Is Percent";
+			_SET(flag[0], "Life is Percent", "HP Regained is a percentage out of max HP");
+			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
 			inf->flag[2] = "Removes Sword Jinxes";
 			inf->flag[3] = "Removes Item Jinxes";
+			
+			if(FLAG(1))
+				_SET(misc[0], "% HP Regained:", "Percentage of max life restored when collected.");
+			else
+				_SET(misc[0], "HP Regained:", "Life (in points) restored when collected.");
+			if(FLAG(2))
+				_SET(misc[1], "% MP Regained:", "Percentage of max magic restored when collected.");
+			else
+				_SET(misc[1], "MP Regained:", "Magic (in points) restored when collected.");
+			
 			break;
 		}
 		case itype_whistle: //!TODO Help Text
@@ -626,11 +640,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Slash/Stab Sound";
 			break;
 		}
-		case itype_whimsicalring: //!TODO Help Text
+		case itype_whimsicalring:
 		{
-			inf->power = "Damage Bonus:";
-			inf->misc[0] = "Chance (1 in n):";
-			inf->actionsnd[0] = "Whimsy Sound:";
+			_SET(power, "Damage Bonus:", "How much damage to add to strikes from the Sword, Wand, and Hammer."
+				"\nThis is added before Attack Rings take effect, and also before the hero damage multiplier.");
+			_SET(misc[0], "Chance (1 in n):", "There is a '1 in n' chance of the bonus damage being added (min 1)");
+			_SET(actionsnd[0], "Whimsy Sound:", "This sound plays when the bonus damage is successfully applied.");
 			break;
 		}
 		case itype_perilring:

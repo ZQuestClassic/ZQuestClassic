@@ -582,7 +582,7 @@ void ComboEditorDialog::loadComboType()
 		case cSTEP: case cSTEPSAME: case cSTEPALL:
 		{
 			l_flag[0] = "Heavy";
-			h_flag[0] = "Requires 'Iron' Boots to trigger";
+			h_flag[0] = "Requires Heavy Boots to trigger";
 			l_attribyte[0] = "Sound:";
 			h_attribyte[0] = "SFX to play when triggered";
 			l_attribyte[1] = "Req. Item";
@@ -592,7 +592,7 @@ void ComboEditorDialog::loadComboType()
 		case cSTEPCOPY:
 		{
 			l_flag[0] = "Heavy";
-			h_flag[0] = "Requires 'Iron' Boots to trigger";
+			h_flag[0] = "Requires Heavy Boots to trigger";
 			break;
 		}
 		case cWATER:
