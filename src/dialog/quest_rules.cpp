@@ -100,7 +100,13 @@ static const GUI::ListData animRulesList
 		"When enabled, bombs won't flash the screen when exploding." },
 	{ "Layers 1 and 2 Are Drawn Under Caves", qr_LAYER12UNDERCAVE, 
 		"If enabled, the Player and the cave they're exiting/entering are"
-		" drawn above Layer 1 and 2 when entering/exiting a cave." }
+		" drawn above Layer 1 and 2 when entering/exiting a cave." },
+	{ "Translucent Shadows", qr_TRANSSHADOWS,
+		"If enabled, the shadows of all sprites are drawn as translucent."
+		" This includes the Player, Weapons, Enemies, and Items."},
+	{ "Shadows Flicker", qr_SHADOWSFLICKER,
+		" If enabled, Link's Shadow and Enemy Shadows only draw every other frame."
+		" Items and Weapons are not affected by this."}
 };
 
 static const GUI::ListData comboRulesList
@@ -286,6 +292,14 @@ static const GUI::ListData comboRulesList
 		" mostly on the damage combo. This does not affect the"
 		" check for bonking your head on a damaging ceiling; see"
 		" 'Sideview Spike Detection Prior to 2.50.1RC3' for that."},
+	{ "Fairy Rings Don't Remove Sword Jinxes", qr_NONBUBBLEFAIRIES,
+		"If enabled, fairy ring flags won't heal sword jinxes when the player steps on them."
+		" This used to prevent 'Fairy Combos Remove Item Jinxes' from working, but"
+		" this has since been patched and both quest rules can work independently."},
+	{ "Fairy Rings Remove Item Jinxes", qr_ITEMBUBBLE,
+		"If enabled, fairy ring flags will heal item jinxes when the player steps on them."
+		" This used to also affect potions and triforce pieces, but this behavior has since"
+		" been relocated to the respective item flags."},
 	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
 		"Light Beams from Spotlight combos are transparently drawn."}
 };
@@ -300,7 +314,7 @@ static const GUI::ListData compatRulesList
 		"If enabled, Lens hints will draw on layer 0 and hide"
 		" Layer 1 and 2 if there is a secret on that combo."
 		" If disabled, hints will draw above Layer 2 without"
-		" hiding Layers 1 and 2. "},
+		" hiding Layers 1 and 2."},
 	{ "No Fairy Guy Fires", qr_NOFAIRYGUYFIRES, 
 		"If enabled, Fairy Guys will not have fires, and will"
 		" not block the upper portion of the screen."},
@@ -502,7 +516,7 @@ static const GUI::ListData compatRulesList
 		" it will run immediately after."},
 	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT, 
 		"If this rule is enabled, there is no longer a single spawn limit on the number"
-		" of fairies onscreen. This lets enemies and other things drop fairies while "
+		" of fairies onscreen. This lets enemies and other things drop fairies while"
 		" there is a fairy onscreen." },
 	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP, 
 		"If this rule is enabled, arrows will still check for secrets even while they"
@@ -591,6 +605,23 @@ static const GUI::ListData compatRulesList
 		" memory is a security risk (and thus isn't allowed), this rule recreates this"
 		" behavior as safely as possible by having attribute 32 return 0 and attribute"
 		" 31 be set to attribute 32."},
+	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
+		"Prior to 2.55 Alpha 46, Script and Friendly class enemies did not exist."
+		" This rule prevents spawning those enemies if scripts in older versions"
+		" were attempting to spawn them and relied on it failing."},
+	{ "Old fire trail duration", qr_OLD_FLAMETRAIL_DURATION,
+		"Prior to 2.55 Alpha 100, Fire Trails lasted for 640 frames by default, or a little"
+		" over 10 and a half seconds. They have since been reduced to 180 frames, or 3 seconds."
+		" Enabling this will revert back to the old duration."},
+	{ "Broken Magic Book Costs", qr_BROKENBOOKCOST,
+		"In older versions, the magic check for the Magic Book was broken. It paid the cost correctly,"
+		" but if it couldn't pay the cost, it would still create the flame and trigger fire secrets."
+		" Enabling this recreates this bug."},
+	{ "Old Intro String in Ganon Room Behavior", qr_GANONINTRO,
+		"In older versions, Ganon Rooms used to call the function that reset the dmap's intro clock."
+		" This normally wouldn't do anythingas it checks if you've already visited the dmap, but in"
+		" certain circumstances this could allow Ganon to repeat the dmap's intro string."
+		" Enabling this will recreate this behavior."},
 	{ "Candle use limit is shared", qr_CANDLES_SHARED_LIMIT,
 		"Candle limited uses per screen is shared between candles" },
 	{ "Old Respawn Points", qr_OLD_RESPAWN_POINTS,
@@ -600,12 +631,40 @@ static const GUI::ListData compatRulesList
 
 static const GUI::ListData enemiesRulesList
 {
-	{ "Use New Enemy Tiles", qr_NEWENEMYTILES },
-	{ "Enemies Jump/Fly Through Z-Axis", qr_ENEMIESZAXIS },
-	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS },
-	{ "Enemies Always Return", qr_ALWAYSRET },
-	{ "Temporary No Return Disabled", qr_NOTMPNORET },
-	{ "Must Kill All Bosses To Set 'No Return' Screen State", qr_KILLALL },
+	{ "Use New Enemy Tiles", qr_NEWENEMYTILES,
+		"If enabled, enemies will use different, more modern animation instead of their"
+		" more NES-styled animation. Enemies will use New Tile and E. Anim in the enemy editor"
+		" instead of Old Tile and O. Anim, and enemies will have access to features such as"
+		" firing animations, tiles for all 4/8 directions, unique segment tiles, and etc."
+		" If disabled, enemies will use more basic, more limited animation."},
+	{ "Enemies Jump/Fly Through Z-Axis", qr_ENEMIESZAXIS,
+		"If enabled, certain enemies will make use of the Z-Axis in their behaviors."
+		" Tektites, Vires, Pols Voice, Rocks, and Boulders will jump/bounce through"
+		" the Z-Axis instead of faking it via the Y-Axis, Peahats will lose their"
+		" invulnerability while flying but will instead fly high enough that most"
+		" weapons can't hit it without the player jumping, and Summoner Wizzrobes"
+		" will spawn their summoned enemies in the air."},
+	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS, 
+		"If enabled, enemy-carried items are moved offscreen whenever the item"
+		"-carrying enemy spawns, and is only moved back whenever the enemy dies."
+		" This prevents the player from bumping into the enemy to pick up the item"
+		" before the enemy is killed. The exact coordinates the item is set to is"
+		" -128, -128."},
+	{ "Enemies Always Return", qr_ALWAYSRET,
+		"If enabled, regular enemies will always return when you leave the screen"
+		" and come back, regardless of how many you killed before leaving. This"
+		" does not affect 'dungeon boss' screen flagged enemies if the screen is"
+		" cleared, nor does it affect enemies which are flagged to 'never return"
+		" after death'; enemies in these conditions will stay dead regardless of"
+		" this rule."},
+	{ "Must Kill All Bosses To Set 'No Return' Screen State", qr_KILLALL,
+		"If enabled, killing an enemy that has 'Never Returns After Death' set will"
+		" will not set the screen flag that keeps them dead if there are any other"
+		" enemies currently on screen that have that flag set. This means that"
+		" only after killing all enemies with the flag set will the screen be"
+		" marked as having killed the not-returning enemy. Otherwise, if disabled,"
+		" killing any enemy with 'Never Returns After Death' will prevent any other"
+		" enemy in the room with that flag set from also returning."},
 	{ "Line of Sight Traps Obey Solidity And Don't Have Hardcoded Directions", qr_MEANTRAPS, 
 		"If enabled, Line of Sight traps will return when they hit a solid object."
 		" If disabled, they will only return depending on their position as"
@@ -620,18 +679,29 @@ static const GUI::ListData enemiesRulesList
 		" And Don't Have Hardcoded Directions' is enabled, by hitting a"
 		" solid object. If disabled, they will arbitrarily stop at the"
 		" middle of the screen either vertically or horizontally."},
-	{ "Constant Traps Can Pass Through Enemies", qr_PHANTOMPLACEDTRAPS },
-	{ "Flying Enemies Can Appear on Unwalkable Combos", qr_WALLFLIERS },
-	{ "Broken Enemy Shield Tiles", qr_BRKNSHLDTILES },
-	{ "Enemies Don't Flash When Dying", qr_NOFLASHDEATH },
-	{ "Show Shadows", qr_SHADOWS },
-	{ "Translucent Shadows", qr_TRANSSHADOWS },
-	{ "Shadows Flicker", qr_SHADOWSFLICKER },
-	{ "Enemies Flicker When Hit", qr_ENEMIESFLICKER },
-	{ "No Statue Minimum Range Or Double Fireballs", qr_BROKENSTATUES },
-	{ "Use Super Bomb Explosions for Explode on Contact", qr_BOMBCHUSUPERBOMB },
-	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES },
-	{ "Disable Spawning Custom and Friendly Enemy Types", qr_SCRIPT_FRIENDLY_ENEMY_TYPES },
+	{ "Constant Traps Can Pass Through Enemies", qr_PHANTOMPLACEDTRAPS,
+		"Normally, Constant Traps have collision with enemies, and will richochet"
+		" and come back when they hit any enemy, including other traps. Enabling"
+		" this rule disables this behavior."},
+	{ "Flying Enemies Can Spawn on Solid Combos", qr_WALLFLIERS,
+		"If enabled, flying enemies can spawn naturally on solid, non-'No Flying Enemy' flagged"
+		" combos. Otherwise, they can only spawn on non-solid combos. Note that flying enemies"
+		" can naturally move over solid combos regardless of this rule. This rule only affects"
+		" if they can spawn over the Combos if they're solid."},
+	{ "Broken Enemy Shield Tiles", qr_BRKNSHLDTILES,
+		"If enabled, enemies who have their shield broken with the hammer will switch to their"
+		" special tile. If 'Use New Enemy Tiles' is disabled, this only affects enemies that have"
+		" the 'Darknut (NES)' animation style."},
+	{ "Show Shadows", qr_SHADOWS,
+		"If enabled, enemies will draw shadows below them if they are in the air or if they are"
+		" a flying enemy. How these shadows appear are affected by 'Translucent Shadows' and"
+		" 'Shadows Flicker', both of which are found in Animation Rules."},
+	{ "Enemies Flicker When Hit", qr_ENEMIESFLICKER,
+		"If enabled, all enemies flicker when they take damage instead of flashing."
+		" Does not apply to Ganon-type enemies."},
+	{ "Use Super Bomb Explosions for Explode on Contact", qr_BOMBCHUSUPERBOMB,
+		"If enabled, enemies that explode on contact (like bombchus) will use super bomb explosions."
+		" If disabled, they will use regular bomb explosions."},
 	{ "Allow Placing Ganon as Screen Enemy", qr_CAN_PLACE_GANON,
 		"If enabled, Ganon-type enemies are allowed to spawn when placed as a screen enemy."
 		" If disabled, Ganon can only be spawned by Ganon type rooms or scripts."},
@@ -641,114 +711,372 @@ static const GUI::ListData enemiesRulesList
 	{ "Enemies check closest bait", qr_FIND_CLOSEST_BAIT,
 		"If enabled, enemies will check all bait on screen and home towards"
 		" the closest one in range if they have hunger. If disabled, they will"
-		" instead check only the oldest-placed bait on the screen."}
+		" instead check only the oldest-placed bait on the screen."},
+		
+	//Maybe we should keep this one last always? -Deedee
+	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
+		"If enabled, enemies can go out of bounds without getting removed. This is"
+		" mainly intended for script use and should not be turned on unless a script"
+		" requires it."}
 };
 
 static const GUI::ListData itemRulesList
 {
-	{ "Enable Magic", qr_ENABLEMAGIC },
-	{ "True Arrows", qr_TRUEARROWS },
-	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT },
-	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFLINK },
-	{ "Scripted Bomb LWeapons Hurt Player", qr_OUCHBOMBS },
-	{ "Scripted Melee Weapons Can't Pick Up Items", qr_NOITEMMELEE },
-	{ "'Hearts Required' Affects Non-Special Items", qr_HEARTSREQUIREDFIX },
-	{ "Big Triforce Pieces", qr_4TRI },
-	{ "3 or 6 Triforce Total", qr_3TRI },
-	{ "Fairy Combos Don't Remove Sword Jinxes", qr_NONBUBBLEFAIRIES },
-	{ "Fairy Combos Remove Item Jinxes", qr_ITEMBUBBLE },
-	{ "Broken Magic Book Costs", qr_BROKENBOOKCOST },
-	{ "Reroll Useless Drops", qr_SMARTDROPS },
-	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS },
-	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION },
-	{ "Fairies spawn with random direction", qr_FAIRYDIR },
+	{ "Enable Magic Counter", qr_ENABLEMAGIC,
+		"Enables Magic. Magic drops become enabled in dropsets, items that"
+		" use magic will check for it, and magic meters on subscreens"
+		" are enabled. If disabled, items set to use magic as their cost"
+		" are instead free, and nothing will drop magic."},
+	{ "Enable Arrow Counter", qr_TRUEARROWS,
+		"Enables arrow ammo. Arrow ammo becomes enabled in dropsets, and"
+		" the Bow and Arrow both check and use this arrow counter. If disabled,"
+		" the Bow and Arrow will instead use Rupees, as in NES Zelda."},
+	{ "'Hearts Required' Affects Non-Special Items", qr_HEARTSREQUIREDFIX,
+		"If enabled, the heart requirement check applies no matter where the item"
+		" is picked up. If disabled, it only applies to Special Items in the Special"
+		" Item Roomtype, specifically the ones given by Room Guys."},
+	{ "Big Triforce Pieces", qr_4TRI,
+		"If enabled, the triforce requirement for the Triforce Check roomtype is"
+		" reduced, and each triforce that you pick up will fill in 2 slots instead"
+		" of 1 on the subscreen triforce frame. The extra slot it fills is equal to"
+		" the level number of the triforce you picked up + 4."},
+	{ "3 or 6 Triforce Total", qr_3TRI,
+		"If enabled, the triforce requirement for the Triforce Check roomtype is"
+		" lowered to 6 triforce pieces, from 8. This is further reduced by the"
+		" 'Big Triforce Pieces' rule, which halves the requirement to 3."},
+	{ "Reroll Drops If Capacity is Zero", qr_SMARTDROPS,
+		"If enabled, drops are rerolled if the item tries to increase a counter"
+		" by 1 or more, but that counter has a max capacity of 0. A possible use"
+		" for this would be having Bombs or Arrows not drop until you get the Bomb"
+		" Bag or the Bow and Arrow, for example. Not to be confused with rerolling"
+		" drops when that counter is full; see 'Reroll Drops If Capacity is Full' for"
+		" that behavior."},
+	{ "Reroll Drops If Capacity is Full", qr_SMARTER_DROPS,
+		"If enabled, drops are rerolled if the item tries to increase a counter"
+		" by 1 or more, but that counter is already at or above it's max capacity."
+		" This would, for example, prevent arrows from dropping if you already have"
+		" max arrows, potentially rerolling it with a more useful item."},
+	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
+		"If enabled, Items will fall through combos flagged with the 'Sideview Platform' flag"
+		" or the 'Sideview Ladder' flag. If disabled, they will land on and not fall through"
+		" either of these."},
+	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION,
+		"If enabled, when the player holds an item above their head, the item"
+		" will continue to animate. If disabled, the item will be static and"
+		" only use the first frame of their animation."},
+	{ "Fairies spawn with random direction", qr_FAIRYDIR,
+		"If enabled, fairies will spawn facing one of 8 directions randomly."
+		" If disabled, fairies will spawn facing up, the default direction."},
 	{ "Bottles can't be used with any maxed counter", qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
 		"If enabled, bottled items cannot be used if ANY of the 3 (non-None) counters it fills "
 		" are already at maximum capacity.\n"
-		"Otherwise, bottled items can be used if AT LEAST ONE of it's counters is not full."}
+		"Otherwise, bottled items can be used if AT LEAST ONE of it's counters is not full."},
+	{ "Whistle triggers can be permanent", qr_PERMANENT_WHISTLE_SECRETS,
+		"If enabled, whistle triggers are allowed to be permanent. This means that whistle triggers"
+		" will set the secret screen state, unless 'Screen->Secrets are Temporary' is checked for the"
+		" current screen."}
 };
 
 static const GUI::ListData miscRulesList
 {
-	{ "Can Select A-Button Weapon On Subscreen", qr_SELECTAWPN },
-	{ "More Sound Effects", qr_MORESOUNDS },
-	{ "Fast Heart Refill", qr_FASTFILL },
-	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART },
-	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG },
-	{ "Messages Can Be Bypassed With The B Button", qr_ALLOWMSGBYPASS },
-	{ "Messages Freeze All Action", qr_MSGFREEZE },
-	{ "Messages Disappear", qr_MSGDISAPPEAR },
-	{ "Show Time On Subscreen", qr_TIME },
-	{ "Healing Fairy Heart Circle Is Centered Around Player", qr_HEARTRINGFIX },
-	{ "No Healing Fairy Heart Circle", qr_NOHEARTRING },
-	{ "No Saving When Continuing", qr_NOSAVE },
-	{ "Skip Continue Screen", qr_NOCONTINUE },
-	{ "No Fires In Special Rooms", qr_NOGUYFIRES },
-	{ "Special Room Guys Don't Create A Puff When Appearing", qr_NOGUYPOOF },
-	{ "Log Game Events To Allegro.log", qr_LOG },
-	{ "Log Script Errors To Allegro.log", qr_SCRIPTERRLOG },
-	{ "Draining Rupees Can Still Be Spent", qr_SHOPCHEAT },
-	{ "No Intro String in Ganon Room", qr_NOGANONINTRO },
-	{ "No Ammo Required to Display Subscreen Items", qr_NEVERDISABLEAMMOONSUBSCREEN },
-	{ "Triforce in Cellar Warps Player Out", qr_SIDEVIEWTRIFORCECELLAR },
-	{ "Reduced Flashing (Epilepsy Protection)", qr_EPILEPSY },
-	{ "No L/R Inventory Shifting", qr_NO_L_R_BUTTON_INVENTORY_SWAP },
-	{ "Ex3 and Ex4 Shift A-Button Items", qr_USE_EX1_EX2_INVENTORYSWAP },
-	{ "Disable Fast Mode (Uncap)", qr_NOFASTMODE },
-	{ "Allow permanent secrets on Dungeon-type dmaps", qr_DUNGEON_DMAPS_PERM_SECRETS },
-	{ "No Scrolling Screen While In Air", qr_NO_SCROLL_WHILE_IN_AIR },
-	{ "Instant Reload On Death", qr_INSTANT_RESPAWN },
-	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME },
-	{ "Allow Setting X Button Items", qr_SET_XBUTTON_ITEMS },
-	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS },
-	{ "Instant Continue on Death", qr_INSTANT_CONTINUE },
-	{ "New Dark Rooms", qr_NEW_DARKROOM },
-	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6 },
-	{ "Item Cellars/Passageways/Caves use own music", qr_SCREEN80_OWN_MUSIC },
-	{ "New Darkroom Torches Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
-		"When in a dark room with 'New Dark Rooms' enabled, torches will light across"
+	{ "Allow Setting A Button Items", qr_SELECTAWPN,
+		"If enabled, you can select what item goes on the A button on the subscreen."
+		" If disabled, the A Button is hardcoded to the highest leveled Sword item"
+		" that you possess, and you are prevented from equipping Sword-class items"
+		" on the B button."},
+	{ "Allow Setting X Button Items", qr_SET_XBUTTON_ITEMS,
+		"If enabled, allows setting items to the X (Ex1) button. If disabled, the"
+		" X/Ex1 button has no usage outside of scripting."},
+	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
+		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
+		" Y/Ex2 button has no usage outside of scripting."},
+	{ "More Sound Effects", qr_MORESOUNDS,
+		"If enabled, more things use unique sounds. Summoning enemies use the Summon"
+		" SFX instead of the Fire SFX, Fireballs and Rock Weapons have firing sounds,"
+		" Traps make a sound when richocheting, Hammer makes a splash sound when pounding"
+		" water, bushes/flowers/tall grass make a sound when cut, Hammer posts make"
+		" a sound when pounded, the Lens of Truth play a sound when both used and unused,"
+		" Push Blocks make a sound when pushed, Whistle Whirlwinds make a continuous sound when"
+		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Goddess Spells"
+		" (Nayru's Love, Farore's Wind, and Din's Fire) all use sound effects for everything they do."},
+	{ "Fast Heart Refill", qr_FASTFILL,
+		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
+		" If disabled, they will restore half a heart every 22 frames."},
+	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
+		"If enabled, the Life Meter subscreen item will display quarter hearts if the Player"
+		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
+	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG,
+		"If enabled, holding the A button will prevent any message delay from occuring, displaying"
+		" 60 characters per second."},
+	{ "Messages Can Be Bypassed With The B Button", qr_ALLOWMSGBYPASS,
+		"If enabled, pressing B during a message will cause the rest of the message to be displayed"
+		" immediately with no regards for message speed."},
+	{ "Messages Freeze All Action", qr_MSGFREEZE,
+		"If enabled, everything on screen except for combo animation and combo cycling will freeze"
+		" while a message is being displayed."},
+	{ "Messages Disappear", qr_MSGDISAPPEAR,
+		"If enabled, messages will disappear if their next string is '0'. This also has the side effect"
+		" of removing the barrier Guys put across the top of the screen, with the exception of 'Feed"
+		" the Goriya' rooms, which will still have this barrier. \nIf this rule is disabled, the current"
+		" message will remain onscreen whenever the next string is '0', until an item is picked up."
+		" Note that while picking up an item removes the string, it may not remove the Guy Barrier"
+		" depending on whether or not 'Items Disappear During Hold-Up' is checked and depending on"
+		" whether or not picking up an item is what solves the Guy Room."},
+	{ "Show Time On Subscreen", qr_TIME,
+		"If enabled, current Game Time can be shown on the subscreen. This displays how long you've"
+		" been playing on that save file. Note that having cheats turned on will prevent the Game Time"
+		" from displaying, even if this quest rule is enabled."},
+	{ "Healing Fairy Heart Circle Is Centered Around Player", qr_HEARTRINGFIX,
+		"If enabled, the circle of hearts that display around the player when they step on a Fairy"
+		" Circle will be centered around the Player. If disabled, they will center on the center of the"
+		" screen, or 125, 88."},
+	{ "No Healing Fairy Heart Circle", qr_NOHEARTRING,
+		"If enabled, the circle of hearts that normally display around the player when they step on a Fairy" 
+		" Circle will not display."},
+	{ "No Saving When Continuing", qr_NOSAVE,
+		"If enabled, removes the 'Save' option from the Game Over screen. Saving must be done through other methods."},
+	{ "Return To File Select On Death/F6", qr_NOCONTINUE,
+		"If enabled, the Continue Screen is skipped, and the player is returned to the file select screen on Death or Game->End."
+		" Note that this means all progress is lost since last save."},
+	{ "Instant Reload On Death", qr_INSTANT_RESPAWN,
+		"If enabled, dying will reload your last save immediately after the death animation finishes, losing all progress since the last save."
+		" Having both this and Instant Continue on Death enabled will cancel each other out."},
+	{ "Instant Continue on Death", qr_INSTANT_CONTINUE,
+	    "If enabled, dying will respawn you immediately after the death animation finishes, skipping the Game Over screen."
+		" Having both this and Instant Reload on Death enabled will cancel each other out."},
+	{ "No Fires In Special Rooms", qr_NOGUYFIRES,
+		"If enabled, Guys in Special Rooms will not create Flames. This also means they cannot shoot fireballs when hit."},
+	{ "Special Room Guys Don't Create A Puff When Appearing", qr_NOGUYPOOF,
+		"If enabled, Special Room Guys and their Fires will not make a spawn poof when entering the screen."},
+	{ "Log Game Events To Allegro.log And Console", qr_LOG,
+		"Enables the logging of certain Game Events to both allegro.log and the ZScript Debug Console."
+		" Note that turning this on can result in slower performance. Logging includes:"
+		"\n- Whether or not a 'Hit All Triggers' has been fulfilled and, if not, how many are left;"
+		"\n- The Screen and Map number whenever screens are changed, along with the current Screen States of that screen;"
+		"\n- The setting or unsetting of Screen States, and whether or not a Screen State Carryover happened and where it happened;"
+		"\n- Any warps that happen, including what type of warp it is and where the warp took you;"
+		"\n- Any items you pick up, including both the ID and the Item Name;"
+		"\n- Any time the continue point is set, including what it's been set to;"
+		"\n- Any time a script creates an object, including the object's name and it's UID (not to be confused with ID);"
+		"\n- and lastly, any time a script tries to reference a nonexistent object."},
+	{ "Log Script Errors To Allegro.log And Console", qr_SCRIPTERRLOG,
+		"If enabled, various script errors are logged to Allegro.log and the ZScript Debug Console."
+		" The list of what exactly is logged is too long to list here, but it includes errors like"
+		" arrays being too small, invalid arguments being passed, ZASM overflow, etc."},
+	{ "Draining Rupees Can Still Be Spent", qr_SHOPCHEAT,
+		"If enabled, you can spend rupees while they are draining, even if after the drain"
+		" would finish you'd be unable to afford the shop item. As an example, if you have"
+		" 500 rupees and you buy a 300 rupee item, you'd normally be left with 200 rupees;"
+		" but if the player is fast enough, they can buy an item with their still-draining"
+		" money, possibly buying an item worth more than the 200 rupees they'd be left with."
+		" \nIf disabled, shops will check both your rupee count and your rupee drain amount to"
+		" make sure you can afford whatever the player is buying."},
+	{ "No Ammo Required to Display Subscreen Items", qr_NEVERDISABLEAMMOONSUBSCREEN,
+		"If enabled, running out of ammo will not remove relevant items from the subscreen."
+		" For example, running out of bombs will not remove the Bomb item from your inventory,"
+		" and running out of Arrows will not remove the Bow and Arrow from your inventory."
+		" \nOtherwise, if disabled, they will be hidden from your inventory and be unselectable"
+		" if you run out of ammo, until you get more ammo for it."},
+	{ "Triforce in Cellar Warps Player Out", qr_SIDEVIEWTRIFORCECELLAR,
+		"If enabled, the Triforce can warp you out of passageways if 'Side Warp Out' is checked on"
+		" the Triforce item. Otherwise, if disabled, you will stay in the passageway after the animation"
+		" ends, regardless of whether 'Side Warp Out' is checked."},
+	{ "Reduced Flashing (Epilepsy Protection)", qr_EPILEPSY,
+		"If enabled, certain features in the game are limited visually to make things more epilepsy-friendly"
+		" for players. This includes capping the intensity of wavy effects, reducing the triforce flashes, and more."
+		" Note that players can turn on this rule themselves in the player; if you desire consistency, you should turn"
+		" this quest rule on and design around it."},
+	{ "Screen->Wavy Intensity is not affected by Epilepsy Protection", qr_WAVY_NO_EPILEPSY,
+		"If enabled, the intensity of wavy effects is not capped by epilepsy protection. The cap is at 2048*sin for"
+		" non-epilepsy mode, and 16*sin for epilepsy. Enabling this will use the 2048 cap even in epilepsy mode."},
+	{ "Screen->Wavy Speed is not affected by Epilepsy Protection", qr_WAVY_NO_EPILEPSY_2,
+		"If enabled, the speed of wavy effects is not halved by epilepsy protection. Epilepsy protection normally halves"
+		" the speed of wavy effects; enabling this will bypass this behavior."},
+	{ "No L/R Inventory Shifting", qr_NO_L_R_BUTTON_INVENTORY_SWAP,
+		"If enabled, L/R item switching is disabled. Normally, you can quickly change what item is selected to the B button"
+		" by pressing L and R to shift the selection left and right. Enabling this disables this behavior, allowing the usage"
+		" of L and R for more scripted purposes."},
+	{ "Ex3 and Ex4 Shift A-Button Items", qr_USE_EX1_EX2_INVENTORYSWAP,
+		"If enabled, Ex3 and Ex4 will shift the item equipped on the A button to whatever item is left or right of it on the"
+		" subscreen, without having to open the subscreen. This is similar to the existing L/R B-Button shifting, but for the"
+		" A button. Disabling this leaves Ex3 and Ex4 open for scripted usage."},
+	{ "Disable Fast Mode (Uncap)", qr_NOFASTMODE,
+		"If enabled, the built in fast-forward key ('~', or Tilde) is prevented from working while the quest is loaded,"
+		" and FPS is forced to be throttled at 60 FPS. Many players fast forward to speed things up, especially during"
+		" many built-in cutscenes such as triforce obtaining and the ending. Enabling this will disable this, which is"
+		" helpful if you want to control the speed the game is played at."},
+	{ "Allow permanent secrets on Dungeon-type dmaps", qr_DUNGEON_DMAPS_PERM_SECRETS,
+		"If enabled, Dungeon-type DMaps can have secrets be permanent. Normally Dungeon DMaps are hardcoded to not allow"
+		" permanent secrets to mimic Zelda 1, but the Temp Secrets screen flag makes this behavior not only irrelevant,"
+		" but a design hindrance. Enabling this will remove this hardcode and let Dungeon DMaps have permanent secrets."},
+	{ "No Scrolling Screen While In Air", qr_NO_SCROLL_WHILE_IN_AIR,
+		"If enabled, you cannot scroll the screen while in midair. Normally the Roc's Feather is a nightmare to design around"
+		" as you can jump over water and pits, scroll the screen, and set your respawn point over top of a pit, or even sequence"
+		" break where you aren't supposed to by drowning in water on the next screen, and jumping again after respawning. Enabling"
+		" this will prevent you from changing screens while jumping or otherwise in the air, allowing you to design around the feather easier."},
+	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
+		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
+		"Has no downsides, is only here for compatibility sake."},
+	{ "New Dark Rooms", qr_NEW_DARKROOM,
+		"If enabled, Dark Rooms behave less like Z1 and mroe like LttP/Minish Cap, having light circles around torches and giving a customizeable"
+		"spotlight around the Player. If disabled, Z1-styled dark rooms are used, which only darken the screen until lit up with a candle."},
+	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6,
+		"If enabled, the new dark rooms will draw under layer 7, allowing scripts to draw over dark rooms by drawing to Layer 7."
+		" If disabled, scripts are never able to draw above the new dark rooms."},
+	{ "Item Cellars/Passageways/Caves use own music", qr_SCREEN80_OWN_MUSIC,
+		"If enabled, screen 80/81 will play a midi if one is assigned to screen 80/81."},
+	{ "New Darkroom Lanterns Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
+		"When in a dark room with 'New Dark Rooms' enabled, lanterns will light across"
 		" the boundary between screens *during scrolling*." }
 };
 
 static const GUI::ListData nesfixesRulesList
 {
-	{ "Freeform Dungeons", qr_FREEFORM },
-	{ "Can Safely Trigger Armos/Grave From The South", qr_SAFEENEMYFADE },
-	{ "Can Use Items/Weapons on Edge of Screen", qr_ITEMSONEDGES },
-	{ "Fix Player's Position in Dungeons", qr_LINKDUNGEONPOSFIX },
-	{ "Raft/Ladder Sprite Direction Fix", qr_RLFIX },
-	{ "No Palette 3 CSet 6 Fix", qr_NOLEVEL3FIX },
-	{ "Player Holds Special Bombs Over They're Head", qr_BOMBHOLDFIX },
-	{ "Holding Up Items Doesn't Restart Music", qr_HOLDNOSTOPMUSIC },
-	{ "Leaving Item Cellar/Passageway Doesn't Restart Music", qr_CAVEEXITNOSTOPMUSIC },
-	{ "Tunic Color Can Change On Overworld", qr_OVERWORLDTUNIC },
-	{ "Sword/Wand Flip Fix", qr_SWORDWANDFLIPFIX },
-	{ "Push Block CSet Fix", qr_PUSHBLOCKCSETFIX },
-	{ "Trap Position Fix", qr_TRAPPOSFIX },
-	{ "No Invisible Border on Non-Dungeon Dmaps", qr_NOBORDER },
-	{ "Items Disappear During Hold-Up", qr_OLDPICKUP },
-	{ "Subscreen Appears Above Sprites", qr_SUBSCREENOVERSPRITES },
-	{ "Correct Bomb/Darknut Interaction", qr_BOMBDARKNUTFIX },
-	{ "Correct Offset Enemy Weapon Collision Detection", qr_OFFSETEWPNCOLLISIONFIX },
-	{ "Special Items Don't Appear In Passageways", qr_ITEMSINPASSAGEWAYS },
-	{ "No NES Sprite Flicker", qr_NOFLICKER },
-	{ "Invincible Player Isn't Hurt By Own Fire Weapons", qr_FIREPROOFLINK2 },
-	{ "No Position Offset Of Screen Items", qr_NOITEMOFFSET },
-	{ "Allow Ladder Anywhere", qr_LADDERANYWHERE },
-	{ "Actually Fixed Bomb/Darknut Interaction", qr_TRUEFIXEDBOMBSHIELD }
+	{ "Freeform Dungeons", qr_FREEFORM,
+		"If enabled, dungeons lose the hardcoded behaviors regarding the edge of the screen. Normally, when disabled,"
+		" the player can only walk towards or away from the edge of the screen when less than 2 tiles away from the edge"
+		" of the screen, you cannot walk upwards onto the topmost two rows of combos except where the northern door would be,"
+		" and all combos on the edge of the screen draw over sprites. Enabling this rule disables these behaviors."},
+	{ "Can Safely Trigger Armos/Grave From The South", qr_SAFEENEMYFADE,
+		"If enabled, fade-spawning enemies have no collision until after they finish spawning, preventing the player from taking"
+		" damage from these enemies if they spawn from graves or armos and the player activates them from the south."},
+	{ "Can Use Items/Weapons on Edge of Screen", qr_ITEMSONEDGES,
+		"If enabled, you can use items when in doorways or on screen edges. Normally, you can only use items when facing in a"
+		" direction perpendicular to the screen edge you'e close to when you're within 2 tiles of the screen edge, and you can't"
+		" use items at all when in the corner of the screen. Enabling this will disable this behavior and allow you to use items"
+		" and weapons on the screen edge."},
+	{ "Fix Player's Position in Dungeons", qr_LINKDUNGEONPOSFIX,
+		"If disabled, and the rule 'BS-Zelda Animation Quirks' is disabled, the player gains a -2 y offset when in dungeons."
+		"Having either this or 'BS-Zelda Animation Quirks' enabled will disable this -2 y offset in dungeons."},
+	{ "Raft/Ladder Sprite Direction Fix", qr_RLFIX,
+		"If enabled, the Raft and Ladder will rotate their sprites when going left or right."
+		" If disabled, it will use the same sprite and same rotation regardless of which direction it goes in."},
+	{ "Level 3 CSet 6 Fix", qr_NOLEVEL3FIX,
+		"When disabled, color 2 of CSet 6 will use color 7 of CSet 3 when in a dmap with a level of 3."
+		" If enabled, this behavior is ignored."},
+	{ "Player Holds Special Bombs Over They're Head", qr_BOMBHOLDFIX,
+		"If enabled, the player can hold bombs over their head if the bomb is a Special Item in a Spectial Item Room."
+		" Otherwise, bombs will only be held over head if the player dives for them."},
+	{ "Holding Up Items Doesn't Restart Music", qr_HOLDNOSTOPMUSIC,
+		"If enabled, holding up an item will not restart the currently playing music."
+		" If disabled, holding up an item will restart the current music."},
+	{ "Leaving Item Cellar/Passageway Doesn't Restart Music", qr_CAVEEXITNOSTOPMUSIC,
+		"If enabled, leaving a Screen 80 room (such as an Item Cellar, Cave, or Passageway) will not restart"
+		" the currently playing music. Otherwise, if disabled, it will restart the music."},
+	{ "Tunic Color Can Change In Overworld Caves", qr_OVERWORLDTUNIC,
+		"If enabled, Tunic Color can change within screen 80 caves on overworld dmaps when obtaining a new tunic."
+		" Otherwise, if disabled, it will only update once the cave is left."},
+	{ "Sword/Wand Flip Fix", qr_SWORDWANDFLIPFIX,
+		"If enabled, the downwards sword/wand sprite is flipped both vertically and horizontally from the upwards sprites."
+		" Otherwise, if disabled, it will only flip the sprite vertically."},
+	{ "Push Block CSet Fix", qr_PUSHBLOCKCSETFIX,
+		"If enabled, pushed blocks will use the CSet of their combo when pushed. Otherwise, if disabled, they will use CSet 9."},
+	{ "Trap Position Fix", qr_TRAPPOSFIX,
+		"If enabled, Traps don't have the -2 Y offset that all enemies spawn with in topdown gravity. If disabled, they will"
+		" have the -2 Y offset all enemies usually spawn with."},
+	{ "No Invisible Border on Non-Dungeon Dmaps", qr_NOBORDER,
+		"Normally, there is a 1 tile border surrounding the edge of the screen that prevents enemies from walking on the"
+		" screen edge, a 16 pixel border that kills the player's weapons around the edge of the screen early, and a 8"
+		" pixel border that kills enemy weapons around the edge of the screen early. Additionally, there is a change to"
+		" how close to the edge of the screen you are allowed to use melee weapons if the NES Fix 'Can Use Items/Weapons on Edge of"
+		" Screen' is enabled, increasing the distance you need to be away from the edge by 8 pixels (or half a tile)."
+		"\nEnabling this rule will disable these behaviors."},
+	{ "Items Disappear During Hold-Up", qr_OLDPICKUP,
+		"If enabled, all items are deleted whenever you hold up an item. If disabled, they won't be deleted when you hold"
+		" up an item. Is required to make Shop Items disappear after buying one if 'Shop Items Disappear on Pickup' is disabled."},
+	{ "Subscreen Appears Above Sprites", qr_SUBSCREENOVERSPRITES,
+		"If enabled, the subscreen is drawn above Layer 6, and the use of Layer 7 is enabled."
+		" If disabled, the subscreen is drawn above layer 4 but below flying/jumping enemies,"
+		" an airborne player, etc; and Layer 7 is not drawn."},
+	{ "Correct Bomb/Darknut Interaction", qr_BOMBDARKNUTFIX,
+		"If enabled, bomb collision with shielded enemies is checked by comparing the angle of the"
+		" explosion to the enemy, and uses the direction of that angle to check if the enemy would"
+		" be shielded in that direction. If disabled, the bomb will use the direction the player was"
+		" facing when the bomb was placed when comparing if the enemy is shielded in that direction."
+		"\nPlease note that regardless of this Quest Rule, shielded enemies will always be shown as"
+		" taking damage regardless of if they blocked it and were dealt no damage, unless the NES Fix"
+		" 'Actually Fixed Bomb/Darknut Interaction' is checked."},
+	{ "Correct Offset Enemy Weapon Collision Detection", qr_OFFSETEWPNCOLLISIONFIX,
+		"If enabled, hit offsets of enemy weapons are changed, preventing a common exploit of the player"
+		" standing in between two tiles to avoid getting hit by certain projectiles. If disabled, the player"
+		" can stand in between two tiles to avoid certain projectiles."},
+	{ "Special Items Don't Appear In Passageways", qr_ITEMSINPASSAGEWAYS,
+		"If enabled, special items do not appear in passageways if a screen has both a special item and a"
+		" passageways. Passageways are screen 81 on dmaps with 'Use Caves Instead Of Item Cellars' unchecked."
+		" If disabled, special items can appear in passageways."},
+	{ "No NES Sprite Flicker", qr_NOFLICKER,
+		"Normally, the drawing order for enemies, items, hookshot chainlinks, and weapons alternate every frame."
+		" The order alternates between 'Behind Weapons, Shadows, Enemies, Chainlinks, Non-Behind Weapons, Items'"
+		" and 'Behind Weapons, Shadows, Items, Chainlinks, Enemies, Non-Behind Weapons'. If this rule is enabled,"
+		" the drawing order is forced to be the former order regardless of frame."},
+	{ "Invincible Player Isn't Hurt By Own Fire Weapons", qr_FIREPROOFLINK2,
+		"Normally, the player can be hurt by their own fire weapons even if they are invincible from some source,"
+		" like the clock item or scripts. Enabling this rule disables this, making them actually invincible."},
+	{ "No Position Offset Of Screen Items", qr_NOITEMOFFSET,
+		"If enabled, items gain a -1 Y offset to counterbalance a +1 Y offset they would normally otherwise have."},
+	{ "Allow Ladder Anywhere", qr_LADDERANYWHERE,
+		"If enabled, the ladder can be used anywhere, and the screen flag 'Toggle 'Allow Ladder'' will disable the"
+		" ladder on the screen instead of enabling it. If disabled, only screens with 'Toggle 'Allow Ladder'' and"
+		" screens on dungeon dmaps allow the use of the Ladder."},
+	{ "Actually Fixed Bomb/Darknut Interaction", qr_TRUEFIXEDBOMBSHIELD,
+		"If enabled, shielded enemies will not be shown as taking damage when they"
+		" block an explosion and take 0 damage. If disabled, they will appear to be damaged"
+		" whenever an explosion hits them, even if they are not actually being damaged because"
+		" of their shield blocking the explosion."},
+	{ "Lanmolas/Traps don't keep room dead.", qr_NOTMPNORET,
+		"If enabled, Lanmolas don't keep the entire room marked as dead when"
+		" you kill one, and rooms with traps don't keep the room marked as dead"
+		" when you kill the entire room. If disabled, either of these will keep"
+		" enemies from respawning until you leave and re-enter the dungeon."},
+	{ "Enemies Don't Flash When Dying", qr_NOFLASHDEATH,
+		"If enabled, the cset of the enemy's death animation will not flash."
+		" This rule is ignored if the rule 'BS-Zelda Animation Quirks'"
+		" is enabled, as enemies will not flash during their death animation"
+		" if that rule is enabled regardless."},
+	{ "No Statue Minimum Range Or Double Fireballs", qr_BROKENSTATUES,
+		"If enabled, statues will still fire at the player even if the player is close."
+		" Statues also have a 1 in 16 chance to double shoot if enabled, with the second"
+		" shot being 4 pixels to the left. If disabled, statues cannot double shoot, and"
+		" they have a minimum range where they won't fire if the player is within 24 pixels"
+		" of the statue."},
+	{ "Killing Stunned Enemy With Melee Weapons Won't Hurt Player", qr_DYING_ENEMIES_IGNORE_STUN,
+		"If enabled, dying enemies won't damage the player if they are stunned, the player is"
+		" on top of them, and the player kills them with a melee weapon. Presumably this was"
+		" a feature to replicate NES behavior."},
+	{ "Shop Items Disappear on Pickup", qr_SHOP_ITEMS_VANISH,
+		"If enabled, all items will vanish after picking up a shop item. If both this and"
+		" 'Items Disappear During Hold-Up' are disabled, shop items will not disappear when"
+		" you buy one."},
+	{ "Expanded Player Tile Modifiers", qr_EXPANDEDLTM,
+		"If enabled, Player Tile Modifiers from items (such as shields) will always be applied to the player."
+		" \nIf disabled, they will only be applied if the player is walking or standing (either on land or while"
+		" sideswimming), and only if the player is not facing up."}
 };
 
 static const GUI::ListData playerRulesList
 {
-	{ "Diagonal Movement", qr_LTTPWALK },
-	{ "Large Hitbox", qr_LTTPCOLLISION },
+	{ "Diagonal Movement", qr_LTTPWALK,
+		"If enabled, disables the built in player gridlock, and allows the player to move diagonally."
+		" \nDiagonal Movement also uses different logic for determining how many pixels the Player should"
+		" move from  non-Diagonal Movement (or '4-way Movement', from here out) when 'New Player Movement'"
+		" is disabled; 4-way Movement gives a different step speed depending on the player's current X/Y"
+		" position, usually averaging out to 1.3333 pixels of movement per frame; while Diagonal Movement"
+		" alternates between 1 and 2 pixels every frame, averaging out to 1.5 pixels of movement per frame."
+		" \nIf 'New Player Movement' is enabled, there is no speed difference between 4-Way Movement and"
+		" Diagonal Movement, as the Player's position and speed use decimal precision."},
+	{ "Large Hitbox", qr_LTTPCOLLISION,
+		"If enabled, the player's walking hitbox is changed from 16x8 (the bottom half of the player's sprite)"
+		" to 16x16 (their entire sprite). The player cannot walk halfway into a solid combo from the bottom, and"
+		" the collision detection of certain combos and flags is modified to account for this change of hitbox."},
 	{ "New Player Movement", qr_NEW_HERO_MOVEMENT,
 		"Alters the player's movement; with this enabled, movement includes decimal precision,"
 		" diagonal movement is 'smoother', and the player's speed can be adjusted using"
 		" 'Player->Step' via ZScript, as well as the 'Player Step' option in 'Init Data'." },
-	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK },
-	{ "Invincible Player Flickers", qr_LINKFLICKER },
-	{ "Expanded Player Tile Modifiers", qr_EXPANDEDLTM }
+	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK,
+		"If enabled, disables the built in player gridlock. This does not allow the player to move diagonally,"
+		" but it does allow them to change direction when not aligned with the 8x8 pixel grid."},
+	{ "Invincible Player Flickers", qr_LINKFLICKER,
+		"If enabled, the Player will flicker when invincible or after taking damage instead of flashing colors."}
 };
 
 static const GUI::ListData weaponsRulesList
@@ -761,6 +1089,25 @@ static const GUI::ListData weaponsRulesList
 	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE },
 	{ "Boomerang EWeapons Corrected Animation", qr_CORRECTED_EW_BRANG_ANIM },
 	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD },
+	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT,
+		"If enabled, script created and enemy created fires will only light up"
+		" the room temporarily, and will unlight the room when the last one"
+		" disappears. This used to affect Player-created fire, but that functionality"
+		" can now be toggled on a per-candle or per-book basis in the item editor."},
+	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFLINK,
+		"If enabled, script-created Fire LWeapons will not hurt the Player. In the original"
+		" NES Zelda, the Player took damage from their own fire weapons. Though Candle and Book"
+		"-created fire weapons are determined by the item editor for those items now, this rule"
+		" still affects script-created player fire weapons."
+		" If disabled, the Player will take damage from script created player fire weapons, even though"
+		" they are player weapons and not enemy weapons."},
+	{ "Scripted Bomb LWeapons Hurt Player", qr_OUCHBOMBS,
+		"If enabled, script-created player Bomb Explosions hurt the player. This mimics more modern"
+		" Zelda games where the players own bombs can hurt them. This used to affect player-placed bombs,"
+		" but that functionality has since been moved to the bomb item in the item editor. This rule now"
+		" only determines if script-created player bombs can hurt the player."},
+	
+	//should maybe keep this last as well? -Deedee
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN }
 };
 
