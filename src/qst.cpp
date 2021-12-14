@@ -3209,7 +3209,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
 	{
 		set_bit(quest_rules, qr_MELEEMAGICCOST, 0);
-		set_bit(quest_rules, qr_NOGANONINTRO, 0);
+		set_bit(quest_rules, qr_GANONINTRO, 0); //This will get flipped later on in the compatrule 11 check. That's why it's turning it off.
 		set_bit(quest_rules, qr_OLDMIRRORCOMBOS, 1);
 		set_bit(quest_rules, qr_BROKENBOOKCOST, 1);
 		set_bit(quest_rules, qr_BROKENCHARINTDRAWING, 1);
@@ -3324,6 +3324,15 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		//No cross-screen return points
 		set_bit(quest_rules,qr_OLD_RESPAWN_POINTS,1);
+	}
+
+	if(compatrule_version < 12)
+	{
+		//Old fire trail duration
+		set_bit(quest_rules,qr_OLD_FLAMETRAIL_DURATION,1);
+		//Old Intro String in Ganon Room Behavior
+		if(get_bit(quest_rules,qr_GANONINTRO)) set_bit(quest_rules,qr_GANONINTRO,0);
+		else set_bit(quest_rules,qr_GANONINTRO,1);
 	}
 	
 	//always set

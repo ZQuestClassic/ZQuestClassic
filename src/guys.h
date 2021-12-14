@@ -279,7 +279,6 @@ protected:
 	// sprite::draw()
 	virtual void draw(BITMAP *dest);
 	virtual void drawzcboss(BITMAP *dest);
-	virtual void old_draw(BITMAP *dest);
 	// similar to the overblock function--can do up to a 32x32 sprite
 	void drawblock(BITMAP *dest,int32_t mask);
 	virtual void drawshadow(BITMAP *dest, bool translucent);

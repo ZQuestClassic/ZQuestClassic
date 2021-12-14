@@ -3547,7 +3547,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 					Ewpns.spr(i)->draw(framebuf);
 			}
 		
-		for(int32_t i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
@@ -3568,7 +3568,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 					Ewpns.spr(i)->draw(framebuf);
 			}
 		
-		for(int32_t i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(!((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
@@ -3585,7 +3585,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 					Ewpns.spr(i)->draw(framebuf);
 			}
 		
-		for(int32_t i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(((weapon *)Lwpns.spr(i))->behind)
 					Lwpns.spr(i)->draw(framebuf);
@@ -3609,7 +3609,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 				}
 			}
 		
-		for(int32_t i=0; i<Lwpns.Count(); i++)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
 				if(!((weapon *)Lwpns.spr(i))->behind)
 				{

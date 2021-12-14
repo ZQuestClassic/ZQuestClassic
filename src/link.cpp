@@ -2026,6 +2026,8 @@ attack:
 				}
 
 				//Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
+				
+				//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
 				if (!(get_bit(quest_rules, qr_LINKFLICKER) && ((superman || hclk) && (frame & 1))))
 				{
 					masked_draw(dest);
@@ -2912,7 +2914,7 @@ bool LinkClass::checkstab()
 				spins=0;
 			}
 			
-			if(h && hclk==0 && inlikelike != 1)
+			if(h && hclk==0 && inlikelike != 1 && !get_bit(quest_rules, qr_DYING_ENEMIES_IGNORE_STUN))
 			{
 				if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
 				{
@@ -9105,7 +9107,7 @@ bool LinkClass::startwpn(int32_t itemid)
 			
 			Lwpns.add(new weapon(x,y,z,wWhistle,0,0,dir,itemid,getUID(),false,0,1,0));
 			
-			if(whistleflag=findentrance(x,y,mfWHISTLE,false))
+			if(whistleflag=findentrance(x,y,mfWHISTLE,get_bit(quest_rules, qr_PERMANENT_WHISTLE_SECRETS)))
 				didstuff |= did_whistle;
 				
 			if((didstuff&did_whistle && itm.flags&ITEM_FLAG1) || currscr>=128)
@@ -20055,7 +20057,7 @@ bool LinkClass::HasHeavyBoots()
 const char *roomtype_string[rMAX] =
 {
     "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
     "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
@@ -20194,7 +20196,6 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			dir=up;
 			x=112;
 			y=160;
-			
 			if(didpit)
 			{
 				didpit=false;
@@ -20275,7 +20276,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			if ( dontdraw < 2 ) { dontdraw=0; }
 			stepforward(diagonalMovement?16:18, false);
 		}
-		
+		if (get_bit(quest_rules,qr_SCREEN80_OWN_MUSIC)) playLevelMusic();
 		break;
 	}
 	
@@ -21512,6 +21513,7 @@ void LinkClass::stepforward(int32_t steps, bool adjust)
 	}
 	
         draw_screen(tmpscr);
+	if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
         
         if(Quit)
@@ -24511,6 +24513,17 @@ int32_t selectSword()
     return ret;
 }
 
+// Adding code here for allowing hardcoding a button to a specific itemclass.
+int32_t selectItemclass(int32_t itemclass)
+{
+    int32_t ret = current_item_id(itemclass);
+    
+    if(ret == -1)
+        ret = 0;
+        
+    return ret;
+}
+
 // Used for the 'Pickup Hearts' item pickup condition.
 bool canget(int32_t id)
 {
@@ -25249,7 +25262,8 @@ void LinkClass::checkitems(int32_t index)
 		
 		clear_bitmap(pricesdisplaybuf);
 		
-		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)))
+		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)) || 
+		(get_bit(quest_rules, qr_SHOP_ITEMS_VANISH) && (tmpscr[tmp].room==rBOTTLESHOP || tmpscr[tmp].room==rSHOP) && (pickup&ipCHECK)))
 		{
 			fadeclk=66;
 		}
@@ -25458,8 +25472,17 @@ void LinkClass::StartRefill(int32_t refillWhat)
         stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
         sfx(WAV_REFILL,128,true);
         refilling=refillWhat;
-	if(FFCore.quest_format[vZelda] < 0x255)//use old behavior
+	if(FFCore.quest_format[vZelda] < 0x255) 
 	{
+		//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
+		//I attempted to change this check to a quest rule, but here's the issue: this affects
+		//triforces and potions as well, not just fairy flags. This means that having a compat rule
+		//would result in a rule that is checked by default for every tileset or quest made before
+		//2.55, one in a place most people won't check. That means that if they were to go to use
+		//the new potion or triforce flags for jinx curing behavior, they'd find that it doesn't work,
+		//all because of an obscure compat rule being checked. Most peoples instincts are sadly not
+		//"go through the compat rules and turn them all off", so this remains a version check instead
+		//of a qr check. Don't make my mistake and waste time trying to change this in vain. -Deedee
 		Start250Refill(refillWhat);
 	}
 	else //use 2.55+ behavior
@@ -26573,9 +26596,13 @@ void LinkClass::ganon_intro()
         playLevelMusic();
         
     currcset=DMaps[currdmap].color;
-    if ( !get_bit(quest_rules, qr_NOGANONINTRO) ) 
+    if (get_bit(quest_rules, qr_GANONINTRO) ) 
     {
-	    dointro();
+	dointro();
+	//Yes, I checked. This is literally in 2.10 (minus this if statement of course).
+	//I have no clue why it's here; Literally the only difference between dointro in 2.10 and dointro in this version is an 'else' that sets introclk and intropos to 74.
+	//I have no idea what was going through the original devs heads and I'm extremely worried I'm missing something, cause at first glance this looks like 
+	//a hack solution to an underlying bug, but no! There's just a fucking dointro() call in older versions and I don't know *why*. -Deedee
     }
     //dointro(); //This is likely what causes Ganon Rooms to repeat the DMap intro.  
     //I suppose it is to allow the user to make Gaanon rooms have their own dialogue, if they are

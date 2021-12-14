@@ -3622,7 +3622,6 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 {
     //recreating a big bitmap every frame is highly sluggish.
     static BITMAP *wavebuf = create_bitmap_ex(8,288,240-original_playing_field_offset);
-    if(epilepsyFlashReduction) amplitude/=2;
     clear_to_color(wavebuf, BLACK);
     blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
     
@@ -3630,8 +3629,9 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
     //  int32_t amplitude=8;
     //  int32_t wavelength=4;
     amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
+    if((epilepsyFlashReduction || get_bit(quest_rules,qr_EPILEPSY)) && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
     int32_t amp2=168;
-    if(epilepsyFlashReduction) amp2*=2;
+    if((epilepsyFlashReduction || get_bit(quest_rules,qr_EPILEPSY)) && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
     int32_t i=frame%amp2;
     
     for(int32_t j=0; j<168; j++)
