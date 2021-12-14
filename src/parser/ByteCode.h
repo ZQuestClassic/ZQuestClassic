@@ -1329,8 +1329,12 @@
 #define NPCSWHOOKED             1246
 #define GAMEMISCSPR             1247
 #define GAMEMISCSFX             1248
+#define HEROTOTALDYOFFS         1249
+#define NPCTOTALDYOFFS          1250
+#define LWPNTOTALDYOFFS         1251
+#define EWPNTOTALDYOFFS         1252
 
-#define LAST_BYTECODE           1249
+#define LAST_BYTECODE           1253
 
 //} END OF BYTECODE
 

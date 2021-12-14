@@ -4236,6 +4236,12 @@ void Remove();
 ///  *weapon  ///
 /////////////////								// Weapon
 
+int TotalDrawYOffset;
+ * READ-ONLY
+ * Calculates the total drawYOffset including special engine effects
+ *     (such as switchhook with the 'rise' effect).
+ * Does not include Z value in the calculation.
+
 int Power; 
  * The damage/power value of te weapo.
  * Identical to *weapon->Damage, but added for uniformity with itemdata.
@@ -4931,6 +4937,12 @@ untyped HitBy[10];
 
 **************************************************************
 
+int TotalDrawYOffset;
+ * READ-ONLY
+ * Calculates the total drawYOffset including special engine effects
+ *     (such as switchhook with the 'rise' effect).
+ * Does not include Z value in the calculation.
+
 int HealthBeep; 
  * The timer for the health beep sound, if it is not constant.
  * Setting this to -2 suspends system control over stopping the sound,
@@ -5550,7 +5562,7 @@ int Compass;
  
 int Palette;
  * The level palette used by the dmap. 
- * Equivalent to Game->LevelPalette[this->ID].
+ * Equivalent to Game->DMapPalette[this->ID].
  
 int MIDI;
  * The MIDI ID used by the DMap.
@@ -6514,6 +6526,12 @@ int DrawXOffset;
 int DrawYOffset;
  * The vertical draw offset of the enemy. 
  * Note: SizeFlag[??] must be enabled for this to function.
+
+int TotalDrawYOffset;
+ * READ-ONLY
+ * Calculates the total drawYOffset including special engine effects
+ *     (such as switchhook with the 'rise' effect).
+ * Does not include Z value in the calculation.
 	
 int DrawZOffset;
  * The depth draw offset of the enemy. 

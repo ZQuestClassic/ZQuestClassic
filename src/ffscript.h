@@ -4376,8 +4376,12 @@ enum ASM_DEFINE
 #define NPCSWHOOKED             0x1414
 #define GAMEMISCSPR             0x1415
 #define GAMEMISCSFX             0x1416
+#define HEROTOTALDYOFFS         0x1417
+#define NPCTOTALDYOFFS          0x1418
+#define LWPNTOTALDYOFFS         0x1419
+#define EWPNTOTALDYOFFS         0x141A
 
-#define NUMVARIABLES         	0x1417
+#define NUMVARIABLES         	0x1418
 
 //} End variables
 

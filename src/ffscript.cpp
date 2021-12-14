@@ -3909,6 +3909,11 @@ int32_t get_register(const int32_t arg)
 		case LINKYOFS:
 			ret = (int32_t)(Link.yofs-playing_field_offset)*10000;
 			break;
+		case HEROTOTALDYOFFS:
+			ret = 10000*(((int32_t)(Link.yofs-playing_field_offset))
+				+ ((Link.switch_hooked && Link.switchhookstyle == swRISE)
+					? -(8-(abs(Link.switchhookclk-32)/4)) : 0));
+			break;
 			
 		case LINKZOFS:
 			ret = (int32_t)(Link.zofs)*10000;
@@ -5422,7 +5427,10 @@ int32_t get_register(const int32_t arg)
 		#define GET_NPC_VAR_FIX(member, str) \
 		{ \
 			if(GuyH::loadNPC(ri->guyref, str) != SH::_NoError) \
+			{ \
 				ret = -10000; \
+				break; \
+			} \
 			else \
 				ret = (int32_t(GuyH::getNPC()->member) * 10000); \
 		}
@@ -5519,6 +5527,20 @@ int32_t get_register(const int32_t arg)
 		case NPCYOFS:
 			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=playing_field_offset*10000;
 			break;
+		case NPCTOTALDYOFFS:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->TotalDYOffset") != SH::_NoError)
+			{
+				ret = -10000;
+			}
+			else
+			{
+				ret = ((int32_t(GuyH::getNPC()->yofs - playing_field_offset)
+					+ ((GuyH::getNPC()->switch_hooked && Link.switchhookstyle == swRISE)
+						? -(8-(abs(Link.switchhookclk-32)/4)) : 0)) * 10000);
+			}
+			break;
+		}
 			
 		case NPCZOFS:
 			GET_NPC_VAR_FIX(zofs, "npc->DrawZOffset") break;
@@ -6251,6 +6273,12 @@ int32_t get_register(const int32_t arg)
 				ret=((int32_t)(((weapon*)(s))->yofs-playing_field_offset))*10000;
 				
 			break;
+		case LWPNTOTALDYOFFS:
+			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
+				ret = ((int32_t)(((weapon*)(s))->yofs-playing_field_offset)
+					+ ((((weapon*)(s))->switch_hooked && Link.switchhookstyle == swRISE)
+						? -(8-(abs(Link.switchhookclk-32)/4)) : 0)) * 10000;
+			break;
 			
 		case LWPNZOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
@@ -6684,6 +6712,12 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
 				ret=((int32_t)(((weapon*)(s))->yofs-playing_field_offset))*10000;
 				
+			break;
+		case EWPNTOTALDYOFFS:
+			if(0!=(s=checkLWpn(ri->ewpn,"TotalDYOffset")))
+				ret = ((int32_t)(((weapon*)(s))->yofs-playing_field_offset)
+					+ ((((weapon*)(s))->switch_hooked && Link.switchhookstyle == swRISE)
+						? -(8-(abs(Link.switchhookclk-32)/4)) : 0) * 10000);
 			break;
 			
 		case EWPNZOFS:
@@ -12004,6 +12038,8 @@ void set_register(const int32_t arg, const int32_t value)
 		case LINKYOFS:
 			(Link.yofs)=(zfix)(value/10000)+playing_field_offset;
 			break;
+		case HEROTOTALDYOFFS:
+			break; //READ-ONLY
 			
 		case LINKZOFS:
 			(Link.zofs)=(zfix)(value/10000);
@@ -13850,6 +13886,8 @@ void set_register(const int32_t arg, const int32_t value)
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+playing_field_offset;
 				
 			break;
+		case LWPNTOTALDYOFFS:
+			break; //READ-ONLY
 			
 		case LWPNZOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawZOffset")))
@@ -14269,6 +14307,8 @@ void set_register(const int32_t arg, const int32_t value)
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+playing_field_offset;
 				
 			break;
+		case EWPNTOTALDYOFFS:
+			break; //READ-ONLY
 			
 		case EWPNZOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
@@ -14596,6 +14636,8 @@ void set_register(const int32_t arg, const int32_t value)
 				GuyH::getNPC()->yofs = zfix(value / 10000) + playing_field_offset;
 		}
 		break;
+		case NPCTOTALDYOFFS:
+			break; //READ-ONLY
 		
 		case NPCROTATION:
 		{
@@ -18829,8 +18871,28 @@ void set_register(const int32_t arg, const int32_t value)
 		} \
 		
 		//NEWCOMBO STRUCT
-		case COMBODTILE:	SET_COMBO_VAR_DWORD(tile, "Tile"); break;						//word
-		case COMBODOTILE:		SET_COMBO_VAR_DWORD(o_tile, "OriginalTile"); break;			//word
+		case COMBODTILE:	SET_COMBO_VAR_INT(tile, "Tile"); break;						//word
+		case COMBODOTILE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "OriginalTile");
+			}
+			else
+			{
+				newcombo& cdata = combobuf[ri->combosref];
+				cdata.o_tile = vbound((value / 10000),0,NEWMAXTILES);
+				if(get_bit(quest_rules, qr_NEW_COMBO_ANIMATION))
+				{
+					cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
+					if(int32_t rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))
+					{
+						cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
+					}
+				}
+			}
+			break;
+		}
 		case COMBODFRAME:		SET_COMBO_VAR_BYTE(cur_frame, "Frame"); break;				//char
 		case COMBODACLK:		SET_COMBO_VAR_BYTE(aclk, "AClk"); break;				//char
 		case COMBODATASCRIPT:	SET_COMBO_VAR_DWORD(script, "Script"); break;						//word
@@ -35634,6 +35696,10 @@ script_variable ZASMVars[]=
 	{ "NPCSWHOOKED",  NPCSWHOOKED,  0, 0 },
 	{ "GAMEMISCSPR", GAMEMISCSPR, 0, 0 },
 	{ "GAMEMISCSFX", GAMEMISCSFX, 0, 0 },
+	{ "HEROTOTALDYOFFS", HEROTOTALDYOFFS, 0, 0 },
+	{ "NPCTOTALDYOFFS", NPCTOTALDYOFFS, 0, 0 },
+	{ "LWPNTOTALDYOFFS", LWPNTOTALDYOFFS, 0, 0 },
+	{ "EWPNTOTALDYOFFS", EWPNTOTALDYOFFS, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

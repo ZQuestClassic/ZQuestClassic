@@ -2273,6 +2273,10 @@ script_variable variable_list[]=
 	{ "NPCSWHOOKED",  NPCSWHOOKED,  0, 0 },
 	{ "GAMEMISCSPR", GAMEMISCSPR, 0, 0 },
 	{ "GAMEMISCSFX", GAMEMISCSFX, 0, 0 },
+	{ "HEROTOTALDYOFFS", HEROTOTALDYOFFS, 0, 0 },
+	{ "NPCTOTALDYOFFS", NPCTOTALDYOFFS, 0, 0 },
+	{ "LWPNTOTALDYOFFS", LWPNTOTALDYOFFS, 0, 0 },
+	{ "EWPNTOTALDYOFFS", EWPNTOTALDYOFFS, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
