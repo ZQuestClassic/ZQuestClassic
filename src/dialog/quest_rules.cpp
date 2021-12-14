@@ -1083,10 +1083,18 @@ static const GUI::ListData weaponsRulesList
 {
 	{ "npc->Weapon Uses Unique Sprites for Custom EWeapons", qr_SCRIPT_WEAPONS_UNIQUE_SPRITES },
 	{ "Angular Reflected Weapons", qr_ANGULAR_REFLECTED_WEAPONS },
-	{ "Mirrors Use Weapon Centre for Collision", qr_MIRRORS_USE_WEAPON_CENTRE },
-	{ "Weapons Cannot Stunlock Enemies", qr_NO_STUNLOCK },
-	{ "Arrows Always Penetrate", qr_ARROWS_ALWAYS_PENETRATE },
-	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE },
+	{ "Mirrors Use Weapon Centre for Collision", qr_MIRRORS_USE_WEAPON_CENTRE,
+		"If enabled, mirror/prism combos activate when the center of a weapon hits them,"
+		" instead of when the edge hits them." },
+	{ "Weapons Cannot Stunlock Enemies", qr_NO_STUNLOCK,
+		"If enabled, enemies that are already stunned block any further stunning attacks."
+		" This prevents re-stunning them to keep them stunlocked." },
+	{ "Arrows Always Penetrate", qr_ARROWS_ALWAYS_PENETRATE,
+		"If enabled, arrows will always penetrate enemies, regardless of if they belong to"
+		" an arrow item with the 'Penetrate Enemies' flag checked or not." },
+	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE,
+		"If enabled, swordbeams will always penetrate enemies, regardless of if they belong to"
+		" a sword item with the 'Penetrate Enemies' flag checked or not." },
 	{ "Boomerang EWeapons Corrected Animation", qr_CORRECTED_EW_BRANG_ANIM },
 	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD },
 	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT,
