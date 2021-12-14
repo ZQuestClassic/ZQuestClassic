@@ -972,6 +972,15 @@ void gamedata::set_bunny_ltm(int32_t val)
 	set_generic(val, genBUNNY_LTM);
 }
 
+byte gamedata::get_switchhookstyle()
+{
+	return get_generic(genSWITCHSTYLE);
+}
+void gamedata::set_switchhookstyle(byte val)
+{
+	set_generic(val, genSWITCHSTYLE);
+}
+
 void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);

@@ -7540,7 +7540,7 @@ offscreenCheck:
 						misc=2;
 						step=0;
 						pull_link=true;
-						Link.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : 0); //!TODO init data switch style
+						Link.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : game->get_switchhookstyle());
 						hs_switcher = true;
 						if(parentitem > -1)
 						{

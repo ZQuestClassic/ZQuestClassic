@@ -19393,6 +19393,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		temp_zinit.bunny_ltm = 0;
 	}
 	
+	if(s_version > 30)
+	{
+		if(!p_getc(&temp_zinit.switchhookstyle,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.switchhookstyle = 1;
+	}
+	
 	if(keepdata==true)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));

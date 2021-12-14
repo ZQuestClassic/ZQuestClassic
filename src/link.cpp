@@ -7205,16 +7205,16 @@ bool LinkClass::animate(int32_t)
 		}
 	}
 	
-	if(hookshot_frozen || switching_object)
+	if(hookshot_frozen || switch_hooked)
 	{
-		if(hookshot_used || switching_object)
+		if(hookshot_used || switch_hooked)
 		{
 			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
 			else {action=freeze; FFCore.setLinkAction(freeze);} //could be LA_HOOKSHOT for FFCore. -Z
 			
-			if(pull_link || switching_object)
+			if(pull_link || switch_hooked)
 			{
-				if(hs_switcher || switching_object)
+				if(hs_switcher || switch_hooked)
 				{
 					hs_fix = false;
 					if(switchhookclk)
@@ -7222,13 +7222,8 @@ bool LinkClass::animate(int32_t)
 						--switchhookclk;
 						if(switchhookclk==switchhookmaxtime/2) //Perform swaps
 						{
-							weapon *w = NULL, *hw = NULL;
-							int32_t w_ind = Lwpns.idFirst(wHookshot),
-								hw_ind = Lwpns.idFirst(wHSHandle);
-							if(w_ind > -1)
-								w = (weapon*)Lwpns.spr(w_ind);
-							if(hw_ind > -1)
-								hw = (weapon*)Lwpns.spr(hw_ind);
+							weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+								*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
 							
 							if(hooked_combopos > -1) //Switching combos
 							{
@@ -8736,19 +8731,13 @@ void LinkClass::doMirror(int32_t mirrorid)
 void LinkClass::doSwitchHook(byte style)
 {
 	//{ Load hook weapons, set them to obey special drawing
-	weapon *w = NULL, *hw = NULL;
-	int32_t w_ind = Lwpns.idFirst(wHookshot),
-		hw_ind = Lwpns.idFirst(wHSHandle);
-	if(w_ind > -1)
-	{
-		w = (weapon*)Lwpns.spr(w_ind);
+	weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+		*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
+		
+	if(w)
 		w->switch_hooked = true;
-	}
-	if(hw_ind > -1)
-	{
-		hw = (weapon*)Lwpns.spr(hw_ind);
+	if(hw)
 		hw->switch_hooked = true;
-	}
 	for(int32_t j=0; j<chainlinks.Count(); j++)
 	{
 		chainlinks.spr(j)->switch_hooked = true;

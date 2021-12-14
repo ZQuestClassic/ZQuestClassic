@@ -4856,6 +4856,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 		case edSWITCH:
 		{
+			if(Link.switchhookclk) return 0; //Already switching!
 			switch(family)
 			{
 				case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
@@ -4866,7 +4867,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			hooked_layerbits = 0;
 			switching_object = this;
 			switch_hooked = true;
-			Link.doSwitchHook(0); //!TODO init data switch style
+			Link.doSwitchHook(game->get_switchhookstyle());
 			sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 			return 1;
 		}

@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        30
+#define V_INITDATA        31
 #define V_GUYS            45
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -4018,7 +4018,7 @@ enum generic_ind
 	genMP_PER_BLOCK, genHERO_DMG_MULT, genENE_DMG_MULT,
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
 	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP,
-	genBUNNY_LTM, genLAST,
+	genBUNNY_LTM, genSWITCHSTYLE, genLAST,
 	genMAX = 256
 };
 enum glow_shape
@@ -4277,6 +4277,9 @@ struct gamedata
 	int32_t get_bunny_ltm();
 	void set_bunny_ltm(int32_t val);
 	
+	byte get_switchhookstyle();
+	void set_switchhookstyle(byte val);
+	
 	byte get_continue_scrn();
 	void set_continue_scrn(byte s);
 	void change_continue_scrn(int16_t s);
@@ -4419,6 +4422,7 @@ struct zinitdata
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 	
 	int32_t bunny_ltm;
+	byte switchhookstyle;
 };
 
 struct zcmap

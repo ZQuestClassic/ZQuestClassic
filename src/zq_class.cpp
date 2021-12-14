@@ -12958,6 +12958,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(90);
 		}
+		if(!p_putc(zinit.switchhookstyle,f))
+		{
+			new_return(91);
+		}
 		if(writecycle==0)
 		{
 			section_size=writesize;

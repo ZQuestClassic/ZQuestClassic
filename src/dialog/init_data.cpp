@@ -496,7 +496,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								Rows<2>(
 									margins = 0_px,
 									padding = 0_px,
-									VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false)
+									VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
+									VAL_FIELD("SwitchHook Style:",0,255,switchhookstyle,false)
 								)
 							)
 						))
@@ -772,7 +773,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							VAL_FIELD("Light Radius:",0,255,def_lightrad,false),
 							VAL_FIELD("Light Transp. Percentage:",0,255,transdark_percent,false),
 							COLOR_FIELD("Darkness Color:", darkcol,false),
-							VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false)
+							VAL_FIELD("Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
+							VAL_FIELD("SwitchHook Style:",0,255,switchhookstyle,false)
 						)
 					),
 					Column(vAlign = 0.0,
