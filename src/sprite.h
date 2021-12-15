@@ -261,6 +261,8 @@ public:
 	byte blockLayer;
     
     movingblock();
+	void clear();
+	void set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer);
     void push(zfix bx,zfix by,int32_t d,int32_t f);
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);

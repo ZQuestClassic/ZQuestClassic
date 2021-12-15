@@ -7239,7 +7239,35 @@ bool LinkClass::animate(int32_t)
 											continue; //non-switching layer
 										mapscr* scr = FFCore.tempScreens[q];
 										newcombo const& cmb = combobuf[scr->data[targpos]];
+										int32_t srcfl = scr->sflag[targpos];
+										newcombo const& comb2 = combobuf[scr->data[plpos]];
 										int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
+										//{Check push status
+										bool isPush = false;
+										switch(srcfl)
+										{
+											case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+											case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+											case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+											case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+											case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+											case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+											case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+												isPush = true;
+										}
+										if(!isPush) switch(cmb.flag)
+										{
+											case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+											case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+											case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+											case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+											case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+											case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+											case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+												isPush = true;
+										}
+										if(srcfl==mfPUSHED) isPush = false;
+										//}
 										if(cmb.type == cSWITCHHOOK) //custom flags and such
 										{
 											if(cmb.usrflags&cflag3) //Breaks on swap
@@ -7269,6 +7297,18 @@ bool LinkClass::animate(int32_t)
 													if(cmb.usrflags&cflag2)
 														scr->sflag[targpos] = 0;
 												}
+											}
+											else if(isPush)
+											{
+												//Simulate a block clicking into place
+												movingblock mtemp;
+												mtemp.clear();
+												mtemp.set(COMBOX(plpos),COMBOY(plpos),scr->data[targpos],scr->cset[targpos],q);
+												mtemp.clk = 1;
+												mtemp.animate(0);
+												scr->data[targpos] = scr->undercombo;
+												scr->cset[targpos] = scr->undercset;
+												scr->sflag[targpos] = 0;
 											}
 											else
 											{
@@ -7347,10 +7387,25 @@ bool LinkClass::animate(int32_t)
 										}
 										else //Unknown type, just swap combos.
 										{
-											scr->data[plpos] = scr->data[targpos];
-											scr->cset[plpos] = scr->cset[targpos];
-											scr->data[targpos] = c;
-											scr->cset[targpos] = cs;
+											if(isPush)
+											{
+												//Simulate a block clicking into place
+												movingblock mtemp;
+												mtemp.clear();
+												mtemp.set(COMBOX(plpos),COMBOY(plpos),scr->data[targpos],scr->cset[targpos],q);
+												mtemp.clk = 1;
+												mtemp.animate(0);
+												scr->data[targpos] = scr->undercombo;
+												scr->cset[targpos] = scr->undercset;
+												scr->sflag[targpos] = 0;
+											}
+											else
+											{
+												scr->data[plpos] = scr->data[targpos];
+												scr->cset[plpos] = scr->cset[targpos];
+												scr->data[targpos] = c;
+												scr->cset[targpos] = cs;
+											}
 										}
 									}
 									zfix tx = x, ty = y;
@@ -8751,9 +8806,13 @@ void LinkClass::doSwitchHook(byte style)
 		hooked_layerbits = 0;
 		for(auto q = 0; q < 7; ++q)
 			hooked_undercombos[q] = -1;
+		uint16_t plpos = COMBOPOS(x+8,y+8);
 		for(auto q = max_layer; q > -1; --q)
 		{
 			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[hooked_combopos]];
+			newcombo const& comb2 = combobuf[FFCore.tempScreens[q]->data[plpos]];
+			int32_t fl1 = FFCore.tempScreens[q]->sflag[hooked_combopos],
+				fl2 = FFCore.tempScreens[q]->sflag[plpos];
 			if(isSwitchHookable(cmb))
 			{
 				if(cmb.type == cSWITCHHOOK)
@@ -8798,6 +8857,73 @@ void LinkClass::doSwitchHook(byte style)
 				{
 					hooked_layerbits |= 1<<q; //Swapping
 					hooked_layerbits |= 1<<(q+8); //Swapping BACK
+				}
+			}
+			if(hooked_layerbits & (1<<(q+8))) //2-way swap, check for pushblocks
+			{
+				if((cmb.type==cPUSH_WAIT || cmb.type==cPUSH_HW || cmb.type==cPUSH_HW2)
+					&& hasMainGuy())
+				{
+					hooked_layerbits &= ~(0x101<<q); //Can't swap yet
+					continue;
+				}
+				if(fl1 == mfPUSHED)
+				{
+					hooked_layerbits &= ~(0x101<<q); //Can't swap at all, locked in place
+					continue;
+				}
+				bool isPush = false;
+				switch(fl1)
+				{
+					case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+					case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+					case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+					case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+					case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+					case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+					case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+						isPush = true;
+				}
+				if(!isPush) switch(cmb.flag)
+				{
+					case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+					case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+					case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+					case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+					case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+					case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+					case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+						isPush = true;
+				}
+				if(isPush) //Check for block holes / triggers
+				{
+					if(comb2.flag == mfBLOCKHOLE || fl2 == mfBLOCKHOLE
+						|| comb2.flag == mfBLOCKTRIGGER || fl2 == mfBLOCKTRIGGER)
+					{
+						hooked_layerbits &= ~(1<<q); //Don't swap the hole/trigger back
+					}
+					else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+					{
+						auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+						for(auto lyr = 0; lyr < maxLayer; ++lyr)
+						{
+							if(lyr == q) continue;
+							switch(FFCore.tempScreens[q]->sflag[plpos])
+							{
+								case mfBLOCKHOLE: case mfBLOCKTRIGGER:
+									hooked_layerbits &= ~(1<<q); //Don't swap the hole/trigger back
+									lyr=7;
+									break;
+							}
+							switch(combobuf[FFCore.tempScreens[q]->data[plpos]].flag)
+							{
+								case mfBLOCKHOLE: case mfBLOCKTRIGGER:
+									hooked_layerbits &= ~(1<<q); //Don't swap the hole/trigger back
+									lyr=7;
+									break;
+							}
+						}
+					}
 				}
 			}
 		}
