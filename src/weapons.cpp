@@ -55,6 +55,71 @@ static double DegreesToRadians(double d)
 	
 }
 
+static double DirToRadians(int d)
+{
+	switch(d)
+	{
+		case up:
+			return DegreesToRadians(270);
+		case down:
+			return DegreesToRadians(90);
+		case left:
+			return DegreesToRadians(180);
+		case right:
+			return 0;
+		case 4:
+			return DegreesToRadians(225);
+		case 5:
+			return DegreesToRadians(315);
+		case 6:
+			return DegreesToRadians(135);
+		case 7:
+			return DegreesToRadians(45);
+	}
+	return 0;
+	
+}
+
+//double ddir=atan2(double(fakey-(Link.y)),double(Link.x-fakex));
+static int32_t AngleToDir(double ddir)
+{
+	int32_t lookat=0;
+	
+	if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+	{
+		lookat=l_down;
+	}
+	else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+	{
+		lookat=down;
+	}
+	else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+	{
+		lookat=r_down;
+	}
+	else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+	{
+		lookat=right;
+	}
+	else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+	{
+		lookat=r_up;
+	}
+	else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+	{
+		lookat=up;
+	}
+	else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+	{
+		lookat=l_up;
+	}
+	else
+	{
+		lookat=left;
+	}
+	return lookat;
+}
+
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
 	mapscr *s = tmpscr;
@@ -4341,7 +4406,9 @@ bool weapon::animate(int32_t index)
 			//case l_down:y+=.354; x-=.354; break;
 			//case r_down:y+=.354; x+=.354; break;
 		}
-		
+	
+	bool AngleReflect = (this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) && get_bit(quest_rules, qr_ANGULAR_REFLECT_BROKEN));
+	
 	switch(id)
 	{
 		case wScript1:
@@ -4589,14 +4656,40 @@ bool weapon::animate(int32_t index)
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
-						if(dir!=(tdir^1))
+						//AngleToDir(double ddir)
+						//This didn't check for these before with the angle reflect rule... -Deedee
+						if((dir!=(tdir^1) && !AngleReflect) || (tdir < 3 && AngleReflect))
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							//jesus fuck Zoria, this is blatantly wrong...
+							//In your next job, don't code while drunk you dumbass. -Deedee
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
 								w->angle = WrapAngle(newangle);
+								if (AngleReflect)
+								{
+									//Zoria, you need to turn on angular.
+									w->angular = true;
+									//Zoria, you need to set the dir... *sigh*
+									w->dir = AngleToDir(WrapAngle(newangle));
+									//That's not to mention that the scope above checked for direction... on an angular weapon. Come on, that'll result in buggy behavior.
+									//Did you even fucking test this?
+									//No, of course you didn't.
+									//You left this community stagnant for 5 years pretending to be someone important,
+									//When all you could deliver was fucking lies.
+									//You almost singlehandedly killed the community with your incompetence.
+									//You expected *us* to test *your* shit
+									//You expected *us* to fix *your* shit
+									//You expected *us* to make features that *you* could never do, and what did we get?
+									//"It's a minor feature, nobody fucking cares"
+									//What did you deliver exactly? Buggy Combo Scripts? Buggy Diagonal Hookshot? A bunch of planned features that were advertised as features, but weren't even implemented?
+									//All that was allowed because this fucking community is of the impression that *a* dev is better than *no* dev; god damn what a mistake.
+									//You probably won't even see this rant; my fix probably doesn't even work! I could have spent this time testing this but instead ranted to someone who cannot hear.
+									//Maybe you will see this rant though, when you comb through trying to steal our hard work. I don't expect you to have any integrity, after all...
+									//Fuck, this was a waste of time. -Deedee
+								}
 							}
 							w->x=newx;
 							w->y=newy;
@@ -4654,6 +4747,11 @@ bool weapon::animate(int32_t index)
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
 							w->angle = WrapAngle(newangle);
+							if (AngleReflect)
+							{
+								w->angular = true;
+								w->dir = AngleToDir(WrapAngle(newangle));
+							}
 						}
 						w->x=newx;
 						w->y=newy;
@@ -6474,15 +6572,20 @@ bool weapon::animate(int32_t index)
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
-						if(dir!=(tdir^1))
+						if((dir!=(tdir^1) && !AngleReflect) || (tdir < 3 && AngleReflect))
 						{
 							weapon *w=new weapon(*this);
+							w->dir=tdir;
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
 								w->angle = WrapAngle(newangle);
+								if (AngleReflect)
+								{
+									w->angular = true;
+									w->dir = AngleToDir(WrapAngle(newangle));
+								}
 							}
-							w->dir=tdir;
 							w->x=newx;
 							w->y=newy;
 							w->z=z;
@@ -6535,12 +6638,17 @@ bool weapon::animate(int32_t index)
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
 						weapon *w=new weapon(*this);
+						w->dir=tdir;
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
-							double newangle = this->angle - DegreesToRadians(90*tdir);
+							double newangle = this->angle + DegreesToRadians(90*tdir);
 							w->angle = WrapAngle(newangle);
+							if (AngleReflect)
+							{
+								w->angular = true;
+								w->dir = AngleToDir(WrapAngle(newangle));
+							}
 						}
-						w->dir=tdir;
 						w->x=newx;
 						w->y=newy;
 						w->z=z;
@@ -6799,15 +6907,20 @@ bool weapon::animate(int32_t index)
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
-						if(dir!=(tdir^1))
+						if((dir!=(tdir^1) && !AngleReflect) || (tdir < 3 && AngleReflect))
 						{
 							weapon *w=new weapon(*this);
+							w->dir=tdir;
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
-								double newangle = this->angle - DegreesToRadians(90*tdir);
+								double newangle = this->angle + DegreesToRadians(90*tdir);
 								w->angle = WrapAngle(newangle);
+								if (AngleReflect)
+								{
+									w->angular = true;
+									w->dir = AngleToDir(WrapAngle(newangle));
+								}
 							}
-							w->dir=tdir;
 							w->x=newx;
 							w->y=newy;
 							w->z=z;
@@ -6863,8 +6976,13 @@ bool weapon::animate(int32_t index)
 						w->dir=tdir;
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
-							double newangle = this->angle - DegreesToRadians(90*tdir);
+							double newangle = this->angle + DegreesToRadians(90*tdir);
 							w->angle = WrapAngle(newangle);
+							if (AngleReflect)
+							{
+								w->angular = true;
+								w->dir = AngleToDir(WrapAngle(newangle));
+							}
 						}
 						w->x=newx;
 						w->y=newy;
@@ -7920,12 +8038,21 @@ void weapon::draw(BITMAP *dest)
 				tile = o_tile;
 				
 				if(BSZ)
-				flip = bszboomflip[(clk>>2)&3];
+				{
+					flip = bszboomflip[(clk>>2)&3];
+				}
 				else
 				{
-				//tile = boomframe[clk&0xE] + o_tile;
-				update_weapon_frame(boomframe[clk&0xE],o_tile);
-				flip = boomframe[(clk&0xE)+1];
+					//Okay, so since this code confused me, lemme explain it.
+					//that &0xE will cause it to A: loop to a range of 0-15, and B: truncate any odd numbers 
+					//to the even number below it (because it is not &0xF, the least significant bit is not 
+					//being saved, which means it's only treating it as an even number).
+					
+					//Basically, boomframe[] is an array in which even numbers are the frame offset from o_tile for that frame,
+					//and the odd number above it is the flip for that frame; and each frame lasts two... well, frames. This results
+					//in a 16 frame animation using only an A.Speed of 2, and only 3 tiles. It's used to save tile space in older versions.
+					update_weapon_frame(boomframe[clk&0xE],o_tile);
+					flip = boomframe[(clk&0xE)+1];
 				}
 				
 				if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)

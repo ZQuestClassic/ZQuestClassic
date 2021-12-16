@@ -629,7 +629,11 @@ static const GUI::ListData compatRulesList
 		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
 	{ "Enemies with 'None' animation don't obey OriginalTile changes", qr_ANONE_NOANIM,
 		"Enemies with the 'None' animation style will not reset their displayed tile to"
-		" their 'OriginalTile' every frame if this is enabled." }
+		" their 'OriginalTile' every frame if this is enabled." },
+	{ "'Prisms Reflect Angular Weapons' Uses Broken Logic", qr_ANGULAR_REFLECT_BROKEN,
+		"If enabled, Angular Reflected Weapons use completely wrong code. This is only"
+		" here for compatibility purposes; enabling this is liable to result in undefined"
+		" behavior. Keep this disabled."}
 };
 
 static const GUI::ListData enemiesRulesList
@@ -991,14 +995,19 @@ static const GUI::ListData nesfixesRulesList
 		"If enabled, the subscreen is drawn above Layer 6, and the use of Layer 7 is enabled."
 		" If disabled, the subscreen is drawn above layer 4 but below flying/jumping enemies,"
 		" an airborne player, etc; and Layer 7 is not drawn."},
-	{ "Correct Bomb/Darknut Interaction", qr_BOMBDARKNUTFIX,
+	{ "Shielded Enemies Check Bomb's Position Instead Of Direction", qr_BOMBDARKNUTFIX,
 		"If enabled, bomb collision with shielded enemies is checked by comparing the angle of the"
 		" explosion to the enemy, and uses the direction of that angle to check if the enemy would"
 		" be shielded in that direction. If disabled, the bomb will use the direction the player was"
 		" facing when the bomb was placed when comparing if the enemy is shielded in that direction."
 		"\nPlease note that regardless of this Quest Rule, shielded enemies will always be shown as"
 		" taking damage regardless of if they blocked it and were dealt no damage, unless the NES Fix"
-		" 'Actually Fixed Bomb/Darknut Interaction' is checked."},
+		" 'Blocked Bombs Don't Trigger Shielded Enemies' I-Frames' is checked."},
+	{ "Blocked Bombs Don't Trigger Shielded Enemies' I-Frames", qr_TRUEFIXEDBOMBSHIELD,
+		"If enabled, shielded enemies will not be shown as taking damage when they"
+		" block an explosion and take 0 damage. If disabled, they will appear to be damaged"
+		" whenever an explosion hits them, even if they are not actually being damaged because"
+		" of their shield blocking the explosion."},
 	{ "Correct Offset Enemy Weapon Collision Detection", qr_OFFSETEWPNCOLLISIONFIX,
 		"If enabled, hit offsets of enemy weapons are changed, preventing a common exploit of the player"
 		" standing in between two tiles to avoid getting hit by certain projectiles. If disabled, the player"
@@ -1021,11 +1030,6 @@ static const GUI::ListData nesfixesRulesList
 		"If enabled, the ladder can be used anywhere, and the screen flag 'Toggle 'Allow Ladder'' will disable the"
 		" ladder on the screen instead of enabling it. If disabled, only screens with 'Toggle 'Allow Ladder'' and"
 		" screens on dungeon dmaps allow the use of the Ladder."},
-	{ "Actually Fixed Bomb/Darknut Interaction", qr_TRUEFIXEDBOMBSHIELD,
-		"If enabled, shielded enemies will not be shown as taking damage when they"
-		" block an explosion and take 0 damage. If disabled, they will appear to be damaged"
-		" whenever an explosion hits them, even if they are not actually being damaged because"
-		" of their shield blocking the explosion."},
 	{ "Lanmolas/Traps don't keep room dead.", qr_NOTMPNORET,
 		"If enabled, Lanmolas don't keep the entire room marked as dead when"
 		" you kill one, and rooms with traps don't keep the room marked as dead"
@@ -1053,7 +1057,25 @@ static const GUI::ListData nesfixesRulesList
 	{ "Expanded Player Tile Modifiers", qr_EXPANDEDLTM,
 		"If enabled, Player Tile Modifiers from items (such as shields) will always be applied to the player."
 		" \nIf disabled, they will only be applied if the player is walking or standing (either on land or while"
-		" sideswimming), and only if the player is not facing up."}
+		" sideswimming), and only if the player is not facing up."},
+	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,
+		"If enabled, Script-created and Enemy-created boomerangs use the same animation as other weapons."
+		" \nIf disabled, they will use one of two hardcoded animations depending on whether or not 'BS-Zelda"
+		" Animation Quirks' is checked or not. \nIf 'BS-Zelda Animation Quirks' is enabled, it will use one"
+		" tile and just flip it, with it alternating between no flip (flip of 0), vertical flip (flip of 2),"
+		" vertical and horizontal flip (flip of 3), and lastly horizontal flip (flip of 1); alternating every"
+		" 4 frames through 4 different flips for an animation that lasts 16 frames. \nIf 'BS-Zelda Animation "
+		" Quirks' is disabled, it will use a combination of 3 different tiles and different flip states to get"
+		" an animation that has 8 different 'tiles'/frames that it alternates between every 2 frames, for an"
+		" animation that, again, lasts 16 frames total. The exact offset from the original tile and the flip"
+		" it uses is complicated, but will be listed below in the format of '({offset from o_tile}, {flip value})';"
+		" in which {offset from o_tile} is the tile difference between the tile used and the sprite's o_tile,"
+		" and {flip value} is the value of the flip, in which flip of 0 is no flip, flip of 1 is horizontal, 2"
+		" is vertical, and 3 is both horizontal and vertical."
+		" \nThe exact offsets and flip values are, as follows: (0, 0), (1, 0), (2, 0), (1, 1), (0, 1), (1, 3), (2, 2), (1, 2)."
+		" \nAgain, none of this matters if you have this rule enabled, as enabling this rule will disable these"
+		" hardcoded values, and will allow you to use the same animation system as every other weapon."
+		" If looking for the player-created weapons version of this, look at the boomerang itemclass."}
 };
 
 static const GUI::ListData playerRulesList
@@ -1084,8 +1106,11 @@ static const GUI::ListData playerRulesList
 
 static const GUI::ListData weaponsRulesList
 {
-	{ "npc->Weapon Uses Unique Sprites for Custom EWeapons", qr_SCRIPT_WEAPONS_UNIQUE_SPRITES },
-	{ "Angular Reflected Weapons", qr_ANGULAR_REFLECTED_WEAPONS },
+	{ "Prisms Reflect Angular Weapons At Angles", qr_ANGULAR_REFLECTED_WEAPONS,
+		"If enabled, Prisms will reflect and duplicate angular weapons, creating new weapons at"
+		" angles perpendicular to the angle of the original weapon. If disabled, they will reflect"
+		" at regular directions instead of at angles."
+		" \nNote that this behavior is broken and undefined if 'qr_ANGULAR_REFLECT_BROKEN' is checked."},
 	{ "Mirrors Use Weapon Centre for Collision", qr_MIRRORS_USE_WEAPON_CENTRE,
 		"If enabled, mirror/prism combos activate when the center of a weapon hits them,"
 		" instead of when the edge hits them." },
@@ -1098,8 +1123,12 @@ static const GUI::ListData weaponsRulesList
 	{ "Swordbeams Always Penetrate", qr_SWORDBEAMS_ALWAYS_PENETRATE,
 		"If enabled, swordbeams will always penetrate enemies, regardless of if they belong to"
 		" a sword item with the 'Penetrate Enemies' flag checked or not." },
-	{ "Boomerang EWeapons Corrected Animation", qr_CORRECTED_EW_BRANG_ANIM },
-	{ "Bombs pierce enemy shields", qr_BOMBSPIERCESHIELD },
+	{ "Bombs Pierce Enemy Shields", qr_BOMBSPIERCESHIELD,
+		"If enabled, bombs will ignore enemy shields and deal damage to the enemy, if the enemy's"
+		" bomb defense allows it to be hurt by bombs. Otherwise, if disabled, bombs are subject to"
+		" being blocked by the enemy's shield; how they are blocked depends on the NES Fixes 'Shielded"
+		" Enemies Check Bomb's Position Instead Of Direction' and 'Blocked Bombs Don't Trigger Shielded"
+		" Enemies' I-Frames'."},
 	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT,
 		"If enabled, script created and enemy created fires will only light up"
 		" the room temporarily, and will unlight the room when the last one"
@@ -1119,7 +1148,11 @@ static const GUI::ListData weaponsRulesList
 		" only determines if script-created player bombs can hurt the player."},
 	
 	//should maybe keep this last as well? -Deedee
-	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN }
+	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN,
+		"If enabled, weapons can go out of bounds without getting removed. This is"
+		" mainly intended for script use and should not be turned on unless a script"
+		" requires it. This can also cause certain issues with weapon types that only"
+		" allow one onscreen at a time, such as sword beams and etc."}
 };
 
 //}
