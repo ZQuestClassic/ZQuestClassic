@@ -2724,7 +2724,7 @@ void OverlayTile(int firsttile, int secondtile);
 * Overlay one tile onto another.
 
 int SizeOfArray(untyped[]);
- * SizeOfArray() now returns the size of all datatypes.
+ * Returns the size of an array (any type)
 
 void ResizeArray(untyped[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
