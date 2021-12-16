@@ -2724,7 +2724,7 @@ void OverlayTile(int firsttile, int secondtile);
 * Overlay one tile onto another.
 
 int SizeOfArray(untyped[]);
- * SizeOfArray() now returns the size of all datatypes.
+ * Returns the size of an array (any type)
 
 void ResizeArray(untyped[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
@@ -4230,6 +4230,15 @@ void Remove();
  * This will immediately invalidate the itemsprite pointer, as well as update 'Screen->NumItems()', and change the indexes for 'Screen->LoadItem()'
  * If called from an itemsprite script on the itemsprite running the script, immediately terminates the script.
 
+bool SwitchHooked;
+ * READ-ONLY
+ * Returns true if the object is currently grabbed by a switchhook effect
+
+bool Switch(int effect);
+ * Switch the player with this object
+ * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
+ * Returns true if it is successful
+
 /************************************************************************************************************/	
 
 /////////////////
@@ -4354,6 +4363,15 @@ int Unblockable;
 int ShadowSprite;
  * The shadow sprite used by the weapon, 0-255
 
+bool SwitchHooked;
+ * READ-ONLY
+ * Returns true if the object is currently grabbed by a switchhook effect
+ 
+bool Switch(int effect);
+ * Switch the player with this object
+ * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
+ * Returns true if it is successful
+
 ///////////////////////////
 ///  EWeapon  Specific  ///
 ///////////////////////////							// EWeapon
@@ -4403,10 +4421,10 @@ int AClock
 /************************************************************************************************************/		
 
 /////////////
-///  NPC  ///
+///  npc  ///
 /////////////	
 	
-										// NPC
+										// npc
 
 float ParentUID;
  * Returns the UID of the NPC that is a parent, or core (bool Core)
@@ -4655,7 +4673,7 @@ bool Core;
 
 bool SwitchHooked;
  * READ-ONLY
- * Returns true if the NPC is currently grabbed by a switchhook effect
+ * Returns true if the object is currently grabbed by a switchhook effect
 
 **************************************************************
 
@@ -4752,6 +4770,11 @@ void Remove();
  * Instantly DELETES an npc. No items will be dropped, no sound will play; the npc is simply DELETED OUTRIGHT.
  * This will immediately invalidate the npc pointer, as well as update 'Screen->NumNPCs()', and change the indexes for 'Screen->LoadNPC()'
  * If called from an NPC script on the NPC running the script, immediately terminates the script.
+
+bool Switch(int effect);
+ * Switch the player with this object
+ * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
+ * Returns true if it is successful
  
 /* The following commands are valid, but do not yet have in-engine use, */
 
@@ -4889,11 +4912,6 @@ int SwitchTimer;
 int SwitchMaxTimer;
  * READ-ONLY
  * The starting (max) value of the switch timer.
-
-bool SwitchNPC(npc n, int effect);
- * Switch the player with the given npc
- * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
- * Returns true if it is successful
 
 bool SwitchCombo(int pos, int effect);
  * Switch the player with the given combo position

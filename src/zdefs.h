@@ -375,6 +375,8 @@ extern bool fake_pack_writing;
 
 #define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
 
+#define XOR(a,b) (!(a) != !(b))
+
 //#define MAGICDRAINRATE  2
 
 // quest stuff
@@ -1017,7 +1019,7 @@ enum
 	qr_STEPTEMP_SECRET_ONLY_16_31, qr_ALLTRIG_PERMSEC_NO_TEMP, qr_HARDCODED_LITEM_LTMS, qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
 	qr_LIGHTBEAM_TRANSPARENT, qr_CANDLES_SHARED_LIMIT, qr_OLD_RESPAWN_POINTS, qr_HOOKSHOTALLLAYER,
 	//33
-	qr_ANONE_NOANIM,
+	qr_ANONE_NOANIM, qr_BLOCKHOLE_SAME_ONLY, qr_SWITCHOBJ_RUN_SCRIPT,
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 

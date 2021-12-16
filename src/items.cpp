@@ -50,6 +50,8 @@ item::~item()
 
 bool item::animate(int32_t)
 {
+	if(switch_hooked)
+		return false;
 	if(!screenIsScrolling()) // Because subscreen items are items, too. :p
 	{
 		/* this is the code used for weapons 
@@ -104,7 +106,7 @@ bool item::animate(int32_t)
 			int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
 			
-			run_script(MODE_NORMAL);
+			// run_script(MODE_NORMAL);
 			
 			return false;
 		}
@@ -133,7 +135,7 @@ bool item::animate(int32_t)
 				tile = spr.newtile + zc_min(animclk / spd, fr-1);
 			}
 			
-			run_script(MODE_NORMAL);
+			// run_script(MODE_NORMAL);
 			
 			return false;
 		}

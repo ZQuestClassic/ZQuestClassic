@@ -5834,12 +5834,12 @@ void LinkClass::checkhit()
         
         //   check enemy weapons true, 1, -1
         //
-        if(itemsbuf[itemid].flags & ITEM_FLAG6)
+        if((itemsbuf[itemid].flags & ITEM_FLAG6))
         {
             if(s->id==wBrang || (s->id==wHookshot&&!pull_link))
             {
                 int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
-                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (hs_switcher ? itype_switchhook : itype_hookshot) : itype_brang);
+                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
                 itemid = vbound(itemid, 0, MAXITEMS-1);
                 
                 for(int32_t j=0; j<Ewpns.Count(); j++)
@@ -6641,6 +6641,25 @@ static size_t find_bottle_for_slot(size_t slot, bool unowned=false)
 	return found_unowned;
 }
 
+int32_t getPushDir(int32_t flag)
+{
+	switch(flag)
+	{
+		case mfPUSHUD: case mfPUSH4: case mfPUSHU: case mfPUSHUDNS:
+		case mfPUSH4NS: case mfPUSHUNS: case mfPUSHUDINS: case mfPUSH4INS:
+		case mfPUSHUINS:
+			return up;
+		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+			return down;
+		case mfPUSHLR: case mfPUSHL: case mfPUSHLRNS: case mfPUSHLNS:
+		case mfPUSHLRINS: case mfPUSHLINS:
+			return left;
+		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+			return right;
+	}
+	return -1;
+}
+
 // returns true when game over
 bool LinkClass::animate(int32_t)
 {
@@ -7224,141 +7243,283 @@ bool LinkClass::animate(int32_t)
 						--switchhookclk;
 						if(switchhookclk==switchhookmaxtime/2) //Perform swaps
 						{
-							weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
-								*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
-							
-							if(hooked_combopos > -1) //Switching combos
+							if(switchhook_cost_item > -1 && !checkmagiccost(switchhook_cost_item))
+								reset_hookshot();
+							else
 							{
-								uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
-								if(targpos < 176 && plpos < 176 && hooked_layerbits)
+								weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
+									*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
+								
+								if(hooked_combopos > -1) //Switching combos
 								{
-									int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
-									for(int q = max_layer; q > -1; --q)
+									uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
+									if(targpos < 176 && plpos < 176 && hooked_layerbits)
 									{
-										if(!(hooked_layerbits & (1<<q)))
-											continue; //non-switching layer
-										mapscr* scr = FFCore.tempScreens[q];
-										newcombo const& cmb = combobuf[scr->data[targpos]];
-										int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
-										if(cmb.type == cSWITCHHOOK) //custom flags and such
+										int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
+										for(int q = max_layer; q > -1; --q)
 										{
-											if(cmb.usrflags&cflag3) //Breaks on swap
+											if(!(hooked_layerbits & (1<<q)))
+												continue; //non-switching layer
+											mapscr* scr = FFCore.tempScreens[q];
+											newcombo const& cmb = combobuf[scr->data[targpos]];
+											int32_t srcfl = scr->sflag[targpos];
+											newcombo const& comb2 = combobuf[scr->data[plpos]];
+											int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
+											//{Check push status
+											bool isPush = false;
+											switch(srcfl)
 											{
-												int32_t it = -1;
-												if(cmb.usrflags&cflag4) //drop item
+												case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+												case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+												case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+												case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+												case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+												case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+												case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+													isPush = true;
+											}
+											if(!isPush) switch(cmb.flag)
+											{
+												case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+												case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+												case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+												case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+												case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+												case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+												case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+													isPush = true;
+											}
+											if(srcfl==mfPUSHED) isPush = false;
+											//}
+											if(cmb.type == cSWITCHHOOK) //custom flags and such
+											{
+												if(cmb.usrflags&cflag3) //Breaks on swap
 												{
-													int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+													int32_t it = -1;
+													if(cmb.usrflags&cflag4) //drop item
+													{
+														int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+													}
+													
+													breakable* br = new breakable(x, y, zfix(0),
+														cmb, scr->cset[targpos], it, cmb.attribytes[2],
+														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
+													br->switch_hooked = true;
+													decorations.add(br);
+													hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
+													hooked_undercombos[q] = -1;
+													
+													if(cmb.usrflags&cflag6)
+													{
+														scr->data[targpos]++;
+													}
+													else
+													{
+														scr->data[targpos] =  scr->undercombo;
+														scr->cset[targpos] =  scr->undercset;
+														if(cmb.usrflags&cflag2)
+															scr->sflag[targpos] = 0;
+													}
 												}
-												
-												breakable* br = new breakable(x, y, zfix(0),
-													cmb, scr->cset[targpos], it, cmb.attribytes[2],
-													cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
-												br->switch_hooked = true;
-												decorations.add(br);
-												hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
-												hooked_undercombos[q] = -1;
-												
-												if(cmb.usrflags&cflag6)
+												else if(isPush)
+												{
+													//Simulate a block clicking into place
+													movingblock mtemp;
+													mtemp.clear();
+													mtemp.set(COMBOX(plpos),COMBOY(plpos),scr->data[targpos],scr->cset[targpos],q,scr->sflag[targpos]);
+													mtemp.dir = getPushDir(scr->sflag[targpos]);
+													if(mtemp.dir < 0)
+														mtemp.dir = getPushDir(cmb.flag);
+													mtemp.clk = 1;
+													mtemp.animate(0);
+													if(mtemp.bhole || mtemp.trigger)
+													{
+														scr->data[targpos] = scr->undercombo;
+														scr->cset[targpos] = scr->undercset;
+														scr->sflag[targpos] = 0;
+													}
+													else
+													{
+														scr->data[targpos] =  c;
+														scr->cset[targpos] =  cs;
+														if(cmb.usrflags&cflag2)
+															scr->sflag[targpos] = fl;
+														else
+															scr->sflag[targpos] = 0;
+													}
+												}
+												else
+												{
+													scr->data[plpos] = scr->data[targpos];
+													scr->cset[plpos] = scr->cset[targpos];
+													if(cmb.usrflags&cflag2)
+														scr->sflag[plpos] = scr->sflag[targpos];
+													scr->data[targpos] =  c;
+													scr->cset[targpos] =  cs;
+													if(cmb.usrflags&cflag2)
+														scr->sflag[targpos] = fl;
+												}
+											}
+											else if(isCuttableType(cmb.type)) //Break and drop effects
+											{
+												int32_t breakcs = scr->cset[targpos];
+												if(isCuttableNextType(cmb.type)) //next instead of undercmb
 												{
 													scr->data[targpos]++;
 												}
 												else
 												{
-													scr->data[targpos] =  scr->undercombo;
-													scr->cset[targpos] =  scr->undercset;
-													if(cmb.usrflags&cflag2)
+													scr->data[targpos] = scr->undercombo;
+													scr->cset[targpos] = scr->undercset;
+													scr->sflag[targpos] = 0;
+												}
+												
+												int32_t it = -1;
+												if(isCuttableItemType(cmb.type)) //Drop an item
+												{
+													if ( (cmb.usrflags&cflag2) )
+													{
+														it = (cmb.usrflags&cflag11)
+															? cmb.attribytes[1]
+															: select_dropitem(cmb.attribytes[1]); 
+													}
+													else it = select_dropitem(12);
+												}
+												
+												byte breaksfx = 0;
+												if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
+												{
+													if (cmb.usrflags&cflag3)
+													{
+														breaksfx = cmb.attribytes[2];
+													}
+													else if(isBushType(cmb.type)
+														|| isFlowersType(cmb.type)
+													|| isGrassType(cmb.type))
+													{
+														breaksfx = QMisc.miscsfx[sfxBUSHGRASS];
+													}
+												}
+												
+												//Clipping sprite
+												int16_t decotype = (cmb.usrflags & cflag1) ?
+													((cmb.usrflags & cflag10)
+														? (cmb.attribytes[0])
+														: (-1))
+													: (0);
+												if(decotype > 3) decotype = 0;
+												if(!decotype)
+													decotype = (isBushType(cmb.type) ? 1
+														: (isFlowersType(cmb.type) ? 2
+														: (isGrassType(cmb.type) ? 3
+														: ((cmb.usrflags & cflag1) ? -1
+														: -2))));
+												
+												breakable* br = new breakable(x, y, zfix(0),
+													cmb, breakcs, it, breaksfx,
+													decotype, cmb.attribytes[0], switchhookclk);
+												br->switch_hooked = true;
+												decorations.add(br);
+												hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
+												hooked_undercombos[q] = -1;
+											}
+											else //Unknown type, just swap combos.
+											{
+												if(isPush)
+												{
+													//Simulate a block clicking into place
+													movingblock mtemp;
+													mtemp.clear();
+													mtemp.set(COMBOX(plpos),COMBOY(plpos),scr->data[targpos],scr->cset[targpos],q,scr->sflag[targpos]);
+													mtemp.dir = getPushDir(scr->sflag[targpos]);
+													if(mtemp.dir < 0)
+														mtemp.dir = getPushDir(cmb.flag);
+													mtemp.clk = 1;
+													mtemp.animate(0);
+													if(mtemp.bhole || mtemp.trigger)
+													{
+														scr->data[targpos] = scr->undercombo;
+														scr->cset[targpos] = scr->undercset;
 														scr->sflag[targpos] = 0;
+													}
+													else
+													{
+														scr->data[targpos] =  c;
+														scr->cset[targpos] =  cs;
+														scr->sflag[targpos] = 0;
+													}
 												}
-											}
-											else
-											{
-												scr->data[plpos] = scr->data[targpos];
-												scr->cset[plpos] = scr->cset[targpos];
-												if(cmb.usrflags&cflag2)
-													scr->sflag[plpos] = scr->sflag[targpos];
-												scr->data[targpos] =  c;
-												scr->cset[targpos] =  cs;
-												if(cmb.usrflags&cflag2)
-													scr->sflag[targpos] = fl;
+												else
+												{
+													scr->data[plpos] = scr->data[targpos];
+													scr->cset[plpos] = scr->cset[targpos];
+													scr->data[targpos] = c;
+													scr->cset[targpos] = cs;
+												}
 											}
 										}
-										else if(isCuttableType(cmb.type)) //Break and drop effects
+										if(switchhook_cost_item > -1)
+											paymagiccost(switchhook_cost_item);
+										zfix tx = x, ty = y;
+										//Position the player at the combo
+										x = COMBOX(targpos);
+										y = COMBOY(targpos);
+										dir = oppositeDir[dir];
+										if(w && hw)
 										{
-											int32_t breakcs = scr->cset[targpos];
-											if(isCuttableNextType(cmb.type)) //next instead of undercmb
+											//Calculate chain shift
+											zfix dx = (x-tx);
+											zfix dy = (y-ty);
+											if(w->dir < 4)
 											{
-												scr->data[targpos]++;
+												if(w->dir & 2)
+													dx = 0;
+												else dy = 0;
 											}
-											else
+											//Position the hook head at the handle
+											w->x = hw->x + dx;
+											w->y = hw->y + dy;
+											w->dir = oppositeDir[w->dir];
+											byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
+											w->flip ^= hflip;
+											//Position the handle appropriately
+											hw->x = x-(hw->x-tx);
+											hw->y = y-(hw->y-ty);
+											hw->dir = oppositeDir[hw->dir];
+											hw->flip ^= hflip;
+											//Move chains
+											for(int32_t j=0; j<chainlinks.Count(); j++)
 											{
-												scr->data[targpos] = scr->undercombo;
-												scr->cset[targpos] = scr->undercset;
-												scr->sflag[targpos] = 0;
+												chainlinks.spr(j)->x += dx;
+												chainlinks.spr(j)->y += dy;
 											}
-											
-											int32_t it = -1;
-											if(isCuttableItemType(cmb.type)) //Drop an item
-											{
-												if ( (cmb.usrflags&cflag2) )
-												{
-													it = (cmb.usrflags&cflag11)
-														? cmb.attribytes[1]
-														: select_dropitem(cmb.attribytes[1]); 
-												}
-												else it = select_dropitem(12);
-											}
-											
-											byte breaksfx = 0;
-											if(get_bit(quest_rules,qr_MORESOUNDS)) //SFX
-											{
-												if (cmb.usrflags&cflag3)
-												{
-													breaksfx = cmb.attribytes[2];
-												}
-												else if(isBushType(cmb.type)
-													|| isFlowersType(cmb.type)
-												|| isGrassType(cmb.type))
-												{
-													breaksfx = QMisc.miscsfx[sfxBUSHGRASS];
-												}
-											}
-											
-											//Clipping sprite
-											int16_t decotype = (cmb.usrflags & cflag1) ?
-												((cmb.usrflags & cflag10)
-													? (cmb.attribytes[0])
-													: (-1))
-												: (0);
-											if(decotype > 3) decotype = 0;
-											if(!decotype)
-												decotype = (isBushType(cmb.type) ? 1
-													: (isFlowersType(cmb.type) ? 2
-													: (isGrassType(cmb.type) ? 3
-													: ((cmb.usrflags & cflag1) ? -1
-													: -2))));
-											
-											breakable* br = new breakable(x, y, zfix(0),
-												cmb, breakcs, it, breaksfx,
-												decotype, cmb.attribytes[0], switchhookclk);
-											br->switch_hooked = true;
-											decorations.add(br);
-											hooked_layerbits &= ~(0x101<<q); //this swap completed entirely
-											hooked_undercombos[q] = -1;
 										}
-										else //Unknown type, just swap combos.
+										hooked_combopos = plpos; //flip positions
+									}
+									else reset_hookshot();
+								}
+								else if(switching_object) //Switching an object
+								{
+									if(switchhook_cost_item > -1)
+										paymagiccost(switchhook_cost_item);
+									zfix tx = x, ty = y;
+									//Position the player at the object
+									x = switching_object->x;
+									y = switching_object->y;
+									dir = oppositeDir[dir];
+									//Position the object at the player
+									switching_object->x = tx;
+									switching_object->y = ty;
+									if(switching_object->dir == dir || switching_object->dir == oppositeDir[dir])
+										switching_object->dir = oppositeDir[switching_object->dir];
+									if(item* it = dynamic_cast<item*>(switching_object))
+									{
+										if(itemsbuf[it->id].family == itype_fairy && itemsbuf[it->id].misc3)
 										{
-											scr->data[plpos] = scr->data[targpos];
-											scr->cset[plpos] = scr->cset[targpos];
-											scr->data[targpos] = c;
-											scr->cset[targpos] = cs;
+											movefairynew2(it->x, it->y, *it);
 										}
 									}
-									zfix tx = x, ty = y;
-									//Position the player at the combo
-									x = COMBOX(targpos);
-									y = COMBOY(targpos);
-									dir = oppositeDir[dir];
-									if(w && hw)
+									if(w && hw) //!TODO No fucking clue if diagonals work
 									{
 										//Calculate chain shift
 										zfix dx = (x-tx);
@@ -7386,50 +7547,6 @@ bool LinkClass::animate(int32_t)
 											chainlinks.spr(j)->x += dx;
 											chainlinks.spr(j)->y += dy;
 										}
-									}
-									hooked_combopos = plpos; //flip positions
-								}
-								else reset_hookshot();
-							}
-							else if(switching_object) //Switching an object
-							{
-								zfix tx = x, ty = y;
-								//Position the player at the object
-								x = switching_object->x;
-								y = switching_object->y;
-								dir = oppositeDir[dir];
-								//Position the object at the player
-								switching_object->x = tx;
-								switching_object->y = ty;
-								if(switching_object->dir == dir || switching_object->dir == oppositeDir[dir])
-									switching_object->dir = oppositeDir[switching_object->dir];
-								if(w && hw) //!TODO No fucking clue if diagonals work
-								{
-									//Calculate chain shift
-									zfix dx = (x-tx);
-									zfix dy = (y-ty);
-									if(w->dir < 4)
-									{
-										if(w->dir & 2)
-											dx = 0;
-										else dy = 0;
-									}
-									//Position the hook head at the handle
-									w->x = hw->x + dx;
-									w->y = hw->y + dy;
-									w->dir = oppositeDir[w->dir];
-									byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
-									w->flip ^= hflip;
-									//Position the handle appropriately
-									hw->x = x-(hw->x-tx);
-									hw->y = y-(hw->y-ty);
-									hw->dir = oppositeDir[hw->dir];
-									hw->flip ^= hflip;
-									//Move chains
-									for(int32_t j=0; j<chainlinks.Count(); j++)
-									{
-										chainlinks.spr(j)->x += dx;
-										chainlinks.spr(j)->y += dy;
 									}
 								}
 							}
@@ -8732,6 +8849,8 @@ void LinkClass::doMirror(int32_t mirrorid)
 
 void LinkClass::doSwitchHook(byte style)
 {
+	hs_switcher = true;
+	pull_link = true;
 	//{ Load hook weapons, set them to obey special drawing
 	weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
 		*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
@@ -8751,9 +8870,13 @@ void LinkClass::doSwitchHook(byte style)
 		hooked_layerbits = 0;
 		for(auto q = 0; q < 7; ++q)
 			hooked_undercombos[q] = -1;
+		uint16_t plpos = COMBOPOS(x+8,y+8);
 		for(auto q = max_layer; q > -1; --q)
 		{
 			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[hooked_combopos]];
+			newcombo const& comb2 = combobuf[FFCore.tempScreens[q]->data[plpos]];
+			int32_t fl1 = FFCore.tempScreens[q]->sflag[hooked_combopos],
+				fl2 = FFCore.tempScreens[q]->sflag[plpos];
 			if(isSwitchHookable(cmb))
 			{
 				if(cmb.type == cSWITCHHOOK)
@@ -8798,6 +8921,73 @@ void LinkClass::doSwitchHook(byte style)
 				{
 					hooked_layerbits |= 1<<q; //Swapping
 					hooked_layerbits |= 1<<(q+8); //Swapping BACK
+				}
+			}
+			if(hooked_layerbits & (1<<(q+8))) //2-way swap, check for pushblocks
+			{
+				if((cmb.type==cPUSH_WAIT || cmb.type==cPUSH_HW || cmb.type==cPUSH_HW2)
+					&& hasMainGuy())
+				{
+					hooked_layerbits &= ~(0x101<<q); //Can't swap yet
+					continue;
+				}
+				if(fl1 == mfPUSHED)
+				{
+					hooked_layerbits &= ~(0x101<<q); //Can't swap at all, locked in place
+					continue;
+				}
+				bool isPush = false;
+				switch(fl1)
+				{
+					case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+					case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+					case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+					case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+					case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+					case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+					case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+						isPush = true;
+				}
+				if(!isPush) switch(cmb.flag)
+				{
+					case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+					case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+					case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+					case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+					case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+					case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+					case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+						isPush = true;
+				}
+				if(isPush) //Check for block holes / triggers
+				{
+					if(comb2.flag == mfBLOCKHOLE || fl2 == mfBLOCKHOLE
+						|| comb2.flag == mfBLOCKTRIGGER || fl2 == mfBLOCKTRIGGER)
+					{
+						hooked_layerbits &= ~(1<<(q+8)); //Don't swap the hole/trigger back
+					}
+					else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+					{
+						auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+						for(auto lyr = 0; lyr < maxLayer; ++lyr)
+						{
+							if(lyr == q) continue;
+							switch(FFCore.tempScreens[q]->sflag[plpos])
+							{
+								case mfBLOCKHOLE: case mfBLOCKTRIGGER:
+									hooked_layerbits &= ~(1<<(q+8)); //Don't swap the hole/trigger back
+									lyr=7;
+									break;
+							}
+							switch(combobuf[FFCore.tempScreens[q]->data[plpos]].flag)
+							{
+								case mfBLOCKHOLE: case mfBLOCKTRIGGER:
+									hooked_layerbits &= ~(1<<(q+8)); //Don't swap the hole/trigger back
+									lyr=7;
+									break;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -9640,7 +9830,9 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 			bool sw = itm.family == itype_switchhook;
 			
-			paymagiccost(itemid);
+			if(sw && (itm.flags&ITEM_FLAG8))
+				switchhook_cost_item = itemid;
+			else paymagiccost(itemid);
 			
 			bool use_hookshot=true;
 			bool hit_hs = false, hit_solid = false, insta_switch = false;
@@ -9857,13 +10049,12 @@ bool LinkClass::startwpn(int32_t itemid)
 				hooked_combopos = cpos;
 				w->misc=2;
 				w->step=0;
-				pull_link=true;
 				doSwitchHook(itm.misc5);
 				if(itm.usesound2)
 					sfx(itm.usesound2,pan(int32_t(x)));
-				else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+				else if(QMisc.miscsfx[sfxSWITCHED])
+					sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 				stop_sfx(itm.usesound);
-				hs_switcher = true;
 			}
 		}
 		break;
@@ -23306,70 +23497,70 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		switch(scrolldir)
 		{
 		case up:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, -176+playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, -176+playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, -176+playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, -176+playing_field_offset, 3);
 			
 			// Draw both screens' background layer primitives together, after both layers' combos.
 			// Not ideal, but probably good enough for all realistic purposes.
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
 			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 0, 176, oldscr);
 			break;
 			
 		case down:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, -176+playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, -176+playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, -176+playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, -176+playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
 			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 0, 176, newscr);
 			break;
 			
 		case left:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, 0, playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, -256, playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, -256, playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, 0, playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, -256, playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, -256, playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
 			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 256, 0, oldscr);
 			break;
 			
 		case right:
-			if(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, newscr, -256, playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, -256, playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, oldscr, 0, playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, newscr, -256, playing_field_offset, 2);
+			if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, -256, playing_field_offset, 2);
 			
-			if(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, oldscr, 0, playing_field_offset, 3);
+			if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, playing_field_offset, 3);
 			
-			if(newscr->flags7&fLAYER2BG || oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(scrollbuf, 2, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
 			
-			if(newscr->flags7&fLAYER3BG || oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(scrollbuf, 3, newscr, sx, sy);
+			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 256, 0, newscr);
@@ -23379,16 +23570,24 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 		
-		do_layer(framebuf, 0, oldscr, tx2, ty2, 3);
+		do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
 		
-		if(!(oldscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG) ) do_layer(framebuf,1, oldscr, tx2, ty2, 3);
+		if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, tx2, ty2, 3);
 		
-		do_layer(framebuf, 0, newscr, tx, ty, 2, false, true);
+		do_layer(framebuf, 0, 1, newscr, tx, ty, 2, false, true);
 		
-		if(!(newscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf,1, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
+		if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
 		
-		do_layer(framebuf, -2, oldscr, tx2, ty2, 3); //push blocks
-		do_layer(framebuf, -2, newscr, tx, ty, 2);
+		//push blocks
+		do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
+		do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
+		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+		{
+			do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
+			do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
+			do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
+			do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+		}
 		
 		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
 		do_walkflags(framebuf, newscr, tx, ty,2);
@@ -23398,8 +23597,8 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 		if(get_bit(quest_rules, qr_FFCSCROLL))
 		{
-			do_layer(framebuf, -3, oldscr, tx2, ty2, 3, true); //ffcs
-			do_layer(framebuf, -3, newscr, tx, ty, 2, true);
+			do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
+			do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
 		}
 		
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
@@ -23419,21 +23618,31 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			decorations.draw(framebuf,  true);
 		}
 		
-		if(!(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, oldscr, tx2, ty2, 3);
+		if(!(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, oldscr, tx2, ty2, 3);
 		
-		do_layer(framebuf, 3, oldscr, tx2, ty2, 3); //layer 3
-		do_layer(framebuf,-1, oldscr, tx2, ty2, 3); //overhead combos
-		do_layer(framebuf, 4, oldscr, tx2, ty2, 3); //layer 4
-		do_layer(framebuf,-4, oldscr, tx2, ty2, 3, true); //overhead FFCs
-		do_layer(framebuf, 5, oldscr, tx2, ty2, 3); //layer 5
+		do_layer(framebuf, 0, 4, oldscr, tx2, ty2, 3); //layer 4
+		do_layer(framebuf, -1, 0, oldscr, tx2, ty2, 3); //overhead combos
+		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			do_layer(framebuf, -1, 1, oldscr, tx2, ty2, 3); //overhead combos
+			do_layer(framebuf, -1, 2, oldscr, tx2, ty2, 3); //overhead combos
+		}
+		do_layer(framebuf, 0, 5, oldscr, tx2, ty2, 3); //layer 5
+		do_layer(framebuf, -4, 0, oldscr, tx2, ty2, 3, true); //overhead FFCs
+		do_layer(framebuf, 0, 6, oldscr, tx2, ty2, 3); //layer 6
 		
-		if(!(newscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ));
+		if(!(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, newscr, tx, ty, 2, false, !(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)));
 		
-		do_layer(framebuf, 3, newscr, tx, ty, 2, false, true); //layer 3
-		do_layer(framebuf,-1, newscr, tx, ty, 2); //overhead combos
-		do_layer(framebuf, 4, newscr, tx, ty, 2, false, true); //layer 4
-		do_layer(framebuf,-4, newscr, tx, ty, 2, true); //overhead FFCs
-		do_layer(framebuf, 5, newscr, tx, ty, 2, false, true); //layer 5
+		do_layer(framebuf, 0, 4, newscr, tx, ty, 2, false, true); //layer 4
+		do_layer(framebuf, -1, 0, newscr, tx, ty, 2); //overhead combos
+		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			do_layer(framebuf, -1, 1, newscr, tx, ty, 2); //overhead combos
+			do_layer(framebuf, -1, 2, newscr, tx, ty, 2); //overhead combos
+		}
+		do_layer(framebuf, 0, 5, newscr, tx, ty, 2, false, true); //layer 5
+		do_layer(framebuf, -4, 0, newscr, tx, ty, 2, true); //overhead FFCs
+		do_layer(framebuf, 0, 6, newscr, tx, ty, 2, false, true); //layer 6
 		
 		
 		if(msg_bg_display_buf->clip == 0)
@@ -25936,19 +26145,24 @@ void setup_red_screen_old()
     clear_bitmap(framebuf);
     rectfill(scrollbuf, 0, 0, 255, 167, 0);
     
-    if(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_layer(scrollbuf,1, tmpscr, 0, playing_field_offset, 2);
+    if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, 0, playing_field_offset, 2);
     
-    if(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_layer(scrollbuf,2, tmpscr, 0, playing_field_offset, 2);
+    if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, 0, playing_field_offset, 2);
     
     putscr(scrollbuf, 0, 0, tmpscr);
     putscrdoors(scrollbuf,0,0,tmpscr);
     blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
-    do_layer(framebuf,0, tmpscr, 0, 0, 2);
+    do_layer(framebuf, 0, 1, tmpscr, 0, 0, 2);
     
-    if(!(tmpscr->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_layer(framebuf,1, tmpscr, 0, 0, 2);
+    if(!(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, tmpscr, 0, 0, 2);
     
-    do_layer(framebuf,-2, tmpscr, 0, 0, 2);
-    
+    do_layer(framebuf, -2, 0, tmpscr, 0, 0, 2);
+	if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+	{
+		do_layer(framebuf, -2, 1, tmpscr, 0, 0, 2);
+		do_layer(framebuf, -2, 2, tmpscr, 0, 0, 2);
+    }
+	
     if(!(msg_bg_display_buf->clip))
     {
 		blit_msgstr_bg(framebuf, 0, 0, 0, playing_field_offset, 256, 168);
@@ -25986,18 +26200,23 @@ void setup_red_screen_old()
     
     clear_bitmap(framebuf);
     
-    if(!((tmpscr->layermap[2]==0||(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ))
+    if(!((tmpscr->layermap[2]==0||(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
             && tmpscr->layermap[3]==0
             && tmpscr->layermap[4]==0
             && tmpscr->layermap[5]==0
             && !overheadcombos(tmpscr)))
     {
-        if(!(tmpscr->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_layer(framebuf,2, tmpscr, 0, 0, 2);
+        if(!(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, tmpscr, 0, 0, 2);
         
-        do_layer(framebuf,3, tmpscr, 0, 0, 2);
-        do_layer(framebuf,-1, tmpscr, 0, 0, 2);	
-        do_layer(framebuf,4, tmpscr, 0, 0, 2);
-        do_layer(framebuf,5, tmpscr, 0, 0, 2);
+        do_layer(framebuf, 0, 4, tmpscr, 0, 0, 2);
+        do_layer(framebuf, -1, 0, tmpscr, 0, 0, 2);
+		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			do_layer(framebuf, -1, 1, tmpscr, 0, 0, 2);
+			do_layer(framebuf, -1, 2, tmpscr, 0, 0, 2);
+        }
+		do_layer(framebuf, 0, 5, tmpscr, 0, 0, 2);
+        do_layer(framebuf, 0, 6, tmpscr, 0, 0, 2);
         
         //do an AND masked blit for messages on top of layers
         if(!(msg_txt_display_buf->clip) || !(msg_bg_display_buf->clip) || !(pricesdisplaybuf->clip) || !(msg_portrait_display_buf->clip))
@@ -26652,6 +26871,7 @@ void LinkClass::reset_hookshot()
 		switching_object->switch_hooked = false;
 	switching_object = NULL;
 	hooked_combopos = -1;
+	switchhook_cost_item = -1;
 	hooked_layerbits = 0;
 	for(auto q = 0; q < 7; ++q)
 		hooked_undercombos[q] = -1;

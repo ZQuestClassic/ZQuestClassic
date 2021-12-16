@@ -205,6 +205,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 }
 int32_t item::run_script(int32_t mode)
 {
+	if(switch_hooked && !get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;

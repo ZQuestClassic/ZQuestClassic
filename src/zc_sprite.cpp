@@ -111,8 +111,35 @@ void sprite::check_conveyor()
     }
 }
 
+void movingblock::clear()
+{
+	trigger = false;
+	endx=x=endy=y=0;
+	dir=-1;
+	oldflag=0;
+	bcombo = 0;
+	oldcset = 0;
+	cs = 0;
+	tile = 0;
+	flip = 0;
+	blockLayer = 0;
+	clk = 0;
+	step = 0;
+}
+
+void movingblock::set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer, int32_t placedfl)
+{
+	endx=x=X;
+	endy=y=Y;
+	bcombo = combo;
+	oldcset=cs=cset;
+	blockLayer=layer;
+	oldflag=placedfl;
+}
+
 void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
+	step = 0.5;
     trigger=false;
     endx=x=bx;
     endy=y=by;
@@ -165,11 +192,11 @@ bool movingblock::animate(int32_t)
 	if(clk<=0)
 		return false;
 		
-	move((zfix)0.5);
+	move(step);
 	
 	if(--clk==0)
 	{
-		bool bhole=false;
+		trigger = false; bhole = false;
 		blockmoving=false;
 		
 		if(fallCombo = getpitfall(x+8,y+8))
@@ -186,35 +213,62 @@ bool movingblock::animate(int32_t)
 		size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
 		int32_t f1 = m->sflag[combopos];
 		int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 		if(!fallclk && !drownclk)
 		{
 			m->data[combopos]=bcombo;
 			m->cset[combopos]=oldcset;
 			FFCore.reset_combo_script(blockLayer, combopos);
 		}
-		if(!fallclk && !drownclk && ((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER))
+		if(!fallclk && !drownclk)
 		{
-			trigger=true;
-			m->sflag[combopos]=mfPUSHED;
-			//the above line used to be in the following if statement.
-			//However, it caused inherent-flag pushblocks to not lock into
-			//block trigger combos unless the block trigger is also an
-			//inherent flag
-			/*
-			if(f2==mfBLOCKTRIGGER)
+			if((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
+			{
+				trigger = true;
+			}
+			else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+			{
+				for(auto q = 0; q < maxLayer; ++q)
+				{
+					if(q==blockLayer) continue;
+					if(FFCore.tempScreens[q]->sflag[combopos] == mfBLOCKTRIGGER
+						|| MAPCOMBOFLAG2(q-1,x,y) == mfBLOCKTRIGGER)
+					{
+						trigger = true;
+						mapscr* m2 = FFCore.tempScreens[q];
+						m2->data[combopos] = m2->undercombo;
+						m2->cset[combopos] = m2->undercset;
+						m2->sflag[combopos] = 0;
+					}
+				}
+			}
+			if(trigger)
 			{
 				m->sflag[combopos]=mfPUSHED;
 			}
-			*/
 		}
 		
 		if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
 		{
 			m->data[combopos]+=1;
 			bhole=true;
-			//m->cset[combopos]=;
 		}
-		
+		else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+		{
+			for(auto q = 0; q < maxLayer; ++q)
+			{
+				if(q==blockLayer) continue;
+				if((FFCore.tempScreens[q]->sflag[combopos]==mfBLOCKHOLE)
+					|| MAPCOMBOFLAG2(q-1,x,y)==mfBLOCKHOLE)
+				{
+					m->data[combopos]+=1;
+					if(q != blockLayer)
+						FFCore.tempScreens[q]->data[combopos]+=1;
+					bhole=true;
+					break;
+				}
+			}
+		}
 		if(bhole)
 		{
 			m->sflag[combopos]=mfNONE;
@@ -247,11 +301,16 @@ bool movingblock::animate(int32_t)
 			m->sflag[combopos]=oldflag;
 		}
 		
-		for(int32_t i=0; i<176; i++)
+		bool didtrigger = trigger;
+		for(auto q = 0; q < maxLayer; ++q)
 		{
-			if(m->sflag[i]==mfBLOCKTRIGGER||combobuf[m->data[i]].flag==mfBLOCKTRIGGER)
+			for(int32_t i=0; i<176; i++)
 			{
-				trigger=false;
+				if(FFCore.tempScreens[q]->sflag[i]==mfBLOCKTRIGGER
+					|| combobuf[FFCore.tempScreens[q]->data[i]].flag==mfBLOCKTRIGGER)
+				{
+					didtrigger=false;
+				}
 			}
 		}
 		
@@ -272,8 +331,8 @@ bool movingblock::animate(int32_t)
 			(f2==mfPUSHD && dir==down) ||
 			(f2==mfPUSHL && dir==left) ||
 			(f2==mfPUSHR && dir==right)) ||
-		   trigger)
-		//if(oldflag<mfPUSHUDNS||trigger)
+		   didtrigger)
+		//if(oldflag<mfPUSHUDNS||didtrigger)
 		{
 			if(hiddenstair(0,true))
 			{
@@ -285,7 +344,7 @@ bool movingblock::animate(int32_t)
 				
 				if((combobuf[bcombo].type == cPUSH_WAIT) ||
 						(combobuf[bcombo].type == cPUSH_HW) ||
-						(combobuf[bcombo].type == cPUSH_HW2) || trigger)
+						(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 				{
 					sfx(tmpscr->secretsfx);
 				}

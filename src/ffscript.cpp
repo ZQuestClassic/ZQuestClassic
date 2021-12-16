@@ -4869,6 +4869,12 @@ int32_t get_register(const int32_t arg)
 				ret = int32_t(((item*)(s))->spr_shadow) * 10000;
 			}
 			break;
+		case ITMSWHOOKED:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = s->switch_hooked ? 10000 : 0;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
@@ -6452,6 +6458,12 @@ int32_t get_register(const int32_t arg)
 				ret = ((weapon*)(s))->spr_shadow * 10000;
 			}
 			break;
+		case LWSWHOOKED:
+			if(0!=(s=checkLWpn(ri->lwpn,"SwitchHooked")))
+			{
+				ret = s->switch_hooked ? 10000 : 0;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -6866,6 +6878,12 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"ShadowSprite")))
 			{
 				ret = ((weapon*)(s))->spr_shadow * 10000;
+			}
+			break;
+		case EWSWHOOKED:
+			if(0!=(s=checkEWpn(ri->ewpn,"SwitchHooked")))
+			{
+				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		
@@ -13212,6 +13230,8 @@ void set_register(const int32_t arg, const int32_t value)
 				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
 			}
 			break;
+		case ITMSWHOOKED:
+			break; //read-only
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -14059,6 +14079,8 @@ void set_register(const int32_t arg, const int32_t value)
 				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
 			break;
+		case LWSWHOOKED:
+			break; //read-only
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -14463,6 +14485,8 @@ void set_register(const int32_t arg, const int32_t value)
 				((weapon*)(s))->spr_shadow = vbound(value/10000, 0, 255);
 			}
 			break;
+		case EWSWHOOKED:
+			break; //read-only
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -26689,16 +26713,67 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			case SWITCHNPC:
 			{
-				int32_t npcref = get_register(sarg1);
+				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
 				if(Link.switchhookclk) break; //Already switching!
-				if(GuyH::loadNPC(npcref, "Hero->Switch(npc,int)") == SH::_NoError)
+				if(GuyH::loadNPC(ri->guyref, "npc->Switch()") == SH::_NoError)
 				{
 					switching_object = guys.spr(GuyH::getNPCIndex(ri->guyref));
 					hooked_combopos = -1;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
-					Link.doSwitchHook(get_register(sarg2)/10000);
+					Link.doSwitchHook(effect);
+					set_register(sarg1,10000);
+				}
+				break;
+			}
+			
+			case SWITCHITM:
+			{
+				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
+				set_register(sarg1,0);
+				if(Link.switchhookclk) break; //Already switching!
+				if(ItemH::loadItem(ri->itemref, "item->Switch()") == SH::_NoError)
+				{
+					switching_object = items.spr(ItemH::getItemIndex(ri->itemref));
+					hooked_combopos = -1;
+					hooked_layerbits = 0;
+					switching_object->switch_hooked = true;
+					Link.doSwitchHook(effect);
+					set_register(sarg1,10000);
+				}
+				break;
+			}
+			
+			case SWITCHLW:
+			{
+				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
+				set_register(sarg1,0);
+				if(Link.switchhookclk) break; //Already switching!
+				if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Switch()") == SH::_NoError)
+				{
+					switching_object = Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn));
+					hooked_combopos = -1;
+					hooked_layerbits = 0;
+					switching_object->switch_hooked = true;
+					Link.doSwitchHook(effect);
+					set_register(sarg1,10000);
+				}
+				break;
+			}
+			
+			case SWITCHEW:
+			{
+				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
+				set_register(sarg1,0);
+				if(Link.switchhookclk) break; //Already switching!
+				if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Switch()") == SH::_NoError)
+				{
+					switching_object = Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn));
+					hooked_combopos = -1;
+					hooked_layerbits = 0;
+					switching_object->switch_hooked = true;
+					Link.doSwitchHook(effect);
 					set_register(sarg1,10000);
 				}
 				break;
@@ -26811,7 +26886,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				}
 				else
 				{
-					if(LwpnH::loadWeapon(ri->itemref, "lweapon->Explode()") == SH::_NoError)
+					if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Explode()") == SH::_NoError)
 					{
 						Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn))->explode(mode);
 					}
@@ -34440,7 +34515,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BOTTLENAMESET",           1,   0,   0,   0},
 	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
 	{ "LOADBSHOPDATA",           1,   0,   0,   0},
-	{ "SWITCHNPC",           2,   0,   0,   0},
+	{ "SWITCHNPC",           1,   0,   0,   0},
+	{ "SWITCHITM",           1,   0,   0,   0},
+	{ "SWITCHLW",           1,   0,   0,   0},
+	{ "SWITCHEW",           1,   0,   0,   0},
 	{ "SWITCHCMB",           2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
@@ -35700,6 +35778,9 @@ script_variable ZASMVars[]=
 	{ "NPCTOTALDYOFFS", NPCTOTALDYOFFS, 0, 0 },
 	{ "LWPNTOTALDYOFFS", LWPNTOTALDYOFFS, 0, 0 },
 	{ "EWPNTOTALDYOFFS", EWPNTOTALDYOFFS, 0, 0 },
+	{ "LWSWHOOKED",  LWSWHOOKED,  0, 0 },
+	{ "EWSWHOOKED",  EWSWHOOKED,  0, 0 },
+	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

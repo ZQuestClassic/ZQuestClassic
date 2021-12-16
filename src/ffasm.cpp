@@ -1006,8 +1006,11 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BOTTLENAMESET",           1,   0,   0,   0},
 	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
 	{ "LOADBSHOPDATA",           1,   0,   0,   0},
-	{ "SWITCHNPC",           2,   0,   0,   0},
+	{ "SWITCHNPC",           1,   0,   0,   0},
 	{ "SWITCHCMB",           2,   0,   0,   0},
+	{ "SWITCHITM",           1,   0,   0,   0},
+	{ "SWITCHLW",           1,   0,   0,   0},
+	{ "SWITCHEW",           1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2277,6 +2280,9 @@ script_variable variable_list[]=
 	{ "NPCTOTALDYOFFS", NPCTOTALDYOFFS, 0, 0 },
 	{ "LWPNTOTALDYOFFS", LWPNTOTALDYOFFS, 0, 0 },
 	{ "EWPNTOTALDYOFFS", EWPNTOTALDYOFFS, 0, 0 },
+	{ "LWSWHOOKED",  LWSWHOOKED,  0, 0 },
+	{ "EWSWHOOKED",  EWSWHOOKED,  0, 0 },
+	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
