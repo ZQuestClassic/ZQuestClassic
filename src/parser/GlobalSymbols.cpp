@@ -2355,7 +2355,6 @@ static AccessorTable LinkSTable[] =
 	{ "setSwitchTimer",         ZVARTYPEID_VOID,          SETTER,       HEROSWITCHTIMER,      1,           0,                                    2,           {  ZVARTYPEID_LINK, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSwitchMaxTimer",      ZVARTYPEID_FLOAT,         GETTER,       HEROSWITCHMAXTIMER,   1,           0,                                    1,           {  ZVARTYPEID_LINK, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSwitchMaxTimer",      ZVARTYPEID_VOID,          SETTER,       HEROSWITCHMAXTIMER,   1,           0,                                    2,           {  ZVARTYPEID_LINK, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "SwitchNPC",              ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_LINK, ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SwitchCombo",            ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           {  ZVARTYPEID_LINK, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -2539,21 +2538,6 @@ void LinkSymbols::generateCode()
         //pop pointer, and ignore it
         POPREF();
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(LINKOFLIP)));
-        RETURN();
-        function->giveCode(code);
-    }
-    //bool SwitchNPC(link, npc, int)
-    {
-        Function* function = getFunction("SwitchNPC", 3);
-        int32_t label = function->getLabel();
-        vector<shared_ptr<Opcode>> code;
-        //pop off the params
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
-        LABELBACK(label);
-        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
-        //pop pointer, and ignore it
-        POPREF();
-        addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
     }
@@ -4061,6 +4045,9 @@ static AccessorTable itemTable[] =
 	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       ITEMSHADOWSPR,        1,           0,                                    1,           {  ZVARTYPEID_ITEM,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       ITEMSHADOWSPR,        1,           0,                                    2,           {  ZVARTYPEID_ITEM,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSwitchHooked",        ZVARTYPEID_BOOL,          GETTER,       ITMSWHOOKED,          1,           0,                                    1,           {  ZVARTYPEID_ITEM,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setSwitchHooked",        ZVARTYPEID_VOID,          SETTER,       ITMSWHOOKED,          1,           0,                                    2,           {  ZVARTYPEID_ITEM,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Switch",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -4113,6 +4100,20 @@ void ItemSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//bool Switch(itemsprite, int)
+    {
+        Function* function = getFunction("Switch", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the params
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OSwitchItem(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
@@ -7014,6 +7015,7 @@ static AccessorTable npcTable[] =
 	{ "setDeathSprite",         ZVARTYPEID_VOID,          SETTER,       NPCDEATHSPR,          1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getSwitchHooked",        ZVARTYPEID_BOOL,          GETTER,       NPCSWHOOKED,          1,             0,                                    1,           {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setSwitchHooked",        ZVARTYPEID_VOID,          SETTER,       NPCSWHOOKED,          1,             0,                                    2,           {  ZVARTYPEID_NPC,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Switch",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7401,7 +7403,20 @@ void NPCSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-    
+    //bool Switch(npc, int)
+    {
+        Function* function = getFunction("Switch", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the params
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 LinkWeaponSymbols LinkWeaponSymbols::singleton = LinkWeaponSymbols();
@@ -7541,6 +7556,9 @@ static AccessorTable lwpnTable[] =
 	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       LWPNSHADOWSPR,        1,           0,                                    1,           {  ZVARTYPEID_LWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       LWPNSHADOWSPR,        1,           0,                                    2,           {  ZVARTYPEID_LWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSwitchHooked",        ZVARTYPEID_BOOL,          GETTER,       LWSWHOOKED,           1,           0,                                    1,           {  ZVARTYPEID_LWPN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setSwitchHooked",        ZVARTYPEID_VOID,          SETTER,       LWSWHOOKED,           1,           0,                                    2,           {  ZVARTYPEID_LWPN,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Switch",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7608,6 +7626,20 @@ void LinkWeaponSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//bool Switch(lweapon, int)
+    {
+        Function* function = getFunction("Switch", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the params
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OSwitchLW(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 EnemyWeaponSymbols EnemyWeaponSymbols::singleton = EnemyWeaponSymbols();
@@ -7739,6 +7771,9 @@ static AccessorTable ewpnTable[] =
 	{ "Remove",                 ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getShadowSprite",        ZVARTYPEID_FLOAT,         GETTER,       EWPNSHADOWSPR,        1,           0,                                    1,           {  ZVARTYPEID_EWPN,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setShadowSprite",        ZVARTYPEID_VOID,          SETTER,       EWPNSHADOWSPR,        1,           0,                                    2,           {  ZVARTYPEID_EWPN,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getSwitchHooked",        ZVARTYPEID_BOOL,          GETTER,       EWSWHOOKED,           1,           0,                                    1,           {  ZVARTYPEID_EWPN,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setSwitchHooked",        ZVARTYPEID_VOID,          SETTER,       EWSWHOOKED,           1,           0,                                    2,           {  ZVARTYPEID_EWPN,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "Switch",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7806,6 +7841,20 @@ void EnemyWeaponSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//bool Switch(eweapon, int)
+    {
+        Function* function = getFunction("Switch", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the params
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OSwitchEW(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 /////// New Types

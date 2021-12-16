@@ -599,6 +599,12 @@ string ZScript::VarToString(int32_t ID)
 		return "EWPNTOTALDYOFFS";
 	case NPCSWHOOKED:
 		return "NPCSWHOOKED";
+	case LWSWHOOKED:
+		return "LWSWHOOKED";
+	case EWSWHOOKED:
+		return "EWSWHOOKED";
+	case ITMSWHOOKED:
+		return "ITMSWHOOKED";
 	case GAMEMISCSPR:
 		return "GAMEMISCSPR";
 	case GAMEMISCSFX:
@@ -4905,7 +4911,19 @@ string OLinkExplodeRegister::toString()
 
 string OSwitchNPC::toString()
 {
-	return "SWITCHNPC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "SWITCHNPC " + getArgument()->toString();
+}
+string OSwitchItem::toString()
+{
+	return "SWITCHITM " + getArgument()->toString();
+}
+string OSwitchLW::toString()
+{
+	return "SWITCHLW " + getArgument()->toString();
+}
+string OSwitchEW::toString()
+{
+	return "SWITCHEW " + getArgument()->toString();
 }
 string OSwitchCombo::toString()
 {

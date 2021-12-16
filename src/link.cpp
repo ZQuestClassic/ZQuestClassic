@@ -5834,12 +5834,12 @@ void LinkClass::checkhit()
         
         //   check enemy weapons true, 1, -1
         //
-        if(itemsbuf[itemid].flags & ITEM_FLAG6)
+        if((itemsbuf[itemid].flags & ITEM_FLAG6))
         {
             if(s->id==wBrang || (s->id==wHookshot&&!pull_link))
             {
                 int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
-                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (hs_switcher ? itype_switchhook : itype_hookshot) : itype_brang);
+                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
                 itemid = vbound(itemid, 0, MAXITEMS-1);
                 
                 for(int32_t j=0; j<Ewpns.Count(); j++)
@@ -7512,6 +7512,13 @@ bool LinkClass::animate(int32_t)
 									switching_object->y = ty;
 									if(switching_object->dir == dir || switching_object->dir == oppositeDir[dir])
 										switching_object->dir = oppositeDir[switching_object->dir];
+									if(item* it = dynamic_cast<item*>(switching_object))
+									{
+										if(itemsbuf[it->id].family == itype_fairy && itemsbuf[it->id].misc3)
+										{
+											movefairynew2(it->x, it->y, *it);
+										}
+									}
 									if(w && hw) //!TODO No fucking clue if diagonals work
 									{
 										//Calculate chain shift
@@ -8842,7 +8849,8 @@ void LinkClass::doMirror(int32_t mirrorid)
 
 void LinkClass::doSwitchHook(byte style)
 {
-	switchhook_cost_item = -1;
+	hs_switcher = true;
+	pull_link = true;
 	//{ Load hook weapons, set them to obey special drawing
 	weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
 		*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
@@ -10041,13 +10049,12 @@ bool LinkClass::startwpn(int32_t itemid)
 				hooked_combopos = cpos;
 				w->misc=2;
 				w->step=0;
-				pull_link=true;
 				doSwitchHook(itm.misc5);
 				if(itm.usesound2)
 					sfx(itm.usesound2,pan(int32_t(x)));
-				else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+				else if(QMisc.miscsfx[sfxSWITCHED])
+					sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 				stop_sfx(itm.usesound);
-				hs_switcher = true;
 			}
 		}
 		break;

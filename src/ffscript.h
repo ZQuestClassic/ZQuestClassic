@@ -2962,8 +2962,11 @@ enum ASM_DEFINE
 	
 	SWITCHNPC,
 	SWITCHCMB,
+	SWITCHITM,
+	SWITCHLW,
+	SWITCHEW,
 	
-	NUMCOMMANDS           //0x01A7
+	NUMCOMMANDS           //0x01AA
 };
 
 
@@ -4380,8 +4383,11 @@ enum ASM_DEFINE
 #define NPCTOTALDYOFFS          0x1418
 #define LWPNTOTALDYOFFS         0x1419
 #define EWPNTOTALDYOFFS         0x141A
+#define LWSWHOOKED              0x141B
+#define EWSWHOOKED              0x141C
+#define ITMSWHOOKED             0x141D
 
-#define NUMVARIABLES         	0x1418
+#define NUMVARIABLES         	0x141E
 
 //} End variables
 

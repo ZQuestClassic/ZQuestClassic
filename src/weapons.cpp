@@ -4029,6 +4029,18 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
 bool weapon::animate(int32_t index)
 {
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
+	if(switch_hooked)
+	{
+		if(isLWeapon)
+		{
+			//Run its script
+			if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+			{
+				return 0; //Avoid NULLPO if this object deleted itself
+			}
+		}
+		return false;
+	}
 	if(fallclk > 0)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
@@ -4044,7 +4056,8 @@ bool weapon::animate(int32_t index)
 				weapon_dying_frame = true;
 				++fallclk;
 				
-				run_script(MODE_NORMAL);
+				if(isLWeapon)
+					run_script(MODE_NORMAL);
 				
 				return false;
 			}
@@ -4058,7 +4071,8 @@ bool weapon::animate(int32_t index)
 		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 		tile = spr.newtile + zc_min(animclk / spd, fr-1);
 		
-		run_script(MODE_NORMAL);
+		if(isLWeapon)
+			run_script(MODE_NORMAL);
 		
 		return false;
 	}
@@ -4078,7 +4092,8 @@ bool weapon::animate(int32_t index)
 				weapon_dying_frame = true;
 				++drownclk;
 				
-				run_script(MODE_NORMAL);
+				if(isLWeapon)
+					run_script(MODE_NORMAL);
 				
 				return false;
 			}
@@ -4104,7 +4119,8 @@ bool weapon::animate(int32_t index)
 			tile = spr.newtile + zc_min(animclk / spd, fr-1);
 		}
 		
-		run_script(MODE_NORMAL);
+		if(isLWeapon)
+			run_script(MODE_NORMAL);
 		
 		return false;
 	}
@@ -7539,16 +7555,17 @@ offscreenCheck:
 						hooked_layerbits = 0;
 						misc=2;
 						step=0;
-						pull_link=true;
 						Link.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : game->get_switchhookstyle());
-						hs_switcher = true;
 						if(parentitem > -1)
 						{
 							if(itemsbuf[parentitem].usesound2)
 								sfx(itemsbuf[parentitem].usesound2,pan(int32_t(x)));
-							else sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+							else if(QMisc.miscsfx[sfxSWITCHED])
+								sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 							stop_sfx(itemsbuf[parentitem].usesound);
 						}
+						else if(QMisc.miscsfx[sfxSWITCHED])
+							sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 						break;
 					}
 				}
@@ -8127,6 +8144,7 @@ void weapon::findcombotriggers()
 
 int32_t weapon::run_script(int32_t mode)
 {
+	if(switch_hooked && !get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (weaponscript <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;

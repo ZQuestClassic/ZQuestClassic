@@ -779,7 +779,10 @@ static const GUI::ListData itemRulesList
 	{ "Whistle triggers can be permanent", qr_PERMANENT_WHISTLE_SECRETS,
 		"If enabled, whistle triggers are allowed to be permanent. This means that whistle triggers"
 		" will set the secret screen state, unless 'Screen->Secrets are Temporary' is checked for the"
-		" current screen."}
+		" current screen."},
+	{ "Switchhooked Objects Run Scripts", qr_SWITCHOBJ_RUN_SCRIPT,
+		"If enabled, the scripts of objects grabbed by the switchhook will not be paused."}
+	
 };
 
 static const GUI::ListData miscRulesList

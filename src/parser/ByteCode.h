@@ -1333,8 +1333,11 @@
 #define NPCTOTALDYOFFS          1250
 #define LWPNTOTALDYOFFS         1251
 #define EWPNTOTALDYOFFS         1252
+#define LWSWHOOKED              1253
+#define EWSWHOOKED              1254
+#define ITMSWHOOKED             1255
 
-#define LAST_BYTECODE           1253
+#define LAST_BYTECODE           1256
 
 //} END OF BYTECODE
 
@@ -8101,14 +8104,44 @@ namespace ZScript
 		}
 	};
 	
-	class OSwitchNPC : public BinaryOpcode
+	class OSwitchNPC : public UnaryOpcode
 	{
 	public:
-		OSwitchNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OSwitchNPC(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OSwitchNPC(a->clone(),b->clone());
+			return new OSwitchNPC(a->clone());
+		}
+	};
+	class OSwitchItem : public UnaryOpcode
+	{
+	public:
+		OSwitchItem(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSwitchItem(a->clone());
+		}
+	};
+	class OSwitchLW : public UnaryOpcode
+	{
+	public:
+		OSwitchLW(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSwitchLW(a->clone());
+		}
+	};
+	class OSwitchEW : public UnaryOpcode
+	{
+	public:
+		OSwitchEW(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSwitchEW(a->clone());
 		}
 	};
 	class OSwitchCombo : public BinaryOpcode

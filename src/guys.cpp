@@ -2914,8 +2914,19 @@ bool enemy::Dead(int32_t index)
 // the guys sprite list; index is the enemy's index in the list.
 bool enemy::animate(int32_t index)
 {
-	if(switch_hooked) return false;
 	if(sclk <= 0) hitdir = -1;
+	if(switch_hooked)
+	{
+		if(get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT))
+		{
+			//Run its script
+			if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+			{
+				return 0; //Avoid NULLPO if this object deleted itself
+			}
+		}
+		return false;
+	}
 	if(do_falling(index)) return true;
 	else if(fallclk)
 	{
@@ -4868,7 +4879,8 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			switching_object = this;
 			switch_hooked = true;
 			Link.doSwitchHook(game->get_switchhookstyle());
-			sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
+			if(QMisc.miscsfx[sfxSWITCHED])
+				sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 			return 1;
 		}
 		
@@ -9259,6 +9271,7 @@ int32_t wpnsfx(int32_t wpn)
 
 int32_t enemy::run_script(int32_t mode)
 {
+	if(switch_hooked && !get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptNPCSCRIPTS])
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
@@ -9305,7 +9318,7 @@ guy::guy(zfix X,zfix Y,int32_t Id,int32_t Clk,bool mg) : enemy(X,Y,Id,Clk)
 
 bool guy::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(mainguy && clk==0 && misc==0)
 	{
 		setupscreen();
@@ -9387,7 +9400,7 @@ eFire::eFire(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eFire::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(fading)
 	{
@@ -9500,7 +9513,7 @@ eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eOther::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	//zprint2("npct other::animate\n");
 	if(fading)
@@ -9614,7 +9627,7 @@ eScript::eScript(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eScript::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(fading)
 	{
@@ -9728,7 +9741,7 @@ eFriendly::eFriendly(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eFriendly::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(fading)
 	{
@@ -9872,7 +9885,7 @@ eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eGhini::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
@@ -9954,7 +9967,7 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eTektite::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
@@ -10230,7 +10243,7 @@ eItemFairy::eItemFairy(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eItemFairy::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -10287,7 +10300,7 @@ ePeahat::ePeahat(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool ePeahat::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(slide())
 	{
@@ -10432,7 +10445,7 @@ bool eLeever::isSubmerged()
 
 bool eLeever::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk)
 	{
 		return enemy::animate(index);
@@ -10689,7 +10702,7 @@ eWallM::eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eWallM::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk)
 	{
 		return enemy::animate(index);
@@ -10938,7 +10951,7 @@ eTrap::eTrap(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eTrap::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk<0)
 		return enemy::animate(index);
@@ -11278,7 +11291,7 @@ eTrap2::eTrap2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eTrap2::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk<0)
 		return enemy::animate(index);
@@ -11428,7 +11441,7 @@ eRock::eRock(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eRock::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
@@ -11567,7 +11580,7 @@ eBoulder::eBoulder(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eBoulder::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
@@ -11733,7 +11746,7 @@ eProjectile::eProjectile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 
 bool eProjectile::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk==0)
 	{
@@ -11863,7 +11876,7 @@ eNPC::eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eNPC::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -12012,7 +12025,7 @@ void eSpinTile::facelink()
 
 bool eSpinTile::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 	{
@@ -12141,7 +12154,7 @@ void eZora::facelink()
 
 bool eZora::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -12294,7 +12307,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eStalfos::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk)
 	{
 		return enemy::animate(index);
@@ -13290,7 +13303,7 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eKeese::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
@@ -13419,7 +13432,7 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eWizzrobe::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(dying)
 	{
@@ -13973,7 +13986,7 @@ eDodongo::eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eDodongo::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 	{
 		return Dead(index);
@@ -14121,7 +14134,7 @@ eDodongo2::eDodongo2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eDodongo2::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 	{
 		return Dead(index);
@@ -14331,7 +14344,7 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 
 bool eAquamentus::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -14537,7 +14550,7 @@ eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // ene
 
 bool eGohma::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -14750,7 +14763,7 @@ eLilDig::eLilDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eLilDig::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -14869,7 +14882,7 @@ eBigDig::eBigDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eBigDig::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -15031,7 +15044,7 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eGanon::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 	
 		return Dead(index);
@@ -15704,7 +15717,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool eMoldorm::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	int32_t max_y = isdungeon() ? 100 : 100+28; //warning: Ugly hack. -Z
 	if ( y > (max_y) )
 	{
@@ -15842,7 +15855,7 @@ esMoldorm::esMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 bool esMoldorm::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	// Shouldn't be possible, but better to be sure
 	if(index==0)
 		dying=true;
@@ -16042,7 +16055,7 @@ eLanmola::eLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id,C
 
 bool eLanmola::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(clk==0)
 	{
 		removearmos(x,y);
@@ -16210,7 +16223,7 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 
 bool esLanmola::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	// Shouldn't be possible, but who knows
 	if(index==0)
 		dying=true;
@@ -16344,7 +16357,7 @@ eManhandla::eManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 
 bool eManhandla::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -16735,7 +16748,7 @@ esManhandla::esManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 
 bool esManhandla::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -16865,7 +16878,7 @@ eGleeok::eGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk) //ene
 
 bool eGleeok::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -17123,7 +17136,7 @@ esGleeok::esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(
 
 bool esGleeok::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	// don't call removearmos() - it's a segment.
 	
 	dmisc5=vbound(dmisc5,1,255);
@@ -17463,7 +17476,7 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 
 bool ePatra::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 	{
 		for(int32_t i=index+1; i<index+flycnt+flycnt2+1; i++)
@@ -18256,7 +18269,7 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 
 bool esPatra::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -18362,7 +18375,7 @@ ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)4
 
 bool ePatraBS::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 		
@@ -18646,7 +18659,7 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 
 bool esPatraBS::animate(int32_t index)
 {
-	if(switch_hooked) return false;
+	if(switch_hooked) return enemy::animate(index);
 	if(dying)
 		return Dead(index);
 	
@@ -22375,32 +22388,33 @@ void check_collisions()
 			for(int32_t j=0; j<guys.Count(); j++)
 			{
 				enemy *e = (enemy*)guys.spr(j);
-		if ( !temp_hit ) e->hitby[HIT_BY_LWEAPON] = 0;
+				if ( !temp_hit ) e->hitby[HIT_BY_LWEAPON] = 0;
 				
 				if(e->hit(w)) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
 				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
-				{//!(e->stunclk)
+				{
+					// !(e->stunclk)
 					int32_t h = e->takehit(w);
-					 if (h == -1) 
-			{ 
-				e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; 
-				e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
-				//e->hitby[HIT_BY_LWEAPON_FAMILY] = itemsbuf[w->parentid].family; //that would be the itemclass, not the weapon type!
-				e->hitby[HIT_BY_LWEAPON_FAMILY] = w->id;
-				//al_trace("npc->HitBy[] Parent Item is: %d /n", w->parentitem);
-				//al_trace("npc->HitBy[] Parent ID is: %d /n", w->parentid);
-				e->hitby[HIT_BY_LWEAPON_LITERAL_ID] = w->parentitem;
-				
-			}
-								  //we may need to handle this in special cases. -Z
+					if (h == -1) 
+					{ 
+						e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; 
+						e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
+						//e->hitby[HIT_BY_LWEAPON_FAMILY] = itemsbuf[w->parentid].family; //that would be the itemclass, not the weapon type!
+						e->hitby[HIT_BY_LWEAPON_FAMILY] = w->id;
+						//al_trace("npc->HitBy[] Parent Item is: %d /n", w->parentitem);
+						//al_trace("npc->HitBy[] Parent ID is: %d /n", w->parentid);
+						e->hitby[HIT_BY_LWEAPON_LITERAL_ID] = w->parentitem;
+						
+					}
+					//we may need to handle this in special cases. -Z
 				   
-			//if h == stun or ignore
-			
-			//if e->stun > DEFAULT_STUN -1 || !e->stun 
-			//if the enemy wasn't stunned this round -- what a bitch, as the stun value is set before we check this
-			///! how about: if w->dead != bounce !
-			
-			// NOT FOR PUBLIC RELEASE
+					//if h == stun or ignore
+					
+					//if e->stun > DEFAULT_STUN -1 || !e->stun 
+					//if the enemy wasn't stunned this round -- what a bitch, as the stun value is set before we check this
+					///! how about: if w->dead != bounce !
+					
+					// NOT FOR PUBLIC RELEASE
 					/*if(h==3) //Mirror shield
 					{
 					if (w->id==ewFireball || w->id==wRefFireball)
@@ -22450,61 +22464,102 @@ void check_collisions()
 				}
 			}
 	
-		// Item flags added in 2.55:
-		// BRang/HShot/Arrows ITEM_FLAG4 is "Pick up anything" (port of qr_BRANGPICKUP)
-		// BRang/HShot ITEM_FLAG5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
-		// Arrows ITEM_FLAG2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
-		// -V
-		if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
-		{
-			if((w->id==wArrow&&itemsbuf[w->parentitem].flags & ITEM_FLAG2)||(w->id!=wArrow&&!(itemsbuf[w->parentitem].flags & ITEM_FLAG5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
+			// Item flags added in 2.55:
+			// BRang/HShot/Arrows ITEM_FLAG4 is "Pick up anything" (port of qr_BRANGPICKUP)
+			// BRang/HShot ITEM_FLAG5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
+			// Arrows ITEM_FLAG2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
+			// -V
+			if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
 			{
-				for(int32_t j=0; j<items.Count(); j++)
+				int32_t itype, pitem = w->parentitem;
+				switch(w->id)
 				{
-					if(items.spr(j)->hit(w))
+					case wBrang: itype = itype_brang; break;
+					case wArrow: itype = itype_arrow; break;
+					case wHookshot:
+						itype = (w->family_class == itype_switchhook ? itype_switchhook :itype_hookshot);
+						break;
+				}
+				if(pitem < 0) pitem = current_item_id(itype);
+				if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & ITEM_FLAG9))
+				{ //Swap with item
+					for(int32_t j=0; j<items.Count(); j++)
 					{
-						item *theItem = ((item*)items.spr(j));
-						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
+						if(items.spr(j)->hit(w))
 						{
-							if(itemsbuf[theItem->id].collect_script)
+							item *theItem = ((item*)items.spr(j));
+							bool priced = theItem->PriceIndex >-1;
+							bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+								|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 							{
-								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
+								if(!Link.switchhookclk)
+								{
+									hooked_combopos = -1;
+									hooked_layerbits = 0;
+									switching_object = theItem;
+									theItem->switch_hooked = true;
+									w->misc = 2;
+									w->step = 0;
+									theItem->clk2=256;
+									Link.doSwitchHook(game->get_switchhookstyle());
+									if(QMisc.miscsfx[sfxSWITCHED])
+										sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(w->x));
+								}
 							}
-							
-							Link.checkitems(j);
 						}
 					}
 				}
-			} else if(w->id!=wArrow){//A BRang/HShot with "Drags Items"
-				for(int32_t j=0; j<items.Count(); j++)
+				else if((w->id==wArrow&&itemsbuf[pitem].flags & ITEM_FLAG2)||(w->id!=wArrow&&!(itemsbuf[pitem].flags & ITEM_FLAG5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
 				{
-					if(items.spr(j)->hit(w))
+					for(int32_t j=0; j<items.Count(); j++)
 					{
-						item *theItem = ((item*)items.spr(j));
-						bool priced = theItem->PriceIndex >-1;
-						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
-						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+						if(items.spr(j)->hit(w))
 						{
-							if(w->id == wBrang)
+							item *theItem = ((item*)items.spr(j));
+							bool priced = theItem->PriceIndex >-1;
+							bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+								|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
 							{
-								w->onhit(false);
+								if(itemsbuf[theItem->id].collect_script)
+								{
+									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
+								}
+								
+								Link.checkitems(j);
 							}
-
-							if(w->dragging==-1)
+						}
+					}
+				}
+				else if(w->id!=wArrow) //A BRang/HShot with "Drags Items"
+				{
+					for(int32_t j=0; j<items.Count(); j++)
+					{
+						if(items.spr(j)->hit(w))
+						{
+							item *theItem = ((item*)items.spr(j));
+							bool priced = theItem->PriceIndex >-1;
+							bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
+							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
+								|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 							{
-								w->dead=1;
-								theItem->clk2=256;
-								w->dragging=j;
+								if(w->id == wBrang)
+								{
+									w->onhit(false);
+								}
+
+								if(w->dragging==-1)
+								{
+									w->dead=1;
+									theItem->clk2=256;
+									w->dragging=j;
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 		}
 	}
 }
