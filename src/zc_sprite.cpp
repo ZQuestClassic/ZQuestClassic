@@ -124,19 +124,22 @@ void movingblock::clear()
 	flip = 0;
 	blockLayer = 0;
 	clk = 0;
+	step = 0;
 }
 
-void movingblock::set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer)
+void movingblock::set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer, int32_t placedfl)
 {
 	endx=x=X;
 	endy=y=Y;
 	bcombo = combo;
 	oldcset=cs=cset;
 	blockLayer=layer;
+	oldflag=placedfl;
 }
 
 void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
+	step = 0.5;
     trigger=false;
     endx=x=bx;
     endy=y=by;
@@ -189,11 +192,11 @@ bool movingblock::animate(int32_t)
 	if(clk<=0)
 		return false;
 		
-	move((zfix)0.5);
+	move(step);
 	
 	if(--clk==0)
 	{
-		bool bhole=false;
+		trigger = false; bhole = false;
 		blockmoving=false;
 		
 		if(fallCombo = getpitfall(x+8,y+8))
@@ -298,6 +301,7 @@ bool movingblock::animate(int32_t)
 			m->sflag[combopos]=oldflag;
 		}
 		
+		bool didtrigger = trigger;
 		for(auto q = 0; q < maxLayer; ++q)
 		{
 			for(int32_t i=0; i<176; i++)
@@ -305,7 +309,7 @@ bool movingblock::animate(int32_t)
 				if(FFCore.tempScreens[q]->sflag[i]==mfBLOCKTRIGGER
 					|| combobuf[FFCore.tempScreens[q]->data[i]].flag==mfBLOCKTRIGGER)
 				{
-					trigger=false;
+					didtrigger=false;
 				}
 			}
 		}
@@ -327,8 +331,8 @@ bool movingblock::animate(int32_t)
 			(f2==mfPUSHD && dir==down) ||
 			(f2==mfPUSHL && dir==left) ||
 			(f2==mfPUSHR && dir==right)) ||
-		   trigger)
-		//if(oldflag<mfPUSHUDNS||trigger)
+		   didtrigger)
+		//if(oldflag<mfPUSHUDNS||didtrigger)
 		{
 			if(hiddenstair(0,true))
 			{
@@ -340,7 +344,7 @@ bool movingblock::animate(int32_t)
 				
 				if((combobuf[bcombo].type == cPUSH_WAIT) ||
 						(combobuf[bcombo].type == cPUSH_HW) ||
-						(combobuf[bcombo].type == cPUSH_HW2) || trigger)
+						(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 				{
 					sfx(tmpscr->secretsfx);
 				}

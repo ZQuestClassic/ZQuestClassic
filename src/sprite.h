@@ -256,13 +256,14 @@ public:
     int32_t oldflag;
     int32_t oldcset;
     int32_t endx, endy;
-    bool trigger;
+    bool trigger, bhole;
     byte undercset;
 	byte blockLayer;
+	zfix step;
     
     movingblock();
 	void clear();
-	void set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer);
+	void set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer, int32_t placedfl);
     void push(zfix bx,zfix by,int32_t d,int32_t f);
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);

@@ -11224,12 +11224,12 @@ void CScriptDrawingCommands::Clear()
 
 void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
-	if(theScreen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG ) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
-	if(theScreen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG ) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
+	if(XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
+	if(XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 0, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 1, theScreen, xoff, yoff);
-	if(!(theScreen->flags7&fLAYER2BG || DMaps[currdmap].flags&dmfLAYER2BG )) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
-	if(!(theScreen->flags7&fLAYER3BG || DMaps[currdmap].flags&dmfLAYER3BG )) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
+	if(!XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
+	if(!XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 4, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 5, theScreen, xoff, yoff);
 	do_primitives(targetBitmap, 6, theScreen, xoff, yoff);

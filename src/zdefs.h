@@ -375,6 +375,8 @@ extern bool fake_pack_writing;
 
 #define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
 
+#define XOR(a,b) (!(a) != !(b))
+
 //#define MAGICDRAINRATE  2
 
 // quest stuff
