@@ -109,8 +109,8 @@ bool hitcombo(int32_t x, int32_t y, int32_t combotype);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype);
 int32_t nextscr(int32_t dir);
 void bombdoor(int32_t x,int32_t y);
-void do_scrolling_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int32_t y, bool scrolling, int32_t tempscreen);
-void do_layer(BITMAP *bmp, int32_t type, mapscr* layer, int32_t x, int32_t y, int32_t tempscreen, bool scrolling = false, bool drawprimitives=false);
+void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen);
+void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling = false, bool drawprimitives=false);
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
 void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
@@ -118,17 +118,6 @@ void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t 
 void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(bool scrolling = false);
 void draw_screen(mapscr* this_screen, bool showlink=true);
-/*
-  INLINE void do_scrolling_layer(int32_t type, mapscr* layer, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
-  {
-  do_scrolling_layer(framebuf, type, layer, x, y, scrolling, tempscreen);
-  }
-
-  INLINE void do_layer(int32_t type, mapscr* layer, int32_t x, int32_t y, int32_t tempscreen)
-  {
-  do_layer(framebuf, type, layer, x, y, tempscreen);
-  }
-  */
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls=false);
 void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);

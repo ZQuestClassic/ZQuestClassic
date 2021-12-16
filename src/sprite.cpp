@@ -2592,7 +2592,7 @@ void sprite::explode(int32_t type)
 
 //Moving Block 
 
-movingblock::movingblock() : sprite(), blockLayer(0)
+movingblock::movingblock() : sprite(), blockLayer(0), step(0.5)
 {
     id=1;
 }

@@ -240,6 +240,8 @@ static const GUI::ListData comboRulesList
 	{ "Pushblocks Work On Layer 1 And 2", qr_PUSHBLOCK_LAYER_1_2, 
 		"If enabled, pushblocks can be placed on Layers 1 and 2 and"
 		" function. Note that the push order goes from top to bottom."},
+	{ "Block holes & triggers only trigger on same layer as block", qr_BLOCKHOLE_SAME_ONLY, 
+		"If enabled, pushblocks will only trigger block holes and block triggers on the same layer."},
 	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION, 
 		"Internally changes how Combo Animation is handled. Required"
 		" for combodata->OriginalTile."},

@@ -5555,9 +5555,10 @@ int32_t enemy::takehit(weapon *w)
 		
 		if(def >= 0) return def;
 		
-		if(!(flags & guy_bhit))
+		bool swgrab = switch_hooked || w->family_class == itype_switchhook;
+		if(swgrab || !(flags & guy_bhit))
 		{
-			if(!switch_hooked && w->family_class != itype_switchhook)
+			if(!swgrab)
 				stunclk=160;
 			
 			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))

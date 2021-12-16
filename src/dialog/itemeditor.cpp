@@ -422,6 +422,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
 			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
 			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
+			_SET(flag[7], "Cost on Swap", "The cost of the item is only paid upon swapping successfully.");
 			
 			inf->wpn[0] = "Tip Sprite:";
 			inf->wpn[1] = "Chain Sprite (H):";
