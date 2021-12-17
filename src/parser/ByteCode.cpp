@@ -4930,6 +4930,11 @@ string OSwitchCombo::toString()
 	return "SWITCHCMB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OScreenDoSpawn::toString()
+{
+	return "SCREENDOSPAWN";
+}
+
 
 string OGetSystemRTCRegister::toString()
 {

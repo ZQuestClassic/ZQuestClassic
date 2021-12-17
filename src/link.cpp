@@ -8250,7 +8250,7 @@ bool LinkClass::animate(int32_t)
 		}
 	}
 	
-	if((!loaded_enemies) && (frame - newscr_clk >= 2))
+	if(frame - newscr_clk >= 2)
 	{
 		loadenemies();
 	}

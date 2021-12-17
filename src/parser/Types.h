@@ -363,7 +363,7 @@ namespace ZScript
 		// Basics
 		virtual std::string getName() const = 0;
 		virtual bool canCastTo(DataType const& target) const = 0;
-		virtual bool canBeGlobal() const {return false;}
+		virtual bool canBeGlobal() const {return true;}
 		virtual DataType* getConstType() const {return constType;}
 
 		// Derived class info.

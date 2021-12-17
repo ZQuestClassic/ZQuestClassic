@@ -8154,6 +8154,16 @@ namespace ZScript
 			return new OSwitchCombo(a->clone(),b->clone());
 		}
 	};
+	class OScreenDoSpawn : public Opcode
+	{
+	public:
+		OScreenDoSpawn() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OScreenDoSpawn();
+		}
+	};
 	
 	class OGetSystemRTCRegister : public UnaryOpcode
 	{

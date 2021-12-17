@@ -26711,6 +26711,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				break;
 			}
 			
+			case SCREENDOSPAWN:
+			{
+				ri->d[2] = scriptloadenemies() ? 10000 : 0;
+				break;
+			}
+			
 			case SWITCHNPC:
 			{
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
@@ -34516,10 +34522,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "LOADBOTTLETYPE",           1,   0,   0,   0},
 	{ "LOADBSHOPDATA",           1,   0,   0,   0},
 	{ "SWITCHNPC",           1,   0,   0,   0},
+	{ "SWITCHCMB",           2,   0,   0,   0},
 	{ "SWITCHITM",           1,   0,   0,   0},
 	{ "SWITCHLW",           1,   0,   0,   0},
 	{ "SWITCHEW",           1,   0,   0,   0},
-	{ "SWITCHCMB",           2,   0,   0,   0},
+	{ "SCREENDOSPAWN",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

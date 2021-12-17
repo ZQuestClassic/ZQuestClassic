@@ -2920,6 +2920,7 @@ static AccessorTable ScreenTable[] =
 	
 	{ "SecretsTriggered",             ZVARTYPEID_BOOL,          GETTER,       SCREENSECRETSTRIGGERED,        1,            0,                                    1,           {  ZVARTYPEID_SCREEN,       -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
+	{ "SpawnScreenEnemies",           ZVARTYPEID_BOOL,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_SCREEN,        -1,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	
 	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1,                                -1,                              -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -3915,7 +3916,7 @@ void ScreenSymbols::generateCode()
         function->giveCode(code);
     }
     
-     //void ClosingWipe(screen, int32_t)
+    //void ClosingWipe(screen, int32_t)
     {
 	    Function* function = getFunction("ClosingWipe", 2);
         int32_t label = function->getLabel();
@@ -3925,6 +3926,18 @@ void ScreenSymbols::generateCode()
         //pop pointer, and ignore it
 		POPREF();
         addOpcode2 (code, new OCloseWipeShape(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //bool SpawnScreenEnemies(screen)
+    {
+	    Function* function = getFunction("SpawnScreenEnemies", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop pointer, and ignore it
+		ASSERT_NUL();
+        addOpcode2 (code, new OScreenDoSpawn());
+        LABELBACK(label);
         RETURN();
         function->giveCode(code);
     }

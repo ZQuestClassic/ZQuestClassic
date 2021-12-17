@@ -902,6 +902,7 @@ void nsp(bool random);
 int32_t next_side_pos(bool random);
 bool can_side_load(int32_t id);
 void side_load_enemies();
+bool scriptloadenemies();
 void loadenemies();
 void moneysign();
 void putprices(bool sign);

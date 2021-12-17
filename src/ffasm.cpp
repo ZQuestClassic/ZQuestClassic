@@ -1011,6 +1011,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SWITCHITM",           1,   0,   0,   0},
 	{ "SWITCHLW",           1,   0,   0,   0},
 	{ "SWITCHEW",           1,   0,   0,   0},
+	{ "SCREENDOSPAWN",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

@@ -40,7 +40,7 @@ int32_t repaircharge=0;
 bool adjustmagic=false;
 bool learnslash=false;
 int32_t wallm_load_clk=0;
-int32_t sle_x,sle_y,sle_cnt,sle_clk;
+int32_t sle_x,sle_y,sle_cnt,sle_clk=0;
 int32_t vhead=0;
 int32_t guycarryingitem=0;
 
@@ -20667,11 +20667,24 @@ bool can_side_load(int32_t id)
 	return true;
 }
 
+static bool script_sle = false;
+static int32_t sle_pattern = 0;
+void script_side_load_enemies()
+{
+	if(script_sle || sle_clk) return;
+	sle_cnt = 0;
+	while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+		++sle_cnt;
+	script_sle = true;
+	sle_pattern = tmpscr->pattern;
+	sle_clk = 0;
+}
 
 void side_load_enemies()
 {
-	if(sle_clk==0)
+	if(!script_sle && sle_clk==0)
 	{
+		sle_pattern = tmpscr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
 		int16_t s = (currmap<<7)+currscr;
@@ -20734,7 +20747,7 @@ void side_load_enemies()
 	
 	if((++sle_clk+8)%24 == 0)
 	{
-		int32_t dir = next_side_pos(tmpscr->pattern==pSIDESR);
+		int32_t dir = next_side_pos(sle_pattern==pSIDESR);
 		
 		if(dir==-1 || tooclose(sle_x,sle_y,32))
 		{
@@ -20754,7 +20767,12 @@ void side_load_enemies()
 	}
 	
 	if(sle_cnt<=0)
-		loaded_enemies=true;
+	{
+		if(script_sle)
+			script_sle = false;
+		else loaded_enemies=true;
+		sle_clk = 0;
+	}
 }
 
 bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
@@ -20858,8 +20876,197 @@ int32_t placeenemy(int32_t i)
 	return -1;
 }
 
+void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& guycnt, int& loadcnt)
+{
+	bool placed=false;
+	int32_t t=-1;
+	
+	// First: enemy combo flags
+	for(int32_t sy=0; sy<176; sy+=16)
+	{
+		for(int32_t sx=0; sx<256; sx+=16)
+		{
+			int32_t cflag = MAPFLAG(sx, sy);
+			int32_t cflag_i = MAPCOMBOFLAG(sx, sy);
+			
+			if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
+			{
+				if(!ok2add(tmpscr->enemy[i]))
+					++loadcnt;
+				else
+				{
+					addenemy(sx,
+							 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
+							 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+							 
+					if(countguy(tmpscr->enemy[i]))
+						++guycnt;
+						
+					placed=true;
+					goto placed_enemy;
+				}
+			}
+			
+			else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
+			{
+				if(!ok2add(tmpscr->enemy[i]))
+					++loadcnt;
+				else
+				{
+					addenemy(sx,
+							 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
+							 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+							 
+					if(countguy(tmpscr->enemy[i]))
+						++guycnt;
+						
+					placed=true;
+					goto placed_enemy;
+				}
+			}
+		}
+	}
+	
+	// Next: enemy pattern
+	if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS)))
+	{
+		do
+		{
+
+			// NES positions
+			pos%=9;
+			x=stx[loadside][pos];
+			y=sty[loadside][pos];
+			++pos;
+			++t;
+		}
+		while((t< 20) && !is_starting_pos(i,x,y,t));
+	}
+	
+	if(t<0 || t >= 20) // above enemy pattern failed
+	{
+		// Final chance: find a random position anywhere onscreen
+		int32_t randpos = placeenemy(i);
+		
+		if(randpos>-1)
+		{
+			x=(randpos&15)<<4;
+			y= randpos&0xF0;
+		}
+		else // All opportunities failed - abort
+		{
+			return;
+		}
+	}
+	
+	{
+		int32_t c=0;
+		c=clk;
+		
+		if(!slowguy(tmpscr->enemy[i]))
+			++fastguys;
+		else if(fastguys>0)
+			c=-15*(i-fastguys+2);
+		else
+			c=-15*(i+1);
+			
+		if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+		{
+			// Special case for blue leevers
+			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
+				c=-15*(i+1);
+			else
+				c=-15;
+		}
+		
+		if(!ok2add(tmpscr->enemy[i]))
+			++loadcnt;
+		else
+		{
+			if(((tmpscr->enemy[i]>0||tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+				{
+					addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+							 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
+							 
+					if(countguy(tmpscr->enemy[i]))
+						++guycnt;
+				}
+			}
+			
+		placed=true;
+	}                                                     // if(t < 20)
+	
+placed_enemy:
+	
+	// I don't like this, but it seems to work...
+	static bool foundCarrier;
+	
+	if(i==0)
+		foundCarrier=false;
+	
+	if(placed)
+	{
+		if(i==0 && tmpscr->enemyflags&efLEADER)
+		{
+			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
+			
+			if(index!=-1)
+			{
+				//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
+				if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(tmpscr->enemy[i], 2, 0xFFF); 
+				if(index!=-1)                                                                                                                                      
+				{
+					((enemy*)guys.spr(index))->leader = true;
+				}
+			}
+		}
+		
+		if(!foundCarrier && hasitem&(4|2))
+		{
+			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
+			
+			if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
+			{
+				((enemy*)guys.spr(index))->itemguy = true;
+				foundCarrier=true;
+			}
+		}
+	}
+}
+
+bool scriptloadenemies()
+{
+	loaded_enemies = true;
+	if(script_sle || sle_clk) return false;
+	if(tmpscr->pattern==pNOSPAWN) return false;
+	
+	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
+	{
+		script_side_load_enemies();
+		return true;
+	}
+	
+	int32_t pos=zc_oldrand()%9;
+	int32_t clk=-15,x=0,y=0,fastguys=0;
+	int32_t i=0,guycnt=0;
+	int32_t loadcnt = 10;
+	
+	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
+	{
+		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		
+		--clk;
+	}
+	return true;
+}
+
 void loadenemies()
 {
+	if(script_sle || sle_clk)
+	{
+		side_load_enemies();
+		return;
+	}
 	if(tmpscr->pattern==pNOSPAWN) return;
 	if(loaded_enemies)
 		return;
@@ -20907,7 +21114,7 @@ void loadenemies()
 		return;
 	}
 	
-	// check if it's been int32_t enough to reload all enemies
+	// check if it's been long enough to reload all enemies
 	
 	int32_t loadcnt = 10;
 	int16_t s = (currmap<<7)+currscr;
@@ -20952,171 +21159,16 @@ void loadenemies()
 	int32_t clk=-15,x=0,y=0,fastguys=0;
 	int32_t i=0,guycnt=0;
 	
-	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)             /* i=0 */
+	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
 	{
-		bool placed=false;
-		int32_t t=-1;
-		
-		// First: enemy combo flags
-		for(int32_t sy=0; sy<176; sy+=16)
-		{
-			for(int32_t sx=0; sx<256; sx+=16)
-			{
-				int32_t cflag = MAPFLAG(sx, sy);
-				int32_t cflag_i = MAPCOMBOFLAG(sx, sy);
-				
-				if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
-				{
-					if(!ok2add(tmpscr->enemy[i]))
-						++loadcnt;
-					else
-					{
-						addenemy(sx,
-								 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
-								 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
-								 
-						if(countguy(tmpscr->enemy[i]))
-							++guycnt;
-							
-						placed=true;
-						goto placed_enemy;
-					}
-				}
-				
-				else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
-				{
-					if(!ok2add(tmpscr->enemy[i]))
-						++loadcnt;
-					else
-					{
-						addenemy(sx,
-								 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
-								 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
-								 
-						if(countguy(tmpscr->enemy[i]))
-							++guycnt;
-							
-						placed=true;
-						goto placed_enemy;
-					}
-				}
-			}
-		}
-		
-		// Next: enemy pattern
-		if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS)))
-		{
-			do
-			{
-
-				// NES positions
-				pos%=9;
-				x=stx[loadside][pos];
-				y=sty[loadside][pos];
-				++pos;
-				++t;
-			}
-			while((t< 20) && !is_starting_pos(i,x,y,t));
-		}
-		
-		if(t<0 || t >= 20) // above enemy pattern failed
-		{
-			// Final chance: find a random position anywhere onscreen
-			int32_t randpos = placeenemy(i);
-			
-			if(randpos>-1)
-			{
-				x=(randpos&15)<<4;
-				y= randpos&0xF0;
-			}
-			else // All opportunities failed - abort
-			{
-				--clk;
-				continue;
-			}
-		}
-		
-		{
-			int32_t c=0;
-			c=clk;
-			
-			if(!slowguy(tmpscr->enemy[i]))
-				++fastguys;
-			else if(fastguys>0)
-				c=-15*(i-fastguys+2);
-			else
-				c=-15*(i+1);
-				
-			if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
-			{
-				// Special case for blue leevers
-				if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
-					c=-15*(i+1);
-				else
-					c=-15;
-			}
-			
-			if(!ok2add(tmpscr->enemy[i]))
-				++loadcnt;
-			else
-			{
-				if(((tmpscr->enemy[i]>0||tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
-					{
-						addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-								 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
-								 
-						if(countguy(tmpscr->enemy[i]))
-							++guycnt;
-					}
-				}
-				
-			placed=true;
-		}                                                     // if(t < 20)
-		
-placed_enemy:
-		
-		// I don't like this, but it seems to work...
-		static bool foundCarrier;
-		
-		if(i==0)
-			foundCarrier=false;
-		
-		if(placed)
-		{
-			if(i==0 && tmpscr->enemyflags&efLEADER)
-			{
-				int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
-				
-				if(index!=-1)
-				{
-					//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
-					if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(tmpscr->enemy[i], 2, 0xFFF); 
-					if(index!=-1)                                                                                                                                      
-					{
-						((enemy*)guys.spr(index))->leader = true;
-					}
-				}
-			}
-			
-			if(!foundCarrier && hasitem&(4|2))
-			{
-				int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
-				
-				if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
-				{
-					((enemy*)guys.spr(index))->itemguy = true;
-					foundCarrier=true;
-				}
-			}
-		}
+		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		
 		--clk;
-	}                                                       // for
+	}
 	
 	game->guys[s] = guycnt;
 	//} //if(true)
 }
-
 void moneysign()
 {
 	additem(48,108,iRupy,ipDUMMY);

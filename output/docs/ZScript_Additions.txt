@@ -3673,6 +3673,12 @@ int InfoString[3];
 ///  Screen  ///
 ////////////////								// Screen
 
+bool SpawnScreenEnemies();
+ * Immediately spawns the 10 screen enemies with the screen pattern.
+ * Returns true if successful.
+ * Fails if enemies are still entering from the sides,
+ *     or if the pattern is 'PATTERN_NO_SPAWNING'.
+
 npc LoadNPCByUID(int uid);
  * Returns an npc pointer to an npc on the screen if its UID matches
  * the input 'uid'.
