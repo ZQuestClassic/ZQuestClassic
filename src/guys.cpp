@@ -264,8 +264,8 @@ bool enemy::shadow_overpit(enemy *e)
 bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 {
 	int32_t c = COMBOTYPE(dx,dy);
-	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
-	bool water_blocks = (!(moveflags & FLAG_CAN_WATERWALK) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB) && get_bit(quest_rules,qr_DROWN));
+	bool pit_blocks = (!(moveflags & (FLAG_CAN_PITWALK|FLAG_ONLY_PITWALK)) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
+	bool water_blocks = (!(moveflags & (FLAG_CAN_WATERWALK|FLAG_ONLY_WATERWALK|FLAG_ONLY_SHALLOW_WATERWALK)) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB) && get_bit(quest_rules,qr_DROWN));
 	return c==cPIT || c==cPITB || c==cPITC ||
 		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
@@ -275,7 +275,7 @@ bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 		   // Check for ladder-only combos which aren't dried water
 		   (combo_class_buf[c].ladder_pass&1 && !iswater_type(c)) ||
 		   // Check for drownable water
-		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)));
+		   (water_blocks && !(isSideViewGravity()) && (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true, false, false)));
 }
 
 // Returns true iff enemy is floating and blocked by a combo type or flag.
@@ -2782,6 +2782,376 @@ enemy::~enemy()
 	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
 }
 
+
+bool enemy::is_move_paused()
+{
+	return (clk<0 || dying || stunclk || watch || ceiling || frozenclock );
+}
+
+bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
+{
+	int32_t yg = (special==spw_floater)?8:0;
+	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
+	if(input_x == -1000)
+		input_x = dx;
+	if(input_y == -1000)
+		input_y = dy;
+	if(input_x<16-nb || input_y<zc_max(16-yg-nb,0) || input_x>=240+nb-hxsz || input_y>=160+nb-hysz)
+		return true;
+	
+	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
+	{
+		if(ispitfall(dx,dy))
+			return true;
+	}
+	
+	bool cansolid = false;
+	switch(special)
+	{
+		case spw_clipbottomright:
+			if(dy>=128 || dx>=208) return true;
+			break;
+		case spw_clipright:
+			break; //if(input_x>=208) return true; break;
+			
+		case spw_wizzrobe: // fall through
+		case spw_floater: // Special case for fliers and wizzrobes - hack!
+			{
+				if(isdungeon())
+				{
+					if(dy < 32-yg || dy >= 144) return true;
+					if(dx < 32 || dx >= 224) return true;
+				}
+				if(flyerblocked(dx, dy, special, kb))
+					return true;
+				cansolid = true;
+			}
+	}
+	
+	dx &= ~7;
+	dy &= ~7;
+	
+	if(!cansolid && groundblocked(dx,dy,kb)) return true;
+	
+	//_walkflag code
+	mapscr *s1, *s2;
+	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
+	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:NULL;
+	
+	int32_t cpos=(dx>>4)+(dy&0xF0);
+	int32_t ci = tmpscr->data[cpos], ci1 = (s1?s1:tmpscr)->data[cpos], ci2 = (s2?s2:tmpscr)->data[cpos];
+	newcombo c = combobuf[ci];
+	newcombo c1 = combobuf[ci1];
+	newcombo c2 = combobuf[ci2];
+	
+	int32_t b=1;
+	if(dx&8) b<<=2;
+	if(dy&8) b<<=1;
+	
+	#define iwtr(cmb, x, y, shallow) \
+		(shallow \
+			? iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, true, false) \
+				&& !iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false) \
+			: iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false))
+	bool wtr = iwtr(ci, dx, dy, false);
+	bool shwtr = iwtr(ci, dx, dy, true);
+	bool pit = ispitfall(dx,dy);
+	
+	bool canwtr = (moveflags & FLAG_CAN_WATERWALK);
+	bool canpit = (moveflags & FLAG_CAN_PITWALK);
+	bool needwtr = (moveflags & FLAG_ONLY_WATERWALK);
+	bool needshwtr = (moveflags & FLAG_ONLY_SHALLOW_WATERWALK);
+	bool needpit = (moveflags & FLAG_ONLY_PITWALK);
+
+	int32_t cwalkflag = c.walk & 0xF;
+	if (c.type == cBRIDGE) cwalkflag = 0;
+	if (s1)
+	{
+		if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+		else cwalkflag |= c1.walk & 0xF;
+	}
+	if (s2)
+	{
+		if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+		else cwalkflag |= c2.walk & 0xF;
+	}
+	bool solid = cwalkflag & b;
+	if (solid && !cansolid) return true;
+	if(needwtr || needshwtr || needpit)
+	{
+		bool ret = true;
+		if (needwtr && wtr) ret = false;
+		else if (needshwtr && shwtr) ret = false;
+		else if (needpit && pit) ret = false;
+		return ret;
+	}
+	else if(wtr && !canwtr)
+		return true;
+	else if(pit && !canpit)
+		return true;
+	
+	return false;
+}
+
+bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special)
+{
+	if(!(dx || dy)) return true;
+	zfix bx = x+hxofs, by = y+hyofs; //left/top
+	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
+	if(dy < 0) //check gravity
+	{
+		if((moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
+			return false;
+	}
+	
+	if(dx && !dy)
+	{
+		if(dx < 0)
+		{
+			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
+			for(zfix ty = 0; by+ty < ry; ty += 8)
+			{
+				if(scr_walkflag(bx+dx, by+ty, special, left, bx+dx, by, false))
+					return false;
+			}
+			if(scr_walkflag(bx+dx, ry, special, left, bx+dx, by, false))
+				return false;
+		}
+		else
+		{
+			for(zfix ty = 0; by+ty < ry; ty += 8)
+			{
+				if(scr_walkflag(rx+dx, by+ty, special, right, bx+dx, by, false))
+					return false;
+			}
+			if(scr_walkflag(rx+dx, ry, special, right, bx+dx, by, false))
+				return false;
+		}
+	}
+	else if(dy && !dx)
+	{
+		if(dy < 0)
+		{
+			special = (special==spw_clipbottomright)?spw_none:special;
+			for(zfix tx = 0; bx+tx < rx; tx += 8)
+			{
+				if(scr_walkflag(bx+tx, by+dy, special, up, bx, by+dy, false))
+					return false;
+			}
+			if(scr_walkflag(rx, by+dy, special, up, bx, by+dy, false))
+				return false;
+		}
+		else
+		{
+			for(zfix tx = 0; bx+tx < rx; tx += 8)
+			{
+				if(scr_walkflag(bx+tx, ry+dy, special, down, bx, by+dy, false))
+					return false;
+			}
+			if(scr_walkflag(rx, ry+dy, special, down, bx, by+dy, false))
+				return false;
+		}
+	}
+	else
+	{
+		//!No diagonal checks.... this is a placeholder that might work?
+		return scr_canmove(dx, 0, special) && scr_canmove(dy, 0, special);
+	}
+	return true;
+}
+
+bool enemy::movexy(zfix dx, zfix dy, int32_t special)
+{
+	bool ret = true;
+	if(dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
+		dy = 0;
+	while(abs(dx) > 8 || abs(dy) > 8)
+	{
+		if(abs(dx) > abs(dy))
+		{
+			if(dx < 0)
+			{
+				if(movexy(-8, 0, special))
+					dx += 8;
+				else
+				{
+					dx = -8;
+					ret = false;
+				}
+			}
+			else
+			{
+				if(movexy(8, 0, special))
+					dx -= 8;
+				else
+				{
+					dx = 8;
+					ret = false;
+				}
+			}
+		}
+		else
+		{
+			if(dy < 0)
+			{
+				if(movexy(0, -8, special))
+					dy += 8;
+				else
+				{
+					dy = -8;
+					ret = false;
+				}
+			}
+			else
+			{
+				if(movexy(0, 8, special))
+					dy -= 8;
+				else
+				{
+					dy = 8;
+					ret = false;
+				}
+			}
+		}
+	}
+	
+	if(dx)
+	{
+		if(scr_canmove(dx, 0, special))
+			x += dx;
+		else
+		{
+			ret = false;
+			x.doTrunc();
+			dx.doTrunc();
+			if(scr_canmove(dx/abs(dx), 0, special)) //can move at all in the direction
+			{
+				if(dx < 0)
+				{
+					while(dx < 0)
+					{
+						if(scr_canmove(dx, 0, special))
+						{
+							x += dx;
+							break;
+						}
+						++dx;
+					}
+				}
+				else
+				{
+					while(dx > 0)
+					{
+						if(scr_canmove(dx, 0, special))
+						{
+							x += dx;
+							break;
+						}
+						--dx;
+					}
+				}
+			}
+		}
+	}
+	if(dy)
+	{
+		if(scr_canmove(0, dy, special))
+			y += dy;
+		else
+		{
+			ret = false;
+			y.doTrunc();
+			dy.doTrunc();
+			if(scr_canmove(0, dy/abs(dy), special)) //can move at all in the direction
+			{
+				if(dy < 0)
+				{
+					while(dy < 0)
+					{
+						if(scr_canmove(0, dy, special))
+						{
+							y += dy;
+							break;
+						}
+						++dy;
+					}
+				}
+				else
+				{
+					while(dy > 0)
+					{
+						if(scr_canmove(0, dy, special))
+						{
+							y += dy;
+							break;
+						}
+						--dy;
+					}
+				}
+			}
+		}
+	}
+	return ret;
+}
+
+bool enemy::moveDir(int32_t dir, zfix px, int32_t special)
+{
+	zfix diagrate = zslongToFix(7071);
+	switch(NORMAL_DIR(dir))
+	{
+		case up:
+			return movexy(0, -px, special);
+		case down:
+			return movexy(0, px, special);
+		case left:
+			return movexy(-px, 0, special);
+		case right:
+			return movexy(px, 0, special);
+		case r_up:
+			return movexy(px*diagrate, -px*diagrate, special);
+		case r_down:
+			return movexy(px*diagrate, px*diagrate, special);
+		case l_up:
+			return movexy(-px*diagrate, -px*diagrate, special);
+		case l_down:
+			return movexy(-px*diagrate, px*diagrate, special);
+	}
+	return false;
+}
+
+bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special)
+{
+	double v = degrees.getFloat() * PI / 180.0;
+	zfix dx = cos(v)*px, dy = sin(v)*px;
+	return movexy(dx, dy, special);
+}
+
+bool enemy::can_movexy(zfix dx, zfix dy, int32_t special)
+{
+	zfix tx = x, ty = y;
+	bool ret = movexy(dx, dy, special);
+	x = tx;
+	y = ty;
+	return ret;
+}
+bool enemy::can_moveDir(int32_t dir, zfix px, int32_t special)
+{
+	zfix tx = x, ty = y;
+	bool ret = moveDir(dir, px, special);
+	x = tx;
+	y = ty;
+	return ret;
+}
+bool enemy::can_moveAtAngle(zfix degrees, zfix px, int32_t special)
+{
+	zfix tx = x, ty = y;
+	bool ret = moveAtAngle(degrees, px, special);
+	x = tx;
+	y = ty;
+	return ret;
+}
+
 // Handle pitfalls
 bool enemy::do_falling(int32_t index)
 {
@@ -3371,7 +3741,9 @@ void enemy::move(zfix s)
 	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
 	}*/
 	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)) || !(moveflags & FLAG_OBEYS_GRAV))
+	{
 		sprite::move(s);
+	}
 }
 
 void enemy::leave_item()

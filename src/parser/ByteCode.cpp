@@ -4935,6 +4935,35 @@ string OScreenDoSpawn::toString()
 	return "SCREENDOSPAWN";
 }
 
+string ONPCMovePaused::toString()
+{
+	return "NPCMOVEPAUSED";
+}
+string ONPCMove::toString()
+{
+	return "NPCMOVE";
+}
+string ONPCMoveAngle::toString()
+{
+	return "NPCMOVEANGLE";
+}
+string ONPCMoveXY::toString()
+{
+	return "NPCMOVEXY";
+}
+string ONPCCanMoveDir::toString()
+{
+	return "NPCCANMOVEDIR";
+}
+string ONPCCanMoveAngle::toString()
+{
+	return "NPCCANMOVEANGLE";
+}
+string ONPCCanMoveXY::toString()
+{
+	return "NPCCANMOVEXY";
+}
+
 
 string OGetSystemRTCRegister::toString()
 {

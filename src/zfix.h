@@ -86,14 +86,25 @@ public:
 		val = abs(val);
 		return *this;
 	}
+	
+	zfix& doTrunc()
+	{
+		val /= 10000;
+		val *= 10000;
+		return *this;
+	}
+	int32_t getTrunc() const
+	{
+		return val/10000;
+	}
 public:
 	
 	zfix() : val(0)											{}
 	zfix(const zfix &v) : val(v.val)						{}
-	explicit zfix(const int32_t v) : val(v*10000L)				{}
-	explicit zfix(const uint32_t v) : val(v*10000L)		{}
-	explicit zfix(const float v) : val(v*10000L)			{}
-	explicit zfix(const double v) : val(v*10000L)			{}
+	zfix(const int32_t v) : val(v*10000L)				{}
+	zfix(const uint32_t v) : val(v*10000L)		{}
+	zfix(const float v) : val(v*10000L)			{}
+	zfix(const double v) : val(v*10000L)			{}
 	explicit zfix(const int32_t ip, const int32_t dp)
 	{
 		val = ip*10000L + dp;
@@ -105,6 +116,7 @@ public:
 	operator uint32_t() const				{ return getInt(); }
 	operator float() const						{ return getFloat(); }
 	operator double() const						{ return getFloat(); }
+	operator bool() const						{ return val!=0; }
 	
 	zfix& operator = (const zfix &fx)			{ val = fx.val; return *this; }
 	zfix& operator = (const int32_t v)				{ val = v*10000L; return *this; }
@@ -147,6 +159,7 @@ public:
 	
 	zfix& operator ++ ()				{ val += 10000; return *this; }
 	zfix& operator -- ()				{ val -= 10000; return *this; }
+	bool operator ! ()				    { return !val; }
 	
 	zfix operator ++ (int32_t)				{ zfix t = copy(); val += 10000; return t; }
 	zfix operator -- (int32_t)				{ zfix t = copy(); val -= 10000; return t; }

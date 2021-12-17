@@ -1762,7 +1762,7 @@ static int32_t enemy_weapon_scripts_list[] =
 };
 static int32_t enemy_moveflag_list[] =
 {
-	371, 372, 373, 374, 375,
+	371, 372, 373, 374, 375, 417, 418, 419,
 	-1
 };
 static int32_t enemy_movement_list[] =
@@ -4369,6 +4369,9 @@ static DIALOG enedata_dlg[] =
 	//415
 	{  jwin_text_proc,           6,    216,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "SwitchHook Weapon Defense:",                              NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 216-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                         NULL,   NULL                 },
+	{  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Liquid",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Shallow Liquid",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Pitfalls",                          NULL,   NULL                 },
 	
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 }
 };
@@ -5010,6 +5013,9 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
 	enedata_dlg[374].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERDROWN) ? D_SELECTED : 0;
 	enedata_dlg[375].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERWALK) ? D_SELECTED : 0;
+	enedata_dlg[417].flags = (guysbuf[index].moveflags & FLAG_ONLY_WATERWALK) ? D_SELECTED : 0;
+	enedata_dlg[418].flags = (guysbuf[index].moveflags & FLAG_ONLY_SHALLOW_WATERWALK) ? D_SELECTED : 0;
+	enedata_dlg[419].flags = (guysbuf[index].moveflags & FLAG_ONLY_PITWALK) ? D_SELECTED : 0;
 	
 	int32_t ret;
 	guydata test;
@@ -5342,6 +5348,12 @@ void edit_enemydata(int32_t index)
 			test.moveflags |= FLAG_CAN_WATERDROWN;
 		if(enedata_dlg[375].flags & D_SELECTED)
 			test.moveflags |= FLAG_CAN_WATERWALK;
+		if(enedata_dlg[417].flags & D_SELECTED)
+			test.moveflags |= FLAG_ONLY_WATERWALK;
+		if(enedata_dlg[418].flags & D_SELECTED)
+			test.moveflags |= FLAG_ONLY_SHALLOW_WATERWALK;
+		if(enedata_dlg[419].flags & D_SELECTED)
+			test.moveflags |= FLAG_ONLY_PITWALK;
 	
 		//end npc scripts
 	

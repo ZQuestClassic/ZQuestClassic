@@ -5968,7 +5968,7 @@ int32_t get_register(const int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 2, "npc->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 7, "npc->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -15247,7 +15247,7 @@ void set_register(const int32_t arg, const int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 2, "npc->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 7, "npc->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					byte bit = 1<<indx;
@@ -21660,7 +21660,7 @@ void FFScript::do_loaddmapdata(const bool v)
 void FFScript::do_loadrng()
 {
 	ri->rngref = get_free_rng();
-	ri->d[2] = ri->rngref;
+	ri->d[rEXP1] = ri->rngref;
 }
 
 void FFScript::do_loaddirectory()
@@ -26713,7 +26713,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			case SCREENDOSPAWN:
 			{
-				ri->d[2] = scriptloadenemies() ? 10000 : 0;
+				ri->d[rEXP1] = scriptloadenemies() ? 10000 : 0;
 				break;
 			}
 			
@@ -27453,6 +27453,88 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case NPCADD:
 				FFCore.do_npc_add(false);
 				break;
+			
+			case NPCMOVEPAUSED:
+			{
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->MovePaused()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->is_move_paused() ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCMOVE:
+			{
+				int32_t dir = ri->d[rINDEX] / 10000;
+				zfix px = zslongToFix(ri->d[rEXP2]);
+				int32_t special = ri->d[rEXP1] / 10000;
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->Move()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->moveDir(dir, px, special) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCMOVEANGLE:
+			{
+				zfix degrees = zslongToFix(ri->d[rINDEX]);
+				zfix px = zslongToFix(ri->d[rEXP2]);
+				int32_t special = ri->d[rEXP1] / 10000;
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->MoveAtAngle()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->moveAtAngle(degrees, px, special) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCMOVEXY:
+			{
+				zfix dx = zslongToFix(ri->d[rINDEX]);
+				zfix dy = zslongToFix(ri->d[rEXP2]);
+				int32_t special = ri->d[rEXP1] / 10000;
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->MoveXY()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->movexy(dx, dy, special) ? 10000 : 00;
+				}
+				break;
+			}
+			case NPCCANMOVEDIR:
+			{
+				int32_t dir = ri->d[rINDEX] / 10000;
+				zfix px = zslongToFix(ri->d[rEXP2]);
+				int32_t special = ri->d[rEXP1] / 10000;
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->can_moveDir(dir, px, special) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCCANMOVEANGLE:
+			{
+				zfix degrees = zslongToFix(ri->d[rINDEX]);
+				zfix px = zslongToFix(ri->d[rEXP2]);
+				int32_t special = ri->d[rEXP1] / 10000;
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->CanMoveAtAngle()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->can_moveAtAngle(degrees, px, special) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCCANMOVEXY:
+			{
+				zfix dx = zslongToFix(ri->d[rINDEX]);
+				zfix dy = zslongToFix(ri->d[rEXP2]);
+				int32_t special = ri->d[rEXP1] / 10000;
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->CanMoveXY()") == SH::_NoError)
+				{
+					ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 00;
+				}
+				break;
+			}
 			
 			case PLAYENHMUSICEX:
 				FFCore.do_playogg_ex(false);
@@ -34527,6 +34609,13 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SWITCHLW",           1,   0,   0,   0},
 	{ "SWITCHEW",           1,   0,   0,   0},
 	{ "SCREENDOSPAWN",           0,   0,   0,   0},
+	{ "NPCMOVEPAUSED",           0,   0,   0,   0},
+	{ "NPCMOVE",           0,   0,   0,   0},
+	{ "NPCMOVEANGLE",           0,   0,   0,   0},
+	{ "NPCMOVEXY",           0,   0,   0,   0},
+	{ "NPCCANMOVEDIR",           0,   0,   0,   0},
+	{ "NPCCANMOVEANGLE",           0,   0,   0,   0},
+	{ "NPCCANMOVEXY",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

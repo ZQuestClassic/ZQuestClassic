@@ -1,5 +1,5 @@
 // std_constants.zh
-// 12th Dec, 2021 for ZC 2.55 Alpha 100
+// 17th Dec, 2021 for ZC 2.55 Alpha 100
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -3248,7 +3248,12 @@ enum NPCMoveFlag
 {
 	NPCMV_OBEYS_GRAVITY,
 	NPCMV_CAN_PITFALL,
-	NPCMV_CAN_PIT_WALK
+	NPCMV_CAN_PIT_WALK,
+	NPCMV_CAN_WATERDROWN,
+	NPCMV_CAN_WATER_WALK,
+	NPCMV_ONLY_WATER_WALK,
+	NPCMV_ONLY_SHALLOW_WATER_WALK,
+	NPCMV_ONLY_PIT_WALK 
 };
 
 define CHRT_VISITED = 10000000b;

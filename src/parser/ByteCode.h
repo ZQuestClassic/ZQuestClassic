@@ -8165,6 +8165,77 @@ namespace ZScript
 		}
 	};
 	
+	class ONPCMovePaused : public Opcode
+	{
+	public:
+		ONPCMovePaused() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCMovePaused();
+		}
+	};
+	class ONPCMove : public Opcode
+	{
+	public:
+		ONPCMove() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCMove();
+		}
+	};
+	class ONPCMoveAngle : public Opcode
+	{
+	public:
+		ONPCMoveAngle() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCMoveAngle();
+		}
+	};
+	class ONPCMoveXY : public Opcode
+	{
+	public:
+		ONPCMoveXY() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCMoveXY();
+		}
+	};
+	class ONPCCanMoveDir : public Opcode
+	{
+	public:
+		ONPCCanMoveDir() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCCanMoveDir();
+		}
+	};
+	class ONPCCanMoveAngle : public Opcode
+	{
+	public:
+		ONPCCanMoveAngle() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCCanMoveAngle();
+		}
+	};
+	class ONPCCanMoveXY : public Opcode
+	{
+	public:
+		ONPCCanMoveXY() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ONPCCanMoveXY();
+		}
+	};
+	
 	class OGetSystemRTCRegister : public UnaryOpcode
 	{
 	public:

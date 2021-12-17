@@ -2125,11 +2125,14 @@ struct guydata
     
 };
 //Moveflags
-#define FLAG_OBEYS_GRAV 0x01
-#define FLAG_CAN_PITFALL 0x02
-#define FLAG_CAN_PITWALK 0x04
-#define FLAG_CAN_WATERDROWN 0x08
-#define FLAG_CAN_WATERWALK 0x10
+#define FLAG_OBEYS_GRAV        0x01
+#define FLAG_CAN_PITFALL       0x02
+#define FLAG_CAN_PITWALK       0x04
+#define FLAG_CAN_WATERDROWN    0x08
+#define FLAG_CAN_WATERWALK     0x10
+#define FLAG_ONLY_WATERWALK    0x20 //Only walks on water
+#define FLAG_ONLY_SHALLOW_WATERWALK 0x40 //Only walks on shallow water
+#define FLAG_ONLY_PITWALK 0x80 //Only walks on pitfalls
 
 class refInfo
 {

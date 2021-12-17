@@ -1012,6 +1012,13 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SWITCHLW",           1,   0,   0,   0},
 	{ "SWITCHEW",           1,   0,   0,   0},
 	{ "SCREENDOSPAWN",           0,   0,   0,   0},
+	{ "NPCMOVEPAUSED",           0,   0,   0,   0},
+	{ "NPCMOVE",           0,   0,   0,   0},
+	{ "NPCMOVEANGLE",           0,   0,   0,   0},
+	{ "NPCMOVEXY",           0,   0,   0,   0},
+	{ "NPCCANMOVEDIR",           0,   0,   0,   0},
+	{ "NPCCANMOVEANGLE",           0,   0,   0,   0},
+	{ "NPCCANMOVEXY",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

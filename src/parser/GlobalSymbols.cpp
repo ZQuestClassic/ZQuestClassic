@@ -7014,8 +7014,8 @@ static AccessorTable npcTable[] =
 	{ "setFalling",             ZVARTYPEID_VOID,          SETTER,       NPCFALLCLK,          1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getFallCombo",           ZVARTYPEID_FLOAT,         GETTER,       NPCFALLCMB,          1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setFallCombo",           ZVARTYPEID_VOID,          SETTER,       NPCFALLCMB,          1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "getMoveFlags[]",         ZVARTYPEID_BOOL,          GETTER,       NPCMOVEFLAGS,        3,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
-	{ "setMoveFlags[]",         ZVARTYPEID_VOID,          SETTER,       NPCMOVEFLAGS,        3,           0,                                    3,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "getMoveFlags[]",         ZVARTYPEID_BOOL,          GETTER,       NPCMOVEFLAGS,        8,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
+	{ "setMoveFlags[]",         ZVARTYPEID_VOID,          SETTER,       NPCMOVEFLAGS,        8,           0,                                    3,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         ZVARTYPEID_BOOL,    -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getLightRadius",         ZVARTYPEID_FLOAT,         GETTER,       NPCGLOWRAD,           1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setLightRadius",         ZVARTYPEID_VOID,          SETTER,       NPCGLOWRAD,           1,           0,                                    2,           {  ZVARTYPEID_NPC,          ZVARTYPEID_FLOAT,         -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "getLightShape",          ZVARTYPEID_FLOAT,         GETTER,       NPCGLOWSHP,           1,           0,                                    1,           {  ZVARTYPEID_NPC,         -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
@@ -7029,6 +7029,13 @@ static AccessorTable npcTable[] =
 	{ "getSwitchHooked",        ZVARTYPEID_BOOL,          GETTER,       NPCSWHOOKED,          1,             0,                                    1,           {  ZVARTYPEID_NPC,          -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "setSwitchHooked",        ZVARTYPEID_VOID,          SETTER,       NPCSWHOOKED,          1,             0,                                    2,           {  ZVARTYPEID_NPC,           ZVARTYPEID_BOOL,        -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } },
 	{ "Switch",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MovePaused",             ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      1,           {  ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Move",                   ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MoveAtAngle",            ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MoveXY",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "CanMove",                ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "CanMoveAtAngle",         ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "CanMoveXY",              ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      4,           {  ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1,                               -1,                               -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1                           } }
 };
@@ -7424,12 +7431,114 @@ void NPCSymbols::generateCode()
         //pop off the params
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
         LABELBACK(label);
-        //pop pointer, and ignore it
+        //pop pointer
         POPREF();
         addOpcode2 (code, new OSwitchNPC(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }
+	//bool MovePaused(npc)
+	{
+		Function* function = getFunction("MovePaused", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		addOpcode2 (code, new ONPCMovePaused());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool Move(npc, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("Move", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new ONPCMove());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool MoveAtAngle(npc, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("MoveAtAngle", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new ONPCMoveAngle());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool MoveXY(npc, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("MoveXY", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new ONPCMoveXY());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool CanMove(npc, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("CanMove", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new ONPCCanMoveDir());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool CanMoveAtAngle(npc, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("CanMoveAtAngle", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new ONPCCanMoveAngle());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool CanMoveXY(npc, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("CanMoveXY", 4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
+		POPREF();
+		addOpcode2 (code, new ONPCCanMoveXY());
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 LinkWeaponSymbols LinkWeaponSymbols::singleton = LinkWeaponSymbols();

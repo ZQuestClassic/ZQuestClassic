@@ -135,6 +135,16 @@ public:
 	enemy(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : sprite()
 	virtual ~enemy();
 	
+	bool is_move_paused();
+	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
+	bool scr_canmove(zfix dx, zfix dy, int32_t special);
+	bool movexy(zfix dx, zfix dy, int32_t special);
+	bool moveDir(int32_t dir, zfix px, int32_t special);
+	bool moveAtAngle(zfix degrees, zfix px, int32_t special);
+	bool can_movexy(zfix dx, zfix dy, int32_t special);
+	bool can_moveDir(int32_t dir, zfix px, int32_t special);
+	bool can_moveAtAngle(zfix degrees, zfix px, int32_t special);
+	
 	// Handle pitfalls
 	bool do_falling(int32_t index);
 	// Handle drowning

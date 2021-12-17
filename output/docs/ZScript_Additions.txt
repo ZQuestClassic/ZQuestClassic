@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 99
-Document Revision: 19th Nov, 2021
+Document for: 2.55, Alpha 100
+Document Revision: 17th Dec, 2021
 
 
  __           _   _                 
@@ -4545,7 +4545,7 @@ bool Knockback(int time, int dir, int speed);
  *     The enemy cannot move in that direction
  *     The enemy is already mid-knockback
  *     The enemy is dead
- *     'bool npc->NoKnockback;' was set true for this enemy
+ *     'bool npc->NoScriptKnockback;' was set true for this enemy
 
 int HitDir;
  * Read-Only.
@@ -4559,7 +4559,8 @@ void StopBGSFX();
 	
 void Attack();
  * Causes the npc to attack with its weapon.
-	
+
+//Engine enemy movement functions
 void NewDir(int arr[]);
  * The npc chooses a new direction.
  * Uses an array literal for its args:
@@ -4611,6 +4612,60 @@ bool CanMove(int array[]);
  * 	{int dir, int special} 
  * 	{int ndir, int step, int special} 
  * 	{int ndir,int step,int special,int dx1,int dy1,int dx2,int dy2}
+	
+int LinedUp(int range, bool dir8);
+ * Checks if enemy is lined up with Link.
+ * If so, returns direction Link is at as compared to enemy.
+ * Returns -1 if not lined up. Range is inclusive.
+
+/* Script-only enemy movement functions (Ghost-based)
+ * These functions will simply move the enemy, and check collision; they are not
+ *     grid-locked, and have no other side effects.
+ */
+bool MovePaused();
+ * Returns true if the enemy shouldn't be moving
+ *   i.e. spawning, dying, stunned, clock active, etc
+ * Should be checked before calling movement functions below
+
+bool MoveXY(float dx, float dy, int special)
+ * Attempts to move the enemy by 'dx, dy'; obeying solidity.
+ * Use the 'SPW_' constants to provide a special value;
+ *     i.e. 'SPW_FLOATER' for flying enemies.
+ * Use 'SPW_NONE' if you don't know what to use.
+ * Returns true if the enemy moves the full distance,
+ *     false if it is blocked by something.
+ 
+bool CanMoveXY(float dx, float dy, int special)
+ * Same as above, but doesn't actually move the enemy,
+ *     just returns the success state if it were to move.
+
+bool Move(int dir, float pxamnt, int special)
+ * Attempts to move the enemy by 'pxamnt' pixels in the
+ *     'dir' direction; obeying solidity.
+ * Use the 'SPW_' constants to provide a special value;
+ *     i.e. 'SPW_FLOATER' for flying enemies.
+ * Use 'SPW_NONE' if you don't know what to use.
+ * Returns true if the enemy moves the full distance,
+ *     false if it is blocked by something.
+ 
+bool CanMove(int dir, float pxamnt, int special)
+ * Same as above, but doesn't actually move the enemy,
+ *     just returns the success state if it were to move.
+
+bool MoveAtAngle(float degrees, float pxamnt, int special)
+ * Attempts to move the enemy by 'pxamnt' pixels in the
+ *     'degrees' angle; obeying solidity.
+ * Use the 'SPW_' constants to provide a special value;
+ *     i.e. 'SPW_FLOATER' for flying enemies.
+ * Use 'SPW_NONE' if you don't know what to use.
+ * Returns true if the enemy moves the full distance,
+ *     false if it is blocked by something.
+ 
+bool CanMoveAtAngle(float degrees, float pxamnt, int special)
+ * Same as above, but doesn't actually move the enemy,
+ *     just returns the success state if it were to move.
+
+//
 
 bool SimulateHit(int array[]); 
  * Simulates hitting the npc with a weapon, another sprite, or an arbitrary set of 
@@ -4618,11 +4673,6 @@ bool SimulateHit(int array[]);
  * Returns true if that object would hit the npc. 
  * 	{TYPE, pointer} : Specify the type, such as PTR_TYPE_LWEAPON, then pass an object pointer.
  * 	{int tx, int ty, int tz, int txsz, int tysz, int tzsz} : Arbitrary values.
-	
-int LinedUp(int range, bool dir8);
- * Checks if enemy is lined up with Link.
- * If so, returns direction Link is at as compared to enemy.
- * Returns -1 if not lined up. Range is inclusive.
  
 npc Create(int array[]); 
  * Similar to Screen->CreateNPC(), except:

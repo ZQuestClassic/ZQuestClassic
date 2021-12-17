@@ -1,7 +1,28 @@
 // 2.55 Change Log
-// Updated 29th Nov, 2021
+// Updated 17th Dec, 2021
 
-//Recent Changes (Since A99)
+//Alpha 100
+
+Add ghost.zh-based internal script movement functions
+	npc->Move(dir, px, special)
+	npc->MoveAtAngle(angle, px, special)
+	npc->MoveXY(dx, dy, special)
+	Also, add MoveFlags 'Only Water', 'Only Shallow Water', and 'Only Pitfalls'
+		to go with these functions; changing the collision detection to *require*
+		the enemy be on the respective type of combo.
+	( EmilyV, Dec 17th, 2021 )
+
+Add SwitchHooks / Switch Effects
+Fix 'combodata->Tile'/'combodata->OriginalTile'
+	( EmilyV, Dec 13th, 2021 )
+
+Add Misc SFX menu (Audio->Misc SFX)
+	( EmilyV, Dec 12th, 2021 )
+
+Cross-Screen Respawn Points
+	( EmilyV, Dec 8th, 2021 )
+
+Bunch more help text throughout Dec 2021
 
 Item and Combo editor help text for attribs/flags
 Light beam puzzles - "Spotlight", "Glass", and "Light Trigger" combo types
