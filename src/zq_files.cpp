@@ -789,6 +789,11 @@ void applyRuleset(int32_t newRuleset)
 			set_bit(quest_rules, qr_AUTOCOMBO_LAYER_2, 1);
 			set_bit(quest_rules, qr_NEW_DARKROOM, 1);
 			set_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2, 1);
+			set_bit(quest_rules, qr_HOOKSHOTALLLAYER, 1);
+			set_bit(quest_rules, qr_ITEMCOMBINE_NEW_PSTR, 1);
+			set_bit(quest_rules, qr_ITEMCOMBINE_CONTINUOUS, 1);
+			set_bit(quest_rules, qr_FIXED_FAIRY_LIMIT, 1);
+			set_bit(quest_rules, qr_FAIRYDIR, 1);
 			//}
 			break;
 		}

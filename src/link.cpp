@@ -25331,24 +25331,37 @@ void LinkClass::checkitems(int32_t index)
 		if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
 			return;
 			
-		if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
-			// Item upgrade routine.
+		int32_t nextitem = -1;
+		do
 		{
-			int32_t nextitem = -1;
-			
-			for(int32_t i=0; i<MAXITEMS; i++)
+			nextitem = -1;
+			if((itemsbuf[id2].flags & ITEM_COMBINE) && game->get_item(id2))
+				// Item upgrade routine.
 			{
-				// Find the item which is as close to this item's fam_type as possible.
-				if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-						&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+				
+				for(int32_t i=0; i<MAXITEMS; i++)
 				{
-					nextitem = i;
+					// Find the item which is as close to this item's fam_type as possible.
+					if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
+							&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+					{
+						nextitem = i;
+					}
+				}
+				
+				if(nextitem>-1)
+				{
+					id2 = nextitem;
+					if(get_bit(quest_rules,qr_ITEMCOMBINE_NEW_PSTR))
+					{
+						pstr = itemsbuf[id2].pstring;
+						pstr_flags = itemsbuf[id2].pickup_string_flags;
+					}
+					if(!get_bit(quest_rules,qr_ITEMCOMBINE_CONTINUOUS))
+						break; //no looping
 				}
 			}
-			
-			if(nextitem>-1)
-				id2 = nextitem;
-		}
+		} while(nextitem > -1);
 		
 		if(pickup&ipCHECK)                                        // check restrictions
 			switch(tmpscr[tmp].room)

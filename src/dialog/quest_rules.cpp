@@ -785,8 +785,13 @@ static const GUI::ListData itemRulesList
 		" will set the secret screen state, unless 'Screen->Secrets are Temporary' is checked for the"
 		" current screen."},
 	{ "Switchhooked Objects Run Scripts", qr_SWITCHOBJ_RUN_SCRIPT,
-		"If enabled, the scripts of objects grabbed by the switchhook will not be paused."}
-	
+		"If enabled, the scripts of objects grabbed by the switchhook will not be paused."},
+	{ "'Upgraded' items play upgraded pickup string", qr_ITEMCOMBINE_NEW_PSTR,
+		"If enabled, collecting an item with 'Upgrade When Collected Twice' will play"
+		" the pickup string from the 'upgraded' item, not the base item."},
+	{ "'Upgraded' items chain continuously", qr_ITEMCOMBINE_CONTINUOUS,
+		"If enabled, the 'Upgrade When Collected Twice' flag will be checked for"
+		" the upgraded item from the same flag; allowing full progressive item chains." }
 };
 
 static const GUI::ListData miscRulesList
