@@ -196,7 +196,7 @@ void ringcolor(bool forceDefault)
     
     if(!forceDefault && itemid>-1)
     {
-        loadpalset(6,itemsbuf[itemid].misc1 ? pSprite(zc_min(29,itemsbuf[itemid].misc1)):6);
+        loadpalset(6,itemsbuf[itemid].misc1 ? pSprite(zc_min((pdSPRITE-1),itemsbuf[itemid].misc1)):6);
     }
     else
     {

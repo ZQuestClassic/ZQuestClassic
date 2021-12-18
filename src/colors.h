@@ -22,17 +22,33 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define poFADE1  15+4                                       //
 #define poFADE2  15+7                                       //
 #define poFADE3  15+10                                      //
-//#define poSPRITE 210       // first sprite pal
+
+// palette data sizes in "data sets"
+//The below determines the size of each palette section. 
+#define pdFULL   15                                         // number of csets in the full palette
+#define pdLEVEL  13                                         // complete level pal (normal & fade pals)
+#define pdSPRITE 30                                         // number of sprite csets
+
+//The below defines the size of the fade palette "sets"; AKA it's just saying to loop through csets 2, 3, and 4.
+//It is not used for any data storage; the above values handle that. The below is just a convenience variable for
+//when the game sets the fading palettes when fading (like screen transitioning, going into a dark room, etc).
+//Basically what I'm saying is that if you're trying to save new palettes, you can savely ignore pdFADE. -Deedee
+#define pdFADE   3                                          // size of a fade pal
+
+//start of the sprite palettes.
+//should be pdFULL + (pdLEVEL*(number of level palettes))
+//As of the moment of writing this, there's no definition for the number of level palettes, but currently it's 512.
+//I need to find out where it's trying to read from the number of level palettes, make a definition, and replace those with the definition. -Deedee
 #define oldpoSPRITE 210                                     // first sprite pal
 #define newpoSPRITE 3343                                    // first sprite pal
 #define newerpoSPRITE 6671
 #define pSprite(x) ((x)+newerpoSPRITE)
 
-// palette data sizes in "data sets"
-#define pdFULL   15                                         // number of csets in the full palette
-#define pdLEVEL  13                                         // complete level pal (normal & fade pals)
-#define pdFADE   3                                          // size of a fade pal
-//#define pdTOTAL  240       // total data sets
+// total data sets
+//The 'total data sets' can be calculated as:
+//pdFULL + (pdLEVEL*(number of level palettes)) + pdSPRITE
+//As of the moment of writing this, there's no definition for the number of level palettes, but currently it's 512.
+//I need to find out where it's trying to read from the number of level palettes, make a definition, and replace those with the definition. -Deedee
 #define oldpdTOTAL  240                                     // total data sets
 #define newpdTOTAL  3373                                    // total data sets
 #define newerpdTOTAL 6701
