@@ -229,8 +229,13 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		else return 0;
 }
 
-void LinkClass::set_respawn_point()
+void LinkClass::set_respawn_point(bool setwarp)
 {
+	if(setwarp)
+	{
+		warpx = x;
+		warpy = y;
+	}
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
 	{
 		switch(action)
@@ -8201,7 +8206,7 @@ bool LinkClass::animate(int32_t)
 	}
 	
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
-		set_respawn_point(); //Keep the 'last safe location' updated!
+		set_respawn_point(false); //Keep the 'last safe location' updated!
 	
 	// check for ladder removal
 	if(diagonalMovement)
@@ -23798,7 +23803,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z = 0;
 	}
 	
-	set_respawn_point();
+	set_respawn_point(false);
 	trySideviewLadder();
 	warpx   = -1;
 	warpy   = -1;

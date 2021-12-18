@@ -279,7 +279,7 @@ public:
 	bool is_warping;
 	bool can_mirror_portal;
 	
-	void set_respawn_point();
+	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
 	bool can_pitfall(bool ignore_hover = false);
 	
