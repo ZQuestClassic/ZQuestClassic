@@ -1,5 +1,5 @@
 // std_constants.zh
-// 17th Dec, 2021 for ZC 2.55 Alpha 100
+// 18th Dec, 2021 for ZC 2.55 Alpha 100
 // Contains required constants for std.zh and ZScript functions.
 
 const int ERR_RETURN 			= -1; 
@@ -678,9 +678,11 @@ const int IC_BOTTLE                  = 270;
 const int IC_BOTTLE_FILL             = 271;
 const int IC_BUG_NET                 = 272;
 const int IC_MIRRORS                 = 273;
+const int IC_SWITCHHOOK              = 274;
+const int IC_ITEM_BUNDLE             = 275;
 
 //Itemclasses not less than this are reserved for future engine itemclasses
-const int IC_MAXUSABLE               = 274;
+const int IC_MAXUSABLE               = 276;
 
 const int IC_MAX                     = 512; //Last of enum. All itemclassesare < this.
 

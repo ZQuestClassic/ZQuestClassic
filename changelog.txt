@@ -1,7 +1,10 @@
 // 2.55 Change Log
-// Updated 17th Dec, 2021
+// Updated 18th Dec, 2021
 
 //Since A100
+
+Add Item Bundles (pick up multiple items together)
+	( EmilyV, Dec 18th, 2021 )
 
 Fixed Overhead combos on Layer 0
 Fixed automatically re-entering warps on exit

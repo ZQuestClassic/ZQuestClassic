@@ -34814,7 +34814,8 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"Can be swung, does not collide with enemies. Can catch fairies to put in bottles.", //Bugnet
 	"Either warps to the continue point or warps to another dmap at the same screen location,"
 		" depending on dmap settings. May or may not leave a return portal.", //Mirrors
-	""
+	"Acts similarly to the hookshot, but swaps the player with certain blocks, or enemies.",
+	"When collected, gives the player a number of other items together."
 };
 
 //ZModule Functions

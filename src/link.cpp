@@ -2692,6 +2692,55 @@ void LinkClass::masked_draw(BITMAP* dest)
     return;
 }
 
+void collectitem_script(int32_t id)
+{
+	if(itemsbuf[id].collect_script)
+	{
+		//clear item script stack. 
+		//ri = &(itemScriptData[id]);
+		//ri->Clear();
+		//itemCollectScriptData[id].Clear();
+		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id][q] = 0;
+		ri = &(itemCollectScriptData[id]);
+		for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id][q] = 0xFFFF;
+		ri->Clear();
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id & 0xFFF)*-1));
+		
+		if ( id > 0 && !item_collect_doscript[id] ) //No collect script on item 0. 
+		{
+			item_collect_doscript[id] = 1;
+			itemscriptInitialised[id] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id)*-1));
+			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id));
+		}
+		else if (id == 0 && !item_collect_doscript[id]) //item 0
+		{
+			item_collect_doscript[id] = 1;
+			itemscriptInitialised[id] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+		}
+		//runningItemScripts[id] = 0;
+	}
+}
+void passiveitem_script(int32_t id)
+{
+	//Passive item scripts on colelction
+	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+	{
+		ri = &(itemScriptData[id]);
+		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id][q] = 0xFFFF;
+		ri->Clear();
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		item_doscript[id] = 1;
+		itemscriptInitialised[id] = 0;
+		//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
+	}
+}
+
 // separate case for sword/wand/hammer/slashed weapons only
 // the main weapon checking is in the global function check_collisions()
 bool LinkClass::checkstab()
@@ -2972,53 +3021,9 @@ bool LinkClass::checkstab()
 						}
 						else
 						{
-							if(itemsbuf[ptr->id].collect_script)
-							{
-								//clear item script stack. 
-								//ri = &(itemScriptData[ptr->id]);
-								//ri->Clear();
-								//itemCollectScriptData[ptr->id].Clear();
-								//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
-								ri = &(itemCollectScriptData[ptr->id]);
-								for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
-								ri->Clear();
-								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
-								
-								if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
-								{
-									item_collect_doscript[ptr->id] = 1;
-									itemscriptInitialised[ptr->id] = 0;
-									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
-									//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-										FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
-								}
-								else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
-								{
-									item_collect_doscript[ptr->id] = 1;
-									itemscriptInitialised[ptr->id] = 0;
-									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-									//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-										FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-								}
-					
-								//runningItemScripts[ptr->id] = 0;
-					
-							}
-				
-							//Passive item scripts on colelction
-							if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-							{
-								ri = &(itemScriptData[ptr->id]);
-								for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
-								ri->Clear();
-								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-								item_doscript[ptr->id] = 1;
-								itemscriptInitialised[ptr->id] = 0;
-								//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
-											
-							}
-				
+							collectitem_script(ptr->id);
+							passiveitem_script(ptr->id);
+							
 							getitem(ptr->id);
 						}
 						items.del(j);
@@ -25039,6 +25044,22 @@ void getitem(int32_t id, bool nosound)
     
     switch(idat.family)
     {
+		case itype_itmbundle:
+		{
+			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
+				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
+			bool pscript = (idat.flags & ITEM_FLAG1);
+			for(auto q = 0; q < 10; ++q)
+			{
+				if(unsigned(ids[q]) >= MAXITEMS) continue;
+				if(pscript)
+					collectitem_script(ids[q]);
+				passiveitem_script(ids[q]);
+				getitem(ids[q], true);
+			}
+		}
+		break;
+		
 		case itype_bottlefill:
 		{
 			if(idat.misc1)
@@ -25061,7 +25082,6 @@ void getitem(int32_t id, bool nosound)
 		
 		case itype_lkey:
 			if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
-			
 			break;
 			
 		case itype_ring:
@@ -25070,7 +25090,6 @@ void getitem(int32_t id, bool nosound)
 			{
 				ringcolor(false);
 			}
-			
 			break;
 			
 		case itype_whispring:
@@ -25419,45 +25438,8 @@ void LinkClass::checkitems(int32_t index)
 			hidden_entrance(0, true, false, -5);
 		}
 			
-		if(itemsbuf[id2].collect_script)
-		{
-			//clear the item script stack for a new script
-			ri = &(itemCollectScriptData[id2]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
-			ri->Clear();
-				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
-			//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
-			if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
-			{
-				item_collect_doscript[id2] = 1;
-				itemscriptInitialised[id2] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
-				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
-			}
-			else if (!id2 && !item_collect_doscript[id2]) //item 0
-			{
-				item_collect_doscript[id2] = 1;
-				itemscriptInitialised[id2] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-			}
-		}
-		//Passive item scripts on colelction
-		if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-		{
-			ri = &(itemScriptData[id2]);
-			for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
-			ri->Clear();
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-			item_doscript[id2] = 1;
-			itemscriptInitialised[id2] = 0;
-			//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
-						
-		}
+		collectitem_script(id2);
+		passiveitem_script(id2);
 		getitem(id2);
 	}
 	

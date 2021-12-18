@@ -3941,7 +3941,7 @@ enum // used for gamedata ITEMS
 	itype_script1 = 256, //Scripted Weapons
 	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
 	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
-	itype_mirror, itype_switchhook,
+	itype_mirror, itype_switchhook, itype_itmbundle,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
