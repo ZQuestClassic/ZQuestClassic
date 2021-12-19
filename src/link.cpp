@@ -25271,6 +25271,14 @@ void getitem(int32_t id, bool nosound)
 		}
 		break;
 		
+		case itype_progressive_itm:
+		{
+			int32_t newid = get_progressive_item(idat);
+			if(newid > -1)
+				getitem(newid, nosound);
+		}
+		break;
+		
 		case itype_bottlefill:
 		{
 			if(idat.misc1)
@@ -25372,74 +25380,95 @@ void getitem(int32_t id, bool nosound)
 void takeitem(int32_t id)
 {
     game->set_item(id, false);
+    itemdata const& idat = itemsbuf[id];
     
     /* Lower the counters! */
-    if(itemsbuf[id].count!=-1)
+    if(idat.count!=-1)
     {
-        if(itemsbuf[id].setmax)
+        if(idat.setmax)
         {
-            game->set_maxcounter(game->get_maxcounter(itemsbuf[id].count)-itemsbuf[id].setmax, itemsbuf[id].count);
+            game->set_maxcounter(game->get_maxcounter(idat.count)-idat.setmax, idat.count);
         }
         
-        if(itemsbuf[id].amount&0x3FFF)
+        if(idat.amount&0x3FFF)
         {
-            if(itemsbuf[id].amount&0x8000)
-                game->set_dcounter(game->get_dcounter(itemsbuf[id].count)-((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
-            else game->set_counter(game->get_counter(itemsbuf[id].count)-((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+            if(idat.amount&0x8000)
+                game->set_dcounter(game->get_dcounter(idat.count)-((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
+            else game->set_counter(game->get_counter(idat.count)-((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
         }
     }
     
     switch(itemsbuf[id&0xFF].family)
     {
         // NES consistency: replace all flying boomerangs with the current boomerang.
-    case itype_brang:
-        if(current_item(itype_brang)) for(int32_t i=0; i<Lwpns.Count(); i++)
-            {
-                weapon *w = ((weapon*)Lwpns.spr(i));
-                
-                if(w->id==wBrang)
-                {
-                    w->LOADGFX(itemsbuf[current_item_id(itype_brang)].wpn);
-                }
-            }
-            
-        break;
-        
-    case itype_heartpiece:
-        if(game->get_maxlife()>game->get_hp_per_heart())
-        {
-            if(game->get_HCpieces()==0)
-            {
-                game->set_HCpieces(game->get_hcp_per_hc());
-                takeitem(iHeartC);
-            }
-            
-            game->change_HCpieces(-1);
-        }
-        break;
-        
-    case itype_map:
-        game->lvlitems[dlevel]&=~liMAP;
-        break;
-        
-    case itype_compass:
-        game->lvlitems[dlevel]&=~liCOMPASS;
-        break;
-        
-    case itype_bosskey:
-        game->lvlitems[dlevel]&=~liBOSSKEY;
-        break;
-        
-    case itype_lkey:
-        if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
-        break;
-		
-	case itype_ring:
-		if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+		case itype_brang:
+			if(current_item(itype_brang)) for(int32_t i=0; i<Lwpns.Count(); i++)
+			{
+				weapon *w = ((weapon*)Lwpns.spr(i));
+				
+				if(w->id==wBrang)
+				{
+					w->LOADGFX(itemsbuf[current_item_id(itype_brang)].wpn);
+				}
+			}
+				
+			break;
+			
+		case itype_itmbundle:
 		{
-			ringcolor(false);
+			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
+				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
+			for(auto q = 0; q < 10; ++q)
+			{
+				if(unsigned(ids[q]) >= MAXITEMS) continue;
+				takeitem(ids[q]);
+			}
 		}
 		break;
+		
+		case itype_progressive_itm:
+		{
+			int32_t newid = get_progressive_item(idat, true);
+			if(newid > -1)
+				takeitem(newid);
+		}
+		break;
+			
+		case itype_heartpiece:
+			if(game->get_maxlife()>game->get_hp_per_heart())
+			{
+				if(game->get_HCpieces()==0)
+				{
+					game->set_HCpieces(game->get_hcp_per_hc());
+					takeitem(iHeartC);
+				}
+				
+				game->change_HCpieces(-1);
+			}
+			break;
+			
+		case itype_map:
+			game->lvlitems[dlevel]&=~liMAP;
+			break;
+			
+		case itype_compass:
+			game->lvlitems[dlevel]&=~liCOMPASS;
+			break;
+			
+		case itype_bosskey:
+			game->lvlitems[dlevel]&=~liBOSSKEY;
+			break;
+			
+		case itype_lkey:
+			if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
+			break;
+			
+		case itype_ring:
+			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+			{
+				ringcolor(false);
+			}
+			break;
     }
 }
 
@@ -25463,12 +25492,23 @@ void LinkClass::checkitems(int32_t index)
 	// if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
 	//   return;
 	item* ptr = (item*)items.spr(index);
-	int32_t pickup = ((item*)items.spr(index))->pickup;
-	int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
-	int32_t id2 = ((item*)items.spr(index))->id;
-	int32_t pstr = ((item*)items.spr(index))->pstring;
-	int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-	//int32_t tempnextmsg;
+	int32_t pickup = ptr->pickup;
+	int32_t PriceIndex = ptr->PriceIndex;
+	int32_t id2 = ptr->id;
+	int32_t pstr = ptr->pstring;
+	int32_t pstr_flags = ptr->pickup_string_flags;
+	
+	if(itemsbuf[id2].family == itype_progressive_itm)
+	{
+		int32_t newid = get_progressive_item(itemsbuf[id2]);
+		if(newid > -1)
+		{
+			id2 = newid;
+			pstr = itemsbuf[newid].pstring;
+			pstr_flags = itemsbuf[newid].pickup_string_flags;
+		}
+	}
+	
 	bool bottledummy = (pickup&ipCHECK) && tmpscr[tmp].room == rBOTTLESHOP;
 	
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item

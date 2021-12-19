@@ -454,6 +454,12 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Run Pickup Scripts", "Run the collect script of bundled items.");
 			break;
 		}
+		case itype_progressive_itm:
+		{
+			for(auto q = 0; q < 10; ++q)
+				_SET(misc[q], "Item " + std::to_string(q+1) + ":", "If > -1, an item ID in the progressive order.");
+			break;
+		}
 		case itype_boots:
 		{
 			_SET(power, "Protection Power:", "Protects against damage combos that deal up to 16*power points of damage.");

@@ -211,6 +211,23 @@ bool item::animate(int32_t)
 		clk=0x7000;
 	}
 	
+	itemdata const* itm = &itemsbuf[id];
+	if(itm->family == itype_progressive_itm)
+	{
+		int32_t id2 = get_progressive_item(*itm);
+		if(unsigned(id2) >= MAXITEMS)
+			id2 = -1;
+		if(id2 != linked_parent) //Update item
+		{
+			linked_parent = id2;
+			if(id2 < 0)
+				load_gfx(*itm);
+			else load_gfx(itemsbuf[id2]);
+		}
+		if(id2 > -1)
+			itm = &itemsbuf[id2];
+	}
+	
 	if(flash)
 	{
 		cs = o_cset;
@@ -225,7 +242,7 @@ bool item::animate(int32_t)
 		}
 	}
 	
-	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itemsbuf[id].family==itype_bottle))
+	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)) || itm->family==itype_bottle))
 	{
 		int32_t spd = o_speed;
 		
@@ -256,9 +273,9 @@ bool item::animate(int32_t)
 			tile = o_tile + aframe;
 #ifndef IS_ZQUEST
 		//Bottles offset based on their slot's fill
-		if(itemsbuf[id].family == itype_bottle)
+		if(itm->family == itype_bottle)
 		{
-			int32_t slot = itemsbuf[id].misc1;
+			int32_t slot = itm->misc1;
 			size_t btype = game->get_bottle_slot(slot);
 			int32_t offset = (frames ? frames : 1) * btype;
 			tile += offset;
@@ -266,7 +283,7 @@ bool item::animate(int32_t)
 #endif
 	}
 	
-	if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
+	if(itemsbuf[id].family == itype_fairy && itemsbuf[id].misc3)
 	{
 		movefairynew(x,y,*this);
 	}
@@ -318,6 +335,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	aframe=aclk=0;
 	anim=flash=twohand=subscreenItem=false;
 	dummy_int[0]=PriceIndex=-1;
+	itemdata const& itm = itemsbuf[id];
 
 	#ifndef IS_ZQUEST
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
@@ -330,49 +348,49 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
 		 
-	o_tile = itemsbuf[id].tile;
-	tile = itemsbuf[id].tile;
-	cs = itemsbuf[id].csets&15;
-	o_cset = itemsbuf[id].csets;
-	o_speed = itemsbuf[id].speed;
-	o_delay = itemsbuf[id].delay;
-	frames = itemsbuf[id].frames;
-	flip = itemsbuf[id].misc>>2;
-	family = itemsbuf[id].family;
-	lvl = itemsbuf[id].fam_type;
-	overrideFLAGS = itemsbuf[id].overrideFLAGS; 
-	pstring = itemsbuf[id].pstring;
-	pickup_string_flags = itemsbuf[id].pickup_string_flags;
-	linked_parent = 0;
+	o_tile = itm.tile;
+	tile = itm.tile;
+	cs = itm.csets&15;
+	o_cset = itm.csets;
+	o_speed = itm.speed;
+	o_delay = itm.delay;
+	frames = itm.frames;
+	flip = itm.misc>>2;
+	family = itm.family;
+	lvl = itm.fam_type;
+	overrideFLAGS = itm.overrideFLAGS; 
+	pstring = itm.pstring;
+	pickup_string_flags = itm.pickup_string_flags;
+	linked_parent = family == itype_progressive_itm ? -1 : 0;
 	moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
-	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itemsbuf[id].initiald[q];
+	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itm.initiald[q];
 	
-	//if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itemsbuf[id].pickup;
-	switch (itemsbuf[id].pickupflag) 
+	//if ( itm.overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itm.pickup;
+	switch (itm.pickupflag) 
 	{
 		case 1:
-			pickup = itemsbuf[id].pickup;
+			pickup = itm.pickup;
 			break;
 		case 2:
-			pickup |= itemsbuf[id].pickup;
+			pickup |= itm.pickup;
 			break;
 		case 3:
-			pickup &= ~itemsbuf[id].pickup;
+			pickup &= ~itm.pickup;
 			break;
 		case 4:
-			pickup &= itemsbuf[id].pickup;
+			pickup &= itm.pickup;
 			break;
 		default:
 			break;
 	}
 	
-	if(itemsbuf[id].misc&1)
+	if(itm.misc&1)
 		flash=true;
 		
-	if(itemsbuf[id].misc&2)
+	if(itm.misc&2)
 		twohand=true;
 		
-	anim = itemsbuf[id].frames>0;
+	anim = itm.frames>0;
 	
 	if(pickup&ipBIGRANGE)
 	{
@@ -395,36 +413,36 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		hysz=12;
 	}
 	
-	if(!isDummy && itemsbuf[id].family == itype_fairy && itemsbuf[id].misc3)
+	if(!isDummy && itm.family == itype_fairy && itm.misc3)
 	{
 		misc = ++fairy_cnt;
 		
-		if(addfairynew(x, y, itemsbuf[id].misc3, *this))
-			sfx(itemsbuf[id].usesound);
+		if(addfairynew(x, y, itm.misc3, *this))
+			sfx(itm.usesound);
 	}
 	
 	/*for(int32_t j=0;j<8;j++)
 	{
-	  if(j<2) a[j]=itemsbuf[id].initiala[j]*10000;
-	  d[j]=itemsbuf[id].initiald[j];
+	  if(j<2) a[j]=itm.initiala[j]*10000;
+	  d[j]=itm.initiald[j];
 	}*/
-	if ( itemsbuf[id].overrideFLAGS > 0 ) {
+	if ( itm.overrideFLAGS > 0 ) {
 		extend = 3; 
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[id].tilew;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[id].tileh;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[id].hxsz;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[id].hysz;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[id].hzsz;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[id].hxofs;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[id].hyofs;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[id].xofs;}
-		if ( itemsbuf[id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[id].yofs+playing_field_offset;} 
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itm.tilew;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itm.tileh;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itm.hxsz;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itm.hysz;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itm.hzsz;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itm.xofs;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+playing_field_offset;} 
 		/* yofs+playing_field_offset == yofs+56.
 		It is needed for the passive subscreen offset.
 		*/
 	}
-	//if ( itemsbuf[id].flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itemsbuf[id].zofs;
-	script = itemsbuf[id].sprite_script;
+	//if ( itm.flags&itemdataOVERRIDE_DRAW_Z_OFFSET ) zofs = itm.zofs;
+	script = itm.sprite_script;
 }
 
 // easy way to draw an item
@@ -451,6 +469,81 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 	temp.draw(dest);
 }
 
+void item::load_gfx(itemdata const& itm)
+{
+	o_tile = itm.tile;
+	cs = itm.csets&15;
+	o_cset = itm.csets;
+	o_speed = itm.speed;
+	o_delay = itm.delay;
+	frames = itm.frames;
+	flip = itm.misc>>2;
+	anim = itm.frames>0;
+	aframe = aclk = 0;
+	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itm.family==itype_bottle))
+	{
+		int32_t spd = o_speed;
+		
+		if(aframe==0)
+		{
+			spd *= o_delay+1;
+		}
+		
+		if(aclk >= spd)
+		{
+			aclk=0;
+			
+			if(++aframe >= frames)
+			{
+				aframe=0;
+			}
+		}
+		else if(aframe >= frames)
+		{
+			aframe=0;
+		}
+		
+		//tile = o_tile + aframe;
+		if(extend > 2)
+		{
+			if(o_tile/TILES_PER_ROW==(o_tile+txsz*aframe)/TILES_PER_ROW)
+				tile=o_tile+txsz*aframe;
+			else
+				tile=o_tile+(txsz*aframe)+((tysz-1)*TILES_PER_ROW)*((o_tile+txsz*aframe)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW);
+		}
+		else
+			tile = o_tile + aframe;
+#ifndef IS_ZQUEST
+		//Bottles offset based on their slot's fill
+		if(itm.family == itype_bottle)
+		{
+			int32_t slot = itm.misc1;
+			size_t btype = game->get_bottle_slot(slot);
+			int32_t offset = (frames ? frames : 1) * btype;
+			tile += offset;
+		}
+#endif
+	}
+	else tile = o_tile;
+}
+
+int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
+{
+	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
+		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
+	int32_t lastid = -1;
+	for(auto id : arr)
+	{
+		if(unsigned(id) >= MAXITEMS)
+			continue;
+		lastid = id;
+		if(game->get_item(id))
+			continue;
+		if(lastOwned) return lastid;
+		return id;
+	}
+	return lastid;
+}
 // Linker issues because this is shared with ZQu4est. :( -Z
 #ifndef IS_ZQUEST
 int32_t item::getScriptUID() { return script_UID; }
