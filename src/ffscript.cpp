@@ -2264,7 +2264,7 @@ int32_t get_screenflags(mapscr *m, int32_t flagset)
 		
 	case 3: // Warp
 		f = ornextflag(m->flags5&4)  | ornextflag(m->flags5&8)  | ornextflag(m->flags&64)
-			| ornextflag(m->flags8&64) | ornextflag(m->flags3&32);
+			| ornextflag(m->flags8&64) | ornextflag(m->flags3&32) | ornextflag(m->flags9&fDISABLE_MIRROR);
 		break;
 		
 	case 4: // Item

@@ -48,6 +48,9 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y);
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y);
 
+bool HASFLAG(int32_t flag, int32_t layer, int32_t pos);
+bool HASFLAG_ANY(int32_t flag, int32_t pos);
+
 //specific layers 1 to 6 -Z
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y);

@@ -12,7 +12,8 @@ static const GUI::ListData miscSFXList
 {
 	{ "Grass Cut:", sfxBUSHGRASS, "Played when bush/grass/etc is cut, and does not have a custom SFX set." },
 	{ "'Switch With Player':", sfxSWITCHED, "Played when an enemy's 'Switch w/ Player' defense is triggered, or a switchhook with 0 for 'Switch Sound' switches." },
-	{ "Low Health Beep:", sfxLOWHEART, "Played when the player's health is low." }
+	{ "Low Health Beep:", sfxLOWHEART, "Played when the player's health is low." },
+	{ "Error:", sfxERROR, "Played when something errors (Ex. Using an item without enough magic)" }
 };
 
 MiscSFXDialog::MiscSFXDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):

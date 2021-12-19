@@ -1883,6 +1883,7 @@ enum
 	SFW_MAZEPATHS, //0x0004; //Use maze Path
 	SFW_MAZEOVERRIDE, //0x0008; //maze Overrides Sidewarps
 	SFW_SPRITECARRY, //0x0010; //Sprites carry over. 
+	SFW_DISABLE_MIRROR, //0x0020; //Disable Magic Mirror
 	
 	SFW_LAST
 };

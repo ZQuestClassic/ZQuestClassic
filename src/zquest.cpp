@@ -13216,7 +13216,7 @@ static int32_t edit_scrdata1[] = // Flags 1
 {
     //6,8,10,11,12,15,18,19,21,22,24,37,57,59,60,-1
     118,45,46,57,  119,21,58,22,24,54,55,8,141,142, //Ordered as they are on the dialog
-    120,6,43,47,50,  121,37,42,12,135,23,  -1
+    120,6,43,47,50,  121,37,42,12,135,23,143,  -1
 };
 
 static int32_t edit_scrdata3[] = // Flags 2
@@ -13514,7 +13514,7 @@ static DIALOG scrdata_dlg[] =
 	{ jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
     { jwin_check_proc,      15,  188,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Dithered Darkness", NULL, NULL },
     { jwin_check_proc,      15,  198,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Transparent Darkness", NULL, NULL },
-    
+    { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Disable Magic Mirror", NULL, NULL },
 	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
@@ -13804,6 +13804,7 @@ int32_t onScrData()
 	scrdata_dlg[140].flags = (f&fBELOWRETURN) ? D_SELECTED : 0;
 	scrdata_dlg[141].flags = (f&fDARK_DITHER) ? D_SELECTED : 0;
 	scrdata_dlg[142].flags = (f&fDARK_TRANS) ? D_SELECTED : 0;
+	scrdata_dlg[143].flags = (f&fDISABLE_MIRROR) ? D_SELECTED : 0;
 	
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
@@ -13932,6 +13933,7 @@ int32_t onScrData()
 		f |= scrdata_dlg[140].flags & D_SELECTED ? fBELOWRETURN:0;
 		f |= scrdata_dlg[141].flags & D_SELECTED ? fDARK_DITHER:0;
 		f |= scrdata_dlg[142].flags & D_SELECTED ? fDARK_TRANS:0;
+		f |= scrdata_dlg[143].flags & D_SELECTED ? fDISABLE_MIRROR:0;
 		Map.CurrScr()->flags9 = f;
 		
 		g=0;
@@ -34813,7 +34815,10 @@ const char *itemclass_help_string_defaults[itype_max] =
 	//270
 	"Can be swung, does not collide with enemies. Can catch fairies to put in bottles.", //Bugnet
 	"Either warps to the continue point or warps to another dmap at the same screen location,"
-		" depending on dmap settings. May or may not leave a return portal.", //Mirrors
+		" depending on dmap settings. May or may not leave a return portal."
+		"\nSet the DMap Flag 'Mirror Continues instead of Warping' to make the mirror return"
+		" the player to their continue point on that dmap."
+		"\nOtherwise, set the 'Mirror DMap' to the ID of the dmap you wish to warp to.", //Mirrors
 	"Acts similarly to the hookshot, but swaps the player with certain blocks, or enemies.",
 	"When collected, gives the player a number of other items together."
 };
@@ -35540,7 +35545,7 @@ bool ZModule::init(bool d) //bool default
 			"mfSCRIPT13","mfSCRIPT14","mfSCRIPT15","mfSCRIPT16","mfSCRIPT17","mfSCRIPT18","mfSCRIPT19","mfSCRIPT20","mfPITHOLE","mfPITFALLFLOOR","mfLAVA","mfICE","mfICEDAMAGE","mfDAMAGE1","mfDAMAGE2","mfDAMAGE4",
 			"mfDAMAGE8","mfDAMAGE16","mfDAMAGE32","mfFREEZEALL","mfFREZEALLANSFFCS","mfFREEZEFFCSOLY","mfSCRITPTW1TRIG","mfSCRITPTW2TRIG","mfSCRITPTW3TRIG","mfSCRITPTW4TRIG","mfSCRITPTW5TRIG","mfSCRITPTW6TRIG","mfSCRITPTW7TRIG","mfSCRITPTW8TRIG","mfSCRITPTW9TRIG","mfSCRITPTW10TRIG",
 			"mfTROWEL","mfTROWELNEXT","mfTROWELSPECIALITEM","mfSLASHPOT","mfLIFTPOT","mfLIFTORSLASH","mfLIFTROCK","mfLIFTROCKHEAVY","mfDROPITEM","mfSPECIALITEM","mfDROPKEY","mfDROPLKEY","mfDROPCOMPASS","mfDROPMAP","mfDROPBOSSKEY","mfSPAWNNPC",
-			"mfSWITCHHOOK","mfSIDEVIEWLADDER","mfSIDEVIEWPLATFORM","mfNOENEMYSPAWN","mfENEMYALL","mfSECRETSNEXT","mf166","mf167","mf168","mf169","mf170","mf171","mf172","mf173","mf174","mf175",
+			"mfSWITCHHOOK","mfSIDEVIEWLADDER","mfSIDEVIEWPLATFORM","mfNOENEMYSPAWN","mfENEMYALL","mfSECRETSNEXT","mfNOMIRROR","mf167","mf168","mf169","mf170","mf171","mf172","mf173","mf174","mf175",
 			"mf176","mf177","mf178","mf179","mf180","mf181","mf182","mf183","mf184","mf185","mf186","mf187","mf188","mf189","mf190","mf191",
 			"mf192","mf193","mf194","mf195","mf196","mf197","mf198","mf199","mf200","mf201","mf202","mf203","mf204","mf205","mf206","mf207",
 			"mf208","mf209","mf210","mf211","mf212","mf213","mf214","mf215","mf216","mf217","mf218","mf219","mf220","mf221","mf222","mf223",
@@ -35569,7 +35574,7 @@ bool ZModule::init(bool d) //bool default
 			"Trigger LW_SCRIPT3 (Unimplemented)", "Trigger LW_SCRIPT4 (Unimplemented)", "Trigger LW_SCRIPT5 (Unimplemented)", "Trigger LW_SCRIPT6 (Unimplemented)", "Trigger LW_SCRIPT7 (Unimplemented)", "Trigger LW_SCRIPT8 (Unimplemented)", "Trigger LW_SCRIPT9 (Unimplemented)", "Trigger LW_SCRIPT10 (Unimplemented)",
 			"Dig Spot (Scripted)", "Dig Spot, Next (Scripted)", "Dig Spot, Special Item (Scripted)", "Pot, Slashable (Scripted)", "Pot, Liftable (Scripted)", "Pot, Slash or Lift (Scripted)", "Rock, Lift Normal (Scripted)", "Rock, Lift Heavy (Scripted)",
 			"Dropset Item (Scripted)", "Special Item (Scripted)", "Drop Key (Scripted)", "Drop level-Specific Key (Scripted)", "Drop Compass (Scripted)", "Drop Map (Scripted)", "Drop Bosskey (Scripted)", "Spawn NPC (Scripted)",
-			"SwitchHook Spot (Scripted)", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","-mf166","-mf167","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
+			"SwitchHook Spot (Scripted)", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","No Mirroring","-mf167","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
 			"-mf180","-mf181","-mf182","-mf183","-mf184","-mf185","-mf186","-mf187","-mf188","-mf189", "-mf190","-mf191","-mf192","-mf193","-mf194","-mf195","-mf196","-mf197","-mf198","-mf199",
 			"-mf200","-mf201","-mf202","-mf203","-mf204","-mf205","-mf206","-mf207","-mf208","-mf209", "-mf210","-mf211","-mf212","-mf213","-mf214","-mf215","-mf216","-mf217","-mf218","-mf219",
 			"-mf220","-mf221","-mf222","-mf223","-mf224","-mf225","-mf226","-mf227","-mf228","-mf229", "-mf230","-mf231","-mf232","-mf233","-mf234","-mf235","-mf236","-mf237","-mf238","-mf239",

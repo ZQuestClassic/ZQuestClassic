@@ -750,7 +750,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_mirror:
 		{
-			_SET(misc[0], "Warp Effect", "What warp effect to use during the warp.\n"
+			_SET(misc[0], "Warp Effect", "What warp effect to use during the warp to another dmap.\n"
+				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe");
+			_SET(misc[1], "Cont. Warp Effect", "What warp effect to use during the warp to the continue point.\n"
 				"0=None, 1=Zap, 2=Wave, 3=Blackscr, 4=OpenWipe");
 			_SET(flag[0], "Place Return Portal", "If checked, places a return portal when"
 				" mirroring to a new dmap");
@@ -758,6 +760,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"When used on a dmap with 'Mirror Continues instead of Warping' checked, "
 				"activates F6->Continue instead of Farore's Wind effect if enabled.");
 			_SET(wpn[0], "Portal Sprite", "Sprite of the Return Portal");
+			_SET(actionsnd[0], "Warp Sound", "Sound played for the warp to a new dmap");
+			_SET(actionsnd[1], "Continue Sound", "Sound played for a continue warp");
 			break;
 		}
 	}
@@ -787,7 +791,7 @@ ItemEditorDialog::ItemEditorDialog(int32_t index):
 #define ATTR_WID 6_em
 #define ATTR_LAB_WID 12_em
 #define SPR_LAB_WID sized(14_em,10_em)
-#define ACTION_LAB_WID 6_em
+#define ACTION_LAB_WID 8_em
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 20_em
 
@@ -1023,10 +1027,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								FLAG_CHECK(14,ITEM_FLAG15)
 							)
 						)),
-						TabRef(name = "Action", Columns<5>(
-							Row(
-								hAlign = 1.0,
-								Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
+						TabRef(name = "Action", Column(
+							Rows<2>(framed = true, frameText = "Use Cost",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
 								TextField(
 									val = local_itemref.magic,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -1035,32 +1039,29 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.magic = val;
 									}
-								)
-							),
-							DropDownList(
-								hAlign = 1.0,
-								data = list_counters,
-								selectedValue = local_itemref.cost_counter,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_itemref.cost_counter = val;
-								}
-							),
-							Row(
-								hAlign = 1.0,
-								Label(text = "Timer:", textAlign = 2, width = ACTION_LAB_WID),
+								),
+								DropDownList(
+									data = list_counters,
+									selectedValue = local_itemref.cost_counter,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.cost_counter = val;
+									}
+								),
+								Label(text = "Timer:", textAlign = 2, forceFitW = true),
 								TextField(
 									val = local_itemref.magiccosttimer,
 									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
+									minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.magiccosttimer = val;
 									}
 								)
 							),
-							Row(
-								hAlign = 1.0,
+							Rows<3>(framed = true, frameText = "SFX",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
 								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
 								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
@@ -1076,10 +1077,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.usesound = val;
 									}
-								)
-							),
-							Row(
-								hAlign = 1.0,
+								),
 								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
 								ib_sfx[1] = Button(forceFitH = true, text = "?",
 									disabled = true,
@@ -1097,23 +1095,25 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_DOWNGRADE),
-								text = "Remove Item When Used",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
-								}
-							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_VALIDATEONLY),
-								text = "Only Validate Cost",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
-								}
+							Rows<2>(
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_DOWNGRADE),
+									text = "Remove Item When Used",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_VALIDATEONLY),
+									text = "Only Validate Cost",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
+									}
+								)
 							)
 						)),
 						TabRef(name = "Pickup", Column(
@@ -2284,9 +2284,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								)
 							)
 						)),
-						TabRef(name = "Action", Columns<5>(
-							Row(
-								Label(text = "Cost:", textAlign = 2, width = ACTION_LAB_WID),
+						TabRef(name = "Action", Column(
+							Rows<2>(framed = true, frameText = "Use Cost",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
 								TextField(
 									val = local_itemref.magic,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -2295,36 +2296,35 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.magic = val;
 									}
-								)
-							),
-							DropDownList(
-								hAlign = 1.0,
-								data = list_counters,
-								selectedValue = local_itemref.cost_counter,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_itemref.cost_counter = val;
-								}
-							),
-							Row(
-								Label(text = "Timer:", textAlign = 2, width = ACTION_LAB_WID),
+								),
+								DropDownList(
+									data = list_counters,
+									selectedValue = local_itemref.cost_counter,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.cost_counter = val;
+									}
+								),
+								Label(text = "Timer:", textAlign = 2, forceFitW = true),
 								TextField(
 									val = local_itemref.magiccosttimer,
 									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
+									minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.magiccosttimer = val;
 									}
 								)
 							),
-							Row(
+							Rows<3>(framed = true, frameText = "SFX",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
 								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
 								ib_sfx[0] = Button(forceFitH = true, text = "?",
 									disabled = true,
 									onPressFunc = [&]()
 									{
-										InfoDialog("Attribute Info",h_sfx[0]).show();
+										InfoDialog("SFX Info",h_sfx[0]).show();
 									}),
 								TextField(
 									val = local_itemref.usesound,
@@ -2334,15 +2334,13 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										local_itemref.usesound = val;
 									}
-								)
-							),
-							Row(
+								),
 								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
 								ib_sfx[1] = Button(forceFitH = true, text = "?",
 									disabled = true,
 									onPressFunc = [&]()
 									{
-										InfoDialog("Attribute Info",h_sfx[1]).show();
+										InfoDialog("SFX Info",h_sfx[1]).show();
 									}),
 								TextField(
 									val = local_itemref.usesound2,
@@ -2354,23 +2352,25 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_DOWNGRADE),
-								text = "Remove Item When Used",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
-								}
-							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_VALIDATEONLY),
-								text = "Only Validate Cost",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
-								}
+							Rows<2>(
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_DOWNGRADE),
+									text = "Remove Item When Used",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_VALIDATEONLY),
+									text = "Only Validate Cost",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
+									}
+								)
 							)
 						)),
 						TabRef(name = "Pickup", Column(

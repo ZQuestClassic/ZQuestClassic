@@ -234,7 +234,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           49
+#define V_ITEMS           50
 #define V_WEAPONS          7
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -554,6 +554,7 @@ extern bool fake_pack_writing;
 #define fBELOWRETURN	 	0x04 //'S.Flags3' Special Item always returns
 #define fDARK_DITHER        0x08 //'S.Flags1' ...dithered dark
 #define fDARK_TRANS         0x10 //'S.Flags1' ...transparent dark
+#define fDISABLE_MIRROR     0x20 //'S.Flags1' Disable Magic Mirror
 
 //lens layer effects
 #define llNORMAL        0
@@ -698,7 +699,7 @@ enum
 	//160
 	mfSWITCHHOOK, 	mfSIDEVIEWLADDER, mfSIDEVIEWPLATFORM, mfNOENEMYSPAWN, mfENEMYALL,
 	//165
-	mfSECRETSNEXT, mf166, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
+	mfSECRETSNEXT, mfNOMIRROR, mf167, mf168, mf169, mf170, mf171, mf172, mf173, mf174,
     mf175, mf176, mf177, mf178, mf179, mf180, mf181, mf182, mf183, mf184, mf185, mf186, mf187, 
     mf188, mf189, mf190, mf191, mf192, mf193, mf194, mf195, mf196, mf197, mf198, mf199, mf200,
     mf201, mf202, mf203, mf204, mf205, mf206, mf207, mf208, mf209, mf210, mf211, mf212, mf213,
@@ -3764,6 +3765,7 @@ enum miscsfx
 	sfxBUSHGRASS,
 	sfxSWITCHED,
 	sfxLOWHEART,
+	sfxERROR,
 	sfxMAX = 256
 };
 struct miscQdata

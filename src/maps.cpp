@@ -253,13 +253,12 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 
 int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].valid==0)
+    if(!layer || tmpscr2[layer-1].valid==0)
     {
         return 0;
     }
     
-    return combobuf[MAPCOMBO2(layer,x,y)].type;
+    return combobuf[MAPCOMBO2(layer-1,x,y)].type;
 }
 
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
@@ -607,6 +606,31 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
         return 0;
         
     return combobuf[tmpscr2[layer].data[combo]].flag;                        // entire combo code
+}
+
+bool HASFLAG(int32_t flag, int32_t layer, int32_t pos)
+{
+	if(unsigned(pos) > 175) return false;
+	if(unsigned(layer) > 6) return false;
+	mapscr* m = (layer ? &tmpscr2[layer-1] : tmpscr);
+	if(!m->valid) return false;
+	if(m->data.empty()) return false;
+	
+	if(m->sflag[pos] == flag) return true;
+	if(combobuf[m->data[pos]].flag == flag) return true;
+	
+	return false;
+}
+
+bool HASFLAG_ANY(int32_t flag, int32_t pos)
+{
+	if(unsigned(pos) > 175) return false;
+	for(auto q = 0; q < 7; ++q)
+	{
+		if(HASFLAG(flag, q, pos))
+			return true;
+	}
+	return false;
 }
 
 void setmapflag(int32_t flag)

@@ -6391,6 +6391,13 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						}
 					}
 					else tempitem.usesound2 = 0;
+					
+					if(s_version < 50 && tempitem.family == itype_mirror)
+					{
+						//Split continue/dmap warp effect/sfx, port for old
+						tempitem.misc2 = tempitem.misc1;
+						tempitem.usesound2 = tempitem.usesound;
+					}
                 }
             }
 	    
