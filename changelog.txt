@@ -1,8 +1,18 @@
 // 2.55 Change Log
-// Updated 18th Dec, 2021
+// Updated 19th Dec, 2021
 
 //Since A100
 
+Update classic tileset (Mirrors, light puzzles, switchhook, +more)
+Fix large enemy death sprites not scaling properly
+	( EmilyV, Dec 19th, 2021 )
+
+Add the 'Scale' option to tile editor right-click menu
+	This allows you to scale a tile (or group of tiles) up or down, as long as
+	the destination size is between 1x1 and 20x20 (rectangular)
+Polish up some Magic Mirror features
+Fix Tall Grass on layers 1&2
+Allow 'combining items' on pickup to chain (qr-based)
 Add Item Bundles (pick up multiple items together)
 	( EmilyV, Dec 18th, 2021 )
 
