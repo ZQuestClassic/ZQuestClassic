@@ -6219,7 +6219,6 @@ void enemy::draw(BITMAP *dest)
 		
 		flip = 0;
 		tile = wpnsbuf[spr_death].newtile;
-		//The scale of this tile shouldx be based on the enemy size. -Z
 		if ( do_animation ) 
 		{
 			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
@@ -6234,6 +6233,9 @@ void enemy::draw(BITMAP *dest)
 				{
 					++clk2;
 					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
+					spr_death_anim_frm *= zc_max(1,txsz);
+					int32_t rows = TILEROW(tile+spr_death_anim_frm)-TILEROW(tile);
+					spr_death_anim_frm += TILES_PER_ROW*(zc_min(0,tysz-1)*rows);
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
@@ -6315,6 +6317,9 @@ void enemy::drawzcboss(BITMAP *dest)
 				{
 					++clk2;
 					spr_death_anim_frm=(spr_death_anim_clk/zc_max(wpnsbuf[spr_death].speed,1));
+					spr_death_anim_frm *= zc_max(1,txsz);
+					int32_t rows = TILEROW(tile+spr_death_anim_frm)-TILEROW(tile);
+					spr_death_anim_frm += TILES_PER_ROW*(zc_min(0,tysz-1)*rows);
 					if(++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed,1) * zc_max(wpnsbuf[spr_death].frames,1)))
 					{
 						spr_death_anim_clk=-1;
