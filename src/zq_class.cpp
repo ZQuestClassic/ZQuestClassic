@@ -9690,7 +9690,7 @@ int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, w
         writesize=0;
         
         //finally...  section data
-        if(!pfwrite(colordata,newerpsTOTAL,f))
+        if(!pfwrite(colordata,psTOTAL255,f))
         {
             new_return(5);
         }

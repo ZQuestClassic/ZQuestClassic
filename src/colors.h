@@ -22,11 +22,12 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define poFADE1  15+4                                       //
 #define poFADE2  15+7                                       //
 #define poFADE3  15+10                                      //
+#define poNEWCSETS  15+13                                   // new level specific palettes in csets
 
 // palette data sizes in "data sets"
 //The below determines the size of each palette section. 
 #define pdFULL   15                                         // number of csets in the full palette
-#define pdLEVEL  13                                         // complete level pal (normal & fade pals)
+#define pdLEVEL  17                                         // complete level pal (normal & fade pals)
 #define pdSPRITE 30                                         // number of sprite csets
 
 //The below defines the size of the fade palette "sets"; AKA it's just saying to loop through csets 2, 3, and 4.
@@ -42,6 +43,7 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define oldpoSPRITE 210                                     // first sprite pal
 #define newpoSPRITE 3343                                    // first sprite pal
 #define newerpoSPRITE 6671
+#define poSPRITE255 8719
 #define pSprite(x) ((x)+newerpoSPRITE)
 
 // total data sets
@@ -52,15 +54,13 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define oldpdTOTAL  240                                     // total data sets
 #define newpdTOTAL  3373                                    // total data sets
 #define newerpdTOTAL 6701
+#define pdTOTAL255 8749                                     // This is the newest. The ones above are named that cause whoever named them that is dumb. -Deedee
 
 // palette data sizes in bytes
-#define psFULL   ((pdFULL<<4)*3)
-#define psLEVEL  ((pdLEVEL<<4)*3)
-#define psFADE   ((pdFADE<<4)*3)
-//#define psTOTAL  ((pdTOTAL<<4)*3)
 #define oldpsTOTAL  ((oldpdTOTAL<<4)*3)
 #define newpsTOTAL  ((newpdTOTAL<<4)*3)
 #define newerpsTOTAL ((newerpdTOTAL<<4)*3)
+#define psTOTAL255 ((pdTOTAL255<<4)*3)
 
 extern byte nes_pal[];
 extern byte nes_colors[];
