@@ -253,13 +253,12 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 
 int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 {
-    
-    if(tmpscr2[layer-1].valid==0)
+    if(!layer || tmpscr2[layer-1].valid==0)
     {
         return 0;
     }
     
-    return combobuf[MAPCOMBO2(layer,x,y)].type;
+    return combobuf[MAPCOMBO2(layer-1,x,y)].type;
 }
 
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
@@ -607,6 +606,31 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
         return 0;
         
     return combobuf[tmpscr2[layer].data[combo]].flag;                        // entire combo code
+}
+
+bool HASFLAG(int32_t flag, int32_t layer, int32_t pos)
+{
+	if(unsigned(pos) > 175) return false;
+	if(unsigned(layer) > 6) return false;
+	mapscr* m = (layer ? &tmpscr2[layer-1] : tmpscr);
+	if(!m->valid) return false;
+	if(m->data.empty()) return false;
+	
+	if(m->sflag[pos] == flag) return true;
+	if(combobuf[m->data[pos]].flag == flag) return true;
+	
+	return false;
+}
+
+bool HASFLAG_ANY(int32_t flag, int32_t pos)
+{
+	if(unsigned(pos) > 175) return false;
+	for(auto q = 0; q < 7; ++q)
+	{
+		if(HASFLAG(flag, q, pos))
+			return true;
+	}
+	return false;
 }
 
 void setmapflag(int32_t flag)
@@ -2844,7 +2868,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						draw_cmb_pos(bmp, -x, playing_field_offset-y, i, basescr->data[i], basescr->cset[i], layer, true, false);
+						draw_cmb_pos(bmp, -x, playing_field_offset-y, i, tmp->data[i], tmp->cset[i], layer, true, false);
 					}
 				}
 			}
@@ -2857,7 +2881,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 				{
 					if(combo_class_buf[combobuf[tmp->data[i]].type].overhead)
 					{
-						draw_cmb_pos(bmp, -x, playing_field_offset-y, i, basescr->data[i], basescr->cset[i], layer, true, false);
+						draw_cmb_pos(bmp, -x, playing_field_offset-y, i, tmp->data[i], tmp->cset[i], layer, true, false);
 					}
 				}
 			}

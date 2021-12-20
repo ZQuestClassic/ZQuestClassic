@@ -348,6 +348,7 @@ public:
     void checklocked();
     void deselectbombs(int32_t super); // switch Link's weapon if his current weapon (bombs) was depleted.
     bool startwpn(int32_t itemid);
+    bool mirrorBonk();
     void doMirror(int32_t mirrorid);
 	bool doattack();
     bool can_attack();

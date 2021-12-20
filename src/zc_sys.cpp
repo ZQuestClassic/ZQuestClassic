@@ -2599,7 +2599,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSIDEVIEWPLATFORM:
 					case mfNOENEMYSPAWN:
 					case mfENEMYALL:
-					case mf166:
+					case mfNOMIRROR:
 					case mf167:
 					case mf168:
 					case mf169:

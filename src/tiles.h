@@ -62,6 +62,8 @@ void pack_tile(tiledata *buf, byte *src,int32_t tile);
 void pack_tiledata(byte *dest, byte *src, byte format);
 void pack_tiles(byte *buf);
 int32_t rotate_value(int32_t flip);
+byte rotate_walk(byte v);
+byte rotate_cset(byte v);
 
 void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip);
 void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip);

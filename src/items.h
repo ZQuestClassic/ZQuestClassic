@@ -35,6 +35,7 @@ void item_fall(zfix& x, zfix& y, zfix& fall);
 int32_t item_pits(zfix& x, zfix& y, int32_t& fallclk);
 int32_t select_dropitem(int32_t item_set);
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y);
+int32_t get_progressive_item(itemdata const& itm, bool lastOwned = false);
 
 class item : public sprite
 {
@@ -62,6 +63,8 @@ public:
     void setScriptUID(int32_t new_id);
     #endif
 //
+	void load_gfx(itemdata const& itm);
+
     item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int32_t index);

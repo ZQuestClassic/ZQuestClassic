@@ -2457,7 +2457,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     
     for(int32_t k=1; k<3; k++)
     {
-        if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG))
+        if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2485,7 +2485,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
             }
         }
         
-        if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG))
+        if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG))
         {
             if(LayerMaskInt[k+1]!=0)
             {
@@ -2499,7 +2499,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
                     {
                         for(int32_t i=0; i<176; i++)
                         {
-                            if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
+                            if(!XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                             else overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
                         }
@@ -2508,7 +2508,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
                     {
                         for(int32_t i=0; i<176; i++)
                         {
-                            if(!(layer->flags7&fLAYER2BG)&&!ViewLayer2BG)
+                            if(!XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
                                 put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
                             else overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
                         }
@@ -2526,7 +2526,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
             byte cmbcset = layer->cset[i];
             int32_t cmbflag = layer->sflag[i];
             
-            if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG||ViewLayer2BG||ViewLayer3BG)
+            if(XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)||XOR(layer->flags7&fLAYER3BG,ViewLayer3BG))
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
             else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag);
         }
@@ -2536,7 +2536,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     
     for(int32_t k=0; k<2; k++)
     {
-        if(k==1&& (layer->flags7&fLAYER2BG||ViewLayer2BG)) continue;
+        if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)) continue;
         
         if(LayerMaskInt[k+1]!=0)
         {
@@ -2752,7 +2752,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     
     for(int32_t k=2; k<4; k++)
     {
-        if(k==2&&(layer->flags7&fLAYER3BG||ViewLayer3BG)) continue;
+        if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG)) continue;
         
         if(LayerMaskInt[k+1]!=0)
         {
@@ -2786,10 +2786,10 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
         for(int32_t i=0; i<176; i++)
         {
             int32_t ct1=layer->data[i];
-            //     int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
+            // int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
             int32_t ct3=combobuf[ct1].type;
             
-//      if (ct3==cOLD_OVERHEAD)
+			// if (ct3==cOLD_OVERHEAD)
             if(combo_class_buf[ct3].overhead)
             {
                 overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i]);
@@ -2909,7 +2909,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
             for(int32_t i=0; i<176; i++)
             {
                 //put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
-		put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
+				put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
             }
         }
         
@@ -2988,7 +2988,6 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     }
     
     resize_mouse_pos=false;
-    
 }
 
 void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)

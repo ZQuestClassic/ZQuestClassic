@@ -2692,6 +2692,55 @@ void LinkClass::masked_draw(BITMAP* dest)
     return;
 }
 
+void collectitem_script(int32_t id)
+{
+	if(itemsbuf[id].collect_script)
+	{
+		//clear item script stack. 
+		//ri = &(itemScriptData[id]);
+		//ri->Clear();
+		//itemCollectScriptData[id].Clear();
+		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id][q] = 0;
+		ri = &(itemCollectScriptData[id]);
+		for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id][q] = 0xFFFF;
+		ri->Clear();
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id & 0xFFF)*-1));
+		
+		if ( id > 0 && !item_collect_doscript[id] ) //No collect script on item 0. 
+		{
+			item_collect_doscript[id] = 1;
+			itemscriptInitialised[id] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id)*-1));
+			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id));
+		}
+		else if (id == 0 && !item_collect_doscript[id]) //item 0
+		{
+			item_collect_doscript[id] = 1;
+			itemscriptInitialised[id] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
+			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+			FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+		}
+		//runningItemScripts[id] = 0;
+	}
+}
+void passiveitem_script(int32_t id)
+{
+	//Passive item scripts on colelction
+	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
+	{
+		ri = &(itemScriptData[id]);
+		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id][q] = 0xFFFF;
+		ri->Clear();
+		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
+		item_doscript[id] = 1;
+		itemscriptInitialised[id] = 0;
+		//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
+	}
+}
+
 // separate case for sword/wand/hammer/slashed weapons only
 // the main weapon checking is in the global function check_collisions()
 bool LinkClass::checkstab()
@@ -2972,53 +3021,9 @@ bool LinkClass::checkstab()
 						}
 						else
 						{
-							if(itemsbuf[ptr->id].collect_script)
-							{
-								//clear item script stack. 
-								//ri = &(itemScriptData[ptr->id]);
-								//ri->Clear();
-								//itemCollectScriptData[ptr->id].Clear();
-								//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0;
-								ri = &(itemCollectScriptData[ptr->id]);
-								for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[ptr->id][q] = 0xFFFF;
-								ri->Clear();
-								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id & 0xFFF)*-1));
-								
-								if ( ptr->id > 0 && !item_collect_doscript[ptr->id] ) //No collect script on item 0. 
-								{
-									item_collect_doscript[ptr->id] = 1;
-									itemscriptInitialised[ptr->id] = 0;
-									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, ((ptr->id)*-1));
-									//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-										FFCore.deallocateAllArrays(SCRIPT_ITEM,-(ptr->id));
-								}
-								else if (ptr->id == 0 && !item_collect_doscript[ptr->id]) //item 0
-								{
-									item_collect_doscript[ptr->id] = 1;
-									itemscriptInitialised[ptr->id] = 0;
-									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-									//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-										FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-								}
-					
-								//runningItemScripts[ptr->id] = 0;
-					
-							}
-				
-							//Passive item scripts on colelction
-							if(itemsbuf[ptr->id].script && ( (itemsbuf[ptr->id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-							{
-								ri = &(itemScriptData[ptr->id]);
-								for ( int32_t q = 0; q < 1024; q++ ) item_stack[ptr->id][q] = 0xFFFF;
-								ri->Clear();
-								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-								item_doscript[ptr->id] = 1;
-								itemscriptInitialised[ptr->id] = 0;
-								//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-								ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[ptr->id].script, ptr->id);
-											
-							}
-				
+							collectitem_script(ptr->id);
+							passiveitem_script(ptr->id);
+							
 							getitem(ptr->id);
 						}
 						items.del(j);
@@ -6710,22 +6715,56 @@ bool LinkClass::animate(int32_t)
 		{
 			if(can_mirror_portal)
 			{
+				//Store some values to restore if 'warp fails'
+				int32_t tLastEntrance = lastentrance,
+						tLastEntranceDMap = lastentrance_dmap,
+						tContScr = game->get_continue_scrn(),
+						tContDMap = game->get_continue_dmap();
+				int32_t sourcescr = currscr, sourcedmap = currdmap;
+				zfix tx = x, ty = y, tz = z;
 				x = mirror_portal->x;
 				y = mirror_portal->y;
 				
+				int32_t weff = mirror_portal->weffect,
+					wsfx = mirror_portal->wsfx;
+				
 				FFCore.warp_link(wtIWARP, mirror_portal->destdmap, mirror_portal->destscr,
-					-1, -1, mirror_portal->weffect, mirror_portal->wsfx, warpFlagNOSTEPFORWARD, -1);
-				game->clear_portal(); //Remove portal once used
+					-1, -1, weff, wsfx, 0, -1);
+				
+				if(mirrorBonk()) //Invalid landing, warp back!
+				{
+					action = none; FFCore.setLinkAction(none);
+					lastentrance = tLastEntrance;
+					lastentrance_dmap = tLastEntranceDMap;
+					game->set_continue_scrn(tContScr);
+					game->set_continue_dmap(tContDMap);
+					x = tx;
+					y = ty;
+					z = tz;
+					FFCore.warp_link(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
+						wsfx, 0, -1);
+					can_mirror_portal = false;
+				}
+				else game->clear_portal(); //Remove portal once used
 			}
 		}
 		else can_mirror_portal = true;
 	}
 	
-	if(isGrassType(COMBOTYPE(x,y+15)) && isGrassType(COMBOTYPE(x+15,y+15))&& z<=8)
+	if(z<=8)
 	{
-		if(decorations.idCount(dTALLGRASS)==0)
+		bool g1 = isGrassType(COMBOTYPE(x,y+15)), g2 = isGrassType(COMBOTYPE(x+15,y+15));
+		if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
 		{
-			decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+			g1 = g1 || isGrassType(COMBOTYPEL(1,x,y+15)) || isGrassType(COMBOTYPEL(2,x,y+15));
+			g2 = g2 || isGrassType(COMBOTYPEL(1,x+15,y+15)) || isGrassType(COMBOTYPEL(2,x+15,y+15));
+		}
+		if(g1 && g2)
+		{
+			if(decorations.idCount(dTALLGRASS)==0)
+			{
+				decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+			}
 		}
 	}
 	
@@ -8697,6 +8736,75 @@ void LinkClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
+bool LinkClass::mirrorBonk()
+{
+	zfix tx = x, ty = y, tz = z;
+	WalkflagInfo info = walkflag(x,y+(bigHitbox?0:8),2,up);
+	if(blockmoving)
+		info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8));
+	execute(info);
+	bool fail = info.isUnwalkable();
+	
+	if(!fail) //not solid, but check for water/pits...
+	{
+		//{ Check water collision.... GAAAAAAAH THIS IS A MESS
+		int32_t water = 0;
+		int32_t types[4] = {0};
+		int32_t x1 = x+4, x2 = x+11,
+			y1 = y+9, y2 = y+15;
+		if (get_bit(quest_rules, qr_SMARTER_WATER))
+		{
+			if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
+			iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
+			iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
+			iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
+		}
+		else
+		{
+			types[0] = COMBOTYPE(x1,y1);
+			
+			if(MAPFFCOMBO(x1,y1))
+				types[0] = FFCOMBOTYPE(x1,y1);
+				
+			types[1] = COMBOTYPE(x1,y2);
+			
+			if(MAPFFCOMBO(x1,y2))
+				types[1] = FFCOMBOTYPE(x1,y2);
+				
+			types[2] = COMBOTYPE(x2,y1);
+			
+			if(MAPFFCOMBO(x2,y1))
+				types[2] = FFCOMBOTYPE(x2,y1);
+				
+			types[3] = COMBOTYPE(x2,y2);
+			
+			if(MAPFFCOMBO(x2,y2))
+				types[3] = FFCOMBOTYPE(x2,y2);
+				
+			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
+				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
+				
+			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
+					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
+				water = typec;
+		}
+		if(water > 0)
+		{
+			if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+			{
+				fail = true;
+			}
+		}
+		//}
+		if(pitslide() || fallclk)
+			fail = true;
+		fallclk = 0;
+	}
+	x = tx; y = ty; z = tz;
+	return fail;
+}
+
 void LinkClass::doMirror(int32_t mirrorid)
 {
 	if(z > 0) return; //No mirror in air
@@ -8704,15 +8812,32 @@ void LinkClass::doMirror(int32_t mirrorid)
 		mirrorid = current_item_id(itype_mirror);
 	if(mirrorid < 0) return;
 	
-	if(!(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
+	if((tmpscr->flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
+	{
+		if(QMisc.miscsfx[sfxERROR])
+			sfx(QMisc.miscsfx[sfxERROR]);
 		return;
+	}
+	static const int32_t sens = 4; //sensitivity of 'No Mirror' combos (0 most, 8 least)
+	int32_t posarr[] = {COMBOPOS(x+sens,y+sens), COMBOPOS(x+sens,y+15-sens),
+		COMBOPOS(x+15-sens,y+sens), COMBOPOS(x+15-sens,y+15-sens)};
+	for(auto pos : posarr)
+	{
+		if(HASFLAG_ANY(mfNOMIRROR, pos)) //"No Mirror" flag touching the player
+		{
+			if(QMisc.miscsfx[sfxERROR])
+				sfx(QMisc.miscsfx[sfxERROR]);
+			return;
+		}
+	}
+	
 	itemdata const& mirror = itemsbuf[mirrorid];
 	if(DMaps[currdmap].flags & dmfMIRRORCONTINUE)
 	{
 		paymagiccost(mirrorid);
-		sfx(mirror.usesound);
+		if(mirror.usesound2) sfx(mirror.usesound2);
 		
-		doWarpEffect(mirror.misc1, true);
+		doWarpEffect(mirror.misc2, true);
 		if(mirror.flags & ITEM_FLAG2) //Act as F6->Continue
 		{
 			Quit = qCONT;
@@ -8745,79 +8870,17 @@ void LinkClass::doMirror(int32_t mirrorid)
 				tContScr = game->get_continue_scrn(),
 				tContDMap = game->get_continue_dmap(),
 				tPortalDMap = game->portalsrcdmap;
-		game->portalsrcdmap = -1;
 		int32_t sourcescr = currscr, sourcedmap = currdmap;
 		zfix tx = x, ty = y, tz = z;
+		game->portalsrcdmap = -1;
 		action = none; FFCore.setLinkAction(none);
 		
 		//Warp to new dmap
 		FFCore.warp_link(wtIWARP, destdmap, destscr, -1, -1, mirror.misc1,
-			mirror.usesound, warpFlagNOSTEPFORWARD, -1);
+			mirror.usesound, 0, -1);
 		
 		//Check for valid landing location
-		WalkflagInfo info = walkflag(x,y+(bigHitbox?0:8),2,up);
-		if(blockmoving)
-			info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8));
-		execute(info);
-		bool fail = info.isUnwalkable();
-		
-		if(!fail) //not solid, but check for water/pits...
-		{
-			//{ Check water collision.... GAAAAAAAH THIS IS A MESS
-			int32_t water = 0;
-			int32_t types[4] = {0};
-			int32_t x1 = x+4, x2 = x+11,
-				y1 = y+9, y2 = y+15;
-			if (get_bit(quest_rules, qr_SMARTER_WATER))
-			{
-				if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
-				iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
-				iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
-				iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-			}
-			else
-			{
-				types[0] = COMBOTYPE(x1,y1);
-				
-				if(MAPFFCOMBO(x1,y1))
-					types[0] = FFCOMBOTYPE(x1,y1);
-					
-				types[1] = COMBOTYPE(x1,y2);
-				
-				if(MAPFFCOMBO(x1,y2))
-					types[1] = FFCOMBOTYPE(x1,y2);
-					
-				types[2] = COMBOTYPE(x2,y1);
-				
-				if(MAPFFCOMBO(x2,y1))
-					types[2] = FFCOMBOTYPE(x2,y1);
-					
-				types[3] = COMBOTYPE(x2,y2);
-				
-				if(MAPFFCOMBO(x2,y2))
-					types[3] = FFCOMBOTYPE(x2,y2);
-					
-				int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-				if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-					typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-					
-				if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-						combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-					water = typec;
-			}
-			if(water > 0)
-			{
-				if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
-				{
-					fail = true;
-				}
-			}
-			//}
-			if(pitslide() || fallclk)
-				fail = true;
-			fallclk = 0;
-		}
-		if(fail) //Invalid landing, warp back!
+		if(mirrorBonk()) //Invalid landing, warp back!
 		{
 			action = none; FFCore.setLinkAction(none);
 			lastentrance = tLastEntrance;
@@ -8829,7 +8892,7 @@ void LinkClass::doMirror(int32_t mirrorid)
 			z = tz;
 			game->portalsrcdmap = tPortalDMap;
 			FFCore.warp_link(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
-				mirror.usesound, warpFlagNOSTEPFORWARD, -1);
+				mirror.usesound, 0, -1);
 		}
 		else if(mirror.flags & ITEM_FLAG1) //Place portal!
 		{
@@ -9063,7 +9126,11 @@ bool LinkClass::startwpn(int32_t itemid)
 		case itype_potion:
 		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			
@@ -9093,7 +9160,11 @@ bool LinkClass::startwpn(int32_t itemid)
 		case itype_bottle:
 		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 			if(itm.script!=0 && item_doscript[itemid])
 				return false;
 			
@@ -9219,7 +9290,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				if(standing || extra_jump_count < itm.misc1)
 				{
 					if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+					{
+						if(QMisc.miscsfx[sfxERROR])
+							sfx(QMisc.miscsfx[sfxERROR]);
 						return false;
+					}
 					
 					paymagiccost(itemid);
 					
@@ -9282,7 +9357,11 @@ bool LinkClass::startwpn(int32_t itemid)
 			bool whistleflag;
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			sfx(itm.usesound);
@@ -9371,7 +9450,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			
@@ -9421,7 +9504,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			
@@ -9454,7 +9541,11 @@ bool LinkClass::startwpn(int32_t itemid)
 			}
 				
 			if(!checkbunny(itemid) || !(misc_internal_link_flags & LF_PAID_WAND_COST || checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			if(Lwpns.idCount(wBeam))
 				Lwpns.del(Lwpns.idFirst(wBeam));
@@ -9531,7 +9622,11 @@ bool LinkClass::startwpn(int32_t itemid)
 		case itype_sword:
 		{
 			if(!(checkbunny(itemid) || !(misc_internal_link_flags & LF_PAID_SWORD_COST || checkmagiccost(itemid))))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			if((Lwpns.idCount(wBeam) && spins==0)||Lwpns.idCount(wMagic))
 			{
@@ -9582,6 +9677,8 @@ bool LinkClass::startwpn(int32_t itemid)
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
 			}
 			
@@ -9604,7 +9701,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9618,7 +9719,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9632,7 +9737,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9646,7 +9755,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9660,7 +9773,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9674,7 +9791,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9688,7 +9809,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9702,7 +9827,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9716,7 +9845,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9730,7 +9863,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9744,7 +9881,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
@@ -9758,7 +9899,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 			
 			if(get_bit(quest_rules,qr_TRUEARROWS) && !current_item_power(itype_quiver))
 			{
@@ -9788,7 +9933,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			sfx(itm.usesound,pan(wx));
@@ -9817,7 +9966,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			current_item_power(itype_brang);
@@ -9832,7 +9985,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 			bool sw = itm.family == itype_switchhook;
 			
 			if(sw && (itm.flags&ITEM_FLAG8))
@@ -10069,7 +10226,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			if (IsSideSwim()) {action=sideswimcasting; FFCore.setLinkAction(sideswimcasting);}
@@ -10082,7 +10243,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			if (IsSideSwim()) {action=sideswimcasting; FFCore.setLinkAction(sideswimcasting);}
@@ -10095,7 +10260,11 @@ bool LinkClass::startwpn(int32_t itemid)
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
+			}
 				
 			paymagiccost(itemid);
 			if (IsSideSwim()) {action=sideswimcasting; FFCore.setLinkAction(sideswimcasting);}
@@ -10536,13 +10705,16 @@ void do_lens()
 		else
 		{
 			did_scriptl=false;
-			
-			if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkbunny(itemid) && checkmagiccost(itemid)))
+			if(!lensclk)
 			{
-				lensid=-1;
-				lensclk = 0;
 				
-				if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+				if(lensid>-1)
+				{
+					lensid=-1;
+					lensclk = 0;
+					
+					if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(WAV_ZN1LENSOFF);
+				}
 			}
 		}
 	}
@@ -11584,21 +11756,34 @@ void LinkClass::movelink()
 			attackclk=0;
 			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
-			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && checkmagiccost(dowpn) && !item_doscript[dowpn])
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !item_doscript[dowpn])
 			{
-				//clear the item script stack for a new script
-			
-				ri = &(itemScriptData[dowpn]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-				ri->Clear();
-				//itemScriptData[(dowpn & 0xFFF)].Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-				item_doscript[dowpn] = 1;
-				itemscriptInitialised[dowpn] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
-				did_scripta=true;
+				if(!checkmagiccost(dowpn))
+				{
+					if(QMisc.miscsfx[sfxERROR])
+						sfx(QMisc.miscsfx[sfxERROR]);
+				}
+				else
+				{
+					//clear the item script stack for a new script
+				
+					ri = &(itemScriptData[dowpn]);
+					for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+					ri->Clear();
+					//itemScriptData[(dowpn & 0xFFF)].Clear();
+					//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+					//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+					item_doscript[dowpn] = 1;
+					itemscriptInitialised[dowpn] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+					did_scripta=true;
+				}
 			}
+		}
+		else
+		{
+			if(QMisc.miscsfx[sfxERROR])
+				sfx(QMisc.miscsfx[sfxERROR]);
 		}
 	}
 	else
@@ -11676,16 +11861,29 @@ void LinkClass::movelink()
 				attack=wWand;
 				attackclk=0;
 			}
+			else
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+			}
 		}
 		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
-				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)) && checkmagiccost(dowpn) && checkbunny(dowpn))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
-			paymagiccost(dowpn);
-			paidmagic = true;
-			SetAttack();
-			attack=wHammer;
-			attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
-			attackclk=0;
+			if(!(checkmagiccost(dowpn) && checkbunny(dowpn)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+			}
+			else
+			{
+				paymagiccost(dowpn);
+				paidmagic = true;
+				SetAttack();
+				attack=wHammer;
+				attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
+				attackclk=0;
+			}
 		}
 		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
@@ -11710,6 +11908,11 @@ void LinkClass::movelink()
 				attack=wCByrna;
 				attackclk=0;
 			}
+			else
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+			}
 		}
 		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
@@ -11722,6 +11925,11 @@ void LinkClass::movelink()
 				attack = wBugNet;
 				attackclk = 0;
 				sfx(itemsbuf[attackid].usesound);
+			}
+			else
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
 			}
 		}
 		else
@@ -11753,23 +11961,31 @@ void LinkClass::movelink()
 			}
 		}
 		
-		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && (paidmagic || checkmagiccost(dowpn)) && !item_doscript[dowpn] && checkbunny(dowpn))
+		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && !item_doscript[dowpn])
 		{
-			// Only charge for magic if item's magic cost wasn't already charged
-			// for the item's main use.
-			if(!paidmagic && attack!=wWand)
-				paymagiccost(dowpn);
-			//clear the item script stack for a new script
-			//itemScriptData[(dowpn & 0xFFF)].Clear();
-			ri = &(itemScriptData[dowpn]);
-			for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-			ri->Clear();
-			//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-			item_doscript[dowpn] = 1;
-			itemscriptInitialised[dowpn] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
-			did_scriptb=true;
+			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+			}
+			else
+			{
+				// Only charge for magic if item's magic cost wasn't already charged
+				// for the item's main use.
+				if(!paidmagic && attack!=wWand)
+					paymagiccost(dowpn);
+				//clear the item script stack for a new script
+				//itemScriptData[(dowpn & 0xFFF)].Clear();
+				ri = &(itemScriptData[dowpn]);
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+				ri->Clear();
+				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+				item_doscript[dowpn] = 1;
+				itemscriptInitialised[dowpn] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+				did_scriptb=true;
+			}
 		}
 		
 		if(action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning)
@@ -23990,8 +24206,8 @@ int32_t LinkClass::ringpower(int32_t dmg)
 		    
 		if(itemid>-1)  // current_item_id checks magic cost for rings
 		{
-		usering = true;
-		paymagiccost(itemid);
+			usering = true;
+			paymagiccost(itemid);
 			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
 			{
 				double perc = itemsbuf[itemid].power/100.0;
@@ -24936,7 +25152,38 @@ void getitem(int32_t id, bool nosound)
     {
         return;
     }
-    itemdata const& idat = itemsbuf[id&0xFF];
+    
+	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
+	{
+		int32_t nextitem = -1;
+		do
+		{
+			nextitem = -1;
+			if((itemsbuf[id].flags & ITEM_COMBINE) && game->get_item(id))
+				// Item upgrade routine.
+			{
+				
+				for(int32_t i=0; i<MAXITEMS; i++)
+				{
+					// Find the item which is as close to this item's fam_type as possible.
+					if(itemsbuf[i].family==itemsbuf[id].family && itemsbuf[i].fam_type>itemsbuf[id].fam_type
+							&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+					{
+						nextitem = i;
+					}
+				}
+				
+				if(nextitem>-1)
+				{
+					id = nextitem;
+					if(!get_bit(quest_rules,qr_ITEMCOMBINE_CONTINUOUS))
+						break; //no looping
+				}
+			}
+		} while(nextitem > -1);
+	}
+	
+	itemdata const& idat = itemsbuf[id&0xFF];
     if(idat.family!=0xFF)
     {
         if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
@@ -25039,6 +25286,30 @@ void getitem(int32_t id, bool nosound)
     
     switch(idat.family)
     {
+		case itype_itmbundle:
+		{
+			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
+				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
+			bool pscript = (idat.flags & ITEM_FLAG1);
+			for(auto q = 0; q < 10; ++q)
+			{
+				if(unsigned(ids[q]) >= MAXITEMS) continue;
+				if(pscript)
+					collectitem_script(ids[q]);
+				passiveitem_script(ids[q]);
+				getitem(ids[q], true);
+			}
+		}
+		break;
+		
+		case itype_progressive_itm:
+		{
+			int32_t newid = get_progressive_item(idat);
+			if(newid > -1)
+				getitem(newid, nosound);
+		}
+		break;
+		
 		case itype_bottlefill:
 		{
 			if(idat.misc1)
@@ -25061,7 +25332,6 @@ void getitem(int32_t id, bool nosound)
 		
 		case itype_lkey:
 			if(game->lvlkeys[dlevel]<255) game->lvlkeys[dlevel]++;
-			
 			break;
 			
 		case itype_ring:
@@ -25070,7 +25340,6 @@ void getitem(int32_t id, bool nosound)
 			{
 				ringcolor(false);
 			}
-			
 			break;
 			
 		case itype_whispring:
@@ -25142,74 +25411,95 @@ void getitem(int32_t id, bool nosound)
 void takeitem(int32_t id)
 {
     game->set_item(id, false);
+    itemdata const& idat = itemsbuf[id];
     
     /* Lower the counters! */
-    if(itemsbuf[id].count!=-1)
+    if(idat.count!=-1)
     {
-        if(itemsbuf[id].setmax)
+        if(idat.setmax)
         {
-            game->set_maxcounter(game->get_maxcounter(itemsbuf[id].count)-itemsbuf[id].setmax, itemsbuf[id].count);
+            game->set_maxcounter(game->get_maxcounter(idat.count)-idat.setmax, idat.count);
         }
         
-        if(itemsbuf[id].amount&0x3FFF)
+        if(idat.amount&0x3FFF)
         {
-            if(itemsbuf[id].amount&0x8000)
-                game->set_dcounter(game->get_dcounter(itemsbuf[id].count)-((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
-            else game->set_counter(game->get_counter(itemsbuf[id].count)-((itemsbuf[id].amount&0x4000)?-(itemsbuf[id].amount&0x3FFF):itemsbuf[id].amount&0x3FFF), itemsbuf[id].count);
+            if(idat.amount&0x8000)
+                game->set_dcounter(game->get_dcounter(idat.count)-((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
+            else game->set_counter(game->get_counter(idat.count)-((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
         }
     }
     
     switch(itemsbuf[id&0xFF].family)
     {
         // NES consistency: replace all flying boomerangs with the current boomerang.
-    case itype_brang:
-        if(current_item(itype_brang)) for(int32_t i=0; i<Lwpns.Count(); i++)
-            {
-                weapon *w = ((weapon*)Lwpns.spr(i));
-                
-                if(w->id==wBrang)
-                {
-                    w->LOADGFX(itemsbuf[current_item_id(itype_brang)].wpn);
-                }
-            }
-            
-        break;
-        
-    case itype_heartpiece:
-        if(game->get_maxlife()>game->get_hp_per_heart())
-        {
-            if(game->get_HCpieces()==0)
-            {
-                game->set_HCpieces(game->get_hcp_per_hc());
-                takeitem(iHeartC);
-            }
-            
-            game->change_HCpieces(-1);
-        }
-        break;
-        
-    case itype_map:
-        game->lvlitems[dlevel]&=~liMAP;
-        break;
-        
-    case itype_compass:
-        game->lvlitems[dlevel]&=~liCOMPASS;
-        break;
-        
-    case itype_bosskey:
-        game->lvlitems[dlevel]&=~liBOSSKEY;
-        break;
-        
-    case itype_lkey:
-        if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
-        break;
-		
-	case itype_ring:
-		if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+		case itype_brang:
+			if(current_item(itype_brang)) for(int32_t i=0; i<Lwpns.Count(); i++)
+			{
+				weapon *w = ((weapon*)Lwpns.spr(i));
+				
+				if(w->id==wBrang)
+				{
+					w->LOADGFX(itemsbuf[current_item_id(itype_brang)].wpn);
+				}
+			}
+				
+			break;
+			
+		case itype_itmbundle:
 		{
-			ringcolor(false);
+			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
+				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
+			for(auto q = 0; q < 10; ++q)
+			{
+				if(unsigned(ids[q]) >= MAXITEMS) continue;
+				takeitem(ids[q]);
+			}
 		}
 		break;
+		
+		case itype_progressive_itm:
+		{
+			int32_t newid = get_progressive_item(idat, true);
+			if(newid > -1)
+				takeitem(newid);
+		}
+		break;
+			
+		case itype_heartpiece:
+			if(game->get_maxlife()>game->get_hp_per_heart())
+			{
+				if(game->get_HCpieces()==0)
+				{
+					game->set_HCpieces(game->get_hcp_per_hc());
+					takeitem(iHeartC);
+				}
+				
+				game->change_HCpieces(-1);
+			}
+			break;
+			
+		case itype_map:
+			game->lvlitems[dlevel]&=~liMAP;
+			break;
+			
+		case itype_compass:
+			game->lvlitems[dlevel]&=~liCOMPASS;
+			break;
+			
+		case itype_bosskey:
+			game->lvlitems[dlevel]&=~liBOSSKEY;
+			break;
+			
+		case itype_lkey:
+			if(game->lvlkeys[dlevel]) game->lvlkeys[dlevel]--;
+			break;
+			
+		case itype_ring:
+			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+			{
+				ringcolor(false);
+			}
+			break;
     }
 }
 
@@ -25233,12 +25523,23 @@ void LinkClass::checkitems(int32_t index)
 	// if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
 	//   return;
 	item* ptr = (item*)items.spr(index);
-	int32_t pickup = ((item*)items.spr(index))->pickup;
-	int32_t PriceIndex = ((item*)items.spr(index))->PriceIndex;
-	int32_t id2 = ((item*)items.spr(index))->id;
-	int32_t pstr = ((item*)items.spr(index))->pstring;
-	int32_t pstr_flags = ((item*)items.spr(index))->pickup_string_flags;
-	//int32_t tempnextmsg;
+	int32_t pickup = ptr->pickup;
+	int32_t PriceIndex = ptr->PriceIndex;
+	int32_t id2 = ptr->id;
+	int32_t pstr = ptr->pstring;
+	int32_t pstr_flags = ptr->pickup_string_flags;
+	
+	if(itemsbuf[id2].family == itype_progressive_itm)
+	{
+		int32_t newid = get_progressive_item(itemsbuf[id2]);
+		if(newid > -1)
+		{
+			id2 = newid;
+			pstr = itemsbuf[newid].pstring;
+			pstr_flags = itemsbuf[newid].pickup_string_flags;
+		}
+	}
+	
 	bool bottledummy = (pickup&ipCHECK) && tmpscr[tmp].room == rBOTTLESHOP;
 	
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
@@ -25312,24 +25613,37 @@ void LinkClass::checkitems(int32_t index)
 		if(get_bit(quest_rules,qr_HEARTSREQUIREDFIX) && !canget(id2))
 			return;
 			
-		if((itemsbuf[id2].flags & ITEM_COMBINE) && current_item(itemsbuf[id2].family)==itemsbuf[id2].fam_type)
-			// Item upgrade routine.
+		int32_t nextitem = -1;
+		do
 		{
-			int32_t nextitem = -1;
-			
-			for(int32_t i=0; i<MAXITEMS; i++)
+			nextitem = -1;
+			if((itemsbuf[id2].flags & ITEM_COMBINE) && game->get_item(id2))
+				// Item upgrade routine.
 			{
-				// Find the item which is as close to this item's fam_type as possible.
-				if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
-						&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+				
+				for(int32_t i=0; i<MAXITEMS; i++)
 				{
-					nextitem = i;
+					// Find the item which is as close to this item's fam_type as possible.
+					if(itemsbuf[i].family==itemsbuf[id2].family && itemsbuf[i].fam_type>itemsbuf[id2].fam_type
+							&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+					{
+						nextitem = i;
+					}
+				}
+				
+				if(nextitem>-1)
+				{
+					id2 = nextitem;
+					if(get_bit(quest_rules,qr_ITEMCOMBINE_NEW_PSTR))
+					{
+						pstr = itemsbuf[id2].pstring;
+						pstr_flags = itemsbuf[id2].pickup_string_flags;
+					}
+					if(!get_bit(quest_rules,qr_ITEMCOMBINE_CONTINUOUS))
+						break; //no looping
 				}
 			}
-			
-			if(nextitem>-1)
-				id2 = nextitem;
-		}
+		} while(nextitem > -1);
 		
 		if(pickup&ipCHECK)                                        // check restrictions
 			switch(tmpscr[tmp].room)
@@ -25419,45 +25733,8 @@ void LinkClass::checkitems(int32_t index)
 			hidden_entrance(0, true, false, -5);
 		}
 			
-		if(itemsbuf[id2].collect_script)
-		{
-			//clear the item script stack for a new script
-			ri = &(itemCollectScriptData[id2]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
-			ri->Clear();
-				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
-			//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
-			if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
-			{
-				item_collect_doscript[id2] = 1;
-				itemscriptInitialised[id2] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
-				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
-			}
-			else if (!id2 && !item_collect_doscript[id2]) //item 0
-			{
-				item_collect_doscript[id2] = 1;
-				itemscriptInitialised[id2] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-				//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-			}
-		}
-		//Passive item scripts on colelction
-		if(itemsbuf[id2].script && ( (itemsbuf[id2].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
-		{
-			ri = &(itemScriptData[id2]);
-			for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
-			ri->Clear();
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-			item_doscript[id2] = 1;
-			itemscriptInitialised[id2] = 0;
-			//Z_scripterrlog("Link.cpp starting a passive item script.\n");
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
-						
-		}
+		collectitem_script(id2);
+		passiveitem_script(id2);
 		getitem(id2);
 	}
 	

@@ -610,7 +610,15 @@ dTallGrass::dTallGrass(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : d
 bool dTallGrass::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
-	return (!isGrassType(COMBOTYPE(LinkX(),LinkY()+15)) || !isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15)) || LinkZ()>8);
+	
+	if(LinkZ()>8) return true;
+	bool g1 = isGrassType(COMBOTYPE(LinkX(),LinkY()+15)), g2 = isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15));
+	if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
+	{
+		g1 = g1 || isGrassType(COMBOTYPEL(1,LinkX(),LinkY()+15)) || isGrassType(COMBOTYPEL(2,LinkX(),LinkY()+15));
+		g2 = g2 || isGrassType(COMBOTYPEL(1,LinkX()+15,LinkY()+15)) || isGrassType(COMBOTYPEL(2,LinkX()+15,LinkY()+15));
+	}
+	return !(g1&&g2);
 }
 
 void dTallGrass::draw(BITMAP *dest)

@@ -228,7 +228,7 @@ bool movingblock::animate(int32_t)
 			}
 			else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
 			{
-				for(auto q = 0; q < maxLayer; ++q)
+				for(auto q = 0; q <= maxLayer; ++q)
 				{
 					if(q==blockLayer) continue;
 					if(FFCore.tempScreens[q]->sflag[combopos] == mfBLOCKTRIGGER
@@ -255,7 +255,7 @@ bool movingblock::animate(int32_t)
 		}
 		else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
 		{
-			for(auto q = 0; q < maxLayer; ++q)
+			for(auto q = 0; q <= maxLayer; ++q)
 			{
 				if(q==blockLayer) continue;
 				if((FFCore.tempScreens[q]->sflag[combopos]==mfBLOCKHOLE)
@@ -302,7 +302,7 @@ bool movingblock::animate(int32_t)
 		}
 		
 		bool didtrigger = trigger;
-		for(auto q = 0; q < maxLayer; ++q)
+		for(auto q = 0; q <= maxLayer; ++q)
 		{
 			for(int32_t i=0; i<176; i++)
 			{

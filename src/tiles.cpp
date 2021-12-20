@@ -875,6 +875,24 @@ int32_t rotate_value(int32_t flip)
 {
     return rotate_table[flip&7];
 }
+byte rotate_cset(byte v)
+{
+	byte ret = v&0xF;
+	ret |= (v & 0x10)<<1;
+	ret |= (v & 0x20)<<2;
+	ret |= (v & 0x40)>>2;
+	ret |= (v & 0x80)>>1;
+	return ret;
+}
+byte rotate_walk(byte v)
+{
+	byte ret = 0;
+	ret |= (v & 0x11)<<2;
+	ret |= (v & 0x22)>>1;
+	ret |= (v & 0x44)<<1;
+	ret |= (v & 0x88)>>2;
+	return ret;
+}
 
 
 void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
