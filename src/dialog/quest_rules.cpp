@@ -791,7 +791,10 @@ static const GUI::ListData itemRulesList
 		" the pickup string from the 'upgraded' item, not the base item."},
 	{ "'Upgraded' items chain continuously", qr_ITEMCOMBINE_CONTINUOUS,
 		"If enabled, the 'Upgrade When Collected Twice' flag will be checked for"
-		" the upgraded item from the same flag; allowing full progressive item chains." }
+		" the upgraded item from the same flag; allowing full progressive item chains." },
+	{ "SCC/Bundle Item handles 'Upgraded' Items", qr_SCC_ITEM_COMBINES_ITEMS,
+		"Granting an item via an Item Bundle or SCC will handle the"
+		" 'Upgrade When Collected Twice' behavior." }
 };
 
 static const GUI::ListData miscRulesList

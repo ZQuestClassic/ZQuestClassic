@@ -25152,7 +25152,38 @@ void getitem(int32_t id, bool nosound)
     {
         return;
     }
-    itemdata const& idat = itemsbuf[id&0xFF];
+    
+	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
+	{
+		int32_t nextitem = -1;
+		do
+		{
+			nextitem = -1;
+			if((itemsbuf[id].flags & ITEM_COMBINE) && game->get_item(id))
+				// Item upgrade routine.
+			{
+				
+				for(int32_t i=0; i<MAXITEMS; i++)
+				{
+					// Find the item which is as close to this item's fam_type as possible.
+					if(itemsbuf[i].family==itemsbuf[id].family && itemsbuf[i].fam_type>itemsbuf[id].fam_type
+							&& (nextitem>-1 ? itemsbuf[i].fam_type<=itemsbuf[nextitem].fam_type : true))
+					{
+						nextitem = i;
+					}
+				}
+				
+				if(nextitem>-1)
+				{
+					id = nextitem;
+					if(!get_bit(quest_rules,qr_ITEMCOMBINE_CONTINUOUS))
+						break; //no looping
+				}
+			}
+		} while(nextitem > -1);
+	}
+	
+	itemdata const& idat = itemsbuf[id&0xFF];
     if(idat.family!=0xFF)
     {
         if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
