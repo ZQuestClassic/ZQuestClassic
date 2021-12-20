@@ -1,6 +1,12 @@
 // 2.55 Change Log
 // Updated 17th Dec, 2021
 
+//Since A100
+
+Fixed Overhead combos on Layer 0
+Fixed automatically re-entering warps on exit
+	( EmilyV, Dec 17th, 2021 )
+
 //Alpha 100
 
 Add ghost.zh-based internal script movement functions
