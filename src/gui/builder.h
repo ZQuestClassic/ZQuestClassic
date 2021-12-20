@@ -27,6 +27,7 @@
 #include "seltile_swatch.h"
 #include "selcombo_swatch.h"
 #include "tileanim_frame.h"
+#include "palette_frame.h"
 #include "cornerselect.h"
 #include <initializer_list>
 #include <memory>
@@ -198,6 +199,11 @@ inline std::shared_ptr<CornerSwatch> makeCornerSwatch()
 inline std::shared_ptr<TileFrame> makeTileFrame()
 {
 	return std::make_shared<TileFrame>();
+}
+
+inline std::shared_ptr<PaletteFrame> makePaletteFrame()
+{
+	return std::make_shared<PaletteFrame>();
 }
 
 // Top-level widgets
@@ -431,6 +437,14 @@ ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(flip, setFlip, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
+
+ZCGUI_BUILDER_START(PaletteFrame)
+	ZCGUI_ACCEPT_PROP(bitmap, setBitmap, BITMAP*)
+	ZCGUI_ACCEPT_PROP(cdata, setColorData, byte*)
+	ZCGUI_ACCEPT_PROP(palette, setPal, PALETTE)
+	ZCGUI_ACCEPT_PROP(count, setCount, uint8_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(PaletteFrame, PaletteFrame, makePaletteFrame)
 
 } // namespace GUI::builder
 
