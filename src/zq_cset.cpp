@@ -1194,6 +1194,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
                 saved=false;
             }
         }
+		GUI_EVENT(d, geCHANGE_SELECTION);
     }
     break;
     
@@ -1296,7 +1297,8 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
         {
             //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
         }
-        return D_USED_CHAR;
+        GUI_EVENT(d, geCHANGE_SELECTION);
+		return D_USED_CHAR;
     }
     }
     

@@ -18,6 +18,7 @@ public:
 	void setColorData(byte* value);
 	void setPal(PALETTE value);
 	void setCount(uint8_t value);
+	void setOnUpdate(std::function<void()> newOnUpdate);
 	
 private:
 	BITMAP* bmp;
@@ -25,10 +26,13 @@ private:
 	PALETTE plt;
 	uint8_t count;
 	DialogRef alDialog;
+	std::function<void()> onUpdate;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
+	void calculateSize() override;
 	void realize(DialogRunner& runner) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 };
 
 }
