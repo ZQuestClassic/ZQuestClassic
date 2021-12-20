@@ -17019,6 +17019,17 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 				redraw=true;
 				break;
+			case KEY_R:
+				for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
+				{
+					combobuf[i].flip = rotate_value(combobuf[i].flip);
+					combobuf[i].walk = rotate_walk(combobuf[i].walk);
+					combobuf[i].csets = rotate_cset(combobuf[i].csets);
+				}
+				
+				redraw=true;
+				saved=false;
+				break;
 				
 			case KEY_I:
 			{
@@ -17624,6 +17635,8 @@ bool edit_combo(int32_t c,bool freshen,int32_t cs)
 {
 	FONT* ofont = font;
 	//CSet = cs;
+	reset_combo_animations();
+	reset_combo_animations2();
 	bool edited = call_combo_editor(c);
 	font = ofont;
 	

@@ -14658,14 +14658,18 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
 						break;
 					//Gravity and falls in pits
-					case eeWALK: case eeOTHER:
+					case eeWALK:
+						if (tempguy.misc9==e9tPOLSVOICE||tempguy.misc9==e9tVIRE)
+							break;
+						[[fallthrough]];
+					case eeOTHER:
 					case eeSCRIPT01: case eeSCRIPT02: case eeSCRIPT03: case eeSCRIPT04: case eeSCRIPT05:
 					case eeSCRIPT06: case eeSCRIPT07: case eeSCRIPT08: case eeSCRIPT09: case eeSCRIPT10:
 					case eeSCRIPT11: case eeSCRIPT12: case eeSCRIPT13: case eeSCRIPT14: case eeSCRIPT15:
 					case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
 					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
 					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
-						if (tempguy.misc9!=e9tPOLSVOICE&&tempguy.misc9!=e9tVIRE) tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
 				}
 			}
 			if(guyversion < 43)
@@ -14712,6 +14716,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.misc10==1) ? iwLargeShadow : iwShadow;
 				tempguy.spr_death = iwDeath;
 				tempguy.spr_spawn = iwSpawn;
+			}
+			
+			if(guyversion < 46)
+			{
+				if(tempguy.family == eeWALK && tempguy.misc9 == e9tPOLSVOICE)
+				{
+					tempguy.moveflags |= FLAG_CAN_WATERWALK;
+				}
 			}
 			
             if(keepdata)

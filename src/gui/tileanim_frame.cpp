@@ -159,7 +159,7 @@ void TileFrame::setSkipY(int32_t value)
 
 void TileFrame::setFlip(int32_t value)
 {
-	data[tfr_flip] = value&0x3;
+	data[tfr_flip] = value&0x7;
 	pendDraw();
 }
 

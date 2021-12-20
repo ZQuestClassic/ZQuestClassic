@@ -6221,6 +6221,7 @@ void enemy::draw(BITMAP *dest)
 		tile = wpnsbuf[spr_death].newtile;
 		if ( do_animation ) 
 		{
+			int32_t offs = 0;
 			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
 			{
 				if(clk2 > 2)
@@ -6245,9 +6246,21 @@ void enemy::draw(BITMAP *dest)
 				tile += spr_death_anim_frm;
 			}
 			else if(BSZ)
-				tile += zc_min((15-clk2)/3,4);
+			{
+				offs = zc_min((15-clk2)/3,4);
+			}
 			else if(clk2>6 && clk2<=12)
-				++tile;
+			{
+				offs = 1;
+			}
+			
+			if(offs)
+			{
+				offs *= zc_max(1,txsz);
+				int32_t rows = TILEROW(tile+offs)-TILEROW(tile);
+				offs += TILES_PER_ROW*(zc_min(0,tysz-1)*rows);
+			}
+			tile += offs;
 		}
 		
 		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading==fade_blue_poof)
