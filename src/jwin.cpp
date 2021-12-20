@@ -7171,6 +7171,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 				if(newtab > -1 && newtab != panel->getCurrentIndex())
 				{
 					panel->switchTo(newtab);
+					GUI_EVENT(d, geCHANGE_SELECTION);
 				}
 			}
 		}

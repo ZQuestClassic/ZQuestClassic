@@ -13,7 +13,8 @@
 namespace GUI
 {
 
-PaletteFrame::PaletteFrame(): alDialog(), bmp(NULL), plt(NULL), ColorData(NULL), count(14)
+PaletteFrame::PaletteFrame(): alDialog(), bmp(NULL), plt(NULL), ColorData(NULL), count(14),
+	onUpdate(NULL)
 {
 	setPreferredWidth(128_spx);
 	setPreferredHeight(8_spx*count);
@@ -24,23 +25,37 @@ PaletteFrame::PaletteFrame(): alDialog(), bmp(NULL), plt(NULL), ColorData(NULL),
 void PaletteFrame::setBitmap(BITMAP* value)
 {
 	bmp = value;
+	if(alDialog)
+	{
+		alDialog->dp = value;
+		pendDraw();
+	}
 }
 
 void PaletteFrame::setColorData(byte* value)
 {
 	ColorData = value;
+	if(alDialog)
+	{
+		alDialog->dp2 = value;
+		pendDraw();
+	}
 }
 
 void PaletteFrame::setPal(PALETTE value)
 {
 	plt = value;
+	if(alDialog)
+	{
+		alDialog->dp3 = value;
+		pendDraw();
+	}
 }
 
 void PaletteFrame::setCount(uint8_t value)
 {
 	count = vbound(value, 1, 14);
 }
-
 
 void PaletteFrame::applyVisibility(bool visible)
 {
@@ -52,6 +67,11 @@ void PaletteFrame::applyDisabled(bool dis)
 {
 	Widget::applyVisibility(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
+}
+
+void PaletteFrame::calculateSize()
+{
+	setPreferredHeight(8_spx*count);
 }
 
 void PaletteFrame::realize(DialogRunner& runner)
@@ -66,6 +86,20 @@ void PaletteFrame::realize(DialogRunner& runner)
 		0, 0, // d1, d2,
 		bmp, ColorData, plt // dp, dp2, dp3
 	});
+}
+
+int32_t PaletteFrame::onEvent(int32_t event, MessageDispatcher& sendMessage)
+{
+	assert(event == geCHANGE_SELECTION);
+	
+	if(onUpdate)
+		onUpdate();
+	return -1;
+}
+
+void PaletteFrame::setOnUpdate(std::function<void()> newOnUpdate)
+{
+	onUpdate = std::move(newOnUpdate);
 }
 
 }

@@ -46,12 +46,15 @@ public:
 		
 		return children.at(index)->getName().c_str();
 	}
+	
+	void setOnSwitch(std::function<void(size_t)> newOnSwitch);
 
 private:
 	std::vector<std::shared_ptr<TabRef>> children;
 	DialogRef alDialog;
 	size_t visibleChild;
 	size_t* indexptr;
+	std::function<void(size_t)> onSwitch;
 
 	/* Sets or unsets D_HIDDEN for each of the child's DIALOGs. */
 	void applyVisibility(bool visible) override;
@@ -60,6 +63,7 @@ private:
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 	void applyFont(FONT* newFont) override;
+	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 };
 
 }
