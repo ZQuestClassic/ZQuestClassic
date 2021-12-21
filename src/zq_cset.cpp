@@ -633,7 +633,7 @@ void init_gfxpal()
 	}
 }
 
-void edit_dataset(int32_t dataset)
+bool edit_dataset(int32_t dataset)
 {
 	PALETTE holdpal;
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
@@ -676,6 +676,7 @@ void edit_dataset(int32_t dataset)
 	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
 	while(gui_mouse_b()) {} //Do nothing
 	font = old;
+	return ret==4;
 }
 
 int32_t pal_index(RGB *pal,RGB c)
@@ -966,17 +967,24 @@ byte cset_hold_cnt;
 bool cset_ready = false;
 int32_t cset_count,cset_first;
 PALETTE pal,undopal;
+RGB** gUndoPal = NULL;
 
 //#define FLASH 243
 //byte rc[16] = {253,248,0,0,0,0,0,246,247,249,250,251,252,240,255,254};
 
 void undo_pal()
 {
-    for(int32_t i=0; i<cset_count; i++)
-        get_cset(cset_first+i,i,undopal);
-        
-    //  undopal=pal;
-    memcpy(undopal,pal,sizeof(pal));
+	if(gUndoPal)
+	{
+		for(int32_t i=0; i<cset_count; i++)
+			get_cset(cset_first+i,i,*gUndoPal);
+		memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+		return;
+	}
+	for(int32_t i=0; i<cset_count; i++)
+		get_cset(cset_first+i,i,undopal);
+	
+	memcpy(undopal,pal,sizeof(pal));
 }
 
 void calc_dark(int32_t first)
@@ -1101,209 +1109,203 @@ void draw_cset_proc(DIALOG *d)
 
 int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    switch(msg)
-    {
-    case MSG_START:
-        d->d2 = d->d1;
-        break;
-        
-    case MSG_WANTFOCUS:
-        return D_WANTFOCUS;
-        
-    case MSG_DRAW:
-        draw_cset_proc(d);
-        break;
-        
-    case MSG_CLICK:
-    {
-        bool dragging=false;
-        int32_t src=0;
-        int32_t x;
-        int32_t y;
-        
-        // Start dragging?
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-            x=gui_mouse_x();
-            y=gui_mouse_y();
-            
-            if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
-            {
-                dragging=true;
-                src=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
-                    vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
-            }
-        }
-        
-        do
-        {
-            x=gui_mouse_x();
-            y=gui_mouse_y();
-            
-            if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
-            {
-                d->d2 = vbound((int32_t)((y-d->y)/(is_large?1.5:1))>>3,0,15);
-                
-                if(!(key_shifts&KB_SHIFT_FLAG))
-                    d->d1 = d->d2;
-            }
-            
-            custom_vsync();
-            scare_mouse();
-            draw_cset_proc(d);
-            unscare_mouse();
-            //sniggles
-            //        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
-            //        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
-            ((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
-            set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            //else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-        }
-        while(gui_mouse_b());
-        
-        if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
-        {
-            int32_t dest=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
-                     vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
-                     
-            if(src!=dest)
-            {
-                memcpy(undopal,pal,sizeof(pal));
-                
-                if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-                {
-                    for(int32_t i=0; i<3; i++)
-                        zc_swap(*(((byte*)d->dp2)+dest*3+i), *(((byte*)d->dp2)+src*3+i));
-                }
-                else
-                {
-                    for(int32_t i=0; i<3; i++)
-                        *(((byte*)d->dp2)+dest*3+i) = *(((byte*)d->dp2)+src*3+i);
-                }
-                
-                for(int32_t i=0; i<cset_count; i++)
-                    load_cset(pal,i,cset_first+i);
-                    
-                set_palette(pal);
-                saved=false;
-            }
-        }
-		GUI_EVENT(d, geCHANGE_SELECTION);
-    }
-    break;
-    
-    case MSG_CHAR:
-    {
-        int32_t shift = (key_shifts&KB_SHIFT_FLAG);
-        int32_t k=c>>8;
-        
-        switch(k)
-        {
-        case KEY_UP:
-            if(d->d2>0) --d->d2;
-            
-            if(!shift) d->d1 = d->d2;
-            
-            break;
-            
-        case KEY_DOWN:
-            if(d->d2<((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1)
-                ++d->d2;
-                
-            if(!shift) d->d1 = d->d2;
-            
-            break;
-            
-        case KEY_PGUP:
-            d->d2=0;
-            
-            if(!shift) d->d1 = d->d2;
-            
-            break;
-            
-        case KEY_PGDN:
-            d->d2=((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1;
-            
-            if(!shift) d->d1 = d->d2;
-            
-            break;
-            
-        case KEY_C:
-            cset_hold_cnt=0;
-            
-            for(int32_t row=0; row <= abs(d->d1 - d->d2); row++)
-            {
-                int32_t d1 = zc_min(d->d1,d->d2);
-                ++cset_hold_cnt;
-                
-                for(int32_t i=0; i<16*3; i++)
-                    cset_hold[row][i] = *(((byte*)d->dp2)+CSET(d1+row)*3+i);
-            }
-            
-            cset_ready=true;
-            break;
-            
-            
-        case KEY_V:
-            if(cset_ready)
-            {
-                //         undopal=pal;
-                memcpy(undopal,pal,sizeof(pal));
-                int32_t d1 = zc_min(d->d1,d->d2);
-                
-                for(int32_t row=0; row<cset_hold_cnt && d1+row<cset_count; row++)
-                {
-                    for(int32_t i=0; i<16*3; i++)
-                        *(((byte*)d->dp2)+CSET(d1+row)*3+i) = cset_hold[row][i];
-                }
-                
-                for(int32_t i=0; i<cset_count; i++)
-                    load_cset(pal,i,cset_first+i);
-                    
-                set_palette(pal);
-                saved=false;
-            }
-            
-            break;
-            
-        case KEY_U:
-            undo_pal();
-            
-            for(int32_t i=0; i<cset_count; i++)
-                load_cset(pal,i,cset_first+i);
-                
-            set_palette(pal);
-            break;
-            
-        default:
-            return D_O_K;
-        }
-        
-        custom_vsync();
-        scare_mouse();
-        draw_cset_proc(d);
-        unscare_mouse();
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        //else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
-        GUI_EVENT(d, geCHANGE_SELECTION);
-		return D_USED_CHAR;
-    }
-    }
-    
-    return D_O_K;
+	switch(msg)
+	{
+		case MSG_START:
+			d->d2 = d->d1;
+			break;
+			
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_DRAW:
+			draw_cset_proc(d);
+			break;
+			
+		case MSG_CLICK:
+		{
+			bool dragging=false;
+			int32_t src=0;
+			int32_t x;
+			int32_t y;
+			
+			// Start dragging?
+			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			{
+				x=gui_mouse_x();
+				y=gui_mouse_y();
+				
+				if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
+				{
+					dragging=true;
+					src=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
+						vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+				}
+			}
+			
+			do
+			{
+				x=gui_mouse_x();
+				y=gui_mouse_y();
+				
+				if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
+				{
+					d->d2 = vbound((int32_t)((y-d->y)/(is_large?1.5:1))>>3,0,15);
+					
+					if(!(key_shifts&KB_SHIFT_FLAG))
+						d->d1 = d->d2;
+				}
+				
+				custom_vsync();
+				scare_mouse();
+				draw_cset_proc(d);
+				unscare_mouse();
+				//sniggles
+				//        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
+				//        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
+				((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
+				set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
+				//if(zqwin_scale > 1)
+				{
+					//stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
+				}
+				//else
+				{
+					//blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+				}
+			}
+			while(gui_mouse_b());
+			
+			if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
+			{
+				int32_t dest=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
+						 vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+						 
+				if(src!=dest)
+				{
+					if(gUndoPal)
+						memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+					else memcpy(undopal,pal,sizeof(pal));
+					
+					if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+					{
+						for(int32_t i=0; i<3; i++)
+							zc_swap(*(((byte*)d->dp2)+dest*3+i), *(((byte*)d->dp2)+src*3+i));
+					}
+					else
+					{
+						for(int32_t i=0; i<3; i++)
+							*(((byte*)d->dp2)+dest*3+i) = *(((byte*)d->dp2)+src*3+i);
+					}
+					
+					for(int32_t i=0; i<cset_count; i++)
+						load_cset(pal,i,cset_first+i);
+						
+					set_palette(pal);
+					saved=false;
+				}
+			}
+			GUI_EVENT(d, geCHANGE_SELECTION);
+		}
+		break;
+		
+		case MSG_CHAR:
+		{
+			int32_t shift = (key_shifts&KB_SHIFT_FLAG);
+			int32_t k=c>>8;
+			
+			switch(k)
+			{
+				case KEY_UP:
+					if(d->d2>0) --d->d2;
+					
+					if(!shift) d->d1 = d->d2;
+					
+					break;
+					
+				case KEY_DOWN:
+					if(d->d2<((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1)
+						++d->d2;
+						
+					if(!shift) d->d1 = d->d2;
+					
+					break;
+					
+				case KEY_PGUP:
+					d->d2=0;
+					
+					if(!shift) d->d1 = d->d2;
+					
+					break;
+					
+				case KEY_PGDN:
+					d->d2=((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1;
+					
+					if(!shift) d->d1 = d->d2;
+					
+					break;
+					
+				case KEY_C:
+					cset_hold_cnt=0;
+					
+					for(int32_t row=0; row <= abs(d->d1 - d->d2); row++)
+					{
+						int32_t d1 = zc_min(d->d1,d->d2);
+						++cset_hold_cnt;
+						
+						for(int32_t i=0; i<16*3; i++)
+							cset_hold[row][i] = *(((byte*)d->dp2)+CSET(d1+row)*3+i);
+					}
+					
+					cset_ready=true;
+					break;
+					
+					
+				case KEY_V:
+					if(cset_ready)
+					{
+						if(gUndoPal)
+							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+						else memcpy(undopal,pal,sizeof(pal));
+						int32_t d1 = zc_min(d->d1, d->d2);
+						for(int32_t row=0; row<cset_hold_cnt && d1+row<cset_count; row++)
+						{
+							for(int32_t i=0; i<16*3; i++)
+								*(((byte*)d->dp2)+CSET(d1+row)*3+i) = cset_hold[row][i];
+						}
+						
+						for(int32_t i=0; i<cset_count; i++)
+							load_cset(pal,i,cset_first+i);
+							
+						set_palette(pal);
+						saved=false;
+					}
+					
+					break;
+					
+				case KEY_U:
+					undo_pal();
+					
+					for(int32_t i=0; i<cset_count; i++)
+						load_cset(pal,i,cset_first+i);
+						
+					set_palette(pal);
+					break;
+					
+				default:
+					return D_O_K;
+			}
+			
+			custom_vsync();
+			scare_mouse();
+			draw_cset_proc(d);
+			unscare_mouse();
+			GUI_EVENT(d, geCHANGE_SELECTION);
+			return D_USED_CHAR;
+		}
+	}
+	
+	return D_O_K;
 }
 
 byte mainpal_csets[30]    = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 11,11,12,12,12,11, 10,10,10,12,10,10,10,10,9 };
@@ -1458,6 +1460,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     }
     
     memcpy(undopal,pal,sizeof(pal));
+	gUndoPal = NULL;
     int32_t ret=0;
     
     do
@@ -1636,43 +1639,43 @@ void copyPal(int32_t src, int32_t dest)
 
 int32_t onColors_Levels()
 {
-    int32_t cycle = get_bit(quest_rules,qr_FADE);
-    int32_t index=Map.getcolor();
-    
-    while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
-    {
-        char buf[40];
-        sprintf(buf,"Level %X Palettes",index);
-	call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL);
-	int32_t l9 = 0;
-        //int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
-        setup_lcolors();
-        
-        if(index==0)
-        {
-            // copy level 0 to main
-            int32_t si = CSET(poLEVEL)*3;
-            int32_t di = CSET(2)*3;
-            
-            for(int32_t i=0; i<CSET(3)*3; i++)
-                colordata[di++] = colordata[si++];
-                
-            di = CSET(9)*3;
-            
-            for(int32_t i=0; i<16*3; i++)
-                colordata[di++] = colordata[si++];
-        }
-        
-        loadlvlpal(Color);
-        
-        if(l9)
-        {
-            load_cset(RAMpal,9,index*pdLEVEL+poLEVEL+colors_dlg[2].d2);
-            set_pal();
-        }
-    }
-    
-    return D_O_K;
+	int32_t cycle = get_bit(quest_rules,qr_FADE);
+	int32_t index=Map.getcolor();
+	
+	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
+	{
+		char buf[40];
+		sprintf(buf,"Level %X Palettes",index);
+		call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL);
+		int32_t l9 = 0;
+		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
+		setup_lcolors();
+		
+		if(index==0)
+		{
+			// copy level 0 to main
+			int32_t si = CSET(poLEVEL)*3;
+			int32_t di = CSET(2)*3;
+			
+			for(int32_t i=0; i<CSET(3)*3; i++)
+				colordata[di++] = colordata[si++];
+				
+			di = CSET(9)*3;
+			
+			for(int32_t i=0; i<16*3; i++)
+				colordata[di++] = colordata[si++];
+		}
+		
+		loadlvlpal(Color);
+		
+		if(l9)
+		{
+			load_cset(RAMpal,9,index*pdLEVEL+poLEVEL+colors_dlg[2].d2);
+			set_pal();
+		}
+	}
+	
+	return D_O_K;
 }
 
 int32_t onColors_Sprites()

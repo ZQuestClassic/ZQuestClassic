@@ -6,6 +6,11 @@
 #include "../gui/use_size.h"
 #include "../zq_misc.h"
 
+extern int32_t cset_count, cset_first;
+extern RGB** gUndoPal;
+extern PALETTE pal;
+void undo_pal();
+
 void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset)
 {
 	BITMAP* tmp = create_bitmap_ex(8,128_spx,128_spx);
@@ -25,6 +30,7 @@ PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* nameb
 	{
 		load_cset(undo,i,i+offset);
 	}
+	memcpy(undo1, undo, sizeof(undo));
 }
 
 
@@ -37,9 +43,14 @@ void PalEditDialog::updatePal()
 static size_t paltab = 0;
 void PalEditDialog::loadPal()
 {
-	for(int32_t i=0; i<13; i++)
+	cset_count = (paltab ? 4 : 13);
+	cset_first = (paltab ? 13 : 0) + offset;
+	static RGB* ptr = NULL;
+	ptr = &(undo1[(paltab ? 13 : 0) * 16]);
+	gUndoPal = &ptr;
+	for(int32_t i=0; i<cset_count; i++)
 	{
-		load_cset(*palt,i,i+offset+(paltab?13:0));
+		load_cset(*palt,i,i+cset_first);
 	}
 	for(int32_t i=240; i<256; i++)
 	{
@@ -50,20 +61,24 @@ void PalEditDialog::loadPal()
 	unscare_mouse();
 	pendDraw();
 }
+void cls()
+{
+	clear_to_color(screen,0xE0);
+}
 
 std::shared_ptr<GUI::Widget> PalEditDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	clear_to_color(screen,0xE0);
+	cls();
 	bool interpfad = get_bit(quest_rules, qr_FADE);
 	loadPal();
 	
 	return Window(
 		title = "Palette Editor",
 		onEnter = message::OK,
-		onClose = message::OK,
+		onClose = message::CANCEL,
 		use_vsync = true,
 		onTick = [&]()
 		{
@@ -77,6 +92,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					loadPal();
 				},
 				TabRef(name = " 1 ", Rows<17>(
+					vAlign = 0.0,
 					DummyWidget(padding = 0_px),
 					Label(text = "0", width = 8_spx, textAlign = 1, padding = 0_px),
 					Label(text = "1", width = 8_spx, textAlign = 1, padding = 0_px),
@@ -116,6 +132,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					Label(text = interpfad ? "7" : "4", height = 8_spx, textAlign = 1, padding = 0_px)
 				)),
 				TabRef(name = " 2 ", Rows<17>(
+					vAlign = 0.0,
 					DummyWidget(padding = 0_px),
 					Label(text = "0", width = 8_spx, textAlign = 1, padding = 0_px),
 					Label(text = "1", width = 8_spx, textAlign = 1, padding = 0_px),
@@ -146,9 +163,10 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					Label(text = "8", height = 8_spx, textAlign = 1, padding = 0_px)
 				))
 			),
-			Rows<3>(
+			Rows<4>(
 				Button(text = "Save",
 					minwidth = 90_lpx,
+					colSpan = 2,
 					onPressFunc = [&]()
 					{
 						
@@ -159,7 +177,18 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						for(auto i = 0; i < pdLEVEL*16; ++i)
+						undo_pal();
+						loadPal();
+					}
+				),
+				Button(text = "&Reset",
+					minwidth = 90_lpx,
+					onPressFunc = [&]()
+					{
+						memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+						int32_t i = (paltab ? 13 : 0) * 16;
+						int32_t end_i = i + (16*cset_count);
+						for(; i < end_i; ++i)
 						{
 							coldata[(i*3)+0] = undo[i].r;
 							coldata[(i*3)+1] = undo[i].g;
@@ -168,9 +197,8 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						loadPal();
 					}
 				),
-				DummyWidget(),
 				Label(text = "Name:"),
-				TextField(text = namebuf, maxLength = 16, colSpan = 2)
+				TextField(text = namebuf, maxLength = 16, colSpan = 3, fitParent = true)
 			),
 			Rows<3>(
 				topPadding = 0.5_em,
@@ -181,8 +209,12 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					{
 						int32_t val = tabpan->getCurrentIndex()?13:0;
 						val += frames[tabpan->getCurrentIndex()]->getSelection();
-						//memcpy(undopal,pal,sizeof(pal));
-						edit_dataset(offset + val);
+						if(edit_dataset(offset + val))
+						{
+							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+						}
+						cls();
+						pendDraw();
 						loadPal();
 					}
 				),
@@ -202,13 +234,15 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 				),
 				Button(text = "&Load to CS 9",
 					minwidth = 90_lpx,
-					colSpan = 2, fitParent = true,
 					onPressFunc = [&]()
 					{
 						
 					},
 					onClick = message::OK
 				),
+				Button(text = "Cancel",
+					minwidth = 90_lpx,
+					onClick = message::CANCEL),
 				Button(text = "Done",
 					minwidth = 90_lpx,
 					onClick = message::OK)
@@ -221,6 +255,14 @@ bool PalEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::CANCEL:
+			for(auto i = 0; i < pdLEVEL*16; ++i)
+			{
+				coldata[(i*3)+0] = undo[i].r;
+				coldata[(i*3)+1] = undo[i].g;
+				coldata[(i*3)+2] = undo[i].b;
+			}
+			return true;
 		case message::OK:
 		default:
 			return true;
