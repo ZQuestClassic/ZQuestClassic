@@ -52,6 +52,13 @@ void PaletteFrame::setPal(PALETTE* value)
 	}
 }
 
+int32_t PaletteFrame::getSelection()
+{
+	if (alDialog) return alDialog->d2;
+	
+	return 0;
+}
+
 void PaletteFrame::setCount(uint8_t value)
 {
 	count = vbound(value, 1, 14);

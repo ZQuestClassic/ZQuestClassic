@@ -1643,7 +1643,7 @@ int32_t onColors_Levels()
     {
         char buf[40];
         sprintf(buf,"Level %X Palettes",index);
-	call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal);
+	call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL);
 	int32_t l9 = 0;
         //int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
         setup_lcolors();

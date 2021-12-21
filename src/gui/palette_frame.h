@@ -19,6 +19,7 @@ public:
 	void setPal(PALETTE* value);
 	void setCount(uint8_t value);
 	void setOnUpdate(std::function<void()> newOnUpdate);
+	int32_t getSelection();
 	
 private:
 	BITMAP* bmp;

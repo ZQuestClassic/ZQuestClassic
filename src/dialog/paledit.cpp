@@ -1,10 +1,12 @@
 #include "paledit.h"
+#include "../zsys.h"
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "../zquest.h"
 #include "../gui/use_size.h"
+#include "../zq_misc.h"
 
-void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal)
+void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset)
 {
 	BITMAP* tmp = create_bitmap_ex(8,128_spx,128_spx);
 	clear_bitmap(tmp);
@@ -12,13 +14,37 @@ void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal)
 	{
 		rectfill(tmp, (pos%16)*8_spx, (pos/16)*8_spx, ((pos%16)*8_spx)+8_spx-1_px, ((pos/16)*8_spx)+(8_spx-1), pos);
 	}
-	PalEditDialog(tmp, cdata, pal, namebuf).show();
+	PalEditDialog(tmp, cdata, pal, namebuf, offset).show();
 	destroy_bitmap(tmp);
 }
 
-PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf) : bmp(bmp),
-	namebuf(namebuf), coldata(cdata), palt(pal)
+PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset) : bmp(bmp),
+	namebuf(namebuf), coldata(cdata), palt(pal), offset(offset)
 {}
+
+
+void PalEditDialog::updatePal()
+{
+	*palt[dvc(0)]=*palt[zc_oldrand()%14+dvc(1)];
+        set_palette_range(*palt,dvc(0),dvc(0),false);
+}
+
+void PalEditDialog::loadPal(size_t tab)
+{
+	for(int32_t i=240; i<256; i++)
+	{
+		*palt[i] = RAMpal[i];
+	}
+	for(int32_t i=0; i<13; i++)
+	{
+		load_cset(*palt,i,i+offset+(tab?13:0));
+	}
+	scare_mouse();
+        clear_to_color(screen,0);
+        set_palette(*palt);
+        unscare_mouse();
+}
+
 
 static size_t paltab = 0;
 std::shared_ptr<GUI::Widget> PalEditDialog::view()
@@ -26,18 +52,19 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	bool interpfad = false;
+	bool interpfad = get_bit(quest_rules, qr_FADE);
+	loadPal(paltab);
 	
 	return Window(
 		title = "Palette Editor",
 		onEnter = message::OK,
 		onClose = message::OK,
 		Column(
-			TabPanel(
+			tabpan = TabPanel(
 				ptr = &paltab,
 				onSwitch = [&](size_t tab)
 				{
-					//tab==0,1
+					loadPal(tab);
 				},
 				TabRef(name = " 1 ", Rows<17>(
 					DummyWidget(padding = 0_px),
@@ -58,7 +85,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					Label(text = "E", width = 8_spx, textAlign = 1, padding = 0_px),
 					Label(text = "F", width = 8_spx, textAlign = 1, padding = 0_px),
 					Label(text = "2", height = 8_spx, textAlign = 1, padding = 0_px),
-					PaletteFrame(colSpan = 16, rowSpan = 13,
+					frames[0] = PaletteFrame(colSpan = 16, rowSpan = 13,
 						bitmap = bmp, cdata = coldata, palette = palt,
 						count = 13, padding = 0_px, onUpdate = []()
 						{
@@ -97,7 +124,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					Label(text = "E", width = 8_spx, textAlign = 1, padding = 0_px),
 					Label(text = "F", width = 8_spx, textAlign = 1, padding = 0_px),
 					Label(text = "1", height = 8_spx, textAlign = 1, padding = 0_px),
-					PaletteFrame(colSpan = 16, rowSpan = 4,
+					frames[1] = PaletteFrame(colSpan = 16, rowSpan = 4,
 						bitmap = bmp, cdata = coldata+(13*48), palette = palt,
 						count = 4, padding = 0_px, onUpdate = []()
 						{
@@ -122,7 +149,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						
+						//memcpy(pal,undopal,sizeof(undopal));
 					}
 				),
 				DummyWidget(),
@@ -136,7 +163,10 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						
+						int32_t val = tabpan->getCurrentIndex()?13:0;
+						val += frames[tabpan->getCurrentIndex()]->getSelection();
+						//memcpy(undopal,pal,sizeof(pal));
+						edit_dataset(offset + val);
 					}
 				),
 				Button(text = "&Grab",
