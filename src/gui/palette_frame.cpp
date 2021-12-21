@@ -42,7 +42,7 @@ void PaletteFrame::setColorData(byte* value)
 	}
 }
 
-void PaletteFrame::setPal(PALETTE value)
+void PaletteFrame::setPal(PALETTE* value)
 {
 	plt = value;
 	if(alDialog)

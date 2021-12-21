@@ -3,7 +3,7 @@
 #include "../jwin.h"
 #include "../zquest.h"
 
-void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE pal)
+void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal)
 {
 	BITMAP* tmp = create_bitmap_ex(8,128_spx,128_spx);
 	clear_bitmap(tmp);
@@ -15,7 +15,7 @@ void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE pal)
 	destroy_bitmap(tmp);
 }
 
-PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE pal, char* namebuf) : bmp(bmp),
+PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE *pal, char* namebuf) : bmp(bmp),
 	namebuf(namebuf), coldata(cdata), palt(pal)
 {}
 

@@ -16,14 +16,14 @@ public:
 
 	void setBitmap(BITMAP* value);
 	void setColorData(byte* value);
-	void setPal(PALETTE value);
+	void setPal(PALETTE* value);
 	void setCount(uint8_t value);
 	void setOnUpdate(std::function<void()> newOnUpdate);
 	
 private:
 	BITMAP* bmp;
 	byte* ColorData;
-	PALETTE plt;
+	PALETTE* plt;
 	uint8_t count;
 	DialogRef alDialog;
 	std::function<void()> onUpdate;

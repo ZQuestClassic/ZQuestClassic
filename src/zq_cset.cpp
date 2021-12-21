@@ -30,6 +30,7 @@
 #include "zq_misc.h"
 #include "zq_cset.h"
 #include "zq_class.h"
+#include "dialog/paledit.h"
 
 extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
@@ -1642,7 +1643,9 @@ int32_t onColors_Levels()
     {
         char buf[40];
         sprintf(buf,"Level %X Palettes",index);
-        int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
+	call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, pal);
+	int32_t l9 = 0;
+        //int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
         setup_lcolors();
         
         if(index==0)
