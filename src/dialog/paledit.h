@@ -7,6 +7,7 @@
 #include <gui/tabpanel.h>
 #include <functional>
 #include <string_view>
+#include <..\colors.h>
 
 void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE* pal, int32_t offset);
 
@@ -28,6 +29,7 @@ private:
 	PALETTE* palt;
 	char* namebuf;
 	int32_t offset;
+	RGB undo[16*pdLEVEL];
 	std::shared_ptr<GUI::PaletteFrame> frames[2];
 	std::shared_ptr<GUI::TabPanel> tabpan;
 };

@@ -20,7 +20,12 @@ void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset)
 
 PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset) : bmp(bmp),
 	namebuf(namebuf), coldata(cdata), palt(pal), offset(offset)
-{}
+{
+	for(auto i = 0; i < pdLEVEL; ++i)
+	{
+		load_cset(undo,i,i+offset);
+	}
+}
 
 
 void PalEditDialog::updatePal()
@@ -41,7 +46,6 @@ void PalEditDialog::loadPal()
 		(*palt)[i] = RAMpal[i];
 	}
 	scare_mouse();
-	clear_to_color(screen,0);
 	set_palette(*palt);
 	unscare_mouse();
 	pendDraw();
@@ -52,6 +56,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
+	clear_to_color(screen,0xE0);
 	bool interpfad = get_bit(quest_rules, qr_FADE);
 	loadPal();
 	
@@ -154,7 +159,13 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						//memcpy(pal,undopal,sizeof(undopal));
+						for(auto i = 0; i < pdLEVEL*16; ++i)
+						{
+							coldata[(i*3)+0] = undo[i].r;
+							coldata[(i*3)+1] = undo[i].g;
+							coldata[(i*3)+2] = undo[i].b;
+						}
+						loadPal();
 					}
 				),
 				DummyWidget(),
