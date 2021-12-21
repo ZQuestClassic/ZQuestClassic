@@ -47,7 +47,7 @@ void PaletteFrame::setPal(PALETTE* value)
 	plt = value;
 	if(alDialog)
 	{
-		alDialog->dp3 = value;
+		alDialog->dp3 = *plt;
 		pendDraw();
 	}
 }
@@ -84,7 +84,7 @@ void PaletteFrame::realize(DialogRunner& runner)
 		0,
 		getFlags(),
 		0, 0, // d1, d2,
-		bmp, ColorData, plt // dp, dp2, dp3
+		bmp, ColorData, *plt // dp, dp2, dp3
 	});
 }
 
