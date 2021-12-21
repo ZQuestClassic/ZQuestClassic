@@ -134,6 +134,7 @@ void Window::realize(DialogRunner& runner)
 	
 	if(use_vsync)
 	{
+		void* tfunc = onTick ? ((void*)&onTick) : nullptr;
 		runner.push(shared_from_this(), DIALOG {
 			d_vsync_proc,
 			0, 0, 0, 0,
@@ -141,7 +142,7 @@ void Window::realize(DialogRunner& runner)
 			0, // key
 			0, // flags,
 			0, 0, // d1, d2
-			nullptr, nullptr, nullptr // dp, dp2, dp3
+			tfunc, nullptr, nullptr // dp, dp2, dp3
 		});
 	}
 	
@@ -158,6 +159,11 @@ int32_t Window::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	}
 
 	return TopLevelWidget::onEvent(event, sendMessage);
+}
+
+void Window::setOnTick(std::function<void()> newOnTick)
+{
+	onTick = std::move(newOnTick);
 }
 
 }

@@ -17,7 +17,7 @@ public:
 
 	PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset);
 	void updatePal();
-	void loadPal(size_t tab);
+	void loadPal();
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
