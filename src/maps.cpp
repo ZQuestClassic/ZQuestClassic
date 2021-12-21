@@ -3763,30 +3763,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	
-	
-	//11. Draw some text on framebuf
-	
-	set_clip_rect(framebuf,0,0,256,224);
-	set_clip_rect(scrollbuf,0,0,256,224);
-	
-	if(!(msg_bg_display_buf->clip))
-	{
-		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
-	}
-	
-	if(!(msg_portrait_display_buf->clip))
-	{
-		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
-	}
-	
-	if(!(msg_txt_display_buf->clip))
-	{
-		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
-	}
-	
+	//11. Handle low drawn darkness
 	if(get_bit(quest_rules, qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
 	{
 		calc_darkroom_combos();
@@ -3812,8 +3789,32 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}	
-
-	//12. Draw the subscreen, without clipping
+	
+	
+	//12. Draw some text on framebuf
+	
+	set_clip_rect(framebuf,0,0,256,224);
+	set_clip_rect(scrollbuf,0,0,256,224);
+	
+	if(!(msg_bg_display_buf->clip))
+	{
+		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(!(msg_portrait_display_buf->clip))
+	{
+		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(!(msg_txt_display_buf->clip))
+	{
+		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	//13. Draw the subscreen, without clipping
 	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
@@ -3822,7 +3823,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
 	}
 	
-	//Darkroom if above the subscreen
+	//14. Handle high-drawn darkness
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
