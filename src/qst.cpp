@@ -17362,13 +17362,13 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			return qe_invalid;
 		}
 	}
-	
 	if (s_version < 5)
 	{
 		bool RealOldVerion = ((version < 0x192)||((version == 0x192)&&(build<73)));
 		
 		//finally...  section data
-		int q = 0;
+		int32_t q = 0;
+		int32_t p = -15;
 		for(int32_t i=0; i<oldpdTOTAL; ++i)
 		{
 			memset(temp_colordata, 0, 48);
@@ -17383,7 +17383,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 				memcpy(&colordata[q*48], temp_colordata, 48);
 			}
 			++q;
-			if ((i-15) > 0 && ((i-15)%13)==12 && (i < oldpoSPRITE || !RealOldVerion)) //It's > 0 instead of >= 0 because it should append 
+			if (p > 0 && (p%13)==12 && (i < oldpoSPRITE || !RealOldVerion)) //It's > 0 instead of >= 0 because it should append 
 			{
 				if (s_version < 5) //Bumping up the size of level palettes
 				{
@@ -17413,6 +17413,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 					}
 				}
 			}
+			++p;
 		}
 		
 		if(RealOldVerion)
@@ -17443,7 +17444,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 					memcpy(&colordata[q*48], temp_colordata, 48);
 				}
 				++q;
-				if ((i-13) > 0 && ((i-13)%13)==12 && (i < (newpoSPRITE-oldpdTOTAL) || (s_version >= 4))) //It's > 0 instead of >= 0 because it should append 
+				if (p > 0 && (p%13)==12 && (i < (newpoSPRITE-oldpdTOTAL) || (s_version >= 4))) //It's > 0 instead of >= 0 because it should append 
 				{
 					if (s_version < 5) //Bumping up the size of level palettes
 					{
@@ -17473,6 +17474,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 						}
 					}
 				}
+				++p;
 			}
 			
 			if(s_version < 4)
@@ -17497,7 +17499,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 						memcpy(&colordata[q*48], temp_colordata, 48);
 					}
 					++q;
-					if ((i-13) > 0 && ((i-13)%13)==12 && i < newerpoSPRITE-newpdTOTAL) //It's > 0 instead of >= 0 because it should append 
+					if (p > 0 && (p%13)==12 && i < newerpoSPRITE-newpdTOTAL) //It's > 0 instead of >= 0 because it should append 
 					{
 						if (s_version < 5) //Bumping up the size of level palettes
 						{
@@ -17527,6 +17529,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 							}
 						}
 					}
+					++p;
 				}
 				
 				//By this point, q should be about equal to pdTOTAL255. If it isn't, I've fucked up. -Deedee
