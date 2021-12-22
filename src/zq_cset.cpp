@@ -1687,10 +1687,10 @@ int32_t onColors_Sprites()
         index = jwin_alert3("Edit Palette", "Select an extra sprite","palette set to edit",NULL,"&1","&2","&Done",'1','2','d', lfont);
         
         if(index==1)
-            EditColors("Extra Sprite Palettes 1",newerpoSPRITE,15,spritepal_csets);
+            EditColors("Extra Sprite Palettes 1",poSPRITE255,15,spritepal_csets);
             
         if(index==2)
-            EditColors("Extra Sprite Palettes 2",newerpoSPRITE+15,15,spritepal2_csets);
+            EditColors("Extra Sprite Palettes 2",poSPRITE255+15,15,spritepal2_csets);
     }
     while(index==1 || index==2);
     

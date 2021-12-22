@@ -44,7 +44,7 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define newpoSPRITE 3343                                    // first sprite pal
 #define newerpoSPRITE 6671
 #define poSPRITE255 8719
-#define pSprite(x) ((x)+newerpoSPRITE)
+#define pSprite(x) ((x)+poSPRITE255)
 
 // total data sets
 //The 'total data sets' can be calculated as:
