@@ -20791,7 +20791,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		homescr = currscr = wscr + DMaps[currdmap].xoff;
 		loadscr(0,currdmap,currscr,-1,overlay);
 		
-		if(tmpscr->flags&fDARK)
+		if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
 		{
 			if(get_bit(quest_rules,qr_FADE))
 			{
@@ -22200,15 +22200,15 @@ void LinkClass::stepout() // Step out of item cellars and passageways
         {
             loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
         }
-	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poLEVEL)*3;
-	si+=3*48;
-	    
-	for(int32_t i=0; i<16; i++)
-	{
-		RAMpal[CSET(9)+i] = _RGB(si);
-		tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
-		si+=3;
-	}
+		byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poLEVEL)*3;
+		si+=3*48;
+			
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(9)+i] = _RGB(si);
+			tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
+			si+=3;
+		}
     }
     
     x = tmpscr->warpreturnx[stepoutwr];

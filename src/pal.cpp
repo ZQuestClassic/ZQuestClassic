@@ -370,7 +370,7 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
     if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
-fade((Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
+		fade((Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
         darkroom = newstate;
     }
     
@@ -386,7 +386,7 @@ void lightingInstant()
     if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
-int32_t level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
+		int32_t level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
 
         if(darkroom) // Old room dark, new room lit
         {

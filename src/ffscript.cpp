@@ -23295,7 +23295,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			homescr = currscr = scrID + DMaps[currdmap].xoff;
 			loadscr(0,currdmap,currscr,-1,overlay);
 			
-			if(tmpscr->flags&fDARK)
+			if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
 			{
 				if(get_bit(quest_rules,qr_FADE))
 				{
