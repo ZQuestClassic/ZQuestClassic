@@ -17443,7 +17443,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 					memcpy(&colordata[q*48], temp_colordata, 48);
 				}
 				++q;
-				if (i > 0 && (i%13)==12 && (i < (newpoSPRITE-oldpdTOTAL) || (s_version >= 4))) //It's > 0 instead of >= 0 because it should append 
+				if ((i-13) > 0 && ((i-13)%13)==12 && (i < (newpoSPRITE-oldpdTOTAL) || (s_version >= 4))) //It's > 0 instead of >= 0 because it should append 
 				{
 					if (s_version < 5) //Bumping up the size of level palettes
 					{
@@ -17497,7 +17497,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 						memcpy(&colordata[q*48], temp_colordata, 48);
 					}
 					++q;
-					if (i > 0 && (i%13)==12 && i < newerpoSPRITE-newpdTOTAL) //It's > 0 instead of >= 0 because it should append 
+					if ((i-13) > 0 && ((i-13)%13)==12 && i < newerpoSPRITE-newpdTOTAL) //It's > 0 instead of >= 0 because it should append 
 					{
 						if (s_version < 5) //Bumping up the size of level palettes
 						{

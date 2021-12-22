@@ -1,4 +1,5 @@
 #include "paledit.h"
+#include "info.h"
 #include "../zsys.h"
 #include <gui/builder.h>
 #include "../jwin.h"
@@ -11,20 +12,29 @@ extern RGB** gUndoPal;
 extern PALETTE pal;
 void undo_pal();
 
-void call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset)
+static bool DidCS9 = false;
+
+bool call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset, int32_t index)
 {
-	BITMAP* tmp = create_bitmap_ex(8,128_spx,128_spx);
+	if (!namebuf[0])
+	{
+		namebuf[0] = ' ';
+		namebuf[1] = '\0';
+	}
+	BITMAP* tmp = create_bitmap_ex(8,128_spx,104_spx);
 	clear_bitmap(tmp);
-	for(auto pos = 0; pos < 256; ++pos)
+	for(auto pos = 0; pos < 208; ++pos)
 	{
 		rectfill(tmp, (pos%16)*8_spx, (pos/16)*8_spx, ((pos%16)*8_spx)+8_spx-1_px, ((pos/16)*8_spx)+(8_spx-1), pos);
 	}
-	PalEditDialog(tmp, cdata, pal, namebuf, offset).show();
+	DidCS9 = false;
+	PalEditDialog(tmp, cdata, pal, namebuf, offset, index).show();
 	destroy_bitmap(tmp);
+	return DidCS9;
 }
 
-PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset) : bmp(bmp),
-	namebuf(namebuf), coldata(cdata), palt(pal), offset(offset)
+PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index) : bmp(bmp),
+	namebuf(namebuf), coldata(cdata), palt(pal), offset(offset), index(index)
 {
 	for(auto i = 0; i < pdLEVEL; ++i)
 	{
@@ -82,6 +92,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 		use_vsync = true,
 		onTick = [&]()
 		{
+			cyclebutton->setDisabled(interpfad?(index>=256):(paltab == 1));
 			updatePal();
 		},
 		Column(
@@ -169,9 +180,29 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					colSpan = 2,
 					onPressFunc = [&]()
 					{
-						
-					},
-					onClick = message::OK
+						if(getname("Save Palette (.png)","png",NULL,datapath,false))
+						{
+							if (paltab == 0)
+							{
+								char name[13];
+								extract_name(temppath,name,FILENAME8_3);
+								save_bitmap(temppath, bmp, *palt);
+							}
+							else
+							{
+								BITMAP* tmp2 = create_bitmap_ex(8,128_spx,32_spx);
+								clear_bitmap(tmp2);
+								for(auto pos = 0; pos < 64; ++pos)
+								{
+									rectfill(tmp2, (pos%16)*8_spx, (pos/16)*8_spx, ((pos%16)*8_spx)+8_spx-1_px, ((pos/16)*8_spx)+(8_spx-1), pos);
+								}
+								char name[13];
+								extract_name(temppath,name,FILENAME8_3);
+								save_bitmap(temppath, tmp2, *palt);
+								destroy_bitmap(tmp2);
+							}
+						}
+					}
 				),
 				Button(text = "&Undo",
 					minwidth = 90_lpx,
@@ -198,7 +229,19 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					}
 				),
 				Label(text = "Name:"),
-				TextField(text = namebuf, maxLength = 16, colSpan = 3, fitParent = true)
+				TextField(
+					type = GUI::TextField::type::TEXT,
+					text = std::string(namebuf), 
+					maxLength = 16, 
+					colSpan = 3, 
+					fitParent = true,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+					{
+						std::string foo;
+						foo.assign(text);
+						strncpy(palnames[index], foo.c_str(), 16);
+					}
+				)
 			),
 			Rows<3>(
 				topPadding = 0.5_em,
@@ -222,21 +265,50 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						
+						int32_t val = tabpan->getCurrentIndex()?13:0;
+						val += frames[tabpan->getCurrentIndex()]->getSelection();
+						if(grab_dataset(offset + val))
+						{
+							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+						}
+						cls();
+						pendDraw();
+						loadPal();
 					}
 				),
-				Button(text = "Cycle",
+				cyclebutton = Button(text = (get_bit(quest_rules,qr_FADE))?"Cycle":"Auto Dark",
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						
+						if(!get_bit(quest_rules,qr_FADE))
+						{
+							calc_dark(offset);
+							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
+							cls();
+							pendDraw();
+							loadPal();
+						}
+						else
+						{
+							if ( index < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
+								edit_cycles(index);
+							else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
+						}
 					}
 				),
-				Button(text = "&Load to CS 9",
+				Button(text = "&Preview in CS 9",
 					minwidth = 90_lpx,
 					onPressFunc = [&]()
 					{
-						
+						int32_t val = tabpan->getCurrentIndex()?13:0;
+						val += frames[tabpan->getCurrentIndex()]->getSelection();
+						load_cset(RAMpal,9,offset + val);
+						InfoDialog("CSet 9 Preview","The selected cset has been temporarily copied to ZQuest's CSet 9."
+							" \nThis feature is useful if you want to preview or edit how a tile would look in the selected CSet."
+							" \nThis effect is temporary and will be reverted when you load a different palette,"
+							" such as by changing screens in ZQuest to a screen with a different palette.").show();
+						set_pal();
+						DidCS9 = true;
 					},
 					onClick = message::OK
 				),
