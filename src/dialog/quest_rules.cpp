@@ -106,7 +106,14 @@ static const GUI::ListData animRulesList
 		" This includes the Player, Weapons, Enemies, and Items."},
 	{ "Shadows Flicker", qr_SHADOWSFLICKER,
 		" If enabled, Link's Shadow and Enemy Shadows only draw every other frame."
-		" Items and Weapons are not affected by this."}
+		" Items and Weapons are not affected by this."},
+	{ "More CSets are level-specific", qr_NEW_LVL_PALETTES,
+		" If enabled, CSets 1, 5, 7, and 8 become level dependent, allowing you to"
+		" change them by changing the current palette. Both CSet 1 and 5 will also"
+		" fade if 'Interpolated Fading' is enabled, regardless if 'Fade CSet 5' is"
+		" enabled or not."
+		" \nIf disabled, these CSets will use the Main Palette, and will remain static"
+		" unless modified via script."}
 };
 
 static const GUI::ListData comboRulesList
@@ -794,7 +801,13 @@ static const GUI::ListData itemRulesList
 		" the upgraded item from the same flag; allowing full progressive item chains." },
 	{ "SCC/Bundle Item handles 'Upgraded' Items", qr_SCC_ITEM_COMBINES_ITEMS,
 		"Granting an item via an Item Bundle or SCC will handle the"
-		" 'Upgrade When Collected Twice' behavior." }
+		" 'Upgrade When Collected Twice' behavior." },
+	{ "No Ammo Required to Display Subscreen Items", qr_NEVERDISABLEAMMOONSUBSCREEN,
+		"If enabled, running out of ammo will not remove relevant items from the subscreen."
+		" For example, running out of bombs will not remove the Bomb item from your inventory,"
+		" and running out of Arrows will not remove the Bow and Arrow from your inventory."
+		" \nOtherwise, if disabled, they will be hidden from your inventory and be unselectable"
+		" if you run out of ammo, until you get more ammo for it."}
 };
 
 static const GUI::ListData miscRulesList
@@ -891,12 +904,6 @@ static const GUI::ListData miscRulesList
 		" money, possibly buying an item worth more than the 200 rupees they'd be left with."
 		" \nIf disabled, shops will check both your rupee count and your rupee drain amount to"
 		" make sure you can afford whatever the player is buying."},
-	{ "No Ammo Required to Display Subscreen Items", qr_NEVERDISABLEAMMOONSUBSCREEN,
-		"If enabled, running out of ammo will not remove relevant items from the subscreen."
-		" For example, running out of bombs will not remove the Bomb item from your inventory,"
-		" and running out of Arrows will not remove the Bow and Arrow from your inventory."
-		" \nOtherwise, if disabled, they will be hidden from your inventory and be unselectable"
-		" if you run out of ammo, until you get more ammo for it."},
 	{ "Triforce in Cellar Warps Player Out", qr_SIDEVIEWTRIFORCECELLAR,
 		"If enabled, the Triforce can warp you out of passageways if 'Side Warp Out' is checked on"
 		" the Triforce item. Otherwise, if disabled, you will stay in the passageway after the animation"
