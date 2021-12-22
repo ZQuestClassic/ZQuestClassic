@@ -13410,8 +13410,8 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,       15, 188,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No FFC Carryover", NULL, NULL },
     //S.Flags 1
     //54
-    { jwin_check_proc,      15,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Layer 3 Is Background", NULL, NULL },
-    { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Layer 2 Is Background", NULL, NULL },
+    { jwin_check_proc,      15,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Layer 3 is Background", NULL, NULL },
+    { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Layer 2 is Background", NULL, NULL },
     { jwin_check_proc,      15,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Item Falls From Ceiling", NULL, NULL },
     { jwin_check_proc,      15,    98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sideview Gravity", NULL, NULL },
     { jwin_check_proc,      15,   128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Link Marker in Minimap", NULL, NULL },
