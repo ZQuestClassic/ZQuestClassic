@@ -1090,9 +1090,9 @@ void draw_edit_dataset_specs(int32_t index,int32_t copy);
 void init_colormixer();
 void colormixer(int32_t color,int32_t gray,int32_t ratio);
 bool do_x_button(BITMAP *dest, int32_t x, int32_t y);
-void edit_dataset(int32_t dataset);
+bool edit_dataset(int32_t dataset);
 int32_t pal_index(RGB *pal,RGB c);
-void grab_dataset(int32_t dataset);
+bool grab_dataset(int32_t dataset);
 
 //byte cset_hold[15][16*3];
 //byte cset_hold_cnt;

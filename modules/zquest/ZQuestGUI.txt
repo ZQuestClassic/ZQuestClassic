@@ -48,9 +48,11 @@ src/gui/colorsel.cpp
 src/gui/seltile_swatch.cpp
 src/gui/selcombo_swatch.cpp
 src/gui/tileanim_frame.cpp
+src/gui/palette_frame.cpp
 src/gui/cornerselect.cpp
 src/gui/ddpanel.cpp
 
+src/dialog/paledit.cpp
 src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
 src/dialog/common.cpp
@@ -72,6 +74,7 @@ src/dialog/comboeditor.cpp
 src/dialog/misc_sfx.cpp
 src/dialog/misc_sprs.cpp
 src/dialog/scaletile.cpp
+src/dialog/palconvert.cpp
 
 ## End of ZQuest GUI module
 )

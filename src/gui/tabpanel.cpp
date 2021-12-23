@@ -8,7 +8,7 @@
 namespace GUI
 {
 
-TabPanel::TabPanel(): visibleChild(0), indexptr(NULL)
+TabPanel::TabPanel(): visibleChild(0), indexptr(NULL), onSwitch(NULL)
 {
 	setFitParent(true);
 }
@@ -134,7 +134,7 @@ void TabPanel::realize(DialogRunner& runner)
 		return;
 	}
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		new_tab_proc,
+		newGUIProc<new_tab_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
@@ -152,6 +152,20 @@ void TabPanel::realize(DialogRunner& runner)
 		visibleChild = 0;
 	if(indexptr) *indexptr = visibleChild;
 	children[visibleChild]->setExposed(true);
+}
+
+int32_t TabPanel::onEvent(int32_t event, MessageDispatcher& sendMessage)
+{
+	assert(event == geCHANGE_SELECTION);
+	
+	if(onSwitch)
+		onSwitch(visibleChild);
+	return -1;
+}
+
+void TabPanel::setOnSwitch(std::function<void(size_t)> newOnSwitch)
+{
+	onSwitch = std::move(newOnSwitch);
 }
 
 }

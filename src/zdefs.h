@@ -230,7 +230,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MISC             14
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           20
-#define V_CSETS            4
+#define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
@@ -1034,7 +1034,10 @@ enum
 	qr_CAN_PLACE_GANON, qr_CAN_PLACE_TRAPS, qr_FIND_CLOSEST_BAIT, qr_OLD_FLAMETRAIL_DURATION,
 	//38
 	qr_PERMANENT_WHISTLE_SECRETS, qr_SMARTER_DROPS, qr_WAVY_NO_EPILEPSY, qr_WAVY_NO_EPILEPSY_2,
-	qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_ANGULAR_REFLECT_BROKEN,
+	qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_ANGULAR_REFLECT_BROKEN, qr_CSET1_LEVEL,
+	//39
+	qr_CSET5_LEVEL, qr_CSET7_LEVEL, qr_CSET8_LEVEL, qr_FADECS1,
+	qr_FADECS7, qr_FADECS8, qr_FADECS9,
 	
 	//ZScript Parser //room for 20 of these
 	//80

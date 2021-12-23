@@ -348,29 +348,66 @@ void set_pal()
 
 void loadlvlpal(int32_t level)
 {
-    Color=level;
+	Color=level;
 
-    // full pal
-    for(int32_t i=0; i<192; i++)
-        RAMpal[i] = _RGB(colordata+i*3);
+	// full pal
+	for(int32_t i=0; i<192; i++)
+		RAMpal[i] = _RGB(colordata+i*3);
 
-    // level pal
-    byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
+	// level pal
+	byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
 
-    for(int32_t i=0; i<16*3; i++)
-    {
-        RAMpal[CSET(2)+i] = _RGB(si);
-        si+=3;
-    }
+	for(int32_t i=0; i<16*3; i++)
+	{
+		RAMpal[CSET(2)+i] = _RGB(si);
+		si+=3;
+	}
 
-    for(int32_t i=0; i<16; i++)
-    {
-        RAMpal[CSET(9)+i] = _RGB(si);
-        si+=3;
-    }
+	for(int32_t i=0; i<16; i++)
+	{
+		RAMpal[CSET(9)+i] = _RGB(si);
+		si+=3;
+	}
+	
+	if (get_bit(quest_rules, qr_CSET1_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(1)+i] = _RGB(si);
+			si+=3;
+		}
+	}
+	if (get_bit(quest_rules, qr_CSET5_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+1)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(5)+i] = _RGB(si);
+			si+=3;
+		}
+	}
+	if (get_bit(quest_rules, qr_CSET7_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+2)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(7)+i] = _RGB(si);
+			si+=3;
+		}
+	}
+	if (get_bit(quest_rules, qr_CSET8_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+3)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(8)+i] = _RGB(si);
+			si+=3;
+		}
+	}
 
-    reset_pal_cycling();
-    set_pal();
+	reset_pal_cycling();
+	set_pal();
 }
 
 void loadfadepal(int32_t dataset)

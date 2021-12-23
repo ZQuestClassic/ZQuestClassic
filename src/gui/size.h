@@ -67,7 +67,10 @@ public:
 	{
 		return Size(value*other.value);
 	}
-	inline friend Size operator*(const int32_t v, const Size s);
+	template<typename T>
+	inline friend Size operator*(const T v, const Size s);
+	template<typename T>
+	inline friend Size operator*(const Size s, const T v);
 	
 	inline constexpr Size operator/(const int32_t v) const noexcept
 	{
@@ -79,11 +82,6 @@ public:
 		return Size(value/other.value);
 	}
 	inline friend Size operator/(const int32_t v, const Size s);
-	
-	inline constexpr Size operator-(const int32_t& other) const noexcept
-	{
-		return Size(value-other);
-	}
 	
 	inline constexpr Size operator-(const Size& other) const noexcept
 	{
@@ -154,9 +152,15 @@ inline Size operator-(const int32_t v, const Size s)
 	return Size(v - s.value);
 }
 
-inline Size operator*(const int32_t v, const Size s)
+template<typename t>
+inline Size operator*(const t v, const Size s)
 {
-	return Size(v*s.value);
+	return Size(static_cast<int32_t>(v)*s.value);
+}
+template<typename t>
+inline Size operator*(const Size s, const t v)
+{
+	return Size(static_cast<int32_t>(v)*s.value);
 }
 
 inline Size operator/(const int32_t v, const Size s)

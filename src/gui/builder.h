@@ -27,6 +27,7 @@
 #include "seltile_swatch.h"
 #include "selcombo_swatch.h"
 #include "tileanim_frame.h"
+#include "palette_frame.h"
 #include "cornerselect.h"
 #include <initializer_list>
 #include <memory>
@@ -200,6 +201,11 @@ inline std::shared_ptr<TileFrame> makeTileFrame()
 	return std::make_shared<TileFrame>();
 }
 
+inline std::shared_ptr<PaletteFrame> makePaletteFrame()
+{
+	return std::make_shared<PaletteFrame>();
+}
+
 // Top-level widgets
 
 inline std::shared_ptr<Window> makeWindow()
@@ -326,6 +332,7 @@ ZCGUI_BUILDER_FUNCTION(Switcher, Switcher, makeSwitcher)
 ZCGUI_BUILDER_START(TabPanel)
 	ZCGUI_ACCEPT_PROP(index, switchTo, size_t)
 	ZCGUI_ACCEPT_PROP(ptr, setPtr, size_t*)
+	ZCGUI_ACCEPT_PROP(onSwitch, setOnSwitch, std::function<void(size_t)>)
 	ZCGUI_ACCEPT_MULTIPLE_CHILDREN(add)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TabPanel, TabPanel, makeTabPanel)
@@ -383,6 +390,7 @@ ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(use_vsync, setVSync, bool)
 	ZCGUI_ACCEPT_PROP(shortcuts, addShortcuts,
 		std::initializer_list<KeyboardShortcut>)
+	ZCGUI_ACCEPT_PROP(onTick, setOnTick, std::function<void()>)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 
 	ZCGUI_SUGGEST_PROP(text, title)
@@ -431,6 +439,15 @@ ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(flip, setFlip, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
+
+ZCGUI_BUILDER_START(PaletteFrame)
+	ZCGUI_ACCEPT_PROP(bitmap, setBitmap, BITMAP*)
+	ZCGUI_ACCEPT_PROP(cdata, setColorData, byte*)
+	ZCGUI_ACCEPT_PROP(palette, setPal, PALETTE*)
+	ZCGUI_ACCEPT_PROP(count, setCount, uint8_t)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(PaletteFrame, PaletteFrame, makePaletteFrame)
 
 } // namespace GUI::builder
 

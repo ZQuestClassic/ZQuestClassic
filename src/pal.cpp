@@ -97,65 +97,106 @@ extern PALETTE userPALETTE[256];
 
 void loadlvlpal(int32_t level)
 {
-    byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
-    
-    for(int32_t i=0; i<16*3; i++)
-    {
-        RAMpal[CSET(2)+i] = _RGB(si);
-	    tempgreypal[CSET(2)+i] = _RGB(si); //preserve monochrome
-        si+=3;
-    }
-    
-    for(int32_t i=0; i<16; i++)
-    {
-        RAMpal[CSET(9)+i] = _RGB(si);
-	    tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
-        si+=3;
-    }
-    
-    if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3) {
-        RAMpal[CSET(6)+2] = NESpal(0x37);
-	tempgreypal[CSET(6)+2] = NESpal(0x37);
-    }
-        
-    create_rgb_table(&rgb_table, RAMpal, NULL);
-    create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-    memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-    
-    for(int32_t q=0; q<PAL_SIZE; q++)
-    {
-        trans_table2.data[0][q] = q;
-        trans_table2.data[q][q] = q;
-    }
-    
-    //! We need to store the new palette into the monochrome scratch palette. 
-    //memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
-    //! Doing this is bad, because we are also copying over the sprite palettes.
-    
-    
-    /* Old handling for monochrome, before tint features added -V
-    if ( isMonochrome () ) {
+	byte *si = colordata + CSET(level*pdLEVEL+poLEVEL)*3;
+	
+	for(int32_t i=0; i<16*3; i++)
+	{
+		RAMpal[CSET(2)+i] = _RGB(si);
+		tempgreypal[CSET(2)+i] = _RGB(si); //preserve monochrome
+		si+=3;
+	}
+	
+	for(int32_t i=0; i<16; i++)
+	{
+		RAMpal[CSET(9)+i] = _RGB(si);
+		tempgreypal[CSET(9)+i] = _RGB(si); //preserve monochrome
+		si+=3;
+	}
+	
+	if (get_bit(quest_rules, qr_CSET1_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(1)+i] = _RGB(si);
+			tempgreypal[CSET(1)+i] = _RGB(si); //preserve monochrome
+			si+=3;
+		}
+	}
+	if (get_bit(quest_rules, qr_CSET5_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+1)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(5)+i] = _RGB(si);
+			tempgreypal[CSET(5)+i] = _RGB(si); //preserve monochrome
+			si+=3;
+		}
+	}
+	if (get_bit(quest_rules, qr_CSET7_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+2)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(7)+i] = _RGB(si);
+			tempgreypal[CSET(7)+i] = _RGB(si); //preserve monochrome
+			si+=3;
+		}
+	}
+	if (get_bit(quest_rules, qr_CSET8_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+3)*3;
+		for(int32_t i=0; i<16; i++)
+		{
+			RAMpal[CSET(8)+i] = _RGB(si);
+			tempgreypal[CSET(8)+i] = _RGB(si); //preserve monochrome
+			si+=3;
+		}
+	}
+	
+	if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3) {
+		RAMpal[CSET(6)+2] = NESpal(0x37);
+		tempgreypal[CSET(6)+2] = NESpal(0x37);
+	}
+		
+	create_rgb_table(&rgb_table, RAMpal, NULL);
+	create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+	memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+	
+	for(int32_t q=0; q<PAL_SIZE; q++)
+	{
+		trans_table2.data[0][q] = q;
+		trans_table2.data[q][q] = q;
+	}
+	
+	//! We need to store the new palette into the monochrome scratch palette. 
 	//memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
-	    
+	//! Doing this is bad, because we are also copying over the sprite palettes.
+	
+	
+	/* Old handling for monochrome, before tint features added -V
+	if ( isMonochrome () ) {
+	//memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
+		
 	//Refresh the monochrome palette to avoid gfx glitches from loading the lpal.  
 	setMonochrome(false);
 	setMonochrome(true);
-    }*/
-    
-    if(isMonochrome()){
-	    if(lastMonoPreset){
-		    restoreMonoPreset();
-	    } else {
+	}*/
+	
+	if(isMonochrome()){
+		if(lastMonoPreset){
+			restoreMonoPreset();
+		} else {
 			setMonochrome(false);
-		    setMonochrome(true);
-	    }
-    }
-    
-    if(isUserTinted()){
-	    restoreTint();
-    }
-    
-    refreshpal=true;
+			setMonochrome(true);
+		}
+	}
+	
+	if(isUserTinted()){
+		restoreTint();
+	}
+	
+	refreshpal=true;
 }
 
 void loadpalset(int32_t cset,int32_t dataset)
@@ -196,7 +237,7 @@ void ringcolor(bool forceDefault)
     
     if(!forceDefault && itemid>-1)
     {
-        loadpalset(6,itemsbuf[itemid].misc1 ? pSprite(zc_min(29,itemsbuf[itemid].misc1)):6);
+        loadpalset(6,itemsbuf[itemid].misc1 ? pSprite(zc_min((pdSPRITE-1),itemsbuf[itemid].misc1)):6);
     }
     else
     {
@@ -235,112 +276,150 @@ void loadfadepal(int32_t dataset)
 
 void interpolatedfade()
 {
-    int32_t dpos = 64;
-    int32_t lpos = 32;
-    int32_t last = CSET(5)-1;
-    
-    if(get_bit(quest_rules,qr_FADECS5))
-    {
-        last += 16;
-        loadpalset(5,5);
-    }
-    
-    loadlvlpal(DMaps[currdmap].color);
-    byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
-    
-    for(int32_t i=0; i<16; i++)
-    {
-        int32_t light = si[0]+si[1]+si[2];
-        si+=3;
-        fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
-    }
-    
-    fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
-    refreshpal=true;
+	int32_t dpos = 64;
+	int32_t lpos = 32;
+	int32_t last = CSET(5)-1;
+	
+	if(get_bit(quest_rules,qr_FADECS5))
+	{
+		last += 16;
+		if (!get_bit(quest_rules, qr_CSET5_LEVEL)) loadpalset(5,5);
+	}
+	
+	loadlvlpal(DMaps[currdmap].color);
+	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
+	
+	for(int32_t i=0; i<16; i++)
+	{
+		int32_t light = si[0]+si[1]+si[2];
+		si+=3;
+		fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+i,CSET(2)+i);
+	}
+	
+	fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
+	if (get_bit(quest_rules, qr_FADECS1))
+	{
+		if (!get_bit(quest_rules, qr_CSET1_LEVEL)) loadpalset(1,1);
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(1),CSET(1)+15);
+	}
+	if (get_bit(quest_rules, qr_FADECS7))
+	{
+		if (!get_bit(quest_rules, qr_CSET7_LEVEL)) loadpalset(7,7);
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(7),CSET(7)+15);
+	}
+	if (get_bit(quest_rules, qr_FADECS8))
+	{
+		if (!get_bit(quest_rules, qr_CSET8_LEVEL)) loadpalset(8,8);
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(8),CSET(8)+15);
+	}
+	if (get_bit(quest_rules, qr_FADECS9))
+	{
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(9),CSET(9)+15);
+	}
+	refreshpal=true;
 }
 
 void fade(int32_t level,bool blackall,bool fromblack)
 {
-    int32_t cx = fromblack ? 30 : 0;
-    
-    for(int32_t i=0; i<=30; i+=(get_bit(quest_rules,qr_FADE))?2:1)
-    {
-        if(get_bit(quest_rules,qr_FADE))
-        {
-            int32_t dpos = (cx<<6)/30;
-            int32_t lpos = zc_min(dpos,blackall?64:32);
-            int32_t last = CSET(5)-1;
-            
-            if(get_bit(quest_rules,qr_FADECS5))
-            {
-                last += 16;
-                loadpalset(5,5);
-            }
-            
-            loadlvlpal(level);
-            byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
-            
-            for(int32_t j=0; j<16; ++j)
-            {
-                int32_t light = si[0]+si[1]+si[2];
-                si+=3;
-                fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+j,CSET(2)+j);
-            }
-            
-            fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
-            refreshpal=true;
-        }
-        else
-        {
-            switch(cx)
-            {
-            case 0:
-                loadlvlpal(level);
-                break;
-                
-            case 10:
-                loadfadepal(level*pdLEVEL+poFADE1);
-                break;
-                
-            case 20:
-                loadfadepal(level*pdLEVEL+poFADE2);
-                break;
-                
-            case 30:
-                if(blackall)
-                {
-                    for(int32_t j=0; j<pdFADE*16; j++)
-                        RAMpal[CSET(2)+j]=black_palette[0];
-                        
-                    refreshpal=true;
-                }
-                else
-                    loadfadepal(level*pdLEVEL+poFADE3);
-                    
-                break;
-            }
-        }
-        
-        if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3)
-            RAMpal[CSET(6)+2] = NESpal(0x37);
-            
-        //put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
-        advanceframe(true);
-        
-        if(Quit)
-            break;
-            
-        fromblack ? --cx : ++cx;
-        
-        if(get_bit(quest_rules,qr_FADE))
-        {
-            fromblack ? --cx : ++cx;
-        }
-    }
-    
-    // Make sure the palette is set exactly right before returning...
-    if(fromblack)
-        loadlvlpal(level);
+	int32_t cx = fromblack ? 30 : 0;
+	
+	for(int32_t i=0; i<=30; i+=(get_bit(quest_rules,qr_FADE))?2:1)
+	{
+		if(get_bit(quest_rules,qr_FADE))
+		{
+			int32_t dpos = (cx<<6)/30;
+			int32_t lpos = zc_min(dpos,blackall?64:32);
+			int32_t last = CSET(5)-1;
+			
+			if(get_bit(quest_rules,qr_FADECS5))
+			{
+				last += 16;
+				if (!get_bit(quest_rules, qr_CSET5_LEVEL)) loadpalset(5,5);
+			}
+			
+			loadlvlpal(level);
+			byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
+			
+			for(int32_t j=0; j<16; ++j)
+			{
+				int32_t light = si[0]+si[1]+si[2];
+				si+=3;
+				fade_interpolate(RAMpal,black_palette,RAMpal,light?lpos:dpos,CSET(2)+j,CSET(2)+j);
+			}
+			
+			fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
+			if (get_bit(quest_rules, qr_FADECS1))
+			{
+				if (!get_bit(quest_rules, qr_CSET1_LEVEL)) loadpalset(1,1);
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(1),CSET(1)+15);
+			}
+			if (get_bit(quest_rules, qr_FADECS7))
+			{
+				if (!get_bit(quest_rules, qr_CSET7_LEVEL)) loadpalset(7,7);
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(7),CSET(7)+15);
+			}
+			if (get_bit(quest_rules, qr_FADECS8))
+			{
+				if (!get_bit(quest_rules, qr_CSET8_LEVEL)) loadpalset(8,8);
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(8),CSET(8)+15);
+			}
+			if (get_bit(quest_rules, qr_FADECS9))
+			{
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(9),CSET(9)+15);
+			}
+			refreshpal=true;
+		}
+		else
+		{
+			switch(cx)
+			{
+			case 0:
+				loadlvlpal(level);
+				break;
+				
+			case 10:
+				loadfadepal(level*pdLEVEL+poFADE1);
+				break;
+				
+			case 20:
+				loadfadepal(level*pdLEVEL+poFADE2);
+				break;
+				
+			case 30:
+				if(blackall)
+				{
+					for(int32_t j=0; j<pdFADE*16; j++)
+						RAMpal[CSET(2)+j]=black_palette[0];
+						
+					refreshpal=true;
+				}
+				else
+					loadfadepal(level*pdLEVEL+poFADE3);
+					
+				break;
+			}
+		}
+		
+		if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3)
+			RAMpal[CSET(6)+2] = NESpal(0x37);
+			
+		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
+		advanceframe(true);
+		
+		if(Quit)
+			break;
+			
+		fromblack ? --cx : ++cx;
+		
+		if(get_bit(quest_rules,qr_FADE))
+		{
+			fromblack ? --cx : ++cx;
+		}
+	}
+	
+	// Make sure the palette is set exactly right before returning...
+	if(fromblack)
+		loadlvlpal(level);
 }
 
 
@@ -382,64 +461,90 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
 void lightingInstant()
 {
 	stayLit=false;
-    bool newstate = ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0);
-    if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
-    if(darkroom != newstate)
-    {
+	bool newstate = ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0);
+	if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
+	if(darkroom != newstate)
+	{
 		int32_t level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
 
-        if(darkroom) // Old room dark, new room lit
-        {
-            loadlvlpal(level);
-            
-            if(get_bit(quest_rules,qr_FADECS5))
-                loadpalset(5,5);
-        }
-        else // Old room lit, new room dark
-        {
-            if(get_bit(quest_rules,qr_FADE))
-            {
-                int32_t last = CSET(5)-1;
-                int32_t light;
-                
-                if(get_bit(quest_rules,qr_FADECS5))
-                {
-                    last += 16;
-                    loadpalset(5,5);
-                }
-                
-                byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
-                
-                for(int32_t j=0; j<16; ++j)
-                {
-                    light = si[0]+si[1]+si[2];
-                    si+=3;
-                    fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+j,CSET(2)+j);
-                }
-                
-                fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-            }
-            else // No interpolated fading
-                loadfadepal(level*pdLEVEL+poFADE3);
-        }
-        
-        if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3)
-            RAMpal[CSET(6)+2] = NESpal(0x37);
-            
-        create_rgb_table(&rgb_table, RAMpal, NULL);
-        create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-        memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-        
-        for(int32_t q=0; q<PAL_SIZE; q++)
-        {
-            trans_table2.data[0][q] = q;
-            trans_table2.data[q][q] = q;
-        }
-        
-        darkroom = newstate;
-    }
-    
-    naturaldark = newstate;
+		if(darkroom) // Old room dark, new room lit
+		{
+			loadlvlpal(level);
+			
+			if(get_bit(quest_rules,qr_FADECS5) && !get_bit(quest_rules, qr_CSET5_LEVEL))
+				loadpalset(5,5);
+			if(get_bit(quest_rules,qr_FADECS1) && !get_bit(quest_rules, qr_CSET1_LEVEL))
+				loadpalset(1,1);
+			if(get_bit(quest_rules,qr_FADECS7) && !get_bit(quest_rules, qr_CSET7_LEVEL))
+				loadpalset(7,7);
+			if(get_bit(quest_rules,qr_FADECS8) && !get_bit(quest_rules, qr_CSET8_LEVEL))
+				loadpalset(8,8);
+	
+		}
+		else // Old room lit, new room dark
+		{
+			if(get_bit(quest_rules,qr_FADE))
+			{
+				int32_t last = CSET(5)-1;
+				int32_t light;
+				
+				if(get_bit(quest_rules,qr_FADECS5))
+				{
+					last += 16;
+					if (!get_bit(quest_rules, qr_CSET5_LEVEL)) loadpalset(5,5);
+				}
+				
+				byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
+				
+				for(int32_t j=0; j<16; ++j)
+				{
+					light = si[0]+si[1]+si[2];
+					si+=3;
+					fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+j,CSET(2)+j);
+				}
+				
+				fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
+				if (get_bit(quest_rules, qr_FADECS1))
+				{
+					if (!get_bit(quest_rules, qr_CSET1_LEVEL)) loadpalset(1,1);
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(1),CSET(1)+15);
+				}
+				if (get_bit(quest_rules, qr_FADECS7))
+				{
+					if (!get_bit(quest_rules, qr_CSET7_LEVEL)) loadpalset(7,7);
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(7),CSET(7)+15);
+				}
+				if (get_bit(quest_rules, qr_FADECS8))
+				{
+					if (!get_bit(quest_rules, qr_CSET8_LEVEL)) loadpalset(8,8);
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(8),CSET(8)+15);
+				}
+				if (get_bit(quest_rules, qr_FADECS9))
+				{
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(9),CSET(9)+15);
+				}
+			}
+			else // No interpolated fading
+				loadfadepal(level*pdLEVEL+poFADE3);
+		}
+		
+		if(!get_bit(quest_rules,qr_NOLEVEL3FIX) && level==3)
+			RAMpal[CSET(6)+2] = NESpal(0x37);
+			
+		create_rgb_table(&rgb_table, RAMpal, NULL);
+		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
+		
+		for(int32_t q=0; q<PAL_SIZE; q++)
+		{
+			trans_table2.data[0][q] = q;
+			trans_table2.data[q][q] = q;
+		}
+		
+		darkroom = newstate;
+	}
+	
+	naturaldark = newstate;
 }
 
 byte drycolors[11] = {0x12,0x11,0x22,0x21,0x31,0x32,0x33,0x35,0x34,0x36,0x37};

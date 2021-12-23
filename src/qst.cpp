@@ -1264,10 +1264,10 @@ int32_t get_qst_buffers()
     memset(combobuf, 0, sizeof(newcombo)*MAXCOMBOS);
     Z_message("OK\n");                                        // Allocating combo buffer...
     
-    memrequested+=(newerpsTOTAL);
-    Z_message("Allocating color data buffer (%s)... ", byte_conversion2(newerpsTOTAL,memrequested,-1,-1));
+    memrequested+=(psTOTAL255);
+    Z_message("Allocating color data buffer (%s)... ", byte_conversion2(psTOTAL255,memrequested,-1,-1));
     
-    if((colordata=(byte*)zc_malloc(newerpsTOTAL))==NULL)
+    if((colordata=(byte*)zc_malloc(psTOTAL255))==NULL)
         return 0;
         
     Z_message("OK\n");                                        // Allocating color data buffer...
@@ -17325,204 +17325,328 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 
 int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets, bool keepdata)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    start_cset=start_cset;
-    max_csets=max_csets;
-    word s_version=0;
-    
-    miscQdata temp_misc;
-    memcpy(&temp_misc, Misc, sizeof(temp_misc));
-    
-    byte temp_colordata[48];
-    char temp_palname[PALNAMESIZE];
-    
-    int32_t dummy;
-    word palcycles;
-    
-    if(version > 0x192)
-    {
-        //section version info
-        if(!p_igetw(&s_version,f,true))
-        {
-            return qe_invalid;
-        }
+	//these are here to bypass compiler warnings about unused arguments
 	
-	FFCore.quest_format[vCSets] = s_version;
-        
-        //al_trace("Color data version %d\n", s_version);
-        if(!p_igetw(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //section size
-        if(!p_igetl(&dummy,f,true))
-        {
-            return qe_invalid;
-        }
-    }
-    
-    //finally...  section data
-    for(int32_t i=0; i<oldpdTOTAL; ++i)
-    {
-        memset(temp_colordata, 0, 48);
-        
-        if(!pfread(temp_colordata,48,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(keepdata==true)
-        {
-            memcpy(&colordata[i*48], temp_colordata, 48);
-        }
-    }
-    
-    if((version < 0x192)||((version == 0x192)&&(build<73)))
-    {
-        if(keepdata==true)
-        {
-            memcpy(colordata+(newerpoSPRITE*48), colordata+(oldpoSPRITE*48), 30*16*3);
-            memset(colordata+(oldpoSPRITE*48), 0, ((newerpoSPRITE-oldpoSPRITE)*48));
-            memcpy(colordata+((newerpoSPRITE+11)*48), colordata+((newerpoSPRITE+10)*48), 48);
-            memcpy(colordata+((newerpoSPRITE+10)*48), colordata+((newerpoSPRITE+9)*48), 48);
-            memcpy(colordata+((newerpoSPRITE+9)*48), colordata+((newerpoSPRITE+8)*48), 48);
-            memset(colordata+((newerpoSPRITE+8)*48), 0, 48);
-        }
-    }
-    else
-    {
-        memset(temp_colordata, 0, 48);
-        
-        for(int32_t i=0; i<newpdTOTAL-oldpdTOTAL; ++i)
-        {
-            if(!pfread(temp_colordata,48,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata==true)
-            {
-                memcpy(&colordata[(oldpdTOTAL+i)*48], temp_colordata, 48);
-            }
-        }
-        
-        if(s_version < 4)
-        {
-            if(keepdata==true)
-            {
-                memcpy(colordata+(newerpoSPRITE*48), colordata+(newpoSPRITE*48), 30*16*3);
-                memset(colordata+(newpoSPRITE*48), 0, ((newerpoSPRITE-newpoSPRITE)*48));
-            }
-        }
-        else
-        {
-            for(int32_t i=0; i<newerpdTOTAL-newpdTOTAL; ++i)
-            {
-                if(!pfread(temp_colordata,48,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(keepdata==true)
-                {
-                    memcpy(&colordata[(newpdTOTAL+i)*48], temp_colordata, 48);
-                }
-            }
-        }
-    }
-    
-    if((version < 0x192)||((version == 0x192)&&(build<76)))
-    {
-        if(keepdata==true)
-        {
-            init_palnames();
-        }
-    }
-    else
-    {
-        int32_t palnamestoread = 0;
-        
-        if(s_version < 3)
-            palnamestoread = OLDMAXLEVELS;
-        else
-            palnamestoread = 512;
-            
-        for(int32_t i=0; i<palnamestoread; ++i)
-        {
-            memset(temp_palname, 0, PALNAMESIZE);
-            
-            if(!pfread(temp_palname,PALNAMESIZE,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata==true)
-            {
-                memcpy(palnames[i], temp_palname, PALNAMESIZE);
-            }
-        }
-        
-        if(keepdata)
-        {
-            for(int32_t i=palnamestoread; i<MAXLEVELS; i++)
-            {
-                memset(palnames[i], 0, PALNAMESIZE);
-            }
-        }
-    }
-    
-    if(version > 0x192)
-    {
-        for(int32_t i=0; i<256; i++)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                temp_misc.cycles[i][j].first=0;
-                temp_misc.cycles[i][j].count=0;
-                temp_misc.cycles[i][j].speed=0;
-            }
-        }
-        
-        if(!p_igetw(&palcycles,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        for(int32_t i=0; i<palcycles; i++)
-        {
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            for(int32_t j=0; j<3; j++)
-            {
-                if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-        }
-        
-        if(keepdata==true)
-        {
-            memcpy(Misc, &temp_misc, sizeof(temp_misc));
-        }
-    }
-    
-    return 0;
+	//THE *48 REFERS TO EACH CSET BEING 16 COLORS with 3 VALUES OF RGB (3*16 is 48)
+	//Capitalized cause it'll save you a headache. -Deedee
+	start_cset=start_cset;
+	max_csets=max_csets;
+	word s_version=0;
+	
+	miscQdata temp_misc;
+	memcpy(&temp_misc, Misc, sizeof(temp_misc));
+	
+	byte temp_colordata[48];
+	char temp_palname[PALNAMESIZE];
+	
+	int32_t dummy;
+	word palcycles;
+	
+	if(version > 0x192)
+	{
+		//section version info
+		if(!p_igetw(&s_version,f,true))
+		{
+			return qe_invalid;
+		}
+	
+		FFCore.quest_format[vCSets] = s_version;
+		
+		//al_trace("Color data version %d\n", s_version);
+		if(!p_igetw(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//section size
+		if(!p_igetl(&dummy,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	if (s_version < 5)
+	{
+		bool RealOldVerion = ((version < 0x192)||((version == 0x192)&&(build<73)));
+		
+		//finally...  section data
+		int32_t q = 0;
+		int32_t p = -15;
+		for(int32_t i=0; i<oldpdTOTAL; ++i)
+		{
+			memset(temp_colordata, 0, 48);
+			
+			if(!pfread(temp_colordata,48,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata==true)
+			{
+				memcpy(&colordata[q*48], temp_colordata, 48);
+			}
+			++q;
+			if (p > 0 && (p%13)==12 && (i < oldpoSPRITE || !RealOldVerion)) //It's > 0 instead of >= 0 because it should append 
+			{
+				if (s_version < 5) //Bumping up the size of level palettes
+				{
+					if(keepdata==true)
+					{
+						memcpy(&colordata[(q)*48], &colordata[1*48], 48);
+						memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
+						memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
+						memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
+					}
+					q+=4;
+				}
+				else
+				{
+					for(int m = 0; m < 4; ++m)
+					{
+						memset(temp_colordata, 0, 48);
+						if(!pfread(temp_colordata,48,f,true))
+						{
+							return qe_invalid;
+						}
+						if(keepdata==true)
+						{
+							memcpy(&colordata[q*48], temp_colordata, 48);
+						}
+						++q;
+					}
+				}
+			}
+			++p;
+		}
+		
+		if(RealOldVerion)
+		{
+			if(keepdata==true)
+			{
+				memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
+				memset(colordata+((q-30)*48), 0, ((poSPRITE255-oldpoSPRITE)*48));
+				memcpy(colordata+((poSPRITE255+11)*48), colordata+((poSPRITE255+10)*48), 48);
+				memcpy(colordata+((poSPRITE255+10)*48), colordata+((poSPRITE255+9)*48), 48);
+				memcpy(colordata+((poSPRITE255+9)*48), colordata+((poSPRITE255+8)*48), 48);
+				memset(colordata+((poSPRITE255+8)*48), 0, 48);
+			}
+		}
+		else
+		{
+			memset(temp_colordata, 0, 48);
+			
+			for(int32_t i=0; i<newpdTOTAL-oldpdTOTAL; ++i)
+			{
+				if(!pfread(temp_colordata,48,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(keepdata==true)
+				{
+					memcpy(&colordata[q*48], temp_colordata, 48);
+				}
+				++q;
+				if (p > 0 && (p%13)==12 && (i < (newpoSPRITE-oldpdTOTAL) || (s_version >= 4))) //It's > 0 instead of >= 0 because it should append 
+				{
+					if (s_version < 5) //Bumping up the size of level palettes
+					{
+						if(keepdata==true)
+						{
+							memcpy(&colordata[(q)*48], &colordata[1*48], 48);
+							memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
+							memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
+							memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
+						}
+						q+=4;
+					}
+					else
+					{
+						for(int m = 0; m < 4; ++m)
+						{
+							memset(temp_colordata, 0, 48);
+							if(!pfread(temp_colordata,48,f,true))
+							{
+								return qe_invalid;
+							}
+							if(keepdata==true)
+							{
+								memcpy(&colordata[q*48], temp_colordata, 48);
+							}
+							++q;
+						}
+					}
+				}
+				++p;
+			}
+			
+			if(s_version < 4)
+			{
+				if(keepdata==true)
+				{
+					memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
+					memset(colordata+((q-30)*48), 0, ((poSPRITE255-newpoSPRITE)*48));
+				}
+			}
+			else
+			{
+				for(int32_t i=0; i<newerpdTOTAL-newpdTOTAL; ++i)
+				{
+					if(!pfread(temp_colordata,48,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(keepdata==true)
+					{
+						memcpy(&colordata[q*48], temp_colordata, 48);
+					}
+					++q;
+					if (p > 0 && (p%13)==12 && i < newerpoSPRITE-newpdTOTAL) //It's > 0 instead of >= 0 because it should append 
+					{
+						if (s_version < 5) //Bumping up the size of level palettes
+						{
+							if(keepdata==true)
+							{
+								memcpy(&colordata[(q)*48], &colordata[1*48], 48);
+								memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
+								memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
+								memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
+							}
+							q+=4;
+						}
+						else
+						{
+							for(int m = 0; m < 4; ++m)
+							{
+								memset(temp_colordata, 0, 48);
+								if(!pfread(temp_colordata,48,f,true))
+								{
+									return qe_invalid;
+								}
+								if(keepdata==true)
+								{
+									memcpy(&colordata[q*48], temp_colordata, 48);
+								}
+								++q;
+							}
+						}
+					}
+					++p;
+				}
+				
+				//By this point, q should be about equal to pdTOTAL255. If it isn't, I've fucked up. -Deedee
+			}
+		}
+	}
+	else
+	{
+		for(int32_t i=0; i<pdTOTAL255; ++i)
+		{
+			memset(temp_colordata, 0, 48);
+			
+			if(!pfread(temp_colordata,48,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata==true)
+			{
+				memcpy(&colordata[i*48], temp_colordata, 48);
+			}
+		}
+	}
+	
+	if((version < 0x192)||((version == 0x192)&&(build<76)))
+	{
+		if(keepdata==true)
+		{
+			init_palnames();
+		}
+	}
+	else
+	{
+		int32_t palnamestoread = 0;
+		
+		if(s_version < 3)
+			palnamestoread = OLDMAXLEVELS;
+		else
+			palnamestoread = 512;
+			
+		for(int32_t i=0; i<palnamestoread; ++i)
+		{
+			memset(temp_palname, 0, PALNAMESIZE);
+			
+			if(!pfread(temp_palname,PALNAMESIZE,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata==true)
+			{
+				memcpy(palnames[i], temp_palname, PALNAMESIZE);
+			}
+		}
+		
+		if(keepdata)
+		{
+			for(int32_t i=palnamestoread; i<MAXLEVELS; i++)
+			{
+				memset(palnames[i], 0, PALNAMESIZE);
+			}
+		}
+	}
+	
+	if(version > 0x192)
+	{
+		for(int32_t i=0; i<256; i++)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				temp_misc.cycles[i][j].first=0;
+				temp_misc.cycles[i][j].count=0;
+				temp_misc.cycles[i][j].speed=0;
+			}
+		}
+		
+		if(!p_igetw(&palcycles,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		for(int32_t i=0; i<palcycles; i++)
+		{
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			
+			for(int32_t j=0; j<3; j++)
+			{
+				if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		
+		if(keepdata==true)
+		{
+			memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		}
+	}
+	
+	return 0;
 }
 
 int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init, bool keepdata)

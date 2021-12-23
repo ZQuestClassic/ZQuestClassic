@@ -1827,12 +1827,15 @@ static MENU quest_reports_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+int32_t onPalFix();
+
 static MENU fixtools_menu[] =
 {
     { (char*)"&Color Set Fix",             onCSetFix,                 NULL,                     0,            NULL   },
     { (char*)"&Water Solidity Fix",        onWaterSolidity,           NULL,                     0,            NULL   },
     { (char*)"&Effect Square Fix",         onEffectFix,               NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+    { (char*)"&Level Palette Fix",         onPalFix,                  NULL,                     0,            NULL   },
+    {  NULL,                                NULL,                     NULL,                     0,            NULL   }
 };
 
 static MENU tool_menu[] =
@@ -2058,7 +2061,7 @@ MENU the_menu_large[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    { (char *)"Et&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -2071,7 +2074,7 @@ MENU the_menu_small[] =
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"Z&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
+    { (char *)"Et&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -11579,6 +11582,50 @@ int32_t onEffectFix()
 		"Cancel", NULL
 	).show();
     return D_O_K;
+}
+
+byte* getPalPointer(int32_t pal, int32_t cset)
+{
+	if (pal < 0) return colordata + CSET(cset)*3;
+	byte* ret = colordata + CSET(pal*pdLEVEL+poLEVEL)*3;
+	switch(cset)
+	{
+		case 2: case 3: case 4:
+			return ret + CSET(cset-2)*3;
+		case 9:
+			return ret + CSET(3)*3;
+		case 1:
+			return ret + CSET(13)*3;
+		case 5:
+			return ret + CSET(14)*3;
+		case 7:
+			return ret + CSET(15)*3;
+		case 8:
+			return ret + CSET(16)*3;
+	}
+	return NULL;
+}
+
+void copyCSet(int32_t destpal, int32_t destcset, int32_t srcpal, int32_t srccset)
+{
+	byte* dest = getPalPointer(destpal, destcset);
+	byte* src = getPalPointer(srcpal, srccset);
+	if (dest && src)
+	{
+		memcpy(dest, src, 16*3);
+	}
+}
+
+void setColorPalette(int32_t flags, int32_t lowpal, int32_t highpal)
+{
+	for (auto q = lowpal; q <= highpal; ++q)
+	{
+		for (auto c = 0; c < 12; ++c)
+		{
+			if (!(flags&(1<<c))) continue;
+			copyCSet(q, c, -1, c);
+		}
+	}
 }
 
 static DIALOG template_dlg[] =
