@@ -16,11 +16,6 @@ static bool DidCS9 = false;
 
 bool call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset, int32_t index)
 {
-	if (!namebuf[0])
-	{
-		namebuf[0] = ' ';
-		namebuf[1] = '\0';
-	}
 	BITMAP* tmp = create_bitmap_ex(8,128_spx,104_spx);
 	clear_bitmap(tmp);
 	for(auto pos = 0; pos < 208; ++pos)
