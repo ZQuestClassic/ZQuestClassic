@@ -1,7 +1,23 @@
 // 2.55 Change Log
-// Updated 20th Dec, 2021
+// Updated 23rd Dec, 2021
 
-//Since A100
+//Since A101
+
+//Alpha 101
+
+Add more level-specific palettes
+	( Deedee, Dec 23rd, 2021 )
+
+Fix bottle itemclass name
+Add 's' hotkey for string editor
+Fix dialog text cutoff
+Fix combo editor scrollpane visual bug
+Fix new respawn point not caring about water enough
+Fix 'onDeath' script hardlock when using frame advance, and running before engine
+	death animation
+Fix version <1.92 quests not loading combo 'original tile' correctly
+Fix 'Import combo to...' bug
+	( EmilyV, Dec 23rd, 2021 )
 
 Fix overhead combo bug
 Fix pushblock bugs
