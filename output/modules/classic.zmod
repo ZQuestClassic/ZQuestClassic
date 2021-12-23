@@ -612,6 +612,13 @@ ic_icerod = Ice Rod
 ic_atkring = Attack Ring
 ic_lantern = Lanterns
 ic_pearl = Moon Pearls
+ic_z3bottle = Bottles
+ic_bottlefill = Bottle Fillers
+ic_bugnet = Bug Nets
+ic_mirror = Mirrors
+ic_switchhook = SwitchHooks
+ic_itmbundle = Item Bundle
+ic_progressive = Progressive Item
 
 [COMBOS]
 cNONE = 

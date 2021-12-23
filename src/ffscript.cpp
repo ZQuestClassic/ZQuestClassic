@@ -31043,8 +31043,10 @@ bool ZModule::init(bool d) //bool default
 			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
 			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
 			//266
-			"ic_icerod","ic_atkring","ic_lantern","ic_pearl", "ic_bottle", "ic_bottlefill", "ic_bugnet", "ic_mirror", "ic_switchhook"
+			"ic_icerod","ic_atkring","ic_lantern","ic_pearl", "ic_z3bottle", "ic_bottlefill",
+			"ic_bugnet", "ic_mirror", "ic_switchhook"
 			//270
+			"ic_itmbundle", "ic_progressive"
 		};
 		for ( int32_t q = 0; q < itype_max; q++ )
 		{
