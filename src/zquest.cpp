@@ -2313,7 +2313,6 @@ void onSKey()
 {
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 	{
-
 		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
 			onSaveAs();
@@ -2325,10 +2324,11 @@ void onSKey()
 		}
 	}
 	else if(prv_mode)
-    {
-        Map.prv_secrets(false);
-        refresh(rALL);
-    }
+	{
+		Map.prv_secrets(false);
+		refresh(rALL);
+	}
+	else onStrings();
 }
 
 /* Notice: If you insert or remove entries from dialogs[], you will need
