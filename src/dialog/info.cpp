@@ -48,7 +48,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			Label(
 				hPadding = sized(1_em,3_em),
 				maxLines = 20,
-				maxwidth = sized(320_px-2_em,800_px-6_em),
+				maxwidth = sized(320_px,800_px)-sized(8_px,12_px)-sized(2_em,6_em),
 				textAlign = 1,
 				text = std::move(dlgText)),
 			Button(
