@@ -16725,6 +16725,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 				return qe_invalid;
 			}
 		}
+		temp_combo.o_tile = temp_combo.tile;
 		if(!p_getc(&temp_combo.flip,f,true))
 		{
 			return qe_invalid;
@@ -16983,6 +16984,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		if(section_version>=15)
 		{
 			if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
+			if(!temp_combo.o_tile) temp_combo.o_tile = temp_combo.tile;
 			if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
 			if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
 		}
