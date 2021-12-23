@@ -18359,14 +18359,14 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite)
 	{
 		return 0;
 	}
-	al_trace("Reading combo: index(%d)\n", index);
+	// al_trace("Reading combo: index(%d)\n", index);
 	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
-	al_trace("Reading combo: count(%d)\n", count);
+	// al_trace("Reading combo: count(%d)\n", count);
 	reset_combo_animations();
 	reset_combo_animations2();
 	newcombo temp_combo;
@@ -18618,14 +18618,14 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 	{
 		return 0;
 	}
-	al_trace("Reading tile: index(%d)\n", index);
+	// al_trace("Reading tile: index(%d)\n", index);
 	
 	//tile count
 	if(!p_igetl(&count,f,true))
 	{
 		return 0;
 	}
-	al_trace("Reading tile: count(%d)\n", count);
+	// al_trace("Reading tile count:(%d)\n", count);
 	
 	reset_combo_animations();
 	reset_combo_animations2();
@@ -18639,6 +18639,7 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 		{
 			return 0;
 		}
+		temp_combo.o_tile = temp_combo.tile;
 			
 		if(!p_getc(&temp_combo.flip,f,true))
 		{
