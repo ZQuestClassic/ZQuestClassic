@@ -140,7 +140,8 @@ static const GUI::ListData comboRulesList
 		" a burn spot. If this rule is disabled, fire weapons need to linger"
 		" on a burn trigger for almost a second to trigger them. A hidden"
 		" side effect of this rule is that if you have the Magic Book,"
-		" Wand Magic can also trigger fire secrets."},
+		" Wand Magic can also trigger fire secrets just by passing over"
+		" the flag if the book would make it leave fire afterwards."},
 	{ "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", qr_SWORDMIRROR, 
 		"Allows sword beams to reflect off Mirror/Prism Combos. Note"
 		" that this does not affect the Sword Beams that come from"
@@ -590,7 +591,7 @@ static const GUI::ListData compatRulesList
 		" (incorrectly) hardcoded to their classic item IDs"},
 	{ "Hardcoded BS Patras", qr_HARDCODED_BS_PATRA,
 		"If enabled, BS Patras are incredibly hardcoded and disobey most of the enemy editor."
-		" If enabled, they are just a branch of the regular Patra enemy and are able to use anything"
+		" If left off, they are just a branch of the regular Patra enemy and are able to use anything"
 		" a regular Patra can use."},
 	{ "Hardcoded Patra Inner Eye offsets", qr_PATRAS_USE_HARDCODED_OFFSETS,
 		"If enabled, patras use hardcoded offsets from the main body for their inner eyes."
@@ -974,8 +975,8 @@ static const GUI::ListData nesfixesRulesList
 	{ "Level 3 CSet 6 Fix", qr_NOLEVEL3FIX,
 		"When disabled, color 2 of CSet 6 will use color 7 of CSet 3 when in a dmap with a level of 3."
 		" If enabled, this behavior is ignored."},
-	{ "Player Holds Special Bombs Over They're Head", qr_BOMBHOLDFIX,
-		"If enabled, the player can hold bombs over their head if the bomb is a Special Item in a Spectial Item Room."
+	{ "Player Holds Special Bombs Over Their Head", qr_BOMBHOLDFIX,
+		"If enabled, the player can hold bombs over their head if the bomb is a Special Item in a Special Item Room."
 		" Otherwise, bombs will only be held over head if the player dives for them."},
 	{ "Holding Up Items Doesn't Restart Music", qr_HOLDNOSTOPMUSIC,
 		"If enabled, holding up an item will not restart the currently playing music."
@@ -1123,7 +1124,7 @@ static const GUI::ListData weaponsRulesList
 		"If enabled, Prisms will reflect and duplicate angular weapons, creating new weapons at"
 		" angles perpendicular to the angle of the original weapon. If disabled, they will reflect"
 		" at regular directions instead of at angles."
-		" \nNote that this behavior is broken and undefined if 'qr_ANGULAR_REFLECT_BROKEN' is checked."},
+		" \nNote that this behavior is broken and undefined if ''Prisms Reflect Angular Weapons' Uses Broken Logic' is checked."},
 	{ "Mirrors Use Weapon Centre for Collision", qr_MIRRORS_USE_WEAPON_CENTRE,
 		"If enabled, mirror/prism combos activate when the center of a weapon hits them,"
 		" instead of when the edge hits them." },
