@@ -196,6 +196,7 @@ void TextField::check_len(size_t min)
 {
 	if(forced_length)
 		return;
+	if(min < 1) min = 1;
 	size_t s = std::max(min, maxLength);
 	if(ubound > lbound)
 	{
@@ -206,6 +207,7 @@ void TextField::check_len(size_t min)
 
 void TextField::_updateBuf(size_t sz)
 {
+	if(sz < 1) sz = 1;
 	if(sz == maxLength)
 		return;
 	auto newBuffer = std::make_unique<char[]>(sz+1);
