@@ -28,8 +28,12 @@ TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 void TextField::setText(std::string_view newText)
 {
 	check_len(newText.size());
-	newText.copy(buffer.get(), maxLength);
-	buffer[std::min(maxLength, newText.size())] = '\0';
+	if(newText.size())
+	{
+		newText.copy(buffer.get(), maxLength);
+		buffer[std::min(maxLength, newText.size())] = '\0';
+	}
+	else buffer[0] = '\0';
 	valSet = true;
 	pendDraw();
 }
