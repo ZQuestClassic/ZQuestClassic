@@ -113,7 +113,7 @@ void loadlvlpal(int32_t level)
 		si+=3;
 	}
 	
-	if (get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+	if (get_bit(quest_rules, qr_CSET1_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS)*3;
 		for(int32_t i=0; i<16; i++)
@@ -122,18 +122,30 @@ void loadlvlpal(int32_t level)
 			tempgreypal[CSET(1)+i] = _RGB(si); //preserve monochrome
 			si+=3;
 		}
+	}
+	if (get_bit(quest_rules, qr_CSET5_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+1)*3;
 		for(int32_t i=0; i<16; i++)
 		{
 			RAMpal[CSET(5)+i] = _RGB(si);
 			tempgreypal[CSET(5)+i] = _RGB(si); //preserve monochrome
 			si+=3;
 		}
+	}
+	if (get_bit(quest_rules, qr_CSET7_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+2)*3;
 		for(int32_t i=0; i<16; i++)
 		{
 			RAMpal[CSET(7)+i] = _RGB(si);
 			tempgreypal[CSET(7)+i] = _RGB(si); //preserve monochrome
 			si+=3;
 		}
+	}
+	if (get_bit(quest_rules, qr_CSET8_LEVEL))
+	{
+		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+3)*3;
 		for(int32_t i=0; i<16; i++)
 		{
 			RAMpal[CSET(8)+i] = _RGB(si);
@@ -271,7 +283,7 @@ void interpolatedfade()
 	if(get_bit(quest_rules,qr_FADECS5))
 	{
 		last += 16;
-		loadpalset(5,5);
+		if (!get_bit(quest_rules, qr_CSET5_LEVEL)) loadpalset(5,5);
 	}
 	
 	loadlvlpal(DMaps[currdmap].color);
@@ -285,9 +297,24 @@ void interpolatedfade()
 	}
 	
 	fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
-	if (get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+	if (get_bit(quest_rules, qr_FADECS1))
 	{
+		if (!get_bit(quest_rules, qr_CSET1_LEVEL)) loadpalset(1,1);
 		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(1),CSET(1)+15);
+	}
+	if (get_bit(quest_rules, qr_FADECS7))
+	{
+		if (!get_bit(quest_rules, qr_CSET7_LEVEL)) loadpalset(7,7);
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(7),CSET(7)+15);
+	}
+	if (get_bit(quest_rules, qr_FADECS8))
+	{
+		if (!get_bit(quest_rules, qr_CSET8_LEVEL)) loadpalset(8,8);
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(8),CSET(8)+15);
+	}
+	if (get_bit(quest_rules, qr_FADECS9))
+	{
+		fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(9),CSET(9)+15);
 	}
 	refreshpal=true;
 }
@@ -304,10 +331,10 @@ void fade(int32_t level,bool blackall,bool fromblack)
 			int32_t lpos = zc_min(dpos,blackall?64:32);
 			int32_t last = CSET(5)-1;
 			
-			if(get_bit(quest_rules,qr_FADECS5) || get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+			if(get_bit(quest_rules,qr_FADECS5))
 			{
 				last += 16;
-				if (!get_bit(quest_rules, qr_NEW_LVL_PALETTES)) loadpalset(5,5);
+				if (!get_bit(quest_rules, qr_CSET5_LEVEL)) loadpalset(5,5);
 			}
 			
 			loadlvlpal(level);
@@ -321,9 +348,24 @@ void fade(int32_t level,bool blackall,bool fromblack)
 			}
 			
 			fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(3),last);
-			if (get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+			if (get_bit(quest_rules, qr_FADECS1))
 			{
+				if (!get_bit(quest_rules, qr_CSET1_LEVEL)) loadpalset(1,1);
 				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(1),CSET(1)+15);
+			}
+			if (get_bit(quest_rules, qr_FADECS7))
+			{
+				if (!get_bit(quest_rules, qr_CSET7_LEVEL)) loadpalset(7,7);
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(7),CSET(7)+15);
+			}
+			if (get_bit(quest_rules, qr_FADECS8))
+			{
+				if (!get_bit(quest_rules, qr_CSET8_LEVEL)) loadpalset(8,8);
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(8),CSET(8)+15);
+			}
+			if (get_bit(quest_rules, qr_FADECS9))
+			{
+				fade_interpolate(RAMpal,black_palette,RAMpal,dpos,CSET(9),CSET(9)+15);
 			}
 			refreshpal=true;
 		}
@@ -429,8 +471,14 @@ void lightingInstant()
 		{
 			loadlvlpal(level);
 			
-			if(get_bit(quest_rules,qr_FADECS5) && !get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+			if(get_bit(quest_rules,qr_FADECS5) && !get_bit(quest_rules, qr_CSET5_LEVEL))
 				loadpalset(5,5);
+			if(get_bit(quest_rules,qr_FADECS1) && !get_bit(quest_rules, qr_CSET1_LEVEL))
+				loadpalset(1,1);
+			if(get_bit(quest_rules,qr_FADECS7) && !get_bit(quest_rules, qr_CSET7_LEVEL))
+				loadpalset(7,7);
+			if(get_bit(quest_rules,qr_FADECS8) && !get_bit(quest_rules, qr_CSET8_LEVEL))
+				loadpalset(8,8);
 	
 		}
 		else // Old room lit, new room dark
@@ -440,10 +488,10 @@ void lightingInstant()
 				int32_t last = CSET(5)-1;
 				int32_t light;
 				
-				if(get_bit(quest_rules,qr_FADECS5) || get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+				if(get_bit(quest_rules,qr_FADECS5))
 				{
 					last += 16;
-					if (!get_bit(quest_rules, qr_NEW_LVL_PALETTES)) loadpalset(5,5);
+					if (!get_bit(quest_rules, qr_CSET5_LEVEL)) loadpalset(5,5);
 				}
 				
 				byte *si = colordata + CSET(level*pdLEVEL+poFADE1)*3;
@@ -456,9 +504,24 @@ void lightingInstant()
 				}
 				
 				fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-				if (get_bit(quest_rules, qr_NEW_LVL_PALETTES))
+				if (get_bit(quest_rules, qr_FADECS1))
 				{
+					if (!get_bit(quest_rules, qr_CSET1_LEVEL)) loadpalset(1,1);
 					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(1),CSET(1)+15);
+				}
+				if (get_bit(quest_rules, qr_FADECS7))
+				{
+					if (!get_bit(quest_rules, qr_CSET7_LEVEL)) loadpalset(7,7);
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(7),CSET(7)+15);
+				}
+				if (get_bit(quest_rules, qr_FADECS8))
+				{
+					if (!get_bit(quest_rules, qr_CSET8_LEVEL)) loadpalset(8,8);
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(8),CSET(8)+15);
+				}
+				if (get_bit(quest_rules, qr_FADECS9))
+				{
+					fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(9),CSET(9)+15);
 				}
 			}
 			else // No interpolated fading

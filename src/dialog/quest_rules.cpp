@@ -93,9 +93,6 @@ static const GUI::ListData animRulesList
 		" calculate the dark room colors. Enabling this also enables the usage"
 		" of Palette Cycling, but you lose the ability to manually decide dark"
 		" room colors."},
-	{ "Fade CSet 5", qr_FADECS5, 
-		"When enabled, CSet 5 will also fade when in dark rooms. Only"
-		" limited to Interpolated Fading."},
 	{ "Bomb Explosions Don't Flash Palette", qr_NOBOMBPALFLASH, 
 		"When enabled, bombs won't flash the screen when exploding." },
 	{ "Layers 1 and 2 Are Drawn Under Caves", qr_LAYER12UNDERCAVE, 
@@ -107,13 +104,41 @@ static const GUI::ListData animRulesList
 	{ "Shadows Flicker", qr_SHADOWSFLICKER,
 		" If enabled, Link's Shadow and Enemy Shadows only draw every other frame."
 		" Items and Weapons are not affected by this."},
-	{ "More CSets are level-specific", qr_NEW_LVL_PALETTES,
-		" If enabled, CSets 1, 5, 7, and 8 become level dependent, allowing you to"
-		" change them by changing the current palette. Both CSet 1 and 5 will also"
-		" fade if 'Interpolated Fading' is enabled, regardless if 'Fade CSet 5' is"
-		" enabled or not."
-		" \nIf disabled, these CSets will use the Main Palette, and will remain static"
-		" unless modified via script."}
+	{ "CSet 1 is level-specific", qr_CSET1_LEVEL,
+		" If enabled, CSet 1 becomes level dependent, allowing you to"
+		" change it by changing the current palette."
+		" \nIf disabled, CSet 1 will use the Main Palette, and will remain static"
+		" unless modified via script."},
+	{ "CSet 5 is level-specific", qr_CSET5_LEVEL,
+		" If enabled, CSet 5 becomes level dependent, allowing you to"
+		" change it by changing the current palette."
+		" \nIf disabled, CSet 5 will use the Main Palette, and will remain static"
+		" unless modified via script."},
+	{ "CSet 7 is level-specific", qr_CSET7_LEVEL,
+		" If enabled, CSet 7 becomes level dependent, allowing you to"
+		" change it by changing the current palette."
+		" \nIf disabled, CSet 7 will use the Main Palette, and will remain static"
+		" unless modified via script."},
+	{ "CSet 8 is level-specific", qr_CSET8_LEVEL,
+		" If enabled, CSet 8 becomes level dependent, allowing you to"
+		" change it by changing the current palette."
+		" \nIf disabled, CSet 8 will use the Main Palette, and will remain static"
+		" unless modified via script."},
+	{ "Fade CSet 1", qr_FADECS1, 
+		"When enabled, CSet 1 will also fade when in dark rooms or when scrolling."
+		" Limited only to Interpolated Fading."},
+	{ "Fade CSet 5", qr_FADECS5, 
+		"When enabled, CSet 5 will also fade when in dark rooms or when scrolling."
+		" Limited only to Interpolated Fading."},
+	{ "Fade CSet 7", qr_FADECS7, 
+		"When enabled, CSet 7 will also fade when in dark rooms or when scrolling."
+		" Limited only to Interpolated Fading."},
+	{ "Fade CSet 8", qr_FADECS8, 
+		"When enabled, CSet 8 will also fade when in dark rooms or when scrolling."
+		" Limited only to Interpolated Fading."},
+	{ "Fade CSet 9", qr_FADECS9, 
+		"When enabled, CSet 9 will also fade when in dark rooms or when scrolling."
+		" Limited only to Interpolated Fading."}
 };
 
 static const GUI::ListData comboRulesList
