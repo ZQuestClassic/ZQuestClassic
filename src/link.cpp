@@ -247,6 +247,54 @@ void LinkClass::set_respawn_point(bool setwarp)
 		}
 		if(z > 0 || hoverclk) return; //in air
 		if(check_pitslide(true) != -1) return; //On a pit
+		
+		{ //Check water
+			int32_t water = 0;
+			int32_t types[4] = {0};
+			int32_t x1 = x+4, x2 = x+11,
+				y1 = y+9, y2 = y+15;
+			if (get_bit(quest_rules, qr_SMARTER_WATER))
+			{
+				if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
+				iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
+				iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
+				iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
+			}
+			else
+			{
+				types[0] = COMBOTYPE(x1,y1);
+				
+				if(MAPFFCOMBO(x1,y1))
+					types[0] = FFCOMBOTYPE(x1,y1);
+					
+				types[1] = COMBOTYPE(x1,y2);
+				
+				if(MAPFFCOMBO(x1,y2))
+					types[1] = FFCOMBOTYPE(x1,y2);
+					
+				types[2] = COMBOTYPE(x2,y1);
+				
+				if(MAPFFCOMBO(x2,y1))
+					types[2] = FFCOMBOTYPE(x2,y1);
+					
+				types[3] = COMBOTYPE(x2,y2);
+				
+				if(MAPFFCOMBO(x2,y2))
+					types[3] = FFCOMBOTYPE(x2,y2);
+					
+				int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+				if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
+					typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
+					
+				if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
+						combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
+					water = typec;
+			}
+			if(water > 0)
+			{
+				return;
+			}
+		} //End check water
 	}
 	respawn_x = x;
 	respawn_y = y;
@@ -7943,6 +7991,10 @@ bool LinkClass::animate(int32_t)
 					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
 					ALLOFF(true,true);
 					Playing = false; //Disallow F6
+					if(!debug_enabled)
+					{
+						Paused=false;
+					}
 					if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
@@ -26594,11 +26646,11 @@ void LinkClass::heroDeathAnimation()
 	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
 	
 	//Playing=false;
-    
 	if(!debug_enabled)
 	{
 		Paused=false;
 	}
+    
     /*
 	game->set_deaths(zc_min(game->get_deaths()+1,999));
 	dir=down;
