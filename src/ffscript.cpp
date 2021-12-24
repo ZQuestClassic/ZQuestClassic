@@ -27729,8 +27729,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				int32_t buf_pointer = SH::get_arg(sarg1, false) / 10000;
 				int32_t element = SH::get_arg(sarg2, false) / 10000;
 				
-				//zprint2("element is: %d, string is: %s\n", element, moduledata.item_editor_type_names[element]);
-				
 				if ( ((unsigned)element) > 511 )
 				{
 					Z_scripterrlog("Illegal itemclass supplied to Module->GetItemClass().\nLegal values are 1 to 511.\n");
@@ -27738,7 +27736,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				else
 				{
 					char buffer[256] = {0};
-					strcpy(buffer,moduledata.item_editor_type_names[element]);
+					strcpy(buffer,ZI.getItemClassName(element));
 					buffer[255] = '\0';
 					if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
 					{
@@ -30738,7 +30736,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
-	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.item_editor_type_names));
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
 	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
 	
@@ -30753,7 +30750,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names));
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
-	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
@@ -30996,64 +30992,6 @@ bool ZModule::init(bool d) //bool default
 		moduledata.copyright_string_vars[titleScreenMAIN+9] = get_config_int("DATAFILES","cpystr_1frame_var_sz2",-1);
 		
 		moduledata.animate_NES_title =  get_config_int("DATAFILES","disable_title_NES_animation",0);
-		
-		
-		//item families
-							 
-		static const char itype_fields[itype_max][255] =
-		{
-			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
-			"ic_meat", "ic_rx", "ic_potion", 
-			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
-			//10
-			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
-			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
-			//20
-			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
-			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
-			//30
-			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
-			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
-			//40
-			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
-			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
-			//50
-			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
-			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
-			//60
-			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
-			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
-			//70
-			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
-			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
-			//80
-			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle", "ic_last",
-			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
-			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
-			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
-			"ic_138","ic_139","ic_140","ic_141","ic_142","ic_143","ic_144","ic_145","ic_146","ic_147","ic_148","ic_149","ic_150","ic_151","ic_152","ic_153",
-			"ic_154","ic_155","ic_156","ic_157","ic_158","ic_159","ic_160","ic_161","ic_162","ic_163","ic_164","ic_165","ic_166","ic_167","ic_168","ic_169",
-			"ic_170","ic_171","ic_172","ic_173","ic_174","ic_175","ic_176","ic_177","ic_178","ic_179","ic_180","ic_181","ic_182","ic_183","ic_184","ic_185",
-			"ic_186","ic_187","ic_188","ic_189","ic_190","ic_191","ic_192","ic_193","ic_194","ic_195","ic_196","ic_197","ic_198","ic_199","ic_200","ic_201",
-			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
-			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
-			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
-			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
-			//256
-			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
-			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
-			//266
-			"ic_icerod","ic_atkring","ic_lantern","ic_pearl", "ic_z3bottle", "ic_bottlefill",
-			"ic_bugnet", "ic_mirror", "ic_switchhook"
-			//270
-			"ic_itmbundle", "ic_progressive"
-		};
-		for ( int32_t q = 0; q < itype_max; q++ )
-		{
-			if(default_itype_strings[q][0])
-				strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
-			else sprintf(moduledata.item_editor_type_names[q], "-zz%03d",q);
-		}
 		
 		static const char roomtype_cats[rMAX][256] =
 		{

@@ -217,7 +217,7 @@ void set_questpwd(std::string_view pwd, bool use_keyfile);
 int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed);
 bool write_midi(MIDI *m,PACKFILE *f);
 int32_t load_quest(const char *filename, bool compressed, bool encrypted);
-int32_t save_unencoded_quest(const char *filename, bool compressed);
+int32_t save_unencoded_quest(const char *filename, bool compressed, const char* afname = NULL);
 int32_t save_quest(const char *filename, bool timed_save);
 
 int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j);

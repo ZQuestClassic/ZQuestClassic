@@ -34711,43 +34711,6 @@ int32_t FFScript::getTime(int32_t type)
 	}
 }
 
-const char *itemclass_help_string_cats[itype_max]=
-{
-	"ichs_0", "ichs_1", "ichs_2", "ichs_3", "ichs_4", "ichs_5", "ichs_6", "ichs_7", "ichs_8", "ichs_9", "ichs_10", "ichs_11", "ichs_12", "ichs_13", "ichs_14", "ichs_15", "ichs_16", 
-	"ichs_17", "ichs_18", "ichs_19", "ichs_20", "ichs_21", "ichs_22", "ichs_23", "ichs_24", "ichs_25", "ichs_26", "ichs_27", "ichs_28", "ichs_29", "ichs_30", "ichs_31", "ichs_32", 
-	"ichs_33", "ichs_34", "ichs_35", "ichs_36", "ichs_37", "ichs_38", "ichs_39", "ichs_40", "ichs_41", "ichs_42", "ichs_43", "ichs_44", "ichs_45", "ichs_46", "ichs_47", "ichs_48", 
-	"ichs_49", "ichs_50", "ichs_51", "ichs_52", "ichs_53", "ichs_54", "ichs_55", "ichs_56", "ichs_57", "ichs_58", "ichs_59", "ichs_60", "ichs_61", "ichs_62", "ichs_63", "ichs_64", 
-	"ichs_65", "ichs_66", "ichs_67", "ichs_68", "ichs_69", "ichs_70", "ichs_71", "ichs_72", "ichs_73", "ichs_74", "ichs_75", "ichs_76", "ichs_77", "ichs_78", "ichs_79", "ichs_80", 
-	"ichs_81", "ichs_82", "ichs_83", "ichs_84", "ichs_85", "ichs_86", "ichs_87", "ichs_88", "ichs_89", "ichs_90", "ichs_91", "ichs_92", "ichs_93", "ichs_94", "ichs_95", "ichs_96", 
-	"ichs_97", "ichs_98", "ichs_99", "ichs_100", "ichs_101", "ichs_102", "ichs_103", "ichs_104", "ichs_105", "ichs_106", "ichs_107", "ichs_108", "ichs_109", "ichs_110", "ichs_111", "ichs_112", 
-	"ichs_113", "ichs_114", "ichs_115", "ichs_116", "ichs_117", "ichs_118", "ichs_119", "ichs_120", "ichs_121", "ichs_122", "ichs_123", "ichs_124", "ichs_125", "ichs_126", "ichs_127", "ichs_128", 
-	"ichs_129", "ichs_130", "ichs_131", "ichs_132", "ichs_133", "ichs_134", "ichs_135", "ichs_136", "ichs_137", "ichs_138", "ichs_139", "ichs_140", "ichs_141", "ichs_142", "ichs_143", "ichs_144", 
-	"ichs_145", "ichs_146", "ichs_147", "ichs_148", "ichs_149", "ichs_150", "ichs_151", "ichs_152", "ichs_153", "ichs_154", "ichs_155", "ichs_156", "ichs_157", "ichs_158", "ichs_159", "ichs_160", 
-	"ichs_161", "ichs_162", "ichs_163", "ichs_164", "ichs_165", "ichs_166", "ichs_167", "ichs_168", "ichs_169", "ichs_170", "ichs_171", "ichs_172", "ichs_173", "ichs_174", "ichs_175", "ichs_176", 
-	"ichs_177", "ichs_178", "ichs_179", "ichs_180", "ichs_181", "ichs_182", "ichs_183", "ichs_184", "ichs_185", "ichs_186", "ichs_187", "ichs_188", "ichs_189", "ichs_190", "ichs_191", "ichs_192", 
-	"ichs_193", "ichs_194", "ichs_195", "ichs_196", "ichs_197", "ichs_198", "ichs_199", "ichs_200", "ichs_201", "ichs_202", "ichs_203", "ichs_204", "ichs_205", "ichs_206", "ichs_207", "ichs_208", 
-	"ichs_209", "ichs_210", "ichs_211", "ichs_212", "ichs_213", "ichs_214", "ichs_215", "ichs_216", "ichs_217", "ichs_218", "ichs_219", "ichs_220", "ichs_221", "ichs_222", "ichs_223", "ichs_224", 
-	"ichs_225", "ichs_226", "ichs_227", "ichs_228", "ichs_229", "ichs_230", "ichs_231", "ichs_232", "ichs_233", "ichs_234", "ichs_235", "ichs_236", "ichs_237", "ichs_238", "ichs_239", "ichs_240", 
-	"ichs_241", "ichs_242", "ichs_243", "ichs_244", "ichs_245", "ichs_246", "ichs_247", "ichs_248", "ichs_249", "ichs_250", "ichs_251", "ichs_252", "ichs_253", "ichs_254", "ichs_255", "ichs_256", 
-	"ichs_257", "ichs_258", "ichs_259", "ichs_260", "ichs_261", "ichs_262", "ichs_263", "ichs_264", "ichs_265", "ichs_266", "ichs_267", "ichs_268", "ichs_269", "ichs_270", "ichs_271", "ichs_272", 
-	"ichs_273", "ichs_274", "ichs_275", "ichs_276", "ichs_277", "ichs_278", "ichs_279", "ichs_280", "ichs_281", "ichs_282", "ichs_283", "ichs_284", "ichs_285", "ichs_286", "ichs_287", "ichs_288", 
-	"ichs_289", "ichs_290", "ichs_291", "ichs_292", "ichs_293", "ichs_294", "ichs_295", "ichs_296", "ichs_297", "ichs_298", "ichs_299", "ichs_300", "ichs_301", "ichs_302", "ichs_303", "ichs_304", 
-	"ichs_305", "ichs_306", "ichs_307", "ichs_308", "ichs_309", "ichs_310", "ichs_311", "ichs_312", "ichs_313", "ichs_314", "ichs_315", "ichs_316", "ichs_317", "ichs_318", "ichs_319", "ichs_320", 
-	"ichs_321", "ichs_322", "ichs_323", "ichs_324", "ichs_325", "ichs_326", "ichs_327", "ichs_328", "ichs_329", "ichs_330", "ichs_331", "ichs_332", "ichs_333", "ichs_334", "ichs_335", "ichs_336", 
-	"ichs_337", "ichs_338", "ichs_339", "ichs_340", "ichs_341", "ichs_342", "ichs_343", "ichs_344", "ichs_345", "ichs_346", "ichs_347", "ichs_348", "ichs_349", "ichs_350", "ichs_351", "ichs_352", 
-	"ichs_353", "ichs_354", "ichs_355", "ichs_356", "ichs_357", "ichs_358", "ichs_359", "ichs_360", "ichs_361", "ichs_362", "ichs_363", "ichs_364", "ichs_365", "ichs_366", "ichs_367", "ichs_368", 
-	"ichs_369", "ichs_370", "ichs_371", "ichs_372", "ichs_373", "ichs_374", "ichs_375", "ichs_376", "ichs_377", "ichs_378", "ichs_379", "ichs_380", "ichs_381", "ichs_382", "ichs_383", "ichs_384", 
-	"ichs_385", "ichs_386", "ichs_387", "ichs_388", "ichs_389", "ichs_390", "ichs_391", "ichs_392", "ichs_393", "ichs_394", "ichs_395", "ichs_396", "ichs_397", "ichs_398", "ichs_399", "ichs_400", 
-	"ichs_401", "ichs_402", "ichs_403", "ichs_404", "ichs_405", "ichs_406", "ichs_407", "ichs_408", "ichs_409", "ichs_410", "ichs_411", "ichs_412", "ichs_413", "ichs_414", "ichs_415", "ichs_416", 
-	"ichs_417", "ichs_418", "ichs_419", "ichs_420", "ichs_421", "ichs_422", "ichs_423", "ichs_424", "ichs_425", "ichs_426", "ichs_427", "ichs_428", "ichs_429", "ichs_430", "ichs_431", "ichs_432", 
-	"ichs_433", "ichs_434", "ichs_435", "ichs_436", "ichs_437", "ichs_438", "ichs_439", "ichs_440", "ichs_441", "ichs_442", "ichs_443", "ichs_444", "ichs_445", "ichs_446", "ichs_447", "ichs_448", 
-	"ichs_449", "ichs_450", "ichs_451", "ichs_452", "ichs_453", "ichs_454", "ichs_455", "ichs_456", "ichs_457", "ichs_458", "ichs_459", "ichs_460", "ichs_461", "ichs_462", "ichs_463", "ichs_464", 
-	"ichs_465", "ichs_466", "ichs_467", "ichs_468", "ichs_469", "ichs_470", "ichs_471", "ichs_472", "ichs_473", "ichs_474", "ichs_475", "ichs_476", "ichs_477", "ichs_478", "ichs_479", "ichs_480", 
-	"ichs_481", "ichs_482", "ichs_483", "ichs_484", "ichs_485", "ichs_486", "ichs_487", "ichs_488", "ichs_489", "ichs_490", "ichs_491", "ichs_492", "ichs_493", "ichs_494", "ichs_495", "ichs_496", 
-	"ichs_497", "ichs_498", "ichs_499", "ichs_500", "ichs_501", "ichs_502", "ichs_503", "ichs_504", "ichs_505", "ichs_506", "ichs_507", "ichs_508", "ichs_509", "ichs_510", "ichs_511"
-};
-
-
 extern const char *itemclass_help_string_defaults[itype_max];
 //ZModule Functions
 
@@ -35083,7 +35046,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
-	memset(moduledata.item_editor_type_names, 0, sizeof(moduledata.item_editor_type_names));
 	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
 	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
 	
@@ -35095,7 +35057,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names)); 
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
-	memset(moduledata.itemclass_help_strings, 0, sizeof(moduledata.itemclass_help_strings));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
 	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
@@ -35315,63 +35276,6 @@ bool ZModule::init(bool d) //bool default
 		{
 			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
 			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
-		}
-		
-		
-		//item editor
-		
-		//item families  
-		const char itype_fields[itype_max][255] =
-		{
-			"ic_sword","ic_brang", "ic_arrow","ic_cand","ic_whis",
-			"ic_meat", "ic_rx", "ic_potion", 
-			"ic_wand","ic_armour","ic_wallet","ic_amul","ic_shield",
-			//10
-			"ic_bow","ic_raft","ic_ladder","ic_spellbook","ic_mkey",
-			"ic_glove","ic_flip","ic_boot","ic_grapple","ic_lens",
-			//20
-			"ic_hammer","ic_firespell","ic_exitspell","ic_shieldspell","ic_bomb",
-			"ic_sbomb","ic_fobwatch","ic_key","ic_mcp","ic_mcguf",
-			//30
-			"ic_map","ic_compass","ic_bkey","ic_quiv","ic_lkey",
-			"ic_cane","ic_money","ic_ammow_arrow","ic_faerie","ic_magic",
-			//40
-			"ic_health","ic_hc","ic_hcp","ic_killall","ic_ammo_bomb",
-			"ic_bombbag","ic_feath","ic_hover","ic_spinat","ic_crossbeam",
-			//50
-			"ic_quakeham","ic_ring_whisp","ic_ring_charge","ic_perilbeam","ic_wmedal",
-			"ic_ring_hp","ic_ring_mp","ic_multispin","ic_supquake","ic_dowse",
-			//60
-			"ic_stomp","ic_ring_crit","ic_ring_peril","ic_ngongameplay","ic_cic01",
-			"ic_cic02","ic_cic03","ic_cic04","ic_cic05","ic_cic06",
-			//70
-			"ic_cic07","ic_cic08","ic_cic09","ic_cic10","ic_cic11",
-			"ic_cic12","ic_cic13","ic_cic14","ic_cic15","ic_cic16",
-			//80
-			"ic_cic17","ic_cic18","ic_cic19","ic_cic20","ic_bowandarr","ic_bottle", "ic_last",
-			"ic_89","ic_90","ic_91","ic_92","ic_93","ic_94","ic_95","ic_96","ic_97","ic_98","ic_99","ic_100","ic_101","ic_102","ic_103","ic_104",
-			"ic_105","ic_106","ic_107","ic_108","ic_109","ic_111","ic_112","ic_113","ic_114","ic_115","ic_116","ic_117","ic_118","ic_119","ic_120","ic_121",
-			"ic_122","ic_123","ic_124","ic_125","ic_126","ic_127","ic_128","ic_129","ic_130","ic_131","ic_132","ic_133","ic_134","ic_135","ic_136","ic_137",
-			"ic_138","ic_139","ic_140","ic_141","ic_142","ic_143","ic_144","ic_145","ic_146","ic_147","ic_148","ic_149","ic_150","ic_151","ic_152","ic_153",
-			"ic_154","ic_155","ic_156","ic_157","ic_158","ic_159","ic_160","ic_161","ic_162","ic_163","ic_164","ic_165","ic_166","ic_167","ic_168","ic_169",
-			"ic_170","ic_171","ic_172","ic_173","ic_174","ic_175","ic_176","ic_177","ic_178","ic_179","ic_180","ic_181","ic_182","ic_183","ic_184","ic_185",
-			"ic_186","ic_187","ic_188","ic_189","ic_190","ic_191","ic_192","ic_193","ic_194","ic_195","ic_196","ic_197","ic_198","ic_199","ic_200","ic_201",
-			"ic_202","ic_203","ic_204","ic_205","ic_206","ic_207","ic_208","ic_209","ic_210","ic_211","ic_212","ic_213","ic_214","ic_215","ic_216","ic_217",
-			"ic_218","ic_219","ic_220","ic_221","ic_222","ic_223","ic_224","ic_225","ic_226","ic_227","ic_228","ic_229","ic_230","ic_231","ic_232","ic_233",
-			"ic_234","ic_235","ic_236","ic_237","ic_238","ic_239","ic_240","ic_241","ic_242","ic_243","ic_244","ic_245","ic_246","ic_247","ic_248","ic_249",
-			"ic_250","ic_251","ic_252","ic_253","ic_254","ic_255",
-			//256
-			"ic_script01","ic_script02","ic_script03","ic_script04","ic_script05",
-			"ic_script06","ic_script07","ic_script08","ic_script09","ic_script10",
-			//266
-			"ic_icerod","ic_atkring","ic_lantern","ic_pearl", "ic_bottle", "ic_bottlefill", "ic_bugnet", "ic_mirror", "ic_switchhook"
-			//270
-		};
-		for ( int32_t q = 0; q < itype_max; q++ )
-		{
-			if(default_itype_strings[q][0])
-				strcpy(moduledata.item_editor_type_names[q],get_config_string("ITEMS",itype_fields[q],default_itype_strings[q]));
-			else sprintf(moduledata.item_editor_type_names[q], "-zz%03d",q);
 		}
 		
 		//combo editor
@@ -35697,27 +35601,6 @@ bool ZModule::init(bool d) //bool default
 			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		
-		for ( int32_t q = 0; q < itype_max; q++ )
-		{
-			char temp_help_str[1024];
-			strcpy(temp_help_str,get_config_string("ITEMHELP",itemclass_help_string_cats[q],""));
-			if ( temp_help_str[0] == NULL ) 
-			{
-				strcpy(temp_help_str,
-					(itemclass_help_string_defaults[q] && itemclass_help_string_defaults[q][0])
-					? itemclass_help_string_defaults[q]
-					: (q < 256
-						? "This has no built-in effect, but can be given special significance using ZScripts or ZASM."
-						: "This item class is reserved for future versions of ZC"));
-			}
-			if ( temp_help_str[0] == '-' )
-			{
-				strcpy(temp_help_str,"");
-			}
-			strcpy(moduledata.itemclass_help_strings[q],temp_help_str);
-			//strcpy(moduledata.itemclass_help_strings[q],get_config_string("ITEMHELP",itemclass_help_string_cats[q],itemclass_help_string_defaults[q]));
-			//al_trace("Item Help String %d is: %s\n", q, moduledata.itemclass_help_strings[q]);
-		}
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);
 		al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
