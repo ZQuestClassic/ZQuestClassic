@@ -51,7 +51,7 @@ extern particle_list particles;
 //FFSCript   FFEngine;
 
 int32_t temp_ffscript_version = 0;
-static bool read_ext_zinfo = false;
+static bool read_ext_zinfo = false, read_zinfo = false;
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -2039,6 +2039,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	int32_t templatepath_len=0;
 	
 	tempheader.external_zinfo = false;
+	read_zinfo = false;
 	if(!strcmp(tempheader.id_str,QH_IDSTR))                      //pre-1.93 version
 	{
 		byte padding;
@@ -2594,6 +2595,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				return qe_invalid;
 			}
 			tempheader.external_zinfo = b?true:false;
+			read_zinfo = true;
 		}
 		
 		if(printmetadata || __isZQuest)
@@ -19994,22 +19996,26 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
     box_eol();
     al_trace("Made in ZQuest %x Beta %d\n",tempheader.zelda_version, tempheader.build);
     
-	box_out("Reading ZInfo - ");
-	box_out(read_ext_zinfo ? "External..." : "Internal...");
-	if(read_ext_zinfo)
+	if(read_zinfo)
 	{
-		PACKFILE *inf=pack_fopen_password(zinfofilename, F_READ, "");
-		ret=readzinfo(inf, ZI);
-		if(inf) pack_fclose(inf);
-		checkstatus(ret);
+		box_out("Reading ZInfo - ");
+		box_out(read_ext_zinfo ? "External..." : "Internal...");
+		if(read_ext_zinfo)
+		{
+			PACKFILE *inf=pack_fopen_password(zinfofilename, F_READ, "");
+			ret=readzinfo(inf, ZI);
+			if(inf) pack_fclose(inf);
+			checkstatus(ret);
+		}
+		else
+		{
+			ret=readzinfo(f, ZI);
+			checkstatus(ret);
+		}
+		box_out("okay.");
+		box_eol();
 	}
-	else
-	{
-		ret=readzinfo(f, ZI);
-		checkstatus(ret);
-	}
-    box_out("okay.");
-    box_eol();
+	else ZI.clear();
 	
     if(tempheader.zelda_version>=0x193)
     {
