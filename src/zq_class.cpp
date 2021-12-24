@@ -6673,204 +6673,209 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
         {
             new_return(20);
         }
-	
-	//v4
-	
-	if(!p_iputl(V_ZC_FIRST,f))
-	{
-		new_return(21);
-	}
-	if(!p_iputl(V_ZC_SECOND,f))
-	{
-		new_return(22);
-	}
-	if(!p_iputl(V_ZC_THIRD,f))
-	{
-		new_return(23);
-	}
-	if(!p_iputl(V_ZC_FOURTH,f))
-	{
-		new_return(24);
-	}
-	if(!p_iputl(V_ZC_ALPHA,f))
-	{
-		new_return(25);
-	}
-	if(!p_iputl(V_ZC_BETA,f))
-	{
-		new_return(26);
-	}
-	if(!p_iputl(V_ZC_GAMMA,f))
-	{
-		new_return(27);
-	}
-	if(!p_iputl(V_ZC_RELEASE,f))
-	{
-		new_return(28);
-	}
-	if(!p_iputw(BUILDTM_YEAR,f))
-	{
-		new_return(29);
-	}
-	if(!p_putc(BUILDTM_MONTH,f))
-	{
-		new_return(30);
-	}
-	if(!p_putc(BUILDTM_DAY,f))
-	{
-		new_return(31);
-	}
-	if(!p_putc(BUILDTM_HOUR,f))
-	{
-		new_return(32);
-	}
-	if(!p_putc(BUILDTM_MINUTE,f))
-	{
-		new_return(33);
-	}
-	
-	
-	
-	char tempsig[256];
-	memset(tempsig, 0, 256);
-	strcpy(tempsig, DEV_SIGNOFF);
-	
-	if(!pfwrite(&tempsig,256,f))
-	{
-		new_return(34);
-	}
-	
-	char tempcompilersig[256];
-	memset(tempcompilersig, 0, 256);
-	strcpy(tempcompilersig, COMPILER_NAME);
-	
-	if(!pfwrite(&tempcompilersig,256,f))
-	{
-		new_return(35);
-	}
-	
-	char tempcompilerversion[256];
-	memset(tempcompilerversion, 0, 256); 
-	#ifdef _MSC_VER
+		
+		//v4
+		
+		if(!p_iputl(V_ZC_FIRST,f))
+		{
+			new_return(21);
+		}
+		if(!p_iputl(V_ZC_SECOND,f))
+		{
+			new_return(22);
+		}
+		if(!p_iputl(V_ZC_THIRD,f))
+		{
+			new_return(23);
+		}
+		if(!p_iputl(V_ZC_FOURTH,f))
+		{
+			new_return(24);
+		}
+		if(!p_iputl(V_ZC_ALPHA,f))
+		{
+			new_return(25);
+		}
+		if(!p_iputl(V_ZC_BETA,f))
+		{
+			new_return(26);
+		}
+		if(!p_iputl(V_ZC_GAMMA,f))
+		{
+			new_return(27);
+		}
+		if(!p_iputl(V_ZC_RELEASE,f))
+		{
+			new_return(28);
+		}
+		if(!p_iputw(BUILDTM_YEAR,f))
+		{
+			new_return(29);
+		}
+		if(!p_putc(BUILDTM_MONTH,f))
+		{
+			new_return(30);
+		}
+		if(!p_putc(BUILDTM_DAY,f))
+		{
+			new_return(31);
+		}
+		if(!p_putc(BUILDTM_HOUR,f))
+		{
+			new_return(32);
+		}
+		if(!p_putc(BUILDTM_MINUTE,f))
+		{
+			new_return(33);
+		}
+		
+		
+		
+		char tempsig[256];
+		memset(tempsig, 0, 256);
+		strcpy(tempsig, DEV_SIGNOFF);
+		
+		if(!pfwrite(&tempsig,256,f))
+		{
+			new_return(34);
+		}
+		
+		char tempcompilersig[256];
+		memset(tempcompilersig, 0, 256);
+		strcpy(tempcompilersig, COMPILER_NAME);
+		
+		if(!pfwrite(&tempcompilersig,256,f))
+		{
+			new_return(35);
+		}
+		
+		char tempcompilerversion[256];
+		memset(tempcompilerversion, 0, 256); 
+		#ifdef _MSC_VER
 		zc_itoa(_MSC_VER,tempcompilerversion,10);
-	#else
+		#else
 		strcpy(tempcompilerversion, COMPILER_VERSION);
-	#endif
-	
-	
-	if(!pfwrite(&tempcompilerversion,256,f))
+		#endif
+		
+		
+		if(!pfwrite(&tempcompilerversion,256,f))
         {
             new_return(36);
         }
-	
-	char tempproductname[1024];
-	memset(tempproductname, 0, 1024);
-	strcpy(tempproductname, PROJECT_NAME);
-	
-	if(!pfwrite(&tempproductname,1024,f))
+		
+		char tempproductname[1024];
+		memset(tempproductname, 0, 1024);
+		strcpy(tempproductname, PROJECT_NAME);
+		
+		if(!pfwrite(&tempproductname,1024,f))
         {
             new_return(37);
         }
-	
-	if(!p_putc(V_ZC_COMPILERSIG,f))
-	{
-	    new_return(38);
-	}
-	#ifdef _MSC_VER
+		
+		if(!p_putc(V_ZC_COMPILERSIG,f))
+		{
+			new_return(38);
+		}
+		#ifdef _MSC_VER
 		if(!p_iputl((_MSC_VER / 100),f))
 		{
 		    new_return(39);
 		}
-	#else
+		#else
 		if(!p_iputl(COMPILER_V_FIRST,f))
 		{
 		    new_return(39);
 		}
-	#endif
-	
-	
-
-	#ifdef _MSC_VER
-	if(!p_iputl((_MSC_VER % 100),f)) 
-	{
-	    new_return(41);
-	}
-	#else
-	if(!p_iputl(COMPILER_V_SECOND,f)) 
-	{
-	    new_return(41);
-	}
-	#endif
-	
-	#ifdef _MSC_VER
-		# if _MSC_VER >= 1400
-		if(!p_iputl((_MSC_FULL_VER % 100000),f))
+		#endif
+		
+		
+		
+		#ifdef _MSC_VER
+		if(!p_iputl((_MSC_VER % 100),f)) 
 		{
-		    new_return(40);
+			new_return(41);
 		}
-		# else
-		if(!p_iputl((_MSC_FULL_VER % 10000),f))
+		#else
+		if(!p_iputl(COMPILER_V_SECOND,f)) 
 		{
-		    new_return(40);
+			new_return(41);
 		}
 		#endif
-	#else	
-	if(!p_iputl(COMPILER_V_THIRD,f))
-	{
-		    new_return(40);
-	}
-	#endif
-	
-	#ifdef _MSC_VER
-	if(!p_iputl((_MSC_BUILD),f))
-	{
-	    new_return(42);
-	}
-	#else
-	if(!p_iputl(COMPILER_V_FOURTH,f))
-	{
-	    new_return(42);
-	}
-	#endif
-	if(!p_iputw(0,f)) //was V_ZC_DEVSIG, no longer used
-	{
-	    new_return(43);
-	}
-	
-	char tempmodulename[1024];
-	memset(tempmodulename, 0, 1024);
-	strcpy(tempmodulename, moduledata.module_name);
-	
-	if(!pfwrite(&tempmodulename,1024,f))
+		
+		#ifdef _MSC_VER
+			# if _MSC_VER >= 1400
+			if(!p_iputl((_MSC_FULL_VER % 100000),f))
+			{
+				new_return(40);
+			}
+			# else
+			if(!p_iputl((_MSC_FULL_VER % 10000),f))
+			{
+				new_return(40);
+			}
+			#endif
+		#else	
+		if(!p_iputl(COMPILER_V_THIRD,f))
+		{
+				new_return(40);
+		}
+		#endif
+		
+		#ifdef _MSC_VER
+		if(!p_iputl((_MSC_BUILD),f))
+		{
+			new_return(42);
+		}
+		#else
+		if(!p_iputl(COMPILER_V_FOURTH,f))
+		{
+			new_return(42);
+		}
+		#endif
+		if(!p_iputw(0,f)) //was V_ZC_DEVSIG, no longer used
+		{
+			new_return(43);
+		}
+		
+		char tempmodulename[1024];
+		memset(tempmodulename, 0, 1024);
+		strcpy(tempmodulename, moduledata.module_name);
+		
+		if(!pfwrite(&tempmodulename,1024,f))
         {
             new_return(44);
         }
-	
-	char tempdate[256];
-	memset(tempdate, 0, 256);
-	strcpy(tempdate, __DATE__);
-	
-	if(!pfwrite(&tempdate,256,f))
+		
+		char tempdate[256];
+		memset(tempdate, 0, 256);
+		strcpy(tempdate, __DATE__);
+		
+		if(!pfwrite(&tempdate,256,f))
         {
             new_return(45);
         }
-	char temptime[256];
-	memset(temptime, 0, 256);
-	strcpy(temptime, __TIME__);
-	
-	if(!pfwrite(&temptime,256,f))
+		char temptime[256];
+		memset(temptime, 0, 256);
+		strcpy(temptime, __TIME__);
+		
+		if(!pfwrite(&temptime,256,f))
         {
             new_return(46);
         }
-	
-	
-	char temptimezone[6];
-	memset(temptimezone, 0, 6);
-	strcpy(temptimezone, __TIMEZONE__);
-	if(!pfwrite(&temptimezone,6,f))
+		
+		
+		char temptimezone[6];
+		memset(temptimezone, 0, 6);
+		strcpy(temptimezone, __TIMEZONE__);
+		if(!pfwrite(&temptimezone,6,f))
         {
             new_return(47);
         }
+		
+		if(!p_putc(Header->external_zinfo ? 1 : 0, f))
+		{
+			new_return(48);
+		}
 	
         if(writecycle==0)
         {
@@ -13176,30 +13181,6 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	// if(ZI.isNull())
-	// {
-		// remove(zinfofilename);
-	// }
-	// else
-	// {
-		PACKFILE *inf = pack_fopen_password(zinfofilename, F_WRITE, "");
-		
-		box_out("Writing ZInfo...");
-		if(inf)
-		{
-			if(writezinfo(inf,ZI)!=0)
-			{
-				new_return(2);
-			}
-			
-			pack_fclose(inf);
-			box_out("okay.");
-		}
-		else box_out(" ...file failure");
-		box_eol();
-	// }
-	
-	
 	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
 	
 	if(!f)
@@ -13217,6 +13198,37 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	
 	box_out("okay.");
 	box_eol();
+	
+	
+	if(header.external_zinfo)
+	{
+		PACKFILE *inf = pack_fopen_password(zinfofilename, F_WRITE, "");
+		
+		box_out("Writing ZInfo...");
+		if(inf)
+		{
+			if(writezinfo(inf,ZI)!=0)
+			{
+				new_return(2);
+			}
+			
+			pack_fclose(inf);
+			box_out("okay.");
+		}
+		else box_out(" ...file failure");
+		box_eol();
+	}
+	else
+	{
+		box_out("Writing ZInfo...");
+		if(writezinfo(f,ZI)!=0)
+		{
+			new_return(2);
+		}
+		box_out("okay.");
+		box_eol();
+	}
+	
 	
 	box_out("Writing Rules...");
 	

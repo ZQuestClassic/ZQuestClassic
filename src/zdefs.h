@@ -225,7 +225,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
-#define V_HEADER           5
+#define V_HEADER           6
 #define V_RULES           17
 #define V_STRINGS          8
 #define V_MISC             14
@@ -3294,6 +3294,7 @@ struct zquestheader
     //made in module_name
     
     //602
+	bool external_zinfo;
 };
 
 enum { msLINKED };

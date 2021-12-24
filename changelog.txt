@@ -6,6 +6,8 @@
 //Alpha 101
 
 Add ZInfo files / itemclass custom renaming
+	ZInfo is internal to the .qst by default, but
+	can be saved externally to lower quest file size.
 	( EmilyV, Dec 23rd, 2021 )
 
 Add more level-specific palettes
