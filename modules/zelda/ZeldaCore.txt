@@ -20,6 +20,7 @@ src/drawing.cpp
 src/random.cpp
 src/module.cpp
 src/fonts.cpp
+src/zinfo.cpp
 
 ## End of Zelda Core module
 )

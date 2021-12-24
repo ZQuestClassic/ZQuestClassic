@@ -222,6 +222,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_FAVORITES      ZC_ID('F','A','V','S')              //favorite combos and combo aliases
 #define ID_FFSCRIPT       ZC_ID('F','F','S','C')              //ff scripts data
 #define ID_SFX            ZC_ID('S','F','X',' ')              //sfx data
+#define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
 #define V_HEADER           5
@@ -253,6 +254,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        1
 
 #define V_COMPATRULE       13
+#define V_ZINFO       0
+
 //= V_SHOPS is under V_MISC
 
 /*
@@ -291,6 +294,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_FFSCRIPT        1
 #define CV_SFX             5
 #define CV_FAVORITES       1
+#define CV_ZINFO           0
 
 
 // Loose Object Version Metadata
@@ -4532,7 +4536,6 @@ struct zcmodule
 	
 	char enem_type_names[eeMAX][255];
 	char enem_anim_type_names[aMAX][255];
-	char item_editor_type_names[itype_max][255];
 	char combo_type_names[cMAX][255];
 	char combo_flag_names[mfMAX][255];
 	char roomtype_names[rMAX][255];
@@ -4543,8 +4546,6 @@ struct zcmodule
 	char enemy_scriptweaponweapon_names[10][255];
 	char player_weapon_names[wIce+1][255];
 	char counter_names[33][255];
-	
-	char itemclass_help_strings[itype_max][1024];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];
@@ -4582,6 +4583,7 @@ struct zcmodule
 
 }; //zcmodule
 
+#include "zinfo.h"
 
 #define titleScreen250 0
 #define titleScreen210 10

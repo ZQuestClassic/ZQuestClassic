@@ -917,8 +917,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							),
 							Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
 							{
-								InfoDialog(moduledata.item_editor_type_names[local_itemref.family],
-									moduledata.itemclass_help_strings[local_itemref.family]
+								InfoDialog(ZI.getItemClassName(local_itemref.family),
+									ZI.getItemClassHelp(local_itemref.family)
 								).show();
 							})
 						)
@@ -2177,8 +2177,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
 								{
-									InfoDialog(moduledata.item_editor_type_names[local_itemref.family],
-										moduledata.itemclass_help_strings[local_itemref.family]
+									InfoDialog(ZI.getItemClassName(local_itemref.family),
+										ZI.getItemClassHelp(local_itemref.family)
 									).show();
 								})
 							)

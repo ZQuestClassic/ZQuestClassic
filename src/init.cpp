@@ -1723,13 +1723,13 @@ void build_biic_list()
 	
 	for(int32_t i=start; i<itype_max; ++i)
 	{
-		if(moduledata.item_editor_type_names[i][0] == '-')
+		char const* itname = ZI.getItemClassName(i);
+		if(itname[0] == '-')
 			continue; //Hidden
-        if(i < itype_last || moduledata.item_editor_type_names[i][0] != NULL )
+        if(i < itype_last || itname[0] != NULL )
 		{
-            char const* module_str = moduledata.item_editor_type_names[i];
-            char* name = new char[strlen(module_str) + 7];
-            sprintf(name, "%s (%03d)", module_str, i);
+            char* name = new char[strlen(itname) + 7];
+            sprintf(name, "%s (%03d)", itname, i);
             std::string sname(name);
 
 			fams[sname] = i;

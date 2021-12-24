@@ -5,6 +5,9 @@
 
 //Alpha 101
 
+Add ZInfo files / itemclass custom renaming
+	( EmilyV, Dec 23rd, 2021 )
+
 Add more level-specific palettes
 	( Deedee, Dec 23rd, 2021 )
 

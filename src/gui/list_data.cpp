@@ -64,15 +64,15 @@ ListData ListData::itemclass(bool numbered)
 	
 	for(int32_t i=0; i<itype_max; ++i)
 	{
-		if(moduledata.item_editor_type_names[i][0] == '-')
+		char const* itname = ZI.getItemClassName(i);
+		if(itname[0] == '-')
 			continue; //Hidden
-        if(i < itype_last || moduledata.item_editor_type_names[i][0])
+        if(i < itype_last || itname[0])
 		{
-            char const* module_str = moduledata.item_editor_type_names[i];
-            char* name = new char[strlen(module_str) + 7];
+            char* name = new char[strlen(itname) + 7];
             if(numbered)
-				sprintf(name, "%s (%03d)", module_str, i);
-            else strcpy(name, module_str);
+				sprintf(name, "%s (%03d)", itname, i);
+            else strcpy(name, itname);
 			string sname(name);
 			
 			fams[sname] = i;
