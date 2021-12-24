@@ -5992,44 +5992,44 @@ void delete_everything_else() //blarg.
 
 void quit_game()
 {
-    script_drawing_commands.Dispose(); //for allegro bitmaps
-    
-    remove_installed_timers();
-    delete_everything_else();
-    
-    al_trace("Freeing Data: \n");
-    
-    if(game) delete game;
-    
-    if(data) unload_datafile(data);
-    
-    if(fontsdata) unload_datafile(fontsdata);
-    
-    if(sfxdata) unload_datafile(sfxdata);
-    
-    //if(mididata) unload_datafile(mididata);
-    //  if(mappic)
-    //    destroy_bitmap(mappic);
-    
-    al_trace("Bitmaps... \n");
-    destroy_bitmap(framebuf);
-    destroy_bitmap(scrollbuf);
-    destroy_bitmap(tmp_scr);
-    destroy_bitmap(screen2);
-    destroy_bitmap(tmp_bmp);
-    destroy_bitmap(fps_undo);
-    destroy_bitmap(prim_bmp);
-    set_clip_state(msg_bg_display_buf, 1);
-    destroy_bitmap(msg_bg_display_buf);
-    set_clip_state(msg_txt_display_buf, 1);
-    destroy_bitmap(msg_txt_display_buf);
-    set_clip_state(msg_portrait_display_buf, 1);
-    destroy_bitmap(msg_portrait_display_buf);
-    destroy_bitmap(msg_txt_bmp_buf);
-    destroy_bitmap(msg_bg_bmp_buf);
-    destroy_bitmap(msg_portrait_bmp_buf);
-    set_clip_state(pricesdisplaybuf, 1);
-    destroy_bitmap(pricesdisplaybuf);
+	script_drawing_commands.Dispose(); //for allegro bitmaps
+	
+	remove_installed_timers();
+	delete_everything_else();
+	
+	al_trace("Freeing Data: \n");
+	
+	if(game) delete game;
+	
+	if(data) unload_datafile(data);
+	
+	if(fontsdata) unload_datafile(fontsdata);
+	
+	if(sfxdata) unload_datafile(sfxdata);
+	
+	//if(mididata) unload_datafile(mididata);
+	//  if(mappic)
+	//    destroy_bitmap(mappic);
+	
+	al_trace("Bitmaps... \n");
+	destroy_bitmap(framebuf);
+	destroy_bitmap(scrollbuf);
+	destroy_bitmap(tmp_scr);
+	destroy_bitmap(screen2);
+	destroy_bitmap(tmp_bmp);
+	destroy_bitmap(fps_undo);
+	destroy_bitmap(prim_bmp);
+	set_clip_state(msg_bg_display_buf, 1);
+	destroy_bitmap(msg_bg_display_buf);
+	set_clip_state(msg_txt_display_buf, 1);
+	destroy_bitmap(msg_txt_display_buf);
+	set_clip_state(msg_portrait_display_buf, 1);
+	destroy_bitmap(msg_portrait_display_buf);
+	destroy_bitmap(msg_txt_bmp_buf);
+	destroy_bitmap(msg_bg_bmp_buf);
+	destroy_bitmap(msg_portrait_bmp_buf);
+	set_clip_state(pricesdisplaybuf, 1);
+	destroy_bitmap(pricesdisplaybuf);
 	destroy_bitmap(zcmouse[0]);
 	destroy_bitmap(zcmouse[1]);
 	destroy_bitmap(zcmouse[2]);
@@ -6041,129 +6041,133 @@ void quit_game()
 	destroy_bitmap(darkscr_bmp_scrollscr);
 	destroy_bitmap(darkscr_bmp_scrollscr_trans);
 	destroy_bitmap(lightbeam_bmp);
-    
-    al_trace("Subscreens... \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-            }
-        }
-    }
-    
-    al_trace("SFX... \n");
-    zcmusic_exit();
-    
-    for(int32_t i=0; i<WAV_COUNT; i++)
-    {
-        delete [] sfx_string[i];
-        
-        if(customsfxdata[i].data!=NULL)
-        {
+	
+	al_trace("Subscreens... \n");
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
+		{
+			switch(custom_subscreen[i].objects[j].type)
+			{
+			case ssoTEXT:
+			case ssoTEXTBOX:
+			case ssoCURRENTITEMTEXT:
+			case ssoCURRENTITEMCLASSTEXT:
+				if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
+			}
+		}
+	}
+	
+	al_trace("SFX... \n");
+	zcmusic_exit();
+	
+	for(int32_t i=0; i<WAV_COUNT; i++)
+	{
+		delete [] sfx_string[i];
+		
+		if(customsfxdata[i].data!=NULL)
+		{
 //      delete [] customsfxdata[i].data;
-            zc_free(customsfxdata[i].data);
-        }
-    }
-    
-    al_trace("Misc... \n");
-    
-    for(int32_t i=0; i<WPNCNT; i++)
-    {
-        delete [] weapon_string[i];
-    }
-    
-    for(int32_t i=0; i<ITEMCNT; i++)
-    {
-        delete [] item_string[i];
-    }
-    
-    for(int32_t i=0; i<eMAXGUYS; i++)
-    {
-        delete [] guy_string[i];
-    }
-    
-    al_trace("Script buffers... \n");
-    
-    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-    {
-        if(ffscripts[i]!=NULL) delete ffscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
-    {
-        if(itemscripts[i]!=NULL) delete itemscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
-    {
-        if(guyscripts[i]!=NULL) delete guyscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
-    }
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
-    {
-        if(screenscripts[i]!=NULL) delete screenscripts[i];
-    }
-    
-    
-    for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        if(globalscripts[i]!=NULL) delete globalscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
-    {
-        if(linkscripts[i]!=NULL) delete linkscripts[i];
-    }
-    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
-    {
-        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
-    }
-    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
-    {
-        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
-    }
-    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
-    {
-        if(comboscripts[i]!=NULL) delete comboscripts[i];
-    }
-    
-    delete zscriptDrawingRenderTarget;
-    
-    //for(int32_t i=0; i<map_count*MAPSCRS; i++)
-    //{
-    //if(TheMaps[i].data != NULL) delete [] TheMaps[i].data;
-    //if(TheMaps[i].sflag != NULL) delete [] TheMaps[i].sflag;
-    //if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
-    //}
-    al_trace("Screen Data... \n");
-    
-    al_trace("Deleting quest buffers... \n");
-    del_qst_buffers();
-    
-    if(qstdir) zc_free(qstdir);
-    
-    if(qstpath) zc_free(qstpath);
-    
-    //if(TheMaps != NULL) zc_free(TheMaps);
-    //if(ZCMaps != NULL) zc_free(ZCMaps);
-    //  dumb_exit();
+			zc_free(customsfxdata[i].data);
+		}
+	}
+	
+	al_trace("Misc... \n");
+	
+	for(int32_t i=0; i<WPNCNT; i++)
+	{
+		delete [] weapon_string[i];
+	}
+	
+	for(int32_t i=0; i<ITEMCNT; i++)
+	{
+		delete [] item_string[i];
+	}
+	
+	for(int32_t i=0; i<eMAXGUYS; i++)
+	{
+		delete [] guy_string[i];
+	}
+	
+	al_trace("Script buffers... \n");
+	
+	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
+	{
+		if(ffscripts[i]!=NULL) delete ffscripts[i];
+		ffscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
+	{
+		if(itemscripts[i]!=NULL) delete itemscripts[i];
+		itemscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
+	{
+		if(guyscripts[i]!=NULL) delete guyscripts[i];
+		guyscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
+		ewpnscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
+		lwpnscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
+	{
+		if(screenscripts[i]!=NULL) delete screenscripts[i];
+		screenscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
+	{
+		if(globalscripts[i]!=NULL) delete globalscripts[i];
+		globalscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+	{
+		if(linkscripts[i]!=NULL) delete linkscripts[i];
+		linkscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	{
+		if(dmapscripts[i]!=NULL) delete dmapscripts[i];
+		dmapscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+	{
+		if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+		itemspritescripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
+	{
+		if(comboscripts[i]!=NULL) delete comboscripts[i];
+		comboscripts[i] = NULL;
+	}
+	
+	delete zscriptDrawingRenderTarget;
+	
+	//for(int32_t i=0; i<map_count*MAPSCRS; i++)
+	//{
+	//if(TheMaps[i].data != NULL) delete [] TheMaps[i].data;
+	//if(TheMaps[i].sflag != NULL) delete [] TheMaps[i].sflag;
+	//if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
+	//}
+	al_trace("Screen Data... \n");
+	
+	al_trace("Deleting quest buffers... \n");
+	del_qst_buffers();
+	
+	if(qstdir) zc_free(qstdir);
+	
+	if(qstpath) zc_free(qstpath);
+	
+	//if(TheMaps != NULL) zc_free(TheMaps);
+	//if(ZCMaps != NULL) zc_free(ZCMaps);
+	//  dumb_exit();
 }
 
 bool isSideViewGravity(int32_t t)
