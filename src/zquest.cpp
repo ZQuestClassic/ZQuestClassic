@@ -1739,6 +1739,13 @@ int32_t onZScriptSettings()
 	return D_O_K;
 }
 
+void call_itemclass_dialog();
+int32_t onZInfo()
+{
+	call_itemclass_dialog();
+	return D_O_K;
+}
+
 static MENU quest_menu[] = 
 {
     { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
@@ -1749,6 +1756,7 @@ static MENU quest_menu[] =
     { (char *)"&DMaps",                  onDmaps,                      NULL,                     0,            NULL   },
     { (char *)"I&nit Data",               onInit,                      NULL,                     0,            NULL   },
     { (char *)"Misc D&ata\t ",              NULL,                 misc_menu,                     0,            NULL   },
+    { (char *)"&ZInfo",                  onZInfo,                      NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Graphics\t ",               NULL,             graphics_menu,                     0,            NULL   },
     { (char *)"A&udio\t ",                  NULL,                audio_menu,                     0,            NULL   },

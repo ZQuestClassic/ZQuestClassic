@@ -1,10 +1,11 @@
 #ifndef _ZINFO_H
 #define _ZINFO_H
 
+void assignchar(char** p, char const* str);
+
 struct zinfo
 {
 	void clear();
-	void reset();
 	zinfo();
 #ifdef IS_ZQUEST
 	//ZQ Only
@@ -17,6 +18,9 @@ struct zinfo
 	
 	char const* zinfo::getItemClassName(size_t q);
 	char const* zinfo::getItemClassHelp(size_t q);
+	
+	void copyFrom(zinfo const& other);
+	bool isNull();
 };
 
 extern zinfo ZI;

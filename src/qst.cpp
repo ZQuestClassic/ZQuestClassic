@@ -680,7 +680,6 @@ bool valid_zqt(const char *filename)
     return isvalid;
 }
 
-static char openedqstname[2048];
 PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
 	char tmpfilename[64]; 	// This WAS [32]. I had to increase its size to prevent crashes 
@@ -806,7 +805,6 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     
 	box_out("Opening...");
 	f = pack_fopen_password(oldquest ? filename : tmpfilename, compressed ? F_READ_PACKED : F_READ, passwd);
-    sprintf(openedqstname, "%s\0", oldquest ? filename : tmpfilename);
 	if(!f)
 	{
 		if((compressed==1)&&(errno==EDOM))
@@ -820,7 +818,6 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
 			{
 				delete_file(tmpfilename);
 			}
-            openedqstname[0] = 0;
 			box_out("error.");
 			box_eol();
 			box_end(true);
@@ -19974,7 +19971,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
     if(!f)
         return open_error;
 	char zinfofilename[2048];
-	replace_extension(zinfofilename, openedqstname, "zinfo", 2047);
+	replace_extension(zinfofilename, filename, "zinfo", 2047);
 	PACKFILE *inf=pack_fopen_password(zinfofilename, F_READ, "");
 	readzinfo(inf, ZI);
     int32_t ret=0;

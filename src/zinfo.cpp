@@ -182,10 +182,10 @@ zinfo ZI;
 zinfo::zinfo()
 {
 #ifdef IS_ZQUEST
-	memset(ic_help_string, NULL, itype_max);
+	memset(ic_help_string, 0, sizeof(ic_help_string));
 #else
 #endif
-	memset(ic_name, NULL, itype_max);
+	memset(ic_name, 0, sizeof(ic_name));
 }
 
 void zinfo::clear()
@@ -207,18 +207,18 @@ void zinfo::clear()
 	}
 }
 
-static void assignchar(char** p, char const* str)
+void assignchar(char** p, char const* str)
 {
 	if(*p) zc_free(*p);
+	if(!str)
+	{
+		*p = nullptr;
+		return;
+	}
 	size_t len = strlen(str);
 	*p = (char*)zc_malloc(len+1);
 	memcpy(*p, str, len);
-	*p[len] = 0;
-}
-
-void zinfo::reset()
-{
-	clear();
+	(*p)[len] = 0;
 }
 
 static char const* nilptr = "";
@@ -241,6 +241,18 @@ char const* zinfo::getItemClassHelp(size_t q)
 		return itemclass_help_string_defaults[q];
 #endif
 	return nilptr;
+}
+
+void zinfo::copyFrom(zinfo const& other)
+{
+	clear();
+	for(auto q = 0; q < itype_max; ++q)
+	{
+		assignchar(ic_name+q, other.ic_name[q]);
+#ifdef IS_ZQUEST
+		assignchar(ic_help_string+q, other.ic_help_string[q]);
+#endif
+	}
 }
 
 #ifdef IS_ZQUEST
@@ -325,7 +337,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z)
 	word section_version, section_cversion;
 	if(!f)
 	{
-		z.reset();
+		z.clear();
 		return 0;
 	}
 	z.clear();
@@ -376,3 +388,14 @@ int32_t readzinfo(PACKFILE *f, zinfo& z)
 	return 0;
 }
 
+bool zinfo::isNull()
+{
+	for(auto q = 0; q < itype_max; ++q)
+	{
+		if(ic_name[q]) return false;
+#ifdef IS_ZQUEST
+		if(ic_help_string[q]) return false;
+#endif
+	}
+	return true;
+}

@@ -13146,356 +13146,360 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
 {
 	if(!afname) afname = filename;
-    reset_combo_animations();
-    reset_combo_animations2();
-    strcpy(header.id_str,QH_NEWIDSTR);
-    header.zelda_version = ZELDA_VERSION;
-    header.internal = INTERNAL_VERSION;
-    // header.str_count = msg_count;
-    // header.data_flags[ZQ_TILES] = usetiles;
-    header.data_flags[ZQ_TILES] = true;
-    header.data_flags[ZQ_CHEATS2] = 1;
-    header.build=VERSION_BUILD;
-    
-    for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
-    {
-        set_bit(midi_flags,i,int32_t(customtunes[i].data!=NULL));
-    }
-    
-    char keyfilename[2048];
-    char zinfofilename[2048];
-    // word combos_used;
-    // word tiles_used;
-    replace_extension(keyfilename, filepath, "key", 2047);
-    replace_extension(zinfofilename, afname, "zinfo", 2047);
-    
-    
-    
-    box_start(1, "Saving Quest", lfont, font, true);
-    box_out("Saving Quest...");
-    box_eol();
-    box_eol();
-    
-    PACKFILE *inf = pack_fopen_password(zinfofilename, F_WRITE, "");
-    
-    if(!inf)
-    {
-		al_trace("---FAILED ZINFO FILE WRITE\n");
-        fake_pack_writing = false;
-        return 1;
-    }
+	reset_combo_animations();
+	reset_combo_animations2();
+	strcpy(header.id_str,QH_NEWIDSTR);
+	header.zelda_version = ZELDA_VERSION;
+	header.internal = INTERNAL_VERSION;
+	// header.str_count = msg_count;
+	// header.data_flags[ZQ_TILES] = usetiles;
+	header.data_flags[ZQ_TILES] = true;
+	header.data_flags[ZQ_CHEATS2] = 1;
+	header.build=VERSION_BUILD;
 	
-	box_out("Writing ZInfo...");
+	for(int32_t i=0; i<MAXCUSTOMMIDIS; i++)
+	{
+		set_bit(midi_flags,i,int32_t(customtunes[i].data!=NULL));
+	}
 	
-    if(writezinfo(inf,ZI)!=0)
-    {
-        new_return(2);
-    }
-    
-    pack_fclose(inf);
-    box_out("okay.");
-    box_eol();
+	char keyfilename[2048];
+	char zinfofilename[2048];
+	// word combos_used;
+	// word tiles_used;
+	replace_extension(keyfilename, filepath, "key", 2047);
+	replace_extension(zinfofilename, afname, "zinfo", 2047);
+	
+	
+	
+	box_start(1, "Saving Quest", lfont, font, true);
+	box_out("Saving Quest...");
+	box_eol();
+	box_eol();
+	
+	// if(ZI.isNull())
+	// {
+		// remove(zinfofilename);
+	// }
+	// else
+	// {
+		PACKFILE *inf = pack_fopen_password(zinfofilename, F_WRITE, "");
+		
+		box_out("Writing ZInfo...");
+		if(inf)
+		{
+			if(writezinfo(inf,ZI)!=0)
+			{
+				new_return(2);
+			}
+			
+			pack_fclose(inf);
+			box_out("okay.");
+		}
+		else box_out(" ...file failure");
+		box_eol();
+	// }
+	
 	
 	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
-    
-    if(!f)
-    {
-        fake_pack_writing = false;
-        return 1;
-    }
-    
-    box_out("Writing Header...");
-    
-    if(writeheader(f,&header)!=0)
-    {
-        new_return(2);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Rules...");
-    
-    if(writerules(f,&header)!=0)
-    {
-        new_return(3);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Strings...");
-    
-    if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
-    {
-        new_return(4);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Doors...");
-    
-    if(writedoorcombosets(f,&header)!=0)
-    {
-        new_return(5);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing DMaps...");
-    
-    if(writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
-    {
-        new_return(6);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Misc. Data...");
-    
-    if(writemisc(f,&header,&misc)!=0)
-    {
-        new_return(7);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Misc. Colors...");
-    
-    if(writemisccolors(f,&header,&misc)!=0)
-    {
-        new_return(8);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Game Icons...");
-    
-    if(writegameicons(f,&header,&misc)!=0)
-    {
-        new_return(9);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Items...");
-    
-    if(writeitems(f,&header)!=0)
-    {
-        new_return(10);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Weapons...");
-    
-    if(writeweapons(f,&header)!=0)
-    {
-        new_return(11);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Maps...");
-    
-    if(writemaps(f,&header)!=0)
-    {
-        new_return(12);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Combos...");
-    
-    if(writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
-    {
-        new_return(13);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Combo Aliases...");
-    
-    if(writecomboaliases(f,header.zelda_version,header.build)!=0)
-    {
-        new_return(14);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Color Data...");
-    
-    if(writecolordata(f,&misc,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
-    {
-        new_return(15);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Tiles...");
-    
-    if(writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
-    {
-        new_return(16);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing MIDIs...");
-    
-    if(writemidis(f)!=0)
-    {
-        new_return(17);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Cheat Codes...");
-    
-    if(writecheats(f,&header)!=0)
-    {
-        new_return(18);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Init. Data...");
-    
-    if(writeinitdata(f,&header)!=0)
-    {
-        new_return(19);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Custom Guy Data...");
-    
-    if(writeguys(f,&header)!=0)
-    {
-        new_return(20);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Custom Link Sprite Data...");
-    
-    if(writelinksprites(f,&header)!=0)
-    {
-        new_return(21);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Custom Subscreen Data...");
-    
-    if(writesubscreens(f,&header)!=0)
-    {
-        new_return(22);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing FF Script Data...");
-    
-    if(writeffscript(f,&header)!=0)
-    {
-        new_return(23);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing SFX Data...");
-    
-    if(writesfx(f,&header)!=0)
-    {
-        new_return(24);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Item Drop Sets...");
-    
-    if(writeitemdropsets(f, &header)!=0)
-    {
-        new_return(25);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    box_out("Writing Favorite Combos...");
-    
-    if(writefavorites(f, &header)!=0)
-    {
-        new_return(26);
-    }
-    
-    box_out("okay.");
-    box_eol();
-    
-    pack_fclose(f);
-    
-    replace_extension(keyfilename, get_filename(filepath), "key", 2047);
+	
+	if(!f)
+	{
+		fake_pack_writing = false;
+		return 1;
+	}
+	
+	box_out("Writing Header...");
+	
+	if(writeheader(f,&header)!=0)
+	{
+		new_return(2);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Rules...");
+	
+	if(writerules(f,&header)!=0)
+	{
+		new_return(3);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Strings...");
+	
+	if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
+	{
+		new_return(4);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Doors...");
+	
+	if(writedoorcombosets(f,&header)!=0)
+	{
+		new_return(5);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing DMaps...");
+	
+	if(writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
+	{
+		new_return(6);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Misc. Data...");
+	
+	if(writemisc(f,&header,&misc)!=0)
+	{
+		new_return(7);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Misc. Colors...");
+	
+	if(writemisccolors(f,&header,&misc)!=0)
+	{
+		new_return(8);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Game Icons...");
+	
+	if(writegameicons(f,&header,&misc)!=0)
+	{
+		new_return(9);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Items...");
+	
+	if(writeitems(f,&header)!=0)
+	{
+		new_return(10);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Weapons...");
+	
+	if(writeweapons(f,&header)!=0)
+	{
+		new_return(11);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Maps...");
+	
+	if(writemaps(f,&header)!=0)
+	{
+		new_return(12);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Combos...");
+	
+	if(writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
+	{
+		new_return(13);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Combo Aliases...");
+	
+	if(writecomboaliases(f,header.zelda_version,header.build)!=0)
+	{
+		new_return(14);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Color Data...");
+	
+	if(writecolordata(f,&misc,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
+	{
+		new_return(15);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Tiles...");
+	
+	if(writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
+	{
+		new_return(16);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing MIDIs...");
+	
+	if(writemidis(f)!=0)
+	{
+		new_return(17);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Cheat Codes...");
+	
+	if(writecheats(f,&header)!=0)
+	{
+		new_return(18);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Init. Data...");
+	
+	if(writeinitdata(f,&header)!=0)
+	{
+		new_return(19);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Custom Guy Data...");
+	
+	if(writeguys(f,&header)!=0)
+	{
+		new_return(20);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Custom Link Sprite Data...");
+	
+	if(writelinksprites(f,&header)!=0)
+	{
+		new_return(21);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Custom Subscreen Data...");
+	
+	if(writesubscreens(f,&header)!=0)
+	{
+		new_return(22);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing FF Script Data...");
+	
+	if(writeffscript(f,&header)!=0)
+	{
+		new_return(23);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing SFX Data...");
+	
+	if(writesfx(f,&header)!=0)
+	{
+		new_return(24);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Item Drop Sets...");
+	
+	if(writeitemdropsets(f, &header)!=0)
+	{
+		new_return(25);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	box_out("Writing Favorite Combos...");
+	
+	if(writefavorites(f, &header)!=0)
+	{
+		new_return(26);
+	}
+	
+	box_out("okay.");
+	box_eol();
+	
+	pack_fclose(f);
+	
+	replace_extension(keyfilename, get_filename(filepath), "key", 2047);
    
-    if(header.use_keyfile&&header.dirty_password)
-    {
-        PACKFILE *fp = pack_fopen_password(keyfilename, F_WRITE, "");
-        char msg[80];
-        memset(msg,0,80);
-        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
-        msg[78]=13;
-        msg[79]=10;
-        pfwrite(msg, 80, fp);
-        p_iputw(header.zelda_version,fp);
-        p_putc(header.build,fp);
-        pfwrite(header.password, 256, fp);
-        pack_fclose(fp);
+	if(header.use_keyfile&&header.dirty_password)
+	{
+		PACKFILE *fp = pack_fopen_password(keyfilename, F_WRITE, "");
+		char msg[80];
+		memset(msg,0,80);
+		sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+		msg[78]=13;
+		msg[79]=10;
+		pfwrite(msg, 80, fp);
+		p_iputw(header.zelda_version,fp);
+		p_putc(header.build,fp);
+		pfwrite(header.password, 256, fp);
+		pack_fclose(fp);
 		al_trace("Wrote Master Key File, filename: %s\n",keyfilename);
 
 		replace_extension(keyfilename, get_filename(filepath), "zpwd", 2047); //lower-level, zq-only key
 		PACKFILE *fp2 = pack_fopen_password(keyfilename, F_WRITE, "");
-        memset(msg,0,80);
-        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
-        msg[78]=13;
-        msg[79]=10;
-        pfwrite(msg, 80, fp2);
-        p_iputw(header.zelda_version,fp2);
-        p_putc(header.build,fp2);
-        pfwrite(header.password, 256, fp2);
-        pack_fclose(fp2);
+		memset(msg,0,80);
+		sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+		msg[78]=13;
+		msg[79]=10;
+		pfwrite(msg, 80, fp2);
+		p_iputw(header.zelda_version,fp2);
+		p_putc(header.build,fp2);
+		pfwrite(header.password, 256, fp2);
+		pack_fclose(fp2);
 		al_trace("Wrote ZQuest Editor Password File, filename: %s\n",keyfilename);
 			
 		
 		replace_extension(keyfilename, get_filename(filepath), "zcheat", 2047); //lower-level, zq-only key
 		PACKFILE *fp3 = pack_fopen_password(keyfilename, F_WRITE, "");
-        memset(msg,0,80);
-        sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
-        msg[78]=13;
-        msg[79]=10;
-        pfwrite(msg, 80, fp3);
-        p_iputw(header.zelda_version,fp3);
-        p_putc(header.build,fp2);
+		memset(msg,0,80);
+		sprintf(msg, "ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!");
+		msg[78]=13;
+		msg[79]=10;
+		pfwrite(msg, 80, fp3);
+		p_iputw(header.zelda_version,fp3);
+		p_putc(header.build,fp2);
 		/* no, this writes as bytes
 		int32_t temp_pw[256];
 		for ( int32_t q = 0; q < 256; ++q ) temp_pw[q] = header.password[q];
@@ -13531,100 +13535,100 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		
 		//al_trace("reverse-hashed password is: %s\n", reversehashpw);
 	
-        pfwrite(temp_pw, 32, fp3); //the pw would be visible as plain ascii, so, this is useless without encoding it
+		pfwrite(temp_pw, 32, fp3); //the pw would be visible as plain ascii, so, this is useless without encoding it
 		pack_fclose(fp3);
 		al_trace("Wrote ZC Player Cheats, filename: %s\n",keyfilename);
-    }
-    
-    new_return(0);
+	}
+	
+	new_return(0);
 }
 
 int32_t save_quest(const char *filename, bool timed_save)
 {
-    int32_t retention=timed_save?AutoSaveRetention:AutoBackupRetention;
-    bool compress=!(timed_save&&UncompressedAutoSaves);
-    char ext1[5];
-    ext1[0]=0;
-    
-    if(timed_save)
-    {
-        sprintf(ext1, "qt");
-    }
-    else
-    {
-        sprintf(ext1, "qb");
-    }
-    
-    if(retention)
-    {
-        char backupname[2048];
-        char backupname2[2048];
-        char ext[5];
-        
-        for(int32_t i=retention-1; i>0; --i)
-        {
-            sprintf(ext, "%s%d", ext1, i-1);
-            replace_extension(backupname, filepath, ext, 2047);
-            
-            if(exists(backupname))
-            {
-                sprintf(ext, "%s%d", ext1, i);
-                replace_extension(backupname2, filepath, ext, 2047);
-                
-                if(exists(backupname2))
-                {
-                    remove(backupname2);
-                }
-                
-                rename(backupname, backupname2);
-            }
-        }
-        
-        //don't do this if we're not saving to the same name -DD
-        if(!timed_save && !strcmp(filepath, filename))
-        {
-            sprintf(ext, "%s%d", ext1, 0);
-            replace_extension(backupname, filepath, ext, 2047);
-            rename(filepath, backupname);
-        }
-    }
-    
-    char *tmpfilename;
-    char tempfilestr[32]; // This is stupid...
-    
-    if(compress)
-    {
-        temp_name(tempfilestr);
-        tmpfilename=tempfilestr;
-    }
-    else
-    {
-        tmpfilename=(char *)filename;
-    }
-    
-    int32_t ret;
-    ret  = save_unencoded_quest(tmpfilename, compress, filename);
-    
-    if(compress)
-    {
-        if(ret == 0)
-        {
-            box_out("Encrypting...");
-            ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + zc_oldrand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
-            
-            if(ret)
-            {
-                ret += 100;
-            }
-            
-            box_out("okay.");
-            box_eol();
-        }
-        
-        delete_file(tmpfilename);
-    }
-    
-    return ret;
+	int32_t retention=timed_save?AutoSaveRetention:AutoBackupRetention;
+	bool compress=!(timed_save&&UncompressedAutoSaves);
+	char ext1[5];
+	ext1[0]=0;
+	
+	if(timed_save)
+	{
+		sprintf(ext1, "qt");
+	}
+	else
+	{
+		sprintf(ext1, "qb");
+	}
+	
+	if(retention)
+	{
+		char backupname[2048];
+		char backupname2[2048];
+		char ext[5];
+		
+		for(int32_t i=retention-1; i>0; --i)
+		{
+			sprintf(ext, "%s%d", ext1, i-1);
+			replace_extension(backupname, filepath, ext, 2047);
+			
+			if(exists(backupname))
+			{
+				sprintf(ext, "%s%d", ext1, i);
+				replace_extension(backupname2, filepath, ext, 2047);
+				
+				if(exists(backupname2))
+				{
+					remove(backupname2);
+				}
+				
+				rename(backupname, backupname2);
+			}
+		}
+		
+		//don't do this if we're not saving to the same name -DD
+		if(!timed_save && !strcmp(filepath, filename))
+		{
+			sprintf(ext, "%s%d", ext1, 0);
+			replace_extension(backupname, filepath, ext, 2047);
+			rename(filepath, backupname);
+		}
+	}
+	
+	char *tmpfilename;
+	char tempfilestr[32]; // This is stupid...
+	
+	if(compress)
+	{
+		temp_name(tempfilestr);
+		tmpfilename=tempfilestr;
+	}
+	else
+	{
+		tmpfilename=(char *)filename;
+	}
+	
+	int32_t ret;
+	ret  = save_unencoded_quest(tmpfilename, compress, filename);
+	
+	if(compress)
+	{
+		if(ret == 0)
+		{
+			box_out("Encrypting...");
+			ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + zc_oldrand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
+			
+			if(ret)
+			{
+				ret += 100;
+			}
+			
+			box_out("okay.");
+			box_eol();
+		}
+		
+		delete_file(tmpfilename);
+	}
+	
+	return ret;
 }
 
 void center_zq_class_dialogs()
