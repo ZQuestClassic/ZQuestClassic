@@ -3374,8 +3374,8 @@ void init_msgstr(MsgStr *str)
     str->sfx=18;
     str->listpos=0;
     str->x=24;
-	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 25*8 : 26*8;
-	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 4*8 : 5*8;
+	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
+	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
@@ -3414,284 +3414,284 @@ void init_msgstrings(int32_t start, int32_t end)
 int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
 
-    MsgStr tempMsgString;
-    init_msgstr(&tempMsgString);
-    
-    word temp_msg_count=0;
-    word temp_expansion[16];
-    memset(temp_expansion, 0, 16*sizeof(word));
-    
-    if(Header->zelda_version < 0x193)
-    {
-        byte tempbyte;
-        int32_t strings_to_read=0;
-        set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
-        if((Header->zelda_version < 0x192)||
-                ((Header->zelda_version == 0x192)&&(Header->build<31)))
-        {
-            strings_to_read=128;
-            temp_msg_count=Header->old_str_count;
-            
-            // Some sort of string count corruption seems to be common in old quests
-            if(temp_msg_count>128)
-            {
-                temp_msg_count=128;
-            }
-        }
-        else if((Header->zelda_version == 0x192)&&(Header->build<140))
-        {
-            strings_to_read=255;
-            temp_msg_count=Header->old_str_count;
-        }
-        else
-        {
-            if(!p_igetw(&temp_msg_count,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            strings_to_read=temp_msg_count;
-            
-            if(temp_msg_count >= msg_strings_size)
-            {
-                Z_message("Reallocating string buffer...\n");
-                
-                if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
-                    return qe_nomem;
-                    
-                memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
-                msg_strings_size = MAXMSGS;
-            }
-        }
-        
-        //reset the message strings
-        if(keepdata)
-        {
-            init_msgstrings(0,msg_strings_size);
-        }
-        
-        for(int32_t x=0; x<strings_to_read; x++)
-        {
-			init_msgstr(&tempMsgString);
-            
-            if(!pfread(&tempMsgString.s,73,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            for(int32_t i=72; i<=MSGSIZE; i++)
-                tempMsgString.s[i]='\0';
-                
-            if(!p_getc(&tempbyte,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if((Header->zelda_version < 0x192)||
-                    ((Header->zelda_version == 0x192)&&(Header->build<148)))
-            {
-                tempMsgString.nextstring=tempbyte?x+1:0;
-                
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&tempbyte,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-            else
-            {
-                if(!p_igetw(&tempMsgString.nextstring,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!pfread(temp_expansion,32,f,true))
-                {
-                    return qe_invalid;
-                }
-            }
-	    tempMsgString.w=(25*8);
-            tempMsgString.h=(4*8);
-            
-            if(keepdata==true)
-            {
-                memcpy(&MsgStrings[x], &tempMsgString, sizeof(tempMsgString));
-            }
-        }
-    }
-    else
-    {
-        int32_t dummy_int;
-        word s_version;
-        word s_cversion;
-        
-        //section version info
-        if(!p_igetw(&s_version,f,true))
-        {
-            return qe_invalid;
-        }
+	MsgStr tempMsgString;
+	init_msgstr(&tempMsgString);
 	
-	FFCore.quest_format[vStrings] = s_version;
-        
-        if(!p_igetw(&s_cversion,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //al_trace("Strings version %d\n", s_version);
-        //section size
-        if(!p_igetl(&dummy_int,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        //finally...  section data
-        if(!p_igetw(&temp_msg_count,f,true))
-        {
-            return qe_invalid;
-        }
-        
-        if(temp_msg_count >= msg_strings_size)
-        {
-            Z_message("Reallocating string buffer...\n");
-            
-            if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
-                return qe_nomem;
-                
-            memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
-            msg_strings_size = MAXMSGS;
-        }
-        
-        //reset the message strings
-        if(keepdata)
-        {
-            init_msgstrings(0,msg_strings_size);
-			if(s_version < 7) set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
-        }
+	word temp_msg_count=0;
+	word temp_expansion[16];
+	memset(temp_expansion, 0, 16*sizeof(word));
+	
+	if(Header->zelda_version < 0x193)
+	{
+		byte tempbyte;
+		int32_t strings_to_read=0;
+		set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
+		if((Header->zelda_version < 0x192)||
+			((Header->zelda_version == 0x192)&&(Header->build<31)))
+		{
+			strings_to_read=128;
+			temp_msg_count=Header->old_str_count;
+			
+			// Some sort of string count corruption seems to be common in old quests
+			if(temp_msg_count>128)
+			{
+				temp_msg_count=128;
+			}
+		}
+		else if((Header->zelda_version == 0x192)&&(Header->build<140))
+		{
+			strings_to_read=255;
+			temp_msg_count=Header->old_str_count;
+		}
+		else
+		{
+			if(!p_igetw(&temp_msg_count,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			strings_to_read=temp_msg_count;
+			
+			if(temp_msg_count >= msg_strings_size)
+			{
+				Z_message("Reallocating string buffer...\n");
+				
+				if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
+					return qe_nomem;
+					
+				memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
+				msg_strings_size = MAXMSGS;
+			}
+		}
+		
+		//reset the message strings
+		if(keepdata)
+		{
+			init_msgstrings(0,msg_strings_size);
+		}
+		
+		for(int32_t x=0; x<strings_to_read; x++)
+		{
+			init_msgstr(&tempMsgString);
+			
+			if(!pfread(&tempMsgString.s,73,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			for(int32_t i=72; i<=MSGSIZE; i++)
+				tempMsgString.s[i]='\0';
+				
+			if(!p_getc(&tempbyte,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if((Header->zelda_version < 0x192)||
+				((Header->zelda_version == 0x192)&&(Header->build<148)))
+			{
+				tempMsgString.nextstring=tempbyte?x+1:0;
+				
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&tempbyte,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				if(!p_igetw(&tempMsgString.nextstring,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(!pfread(temp_expansion,32,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			//tempMsgString.w=(25*8);
+			//tempMsgString.h=(4*8);
+			
+			if(keepdata==true)
+			{
+				memcpy(&MsgStrings[x], &tempMsgString, sizeof(tempMsgString));
+			}
+		}
+	}
+	else
+	{
+		int32_t dummy_int;
+		word s_version;
+		word s_cversion;
+		
+		//section version info
+		if(!p_igetw(&s_version,f,true))
+		{
+			return qe_invalid;
+		}
+	
+		FFCore.quest_format[vStrings] = s_version;
+		
+		if(!p_igetw(&s_cversion,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//al_trace("Strings version %d\n", s_version);
+		//section size
+		if(!p_igetl(&dummy_int,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		//finally...  section data
+		if(!p_igetw(&temp_msg_count,f,true))
+		{
+			return qe_invalid;
+		}
+		
+		if(temp_msg_count >= msg_strings_size)
+		{
+			Z_message("Reallocating string buffer...\n");
+			
+			if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
+				return qe_nomem;
+				
+			memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
+			msg_strings_size = MAXMSGS;
+		}
+		
+		//reset the message strings
+		if(keepdata)
+		{
+		if(s_version < 7) set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
+		init_msgstrings(0,msg_strings_size);
+		}
 	
 	//zprint2("String version: (%d)", s_version);
-        
-        int32_t string_length=(s_version<2)?73:145;
-        
-        for(int32_t i=0; i<temp_msg_count; i++)
-        {
+		
+		int32_t string_length=(s_version<2)?73:145;
+		
+		for(int32_t i=0; i<temp_msg_count; i++)
+		{
 			init_msgstr(&tempMsgString);
-            
-            if(!pfread(&tempMsgString.s,string_length,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_igetw(&tempMsgString.nextstring,f,true))
-            {
-                return qe_invalid;
-            }
-            
-            if(s_version<2)
-            {
+			
+			if(!pfread(&tempMsgString.s,string_length,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_igetw(&tempMsgString.nextstring,f,true))
+			{
+				return qe_invalid;
+			}
+			
+			if(s_version<2)
+			{
 		//tempMsgString.w=(25*8);
-                //tempMsgString.h=(4*8);
-                for(int32_t j=72; j<MSGSIZE; j++)
-                {
-                    tempMsgString.s[j]='\0';
-                }
-            }
-            else
-            {
-                // June 2008: A bug corrupted the last 4 chars of a string.
-                // Discard these.
-                if(s_version<3)
-                {
-                    for(int32_t j=MSGSIZE-4; j<MSGSIZE; j++)
-                    {
-                        tempMsgString.s[j]='\0';
-                    }
-                }
-                
-                tempMsgString.s[MSGSIZE]='\0';
-                
+				//tempMsgString.h=(4*8);
+				for(int32_t j=72; j<MSGSIZE; j++)
+				{
+					tempMsgString.s[j]='\0';
+				}
+			}
+			else
+			{
+				// June 2008: A bug corrupted the last 4 chars of a string.
+				// Discard these.
+				if(s_version<3)
+				{
+					for(int32_t j=MSGSIZE-4; j<MSGSIZE; j++)
+					{
+						tempMsgString.s[j]='\0';
+					}
+				}
+				
+				tempMsgString.s[MSGSIZE]='\0';
+				
 		if ( s_version >= 6 )
 		{
 			if(!p_igetl(&tempMsgString.tile,f,true))
 			{
-			    return qe_invalid;
+				return qe_invalid;
 			}
 		}
 		else
 		{
 			if(!p_igetw(&tempMsgString.tile,f,true))
 			{
-			    return qe_invalid;
+				return qe_invalid;
 			}
 		}
 			
-                if(!p_getc(&tempMsgString.cset,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                byte dummy_char;
-                
-                if(!p_getc(&dummy_char,f,true)) // trans is stored as a char...
-                {
-                    return qe_invalid;
-                }
-                
-                tempMsgString.trans=dummy_char!=0;
-                
-                if(!p_getc(&tempMsgString.font,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(s_version < 5)
-                {
-                    if(!p_getc(&tempMsgString.y,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-                else
-                {
-                    if(!p_igetw(&tempMsgString.x,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetw(&tempMsgString.y,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetw(&tempMsgString.w,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_igetw(&tempMsgString.h,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempMsgString.hspace,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempMsgString.vspace,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&tempMsgString.stringflags,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
+				if(!p_getc(&tempMsgString.cset,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				byte dummy_char;
+				
+				if(!p_getc(&dummy_char,f,true)) // trans is stored as a char...
+				{
+					return qe_invalid;
+				}
+				
+				tempMsgString.trans=dummy_char!=0;
+				
+				if(!p_getc(&tempMsgString.font,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(s_version < 5)
+				{
+					if(!p_getc(&tempMsgString.y,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					if(!p_igetw(&tempMsgString.x,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetw(&tempMsgString.y,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetw(&tempMsgString.w,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_igetw(&tempMsgString.h,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.hspace,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.vspace,f,true))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&tempMsgString.stringflags,f,true))
+					{
+						return qe_invalid;
+					}
+				}
 				
 				if(s_version >= 7)
 				{
@@ -3733,7 +3733,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 						return qe_invalid;
 					}
 				}
-                
+				
 				if(s_version >= 8)
 				{
 					if(!p_getc(&tempMsgString.shadow_type,f,true))
@@ -3747,33 +3747,33 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					}
 				}
 				
-                if(!p_getc(&tempMsgString.sfx,f,true))
-                {
-                    return qe_invalid;
-                }
-                
-                if(s_version>3)
-                {
-                    if(!p_igetw(&tempMsgString.listpos,f,true))
-                    {
-                        return qe_invalid;
-                    }
-                }
-            }
-            
-            if(keepdata==true)
-            {
-                memcpy(&MsgStrings[i], &tempMsgString, sizeof(tempMsgString));
-            }
-        }
-    }
-    
-    if(keepdata==true)
-    {
-        msg_count=temp_msg_count;
-    }
-    
-    return 0;
+				if(!p_getc(&tempMsgString.sfx,f,true))
+				{
+					return qe_invalid;
+				}
+				
+				if(s_version>3)
+				{
+					if(!p_igetw(&tempMsgString.listpos,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+			
+			if(keepdata==true)
+			{
+				memcpy(&MsgStrings[i], &tempMsgString, sizeof(tempMsgString));
+			}
+		}
+	}
+	
+	if(keepdata==true)
+	{
+		msg_count=temp_msg_count;
+	}
+	
+	return 0;
 }
 
 int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
