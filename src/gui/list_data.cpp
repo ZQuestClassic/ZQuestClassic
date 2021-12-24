@@ -64,9 +64,9 @@ ListData ListData::itemclass(bool numbered)
 	
 	for(int32_t i=0; i<itype_max; ++i)
 	{
-		char const* itname = ZI.getItemClassName(i);
-		if(itname[0] == '-')
+		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
+		char const* itname = ZI.getItemClassName(i);
         if(i < itype_last || itname[0])
 		{
             char* name = new char[strlen(itname) + 7];

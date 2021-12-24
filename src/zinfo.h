@@ -5,6 +5,8 @@ void assignchar(char** p, char const* str);
 
 struct zinfo
 {
+	void clear_ic_help();
+	void clear_ic_name();
 	void clear();
 	zinfo();
 #ifdef IS_ZQUEST
@@ -16,6 +18,7 @@ struct zinfo
 	//Shared
 	char *ic_name[itype_max];
 	
+	bool zinfo::isUsableItemclass(size_t q);
 	char const* zinfo::getItemClassName(size_t q);
 	char const* zinfo::getItemClassHelp(size_t q);
 	

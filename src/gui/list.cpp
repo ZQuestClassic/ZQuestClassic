@@ -89,7 +89,7 @@ void List::setIsABC(bool abc)
 	isABC = abc;
 	if(alDialog)
 	{
-		alDialog->proc = (isABC ? newGUIProc<jwin_do_abclist_proc> : newGUIProc<jwin_list_proc>);
+		alDialog->proc = (isABC ? newGUIProc<jwin_abclist_proc> : newGUIProc<jwin_list_proc>);
 	}
 }
 
