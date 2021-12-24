@@ -1739,10 +1739,10 @@ int32_t onZScriptSettings()
 	return D_O_K;
 }
 
-void call_itemclass_dialog();
+void call_zinf_dlg();
 int32_t onZInfo()
 {
-	call_itemclass_dialog();
+	call_zinf_dlg();
 	return D_O_K;
 }
 

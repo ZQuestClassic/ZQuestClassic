@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_FOO_H
-#define ZC_DIALOG_FOO_H
+#ifndef ZC_DIALOG_ZINFODLG_H
+#define ZC_DIALOG_ZINFODLG_H
 
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
@@ -9,14 +9,14 @@
 #include <functional>
 #include <string_view>
 
-void call_itemclass_dialog();
+void call_zinf_dlg();
 
-class ItemClassDialog: public GUI::Dialog<ItemClassDialog>
+class ZInfoDialog: public GUI::Dialog<ZInfoDialog>
 {
 public:
 	enum class message { OK, CANCEL };
 
-	ItemClassDialog();
+	ZInfoDialog();
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
