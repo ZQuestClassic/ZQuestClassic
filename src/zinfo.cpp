@@ -188,7 +188,7 @@ zinfo::zinfo()
 	memset(ic_name, 0, sizeof(ic_name));
 }
 
-void zinfo::clear()
+void zinfo::clear_ic_help()
 {
 #ifdef IS_ZQUEST
 	for(auto q = 0; q < itype_max; ++q)
@@ -197,14 +197,21 @@ void zinfo::clear()
 			zc_free(ic_help_string[q]);
 		ic_help_string[q] = nullptr;
 	}
-#else
 #endif
+}
+void zinfo::clear_ic_name()
+{
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		if(ic_name[q])
 			zc_free(ic_name[q]);
 		ic_name[q] = nullptr;
 	}
+}
+void zinfo::clear()
+{
+	clear_ic_help();
+	clear_ic_name();
 }
 
 void assignchar(char** p, char const* str)
@@ -223,6 +230,12 @@ void assignchar(char** p, char const* str)
 
 static char const* nilptr = "";
 static char zinfbuf[2048] = {0};
+bool zinfo::isUsableItemclass(size_t q)
+{
+	return (default_itype_strings[q]
+		&& default_itype_strings[q][0]
+		&& default_itype_strings[q][0]!='-');
+}
 char const* zinfo::getItemClassName(size_t q)
 {
 	if(ic_name[q] && ic_name[q][0])

@@ -99,6 +99,32 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						colSpan = 3, forceFitW = true,
 						framed = true, height = 6_em,
 						vPadding = 4_spx, textAlign = 1
+					),
+					Row(
+						padding = 0_px,
+						colSpan = 3,
+						Label(text = "Reset all itemclass..."),
+						Button(
+							text = "Names",
+							minwidth = 40_lpx,
+							onPressFunc = [&]()
+							{
+								lzinfo.clear_ic_name();
+								fields[0]->setText("");
+								fields[0]->setDisabled(true);
+								defcheck[0]->setChecked(true);
+							}),
+						Button(
+							text = "Help Text",
+							minwidth = 40_lpx,
+							onPressFunc = [&]()
+							{
+								lzinfo.clear_ic_help();
+								helplbl->setText("");
+								fields[1]->setText("");
+								fields[1]->setDisabled(true);
+								defcheck[1]->setChecked(true);
+							})
 					)
 				)),
 				TabRef(name = "2", DummyWidget())

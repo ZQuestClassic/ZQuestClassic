@@ -1723,9 +1723,9 @@ void build_biic_list()
 	
 	for(int32_t i=start; i<itype_max; ++i)
 	{
-		char const* itname = ZI.getItemClassName(i);
-		if(itname[0] == '-')
+		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
+		char const* itname = ZI.getItemClassName(i);
         if(i < itype_last || itname[0] != NULL )
 		{
             char* name = new char[strlen(itname) + 7];
