@@ -12549,6 +12549,11 @@ void reset_scripts()
         if(dmapscripts[i]!=NULL) delete dmapscripts[i];
     }
     
+    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+    {
+        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+    }
+    
     for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
