@@ -20757,10 +20757,13 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		byte warpscr2 = wscr + DMaps[wdmap].xoff;
 		draw_screen(tmpscr,false);
 		
-		if(!darkroom)
-			fade(DMaps[currdmap].color,true,false);
-			
-		darkroom=true;
+		if(!get_bit(quest_rules, qr_NEW_DARKROOM))
+		{
+			if(!darkroom)
+				fade(DMaps[currdmap].color,true,false);
+				
+			darkroom=true;
+		}
 		blackscr(30,true);
 		loadscr(0,wdmap,currscr,down,false);
 		loadscr(1,wdmap,homescr,-1,false);
@@ -22235,7 +22238,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
     draw_screen(tmpscr,false);
     
-    if((tmpscr->flags&fDARK) == 0)
+    if(get_bit(quest_rules, qr_NEW_DARKROOM) || !(tmpscr->flags&fDARK))
     {
         darkroom = naturaldark = false;
         fade(DMaps[currdmap].color,true,true);
