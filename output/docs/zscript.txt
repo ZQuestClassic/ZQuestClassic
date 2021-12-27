@@ -1,5 +1,11 @@
-// Docs for 2.55.0
+// Docs for 2.50.2
 // Rev. 0.8.3; 3rd July, 2020
+
+//!Note: You probably want to look through
+// ZScript_Additions.txt for 2.55 features.
+// This file has not been fully updated for
+// quite some time.
+
 
 Search for !#! to find areas that require completion. 
 
