@@ -293,8 +293,8 @@ namespace util
 		ptr2+=4;
 		*ptr2=0;
 		
-		int32_t decval = atoi(ptr);
-		if(ret<0)
+		int32_t decval = abs(atoi(ptr));
+		if(tempstring1[0] == '-')
 		{
 			if(ret == -2147480000)
 				decval = vbound(decval, 0, 3648);
@@ -338,8 +338,8 @@ namespace util
 		ptr2+=4;
 		*ptr2=0;
 		
-		int32_t decval = atoi(ptr);
-		if(ret<0)
+		int32_t decval = abs(atoi(ptr));
+		if(tempstring1[0] == '-')
 		{
 			if(ret == -2147480000)
 				decval = vbound(decval, 0, 3648);
@@ -384,7 +384,7 @@ namespace util
 			al_trace(str);
 			return;
 		}
-		else //Would crash al_trace... for some reason?
+		else //Would crash al_trace
 		{
 			char buf[512] = {0};
 			size_t q = 0;
