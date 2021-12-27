@@ -261,6 +261,21 @@ ListData ListData::sfxnames()
 	return ls;
 }
 
+ListData ListData::numbers(bool none, int32_t start, uint32_t count)
+{
+	ListData ls;
+	if(none)
+	{
+		ls.add("(None)", start>0 ? 0 : start-1);
+	}
+	for(uint32_t i=0; i<count; ++i)
+	{
+		ls.add(std::to_string(start+i), start+i);
+	}
+	
+	return ls;
+}
+
 
 
 static void load_scriptnames(set<string> &names, map<string, int32_t> &vals,

@@ -11,6 +11,7 @@
 
 #ifdef IS_ZQUEST
 #include "zq_tiles.h"
+extern int32_t Combo, CSet;
 #endif
 
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
@@ -23,7 +24,29 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t cmb = d->d1;
 			int32_t cs = d->d2;
 			
-			if(select_combo_2(cmb,cs))
+			if(key[KEY_ALT])
+			{
+				if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+				{
+					d->d2 = CSet;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				else
+				{
+					d->d1 = Combo;
+					d->d2 = CSet;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				return D_REDRAW;
+			}
+			else if(gui_mouse_b()&2) //rclick
+			{
+				d->d1 = 0;
+				d->d2 = 0;
+				GUI_EVENT(d, geCHANGE_SELECTION);
+				return D_REDRAW;
+			}
+			else if((gui_mouse_b()&1) && select_combo_2(cmb,cs))
 			{
 				d->d1 = cmb;
 				d->d2 = cs;

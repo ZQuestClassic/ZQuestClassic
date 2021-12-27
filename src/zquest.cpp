@@ -28203,10 +28203,11 @@ int32_t load_zmod_module_file()
 	    return D_O_K;
 }
 
-
+void call_ffc_dialog(mapscr* scr, int32_t ffcombo);
 //FFC Editor FFC_Editor
 int32_t onEditFFCombo(int32_t ffcombo)
 {
+	call_ffc_dialog(Map.CurrScr(), ffcombo);
     char xystring[8][10];
     char wstring[4][10];
     char dastring[10][13];

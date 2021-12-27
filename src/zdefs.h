@@ -2312,7 +2312,7 @@ struct mapscr
 	byte ffheight[NUM_FFCS];
 	byte fflink[NUM_FFCS];
 	
-	byte ffEffectWidth(size_t ind)
+	byte ffEffectWidth(size_t ind) const
 	{
 		return (ffwidth[ind]&0x3F)+1;
 	}
@@ -2320,7 +2320,7 @@ struct mapscr
 	{
 		ffwidth[ind] = (ffwidth[ind] & ~63) | (val-1)&63;
 	}
-	byte ffEffectHeight(size_t ind)
+	byte ffEffectHeight(size_t ind) const
 	{
 		return (ffheight[ind]&0x3F)+1;
 	}
@@ -2328,7 +2328,7 @@ struct mapscr
 	{
 		ffheight[ind] = (ffheight[ind] & ~63) | (val-1)&63;
 	}
-	byte ffTileWidth(size_t ind)
+	byte ffTileWidth(size_t ind) const
 	{
 		return (ffheight[ind]>>6)+1;
 	}
@@ -2336,7 +2336,7 @@ struct mapscr
 	{
 		ffwidth[ind] = (ffwidth[ind] & 63) | (((val-1)&3)<<6);
 	}
-	byte ffTileHeight(size_t ind)
+	byte ffTileHeight(size_t ind) const
 	{
 		return (ffheight[ind]>>6)+1;
 	}
