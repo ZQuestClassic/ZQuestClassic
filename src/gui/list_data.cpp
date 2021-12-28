@@ -319,6 +319,19 @@ ListData ListData::itemsprite_script()
 	return ls;
 }
 
+ListData ListData::ffc_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,ffcmap,NUMSCRIPTFFC-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
 ListData ListData::lweapon_script()
 {
 	map<string, int32_t> vals;

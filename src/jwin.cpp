@@ -1567,14 +1567,36 @@ int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
             
     return jwin_edit_proc(msg,d,c);
 }
-
+ bool editproc_special_key(int32_t c)
+{
+	switch(c>>8)
+	{
+		case KEY_LEFT: case KEY_RIGHT:
+		case KEY_HOME: case KEY_END:
+		case KEY_DEL: case KEY_BACKSPACE:
+		case KEY_ENTER: case KEY_TAB:
+			return true;
+	}
+	return false;
+}
 int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    if(msg==MSG_CHAR)
-        if((isalnum(c&255) && !isdigit(c&255)) && ((c&255)!='-'))
-            return D_O_K;
-            
-    return jwin_edit_proc(msg,d,c);
+	if(msg==MSG_CHAR)
+	{
+		switch(c&255)
+		{
+			case '-': case '.':
+			case '0': case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8': case '9':
+				break;
+			default:
+				if(!editproc_special_key(c))
+					return D_O_K;
+				else c&=~255;
+		}
+	}
+			
+	return jwin_edit_proc(msg,d,c);
 }
 
 int32_t jwin_numedit_byte_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1852,6 +1874,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		}
 		else queued_neg = !queued_neg; //queue the negative
 		c &= ~255;
+		ret |= D_USED_CHAR;
 	}
 	if(b && queued_neg)
 	{
@@ -2035,6 +2058,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		}
 		else queued_neg = !queued_neg; //queue negative
 		c &= ~255;
+		ret |= D_USED_CHAR;
 	}
 	if(b && queued_neg)
 	{
@@ -7048,6 +7072,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			if(skipredraw)
 			{
 				skipredraw = false;
+				ret = D_REDRAW;
 				break;
 			}
 			if(d->x<zq_screen_w&&d->y<zq_screen_h)
@@ -7091,6 +7116,11 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 							_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcLIGHT]); //bottom
 							_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcMEDLT]); //bottom
 						}
+						else if(d->flags & D_GOTFOCUS)
+						{
+							_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcBOXFG]); //bottom
+							_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcBOXFG]); //bottom
+						}
 						
 						tx+=4;
 						gui_textout_ln(screen, (uint8_t*)(panel->getName(i)), tx+4, d->y+sd+4, scheme[jcBOXFG], scheme[jcBOX], 0);
@@ -7124,13 +7154,48 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		break;
 		
 		case MSG_WANTFOCUS:
-			if(gui_mouse_b())
+			// if(gui_mouse_b())
 				ret = D_WANTFOCUS|D_REDRAW;
 			break;
 		case MSG_GOTFOCUS:
 		case MSG_LOSTFOCUS:
 			skipredraw = true;
 			break;
+		case MSG_CHAR:
+		{
+			int32_t ind = panel->getCurrentIndex();
+			switch(c>>8)
+			{
+				case KEY_LEFT:
+					if(ind > 0)
+					{
+						--ind;
+					}
+					else
+					{
+						ind = panel->getSize()-1;
+					}
+					break;
+				case KEY_RIGHT:
+					if(ind+1 < signed(panel->getSize()))
+					{
+						++ind;
+					}
+					else
+					{
+						ind = 0;
+					}
+					break;
+				default: ind = -1;
+			}
+			if(ind > -1 && ind != panel->getCurrentIndex())
+			{
+				panel->switchTo(ind);
+				GUI_EVENT(d, geCHANGE_SELECTION);
+				ret |= D_USED_CHAR;
+			}
+		}
+		break;
 			
 		case MSG_CLICK:
 		{

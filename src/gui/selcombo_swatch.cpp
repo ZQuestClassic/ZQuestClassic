@@ -12,6 +12,7 @@
 #ifdef IS_ZQUEST
 #include "zq_tiles.h"
 extern int32_t Combo, CSet;
+#include "use_size.h"
 #endif
 
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
@@ -79,8 +80,9 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				FONT *fonty = (is_large ? font : pfont);
 				if(d->dp2) fonty = (FONT*)d->dp2;
-				textprintf_ex(screen,fonty,d->x+d->h,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
-				textprintf_ex(screen,fonty,d->x+d->h,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+				int32_t xo = (3_spx).resolve();
+				textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
+				textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
 			}
 			break;
 	}
@@ -178,7 +180,7 @@ void SelComboSwatch::realize(DialogRunner& runner)
 void SelComboSwatch::calculateSize()
 {
 	Size s = sized(16_px,32_px)+4_px;
-	setPreferredWidth(s + (showsVals ? text_length(widgFont, "Combo: 99999") : 0));
+	setPreferredWidth(s + (showsVals ? 3_spx+text_length(widgFont, "Combo: 99999") : 0_px));
 	setPreferredHeight(s);
 }
 

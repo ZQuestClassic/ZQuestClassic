@@ -130,6 +130,7 @@ public:
 	
 	static ListData itemdata_script();
 	static ListData itemsprite_script();
+	static ListData ffc_script();
 	static ListData lweapon_script();
 	static ListData combodata_script();
 	
