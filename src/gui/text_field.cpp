@@ -207,24 +207,25 @@ void TextField::check_len(size_t min)
 
 void TextField::_updateBuf(size_t sz)
 {
+	bool z = !sz;
 	if(sz < 1) sz = 1;
 	if(sz == maxLength)
 		return;
-	auto newBuffer = std::make_unique<char[]>(sz+1);
-	if(maxLength > 0)
+	size_t msz = zc_max(sz, 32);
+	if(!maxLength || sz >= 32)
 	{
-		strncpy(newBuffer.get(), buffer.get(), std::min(maxLength, sz));
-		newBuffer[sz-1] = '\0';
+		std::unique_ptr<char[]> newBuffer = std::make_unique<char[]>(msz+1);
+		if(maxLength > 0)
+		{
+			strncpy(newBuffer.get(), buffer.get(), std::min(maxLength, sz));
+		}
+		buffer = std::move(newBuffer);
 	}
-	else
-		newBuffer[0] = '\0';
-
-	buffer = std::move(newBuffer);
+	buffer[sz] = 0;
+	if(z) buffer[0] = 0;
 	maxLength = sz;
 	
-	int32_t btnsz = isSwapType() ? 16 : 0;
-	
-	setPreferredWidth(Size::largePixels(btnsz)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
+	setPreferredWidth(Size::largePixels(isSwapType() ? 16 : 0)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
 }
 
 void TextField::setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged)

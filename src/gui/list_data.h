@@ -124,10 +124,13 @@ public:
 	static ListData lweaptypes();
 	static ListData sfxnames();
 	
+	static ListData numbers(bool none, int32_t start, uint32_t count);
+	
 	static ListData const& deftypes();
 	
 	static ListData itemdata_script();
 	static ListData itemsprite_script();
+	static ListData ffc_script();
 	static ListData lweapon_script();
 	static ListData combodata_script();
 	

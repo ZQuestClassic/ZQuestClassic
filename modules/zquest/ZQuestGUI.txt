@@ -76,6 +76,7 @@ src/dialog/misc_sprs.cpp
 src/dialog/scaletile.cpp
 src/dialog/palconvert.cpp
 src/dialog/zinfodlg.cpp
+src/dialog/ffc_editor.cpp
 
 ## End of ZQuest GUI module
 )

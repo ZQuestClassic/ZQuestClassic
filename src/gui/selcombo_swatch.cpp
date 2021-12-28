@@ -11,6 +11,8 @@
 
 #ifdef IS_ZQUEST
 #include "zq_tiles.h"
+extern int32_t Combo, CSet;
+#include "use_size.h"
 #endif
 
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
@@ -23,7 +25,29 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t cmb = d->d1;
 			int32_t cs = d->d2;
 			
-			if(select_combo_2(cmb,cs))
+			if(key[KEY_ALT])
+			{
+				if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+				{
+					d->d2 = CSet;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				else
+				{
+					d->d1 = Combo;
+					d->d2 = CSet;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				return D_REDRAW;
+			}
+			else if(gui_mouse_b()&2) //rclick
+			{
+				d->d1 = 0;
+				d->d2 = 0;
+				GUI_EVENT(d, geCHANGE_SELECTION);
+				return D_REDRAW;
+			}
+			else if((gui_mouse_b()&1) && select_combo_2(cmb,cs))
 			{
 				d->d1 = cmb;
 				d->d2 = cs;
@@ -56,8 +80,9 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				FONT *fonty = (is_large ? font : pfont);
 				if(d->dp2) fonty = (FONT*)d->dp2;
-				textprintf_ex(screen,fonty,d->x+d->h,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
-				textprintf_ex(screen,fonty,d->x+d->h,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+				int32_t xo = (3_spx).resolve();
+				textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
+				textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
 			}
 			break;
 	}
@@ -155,7 +180,7 @@ void SelComboSwatch::realize(DialogRunner& runner)
 void SelComboSwatch::calculateSize()
 {
 	Size s = sized(16_px,32_px)+4_px;
-	setPreferredWidth(s + (showsVals ? text_length(widgFont, "Combo: 99999") : 0));
+	setPreferredWidth(s + (showsVals ? 3_spx+text_length(widgFont, "Combo: 99999") : 0_px));
 	setPreferredHeight(s);
 }
 

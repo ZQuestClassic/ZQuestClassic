@@ -50,6 +50,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/quest_rules.h"
 #include "dialog/script_rules.h"
 #include "dialog/headerdlg.h"
+#include "dialog/ffc_editor.h"
 
 #include "gui.h"
 #include "load_gif.h"
@@ -9889,8 +9890,6 @@ int32_t onCommand(int32_t cmd)
     return ret;
 }
 
-int32_t onEditFFCombo(int32_t);
-
 static char paste_ffc_menu_text[21];
 static char paste_ffc_menu_text2[21];
 static char follow_warp_menu_text[21];
@@ -10821,57 +10820,56 @@ void domouse()
 						
 						switch(m)
 						{
-						case 0:
-							Map.CopyFFC(i);
-							break;
+							case 0:
+								Map.CopyFFC(i);
+								break;
 							
-						case 1: // Paste Copied FFC
-						{
-							if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
+							case 1: // Paste Copied FFC
 							{
-								Map.PasteOneFFC(i);
-								saved=false;
+								if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
+								{
+									Map.PasteOneFFC(i);
+									saved=false;
+								}
 							}
-						}
-						break;
-						
-						case 2:
-							onEditFFCombo(i);
 							break;
 							
-						case 3:
-							if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+							case 2:
+								call_ffc_dialog(i);
+								break;
+							
+							case 3:
+								if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+								{
+									Map.CurrScr()->ffdata[i] = Map.CurrScr()->ffcset[i] = Map.CurrScr()->ffx[i] = Map.CurrScr()->ffy[i] = Map.CurrScr()->ffxdelta[i] =
+																   Map.CurrScr()->ffydelta[i] = Map.CurrScr()->ffxdelta2[i] = Map.CurrScr()->ffydelta2[i] = Map.CurrScr()->ffflags[i] = Map.CurrScr()->ffscript[i] =
+																		   Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
+									Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
+									
+									for(int32_t j=0; j<8; j++)
+										Map.CurrScr()->initd[i][j] = 0;
+										
+									for(int32_t j=0; j<2; j++)
+										Map.CurrScr()->inita[i][j] = 10000;
+										
+									saved = false;
+								}
+								break;
+							
+							case 4: //snap to grid
 							{
-								Map.CurrScr()->ffdata[i] = Map.CurrScr()->ffcset[i] = Map.CurrScr()->ffx[i] = Map.CurrScr()->ffy[i] = Map.CurrScr()->ffxdelta[i] =
-															   Map.CurrScr()->ffydelta[i] = Map.CurrScr()->ffxdelta2[i] = Map.CurrScr()->ffydelta2[i] = Map.CurrScr()->ffflags[i] = Map.CurrScr()->ffscript[i] =
-																	   Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
-								Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
-								
-								for(int32_t j=0; j<8; j++)
-									Map.CurrScr()->initd[i][j] = 0;
-									
-								for(int32_t j=0; j<2; j++)
-									Map.CurrScr()->inita[i][j] = 10000;
-									
+								int32_t oldffx = Map.CurrScr()->ffx[i]/10000;
+								int32_t oldffy = Map.CurrScr()->ffy[i]/10000;
+								int32_t pos = COMBOPOS(oldffx,oldffy);
+								int32_t newffy = COMBOY(pos)*10000;
+								int32_t newffx = COMBOX(pos)*10000;
+								Map.CurrScr()->ffx[i] = newffx;
+								Map.CurrScr()->ffy[i] = newffy;
+								//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
+								//Map.CurrScr()->ffy[i] = (Map.CurrScr()->ffy[i]-(Map.CurrScr()->ffy[i] % 16));
 								saved = false;
+								break;
 							}
-							
-							break;
-				
-				case 4: //snap to grid
-				{
-				int32_t oldffx = Map.CurrScr()->ffx[i]/10000;
-				int32_t oldffy = Map.CurrScr()->ffy[i]/10000;
-				int32_t pos = COMBOPOS(oldffx,oldffy);
-				int32_t newffy = COMBOY(pos)*10000;
-				int32_t newffx = COMBOX(pos)*10000;
-				Map.CurrScr()->ffx[i] = newffx;
-				Map.CurrScr()->ffy[i] = newffy;
-				//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
-				//Map.CurrScr()->ffy[i] = (Map.CurrScr()->ffy[i]-(Map.CurrScr()->ffy[i] % 16));
-				saved = false;
-				break;
-				}
 						}
 						
 						clickedffc = true;
@@ -10927,134 +10925,135 @@ void domouse()
 				
 				switch(m)
 				{
-				case 0:
-				case 1:
-				{
-					int32_t drawmap, drawscr;
-					
-					if(CurrentLayer==0)
+					case 0:
+					case 1:
 					{
-						drawmap=Map.getCurrMap();
-						drawscr=Map.getCurrScr();
-					}
-					else
-					{
-						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+						int32_t drawmap, drawscr;
 						
-						if(drawmap<0)
+						if(CurrentLayer==0)
 						{
-							return;
+							drawmap=Map.getCurrMap();
+							drawscr=Map.getCurrScr();
+						}
+						else
+						{
+							drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+							drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+							
+							if(drawmap<0)
+							{
+								return;
+							}
+						}
+						
+						if(m==0)
+						{
+							Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+						}
+						
+						if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
+						{
+							First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
 						}
 					}
+					break;
 					
-					if(m==0)
+					case 2:
 					{
-						Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
-					}
-					
-					if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-					{
-						First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
-					}
-				}
-				break;
-				
-				case 2:
-				{
-					int32_t drawmap, drawscr;
-					
-					if(CurrentLayer==0)
-					{
-					
-						drawmap=Map.getCurrMap();
-						drawscr=Map.getCurrScr();
-					}
-					else
-					{
-						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+						int32_t drawmap, drawscr;
 						
-						if(drawmap<0)
+						if(CurrentLayer==0)
 						{
-							return;
-						}
-					}
-					
-					edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],true,Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
-				}
-				break;
-				
-				case 4:
-					replace(c);
-					break;
-					
-				case 10: // Follow Tile Warp
-				{
-					if(warpindex>=4)
-					{
-						jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-						warpindex=zc_oldrand()&3;
-					}
-					
-					int32_t tm = Map.getCurrMap();
-					int32_t ts = Map.getCurrScr();
-					int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
-					
-					if(wt==wtCAVE || wt==wtNOWARP)
-					{
-						char buf[56];
-						sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
-						jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,lfont);
-						break;
-						break;
-					}
-					
-					Map.dowarp(0,warpindex);
-					
-					if(ts!=Map.getCurrScr() || tm!=Map.getCurrMap())
-					{
-						FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(warpindex*2))&3;
-						FlashWarpClk = 32;
-					}
-					
-					break;
-				}
-				
-				case 11: // Edit Tile Warp
-				{
-					if(warpindex>=4)
-					{
-						jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-						warpindex=0;
-					}
-					
-					if(warpindex > -1 && warpindex < 4)
-						onTileWarpIndex(warpindex);
 						
+							drawmap=Map.getCurrMap();
+							drawscr=Map.getCurrScr();
+						}
+						else
+						{
+							drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+							drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+							
+							if(drawmap<0)
+							{
+								return;
+							}
+						}
+						
+						edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],true,Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
+					}
 					break;
-				}
-				
-				case 13:
-				{
-					Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-					Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-					Map.CurrScr()->ffdata[earliestfreeffc] = Combo;
-					Map.CurrScr()->ffcset[earliestfreeffc] = CSet;
-					onEditFFCombo(earliestfreeffc);
-				}
-				break;
-				
-				case 14:
-				{
-					Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-					Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-					Map.PasteOneFFC(earliestfreeffc);
-				}
-				break;
-				
-				default:
+					
+					case 4:
+						replace(c);
+						break;
+						
+					case 10: // Follow Tile Warp
+					{
+						if(warpindex>=4)
+						{
+							jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+							warpindex=zc_oldrand()&3;
+						}
+						
+						int32_t tm = Map.getCurrMap();
+						int32_t ts = Map.getCurrScr();
+						int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
+						
+						if(wt==wtCAVE || wt==wtNOWARP)
+						{
+							char buf[56];
+							sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
+							jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,lfont);
+							break;
+							break;
+						}
+						
+						Map.dowarp(0,warpindex);
+						
+						if(ts!=Map.getCurrScr() || tm!=Map.getCurrMap())
+						{
+							FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(warpindex*2))&3;
+							FlashWarpClk = 32;
+						}
+						
+						break;
+					}
+					
+					case 11: // Edit Tile Warp
+					{
+						if(warpindex>=4)
+						{
+							jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+							warpindex=0;
+						}
+						
+						if(warpindex > -1 && warpindex < 4)
+							onTileWarpIndex(warpindex);
+							
+						break;
+					}
+					
+					case 13:
+					{
+						ffdata tempdat;
+						tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+						tempdat.y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+						tempdat.data = Combo;
+						tempdat.cset = CSet;
+						call_ffc_dialog(earliestfreeffc, tempdat);
+					}
 					break;
+					
+					case 14:
+					{
+						Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+						Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+						Map.PasteOneFFC(earliestfreeffc);
+					}
+					break;
+					
+					default:
+						break;
 				}
 			}
 		}
@@ -11190,8 +11189,8 @@ void domouse()
 					   command_buttonwidth,
 					   command_buttonheight,
 					   favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
-					      ? catchall_string[Map.CurrScr()->room]
-					      : commands[favorite_commands[cmd]].name,
+						  ? catchall_string[Map.CurrScr()->room]
+						  : commands[favorite_commands[cmd]].name,
 					   isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
 					   true))
 						/*do_text_button_reset(check_x,
@@ -23115,23 +23114,6 @@ const char *ffcombolist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-const char *fflinklist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,32);
-        
-        if(index)
-            sprintf(fflink_str_buf,"%d",index);
-        else sprintf(fflink_str_buf,"(None)");
-        
-        return fflink_str_buf;
-    }
-    
-    *list_size=33;
-    return NULL;
-}
-
 static ListData ffcombo_list(ffcombolist, &font);
 
 static DIALOG ffcombo_sel_dlg[] =
@@ -23253,39 +23235,13 @@ int32_t onSelectFFCombo()
     while(ret==1)
     {
         ff_combo = ffcombo_sel_dlg[3].d1;
-        onEditFFCombo(ff_combo);
+        call_ffc_dialog(ff_combo);
         ret=zc_popup_dialog(ffcombo_sel_dlg,0);
     }
     
     destroy_bitmap(ffcur);
     return D_O_K;
 }
-
-static int32_t ffcombo_data_list[] =
-{
-    4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,54,55,-1
-};
-
-static int32_t ffcombo_flag_list[] =
-{
-    31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,78,79,80,81,-1
-};
-
-static int32_t ffcombo_arg_list[] =
-{
-    56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,
-	82,83,84,85,86,87,88,89,
-	-1
-};
-
-static TABPANEL ffcombo_tabs[] =
-{
-    // (text)
-    { (char *)"Data",        D_SELECTED,  ffcombo_data_list, 0, NULL },
-    { (char *)"Flags",       0,           ffcombo_flag_list, 0, NULL },
-    { (char *)"Arguments",   0,           ffcombo_arg_list , 0, NULL },
-    { NULL,                  0,           NULL,              0, NULL }
-};
 
 const char *globalscriptlist(int32_t index, int32_t *list_size);
 static ListData globalscript_list(globalscriptlist, &font);
@@ -23294,122 +23250,7 @@ static ListData linkscript_list(linkscriptlist, &font);
 
 const char *ffscriptlist(int32_t index, int32_t *list_size);
 
-static ListData fflink_list(fflinklist, &font);
 static ListData ffscript_list(ffscriptlist, &font);
-
-static DIALOG ffcombo_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)    (w)   (h)   (fg)      (bg)     (key)    (flags)       (d1)           (d2)      (dp) */
-    { jwin_win_proc,        0,    0,  240,   215,   vc(14),   vc(1),   0,       D_EXIT,     0,             0, (void *) "Edit Freeform Combo      ", NULL, NULL },
-    { jwin_tab_proc,   10,  23,  220,  165,   0,       0,      0,       0,             0,       0, (void *) ffcombo_tabs, NULL, (void *)ffcombo_dlg },
-    { jwin_button_proc,    30+10,  171+20,   61,    21,   vc(14),   vc(1),   13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,   100+10,  171+20,   61,    21,   vc(14),   vc(1),   27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    // 4
-    { jwin_ctext_proc,    126+10,   25+20,   70,    36,   0,        0,       0,       D_DISABLED, 0,             0, (void *) "COMBO", NULL, NULL },
-    { d_comboframe_proc,    116+10,   31+20,   20,    20,   0,        0,       0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_combo_proc,       118+10,   33+20,   16,    16,   0,        0,       0,       0,          0,             0,       NULL, NULL, NULL },
-    // 7
-    { jwin_text_proc,       6+10,   29+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Link to:", NULL, NULL },
-    { jwin_text_proc,       6+10,   47+20,   36,    36,   0,        0,       0,       0,          0,             0, (void *) "X Pos:", NULL, NULL },
-    { jwin_text_proc,       6+10,   65+20,   36,    36,   0,        0,       0,       0,          0,             0, (void *) "Y Pos:", NULL, NULL },
-    { jwin_text_proc,       6+10,   83+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "X Speed:", NULL, NULL },
-    { jwin_text_proc,       6+10,  101+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Y Speed:", NULL, NULL },
-    { jwin_text_proc,       6+10,  119+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "X Accel:", NULL, NULL },
-    { jwin_text_proc,       6+10,  137+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Y Accel:", NULL, NULL },
-    { jwin_text_proc,     112+10,  137+20,   70,    12,   0,        0,       0,       0,          0,             0, (void *) "A. Delay:", NULL, NULL },
-    // 15
-    { jwin_droplist_proc,  50+10,   25+20,   60,    16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       0,          1,             0, (void *) &fflink_list, NULL, NULL },
-    { jwin_edit_proc,      50+10,   43+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      50+10,   61+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      50+10,   79+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      50+10,   97+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      50+10,  115+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      50+10,  133+20,   56,    16,   vc(12),   vc(1),   0,       0,          9,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,     156+10,  133+20,   32,    16,   vc(12),   vc(1),   0,       0,          4,             0,       NULL, NULL, NULL },
-    //23
-    { jwin_text_proc,       112+10,  65+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Combo W:", NULL, NULL },
-    { jwin_text_proc,       112+10,  83+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Combo H:", NULL, NULL },
-    { jwin_text_proc,       112+10,  101+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Tile W:", NULL, NULL },
-    { jwin_text_proc,       112+10,  119+20,   70,    36,   0,        0,       0,       0,          0,             0, (void *) "Tile H:", NULL, NULL },
-    //27
-    { jwin_edit_proc,      156+10,  61+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      156+10,  79+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      156+10,  97+20,   24,    16,   vc(12),   vc(1),   0,       0,          1,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      156+10,  115+20,   24,    16,   vc(12),   vc(1),   0,       0,          1,             0,       NULL, NULL, NULL },
-    //31
-    { jwin_text_proc,       6+10,  25+20,   160,    36,   0,        0,       0,       0,          0,             0, (void *) "Flags (Normal):", NULL, NULL },
-    { jwin_text_proc,       6+10,  105+20,   160,    36,   0,        0,       0,       0,          0,             0, (void *) "Flags (Changer specific):", NULL, NULL },
-    //33
-    { jwin_check_proc,      6+10,  35+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Draw Over", NULL, NULL },
-    { jwin_check_proc,      6+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Translucent", NULL, NULL },
-    { jwin_check_proc,     80+10,  35+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Carry-Over", NULL, NULL },
-    { jwin_check_proc,     80+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Stationary", NULL, NULL },
-    { jwin_check_proc,      6+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Is a Changer (Invisible, Ethereal)", NULL, NULL },
-    { jwin_check_proc,      6+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Run Script at Screen Init", NULL, NULL },
-    { jwin_check_proc,      6+10,  75+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Only Visible to Lens of Truth", NULL, NULL },
-    { jwin_check_proc,      6+10,  85+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Script Restarts When Carried Over", NULL, NULL },
-    //41
-    { jwin_check_proc,    154+10,  35+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Ethereal", NULL, NULL },
-    { jwin_check_proc,      6+10,  95+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Active While Link is Holding an Item", NULL, NULL },
-    { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,      6+10,  25+20,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    //49
-    { jwin_check_proc,      6+10,  115+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Swap with next FFC", NULL, NULL },
-    { jwin_check_proc,      6+10,  125+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Swap with prev. FFC", NULL, NULL },
-    { jwin_check_proc,      6+10,  135+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Increase combo ID", NULL, NULL },
-    { jwin_check_proc,      6+10,  145+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Decrease combo ID", NULL, NULL },
-    { jwin_check_proc,      6+10,  155+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Change combo/cset to this", NULL, NULL },
-    //54
-    { jwin_text_proc,       6+10,  155+20,   70,    12,   0,        0,       0,       0,          0,             0, (void *) "Script:", NULL, NULL },
-    { jwin_droplist_proc,   50+10,   151+20,  150,    16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],   0,       0,          1,             0, (void *) &ffscript_list, NULL, NULL },
-    //56
-    { jwin_text_proc,       6+10,   29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D0:", NULL, NULL },
-    { jwin_text_proc,       6+10,   47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D1:", NULL, NULL },
-    { jwin_text_proc,       6+10,   65+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D2:", NULL, NULL },
-    { jwin_text_proc,       6+10,   83+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D3:", NULL, NULL },
-    { jwin_text_proc,       6+10,  101+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D4:", NULL, NULL },
-    { jwin_text_proc,       6+10,  119+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D5:", NULL, NULL },
-    { jwin_text_proc,       6+10,  137+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "D6:", NULL, NULL },
-    { jwin_text_proc,       6+10,  155+20,   24,    12,   0,        0,       0,       0,          0,             0, (void *) "D7:", NULL, NULL },
-    //64
-    { jwin_numedit_swap_zsint_proc,      34+10,   25+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   43+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   61+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   79+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,   97+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,  115+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,  133+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,      34+10,  151+20,   54,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
-    //72
-    { jwin_text_proc,       112+10,  29+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A1:", NULL, NULL },
-    { jwin_text_proc,       112+10,  47+20,   24,    36,   0,        0,       0,       0,          0,             0, (void *) "A2:", NULL, NULL },
-    //74
-    { jwin_edit_proc,      140+10,  25+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_edit_proc,      140+10,  43+20,   32,    16,   vc(12),   vc(1),   0,       0,          2,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,      220, 151+20,   24,    36,   0,        0,       0,       0,          0,             0, (void*) "", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    //78 new ffc flags
-    { jwin_check_proc,    154+10,  45+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Ign. Changers", NULL, NULL },
-    { jwin_check_proc,    154+10,  55+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Solid", NULL, NULL },
-    { jwin_check_proc,    154+10,  65+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Imprecision", NULL, NULL },
-    { jwin_check_proc,    154+10,  75+20,  80+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Inv. to Lens", NULL, NULL },
-	//82
-	{ jwin_swapbtn_proc,    98,    45,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,    63,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,    81,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,    99,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   117,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   135,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   153,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	{ jwin_swapbtn_proc,    98,   171,    16,    16,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL },
-	
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 
 char *strip_decimals(char *string)
 {
@@ -28203,181 +28044,6 @@ int32_t load_zmod_module_file()
 	    return D_O_K;
 }
 
-
-//FFC Editor FFC_Editor
-int32_t onEditFFCombo(int32_t ffcombo)
-{
-    char xystring[8][10];
-    char wstring[4][10];
-    char dastring[10][13];
-    sprintf(xystring[0],"%.4f",Map.CurrScr()->ffx[ffcombo]/10000.0);
-    sprintf(xystring[1],"%.4f",Map.CurrScr()->ffy[ffcombo]/10000.0);
-    sprintf(xystring[2],"%.4f",Map.CurrScr()->ffxdelta[ffcombo]/10000.0);
-    sprintf(xystring[3],"%.4f",Map.CurrScr()->ffydelta[ffcombo]/10000.0);
-    sprintf(xystring[4],"%.4f",Map.CurrScr()->ffxdelta2[ffcombo]/10000.0);
-    sprintf(xystring[5],"%.4f",Map.CurrScr()->ffydelta2[ffcombo]/10000.0);
-    sprintf(xystring[6],"%d",Map.CurrScr()->ffdelay[ffcombo]);
-    
-    sprintf(wstring[0],"%d",(Map.CurrScr()->ffwidth[ffcombo]&63)+1);
-    sprintf(wstring[1],"%d",(Map.CurrScr()->ffheight[ffcombo]&63)+1);
-    sprintf(wstring[2],"%d",(Map.CurrScr()->ffwidth[ffcombo]>>6)+1);
-    sprintf(wstring[3],"%d",(Map.CurrScr()->ffheight[ffcombo]>>6)+1);
-    
-    sprintf(dastring[8],"%ld",Map.CurrScr()->inita[ffcombo][0]/10000);
-    sprintf(dastring[9],"%ld",Map.CurrScr()->inita[ffcombo][1]/10000);
-    
-    char wtitle[80];
-    sprintf(wtitle,"Edit Freeform Combo (#%d)", ffcombo+1);
-    ffcombo_dlg[0].dp2 = lfont;
-    ffcombo_dlg[0].dp = wtitle;
-    ffcombo_dlg[4].dp2 = spfont;
-    
-    ffcombo_dlg[6].d1 = Map.CurrScr()->ffdata[ffcombo];
-    ffcombo_dlg[6].fg = Map.CurrScr()->ffcset[ffcombo];
-    
-    ffcombo_dlg[15].d1 = Map.CurrScr()->fflink[ffcombo];
-    ffcombo_dlg[16].dp = xystring[0];
-    ffcombo_dlg[17].dp = xystring[1];
-    ffcombo_dlg[18].dp = xystring[2];
-    ffcombo_dlg[19].dp = xystring[3];
-    ffcombo_dlg[20].dp = xystring[4];
-    ffcombo_dlg[21].dp = xystring[5];
-    ffcombo_dlg[22].dp = xystring[6];
-    
-    ffcombo_dlg[27].dp = wstring[0];
-    ffcombo_dlg[28].dp = wstring[1];
-    ffcombo_dlg[29].dp = wstring[2];
-    ffcombo_dlg[30].dp = wstring[3];
-    
-	for(int32_t q = 0; q < 8; ++q)
-    {
-		ffcombo_dlg[64+q].dp = dastring[q];
-		ffcombo_dlg[64+q].fg = Map.CurrScr()->initd[ffcombo][q];
-		ffcombo_dlg[64+q].dp3 = &(ffcombo_dlg[82+q]);
-	}
-	//InitA
-    ffcombo_dlg[74].dp = dastring[8];
-    ffcombo_dlg[75].dp = dastring[9];
-    
-    build_biffs_list();
-    int32_t index = 0;
-    
-    for(int32_t j = 0; j < biffs_cnt; j++)
-    {
-        if(biffs[j].second == Map.CurrScr()->ffscript[ffcombo] - 1)
-        {
-            index = j;
-        }
-    }
-    
-    ffcombo_dlg[55].d1 = index;
-    
-    int32_t f=Map.CurrScr()->ffflags[ffcombo];
-    ffcombo_dlg[33].flags = (f&ffOVERLAY) ? D_SELECTED : 0;
-    ffcombo_dlg[34].flags = (f&ffTRANS) ? D_SELECTED : 0;
-    ffcombo_dlg[35].flags = (f&ffCARRYOVER) ? D_SELECTED : 0;
-    ffcombo_dlg[36].flags = (f&ffSTATIONARY) ? D_SELECTED : 0;
-    ffcombo_dlg[37].flags = (f&ffCHANGER) ? D_SELECTED : 0;
-    ffcombo_dlg[38].flags = (f&ffPRELOAD) ? D_SELECTED : 0;
-    ffcombo_dlg[39].flags = (f&ffLENSVIS) ? D_SELECTED : 0;
-    ffcombo_dlg[40].flags = (f&ffSCRIPTRESET) ? D_SELECTED : 0;
-    ffcombo_dlg[41].flags = (f&ffETHEREAL) ? D_SELECTED : 0;
-    ffcombo_dlg[42].flags = (f&ffIGNOREHOLDUP) ? D_SELECTED : 0;
-    
-    ffcombo_dlg[78].flags = (f&ffIGNORECHANGER) ? D_SELECTED : 0;
-    ffcombo_dlg[79].flags = (f&ffSOLID) ? D_SELECTED : 0;
-    ffcombo_dlg[80].flags = (f&ffIMPRECISIONCHANGER) ? D_SELECTED : 0;
-    
-    ffcombo_dlg[49].flags = (f&ffSWAPNEXT) ? D_SELECTED : 0;
-    ffcombo_dlg[50].flags = (f&ffSWAPPREV) ? D_SELECTED : 0;
-    ffcombo_dlg[51].flags = (f&ffCHANGENEXT) ? D_SELECTED : 0;
-    ffcombo_dlg[52].flags = (f&ffCHANGEPREV) ? D_SELECTED : 0;
-    ffcombo_dlg[53].flags = (f&ffCHANGETHIS) ? D_SELECTED : 0;
-    ffcombo_dlg[81].flags = (f&ffLENSINVIS) ? D_SELECTED : 0;
-    
-    if(is_large)
-        large_dialog(ffcombo_dlg);
-        
-    int32_t ret = -1;
-    
-    do
-    {
-        ret=zc_popup_dialog(ffcombo_dlg,0);
-        
-        // A polite warning about FFC 0 and scripts
-        if(ret==2 && !ffcombo_dlg[6].d1 && ffcombo_dlg[55].d1>0)
-            if(jwin_alert("Inactive FFC","FFCs that use Combo 0 cannot run scripts! Continue?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
-                ret=-1;
-    }
-    while(ret<0);
-    
-    if(ret==2)
-    {
-        saved=false;
-        Map.CurrScr()->ffdata[ffcombo] = ffcombo_dlg[6].d1;
-        Map.CurrScr()->ffcset[ffcombo] = ffcombo_dlg[6].fg;
-        Map.CurrScr()->fflink[ffcombo] = ffcombo_dlg[15].d1;
-        Map.CurrScr()->ffx[ffcombo] = vbound(ffparse2(xystring[0]),-320000, 2880000);
-        Map.CurrScr()->ffy[ffcombo] = vbound(ffparse2(xystring[1]),-320000, 2080000);
-        Map.CurrScr()->ffxdelta[ffcombo] = vbound(ffparse2(xystring[2]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta[ffcombo] = vbound(ffparse2(xystring[3]),-1280000, 1280000);
-        Map.CurrScr()->ffxdelta2[ffcombo] = vbound(ffparse2(xystring[4]),-1280000, 1280000);
-        Map.CurrScr()->ffydelta2[ffcombo] = vbound(ffparse2(xystring[5]),-1280000, 1280000);
-        Map.CurrScr()->ffdelay[ffcombo] = atoi(xystring[6])<10000?zc_max(0,atoi(xystring[6])):9999;
-        Map.CurrScr()->ffscript[ffcombo] = biffs[ffcombo_dlg[55].d1].second + 1;
-        
-        int32_t cw = atoi(wstring[0])<65?zc_max(1,atoi(wstring[0])):64;
-        int32_t ch = atoi(wstring[1])<65?zc_max(1,atoi(wstring[1])):64;
-        int32_t tw = atoi(wstring[2])<5?zc_max(1,atoi(wstring[2])):4;
-        int32_t th = atoi(wstring[3])<5?zc_max(1,atoi(wstring[3])):4;
-        Map.CurrScr()->ffwidth[ffcombo] = (cw-1)+((tw-1)<<6);
-        Map.CurrScr()->ffheight[ffcombo] = (ch-1)+((th-1)<<6);
-        
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			Map.CurrScr()->initd[ffcombo][q] = ffcombo_dlg[64+q].fg;
-        }
-		
-        Map.CurrScr()->inita[ffcombo][0] = vbound(atoi(dastring[8])*10000,0,320000);
-        Map.CurrScr()->inita[ffcombo][1] = vbound(atoi(dastring[9])*10000,0,320000);
-        
-        f=0;
-        f |= (ffcombo_dlg[33].flags&D_SELECTED) ? ffOVERLAY : 0;
-        f |= (ffcombo_dlg[34].flags&D_SELECTED) ? ffTRANS : 0;
-        f |= (ffcombo_dlg[35].flags&D_SELECTED) ? ffCARRYOVER : 0;
-        f |= (ffcombo_dlg[36].flags&D_SELECTED) ? ffSTATIONARY : 0;
-        f |= (ffcombo_dlg[37].flags&D_SELECTED) ? ffCHANGER : 0;
-        f |= (ffcombo_dlg[38].flags&D_SELECTED) ? ffPRELOAD : 0;
-        f |= (ffcombo_dlg[39].flags&D_SELECTED) ? ffLENSVIS : 0;
-        f |= (ffcombo_dlg[40].flags&D_SELECTED) ? ffSCRIPTRESET : 0;
-        f |= (ffcombo_dlg[41].flags&D_SELECTED) ? ffETHEREAL : 0;
-        f |= (ffcombo_dlg[42].flags&D_SELECTED) ? ffIGNOREHOLDUP : 0;
-        
-        f |= (ffcombo_dlg[49].flags&D_SELECTED) ? ffSWAPNEXT : 0;
-        f |= (ffcombo_dlg[50].flags&D_SELECTED) ? ffSWAPPREV : 0;
-        f |= (ffcombo_dlg[51].flags&D_SELECTED) ? ffCHANGENEXT : 0;
-        f |= (ffcombo_dlg[52].flags&D_SELECTED) ? ffCHANGEPREV : 0;
-        f |= (ffcombo_dlg[53].flags&D_SELECTED) ? ffCHANGETHIS : 0;
-	
-        f |= (ffcombo_dlg[78].flags&D_SELECTED) ? ffIGNORECHANGER : 0;
-        f |= (ffcombo_dlg[79].flags&D_SELECTED) ? ffSOLID : 0;
-        f |= (ffcombo_dlg[80].flags&D_SELECTED) ? ffIMPRECISIONCHANGER : 0;
-        f |= (ffcombo_dlg[81].flags&D_SELECTED) ? ffLENSINVIS : 0;
-        Map.CurrScr()->ffflags[ffcombo] = f;
-        
-        if(Map.CurrScr()->ffdata[ffcombo]!=0)
-        {
-            Map.CurrScr()->numff|=(1<<ffcombo);
-        }
-        else
-        {
-            Map.CurrScr()->numff&=~(1<<ffcombo);
-        }
-    }
-    
-    return D_O_K;
-}
-
 static DIALOG sfxlist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -33153,7 +32819,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(elist_dlg);
     jwin_center_dialog(enemy_dlg);
-    jwin_center_dialog(ffcombo_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);

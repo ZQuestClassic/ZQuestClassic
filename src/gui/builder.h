@@ -499,7 +499,6 @@ Row(vPadding = 0_px, \
 Row(vPadding = 0_px, \
 	Label( text = "InitD["+std::to_string(ind)+"]:", \
 		textAlign = 2, \
-		width = 6_em, \
 		rightPadding = 0_px \
 	), \
 	TextField( \
