@@ -17439,7 +17439,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			if(keepdata==true)
 			{
 				memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
-				memset(colordata+((q-30)*48), 0, ((poSPRITE255-oldpoSPRITE)*48));
+				memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
 				memcpy(colordata+((poSPRITE255+11)*48), colordata+((poSPRITE255+10)*48), 48);
 				memcpy(colordata+((poSPRITE255+10)*48), colordata+((poSPRITE255+9)*48), 48);
 				memcpy(colordata+((poSPRITE255+9)*48), colordata+((poSPRITE255+8)*48), 48);
