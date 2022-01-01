@@ -2960,6 +2960,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 d->d2 = i;
                 object_message(d, MSG_DRAW, 0);
+				GUI_EVENT(d, geCHANGE_SELECTION);
             }
         }
         
@@ -3239,6 +3240,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 d->d2 = i;
                 object_message(d, MSG_DRAW, 0);
+				GUI_EVENT(d, geCHANGE_SELECTION);
             }
         }
         
@@ -3304,6 +3306,9 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
             
             /* if we changed something, better redraw... */
             _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
+			
+			GUI_EVENT(d, geCHANGE_SELECTION);
+			
             scare_mouse();
             object_message(d, MSG_DRAW, 0);
             unscare_mouse();
@@ -5549,9 +5554,6 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 					break; 
 				}
 			}
-			//al_trace("keypresses: %s\n", abc_keypresses);
-			//the lister string is ((data->listFunc(i,&dummy)))
-			//al_trace("lister: %s\n", ((data->listFunc(i,&dummy))));
 			data->listFunc(-1, &max);
 
 			int32_t cur = d->d1;
@@ -5562,7 +5564,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			for ( int32_t a = 0; a < 32768; ++a ) lastmatches[a] = -1; 
 			int32_t lmindx = 0;
 			
-			
+			bool foundmatch = false;
 			for ( int32_t listpos = 0; listpos < max; ++listpos )
 			{
 				memset(tmp, 0, 1024);
@@ -5575,7 +5577,6 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 					if ( zc_isalpha(tmp[w]) )
 					{
 						tmp[w] = toupper(tmp[w]);
-						//al_trace("tmp is: %s\n",tmp);
 					}
 				}
 				for ( int32_t e = 0; e < 1024; ++e ) 
@@ -5583,65 +5584,25 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 					if ( zc_isalpha(lsttmp[e]) )
 					{
 						lsttmp[e] = toupper(lsttmp[e]);
-						//al_trace("lsttmp is: %s\n",lsttmp);
 					}
 				}
 				
-				//al_trace("tmp is: %s\n", tmp);
-				//al_trace("lsttmp is: %s\n", lsttmp);
-				
-				//al_trace("strlen(lsttmp) is: %d\n", strlen(tmp));
 				if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
 				{
-					//al_trace("listpos (cond A) is: %d with name %s\n", listpos, ((data->listFunc(listpos,&dummy))));
-					//al_trace("strncmp charpos was: %d\n", charpos);
-					
 					d->d1 = listpos;
 					d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
-					goto gotit_match;
-					
-					//lastmatch = listpos;
-					//lastmatches[lmindx] = lastmatch;
-					//al_trace("lastmatches[%d] is: %d\n", lmindx, lastmatches[lmindx]);
-					//++lmindx;
-				}
-				else
-				{
-					
-				}
-			}
-			/*
-			int32_t the_lowest = 65537; 
-			//al_trace("Lowest starts at: %d\n", the_lowest);
-				
-			--lmindx; // start at the last used.
-			for (; lmindx >= 0; --lmindx )
-			{
-				if ( lastmatches[lmindx] < the_lowest ) 
-				{
-					//al_trace("lastmatches[%d]: %d\n", lmindx, lastmatches[lmindx]);
-					the_lowest = lastmatches[lmindx];
-					//al_trace("lowest is: %d\n", the_lowest);
+					foundmatch = true;
+					break;
 				}
 			}
 			
-			if ( the_lowest > -1 )
-			{
-				//sort lastmatches to find th lowest number
-				
-				d->d1 = the_lowest;
-				d->d2 = zc_max(zc_min(the_lowest-(h>>1), max-h), 0);
-				goto gotit_match;
-			}
-			*/
-				
-gotit_match:
+			if(foundmatch)
+				GUI_EVENT(d, geCHANGE_SELECTION);
 			scare_mouse();
 			jwin_do_abclist_proc(MSG_DRAW,d,0);
 			unscare_mouse();
-			if ( gui_mouse_b() ) { wipe_abc_keypresses();} // al_trace("keypresses: %s\n", abc_keypresses); }
-			//wipe_abc_keypresses();
-			return D_USED_CHAR;
+			if ( gui_mouse_b() ) wipe_abc_keypresses();
+			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
 		else if(msg==MSG_CHAR && ( (c&0xFF) == 8) )//backspace
 		{
@@ -5657,7 +5618,6 @@ gotit_match:
 			return D_USED_CHAR;
 		}
 		if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
-		//wipe_abc_keypresses(); //wiping here doesn't store the keypress util the end of the dlg
 	}
 	else // Windows Explorer style jumping
 	{
@@ -5671,7 +5631,7 @@ gotit_match:
 			data->listFunc(-1, &max);
 
 			int32_t cur = d->d1;
-			//al_trace("cur: %d\n", cur);
+			bool foundmatch = false;
 			for(i=cur+1; (cur ? (i != cur) : (cur < max)); ++i) //don't infinite loop this. 
 			{
 				//al_trace("loop running\n");
@@ -5680,15 +5640,15 @@ gotit_match:
 				{
 					d->d1 = i;
 					d->d2 = zc_max(zc_min(i-(h>>1), max-h), 0);
-					goto gotit_nomatch;
+					foundmatch = true;
+					break;
 				}
 			}
 			
-gotit_nomatch:
 			scare_mouse();
 			jwin_list_proc(MSG_DRAW,d,0);
 			unscare_mouse();
-			return D_USED_CHAR;
+			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
 	}
 	if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }

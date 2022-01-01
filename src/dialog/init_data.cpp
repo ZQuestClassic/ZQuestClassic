@@ -4,6 +4,8 @@
 #include <gui/builder.h>
 #include "zsys.h"
 
+using std::map;
+using std::vector;
 extern ListData dmap_list;
 extern bool saved;
 extern itemdata *itemsbuf;
@@ -159,7 +161,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	std::map<int32_t, std::vector<int32_t>> families;
+	map<int32_t, map<int32_t, vector<int32_t> > > families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
 	
 	for(int32_t q = 0; q < MAXITEMS; ++q)
@@ -171,20 +173,24 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			continue;
 		}
 		
-		std::map<int32_t,std::vector<int32_t> >::iterator it = families.find(family);
-		
-        if(it == families.end())
+        if(families.find(family) == families.end())
         {
-            families[family] = std::vector<int32_t>();
+            families[family] = map<int32_t, vector<int32_t> >();
         }
+		int32_t level = zc_max(1, itemsbuf[q].fam_type);
+		auto &levelmap = families[family];
+		if(families[family].find(level) == families[family].end())
+		{
+			families[family][level] = vector<int32_t>();
+		}
         
-        families[family].push_back(q);
+        families[family][level].push_back(q);
 	}
 	
 	int32_t fam_ind = 0;
 	for(int32_t q = 0; q < itype_max; ++q)
 	{
-		std::map<int32_t,std::vector<int32_t> >::iterator it = families.find(q);
+		auto it = families.find(q);
 		if(it == families.end())
 		{
 			list_items.removeVal(q); //Remove from the lister
@@ -192,19 +198,22 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		}
 		switchids[q] = fam_ind++;
 		std::shared_ptr<GUI::Grid> grid = Columns<10>(fitParent = true,hAlign=0.0,vAlign=0.0);
-		for(std::vector<int32_t>::iterator itid = (*it).second.begin(); itid != (*it).second.end(); ++itid)
+		for(auto levelit = (*it).second.begin(); levelit != (*it).second.end(); ++levelit)
 		{
-			int32_t id = *itid;
-			std::shared_ptr<GUI::Checkbox> cb = Checkbox(
-				hAlign=0.0,vAlign=0.0,
-				checked = local_zinit.items[id],
-				text = item_string[id],
-				onToggleFunc = [&,id](bool state)
-				{
-					local_zinit.items[id] = state;
-				}
-			);
-			grid->add(cb);
+			for(auto itid = (*levelit).second.begin(); itid != (*levelit).second.end(); ++itid)
+			{
+				int32_t id = *itid;
+				std::shared_ptr<GUI::Checkbox> cb = Checkbox(
+					hAlign=0.0,vAlign=0.0,
+					checked = local_zinit.items[id],
+					text = item_string[id],
+					onToggleFunc = [&,id](bool state)
+					{
+						local_zinit.items[id] = state;
+					}
+				);
+				grid->add(cb);
+			}
 		}
 		icswitcher->add(grid);
 	}
