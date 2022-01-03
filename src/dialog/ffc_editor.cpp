@@ -122,7 +122,7 @@ ffdata& ffdata::operator=(ffdata const& other)
 FFCDialog::FFCDialog(mapscr* scr, int32_t ffind) :
 	thescr(scr), ffind(ffind),
 	list_link(GUI::ListData::numbers(true, 1, 32)),
-	list_ffcscript(GUI::ListData::itemsprite_script())
+	list_ffcscript(GUI::ListData::ffc_script())
 {
 	ffc.load(scr, ffind);
 }
