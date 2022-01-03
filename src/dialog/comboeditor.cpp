@@ -448,7 +448,7 @@ std::string getFlagHelpText(int32_t id)
 		case mfENEMY5: case mfENEMY6: case mfENEMY7: case mfENEMY8: case mfENEMY9:
 		{
 			int32_t enemynum = id - 37 + 1;
-			flaghelp = "When the "+std::to_string(enemynum)+ordinal(enemynum)+" enemy in the Enemy List is spawned,"
+			flaghelp = "When the "+ordinal(enemynum)+" enemy in the Enemy List is spawned,"
 				" it appears on this flag instead of using the Enemy Pattern."
 				" The uppermost, then leftmost, instance of this flag is used.";
 			break;
