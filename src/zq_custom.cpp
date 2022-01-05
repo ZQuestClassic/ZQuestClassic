@@ -8432,7 +8432,7 @@ int32_t onCustomLink()
 	int32_t oldChargeSpr[4][3];
 	int32_t oldCastSpr[3];
 	int32_t oldsideswimCastSpr[3];
-	int32_t oldHoldSpr[2][2][3];
+	int32_t oldHoldSpr[2][3][3];
 	int32_t oldDrownSpr[4][3];
 	int32_t oldSideDrownSpr[4][3];
 	int32_t oldFallSpr[4][3];
@@ -8466,7 +8466,7 @@ int32_t onCustomLink()
 	memcpy(oldChargeSpr, chargespr, 4*3*sizeof(int32_t));
 	memcpy(oldCastSpr, castingspr, 3*sizeof(int32_t));
 	memcpy(oldsideswimCastSpr, sideswimcastingspr, 3*sizeof(int32_t));
-	memcpy(oldHoldSpr, holdspr, 2*2*3*sizeof(int32_t));
+	memcpy(oldHoldSpr, holdspr, 2*3*3*sizeof(int32_t));
 	memcpy(oldDrownSpr, drowningspr, 4*3*sizeof(int32_t));
 	memcpy(oldSideDrownSpr, sidedrowningspr, 4*3*sizeof(int32_t));
 	memcpy(oldFallSpr, fallingspr, 4*3*sizeof(int32_t));
@@ -8564,7 +8564,7 @@ int32_t onCustomLink()
 			memcpy(chargespr, oldChargeSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(castingspr, oldCastSpr, 3 * sizeof(int32_t));
 			memcpy(sideswimcastingspr, oldsideswimCastSpr, 3 * sizeof(int32_t));
-			memcpy(holdspr, oldHoldSpr, 2 * 2 * 3 * sizeof(int32_t));
+			memcpy(holdspr, oldHoldSpr, 2*3*3*sizeof(int32_t));
 			memcpy(drowningspr, oldDrownSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(sidedrowningspr, oldSideDrownSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(fallingspr, oldFallSpr, 4 * 3 * sizeof(int32_t));
@@ -8574,7 +8574,7 @@ int32_t onCustomLink()
 			memcpy(sideswimstabspr, oldSideSwimStabSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(sideswimpoundspr, oldSideSwimPoundSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(sideswimchargespr, oldSideSwimChargeSpr, 4 * 3 * sizeof(int32_t));
-			memcpy(sideswimholdspr, oldSideSwimHoldSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(sideswimholdspr, oldSideSwimHoldSpr, 3* 3 * sizeof(int32_t));
 		}
 	} while (ret == 168);
 	
