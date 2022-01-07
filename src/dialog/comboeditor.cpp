@@ -521,6 +521,11 @@ std::string getFlagHelpText(int32_t id)
 			flaghelp = "Not yet implemented";
 			break;
 		}
+		case mfNOMIRROR:
+		{
+			flaghelp = "While touching this flag, attempting to use a Mirror item will fail.";
+			break;
+		}
 	}
 	return flaghelp;
 }
