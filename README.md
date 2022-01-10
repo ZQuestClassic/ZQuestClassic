@@ -6,6 +6,8 @@ http://zeldaclassic.com
 
 The homepage contains information about the latest release, links to the latest binaries, and a repository of custom quests for you to enjoy. 
 
+[Latest Downloads](http://zeldaclassic.com/downloads), [Our Discord](https://discord.gg/ddk2dk4guq)
+
 This repository contains the Zelda Classic source code, for use by the Zelda Classic developers and advanced users wanting to port ZC to new platforms. You do not need to download or compile the source if you want to play Zelda Classic or make quests on Windows, OS X, or (Debian) Linux.
 
 ## Building the Source
@@ -16,19 +18,16 @@ Because of Zelda Classic's extended development history and dependency on legacy
 
 **1))** Zelda Classic uses CMake to build the source. Before getting started, you will need to install CMake (version 3.5 or later.) The scripts have been tested on the following operating systems and toolchains:
 
-- **Windwos XP with MSVC 2008**
-- **Windows 10 with MSVC 2016**
-- **Ubuntu 16.04 with g++ 5.4**
+- **Windows 10 with MSVC 2019**
 
 You may need to tweak the configuration settings for other platforms.
 
-**2))** The Zelda Classic project includes three executables and one library:
+**2))** The Zelda Classic project includes two executables and one library:
  - the zcsound library, which is used by all the other binaries;
  - zelda, the Zelda Classic player;
  - zquest, the Zelda Classic level editor;
- - romview, a utility for ripping tiles from SNES ROMs.
  
-The included build scripts will build all four targets.
+The included build scripts will build all targets.
 
 **3))** Included in this repository are pre-built libraries for many of ZC's dependencies, including Allegro and several Allegro add-on libraries for handling sound. These binaries are included for the most common platforms for convenience of the developers, but if you are using a different operating system or toolchain you may need to rebuild these binaries from source. There are (currently) no automated scripts for doing this, but the source packages are included in the `/other` directory.
 
@@ -40,22 +39,13 @@ Zelda Classic requires a modified version of the Allegro 4.2.2 library. Again, p
 
 For Windows user, win-flex and win-bison will work fine. Be sure to add the folder containing the binaries (e.g. `win-flex.exe`) to your PATH environment variable. You can use this to install with [choco](https://chocolatey.org/install): `choco install winflexbison3`.
 
-CMake will issue a warning if it cannot find Flex or Bison on your system.
+If flex-bison is not found, CMake will fail to build.
 
 **6))**
 
-The compiled binaries **will not run** on their own without support files. These files are not (currently) included in this repository, due to copyright concerns. To run the compiled source, download the latest binary package from the project homepage, and copy the binaries from `build` into a folder also containing all of the data files from the binary package.
+The compiled binaries **will not run** on their own without support files. These files ARE now included in the repository.
 
-<!-- TODO: this could be done in CMake, or at the least via a shell script -->
-* Download [latest release](https://www.zeldaclassic.com/downloads/)
-* Build everything (`cd build && cmake .. && cmake --build .`)
-* Copy contents of `build/Debug` or `build/Release` to the unzipped latest release folder
-* Copy `output/common/ZCConsole.exe` to release folder
-* The downloaded release .exe has builtin .zmod datafiles. the .exe built locally does not, so we must copy over some datafiles
-* * Make `modules` folder in release folder
-* * Copy contents of `output/modules/default` to previous folder (structure should be `modules/default.zmod`, `modules/default/...`)
-* Create a file called `shield_block_flags.txt` in release folder (and give it some content)
-* That should be all!
+On windows, you can run `output/_auto/buildpack.bat` to generate a folder with all the required files.
 
 To debug any issues, open `allegro.log` after opening a binary.
 
@@ -63,9 +53,13 @@ To debug any issues, open `allegro.log` after opening a binary.
 
 Download CMake and run the CMake GUI. It will prompt your for the location of the source code, and the location in which to build the binaries. Specify the root (the folder containing this file) for the former and the `build` folder for the latter.
 
+When it asks you for compiler settings, be sure to set MSVC 2019, with `32-bit` target.
+
 Click "Generate." This will create a Visual Studio project file for you in the build directory. You can then open up the project file in MSVC and do editing/compilation/debugging in MSVC. You do not need to touch CMake again unless you want to change project configuration options or add/remove source files.
 
-### Quick-start: Linux with gcc
+### Quick-start: Linux with gcc (OLD INSTRUCTIONS, UNTESTED)
+
+Linux builds are currently not entirely functional. This section will be updated with new instructions at a later date. (-EmilyV, Jan 9th 2022)
 
 Ensure you have CMake 3.5+ install and execute the following commands:
 ```
