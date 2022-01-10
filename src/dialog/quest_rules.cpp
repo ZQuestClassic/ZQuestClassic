@@ -764,7 +764,7 @@ static const GUI::ListData enemiesRulesList
 		" left alive. Otherwise, if disabled, the enemies will only return if you either left"
 		" 0 enemies alive on the screen, or if you left and re-entered the map."},
 		
-	//Maybe we should keep this one last always? -Deedee
+	//Maybe we should keep this one last always? -Deedee 
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
 		"If enabled, enemies can go out of bounds without getting removed. This is"
 		" mainly intended for script use and should not be turned on unless a script"
