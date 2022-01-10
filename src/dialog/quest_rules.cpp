@@ -754,6 +754,15 @@ static const GUI::ListData enemiesRulesList
 		"If enabled, enemies will check all bait on screen and home towards"
 		" the closest one in range if they have hunger. If disabled, they will"
 		" instead check only the oldest-placed bait on the screen."},
+	{ "Unbeatable enemies don't prevent enemies from respawning",  qr_UNBEATABLES_DONT_KEEP_DEAD,
+		"If enabled, a screen that only has unbeatable enemies left will act as if it has"
+		" 0 enemies left alive, allowing the enemies on the screen to respawn if the screen"
+		" isn't one of the last 6 unique screen visited or if the player has F6'd."},
+	{ "No 'Leave one enemy alive' trick",  qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK,
+		"If enabled, enemies will always return after either f6ing or if the current screen"
+		" isn't one of the last 6 unique screens visited; regardless of how many enemies are"
+		" left alive. Otherwise, if disabled, the enemies will only return if you either left"
+		" 0 enemies alive on the screen, or if you left and re-entered the map."},
 		
 	//Maybe we should keep this one last always? -Deedee
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,

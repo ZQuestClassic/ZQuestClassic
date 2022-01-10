@@ -905,7 +905,6 @@ void loaditem();
 void never_return(int32_t index);
 bool hasBoss();
 bool slowguy(int32_t id);
-bool countguy(int32_t id);
 bool ok2add(int32_t id);
 void load_default_enemies();
 void nsp(bool random);
