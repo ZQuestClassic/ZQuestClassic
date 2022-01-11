@@ -17,6 +17,10 @@
 #define V_ZC_GAMMA 0
 #define V_ZC_RELEASE 0
 
+#define ALPHA_STATE (V_ZC_RELEASE ? 3 : (V_ZC_GAMMA ? 2 : (V_ZC_BETA ? 1 : 0)))
+#define ALPHA_VER (V_ZC_RELEASE ? V_ZC_RELEASE : (V_ZC_GAMMA ? V_ZC_GAMMA : (V_ZC_BETA ? V_ZC_BETA : V_ZC_ALPHA)))
+#define ALPHA_STR (V_ZC_RELEASE ? "Release" : (V_ZC_GAMMA ? "Gamma" : (V_ZC_BETA ? "Beta" : "Alpha")))
+
 #define PROJECT_NAME "AEternal"
 #define COMPANY_NAME "Armageddon Games"
 #define ZQ_EDITOR_NAME "ZQuest Creator"

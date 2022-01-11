@@ -19,11 +19,14 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		title = std::move(dlgTitle),
 		onEnter = message::OK,
 		onClose = message::CANCEL,
+		hPadding = 0_px, 
 		Column(
+			hPadding = 0_px, 
 			Label(
-				maxwidth = 20_em,
-				hPadding = 1_em,
-				maxLines = 10,
+				hPadding = sized(1_em,3_em),
+				maxLines = 20,
+				maxwidth = sized(320_px,800_px)-sized(8_px,12_px)-sized(2_em,6_em),
+				textAlign = 1,
 				text = std::move(dlgText)),
 			Row(
 				topPadding = 0.5_em,

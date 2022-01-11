@@ -3679,23 +3679,23 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 
 	switch(ret)
 	{
-	case 0:
-		break;
-		
-	case qe_invalid:
-		strcpy(str,"Error: Invalid quest file");
-		return 0;
-		break;
-		
-	case qe_version:
-		strcpy(str,"Error: Invalid version");
-		return 0;
-		break;
-		
-	case qe_obsolete:
-		strcpy(str,"Error: Obsolete version");
-		return 0;
-		break;
+		case 0:
+			break;
+			
+		case qe_invalid:
+			strcpy(str,"Error: Invalid quest file");
+			return 0;
+			
+		case qe_version:
+			strcpy(str,"Error: Invalid version");
+			return 0;
+			
+		case qe_obsolete:
+			strcpy(str,"Error: Obsolete version");
+			return 0;
+			
+		case qe_silenterr:
+			return 0;
 	}
 	
 	// if(header->quest_number > 0)

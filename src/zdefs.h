@@ -109,6 +109,7 @@
 #include <vector>
 #include <set>
 #include <assert.h>
+#include <string>
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_array.h"
@@ -3297,6 +3298,81 @@ struct zquestheader
     
     //602
 	bool external_zinfo;
+	
+	byte getAlphaState()
+	{
+		if(new_version_id_release) return 3;
+		else if(new_version_id_gamma) return 2;
+		else if(new_version_id_beta) return 1;
+		return 0;
+	}
+	std::string getAlphaStr()
+	{
+		if(new_version_id_release) return "Release";
+		else if(new_version_id_gamma) return "Gamma";
+		else if(new_version_id_beta) return "Beta";
+		return "Alpha";
+	}
+	int32_t getAlphaVer()
+	{
+		if(new_version_id_release) return new_version_id_release;
+		else if(new_version_id_gamma) return new_version_id_gamma;
+		else if(new_version_id_beta) return new_version_id_beta;
+		return new_version_id_alpha;
+	}
+	std::string getVerStr()
+	{
+		return std::to_string(new_version_id_main) + "."
+			+ std::to_string(new_version_id_second) + "."
+			+ std::to_string(new_version_id_third) + "."
+			+ std::to_string(new_version_id_fourth) + " "
+			+ getAlphaStr() + " "
+			+ std::to_string(getAlphaVer());
+	}
+	int32_t compareDate()
+	{
+		if(new_version_id_date_year > BUILDTM_YEAR)
+			return 1;
+		if(new_version_id_date_year < BUILDTM_YEAR)
+			return -1;
+		if(new_version_id_date_month > BUILDTM_MONTH)
+			return 1;
+		if(new_version_id_date_month < BUILDTM_MONTH)
+			return -1;
+		if(new_version_id_date_day > BUILDTM_DAY)
+			return 1;
+		if(new_version_id_date_day < BUILDTM_DAY)
+			return -1;
+		if(new_version_id_date_hour > BUILDTM_HOUR)
+			return 1;
+		if(new_version_id_date_hour< BUILDTM_HOUR)
+			return -1;
+		if(new_version_id_date_minute > BUILDTM_MINUTE)
+			return 1;
+		if(new_version_id_date_minute < BUILDTM_MINUTE)
+			return -1;
+		return 0;
+	}
+	int32_t compareVer()
+	{
+		if(new_version_id_main > V_ZC_FIRST)
+			return 1;
+		if(new_version_id_main < V_ZC_FIRST)
+			return -1;
+		if(new_version_id_second > V_ZC_SECOND)
+			return 1;
+		if(new_version_id_second < V_ZC_SECOND)
+			return -1;
+		if(new_version_id_third > V_ZC_THIRD)
+			return 1;
+		if(new_version_id_third < V_ZC_THIRD)
+			return -1;
+		if(new_version_id_fourth > V_ZC_FOURTH)
+			return 1;
+		if(new_version_id_fourth < V_ZC_FOURTH)
+			return -1;
+		return 0;
+	}
 };
 
 enum { msLINKED };
