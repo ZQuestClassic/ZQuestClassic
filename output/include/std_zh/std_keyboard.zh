@@ -478,6 +478,8 @@ const int KEY_SCRLOCK      = 124;
 const int KEY_NUMLOCK      = 125;
 const int KEY_CAPSLOCK     = 126;
 
+const int KEY_MAX          = 127;
+
 //Key Modifier Constants -- DO NOT MODIFY!
 
 const int KB_SHIFT_FLAG 	= 0x0001;
