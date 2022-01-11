@@ -43,6 +43,7 @@ ffdata::ffdata()
 void ffdata::clear()
 {
 	memset(this, 0, sizeof(ffdata));
+	fwid = fhei = 15;
 }
 void ffdata::load(mapscr const* scr, int32_t ind)
 {
@@ -58,10 +59,10 @@ void ffdata::load(mapscr const* scr, int32_t ind)
 	delay = scr->ffdelay[ind];
 	flags = scr->ffflags[ind];
 	link = scr->fflink[ind];
-	twid = scr->ffTileWidth(ind);
-	thei = scr->ffTileHeight(ind);
-	fwid = scr->ffEffectWidth(ind);
-	fhei = scr->ffEffectHeight(ind);
+	twid = scr->ffTileWidth(ind)-1;
+	thei = scr->ffTileHeight(ind)-1;
+	fwid = scr->ffEffectWidth(ind)-1;
+	fhei = scr->ffEffectHeight(ind)-1;
 	script = scr->ffscript[ind];
 	for(auto q = 0; q < 2; ++q)
 		inita[q] = scr->inita[ind][q];
@@ -82,10 +83,10 @@ void ffdata::save(mapscr* scr, int32_t ind)
 	scr->ffdelay[ind] = delay;
 	scr->ffflags[ind] = flags;
 	scr->fflink[ind] = link;
-	scr->ffTileWidth(ind, twid);
-	scr->ffTileHeight(ind, thei);
-	scr->ffEffectWidth(ind, fwid);
-	scr->ffEffectHeight(ind, fhei);
+	scr->ffTileWidth(ind, twid+1);
+	scr->ffTileHeight(ind, thei+1);
+	scr->ffEffectWidth(ind, fwid+1);
+	scr->ffEffectHeight(ind, fhei+1);
 	scr->ffscript[ind] = script;
 	for(auto q = 0; q < 2; ++q)
 		scr->inita[ind][q] = inita[q];
@@ -138,7 +139,7 @@ FFCDialog::FFCDialog(mapscr* scr, int32_t ffind, ffdata const& init) :
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_ZSINT, \
-	val = int32_t(mem), low = lb, high = hb, \
+	low = lb, high = hb, val = mem, \
 	leftPadding = 0_px, fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -149,22 +150,22 @@ TextField( \
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_SSHORT, \
-	val = int32_t(mem), low = lb, high = hb, \
+	low = lb, high = hb, val = int32_t(0)+mem, \
 	leftPadding = 0_px, fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		mem = (int16_t)val; \
 	})
 	
-#define SWAPFIELDB(str, mem, lb, hb) \
+#define SWAPFIELDB(str, mem, lb, hb, offs) \
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_BYTE, \
-	val = int32_t(mem), low = lb, high = hb, \
+	low = lb, high = hb, val = mem+offs, \
 	leftPadding = 0_px, fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
-		mem = (byte)val; \
+		mem = byte(val)-offs; \
 	})
 
 #define CHECKB(str, fl, inf) \
@@ -237,13 +238,13 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 					// DummyWidget(),
 					// DummyWidget(),
 					SWAPFIELD("Y Pos:", ffc.y, -320000, 2880000),
-					SWAPFIELDB("Combo W:", ffc.fwid, 1, 64),
+					SWAPFIELDB("Combo W:", ffc.fwid, 1, 64, 1),
 					SWAPFIELD("X Speed:", ffc.dx, -1280000, 1280000),
-					SWAPFIELDB("Combo H:", ffc.fhei, 1, 64),
+					SWAPFIELDB("Combo H:", ffc.fhei, 1, 64, 1),
 					SWAPFIELD("Y Speed:", ffc.dy, -1280000, 1280000),
-					SWAPFIELDB("Tile W:", ffc.twid, 1, 4),
+					SWAPFIELDB("Tile W:", ffc.twid, 1, 4, 1),
 					SWAPFIELD("X Accel:", ffc.ax, -1280000, 1280000),
-					SWAPFIELDB("Tile H:", ffc.thei, 1, 4),
+					SWAPFIELDB("Tile H:", ffc.thei, 1, 4, 1),
 					SWAPFIELD("Y Accel:", ffc.ay, -1280000, 1280000),
 					SWAPFIELDS("A. Delay:", ffc.delay, 0, 9999)
 				)),

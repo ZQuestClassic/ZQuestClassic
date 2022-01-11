@@ -2332,7 +2332,7 @@ struct mapscr
 	}
 	byte ffTileWidth(size_t ind) const
 	{
-		return (ffheight[ind]>>6)+1;
+		return (ffwidth[ind]>>6)+1;
 	}
 	void ffTileWidth(size_t ind, byte val)
 	{

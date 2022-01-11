@@ -40,6 +40,8 @@ void TextField::setText(std::string_view newText)
 
 void TextField::setVal(int32_t val)
 {
+	if(ubound > lbound)
+		val = vbound(val, lbound, ubound);
 	char buf[32] = {0};
 	switch(tfType)
 	{
@@ -118,11 +120,15 @@ std::string_view TextField::getText()
 void TextField::setLowBound(int32_t low)
 {
 	lbound = low;
+	if(ubound > lbound)
+		startVal = vbound(startVal, lbound, ubound);
 	check_len(1);
 }
 void TextField::setHighBound(int32_t high)
 {
 	ubound = high;
+	if(ubound > lbound)
+		startVal = vbound(startVal, lbound, ubound);
 	check_len(1);
 }
 int32_t TextField::getVal()
