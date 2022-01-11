@@ -5565,7 +5565,10 @@ int VSpace;
 int HSpace;
  * The space horizontally between characters, in pixels
 
-bool Flag[7];
+int Margins[4];
+ * The margins, in pixels, from each side of the message box.
+
+bool Flags[7];
  * A set of flags
  * MSGFLAG_WRAP         - If the text wraps around the bounding box
  * MSGFLAG_CONT         - If the message is the continuation of a previous one
