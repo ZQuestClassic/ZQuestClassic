@@ -779,16 +779,16 @@ lwPhantom = -Phantom
 lwCane = Cane of Byrna
 lwRefBeam = Reflected Sword Beam
 lwStomp = Stomp
-lwScript1 = Script 1
-lwScript2 = Script 2
-lwScript3 = Script 3
-lwScript4 = Script 4
-lwScript5 = Script 5
-lwScript6 = Script 6
-lwScript7 = Script 7
-lwScript8 = Script 8
-lwScript9 = Script 9
-lwScript10 = Script 10
+lwScript1 = Custom Weapon 1
+lwScript2 = Custom Weapon 2
+lwScript3 = Custom Weapon 3
+lwScript4 = Custom Weapon 4
+lwScript5 = Custom Weapon 5
+lwScript6 = Custom Weapon 6
+lwScript7 = Custom Weapon 7
+lwScript8 = Custom Weapon 8
+lwScript9 = Custom Weapon 9
+lwScript10 = Custom Weapon 10
 lwIce = -Ice
 
 [COUNTERS]
