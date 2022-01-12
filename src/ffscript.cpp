@@ -3,7 +3,6 @@
 #endif                            //prevent indirectly including windows.h
 
 #include "precompiled.h" //always first
-#include "metadata/versionsig.h"
 
 #include <deque>
 //#include <algorithm>

@@ -110,6 +110,7 @@
 #include <set>
 #include <assert.h>
 #include <string>
+#include "metadata/versionsig.h"
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_array.h"
