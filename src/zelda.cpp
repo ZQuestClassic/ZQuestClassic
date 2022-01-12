@@ -5105,6 +5105,7 @@ int32_t main(int32_t argc, char* argv[])
 		quit_game();
 	}
 	
+	clear_bitmap(lightbeam_bmp);
 	clear_bitmap(scrollbuf);
 	clear_bitmap(framebuf);
 	clear_bitmap(msg_bg_display_buf);
