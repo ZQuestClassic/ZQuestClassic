@@ -1,9 +1,30 @@
 // 2.55 Change Log
-// Updated 23rd Dec, 2021
+// Updated 14th Jan, 2022
 
 //Since A101
 
+Fix random pixels appearing during opening wipe
+	( EmilyV, Jan 11th, 2022 )
+
+Fix FFC editor issues
+	( EmilyV, Jan 10th, 2022 )
+
 //Alpha 101
+
+New QRs regarding enemies respawning and etc.
+	( Deedee, Jan 9th, 2022 )
+
+New FFC Editor
+	( EmilyV, Dec 28th, 2021 )
+
+Fix new darkrooms behaving oddly when returning from a passageway
+	( EmilyV, Dec 27th, 2021 )
+
+Fix old strings QR being weird
+	( Deedee, Dec 24th, 2021 )
+
+Fix: can now type to search itemclasses in initdata like in other lists.
+	( EmilyV, Dec 24th, 2021 )
 
 Add ZInfo files / itemclass custom renaming
 	ZInfo is internal to the .qst by default, but
