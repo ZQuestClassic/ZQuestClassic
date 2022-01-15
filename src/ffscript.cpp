@@ -16006,21 +16006,23 @@ void set_register(const int32_t arg, const int32_t value)
 				tmpscr->data[pos] = combo;
 				screen_combo_modify_postroutine(tmpscr,pos);
 				//Start the script for the new combo
-				FFCore.clear_combo_stack(pos+(176*layr));
-				comboScriptData[pos+(176*layr)].Clear();
-				combo_doscript[pos+(176*layr)] = 1;
-				combo_initialised[pos] &= ~(1<<layr);
+				FFCore.clear_combo_stack(pos);
+				comboScriptData[pos].Clear();
+				combo_doscript[pos] = 1;
+				combo_initialised[pos] &= ~1;
 				//Not ure if combodata arrays clean themselves up, or leak. -Z
 				//Not sure if this could result in stack corruption. 
 			}
 			
 			if(layr>-1)
 			{
-				//if (layr==(currmap*MAPSCRS+currscr))
-				//  screen_combo_modify_preroutine(tmpscr,pos);
+				
 				tmpscr2[layr].data[pos]=combo;
-				//if (layr==(currmap*MAPSCRS+currscr))
-				//  screen_combo_modify_postroutine(tmpscr,pos);
+				FFCore.clear_combo_stack(pos + (176 * (layr + 1)));
+				comboScriptData[pos + (176 * (layr + 1))].Clear();
+				combo_doscript[pos + (176*(layr+1))] = 1;
+				combo_initialised[pos] &= ~(1<<layr);
+
 			}
 		}
 		break;
