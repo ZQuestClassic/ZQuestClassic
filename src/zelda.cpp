@@ -1852,7 +1852,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		skip_flags[i]=0;
 	}
 	
-	int32_t ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata);
+	int32_t ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report);
 	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
 	//setPackfilePassword(NULL);
 	
