@@ -529,6 +529,9 @@ void item::load_gfx(itemdata const& itm)
 
 int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 {
+#ifdef IS_ZQUEST
+	return -1;
+#else
 	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
 	int32_t lastid = -1;
@@ -560,6 +563,7 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 		return id;
 	}
 	return lastid;
+#endif
 }
 // Linker issues because this is shared with ZQu4est. :( -Z
 #ifndef IS_ZQUEST
