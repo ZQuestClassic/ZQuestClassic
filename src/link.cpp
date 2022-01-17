@@ -6286,7 +6286,7 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[0] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
+				hp_mod[0] = cmb.attributes[0]/10000L;
 			else
 				hp_mod[0]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6298,7 +6298,7 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[1] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
+				hp_mod[1] = cmb.attributes[0]/10000L;
 			else
 				hp_mod[1]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6310,7 +6310,7 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[2] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
+				hp_mod[2] = cmb.attributes[0]/10000L;
 			else
 				hp_mod[2]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
@@ -6322,7 +6322,7 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if ( combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
-				hp_mod[3] = combobuf[MAPFFCOMBO(dx1,dy1)].attributes[0]/10000L;
+				hp_mod[3] = cmb.attributes[0]/10000L;
 			else
 				hp_mod[3]=combo_class_buf[cmb.type].modify_hp_amount;
 			if(!(cmb.usrflags&cflag2))
