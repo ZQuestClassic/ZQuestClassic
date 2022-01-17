@@ -5118,8 +5118,9 @@ int32_t main(int32_t argc, char* argv[])
 	set_clip_state(pricesdisplaybuf, 1);
 	Z_message("OK\n");
 	
-	
+	Z_message("Initializing music... ");
 	zcmusic_init();
+	Z_message("OK\n");
 	
 	//  int32_t mode = VidMode;                                       // from config file
 	int32_t tempmode=GFX_AUTODETECT;
