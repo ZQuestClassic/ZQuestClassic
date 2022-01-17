@@ -36,7 +36,7 @@ public:
 	/*
 	switch(type)
 	{
-		case SCRIPT_LINK: 
+		case SCRIPT_PLAYER: 
 		case SCRIPT_SCREEN: 
 		case SCRIPT_LWPN: 
 		case SCRIPT_SUBSCREEN: 

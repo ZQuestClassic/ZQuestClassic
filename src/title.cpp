@@ -30,7 +30,7 @@
 #include "jwinfsel.h"
 #include "title.h"
 #include "gamedata.h"
-#include "link.h"
+#include "hero.h"
 #include "mem_debug.h"
 #include "ffscript.h"
 
@@ -512,7 +512,7 @@ static void storyscreen(int32_t f)
 	
 	if(f==16*23 +1010)
 	{
-		putstring(64,232,"LINK",3);
+		putstring(64,232,"HERO",3);
 		putstring(112,232,"TO SAVE HER.",2);
 	}
 	
@@ -665,7 +665,7 @@ static void treasures(int32_t f)
 			y+=16;
 		}
 		
-	if(y<240) //Link holding item
+	if(y<240) //Hero holding item
 		puttile16(scrollbuf,29,120,y,6,0);
 		
 	if(f < 18*8*16 + 1820+128)
@@ -2889,8 +2889,8 @@ static void list_save(int32_t save_num, int32_t ypos)
 		if(saves[save_num].get_quest())
 			textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%5d",saves[save_num].get_deaths());
 			
-		if ( moduledata.select_screen_tiles[draw_link_first]) 
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_linktile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_link_cset] : (save_num%3)+10,0); 
+		if ( moduledata.select_screen_tiles[draw_hero_first]) 
+			overtile16(framebuf,moduledata.select_screen_tiles[sels_herotile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_hero_cset] : (save_num%3)+10,0); 
 
 		if(saves[save_num].get_quest()==1)
 		{
@@ -2998,9 +2998,9 @@ static void list_save(int32_t save_num, int32_t ypos)
 	byte holdformat=newtilebuf[0].format;
 	newtilebuf[0].format=tf4Bit;
 	newtilebuf[0].data = saves[save_num].icon;
-	overtile16(framebuf,(moduledata.select_screen_tiles[sels_linktile] > 1 && saves[save_num].get_quest() > 0 && saves[save_num].get_quest() < 255 ) ? moduledata.select_screen_tiles[sels_linktile] : 0,48,ypos+17,
-	((unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 && saves[save_num].get_quest() > 0 && saves[save_num].get_quest() < 255 ) ? (unsigned)moduledata.select_screen_tile_csets[sels_link_cset] < 15 :
-	(save_num%3)+10,0);               //link
+	overtile16(framebuf,(moduledata.select_screen_tiles[sels_herotile] > 1 && saves[save_num].get_quest() > 0 && saves[save_num].get_quest() < 255 ) ? moduledata.select_screen_tiles[sels_herotile] : 0,48,ypos+17,
+	((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 && saves[save_num].get_quest() > 0 && saves[save_num].get_quest() < 255 ) ? (unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 :
+	(save_num%3)+10,0);               //hero
 	newtilebuf[0].format=holdformat;
 	newtilebuf[0].data = hold;
 	
@@ -4792,7 +4792,7 @@ static void list_saves2()
 	byte holdformat=newtilebuf[0].format;
 	newtilebuf[0].format=tf4Bit;
 	newtilebuf[0].data = saves[listpos+i].icon;
-	overtile16(framebuf,0,48,i*24+73,i+10,0);               //link
+	overtile16(framebuf,0,48,i*24+73,i+10,0);               //hero
 	newtilebuf[0].format=holdformat;
 	newtilebuf[0].data = hold;
 

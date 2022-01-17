@@ -172,9 +172,9 @@ int32_t draw_screen_clip_rect_x2=255;
 int32_t draw_screen_clip_rect_y1=0;
 int32_t draw_screen_clip_rect_y2=223;
 
-extern int32_t script_link_sprite; 
-extern int32_t script_link_cset; 
-extern int32_t script_link_flip; 
+extern int32_t script_hero_sprite; 
+extern int32_t script_hero_cset; 
+extern int32_t script_hero_flip; 
 int32_t zc_menu_on_left = 0;
 
 volatile int32_t logic_counter=0;
@@ -396,8 +396,8 @@ bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEW
 bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= false,Sdown= false,Mdown= false,LBdown= false,RBdown= false,Pdown= false,Ex1down= false,Ex2down= false,Ex3down= false,Ex4down= false,AUdown= false,ADdown= false,ALdown= false,ARdown= false,F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
      fixed_door=false, hookshot_used=false, hookshot_frozen=false,
-     pull_link=false, hs_fix=false, hs_switcher=false,
-     cheat_superman=false, gofast=false, checklink=true, didpit=false, heart_beep=true,
+     pull_hero=false, hs_fix=false, hs_switcher=false,
+     cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
 int32_t hooked_combopos = -1, switchhook_cost_item = -1;
@@ -428,22 +428,22 @@ script_data *guyscripts[NUMSCRIPTGUYS];
 script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
-script_data *linkscripts[NUMSCRIPTLINK];
+script_data *playerscripts[NUMSCRIPTPLAYER];
 script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
-extern refInfo linkScriptData;
+extern refInfo playerScriptData;
 extern refInfo screenScriptData;
 extern refInfo dmapScriptData;
 extern word g_doscript;
-extern word link_doscript;
+extern word player_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
 extern word global_wait;
-extern bool link_waitdraw;
+extern bool player_waitdraw;
 extern bool dmap_waitdraw;
 extern bool passive_subscreen_waitdraw;
 
@@ -550,7 +550,7 @@ dword getNumGlobalArrays()
 }
 
 //movingblock mblock2; //mblock[4]?
-//LinkClass   Link;
+//HeroClass   Hero;
 
 int32_t resx= 0,resy= 0,scrx= 0,scry= 0;
 bool sbig=false;                                                  // big screen
@@ -1060,7 +1060,7 @@ void dismissmsg()
     cursor_y=0;
 	prt_tile=0;
     msg_onscreen = msg_active = false;
-    //Link.finishedmsg(); //Not possible?
+    //Hero.finishedmsg(); //Not possible?
     clear_bitmap(msg_bg_display_buf);
     set_clip_state(msg_bg_display_buf, 1);
     clear_bitmap(msg_txt_display_buf);
@@ -1173,14 +1173,14 @@ void Z_scripterrlog(const char * const format,...)
 		#endif
             break;
 	
-	case SCRIPT_LINK:
-            al_trace("Hero script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());
+	case SCRIPT_PLAYER:
+            al_trace("Hero script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
 		#ifdef _WIN32
 		if ( zscript_debugger ) { zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): \n", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
 		#else //Unix
 			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf("Hero script %u (%s): \n", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
+			printf("Hero script %u (%s): \n", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());	
 		#endif 
 	break;
 	
@@ -1397,8 +1397,8 @@ sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 particle_list particles;
 
 #include "zc_custom.h"
-#include "link.h"
-LinkClass   Link;
+#include "hero.h"
+HeroClass   Hero;
 
 #include "maps.h"
 #include "subscr.h"
@@ -1465,13 +1465,13 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         
     particles.clear();
     
-    if(Link.getNayrusLoveShieldClk())
+    if(Hero.getNayrusLoveShieldClk())
     {
-        Link.setNayrusLoveShieldClk(Link.getNayrusLoveShieldClk());
+        Hero.setNayrusLoveShieldClk(Hero.getNayrusLoveShieldClk());
     }
     
-    Link.resetflags(false);
-    Link.reset_hookshot();
+    Hero.resetflags(false);
+    Hero.reset_hookshot();
     linkedmsgclk=0;
     add_asparkle=0;
     add_bsparkle=0;
@@ -1493,11 +1493,11 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     
     if(watch && !cheat_superman)
     {
-        Link.setClock(false);
+        Hero.setClock(false);
     }
     
     //  if(watch)
-    //    Link.setClock(false);
+    //    Hero.setClock(false);
     watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
     stop_sfx(WAV_BRANG);
     
@@ -1515,70 +1515,70 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         usebombpal=false;
     }
 }
-void centerLink()
+void centerHero()
 {
-    Link.setX(120);
-    Link.setY(80);
+    Hero.setX(120);
+    Hero.setY(80);
 }
-zfix  LinkX()
+zfix  HeroX()
 {
-    return Link.getX();
+    return Hero.getX();
 }
-zfix  LinkY()
+zfix  HeroY()
 {
-    return Link.getY();
+    return Hero.getY();
 }
-zfix  LinkZ()
+zfix  HeroZ()
 {
-    return Link.getZ();
+    return Hero.getZ();
 }
-int32_t  LinkHClk()
+int32_t  HeroHClk()
 {
-    return Link.getHClk();
+    return Hero.getHClk();
 }
-int32_t  LinkAction()
+int32_t  HeroAction()
 {
-    return Link.getAction();
+    return Hero.getAction();
 }
-int32_t  LinkCharged()
+int32_t  HeroCharged()
 {
-    return Link.isCharged();
+    return Hero.isCharged();
 }
-int32_t  LinkNayrusLoveShieldClk()
+int32_t  HeroNayrusLoveShieldClk()
 {
-    return Link.getNayrusLoveShieldClk();
+    return Hero.getNayrusLoveShieldClk();
 }
-int32_t  LinkHoverClk()
+int32_t  HeroHoverClk()
 {
-    return Link.getHoverClk();
+    return Hero.getHoverClk();
 }
-int32_t  LinkSwordClk()
+int32_t  HeroSwordClk()
 {
-    return Link.getSwordClk();
+    return Hero.getSwordClk();
 }
-int32_t  LinkItemClk()
+int32_t  HeroItemClk()
 {
-    return Link.getItemClk();
+    return Hero.getItemClk();
 }
 void setSwordClk(int32_t newclk)
 {
-    Link.setSwordClk(newclk);
+    Hero.setSwordClk(newclk);
 }
 void setItemClk(int32_t newclk)
 {
-    Link.setItemClk(newclk);
+    Hero.setItemClk(newclk);
 }
-int32_t  LinkLStep()
+int32_t  HeroLStep()
 {
-    return Link.getLStep();
+    return Hero.getLStep();
 }
-void LinkCheckItems()
+void HeroCheckItems()
 {
-    Link.checkitems();
+    Hero.checkitems();
 }
-byte LinkGetDontDraw()
+byte HeroGetDontDraw()
 {
-    return Link.getDontDraw();
+    return Hero.getDontDraw();
 }
 zfix  GuyX(int32_t j)
 {
@@ -1621,29 +1621,29 @@ void StunGuy(int32_t j,int32_t stun)
     }
 }
 
-zfix LinkModifiedX()
+zfix HeroModifiedX()
 {
-    return Link.getModifiedX();
+    return Hero.getModifiedX();
 }
-zfix LinkModifiedY()
+zfix HeroModifiedY()
 {
-    return Link.getModifiedY();
+    return Hero.getModifiedY();
 }
-int32_t LinkDir()
+int32_t HeroDir()
 {
-    return Link.getDir();
+    return Hero.getDir();
 }
 void add_grenade(int32_t wx, int32_t wy, int32_t wz, int32_t size, int32_t parentid)
 {
     if(size)
     {
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wSBomb,0,16*game->get_hero_dmgmult(),LinkDir(),
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wSBomb,0,16*game->get_hero_dmgmult(),HeroDir(),
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wSBomb;
     }
     else
     {
-        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBomb,0,4*game->get_hero_dmgmult(),LinkDir(),
+        Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBomb,0,4*game->get_hero_dmgmult(),HeroDir(),
                              -1, parentid));
         Lwpns.spr(Lwpns.Count()-1)->id=wBomb;
     }
@@ -1660,15 +1660,15 @@ zfix distance(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 bool getClock()
 {
-    return Link.getClock();
+    return Hero.getClock();
 }
 void setClock(bool state)
 {
-    Link.setClock(state);
+    Hero.setClock(state);
 }
 void CatchBrang()
 {
-    Link.Catch();
+    Hero.Catch();
 }
 
 /**************************/
@@ -1929,9 +1929,9 @@ int32_t init_game()
 	
 //Some initialising globals
     didpit=false;
-    Link.unfreeze();
-    Link.reset_hookshot();
-    Link.reset_ladder();
+    Hero.unfreeze();
+    Hero.reset_hookshot();
+    Hero.reset_ladder();
     linkedmsgclk=0;
     blockmoving=false;
     add_asparkle=0;
@@ -2166,7 +2166,7 @@ int32_t init_game()
     bool firstplay = (game->get_hasplayed() == 0);
     
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
-    //setuplinktiles(zinit.linkanimationstyle);
+    //setupherotiles(zinit.heroAnimationStyle);
     
     COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
                  (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
@@ -2239,14 +2239,14 @@ int32_t init_game()
     //Script-related nonsense
     script_drawing_commands.Clear();
     
-    //CLear the scripted Link sprites. 
-    script_link_sprite = 0; 
-    script_link_flip = -1; 
-    script_link_cset = -1; 
+    //CLear the scripted Player sprites. 
+    script_hero_sprite = 0; 
+    script_hero_flip = -1; 
+    script_hero_cset = -1; 
     
     initZScriptArrayRAM(firstplay);
     initZScriptGlobalRAM();
-    FFCore.initZScriptLinkScripts();
+    FFCore.initZScriptHeroScripts();
     FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
     FFCore.initZScriptItemScripts();
@@ -2407,17 +2407,17 @@ int32_t init_game()
     //preloaded freeform combos
     //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
-	Link.init();
+	Hero.init();
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
 		{
-			Link.setBunnyClock(-1);
+			Hero.setBunnyClock(-1);
 		}
 	}
 	
-	if(firstplay) //Move up here, so that arrays are initialised before we run Link's Init script.
+	if(firstplay) //Move up here, so that arrays are initialised before we run Hero's Init script.
 	{
 		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
 		if(!get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
@@ -2427,15 +2427,15 @@ int32_t init_game()
 		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); //We run this here so that the user can set up custom
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
-			FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
+			FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT);
 		}
-		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script.
-		Link.set_respawn_point(); //This should be after the init script, so that Link->X and Link->Y set by the script
+		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
+		Hero.set_respawn_point(); //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
 	}
-	Link.resetflags(true); //This should probably occur after running Link's init script. 
+	Hero.resetflags(true); //This should probably occur after running Hero's init script. 
     
     
     copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
@@ -2608,7 +2608,7 @@ int32_t init_game()
     //{
     //    memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
     //    ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT);
+	//ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT);
     //}
     //else
 	//if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
@@ -2621,7 +2621,7 @@ int32_t init_game()
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
 	
     
-    if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
+    if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
     openscreen();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
@@ -2633,7 +2633,7 @@ int32_t init_game()
     
     if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
     {
-        Link.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
+        Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
     }
     
     if(!Quit)
@@ -2656,7 +2656,7 @@ int32_t init_game()
     }
     
     initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    FFCore.initZScriptLinkScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+    FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
     FFCore.initZScriptActiveSubscreenScript();
@@ -2670,9 +2670,9 @@ int32_t cont_game()
     //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.init();
     didpit=false;
-    Link.unfreeze();
-    Link.reset_hookshot();
-    Link.reset_ladder();
+    Hero.unfreeze();
+    Hero.reset_hookshot();
+    Hero.reset_ladder();
     linkedmsgclk=0;
     blockmoving=0;
     add_asparkle=0;
@@ -2728,13 +2728,13 @@ int32_t cont_game()
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
-    Link.init();
+    Hero.init();
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
 		{
-			Link.setBunnyClock(-1);
+			Hero.setBunnyClock(-1);
 		}
 	}
 	
@@ -2767,7 +2767,7 @@ int32_t cont_game()
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
 	
     initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    FFCore.initZScriptLinkScripts();
+    FFCore.initZScriptHeroScripts();
     FFCore.initZScriptDMapScripts();
     FFCore.initZScriptActiveSubscreenScript();
     FFCore.initZScriptItemScripts();
@@ -2787,7 +2787,7 @@ int32_t cont_game()
         playLevelMusic();
         
         if(isdungeon())
-            Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+            Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
             
         newscr_clk=frame;
         activated_timed_warp=false;
@@ -2841,21 +2841,21 @@ void restart_level()
     ringcolor(false);
     loadlvlpal(DMaps[currdmap].color);
     lighting(false,true);
-    Link.init();
+    Hero.init();
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
 		{
-			Link.setBunnyClock(-1);
+			Hero.setBunnyClock(-1);
 		}
 	}
 	
     currcset=DMaps[currdmap].color;
     openscreen();
     map_bkgsfx(true);
-    Link.set_respawn_point();
-	Link.trySideviewLadder();
+    Hero.set_respawn_point();
+	Hero.trySideviewLadder();
     show_subscreen_numbers=true;
     show_subscreen_life=true;
     loadguys();
@@ -2866,7 +2866,7 @@ void restart_level()
         playLevelMusic();
         
         if(isdungeon())
-            Link.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+            Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
             
         newscr_clk=frame;
         activated_timed_warp=false;
@@ -2937,7 +2937,7 @@ void show_details()
     textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
     textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
     
-//    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getPushing());
+//    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Hero.getPushing());
 //    for(int32_t i=0; i<Lwpns.Count(); i++)
 //      textprintf_ex(framebuf,font,200,(i<<3)+16,WHITE,BLACK,"%3d",items.spr(i)->id);
 
@@ -2950,17 +2950,17 @@ void show_details()
     for(int32_t i=0; i<guys.Count(); i++)
         textprintf_ex(framebuf,font,90,(i<<3)+16,WHITE,BLACK,"%d",(int32_t)((enemy*)guys.spr(i))->id);
         
-//      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int32_t(LinkModifiedX()),int32_t(LinkModifiedY()));
+//      textprintf_ex(framebuf,font,90,16,WHITE,BLACK,"%3d, %3d",int32_t(HeroModifiedX()),int32_t(HeroModifiedY()));
     //textprintf_ex(framebuf,font,90,24,WHITE,BLACK,"%3d, %3d",detail_int[0],detail_int[1]);
-//      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Link.getAction());
+//      textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Hero.getAction());
 
     /*
       for(int32_t i=0; i<Ewpns.Count(); i++)
       {
       sprite *s=Ewpns.spr(i);
       textprintf_ex(framebuf,font,100,(i<<3)+16,WHITE,BLACK,"%3d>%3d %3d>%3d %3d<%3d %3d<%3d ",
-      int32_t(Link.getX()+0+16), int32_t(s->x+s->hxofs),  int32_t(Link.getY()+0+16), int32_t(s->y+s->hyofs),
-      int32_t(Link.getX()+0), int32_t(s->x+s->hxofs+s->hxsz), int32_t(Link.getY()+0), int32_t(s->y+s->hyofs+s->hysz));
+      int32_t(Hero.getX()+0+16), int32_t(s->x+s->hxofs),  int32_t(Hero.getY()+0+16), int32_t(s->y+s->hyofs),
+      int32_t(Hero.getX()+0), int32_t(s->x+s->hxofs+s->hxsz), int32_t(Hero.getY()+0), int32_t(s->y+s->hyofs+s->hysz));
       }
       */
 //        textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"gi=%3d",guycarryingitem);
@@ -2983,7 +2983,7 @@ void show_ffscript_names()
 void do_magic_casting()
 {
     static int32_t tempx, tempy;
-    static byte linktilebuf[256];
+    static byte herotilebuf[256];
     int32_t ltile=0;
     int32_t lflip=0;
     bool shieldModify=true;
@@ -2999,31 +2999,31 @@ void do_magic_casting()
     {
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),LinkZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),HeroZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=(BSZ)?32:29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            //          Hero.tile=(BSZ)?32:29;
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
             
-            casty=Link.getY();
+            casty=Hero.getY();
         }
         
         if(magiccastclk==64)
         {
-            Lwpns.add(new weapon((zfix)LinkX(),(zfix)(-32),(zfix)LinkZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Link.getUID()));
+            Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            //          Hero.tile=29;
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
             
             castnext=false;
@@ -3031,24 +3031,24 @@ void do_magic_casting()
         
         if(castnext)
         {
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimcast:ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(itemsbuf[magicitem].usesound,pan(int32_t(Link.getX())));
+                sfx(itemsbuf[magicitem].usesound,pan(int32_t(Hero.getX())));
                 
             int32_t flamemax=itemsbuf[magicitem].misc1;
             
             for(int32_t flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
 		    //din't fire level fix to go here
-                //Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
-                Lwpns.add(new weapon((zfix)LinkX(),(zfix)LinkY(),(zfix)LinkZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
-                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Link.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
+                //Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
+                Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
+                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
@@ -3071,66 +3071,66 @@ void do_magic_casting()
     {
         if(magiccastclk==0)
         {
-            linktile(&ltile, &lflip, Link.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.linkanimationstyle);
+            herotile(&ltile, &lflip, Hero.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                ltile+=Link.getTileModifier();
+                ltile+=Hero.getTileModifier();
             }
             
             unpack_tile(newtilebuf, ltile, lflip, true);
-            memcpy(linktilebuf, unpackbuf, 256);
-            tempx=Link.getX();
-            tempy=Link.getY();
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimpound:ls_pound, down, zinit.linkanimationstyle);
+            memcpy(herotilebuf, unpackbuf, 256);
+            tempx=Hero.getX();
+            tempy=Hero.getY();
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimpound:ls_pound, down, zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
         }
         
         if(magiccastclk>=0&&magiccastclk<64)
         {
-            Link.setX(tempx+((zc_oldrand()%3)-1));
-            Link.setY(tempy+((zc_oldrand()%3)-1));
+            Hero.setX(tempx+((zc_oldrand()%3)-1));
+            Hero.setY(tempy+((zc_oldrand()%3)-1));
         }
         
         if(magiccastclk==64)
         {
-            Link.setX(tempx);
-            Link.setY(tempy);
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.linkanimationstyle);
+            Hero.setX(tempx);
+            Hero.setY(tempy);
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
         }
         
         if(magiccastclk==96)
         {
             if(get_bit(quest_rules,qr_MORESOUNDS))
-                sfx(itemsbuf[magicitem].usesound,pan(int32_t(Link.getX())));
+                sfx(itemsbuf[magicitem].usesound,pan(int32_t(Hero.getX())));
                 
-            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(1); }
+            if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(1); }
             
             for(int32_t i=0; i<16; ++i)
             {
                 for(int32_t j=0; j<16; ++j)
                 {
-                    if(linktilebuf[i*16+j])
+                    if(herotilebuf[i*16+j])
                     {
                         if(itemsbuf[magicitem].misc1==1)  // Twilight
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(itemsbuf[magicitem].misc1==2)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -3143,14 +3143,14 @@ void do_magic_casting()
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pFaroresWindDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
                             p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
-                            p->yofs=Link.getYOfs();
+                            p->yofs=Hero.getYOfs();
                         }
                     }
                 }
@@ -3167,31 +3167,31 @@ void do_magic_casting()
             //action=none;
             magicitem=-1;
             magiccastclk=0;
-            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
+            if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
         }
     }
     break;
     
     case itype_nayruslove:
     {
-        // See also Link.cpp, LinkClass::checkhit().
+        // See also hero.cpp, HeroClass::checkhit().
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(LinkX(),LinkY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon(LinkX(),LinkY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Link.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=(BSZ)?32:29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimcast:ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            //          Hero.tile=(BSZ)?32:29;
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
             
-            castx=Link.getX();
+            castx=Hero.getX();
         }
         
         if(magiccastclk==64)
@@ -3204,19 +3204,19 @@ void do_magic_casting()
                     Lwpns.del(i);
             }
             
-            int32_t d=zc_max(LinkX(),256-LinkX())+32;
-            Lwpns.add(new weapon((zfix)(LinkX()-d),(zfix)LinkY(),(zfix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Link.getUID()));
+            int32_t d=zc_max(HeroX(),256-HeroX())+32;
+            Lwpns.add(new weapon((zfix)(HeroX()-d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon((zfix)(LinkX()+d),(zfix)LinkY(),(zfix)LinkZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Link.getUID()));
+            Lwpns.add(new weapon((zfix)(HeroX()+d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            //          Link.tile=29;
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sideswimcast:ls_cast, Link.getDir(), zinit.linkanimationstyle);
+            //          Hero.tile=29;
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
             
             castnext=false;
@@ -3224,15 +3224,15 @@ void do_magic_casting()
         
         if(castnext)
         {
-            //          Link.tile=4;
-            linktile(&Link.tile, &Link.flip, &Link.extend, Link.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Link.getDir(), zinit.linkanimationstyle);
+            //          Hero.tile=4;
+            herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
             
             if(get_bit(quest_rules,qr_EXPANDEDLTM))
             {
-                Link.tile+=Link.getTileModifier();
+                Hero.tile+=Hero.getTileModifier();
             }
             
-            Link.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
+            Hero.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
@@ -3309,12 +3309,12 @@ void update_hookshot()
                 if(abs(hs_dx)>=hs_xdist+8)
                 {
                     hs_xdist=abs(hs_x-hs_startx);
-                    chainlinks.add(new weapon((zfix)hs_x, (zfix)hs_y, (zfix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                    chainlinks.add(new weapon((zfix)hs_x, (zfix)hs_y, (zfix)hs_z,wHSChain, 0,0,Hero.getDir(), parentitem,Hero.getUID()));
                 }
                 else if(abs(hs_dy)>=hs_ydist+8)
                 {
                     hs_ydist=abs(hs_y-hs_starty);
-                    chainlinks.add(new weapon((zfix)hs_x, (zfix)hs_y, (zfix)hs_z,wHSChain, 0,0,Link.getDir(), parentitem,Link.getUID()));
+                    chainlinks.add(new weapon((zfix)hs_x, (zfix)hs_y, (zfix)hs_z,wHSChain, 0,0,Hero.getDir(), parentitem,Hero.getUID()));
                 }
             }                                                     //stretching chain
             else
@@ -3337,7 +3337,7 @@ void update_hookshot()
                 
                 for(int32_t counter=0; counter<chainlinks.Count(); counter++)
                 {
-                    if(Link.getDir()>down)                            //chain is moving horizontally
+                    if(Hero.getDir()>down)                            //chain is moving horizontally
                     {
                         chainlinks.spr(counter)->x=hs_startx+hs_w+dist_bx+(counter*(hs_w+dist_bx));
                     }
@@ -3367,7 +3367,7 @@ void update_hookshot()
             }
             
             /* With ZScript modification, chains can conceivably move diagonally.*/
-            //if (Link.getDir()>down)                               //chain is moving horizontally
+            //if (Hero.getDir()>down)                               //chain is moving horizontally
             {
                 if(abs(hs_dx)-(8*chainlinks.Count())>0)             //chain is stretched
                 {
@@ -3382,7 +3382,7 @@ void update_hookshot()
                     {
                         hs_xdist=abs(hs_x-hs_startx);
                         
-                        if(pull_link==false)
+                        if(pull_hero==false)
                         {
                             chainlinks.del(chainlinks.idLast(wHSChain));
                         }
@@ -3408,7 +3408,7 @@ void update_hookshot()
                     {
                         hs_ydist=abs(hs_y-hs_starty);
                         
-                        if(pull_link==false)
+                        if(pull_hero==false)
                         {
                             chainlinks.del(chainlinks.idLast(wHSChain));
                         }
@@ -3503,9 +3503,9 @@ void game_loop()
 	    
     //}
     
-    //clear Link's last hits 
-    //for ( int32_t q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
-    //Link.ClearhitLinkUIDs();
+    //clear Hero's last hits 
+    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
+    //Hero.ClearhitHeroUIDs();
 	
     //Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
 		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
@@ -3640,9 +3640,9 @@ void game_loop()
     {
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
     }
-    if(!FFCore.system_suspend[susptLINKACTIVE] && !freezemsg && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+    if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
-        ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
+        ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
     }
     if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
     {
@@ -3693,9 +3693,9 @@ void game_loop()
         if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
 	if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
 	#if LOGGAMELOOP > 0
-	al_trace("game_loop is setting: %s\n", "checklink=true()\n");
+	al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
 	#endif
-        if ( !FFCore.system_suspend[susptLINK] ) checklink = true;
+        if ( !FFCore.system_suspend[susptHERO] ) checkhero = true;
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
 	#endif
@@ -3704,14 +3704,14 @@ void game_loop()
 	
 	if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
 		FFCore.itemScriptEngine(); //run before lweapon scripts
-	if ( !FFCore.system_suspend[susptLINK] )
+	if ( !FFCore.system_suspend[susptHERO] )
 	{
 		for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
 		{
 			#if LOGGAMELOOP > 0
-			al_trace("game_loop is at: %s\n", "if(Link.animate(0)\n");
+			al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
 			#endif
-			if(Link.animate(0))
+			if(Hero.animate(0))
 			{
 				if(!Quit)
 				{
@@ -3723,7 +3723,7 @@ void game_loop()
 				return;
 			}
 			
-			checklink=false;
+			checkhero=false;
 		}
 	}
 	if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
@@ -3733,7 +3733,7 @@ void game_loop()
         #if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
 	#endif
-	Link.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
+	Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
         if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
 	#if LOGGAMELOOP > 0
 	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
@@ -3797,10 +3797,10 @@ void game_loop()
         ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
         global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
     }
-    if ( !FFCore.system_suspend[susptLINKACTIVE] && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+    if ( !FFCore.system_suspend[susptHEROACTIVE] && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
-	    ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
-	    link_waitdraw = false;
+	    ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+	    player_waitdraw = false;
     }
     if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
     {
@@ -3857,8 +3857,8 @@ void game_loop()
 	#endif
     if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
     
-    //clear Link's last hits 
-    //for ( int32_t q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
+    //clear Hero's last hits 
+    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
     #if LOGGAMELOOP > 0
 	al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
 	#endif
@@ -3883,7 +3883,7 @@ void game_loop()
     
     if(dmapmsgclk>0)
     {
-        Link.Freeze();
+        Hero.Freeze();
         
         if(dmapmsgclk<=50)
         {
@@ -3893,7 +3893,7 @@ void game_loop()
     
     if(dmapmsgclk==1)
     {
-        Link.finishedmsg();
+        Hero.finishedmsg();
         dmapmsgclk=0;
         introclk=72;
         clear_bitmap(msg_bg_display_buf);
@@ -4049,7 +4049,7 @@ void runDrunkRNG(){
 	//Runs the RNG for drunk for each control which makes use of drunk toggling. 
 	//Index 0-10 refer to control_state[0]-[9], while index 11 is used for `DrunkrMbtn()`/`DrunkcMbtn()`, which do not use control_states[]
 	for(int32_t i = 0; i<sizeof(drunk_toggle_state); i++){
-		if((!(frame%((zc_oldrand()%100)+1)))&&(zc_oldrand()%MAXDRUNKCLOCK<Link.DrunkClock())){
+		if((!(frame%((zc_oldrand()%100)+1)))&&(zc_oldrand()%MAXDRUNKCLOCK<Hero.DrunkClock())){
 			drunk_toggle_state[i] = (zc_oldrand()%2)?true:false;
 		} else {
 			drunk_toggle_state[i] = false;
@@ -5404,9 +5404,9 @@ int32_t main(int32_t argc, char* argv[])
 		globalscripts[i] = new script_data();
 	}
 	
-	for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		linkscripts[i] = new script_data();
+		playerscripts[i] = new script_data();
 	}
 	
 	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -5777,8 +5777,8 @@ int32_t main(int32_t argc, char* argv[])
 			
 			FFCore.runF6Engine();
 		
-			//clear Link's last hits 
-			//for ( int32_t q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
+			//clear Hero's last hits 
+			//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
 		}
@@ -5787,7 +5787,7 @@ int32_t main(int32_t argc, char* argv[])
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+		FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
 		switch(Quit)
 		{
 			case qSAVE:
@@ -5802,7 +5802,7 @@ int32_t main(int32_t argc, char* argv[])
 			case qCONT:
 			case qSAVECONT:
 			{
-				playing_field_offset=56; // Fixes an issue with Link being drawn wrong when quakeclk>0
+				playing_field_offset=56; // Fixes an issue with Hero being drawn wrong when quakeclk>0
 				show_subscreen_dmap_dots=true;
 				show_subscreen_numbers=true;
 				show_subscreen_items=true;
@@ -5812,7 +5812,7 @@ int32_t main(int32_t argc, char* argv[])
 				for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
 				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
-				FFCore.initZScriptLinkScripts(); //Should we not be calling this AFTER running the exit script!!
+				FFCore.initZScriptHeroScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptActiveSubscreenScript();
@@ -5867,15 +5867,15 @@ int32_t main(int32_t argc, char* argv[])
 				for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 
 				initZScriptGlobalScript(GLOBAL_SCRIPT_END);
-				FFCore.initZScriptLinkScripts(); //get ready for the onWin script
+				FFCore.initZScriptHeroScripts(); //get ready for the onWin script
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
 				FFCore.initZScriptActiveSubscreenScript();
 				FFCore.init_combo_doscript();
 				//Run global script OnExit
-				//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN); //runs in ending()
-				//while(link_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
-				//We need a special routine for win and death link scripts. Otherwise, they work. 
+				//ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN); //runs in ending()
+				//while(player_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
+				//We need a special routine for win and death player scripts. Otherwise, they work. 
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 			
 			
@@ -5886,9 +5886,9 @@ int32_t main(int32_t argc, char* argv[])
 			
 			case qINCQST:
 			{
-				Link.setDontDraw(true);
-				//Link.setCharging(0);//don't have the sword out during the ending. 
-				//Link.setSwordClk(0);
+				Hero.setDontDraw(true);
+				//Hero.setCharging(0);//don't have the sword out during the ending. 
+				//Hero.setSwordClk(0);
 				show_subscreen_dmap_dots=true;
 				show_subscreen_numbers=true;
 				show_subscreen_items=true;
@@ -5904,7 +5904,7 @@ int32_t main(int32_t argc, char* argv[])
 		//Restore original palette before exiting for any reason!
 		setMonochrome(false);
 		doClearTint();
-		Link.setDontDraw(0);
+		Hero.setDontDraw(0);
 		if(Quit != qCONT)
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));
@@ -6129,10 +6129,10 @@ void quit_game()
 		if(globalscripts[i]!=NULL) delete globalscripts[i];
 		globalscripts[i] = NULL;
 	}
-	for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		if(linkscripts[i]!=NULL) delete linkscripts[i];
-		linkscripts[i] = NULL;
+		if(playerscripts[i]!=NULL) delete playerscripts[i];
+		playerscripts[i] = NULL;
 	}
 	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
 	{
@@ -6177,7 +6177,7 @@ bool isSideViewGravity(int32_t t)
 	return (((tmpscr[t].flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
 
-bool isSideViewLink(int32_t t)
+bool isSideViewHero(int32_t t)
 {
 	return !ignoreSideview && isSideViewGravity(t);
 }

@@ -1077,7 +1077,7 @@ std::vector<string> asitemscripts;
 std::vector<string> asnpcscripts;
 std::vector<string> aseweaponscripts;
 std::vector<string> aslweaponscripts;
-std::vector<string> aslinkscripts;
+std::vector<string> asplayerscripts;
 std::vector<string> asdmapscripts;
 std::vector<string> asscreenscripts;
 std::vector<string> asitemspritescripts;
@@ -1202,7 +1202,7 @@ script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
-script_data *linkscripts[NUMSCRIPTLINK];
+script_data *playerscripts[NUMSCRIPTPLAYER];
 script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -1467,7 +1467,7 @@ bool bad_version(int32_t ver)
     return false;
 }
 
-zfix LinkModifiedX()
+zfix HeroModifiedX()
 {
     if(resize_mouse_pos)
     {
@@ -1479,7 +1479,7 @@ zfix LinkModifiedX()
     }
 }
 
-zfix LinkModifiedY()
+zfix HeroModifiedY()
 {
     if(resize_mouse_pos)
     {
@@ -1650,7 +1650,7 @@ static MENU misc_menu[] =
 static MENU spr_menu[] =
 {
     { (char *)"&Sprite Data",               onCustomWpns,              NULL,                     0,            NULL   },
-    { (char *)"&Player",                      onCustomLink,              NULL,                     0,            NULL   },
+    { (char *)"&Player",                      onCustomHero,              NULL,                     0,            NULL   },
     { (char *)"&Misc Sprites",              onMiscSprites,             NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1752,7 +1752,7 @@ static MENU quest_menu[] =
     { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
     { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
     { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
-    { (char *)"&Player",            onCustomLink,                      NULL,                     0,            NULL   },
+    { (char *)"&Player",            onCustomHero,                      NULL,                     0,            NULL   },
     { (char *)"&Strings",              onStrings,                      NULL,                     0,            NULL   },
     { (char *)"&DMaps",                  onDmaps,                      NULL,                     0,            NULL   },
     { (char *)"I&nit Data",               onInit,                      NULL,                     0,            NULL   },
@@ -7489,7 +7489,7 @@ void refresh(int32_t flags)
     }
     
     // Show Errors & Details
-    //This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Link',
+    //This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
     //'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
     // the String, every Room Type and Catch All, and all four Tile and Side Warps.
     if(is_large && !prv_mode && ShowInfo)
@@ -7498,9 +7498,9 @@ void refresh(int32_t flags)
         char buf[2048];
         
         // Start with general information
-        if(Map.CurrScr()->flags3&fINVISLINK)
+        if(Map.CurrScr()->flags3&fINVISHERO)
         {
-            sprintf(buf,"Invisible Link");
+            sprintf(buf,"Invisible Player");
             show_screen_error(buf,i++,vc(15));
         }
         
@@ -10073,7 +10073,7 @@ void domouse()
 				sprintf(msg,
 						j==0 ? "Item Location" :
 						j==1 ? "Stairs Secret\nTriggered when a Trigger Push Block is pushed." :
-						j==2 ? "Arrival Square\nLink's location when he begins/resumes the game." :
+						j==2 ? "Arrival Square\nPlayer's location when they begin/resume the game." :
 						"Combo Flags");
 				update_tooltip(x,y,xx,yy,20,20,msg);
 			}
@@ -10088,7 +10088,7 @@ void domouse()
 			if(isinRect(x,y,xx,yy,xx+20,yy+20))
 			{
 				char msg[160];
-				sprintf(msg,"Warp Return Square %c\nLink's destination after warping to this screen.",(char)('A'+j));
+				sprintf(msg,"Warp Return Square %c\nPlayer's destination after warping to this screen.",(char)('A'+j));
 				update_tooltip(x,y,xx,yy,20,20,msg);
 			}
 		}
@@ -13395,7 +13395,7 @@ static DIALOG scrdata_dlg[] =
     //S.Data 2 //14
     { jwin_check_proc,     140,   168,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Play Secret SFX On Screen Entry", NULL, NULL },
     //15
-    { jwin_check_proc,      15,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Combos Affect Midair Link", NULL, NULL },
+    { jwin_check_proc,      15,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Combos Affect Midair Player", NULL, NULL },
     //E.Flags //16
     { jwin_check_proc,      15,   178,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Traps Ignore Walkability", NULL, NULL },
     { jwin_check_proc,      165,  158,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Secret", NULL, NULL },
@@ -13406,7 +13406,7 @@ static DIALOG scrdata_dlg[] =
     //E. Flags //20
     { jwin_check_proc,      15,   158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "All Enemies Are Invisible", NULL, NULL },
     //21
-    { jwin_check_proc,      15,   118,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Invisible Link", NULL, NULL },
+    { jwin_check_proc,      15,   118,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Invisible Player", NULL, NULL },
     { jwin_check_proc,      15,   138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Subscreen", NULL, NULL },
     //23
     { jwin_check_proc,      165,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sprites Carry Over In Warps", NULL, NULL },
@@ -13468,7 +13468,7 @@ static DIALOG scrdata_dlg[] =
     { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Layer 2 is Background", NULL, NULL },
     { jwin_check_proc,      15,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Item Falls From Ceiling", NULL, NULL },
     { jwin_check_proc,      15,    98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sideview Gravity", NULL, NULL },
-    { jwin_check_proc,      15,   128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Link Marker in Minimap", NULL, NULL },
+    { jwin_check_proc,      15,   128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Player Marker in Minimap", NULL, NULL },
     //S. Flags 2
     { jwin_check_proc,      165,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Whistle->Palette Change", NULL, NULL },
     { jwin_check_proc,      165,   98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Whistle->Dry Lake", NULL, NULL },
@@ -16155,7 +16155,7 @@ static DIALOG editdmap_dlg[] =
     {  jwin_check_proc,              12,    105,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Special Rooms And Guys Are In Caves Only",   NULL,                 NULL                  },
     {  jwin_check_proc,              12,    115,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Don't Display Compass Marker In Minimap",    NULL,                 NULL                  },
     {  jwin_check_proc,              12,    125,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Underwater Wave Effect",                     NULL,                 NULL                  },
-    {  jwin_check_proc,              12,     95,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Whistle Whirlwind Returns Link To Start",    NULL,                 NULL                  },
+    {  jwin_check_proc,              12,     95,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Whistle Whirlwind Returns Player To Start",    NULL,                 NULL                  },
     {  jwin_check_proc,              12,    135,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Always Display Intro String",                NULL,                 NULL                  },
     {  jwin_check_proc,              12,    145,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "View Overworld Map By Pressing 'Map'",       NULL,                 NULL                  },
     {  jwin_check_proc,              12,    155,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "...But Only Show Screens Marked In Minimap",      NULL,                 NULL                  },
@@ -21077,7 +21077,7 @@ static DIALOG pattern_dlg[] =
     { jwin_text_proc,     90,  78,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Classic: pseudorandom locations near", NULL, NULL },
     { jwin_text_proc,     90,  88,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "the middle of the screen.", NULL, NULL },
     { jwin_text_proc,     90,  102,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Random: any available location", NULL, NULL },
-    { jwin_text_proc,     90,  112,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "at a sufficient distance from Link.", NULL, NULL },
+    { jwin_text_proc,     90,  112,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "at a sufficient distance from the Player.", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -23245,8 +23245,8 @@ int32_t onSelectFFCombo()
 
 const char *globalscriptlist(int32_t index, int32_t *list_size);
 static ListData globalscript_list(globalscriptlist, &font);
-const char *linkscriptlist(int32_t index, int32_t *list_size);
-static ListData linkscript_list(linkscriptlist, &font);
+const char *playerscriptlist(int32_t index, int32_t *list_size);
+static ListData playerscript_list(playerscriptlist, &font);
 
 const char *ffscriptlist(int32_t index, int32_t *list_size);
 
@@ -23368,8 +23368,8 @@ int32_t bilweapons_cnt = -1;
 script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
 int32_t bieweapons_cnt = -1;
 
-script_struct bilinks[NUMSCRIPTLINK]; //link script
-int32_t bilinks_cnt = -1;
+script_struct bihero[NUMSCRIPTPLAYER]; //link script
+int32_t bihero_cnt = -1;
 
 script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
 int32_t biscreens_cnt = -1;
@@ -23598,47 +23598,47 @@ void build_bieweapons_list()
             bieweapons_cnt = i+1;
 }
 
-//link scripts
-void build_bilinks_list()
+//player scripts
+void build_bihero_list()
 {
-    bilinks[0].first = "(None)";
-    bilinks[0].second = -1;
-    bilinks_cnt = 1;
+    bihero[0].first = "(None)";
+    bihero[0].second = -1;
+    bihero_cnt = 1;
     
-    for(int32_t i = 0; i < NUMSCRIPTLINK - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTPLAYER - 1; i++)
     {
-        if(linkmap[i].scriptname.length()==0)
+        if(playermap[i].scriptname.length()==0)
             continue;
             
         std::stringstream ss;
-        ss << linkmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
-        bilinks[bilinks_cnt].first = ss.str();
-        bilinks[bilinks_cnt].second = i;
-        bilinks_cnt++;
+        ss << playermap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+        bihero[bihero_cnt].first = ss.str();
+        bihero[bihero_cnt].second = i;
+        bihero_cnt++;
     }
     
     // Blank out the rest of the list
-    for(int32_t i=bilinks_cnt; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=bihero_cnt; i<NUMSCRIPTPLAYER; i++)
     {
-        bilinks[i].first="";
-        bilinks[i].second=-1;
+        bihero[i].first="";
+        bihero[i].second=-1;
     }
     
     //Bubble sort! (doesn't account for gaps between scripts)
-    for(int32_t i = 0; i < bilinks_cnt - 1; i++)
+    for(int32_t i = 0; i < bihero_cnt - 1; i++)
     {
-        for(int32_t j = i + 1; j < bilinks_cnt; j++)
+        for(int32_t j = i + 1; j < bihero_cnt; j++)
         {
-            if(stricmp(bilinks[i].first.c_str(),bilinks[j].first.c_str()) > 0 && strcmp(bilinks[j].first.c_str(),""))
-                zc_swap(bilinks[i],bilinks[j]);
+            if(stricmp(bihero[i].first.c_str(),bihero[j].first.c_str()) > 0 && strcmp(bihero[j].first.c_str(),""))
+                zc_swap(bihero[i],bihero[j]);
         }
     }
     
-    bilinks_cnt = 0;
+    bihero_cnt = 0;
     
-    for(int32_t i = 0; i < NUMSCRIPTLINK; i++)
-        if(bilinks[i].first.length() > 0)
-            bilinks_cnt = i+1;
+    for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
+        if(bihero[i].first.length() > 0)
+            bihero_cnt = i+1;
 }
 
 //dmap scripts
@@ -23870,15 +23870,15 @@ const char *ffscriptlist(int32_t index, int32_t *list_size)
     return biffs[index].first.c_str();
 }
 
-const char *linkscriptlist(int32_t index, int32_t *list_size)
+const char *playerscriptlist(int32_t index, int32_t *list_size)
 {
     if(index < 0)
     {
-        *list_size = bilinks_cnt;
+        *list_size = bihero_cnt;
         return NULL;
     }
     
-    return bilinks[index].first.c_str();
+    return bihero[index].first.c_str();
 }
 
 const char *lweaponscriptlist(int32_t index, int32_t *list_size)
@@ -24062,7 +24062,7 @@ static int32_t as_item_list[] = { 10, 11, 12, -1};
 static int32_t as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 static int32_t as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
 static int32_t as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
-static int32_t as_link_list[] = { 27, 28, 29, -1}; //link scripts TAB
+static int32_t as_hero_list[] = { 27, 28, 29, -1}; //player scripts TAB
 static int32_t as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
 static int32_t as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 static int32_t as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
@@ -24077,7 +24077,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"NPC",		 0,         as_npc_list,   0, NULL },
     { (char *)"LWeapon",		 0,         as_lweapon_list,   0, NULL },
     { (char *)"EWeapon",		 0,         as_eweapon_list,   0, NULL },
-    { (char *)"Hero",		 0,         as_link_list,   0, NULL },
+    { (char *)"Hero",		 0,         as_hero_list,   0, NULL },
     { (char *)"DMap",		 0,         as_dmap_list,   0, NULL },
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
@@ -24161,15 +24161,15 @@ const char *assigneweaponlist(int32_t index, int32_t *list_size)
     return ewpnmap[index].output.c_str();
 }
 
-const char *assignlinklist(int32_t index, int32_t *list_size)
+const char *assignplayerlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int32_t)linkmap.size();
+        *list_size = (int32_t)playermap.size();
         return NULL;
     }
     
-    return linkmap[index].output.c_str();
+    return playermap[index].output.c_str();
 }
 
 const char *assigndmaplist(int32_t index, int32_t *list_size)
@@ -24271,15 +24271,15 @@ const char *assigneweaponscriptlist(int32_t index, int32_t *list_size)
     return aseweaponscripts[index].c_str();
 }
 
-const char *assignlinkscriptlist(int32_t index, int32_t *list_size)
+const char *assignplayerscriptlist(int32_t index, int32_t *list_size)
 {
     if(index<0)
     {
-        *list_size = (int32_t)aslinkscripts.size();
+        *list_size = (int32_t)asplayerscripts.size();
         return NULL;
     }
     
-    return aslinkscripts[index].c_str();
+    return asplayerscripts[index].c_str();
 }
 
 const char *assigndmapscriptlist(int32_t index, int32_t *list_size)
@@ -24339,8 +24339,8 @@ static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
 static ListData assigneweapon_list(assigneweaponlist, &font);
 static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
 
-static ListData assignlink_list(assignlinklist, &font);
-static ListData assignlinkscript_list(assignlinkscriptlist, &font);
+static ListData assignplayer_list(assignplayerlist, &font);
+static ListData assignplayerscript_list(assignplayerscriptlist, &font);
 
 static ListData assigndmap_list(assigndmaplist, &font);
 static ListData assigndmapscript_list(assigndmapscriptlist, &font);
@@ -24396,8 +24396,8 @@ static DIALOG assignscript_dlg[] =
     //26
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //27
-    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlink_list, NULL, NULL },
-    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignlinkscript_list, NULL, NULL },
+    { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignplayer_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignplayerscript_list, NULL, NULL },
     //29
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     //30
@@ -24924,37 +24924,37 @@ const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
     return NULL;
 }
 static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
-static char linkscript_str_buf2[32];
-const char *linkscriptlist2(int32_t index, int32_t *list_size)
+static char playerscript_str_buf2[32];
+const char *playerscriptlist2(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
         char buf[20];
         bound(index,0,3);
         
-        if(linkmap[index].scriptname=="")
+        if(playermap[index].scriptname=="")
             strcpy(buf, "<none>");
         else
         {
-            strncpy(buf, linkmap[index].scriptname.c_str(), 19);
+            strncpy(buf, playermap[index].scriptname.c_str(), 19);
             buf[19]='\0';
         }
 	
 	if(index==0)
-            sprintf(linkscript_str_buf2,"Init: %s", buf);
+            sprintf(playerscript_str_buf2,"Init: %s", buf);
             
         if(index==1)
-            sprintf(linkscript_str_buf2,"Active: %s", buf);
+            sprintf(playerscript_str_buf2,"Active: %s", buf);
 	
 	if(index==2)
-            sprintf(linkscript_str_buf2,"Death: %s", buf);
+            sprintf(playerscript_str_buf2,"Death: %s", buf);
             
         
-        //sprintf(linkscript_str_buf2,"%d: %s",index+1, buf);
-        return linkscript_str_buf2;
+        //sprintf(playerscript_str_buf2,"%d: %s",index+1, buf);
+        return playerscript_str_buf2;
     }
     
-    *list_size=(NUMSCRIPTLINK-1);
+    *list_size=(NUMSCRIPTPLAYER-1);
     return NULL;
 }
 static char itemspritescript_str_buf2[32];
@@ -24980,7 +24980,7 @@ const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSITEMSPRITE-1);
     return NULL;
 }
-static ListData linkscript_sel_dlg_list(linkscriptlist2, &font);
+static ListData playerscript_sel_dlg_list(playerscriptlist2, &font);
 static char dmapscript_str_buf2[32];
 const char *dmapscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25064,8 +25064,8 @@ void clear_map_states()
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = linkmap.begin();
-		it != linkmap.end(); ++it)
+	for(std::map<int32_t, script_slot_data>::iterator it = playermap.begin();
+		it != playermap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
@@ -25340,8 +25340,8 @@ int32_t onCompileScript()
 			aseweaponscripts.push_back("<none>");
 			aslweaponscripts.clear();
 			aslweaponscripts.push_back("<none>");
-			aslinkscripts.clear();
-			aslinkscripts.push_back("<none>");
+			asplayerscripts.clear();
+			asplayerscripts.push_back("<none>");
 			asdmapscripts.clear();
 			asdmapscripts.push_back("<none>");
 			asscreenscripts.clear();
@@ -25367,8 +25367,8 @@ int32_t onCompileScript()
 					aseweaponscripts.push_back(name);
 				else if ( type == ZScript::ScriptType::lweapon )
 					aslweaponscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::link )
-					aslinkscripts.push_back(name);
+				else if ( type == ZScript::ScriptType::player )
+					asplayerscripts.push_back(name);
 				else if ( type == ZScript::ScriptType::dmapdata )
 					asdmapscripts.push_back(name);
 				else if ( type == ZScript::ScriptType::screendata )
@@ -25504,8 +25504,8 @@ int32_t onSlotAssign()
 	aseweaponscripts.push_back("<none>");
 	aslweaponscripts.clear();
 	aslweaponscripts.push_back("<none>");
-	aslinkscripts.clear();
-	aslinkscripts.push_back("<none>");
+	asplayerscripts.clear();
+	asplayerscripts.push_back("<none>");
 	asdmapscripts.clear();
 	asdmapscripts.push_back("<none>");
 	asscreenscripts.clear();
@@ -25780,41 +25780,41 @@ void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, 
 			}
 		}
 	}
-	for(int32_t i = 0; i < NUMSCRIPTLINK-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTPLAYER-1; ++i)
 	{
-		if(scripts.find(linkmap[i].scriptname) != scripts.end())
+		if(scripts.find(playermap[i].scriptname) != scripts.end())
 		{
-			if(scripts[linkmap[i].scriptname].first.script_type != SCRIPT_LINK)
+			if(scripts[playermap[i].scriptname].first.script_type != SCRIPT_PLAYER)
 			{
-				while(scripts.find(linkmap[i].scriptname) != scripts.end())
-					inc_script_name(linkmap[i].scriptname);
+				while(scripts.find(playermap[i].scriptname) != scripts.end())
+					inc_script_name(playermap[i].scriptname);
 			}
 			else continue;
 		}
-		if(!linkmap[i].isEmpty())
+		if(!playermap[i].isEmpty())
 		{
-			if(skipDisassembled && linkmap[i].format != SCRIPT_FORMAT_ZASM
-			   && (linkscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			if(skipDisassembled && playermap[i].format != SCRIPT_FORMAT_ZASM
+			   && (playerscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
 			{
-				linkmap[i].format = SCRIPT_FORMAT_INVALID;
+				playermap[i].format = SCRIPT_FORMAT_INVALID;
 				continue;
 			}
-			if(linkscripts[i+1]->valid())
+			if(playerscripts[i+1]->valid())
 			{
-				disassembled_script_data data = disassemble_script(linkscripts[i+1]);
-				if((linkscripts[i+1]->meta.flags & ZMETA_IMPORTED))
+				disassembled_script_data data = disassemble_script(playerscripts[i+1]);
+				if((playerscripts[i+1]->meta.flags & ZMETA_IMPORTED))
 				{
-					linkmap[i].format = SCRIPT_FORMAT_ZASM;
-					linkmap[i].update();
+					playermap[i].format = SCRIPT_FORMAT_ZASM;
+					playermap[i].update();
 				}
-				else if(fromCompile || (linkscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				else if(fromCompile || (playerscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
 				{
-					linkmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
-					linkmap[i].update();
+					playermap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					playermap[i].update();
 				}
-				data.format = linkmap[i].format;
-				scripts[linkmap[i].scriptname] = data;
-				aslinkscripts.push_back(data.formatName(linkmap[i].scriptname));
+				data.format = playermap[i].format;
+				scripts[playermap[i].scriptname] = data;
+				asplayerscripts.push_back(data.formatName(playermap[i].scriptname));
 			}
 		}
 	}
@@ -25987,7 +25987,7 @@ script_slot_type getType(int32_t type)
 		case SCRIPT_NPC: return type_npc;
 		case SCRIPT_LWPN: return type_lweapon;
 		case SCRIPT_EWPN: return type_eweapon;
-		case SCRIPT_LINK: return type_hero;
+		case SCRIPT_PLAYER: return type_hero;
 		case SCRIPT_DMAP:
 		case SCRIPT_ACTIVESUBSCREEN:
 		case SCRIPT_PASSIVESUBSCREEN:
@@ -26086,11 +26086,11 @@ void clearAllSlots(int32_t type, byte flags = 0)
 		}
 		case type_hero:
 		{
-			for(int32_t q = 0; q < NUMSCRIPTLINK-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTPLAYER-1; ++q)
 			{
-				if(checkSkip(linkmap[q].format, flags)) continue;
-				linkmap[q].scriptname = "";
-				linkmap[q].format = SCRIPT_FORMAT_DEFAULT;
+				if(checkSkip(playermap[q].format, flags)) continue;
+				playermap[q].scriptname = "";
+				playermap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
 			break;
 		}
@@ -26327,31 +26327,31 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 		lwpnmap[i].slotname = temp;
 		lwpnmap[i].update();
 	}
-	for(int32_t i = 0; i < NUMSCRIPTLINK-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTPLAYER-1; i++)
 	{
 		switch(i)
 		{
-			case 0: linkmap[i].slotname="Init:"; break;
-			case 1: linkmap[i].slotname="Active:"; break;
-			case 2: linkmap[i].slotname="onDeath:"; break;
-			case 3: linkmap[i].slotname="onWin:"; break;
+			case 0: playermap[i].slotname="Init:"; break;
+			case 1: playermap[i].slotname="Active:"; break;
+			case 2: playermap[i].slotname="onDeath:"; break;
+			case 3: playermap[i].slotname="onWin:"; break;
 		}
-		if(!linkmap[i].isEmpty())
+		if(!playermap[i].isEmpty())
 		{
-			if(linkmap[i].isZASM())
+			if(playermap[i].isZASM())
 			{
-				if(linkmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				if(playermap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
 				else slotflags |= SLOTMSGFLAG_PRESERVED;
 			}
-			else if(scripts.find(linkmap[i].scriptname) != scripts.end())
-				linkmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else if(scripts.find(playermap[i].scriptname) != scripts.end())
+				playermap[i].format = SCRIPT_FORMAT_DEFAULT;
 			else // Unloaded
 			{
-				linkmap[i].format = SCRIPT_FORMAT_INVALID;
+				playermap[i].format = SCRIPT_FORMAT_INVALID;
 				slotflags |= SLOTMSGFLAG_MISSING;
 			}
 		}
-		linkmap[i].update();
+		playermap[i].update();
 	}
 	for(int32_t i = 0; i < NUMSCRIPTSCREEN-1; i++)
 	{
@@ -26739,7 +26739,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						ewpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+				for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26772,14 +26772,14 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 							}
 						}
 						fclose(tempfile);
-						parse_script_file(&linkscripts[it->first+1],"tmp",false);
-						if(it->second.isDisassembled()) linkscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) linkscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+						parse_script_file(&playerscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) playerscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) playerscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
-					else if(linkscripts[it->first+1])
+					else if(playerscripts[it->first+1])
 					{
-						delete linkscripts[it->first+1];
-						linkscripts[it->first+1] = new script_data();
+						delete playerscripts[it->first+1];
+						playerscripts[it->first+1] = new script_data();
 					}
 				}
 				for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
@@ -27129,7 +27129,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				break;
 			}
 			case 29:
-				//<<, Link
+				//<<, Player
 			{
 				int32_t lind = assignscript_dlg[27].d1;
 				int32_t rind = assignscript_dlg[28].d1;
@@ -27137,15 +27137,15 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				if(lind < 0 || rind < 0)
 					break;
 				
-				if(aslinkscripts[rind] == "<none>")
+				if(asplayerscripts[rind] == "<none>")
 				{
-					linkmap[lind].scriptname = "";
-					linkmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+					playermap[lind].scriptname = "";
+					playermap[lind].format = SCRIPT_FORMAT_DEFAULT;
 				}
 				else
 				{
-					linkmap[lind].updateName(aslinkscripts[rind]);
-					linkmap[lind].format = scripts[linkmap[lind].scriptname].format;
+					playermap[lind].updateName(asplayerscripts[rind]);
+					playermap[lind].format = scripts[playermap[lind].scriptname].format;
 				}
 				
 				break;
@@ -27303,9 +27303,9 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					case 6: //hero
 					{
 						int32_t id = assignscript_dlg[27].d1;
-						if(id > -1 && linkmap[id].hasScriptData())
+						if(id > -1 && playermap[id].hasScriptData())
 						{
-							target = &(scripts[linkmap[id].scriptname].first);
+							target = &(scripts[playermap[id].scriptname].first);
 						}
 						break;
 					}
@@ -27403,8 +27403,8 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					case 6: //hero
 					{
 						int32_t id = assignscript_dlg[28].d1;
-						if(id < 0 || aslinkscripts[id] == "<none>" || aslinkscripts[id].at(0) == '-') break;
-						target = &(scripts[aslinkscripts[id]].first);
+						if(id < 0 || asplayerscripts[id] == "<none>" || asplayerscripts[id].at(0) == '-') break;
+						target = &(scripts[asplayerscripts[id]].first);
 						break;
 					}
 					case 7: //dmap
@@ -27638,7 +27638,7 @@ int32_t onExportZASM()
 	build_binpcs_list();
 	build_bilweapons_list();
 	build_bieweapons_list();
-	build_bilinks_list();
+	build_bihero_list();
 	build_bidmaps_list();
 	build_biscreens_list();
 	build_biitemsprites_list();
@@ -27679,7 +27679,7 @@ int32_t onExportZASM()
 						scriptInd = bieweapons[exportzasm_dlg[4].d1].second;
 						break;
 					case type_hero:
-						scriptInd = bilinks[exportzasm_dlg[4].d1].second;
+						scriptInd = bihero[exportzasm_dlg[4].d1].second;
 						break;
 					case type_dmap:
 						scriptInd = bidmaps[exportzasm_dlg[4].d1].second;
@@ -27716,7 +27716,7 @@ int32_t onExportZASM()
 						scriptChoice = ewpnscripts[scriptInd];
 						break;
 					case type_hero:
-						scriptChoice = linkscripts[scriptInd];
+						scriptChoice = playerscripts[scriptInd];
 						break;
 					case type_dmap:
 						scriptChoice = dmapscripts[scriptInd];
@@ -27787,7 +27787,7 @@ int32_t onExportZASM()
 						exportzasm_dlg[4].dp = (void*)&eweaponscript_list;
 						break;
 					case type_hero:
-						exportzasm_dlg[4].dp = (void*)&linkscript_list;
+						exportzasm_dlg[4].dp = (void*)&playerscript_list;
 						break;
 					case type_dmap:
 						exportzasm_dlg[4].dp = (void*)&dmapscript_list;
@@ -27858,7 +27858,7 @@ int32_t onImportZASM()
 				importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
 				break;
 			case type_hero:
-				importzasm_dlg[4].dp = (void*)&linkscript_sel_dlg_list;
+				importzasm_dlg[4].dp = (void*)&playerscript_sel_dlg_list;
 				break;
 			case type_dmap:
 				importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
@@ -27925,8 +27925,8 @@ int32_t onImportZASM()
 						map = &ewpnmap[scriptInd];
 						break;
 					case type_hero:
-						slot = &linkscripts[scriptInd];
-						map = &linkmap[scriptInd];
+						slot = &playerscripts[scriptInd];
+						map = &playermap[scriptInd];
 						break;
 					case type_dmap:
 						slot = &dmapscripts[scriptInd];
@@ -27982,7 +27982,7 @@ int32_t onImportZASM()
 						importzasm_dlg[4].dp = (void*)&eweaponscript_sel_dlg_list;
 						break;
 					case type_hero:
-						importzasm_dlg[4].dp = (void*)&linkscript_sel_dlg_list;
+						importzasm_dlg[4].dp = (void*)&playerscript_sel_dlg_list;
 						break;
 					case type_dmap:
 						importzasm_dlg[4].dp = (void*)&dmapscript_sel_dlg_list;
@@ -28762,7 +28762,7 @@ static DIALOG misccolors_dlg[] =
     { jwin_text_proc,       215-25-12-15,   112-4,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Triforce Frame:", NULL, NULL },
     { jwin_text_proc,       215-25-12-15,   130-4,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Big Map Background:", NULL, NULL },
     { jwin_text_proc,       215-25-12-15,   148-4,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Big Map Foreground:", NULL, NULL },
-    { jwin_text_proc,       215-25-12-15,   76-4,      0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Link's Position:", NULL, NULL },
+    { jwin_text_proc,       215-25-12-15,   76-4,      0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Player's Position:", NULL, NULL },
     
     //20
     { d_misccolors_hexedit_proc,       294-25+14+2,   76-8,    21,   16,    vc(11),  vc(1),  0,       0,          2,             0,       NULL, NULL, (void *)0, },
@@ -31989,10 +31989,10 @@ int32_t main(int32_t argc,char **argv)
 		globalscripts[i] = new script_data();
 	}
 	
-	for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
 	{
-		if(linkscripts[i]!=NULL) delete linkscripts[i];
-		linkscripts[i] = new script_data();
+		if(playerscripts[i]!=NULL) delete playerscripts[i];
+		playerscripts[i] = new script_data();
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
@@ -32548,9 +32548,9 @@ void quit_game()
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
     {
-        if(linkscripts[i]!=NULL) delete linkscripts[i];
+        if(playerscripts[i]!=NULL) delete playerscripts[i];
     }
     
     for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
@@ -32734,9 +32734,9 @@ void quit_game2()
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
     {
-        if(linkscripts[i]!=NULL) delete linkscripts[i];
+        if(playerscripts[i]!=NULL) delete playerscripts[i];
     }
     
     for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
@@ -33711,7 +33711,7 @@ command_pair commands[cmdMAX]=
     { "Layers",                             0, (intF) onLayers },
     { "Paste Layers",                       0, (intF) onPasteLayers },
     { "Palettes - Levels",                  0, (intF) onColors_Levels },
-    { "Link Sprite",                        0, (intF) onCustomLink },
+    { "Player Sprite",                        0, (intF) onCustomHero },
     { "List Combos Used",                   0, (intF) onUsedCombos },
     { "Palettes - Main",                    0, (intF) onColors_Main },
     { " Map Count",                         0, NULL },
@@ -34154,7 +34154,7 @@ void FFScript::init()
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	setFFRules(); //copy the quest rules over. 
 	int32_t usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
-	FF_link_tile = 0; FF_link_action = 0;
+	FF_hero_tile = 0; FF_hero_action = 0;
 	enemy_removal_point[spriteremovalY1] = -32767;
 	enemy_removal_point[spriteremovalY2] = 32767;
 	enemy_removal_point[spriteremovalX1] = -32767;
@@ -34287,8 +34287,8 @@ void FFScript::setFFRules()
 	FF_terminalv = zinit.terminalv;
 	FF_msg_speed = zinit.msg_speed;
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
-	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
-	FF_link_swim_speed = zinit.link_swim_speed;
+	FF_jump_hero_layer_threshold = zinit.jump_hero_layer_threshold; // Player is drawn above layer 3 if z > this.
+	FF_hero_swim_speed = zinit.hero_swim_speed;
 }
 
 
@@ -34307,9 +34307,9 @@ int32_t FFScript::getQRBit(int32_t rule)
 	return ( get_bit(quest_rules,rule) ? 1 : 0 );
 }
 
-void FFScript::setLinkTile(int32_t t)
+void FFScript::setHeroTile(int32_t t)
 {
-	FF_link_tile = vbound(t, 0, NEWMAXTILES);
+	FF_hero_tile = vbound(t, 0, NEWMAXTILES);
 }
 
 int32_t FFScript::getTime(int32_t type)

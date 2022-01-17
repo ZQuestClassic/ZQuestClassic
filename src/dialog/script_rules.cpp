@@ -56,7 +56,7 @@ static const GUI::ListData objectRulesList
 
 static const GUI::ListData drawingRulesList
 {
-	{ "Scripts Draw When Stepping Forward In Dungeons", qr_SCRIPTSRUNINLINKSTEPFORWARD },
+	{ "Scripts Draw When Stepping Forward In Dungeons", qr_SCRIPTSRUNINHEROSTEPFORWARD },
 	{ "Scripts Draw During Warps", qr_SCRIPTDRAWSINWARPS }
 };
 

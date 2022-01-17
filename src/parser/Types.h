@@ -83,7 +83,7 @@ namespace ZScript
 
 		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
 		ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START,
-		ZVARTYPEID_LINK,
+		ZVARTYPEID_PLAYER,
 		ZVARTYPEID_SCREEN,
 		ZVARTYPEID_FFC,
 		ZVARTYPEID_ITEM,
@@ -146,8 +146,8 @@ namespace ZScript
 				return "BOOL";
 			case ZVARTYPEID_GAME:
 				return "GAME";
-			case ZVARTYPEID_LINK:
-				return "HERO";
+			case ZVARTYPEID_PLAYER:
+				return "PLAYER";
 			case ZVARTYPEID_SCREEN:
 				return "SCREEN";
 			case ZVARTYPEID_FFC:
@@ -253,8 +253,8 @@ namespace ZScript
 			return ZVARTYPEID_BOOL;
 		else if(name == "GAME")
 			return ZVARTYPEID_GAME;
-		else if(name == "HERO")
-			return ZVARTYPEID_LINK;
+		else if(name == "PLAYER")
+			return ZVARTYPEID_PLAYER;
 		else if(name == "SCREEN")
 			return ZVARTYPEID_SCREEN;
 		else if(name == "FFC")
@@ -413,7 +413,7 @@ namespace ZScript
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
 		static DataTypeClassConst GAME;
-		static DataTypeClassConst LINK;
+		static DataTypeClassConst PLAYER;
 		static DataTypeClassConst SCREEN;
 		static DataTypeClassConst AUDIO;
 		static DataTypeClassConst DEBUG;
@@ -677,7 +677,7 @@ namespace ZScript
 			idNPC,
 			idEWeapon,
 			idLWeapon,
-			idLink,
+			idPlayer,
 			idScreen,
 			idDMap,
 			idItemSprite,
@@ -709,8 +709,8 @@ namespace ZScript
 					return SCRIPT_EWPN;
 				case idLWeapon:
 					return SCRIPT_LWPN;
-				case idLink:
-					return SCRIPT_LINK;
+				case idPlayer:
+					return SCRIPT_PLAYER;
 				case idScreen:
 					return SCRIPT_SCREEN;
 				case idDMap:
@@ -736,7 +736,7 @@ namespace ZScript
 		static ScriptType const npc;
 		static ScriptType const eweapon;
 		static ScriptType const lweapon;
-		static ScriptType const link;
+		static ScriptType const player;
 		static ScriptType const dmapdata;
 		static ScriptType const screendata;
 		static ScriptType const itemsprite;

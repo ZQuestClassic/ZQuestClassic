@@ -27,7 +27,7 @@
 #include "zsys.h"
 #include "zquest.h"
 #include "gamedata.h"
-#include "link.h"
+#include "hero.h"
 #include "zc_init.h"
 
 int32_t onCheatConsole()
@@ -79,7 +79,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->gravity=zinit.gravity;
     zinit2->gravity2=zinit.gravity2;
     zinit2->terminalv=zinit.terminalv;
-    zinit2->jump_link_layer_threshold=zinit.jump_link_layer_threshold;
+    zinit2->jump_hero_layer_threshold=zinit.jump_hero_layer_threshold;
     zinit2->heroStep=zinit.heroStep;
     zinit2->subscrSpeed=zinit.subscrSpeed;
     zinit2->hc = gdata->get_maxlife()/gdata->get_hp_per_heart();

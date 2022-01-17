@@ -23,7 +23,7 @@
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"
-#include "link.h"
+#include "hero.h"
 #include "guys.h"
 #include "title.h"
 #include "subscr.h"
@@ -33,13 +33,10 @@
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
-extern word link_doscript;
+extern word player_doscript;
 
-extern LinkClass   Link;
+extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
-
-//extern bool draw_screen_clip_rect_show_link;
-//extern bool draw_screen_clip_rect_show_guys;
 
 namespace
 {
@@ -185,31 +182,31 @@ void ending()
 	  *************************
 	  * WIN THE GAME SEQUENCE *
 	  *************************
-	  0    LINK at ZELDA's side
+	  0    HERO at ZELDA's side
 	  288  begin WIPE (8px per side per step, each 5 frames)
 	  363  WIPE complete, DOT out, A/B items out
-	  QMisc.colors.link_dot = 255;
+	  QMisc.colors.hero_dot = 255;
 	  show_subscreen_items = false;
 	  365  first MESSAGE character in
 	  371  next character in
 	  407  last character in
-	  668  LINK out, ZELDA out
-	  669  LINK in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
+	  668  HERO out, ZELDA out
+	  669  HERO in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
 	  733  BLUE flash bg
 	  734  RED
 	  735  GREEN
 	  736  BLACK
 	  ...
-	  860  BLACK, LINK out, ZELDA out
-	  861  LINK in, ZELDA in
+	  860  BLACK, HERO out, ZELDA out
+	  861  HERO in, ZELDA in
 	  927  first MSG character in
 	  935  next character in
 	  1335 last character in
-	  1461 LINK out, ZELDA out
+	  1461 HERO out, ZELDA out
 	  1493 begin SCROLL
 	  */
 	
-	//get rid off all sprites but Link and Zelda
+	//get rid off all sprites but Hero and Zelda
 	items.clear();
 	Ewpns.clear();
 	Lwpns.clear();
@@ -224,31 +221,29 @@ void ending()
 	//do
 	//{
 		
-	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
+	//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 	//	FFCore.Waitframe();
-	//}while(link_doscript);
+	//}while(player_doscript);
 	game->set_cheat(game->get_cheat() | ((cheat>1)?1:0));
 	
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=223;
-	//draw_screen_clip_rect_show_link=true;
-	//draw_screen_clip_rect_show_guys=false;
 	
 	for(int32_t f=0; f<365; f++)
 	{
 	script_drawing_commands.Clear();
-	if ( link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
+	if ( player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
+		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 		--f; load_control_state(); goto adv;
 	}
 	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }
 		if(f==363)
 		{
 			//363  WIPE complete, DOT out, A/B items out
-			QMisc.colors.link_dot = 255;
+			QMisc.colors.hero_dot = 255;
 			show_subscreen_items = false;
 			
 			for(int32_t i = guys.Count() - 1; i >= 0; i--)
@@ -260,7 +255,7 @@ void ending()
 			}
 			
 			guys.draw(framebuf,true);
-			Link.draw(framebuf);
+			Hero.draw(framebuf);
 		}
 		
 		if(f>=288 && ((f-288)%5 == 0))
@@ -269,7 +264,6 @@ void ending()
 			//TODO::
 			draw_screen_clip_rect_x1+=8;
 			draw_screen_clip_rect_x2-=8;
-			//draw_screen_clip_rect_show_guys=true;
 		}
 		adv:
 		draw_screen(tmpscr);
@@ -296,7 +290,6 @@ void ending()
 	
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
-	//draw_screen_clip_rect_show_guys=false;
 	
 	char tmpmsg[6][25];
 	
@@ -315,7 +308,7 @@ void ending()
 	
 	if(QMisc.endstring==0)
 	{
-		putendmsg("THANKS LINK,YOU'RE",32,96,6,noproc);
+		putendmsg("THANKS HERO,YOU'RE",32,96,6,noproc);
 		putendmsg("THE HERO OF HYRULE.",32,112,6,noproc);
 	}
 	else
@@ -327,22 +320,22 @@ void ending()
 	
 	for(int32_t f=408; f<927; f++)
 	{
-		//Z_scripterrlog("f = %d and link_doscript = %d\n", f, link_doscript);
-		//if ( link_doscript ) ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
+		//Z_scripterrlog("f = %d and player_doscript = %d\n", f, player_doscript);
+		//if ( player_doscript ) ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 		/*
-		  668  LINK out, ZELDA out
-		  669  LINK in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
+		  668  HERO out, ZELDA out
+		  669  HERO in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)
 		  733  BLUE flash bg
 		  734  RED
 		  735  GREEN
 		  736  BLACK
 		  ...
-		  860  BLACK, LINK out, ZELDA out
-		  861  LINK in, ZELDA in
+		  860  BLACK, HERO out, ZELDA out
+		  861  HERO in, ZELDA in
 		  */
 		if(f==668)
 		{
-			rectfill(framebuf,120,127,152,145,0); //y1 == 129 was showing tiny bits left over from Link's sprite. 
+			rectfill(framebuf,120,127,152,145,0); //y1 == 129 was showing tiny bits left over from Hero's sprite. 
 			blit(framebuf, tmp_bmp, 120,113, 0,0, 32,32);
 		}
 		
@@ -354,7 +347,7 @@ void ending()
 		if(f==669 || f==861)
 		{
 			overtile16(framebuf,36,120,129,6,0);//draw Zelda two-handed overhead
-			overtile16(framebuf,BSZ?32:29,136,129,6,0);//draw Link two-handed overhead
+			overtile16(framebuf,BSZ?32:29,136,129,6,0);//draw Hero two-handed overhead
 		}
 		
 		if(f==733)
@@ -682,8 +675,6 @@ void ending_scripted()
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=223;
-	//draw_screen_clip_rect_show_link=true;
-	//draw_screen_clip_rect_show_guys=false;
    
 	for(int32_t f=0; f<77; f++)
 	{
@@ -692,7 +683,6 @@ void ending_scripted()
 		{
 			draw_screen_clip_rect_x1+=8;
 			draw_screen_clip_rect_x2-=8;
-			//draw_screen_clip_rect_show_guys=true;
 		}
         
 		draw_screen(tmpscr);
@@ -708,7 +698,6 @@ void ending_scripted()
     
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
-	//draw_screen_clip_rect_show_guys=false;
     
 	clear_bitmap(scrollbuf);
 	blit(framebuf,scrollbuf,0,0,0,0,256,224);

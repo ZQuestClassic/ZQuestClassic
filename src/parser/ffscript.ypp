@@ -815,7 +815,7 @@ Script_Type :
 	| NPC {$$ = new ASTScriptType(ScriptType::npc, @$);}
 	| SCREEN {$$ = new ASTScriptType(ScriptType::screendata, @$);}
 	| DMAP {$$ = new ASTScriptType(ScriptType::dmapdata, @$);}
-	| LINK {$$ = new ASTScriptType(ScriptType::link, @$);}
+	| LINK {$$ = new ASTScriptType(ScriptType::player, @$);}
 	| ITEMSPRITE {$$ = new ASTScriptType(ScriptType::itemsprite, @$);}
 	| UNTYPED {$$ = new ASTScriptType(ScriptType::untyped, @$);}
 	| SUBSCREENDATA {$$ = new ASTScriptType(ScriptType::subscreendata, @$);}

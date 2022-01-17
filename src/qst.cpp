@@ -68,7 +68,7 @@ using std::string;
 using std::pair;
 
 // extern bool                debug;
-extern int32_t                 link_animation_speed; //lower is faster animation
+extern int32_t                 hero_animation_speed; //lower is faster animation
 extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
 extern MsgStr              *MsgStrings;
@@ -96,7 +96,7 @@ std::map<int32_t, script_slot_data > itemmap;
 std::map<int32_t, script_slot_data > npcmap;
 std::map<int32_t, script_slot_data > ewpnmap;
 std::map<int32_t, script_slot_data > lwpnmap;
-std::map<int32_t, script_slot_data > linkmap;
+std::map<int32_t, script_slot_data > playermap;
 std::map<int32_t, script_slot_data > dmapmap;
 std::map<int32_t, script_slot_data > screenmap;
 std::map<int32_t, script_slot_data > itemspritemap;
@@ -1142,7 +1142,7 @@ void init_spritelists()
 		Sitems.setMax(255);
 		chainlinks.setMax(255);
 		decorations.setMax(255);
-		particles.setMax(255*((255*4)+1)); //255 per sprite that can use particles; guys, items, ewpns, lwpns, +link
+		particles.setMax(255*((255*4)+1)); //255 per sprite that can use particles; guys, items, ewpns, lwpns, +HERO
 	}
 }
 
@@ -3156,10 +3156,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
 	{
 		set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
-		set_bit(quest_rules, qr_SCRIPTSRUNINLINKSTEPFORWARD, 0);  	    
+		set_bit(quest_rules, qr_SCRIPTSRUNINHEROSTEPFORWARD, 0);  	    
 		set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 0);
 		set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
-		set_bit(quest_rules, qr_DYINGENEMYESDONTHURTLINK, 0);  	    
+		set_bit(quest_rules, qr_DYINGENEMYESDONTHURTHERO, 0);  	    
 		set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  
 		set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 0);
 	}
@@ -3284,7 +3284,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
 	}
 	
-	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Link out of Item Cellars in Dungeons. -Z (15th March, 2019 )
+	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Player out of Item Cellars in Dungeons. -Z (15th March, 2019 )
 	{
 		set_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR,1);
 	}
@@ -4957,7 +4957,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool 
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.link_dot,f,true))
+	if(!p_getc(&temp_misc.colors.hero_dot,f,true))
 	{
 		return qe_invalid;
 	}
@@ -5595,7 +5595,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.link_dot,f,true))
+		if(!p_getc(&temp_misc.colors.hero_dot,f,true))
 		{
 			return qe_invalid;
 		}
@@ -8815,8 +8815,8 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				}
 				else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 				{
-					//@Emily: What was qrFIREPROOFLINK2 again, and does that also need to enable this?
-					if ( (get_bit(quest_rules,qr_FIREPROOFLINK)) ) tempitem.flags |= ITEM_FLAG3;
+					//@Emily: What was qrFIREPROOFHERO2 again, and does that also need to enable this?
+					if ( (get_bit(quest_rules,qr_FIREPROOFHERO)) ) tempitem.flags |= ITEM_FLAG3;
 					else tempitem.flags &= ~ ITEM_FLAG3;
 				}
 			}
@@ -9535,21 +9535,21 @@ int32_t init_combo_classes()
     return 0;
 }
 
-int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linksprites, bool keepdata)
+int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites, bool keepdata)
 {
-	assert(v_linksprites < 6);
-    //these are here to bypass compiler warnings about unused arguments
-    cv_linksprites=cv_linksprites;
+	assert(v_herosprites < 6);
+	//these are here to bypass compiler warnings about unused arguments
+	cv_herosprites=cv_herosprites;
+	
+	if(keepdata)
+	{
+		zinit.hero_swim_speed=67; //default
+		setupherotiles(zinit.heroAnimationStyle);
+		setupherodefenses();
+		setupherooffsets();
+	}
     
-    if(keepdata)
-    {
-        zinit.link_swim_speed=67; //default
-        setuplinktiles(zinit.linkanimationstyle);
-        setuplinkdefenses();
-	setuplinkoffsets();
-    }
-    
-    if(v_linksprites>=0)
+    if(v_herosprites>=0)
     {
         word tile, tile2;
         byte flip, extend, dummy_byte;
@@ -9654,7 +9654,7 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>1)
+        if(v_herosprites>1)
         {
             for(int32_t i=0; i<4; i++)
             {
@@ -9739,7 +9739,7 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
         
         flip=0;
         
-        if(v_linksprites>0)
+        if(v_herosprites>0)
         {
             if(!p_getc(&flip,f,keepdata))
             {
@@ -9759,9 +9759,9 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             castingspr[spr_extend]=(int32_t)extend;
         }
         
-        if(v_linksprites>0)
+        if(v_herosprites>0)
         {
-			int32_t num_holdsprs = (v_linksprites > 6 ? 3 : 2);
+			int32_t num_holdsprs = (v_herosprites > 6 ? 3 : 2);
             for(int32_t i=0; i<2; i++)
             {
                 for(int32_t j=0; j<num_holdsprs; j++)
@@ -9821,7 +9821,7 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>2)
+        if(v_herosprites>2)
         {
             for(int32_t i=0; i<4; i++)
             {
@@ -9849,7 +9849,7 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>3)
+        if(v_herosprites>3)
         {
             for(int32_t i=0; i<4; i++)
             {
@@ -9877,7 +9877,7 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>4)
+        if(v_herosprites>4)
         {
             if(!p_getc(&dummy_byte,f,keepdata))
             {
@@ -9886,7 +9886,7 @@ int32_t readlinksprites2(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                zinit.link_swim_speed=(byte)dummy_byte;
+                zinit.hero_swim_speed=(byte)dummy_byte;
             }
         }
 		
@@ -9944,23 +9944,23 @@ void setSprite(int32_t* arr, int32_t tile, int32_t flip, int32_t ext)
     arr[spr_extend] = (ext > 2 ? 0 : ext);
 }
 //Used to read the player sprites as int32_t, not word. 
-int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linksprites, bool keepdata)
+int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
-    cv_linksprites=cv_linksprites;
+    cv_herosprites=cv_herosprites;
     
     if(keepdata)
     {
-        zinit.link_swim_speed=67; //default
-        setuplinktiles(zinit.linkanimationstyle);
-        setuplinkdefenses();
-	setuplinkoffsets();
+        zinit.hero_swim_speed=67; //default
+        setupherotiles(zinit.heroAnimationStyle);
+        setupherodefenses();
+	setupherooffsets();
     }
     
     int32_t tile, tile2;
     byte flip, extend, dummy_byte;
     
-    if(v_linksprites>=0)
+    if(v_herosprites>=0)
     {
         
         for(int32_t i=0; i<4; i++)
@@ -10055,7 +10055,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>1)
+        if(v_herosprites>1)
         {
             for(int32_t i=0; i<4; i++)
             {
@@ -10134,7 +10134,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
         
         flip=0;
         
-        if(v_linksprites>0)
+        if(v_herosprites>0)
         {
             if(!p_getc(&flip,f,keepdata))
             {
@@ -10152,9 +10152,9 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             setSprite(castingspr, int32_t(tile), int32_t(flip), int32_t(extend));
         }
         
-        if(v_linksprites>0)
+        if(v_herosprites>0)
         {
-	    int32_t num_holdsprs = (v_linksprites > 6 ? 3 : 2);
+	    int32_t num_holdsprs = (v_herosprites > 6 ? 3 : 2);
             for(int32_t i=0; i<2; i++)
             {
                 for(int32_t j=0; j<num_holdsprs; j++)
@@ -10208,7 +10208,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>2)
+        if(v_herosprites>2)
         {
             for(int32_t i=0; i<4; i++)
             {
@@ -10234,7 +10234,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>3)
+        if(v_herosprites>3)
         {
             for(int32_t i=0; i<4; i++)
             {
@@ -10260,7 +10260,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             }
         }
         
-        if(v_linksprites>4)
+        if(v_herosprites>4)
         {
             if(!p_getc(&dummy_byte,f,keepdata))
             {
@@ -10269,11 +10269,11 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
             
             if(keepdata)
             {
-                zinit.link_swim_speed=(byte)dummy_byte;
+                zinit.hero_swim_speed=(byte)dummy_byte;
             }
         }
 		
-		if(v_linksprites>6)
+		if(v_herosprites>6)
 		{
 			for(int32_t q = 0; q < 4; ++q)
 			{
@@ -10678,7 +10678,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					setSprite(medallionsprs[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
-			if (v_linksprites > 8)
+			if (v_herosprites > 8)
 			{
 				for(int32_t q = 0; q < 4; ++q)
 				{
@@ -10697,7 +10697,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					}
 				}
 			}
-			if (v_linksprites > 9)
+			if (v_herosprites > 9)
 			{
 				for(int32_t q = 0; q < 4; ++q)
 				{
@@ -10748,7 +10748,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					}
 				}
 			}
-			if (v_linksprites > 9)
+			if (v_herosprites > 9)
 			{
 				for(int32_t q = 0; q < 4; ++q)
 				{
@@ -10767,7 +10767,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					}
 				}
 			}
-			if (v_linksprites > 10)
+			if (v_herosprites > 10)
 			{
 				for(int32_t q = 0; q < 4; ++q)
 				{
@@ -10782,7 +10782,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				}
 			}
 			else for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
-			if (v_linksprites > 11)
+			if (v_herosprites > 11)
 			{
 				for(int32_t q = 0; q < 3; ++q)
 				{
@@ -10801,7 +10801,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 					}
 				}
 			}
-			if (v_linksprites > 12)
+			if (v_herosprites > 12)
 			{
 				if(!p_igetl(&tile,f,keepdata))
 					return qe_invalid;
@@ -10817,7 +10817,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 				}
 				
 			}
-			if (v_linksprites > 13)
+			if (v_herosprites > 13)
 			{
 				for(int32_t q = 0; q < 4; ++q)
 				{
@@ -10881,13 +10881,13 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
 			for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
-        if (v_linksprites > 7)
+        if (v_herosprites > 7)
         {
             int32_t num_defense = wMax;
             byte def = 0;
 
             //Set num_defense accordingly if changes to enum require version upgrade - Jman
-            /*if(v_linksprites > [x])
+            /*if(v_herosprites > [x])
             * {
             *     num_defense = 146 //value of wMax on version 8
             * }
@@ -10900,7 +10900,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 
                 if (keepdata)
                 {
-                    link_defence[q] = def;
+                    hero_defence[q] = def;
                 }
             }
         }
@@ -10910,7 +10910,7 @@ int32_t readlinksprites3(PACKFILE *f, int32_t v_linksprites, int32_t cv_linkspri
 }
 
 
-int32_t readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readherosprites(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -10924,9 +10924,9 @@ int32_t readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
         return qe_invalid;
     }
     
-    FFCore.quest_format[vLinkSprites] = s_version;
+    FFCore.quest_format[vHeroSprites] = s_version;
     
-    //al_trace("Link sprites version %d\n", s_version);
+    //al_trace("Player sprites version %d\n", s_version);
     if(!p_igetw(&s_cversion,f,true))
     {
         return qe_invalid;
@@ -10939,10 +10939,10 @@ int32_t readlinksprites(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     if ( s_version >= 6 ) 
     {
-	    //al_trace("Reading Link Sprites v6\n");
-	    return readlinksprites3(f, s_version, dummy, keepdata);
+	    //al_trace("Reading Player Sprites v6\n");
+	    return readherosprites3(f, s_version, dummy, keepdata);
     }
-    else return readlinksprites2(f, s_version, dummy, keepdata);
+    else return readherosprites2(f, s_version, dummy, keepdata);
 }
 
 int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
@@ -11985,7 +11985,7 @@ extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
-extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *playerscripts[NUMSCRIPTPLAYER];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -12163,32 +12163,32 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
 		}
         
-	if(s_version > 10) //expanded the number of Link scripts to 5. 
+	if(s_version > 10) //expanded the number of Player scripts to 5. 
         {
-		for(int32_t i = 0; i < NUMSCRIPTLINK; i++)
+		for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
 		{
-		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i], zmeta_version);
+		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
 		    
 		    if(ret != 0) return qe_invalid;
 		}
         }
 	else
 	{
-		for(int32_t i = 0; i < NUMSCRIPTLINKOLD; i++)
+		for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
 		{
-		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &linkscripts[i], zmeta_version);
+		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
 		    
 		    if(ret != 0) return qe_invalid;
 		}
-		if(linkscripts[3] != NULL)
-                delete linkscripts[3];
+		if(playerscripts[3] != NULL)
+                delete playerscripts[3];
                 
-		linkscripts[3] = new script_data();
+		playerscripts[3] = new script_data();
 		
-		if(linkscripts[4] != NULL)
-                delete linkscripts[4];
+		if(playerscripts[4] != NULL)
+                delete playerscripts[4];
                 
-		linkscripts[4] = new script_data();
+		playerscripts[4] = new script_data();
 	}
         if(s_version > 8 && s_version < 10)
         {
@@ -12422,13 +12422,13 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 delete[] buf;
             }
         }
-	//link
+	//hero
 	if(s_version > 8)
         {
-            word numlinkbindings;
-            p_igetw(&numlinkbindings, f, true);
+            word numherobindings;
+            p_igetw(&numherobindings, f, true);
             
-            for(int32_t i=0; i<numlinkbindings; i++)
+            for(int32_t i=0; i<numherobindings; i++)
             {
                 word id;
                 p_igetw(&id, f, true);
@@ -12438,8 +12438,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
                 buf[bufsize]=0;
                 
                 //fix this too
-                if(keepdata && id <NUMSCRIPTLINK-1)
-                    linkmap[id].scriptname = buf;
+                if(keepdata && id <NUMSCRIPTPLAYER-1)
+                    playermap[id].scriptname = buf;
                     
                 delete[] buf;
             }
@@ -12577,9 +12577,9 @@ void reset_scripts()
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
     {
-        if(linkscripts[i]!=NULL) delete linkscripts[i];
+        if(playerscripts[i]!=NULL) delete playerscripts[i];
     }
     
     for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -12637,9 +12637,9 @@ void reset_scripts()
         globalscripts[i] = new script_data();
     }
     
-    for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
     {
-        linkscripts[i] = new script_data();
+        playerscripts[i] = new script_data();
     }
     
      for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -12838,9 +12838,9 @@ const char *old_sfx_string[Z35] =
     "Arrow", "Sword beam", "Bomb blast", "Boomerang",  "Subscreen cursor",
     "Shield is hit", "Item chime",  "Roar (Dodongo, Gohma)", "Shutter", "Enemy dies",
     "Enemy is hit", "Low hearts warning", "Fire", "Ganon's fanfare", "Boss is hit", "Hammer",
-    "Hookshot", "Message", "Link is hit", "Item fanfare", "Bomb placed", "Item pickup",
+    "Hookshot", "Message", "Player is hit", "Item fanfare", "Bomb placed", "Item pickup",
     "Refill", "Roar (Aquamentus, Gleeok, Ganon)", "Item pickup 2", "Ocean ambience",
-    "Secret chime", "Link dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
+    "Secret chime", "Player dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
     "Wand magic", "Whistle", "Zelda's fanfare", "Charging weapon", "Charging weapon 2",
     "Din's Fire", "Enemy falls from ceiling", "Farore's Wind", "Fireball", "Tall Grass slashed",
     "Pound pounded", "Hover Boots", "Ice magic", "Jump", "Lens of Truth off", "Lens of Truth on",
@@ -13352,7 +13352,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(guyversion<=2)
     {
-        return readlinksprites2(f, guyversion==2?0:-1, 0, keepdata);
+        return readherosprites2(f, guyversion==2?0:-1, 0, keepdata);
     }
     
     if(guyversion > 3)
@@ -18296,11 +18296,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	temp_zinit.terminalv=320;
 	temp_zinit.msg_speed=5;
 	temp_zinit.transition_type=0;
-	temp_zinit.jump_link_layer_threshold=255;
+	temp_zinit.jump_hero_layer_threshold=255;
 	temp_zinit.subscrSpeed = 1;
 	
-	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The int16_t-lived rule, qr_JUMPLINKLAYER3
-		temp_zinit.jump_link_layer_threshold=0;
+	if(s_version >= 15 && get_bit(deprecated_rules, 27)) // The int16_t-lived rule, qr_JUMPHEROLAYER3
+		temp_zinit.jump_hero_layer_threshold=0;
 		
 	if(s_version >= 10)
 	{
@@ -18941,7 +18941,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				}
 			}
 			
-			if(!p_getc(&temp_zinit.linkanimationstyle,f,true))
+			if(!p_getc(&temp_zinit.heroAnimationStyle,f,true))
 			{
 				return qe_invalid;
 			}
@@ -19175,7 +19175,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_zinit.jump_link_layer_threshold,f,true))
+			if(!p_getc(&temp_zinit.jump_hero_layer_threshold,f,true))
 			{
 				return qe_invalid;
 			}
@@ -19435,7 +19435,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<186)))
 	{
-		temp_zinit.linkanimationstyle=get_bit(quest_rules,qr_BSZELDA)?1:0;
+		temp_zinit.heroAnimationStyle=get_bit(quest_rules,qr_BSZELDA)?1:0;
 	}
 	
 	if(s_version < 16 && get_bit(deprecated_rules, qr_COOLSCROLL+1))
@@ -19633,13 +19633,13 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		memcpy(&zinit, &temp_zinit, sizeof(zinitdata));
 		
-		if(zinit.linkanimationstyle==las_zelda3slow)
+		if(zinit.heroAnimationStyle==las_zelda3slow)
 		{
-			link_animation_speed=2;
+			hero_animation_speed=2;
 		}
 		else
 		{
-			link_animation_speed=1;
+			hero_animation_speed=1;
 		}
 	}
 	
@@ -19866,7 +19866,7 @@ const char *skip_text[skip_max]=
     "skip_tiles", "skip_combos", "skip_comboaliases", "skip_csets",
     "skip_maps", "skip_dmaps", "skip_doors", "skip_items",
     "skip_weapons", "skip_colors", "skip_icons", "skip_initdata",
-    "skip_guys", "skip_linksprites", "skip_subscreens", "skip_ffscript",
+    "skip_guys", "skip_herosprites", "skip_subscreens", "skip_ffscript",
     "skip_sfx", "skip_midis", "skip_cheats", "skip_itemdropsets",
     "skip_favorites"
 };
@@ -19882,13 +19882,13 @@ void port250QuestRules(){
 
 void portCandleRules()
 {
-	bool hurtslink = get_bit(quest_rules,qr_FIREPROOFLINK);
+	bool hurtshero = get_bit(quest_rules,qr_FIREPROOFHERO);
 	//itemdata itemsbuf;
 	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
 		if ( itemsbuf[q].family == itype_candle )
 		{
-			if ( hurtslink ) itemsbuf[q].flags |= ITEM_FLAG2;
+			if ( hurtshero ) itemsbuf[q].flags |= ITEM_FLAG2;
 			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
 		}
 	}
@@ -19896,13 +19896,13 @@ void portCandleRules()
 
 void portBombRules()
 {
-	bool hurtslink = get_bit(quest_rules,qr_OUCHBOMBS);
+	bool hurtshero = get_bit(quest_rules,qr_OUCHBOMBS);
 	//itemdata itemsbuf;
 	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
 		if ( itemsbuf[q].family == itype_bomb )
 		{
-			if ( hurtslink ) itemsbuf[q].flags |= ITEM_FLAG2;
+			if ( hurtshero ) itemsbuf[q].flags |= ITEM_FLAG2;
 			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
 		}
 	}
@@ -19962,7 +19962,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
         npcmap.clear();
         ewpnmap.clear();
         lwpnmap.clear();
-        linkmap.clear();
+        playermap.clear();
         dmapmap.clear();
         screenmap.clear();
         itemspritemap.clear();
@@ -20002,9 +20002,9 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
         {
             ewpnmap[i].clear();
         }
-        for(int32_t i=0; i<NUMSCRIPTLINK-1; i++)
+        for(int32_t i=0; i<NUMSCRIPTPLAYER-1; i++)
         {
-            linkmap[i].clear();
+            playermap[i].clear();
         }
         for(int32_t i=0; i<NUMSCRIPTSDMAP-1; i++)
         {
@@ -20390,9 +20390,9 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
                 box_eol();
                 break;
                 
-            case ID_LINKSPRITES:
+            case ID_HEROSPRITES:
             
-                //link sprites
+                //player sprites
                 if(catchup)
                 {
                     box_out("found.");
@@ -20400,8 +20400,8 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
                     catchup=false;
                 }
                 
-                box_out("Reading Custom Link Sprite Data...");
-                ret=readlinksprites(f, &tempheader, keepall&&!get_bit(skip_flags, skip_linksprites));
+                box_out("Reading Custom Player Sprite Data...");
+                ret=readherosprites(f, &tempheader, keepall&&!get_bit(skip_flags, skip_herosprites));
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -20693,9 +20693,9 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
         box_out("okay.");
         box_eol();
         
-        //link sprites
-        box_out("Reading Custom Link Sprite Data...");
-        ret=readlinksprites2(f, -1, 0, keepall&&!get_bit(skip_flags, skip_linksprites));
+        //player sprites
+        box_out("Reading Custom Player Sprite Data...");
+        ret=readherosprites2(f, -1, 0, keepall&&!get_bit(skip_flags, skip_herosprites));
         checkstatus(ret);
         box_out("okay.");
         box_eol();
@@ -20800,7 +20800,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	al_trace("Quest Section 'Cheats' is Version: %d\n", FFCore.quest_format[vCheats]);
 	//al_trace("Quest Section 'Save Format' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vSaveformat]);
 	al_trace("Quest Section 'Combo Aliases' is Version: %d\n", FFCore.quest_format[vComboAliases]);
-	al_trace("Quest Section 'Link Sprites' is Version: %d\n", FFCore.quest_format[vLinkSprites]);
+	al_trace("Quest Section 'Player Sprites' is Version: %d\n", FFCore.quest_format[vHeroSprites]);
 	al_trace("Quest Section 'Subscreen' is Version: %d\n", FFCore.quest_format[vSubscreen]);
 	al_trace("Quest Section 'Dropsets' is Version: %d\n", FFCore.quest_format[vItemDropsets]);
 	al_trace("Quest Section 'FFScript' is Version: %d\n", FFCore.quest_format[vFFScript]);

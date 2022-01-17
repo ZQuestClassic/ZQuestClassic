@@ -1175,9 +1175,9 @@ RootScope::RootScope(TypeStore& typeStore)
 	}
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::LINK, "Link", 1);
-	BuiltinConstant::create(*this, DataType::LINK, "Hero", 1);
-	BuiltinConstant::create(*this, DataType::LINK, "Player", 1);
+	BuiltinConstant::create(*this, DataType::PLAYER, "Link", 1);
+	BuiltinConstant::create(*this, DataType::PLAYER, "Hero", 1);
+	BuiltinConstant::create(*this, DataType::PLAYER, "Player", 1);
 	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 1);
 	BuiltinConstant::create(*this, DataType::GAME, "Game", 1);
 	BuiltinConstant::create(*this, DataType::AUDIO, "Audio", 1);

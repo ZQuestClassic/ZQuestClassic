@@ -2,16 +2,16 @@
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
-//  link.cc
+//  hero.cpp
 //
-//  Link's class: LinkClass
-//  Handles a lot of game play stuff as well as Link's
+//  Hero's class: HeroClass
+//  Handles a lot of game play stuff as well as Hero's
 //  movement, attacking, etc.
 //
 //--------------------------------------------------------
 
-#ifndef _LINK_H_
-#define _LINK_H_
+#ifndef _HERO_H_
+#define _HERO_H_
 
 #include "zc_alleg.h"
 #include "zcmusic.h"
@@ -79,7 +79,7 @@ typedef struct tilesequence
 #define HOV_OUT 0x02
 #define HOV_PITFALL_OUT 0x04
 
-class LinkClass : public sprite
+class HeroClass : public sprite
 {
     class WalkflagInfo
     {
@@ -227,15 +227,15 @@ public:
     byte skipstep,lstep, 
 		hopclk, // hopping into water timeout.
 		diveclk, // diving timeout.
-		whirlwind, // is Link inside an arriving whirlwind? (yes = 255)
-		specialcave, // is Link inside a special cave?
+		whirlwind, // is Hero inside an arriving whirlwind? (yes = 255)
+		specialcave, // is Hero inside a special cave?
 		hitdir, // direction from which damage was taken.
 		ladderdir, // direction of ladder
 		lastdir[4], // used in Maze Path screens
 		ladderstart, // starting direction of ladder...?
 		inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
-		damageovertimeclk, // clock for determining when Link takes passive damage from combos beneath him.
-		newconveyorclk, // clock for determining when Link gets moved by a conveyor
+		damageovertimeclk, // clock for determining when Hero takes passive damage from combos beneath him.
+		newconveyorclk, // clock for determining when Hero gets moved by a conveyor
 		switchhookclk, //clock for switchhook animation timing
 		switchhookmaxtime, //the switchhookclk starting value
 		switchhookstyle, //the switchhook animation style
@@ -244,7 +244,7 @@ public:
     lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
 	lbunnyclock,
     sdir, // scrolling direction
-    sideswimdir;  //for forcing link to face left or right in sideview
+    sideswimdir;  //for forcing hero to face left or right in sideview
     int32_t hammer_swim_up_offset,
 	hammer_swim_down_offset,
 	hammer_swim_left_offset,
@@ -295,13 +295,13 @@ public:
     bool CanSideSwim();
     
      bool flickerorflash, preventsubscreenfalling; // Enable invincibility effects, disable dropping the subscreen.
-    int32_t hurtsfx; //Link's Hurt SOund
-    int32_t walkspeed; //Link's walking speed.
+    int32_t hurtsfx; //Hero's Hurt SOund
+    int32_t walkspeed; //Hero's walking speed.
     int32_t lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
 	
 	int32_t last_lens_id;// The item ID of the last Lens of Truth type item used
     
-	int32_t misc_internal_link_flags;// Flags to hold data temporarily for misc handling
+	int32_t misc_internal_hero_flags;// Flags to hold data temporarily for misc handling
 	int32_t last_cane_of_byrna_item_id;
 	bool on_sideview_ladder;
 	zfix switchblock_z;
@@ -318,10 +318,10 @@ public:
 	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
 	void pitfall();
-    void movelink();
+    void movehero();
     void move(int32_t d, int32_t forceRate = -1);
 	void moveOld(int32_t d2);
-    void hitlink(int32_t hit);
+    void hithero(int32_t hit);
     int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
     int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
     bool nextcombo_wf(int32_t d);
@@ -346,7 +346,7 @@ public:
     void checksigns();
     void checktouchblk();
     void checklocked();
-    void deselectbombs(int32_t super); // switch Link's weapon if his current weapon (bombs) was depleted.
+    void deselectbombs(int32_t super); // switch Hero's weapon if his current weapon (bombs) was depleted.
     bool startwpn(int32_t itemid);
     bool mirrorBonk();
     void doMirror(int32_t mirrorid);
@@ -364,7 +364,7 @@ public:
     int32_t get_scroll_step(int32_t scrolldir);
     int32_t get_scroll_delay(int32_t scrolldir);
     void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
-    void calc_darkroom_link(int32_t x1 = 0, int32_t y1 = 0, int32_t x2 = 0, int32_t y2 = 0);
+    void calc_darkroom_hero(int32_t x1 = 0, int32_t y1 = 0, int32_t x2 = 0, int32_t y2 = 0);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
     int32_t defend(weapon *w);
     
@@ -409,14 +409,14 @@ public:
     void setStunClock(int32_t v);
     int32_t BunnyClock();
     void setBunnyClock(int32_t v);
-    LinkClass();
+    HeroClass();
     void init();
     virtual void drawshadow(BITMAP* dest, bool translucent);
     virtual void draw(BITMAP* dest);
     virtual bool animate(int32_t index);
     bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
     
-    void linkstep();
+    void herostep();
     void stepforward(int32_t steps, bool adjust);
     void draw_under(BITMAP* dest);
     void check_slash_block(int32_t bx, int32_t by);
@@ -509,16 +509,16 @@ public:
     void setscriptnohit(bool);
     bool getscriptnohit();
     
-     bool getCanLinkFlicker(); //enable or disable flicker or flash
-    void setCanLinkFlicker(bool v);
+     bool getCanHeroFlicker(); //enable or disable flicker or flash
+    void setCanHeroFlicker(bool v);
     
-    void sethitLinkUID(int32_t type, int32_t screen_index);
-    void ClearhitLinkUIDs();
+    void sethitHeroUID(int32_t type, int32_t screen_index);
+    void ClearhitHeroUIDs();
     void set_defence(int32_t def, int32_t v);
     int32_t get_defence(int32_t def);
-    int32_t gethitLinkUID(int32_t type);
+    int32_t gethitHeroUID(int32_t type);
     
-    void setHurtSFX(int32_t sfx); //Set Link;s hurt sfx
+    void setHurtSFX(int32_t sfx); //Set Hero;s hurt sfx
     int32_t getHurtSFX();
     
       //Prevent the subscreen from falling by script.
@@ -600,4 +600,4 @@ void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);
 #endif
-/*** end of link.cc ***/
+/*** end of hero.cpp ***/

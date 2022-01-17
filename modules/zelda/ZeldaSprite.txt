@@ -7,7 +7,7 @@ set(ZELDA_SPRITE_SOURCES
 src/zc_sprite.cpp
 src/guys.cpp
 src/weapons.cpp
-src/link.cpp
+src/hero.cpp
 src/particles.cpp
 src/items.cpp
 src/sprite.cpp

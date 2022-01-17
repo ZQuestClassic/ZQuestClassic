@@ -137,7 +137,7 @@ int32_t CScriptDrawingCommands::GetCount()
 	return count;
 }
 //Advances the game frame without checking 'Quit' variable status.
-//Used for making scripts such as Link's onWin and onDeath scripts
+//Used for making scripts such as Player's onWin and onDeath scripts
 //run for multiple frames.
 
 void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
@@ -1333,8 +1333,8 @@ byte itemScriptsWaitdraw[256] = {0};
 
 #include "zelda.h"
 #include "particles.h"
-#include "link.h"
-//extern int32_t directItem = -1; //Is set if Link is currently using an item directly
+#include "hero.h"
+//extern int32_t directItem = -1; //Is set if Player is currently using an item directly
 //extern int32_t directItemA = -1;
 //extern int32_t directItemB = -1;
 
@@ -1381,7 +1381,7 @@ T zc_max(T a, T b)
 using std::string;
 
 extern particle_list particles;
-extern LinkClass Link;
+extern HeroClass Hero;
 extern char *guy_string[];
 extern int32_t skipcont;
 
@@ -1392,15 +1392,15 @@ PALETTE tempblackpal; //Used for storing the palette while fading to black
 FFScript ffengine;
 
 byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
-int32_t FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
-byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
+int32_t FF_hero_tile;	//Overrides for the tile used when blitting Hero to the bitmap; and a var to hold a script-set action/
+byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
 	
 int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
 int32_t FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 int32_t FF_subscreen_dimensions[4];
 int32_t FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
-int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, and so forth 
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
 	
@@ -1419,20 +1419,20 @@ word curScriptNum;
 
 //Global script data
 refInfo globalScriptData[NUMSCRIPTGLOBAL];
-refInfo linkScriptData;
+refInfo playerScriptData;
 refInfo screenScriptData;
 refInfo dmapScriptData;
 refInfo onmapScriptData;
 refInfo activeSubscreenScriptData;
 refInfo passiveSubscreenScriptData;
 word g_doscript = 0xFFFF;
-word link_doscript = 1;
+word player_doscript = 1;
 word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
 word onmap_doscript = 0;
 word active_subscreen_doscript = 0;
 word passive_subscreen_doscript = 0;
 word global_wait = 0;
-bool link_waitdraw = false;
+bool player_waitdraw = false;
 bool dmap_waitdraw = false;
 bool passive_subscreen_waitdraw = false;
 bool active_subscreen_waitdraw = false;
@@ -1472,7 +1472,7 @@ int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t ffmisc[32][16];
-int32_t link_stack[MAX_SCRIPT_REGISTERS];
+int32_t player_stack[MAX_SCRIPT_REGISTERS];
 int32_t dmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
@@ -1496,9 +1496,9 @@ void FFScript::clear_screen_stack()
 	memset(screen_stack, 0, sizeof(screen_stack));
 }
 
-void clear_link_stack()
+void clear_player_stack()
 {
-	memset(link_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
+	memset(player_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 }
 
 void clear_dmap_stack()
@@ -1555,12 +1555,12 @@ void FFScript::initZScriptOnMapScript()
 	onmap_waitdraw = false;
 }
 
-void FFScript::initZScriptLinkScripts()
+void FFScript::initZScriptHeroScripts()
 {
-	link_doscript = 1;
-	link_waitdraw = false;
-	linkScriptData.Clear();
-	clear_link_stack();
+	player_doscript = 1;
+	player_waitdraw = false;
+	playerScriptData.Clear();
+	clear_player_stack();
 }
 
 void clear_item_stack(int32_t i)
@@ -1619,12 +1619,12 @@ void FFScript::set_mapscreenflag_state(mapscr *m, int32_t flagid, bool state)
 			break;
 		
 		// View
-		case MSF_INVISLINK: 
+		case MSF_INVISHERO: 
 			if ( state )
 				m->flags3 |= 8;
 			else m->flags3 &= ~8;
 			break;
-		case MSF_NOLINKMARKER: 
+		case MSF_NOHEROMARKER: 
 			if ( state )
 				m->flags7 |= 16;
 			else m->flags7 &= ~16;
@@ -1995,9 +1995,9 @@ int32_t FFScript::get_mapscreenflag_state(mapscr *m, int32_t flagid)
 			return (m->flags7&8) ? 1 : 0;
 		
 		// View
-		case MSF_INVISLINK: 
+		case MSF_INVISHERO: 
 			return (m->flags3&8) ? 1 : 0;
-		case MSF_NOLINKMARKER: 
+		case MSF_NOHEROMARKER: 
 			return (m->flags7&16) ? 1 : 0;
 			
 		case MSF_NOSUBSCREEN: 
@@ -2575,13 +2575,13 @@ public:
 		return 0;
 	}
 	
-	static bool hasLink()
+	static bool hasHero()
 	{
 		if(tempenemy->family == eeWALLM)
-			return ((eWallM *) tempenemy)->haslink;
+			return ((eWallM *) tempenemy)->hashero;
 			
 		if(tempenemy->family == eeWALK)
-			return ((eStalfos *) tempenemy)->haslink;
+			return ((eStalfos *) tempenemy)->hashero;
 			
 		return false;
 	}
@@ -3677,36 +3677,36 @@ int32_t get_register(const int32_t arg)
 		break;
 		
 		///----------------------------------------------------------------------------------------------------//
-		//Link's Variables
+		//Hero's Variables
 		case LINKX:
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
-				//double lx = (double)Link.getX();
+				//double lx = (double)Hero.getX();
 				//Z_scripterrlog("lx: %f\n", lx);
 				
 				//ret = lx * 10000;
-				//zfix lx = Link.getX();
+				//zfix lx = Hero.getX();
 				//Z_scripterrlog("lx: %d\n", lx);
-				ret = Link.getX().getZLong();
+				ret = Hero.getX().getZLong();
 			}
-			else ret = int32_t(Link.getX()) * 10000;
+			else ret = int32_t(Hero.getX()) * 10000;
 
 			break;
 		}
 		
 		case LINKCSET:
 		{
-			ret = Link.cs * 10000;
+			ret = Hero.cs * 10000;
 			break;
 		}		
 		case LINKY:
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
-				ret = Link.getY().getZLong();
+				ret = Hero.getY().getZLong();
 			}
-			else ret = int32_t(Link.getY()) * 10000;
+			else ret = int32_t(Hero.getY()) * 10000;
 
 			break;
 		}    
@@ -3714,23 +3714,23 @@ int32_t get_register(const int32_t arg)
 		{
 			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
 			{
-				ret = Link.getZ().getZLong();
+				ret = Hero.getZ().getZLong();
 			}
-			else ret = int32_t(Link.getZ()) * 10000;
+			else ret = int32_t(Hero.getZ()) * 10000;
 
 			break;
 		} 
 		case LINKJUMP:
 			// -fall/100*10000, but doing it that way screwed up the result
-			ret = Link.getFall().getZLong() / -100;
+			ret = Hero.getFall().getZLong() / -100;
 			break;
 			
 		case LINKDIR:
-			ret=(int32_t)(Link.dir)*10000;
+			ret=(int32_t)(Hero.dir)*10000;
 			break;
 			
 		case LINKHITDIR:
-			ret=(int32_t)(Link.getHitDir())*10000;
+			ret=(int32_t)(Hero.getHitDir())*10000;
 			break;
 			
 		case LINKHP:
@@ -3738,7 +3738,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case LINKGRAVITY:
-			ret = ( (Link.moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0 );
+			ret = ( (Hero.moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0 );
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -3759,28 +3759,28 @@ int32_t get_register(const int32_t arg)
 			
 		case LINKACTION:
 		{
-			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getLinkAction());
-			//int32_t act = FFCore.getLinkAction() * 10000;
-			ret = FFCore.getLinkAction() * 10000;
+			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getHeroAction());
+			//int32_t act = FFCore.getHeroAction() * 10000;
+			ret = FFCore.getHeroAction() * 10000;
 			//Z_scripterrlog("The present 'action' return value is: %d\n", act);
 			//ret = act;
-			//ret=(int32_t)(Link.getAction())*10000;
+			//ret=(int32_t)(Hero.getAction())*10000;
 			break;
 		}
 		
 		case HEROHEALTHBEEP:
 		{
-			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getLinkAction());
-			//int32_t act = FFCore.getLinkAction() * 10000;
+			//Z_scripterrlog("The present FFCore action is: %d\n", FFCore.getHeroAction());
+			//int32_t act = FFCore.getHeroAction() * 10000;
 			ret = heart_beep ? ( heart_beep_timer * 10000 ) : 0;
 			//Z_scripterrlog("The present 'action' return value is: %d\n", act);
 			//ret = act;
-			//ret=(int32_t)(Link.getAction())*10000;
+			//ret=(int32_t)(Hero.getAction())*10000;
 			break;
 		}
 			
 		case LINKHELD:
-			ret = (int32_t)(Link.getHeldItem())*10000;
+			ret = (int32_t)(Hero.getHeldItem())*10000;
 			break;
 			
 		case LINKITEMD:
@@ -3792,7 +3792,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case HEROSTEPRATE:
-			ret = Link.getStepRate() * 10000;
+			ret = Hero.getStepRate() * 10000;
 			break;
 			
 		case LINKEQUIP:
@@ -3800,39 +3800,39 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LINKINVIS:
-			ret = (((int32_t)(Link.getDontDraw())) ? 10000 : 0);
+			ret = (((int32_t)(Hero.getDontDraw())) ? 10000 : 0);
 			break;
 			
 		case LINKINVINC:
-			ret = (int32_t)(Link.scriptcoldet)*10000;
+			ret = (int32_t)(Hero.scriptcoldet)*10000;
 			break;
 		
 		case LINKENGINEANIMATE:
-			ret = (int32_t)(Link.do_animation)*10000;
+			ret = (int32_t)(Hero.do_animation)*10000;
 			break;
 			
 		case LINKLADDERX:
-			ret=(int32_t)(Link.getLadderX())*10000;
+			ret=(int32_t)(Hero.getLadderX())*10000;
 			break;
 			
 		case LINKLADDERY:
-			ret=(int32_t)(Link.getLadderY())*10000;
+			ret=(int32_t)(Hero.getLadderY())*10000;
 			break;
 			
 		case LINKSWORDJINX:
-			ret = (int32_t)(Link.getSwordClk())*10000;
+			ret = (int32_t)(Hero.getSwordClk())*10000;
 			break;
 			
 		case LINKITEMJINX:
-			ret = (int32_t)(Link.getItemClk())*10000;
+			ret = (int32_t)(Hero.getItemClk())*10000;
 			break;
 			
 		case LINKDRUNK:
-			ret = (int32_t)(Link.DrunkClock())*10000;
+			ret = (int32_t)(Hero.DrunkClock())*10000;
 			break;
 			
 		case LINKMISCD:
-			ret = (int32_t)(Link.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)]); //Was this buffed before? -Z
+			ret = (int32_t)(Hero.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)]); //Was this buffed before? -Z
 			break;
 		
 		
@@ -3847,7 +3847,7 @@ int32_t get_register(const int32_t arg)
 				case 2:
 				case 3:
 				{
-					ret = (int32_t)(Link.gethitLinkUID(indx))* 10000;
+					ret = (int32_t)(Hero.gethitHeroUID(indx))* 10000;
 					break;
 				}
 				//uids of objects
@@ -3856,16 +3856,16 @@ int32_t get_register(const int32_t arg)
 				case 7:
 				case 8:
 				{
-					ret = (int32_t)(Link.gethitLinkUID(vbound(ri->d[rINDEX]/10000,0,3))); //do not multiply by 10000! UIDs are not *10000!
+					ret = (int32_t)(Hero.gethitHeroUID(vbound(ri->d[rINDEX]/10000,0,3))); //do not multiply by 10000! UIDs are not *10000!
 					break;
 					
 				}
-				default: { al_trace("Invalid index passed to Link->HitBy[%d] /n", indx); ret = -1; break; }
+				default: { al_trace("Invalid index passed to Player->HitBy[%d] /n", indx); ret = -1; break; }
 			}
 			break;
 		}
 		case LINKDEFENCE:
-			ret = (int32_t)(Link.get_defence(vbound(ri->d[rINDEX]/10000,0,255)))* 10000;
+			ret = (int32_t)(Hero.get_defence(vbound(ri->d[rINDEX]/10000,0,255)))* 10000;
 			break;
 			
 			
@@ -3873,10 +3873,10 @@ int32_t get_register(const int32_t arg)
 			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Link->Rotation");
+					"Player->Rotation");
 				ret = -1; break;
 			}
-			ret = (int32_t)(Link.rotation)*10000;
+			ret = (int32_t)(Hero.rotation)*10000;
 			break;
 		
 		case LINKSCALE:
@@ -3884,174 +3884,174 @@ int32_t get_register(const int32_t arg)
 			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Link->Scale");
+					"Player->Scale");
 				ret = -1; break;
 			}
-			//al_trace("Link's scale is: %d\n", Link.scale);
-			ret = (int32_t)(Link.scale*100.0);
+			//al_trace("Player's scale is: %d\n", Hero.scale);
+			ret = (int32_t)(Hero.scale*100.0);
 			break;
 		}
 		
 
 		case LINKHXOFS:
-			ret = (int32_t)(Link.hxofs)*10000;
+			ret = (int32_t)(Hero.hxofs)*10000;
 			break;
 			
 		case LINKHYOFS:
-			ret = (int32_t)(Link.hyofs)*10000;
+			ret = (int32_t)(Hero.hyofs)*10000;
 			break;
 			
 		case LINKXOFS:
-			ret = (int32_t)(Link.xofs)*10000;
+			ret = (int32_t)(Hero.xofs)*10000;
 			break;
 			
 		case LINKYOFS:
-			ret = (int32_t)(Link.yofs-playing_field_offset)*10000;
+			ret = (int32_t)(Hero.yofs-playing_field_offset)*10000;
 			break;
 		case HEROTOTALDYOFFS:
-			ret = 10000*(((int32_t)(Link.yofs-playing_field_offset))
-				+ ((Link.switch_hooked && Link.switchhookstyle == swRISE)
-					? -(8-(abs(Link.switchhookclk-32)/4)) : 0));
+			ret = 10000*(((int32_t)(Hero.yofs-playing_field_offset))
+				+ ((Hero.switch_hooked && Hero.switchhookstyle == swRISE)
+					? -(8-(abs(Hero.switchhookclk-32)/4)) : 0));
 			break;
 			
 		case LINKZOFS:
-			ret = (int32_t)(Link.zofs)*10000;
+			ret = (int32_t)(Hero.zofs)*10000;
 			break;
 			
 		case LINKHXSZ:
-			ret = (int32_t)(Link.hxsz)*10000;
+			ret = (int32_t)(Hero.hxsz)*10000;
 			break;
 			
 		case LINKHYSZ:
-			ret = (int32_t)(Link.hysz)*10000;
+			ret = (int32_t)(Hero.hysz)*10000;
 			break;
 			
 		case LINKHZSZ:
-			ret = (int32_t)(Link.hzsz)*10000;
+			ret = (int32_t)(Hero.hzsz)*10000;
 			break;
 			
 		case LINKTXSZ:
-			ret = (int32_t)(Link.txsz)*10000;
+			ret = (int32_t)(Hero.txsz)*10000;
 			break;
 			
 		case LINKTYSZ:
-			ret = (int32_t)(Link.tysz)*10000;
+			ret = (int32_t)(Hero.tysz)*10000;
 			break;
 			
 		case LINKTILE:
-			ret = (int32_t)(Link.tile)*10000;
+			ret = (int32_t)(Hero.tile)*10000;
 			break;
 			
 		case LINKFLIP:
-			ret = (int32_t)(Link.flip)*10000;
+			ret = (int32_t)(Hero.flip)*10000;
 			break;
 		
 		case LINKINVFRAME:
-			ret = (int32_t)Link.getHClk()*10000;
+			ret = (int32_t)Hero.getHClk()*10000;
 			break;
 		
 		case LINKCANFLICKER:
-			ret= Link.getCanLinkFlicker()?10000:0;
+			ret= Hero.getCanHeroFlicker()?10000:0;
 			break;
 		case LINKHURTSFX:
-			ret = (int32_t)Link.getHurtSFX()*10000;
+			ret = (int32_t)Hero.getHurtSFX()*10000;
 			break;
 		
 		/*
 		case LINKUSINGITEM:
-			ret = (int32_t)Link.getDirectItem()*10000;
+			ret = (int32_t)Hero.getDirectItem()*10000;
 			break;
 		
 		case LINKUSINGITEMA:
-			ret = (int32_t)Link.getDirectItemA()*10000;
+			ret = (int32_t)Hero.getDirectItemA()*10000;
 			break;
 		
 		case LINKUSINGITEMB:
-			ret = (int32_t)Link.getDirectItemB()*10000;
+			ret = (int32_t)Hero.getDirectItemB()*10000;
 			break;
 		*/
 			
 		case LINKEATEN:
-			ret=(int32_t)Link.getEaten()*10000;
+			ret=(int32_t)Hero.getEaten()*10000;
 			break;
 		case LINKGRABBED:
-			ret = Link.inwallm ? 10000 : 0;
+			ret = Hero.inwallm ? 10000 : 0;
 			break;
 		case HEROBUNNY:
-			ret = Link.BunnyClock()*10000;
+			ret = Hero.BunnyClock()*10000;
 			break;
 		case LINKPUSH:
-			ret=(int32_t)Link.getPushing()*10000;
+			ret=(int32_t)Hero.getPushing()*10000;
 			break;
 		case LINKSTUN:
-			ret=(int32_t)Link.StunClock()*10000;
+			ret=(int32_t)Hero.StunClock()*10000;
 			break;
 		case LINKSCRIPTTILE:
-			ret=script_link_sprite*10000;
+			ret=script_hero_sprite*10000;
 			break;
 		
 		case HEROSCRIPTCSET:
-			ret=script_link_cset*10000;
+			ret=script_hero_cset*10000;
 			break;
 		case LINKSCRIPFLIP:
-			ret=script_link_flip*10000;
+			ret=script_hero_flip*10000;
 			break;
 			
 			
 		case LINKITEMB:
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			ret = Bwpn*10000;
 			break;
 		
 		case LINKITEMA:
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			ret = Awpn *10000;
 			break;
 		
 		case LINKITEMX:
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			ret = Xwpn *10000;
 			break;
 		
 		case LINKITEMY:
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			ret = Ywpn *10000;
 			break;
 		
 		case LINKTILEMOD:
-			ret = Link.getTileModifier() * 10000;
+			ret = Hero.getTileModifier() * 10000;
 			break;
 		
 		case LINKDIAG:
-			ret=Link.getDiagMove()?10000:0;
+			ret=Hero.getDiagMove()?10000:0;
 			break;
 		
 		case LINKBIGHITBOX:
-			ret=Link.getBigHitbox()?10000:0;
+			ret=Hero.getBigHitbox()?10000:0;
 			break;
 		
 		case LINKCLIMBING:
-			ret = Link.getOnSideviewLadder()?10000:0;
+			ret = Hero.getOnSideviewLadder()?10000:0;
 			break;
 			
 		case HEROJUMPCOUNT:
-			ret = Link.extra_jump_count * 10000;
+			ret = Hero.extra_jump_count * 10000;
 			break;
 		
 		case HEROPULLDIR:
-			ret = Link.pit_pulldir * 10000;
+			ret = Hero.pit_pulldir * 10000;
 			break;
 		
 		case HEROPULLCLK:
-			ret = Link.pit_pullclk * 10000;
+			ret = Hero.pit_pullclk * 10000;
 			break;
 		
 		case HEROFALLCLK:
-			ret = Link.fallclk * 10000;
+			ret = Hero.fallclk * 10000;
 			break;
 		
 		case HEROFALLCMB:
-			ret = Link.fallCombo * 10000;
+			ret = Hero.fallCombo * 10000;
 			break;
 		
 		case HEROMOVEFLAGS:
@@ -4062,13 +4062,13 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				//All bits, in order, of a single byte; just use bitwise
-				ret = (Link.moveflags & (1<<indx)) ? 10000 : 0;
+				ret = (Hero.moveflags & (1<<indx)) ? 10000 : 0;
 			}
 			break;
 		}
 		
 		case HEROISWARPING:
-			ret = Link.is_warping ? 10000L : 0L;
+			ret = Hero.is_warping ? 10000L : 0L;
 			break;
 		
 		case CLOCKACTIVE:
@@ -4081,37 +4081,37 @@ int32_t get_register(const int32_t arg)
 			
 		case HERORESPAWNX:
 		{
-			ret = Link.respawn_x.getZLong();
+			ret = Hero.respawn_x.getZLong();
 			break;
 		}
 		
 		case HERORESPAWNY:
 		{
-			ret = Link.respawn_y.getZLong();
+			ret = Hero.respawn_y.getZLong();
 			break;
 		}
 		
 		case HERORESPAWNDMAP:
 		{
-			ret = Link.respawn_dmap * 10000;
+			ret = Hero.respawn_dmap * 10000;
 			break;
 		}
 		
 		case HERORESPAWNSCR:
 		{
-			ret = Link.respawn_scr * 10000;
+			ret = Hero.respawn_scr * 10000;
 			break;
 		}
 		
 		case HEROSWITCHTIMER:
 		{
-			ret = Link.switchhookclk * 10000;
+			ret = Hero.switchhookclk * 10000;
 			break;
 		}
 		
 		case HEROSWITCHMAXTIMER:
 		{
-			ret = Link.switchhookmaxtime * 10000;
+			ret = Hero.switchhookmaxtime * 10000;
 			break;
 		}
 		
@@ -4321,7 +4321,7 @@ int32_t get_register(const int32_t arg)
 
 		case RAWKEY:
 		{	//Game->KeyPressed[], read-only
-			//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+			//if ( !keypressed() ) break; //Don;t return values set by setting Hero->Input/Press
 			//hmm...no, this won;t return properly for modifier keys. 
 			int32_t keyid = ri->d[rINDEX]/10000;
 			//key = vbound(key,0,n);
@@ -5105,7 +5105,7 @@ int32_t get_register(const int32_t arg)
 				
 			break;
 		}
-		//Link TIle modifier
+		//Hero TIle modifier
 		case IDATALTM:
 			ret=(itemsbuf[ri->idata].ltm)*10000;
 			break;
@@ -5541,8 +5541,8 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				ret = ((int32_t(GuyH::getNPC()->yofs - playing_field_offset)
-					+ ((GuyH::getNPC()->switch_hooked && Link.switchhookstyle == swRISE)
-						? -(8-(abs(Link.switchhookclk-32)/4)) : 0)) * 10000);
+					+ ((GuyH::getNPC()->switch_hooked && Hero.switchhookstyle == swRISE)
+						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000);
 			}
 			break;
 		}
@@ -6281,8 +6281,8 @@ int32_t get_register(const int32_t arg)
 		case LWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
 				ret = ((int32_t)(((weapon*)(s))->yofs-playing_field_offset)
-					+ ((((weapon*)(s))->switch_hooked && Link.switchhookstyle == swRISE)
-						? -(8-(abs(Link.switchhookclk-32)/4)) : 0)) * 10000;
+					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
+						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000;
 			break;
 			
 		case LWPNZOFS:
@@ -6727,8 +6727,8 @@ int32_t get_register(const int32_t arg)
 		case EWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->ewpn,"TotalDYOffset")))
 				ret = ((int32_t)(((weapon*)(s))->yofs-playing_field_offset)
-					+ ((((weapon*)(s))->switch_hooked && Link.switchhookstyle == swRISE)
-						? -(8-(abs(Link.switchhookclk-32)/4)) : 0) * 10000);
+					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
+						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
 			break;
 			
 		case EWPNZOFS:
@@ -6961,7 +6961,7 @@ int32_t get_register(const int32_t arg)
 			ret=game->get_time();
 			break;// Can't multiply by 10000 or the maximum result is too big
 		case ACTIVESSSPEED:
-			ret=Link.subscr_speed*10000;
+			ret=Hero.subscr_speed*10000;
 			break;// Can't multiply by 10000 or the maximum result is too big
 			
 		case GAMETIMEVALID:
@@ -7167,7 +7167,7 @@ int32_t get_register(const int32_t arg)
 						ret = zinit.terminalv * 100;
 						break;
 					case 2: //Sprite Layer Threshold
-						ret = zinit.jump_link_layer_threshold * 10000;
+						ret = zinit.jump_hero_layer_threshold * 10000;
 						break;
 				}
 			}
@@ -7331,7 +7331,7 @@ int32_t get_register(const int32_t arg)
 			
 		
 		case NOACTIVESUBSC:
-			ret=Link.stopSubscreenFalling()?10000:0;
+			ret=Hero.stopSubscreenFalling()?10000:0;
 			break;///----------------------------------------------------------------------------------------------------//
 	//BottleTypes
 		case BOTTLECOUNTER:
@@ -8227,7 +8227,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case LINKOTILE:
-			ret=FFCore.getLinkOTile(ri->d[rINDEX]/10000, ri->d[rINDEX2] / 10000);
+			ret=FFCore.getHeroOTile(ri->d[rINDEX]/10000, ri->d[rINDEX2] / 10000);
 			break;
 			
 		case SDDDD:
@@ -8426,14 +8426,14 @@ int32_t get_register(const int32_t arg)
 		//Useful in conjunction with the new weapon editor. 
 		case CREATELWPNDX:
 		{
-			//Z_message("Trying to get Link->SetExtend().\n");
+			//Z_message("Trying to get Player->SetExtend().\n");
 			int32_t ID = (ri->d[rINDEX] / 10000);
 			int32_t itemid = (ri->d[rINDEX2]/10000);
 			itemid = vbound(itemid,0,(MAXITEMS-1));
 			
-			//Z_scripterrlog("GetLinkExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[rEXP1], "ri->d[rEXP1]");
-			//Z_scripterrlog("GetLinkExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
-			//Z_scripterrlog("GetLinkExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
+			//Z_scripterrlog("GetHeroExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[rEXP1], "ri->d[rEXP1]");
+			//Z_scripterrlog("GetHeroExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
+			//Z_scripterrlog("GetHeroExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
 			if ( Lwpns.Count() < 256 )
 			{
 				
@@ -8449,7 +8449,7 @@ int32_t get_register(const int32_t arg)
 						0,	 /*power*/
 						0,	 /*dir*/
 						-1,	 /*Parentid*/
-						Link.getUID(), /*prntid*/
+						Hero.getUID(), /*prntid*/
 						false,	 /*isdummy*/
 						1,	 /*script_gen*/
 						1,  /*islwpn*/
@@ -8496,7 +8496,7 @@ int32_t get_register(const int32_t arg)
 		//collision routines. 
 		case COLLISIONDX:
 		{
-			//Z_message("Trying to get Link->SetExtend().\n");
+			//Z_message("Trying to get Player->SetExtend().\n");
 			int32_t index = (ri->d[rINDEX] / 10000);
 			int32_t lweapon_type = (ri->d[rINDEX2] / 10000);
 			int32_t power = (ri->d[rEXP1]/10000);
@@ -11569,34 +11569,34 @@ void set_register(const int32_t arg, const int32_t value)
 			
 			
 	///----------------------------------------------------------------------------------------------------//
-	//Link's Variables
+	//Hero's Variables
 		case LINKX:
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
-				Link.setXfix(zslongToFix(value));
+				Hero.setXfix(zslongToFix(value));
 			}
 			else
 			{
-				Link.setX(value/10000);
+				Hero.setX(value/10000);
 			}
 		}
 		break;
 		
 		case LINKCSET:
 		{
-			Link.cs = value/10000;
+			Hero.cs = value/10000;
 			break;
 		}
 		case LINKY:
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
-				Link.setYfix(zslongToFix(value));
+				Hero.setYfix(zslongToFix(value));
 			}
 			else
 			{
-				Link.setY(value/10000);
+				Hero.setY(value/10000);
 			}
 		}
 		break;
@@ -11605,37 +11605,37 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
 			{
-				Link.setZfix(zslongToFix(value));
+				Hero.setZfix(zslongToFix(value));
 			}
 			else
 			{
-				Link.setZ(value/10000);
+				Hero.setZ(value/10000);
 			}
 		}
 		break;
 			
 		case LINKJUMP:
-			Link.setFall(zslongToFix(value) * -100);
+			Hero.setFall(zslongToFix(value) * -100);
 			break;
 			
 		case LINKDIR:
 		{
-			//Link->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
-			if(Link.getAction() == attacking || Link.getAction() == sideswimattacking) Link.dir = (value/10000);
-			else Link.setDir(value/10000);
+			//Hero->setDir() calls reset_hookshot(), which removes the sword sprite.. O_o
+			if(Hero.getAction() == attacking || Hero.getAction() == sideswimattacking) Hero.dir = (value/10000);
+			else Hero.setDir(value/10000);
 			
 			break;
 		}
 		
 		case LINKHITDIR:
-			Link.setHitDir(value / 10000);
+			Hero.setHitDir(value / 10000);
 			break;
 		
 		case LINKGRAVITY:
 			if(value)
-				Link.moveflags |= FLAG_OBEYS_GRAV;
+				Hero.moveflags |= FLAG_OBEYS_GRAV;
 			else
-				Link.moveflags &= ~FLAG_OBEYS_GRAV;
+				Hero.moveflags &= ~FLAG_OBEYS_GRAV;
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -11666,12 +11666,12 @@ void set_register(const int32_t arg, const int32_t value)
 				case hookshotout:
 				case stunned:
 				case ispushing:
-					FFCore.setLinkAction(act);
+					FFCore.setHeroAction(act);
 					break;
 				default:
-					Link.setAction((actiontype)(act));
+					Hero.setAction((actiontype)(act));
 			}
-			//Protect from writing illegal actions to Link's raw variable. 
+			//Protect from writing illegal actions to Hero's raw variable. 
 			//in the future, we can move all scripted actions that are not possible
 			//to set in ZC into this mechanic. -Z
 			break;
@@ -11696,7 +11696,7 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		
 		case LINKHELD:
-			Link.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
+			Hero.setHeldItem(vbound(value/10000,0,MAXITEMS-1));
 			break;
 		
 		case HEROSTEPS:
@@ -11710,9 +11710,9 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
 			}
-			Link.setStepRate(zc_max(value/10000,0));
+			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_bit(quest_rules, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
-				zinit.heroStep = Link.getStepRate();
+				zinit.heroStep = Hero.getStepRate();
 			break;
 		
 		case LINKITEMD:
@@ -11977,31 +11977,31 @@ void set_register(const int32_t arg, const int32_t value)
 		break;
 		  
 		case LINKINVIS:
-			Link.setDontDraw((value ? 2 : 0));
+			Hero.setDontDraw((value ? 2 : 0));
 			break;
 			
 		case LINKINVINC:
-			Link.scriptcoldet=(value/10000);
+			Hero.scriptcoldet=(value/10000);
 			break;
 		
 		case LINKENGINEANIMATE:
-			Link.do_animation=(value ? 1 : 0);
+			Hero.do_animation=(value ? 1 : 0);
 			break;
 			
 		case LINKSWORDJINX:
-			Link.setSwordClk(value/10000);
+			Hero.setSwordClk(value/10000);
 			break;
 			
 		case LINKITEMJINX:
-			Link.setItemClk(value/10000);
+			Hero.setItemClk(value/10000);
 			break;
 			
 		case LINKDRUNK:
-			Link.setDrunkClock(value/10000);
+			Hero.setDrunkClock(value/10000);
 			break;
 			
 		case LINKMISCD:
-			Link.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)] = value; 
+			Hero.miscellaneous[vbound(ri->d[rINDEX]/10000,0,31)] = value; 
 			break;
 		
 		case LINKHITBY:
@@ -12015,7 +12015,7 @@ void set_register(const int32_t arg, const int32_t value)
 				case 2:
 				case 3:
 				{
-					Link.sethitLinkUID(indx, vbound((value/10000), 0, 255)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
+					Hero.sethitHeroUID(indx, vbound((value/10000), 0, 255)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
 				}
 				//UIDs
@@ -12024,30 +12024,30 @@ void set_register(const int32_t arg, const int32_t value)
 				case 6:
 				case 7:
 				{
-					Link.sethitLinkUID(indx, vbound((value), 0, 255)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
+					Hero.sethitHeroUID(indx, vbound((value), 0, 255)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
 				}
-				default: { al_trace("Invalid index passed to Link->HitBy[%d] /n", indx); break; }
+				default: { al_trace("Invalid index passed to Player->HitBy[%d] /n", indx); break; }
 			}
 			break;
 		}
 		
 		case LINKDEFENCE:
-			Link.set_defence(vbound(ri->d[rINDEX]/10000,0,255), ((char)vbound((value/10000), 0, 255)));
+			Hero.set_defence(vbound(ri->d[rINDEX]/10000,0,255), ((char)vbound((value/10000), 0, 255)));
 			break;
 			
 		case LINKHXOFS:
-			(Link.hxofs)=(zfix)(value/10000);
+			(Hero.hxofs)=(zfix)(value/10000);
 			break;
 
 		case LINKROTATION:
 			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Link->Rotation");
+					"Player->Rotation");
 				break;
 			}
-			(Link.rotation)=(value/10000);
+			(Hero.rotation)=(value/10000);
 			break;
 		
 		case LINKSCALE:
@@ -12055,73 +12055,73 @@ void set_register(const int32_t arg, const int32_t value)
 			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Link->Scale");
+					"Player->Scale");
 				break;
 			}
-			(Link.scale)=(value/100.0);
-			//al_trace("Link.scale is: %d\n", Link.scale);
-			//al_trace("Trying to set Link.scale to: %d\n", value/100.0);
+			(Hero.scale)=(value/100.0);
+			//al_trace("Player.scale is: %d\n", Hero.scale);
+			//al_trace("Trying to set Player.scale to: %d\n", value/100.0);
 			break;
 		}
 
 		case LINKHYOFS:
-			(Link.hyofs)=(zfix)(value/10000);
+			(Hero.hyofs)=(zfix)(value/10000);
 			break;
 			
 		case LINKXOFS:
-			(Link.xofs)=(zfix)(value/10000);
+			(Hero.xofs)=(zfix)(value/10000);
 			break;
 			
 		case LINKYOFS:
-			(Link.yofs)=(zfix)(value/10000)+playing_field_offset;
+			(Hero.yofs)=(zfix)(value/10000)+playing_field_offset;
 			break;
 		case HEROTOTALDYOFFS:
 			break; //READ-ONLY
 			
 		case LINKZOFS:
-			(Link.zofs)=(zfix)(value/10000);
+			(Hero.zofs)=(zfix)(value/10000);
 			break;
 			
 		case LINKHXSZ:
-			(Link.hxsz)=(zfix)(value/10000);
+			(Hero.hxsz)=(zfix)(value/10000);
 			break;
 			
 		case LINKHYSZ:
-			(Link.hysz)=(zfix)(value/10000);
+			(Hero.hysz)=(zfix)(value/10000);
 			break;
 			
 		case LINKHZSZ:
-			(Link.hzsz)=(zfix)(value/10000);
+			(Hero.hzsz)=(zfix)(value/10000);
 			break;
 			
 		case LINKTXSZ:
-			(Link.txsz)=(zfix)(value/10000);
+			(Hero.txsz)=(zfix)(value/10000);
 			break;
 			
 		case LINKTYSZ:
-			(Link.tysz)=(zfix)(value/10000);
+			(Hero.tysz)=(zfix)(value/10000);
 			break;
 			
 		case LINKTILE:
-			(Link.tile)=(zfix)(value/10000);
+			(Hero.tile)=(zfix)(value/10000);
 			break;
 			
 		case LINKFLIP:
-			(Link.flip)=(zfix)(value/10000);
+			(Hero.flip)=(zfix)(value/10000);
 			break;
 		
 		
 		
 		case LINKINVFRAME:
-			Link.setHClk( (int32_t)vbound((value/10000), 0, 214747) );
+			Hero.setHClk( (int32_t)vbound((value/10000), 0, 214747) );
 			break;
 		
 		case LINKCANFLICKER:
-			Link.setCanLinkFlicker((value/10000)?1:0);
+			Hero.setCanHeroFlicker((value/10000)?1:0);
 			break;
 		
 		case LINKHURTSFX:
-			Link.setHurtSFX( (int32_t)vbound((value/10000), 0, 255) );
+			Hero.setHurtSFX( (int32_t)vbound((value/10000), 0, 255) );
 			break;
 			
 		
@@ -12129,15 +12129,15 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Player->ItemB: %ld\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Link->Item: %ld\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Player->ItemB: %ld\n",value/10000);
 				break;
 			}
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			
 			
 			Bwpn = value/10000;
@@ -12153,15 +12153,15 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemA: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemA: %d\n",value/10000);
 				break;
 			}		
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			
 			Awpn = value/10000;
 			game->awpn = value/10000;
@@ -12175,15 +12175,15 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemX: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemX: %d\n",value/10000);
 				break;
 			}		
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			
 			Xwpn = value/10000;
 			game->xwpn = value/10000;
@@ -12196,15 +12196,15 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemY: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Link->Item: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemY: %d\n",value/10000);
 				break;
 			}		
-			//Link->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			
 			Ywpn = value/10000;
 			game->ywpn = value/10000;
@@ -12216,29 +12216,29 @@ void set_register(const int32_t arg, const int32_t value)
 
 
 		case LINKEATEN:
-			Link.setEaten(value/10000);
+			Hero.setEaten(value/10000);
 			break;
 		case LINKGRABBED:
-			Link.inwallm = value != 0;
+			Hero.inwallm = value != 0;
 			break;
 		case HEROBUNNY:
-			Link.setBunnyClock(value/10000);
+			Hero.setBunnyClock(value/10000);
 			break;
 		case LINKPUSH:
-			Link.pushing = zc_max((value/10000),0);
+			Hero.pushing = zc_max((value/10000),0);
 			break;
 		case LINKSTUN:
-			Link.setStunClock(value/10000);
+			Hero.setStunClock(value/10000);
 			break;
 		case LINKSCRIPTTILE:
-			script_link_sprite=vbound((value/10000), -1, NEWMAXTILES-1);
+			script_hero_sprite=vbound((value/10000), -1, NEWMAXTILES-1);
 			break;
 		
 		case HEROSCRIPTCSET:
-			script_link_cset=vbound((value/10000), 0, 0xF);
+			script_hero_cset=vbound((value/10000), 0, 0xF);
 			break;
 		case LINKSCRIPFLIP:
-			script_link_flip=vbound((value/10000),-1,256);
+			script_hero_flip=vbound((value/10000),-1,256);
 			break;
 		
 		case GAMESETA:
@@ -12247,7 +12247,7 @@ void set_register(const int32_t arg, const int32_t value)
 			//int32_t extend = (ri->d[rINDEX2]/10000);
 			//int32_t dir = (ri->d[rINDEX]/10000);
 			Z_message("Trying to force-set the A-button item().\n");
-			Link.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			Hero.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 		}
 		break;
 		
@@ -12257,47 +12257,47 @@ void set_register(const int32_t arg, const int32_t value)
 			//int32_t extend = (ri->d[rINDEX2]/10000);
 			//int32_t dir = (ri->d[rINDEX]/10000);
 			Z_message("Trying to force-set the A-button item().\n");
-			Link.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			Hero.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 		}
 		break;
 		
-		//Set Link Diagonal
+		//Set Hero Diagonal
 		case LINKDIAG:
-			Link.setDiagMove(value?1:0);
+			Hero.setDiagMove(value?1:0);
 			set_bit(quest_rules, qr_LTTPWALK, value?1:0);
 			break;
 		
-		//Set Link Big Hitbox
+		//Set Hero Big Hitbox
 		case LINKBIGHITBOX:
-			Link.setBigHitbox((value/10000)?1:0);
+			Hero.setBigHitbox((value/10000)?1:0);
 			set_bit(quest_rules, qr_LTTPCOLLISION, (value/10000)?1:0);
 			break;
 		
 		case LINKCLIMBING:
-			Link.setOnSideviewLadder(value!=0?true:false);
+			Hero.setOnSideviewLadder(value!=0?true:false);
 			break;
 			
 		case HEROJUMPCOUNT:
-			Link.extra_jump_count = value/10000;
+			Hero.extra_jump_count = value/10000;
 			break;
 		
 		case HEROPULLCLK:
-			Link.pit_pullclk = value/10000;
+			Hero.pit_pullclk = value/10000;
 			break;
 		case HEROFALLCLK:
 		{
 			int32_t val = vbound(value/10000,0,70);
 			if(val)
-				Link.setAction(falling);
-			else if(Link.action == falling)
+				Hero.setAction(falling);
+			else if(Hero.action == falling)
 			{
-				Link.setAction(none);
+				Hero.setAction(none);
 			}
-			Link.fallclk = val;
+			Hero.fallclk = val;
 			break;
 		}
 		case HEROFALLCMB:
-			Link.fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			Hero.fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			break;
 		case HEROMOVEFLAGS:
 		{
@@ -12307,16 +12307,16 @@ void set_register(const int32_t arg, const int32_t value)
 				//All bits, in order, of a single byte; just use bitwise
 				byte bit = 1<<indx;
 				if(value)
-					Link.moveflags |= bit;
+					Hero.moveflags |= bit;
 				else
-					Link.moveflags &= ~bit;
+					Hero.moveflags &= ~bit;
 			}
 			break;
 		}
 		
 		case CLOCKACTIVE:
 		{
-			Link.setClock(watch=(value?true:false));
+			Hero.setClock(watch=(value?true:false));
 			break;
 		}
 		
@@ -12327,26 +12327,26 @@ void set_register(const int32_t arg, const int32_t value)
 		case HERORESPAWNX:
 		{
 			zfix zx = zslongToFix(value);
-			Link.respawn_x = vbound(zx, 0, 240);
+			Hero.respawn_x = vbound(zx, 0, 240);
 			break;
 		}
 		
 		case HERORESPAWNY:
 		{
 			zfix zy = zslongToFix(value);
-			Link.respawn_y = vbound(zy, 0, 160);
+			Hero.respawn_y = vbound(zy, 0, 160);
 			break;
 		}
 		
 		case HERORESPAWNDMAP:
 		{
-			Link.respawn_dmap = vbound(value/10000, 0, MAXDMAPS-1);
+			Hero.respawn_dmap = vbound(value/10000, 0, MAXDMAPS-1);
 			break;
 		}
 		
 		case HERORESPAWNSCR:
 		{
-			Link.respawn_scr = vbound(value/10000, 0, 0x7F);
+			Hero.respawn_scr = vbound(value/10000, 0, 0x7F);
 			break;
 		}
 		
@@ -12562,10 +12562,10 @@ void set_register(const int32_t arg, const int32_t value)
 			switch(ruleid)
 			{
 				case qr_LTTPWALK:
-					Link.setDiagMove(value?1:0);
+					Hero.setDiagMove(value?1:0);
 					break;
 				case qr_LTTPCOLLISION:
-					Link.setBigHitbox(value?1:0);
+					Hero.setBigHitbox(value?1:0);
 					break;
 			}
 		}
@@ -12601,7 +12601,7 @@ void set_register(const int32_t arg, const int32_t value)
 
 		case RAWKEY:
 		{	//Game->KeyPressed[], read-only
-			//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+			//if ( !keypressed() ) break; //Don;t return values set by setting Hero->Input/Press
 			//hmm...no, this won;t return properly for modifier keys. 
 			int32_t keyid = ri->d[rINDEX]/10000;
 			//key = vbound(key,0,n);
@@ -12629,7 +12629,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case SIMULATEKEYPRESS:
 		{	//Game->KeyPressed[], read-only
-			//if ( !keypressed() ) break; //Don;t return values set by setting Link->Input/Press
+			//if ( !keypressed() ) break; //Don;t return values set by setting Hero->Input/Press
 			//hmm...no, this won;t return properly for modifier keys. 
 			int32_t keyid = ri->d[rINDEX]/10000;
 			//key = vbound(key,0,n);
@@ -13594,7 +13594,7 @@ void set_register(const int32_t arg, const int32_t value)
 				
 			break;
 		}
-		//Link tile modifier. 
+		//Hero tile modifier. 
 		case IDATALTM:
 			itemsbuf[ri->idata].ltm=value/10000;
 			break;
@@ -14517,8 +14517,8 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				GuyH::getNPC()->x = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
-				if(GuyH::hasLink())
-					Link.setXfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+				if(GuyH::hasHero())
+					Hero.setXfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 			}
 		}
 		break;
@@ -14595,8 +14595,8 @@ void set_register(const int32_t arg, const int32_t value)
 				GuyH::getNPC()->y = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				GuyH::getNPC()->floor_y += ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
 				
-				if(GuyH::hasLink())
-					Link.setYfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+				if(GuyH::hasHero())
+					Hero.setYfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 			}
 		}
 		break;
@@ -14612,8 +14612,8 @@ void set_register(const int32_t arg, const int32_t value)
 					else
 						GuyH::getNPC()->z = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 						
-					if(GuyH::hasLink())
-						Link.setZfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+					if(GuyH::hasHero())
+						Hero.setZfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				}
 			}
 		}
@@ -14626,8 +14626,8 @@ void set_register(const int32_t arg, const int32_t value)
 				if(canfall(GuyH::getNPC()->id))
 					GuyH::getNPC()->fall =zslongToFix(value)*-100;
 					
-				if(GuyH::hasLink())
-					Link.setFall(zslongToFix(value)*-100);
+				if(GuyH::hasHero())
+					Hero.setFall(zslongToFix(value)*-100);
 			}
 		}
 		break;
@@ -15331,7 +15331,7 @@ void set_register(const int32_t arg, const int32_t value)
 			break; // Can't multiply by 10000 or the maximum result is too big
 		
 		case ACTIVESSSPEED:
-			Link.subscr_speed = vbound((value/10000),1,85);
+			Hero.subscr_speed = vbound((value/10000),1,85);
 			break; // Can't multiply by 10000 or the maximum result is too big
 			
 		case GAMETIMEVALID:
@@ -15530,7 +15530,7 @@ void set_register(const int32_t arg, const int32_t value)
 						zinit.terminalv = value / 100;
 						break;
 					case 2: //Sprite Layer Threshold
-						zinit.jump_link_layer_threshold = value / 10000;
+						zinit.jump_hero_layer_threshold = value / 10000;
 						break;
 				}
 			}
@@ -15564,7 +15564,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		
 		case NOACTIVESUBSC:
-			Link.stopSubscreenFalling((value/10000)?1:0);
+			Hero.stopSubscreenFalling((value/10000)?1:0);
 			break;
 			
 	///----------------------------------------------------------------------------------------------------//
@@ -16462,7 +16462,7 @@ void set_register(const int32_t arg, const int32_t value)
 			tmpscr->entry_x = newx;
 			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
-				Link.respawn_x = (zfix)(newx);
+				Hero.respawn_x = (zfix)(newx);
 			}
 			break;
 		}
@@ -16473,7 +16473,7 @@ void set_register(const int32_t arg, const int32_t value)
 			tmpscr->entry_y = newy;
 			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
-				Link.respawn_y = (zfix)(newy);
+				Hero.respawn_y = (zfix)(newy);
 			}
 			break;	//B
 		}
@@ -19762,7 +19762,7 @@ void do_set(const bool v, const byte whichType, const int32_t whichUID)
 				allowed = false;
 			break;
 		
-		//case SCRIPT_LINK:
+		//case SCRIPT_PLAYER:
 		
 		case SCRIPT_ITEM:
 		{
@@ -20519,7 +20519,7 @@ void do_warp(bool v)
 	tmpscr->sidewarpdmap[0] = dmapid;
 	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
-	Link.ffwarp = true;
+	Hero.ffwarp = true;
 }
 
 void do_pitwarp(bool v)
@@ -20545,8 +20545,8 @@ void do_pitwarp(bool v)
 	tmpscr->sidewarpdmap[0] = dmapid;
 	tmpscr->sidewarpscr[0]  = screenid;
 	tmpscr->sidewarptype[0] = wtIWARP;
-	Link.ffwarp = true;
-	Link.ffpit = true;
+	Hero.ffwarp = true;
+	Hero.ffpit = true;
 }
 
 void do_breakshield()
@@ -21552,7 +21552,7 @@ void do_clearsprites(const bool v)
 			
 		case 3:
 			Lwpns.clear();
-			Link.reset_hookshot();
+			Hero.reset_hookshot();
 			break;
 			
 		case 4:
@@ -22140,7 +22140,7 @@ void do_createlweapon(const bool v)
 				0,	 /*power*/
 				0,	 /*dir*/
 				-1,	 /*Parentid*/
-				Link.getUID(), /*prntid*/
+				Hero.getUID(), /*prntid*/
 				false,	 /*isdummy*/
 				1,	 /*script_gen*/
 				1,  /*islwpn*/
@@ -22168,7 +22168,7 @@ void do_createlweapon(const bool v)
 		//old version is below
 	if ( Lwpns.has_space() )
 	{
-		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Link.getUID(),1));
+		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Hero.getUID(),1));
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
 	}
@@ -22177,7 +22177,7 @@ void do_createlweapon(const bool v)
 		ri->lwpn = 0;
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
-	//addLwpn(0, 0, 0, ID, 0, 0, 0, Link.getUID());
+	//addLwpn(0, 0, 0, ID, 0, 0, 0, Hero.getUID());
 	/*
 	if(Lwpns.Count() < 1)
 	{
@@ -22315,7 +22315,7 @@ void do_message(const bool v)
 		dismissmsg();
 		msgfont = zfont;
 		blockpath = false;
-		Link.finishedmsg();
+		Hero.finishedmsg();
 	}
 	else
 		donewmsg(ID);
@@ -23003,7 +23003,7 @@ void FFScript::AlloffLimited(int32_t flagset)
 	if ( (flagset&warpFlagCLEARHOOKSHOT) ) 
 	{
 		chainlinks.clear();
-		Link.reset_hookshot();
+		Hero.reset_hookshot();
 	}
 	if ( (flagset&warpFlagCLEARDECORATIONS) ) decorations.clear();
 	if ( (flagset&warpFlagCLEARPARTICLES) ) particles.clear();
@@ -23019,11 +23019,11 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	if(watch && !cheat_superman)
 	{
-		Link.setClock(false);
+		Hero.setClock(false);
 	}
 	
 	//  if(watch)
-	//    Link.setClock(false);
+	//    Hero.setClock(false);
 	watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
 	
 	for(int32_t i=0; i<176; i++)
@@ -23066,22 +23066,19 @@ void doWarpEffect(int32_t warpEffect, bool out)
 	}
 }
 
-//enum { warpFlagDONTKILLSCRIPTDRAWS, warpFlagDONTKILLSOUNDS, warpFlagDONTKILLMUSIC };
-//enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectMozaic, warpEffectOpen }; 
-//valid warpTypes: tile, side, exit, cancel, instant
-bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t linkFacesDir)
+bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir)
 {
 	if(DEVLOGGING)
 	{
-		zprint("FFScript::warp_link() arg %s is: %d \n", "warpType", warpType);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "dmapID", dmapID);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "scrID", scrID);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestX", warpDestX);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "warpDestY", warpDestY);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "warpEffect", warpEffect);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "warpSound", warpSound);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "warpFlags", warpFlags);
-		zprint("FFScript::warp_link() arg %s is: %d \n", "linkFacesDir", linkFacesDir);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "warpType", warpType);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "dmapID", dmapID);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "scrID", scrID);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "warpDestX", warpDestX);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "warpDestY", warpDestY);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "warpEffect", warpEffect);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "warpSound", warpSound);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "warpFlags", warpFlags);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "heroFacesDir", heroFacesDir);
 	}
 	if ( ((unsigned)dmapID) >= MAXDMAPS ) 
 	{
@@ -23135,12 +23132,12 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			if ( warpDestY == 5 || warpDestY < 0)
 			{
 				//Pit warp
-				wx = Link.getX();
-				wy = Link.getY();
+				wx = Hero.getX();
+				wy = Hero.getY();
 			}
 			else
 			{
-				Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Link->WarpEx().\n",warpDestY);
+				Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Player->WarpEx().\n",warpDestY);
 				return false;
 			}
 		}
@@ -23154,26 +23151,26 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 		}
 		else
 		{
-			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Link->WarpEx()\n",warpDestX,warpDestY);
+			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Player->WarpEx()\n",warpDestX,warpDestY);
 			return false;
 		}
 		
 	} 
-	//zprint("FFCore.warp_link reached line: %d \n", 15918);
+	//zprint("FFCore.warp_player reached line: %d \n", 15918);
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	int32_t wrindex = 0;
 	//we also need to check if dmaps are sideview here! -Z
-	//Likewise, we need to add that check to the normal Link:;dowarp(0
+	//Likewise, we need to add that check to the normal Hero:;dowarp(0
 	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
-	//zprint("FFCore.warp_link reached line: %d \n", 15925);
-	//zprint("FFCore.warp_link war type is: %d \n", warpType);
+	//zprint("FFCore.warp_player reached line: %d \n", 15925);
+	//zprint("FFCore.warp_player war type is: %d \n", warpType);
 	
 	//int32_t last_entr_scr = -1;
 	//int32_t last_entr_dmap = -1;
 	
 	if ( warpType < wtEXIT ) warpType = wtIWARP; //Sanity check. We can't use wtCave, or wtPassage, with scritped warps at present.
-	Link.is_warping = true;
+	Hero.is_warping = true;
 	switch(warpType)
 	{
 		
@@ -23187,10 +23184,10 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 		case wtIWARPZAP:
 		case wtIWARPWAVE: 
 		{
-			//zprint("FFCore.warp_link reached line: %d \n", 15936);
-			bool wasswimming = (Link.getAction()==swimming);
-			bool wassideswim = (Link.getAction()==sideswimming);
-			int32_t olddiveclk = Link.diveclk;
+			//zprint("FFCore.warp_player reached line: %d \n", 15936);
+			bool wasswimming = (Hero.getAction()==swimming);
+			bool wassideswim = (Hero.getAction()==sideswimming);
+			int32_t olddiveclk = Hero.diveclk;
 			if ( !(warpFlags&warpFlagDONTCLEARSPRITES) )
 			{
 				ALLOFF();
@@ -23201,17 +23198,17 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			sfx(warpSound);
 			if(wasswimming)
 			{
-				Link.setAction(swimming); FFCore.setLinkAction(swimming);
-				Link.diveclk = olddiveclk;
+				Hero.setAction(swimming); FFCore.setHeroAction(swimming);
+				Hero.diveclk = olddiveclk;
 			}
 			if(wassideswim)
 			{
-				Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);
-				Link.diveclk = 0;
+				Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);
+				Hero.diveclk = 0;
 			}
-			//zprint("FFCore.warp_link reached line: %d \n", 15948);
+			//zprint("FFCore.warp_player reached line: %d \n", 15948);
 			doWarpEffect(warpEffect, true);
-			//zprint("FFCore.warp_link reached line: %d \n", 15973);
+			//zprint("FFCore.warp_player reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
 			currdmap = dmapID;
 			dlevel = DMaps[currdmap].level;
@@ -23230,50 +23227,50 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			
 			loadscr(0,currdmap,currscr,-1,overlay);
 			
-			Link.x = (zfix)wx;
-			Link.y = (zfix)wy;
+			Hero.x = (zfix)wx;
+			Hero.y = (zfix)wy;
 			
-			switch(linkFacesDir)
+			switch(heroFacesDir)
 			{
 				case up:
 				case down:
 				case left:
 				case right:
-					Link.dir = linkFacesDir;
+					Hero.dir = heroFacesDir;
 					break;
 				default:
-					if((int32_t)Link.x==(zfix)0)  
+					if((int32_t)Hero.x==(zfix)0)  
 					{
-						Link.dir=right;
+						Hero.dir=right;
 					}
-					if((int32_t)Link.x==(zfix)240) 
+					if((int32_t)Hero.x==(zfix)240) 
 					{
-						Link.dir=left;
-					}
-					
-					if((int32_t)Link.y==(zfix)0)   
-					{
-						Link.dir=down;
+						Hero.dir=left;
 					}
 					
-					if((int32_t)Link.y==(zfix)160) 
+					if((int32_t)Hero.y==(zfix)0)   
 					{
-						Link.dir=up;
+						Hero.dir=down;
+					}
+					
+					if((int32_t)Hero.y==(zfix)160) 
+					{
+						Hero.dir=up;
 					}
 			}
 			
-			markBmap(Link.dir^1);
+			markBmap(Hero.dir^1);
 			
-			if(iswaterex(MAPCOMBO((int32_t)Link.x,(int32_t)Link.y+8), currmap, currscr, -1, Link.x, Link.y+8, true) && _walkflag((int32_t)Link.x,(int32_t)Link.y+8,0) && current_item(itype_flippers))
+			if(iswaterex(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
 			{
-				Link.hopclk=0xFF;
-				Link.attackclk = Link.charging = Link.spins = 0;
-				if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);}
-				else {Link.setAction(swimming); FFCore.setLinkAction(swimming);}
+				Hero.hopclk=0xFF;
+				Hero.attackclk = Hero.charging = Hero.spins = 0;
+				if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) {Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);}
+				else {Hero.setAction(swimming); FFCore.setHeroAction(swimming);}
 			}
 			else
 			{
-				Link.setAction(none); FFCore.setLinkAction(none);
+				Hero.setAction(none); FFCore.setHeroAction(none);
 			}
 				
 			//preloaded freeform combos
@@ -23288,8 +23285,8 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
-			Link.set_respawn_point();
-			Link.trySideviewLadder();
+			Hero.set_respawn_point();
+			Hero.trySideviewLadder();
 			
 			break;
 		}
@@ -23297,7 +23294,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 		
 		case wtEXIT:
 		{
-			//zprint("%s was called with a warp type of Entrance/Exit\n", "Link->WarpEx()");
+			//zprint("%s was called with a warp type of Entrance/Exit\n", "Player->WarpEx()");
 			lighting(false,false,pal_litRESETONLY);//Reset permLit, and do nothing else; lighting was not otherwise called on a wtEXIT warp.
 			ALLOFF();
 			if ( !(warpFlags&warpFlagDONTKILLMUSIC) ) music_stop();
@@ -23335,37 +23332,37 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			}
 				
 			
-			//Move Link's coordinates
-			Link.x = (zfix)wx;
-			Link.y = (zfix)wy;
+			//Move Player's coordinates
+			Hero.x = (zfix)wx;
+			Hero.y = (zfix)wy;
 			//set his dir
-			switch(linkFacesDir)
+			switch(heroFacesDir)
 			{
 				case up:
 				case down:
 				case left:
 				case right:
-					Link.dir = linkFacesDir;
+					Hero.dir = heroFacesDir;
 					break;
 				default:
-					Link.dir=down;
-					if((int32_t)Link.x==(zfix)0)  
+					Hero.dir=down;
+					if((int32_t)Hero.x==(zfix)0)  
 					{
-						Link.dir=right;
+						Hero.dir=right;
 					}
-					if((int32_t)Link.x==(zfix)240) 
+					if((int32_t)Hero.x==(zfix)240) 
 					{
-						Link.dir=left;
-					}
-					
-					if((int32_t)Link.y==(zfix)0)   
-					{
-						Link.dir=down;
+						Hero.dir=left;
 					}
 					
-					if((int32_t)Link.y==(zfix)160) 
+					if((int32_t)Hero.y==(zfix)0)   
 					{
-						Link.dir=up;
+						Hero.dir=down;
+					}
+					
+					if((int32_t)Hero.y==(zfix)160) 
+					{
+						Hero.dir=up;
 					}
 			}
 			
@@ -23379,19 +23376,19 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 				}
 			}
 			
-			markBmap(Link.dir^1);
+			markBmap(Hero.dir^1);
 			//preloaded freeform combos
 			ffscript_engine(true);
-			Link.reset_hookshot();
+			Hero.reset_hookshot();
 			
 			if(isdungeon())
 			{
 				openscreen();
 				if(get_bit(extra_rules, er_SHORTDGNWALK)==0 && get_bit(quest_rules, qr_SHORTDGNWALK)==0)
-				Link.stepforward(Link.diagonalMovement?11:12, false);
+				Hero.stepforward(Hero.diagonalMovement?11:12, false);
 				else
 				// Didn't walk as far pre-1.93, and some quests depend on that
-				Link.stepforward(8, false);
+				Hero.stepforward(8, false);
 			}
 			else
 			{
@@ -23403,8 +23400,8 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			Play_Level_Music();
 			currcset=DMaps[currdmap].color;
 			dointro();
-			Link.set_respawn_point();
-			Link.trySideviewLadder();
+			Hero.set_respawn_point();
+			Hero.trySideviewLadder();
 			
 			for(int32_t i=0; i<6; i++)
 				visited[i]=-1;
@@ -23423,9 +23420,9 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			update_subscreens(dmapID);
 			
 			dlevel = DMaps[dmapID].level;
-				//check if Link has the map for the new location before updating the subscreen. ? -Z
-				//This works only in one direction, if Link had a map, to not having one.
-				//If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+				//check if Hero has the map for the new location before updating the subscreen. ? -Z
+				//This works only in one direction, if Hero had a map, to not having one.
+				//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 			update_subscreens(dmapID);
 				
 			if ( has_item(itype_map, dlevel) ) 
@@ -23435,13 +23432,13 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 			}
 				
 			// fix the scrolling direction, if it was a tile or instant warp
-			Link.sdir = vbound(Link.dir,0,3);
+			Hero.sdir = vbound(Hero.dir,0,3);
 			
 			
-			Link.scrollscr(Link.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
 			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
 			
-			Link.reset_hookshot();
+			Hero.reset_hookshot();
 			
 			if(!intradmap)
 			{
@@ -23483,46 +23480,46 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 		default: 
 		{
 			Z_scripterrlog("Invalid warp type (%d) supplied to Hero->WarpEx()!. Cannot warp!!\n", warpType);
-			Link.is_warping = false;
+			Hero.is_warping = false;
 			return false;
 		}
 	}
-	// Stop Link from drowning!
-	if(Link.getAction()==drowning)
+	// Stop Hero from drowning!
+	if(Hero.getAction()==drowning)
 	{
-		Link.drownclk=0;
-		Link.setAction(none); FFCore.setLinkAction(none);
+		Hero.drownclk=0;
+		Hero.setAction(none); FFCore.setHeroAction(none);
 	}
 		
 	// But keep him swimming if he ought to be!
-	if(Link.getAction()!=rafting && iswaterex(MAPCOMBO((int32_t)Link.x,(int32_t)Link.y+8), currmap, currscr, -1, Link.x, Link.y+8, true) && (_walkflag((int32_t)Link.x,(int32_t)Link.y+8,0) || get_bit(quest_rules,qr_DROWN))
-			&& (current_item(itype_flippers)) && (Link.getAction()!=inwind))
+	if(Hero.getAction()!=rafting && iswaterex(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && (_walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) || get_bit(quest_rules,qr_DROWN))
+			&& (current_item(itype_flippers)) && (Hero.getAction()!=inwind))
 	{
-		Link.hopclk=0xFF;
-		if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) {Link.setAction(sideswimming); FFCore.setLinkAction(sideswimming);}
-		else {Link.setAction(swimming); FFCore.setLinkAction(swimming);}
+		Hero.hopclk=0xFF;
+		if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) {Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);}
+		else {Hero.setAction(swimming); FFCore.setHeroAction(swimming);}
 	}
 		
 	newscr_clk=frame;
 	activated_timed_warp=false;
 	eat_buttons();
 		
-	if(warpType!=wtIWARP) { Link.attackclk=0; }
+	if(warpType!=wtIWARP) { Hero.attackclk=0; }
 		
-	Link.didstuff=0;
-	Link.usecounts.clear();
+	Hero.didstuff=0;
+	Hero.usecounts.clear();
 	map_bkgsfx(true);
-	loadside=Link.dir^1;
+	loadside=Hero.dir^1;
 	whistleclk=-1;
 		
-	if((int32_t)Link.z>0 && isSideViewLink())
+	if((int32_t)Hero.z>0 && isSideViewHero())
 	{
-		Link.y-=Link.z;
-		Link.z=0;
+		Hero.y-=Hero.z;
+		Hero.z=0;
 	}
-	else if(!isSideViewLink())
+	else if(!isSideViewHero())
 	{
-		Link.fall=0;
+		Hero.fall=0;
 	}
 		
 	// If warping between top-down and sideview screens,
@@ -23599,7 +23596,7 @@ bool FFScript::warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		initZScriptDMapScripts();
 	}
-	Link.is_warping = false;
+	Hero.is_warping = false;
 	return true;
 	
 	
@@ -24081,21 +24078,12 @@ void do_getffcscript()
 	set_register(sarg1, num * 10000);
 }
 
-void do_npc_link_in_range()
+void do_npc_hero_in_range()
 {
 	int32_t dist = get_register(sarg1) / 10000;
-	zprint("LinkInrange dist is: %d\n", dist);
-	//bool in_range = false;
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
-		//int32_t range = (ri->d[rINDEX] / 10000);
-		//bool dir8 = (ri->d[rINDEX2]);
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//in_range = (e->LinkInRange(dist));
-		zprint("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
-		bool in_range = GuyH::getNPC()->LinkInRange(dist);
-		//set_register(sarg2, in_range ? 10000 : 0); //This isn't setting the right value, it seems. 
-		//set_register(sarg1, (in_range ? 10000 : 0));
+		bool in_range = GuyH::getNPC()->HeroInRange(dist);
 		set_register(sarg1, 0);
 	}
 	else set_register(sarg1, 0);
@@ -24477,12 +24465,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_LINK:
+		case SCRIPT_PLAYER:
 		{
-			ri = &linkScriptData;
+			ri = &playerScriptData;
 			
-			curscript = linkscripts[script];
-			stack = &link_stack;
+			curscript = playerscripts[script];
+			stack = &player_stack;
 			//
 		}
 		break;
@@ -24718,8 +24706,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 						zprint("%s Script %s has exited.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
 					case SCRIPT_GLOBAL:
 						zprint("%s Script %s has exited.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
-					case SCRIPT_LINK:
-						zprint("%s Script %s has exited.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
+					case SCRIPT_PLAYER:
+						zprint("%s Script %s has exited.\n", script_types[type], playermap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
 						zprint("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
 					case SCRIPT_ONMAP:
@@ -24759,8 +24747,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_GLOBAL:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_LINK:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
+						case SCRIPT_PLAYER:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_SCREEN:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_ONMAP:
@@ -24801,8 +24789,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_GLOBAL:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_LINK:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
+						case SCRIPT_PLAYER:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_SCREEN:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
 						case SCRIPT_ONMAP:
@@ -24845,8 +24833,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_GLOBAL:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LINK:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_PLAYER:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_ONMAP:
@@ -24890,8 +24878,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_GLOBAL:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LINK:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_PLAYER:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_ONMAP:
@@ -24935,8 +24923,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_GLOBAL:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LINK:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_PLAYER:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_ONMAP:
@@ -24980,8 +24968,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_GLOBAL:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LINK:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], linkmap[i].scriptname.c_str(), sarg1); break;
+							case SCRIPT_PLAYER:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_SCREEN:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
 							case SCRIPT_ONMAP:
@@ -26742,14 +26730,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
-				if(Link.switchhookclk) break; //Already switching!
+				if(Hero.switchhookclk) break; //Already switching!
 				if(GuyH::loadNPC(ri->guyref, "npc->Switch()") == SH::_NoError)
 				{
 					switching_object = guys.spr(GuyH::getNPCIndex(ri->guyref));
 					hooked_combopos = -1;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
-					Link.doSwitchHook(effect);
+					Hero.doSwitchHook(effect);
 					set_register(sarg1,10000);
 				}
 				break;
@@ -26759,14 +26747,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
-				if(Link.switchhookclk) break; //Already switching!
+				if(Hero.switchhookclk) break; //Already switching!
 				if(ItemH::loadItem(ri->itemref, "item->Switch()") == SH::_NoError)
 				{
 					switching_object = items.spr(ItemH::getItemIndex(ri->itemref));
 					hooked_combopos = -1;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
-					Link.doSwitchHook(effect);
+					Hero.doSwitchHook(effect);
 					set_register(sarg1,10000);
 				}
 				break;
@@ -26776,14 +26764,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
-				if(Link.switchhookclk) break; //Already switching!
+				if(Hero.switchhookclk) break; //Already switching!
 				if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Switch()") == SH::_NoError)
 				{
 					switching_object = Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn));
 					hooked_combopos = -1;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
-					Link.doSwitchHook(effect);
+					Hero.doSwitchHook(effect);
 					set_register(sarg1,10000);
 				}
 				break;
@@ -26793,14 +26781,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
 				set_register(sarg1,0);
-				if(Link.switchhookclk) break; //Already switching!
+				if(Hero.switchhookclk) break; //Already switching!
 				if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Switch()") == SH::_NoError)
 				{
 					switching_object = Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn));
 					hooked_combopos = -1;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
-					Link.doSwitchHook(effect);
+					Hero.doSwitchHook(effect);
 					set_register(sarg1,10000);
 				}
 				break;
@@ -26810,15 +26798,15 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				int32_t pos = get_register(sarg1)/10000;
 				set_register(sarg1,0);
-				if(Link.switchhookclk) break; //Already switching!
+				if(Hero.switchhookclk) break; //Already switching!
 				if(unsigned(pos) > 176)
 					break;
 				switching_object = NULL;
 				hooked_combopos = pos;
 				hooked_layerbits = 0;
-				Link.doSwitchHook(get_register(sarg2)/10000);
+				Hero.doSwitchHook(get_register(sarg2)/10000);
 				if(!hooked_layerbits) //failed
-					Link.reset_hookshot();
+					Hero.reset_hookshot();
 				else set_register(sarg1,10000); //success return
 				break;
 			}
@@ -26853,9 +26841,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				int32_t mode = get_register(sarg1) / 10000;
 				if ( (unsigned) mode > 2 ) 
 				{
-					Z_scripterrlog("Invalid mode (%d) passed to Link->Explode(int32_t mode)\n",mode);
+					Z_scripterrlog("Invalid mode (%d) passed to Player->Explode(int32_t mode)\n",mode);
 				}
-				else Link.explode(mode);
+				else Hero.explode(mode);
 				break;
 			}
 			case NPCEXPLODER:
@@ -27452,7 +27440,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				break;
 			
 			case NPCLINKINRANGE:
-				FFCore.do_npc_link_in_range(false);
+				FFCore.do_npc_hero_in_range(false);
 				break;
 			
 			case NPCCANMOVE:
@@ -27869,8 +27857,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
 					case SCRIPT_GLOBAL:
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
-					case SCRIPT_LINK:
-						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], linkmap[i].scriptname.c_str()); break;
+					case SCRIPT_PLAYER:
+						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], playermap[i].scriptname.c_str()); break;
 					case SCRIPT_SCREEN:
 						Z_scripterrlog("%s Script %s Programme Counter Overflowed due to too many ZASM instructions.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
 					case SCRIPT_ONMAP:
@@ -27952,8 +27940,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				global_wait |= (1<<i);
 				break;
 				
-			case SCRIPT_LINK:
-				link_waitdraw = true;
+			case SCRIPT_PLAYER:
+				player_waitdraw = true;
 				break;
 			
 			case SCRIPT_DMAP:
@@ -28060,8 +28048,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			FFScript::deallocateAllArrays(type, i);
 			break;
 		
-		case SCRIPT_LINK:
-			link_doscript = 0;
+		case SCRIPT_PLAYER:
+			player_doscript = 0;
 			FFScript::deallocateAllArrays(type, i);
 			break;
 		
@@ -28220,7 +28208,7 @@ int32_t ffscript_engine(const bool preload)
 		if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
 			continue;
 			
-		if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Link.getHoldClk()>0)
+		if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
 			continue;
 			
 		ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
@@ -30409,8 +30397,8 @@ void FFScript::setFFRules()
 	FF_terminalv = zinit.terminalv;
 	FF_msg_speed = zinit.msg_speed;
 	FF_transition_type = zinit.transition_type; // Can't edit, yet.
-	FF_jump_link_layer_threshold = zinit.jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
-	FF_link_swim_speed = zinit.link_swim_speed;
+	FF_jump_hero_layer_threshold = zinit.jump_hero_layer_threshold; // Player is drawn above layer 3 if z > this.
+	FF_hero_swim_speed = zinit.hero_swim_speed;
 	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 }
 
@@ -30438,26 +30426,26 @@ int32_t FFScript::getQRBit(int32_t rule)
 	return ( get_bit(quest_rules,rule) ? 1 : 0 );
 }
 
-void FFScript::setLinkTile(int32_t t)
+void FFScript::setHeroTile(int32_t t)
 {
-	FF_link_tile = vbound(t, 0, NEWMAXTILES);
+	FF_hero_tile = vbound(t, 0, NEWMAXTILES);
 }
 
-void FFScript::setLinkAction(int32_t a)
+void FFScript::setHeroAction(int32_t a)
 {
-	FF_link_action = vbound(a, 0, 255);
+	FF_hero_action = vbound(a, 0, 255);
 }
 
-int32_t FFScript::getLinkTile()
+int32_t FFScript::getHeroTile()
 {
-	return FF_link_tile;
+	return FF_hero_tile;
 }
 
-int32_t FFScript::getLinkAction()
+int32_t FFScript::getHeroAction()
 {
-	int32_t special_action = Link.getAction2();
+	int32_t special_action = Hero.getAction2();
 	if ( special_action != -1 ) return special_action; //spin, dive, charge
-	else return FF_link_action; //everything else
+	else return FF_hero_action; //everything else
 }
 //get_bit
 
@@ -30500,7 +30488,7 @@ void FFScript::init()
 	usr_sfx_volume = sfx_volume;
 	usr_music_volume = emusic_volume;
 	usr_panstyle = pan_style;
-	FF_link_tile = 0; FF_link_action = 0;
+	FF_hero_tile = 0; FF_hero_action = 0;
 	enemy_removal_point[spriteremovalY1] = -32767;
 	enemy_removal_point[spriteremovalY2] = 32767;
 	enemy_removal_point[spriteremovalX1] = -32767;
@@ -30625,8 +30613,8 @@ void FFScript::do_fx_wavy(const bool v)
 void FFScript::init()
 {
 	for ( int32_t q = 0; q < FFRULES_SIZE; q++ ) FF_rules[q] = 0;
-	FF_link_tile = 0;
-	FF_link_action = 0;
+	FF_hero_tile = 0;
+	FF_hero_action = 0;
 	for ( int32_t q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;
@@ -31290,7 +31278,7 @@ void FFScript::do_warp_ex(bool v)
 	
 		default: 
 		{
-			Z_scripterrlog("Array supplied to Link->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
+			Z_scripterrlog("Array supplied to Player->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
 			break;
 		}
 		
@@ -31347,10 +31335,10 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngineOnWaitdraw();
 		}
-		if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
-			link_waitdraw = false;
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			player_waitdraw = false;
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -31384,9 +31372,9 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngine();
 		}
-		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
@@ -31470,21 +31458,21 @@ void FFScript::runF6Engine()
 }
 void FFScript::runOnDeathEngine()
 {
-	if(!linkscripts[SCRIPT_LINK_DEATH]->valid()) return; //No script to run
+	if(!playerscripts[SCRIPT_PLAYER_DEATH]->valid()) return; //No script to run
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
-	initZScriptLinkScripts();
+	initZScriptHeroScripts();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
-	while(link_doscript && !Quit)
+	while(player_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
-		if(link_waitdraw)
+		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+		if(player_waitdraw)
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
-			link_waitdraw = false;
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+			player_waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -31697,7 +31685,7 @@ bool FFScript::itemScriptEngine()
 			//Normal Items 
 			//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 			/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
-				After executing RunScript(), item_doscript is set to '1' in Link.cpp.
+				After executing RunScript(), item_doscript is set to '1' in hero.cpp.
 				If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
 				  same item script (again) that frame, and insteads increments item_doscript to '2'.
 				If item_doscript == 2, then we know we are on the second frame, and we run it perpetually.
@@ -31706,7 +31694,7 @@ bool FFScript::itemScriptEngine()
 				  This allows passive item scripts to function. 
 			*/
 			
-			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in Link.cpp
+			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in hero.cpp
 			{
 				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
@@ -31768,7 +31756,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		
 		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
-			After executing RunScript(), item_doscript is set to '1' in Link.cpp.
+			After executing RunScript(), item_doscript is set to '1' in hero.cpp.
 			If the quest allows the item to continue running, the itemScriptEngine() function ignores running the
 			  same item script (again) that frame, and insteads increments item_doscript to '2'.
 			If item_doscript == 2, then we know we are on the second frame, and we run it perpetually.
@@ -31785,7 +31773,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		else
 		{
 			//Normal items
-			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in Link.cpp
+			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in hero.cpp
 			{
 				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
@@ -32365,7 +32353,7 @@ int32_t FFScript::npc_collision()
 				isColl = 0;
 				break;
 			}
-			case obj_type_link:
+			case obj_type_player:
 			{
 				zprint("Checking collision on npc (%d) against Player\n", ri->guyref);
 				isColl = 0;
@@ -32419,22 +32407,13 @@ int32_t FFScript::npc_linedup()
 }
 
 
-void FFScript::do_npc_link_in_range(const bool v)
+void FFScript::do_npc_hero_in_range(const bool v)
 {
 	int32_t dist = get_register(sarg1) / 10000;
-	//zprint("LinkInrange dist is: %d\n", dist);
-	//bool in_range = false;
 	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
 	{
-		//int32_t range = (ri->d[rINDEX] / 10000);
-		//bool dir8 = (ri->d[rINDEX2]);
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//in_range = (e->LinkInRange(dist));
-		//zprint("LinkInRange returned: %s\n", (GuyH::getNPC()->LinkInRange(dist) ? "true" : "false"));
-		bool in_range = GuyH::getNPC()->LinkInRange(dist);
+		bool in_range = GuyH::getNPC()->HeroInRange(dist);
 		set_register(sarg1, (in_range ? 10000 : 0)); //This isn't setting the right value, it seems. 
-		//set_register(sarg1, (in_range ? 10000 : 0));
-		//set_register(sarg1, 0);
 	}
 	else set_register(sarg2, 0);
 }
@@ -32827,9 +32806,9 @@ void FFScript::do_getheroscript()
 	int32_t script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
-	for(int32_t q = 0; q < NUMSCRIPTLINK; q++)
+	for(int32_t q = 0; q < NUMSCRIPTPLAYER; q++)
 	{
-		if(!(strcmp(the_string.c_str(), linkmap[q].scriptname.c_str())))
+		if(!(strcmp(the_string.c_str(), playermap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
 			break;
@@ -36497,14 +36476,14 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif
 				break;
 			
-			case SCRIPT_LINK:
-				al_trace("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());
+			case SCRIPT_PLAYER:
+				al_trace("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) { console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str()); }
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str()); }
 				#else //Unix
 					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("Link script %u (%s): ", curScriptNum, linkmap[curScriptNum-1].scriptname.c_str());	
+					printf("Player script %u (%s): ", curScriptNum, playermap[curScriptNum-1].scriptname.c_str());	
 				#endif    
 			break;
 			
@@ -40508,10 +40487,10 @@ void FFScript::read_maps(PACKFILE *f, int32_t vers_id)
 */
 
 
-int32_t FFScript::getLinkOTile(int32_t index1, int32_t index2)
+int32_t FFScript::getHeroOTile(int32_t index1, int32_t index2)
 {
 	{
-		linkspritetype lst = (linkspritetype)index1;
+		herospritetype lst = (herospritetype)index1;
 		int32_t dir = index2;
 		int32_t the_ret = 0;
 		switch(lst)

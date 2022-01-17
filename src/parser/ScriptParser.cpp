@@ -359,34 +359,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 					new OSetRegister(new VarArgument(EXP2),
 							new VarArgument(REFCOMBODATA)));
 			}
-			/* Do we want these here--ever? -Z
-			else if (type == ScriptType::link )
-			{
-				funccode.push_back(
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(link?)));
-
-			}
-			else if (type == ScriptType::screen )
-			{
-				funccode.push_back(
-					new OSetRegister(new VarArgument(EXP2),
-							 new VarArgument(tempscr?)));
-
-			}
-				*/
-
-
-			/*
-			if (type == ScriptType::ffc)
-				funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFFFC)));
-			else if (type == ScriptType::item)
-				funccode.push_back(
-						new OSetRegister(new VarArgument(EXP2),
-						                 new VarArgument(REFITEMCLASS)));
-			*/
+			
 			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
 		}
 

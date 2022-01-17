@@ -21,15 +21,15 @@
 //extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
 
-int32_t script_link_sprite = 0;
-int32_t script_link_flip = -1;
-int32_t script_link_cset = -1;
+int32_t script_hero_sprite = 0;
+int32_t script_hero_flip = -1;
+int32_t script_hero_cset = -1;
 
-byte link_defence[wMax];
+byte hero_defence[wMax];
 
 int32_t hammeroffsets[4];
 
-int32_t old_floatspr, old_slashspr, linkspr;
+int32_t old_floatspr, old_slashspr, herospr;
 int32_t walkspr[4][3];                                   //dir,                           tile/flip/extend
 int32_t stabspr[4][3];                                   //dir,                           tile/flip/extend
 int32_t slashspr[4][3];                                  //dir,                           tile/flip/extend
@@ -74,7 +74,7 @@ int32_t dashspr[4][3];                                   //dir,                 
 int32_t bonkspr[4][3];                                   //dir,                           tile/flip/extend
 int32_t medallionsprs[3][3];                             //medallion,                     tile/flip/extend
 
-void linktile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int32_t dir, int32_t style)
+void herotile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int32_t dir, int32_t style)
 {
 	switch(state)
 	{
@@ -189,9 +189,9 @@ void linktile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int3
 		return;
 	}
 	
-	linktile(tile, flip, state, dir, style);
+	herotile(tile, flip, state, dir, style);
 }
-void setlinktile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int32_t dir)
+void setherotile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int32_t dir)
 {
 	switch(state)
 	{
@@ -356,9 +356,9 @@ void setlinktile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int3
 	}
 }
 
-void linktile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
+void herotile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 {
-	if ( script_link_sprite > 0 ) *tile = script_link_sprite;
+	if ( script_hero_sprite > 0 ) *tile = script_hero_sprite;
 	else
 	{
 		switch(state)
@@ -472,7 +472,7 @@ void linktile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 		break;
 		}
 	}
-	if ( script_link_flip > -1 ) *flip = script_link_flip;
+	if ( script_hero_flip > -1 ) *flip = script_hero_flip;
 	else
 	{
 		switch(state)
@@ -588,38 +588,38 @@ void linktile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 	}
 }
 
-void setuplinktiles(int32_t style)
+void setupherotiles(int32_t style)
 {
     old_floatspr = wpnsbuf[iwSwim].newtile;
-    old_slashspr = wpnsbuf[iwLinkSlash].newtile;
-    linkspr = 4;
+    old_slashspr = wpnsbuf[iwHeroSlash].newtile;
+    herospr = 4;
     
     switch(style)
     {
     case 0:                                                 //normal
-        walkspr[up][spr_tile]=linkspr+20;
+        walkspr[up][spr_tile]=herospr+20;
         walkspr[up][spr_flip]=0;
         walkspr[up][spr_extend]=0;
-        walkspr[down][spr_tile]=linkspr+18;
+        walkspr[down][spr_tile]=herospr+18;
         walkspr[down][spr_flip]=0;
         walkspr[down][spr_extend]=0;
-        walkspr[left][spr_tile]=linkspr+16;
+        walkspr[left][spr_tile]=herospr+16;
         walkspr[left][spr_flip]=1;
         walkspr[left][spr_extend]=0;
-        walkspr[right][spr_tile]=linkspr+16;
+        walkspr[right][spr_tile]=herospr+16;
         walkspr[right][spr_flip]=0;
         walkspr[right][spr_extend]=0;
         
-        stabspr[up][spr_tile]=linkspr+23;
+        stabspr[up][spr_tile]=herospr+23;
         stabspr[up][spr_flip]=0;
         stabspr[up][spr_extend]=0;
-        stabspr[down][spr_tile]=linkspr+22;
+        stabspr[down][spr_tile]=herospr+22;
         stabspr[down][spr_flip]=0;
         stabspr[down][spr_extend]=0;
-        stabspr[left][spr_tile]=linkspr+21;
+        stabspr[left][spr_tile]=herospr+21;
         stabspr[left][spr_flip]=1;
         stabspr[left][spr_extend]=0;
-        stabspr[right][spr_tile]=linkspr+21;
+        stabspr[right][spr_tile]=herospr+21;
         stabspr[right][spr_flip]=0;
         stabspr[right][spr_extend]=0;
         
@@ -675,55 +675,55 @@ void setuplinktiles(int32_t style)
         divespr[right][spr_flip]=0;
         divespr[right][spr_extend]=0;
         
-        poundspr[up][spr_tile]=linkspr+3;
+        poundspr[up][spr_tile]=herospr+3;
         poundspr[up][spr_flip]=0;
         poundspr[up][spr_extend]=0;
-        poundspr[down][spr_tile]=linkspr+2;
+        poundspr[down][spr_tile]=herospr+2;
         poundspr[down][spr_flip]=0;
         poundspr[down][spr_extend]=0;
-        poundspr[left][spr_tile]=linkspr+1;
+        poundspr[left][spr_tile]=herospr+1;
         poundspr[left][spr_flip]=1;
         poundspr[left][spr_extend]=0;
-        poundspr[right][spr_tile]=linkspr+1;
+        poundspr[right][spr_tile]=herospr+1;
         poundspr[right][spr_flip]=0;
         poundspr[right][spr_extend]=0;
         
 // Alter these when default sprites are created.
-        jumpspr[up][spr_tile]=linkspr+24;
+        jumpspr[up][spr_tile]=herospr+24;
         jumpspr[up][spr_flip]=0;
         jumpspr[up][spr_extend]=0;
-        jumpspr[down][spr_tile]=linkspr+19;
+        jumpspr[down][spr_tile]=herospr+19;
         jumpspr[down][spr_flip]=0;
         jumpspr[down][spr_extend]=0;
-        jumpspr[left][spr_tile]=linkspr+16;
+        jumpspr[left][spr_tile]=herospr+16;
         jumpspr[left][spr_flip]=1;
         jumpspr[left][spr_extend]=0;
-        jumpspr[right][spr_tile]=linkspr+16;
+        jumpspr[right][spr_tile]=herospr+16;
         jumpspr[right][spr_flip]=0;
         jumpspr[right][spr_extend]=0;
         
 // Alter these when default sprites are created.
-        chargespr[up][spr_tile]=linkspr+24;
+        chargespr[up][spr_tile]=herospr+24;
         chargespr[up][spr_flip]=0;
         chargespr[up][spr_extend]=0;
-        chargespr[down][spr_tile]=linkspr+19;
+        chargespr[down][spr_tile]=herospr+19;
         chargespr[down][spr_flip]=0;
         chargespr[down][spr_extend]=0;
-        chargespr[left][spr_tile]=linkspr+16;
+        chargespr[left][spr_tile]=herospr+16;
         chargespr[left][spr_flip]=1;
         chargespr[left][spr_extend]=0;
-        chargespr[right][spr_tile]=linkspr+16;
+        chargespr[right][spr_tile]=herospr+16;
         chargespr[right][spr_flip]=0;
         chargespr[right][spr_extend]=0;
         
-        castingspr[spr_tile]=linkspr;
+        castingspr[spr_tile]=herospr;
         castingspr[spr_flip]=0;
         castingspr[spr_extend]=0;
         
-        holdspr[spr_landhold][spr_hold1][spr_tile]=linkspr+30;
+        holdspr[spr_landhold][spr_hold1][spr_tile]=herospr+30;
         holdspr[spr_landhold][spr_hold1][spr_flip]=0;
         holdspr[spr_landhold][spr_hold1][spr_extend]=0;
-        holdspr[spr_landhold][spr_hold2][spr_tile]=linkspr+25;
+        holdspr[spr_landhold][spr_hold2][spr_tile]=herospr+25;
         holdspr[spr_landhold][spr_hold2][spr_flip]=0;
         holdspr[spr_landhold][spr_hold2][spr_extend]=0;
         
@@ -736,29 +736,29 @@ void setuplinktiles(int32_t style)
         break;
         
     case 1:                                                 //BS
-        walkspr[up][spr_tile]=linkspr+24;
+        walkspr[up][spr_tile]=herospr+24;
         walkspr[up][spr_flip]=0;
         walkspr[up][spr_extend]=0;
-        walkspr[down][spr_tile]=linkspr+19;
+        walkspr[down][spr_tile]=herospr+19;
         walkspr[down][spr_flip]=0;
         walkspr[down][spr_extend]=0;
-        walkspr[left][spr_tile]=linkspr+16;
+        walkspr[left][spr_tile]=herospr+16;
         walkspr[left][spr_flip]=1;
         walkspr[left][spr_extend]=0;
-        walkspr[right][spr_tile]=linkspr+16;
+        walkspr[right][spr_tile]=herospr+16;
         walkspr[right][spr_flip]=0;
         walkspr[right][spr_extend]=0;
         
-        stabspr[up][spr_tile]=linkspr+27;
+        stabspr[up][spr_tile]=herospr+27;
         stabspr[up][spr_flip]=0;
         stabspr[up][spr_extend]=0;
-        stabspr[down][spr_tile]=linkspr+23;
+        stabspr[down][spr_tile]=herospr+23;
         stabspr[down][spr_flip]=0;
         stabspr[down][spr_extend]=0;
-        stabspr[left][spr_tile]=linkspr+22;
+        stabspr[left][spr_tile]=herospr+22;
         stabspr[left][spr_flip]=1;
         stabspr[left][spr_extend]=0;
-        stabspr[right][spr_tile]=linkspr+22;
+        stabspr[right][spr_tile]=herospr+22;
         stabspr[right][spr_flip]=0;
         stabspr[right][spr_extend]=0;
         
@@ -814,55 +814,55 @@ void setuplinktiles(int32_t style)
         divespr[right][spr_flip]=0;
         divespr[right][spr_extend]=0;
         
-        poundspr[up][spr_tile]=linkspr+3;
+        poundspr[up][spr_tile]=herospr+3;
         poundspr[up][spr_flip]=0;
         poundspr[up][spr_extend]=0;
-        poundspr[down][spr_tile]=linkspr+2;
+        poundspr[down][spr_tile]=herospr+2;
         poundspr[down][spr_flip]=0;
         poundspr[down][spr_extend]=0;
-        poundspr[left][spr_tile]=linkspr+1;
+        poundspr[left][spr_tile]=herospr+1;
         poundspr[left][spr_flip]=1;
         poundspr[left][spr_extend]=0;
-        poundspr[right][spr_tile]=linkspr+1;
+        poundspr[right][spr_tile]=herospr+1;
         poundspr[right][spr_flip]=0;
         poundspr[right][spr_extend]=0;
         
 // Alter these when default sprites are created.
-        jumpspr[up][spr_tile]=linkspr+24;
+        jumpspr[up][spr_tile]=herospr+24;
         jumpspr[up][spr_flip]=0;
         jumpspr[up][spr_extend]=0;
-        jumpspr[down][spr_tile]=linkspr+19;
+        jumpspr[down][spr_tile]=herospr+19;
         jumpspr[down][spr_flip]=0;
         jumpspr[down][spr_extend]=0;
-        jumpspr[left][spr_tile]=linkspr+16;
+        jumpspr[left][spr_tile]=herospr+16;
         jumpspr[left][spr_flip]=1;
         jumpspr[left][spr_extend]=0;
-        jumpspr[right][spr_tile]=linkspr+16;
+        jumpspr[right][spr_tile]=herospr+16;
         jumpspr[right][spr_flip]=0;
         jumpspr[right][spr_extend]=0;
         
 // Alter these when default sprites are created.
-        chargespr[up][spr_tile]=linkspr+24;
+        chargespr[up][spr_tile]=herospr+24;
         chargespr[up][spr_flip]=0;
         chargespr[up][spr_extend]=0;
-        chargespr[down][spr_tile]=linkspr+19;
+        chargespr[down][spr_tile]=herospr+19;
         chargespr[down][spr_flip]=0;
         chargespr[down][spr_extend]=0;
-        chargespr[left][spr_tile]=linkspr+16;
+        chargespr[left][spr_tile]=herospr+16;
         chargespr[left][spr_flip]=1;
         chargespr[left][spr_extend]=0;
-        chargespr[right][spr_tile]=linkspr+16;
+        chargespr[right][spr_tile]=herospr+16;
         chargespr[right][spr_flip]=0;
         chargespr[right][spr_extend]=0;
         
-        castingspr[spr_tile]=linkspr;
+        castingspr[spr_tile]=herospr;
         castingspr[spr_flip]=0;
         castingspr[spr_extend]=0;
         
-        holdspr[spr_landhold][spr_hold1][spr_tile]=linkspr+29;
+        holdspr[spr_landhold][spr_hold1][spr_tile]=herospr+29;
         holdspr[spr_landhold][spr_hold1][spr_flip]=0;
         holdspr[spr_landhold][spr_hold1][spr_extend]=0;
-        holdspr[spr_landhold][spr_hold2][spr_tile]=linkspr+28;
+        holdspr[spr_landhold][spr_hold2][spr_tile]=herospr+28;
         holdspr[spr_landhold][spr_hold2][spr_flip]=0;
         holdspr[spr_landhold][spr_hold2][spr_extend]=0;
         
@@ -879,17 +879,17 @@ void setuplinktiles(int32_t style)
     }
 }
 
-void setuplinkdefenses()
+void setupherodefenses()
 {
-    //For now this just zeroes out Link's defenses by default, set these to appropriate defaults if necessary if defense implementation is extended. -Jman
+    //For now this just zeroes out Hero's defenses by default, set these to appropriate defaults if necessary if defense implementation is extended. -Jman
     for (int32_t i = 0; i < wMax; i++)
     {
-        link_defence[i] = 0;
+        hero_defence[i] = 0;
     }
     
 }
 
-void setuplinkoffsets()
+void setupherooffsets()
 {
 	for (int32_t i = 0; i < 4; i++)
 	{

@@ -126,24 +126,24 @@ void zprint2(const char * const format, ...);
 void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid);
 void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentitem, int32_t parentid, byte script_gen);
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true);
-void centerLink();
-zfix  LinkX();
-zfix  LinkY();
-zfix  LinkZ();
-int32_t  LinkHClk();
-int32_t  LinkNayrusLoveShieldClk();
-int32_t  LinkHoverClk();
-int32_t  LinkSwordClk();
-int32_t  LinkItemClk();
-int32_t  LinkAction();
-int32_t  LinkCharged();
-byte LinkGetDontDraw();
+void centerHero();
+zfix  HeroX();
+zfix  HeroY();
+zfix  HeroZ();
+int32_t  HeroHClk();
+int32_t  HeroNayrusLoveShieldClk();
+int32_t  HeroHoverClk();
+int32_t  HeroSwordClk();
+int32_t  HeroItemClk();
+int32_t  HeroAction();
+int32_t  HeroCharged();
+byte HeroGetDontDraw();
 void setSwordClk(int32_t newclk);
 void setItemClk(int32_t newclk);
-int32_t  LinkLStep();
-void LinkCheckItems();
-zfix  LinkModifiedX();
-zfix  LinkModifiedY();
+int32_t  HeroLStep();
+void HeroCheckItems();
+zfix  HeroModifiedX();
+zfix  HeroModifiedY();
 zfix  GuyX(int32_t j);
 zfix  GuyY(int32_t j);
 int32_t  GuyID(int32_t j);
@@ -151,13 +151,13 @@ int32_t  GuyMisc(int32_t j);
 void StunGuy(int32_t j,int32_t stun);
 bool  GuySuperman(int32_t j);
 int32_t  GuyCount();
-int32_t  LinkDir();
+int32_t  HeroDir();
 void add_grenade(int32_t wx, int32_t wy, int32_t wz, int32_t size, int32_t parentid);
 zfix distance(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 bool getClock();
 void setClock(bool state);
 void CatchBrang();;
-int32_t LinkAction();
+int32_t HeroAction();
 
 extern int32_t DMapEditorLastMaptileUsed;
 
@@ -261,7 +261,7 @@ INLINE void sfx(int32_t index,int32_t pan)
 }
 
 bool isSideViewGravity(int32_t t = 0);
-bool isSideViewLink(int32_t t = 0);
+bool isSideViewHero(int32_t t = 0);
 
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 
@@ -406,7 +406,7 @@ extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool Udown,Ddown,Ldown,Rdown,Adown,Bdown,Sdown,Mdown,LBdown,RBdown,Pdown,Ex1down,Ex2down,Ex3down,Ex4down,AUdown,ADdown,ALdown,ARdown,F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
 extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
-extern bool hookshot_used, hookshot_frozen, pull_link, hs_fix, hs_switcher, cheat_superman, gofast, checklink;
+extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, cheat_superman, gofast, checkhero;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
@@ -440,7 +440,7 @@ extern script_data *guyscripts[NUMSCRIPTGUYS];
 extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
-extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *playerscripts[NUMSCRIPTPLAYER];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];

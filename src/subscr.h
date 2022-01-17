@@ -28,7 +28,7 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
 void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2);
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
-void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap, int32_t showlink, int32_t showcompass, int32_t linkcolor, int32_t lccolor, int32_t dccolor);
+void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap, int32_t showhero, int32_t showcompass, int32_t herocolor, int32_t lccolor, int32_t dccolor);
 void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t tile,bool bs_style);
 void magicmeter(BITMAP *dest,int32_t x,int32_t y);
 void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y);
@@ -128,7 +128,7 @@ enum { ssctSYSTEM=0xFE, ssctMISC=0xFF };
 
 // special colors
 enum { ssctTEXT, ssctCAPTION, ssctOVERWBG, ssctDNGNBG, ssctDNGNFG, ssctCAVEFG, ssctBSDK, ssctBSGOAL, ssctCOMPASSLT, ssctCOMPASSDK, ssctSUBSCRBG, ssctSUBSCRSHADOW,
-       ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG, ssctLINKDOT, ssctMSGTEXT, ssctMAX
+       ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG, ssctHERODOT, ssctMSGTEXT, ssctMAX
      };
 
 // special csets
@@ -303,7 +303,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
 void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tile, int32_t cset, int32_t w, int32_t h, int32_t flip, bool overlay, bool trans, int32_t trinum);
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
 void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
-void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, bool showrooms, bool showlink, int32_t roomcolor, int32_t linkcolor, bool large);
+void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large);
 void load_Sitems(miscQdata *misc);
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
 void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);

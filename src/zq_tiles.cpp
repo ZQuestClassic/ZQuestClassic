@@ -5713,7 +5713,7 @@ move_tiles_item dmap_map_items[4]=
 	{ "Large Map (Filled)",     0, -1,  5 },
 };
 
-move_tiles_item link_sprite_items[41]=
+move_tiles_item hero_sprite_items[41]=
 {
 	{ "Walk (Up)",                0,  0,  0 },
 	{ "Walk (Down)",              0,  0,  0 },
@@ -5763,89 +5763,89 @@ int32_t quick_select_3(int32_t a, int32_t b, int32_t c, int32_t d)
 	return a==0?b:a==1?c:d;
 }
 
-void setup_link_sprite_items()
+void setup_hero_sprite_items()
 {
-	int32_t a_style=(zinit.linkanimationstyle);
+	int32_t a_style=(zinit.heroAnimationStyle);
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[i].tile=walkspr[i][spr_tile]-(walkspr[i][spr_extend]<2?0:1)-(walkspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[i].width=(walkspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, (i==0?1:2), 3, 9) + (walkspr[i][spr_extend]<2?0:1);
-		link_sprite_items[i].height=walkspr[i][spr_extend]<2?1:2;
+		hero_sprite_items[i].tile=walkspr[i][spr_tile]-(walkspr[i][spr_extend]<2?0:1)-(walkspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[i].width=(walkspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, (i==0?1:2), 3, 9) + (walkspr[i][spr_extend]<2?0:1);
+		hero_sprite_items[i].height=walkspr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[4+i].tile=slashspr[i][spr_tile]-(slashspr[i][spr_extend]<2?0:1)-(slashspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[4+i].width=(slashspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 6) + (slashspr[i][spr_extend]<2?0:1);;
-		link_sprite_items[4+i].height=slashspr[i][spr_extend]<2?1:2;
+		hero_sprite_items[4+i].tile=slashspr[i][spr_tile]-(slashspr[i][spr_extend]<2?0:1)-(slashspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[4+i].width=(slashspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 6) + (slashspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[4+i].height=slashspr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[8+i].tile=stabspr[i][spr_tile]-(stabspr[i][spr_extend]<2?0:1)-(stabspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[8+i].width=(stabspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (stabspr[i][spr_extend]<2?0:1);;
-		link_sprite_items[8+i].height=stabspr[i][spr_extend]<2?1:2;
+		hero_sprite_items[8+i].tile=stabspr[i][spr_tile]-(stabspr[i][spr_extend]<2?0:1)-(stabspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[8+i].width=(stabspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (stabspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[8+i].height=stabspr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[12+i].tile=poundspr[i][spr_tile]-(poundspr[i][spr_extend]<2?0:1)-(poundspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[12+i].width=(poundspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (poundspr[i][spr_extend]<2?0:1);;
-		link_sprite_items[12+i].height=poundspr[i][spr_extend]<2?1:2;
+		hero_sprite_items[12+i].tile=poundspr[i][spr_tile]-(poundspr[i][spr_extend]<2?0:1)-(poundspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[12+i].width=(poundspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 1, 1, 3) + (poundspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[12+i].height=poundspr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<2; ++i)
 	{
-		link_sprite_items[16+i].tile=holdspr[0][i][spr_tile]-(holdspr[0][i][spr_extend]<2?0:1)-(holdspr[0][i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[16+i].width=(holdspr[0][i][spr_extend]<2?1:2) + (holdspr[0][i][spr_extend]<2?0:1);;
-		link_sprite_items[16+i].height=holdspr[0][i][spr_extend]<2?1:2;
+		hero_sprite_items[16+i].tile=holdspr[0][i][spr_tile]-(holdspr[0][i][spr_extend]<2?0:1)-(holdspr[0][i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[16+i].width=(holdspr[0][i][spr_extend]<2?1:2) + (holdspr[0][i][spr_extend]<2?0:1);;
+		hero_sprite_items[16+i].height=holdspr[0][i][spr_extend]<2?1:2;
 	}
 	
-	link_sprite_items[18].tile=castingspr[spr_tile]-(castingspr[spr_extend]<2?0:1)-(castingspr[spr_extend]<1?0:TILES_PER_ROW);
-	link_sprite_items[18].width=(castingspr[spr_extend]<2?1:2) + (castingspr[spr_extend]<2?0:1);;
-	link_sprite_items[18].height=castingspr[spr_extend]<2?1:2;
+	hero_sprite_items[18].tile=castingspr[spr_tile]-(castingspr[spr_extend]<2?0:1)-(castingspr[spr_extend]<1?0:TILES_PER_ROW);
+	hero_sprite_items[18].width=(castingspr[spr_extend]<2?1:2) + (castingspr[spr_extend]<2?0:1);;
+	hero_sprite_items[18].height=castingspr[spr_extend]<2?1:2;
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[19+i].tile=floatspr[i][spr_tile]-(floatspr[i][spr_extend]<2?0:1)-(floatspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[19+i].width=(floatspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (floatspr[i][spr_extend]<2?0:1);;
-		link_sprite_items[19+i].height=floatspr[i][spr_extend]<2?1:2;
-	}
-	
-	for(int32_t i=0; i<4; ++i)
-	{
-		link_sprite_items[23+i].tile=swimspr[i][spr_tile]-(swimspr[i][spr_extend]<2?0:1)-(swimspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[23+i].width=(swimspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (swimspr[i][spr_extend]<2?0:1);;
-		link_sprite_items[23+i].height=swimspr[i][spr_extend]<2?1:2;
+		hero_sprite_items[19+i].tile=floatspr[i][spr_tile]-(floatspr[i][spr_extend]<2?0:1)-(floatspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[19+i].width=(floatspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (floatspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[19+i].height=floatspr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[27+i].tile=divespr[i][spr_tile]-(divespr[i][spr_extend]<2?0:1)-(divespr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[27+i].width=(divespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (divespr[i][spr_extend]<2?0:1);;
-		link_sprite_items[27+i].height=divespr[i][spr_extend]<2?1:2;
+		hero_sprite_items[23+i].tile=swimspr[i][spr_tile]-(swimspr[i][spr_extend]<2?0:1)-(swimspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[23+i].width=(swimspr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (swimspr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[23+i].height=swimspr[i][spr_extend]<2?1:2;
+	}
+	
+	for(int32_t i=0; i<4; ++i)
+	{
+		hero_sprite_items[27+i].tile=divespr[i][spr_tile]-(divespr[i][spr_extend]<2?0:1)-(divespr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[27+i].width=(divespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 4) + (divespr[i][spr_extend]<2?0:1);;
+		hero_sprite_items[27+i].height=divespr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<2; ++i)
 	{
-		link_sprite_items[31+i].tile=holdspr[1][i][spr_tile]-(holdspr[1][i][spr_extend]<2?0:1)-(holdspr[1][i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[31+i].width=(holdspr[1][i][spr_extend]<2?1:2) + (holdspr[1][i][spr_extend]<2?0:1);;
-		link_sprite_items[31+i].height=holdspr[1][i][spr_extend]<2?1:2;
+		hero_sprite_items[31+i].tile=holdspr[1][i][spr_tile]-(holdspr[1][i][spr_extend]<2?0:1)-(holdspr[1][i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[31+i].width=(holdspr[1][i][spr_extend]<2?1:2) + (holdspr[1][i][spr_extend]<2?0:1);;
+		hero_sprite_items[31+i].height=holdspr[1][i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[33+i].tile=jumpspr[i][spr_tile]-(jumpspr[i][spr_extend]<2?0:1)-(jumpspr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[33+i].width=(jumpspr[i][spr_extend]<2?1:2) * 3 + (jumpspr[i][spr_extend]<2?0:1);
-		link_sprite_items[33+i].height=jumpspr[i][spr_extend]<2?1:2;
+		hero_sprite_items[33+i].tile=jumpspr[i][spr_tile]-(jumpspr[i][spr_extend]<2?0:1)-(jumpspr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[33+i].width=(jumpspr[i][spr_extend]<2?1:2) * 3 + (jumpspr[i][spr_extend]<2?0:1);
+		hero_sprite_items[33+i].height=jumpspr[i][spr_extend]<2?1:2;
 	}
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		link_sprite_items[37+i].tile=chargespr[i][spr_tile]-(chargespr[i][spr_extend]<2?0:1)-(chargespr[i][spr_extend]<1?0:TILES_PER_ROW);
-		link_sprite_items[37+i].width=(chargespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 9) + (chargespr[i][spr_extend]<2?0:1);
-		link_sprite_items[37+i].height=chargespr[i][spr_extend]<2?1:2;
+		hero_sprite_items[37+i].tile=chargespr[i][spr_tile]-(chargespr[i][spr_extend]<2?0:1)-(chargespr[i][spr_extend]<1?0:TILES_PER_ROW);
+		hero_sprite_items[37+i].width=(chargespr[i][spr_extend]<2?1:2) * quick_select_3(a_style, 2, 3, 9) + (chargespr[i][spr_extend]<2?0:1);
+		hero_sprite_items[37+i].height=chargespr[i][spr_extend]<2?1:2;
 	}
 }
 
@@ -5980,14 +5980,14 @@ void register_used_tiles()
 		used_tile_table[55]=true;
 	}
 	
-	setup_link_sprite_items();
+	setup_hero_sprite_items();
 	
-//  i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+//  i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 	for(int32_t u=0; u<41; u++)
 	{
-		for(int32_t r=zc_max(TILEROW(link_sprite_items[u].tile),0); r<zc_min(TILEROW(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
+		for(int32_t r=zc_max(TILEROW(hero_sprite_items[u].tile),0); r<zc_min(TILEROW(hero_sprite_items[u].tile)+zc_max(hero_sprite_items[u].height,1),TILE_ROWS_PER_PAGE*TILE_PAGES); ++r)
 		{
-			for(int32_t c=zc_max(TILECOL(link_sprite_items[u].tile),0); c<zc_min(TILECOL(link_sprite_items[u].tile)+zc_max(link_sprite_items[u].width,1),TILES_PER_ROW); ++c)
+			for(int32_t c=zc_max(TILECOL(hero_sprite_items[u].tile),0); c<zc_min(TILECOL(hero_sprite_items[u].tile)+zc_max(hero_sprite_items[u].width,1),TILES_PER_ROW); ++c)
 			{
 				used_tile_table[(r*TILES_PER_ROW)+c]=true;
 			}
@@ -6451,7 +6451,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_link_sprites_list[41];
+	bool move_hero_sprites_list[41];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -6866,33 +6866,33 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 			
-			//check Link sprites
+			//check Player sprites
 			if(!done)
 			{
 				//this is here to allow this section to fold
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				setup_link_sprite_items();
+				setup_hero_sprite_items();
 				
 				for(int32_t u=0; u<41; u++)
 				{
-					move_link_sprites_list[u]=false;
+					move_hero_sprites_list[u]=false;
 					
 					if(rect)
 					{
-						i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
+					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
-							sprintf(temptext, "%s\n", link_sprite_items[u].name);
+							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
 							
 							if(strlen(tile_move_list_text)<65000)
 							{
@@ -6911,14 +6911,14 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 						}
 						else if(i==ti_encompass)
 						{
-							move_link_sprites_list[u]=true;
+							move_hero_sprites_list[u]=true;
 						}
 					}
 				}
 				
 				if(found)
 				{
-					sprintf(buf2, "The tiles used by the following Link sprites");
+					sprintf(buf2, "The tiles used by the following Player sprites");
 					
 					if(move)
 					{
@@ -7703,7 +7703,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			
 			for(int32_t u=0; u<41; u++)
 			{
-				if(move_link_sprites_list[u])
+				if(move_hero_sprites_list[u])
 				{
 					switch(u)
 					{
@@ -8090,7 +8090,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_link_sprites_list[41];
+	bool move_hero_sprites_list[41];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -8505,33 +8505,33 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 			
-			//check Link sprites
+			//check Player sprites
 			if(!done)
 			{
 				//this is here to allow this section to fold
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				setup_link_sprite_items();
+				setup_hero_sprite_items();
 				
 				for(int32_t u=0; u<41; u++)
 				{
-					move_link_sprites_list[u]=false;
+					move_hero_sprites_list[u]=false;
 					
 					if(rect)
 					{
-						i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
+					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
-							sprintf(temptext, "%s\n", link_sprite_items[u].name);
+							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
 							
 							if(strlen(tile_move_list_text)<65000)
 							{
@@ -8550,14 +8550,14 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 						}
 						else if(i==ti_encompass)
 						{
-							move_link_sprites_list[u]=true;
+							move_hero_sprites_list[u]=true;
 						}
 					}
 				}
 				
 				if(found)
 				{
-					sprintf(buf2, "The tiles used by the following Link sprites");
+					sprintf(buf2, "The tiles used by the following Player sprites");
 					
 					if(move)
 					{
@@ -9342,7 +9342,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			
 			for(int32_t u=0; u<41; u++)
 			{
-				if(move_link_sprites_list[u])
+				if(move_hero_sprites_list[u])
 				{
 					switch(u)
 					{
@@ -9730,7 +9730,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_link_sprites_list[41];
+	bool move_hero_sprites_list[41];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -10145,33 +10145,33 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				}
 			}
 			
-			//check Link sprites
+			//check Player sprites
 			if(!done)
 			{
 				//this is here to allow this section to fold
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				setup_link_sprite_items();
+				setup_hero_sprite_items();
 				
 				for(int32_t u=0; u<41; u++)
 				{
-					move_link_sprites_list[u]=false;
+					move_hero_sprites_list[u]=false;
 					
 					if(rect)
 					{
-						i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
+					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
-							sprintf(temptext, "%s\n", link_sprite_items[u].name);
+							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
 							
 							if(strlen(tile_move_list_text)<65000)
 							{
@@ -10190,14 +10190,14 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						}
 						else if(i==ti_encompass)
 						{
-							move_link_sprites_list[u]=true;
+							move_hero_sprites_list[u]=true;
 						}
 					}
 				}
 				
 				if(found)
 				{
-					sprintf(buf2, "The tiles used by the following Link sprites");
+					sprintf(buf2, "The tiles used by the following Player sprites");
 					
 					if(move)
 					{
@@ -11012,7 +11012,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 			
 			for(int32_t u=0; u<41; u++)
 			{
-				if(move_link_sprites_list[u])
+				if(move_hero_sprites_list[u])
 				{
 					switch(u)
 					{
@@ -11289,7 +11289,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	bool *move_combo_list = new bool[MAXCOMBOS];
 	bool *move_items_list = new bool[iMax];
 	bool *move_weapons_list = new bool[wMAX];
-	bool move_link_sprites_list[41];
+	bool move_hero_sprites_list[41];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
 	bool move_game_icons_list[4];
@@ -11704,33 +11704,33 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				}
 			}
 			
-			//check Link sprites
+			//check Player sprites
 			if(!done)
 			{
 				//this is here to allow this section to fold
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				setup_link_sprite_items();
+				setup_hero_sprite_items();
 				
 				for(int32_t u=0; u<41; u++)
 				{
-					move_link_sprites_list[u]=false;
+					move_hero_sprites_list[u]=false;
 					
 					if(rect)
 					{
-						i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_rs(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, selection_first, selection_last);
+						i=move_intersection_rs(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
+					if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
-							sprintf(temptext, "%s\n", link_sprite_items[u].name);
+							sprintf(temptext, "%s\n", hero_sprite_items[u].name);
 							
 							if(strlen(tile_move_list_text)<65000)
 							{
@@ -11749,14 +11749,14 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 						}
 						else if(i==ti_encompass)
 						{
-							move_link_sprites_list[u]=true;
+							move_hero_sprites_list[u]=true;
 						}
 					}
 				}
 				
 				if(found)
 				{
-					sprintf(buf2, "The tiles used by the following Link sprites");
+					sprintf(buf2, "The tiles used by the following Player sprites");
 					
 					if(move)
 					{
@@ -12929,22 +12929,22 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		}
 	}
 	
-	//check Link sprites
+	//check Player sprites
 	if(!done)
 	{
 		//this is here to allow this section to fold
 		tile_move_list_text[0]=0;
 		found=false;
 		flood=false;
-		setup_link_sprite_items();
+		setup_hero_sprite_items();
 		
 		for(int32_t u=0; u<41; u++)
 		{
-			i=move_intersection_rr(TILECOL(link_sprite_items[u].tile), TILEROW(link_sprite_items[u].tile), link_sprite_items[u].width, link_sprite_items[u].height, dest_left, dest_top, dest_width, dest_height);
+			i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, dest_left, dest_top, dest_width, dest_height);
 			
-			if((i!=ti_none)&&(link_sprite_items[u].tile!=0))
+			if((i!=ti_none)&&(hero_sprite_items[u].tile!=0))
 			{
-				sprintf(temptext, "%s\n", link_sprite_items[u].name);
+				sprintf(temptext, "%s\n", hero_sprite_items[u].name);
 				
 				if(strlen(tile_move_list_text)<65000)
 				{
@@ -12965,7 +12965,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		
 		if(found)
 		{
-			sprintf(buf2, "The tiles used by the following Link sprites");
+			sprintf(buf2, "The tiles used by the following Player sprites");
 			sprintf(buf3, "sprites will be partially or completely");
 			sprintf(buf4, "overwritten by this process.  Proceed?");
 			

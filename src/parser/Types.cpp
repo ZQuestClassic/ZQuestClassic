@@ -141,7 +141,7 @@ DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
 DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
 DataTypeClassConst DataType::GAME(ZCLASSID_GAME, "Game");
-DataTypeClassConst DataType::LINK(ZCLASSID_LINK, "Link");
+DataTypeClassConst DataType::PLAYER(ZCLASSID_PLAYER, "Player");
 DataTypeClassConst DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
 DataTypeClassConst DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
 DataTypeClassConst DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
@@ -238,7 +238,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_LONG: return &LONG;
 		case ZVARTYPEID_BOOL: return &BOOL;
 		case ZVARTYPEID_GAME: return &GAME;
-		case ZVARTYPEID_LINK: return &LINK;
+		case ZVARTYPEID_PLAYER: return &PLAYER;
 		case ZVARTYPEID_SCREEN: return &SCREEN;
 		case ZVARTYPEID_FFC: return &FFC;
 		case ZVARTYPEID_ITEM: return &ITEM;
@@ -287,7 +287,7 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 	switch (classId)
 	{
 		case ZCLASSID_GAME: return &GAME;
-		case ZCLASSID_LINK: return &LINK;
+		case ZCLASSID_PLAYER: return &PLAYER;
 		case ZCLASSID_SCREEN: return &SCREEN;
 		case ZCLASSID_FFC: return &FFC;
 		case ZCLASSID_ITEM: return &ITEM;
@@ -653,7 +653,7 @@ namespace // file local
 		{"npc", ZVARTYPEID_NPC},
 		{"eweapon", ZVARTYPEID_EWPN},
 		{"lweapon", ZVARTYPEID_LWPN},
-		{"link", ZVARTYPEID_LINK},
+		{"player", ZVARTYPEID_PLAYER},
 		{"screendata", ZVARTYPEID_SCREEN},
 		{"dmapdata", ZVARTYPEID_DMAPDATA},
 		{"itemsprite", ZVARTYPEID_ITEM},
@@ -669,7 +669,7 @@ ScriptType const ScriptType::item(idItem);
 ScriptType const ScriptType::npc(idNPC);
 ScriptType const ScriptType::lweapon(idLWeapon);
 ScriptType const ScriptType::eweapon(idEWeapon);
-ScriptType const ScriptType::link(idLink);
+ScriptType const ScriptType::player(idPlayer);
 ScriptType const ScriptType::screendata(idScreen);
 ScriptType const ScriptType::dmapdata(idDMap);
 ScriptType const ScriptType::itemsprite(idItemSprite);

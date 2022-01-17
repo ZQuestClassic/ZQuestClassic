@@ -83,16 +83,16 @@ private:
 	void generateCode();
 };
 
-class LinkSymbols : public LibrarySymbols
+class HeroSymbols : public LibrarySymbols
 {
 public:
-    static LinkSymbols &getInst()
+    static HeroSymbols &getInst()
     {
         return singleton;
     }
 private:
-    static LinkSymbols singleton;
-    LinkSymbols();
+    static HeroSymbols singleton;
+    HeroSymbols();
 	void generateCode();
 };
 
@@ -161,16 +161,16 @@ private:
 	void generateCode();
 };
 
-class LinkWeaponSymbols : public LibrarySymbols
+class HeroWeaponSymbols : public LibrarySymbols
 {
 public:
-    static LinkWeaponSymbols &getInst()
+    static HeroWeaponSymbols &getInst()
     {
         return singleton;
     }
 private:
-    static LinkWeaponSymbols singleton;
-    LinkWeaponSymbols();
+    static HeroWeaponSymbols singleton;
+    HeroWeaponSymbols();
 	void generateCode();
 };
 

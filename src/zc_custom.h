@@ -28,15 +28,15 @@ enum {spr_landhold, spr_waterhold};
 enum {spr_hold1, spr_hold2, spr_holdsword, spr_holdmax};
 enum { las_original, las_bszelda, las_zelda3, las_zelda3slow, las_max };
 
-extern int32_t script_link_sprite;
-extern int32_t script_link_cset;
-extern int32_t script_link_flip;
+extern int32_t script_hero_sprite;
+extern int32_t script_hero_cset;
+extern int32_t script_hero_flip;
 
-extern byte link_defence[wMax];
+extern byte hero_defence[wMax];
 
 extern int32_t hammeroffsets[4];
 
-extern int32_t old_floatspr, old_slashspr, linkspr;
+extern int32_t old_floatspr, old_slashspr, herospr;
 extern int32_t walkspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t stabspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t slashspr[4][3];                                  //dir,                           tile/flip/extend
@@ -81,11 +81,11 @@ extern int32_t dashspr[4][3];                                   //dir,          
 extern int32_t bonkspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t medallionsprs[3][3];                             //medallion,                     tile/flip/extend
 
-void linktile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t style);
-void linktile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int32_t dir, int32_t style);
-void setuplinktiles(int32_t style);
-void setlinktile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int32_t dir);
-void setuplinkdefenses();
-void setuplinkoffsets();
+void herotile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t style);
+void herotile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int32_t dir, int32_t style);
+void setupherotiles(int32_t style);
+void setherotile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int32_t dir);
+void setupherodefenses();
+void setupherooffsets();
 #endif
 

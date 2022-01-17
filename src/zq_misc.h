@@ -81,8 +81,6 @@ extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
 //extern const char *combotype_string[MAXCOMBOTYPES];
 extern const char *flag_string[MAXFLAGS];
-extern const char *itemclass_help_string[(itype_last-20)*3];
-extern const char *combotype_help_string[cMAX];
 extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern const char *pattern_string[MAXPATTERNS];
@@ -296,7 +294,7 @@ int32_t onDefault_MapStyles();
 
 int32_t onCustomItems();
 int32_t onCustomWpns();
-int32_t onCustomLink();
+int32_t onCustomHero();
 int32_t onCustomGuys();
 
 int32_t onTest();

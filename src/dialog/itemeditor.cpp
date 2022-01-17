@@ -195,23 +195,23 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_wallet:
 		{
 			_SET(power, "Infinite Supply:", "If >0, grants infinite money");
-			_SET(misc[0], "Increase Amount:", "How much money regenerates over time from having this");
-			_SET(misc[1], "Delay Duration:", "How often money regenerates from having this, in frames");
+			_SET(misc[0], "Increase Amount:", "How much money regenerate over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often money regenerate from having this, in frames");
 			break;
 		}
 		case itype_quiver:
 		{
 			_SET(power, "Infinite Supply:", "If >0, grants infinite arrows");
-			_SET(misc[0], "Increase Amount:", "How much arrows regenerates over time from having this");
-			_SET(misc[1], "Delay Duration:", "How often arrows regenerates from having this, in frames");
+			_SET(misc[0], "Increase Amount:", "How many arrows regenerate over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often arrows regenerate from having this, in frames");
 			break;
 		}
 		case itype_bombbag:
 		{
 			_SET(power, "Infinite Supply:", "If >0, grants infinite bombs");
-			_SET(misc[0], "Increase Amount:", "How much bombs regenerates over time from having this");
-			_SET(misc[1], "Delay Duration:", "How often bombs regenerates from having this, in frames");
-			_SET(flag[0], "Super Bombs Also", "Also Regenerates S. Bombs");
+			_SET(misc[0], "Increase Amount:", "How many bombs regenerate over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often bombs regenerate from having this, in frames");
+			_SET(flag[0], "Super Bombs Also", "Also regenerates S. Bombs");
 			break;
 		}
 		case itype_quakescroll2: //!TODO Help Text
@@ -257,14 +257,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_magicring:
 		{
 			_SET(power, "Infinite Magic:", "If >0, grants infinite magic");
-			_SET(misc[0], "Increase Amount:", "How much magic regenerates over time from having this");
-			_SET(misc[1], "Delay Duration:", "How often magic regenerates from having this, in frames");
+			_SET(misc[0], "Increase Amount:", "How much magic regenerate over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often magic regenerate from having this, in frames");
 			break;
 		}
 		case itype_heartring:
 		{
-			_SET(misc[0], "Increase Amount:", "How much life regenerates over time from having this");
-			_SET(misc[1], "Delay Duration:", "How often life regenerates from having this, in frames");
+			_SET(misc[0], "Increase Amount:", "How much life regenerate over time from having this");
+			_SET(misc[1], "Delay Duration:", "How often life regenerate from having this, in frames");
 			break;
 		}
 		case itype_chargering: //!TODO Help Text
@@ -689,7 +689,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_script9: case itype_script10:
 		{
 			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
-			_SET(flag[0], "No Gfx Flip", "If checked, the sprite is not flipped based on direction.");
+			_SET(flag[0], "No GFX Flip", "If checked, the sprite is not flipped based on direction.");
 			break;
 		}
 		case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4:
@@ -701,7 +701,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_icerod:
 		{
 			_SET(misc[0], "Step Speed:", "The speed, in 100ths of pixel/frame");
-			_SET(flag[0], "No Gfx Flip", "If checked, the sprite is not flipped based on direction.");
+			_SET(flag[0], "No GFX Flip", "If checked, the sprite is not flipped based on direction.");
 			break;
 		}
 		case itype_flippers:
@@ -739,7 +739,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_bottle:
 		{
-			_SET(misc[0], "Slot:", "Which slot this bottle item is attached to. Valid vals 0-255.");
+			_SET(misc[0], "Slot:", "Which slot this bottle item is attached to. Valid values: 0-255.");
 			break;
 		}
 		case itype_bottlefill:

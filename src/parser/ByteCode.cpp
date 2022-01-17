@@ -4899,12 +4899,12 @@ string OBMPDrawScreenRegister::toString()
     return "BMPDRAWSCREENR";
 }
 
-string OLinkWarpExRegister::toString()
+string OHeroWarpExRegister::toString()
 {
     return "LINKWARPEXR " + getArgument()->toString();
 }
 
-string OLinkExplodeRegister::toString()
+string OHeroExplodeRegister::toString()
 {
     return "LINKEXPLODER " + getArgument()->toString();
 }
@@ -5070,7 +5070,7 @@ string ONPCFloatWalk::toString()
 {
     return "NPCFLOATWALK " + getArgument()->toString();
 }
-string ONPCLinkInRange::toString()
+string ONPCHeroInRange::toString()
 {
     return "NPCLINKINRANGE " + getArgument()->toString();
 }

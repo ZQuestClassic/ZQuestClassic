@@ -47,7 +47,7 @@ static const GUI::ListData roomListData {
 };
 
 static const auto specialItemDesc =
-	"If a Guy is set, he will offer an item to Link. "
+	"If a Guy is set, he will offer an item to the Player. "
 	"This room type is also used for Item Cellar warps, "
 	"and 'Armos/Chest->Item' and 'Dive For Item' combo flags.";
 
@@ -56,7 +56,7 @@ static const auto infoDesc =
 	"Strings and prices are set in Misc. Data -> Info Types.";
 
 static const auto moneyDesc =
-	"If a Guy is set, he will offer rupees to Link.";
+	"If a Guy is set, he will offer rupees to the Player.";
 
 static const auto gambleDesc =
 	"The 'Money-Making Game' from The Legend of Zelda. "
@@ -66,7 +66,7 @@ static const auto repairDesc =
 	"When the Guy's String finishes, the player loses a given amount of money.";
 
 static const auto potionOrHCDesc =
-	"The Guy offers item 28 and item 30 to Link. "
+	"The Guy offers item 28 and item 30 to the Player. "
 	"Taking one makes the other vanish forever.";
 
 static const auto grumbleDesc =
@@ -76,13 +76,13 @@ static const auto grumbleDesc =
 
 static const auto triforceDesc =
 	"The Guy and his invisible wall won't vanish "
-	"unless Link has Triforces from levels 1-8. "
+	"unless the Player has Triforces from levels 1-8. "
 	"(Shutters won't open until the Guy vanishes, too.)";
 
 static const auto potionShopDesc =
 	"Similar to a Shop, but the items and String "
-	"won't appear until Link uses a Letter item. "
-	"(Or, if Link already has a Level 2 Letter item.)";
+	"won't appear until the Player uses a Letter item. "
+	"(Or, if the Player already has a Level 2 Letter item.)";
 
 static const auto shopDesc =
 	"The Guy offers three items for a fee. "
@@ -96,12 +96,12 @@ static const auto bshopDesc =
 	"Fills and prices are set in Misc. Data -> Bottle Shop Types.";
 
 static const auto moreBombsDesc =
-	"The Guy offers to increase Link's Bombs "
+	"The Guy offers to increase the Player's Bombs "
 	"and Max. Bombs by 4, for a fee. You can only buy it once.";
 
 static const auto swindleDesc =
 	"The Guy and his invisible wall won't vanish until "
-	"Link pays the fee or forfeits a Heart Container. "
+	"the Player pays the fee or forfeits a Heart Container. "
 	"(Shutters won't open until the Guy vanishes, too.)";
 
 static const auto tenRupiesDesc =
@@ -109,12 +109,12 @@ static const auto tenRupiesDesc =
 	"the center of the screen. No Guy or String needs to be set for this.";
 
 static const auto warpDesc =
-	"All 'Stair [A]' type combos send Link to "
+	"All 'Stair [A]' type combos send the Player to "
 	"a destination in a given Warp Ring, based "
 	"on the combo's X position (<112, >136, or between).";
 
 static const auto ganonDesc =
-	"Link holds up the Triforce, and Ganon appears. "
+	"The Player holds up the Triforce, and Ganon appears. "
 	"(Unless the current DMap's Dungeon Boss was beaten.)";
 
 static const auto zeldaDesc =
@@ -122,13 +122,13 @@ static const auto zeldaDesc =
 	"(That's all it does.)";
 
 static const auto magicUpgradeDesc =
-	"When the Guy's String finishes, Link gains the 1/2 Magic Usage attribute.";
+	"When the Guy's String finishes, the Player gains the 1/2 Magic Usage attribute.";
 
 static const auto learnSlashDesc =
-	"When the Guy's String finishes, Link gains the Slash attribute.";
+	"When the Guy's String finishes, the Player gains the Slash attribute.";
 
 static const auto moreArrowsDesc =
-	"The Guy offers to increase Link's Arrows and Max. Arrows by 10, "
+	"The Guy offers to increase the Player's Arrows and Max. Arrows by 10, "
 	"for a fee. You can only buy it once.";
 
 static const auto takeOneDesc =

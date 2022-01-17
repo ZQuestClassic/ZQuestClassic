@@ -184,7 +184,7 @@ extern int32_t black_opening_shape;
 
 void zapout();
 void zapin();
-void wavyout(bool showlink);
+void wavyout(bool showhero);
 void wavyin();
 void blackscr(int32_t fcnt,bool showsubscr);
 void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a);

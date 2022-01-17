@@ -74,7 +74,7 @@ public:
      * Explanation of hzsz:
      * Hzsz is how "tall" a sprite is.
      * To jump over a sprite, you must be higher than its z+hzsz.
-     * Enemies have hzsz of 0 so that Link can jump over them (see LA.)
+     * Enemies have hzsz of 0 so that Hero can jump over them (see LA.)
      */
     int32_t id,dir;
     bool angular,canfreeze;

@@ -218,7 +218,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_CHEATS         ZC_ID('C','H','T',' ')              //cheats
 #define ID_SAVEGAME       ZC_ID('S','V','G','M')              //save game data (used in the save game file)
 #define ID_COMBOALIASES   ZC_ID('C','M','B','A')              //combo alias
-#define ID_LINKSPRITES    ZC_ID('L','I','N','K')              //Link sprites
+#define ID_HEROSPRITES    ZC_ID('L','I','N','K')              //Hero sprites
 #define ID_SUBSCREEN      ZC_ID('S','U','B','S')              //subscreen data
 #define ID_ITEMDROPSETS   ZC_ID('D','R','O','P')              //item drop set tables
 #define ID_FAVORITES      ZC_ID('F','A','V','S')              //favorite combos and combo aliases
@@ -248,7 +248,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_CHEATS           1
 #define V_SAVEGAME        23 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
-#define V_LINKSPRITES      14
+#define V_HEROSPRITES      14
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         18
@@ -290,7 +290,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define CV_CHEATS          1
 #define CV_SAVEGAME        5
 #define CV_COMBOALIASES    1
-#define CV_LINKSPRITES     1
+#define CV_HEROSPRITES     1
 #define CV_SUBSCREEN       3
 #define CV_ITEMDROPSETS    1
 #define CV_FFSCRIPT        1
@@ -489,7 +489,7 @@ extern bool fake_pack_writing;
 #define wfLEFT          4
 #define wfRIGHT         8
 #define fSECRET         16  // play "secret" sfx upon entering this screen
-#define fAIRCOMBOS      32  //'S.Flags2' Combos affect midair Link
+#define fAIRCOMBOS      32  //'S.Flags2' Combos affect midair Hero
 #define fFLOATTRAPS     64 //'E.Flags' Traps ignore walkability. 
 #define fCLEARSECRET    128 // clear all enemies to trigger secret entrance (Enemies->Secret)
 
@@ -497,7 +497,7 @@ extern bool fake_pack_writing;
 #define fHOLDITEM         1 //'S.Flags1' Hold Up Item
 #define fCYCLEONINIT      2 //'S.Flags2' Cycle combos on screen init
 #define fINVISROOM        4 //
-#define fINVISLINK        8 //'S.Flags1' Invisible Link
+#define fINVISHERO        8 //'S.Flags1' Invisible Hero
 #define fNOSUBSCR         16 //'S.Flags1' No subscreen
 #define fIWARPFULLSCREEN  32                                // instawarps affect all sprites --is this 'Sprites carry over in warps???' -Z
 #define fNOSUBSCROFFSET   64  //'S.Flags1' ...but don't offset screen     // don't offset the screen when fNOSUBSCR is true
@@ -538,7 +538,7 @@ extern bool fake_pack_writing;
 #define fLAYER2BG       2 //'S.Flags1' Layer 2 is background
 #define fITEMFALLS	4 //'S.Flags1' Item falls from ceiling
 #define fSIDEVIEW       8 //'S.Flags1' Sideview Gravity
-#define fNOLINKMARK     16 //'S.Flags1' No Link marker in Minimap
+#define fNOHEROMARK     16 //'S.Flags1' No Hero marker in Minimap
 #define fSPECITEMMARK   32
 #define fWHISTLEPAL     64 //'S.Flags2' Whistle->Palette change. 
 #define fWHISTLEWATER   128 //'S.Flags2' Whistle->Dry lake
@@ -582,7 +582,7 @@ extern bool fake_pack_writing;
 
 // item "pick up" flags
 #define ipBIGRANGE      1                                   // Collision rectangle is large
-#define ipHOLDUP        2                                   // Link holds up item when he gets it
+#define ipHOLDUP        2                                   // Hero holds up item when he gets it
 #define ipONETIME       4                                   // Getting this item sets mITEM
 #define ipDUMMY         8                                   // Dummy item.  Can't get this.
 #define ipCHECK         16                                  // Check restrictions (money in a shop, etc.)
@@ -605,7 +605,7 @@ extern bool fake_pack_writing;
 
 //We have definitions for this below, but this is for scripted stuff in 2,54. 
 enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY, 
-	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOLINK, warpfxWAVYINNOLINK, warpfxWAVYOUTNOLINK, 
+	warpfxWAVYIN, warpfxWAVYOUT, warpfxWAVYNOHERO, warpfxWAVYINNOHERO, warpfxWAVYOUTNOHERO, 
 		warpfxLAST};
 	
 //wipe types - mosaic should be one of them. 
@@ -921,13 +921,13 @@ enum
     // 3
     qr_TIME, qr_FREEFORM, qr_KILLALL, qr_NOFLICKER,
     qr_CONTFULL_DEP/*DEPRECATED*/, qr_RLFIX, qr_LENSHINTS, /*DEPRECATED*/ 
-    qr_LINKDUNGEONPOSFIX,
+    qr_HERODUNGEONPOSFIX,
     // 4
     qr_HOLDITEMANIMATION, qr_HESITANTPUSHBLOCKS, qr_HIDECARRIEDITEMS, qr_FFCSCROLL,
     qr_RAFTLENS, /*DEPRECATED*/  
 	qr_SMOOTHVERTICALSCROLLING, qr_WHIRLWINDMIRROR, qr_NOFLASHDEATH,
     // 5
-    qr_HOLDNOSTOPMUSIC, qr_FIREPROOFLINK, qr_OUCHBOMBS, qr_NOCLOCKS_DEP/*DEPRECATED*/,
+    qr_HOLDNOSTOPMUSIC, qr_FIREPROOFHERO, qr_OUCHBOMBS, qr_NOCLOCKS_DEP/*DEPRECATED*/,
     qr_TEMPCLOCKS_DEP/*DEPRECATED*/, qr_BRKBLSHLDS_DEP/*DEPRECATED*/, qr_BRKNSHLDTILES, qr_MEANPLACEDTRAPS,
     // 6
     qr_PHANTOMPLACEDTRAPS, qr_ALLOWFASTMSG, qr_LINKEDCOMBOS/*DEPRECATED*/, qr_NOGUYFIRES,
@@ -940,7 +940,7 @@ enum
     qr_PHANTOMGHINI2_DEP/*DEPRECATED*/, qr_Z3BRANG_HSHOT, qr_NOITEMMELEE/*DEPRECATED*/, qr_SHADOWS,
     // 9
     qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
-    qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_LINKFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
+    qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_HEROFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
     // 10
     qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP/*DEPRECATED*/,
     qr_FLICKERINGNAYRUSLOVEROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
@@ -963,7 +963,7 @@ enum
     qr_INSTABURNFLAGS, qr_DROWN, qr_MSGDISAPPEAR, qr_SUBSCREENOVERSPRITES,
     qr_BOMBDARKNUTFIX, qr_LONGBOMBBOOM_DEP/*DEPRECATED*/, qr_OFFSETEWPNCOLLISIONFIX, qr_DMGCOMBOLAYERFIX,
     // 17
-    qr_ITEMSINPASSAGEWAYS, qr_LOG, qr_FIREPROOFLINK2, qr_NOITEMOFFSET,
+    qr_ITEMSINPASSAGEWAYS, qr_LOG, qr_FIREPROOFHERO2, qr_NOITEMOFFSET,
     qr_ITEMBUBBLE, qr_GOTOLESSNOTEQUAL /* Compatibility */, qr_LADDERANYWHERE, qr_HOOKSHOTLAYERFIX,
     // 18
     qr_REPLACEOPENDOORS /* Compatibility */, qr_OLDLENSORDER /* Compatibility */, qr_NOFAIRYGUYFIRES /* Compatibility */, qr_SCRIPTERRLOG,
@@ -983,8 +983,8 @@ enum
     //21
 	qr_OLDINFMAGIC/* Compatibility */, //Infinite magic prevents items from draining rupees
 	qr_NEVERDISABLEAMMOONSUBSCREEN, qr_ITEMSCRIPTSKEEPRUNNING,
-	qr_SCRIPTSRUNINLINKSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
-	qr_DYINGENEMYESDONTHURTLINK, //t.b.a
+	qr_SCRIPTSRUNINHEROSTEPFORWARD, /*qr_SCRIPTDRAWSINCANCELWARP,*/ qr_FIXSCRIPTSDURINGSCROLLING, qr_SCRIPTDRAWSINWARPS,
+	qr_DYINGENEMYESDONTHURTHERO, //t.b.a
 	qr_SIDEVIEWTRIFORCECELLAR,
 	//22
 	qr_OUTOFBOUNDSENEMIES,
@@ -1205,7 +1205,7 @@ enum
     ewFLAME, ewWIND, iwMMeter, wDINSFIRE1A, wDINSFIRE1B,
 // 40
     wDINSFIRES1A, wDINSFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
-    iwLinkSlash, wSWORDSLASH, wWSWORDSLASH, wMSWORDSLASH, wXSWORDSLASH,
+    iwHeroSlash, wSWORDSLASH, wWSWORDSLASH, wMSWORDSLASH, wXSWORDSLASH,
 // 50
     iwShadow, iwLargeShadow, iwBushLeaves, iwFlowerClippings, iwGrassClippings,
     iwTallGrass, iwRipples, iwNPCs, wNAYRUSLOVE1A, wNAYRUSLOVE1B,
@@ -1244,7 +1244,7 @@ enum
 #define HIT_BY_LWEAPON_LITERAL_ID 15
 
 #define NUM_HIT_TYPES_USED 16
-#define NUM_HIT_TYPES_USED_LINK 4
+#define NUM_HIT_TYPES_USED_PLAYER 4
 
 //Page 1, triggerflags[0]
 
@@ -1688,7 +1688,7 @@ enum
 	//edSAVE, edRETRY, edCRASHZC // Sanity Check Required. -Z
 	edWINGAME, //Wand of Gamelon. 
 	edJUMP, //Z3 stalfos
-	edEATLINK, //-G //Is this practical? We need specisal npc mvoement for it. -Z
+	edEATHERO, //-G //Is this practical? We need specisal npc mvoement for it. -Z
 	edSHOWMESSAGE, //Shows a ZString when hit. e.g., Z3 Ganon
 	edSWITCH, //Switch places with the player, as a switchhook does
 	
@@ -1786,7 +1786,7 @@ struct itemdata
     byte frames;                                              // animation frame count
     byte speed;                                               // animation speed
     byte delay;                                               // extra delay factor (-1) for first frame
-    int32_t ltm;                                                 // Link Tile Modifier
+    int32_t ltm;                                                 // Hero Tile Modifier
     int32_t family;												// What family the item is in
     byte fam_type;	//level										// What type in this family the item is
     int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
@@ -2026,7 +2026,7 @@ struct item_drop_object
 #define ffLENSVIS       0x00000080 //Invisible, but not to the Lens of Truth.
 #define ffSCRIPTRESET	0x00000100 //Script resets when carried over.
 #define ffETHEREAL      0x00000200 //Does not occlude combo and flags on the screen
-#define ffIGNOREHOLDUP  0x00000400 //Updated even while Link is holding an item
+#define ffIGNOREHOLDUP  0x00000400 //Updated even while Hero is holding an item
 #define ffIGNORECHANGER  0x00000800 //Ignore changers
 #define ffIMPRECISIONCHANGER  0x00001000 //Ignore changers
 #define ffLENSINVIS		0x00002000 //Visible, but not to the Lens of Truth
@@ -2298,7 +2298,7 @@ struct mapscr
 	byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
 	byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
 	
-	byte entry_x, entry_y; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
+	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 	
 	//Why doesn't ffc get to be its own class?
 	dword numff;
@@ -2462,7 +2462,7 @@ struct mapscr
 		nextmap=0;
 		nextscr=0;
 		// new for 2.6
-		//entry_x = entry_y = 0; //Where Link entered the screen. Used for pits, and to prevent water walking. -Z
+		//entry_x = entry_y = 0; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
 		
 		
 		viewX=0;
@@ -2652,7 +2652,7 @@ struct mapscr
 #define SCRIPT_GLOBAL					1
 #define SCRIPT_FFC						2
 #define SCRIPT_SCREEN					3
-#define SCRIPT_LINK						4
+#define SCRIPT_PLAYER						4
 #define SCRIPT_ITEM						5
 #define SCRIPT_LWPN						6
 #define SCRIPT_NPC						7
@@ -3806,7 +3806,7 @@ struct zcolors
     //10
     byte subscr_bg, subscr_shadow, triframe_color;
     byte bmap_bg,bmap_fg;
-    byte link_dot;
+    byte hero_dot;
     //15
     byte triforce_cset;
     byte triframe_cset;
@@ -4175,7 +4175,7 @@ struct gamedata
 	/*word  _maxmagic, _magic;
 	int16_t _dmagic;*/
 	//byte  _magicdrainrate;
-	//byte  _canslash;                                           //Link slashes instead of stabs.
+	//byte  _canslash;                                           //Hero slashes instead of stabs.
 	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
 	//byte  padding[2];
 	//636
@@ -4483,7 +4483,7 @@ struct zinitdata
 	byte msg_more_x, msg_more_y, msg_more_is_offset;
 	byte subscreen;
 	word start_dmap;
-	byte linkanimationstyle;
+	byte heroAnimationStyle;
 	//238
 	//byte expansion[98];
 	//336 bytes total
@@ -4504,8 +4504,8 @@ struct zinitdata
 	word terminalv;
 	byte msg_speed;
 	byte transition_type; // Can't edit, yet.
-	byte jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
-	byte link_swim_speed;
+	byte jump_hero_layer_threshold; // Hero is drawn above layer 3 if z > this.
+	byte hero_swim_speed;
 	
 	word bombs, super_bombs, max_bombs, max_sbombs, arrows, max_arrows, heroStep, subscrSpeed, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
 	
@@ -4579,7 +4579,7 @@ enum {
     sels_tile_questicon_9A_X, sels_tile_questicon_9B_X, sels_tile_questicon_10A_X, sels_tile_questicon_10B_X,
 	
 	
-    sels_cursor_tile, sels_heart_tile, sels_linktile, draw_link_first,
+    sels_cursor_tile, sels_heart_tile, sels_herotile, draw_hero_first,
     sels_tile_LAST
 };
 
@@ -4590,7 +4590,7 @@ enum {
     sels_tile_questicon_6B_cset, sels_tile_questicon_7A_cset, sels_tile_questicon_7B_cset, sels_tile_questicon_8A_cset, 
     sels_tile_questicon_8B_cset, sels_tile_questicon_9A_cset, sels_tile_questicon_9B_cset, sels_tile_questicon_10A_cset, 
     sels_tile_questicon_10B_cset, change_cset_on_quest_3, 
-	sels_cusror_cset, sels_heart_tilettile_cset, sels_link_cset,
+	sels_cusror_cset, sels_heart_tilettile_cset, sels_hero_cset,
 	
 	sels_tile_cset_LAST
 	
@@ -5201,8 +5201,8 @@ extern void removeFromItemCache(int32_t itemid);
 #define NUMSCRIPTGLOBAL255OLD	7
 #define NUMSCRIPTGLOBAL253		4
 #define NUMSCRIPTGLOBALOLD		3
-#define NUMSCRIPTLINKOLD		3
-#define NUMSCRIPTLINK			5
+#define NUMSCRIPTHEROOLD		3
+#define NUMSCRIPTPLAYER			5
 #define NUMSCRIPTSCREEN			256
 #define NUMSCRIPTSDMAP			256
 #define NUMSCRIPTSITEMSPRITE	256
@@ -5217,12 +5217,12 @@ extern void removeFromItemCache(int32_t itemid);
 #define GLOBAL_SCRIPT_F6			6
 #define GLOBAL_SCRIPT_ONSAVE		7
 
-#define SCRIPT_LINK_INIT 1
-#define SCRIPT_LINK_ACTIVE 2
-#define SCRIPT_LINK_DEATH 3
-#define SCRIPT_LINK_WIN 4
+#define SCRIPT_PLAYER_INIT 1
+#define SCRIPT_PLAYER_ACTIVE 2
+#define SCRIPT_PLAYER_DEATH 3
+#define SCRIPT_PLAYER_WIN 4
 
-//Link Internal Flags
+//Hero Internal Flags
 #define LF_PAID_SWORD_COST		0x01
 #define LF_PAID_WAND_COST		0x02
 #define LF_PAID_CBYRNA_COST		0x04

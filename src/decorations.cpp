@@ -20,7 +20,7 @@
 #include "zelda.h"
 #include "maps.h"
 #include "zsys.h"
-#include "link.h"
+#include "hero.h"
 
 /***************************************/
 /*******  Decoration Base Class  *******/
@@ -611,19 +611,19 @@ bool dTallGrass::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	
-	if(LinkZ()>8) return true;
-	bool g1 = isGrassType(COMBOTYPE(LinkX(),LinkY()+15)), g2 = isGrassType(COMBOTYPE(LinkX()+15,LinkY()+15));
+	if(HeroZ()>8) return true;
+	bool g1 = isGrassType(COMBOTYPE(HeroX(),HeroY()+15)), g2 = isGrassType(COMBOTYPE(HeroX()+15,HeroY()+15));
 	if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
 	{
-		g1 = g1 || isGrassType(COMBOTYPEL(1,LinkX(),LinkY()+15)) || isGrassType(COMBOTYPEL(2,LinkX(),LinkY()+15));
-		g2 = g2 || isGrassType(COMBOTYPEL(1,LinkX()+15,LinkY()+15)) || isGrassType(COMBOTYPEL(2,LinkX()+15,LinkY()+15));
+		g1 = g1 || isGrassType(COMBOTYPEL(1,HeroX(),HeroY()+15)) || isGrassType(COMBOTYPEL(2,HeroX(),HeroY()+15));
+		g2 = g2 || isGrassType(COMBOTYPEL(1,HeroX()+15,HeroY()+15)) || isGrassType(COMBOTYPEL(2,HeroX()+15,HeroY()+15));
 	}
 	return !(g1&&g2);
 }
 
 void dTallGrass::draw(BITMAP *dest)
 {
-	if(LinkGetDontDraw())
+	if(HeroGetDontDraw())
 		return;
 		
 	int32_t t=0;
@@ -641,17 +641,17 @@ void dTallGrass::draw(BITMAP *dest)
 	}
 	
 	flip=0;
-	x=LinkX();
-	y=LinkY()+10;
+	x=HeroX();
+	y=HeroY()+10;
 	
 //  if (BSZ)
-	if(zinit.linkanimationstyle==las_bszelda)
+	if(zinit.heroAnimationStyle==las_bszelda)
 	{
-		tile=t+(anim_3_4(LinkLStep(),7)*2);
+		tile=t+(anim_3_4(HeroLStep(),7)*2);
 	}
 	else
 	{
-		tile=t+((LinkLStep()>=6)?2:0);
+		tile=t+((HeroLStep()>=6)?2:0);
 	}
 	
 	decoration::draw8(dest);
@@ -672,32 +672,32 @@ bool dRipples::animate(int32_t index)
 	clk++;
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (LinkZ() == 0 && LinkAction() != swimming && LinkAction() != sideswimming && LinkAction() != sideswimhit && LinkAction() != sideswimattacking && LinkAction() != isdiving && LinkAction() != drowning)
+		if (HeroZ() == 0 && HeroAction() != swimming && HeroAction() != sideswimming && HeroAction() != sideswimhit && HeroAction() != sideswimattacking && HeroAction() != isdiving && HeroAction() != drowning)
 		{
 			/*
-			return !((FFORCOMBOTYPE(LinkX()+11,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+15)))
-			&& (FFORCOMBOTYPE(LinkX()+4,LinkY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+4,LinkY()+15)))
-			&& (FFORCOMBOTYPE(LinkX()+11,LinkY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+11,LinkY()+9)))
-			&& (FFORCOMBOTYPE(LinkX()+4,LinkY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(LinkX()+4,LinkY()+9))));
+			return !((FFORCOMBOTYPE(HeroX()+11,HeroY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+11,HeroY()+15)))
+			&& (FFORCOMBOTYPE(HeroX()+4,HeroY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+4,HeroY()+15)))
+			&& (FFORCOMBOTYPE(HeroX()+11,HeroY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+11,HeroY()+9)))
+			&& (FFORCOMBOTYPE(HeroX()+4,HeroY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+4,HeroY()+9))));
 			*/
 			
-			return !(iswaterex(FFORCOMBO(LinkX()+11,LinkY()+15), currmap, currscr, -1, LinkX()+11,LinkY()+15, false, false, true, true)
-			&& iswaterex(FFORCOMBO(LinkX()+4,LinkY()+15), currmap, currscr, -1, LinkX()+4,LinkY()+15, false, false, true, true)
-			&& iswaterex(FFORCOMBO(LinkX()+11,LinkY()+9), currmap, currscr, -1, LinkX()+11,LinkY()+9, false, false, true, true)
-			&& iswaterex(FFORCOMBO(LinkX()+4,LinkY()+9), currmap, currscr, -1, LinkX()+4,LinkY()+9, false, false, true, true));
+			return !(iswaterex(FFORCOMBO(HeroX()+11,HeroY()+15), currmap, currscr, -1, HeroX()+11,HeroY()+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(HeroX()+4,HeroY()+15), currmap, currscr, -1, HeroX()+4,HeroY()+15, false, false, true, true)
+			&& iswaterex(FFORCOMBO(HeroX()+11,HeroY()+9), currmap, currscr, -1, HeroX()+11,HeroY()+9, false, false, true, true)
+			&& iswaterex(FFORCOMBO(HeroX()+4,HeroY()+9), currmap, currscr, -1, HeroX()+4,HeroY()+9, false, false, true, true));
 		}
 		return true;
 	}
 	else
 	{
-		return ((COMBOTYPE(LinkX(),LinkY()+15)!=cSHALLOWWATER)||
-			(COMBOTYPE(LinkX()+15,LinkY()+15)!=cSHALLOWWATER) || LinkZ() != 0);
+		return ((COMBOTYPE(HeroX(),HeroY()+15)!=cSHALLOWWATER)||
+			(COMBOTYPE(HeroX()+15,HeroY()+15)!=cSHALLOWWATER) || HeroZ() != 0);
 	}
 }
 
 void dRipples::draw(BITMAP *dest)
 {
-	if(LinkGetDontDraw())
+	if(HeroGetDontDraw())
 		return;
 	
 	int32_t t=0;
@@ -716,8 +716,8 @@ void dRipples::draw(BITMAP *dest)
 	}
 	
 	flip=0;
-	x=LinkX();
-	y=LinkY()+10;
+	x=HeroX();
+	y=HeroY()+10;
 	tile=t+(((clk/8)%3)*2);
 	decoration::draw8(dest);
 	x+=8;
@@ -737,8 +737,8 @@ void dHover::draw(BITMAP *dest)
 	int32_t t=wpnsbuf[wpnid].newtile*4;
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
-	x=LinkX();
-	y=LinkY()+10-LinkZ();
+	x=HeroX();
+	y=HeroY()+10-HeroZ();
 	tile=t+(((clk/8)%3)*2);
 	decoration::draw8(dest);
 	x+=8;
@@ -750,7 +750,7 @@ bool dHover::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
-	return LinkHoverClk()<=0;
+	return HeroHoverClk()<=0;
 }
 
 dNayrusLoveShield::dNayrusLoveShield(zfix X,zfix Y,int32_t Id,int32_t Clk) : decoration(X,Y,Id,Clk)
@@ -763,7 +763,7 @@ bool dNayrusLoveShield::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
-	return LinkNayrusLoveShieldClk()<=0;
+	return HeroNayrusLoveShieldClk()<=0;
 }
 
 void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
@@ -786,11 +786,11 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
 	bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
 	
-	if(((LinkNayrusLoveShieldClk()&0x20)||(LinkNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
+	if(((HeroNayrusLoveShieldClk()&0x20)||(HeroNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
 	{
 		drawstyle=translucent?1:0;
-		x=LinkX()-8;
-		y=LinkY()-8-LinkZ();
+		x=HeroX()-8;
+		y=HeroY()-8-HeroZ();
 		tile=t;
 		
 		if(fr>0&&spd>0)

@@ -71,7 +71,7 @@ bool isSVLadder(int32_t x, int32_t y);
 bool isSVPlatform(int32_t x, int32_t y);
 bool checkSVLadderPlatform(int32_t x, int32_t y);
 bool iswater(int32_t combo);
-int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false, bool link = true);
+int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true, bool ShallowCheck = false, bool hero = true);
 int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = true, bool fullcheck = false, bool LayerCheck = true);
 bool iswater_type(int32_t type);
 bool ispitfall(int32_t combo);
@@ -120,7 +120,7 @@ void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tem
 void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t y);
 void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(bool scrolling = false);
-void draw_screen(mapscr* this_screen, bool showlink=true);
+void draw_screen(mapscr* this_screen, bool showhero=true);
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls=false);
 void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);

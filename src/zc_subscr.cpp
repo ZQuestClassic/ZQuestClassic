@@ -19,12 +19,12 @@
 #include "zelda.h"
 #include "subscr.h"
 #include "zc_subscr.h"
-#include "link.h"
+#include "hero.h"
 #include "gamedata.h"
 #include "guys.h"
 #include "ffscript.h"
 
-extern LinkClass   Link;
+extern HeroClass   Hero;
 extern int32_t directItem;
 extern int32_t directItemA;
 extern int32_t directItemB;
@@ -98,10 +98,10 @@ void dosubscr(miscQdata *misc)
 		else Bpos = 0;
 	}
         
-    for(int32_t y=176-2; y>=6; y-=3*Link.subscr_speed)
+    for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
     {
         do_dcounters();
-        Link.refill();
+        Hero.refill();
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
         
@@ -285,7 +285,7 @@ void dosubscr(miscQdata *misc)
             sfx(WAV_CHIME);
             
         do_dcounters();
-        Link.refill();
+        Hero.refill();
         
         //put_passive_subscr(framebuf,misc,0,174-miny,showtime,true);
         //blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
@@ -326,10 +326,10 @@ void dosubscr(miscQdata *misc)
     }
     while(!done);
     
-    for(int32_t y=6; y<=174; y+=3*Link.subscr_speed)
+    for(int32_t y=6; y<=174; y+=3*Hero.subscr_speed)
     {
         do_dcounters();
-        Link.refill();
+        Hero.refill();
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
         

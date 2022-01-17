@@ -27,13 +27,13 @@
 #include "maps.h"
 #include "tiles.h"
 #include "pal.h"
-#include "link.h"
+#include "hero.h"
 #include "mem_debug.h"
 #include "ffscript.h"
 #include "decorations.h"
 #include "drawing.h"
 
-extern LinkClass Link;
+extern HeroClass Hero;
 extern zinitdata zinit;
 extern int32_t directWpn;
 extern FFScript FFCore;
@@ -80,7 +80,7 @@ static double DirToRadians(int d)
 	
 }
 
-//double ddir=atan2(double(fakey-(Link.y)),double(Link.x-fakex));
+//double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
 static int32_t AngleToDir(double ddir)
 {
 	int32_t lookat=0;
@@ -1189,9 +1189,9 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			if(tmpscr->hasitem==1)
 				sfx(WAV_CLEARED);
 			items.add(new item((zfix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+				//(tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 				(zfix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
+				//(tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
 				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
@@ -1333,9 +1333,9 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 			if(tmpscr->hasitem==1)
 				sfx(WAV_CLEARED);
 			items.add(new item((zfix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+				//(tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 				(zfix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
+				//(tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
 				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
@@ -1524,10 +1524,10 @@ void getdraggeditem(int32_t j)
     if(it==NULL)
         return;
         
-    it->x = LinkX();
-    it->y = LinkY();
-    it->z = LinkZ();
-    LinkCheckItems();
+    it->x = HeroX();
+    it->y = HeroY();
+    it->z = HeroZ();
+    HeroCheckItems();
 }
 
 void weapon::setAngle(double angletoset)
@@ -1545,10 +1545,10 @@ void weapon::setAngle(double angletoset)
     else                  dir=r_down;
 }
 
-void weapon::seekLink()
+void weapon::seekHero()
 {
     angular = true;
-    angle = atan2(double(LinkY()-y),double(LinkX()-x));
+    angle = atan2(double(HeroY()-y),double(HeroX()-x));
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1559,8 +1559,8 @@ void weapon::seekLink()
     else if(angle>(PI/2))   dir=l_down;
     else                  dir=r_down;
     
-    if(z>LinkZ()) z--;
-    else if(z<LinkZ()) z++;
+    if(z>HeroZ()) z--;
+    else if(z<HeroZ()) z++;
 }
 
 void weapon::seekEnemy(int32_t j)
@@ -1674,7 +1674,7 @@ weapon::weapon(weapon const & other):
     dragging(other.dragging),		//int32_t draggong		?
     step(other.step),			//zfix		Speed of movement
     bounce(other.bounce),		//bool		Boomerang, or hookshot bounce. 
-    ignoreLink(other.ignoreLink),	//bool		?
+    ignoreHero(other.ignoreHero),	//bool		?
     flash(other.flash),			//word		Is it flashing?
     wid(other.wid),			//word		ID
     aframe(other.aframe),		//word		Anim frame
@@ -1686,7 +1686,7 @@ weapon::weapon(weapon const & other):
     frames(other.frames),		//int32_t		Frames of the anim cycle
     o_flip(other.o_flip),		//int32_t		The original flip/orientationn
     temp1(other.temp1),			//int32_t		Misc var.
-    behind(other.behind),		//bool		Should it be drawn behind Link, NPC, and other sprites?
+    behind(other.behind),		//bool		Should it be drawn behind Hero, NPC, and other sprites?
     minX(other.minX),			//int32_t		How close can the weapon get tot he edge of the screen
     maxX(other.maxX),			//int32_t		...before being deleted or bouncing
     minY(other.minY),			//int32_t		...
@@ -1743,7 +1743,7 @@ weapon::weapon(weapon const & other):
 	//script_wrote_otile = 0;
 	//if ( isLWeapon ) goto skip_eweapon_script_init;
 	//eweapons
-	//if ( parentid > -1 && parentid != Link.getUID() 
+	//if ( parentid > -1 && parentid != Hero.getUID() 
 	//	&& !ScriptGenerated //Don't try to read the parent script for a script-generated eweapon!
 	//) 
 	//{
@@ -1967,7 +1967,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	step=0;
 	dead=-1;
 	specialinfo = special;
-	bounce=ignoreLink=false;
+	bounce=ignoreHero=false;
 	yofs=playing_field_offset - 2;
 	dragging=-1;
 	hxsz=15;
@@ -2001,7 +2001,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	}
 	
 	if ( isLW ) goto skip_eweapon_script;
-	if ( prntid > -1 && prntid != Link.getUID()  ) //eweapon scripts
+	if ( prntid > -1 && prntid != Hero.getUID()  ) //eweapon scripts
 	{
 		
 		//Z_scripterrlog("Eweapon created with a prntid of: %d\n",prntid);
@@ -2047,7 +2047,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 		
-	ScriptGenerated = script_gen; //t/b/a for script generated swords and other LinkCLass items. 
+	ScriptGenerated = script_gen; //t/b/a for script generated swords and other HeroCLass items. 
 	//This will need an input in the params! -Z
 		
 	isLWeapon = isLW;
@@ -2161,7 +2161,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			break;
 		}
-		case wSword: // Link's sword
+		case wSword: // Hero's sword
 		{
 			if(isDummy || itemid<0)
 			{
@@ -2259,7 +2259,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			break;
 		}
 		
-		case wWand: // Link's wand, as well as the Cane itself
+		case wWand: // Hero's wand, as well as the Cane itself
 		{
 			if(isDummy || itemid<0)
 			{
@@ -3464,7 +3464,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 			if(Type&2)
 			{
-				seekLink();
+				seekHero();
 			}
 			else misc=-1;
 			
@@ -3477,7 +3477,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 			if(Type&2)
 			{
-				seekLink();
+				seekHero();
 			}
 			else misc=-1;
 			
@@ -3692,7 +3692,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(dir==255)
 			{
 				step=2;
-				seekLink();
+				seekHero();
 			}
 			else
 			{
@@ -3717,7 +3717,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			else
 			{
-				hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
+				hxofs = hyofs=1; // hof of 1 means that hero can use the 'half-tile trick'.
 				hxsz = hysz = 14;
 			}
 			
@@ -3747,7 +3747,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			else
 			{
-				hxofs = hyofs=1; // hof of 1 means that link can use the 'half-tile trick'.
+				hxofs = hyofs=1; // hof of 1 means that hero can use the 'half-tile trick'.
 				hxsz = hysz = 15;
 			}
 			
@@ -3888,14 +3888,14 @@ int32_t weapon::getParentScriptUID() { return parent_script_UID; }
 void weapon::setParentScriptUID(int32_t new_id) { parent_script_UID = new_id; }
 
 
-bool weapon::isLinkWeapon()
+bool weapon::isHeroWeapon()
 {
 	if ( isLWeapon > 0 ) return true;
 	if ( id < lwMax ) return true;
 	if ( id < wEnemyWeapons && isLWeapon > 0 ) return true;
 	return false;
 }
-bool weapon::isLinkMelee()
+bool weapon::isHeroMelee()
 {
 	int32_t family = itemsbuf[parentitem].family;
 	if ( family == itype_sword && id != wBeam ) return true;
@@ -4201,40 +4201,40 @@ bool weapon::animate(int32_t index)
 		{
 		if(dir==up && ((int32_t(x)&15)==0))
 		{
-			Link.check_slash_block2((int32_t)x,(int32_t)y);
-			Link.check_slash_block2((int32_t)x,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+8);
 		}
-		else if(dir==up && ((int32_t(x)&15)==8||Link.diagonalMovement))
+		else if(dir==up && ((int32_t(x)&15)==8||Hero.diagonalMovement))
 		{
-			Link.check_slash_block2((int32_t)x,(int32_t)y);
-			Link.check_slash_block2((int32_t)x,(int32_t)y+8);
-			Link.check_slash_block2((int32_t)x+8,(int32_t)y);
-			Link.check_slash_block2((int32_t)x+8,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x+8,(int32_t)y);
+			Hero.check_slash_block2((int32_t)x+8,(int32_t)y+8);
 		}
 		
 		if(dir==down && ((int32_t(x)&15)==0))
 		{
-			Link.check_slash_block2((int32_t)x,(int32_t)y+(int32_t)hysz-8);
-			Link.check_slash_block2((int32_t)x,(int32_t)y+(int32_t)hysz);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+(int32_t)hysz-8);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+(int32_t)hysz);
 		}
-		else if(dir==down && ((int32_t(x)&15)==8||Link.diagonalMovement))
+		else if(dir==down && ((int32_t(x)&15)==8||Hero.diagonalMovement))
 		{
-			Link.check_slash_block2((int32_t)x,(int32_t)y+hysz-8);
-			Link.check_slash_block2((int32_t)x,(int32_t)y+hysz);
-			Link.check_slash_block2((int32_t)x+8,(int32_t)y+hysz-8);
-			Link.check_slash_block2((int32_t)x+8,(int32_t)y+hysz);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+hysz-8);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+hysz);
+			Hero.check_slash_block2((int32_t)x+8,(int32_t)y+hysz-8);
+			Hero.check_slash_block2((int32_t)x+8,(int32_t)y+hysz);
 		}
 		
 		if(dir==left)
 		{
-			Link.check_slash_block2((int32_t)x,(int32_t)y+8);
-			Link.check_slash_block2((int32_t)x+8,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x+8,(int32_t)y+8);
 		}
 		
 		if(dir==right)
 		{
-			Link.check_slash_block2((int32_t)x+hxsz,(int32_t)y+8);
-			Link.check_slash_block2((int32_t)x+hxsz-8,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x+hxsz,(int32_t)y+8);
+			Hero.check_slash_block2((int32_t)x+hxsz-8,(int32_t)y+8);
 		}
 		
 		}*/
@@ -4243,58 +4243,58 @@ bool weapon::animate(int32_t index)
 		{
 			for(int32_t dy = 0; dy < hysz; dy += 16)
 			{
-				Link.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
 				//Layers
 				//1
-				Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,1);
+				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,1);
 				//2
-				Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,2);
+				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,2);
 				
-				Link.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
-				Link.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
-				Link.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
 			}
-			Link.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
-			Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,1);
-			Link.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,2);
-			Link.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
-			Link.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
-			Link.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,1);
+			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,2);
+			Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
 		}
 		for(int32_t dy = 0; dy < hysz; dy += 16)
 		{
-			Link.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
-			Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,1);
-			Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,2);
-			Link.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
-			Link.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
-			Link.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,1);
+			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,2);
+			Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
 		}
-		Link.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
-		Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,1);
-		Link.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,2);
-		Link.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
-		Link.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
-		Link.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,1);
+		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,2);
+		Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
 		findcombotriggers();
 		/* Don't check every single pixel.
 		for ( int32_t w = 0; q < hysz; q++ )
 		{
 			for ( int32_t q = 0; w < hxsz; w++ )
 			{
-				Link.check_slash_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-				Link.check_wand_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-				Link.check_pound_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-				Link.check_wpn_triggers((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Hero.check_slash_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Hero.check_wand_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Hero.check_pound_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
+				Hero.check_wpn_triggers((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
 			}
 		}
 		*/
-		//Link.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
+		//Hero.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
 					  //acting as the correct type with 'useweapon'.
 					  //Non-script-generated eweapons should be safe.
 		
-		//Link.check_wand_block(this);
-		//Link.check_pound_block(this);
+		//Hero.check_wand_block(this);
+		//Hero.check_pound_block(this);
 	}
 	// fall down
 	if ( moveflags & FLAG_OBEYS_GRAV ) // from above, or if scripted
@@ -4449,7 +4449,7 @@ bool weapon::animate(int32_t index)
 			
 			break;
 		}
-		// Link's weapons
+		// Hero's weapons
 		case wSword:
 			if ( doscript && itemsbuf[parentitem].misc10 == 50 )
 			{
@@ -4458,7 +4458,7 @@ bool weapon::animate(int32_t index)
 		case wWand:
 		case wHammer:
 		case wBugNet:
-			if(LinkAction()!=attacking && LinkAction()!=sideswimattacking && LinkAction()!=ischarging && !LinkCharged())
+			if(HeroAction()!=attacking && HeroAction()!=sideswimattacking && HeroAction()!=ischarging && !HeroCharged())
 			{
 				dead=0;
 			}
@@ -4496,9 +4496,9 @@ bool weapon::animate(int32_t index)
 			else
 				dir=up;
 				
-			x = (zfix)((double)LinkX() + xdiff);
-			y = (zfix)((double)LinkY() + ydiff);
-			z = LinkZ();
+			x = (zfix)((double)HeroX() + xdiff);
+			y = (zfix)((double)HeroY() + ydiff);
+			z = HeroZ();
 			
 			if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
 			{
@@ -4583,7 +4583,7 @@ bool weapon::animate(int32_t index)
 					else
 						flip ^= 2;
 						
-					ignoreLink=false;
+					ignoreHero=false;
 					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					y=(int32_t)posy&0xF0;
 					x=(int32_t)posx&0xF0;
@@ -4619,7 +4619,7 @@ bool weapon::animate(int32_t index)
 							}
 						}
 					}
-					ignoreLink=false;
+					ignoreHero=false;
 					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					y=(int32_t)posy&0xF0;
 					x=(int32_t)posx&0xF0;
@@ -4658,7 +4658,7 @@ bool weapon::animate(int32_t index)
 							}
 						}
 					}
-					ignoreLink=false;
+					ignoreHero=false;
 					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					y=(int32_t)posy&0xF0;
 					x=(int32_t)posx&0xF0;
@@ -4865,7 +4865,7 @@ bool weapon::animate(int32_t index)
 				stop_sfx(WAV_ZN1WHIRLWIND);
 				dead=2;
 			}
-			else if(LinkAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
+			else if(HeroAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
 			{
 				stop_sfx(WAV_ZN1WHIRLWIND);
 				dead=1;
@@ -5530,7 +5530,7 @@ bool weapon::animate(int32_t index)
 			
 			if(misc==1)                                           // returning
 			{
-				if((abs(LinkY()-y)<7 && abs(LinkX()-x)<7)||dead==-2)
+				if((abs(HeroY()-y)<7 && abs(HeroX()-x)<7)||dead==-2)
 				{
 					if(dead!=-2)
 					{
@@ -5553,7 +5553,7 @@ bool weapon::animate(int32_t index)
 					return true;
 				}
 				
-				seekLink();
+				seekHero();
 			}
 			sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound,pan(int32_t(x)),true,false);
 			
@@ -5589,7 +5589,7 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				//zprint2("(int32_t)(Link.dir): %d\n", (int32_t)(Link.dir));
+				//zprint2("(int32_t)(Hero.dir): %d\n", (int32_t)(Hero.dir));
 				//zprint2("clk is 1\n");
 				if(Up())
 				{
@@ -5602,7 +5602,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case up:
 								yofs += 7;
@@ -5625,7 +5625,7 @@ bool weapon::animate(int32_t index)
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case up:
 								yofs += 7;
@@ -5654,7 +5654,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case down:
 								yofs -= 5;
@@ -5676,7 +5676,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case down:
 								yofs -= 8;
@@ -5704,7 +5704,7 @@ bool weapon::animate(int32_t index)
 				int32_t maxlength=16*hshot.misc1;
 				//If the hookshot has extended to maxlength, retract it.
 				//Needa an option to measure in pixels, instead of tiles. -Z
-				if((abs(LinkX()-x)>maxlength)||(abs(LinkY()-y)>maxlength))
+				if((abs(HeroX()-x)>maxlength)||(abs(HeroY()-y)>maxlength))
 				{
 					dead=1;
 				}
@@ -5940,10 +5940,10 @@ bool weapon::animate(int32_t index)
 				hooked_combopos = hookedpos;
 				misc=sw?2:1;
 				step=0;
-				pull_link=true;
+				pull_hero=true;
 				if(sw)
 				{
-					Link.doSwitchHook(hshot.misc5);
+					Hero.doSwitchHook(hshot.misc5);
 					sfx(hshot.usesound2,pan(int32_t(x)));
 					stop_sfx(hshot.usesound);
 					hs_switcher = true;
@@ -5975,16 +5975,16 @@ bool weapon::animate(int32_t index)
 			
 			if(misc==1)                                           // returning
 			{
-				if((dir<left && abs(LinkY()-y)<9) || (dir >= left && abs(LinkX()-x)<9))
+				if((dir<left && abs(HeroY()-y)<9) || (dir >= left && abs(HeroX()-x)<9))
 				{
 					hookshot_used=false;
 					
-					if(pull_link)
+					if(pull_hero)
 					{
 						hs_fix=true;
 					}
 					
-					pull_link=false;
+					pull_hero=false;
 					chainlinks.clear();
 					CatchBrang();
 					
@@ -6055,7 +6055,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case up:
 								yofs += 7;
@@ -6078,7 +6078,7 @@ bool weapon::animate(int32_t index)
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case up:
 								yofs += 5;
@@ -6108,7 +6108,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case down:
 								yofs -= 8;
@@ -6130,7 +6130,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
-						switch((int32_t)(Link.dir))
+						switch((int32_t)(Hero.dir))
 						{
 							case down:
 								yofs -= 8;
@@ -6177,7 +6177,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=0;
-						//switch((int32_t)(Link.dir))
+						//switch((int32_t)(Hero.dir))
 						//{
 						//	case up:
 						//		yofs += 7;
@@ -6200,7 +6200,7 @@ bool weapon::animate(int32_t index)
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=1;
 						
-						//switch((int32_t)(Link.dir))
+						//switch((int32_t)(Hero.dir))
 						//{
 						//	case up:
 						//		yofs += 5;
@@ -6230,7 +6230,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=2;
-						//switch((int32_t)(Link.dir))
+						//switch((int32_t)(Hero.dir))
 						//{
 						//	case down:
 						//		yofs -= 8;
@@ -6252,7 +6252,7 @@ bool weapon::animate(int32_t index)
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=3;
-						//switch((int32_t)(Link.dir))
+						//switch((int32_t)(Hero.dir))
 						//{
 						///	case down:
 						//		yofs -= 8;
@@ -6475,7 +6475,7 @@ bool weapon::animate(int32_t index)
 							w->flip ^= 2;
 					}
 					
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
@@ -6523,7 +6523,7 @@ bool weapon::animate(int32_t index)
 							}
 						}
 					}
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
@@ -6574,7 +6574,7 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
@@ -6609,7 +6609,7 @@ bool weapon::animate(int32_t index)
 							w->parentid=parentid;
 							w->parentitem=parentitem;
 							w->flip = 0;
-							w->ignoreLink = false;
+							w->ignoreHero = false;
 							w->hyofs = w->hxofs = 0;
 							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 							if ( do_animation ) 
@@ -6672,7 +6672,7 @@ bool weapon::animate(int32_t index)
 						w->parentid=parentid;
 						w->parentitem=parentitem;
 						w->flip = 0;
-						w->ignoreLink = false;
+						w->ignoreHero = false;
 						w->hyofs = w->hxofs = 0;
 						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 						
@@ -6810,7 +6810,7 @@ bool weapon::animate(int32_t index)
 							w->flip ^= 2;
 					}
 					
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
@@ -6858,7 +6858,7 @@ bool weapon::animate(int32_t index)
 							}
 						}
 					}
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
@@ -6909,7 +6909,7 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 					w->y=checky&0xF0;
 					w->x=checkx&0xF0;
@@ -6944,7 +6944,7 @@ bool weapon::animate(int32_t index)
 							w->parentid=parentid;
 							w->parentitem=parentitem;
 							w->flip = 0;
-							w->ignoreLink = false;
+							w->ignoreHero = false;
 							w->hyofs = w->hxofs = 0;
 							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 							if ( do_animation ) 
@@ -7007,7 +7007,7 @@ bool weapon::animate(int32_t index)
 						w->parentid=parentid;
 						w->parentitem=parentitem;
 						w->flip = 0;
-						w->ignoreLink = false;
+						w->ignoreHero = false;
 						w->hyofs = w->hxofs = 0;
 						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
 						
@@ -7216,7 +7216,7 @@ bool weapon::animate(int32_t index)
 				
 				if(dummy_bool[0]==true)
 				{
-					seekLink();
+					seekHero();
 				}
 				
 				if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -7434,14 +7434,14 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
         goto offscreenCheck;
     }
     
-    if(special==2)                                            // hit Link's mirror shield
+    if(special==2)                                            // hit Hero's mirror shield
     {
         switch(id)
         {
         case ewFireball2:
         case ewFireball:
             id = wRefFireball;
-            ignoreLink=true;
+            ignoreHero=true;
             goto reflect;
             
         case ewRock:
@@ -7450,7 +7450,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
         case ewMagic:
         case wRefMagic:
             //otherwise he can get hit by the newly-created projectile if he's walking into it fast enough -DD
-            ignoreLink=true;
+            ignoreHero=true;
             id = ((id==ewMagic || id==wRefMagic) ? wRefMagic : id==ewRock ? wRefRock : wRefBeam);
             goto reflect;
             
@@ -7465,7 +7465,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
         case wScript9:
         case wScript10:
             // If this isn't set, the weapon may reflect repeatedly
-            ignoreLink=true;
+            ignoreHero=true;
 reflect:
 
             if(angular) switch(linkdir)
@@ -7504,7 +7504,7 @@ reflect:
         }
     }
     
-    if(special>=1)                                            // hit Link's shield
+    if(special>=1)                                            // hit Hero's shield
     {
         switch(id)
         {
@@ -7673,7 +7673,7 @@ offscreenCheck:
 						hooked_layerbits = 0;
 						misc=2;
 						step=0;
-						Link.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : game->get_switchhookstyle());
+						Hero.doSwitchHook(parentitem>-1 ? (itemsbuf[parentitem].misc5) : game->get_switchhookstyle());
 						if(parentitem > -1)
 						{
 							if(itemsbuf[parentitem].usesound2)
@@ -7894,8 +7894,8 @@ void weapon::draw(BITMAP *dest)
     {
     case wSword:
     case wHammer:
-        if(get_bit(quest_rules,qr_LINKFLICKER)&&((getClock()||LinkHClk())&&(frame&1)) ||
-                Link.getDontDraw() || tmpscr->flags3&fINVISLINK)
+        if(get_bit(quest_rules,qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
+                Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
             return;
             
     case wBeam:
@@ -8213,7 +8213,7 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
 {
     weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
     temp.ignorecombo=((dir==up?y+8:y)&0xF0)+((dir==left?x+8:x)>>4); // Lens hints can sometimes create real weapons without this
-    temp.ignoreLink=true;
+    temp.ignoreHero=true;
     temp.yofs=0;
     temp.clk2=aclk;
     temp.aframe=aframe;
@@ -8322,7 +8322,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     step=0;
     dead=-1;
     bounce= false;
-	ignoreLink=true;
+	ignoreHero=true;
     yofs=playing_field_offset - 2;
     dragging=-1;
     hxsz=1;

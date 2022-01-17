@@ -4,10 +4,10 @@
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
-//  link.cc
+//  hero.cpp
 //
-//  Link's class: LinkClass
-//  Handles a lot of game play stuff as well as Link's
+//  Hero's class: HeroClass
+//  Handles a lot of game play stuff as well as Hero's
 //  movement, attacking, etc.
 //
 //--------------------------------------------------------
@@ -22,7 +22,7 @@
 #include <set>
 #include <stdio.h>
 
-#include "link.h"
+#include "hero.h"
 #include "guys.h"
 #include "subscr.h"
 #include "zc_subscr.h"
@@ -35,10 +35,10 @@
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
-extern LinkClass Link;
+extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern refInfo linkScriptData;
+extern refInfo playerScriptData;
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
@@ -61,24 +61,23 @@ extern int32_t draw_screen_clip_rect_x1;
 extern int32_t draw_screen_clip_rect_x2;
 extern int32_t draw_screen_clip_rect_y1;
 extern int32_t draw_screen_clip_rect_y2;
-//extern bool draw_screen_clip_rect_show_link;
 extern word global_wait;
-extern bool link_waitdraw;
+extern bool player_waitdraw;
 extern bool dmap_waitdraw;
 extern bool passive_subscreen_waitdraw;
 extern bool active_subscreen_waitdraw;
 
-int32_t link_count = -1;
-int32_t link_animation_speed = 1; //lower is faster animation
+int32_t hero_count = -1;
+int32_t hero_animation_speed = 1; //lower is faster animation
 int32_t z3step = 2;
-static zfix link_newstep(1.5);
-static zfix link_newstep_diag(1.5);
+static zfix hero_newstep(1.5);
+static zfix hero_newstep_diag(1.5);
 bool did_scripta=false;
 bool did_scriptb=false;
 bool did_scriptl=false;
 byte lshift = 0;
 int32_t dowpn = -1;
-int32_t directItem = -1; //Is set if Link is currently using an item directly
+int32_t directItem = -1; //Is set if Hero is currently using an item directly
 int32_t directItemA = -1;
 int32_t directItemB = -1;
 int32_t directItemX = -1;
@@ -86,11 +85,11 @@ int32_t directItemY = -1;
 int32_t directWpn = -1;
 int32_t whistleitem=-1;
 extern word g_doscript;
-extern word link_doscript;
+extern word player_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
 extern byte epilepsyFlashReduction;
-extern int32_t script_link_cset;
+extern int32_t script_hero_cset;
 
 void playLevelMusic();
 
@@ -105,7 +104,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 static inline bool platform_fallthrough()
 {
 	return (getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
-		|| (Link.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
+		|| (Hero.jumping < 0 && getInput(btnDown, false, get_bit(quest_rules,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_bit(quest_rules,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
 }
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false)
@@ -115,9 +114,9 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
 
-bool LinkClass::isStanding(bool forJump)
+bool HeroClass::isStanding(bool forJump)
 {
-	bool st = (z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
+	bool st = (z==0 && !(isSideViewHero() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
 	if(!st) return false;
 	int32_t val = check_pitslide();
 	if(val == -2) return false;
@@ -229,7 +228,7 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		else return 0;
 }
 
-void LinkClass::set_respawn_point(bool setwarp)
+void HeroClass::set_respawn_point(bool setwarp)
 {
 	if(setwarp)
 	{
@@ -302,7 +301,7 @@ void LinkClass::set_respawn_point(bool setwarp)
 	respawn_dmap = currdmap;
 }
 
-void LinkClass::go_respawn_point()
+void HeroClass::go_respawn_point()
 {
 	x = respawn_x;
 	y = respawn_y;
@@ -316,50 +315,50 @@ void LinkClass::go_respawn_point()
 	
 	if(currdmap != respawn_dmap || currscr != respawn_scr)
 	{
-		FFCore.warp_link(wtIWARP, respawn_dmap, respawn_scr,
+		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr,
 			-1, -1, 0, 0, warpFlagNOSTEPFORWARD|warpFlagDONTKILLMUSIC, -1);
 	}
 }
 
-void LinkClass::trySideviewLadder()
+void HeroClass::trySideviewLadder()
 {
 	if(canSideviewLadder() && !on_sideview_solid(x,y))
 		setOnSideviewLadder(true);
 }
 
-bool LinkClass::can_pitfall(bool ignore_hover)
+bool HeroClass::can_pitfall(bool ignore_hover)
 {
-	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_link||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
+	return (!(isSideViewGravity()||action==rafting||z>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_hero||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
 }
 
-int32_t LinkClass::DrunkClock()
+int32_t HeroClass::DrunkClock()
 {
     return drunkclk;
 }
-void LinkClass::setDrunkClock(int32_t newdrunkclk)
+void HeroClass::setDrunkClock(int32_t newdrunkclk)
 {
     drunkclk=newdrunkclk;
 }
 
-int32_t LinkClass::StunClock()
+int32_t HeroClass::StunClock()
 {
     return lstunclock;
 }
-void LinkClass::setStunClock(int32_t v)
+void HeroClass::setStunClock(int32_t v)
 {
     lstunclock=v;
 }
 
-int32_t LinkClass::BunnyClock()
+int32_t HeroClass::BunnyClock()
 {
     return lbunnyclock;
 }
-void LinkClass::setBunnyClock(int32_t v)
+void HeroClass::setBunnyClock(int32_t v)
 {
     lbunnyclock=v;
 }
 
-LinkClass::LinkClass() : sprite()
+HeroClass::HeroClass() : sprite()
 {
     init();
 }
@@ -368,33 +367,33 @@ LinkClass::LinkClass() : sprite()
 
 //Stop the subscreen from falling. -Z
 
-bool LinkClass::stopSubscreenFalling(){
+bool HeroClass::stopSubscreenFalling(){
 	return preventsubscreenfalling;
 }
 
-void LinkClass::stopSubscreenFalling(bool v){
+void HeroClass::stopSubscreenFalling(bool v){
 	preventsubscreenfalling = v;
 }
 
 
 //Set the button items by brute force
 
-void LinkClass::setAButtonItem(int32_t itmslot){
+void HeroClass::setAButtonItem(int32_t itmslot){
 	game->awpn = itmslot;
 }
 
-void LinkClass::setBButtonItem(int32_t itmslot){
+void HeroClass::setBButtonItem(int32_t itmslot){
 	game->bwpn = itmslot;
 }
 
-bool LinkClass::getCanLinkFlicker(){
+bool HeroClass::getCanHeroFlicker(){
 	return flickerorflash; //enable or disable flicker or flash
 }
-void LinkClass::setCanLinkFlicker(bool v){
+void HeroClass::setCanHeroFlicker(bool v){
 	flickerorflash = v;
 }
 
-void LinkClass::ClearhitLinkUIDs()
+void HeroClass::ClearhitHeroUIDs()
 { 		//Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
 		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
 		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
@@ -406,13 +405,13 @@ void LinkClass::ClearhitLinkUIDs()
 		// 1. If set by internal mecanics, it has its value that you can read by script, before waitdraw--this part works at present.
 		// 2. FFCs can read it before Waitframe. --same.
 		// 3. After Waitframe(), it is wiped by the ZC Engine to 0. --I cannot get this to happen without breaking 1 and 2. 
-	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED_LINK; q++ ) 	
+	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED_PLAYER; q++ ) 	
 	{
 		/*
 		if ( lastHitBy[q][1] == (frame-1) ) //Verify if this is needed at all now. 
 		{
 			//Z_scripterrlog("frame is: %d\n", frame);
-			//Z_scripterrlog("Link->HitBy frame is: %d\n", lastHitBy[q][1]);
+			//Z_scripterrlog("Player->HitBy frame is: %d\n", lastHitBy[q][1]);
 			lastHitBy[q][0] = 0;
 		}
 		*/
@@ -420,7 +419,7 @@ void LinkClass::ClearhitLinkUIDs()
 	}
 }
 
-void LinkClass::sethitLinkUID(int32_t type, int32_t screen_index)
+void HeroClass::sethitHeroUID(int32_t type, int32_t screen_index)
 {
 	lastHitBy[type][0] = screen_index;
 	//lastHitBy[type][1] = frame;
@@ -437,91 +436,91 @@ void LinkClass::sethitLinkUID(int32_t type, int32_t screen_index)
 	    
 	    draw_screen(tmpscr);
 	    
-	    //clear Link's last hits 
-	    //for ( int32_t q = 0; q < 4; q++ ) Link.sethitLinkUID(q, 0);
+	    //clear Hero's last hits 
+	    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
 	    
 	*/
 	
 }
 
-int32_t LinkClass::gethitLinkUID(int32_t type)
+int32_t HeroClass::gethitHeroUID(int32_t type)
 {
 	return lastHitBy[type][0];
 }
 
-void LinkClass::set_defence(int32_t type, int32_t v)
+void HeroClass::set_defence(int32_t type, int32_t v)
 {
 	defence[type] = v;
 }
 
-int32_t LinkClass::get_defence(int32_t type)
+int32_t HeroClass::get_defence(int32_t type)
 {
 	return defence[type];
 }
 
 
-//Set Link;s hurt sfx
-void LinkClass::setHurtSFX(int32_t sfx){
+//Set Hero;s hurt sfx
+void HeroClass::setHurtSFX(int32_t sfx){
 	hurtsfx = sfx;
 }	
-int32_t LinkClass::getHurtSFX() {
+int32_t HeroClass::getHurtSFX() {
 	return hurtsfx;
 }
 
-bool  LinkClass::getDiagMove()
+bool  HeroClass::getDiagMove()
 {
     return diagonalMovement;
 }
-void LinkClass::setDiagMove(bool newdiag)
+void HeroClass::setDiagMove(bool newdiag)
 {
     diagonalMovement=newdiag;
 }
-bool  LinkClass::getBigHitbox()
+bool  HeroClass::getBigHitbox()
 {
     return bigHitbox;
 }
-void LinkClass::setBigHitbox(bool newbigHitbox)
+void HeroClass::setBigHitbox(bool newbigHitbox)
 {
     bigHitbox=newbigHitbox;
 }
-int32_t LinkClass::getStepRate()
+int32_t HeroClass::getStepRate()
 {
     return steprate;
 }
-void LinkClass::setStepRate(int32_t newrate)
+void HeroClass::setStepRate(int32_t newrate)
 {
     steprate = newrate;
 }
-int32_t LinkClass::getSwimUpRate()
+int32_t HeroClass::getSwimUpRate()
 {
     return game->get_sideswim_up();
 }
-void LinkClass::setSwimUpRate(int32_t newrate)
+void HeroClass::setSwimUpRate(int32_t newrate)
 {
     game->set_sideswim_up(newrate);
 }
-int32_t LinkClass::getSwimSideRate()
+int32_t HeroClass::getSwimSideRate()
 {
     return game->get_sideswim_side();
 }
-void LinkClass::setSwimSideRate(int32_t newrate)
+void HeroClass::setSwimSideRate(int32_t newrate)
 {
     game->set_sideswim_side(newrate);
 }
-int32_t LinkClass::getSwimDownRate()
+int32_t HeroClass::getSwimDownRate()
 {
     return game->get_sideswim_down();
 }
-void LinkClass::setSwimDownRate(int32_t newrate)
+void HeroClass::setSwimDownRate(int32_t newrate)
 {
     game->set_sideswim_down(newrate);
 }
 
 
-//void LinkClass::linkstep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
-void LinkClass::linkstep()
+//void HeroClass::herostep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
+void HeroClass::herostep()
 {
-    lstep = lstep<((zinit.linkanimationstyle==las_bszelda)?27:11) ? lstep+1 : 0;
+    lstep = lstep<((zinit.heroAnimationStyle==las_bszelda)?27:11) ? lstep+1 : 0;
 	//need to run all global/hero/dmap scripts here?
 }
 
@@ -531,7 +530,7 @@ bool is_moving()
 }
 
 // called by ALLOFF()
-void LinkClass::resetflags(bool all)
+void HeroClass::resetflags(bool all)
 {
     refilling=REFILL_NONE;
     inwallm=false;
@@ -569,39 +568,39 @@ void LinkClass::resetflags(bool all)
     stomping=false;
     reset_swordcharge();
     diveclk=drownclk=0;
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setHeroAction(none);
     conveyor_flags=0;
     magiccastclk=0;
     magicitem=-1;
 }
 
-//Can use this for Link->Stun. -Z
-void LinkClass::Freeze()
+//Can use this for Hero->Stun. -Z
+void HeroClass::Freeze()
 {
     if (action != inwind)
     {
-        if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
-	else {action=freeze; FFCore.setLinkAction(freeze);} 
-        // also cancel Link's attack
+        if (IsSideSwim()) {action=sideswimfreeze; FFCore.setHeroAction(sideswimfreeze);} 
+	else {action=freeze; FFCore.setHeroAction(freeze);} 
+        // also cancel Hero's attack
         attackclk = 0;
     }
 }
-void LinkClass::unfreeze()
+void HeroClass::unfreeze()
 {
-    if(action==freeze && fairyclk<1) { action=none; FFCore.setLinkAction(none); }
-    if(action==sideswimfreeze && fairyclk<1) { action=sideswimming; FFCore.setLinkAction(sideswimming); }
+    if(action==freeze && fairyclk<1) { action=none; FFCore.setHeroAction(none); }
+    if(action==sideswimfreeze && fairyclk<1) { action=sideswimming; FFCore.setHeroAction(sideswimming); }
 }
 
-void LinkClass::Drown(int32_t state)
+void HeroClass::Drown(int32_t state)
 {
-	// Link should never drown if the ladder is out
+	// Hero should never drown if the ladder is out
 	if(ladderx+laddery)
 		return;
 	
 	switch(state)
 	{
 		case 1:
-			action=lavadrowning; FFCore.setLinkAction(lavadrowning);
+			action=lavadrowning; FFCore.setHeroAction(lavadrowning);
 			attackclk=0;
 			attack=wNone;
 			attackid=-1;
@@ -613,8 +612,8 @@ void LinkClass::Drown(int32_t state)
 		
 		default:
 		{
-			if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)){action=sidedrowning; FFCore.setLinkAction(sidedrowning);}
-			else {action=drowning; FFCore.setLinkAction(drowning);}
+			if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)){action=sidedrowning; FFCore.setHeroAction(sidedrowning);}
+			else {action=drowning; FFCore.setHeroAction(drowning);}
 			attackclk=0;
 			attack=wNone;
 			attackid=-1;
@@ -627,9 +626,9 @@ void LinkClass::Drown(int32_t state)
 	
 }
 
-void LinkClass::finishedmsg()
+void HeroClass::finishedmsg()
 {
-    //these are to cancel out any keys that Link may
+    //these are to cancel out any keys that Hero may
     //be pressing so he doesn't attack at the end of
     //a message if he was scrolling through it quickly.
     rAbtn();
@@ -646,80 +645,80 @@ void LinkClass::finishedmsg()
         holdclk = 1;
     }
 }
-void LinkClass::setEaten(int32_t i)
+void HeroClass::setEaten(int32_t i)
 {
     inlikelike=i;
 }
-int32_t LinkClass::getEaten()
+int32_t HeroClass::getEaten()
 {
     return inlikelike;
 }
-zfix  LinkClass::getX()
+zfix  HeroClass::getX()
 {
     return x;
 }
-zfix  LinkClass::getY()
+zfix  HeroClass::getY()
 {
     return y;
 }
-zfix  LinkClass::getZ()
+zfix  HeroClass::getZ()
 {
     return z;
 }
-zfix  LinkClass::getFall()
+zfix  HeroClass::getFall()
 {
     return fall;
 }
-zfix  LinkClass::getXOfs()
+zfix  HeroClass::getXOfs()
 {
     return xofs;
 }
-zfix  LinkClass::getYOfs()
+zfix  HeroClass::getYOfs()
 {
     return yofs;
 }
-void LinkClass::setXOfs(int32_t newxofs)
+void HeroClass::setXOfs(int32_t newxofs)
 {
     xofs=newxofs;
 }
-void LinkClass::setYOfs(int32_t newyofs)
+void HeroClass::setYOfs(int32_t newyofs)
 {
     yofs=newyofs;
 }
-int32_t  LinkClass::getHXOfs()
+int32_t  HeroClass::getHXOfs()
 {
     return hxofs;
 }
-int32_t  LinkClass::getHYOfs()
+int32_t  HeroClass::getHYOfs()
 {
     return hyofs;
 }
-int32_t  LinkClass::getHXSz()
+int32_t  HeroClass::getHXSz()
 {
     return hxsz;
 }
-int32_t  LinkClass::getHYSz()
+int32_t  HeroClass::getHYSz()
 {
     return hysz;
 }
-zfix  LinkClass::getClimbCoverX()
+zfix  HeroClass::getClimbCoverX()
 {
     return climb_cover_x;
 }
-zfix  LinkClass::getClimbCoverY()
+zfix  HeroClass::getClimbCoverY()
 {
     return climb_cover_y;
 }
-int32_t  LinkClass::getLadderX()
+int32_t  HeroClass::getLadderX()
 {
     return ladderx;
 }
-int32_t  LinkClass::getLadderY()
+int32_t  HeroClass::getLadderY()
 {
     return laddery;
 }
 
-void LinkClass::setX(int32_t new_x)
+void HeroClass::setX(int32_t new_x)
 {
     zfix dx=new_x-x;
     if(Lwpns.idFirst(wHookshot)>-1)
@@ -748,7 +747,7 @@ void LinkClass::setX(int32_t new_x)
         is_on_conveyor=true;
 }
 
-void LinkClass::setY(int32_t new_y)
+void HeroClass::setY(int32_t new_y)
 {
     zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
@@ -777,9 +776,9 @@ void LinkClass::setY(int32_t new_y)
         is_on_conveyor=true;
 }
 
-void LinkClass::setZ(int32_t new_z)
+void HeroClass::setZ(int32_t new_z)
 {
-    if(isSideViewLink())
+    if(isSideViewHero())
         return;
         
     if(z==0 && new_z > 0)
@@ -789,24 +788,24 @@ void LinkClass::setZ(int32_t new_z)
         case swimming:
 	{
             diveclk=0;
-            action=walking; FFCore.setLinkAction(walking);
+            action=walking; FFCore.setHeroAction(walking);
             break;
 	}
             
         case waterhold1:
 	{
-            action=landhold1; FFCore.setLinkAction(landhold1);
+            action=landhold1; FFCore.setHeroAction(landhold1);
             break;
 	}
             
         case waterhold2:
 	{
-            action=landhold2; FFCore.setLinkAction(landhold2);
+            action=landhold2; FFCore.setHeroAction(landhold2);
             break;
 	}
             
         default:
-            if(charging) //!DIMITODO: Let Link jump while charging sword
+            if(charging) //!DIMITODO: Let Hero jump while charging sword
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -819,7 +818,7 @@ void LinkClass::setZ(int32_t new_z)
     z=(new_z>0 ? new_z : 0);
 }
 
-void LinkClass::setXfix(zfix new_x)
+void HeroClass::setXfix(zfix new_x)
 {
 	//Z_scripterrlog("setxdbl: %f\n",new_x);
     zfix dx=new_x-x;
@@ -849,7 +848,7 @@ void LinkClass::setXfix(zfix new_x)
         is_on_conveyor=true;
 }
 
-void LinkClass::setYfix(zfix new_y)
+void HeroClass::setYfix(zfix new_y)
 {
     zfix dy=new_y-y;
     if(Lwpns.idFirst(wHookshot)>-1)
@@ -878,9 +877,9 @@ void LinkClass::setYfix(zfix new_y)
         is_on_conveyor=true;
 }
 
-void LinkClass::setZfix(zfix new_z)
+void HeroClass::setZfix(zfix new_z)
 {
-    if(isSideViewLink())
+    if(isSideViewHero())
         return;
         
     if(z==0 && new_z > 0)
@@ -890,24 +889,24 @@ void LinkClass::setZfix(zfix new_z)
         case swimming:
 	{
             diveclk=0;
-            action=walking; FFCore.setLinkAction(walking);
+            action=walking; FFCore.setHeroAction(walking);
             break;
 	}
             
         case waterhold1:
 	{
-            action=landhold1; FFCore.setLinkAction(landhold1);
+            action=landhold1; FFCore.setHeroAction(landhold1);
             break;
 	}
             
         case waterhold2:
 	{
-            action=landhold2; FFCore.setLinkAction(landhold2);
+            action=landhold2; FFCore.setHeroAction(landhold2);
             break;
 	}
             
         default:
-            if(charging) //!DIMITODO: Let Link jump while charging sword
+            if(charging) //!DIMITODO: Let Hero jump while charging sword
             {
                 reset_swordcharge();
                 attackclk=0;
@@ -920,60 +919,60 @@ void LinkClass::setZfix(zfix new_z)
     z=(new_z>0 ? new_z : 0);
 }
 
-void LinkClass::setFall(zfix new_fall)
+void HeroClass::setFall(zfix new_fall)
 {
     fall=new_fall;
     jumping=-1;
 }
-void LinkClass::setClimbCoverX(int32_t new_x)
+void HeroClass::setClimbCoverX(int32_t new_x)
 {
     climb_cover_x=new_x;
 }
-void LinkClass::setClimbCoverY(int32_t new_y)
+void HeroClass::setClimbCoverY(int32_t new_y)
 {
     climb_cover_y=new_y;
 }
-int32_t  LinkClass::getLStep()
+int32_t  HeroClass::getLStep()
 {
     return lstep;
 }
-int32_t  LinkClass::getCharging()
+int32_t  HeroClass::getCharging()
 {
     return charging;
 }
-bool LinkClass::isCharged()
+bool HeroClass::isCharged()
 {
     return spins>0;
 }
-int32_t  LinkClass::getAttackClk()
+int32_t  HeroClass::getAttackClk()
 {
     return attackclk;
 }
-void  LinkClass::setAttackClk(int32_t new_clk)
+void  HeroClass::setAttackClk(int32_t new_clk)
 {
     attackclk=new_clk;
 }
-void LinkClass::setCharging(int32_t new_charging)
+void HeroClass::setCharging(int32_t new_charging)
 {
     charging=new_charging;
 }
-int32_t  LinkClass::getSwordClk()
+int32_t  HeroClass::getSwordClk()
 {
     return swordclk;
 }
-int32_t  LinkClass::getItemClk()
+int32_t  HeroClass::getItemClk()
 {
     return itemclk;
 }
-void LinkClass::setSwordClk(int32_t newclk)
+void HeroClass::setSwordClk(int32_t newclk)
 {
     swordclk=newclk;
 }
-void LinkClass::setItemClk(int32_t newclk)
+void HeroClass::setItemClk(int32_t newclk)
 {
     itemclk=newclk;
 }
-zfix  LinkClass::getModifiedX()
+zfix  HeroClass::getModifiedX()
 {
     zfix tempx=x;
     
@@ -985,7 +984,7 @@ zfix  LinkClass::getModifiedX()
     return tempx;
 }
 
-zfix  LinkClass::getModifiedY()
+zfix  HeroClass::getModifiedY()
 {
     zfix tempy=y;
     
@@ -997,32 +996,32 @@ zfix  LinkClass::getModifiedY()
     return tempy;
 }
 
-int32_t  LinkClass::getDir()
+int32_t  HeroClass::getDir()
 {
     return dir;
 }
-void LinkClass::setDir(int32_t newdir)
+void HeroClass::setDir(int32_t newdir)
 {
     dir=newdir;
     reset_hookshot();
 }
-int32_t  LinkClass::getHitDir()
+int32_t  HeroClass::getHitDir()
 {
     return hitdir;
 }
-void LinkClass::setHitDir(int32_t newdir)
+void HeroClass::setHitDir(int32_t newdir)
 {
     hitdir = newdir;
 }
-int32_t  LinkClass::getClk()
+int32_t  HeroClass::getClk()
 {
     return clk;
 }
-int32_t  LinkClass::getPushing()
+int32_t  HeroClass::getPushing()
 {
     return pushing;
 }
-void LinkClass::Catch()
+void HeroClass::Catch()
 {
     if(!inwallm && (action==none || action==walking))
     {
@@ -1032,15 +1031,15 @@ void LinkClass::Catch()
     }
 }
 
-bool LinkClass::getClock()
+bool HeroClass::getClock()
 {
     return superman;
 }
-void LinkClass::setClock(bool state)
+void HeroClass::setClock(bool state)
 {
     superman=state;
 }
-int32_t  LinkClass::getAction() // Used by ZScript
+int32_t  HeroClass::getAction() // Used by ZScript
 {
     if(spins > 0)
         return isspinning;
@@ -1048,12 +1047,12 @@ int32_t  LinkClass::getAction() // Used by ZScript
         return ischarging;
     else if(diveclk > 0)
         return isdiving;
-    //else if (pushing > 0) return ispushing; //Needs a QR? -Z or make it an instruction as Link->Pushing? Probably better, as that has a clk?? 
+    //else if (pushing > 0) return ispushing; //Needs a QR? -Z or make it an instruction as Hero->Pushing? Probably better, as that has a clk?? 
         
     return action;
 }
 
-int32_t  LinkClass::getAction2() // Used by ZScript new FFCore.actions
+int32_t  HeroClass::getAction2() // Used by ZScript new FFCore.actions
 {
     if(spins > 0)
         return isspinning;
@@ -1061,19 +1060,19 @@ int32_t  LinkClass::getAction2() // Used by ZScript new FFCore.actions
         return ischarging;
     else if(diveclk > 0)
         return isdiving;
-    //else if (pushing > 0) return ispushing; //Needs a QR? -Z or make it an instruction as Link->Pushing? Probably better, as that has a clk?? 
+    //else if (pushing > 0) return ispushing; //Needs a QR? -Z or make it an instruction as Hero->Pushing? Probably better, as that has a clk?? 
         
     return -1;
 }
 
-void LinkClass::setAction(actiontype new_action) // Used by ZScript
+void HeroClass::setAction(actiontype new_action) // Used by ZScript
 {
 	if(new_action==dying || new_action==won || new_action==scrolling ||
 	   new_action==inwind || new_action==ischarging || new_action==sideswimischarging || 
 	   new_action==hopping) //!DIMITODO: allow setting sideswimming stuff
 		return; // Can't use these actions.
 	
-	if (!isSideViewLink() && (new_action>=sideswimming && new_action <= sideswimischarging))
+	if (!isSideViewHero() && (new_action>=sideswimming && new_action <= sideswimischarging))
 		return;
 	
 	if(new_action==rafting)
@@ -1178,8 +1177,8 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 		
 	case drowning:
 	case sidedrowning:
-	//I would add a sanity check to see if Link is in water, but I *KNOW* that quests have used this 
-	// INTENTIONALLY while Link is on Land, as a blink-out effect. :( -Z
+	//I would add a sanity check to see if Hero is in water, but I *KNOW* that quests have used this 
+	// INTENTIONALLY while Hero is on Land, as a blink-out effect. :( -Z
 		if(!drownclk)
 			Drown();
 			
@@ -1195,7 +1194,7 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 	case falling:
 		if(!fallclk)
 		{
-			//If there is a pit under Link, use it's combo.
+			//If there is a pit under Hero, use it's combo.
 			if(int32_t c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
 			else if(int32_t c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
 			else if(int32_t c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
@@ -1236,61 +1235,61 @@ void LinkClass::setAction(actiontype new_action) // Used by ZScript
 		break;
 	}
 	
-	action=new_action; FFCore.setLinkAction(new_action);
+	action=new_action; FFCore.setHeroAction(new_action);
 }
 
-void LinkClass::setHeldItem(int32_t newitem)
+void HeroClass::setHeldItem(int32_t newitem)
 {
     holditem=newitem;
 }
-int32_t LinkClass::getHeldItem()
+int32_t HeroClass::getHeldItem()
 {
     return holditem;
 }
-bool LinkClass::isDiving()
+bool HeroClass::isDiving()
 {
 	int32_t flippers_id = current_item_id(itype_flippers);
     return (diveclk > (flippers_id < 0 ? 30 : itemsbuf[flippers_id].misc2));
 }
-bool LinkClass::isSwimming()
+bool HeroClass::isSwimming()
 {
     return ((action==swimming)||(action==sideswimming)||IsSideSwim()||
             (action==waterhold1)||(action==waterhold2)||
             (hopclk==0xFF));
 }
 
-void LinkClass::setDontDraw(byte new_dontdraw)
+void HeroClass::setDontDraw(byte new_dontdraw)
 {
     dontdraw=new_dontdraw;
 }
 
-byte LinkClass::getDontDraw()
+byte HeroClass::getDontDraw()
 {
     return dontdraw;
 }
 
-void LinkClass::setHClk(int32_t newhclk)
+void HeroClass::setHClk(int32_t newhclk)
 {
     hclk=newhclk;
 }
 
-int32_t LinkClass::getHClk()
+int32_t HeroClass::getHClk()
 {
     return hclk;
 }
 
-int32_t LinkClass::getSpecialCave()
+int32_t HeroClass::getSpecialCave()
 {
     return specialcave;    // used only by maps.cpp
 }
 
-void LinkClass::init()
+void HeroClass::init()
 {
 	usecounts.clear();
 	scale = 0;
 	rotation = 0;
 	do_animation = 1;
-    if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw link == 0
+    if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw hero == 0
     hookshot_used=false;
     hookshot_frozen=false;
     onpassivedmg=false;
@@ -1347,7 +1346,7 @@ void LinkClass::init()
     attackclk=holdclk=hoverclk=jumping=raftclk=0;
     attack=wNone;
     attackid=-1;
-    action=none; FFCore.setLinkAction(none); tempaction=none;
+    action=none; FFCore.setHeroAction(none); tempaction=none;
     xofs=0;
     yofs=playing_field_offset;
     cs=6;
@@ -1377,7 +1376,7 @@ void LinkClass::init()
     magiccastclk=0;
     magicitem = nayruitem = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
-	misc_internal_link_flags = 0;
+	misc_internal_hero_flags = 0;
 	last_cane_of_byrna_item_id = -1;
 	on_sideview_ladder = false;
 	switchblock_z = 0;
@@ -1400,22 +1399,22 @@ void LinkClass::init()
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
 	for ( int32_t q = 0; q < wMax; q++ ) 
 	{
-		defence[q] = link_defence[q]; //we will need to have a Link section in the quest load/save code! -Z Added 3/26/21 - Jman
+		defence[q] = hero_defence[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
 		//zprint2("defence[%d] is: %d\n", q, defence[q]);
 	}
 	//Run script!
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_INIT, SCRIPT_LINK_INIT); 
-		FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_INIT);
-		FFCore.initZScriptLinkScripts(); //Clear the stack and the refinfo data to be ready for Link's active script. 
-		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Link->X and Link->Y set by the script
+		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT); 
+		FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT);
+		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script. 
+		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
 	}
 	FFCore.nostepforward = 0;
 }
 
-void LinkClass::draw_under(BITMAP* dest)
+void HeroClass::draw_under(BITMAP* dest)
 {
     int32_t c_raft=current_item_id(itype_raft);
     int32_t c_ladder=current_item_id(itype_ladder);
@@ -1449,7 +1448,7 @@ void LinkClass::draw_under(BITMAP* dest)
     }
 }
 
-void LinkClass::drawshadow(BITMAP* dest, bool translucent)
+void HeroClass::drawshadow(BITMAP* dest, bool translucent)
 {
     int32_t tempy=yofs;
     yofs+=8;
@@ -1459,7 +1458,7 @@ void LinkClass::drawshadow(BITMAP* dest, bool translucent)
 }
 
 // The Stone of Agony reacts to these flags.
-bool LinkClass::agonyflag(int32_t flag)
+bool HeroClass::agonyflag(int32_t flag)
 {
     switch(flag)
     {
@@ -1500,7 +1499,7 @@ bool LinkClass::agonyflag(int32_t flag)
 
 // Find the attack power of the current melee weapon.
 // The Whimsical Ring is applied on a target-by-target basis.
-int32_t LinkClass::weaponattackpower()
+int32_t HeroClass::weaponattackpower()
 {
     int32_t power = attack==wCByrna ? itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_cbyrna)].misc4 : directWpn>-1 ? itemsbuf[directWpn].power : (current_item_power(attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword));
     
@@ -1512,7 +1511,7 @@ int32_t LinkClass::weaponattackpower()
 #define NET_CLK_TOTAL 30
 #define NET_DIR_INC (NET_CLK_TOTAL/3)
 // Must only be called once per frame!
-void LinkClass::positionNet(weapon *w, int32_t itemid)
+void HeroClass::positionNet(weapon *w, int32_t itemid)
 {
 	itemid = vbound(itemid, 0, MAXITEMS-1);
 	int32_t t = w->o_tile,
@@ -1614,7 +1613,7 @@ void LinkClass::positionNet(weapon *w, int32_t itemid)
     w->power = 0;
     w->dir = dir;
 }
-void LinkClass::positionSword(weapon *w, int32_t itemid)
+void HeroClass::positionSword(weapon *w, int32_t itemid)
 {
 	//if ( w->ScriptGenerated ) return; //t/b/a for script-generated swords.
 	//if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
@@ -1886,7 +1885,7 @@ void LinkClass::positionSword(weapon *w, int32_t itemid)
         cs2=(BSZ ? (frame&3)+6 : ((frame>>2)&1)+7);
     }
     
-    /*if(BSZ || ((isdungeon() && currscr<128) && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)))
+    /*if(BSZ || ((isdungeon() && currscr<128) && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)))
     {
       wy+=2;
     }*/
@@ -1899,7 +1898,7 @@ void LinkClass::positionSword(weapon *w, int32_t itemid)
     w->dir = dir;
 }
 
-void LinkClass::draw(BITMAP* dest)
+void HeroClass::draw(BITMAP* dest)
 {
 	/*{
 		char buf[36];
@@ -1908,13 +1907,13 @@ void LinkClass::draw(BITMAP* dest)
 	}*/
 	int32_t oxofs, oyofs;
 	bool shieldModify = false;
-	bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISLINK);
+	bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISHERO);
 	
 	if(action==dying)
 	{
 		if(!invisible)
 		{
-			if ( script_link_cset > -1 ) cs = script_link_cset;
+			if ( script_hero_cset > -1 ) cs = script_hero_cset;
 				sprite::draw(dest);
 		}
 		return;
@@ -1926,7 +1925,7 @@ void LinkClass::draw(BITMAP* dest)
 	oyofs=yofs;
 	
 	if(!invisible)
-		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
+		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
 		
 	// Stone of Agony
 	bool agony=false;
@@ -1958,14 +1957,14 @@ void LinkClass::draw(BITMAP* dest)
 	}
 	
 	cs = 6;
-	if ( script_link_cset > -1 ) cs = script_link_cset;
-	if(!get_bit(quest_rules,qr_LINKFLICKER))
+	if ( script_hero_cset > -1 ) cs = script_hero_cset;
+	if(!get_bit(quest_rules,qr_HEROFLICKER))
 	{
-		if(superman && getCanLinkFlicker())
+		if(superman && getCanHeroFlicker())
 		{
 			cs += (((~frame)>>1)&3);
 		}
-		else if(hclk&&(NayrusLoveShieldClk<=0) && getCanLinkFlicker())
+		else if(hclk&&(NayrusLoveShieldClk<=0) && getCanHeroFlicker())
 		{
 			cs += ((hclk>>1)&3);
 		}
@@ -1976,7 +1975,7 @@ attack:
 	if(attackclk || (action==attacking||action==sideswimattacking))
 	{
 		/* Spaghetti code constants!
-		* - Link.attack contains a weapon type...
+		* - Hero.attack contains a weapon type...
 		* - which must be converted to an itype...
 		* - which must be converted to an item ID...
 		* - which is used to acquire a wpn ID! Aack!
@@ -2055,21 +2054,21 @@ attack:
 		{
 			if(!invisible)
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimstab:ls_stab, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimstab:ls_stab, dir, zinit.heroAnimationStyle);
 				
 				if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7))
 				{
-					linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.linkanimationstyle);
+					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
 				}
 				
 				if((attack==wHammer) && (attackclk<13))
 				{
-					linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimpound:ls_pound, dir, zinit.linkanimationstyle);
+					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimpound:ls_pound, dir, zinit.heroAnimationStyle);
 				}
 				
 				if(useltm)
 				{
-					if ( script_link_sprite <= 0 ) tile+=getTileModifier();
+					if ( script_hero_sprite <= 0 ) tile+=getTileModifier();
 				}
 			
 				// Stone of Agony
@@ -2078,16 +2077,16 @@ attack:
 					yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
 				}
 
-				//Probably what makes Link flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
+				//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
 				
 				//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
-				if (!(get_bit(quest_rules, qr_LINKFLICKER) && ((superman || hclk) && (frame & 1))))
+				if (!(get_bit(quest_rules, qr_HEROFLICKER) && ((superman || hclk) && (frame & 1))))
 				{
 					masked_draw(dest);
 				}
 
 				//Prevent flickering -Z
-				if (!getCanLinkFlicker()) masked_draw(dest);
+				if (!getCanHeroFlicker()) masked_draw(dest);
 			}
 			
 			if(attack!=wHammer)
@@ -2219,7 +2218,7 @@ attack:
 				break;
 			}
 			
-			if(BSZ || ((isdungeon() && currscr<128) && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)))
+			if(BSZ || ((isdungeon() && currscr<128) && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)))
 			{
 				wy+=2;
 			}
@@ -2250,7 +2249,7 @@ attack:
 			
 			w->power = weaponattackpower();
 			
-			if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideViewLink()))
+			if(attackclk==15 && z==0 && (sideviewhammerpound() || !isSideViewHero()))
 			{
 				sfx(((iswaterex(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
 			}
@@ -2286,15 +2285,15 @@ attack:
 		int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
 		
 		//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
-		switch(zinit.linkanimationstyle)
+		switch(zinit.heroAnimationStyle)
 		{
 		case las_original:                                               //normal
 			if(action==drowning)
 			{
 				if(inwater)
 				{
-					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 				else
 				{
@@ -2305,81 +2304,81 @@ attack:
 			}
 			else if(action==lavadrowning)
 			{
-				linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 			}
 			else if(action==sidedrowning)
 			{
-				linktile(&tile, &flip, &extend, ls_sidedrown, down, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 			}
 			else if (action == sideswimming || action == sideswimhit)
 			{
-				linktile(&tile, &flip, &extend, ls_sideswim, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
 				
 				if(lstep>=6)
 				{
 					if(dir==up)
 					{
-						if ( script_link_sprite <= 0 ) ++flip;
+						if ( script_hero_sprite <= 0 ) ++flip;
 					}
 					else
 					{
-						if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
+						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
 					}
 				}
 			}
 			else if(action==swimming || action==swimhit || hopclk==0xFF)
 			{
-				linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
 				
 				if(lstep>=6)
 				{
 					if(dir==up)
 					{
-						if ( script_link_sprite <= 0 ) ++flip;
+						if ( script_hero_sprite <= 0 ) ++flip;
 					}
 					else
 					{
-						if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
+						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
 					}
 				}
 				
 				if(isDiving())
 				{
-					linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
 				
 				if(lstep>=6)
 				{
 					if(dir==up)
 					{
-						if ( script_link_sprite <= 0 ) ++flip;
+						if ( script_hero_sprite <= 0 ) ++flip;
 					}
 					else
 					{
-						if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
+						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
 					}
 				}
 			}
-			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
+			else if((z>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
 			{
-				linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 			}
 			else if(fallclk>0)
 			{
-				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
 			else
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.heroAnimationStyle);
 				
 				if(dir>up)
 				{
@@ -2391,11 +2390,11 @@ attack:
 				{
 					if(dir==up)
 					{
-						if ( script_link_sprite <= 0 ) ++flip;
+						if ( script_hero_sprite <= 0 ) ++flip;
 					}
 					else
 					{
-						if ( script_link_sprite <= 0 ) extend==2?tile+=2:++tile;
+						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
 					}
 				}
 			}
@@ -2407,8 +2406,8 @@ attack:
 			{
 				if(inwater)
 				{
-					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else
 				{
@@ -2419,63 +2418,63 @@ attack:
 			}
 			else if (action == sidedrowning)
 			{
-				linktile(&tile, &flip, &extend, ls_sidedrown, down, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			else if(action==lavadrowning)
 			{
-				linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			else if (action == sideswimming || action == sideswimhit)
 			{
-				linktile(&tile, &flip, &extend, ls_sideswim, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
 				
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			else if(action==swimming || action==swimhit || hopclk==0xFF)
 			{
 				if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
 				{
-					linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+					herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
 				}
 				else
 				{
-					linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
+					herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
 				}
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				
 				if(isDiving())
 				{
 					if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
 					{
-						linktile(&tile, &flip, &extend, ls_walk, dir, zinit.linkanimationstyle);
+						herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
 					}
 					else
 					{
-						linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
+						herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
 					}
-					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
-			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0)
+			else if((z>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
 			{
-				linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 			}
 			else if(fallclk>0)
 			{
-				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
+				if ( script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
 			else
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.heroAnimationStyle);
 				
 				if(dir>up)
 				{
@@ -2489,7 +2488,7 @@ attack:
 				useltm=true;
 				}
 				*/
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			
 			break;
@@ -2500,8 +2499,8 @@ attack:
 			{
 				if(inwater)
 				{
-					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				else
 				{
@@ -2512,58 +2511,58 @@ attack:
 			}
 			else if(action == lavadrowning)
 			{
-					linktile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			
 			}else if(action == sidedrowning)
 			{
-					linktile(&tile, &flip, &extend, ls_sidedrown, down, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			else if (action == sideswimming || action == sideswimhit)
 			{
-				linktile(&tile, &flip, &extend, ls_sideswim, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
 				
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 			}
 			else if(action == swimming || action==swimhit || hopclk==0xFF)
 			{
-				linktile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
+				if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				
 				if(isDiving())
 				{
-					linktile(&tile, &flip, &extend, ls_dive, dir, zinit.linkanimationstyle);
-					if ( script_link_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 			}
 			else if(charging > 0 && attack != wHammer)
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=(extend==2?2:1);
-				//int32_t l=link_count/link_animation_speed;
-				int32_t l=(link_count/link_animation_speed)&15;
-				//int32_t l=((p[lt_clock]/link_animation_speed)&15);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
+				if (script_hero_sprite <= 0 ) tile+=(extend==2?2:1);
+				//int32_t l=hero_count/hero_animation_speed;
+				int32_t l=(hero_count/hero_animation_speed)&15;
+				//int32_t l=((p[lt_clock]/hero_animation_speed)&15);
 				l-=((l>3)?1:0)+((l>12)?1:0);
-				if ( script_link_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
+				if (script_hero_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
 			}
-			else if((z>0 || isSideViewLink()) && jumping2>0 && jumping2<24 && game->get_life()>0)
+			else if((z>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
 			{
-				linktile(&tile, &flip, &extend, ls_jump, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
+				if (script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 			}
 			else if(fallclk>0)
 			{
-				linktile(&tile, &flip, &extend, ls_falling, dir, zinit.linkanimationstyle);
-				if ( script_link_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
+				if (script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 			}
 			else
 			{
-				linktile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.linkanimationstyle);
+				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswim:ls_walk, dir, zinit.heroAnimationStyle);
 				
 				if(action == walking || action == climbcoverbottom || action == climbcovertop)
 				{
-					if ( script_link_sprite <= 0 ) tile += (extend == 2 ? 2 : 1);
+					if (script_hero_sprite <= 0 ) tile += (extend == 2 ? 2 : 1);
 				}
 				
 				if(dir>up)
@@ -2576,9 +2575,9 @@ attack:
 				{
 					//tile+=(extend==2?2:1);
 					//tile+=(((active_count>>2)%8)*(extend==2?2:1));
-					int32_t l = link_count / link_animation_speed;
+					int32_t l = hero_count / hero_animation_speed;
 					l -= ((l > 3) ? 1 : 0) + ((l > 12) ? 1 : 0);
-					if ( script_link_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
+					if (script_hero_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
 				}
 			}
 			
@@ -2589,7 +2588,7 @@ attack:
 		}
 	}
 	
-	yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
+	yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
 	
 	if(action==won)
 	{
@@ -2599,25 +2598,25 @@ attack:
 	if(action==landhold1 || action==landhold2)
 	{
 		useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_LINKDUNGEONPOSFIX)) ? 2 : 0);
-		linktile(&tile, &flip, &extend, (action==landhold1)?ls_landhold1:ls_landhold2, dir, zinit.linkanimationstyle);
+		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+		herotile(&tile, &flip, &extend, (action==landhold1)?ls_landhold1:ls_landhold2, dir, zinit.heroAnimationStyle);
 	}
 	else if(action==waterhold1 || action==waterhold2)
 	{
 		useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-		linktile(&tile, &flip, &extend, (action==waterhold1)?ls_waterhold1:ls_waterhold2, dir, zinit.linkanimationstyle);
+		herotile(&tile, &flip, &extend, (action==waterhold1)?ls_waterhold1:ls_waterhold2, dir, zinit.heroAnimationStyle);
 	}
 	else if(action==sidewaterhold1 || action==sidewaterhold2)
 	{
 		useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-		linktile(&tile, &flip, &extend, (action==sidewaterhold1)?ls_sidewaterhold1:ls_sidewaterhold2, dir, zinit.linkanimationstyle);
+		herotile(&tile, &flip, &extend, (action==sidewaterhold1)?ls_sidewaterhold1:ls_sidewaterhold2, dir, zinit.heroAnimationStyle);
 	}
 	
 	if(action!=casting && action!=sideswimcasting)
 	{
 		if(useltm)
 		{
-			if ( script_link_sprite <= 0 ) tile+=getTileModifier();
+			if (script_hero_sprite <= 0 ) tile+=getTileModifier();
 		}
 	}
 	
@@ -2627,12 +2626,12 @@ attack:
 		yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3));
 	}
 	
-	if(!(get_bit(quest_rules,qr_LINKFLICKER)&&((superman||hclk)&&(frame&1))))
+	if(!(get_bit(quest_rules,qr_HEROFLICKER)&&((superman||hclk)&&(frame&1))))
 	{
 		masked_draw(dest);
 	}
 	
-	//draw held items after Link so they don't go behind his head
+	//draw held items after Hero so they don't go behind his head
 	if(action==landhold1 || action==landhold2)
 	{
 		if(holditem > -1)
@@ -2715,7 +2714,7 @@ attack:
 	yofs=oyofs;
 }
 
-void LinkClass::masked_draw(BITMAP* dest)
+void HeroClass::masked_draw(BITMAP* dest)
 {
     if(isdungeon() && currscr<128 && (x<16 || x>224 || y<18 || y>146) && !get_bit(quest_rules,qr_FREEFORM))
     {
@@ -2784,14 +2783,14 @@ void passiveitem_script(int32_t id)
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[id] = 1;
 		itemscriptInitialised[id] = 0;
-		//Z_scripterrlog("Link.cpp starting a passive item script.\n");
+		//Z_scripterrlog("hero.cpp starting a passive item script.\n");
 		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
 	}
 }
 
 // separate case for sword/wand/hammer/slashed weapons only
 // the main weapon checking is in the global function check_collisions()
-bool LinkClass::checkstab()
+bool HeroClass::checkstab()
 {
     if(action!=attacking && action!=sideswimattacking || (attack!=wSword && attack!=wWand && attack!=wHammer && attack!=wCByrna && attack!=wFire && attack != wBugNet)
             || (attackclk<=4))
@@ -2812,7 +2811,7 @@ bool LinkClass::checkstab()
         {
             found = true;
             melee_weapon_index = i+1;
-            // Position the sword as Link slashes with it.
+            // Position the sword as Hero slashes with it.
             if(w->id!=wHammer&&w->id!=wBugNet)
                 positionSword(w,w->parentitem);
                 
@@ -2865,7 +2864,7 @@ bool LinkClass::checkstab()
 			if(attackclk==12 && z==0 && sideviewhammerpound())
 			{
 		//decorations.add(new dHammerSmack((zfix)wx, (zfix)wy, dHAMMERSMACK, 0));
-				/* The hammer smack sprites weren't being positioned properly if Link changed directions on the same frame that they are created.
+				/* The hammer smack sprites weren't being positioned properly if Hero changed directions on the same frame that they are created.
 		switch(dir)
 				{
 				case up:
@@ -2974,7 +2973,7 @@ bool LinkClass::checkstab()
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
 		if(attack==wBugNet) break;
-		// So that Link can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
+		// So that Hero can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
 		if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
 				|| ((attack==wWand || attack==wCByrna) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
 				|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & ITEM_FLAG3)))
@@ -3020,7 +3019,7 @@ bool LinkClass::checkstab()
 			{
 				if(GuyHit(i,x+7,y+7,z,2,2,hzsz)!=-1)
 				{
-					hitlink(i);
+					hithero(i);
 				}
 			}
 			
@@ -3323,7 +3322,7 @@ bool LinkClass::checkstab()
 	return true;
 }
 
-void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
+void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 {
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
     {
@@ -3437,7 +3436,7 @@ void LinkClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 
 
 
-void LinkClass::check_slash_block(int32_t bx, int32_t by)
+void HeroClass::check_slash_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
@@ -3739,7 +3738,7 @@ void LinkClass::check_slash_block(int32_t bx, int32_t by)
     }
 }
 
-void LinkClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
+void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 {
 	/*
 	int32_t par_item = w->parentitem;
@@ -3863,7 +3862,7 @@ void LinkClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 	}
 }
 
-void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int32_t layer)
+void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int32_t layer)
 {
 	
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
@@ -3977,7 +3976,7 @@ void LinkClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     
 }
 
-void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
+void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 {
 	/*
 	int32_t par_item = w->parentitem;
@@ -4306,7 +4305,7 @@ void LinkClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     }
 }
 
-void LinkClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
+void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
 {
 	/*
 	int32_t par_item = w->parentitem;
@@ -4388,7 +4387,7 @@ void LinkClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void LinkClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
+void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
 {
 	/*
 	int32_t par_item = w->parentitem;
@@ -4543,7 +4542,7 @@ void LinkClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     return;
 }
 
-void LinkClass::check_slash_block(weapon *w)
+void HeroClass::check_slash_block(weapon *w)
 {
 	//first things 
 	
@@ -4834,12 +4833,12 @@ void LinkClass::check_slash_block(weapon *w)
 }
 
 //TODO: Boomerang that cuts bushes. -L
-/*void LinkClass::slash_bush()
+/*void HeroClass::slash_bush()
 {
 
 }*/
 
-void LinkClass::check_wand_block(int32_t bx, int32_t by)
+void HeroClass::check_wand_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
@@ -4893,7 +4892,7 @@ void LinkClass::check_wand_block(int32_t bx, int32_t by)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void LinkClass::check_pound_block(int32_t bx, int32_t by)
+void HeroClass::check_pound_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
@@ -5027,7 +5026,7 @@ void LinkClass::check_pound_block(int32_t bx, int32_t by)
 }
 
 
-void LinkClass::check_wand_block(weapon *w)
+void HeroClass::check_wand_block(weapon *w)
 {
 	
     int32_t par_item = w->parentitem;
@@ -5100,7 +5099,7 @@ void LinkClass::check_wand_block(weapon *w)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void LinkClass::check_pound_block(weapon *w)
+void HeroClass::check_pound_block(weapon *w)
 {
 	
 	int32_t par_item = w->parentitem;
@@ -5256,7 +5255,7 @@ void LinkClass::check_pound_block(weapon *w)
 // -1 iGNORE WEAPON
 // 0 No effects
 // 1 Effects, weapon is not ignored or removed
-int32_t LinkClass::defend(weapon *w)
+int32_t HeroClass::defend(weapon *w)
 {
 	int32_t def = conv_edef_unblockable(defence[w->id], w->unblockable);
 	switch(def)
@@ -5460,7 +5459,7 @@ int32_t LinkClass::defend(weapon *w)
 			//sfx(WAV_BREAKSHIELD,pan(int32_t(x)));
 			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
 				game->set_item(itemid, false);
-			//Remove Link's shield
+			//Remove Hero's shield
 			return -1; 
 		}
 	
@@ -5470,7 +5469,7 @@ int32_t LinkClass::defend(weapon *w)
 	}
 }
 
-int32_t LinkClass::EwpnHit()
+int32_t HeroClass::EwpnHit()
 {
 	for(int32_t i=0; i<Ewpns.Count(); i++)
 	{
@@ -5479,7 +5478,7 @@ int32_t LinkClass::EwpnHit()
 			weapon *ew = (weapon*)(Ewpns.spr(i));
 			bool hitshield=false;
 			
-			if((ew->ignoreLink)==true || ew->fallclk|| ew->drownclk)
+			if((ew->ignoreHero)==true || ew->fallclk|| ew->drownclk)
 				break;
 		
 			int32_t defresult = defend(ew);
@@ -5488,7 +5487,7 @@ int32_t LinkClass::EwpnHit()
 			if(ew->id==ewWind)
 			{
 				xofs=1000;
-				action=freeze; FFCore.setLinkAction(freeze);
+				action=freeze; FFCore.setHeroAction(freeze);
 				ew->misc=999;                                         // in enemy wind
 				attackclk=0;
 				return -1;
@@ -5635,7 +5634,7 @@ int32_t LinkClass::EwpnHit()
 			
 			if(ew->id==wRefMagic)
 			{
-				ew->ignoreLink=true;
+				ew->ignoreHero=true;
 				ew->ignorecombo=-1;
 			}
 			
@@ -5646,7 +5645,7 @@ int32_t LinkClass::EwpnHit()
 	return -1;
 }
 
-int32_t LinkClass::LwpnHit()                                    //only here to check magic hits
+int32_t HeroClass::LwpnHit()                                    //only here to check magic hits
 {
     for(int32_t i=0; i<Lwpns.Count(); i++)
         if(Lwpns.spr(i)->hit(x+7,y+7,z,2,2,1))
@@ -5654,7 +5653,7 @@ int32_t LinkClass::LwpnHit()                                    //only here to c
             weapon *lw = (weapon*)(Lwpns.spr(i));
             bool hitshield=false;
             
-            if((lw->ignoreLink)==true)
+            if((lw->ignoreHero)==true)
                 break;
                 
             switch(dir)
@@ -5744,7 +5743,7 @@ int32_t LinkClass::LwpnHit()                                    //only here to c
             paymagiccost(itemid);
             
             lw->onhit(false, 1+reflect, dir);
-            lw->ignoreLink=true;
+            lw->ignoreHero=true;
             lw->ignorecombo=-1;
             sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
         }
@@ -5752,9 +5751,9 @@ int32_t LinkClass::LwpnHit()                                    //only here to c
     return -1;
 }
 
-void LinkClass::checkhit()
+void HeroClass::checkhit()
 {
-    if(checklink==true)
+    if(checkhero==true)
     {
         if(hclk>0)
         {
@@ -5781,7 +5780,7 @@ void LinkClass::checkhit()
     
     if(hclk<39 && action==gothit)
     {
-        action=none; FFCore.setLinkAction(none);
+        action=none; FFCore.setHeroAction(none);
     }
         
     if(hclk<39 && (action==swimhit || action == sideswimhit))
@@ -5800,7 +5799,7 @@ void LinkClass::checkhit()
                 case up:
                     if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(x.getInt()&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
 		    {
-			    action=none; FFCore.setLinkAction(none);
+			    action=none; FFCore.setHeroAction(none);
 		    }
                     else --y;
                     
@@ -5809,7 +5808,7 @@ void LinkClass::checkhit()
                 case down:
                     if(hit_walkflag(x,y+16,2)||(x.getInt()&7?hit_walkflag(x+16,y+16,1):0))   
 		    {
-			    action=none; FFCore.setLinkAction(none);
+			    action=none; FFCore.setHeroAction(none);
 		    }
                     else ++y;
                     
@@ -5818,7 +5817,7 @@ void LinkClass::checkhit()
                 case left:
                     if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(y.getInt()&7?hit_walkflag(x-1,y+16,1):0))  
 		    {
-			    action=none; FFCore.setLinkAction(none);
+			    action=none; FFCore.setHeroAction(none);
 		    }
                     else --x;
                     
@@ -5827,7 +5826,7 @@ void LinkClass::checkhit()
                 case right:
                     if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(y.getInt()&7?hit_walkflag(x+16,y+16,1):0))
 		    {
-			    action=none; FFCore.setLinkAction(none);
+			    action=none; FFCore.setHeroAction(none);
 		    }
                     else ++x;
                     
@@ -5846,9 +5845,9 @@ void LinkClass::checkhit()
     {
         sprite *s = Lwpns.spr(i);
 	int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
-        //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Link
-	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Link by this amount. 
-        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFLINK)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFLINK2)))
+        //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
+	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
+        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFHERO2)))
         {
             if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
                         (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
@@ -5865,15 +5864,15 @@ void LinkClass::checkhit()
                 {
 			if (IsSideSwim())
 			{
-				action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
+				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 			}
 			else if (action == swimming || hopclk == 0xFF)
 			{
-				action=swimhit; FFCore.setLinkAction(swimhit);
+				action=swimhit; FFCore.setHeroAction(swimhit);
 			}
 			else
 			{
-				action=gothit; FFCore.setLinkAction(gothit);
+				action=gothit; FFCore.setHeroAction(gothit);
 			}
                 }
                     
@@ -5894,7 +5893,7 @@ void LinkClass::checkhit()
         //
         if((itemsbuf[itemid].flags & ITEM_FLAG6))
         {
-            if(s->id==wBrang || (s->id==wHookshot&&!pull_link))
+            if(s->id==wBrang || (s->id==wHookshot&&!pull_hero))
             {
                 int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
                              directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
@@ -5907,7 +5906,7 @@ void LinkClass::checkhit()
                     if(s->hit(t->x+7,t->y+7,t->z,2,2,1))
                     {
                         bool reflect = false;
-                       // sethitLinkUID(HIT_BY_EWEAPON,j); //set that Link was hit by a specific eweapon index. 
+                       // sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
                         switch(t->id)
                         {
                         case ewBrang:
@@ -5989,7 +5988,7 @@ killweapon:
                             
                             if(ew->id==wRefMagic)
                             {
-                                ew->ignoreLink=true;
+                                ew->ignoreHero=true;
                                 ew->ignorecombo=-1;
                             }
                             
@@ -6019,15 +6018,15 @@ killweapon:
                 {
 			if (IsSideSwim())
 			{
-				action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
+				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 			}
 			else if (action == swimming || hopclk == 0xFF)
 			{
-				action=swimhit; FFCore.setLinkAction(swimhit);
+				action=swimhit; FFCore.setHeroAction(swimhit);
 			}
 			else
 			{
-				action=gothit; FFCore.setLinkAction(gothit);
+				action=gothit; FFCore.setHeroAction(gothit);
 			}
                 }
                     
@@ -6048,11 +6047,11 @@ killweapon:
         {
             reset_hookshot();
             xofs=1000;
-            action=inwind; FFCore.setLinkAction(inwind);
+            action=inwind; FFCore.setHeroAction(inwind);
             dir=s->dir;
             spins = charging = attackclk = 0;
             
-            // In case Link used two whistles in a row, summoning two whirlwinds,
+            // In case Hero used two whistles in a row, summoning two whirlwinds,
             // check which whistle's whirlwind picked him up so the correct
             // warp ring will be used
             int32_t whistle=((weapon*)s)->parentitem;
@@ -6074,7 +6073,7 @@ killweapon:
     
     if(hit2!=-1)
     {
-        hitlink(hit2);
+        hithero(hit2);
         return;
     }
     
@@ -6086,9 +6085,9 @@ killweapon:
         {
             int32_t ringpow = ringpower(lwpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitLinkUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
+	    sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
 		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
-		//Z_scripterrlog("Link->HitBy[LWPN] is: %d\n", gethitLinkUID(HIT_BY_LWEAPON));
+		//Z_scripterrlog("Hero->HitBy[LWPN] is: %d\n", gethitHeroUID(HIT_BY_LWEAPON));
             
         }
         
@@ -6097,15 +6096,15 @@ killweapon:
         
         if (IsSideSwim())
 	{
-		action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
+		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 	}
         else if(action==swimming || hopclk==0xFF)
 	{
-            action=swimhit; FFCore.setLinkAction(swimhit);
+            action=swimhit; FFCore.setHeroAction(swimhit);
 	}
         else
 	{
-            action=gothit; FFCore.setLinkAction(gothit);
+            action=gothit; FFCore.setHeroAction(gothit);
 	}
             
         hclk=48;
@@ -6121,7 +6120,7 @@ killweapon:
         return;
     }
     
-    //else  { sethitLinkUID(HIT_BY_LWEAPON,(0));  //fails to clear
+    //else  { sethitHeroUID(HIT_BY_LWEAPON,(0));  //fails to clear
     
     hit2 = EwpnHit();
     
@@ -6131,9 +6130,9 @@ killweapon:
         {
             int32_t ringpow = ringpower(ewpn_dp(hit2));
             game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitLinkUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
+	    sethitHeroUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
 		//Z_scripterrlog("wweapon hit2 is: %d\n", hit2*10000);
-		//Z_scripterrlog("Link->HitBy[EWPN] is: %d\n", gethitLinkUID(HIT_BY_EWEAPON));
+		//Z_scripterrlog("Hero->HitBy[EWPN] is: %d\n", gethitHeroUID(HIT_BY_EWEAPON));
         }
         
         hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
@@ -6141,15 +6140,15 @@ killweapon:
         
 	if (IsSideSwim())
 	{
-		action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
+		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 	}
         else if(action==swimming || hopclk==0xFF)
 	{
-            action=swimhit; FFCore.setLinkAction(swimhit);
+            action=swimhit; FFCore.setHeroAction(swimhit);
 	}
         else
 	{
-            action=gothit; FFCore.setLinkAction(gothit);
+            action=gothit; FFCore.setHeroAction(gothit);
 	}
             
         hclk=48;
@@ -6164,7 +6163,7 @@ killweapon:
         sfx(getHurtSFX(),pan(x.getInt()));
         return;
     }
-    //else { sethitLinkUID(HIT_BY_EWEAPON,(0)); } //fails to clear
+    //else { sethitHeroUID(HIT_BY_EWEAPON,(0)); } //fails to clear
     
     // The rest of this method deals with damage combos, which can be jumped over.
     if(z>0 && !(tmpscr->flags2&fAIRCOMBOS)) return;
@@ -6178,12 +6177,12 @@ killweapon:
         (void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
 }
 
-bool LinkClass::checkdamagecombos(int32_t dx, int32_t dy)
+bool HeroClass::checkdamagecombos(int32_t dx, int32_t dy)
 {
     return checkdamagecombos(dx,dx,dy,dy);
 }
 
-bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid, bool do_health_check) //layer = -1, solid = false, do_health_check = true
+bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid, bool do_health_check) //layer = -1, solid = false, do_health_check = true
 {
 	if(hclk || superman || fallclk)
 		return false;
@@ -6272,9 +6271,9 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
-			if(hp_modtotal >= 0) //Okay, if it's over 0, it's healing Link.
+			if(hp_modtotal >= 0) //Okay, if it's over 0, it's healing Hero.
 				hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
-			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Link.
+			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Hero.
 				hp_modtotal = zc_max(hp_modtotal, hp_mod[i]);
 		}
 		else
@@ -6395,15 +6394,15 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			{
 				if (IsSideSwim())
 				{
-					action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
+					action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 				}
 				else if (action == swimming || hopclk == 0xFF)
 				{
-					action=swimhit; FFCore.setLinkAction(swimhit);
+					action=swimhit; FFCore.setHeroAction(swimhit);
 				}
 				else
 				{
-					action=gothit; FFCore.setLinkAction(gothit);
+					action=gothit; FFCore.setHeroAction(gothit);
 				}
 			}
 				
@@ -6426,13 +6425,13 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	return false;
 }
 
-void LinkClass::hitlink(int32_t hit2)
+void HeroClass::hithero(int32_t hit2)
 {
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
     if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
             (z > (((enemy*)guys.spr(hit2))->z)) ||
-            ((isSideViewLink() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
+            ((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
     {
         paymagiccost(stompid);
         hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
@@ -6463,24 +6462,24 @@ void LinkClass::hitlink(int32_t hit2)
     {
         int32_t ringpow = ringpower(enemy_dp(hit2));
         game->set_life(zc_max(game->get_life()-ringpow,0));
-	sethitLinkUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
+	sethitHeroUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
 	    //Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
-		//Z_scripterrlog("Link->HitBy[NPC] is: %d\n", gethitLinkUID(HIT_BY_NPC));
+		//Z_scripterrlog("Hero->HitBy[NPC] is: %d\n", gethitHeroUID(HIT_BY_NPC));
 	    
     }
     
     hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
     if (IsSideSwim())
     {
-	   action=sideswimhit; FFCore.setLinkAction(sideswimhit); 
+	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
     }
     else if(action==swimming || hopclk==0xFF)
     {
-        action=swimhit; FFCore.setLinkAction(swimhit);
+        action=swimhit; FFCore.setHeroAction(swimhit);
     }
     else
     {
-        action=gothit; FFCore.setLinkAction(gothit);
+        action=gothit; FFCore.setHeroAction(gothit);
     }
         
     hclk=48;
@@ -6502,9 +6501,9 @@ void LinkClass::hitlink(int32_t hit2)
     case eeWALLM:
         if(((enemy*)guys.spr(hit2))->hp>0)
         {
-            GrabLink(hit2);
+            GrabHero(hit2);
             inwallm=true;
-            action=none; FFCore.setLinkAction(none);
+            action=none; FFCore.setHeroAction(none);
         }
         
         break;
@@ -6564,15 +6563,15 @@ void LinkClass::hitlink(int32_t hit2)
         
         if(dm7 >= e7tEATITEMS)
         {
-            EatLink(hit2);
+            EatHero(hit2);
             inlikelike=(dm7 == e7tEATHURT ? 2:1);
-            action=none; FFCore.setLinkAction(none);
+            action=none; FFCore.setHeroAction(none);
         }
     }
     }
 }
 
-void LinkClass::addsparkle(int32_t wpn)
+void HeroClass::addsparkle(int32_t wpn)
 {
 	//return;
     weapon *w = (weapon*)Lwpns.spr(wpn);
@@ -6635,7 +6634,7 @@ void LinkClass::addsparkle(int32_t wpn)
 }
 
 // For wPhantoms
-void LinkClass::addsparkle2(int32_t type1, int32_t type2)
+void HeroClass::addsparkle2(int32_t type1, int32_t type2)
 {
     if(frame%4) return;
     
@@ -6663,7 +6662,7 @@ void LinkClass::addsparkle2(int32_t type1, int32_t type2)
 }
 
 //cleans up decorations that exit the bounds of the screen for a int32_t time, to prevebt them wrapping around.
-void LinkClass::PhantomsCleanup()
+void HeroClass::PhantomsCleanup()
 {
 	if(Lwpns.idCount(wPhantom))
 	{
@@ -6743,7 +6742,7 @@ int32_t getPushDir(int32_t flag)
 }
 
 // returns true when game over
-bool LinkClass::animate(int32_t)
+bool HeroClass::animate(int32_t)
 {
 	int32_t lsave=0;
 	
@@ -6800,12 +6799,12 @@ bool LinkClass::animate(int32_t)
 				int32_t weff = mirror_portal->weffect,
 					wsfx = mirror_portal->wsfx;
 				
-				FFCore.warp_link(wtIWARP, mirror_portal->destdmap, mirror_portal->destscr,
+				FFCore.warp_player(wtIWARP, mirror_portal->destdmap, mirror_portal->destscr,
 					-1, -1, weff, wsfx, 0, -1);
 				
 				if(mirrorBonk()) //Invalid landing, warp back!
 				{
-					action = none; FFCore.setLinkAction(none);
+					action = none; FFCore.setHeroAction(none);
 					lastentrance = tLastEntrance;
 					lastentrance_dmap = tLastEntranceDMap;
 					game->set_continue_scrn(tContScr);
@@ -6813,7 +6812,7 @@ bool LinkClass::animate(int32_t)
 					x = tx;
 					y = ty;
 					z = tz;
-					FFCore.warp_link(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
+					FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
 						wsfx, 0, -1);
 					can_mirror_portal = false;
 				}
@@ -6869,7 +6868,7 @@ bool LinkClass::animate(int32_t)
 							{
 								hclk = 48;
 								hitdir = -1;
-								action = gothit; FFCore.setLinkAction(gothit);
+								action = gothit; FFCore.setHeroAction(gothit);
 							}
 						}
 						if (combobuf[watercheck].attribytes[1] > 0)
@@ -6957,7 +6956,7 @@ bool LinkClass::animate(int32_t)
 			hoverflags &= ~HOV_OUT;
 		}
 	}
-	if(isSideViewLink() && (moveflags & FLAG_OBEYS_GRAV))  // Sideview gravity
+	if(isSideViewHero() && (moveflags & FLAG_OBEYS_GRAV))  // Sideview gravity
 	{
 		//Handle falling through a platform
 		if((y.getInt()%16==0) && (isSVPlatform(x+4,y+16) || isSVPlatform(x+12,y+16)) && !(on_sideview_solid(x,y)))
@@ -6986,7 +6985,7 @@ bool LinkClass::animate(int32_t)
 			}
 		}
 		// Fall, unless on a ladder, sideview ladder, rafting, using the hookshot, drowning, sideswimming or cheating.
-		if(!(toogam && Up()) && !drownclk && action!=rafting && !IsSideSwim() && !pull_link && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
+		if(!(toogam && Up()) && !drownclk && action!=rafting && !IsSideSwim() && !pull_hero && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
 		{
 			int32_t ydiff = fall/(spins && fall<0 ? 200:100);
 			//zprint2("ydif is: %d\n", ydiff);
@@ -7035,7 +7034,7 @@ bool LinkClass::animate(int32_t)
 			}
 		}
 		// Stop hovering/falling if you land on something.
-		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_link && dir==down) && action!=rafting)
+		if((on_sideview_solid(x,y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting)
 		{
 			stop_item_sfx(itype_hoverboots);
 			if(!getOnSideviewLadder() && (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
@@ -7152,19 +7151,19 @@ bool LinkClass::animate(int32_t)
 				case swimming:
 				{
 					diveclk=0;
-					action=walking; FFCore.setLinkAction(walking);
+					action=walking; FFCore.setHeroAction(walking);
 				
 					break;
 				}
 				case waterhold1:
 				{
-					action=landhold1; FFCore.setLinkAction(landhold1);
+					action=landhold1; FFCore.setHeroAction(landhold1);
 					break;
 				}
 					
 				case waterhold2:
 				{
-					action=landhold2; FFCore.setLinkAction(landhold2);
+					action=landhold2; FFCore.setHeroAction(landhold2);
 					break;
 				}
 				
@@ -7260,24 +7259,24 @@ bool LinkClass::animate(int32_t)
 	
 	if(lstunclock > 0)
 	{
-		// also cancel Link's attack
+		// also cancel Hero's attack
 		attackclk = 0;
 		
-		if( FFCore.getLinkAction() != stunned )
+		if( FFCore.getHeroAction() != stunned )
 		{
 			tempaction=action; //update so future checks won't do this
 			//action=freeze; //setting this makes the player invincible while stunned -V
-			FFCore.setLinkAction(stunned);
+			FFCore.setHeroAction(stunned);
 		}
 		--lstunclock;
 	}
 	//if the stun action is still set in FFCore, but he isn't stunned, then the timer reached 0
 	//, so we unfreeze him here, and return him to the action that he had when he was stunned. 
-	if ( FFCore.getLinkAction() == stunned && !lstunclock )
+	if ( FFCore.getHeroAction() == stunned && !lstunclock )
 	{
-		action=tempaction; FFCore.setLinkAction(tempaction);
-		//zprint("Unfreezing link to action: %d\n", (int32_t)tempaction);
-		//action=none; FFCore.setLinkAction(none);
+		action=tempaction; FFCore.setHeroAction(tempaction);
+		//zprint("Unfreezing hero to action: %d\n", (int32_t)tempaction);
+		//action=none; FFCore.setHeroAction(none);
 	}
 	
 	if( lbunnyclock > 0 )
@@ -7346,10 +7345,10 @@ bool LinkClass::animate(int32_t)
 	{
 		if(hookshot_used || switch_hooked)
 		{
-			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
-			else {action=freeze; FFCore.setLinkAction(freeze);} //could be LA_HOOKSHOT for FFCore. -Z
+			if (IsSideSwim()) {action=sideswimfreeze; FFCore.setHeroAction(sideswimfreeze);} 
+			else {action=freeze; FFCore.setHeroAction(freeze);} //could be LA_HOOKSHOT for FFCore. -Z
 			
-			if(pull_link || switch_hooked)
+			if(pull_hero || switch_hooked)
 			{
 				if(hs_switcher || switch_hooked)
 				{
@@ -7865,7 +7864,7 @@ bool LinkClass::animate(int32_t)
 			yofs += 8;
 		}
 	}
-	if(!isSideViewLink())
+	if(!isSideViewHero())
 	{
 		int32_t tx = x.getInt()+8,
 		    ty = y.getInt()+(bigHitbox?8:12);
@@ -7916,7 +7915,7 @@ bool LinkClass::animate(int32_t)
 			}
 		}
 	}
-	ClearhitLinkUIDs(); //clear them before we advance. 
+	ClearhitHeroUIDs(); //clear them before we advance. 
 	checkhit();
 	
 	if(game->get_life()<=0)
@@ -8010,9 +8009,9 @@ bool LinkClass::animate(int32_t)
 				{
 					drunkclk=0;
 					lstunclock = 0;
-					FFCore.setLinkAction(dying);
+					FFCore.setHeroAction(dying);
 					FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-					FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_ACTIVE);
+					FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
 					ALLOFF(true,true);
 					Playing = false; //Disallow F6
 					if(!debug_enabled)
@@ -8022,13 +8021,13 @@ bool LinkClass::animate(int32_t)
 					if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+						FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH);
 					}
 					heroDeathAnimation();
 					if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllArrays(SCRIPT_LINK, SCRIPT_LINK_DEATH);
+						FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH);
 					}
 					ALLOFF(true,true);
 					return true;
@@ -8060,9 +8059,9 @@ bool LinkClass::animate(int32_t)
 	if(inwallm)
 	{
 		attackclk=0;
-		linkstep();
+		herostep();
 		
-		if(CarryLink()==false)
+		if(CarryHero()==false)
 			restart_level();
 			
 		return false;
@@ -8073,18 +8072,18 @@ bool LinkClass::animate(int32_t)
 		attackclk=0;
 		restart_level();
 		xofs=0;
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 		ewind_restart=false;
 		return false;
 	}
 	
 	if(hopclk)
 	{
-		action=hopping; FFCore.setLinkAction(hopping);
+		action=hopping; FFCore.setHeroAction(hopping);
 	}
 	if(fallclk)
 	{
-		action=falling; FFCore.setLinkAction(falling);
+		action=falling; FFCore.setHeroAction(falling);
 	}
 		
 	// get user input or do other animation
@@ -8112,14 +8111,14 @@ bool LinkClass::animate(int32_t)
 	case lavadrowning:
 	case sidedrowning:
 	{
-		linkstep(); // maybe this line should be elsewhere?
+		herostep(); // maybe this line should be elsewhere?
 		
 		//!DROWN
 		// Helpful comment to find drowning -Dimi
 		
 		if(--drownclk==0)
 		{
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 			int32_t water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			int32_t damage = combobuf[water].attributes[0]/10000L;
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
@@ -8133,7 +8132,7 @@ bool LinkClass::animate(int32_t)
 	}
 	case falling:
 	{
-		linkstep();
+		herostep();
 		pitfall();
 		break;
 	}
@@ -8147,7 +8146,7 @@ bool LinkClass::animate(int32_t)
 	{
 		if(magicitem==-1)
 		{
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 		}
 		
 		break;
@@ -8161,7 +8160,7 @@ bool LinkClass::animate(int32_t)
 			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0 && (specialcave < GUYCAVE))
 				playLevelMusic();
 				
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 		}
 		else
 			freeze_guys=true;
@@ -8192,7 +8191,7 @@ bool LinkClass::animate(int32_t)
 	{
 		if(DRIEDLAKE)
 		{
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 			hopclk = 0;
 			diveclk = 0;
 			break;
@@ -8221,7 +8220,7 @@ bool LinkClass::animate(int32_t)
 			
 			if(exit)
 			{
-				action=none; FFCore.setLinkAction(none);
+				action=none; FFCore.setHeroAction(none);
 				xofs=0;
 				whirlwind=0;
 				lstep=0;
@@ -8252,7 +8251,7 @@ bool LinkClass::animate(int32_t)
 	{	
 		if(DRIEDLAKE)
 		{
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 			hopclk=0;
 			break;
 		}
@@ -8260,21 +8259,21 @@ bool LinkClass::animate(int32_t)
 		bool shouldbreak = (action == sideswimhit || action == swimhit); //!DIMITODO: "Can walk while hurt" compat needs to be added here.
 		
 		if((frame&1) && !shouldbreak)
-			linkstep();
+			herostep();
 		
 		if (_walkflag(x+7,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
                 || _walkflag(x+7,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)
 		|| _walkflag(x+8,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
                 || _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)) isthissolid = true;
-		if ((get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Link out of water...
+		if ((get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) //Since hopping won't be set with this on, something needs to kick Hero out of water...
 		{
 			if(!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+9), currmap, currscr, -1, x.getInt()+4,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+4,y.getInt()+15), currmap, currscr, -1, x.getInt()+4,y.getInt()+15, true, false)
 			|| !iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+9), currmap, currscr, -1, x.getInt()+11,y.getInt()+9, true, false)||!iswaterex(MAPCOMBO(x.getInt()+11,y.getInt()+15), currmap, currscr, -1, x.getInt()+11,y.getInt()+15, true, false))
 			{
 				hopclk=0;
 				diveclk=0;
-				if (action != sideswimattacking && action != attacking) {action=none; FFCore.setLinkAction(none);}
-				else {action=attacking; FFCore.setLinkAction(attacking);}
+				if (action != sideswimattacking && action != attacking) {action=none; FFCore.setHeroAction(none);}
+				else {action=attacking; FFCore.setHeroAction(attacking);}
 				hopdir=-1;
 			}
 		}
@@ -8297,8 +8296,8 @@ bool LinkClass::animate(int32_t)
 						{
 							hclk = 48;
 							hitdir = -1;
-							if (IsSideSwim()) {action = sideswimhit; FFCore.setLinkAction(sideswimhit);}
-							else {action = swimhit; FFCore.setLinkAction(swimhit);}
+							if (IsSideSwim()) {action = sideswimhit; FFCore.setHeroAction(sideswimhit);}
+							else {action = swimhit; FFCore.setHeroAction(swimhit);}
 						}
 					}
 					if (combobuf[watercheck].attribytes[1] > 0)
@@ -8317,7 +8316,7 @@ bool LinkClass::animate(int32_t)
 	}
 	[[fallthrough]];
 	default:
-		movelink();										   // call the main movement routine
+		movehero();										   // call the main movement routine
 	}
 	
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
@@ -8382,7 +8381,7 @@ bool LinkClass::animate(int32_t)
 	{
 		checkspecial();
 		checkitems();
-		checklocked(); //This has issues if Link's action is WALKING, in 8-way moveent. 
+		checklocked(); //This has issues if Hero's action is WALKING, in 8-way moveent. 
 		checklockblock();
 		checkbosslockblock();
 		if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
@@ -8405,7 +8404,7 @@ bool LinkClass::animate(int32_t)
 		}
 	}
 	
-	// Somehow Link was displaced from the fairy flag...
+	// Somehow Hero was displaced from the fairy flag...
 	if(fairyclk && action != freeze && action != sideswimfreeze)
 	{
 		fairyclk = holdclk = refill_why = 0;
@@ -8584,10 +8583,10 @@ bool LinkClass::animate(int32_t)
 		dowarp(1,0);
 	}
 	
-	//Link->WarpEx
+	//Hero->WarpEx
 	if ( FFCore.warpex[wexActive] )
 	{
-		if(DEVLOGGING) zprint("Running warpex from Link.cpp\n");
+		if(DEVLOGGING) zprint("Running warpex from hero.cpp\n");
 		FFCore.warpex[wexActive] = 0;
 		int32_t temp_warpex[wexActive] = {0}; //to hold the values as we clear the FFCore array. -Z
 		for ( int32_t q = 0; q < wexActive; q++ ) 
@@ -8595,7 +8594,7 @@ bool LinkClass::animate(int32_t)
 			temp_warpex[q] = FFCore.warpex[q];
 			FFCore.warpex[q] = 0;
 		}
-		FFCore.warp_link( temp_warpex[wexType], temp_warpex[wexDMap], temp_warpex[wexScreen], temp_warpex[wexX],
+		FFCore.warp_player( temp_warpex[wexType], temp_warpex[wexDMap], temp_warpex[wexScreen], temp_warpex[wexX],
 			temp_warpex[wexY], temp_warpex[wexEffect], temp_warpex[wexSound], temp_warpex[wexFlags], temp_warpex[wexDir]); 
 	}
 	
@@ -8642,9 +8641,9 @@ bool LinkClass::animate(int32_t)
 			sfx(tmpscr->secretsfx);
 		}
 		
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 		stepforward(29, true);
-		action=scrolling; FFCore.setLinkAction(scrolling);
+		action=scrolling; FFCore.setHeroAction(scrolling);
 		pushing=false;
 	}
 	
@@ -8728,12 +8727,12 @@ bool LinkClass::animate(int32_t)
 	
 	check_conveyor();
 	PhantomsCleanup();
-	//Try to time the hammer pound so that Link can;t change direction while it occurs. 
+	//Try to time the hammer pound so that Hero can;t change direction while it occurs. 
 	if(attack==wHammer)
 	{
 		if(attackclk==12 && z==0 && sideviewhammerpound())
 	{
-		switch(dir) //Link's dir
+		switch(dir) //Hero's dir
 		{
 			case up:
 				decorations.add(new dHammerSmack(x-1, y-4, dHAMMERSMACK, 0));
@@ -8774,8 +8773,8 @@ bool LinkClass::animate(int32_t)
 }
 
 // A routine used exclusively by startwpn,
-// to switch Link's weapon if his current weapon (bombs) was depleted.
-void LinkClass::deselectbombs(int32_t super)
+// to switch Hero's weapon if his current weapon (bombs) was depleted.
+void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
     if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
@@ -8812,7 +8811,7 @@ void LinkClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
-bool LinkClass::mirrorBonk()
+bool HeroClass::mirrorBonk()
 {
 	zfix tx = x, ty = y, tz = z;
 	WalkflagInfo info = walkflag(x,y+(bigHitbox?0:8),2,up);
@@ -8881,7 +8880,7 @@ bool LinkClass::mirrorBonk()
 	return fail;
 }
 
-void LinkClass::doMirror(int32_t mirrorid)
+void HeroClass::doMirror(int32_t mirrorid)
 {
 	if(z > 0) return; //No mirror in air
 	if(mirrorid < 0)
@@ -8926,7 +8925,7 @@ void LinkClass::doMirror(int32_t mirrorid)
             nayruitem=nayrutemp;
             magicitem=-1;
             magiccastclk=0;
-            if ( Link.getDontDraw() < 2 ) { Link.setDontDraw(0); }
+            if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
 		}
 	}
 	else
@@ -8949,16 +8948,16 @@ void LinkClass::doMirror(int32_t mirrorid)
 		int32_t sourcescr = currscr, sourcedmap = currdmap;
 		zfix tx = x, ty = y, tz = z;
 		game->portalsrcdmap = -1;
-		action = none; FFCore.setLinkAction(none);
+		action = none; FFCore.setHeroAction(none);
 		
 		//Warp to new dmap
-		FFCore.warp_link(wtIWARP, destdmap, destscr, -1, -1, mirror.misc1,
+		FFCore.warp_player(wtIWARP, destdmap, destscr, -1, -1, mirror.misc1,
 			mirror.usesound, 0, -1);
 		
 		//Check for valid landing location
 		if(mirrorBonk()) //Invalid landing, warp back!
 		{
-			action = none; FFCore.setLinkAction(none);
+			action = none; FFCore.setHeroAction(none);
 			lastentrance = tLastEntrance;
 			lastentrance_dmap = tLastEntranceDMap;
 			game->set_continue_scrn(tContScr);
@@ -8967,7 +8966,7 @@ void LinkClass::doMirror(int32_t mirrorid)
 			y = ty;
 			z = tz;
 			game->portalsrcdmap = tPortalDMap;
-			FFCore.warp_link(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
+			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
 				mirror.usesound, 0, -1);
 		}
 		else if(mirror.flags & ITEM_FLAG1) //Place portal!
@@ -8991,10 +8990,10 @@ void LinkClass::doMirror(int32_t mirrorid)
 	}
 }
 
-void LinkClass::doSwitchHook(byte style)
+void HeroClass::doSwitchHook(byte style)
 {
 	hs_switcher = true;
-	pull_link = true;
+	pull_hero = true;
 	//{ Load hook weapons, set them to obey special drawing
 	weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
 		*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
@@ -9164,7 +9163,7 @@ void LinkClass::doSwitchHook(byte style)
 	}
 }
 
-bool LinkClass::startwpn(int32_t itemid)
+bool HeroClass::startwpn(int32_t itemid)
 {
 	if(itemid < 0) return false;
 	itemdata const& itm = itemsbuf[itemid];
@@ -9421,7 +9420,7 @@ bool LinkClass::startwpn(int32_t itemid)
 					
 				sfx(tmpscr[currscr<128?0:1].secretsfx);
 				setupscreen();
-				action=none; FFCore.setLinkAction(none);
+				action=none; FFCore.setHeroAction(none);
 			}
 			
 			ret = false;
@@ -9603,7 +9602,7 @@ bool LinkClass::startwpn(int32_t itemid)
 		{
 			if(Lwpns.idCount(wMagic))
 			{
-				misc_internal_link_flags &= ~LF_PAID_WAND_COST;
+				misc_internal_hero_flags &= ~LF_PAID_WAND_COST;
 				return false;
 			}
 				
@@ -9612,11 +9611,11 @@ bool LinkClass::startwpn(int32_t itemid)
 			
 			if(!(itm.flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
 			{
-				misc_internal_link_flags &= ~LF_PAID_WAND_COST;
+				misc_internal_hero_flags &= ~LF_PAID_WAND_COST;
 				return false;
 			}
 				
-			if(!checkbunny(itemid) || !(misc_internal_link_flags & LF_PAID_WAND_COST || checkmagiccost(itemid)))
+			if(!checkbunny(itemid) || !(misc_internal_hero_flags & LF_PAID_WAND_COST || checkmagiccost(itemid)))
 			{
 				if(QMisc.miscsfx[sfxERROR])
 					sfx(QMisc.miscsfx[sfxERROR]);
@@ -9646,9 +9645,9 @@ bool LinkClass::startwpn(int32_t itemid)
 				//magic->dir = this->dir; //Save player dir for special weapons. 
 				Lwpns.add(magic);
 			}
-			if(!(misc_internal_link_flags & LF_PAID_WAND_COST))
+			if(!(misc_internal_hero_flags & LF_PAID_WAND_COST))
 				paymagiccost(itemid);
-			else misc_internal_link_flags &= ~LF_PAID_WAND_COST;
+			else misc_internal_hero_flags &= ~LF_PAID_WAND_COST;
 			
 			if(paybook)
 				paymagiccost(current_item_id(itype_book));
@@ -9697,7 +9696,7 @@ bool LinkClass::startwpn(int32_t itemid)
 		
 		case itype_sword:
 		{
-			if(!(checkbunny(itemid) || !(misc_internal_link_flags & LF_PAID_SWORD_COST || checkmagiccost(itemid))))
+			if(!(checkbunny(itemid) || !(misc_internal_hero_flags & LF_PAID_SWORD_COST || checkmagiccost(itemid))))
 			{
 				if(QMisc.miscsfx[sfxERROR])
 					sfx(QMisc.miscsfx[sfxERROR]);
@@ -9706,13 +9705,13 @@ bool LinkClass::startwpn(int32_t itemid)
 				
 			if((Lwpns.idCount(wBeam) && spins==0)||Lwpns.idCount(wMagic))
 			{
-				misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
+				misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
 				return false;
 			}
 				
-			if(!(misc_internal_link_flags & LF_PAID_SWORD_COST))//If already paid to use sword melee, don't charge again
+			if(!(misc_internal_hero_flags & LF_PAID_SWORD_COST))//If already paid to use sword melee, don't charge again
 				paymagiccost(itemid);
-			else misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
+			else misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
 			float temppower;
 			
 			if(itm.flags & ITEM_FLAG2)
@@ -10298,7 +10297,7 @@ bool LinkClass::startwpn(int32_t itemid)
 		break;
 			
 		case itype_dinsfire:
-			if(z!=0 || (isSideViewLink() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
+			if(z!=0 || (isSideViewHero() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -10309,13 +10308,13 @@ bool LinkClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			if (IsSideSwim()) {action=sideswimcasting; FFCore.setLinkAction(sideswimcasting);}
-			else {action=casting; FFCore.setLinkAction(casting);}
+			if (IsSideSwim()) {action=sideswimcasting; FFCore.setHeroAction(sideswimcasting);}
+			else {action=casting; FFCore.setHeroAction(casting);}
 			magicitem=itemid;
 			break;
 			
 		case itype_faroreswind:
-			if(z!=0 || (isSideViewLink() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
+			if(z!=0 || (isSideViewHero() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -10326,13 +10325,13 @@ bool LinkClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			if (IsSideSwim()) {action=sideswimcasting; FFCore.setLinkAction(sideswimcasting);}
-			else {action=casting; FFCore.setLinkAction(casting);}
+			if (IsSideSwim()) {action=sideswimcasting; FFCore.setHeroAction(sideswimcasting);}
+			else {action=casting; FFCore.setHeroAction(casting);}
 			magicitem=itemid;
 			break;
 			
 		case itype_nayruslove:
-			if(z!=0 || (isSideViewLink() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
+			if(z!=0 || (isSideViewHero() && !(on_sideview_solid(x,y) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -10343,8 +10342,8 @@ bool LinkClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			if (IsSideSwim()) {action=sideswimcasting; FFCore.setLinkAction(sideswimcasting);}
-			else {action=casting; FFCore.setLinkAction(casting);}
+			if (IsSideSwim()) {action=sideswimcasting; FFCore.setHeroAction(sideswimcasting);}
+			else {action=casting; FFCore.setHeroAction(casting);}
 			magicitem=itemid;
 			break;
 			
@@ -10426,10 +10425,10 @@ bool LinkClass::startwpn(int32_t itemid)
 }
 
 
-bool LinkClass::doattack()
+bool HeroClass::doattack()
 {
 	//int32_t s = BSZ ? 0 : 11;
-	int32_t s = (zinit.linkanimationstyle==las_bszelda) ? 0 : 11;
+	int32_t s = (zinit.heroAnimationStyle==las_bszelda) ? 0 : 11;
 	
 	int32_t bugnetid = (directWpn>-1 && itemsbuf[directWpn].family==itype_bugnet) ? directWpn : current_item_id(itype_bugnet);
 	if(attack==wBugNet && bugnetid!=-1)
@@ -10689,7 +10688,7 @@ bool LinkClass::doattack()
 				// of the peril/cross beam...
 				startwpn(attackid);
 			}
-			else misc_internal_link_flags &= ~LF_PAID_SWORD_COST;
+			else misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
 		}
 		
 		if(attack==wWand)
@@ -10708,7 +10707,7 @@ bool LinkClass::doattack()
 	return true;
 }
 
-bool LinkClass::can_attack()
+bool HeroClass::can_attack()
 {
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
     if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze || lstunclock > 0 ||
@@ -10744,17 +10743,17 @@ void do_lens()
 	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
 	{
 		int32_t wpnPressed = getWpnPressed(itype_lens);
-		int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Link.getLastLensID()>0 ? Link.getLastLensID() : current_item_id(itype_lens);
+		int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
 		if(itemid<0)
 			return;
-		//LinkItemClk is the item jinx.
-		if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
+		//HeroItemClk is the item jinx.
+		if(isWpnPressed(itype_lens) && !HeroItemClk() && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
 		{
 			if(lensid<0)
 			{
 				lensid=itemid;
 				if(itemsbuf[itemid].family == itype_lens)
-				Link.setLastLensID(itemid);
+				Hero.setLastLensID(itemid);
 				if(get_bit(quest_rules,qr_MORESOUNDS)) sfx(itemsbuf[itemid].usesound);
 			}
 			
@@ -10807,7 +10806,7 @@ void do_210_lens()
     if(itemid<0)
         return;
         
-    if(isWpnPressed(itype_lens) && !LinkItemClk() && !lensclk && checkmagiccost(itemid))
+    if(isWpnPressed(itype_lens) && !HeroItemClk() && !lensclk && checkmagiccost(itemid))
     {
         if(lensid<0)
         {
@@ -10840,7 +10839,7 @@ void do_210_lens()
     {
         did_scriptl=false;
         
-        if(lensid>-1 && !(isWpnPressed(itype_lens) && !LinkItemClk() && checkmagiccost(itemid)))
+        if(lensid>-1 && !(isWpnPressed(itype_lens) && !HeroItemClk() && checkmagiccost(itemid)))
         {
             lensid=-1;
             lensclk = 0;
@@ -10850,7 +10849,7 @@ void do_210_lens()
     }
 }
 
-void LinkClass::do_hopping()
+void HeroClass::do_hopping()
 {
     do_lens();
     
@@ -10887,7 +10886,7 @@ void LinkClass::do_hopping()
         }
         else
         {
-            linkstep();
+            herostep();
             
             if(!isDiving() || (frame&1))
             {
@@ -10926,8 +10925,8 @@ void LinkClass::do_hopping()
                 
                 if(dir==up)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && !iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
@@ -10943,15 +10942,15 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none; FFCore.setLinkAction(none);
+                        action=none; FFCore.setHeroAction(none);
                         hopdir=-1;
                     }
                 }
                 
                 if(dir==down)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && !iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && !iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
@@ -10967,15 +10966,15 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none; FFCore.setLinkAction(none);
+                        action=none; FFCore.setHeroAction(none);
                         hopdir=-1;
                     }
                 }
                 
                 if(dir==left)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
@@ -10991,15 +10990,15 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none; FFCore.setLinkAction(none);
+                        action=none; FFCore.setHeroAction(none);
                         hopdir=-1;
                     }
                 }
                 
                 if(dir==right)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(iswaterex(MAPCOMBO(x+16,y+(bigHitbox?0:8)), currmap, currscr, -1, x+16,y+(bigHitbox?0:8), true, false) && !iswaterex(MAPCOMBO(x+16,y+(bigHitbox?8:12)), currmap, currscr, -1, x+16,y+(bigHitbox?8:12), true, false) && !iswaterex(MAPCOMBO(x+16,y+15), currmap, currscr, -1, x+16,y+15, true, false))
@@ -11015,7 +11014,7 @@ void LinkClass::do_hopping()
                     {
                         hopclk=0;
                         diveclk=0;
-                        action=none; FFCore.setLinkAction(none);
+                        action=none; FFCore.setHeroAction(none);
                         hopdir=-1;
                     }
                 }
@@ -11027,8 +11026,8 @@ void LinkClass::do_hopping()
                 
                 if(dir==up)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+8,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+8,y+(bigHitbox?0:8)-1, true, false) && iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)-1), currmap, currscr, -1, x+15,y+(bigHitbox?0:8)-1, true, false))
@@ -11050,8 +11049,8 @@ void LinkClass::do_hopping()
                 
                 if(dir==down)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x,y+16), currmap, currscr, -1, x,y+16, true, false) && iswaterex(MAPCOMBO(x+8,y+16), currmap, currscr, -1, x+8,y+16, true, false) && iswaterex(MAPCOMBO(x+15,y+16), currmap, currscr, -1, x+15,y+16, true, false))
@@ -11074,8 +11073,8 @@ void LinkClass::do_hopping()
                 
                 if(dir==left)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     int32_t sidestep=0;
                     
                     if(!iswaterex(MAPCOMBO(x-1,y+(bigHitbox?0:8)), currmap, currscr, -1, x-1,y+(bigHitbox?0:8), true, false) && iswaterex(MAPCOMBO(x-1,y+(bigHitbox?8:12)), currmap, currscr, -1, x-1,y+(bigHitbox?8:12), true, false) && iswaterex(MAPCOMBO(x-1,y+15), currmap, currscr, -1, x-1,y+15, true, false))
@@ -11097,8 +11096,8 @@ void LinkClass::do_hopping()
                 
                 if(dir==right)
                 {
-                    linkstep();
-                    linkstep();
+                    herostep();
+                    herostep();
                     
                     int32_t sidestep=0;
                     
@@ -11125,7 +11124,7 @@ void LinkClass::do_hopping()
         {
             if((dir<left ? !(x.getInt()&7) && !(y.getInt()&15) : !(x.getInt()&15) && !(y.getInt()&7)))
             {
-                action=none; FFCore.setLinkAction(none);
+                action=none; FFCore.setHeroAction(none);
                 hopclk = 0;
                 diveclk = 0;
                 
@@ -11138,11 +11137,11 @@ void LinkClass::do_hopping()
             }
             else
             {
-                linkstep();
-                linkstep();
+                herostep();
+                herostep();
                 
-                if(++link_count>(16*link_animation_speed))
-                    link_count=0;
+                if(++hero_count>(16*hero_animation_speed))
+                    hero_count=0;
                     
                 int32_t xofs2 = x.getInt()&15;
                 int32_t yofs2 = y.getInt()&15;
@@ -11179,20 +11178,20 @@ void LinkClass::do_hopping()
     }
 }
 
-void LinkClass::do_rafting()
+void HeroClass::do_rafting()
 {
 
     if(toogam)
     {
-        action=none; FFCore.setLinkAction(none);
+        action=none; FFCore.setHeroAction(none);
         return;
     }
     
-    FFCore.setLinkAction(rafting);
+    FFCore.setHeroAction(rafting);
     
     do_lens();
     
-    linkstep();
+    herostep();
     
 	//Calculate rafting speed
 	int32_t raft_item = current_item_id(itype_raft);
@@ -11265,7 +11264,7 @@ void LinkClass::do_rafting()
                     dir=left;
                 else if(y>0 && y<160) 
 		{
-                    action=none; FFCore.setLinkAction(none);
+                    action=none; FFCore.setHeroAction(none);
 		}
             }
             else //going left or right
@@ -11276,7 +11275,7 @@ void LinkClass::do_rafting()
                     dir=up;
                 else if(x>0 && x<240)
 		{
-                    action=none; FFCore.setLinkAction(none);
+                    action=none; FFCore.setHeroAction(none);
 		}
             }
         }
@@ -11332,7 +11331,7 @@ skip:
     }
 }
 
-bool LinkClass::try_hover()
+bool HeroClass::try_hover()
 {
 	if(hoverclk <= 0 && can_use_item(itype_hoverboots,i_hoverboots) && !ladderx && !laddery && !(hoverflags & HOV_OUT))
 	{
@@ -11363,17 +11362,17 @@ bool LinkClass::try_hover()
 //Returns bitwise; lower 8 are dir pulled in, next 16 are combo ID, 25th bit is bool for if can be resisted
 //Returns '-1' if not being pulled
 //Returns '-2' if should be falling in
-int32_t LinkClass::check_pitslide(bool ignore_hover)
+int32_t HeroClass::check_pitslide(bool ignore_hover)
 {
 	//Pitfall todo -Emily
 	//Iron boots; can't fight slipping, 2px/frame
-	//Scripted variables to read pull dir/clk (clk only for non-link)
+	//Scripted variables to read pull dir/clk (clk only for non-hero)
 	//Implement falling for all sprite types (npc AI)
 	//    Fall/slipping tiles for enemies
 	//    Fall/slipping SFX for enemies
 	//    Fall SFX for items/weapons
 	//    Weapons/Misc sprite shared for falling items/weapons
-	//Maybe slip SFX for Link?
+	//Maybe slip SFX for Hero?
 	// Weapons/Misc sprite override for falling sprite?
 	//Update std.zh with relevant new stuff
 	if(can_pitfall(ignore_hover))
@@ -11608,7 +11607,7 @@ int32_t LinkClass::check_pitslide(bool ignore_hover)
 	return -1;
 }
 
-bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
+bool HeroClass::pitslide() //Runs pitslide movement; returns true if pit is irresistable
 {
 	pitfall();
 	if(fallclk) return true;
@@ -11665,7 +11664,7 @@ bool LinkClass::pitslide() //Runs pitslide movement; returns true if pit is irre
 	return fallclk || (val&0x100);
 }
 
-void LinkClass::pitfall()
+void HeroClass::pitfall()
 {
 	if(fallclk)
 	{
@@ -11677,7 +11676,7 @@ void LinkClass::pitfall()
 			bool dmg_perc = false;
 			bool warp = false;
 			
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 			newcombo* cmb = fallCombo ? &combobuf[fallCombo] : NULL;
 			if(cmb)
 			{
@@ -11720,14 +11719,14 @@ void LinkClass::pitfall()
 			if(!bigHitbox && !ispitfall(x,y)) y = (y.getInt() + 8 - (y.getInt() % 8)); //Make the falling sprite fully over the pit
 			fallclk = PITFALL_FALL_FRAMES;
 			fallCombo = pitctr;
-			action=falling; FFCore.setLinkAction(falling);
+			action=falling; FFCore.setHeroAction(falling);
 			spins = 0;
 			charging = 0;
 		}
 	}
 }
 
-void LinkClass::movelink()
+void HeroClass::movehero()
 {
 	if(lstunclock) return;
 	int32_t xoff=x.getInt()&7;
@@ -11740,14 +11739,14 @@ void LinkClass::movelink()
 	int32_t push=pushing;
 	int32_t oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
 	pushing=0;
-	zfix temp_step(link_newstep);
+	zfix temp_step(hero_newstep);
 	zfix temp_x(x);
 	zfix temp_y(y);
 	
 	int32_t flippers_id = current_item_id(itype_flippers);
 	if(diveclk>0)
 	{
-		if (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
+		if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
 		--diveclk;
 		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
 		{
@@ -11821,10 +11820,10 @@ void LinkClass::movelink()
 		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
 		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
 		{
-			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_SWORD_COST))
+			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
 			{
 				paymagiccost(attackid,true);
-				misc_internal_link_flags |= LF_PAID_SWORD_COST;
+				misc_internal_hero_flags |= LF_PAID_SWORD_COST;
 			}
 			SetAttack();
 			attack=wSword;
@@ -11929,9 +11928,9 @@ void LinkClass::movelink()
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			if(checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
-				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_WAND_COST)){
+				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
 					paymagiccost(attackid,true);
-					misc_internal_link_flags |= LF_PAID_WAND_COST;
+					misc_internal_hero_flags |= LF_PAID_WAND_COST;
 				}
 				SetAttack();
 				attack=wWand;
@@ -11976,9 +11975,9 @@ void LinkClass::movelink()
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
 			if(checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
-				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_link_flags & LF_PAID_CBYRNA_COST)){
+				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
 					paymagiccost(attackid,true);
-					misc_internal_link_flags |= LF_PAID_CBYRNA_COST;
+					misc_internal_hero_flags |= LF_PAID_CBYRNA_COST;
 				}
 				SetAttack();
 				attack=wCByrna;
@@ -12094,7 +12093,7 @@ void LinkClass::movelink()
 		
 		bool attacked = doattack();
 		
-		// This section below interferes with script-setting Link->Dir, so it comes after doattack
+		// This section below interferes with script-setting Hero->Dir, so it comes after doattack
 		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
 		{
 			if((xoff==0)||diagonalMovement)
@@ -12154,13 +12153,13 @@ void LinkClass::movelink()
 				spins=0;
 			}
 			
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 			attackclk=0;
 			charging=0;
 		}
 	}
 	
-	if(pitslide()) //Check pit's 'pull'. If true, then Link cannot fight the pull.
+	if(pitslide()) //Check pit's 'pull'. If true, then Hero cannot fight the pull.
 		return;
 	
 	if(action==walking) //still walking
@@ -12168,8 +12167,8 @@ void LinkClass::movelink()
 		if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
 		{
 			if(attackclk>0) SetAttack();
-			else {action = none; FFCore.setLinkAction(none);}
-			link_count=-1;
+			else {action = none; FFCore.setHeroAction(none);}
+			hero_count=-1;
 			return;
 		}
 		
@@ -12190,7 +12189,7 @@ void LinkClass::movelink()
 					{
 						bool ffcwalk = true;
 						//check for solid ffcs here -Z
-						//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
+						//This does work, however once the solif ffc stops Hero from moving, the player can release the dpan, press again, and pass through it.
 						for ( int32_t q = 0; q < 32; ++q )
 						{
 							//solid ffcs attampt -Z ( 30th March, 2019 )
@@ -12204,13 +12203,13 @@ void LinkClass::movelink()
 								//if ( (int32_t)y - int32_t(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
 								if ( (int32_t)y == max_y ) //if the ffc bottom edge is in the step range
 								{
-									//al_trace("Link is under the ffc\n");
-									int32_t linkwidthx = (int32_t)x+(int32_t)hxsz;
-									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int32_t)tmpscr->ffx[q])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
+									//al_trace("Player is under the ffc\n");
+									int32_t herowidthx = (int32_t)x+(int32_t)hxsz;
+									//al_trace("herowidthx is: %d\n",herowidthx);
+									if ( herowidthx >= (((int32_t)tmpscr->ffx[q])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
 									{
-										al_trace("Link is under X border of ffc\n");
-										//Link is under the ffc
+										al_trace("Player is under X border of ffc\n");
+										//Player is under the ffc
 										ffcwalk = false;
 									}
 								}
@@ -12221,7 +12220,7 @@ void LinkClass::movelink()
 					}
 					else
 					{
-						action=none; FFCore.setLinkAction(none);
+						action=none; FFCore.setHeroAction(none);
 					}
 					
 					return;
@@ -12248,13 +12247,13 @@ void LinkClass::movelink()
 								//if ( (int32_t)y+(int32_t)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
 								if ( (int32_t)y+(int32_t)hysz == min_y ) //if the ffc bottom edge is in the step range
 								{
-									//al_trace("Link is under the ffc\n");
-									int32_t linkwidthx = (int32_t)x+(int32_t)hxsz;
-									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int32_t)tmpscr->ffx[0])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
+									//al_trace("Player is under the ffc\n");
+									int32_t herowidthx = (int32_t)x+(int32_t)hxsz;
+									//al_trace("herowidthx is: %d\n",herowidthx);
+									if ( herowidthx >= (((int32_t)tmpscr->ffx[0])/10000) && (int32_t)x < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
 									{
-									//	al_trace("Link is under X border of ffc\n");
-										//Link is under the ffc
+									//	al_trace("Player is under X border of ffc\n");
+										//Player is under the ffc
 										ffcwalk = false;
 									}
 								}
@@ -12266,7 +12265,7 @@ void LinkClass::movelink()
 					}
 					else
 					{
-						action=none; FFCore.setLinkAction(none);
+						action=none; FFCore.setHeroAction(none);
 					}
 					
 					return;
@@ -12283,7 +12282,7 @@ void LinkClass::movelink()
 					}
 					else
 					{
-						action=none; FFCore.setLinkAction(none);
+						action=none; FFCore.setHeroAction(none);
 					}
 					
 					return;
@@ -12300,7 +12299,7 @@ void LinkClass::movelink()
 					}
 					else
 					{
-						action=none; FFCore.setLinkAction(none);
+						action=none; FFCore.setHeroAction(none);
 					}
 					
 					return;
@@ -12321,7 +12320,7 @@ void LinkClass::movelink()
 						{
 							bool ffcwalk = true;
 							//check for solid ffcs here -Z
-							//This does work, however once the solif ffc stops Link from moving, the player can release the dpan, press again, and pass through it.
+							//This does work, however once the solif ffc stops Hero from moving, the player can release the dpan, press again, and pass through it.
 							for ( int32_t q = 0; q < 32; ++q )
 							{
 								//solid ffcs attampt -Z ( 30th March, 2019 )
@@ -12334,13 +12333,13 @@ void LinkClass::movelink()
 								//if ( (int32_t)y - int32_t(lsteps[y.getInt()&7]) == max_y ) //if the ffc bottom edge is in the step range
 								if ( temp_y.getInt() == max_y ) //if the ffc bottom edge is in the step range
 								{
-									//al_trace("Link is under the ffc\n");
-									int32_t linkwidthx = temp_x.getInt()+(int32_t)hxsz;
-									//al_trace("linkwidthx is: %d\n",linkwidthx);
-									if ( linkwidthx >= (((int32_t)tmpscr->ffx[q])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
+									//al_trace("Player is under the ffc\n");
+									int32_t herowidthx = temp_x.getInt()+(int32_t)hxsz;
+									//al_trace("herowidthx is: %d\n",herowidthx);
+									if ( herowidthx >= (((int32_t)tmpscr->ffx[q])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[q])/10000) + (int32_t)(tmpscr->ffwidth[q]&0x3F)+1) )
 									{
-										al_trace("Link is under X border of ffc\n");
-										//Link is under the ffc
+										al_trace("Player is under X border of ffc\n");
+										//Player is under the ffc
 										ffcwalk = false;
 									}
 								}
@@ -12348,7 +12347,7 @@ void LinkClass::movelink()
 							
 							if ( ffcwalk )
 							{
-								link_newstep = temp_step;
+								hero_newstep = temp_step;
 								x = temp_x;
 								y = temp_y;
 								move(up);
@@ -12370,7 +12369,7 @@ void LinkClass::movelink()
 						}
 						else //Can't move less, stop moving
 						{
-							action=none; FFCore.setLinkAction(none);
+							action=none; FFCore.setHeroAction(none);
 						}
 						return;
 					}
@@ -12399,13 +12398,13 @@ void LinkClass::movelink()
 									//if ( temp_y.getInt()+(int32_t)hysz + 1 > min_y ) //if the ffc bottom edge is in the step range
 									if ( temp_y.getInt()+(int32_t)hysz == min_y ) //if the ffc bottom edge is in the step range
 									{
-										//al_trace("Link is under the ffc\n");
-										int32_t linkwidthx = temp_x.getInt()+(int32_t)hxsz;
-										//al_trace("linkwidthx is: %d\n",linkwidthx);
-										if ( linkwidthx >= (((int32_t)tmpscr->ffx[0])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
+										//al_trace("Player is under the ffc\n");
+										int32_t herowidthx = temp_x.getInt()+(int32_t)hxsz;
+										//al_trace("herowidthx is: %d\n",herowidthx);
+										if ( herowidthx >= (((int32_t)tmpscr->ffx[0])/10000) && temp_x.getInt() < ( (((int32_t)tmpscr->ffx[0])/10000) + (int32_t)(tmpscr->ffwidth[0]&0x3F)+1) )
 										{
-										//	al_trace("Link is under X border of ffc\n");
-											//Link is under the ffc
+										//	al_trace("Player is under X border of ffc\n");
+											//Player is under the ffc
 											ffcwalk = false;
 										}
 									}
@@ -12414,7 +12413,7 @@ void LinkClass::movelink()
 							
 							if ( ffcwalk )
 							{
-								link_newstep = temp_step;
+								hero_newstep = temp_step;
 								x = temp_x;
 								y = temp_y;
 								move(down);
@@ -12436,7 +12435,7 @@ void LinkClass::movelink()
 						}
 						else //Can't move less, stop moving
 						{
-							action=none; FFCore.setLinkAction(none);
+							action=none; FFCore.setHeroAction(none);
 						}
 						return;
 					}
@@ -12451,7 +12450,7 @@ void LinkClass::movelink()
 						
 						if(!info.isUnwalkable())
 						{
-							link_newstep = temp_step;
+							hero_newstep = temp_step;
 							x = temp_x;
 							y = temp_y;
 							move(left);
@@ -12472,7 +12471,7 @@ void LinkClass::movelink()
 						}
 						else //Can't move less, stop moving
 						{
-							action=none; FFCore.setLinkAction(none);
+							action=none; FFCore.setHeroAction(none);
 						}
 						return;
 					}
@@ -12487,7 +12486,7 @@ void LinkClass::movelink()
 						
 						if(!info.isUnwalkable())
 						{
-							link_newstep = temp_step;
+							hero_newstep = temp_step;
 							x = temp_x;
 							y = temp_y;
 							move(right);
@@ -12508,7 +12507,7 @@ void LinkClass::movelink()
 						}
 						else //Can't move less, stop moving
 						{
-							action=none; FFCore.setLinkAction(none);
+							action=none; FFCore.setHeroAction(none);
 						}
 						return;
 					}
@@ -12520,7 +12519,7 @@ void LinkClass::movelink()
 	
 	if((action!=swimming)&&(action!=sideswimming)&&(action !=sideswimhit)&&(action !=sideswimattacking)&&(action!=casting)&&(action!=sideswimcasting)&&(action!=drowning)&&(action!=sidedrowning)&&(action!=lavadrowning) && charging==0 && spins==0 && jumping<1)
 	{
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 	}
 	
 	if(diagonalMovement)
@@ -12598,7 +12597,7 @@ void LinkClass::movelink()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewLink() && !toogam && (!get_bit(quest_rules, qr_OLD_LADDER_ITEM_SIDEVIEW) || !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up))) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !toogam && (!get_bit(quest_rules, qr_OLD_LADDER_ITEM_SIDEVIEW) || !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up))) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -12606,12 +12605,12 @@ void LinkClass::movelink()
 					{
 						do
 						{
-							info = walkflag(x,(bigHitbox?0:8)+(y-link_newstep),2,up);
+							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
 							
 							if(x.getFloor() & 7)
-								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-link_newstep),1,up);
+								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-hero_newstep),1,up);
 							else if(blockmoving)
-								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-link_newstep));
+								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-hero_newstep));
 								
 							execute(info);
 							
@@ -12621,11 +12620,11 @@ void LinkClass::movelink()
 								{
 									y.doRound();
 								}
-								else if(link_newstep > 1)
+								else if(hero_newstep > 1)
 								{
-									if(link_newstep != int32_t(link_newstep)) //floor
-										link_newstep = floor((double)link_newstep);
-									else --link_newstep;
+									if(hero_newstep != int32_t(hero_newstep)) //floor
+										hero_newstep = floor((double)hero_newstep);
+									else --hero_newstep;
 								}
 								else
 									break;
@@ -12647,7 +12646,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = (walkflag(x-link_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep_diag,y+15,1,left));
+								info = (walkflag(x-hero_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep_diag,y+15,1,left));
 									
 								execute(info);
 								
@@ -12657,11 +12656,11 @@ void LinkClass::movelink()
 									{
 										x.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -12670,7 +12669,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x-link_newstep_diag,(bigHitbox?0:8)+(y-link_newstep),1,left);
+										info = walkflag(x-hero_newstep_diag,(bigHitbox?0:8)+(y-hero_newstep),1,left);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12678,11 +12677,11 @@ void LinkClass::movelink()
 											{
 												x.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -12700,7 +12699,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = (walkflag(x+15+link_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep_diag,y+15,1,right));
+								info = (walkflag(x+15+hero_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep_diag,y+15,1,right));
 									
 								execute(info);
 								
@@ -12710,11 +12709,11 @@ void LinkClass::movelink()
 									{
 										x.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -12723,7 +12722,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x+15+link_newstep_diag,(bigHitbox?0:8)+(y-link_newstep),1,right);
+										info = walkflag(x+15+hero_newstep_diag,(bigHitbox?0:8)+(y-hero_newstep),1,right);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12731,11 +12730,11 @@ void LinkClass::movelink()
 											{
 												x.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -12824,7 +12823,7 @@ void LinkClass::movelink()
 					}
 					
 					//bool walkable;
-					if(isSideViewLink() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -12832,12 +12831,12 @@ void LinkClass::movelink()
 					{
 						do
 						{
-							info = walkflag(x,15+(y+link_newstep),2,down);
+							info = walkflag(x,15+(y+hero_newstep),2,down);
 							
 							if(x.getFloor() & 7)
-								info = info || walkflag(x+16,15+(y+link_newstep),1,down);
+								info = info || walkflag(x+16,15+(y+hero_newstep),1,down);
 							else if(blockmoving)
-								info = info || walkflagMBlock(x+16, 15+(y+link_newstep));
+								info = info || walkflagMBlock(x+16, 15+(y+hero_newstep));
 								
 							execute(info);
 							
@@ -12847,11 +12846,11 @@ void LinkClass::movelink()
 								{
 									y.doRound();
 								}
-								else if(link_newstep > 1)
+								else if(hero_newstep > 1)
 								{
-									if(link_newstep != int32_t(link_newstep)) //floor
-										link_newstep = floor((double)link_newstep);
-									else --link_newstep;
+									if(hero_newstep != int32_t(hero_newstep)) //floor
+										hero_newstep = floor((double)hero_newstep);
+									else --hero_newstep;
 								}
 								else
 									break;
@@ -12873,7 +12872,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = (walkflag(x-link_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep_diag,y+15,1,left));
+								info = (walkflag(x-hero_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep_diag,y+15,1,left));
 									
 								execute(info);
 								
@@ -12883,11 +12882,11 @@ void LinkClass::movelink()
 									{
 										x.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -12896,7 +12895,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x-link_newstep_diag,15+(y+link_newstep),1,left);
+										info = walkflag(x-hero_newstep_diag,15+(y+hero_newstep),1,left);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12904,11 +12903,11 @@ void LinkClass::movelink()
 											{
 												x.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -12926,7 +12925,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = (walkflag(x+15+link_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep_diag,y+15,1,right));
+								info = (walkflag(x+15+hero_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep_diag,y+15,1,right));
 									
 								execute(info);
 								
@@ -12936,11 +12935,11 @@ void LinkClass::movelink()
 									{
 										x.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -12949,7 +12948,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x+15+link_newstep_diag,15+(y+link_newstep),1,right);
+										info = walkflag(x+15+hero_newstep_diag,15+(y+hero_newstep),1,right);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12957,11 +12956,11 @@ void LinkClass::movelink()
 											{
 												x.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -13045,10 +13044,10 @@ void LinkClass::movelink()
 					
 					do
 					{
-						info = walkflag(x-link_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-link_newstep,y+8,1,left);
+						info = walkflag(x-hero_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep,y+8,1,left);
 						
 						if(y.getFloor() & 7)
-							info = info || walkflag(x-link_newstep,y+16,1,left);
+							info = info || walkflag(x-hero_newstep,y+16,1,left);
 							
 						execute(info);
 						
@@ -13058,11 +13057,11 @@ void LinkClass::movelink()
 							{
 								x.doRound();
 							}
-							else if(link_newstep > 1)
+							else if(hero_newstep > 1)
 							{
-								if(link_newstep != int32_t(link_newstep)) //floor
-									link_newstep = floor((double)link_newstep);
-								else --link_newstep;
+								if(hero_newstep != int32_t(hero_newstep)) //floor
+									hero_newstep = floor((double)hero_newstep);
+								else --hero_newstep;
 							}
 							else
 								break;
@@ -13073,7 +13072,7 @@ void LinkClass::movelink()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -13083,7 +13082,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = walkflag(x,y+(bigHitbox?0:8)-link_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 									
 								execute(info);
 								
@@ -13093,11 +13092,11 @@ void LinkClass::movelink()
 									{
 										y.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -13106,7 +13105,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x-link_newstep,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+										info = walkflag(x-hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13114,11 +13113,11 @@ void LinkClass::movelink()
 											{
 												y.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -13136,7 +13135,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = walkflag(x,y+15+link_newstep_diag,2,down)||walkflag(x+15,y+15+link_newstep_diag,1,down);
+								info = walkflag(x,y+15+hero_newstep_diag,2,down)||walkflag(x+15,y+15+hero_newstep_diag,1,down);
 								
 								execute(info);
 								
@@ -13146,11 +13145,11 @@ void LinkClass::movelink()
 									{
 										y.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -13159,7 +13158,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x-link_newstep,y+15+link_newstep_diag,1,down);
+										info = walkflag(x-hero_newstep,y+15+hero_newstep_diag,1,down);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13167,11 +13166,11 @@ void LinkClass::movelink()
 											{
 												y.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -13262,10 +13261,10 @@ void LinkClass::movelink()
 					
 					do
 					{
-						info = walkflag(x+15+link_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+link_newstep,y+8,1,right);;
+						info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep,y+8,1,right);;
 						
 						if(y.getFloor() & 7)
-							info = info || walkflag(x+15+link_newstep,y+16,1,right);
+							info = info || walkflag(x+15+hero_newstep,y+16,1,right);
 							
 						execute(info);
 						
@@ -13275,11 +13274,11 @@ void LinkClass::movelink()
 							{
 								x.doRound();
 							}
-							else if(link_newstep > 1)
+							else if(hero_newstep > 1)
 							{
-								if(link_newstep != int32_t(link_newstep)) //floor
-									link_newstep = floor((double)link_newstep);
-								else --link_newstep;
+								if(hero_newstep != int32_t(hero_newstep)) //floor
+									hero_newstep = floor((double)hero_newstep);
+								else --hero_newstep;
 							}
 							else
 								break;
@@ -13290,7 +13289,7 @@ void LinkClass::movelink()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -13300,7 +13299,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = walkflag(x,y+(bigHitbox?0:8)-link_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 								
 								execute(info);
 								
@@ -13310,11 +13309,11 @@ void LinkClass::movelink()
 									{
 										y.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -13323,7 +13322,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x+15+link_newstep,y+(bigHitbox?0:8)-link_newstep_diag,1,up);
+										info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13331,11 +13330,11 @@ void LinkClass::movelink()
 											{
 												y.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -13353,7 +13352,7 @@ void LinkClass::movelink()
 						{
 							do
 							{
-								info = walkflag(x,y+15+link_newstep_diag,2,down)||walkflag(x+15,y+15+link_newstep_diag,1,down);
+								info = walkflag(x,y+15+hero_newstep_diag,2,down)||walkflag(x+15,y+15+hero_newstep_diag,1,down);
 									
 								execute(info);
 								
@@ -13363,11 +13362,11 @@ void LinkClass::movelink()
 									{
 										y.doRound();
 									}
-									else if(link_newstep_diag > 1)
+									else if(hero_newstep_diag > 1)
 									{
-										if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-											link_newstep_diag.doFloor();
-										else --link_newstep_diag;
+										if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+											hero_newstep_diag.doFloor();
+										else --hero_newstep_diag;
 									}
 									else
 										shiftdir = -1;
@@ -13376,7 +13375,7 @@ void LinkClass::movelink()
 								{
 									do
 									{
-										info = walkflag(x+15+link_newstep,y+15+link_newstep_diag,1,down);
+										info = walkflag(x+15+hero_newstep,y+15+hero_newstep_diag,1,down);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13384,11 +13383,11 @@ void LinkClass::movelink()
 											{
 												y.doRound();
 											}
-											else if(link_newstep_diag > 1)
+											else if(hero_newstep_diag > 1)
 											{
-												if(link_newstep_diag != link_newstep_diag.getInt()) //floor
-													link_newstep_diag.doFloor();
-												else --link_newstep_diag;
+												if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+													hero_newstep_diag.doFloor();
+												else --hero_newstep_diag;
 											}
 											else
 												shiftdir = -1;
@@ -13480,7 +13479,7 @@ void LinkClass::movelink()
 					}
 					
 					//walkable if Ladder can be placed or is already placed vertically
-					if(isSideViewLink() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !toogam && !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up)) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -13648,7 +13647,7 @@ void LinkClass::movelink()
 					}
 					
 					//bool walkable;
-					if(isSideViewLink() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+					if(isSideViewHero() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
 						walkable=false;
 					}
@@ -13863,7 +13862,7 @@ void LinkClass::movelink()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -14030,7 +14029,7 @@ void LinkClass::movelink()
 					
 					int32_t s=shiftdir;
 					
-					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewLink() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+					if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
 					{
 						shiftdir=-1;
 					}
@@ -14150,7 +14149,7 @@ void LinkClass::movelink()
 			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 			{
 				//action=swimming;
-				if(action !=none && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && !isSideViewLink())
+				if(action !=none && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && !isSideViewHero())
 				{
 					hopclk = 0xFF;
 				}
@@ -14159,7 +14158,7 @@ void LinkClass::movelink()
 		
 		return;
 	} //endif (LTTPWALK)
-	temp_step = link_newstep;
+	temp_step = hero_newstep;
 	temp_x = x;
 	temp_y = y;
 	
@@ -14206,8 +14205,8 @@ void LinkClass::movelink()
 			{
 				x = temp_x;
 				y = temp_y;
-				link_newstep = temp_step;
-				//ONLY process the side-effects of the above walkflag if Link will actually move
+				hero_newstep = temp_step;
+				//ONLY process the side-effects of the above walkflag if Hero will actually move
 				//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
 				execute(info);
 				move(left);
@@ -14215,7 +14214,7 @@ void LinkClass::movelink()
 			}
 			temp_x = x;
 			temp_y = y;
-			temp_step = link_newstep;
+			temp_step = hero_newstep;
 		}
 		
 		if(isdungeon() && DrunkRight() && temp_x==208 && temp_y==80)
@@ -14247,14 +14246,14 @@ void LinkClass::movelink()
 			{
 				x = temp_x;
 				y = temp_y;
-				link_newstep = temp_step;
+				hero_newstep = temp_step;
 				execute(info);
 				move(right);
 				return;
 			}
 			temp_x = x;
 			temp_y = y;
-			temp_step = link_newstep;
+			temp_step = hero_newstep;
 		}
 		
 		ladderx = oldladderx;
@@ -14337,7 +14336,7 @@ void LinkClass::movelink()
 				{
 					x = temp_x;
 					y = temp_y;
-					link_newstep = temp_step;
+					hero_newstep = temp_step;
 					move(up);
 					return;
 				}
@@ -14376,7 +14375,7 @@ void LinkClass::movelink()
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -14467,7 +14466,7 @@ void LinkClass::movelink()
 				{
 					x = temp_x;
 					y = temp_y;
-					link_newstep = temp_step;
+					hero_newstep = temp_step;
 					move(down);
 					return;
 				}
@@ -14506,7 +14505,7 @@ void LinkClass::movelink()
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -14520,7 +14519,7 @@ void LinkClass::movelink()
 LEFTRIGHT_NEWMOVE:
 		temp_x = x;
 		temp_y = y;
-		temp_step = link_newstep;
+		temp_step = hero_newstep;
 		if(isdungeon() && (temp_y<=26 || temp_y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
 		{
 			return;
@@ -14562,7 +14561,7 @@ LEFTRIGHT_NEWMOVE:
 				do
 				{
 					info = walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left) ||
-						   walkflag(temp_x-temp_step,temp_y+(isSideViewLink() ?0:8), 1,left);
+						   walkflag(temp_x-temp_step,temp_y+(isSideViewHero() ?0:8), 1,left);
 					   
 					if(y.getInt() & 7)
 						info = info || walkflag(temp_x-temp_step,temp_y+16,1,left);
@@ -14591,7 +14590,7 @@ LEFTRIGHT_NEWMOVE:
 				{
 					x = temp_x;
 					y = temp_y;
-					link_newstep = temp_step;
+					hero_newstep = temp_step;
 					move(left);
 					return;
 				}
@@ -14633,7 +14632,7 @@ LEFTRIGHT_NEWMOVE:
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -14679,7 +14678,7 @@ LEFTRIGHT_NEWMOVE:
 				do
 				{
 					info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) || 
-							walkflag(temp_x+15+temp_step,temp_y+(isSideViewLink() ?0:8),1,right);
+							walkflag(temp_x+15+temp_step,temp_y+(isSideViewHero() ?0:8),1,right);
 					
 					if(y.getInt() & 7)
 						info = info || walkflag(temp_x+15+temp_step,y+16,1,right);
@@ -14708,7 +14707,7 @@ LEFTRIGHT_NEWMOVE:
 				{
 					x = temp_x;
 					y = temp_y;
-					link_newstep = temp_step;
+					hero_newstep = temp_step;
 					move(right);
 					return;
 				}
@@ -14750,7 +14749,7 @@ LEFTRIGHT_NEWMOVE:
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -14765,7 +14764,7 @@ LEFTRIGHT_NEWMOVE:
 		
 		if(isdungeon() && DrunkLeft() && !info.isUnwalkable() && (x==32 && y==80))
 		{
-			//ONLY process the side-effects of the above walkflag if Link will actually move
+			//ONLY process the side-effects of the above walkflag if Hero will actually move
 			//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
 			execute(info);
 			move(left);
@@ -14876,7 +14875,7 @@ LEFTRIGHT_NEWMOVE:
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -14981,7 +14980,7 @@ LEFTRIGHT_NEWMOVE:
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -15033,7 +15032,7 @@ LEFTRIGHT_OLDMOVE:
 			else
 			{
 				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
-					   walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(isSideViewLink() ?0:8), 1,left);
+					   walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(isSideViewHero() ?0:8), 1,left);
 					   
 				if(y.getInt() & 7)
 					info = info || walkflag(x-int32_t(lsteps[x.getInt()&7]),y+16,1,left);
@@ -15081,7 +15080,7 @@ LEFTRIGHT_OLDMOVE:
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -15125,7 +15124,7 @@ LEFTRIGHT_OLDMOVE:
 			else
 			{
 				info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right)
-					|| walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(isSideViewLink()?0:8),1,right);
+					|| walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(isSideViewHero()?0:8),1,right);
 				
 				if(y.getInt() & 7)
 					info = info || walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+16,1,right);
@@ -15173,7 +15172,7 @@ LEFTRIGHT_OLDMOVE:
 					
 					if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 					{
-						linkstep();
+						herostep();
 					}
 					
 					return;
@@ -15184,7 +15183,7 @@ LEFTRIGHT_OLDMOVE:
 }
 
 //solid ffc checking should probably be moved to here.
-void LinkClass::move(int32_t d2, int32_t forceRate)
+void HeroClass::move(int32_t d2, int32_t forceRate)
 {
     if( inlikelike || lstunclock > 0 )
         return;
@@ -15196,8 +15195,8 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	}
 	
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
-		     //!DIMITODO: add QR for slow combos under link
+                     (isSideViewHero() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
+		     //!DIMITODO: add QR for slow combos under hero
 	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
@@ -15214,7 +15213,7 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	}
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
-	bool fastSwim = (zinit.link_swim_speed>60);
+	bool fastSwim = (zinit.hero_swim_speed>60);
 	zfix dx, dy;
 	zfix movepix(steprate / 100.0);
 	zfix step(movepix);
@@ -15225,8 +15224,8 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	zfix down_step(game->get_sideswim_down() / 100.0);
 	bool checkladder  = false;
 	
-	if(link_newstep > movepix) link_newstep = movepix;
-	if(link_newstep_diag > movepix) link_newstep_diag = movepix;
+	if(hero_newstep > movepix) hero_newstep = movepix;
+	if(hero_newstep_diag > movepix) hero_newstep_diag = movepix;
 	//2/3 speed
 	if((is_swimming && fastSwim) || (!is_swimming && (slowcharging ^ slowcombo)))
 	{
@@ -15255,11 +15254,11 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	
 	if(diagonalMovement)
 	{
-		//zprint2("Link's X is %d, Y is %d\n", x, y);
+		//zprint2("Player's X is %d, Y is %d\n", x, y);
 		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
 			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
 		{
-			if(link_newstep > 0 && link_newstep_diag > 0)
+			if(hero_newstep > 0 && hero_newstep_diag > 0)
 			{
 				step = STEP_DIAGONAL(step);
 				step_diag = STEP_DIAGONAL(step_diag);
@@ -15269,8 +15268,8 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 				down_step = STEP_DIAGONAL(down_step);
 			}
 		}
-		if(link_newstep < step) step = link_newstep; //handle collision
-		if(link_newstep_diag < step_diag) step_diag = link_newstep_diag; //handle collision
+		if(hero_newstep < step) step = hero_newstep; //handle collision
+		if(hero_newstep_diag < step_diag) step_diag = hero_newstep_diag; //handle collision
 		switch(d2)
 		{
 			case up:
@@ -15361,7 +15360,7 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	}
 	else
 	{
-		if(link_newstep < step) step = link_newstep; //handle collision
+		if(hero_newstep < step) step = hero_newstep; //handle collision
 		switch(d2)
 		{
 			case up:
@@ -15382,8 +15381,8 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 				break;
 		};
 	}
-	link_newstep = movepix;
-	link_newstep_diag = movepix;
+	hero_newstep = movepix;
+	hero_newstep_diag = movepix;
 
 	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
 	{
@@ -15429,20 +15428,20 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	}
 	if(action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 	{
-		linkstep();
+		herostep();
 		
 		//ack... don't walk if in midair! -DD
-		if(charging==0 && spins==0 && z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !getOnSideviewLadder()))
+		if(charging==0 && spins==0 && z==0 && !(isSideViewHero() && !on_sideview_solid(x,y) && !getOnSideviewLadder()))
 		{
-			action=walking; FFCore.setLinkAction(walking);
+			action=walking; FFCore.setHeroAction(walking);
 		}
 			
-		if(++link_count > (16*link_animation_speed))
-			link_count=0;
+		if(++hero_count > (16*hero_animation_speed))
+			hero_count=0;
 	}
 	else if(!(frame & 1))
 	{
-		linkstep();
+		herostep();
 	}
 	
 	if(charging==0 || attack!=wHammer)
@@ -15469,7 +15468,7 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	}
 }
 
-void LinkClass::moveOld(int32_t d2)
+void HeroClass::moveOld(int32_t d2)
 {
 	//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
     static bool totalskip = false;
@@ -15483,14 +15482,14 @@ void LinkClass::moveOld(int32_t d2)
     int32_t z3skip=0;
     int32_t z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && (z==0 || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideViewLink() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
+                     (isSideViewHero() && (on_sideview_solid(x,y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
     
     //slow walk combo, or charging, moves at 2/3 speed
     if(
         (!is_swimming && (slowcharging ^ slowcombo))||
-        (is_swimming && (zinit.link_swim_speed>60))
+        (is_swimming && (zinit.hero_swim_speed>60))
     )
     {
         totalskip = false;
@@ -15527,7 +15526,7 @@ void LinkClass::moveOld(int32_t d2)
     }
 //  else if(is_swimming || (slowcharging && slowcombo))
     else if(
-        (is_swimming && (zinit.link_swim_speed<60))||
+        (is_swimming && (zinit.hero_swim_speed<60))||
         (slowcharging && slowcombo)
     )
     {
@@ -15721,12 +15720,12 @@ void LinkClass::moveOld(int32_t d2)
             switch(d2)
             {
             case up:
-                if(!isSideViewLink() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit || action == sideswimattacking) dy-=ystep;
+                if(!isSideViewHero() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit || action == sideswimattacking) dy-=ystep;
                 
                 break;
                 
             case down:
-                if(!isSideViewLink() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit || action == sideswimattacking) dy+=ystep;
+                if(!isSideViewHero() || (ladderx && laddery && ladderdir==up) || getOnSideviewLadder() || action == sideswimming || action == sideswimhit || action == sideswimattacking) dy+=ystep;
                 
                 break;
                 
@@ -15752,20 +15751,20 @@ void LinkClass::moveOld(int32_t d2)
     
     if(action != swimming && !IsSideSwim())
     {
-        linkstep();
+        herostep();
         
         //ack... don't walk if in midair! -DD
-        if(charging==0 && spins==0 && z==0 && !(isSideViewLink() && !on_sideview_solid(x,y) && !getOnSideviewLadder()))
+        if(charging==0 && spins==0 && z==0 && !(isSideViewHero() && !on_sideview_solid(x,y) && !getOnSideviewLadder()))
 	{
-            action=walking; FFCore.setLinkAction(walking);
+            action=walking; FFCore.setHeroAction(walking);
 	}
             
-        if(++link_count > (16*link_animation_speed))
-            link_count=0;
+        if(++hero_count > (16*hero_animation_speed))
+            hero_count=0;
     }
     else if(!(frame & 1))
     {
-        linkstep();
+        herostep();
     }
     
     if(charging==0 || attack!=wHammer)
@@ -15774,11 +15773,11 @@ void LinkClass::moveOld(int32_t d2)
     }
 }
 
-LinkClass::WalkflagInfo LinkClass::walkflag(zfix fx,zfix fy,int32_t cnt,byte d2)
+HeroClass::WalkflagInfo HeroClass::walkflag(zfix fx,zfix fy,int32_t cnt,byte d2)
 {
 	return walkflag(fx.getInt(), fy.getInt(), cnt, d2);
 }
-LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d2)
+HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d2)
 {
     WalkflagInfo ret;
     
@@ -15828,7 +15827,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 || _walkflag(x+7,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)
 		|| _walkflag(x+8,y+(bigHitbox?6:11),1,SWITCHBLOCK_STATE)
                 || _walkflag(x+8,y+(bigHitbox?9:12),1,SWITCHBLOCK_STATE)) isthissolid = true;
-		//This checks if Link is currently swimming in solid water (cause even if the QR "No Hopping" is enabled, he should still hop out of solid water) - Dimi
+		//This checks if Hero is currently swimming in solid water (cause even if the QR "No Hopping" is enabled, he should still hop out of solid water) - Dimi
 		
 		
             if(landswim>= (get_bit(quest_rules,qr_DROWN) && isSwimming() ? 1
@@ -15966,7 +15965,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         return ret;
                     }
                     
-                    if(current_item_power(itype_ladder)<2 && (d2==left || d2==right) && !isSideViewLink())
+                    if(current_item_power(itype_ladder)<2 && (d2==left || d2==right) && !isSideViewHero())
                     {
                         ret.setUnwalkable(true);
                         return ret;
@@ -16041,7 +16040,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             }
             
             // different dir
-            if(current_item_power(itype_ladder)<2 && !(isSideViewLink() && (d2==left || d2==right)))
+            if(current_item_power(itype_ladder)<2 && !(isSideViewHero() && (d2==left || d2==right)))
             {
                 ret.setUnwalkable(true);
                 return ret;
@@ -16054,7 +16053,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             }
         }
     }
-    else if(wf || isSideViewLink() || get_bit(quest_rules, qr_DROWN))
+    else if(wf || isSideViewHero() || get_bit(quest_rules, qr_DROWN))
     {
         // see if it's a good spot for the ladder or for swimming
         bool unwalkablex  = _walkflag(wx,wy,1,SWITCHBLOCK_STATE); //will be used later for the ladder -DD
@@ -16066,7 +16065,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             // * Dangerous water is also walkable, so ignore the previous
             // definitions of unwalkablex and unwalkablex8.
             // * Instead, prevent the ladder from being used in the
-            // one frame where Link has landed on water before drowning.
+            // one frame where Hero has landed on water before drowning.
             unwalkablex = unwalkablex8 = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
         }
         
@@ -16095,10 +16094,10 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 			    
 			    if(charging || spins>5)
 			    {
-				//if Link is charging, he might be facing the wrong direction (we want him to
+				//if Hero is charging, he might be facing the wrong direction (we want him to
 				//hop into the water, not in the facing direction)
 				ret.setDir(d2);
-				//moreover Link can't charge in the water -DD
+				//moreover Hero can't charge in the water -DD
 				ret.setChargeAttack();
 			    }
 			    
@@ -16128,7 +16127,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             
             if(wtrx || wtrx8)
             {
-                if(isSideViewLink())
+                if(isSideViewHero())
                 {
                     wtrx  = !_walkflag(wx, wy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(wx, wy, 1,SWITCHBLOCK_STATE) && dir!=down;
                     wtrx8 = !_walkflag(wx+8, wy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(wx+8, wy, 1,SWITCHBLOCK_STATE) && dir!=down;
@@ -16139,7 +16138,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 {
 		    if(!get_bit(quest_rules, qr_OLD_210_WATER))
 		    {
-			//if Link could swim on a tile instead of using the ladder,
+			//if Hero could swim on a tile instead of using the ladder,
 			//refuse to use the ladder to step over that tile. -DD
 			wtrx  = isstepable(MAPCOMBO(wx, wy)) && unwalkablex;
 			wtrx8 = isstepable(MAPCOMBO(wx+8,wy)) && unwalkablex8;
@@ -16158,7 +16157,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 					pit_cmb = getpitfall(x+8,wy);
 					wtrx8 = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
 				}
-				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewLink())) //If no pit, check ladder combos
+				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewHero())) //If no pit, check ladder combos
 				{
 					int32_t combo=combobuf[MAPCOMBO(wx, wy)].type;
 					wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
@@ -16198,7 +16197,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         if(abs((wy)-(int32_t(y+c)))<=(b) && wtrx)
                         {
                             // Don't activate the ladder if it would be entirely
-                            // over water and Link has the flippers. This isn't
+                            // over water and Hero has the flippers. This isn't
                             // a good way to do this, but it's too risky
                             // to make big changes to this stuff.
                             bool deployLadder=true;
@@ -16256,7 +16255,7 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 bool flgx8 = _walkflag(x+8,wy,1,SWITCHBLOCK_STATE) && !wtrx8; // Solid, and not steppable
                 
                 if((d2>=left && wtrx)
-                        // Deploy the ladder vertically even if Link is only half on water.
+                        // Deploy the ladder vertically even if Hero is only half on water.
                         || (d2<=down && ((wtrx && !flgx8) || (wtrx8 && !flgx))))
                 {
                     if(((y.getInt()+15) < wy) || ((y.getInt()+8) > wy))
@@ -16287,14 +16286,14 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 }
 
 // Only checks for moving blocks. Apparently this is a thing we need.
-LinkClass::WalkflagInfo LinkClass::walkflagMBlock(int32_t wx,int32_t wy)
+HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
     WalkflagInfo ret;
     ret.setUnwalkable(blockmoving && mblock2.hit(wx,wy,0,1,1,1));
     return ret;
 }
 
-bool LinkClass::checksoliddamage()
+bool HeroClass::checksoliddamage()
 {
 	if(toogam) return false;
     
@@ -16367,16 +16366,16 @@ bool LinkClass::checksoliddamage()
 			t = COMBOTYPE2(i-1,bx,by);
 			
 			// Solid damage combos use pushing>0, hence the code is here.
-			if (!get_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES) || !isSideViewLink() || (dir != down && (dir != up || getOnSideviewLadder())))
+			if (!get_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES) || !isSideViewHero() || (dir != down && (dir != up || getOnSideviewLadder())))
 			{
 				if(combo_class_buf[t].modify_hp_amount && _walkflag(bx,by,1,SWITCHBLOCK_STATE) && pushing>0 && hclk<1 && action!=casting && action != sideswimcasting && !get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS))
 				{
-					// Bite Link
+					// Bite Hero
 					if (checkdamagecombos(bx, bx, by, by, i-1, true)) return true;
 				}
 			}
-			if(isSideViewLink() && // Check for sideview damage combos
-					hclk<1 && action!=casting && action!=sideswimcasting) // ... but only if Link could be hurt
+			if(isSideViewHero() && // Check for sideview damage combos
+					hclk<1 && action!=casting && action!=sideswimcasting) // ... but only if Hero could be hurt
 			{
 				if (get_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES))
 				{
@@ -16414,7 +16413,7 @@ bool LinkClass::checksoliddamage()
 	}
 	return false;
 }
-void LinkClass::checkpushblock()
+void HeroClass::checkpushblock()
 {
 	if(toogam) return;
 	
@@ -16427,7 +16426,7 @@ void LinkClass::checkpushblock()
 		if(x.getInt()&15) earlyReturn=true;
 		
 	// if(y<16) return;
-	if(isSideViewLink() && !on_sideview_solid(x,y)) return;
+	if(isSideViewHero() && !on_sideview_solid(x,y)) return;
 	
 	int32_t bx = x.getInt()&0xF0;
 	int32_t by = (y.getInt()&0xF0);
@@ -16734,7 +16733,7 @@ bool islockeddoor(int32_t x, int32_t y, int32_t lock)
     return ret;
 }
 
-void LinkClass::checklockblock()
+void HeroClass::checklockblock()
 {
 	if(toogam) return;
 	
@@ -16909,7 +16908,7 @@ void LinkClass::checklockblock()
 	else sfx(WAV_DOOR);
 }
 
-void LinkClass::checkbosslockblock()
+void HeroClass::checkbosslockblock()
 {
 	if(toogam) return;
 	
@@ -17065,7 +17064,7 @@ void LinkClass::checkbosslockblock()
 	else sfx(WAV_DOOR);
 }
 
-void LinkClass::oldcheckchest(int32_t type)
+void HeroClass::oldcheckchest(int32_t type)
 {
 	// chests aren't affected by tmpscr->flags2&fAIRCOMBOS
 	if(toogam || z>0) return;
@@ -17077,7 +17076,7 @@ void LinkClass::oldcheckchest(int32_t type)
 	switch(dir)
 	{
 		case up:
-			if(isSideViewLink()) return;
+			if(isSideViewHero()) return;
 			
 			if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
 			
@@ -17085,7 +17084,7 @@ void LinkClass::oldcheckchest(int32_t type)
 			
 		case left:
 		case right:
-			if(isSideViewLink()) break;
+			if(isSideViewHero()) break;
 			[[fallthrough]];
 		case down:
 			return;
@@ -17211,7 +17210,7 @@ void LinkClass::oldcheckchest(int32_t type)
 	}
 }
 
-void LinkClass::checkchest(int32_t type)
+void HeroClass::checkchest(int32_t type)
 {
 	if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
 	{
@@ -17416,7 +17415,7 @@ void LinkClass::checkchest(int32_t type)
 	}
 }
 
-void LinkClass::checksigns()
+void HeroClass::checksigns()
 {
 	if(toogam || z>0) return;
 	if(msg_active || (msg_onscreen && get_bit(quest_rules, qr_MSGDISAPPEAR)))
@@ -17583,7 +17582,7 @@ void LinkClass::checksigns()
 		donewmsg(str);
 }
 
-void LinkClass::checklocked()
+void HeroClass::checklocked()
 {
 	if(toogam) return; //Walk through walls. 
 	
@@ -18123,7 +18122,7 @@ void LinkClass::checklocked()
 	}
 }
 
-void LinkClass::checkswordtap()
+void HeroClass::checkswordtap()
 {
 	if(attack!=wSword || charging<=0 || pushing<8) return;
 	
@@ -18200,35 +18199,35 @@ void LinkClass::checkswordtap()
 	
 }
 
-void LinkClass::fairycircle(int32_t type)
+void HeroClass::fairycircle(int32_t type)
 {
 	if(fairyclk==0)
 	{
 		switch(type)
 		{
-		case REFILL_LIFE:
-			if(didstuff&did_fairy) return;
-			
-			didstuff|=did_fairy;
-			break;
-			
-		case REFILL_MAGIC:
-			if(didstuff&did_magic) return;
-			
-			didstuff|=did_magic;
-			break;
-			
-		case REFILL_ALL:
-			if(didstuff&did_all) return;
-			
-			didstuff|=did_all;
+			case REFILL_LIFE:
+				if(didstuff&did_fairy) return;
+				
+				didstuff|=did_fairy;
+				break;
+				
+			case REFILL_MAGIC:
+				if(didstuff&did_magic) return;
+				
+				didstuff|=did_magic;
+				break;
+				
+			case REFILL_ALL:
+				if(didstuff&did_all) return;
+				
+				didstuff|=did_all;
 		}
 		
 		refill_what=type;
 		refill_why=REFILL_FAIRY;
 		StartRefill(type);
-		if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
-	else {action=freeze; FFCore.setLinkAction(freeze);} 
+		if (IsSideSwim()) {action=sideswimfreeze; FFCore.setHeroAction(sideswimfreeze);} 
+		else {action=freeze; FFCore.setHeroAction(freeze);} 
 		holdclk=0;
 		hopclk=0;
 	}
@@ -18245,7 +18244,7 @@ void LinkClass::fairycircle(int32_t type)
 	{
 		reset_swordcharge();
 		attackclk=0;
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 		fairyclk=0;
 		holdclk=0;
 		refill_why = 0;
@@ -18311,7 +18310,7 @@ static const int32_t SPTYPE_SOLID = -1;
 #define SP_VISITED 0x1
 #define SPFLAG(dir) (0x2<<dir)
 #define BEAM_AGE_LIMIT 32
-void LinkClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
+void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
 {
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
 	if(spotdir > 3) return; //invalid dir
@@ -18422,7 +18421,7 @@ void LinkClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 	}
 }
 
-void LinkClass::handleSpotlights()
+void HeroClass::handleSpotlights()
 {
 	typedef byte spot_t;
 	//Store each different tile/color as grids
@@ -18430,7 +18429,7 @@ void LinkClass::handleSpotlights()
 	int32_t shieldid = current_item_id(itype_shield);
 	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
 	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
-	int32_t linkpos = COMBOPOS(x.getInt()+8,y.getInt()+8);
+	int32_t heropos = COMBOPOS(x.getInt()+8,y.getInt()+8);
 	memset(istrig, 0, sizeof(istrig));
 	clear_bitmap(lightbeam_bmp);
 	
@@ -18462,12 +18461,12 @@ void LinkClass::handleSpotlights()
 			break; //hit a combo type
 		}
 	}
-	if(unsigned(linkpos) < 176)
+	if(unsigned(heropos) < 176)
 	{
-		switch(typeMap[linkpos])
+		switch(typeMap[heropos])
 		{
 			case SPTYPE_SOLID: case cBLOCKALL:
-				linkpos = -1; //Blocked from hitting player
+				heropos = -1; //Blocked from hitting player
 		}
 	}
 	
@@ -18503,7 +18502,7 @@ void LinkClass::handleSpotlights()
 					grid[curpos] |= SP_VISITED;
 					istrig[curpos] |= cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
 				}
-				if(refl && curpos == linkpos)
+				if(refl && curpos == heropos)
 				{
 					spotdir = dir;
 				}
@@ -18767,7 +18766,7 @@ void LinkClass::handleSpotlights()
 	}
 }
 
-void LinkClass::checktouchblk()
+void HeroClass::checktouchblk()
 {
 	if(toogam) return;
 	
@@ -18860,7 +18859,7 @@ void LinkClass::checktouchblk()
 		
 		if(di<176 && !guygrid[di] && gc<11)
 		{
-			if((getAction() != hopping || isSideViewLink()))
+			if((getAction() != hopping || isSideViewHero()))
 			{
 				guygrid[di]=61; //Note: not 60.
 				//zprint2("oof: %d\n", di);
@@ -19113,7 +19112,7 @@ void LinkClass::checktouchblk()
 	}
 }
 
-int32_t LinkClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
+int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
 {
     switch(cdir)
     {
@@ -19175,7 +19174,7 @@ int32_t LinkClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
     return MAPCOMBO(cx,cy);
 }
 
-int32_t LinkClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag)
+int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag)
 {
     switch(cdir)
     {
@@ -19251,7 +19250,7 @@ int32_t LinkClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 
 bool did_secret;
 
-void LinkClass::checkspecial()
+void HeroClass::checkspecial()
 {
     checktouchblk();
     
@@ -19284,8 +19283,8 @@ void LinkClass::checkspecial()
                     sfx(WAV_CLEARED);
                     
                 items.add(new item((zfix)tmpscr->itemx,
-                                   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
-                                   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
+                                   (tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+                                   (tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
                                    Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
                                            (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
             }
@@ -19355,8 +19354,8 @@ void LinkClass::checkspecial()
 		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
 		{
 			items.add(new item((zfix)tmpscr->itemx,
-							   (tmpscr->flags7&fITEMFALLS && isSideViewLink()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
-							   (tmpscr->flags7&fITEMFALLS && !isSideViewLink()) ? (zfix)170 : (zfix)0,
+							   (tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+							   (tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 							   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 									   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
@@ -19365,7 +19364,7 @@ void LinkClass::checkspecial()
 	}
 }
 
-void LinkClass::checkspecial2(int32_t *ls)
+void HeroClass::checkspecial2(int32_t *ls)
 {
 	if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
 	{
@@ -19990,7 +19989,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		if(fairyclk!=0) return;
 	}
 	
-	// Just in case Link was moved off of the fairy flag
+	// Just in case Hero was moved off of the fairy flag
 	if(refilling==REFILL_FAIRYDONE)
 	{
 		fairycircle(REFILL_NONE);
@@ -20000,7 +19999,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	
 	if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
 	{
-	attackclk = 0; //get rid of Link's sword if it was stuck out, charged. 
+	attackclk = 0; //get rid of Hero's sword if it was stuck out, charged. 
 		saved_Zelda();
 		return;
 	}
@@ -20066,7 +20065,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 	
 	if(type==cSTEP)
 	{ 
-	//zprint2("Link.HasHeavyBoots(): is: %s\n", ( (Link.HasHeavyBoots()) ? "true" : "false" ));
+	//zprint2("Hero.HasHeavyBoots(): is: %s\n", ( (Hero.HasHeavyBoots()) ? "true" : "false" ));
 		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
 		{
 			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
@@ -20076,7 +20075,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
 			(!combobuf[tmpscr->data[stepnext]].attribytes[1] || (combobuf[tmpscr->data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr->data[stepnext]].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
 		)
 		
 		{
@@ -20090,7 +20089,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 		COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
 			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
 		)
 			{
 				int32_t stepc = tmpscr->data[stepnext];
@@ -20109,7 +20108,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 			COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
 			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Link.HasHeavyBoots() ) )
+			( ( !(combobuf[tmpscr->data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr->data[stepnext]].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
 		)
 			{
 		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int32_t)x));
@@ -20248,15 +20247,15 @@ void LinkClass::checkspecial2(int32_t *ls)
 							{
 								if (IsSideSwim())
 								{
-									action=sideswimhit; FFCore.setLinkAction(sideswimhit);
+									action=sideswimhit; FFCore.setHeroAction(sideswimhit);
 								}
 								else if (action == swimming || hopclk == 0xFF)
 								{
-									action=swimhit; FFCore.setLinkAction(swimhit);
+									action=swimhit; FFCore.setHeroAction(swimhit);
 								}
 								else
 								{
-									action=gothit; FFCore.setLinkAction(gothit);
+									action=gothit; FFCore.setHeroAction(gothit);
 								}
 								if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 								{
@@ -20300,15 +20299,15 @@ void LinkClass::checkspecial2(int32_t *ls)
 						{
 							if (IsSideSwim())
 							{
-								action=sideswimhit; FFCore.setLinkAction(sideswimhit);
+								action=sideswimhit; FFCore.setHeroAction(sideswimhit);
 							}
 							else if (action == swimming || hopclk == 0xFF)
 							{
-								action=swimhit; FFCore.setLinkAction(swimhit);
+								action=swimhit; FFCore.setHeroAction(swimhit);
 							}
 							else
 							{
-								action=gothit; FFCore.setLinkAction(gothit);
+								action=gothit; FFCore.setHeroAction(gothit);
 							}
 							if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 							{
@@ -20391,7 +20390,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 				if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
 				{
 					reset_swordcharge();
-					action=rafting; FFCore.setLinkAction(rafting);
+					action=rafting; FFCore.setHeroAction(rafting);
 					raftclk=0;
 					sfx(tmpscr->secretsfx);
 				}
@@ -20425,7 +20424,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 				if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
 				{
 					reset_swordcharge();
-					action=rafting; FFCore.setLinkAction(rafting);
+					action=rafting; FFCore.setHeroAction(rafting);
 					raftclk=0;
 					sfx(tmpscr->secretsfx);
 				}
@@ -20459,7 +20458,7 @@ void LinkClass::checkspecial2(int32_t *ls)
 				if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
 				{
 					reset_swordcharge();
-					action=rafting; FFCore.setLinkAction(rafting);
+					action=rafting; FFCore.setHeroAction(rafting);
 					raftclk=0;
 					sfx(tmpscr->secretsfx);
 				}
@@ -20654,12 +20653,12 @@ void kill_enemy_sfx()
         if(((enemy*)guys.spr(i))->bgsfx)
             stop_sfx(((enemy*)guys.spr(i))->bgsfx);
     }
-    if (Link.action!=inwind) stop_sfx(WAV_ZN1WHIRLWIND);
+    if (Hero.action!=inwind) stop_sfx(WAV_ZN1WHIRLWIND);
     if(tmpscr->room==rGANON)
         stop_sfx(WAV_ROAR);
 }
 
-bool LinkClass::HasHeavyBoots()
+bool HeroClass::HasHeavyBoots()
 {
 	for ( int32_t q = 0; q < MAXITEMS; ++q )
 	{
@@ -20676,7 +20675,7 @@ const char *roomtype_string[rMAX] =
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
 
-bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
+bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
@@ -21169,9 +21168,9 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		update_subscreens(wdmap);
 		
 		dlevel = DMaps[wdmap].level;
-		//check if Link has the map for the new location before updating the subscreen. ? -Z
-		//This works only in one direction, if Link had a map, to not having one.
-		//If Link does not have a map, and warps somewhere where he does, then the map still briefly shows. 
+		//check if Hero has the map for the new location before updating the subscreen. ? -Z
+		//This works only in one direction, if Hero had a map, to not having one.
+		//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 		update_subscreens(wdmap);
 		
 		if ( has_item(itype_map, dlevel) ) 
@@ -21265,7 +21264,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		playLevelMusic();
 		currcset=DMaps[currdmap].color;
 		dointro();
-		action=inwind; FFCore.setLinkAction(inwind);
+		action=inwind; FFCore.setHeroAction(inwind);
 		int32_t wry;
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
@@ -21319,14 +21318,14 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					
 		if(!(tmpscr->flags3&fIWARPFULLSCREEN))
 		{
-			//ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
+			//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 			bool wasswimming = (action == swimming);
 			int32_t olddiveclk = diveclk;
 			ALLOFF();
 			
 			if(wasswimming)
 			{
-				Link.SetSwim();
+				Hero.SetSwim();
 				diveclk = olddiveclk;
 			}
 			
@@ -21340,7 +21339,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		else if(wtype==wtIWARPWAVE)
 		{
-			//only draw Link if he's not in a cave -DD
+			//only draw Hero if he's not in a cave -DD
 			wavyout(!cavewarp);
 		}
 		else if(wtype!=wtIWARP)
@@ -21401,7 +21400,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		else
 		{
-			action = none; FFCore.setLinkAction(none);
+			action = none; FFCore.setHeroAction(none);
 		}
 		//preloaded freeform combos
 		ffscript_engine(true);
@@ -21483,14 +21482,14 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					 
 			if(!(tmpscr->flags3&fIWARPFULLSCREEN))
 			{
-				//ALLOFF kills the action, but we want to preserve Link's action if he's swimming or diving -DD
+				//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 				bool wasswimming = (action == swimming);
 				int32_t olddiveclk = diveclk;
 				ALLOFF();
 				
 				if(wasswimming)
 				{
-					Link.SetSwim();
+					Hero.SetSwim();
 					diveclk = olddiveclk;
 				}
 				
@@ -21504,7 +21503,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			else if(wtype==wtIWARPWAVE)
 			{
-				//only draw Link if he's not in a cave -DD
+				//only draw Hero if he's not in a cave -DD
 				wavyout(!cavewarp);
 			}
 			else if(wtype!=wtIWARP)
@@ -21564,7 +21563,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			else
 			{
 				action = none;
-				FFCore.setLinkAction(none);
+				FFCore.setHeroAction(none);
 			}
 			//preloaded freeform combos
 			ffscript_engine(true);
@@ -21674,11 +21673,11 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	
 	
 	
-	// Stop Link from drowning!
+	// Stop Hero from drowning!
 	if(action==drowning || action==lavadrowning || action==sidedrowning)
 	{
 		drownclk=0;
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 	}
 	
 	int32_t checkwater = iswaterex(MAPCOMBO(x,y+(bigHitbox?8:12)), currmap, currscr, -1, x,y+(bigHitbox?8:12));
@@ -21705,19 +21704,19 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	loadside=dir^1;
 	whistleclk=-1;
 	
-	if(z>0 && isSideViewLink())
+	if(z>0 && isSideViewHero())
 	{
 		y-=z;
 		z=0;
 	}
-	else if(!isSideViewLink())
+	else if(!isSideViewHero())
 	{
 		fall=0;
 	}
 	
 	// If warping between top-down and sideview screens,
 	// fix enemies that are carried over by Full Screen Warp
-	const bool tmpscr_is_sideview = isSideViewLink();
+	const bool tmpscr_is_sideview = isSideViewHero();
 	
 	if(!wasSideview && tmpscr_is_sideview)
 	{
@@ -21846,7 +21845,7 @@ bool LinkClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	return true;
 }
 
-void LinkClass::exitcave()
+void HeroClass::exitcave()
 {
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     currscr=homescr;
@@ -21908,7 +21907,7 @@ void LinkClass::exitcave()
 }
 
 
-void LinkClass::stepforward(int32_t steps, bool adjust)
+void HeroClass::stepforward(int32_t steps, bool adjust)
 {
 	if ( FFCore.nostepforward ) return;
 	if ( FFCore.temp_no_stepforward ) { FFCore.temp_no_stepforward = 0; return; }
@@ -22066,7 +22065,7 @@ void LinkClass::stepforward(int32_t steps, bool adjust)
         if(s<0)
         {
             // Not quite sure how this is actually supposed to work.
-            // There have to be two cases for each direction or Link
+            // There have to be two cases for each direction or Hero
             // either walks too far onto the screen or may get stuck
             // going through walk-through walls.
             switch(dir)
@@ -22105,15 +22104,15 @@ void LinkClass::stepforward(int32_t steps, bool adjust)
             }
         }
         
-	if ( get_bit(quest_rules,qr_SCRIPTSRUNINLINKSTEPFORWARD) )
+	if ( get_bit(quest_rules,qr_SCRIPTSRUNINHEROSTEPFORWARD) )
 	{
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)) )
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
-		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
@@ -22152,7 +22151,7 @@ void LinkClass::stepforward(int32_t steps, bool adjust)
     shiftdir=sh;
 }
 
-void LinkClass::walkdown(bool opening) //entering cave
+void HeroClass::walkdown(bool opening) //entering cave
 {
     if(opening)
     {
@@ -22164,9 +22163,9 @@ void LinkClass::walkdown(bool opening) //entering cave
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
     //  int32_t cmby=(y.getInt()&0xF0)+16;
-    // Fix Link's position to the grid
+    // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
-    action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
+    action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -22181,10 +22180,10 @@ void LinkClass::walkdown(bool opening) //entering cave
     
     for(int32_t i=0; i<64; i++)
     {
-        linkstep();
+        herostep();
         
-        if(zinit.linkanimationstyle==las_zelda3 || zinit.linkanimationstyle==las_zelda3slow)
-            link_count=(link_count+1)%16;
+        if(zinit.heroAnimationStyle==las_zelda3 || zinit.heroAnimationStyle==las_zelda3slow)
+            hero_count=(hero_count+1)%16;
             
         if((i&3)==3)
             ++y;
@@ -22196,10 +22195,10 @@ void LinkClass::walkdown(bool opening) //entering cave
             break;
     }
     
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setHeroAction(none);
 }
 
-void LinkClass::walkdown2(bool opening) //exiting cave 2
+void HeroClass::walkdown2(bool opening) //exiting cave 2
 {
     int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
@@ -22207,7 +22206,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
         y-=16;
         
     dir=down;
-    // Fix Link's position to the grid
+    // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
     z=fall=0;
     
@@ -22221,7 +22220,7 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
     //  int32_t cmby=y.getInt()&0xF0;
-    action=climbcovertop; FFCore.setLinkAction(climbcovertop);
+    action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -22236,10 +22235,10 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
     
     for(int32_t i=0; i<64; i++)
     {
-        linkstep();
+        herostep();
         
-        if(zinit.linkanimationstyle==las_zelda3 || zinit.linkanimationstyle==las_zelda3slow)
-            link_count=(link_count+1)%16;
+        if(zinit.heroAnimationStyle==las_zelda3 || zinit.heroAnimationStyle==las_zelda3slow)
+            hero_count=(hero_count+1)%16;
             
         if((i&3)==3)
             ++y;
@@ -22251,17 +22250,17 @@ void LinkClass::walkdown2(bool opening) //exiting cave 2
             break;
     }
     
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setHeroAction(none);
 }
 
-void LinkClass::walkup(bool opening) //exiting cave
+void HeroClass::walkup(bool opening) //exiting cave
 {
     int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
     if((type==cCAVE)||(type>=cCAVEB && type<=cCAVED))
         y+=16;
         
-    // Fix Link's position to the grid
+    // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
     z=fall=0;
     
@@ -22276,7 +22275,7 @@ void LinkClass::walkup(bool opening) //exiting cave
     dir=down;
     clk=0;
     //  int32_t cmby=y.getInt()&0xF0;
-    action=climbcoverbottom; FFCore.setLinkAction(climbcoverbottom);
+    action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -22291,10 +22290,10 @@ void LinkClass::walkup(bool opening) //exiting cave
     
     for(int32_t i=0; i<64; i++)
     {
-        linkstep();
+        herostep();
         
-        if(zinit.linkanimationstyle==las_zelda3 || zinit.linkanimationstyle==las_zelda3slow)
-            link_count=(link_count+1)%16;
+        if(zinit.heroAnimationStyle==las_zelda3 || zinit.heroAnimationStyle==las_zelda3slow)
+            hero_count=(hero_count+1)%16;
             
         if((i&3)==0)
             --y;
@@ -22308,10 +22307,10 @@ void LinkClass::walkup(bool opening) //exiting cave
     
     map_bkgsfx(true);
     loadside=dir^1;
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setHeroAction(none);
 }
 
-void LinkClass::walkup2(bool opening) //entering cave2
+void HeroClass::walkup2(bool opening) //entering cave2
 {
     if(opening)
     {
@@ -22324,7 +22323,7 @@ void LinkClass::walkup2(bool opening) //entering cave2
     dir=up;
     clk=0;
     //  int32_t cmby=y.getInt()&0xF0;
-    action=climbcovertop; FFCore.setLinkAction(climbcovertop);
+    action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
@@ -22339,10 +22338,10 @@ void LinkClass::walkup2(bool opening) //entering cave2
     
     for(int32_t i=0; i<64; i++)
     {
-        linkstep();
+        herostep();
         
-        if(zinit.linkanimationstyle==las_zelda3 || zinit.linkanimationstyle==las_zelda3slow)
-            link_count=(link_count+1)%16;
+        if(zinit.heroAnimationStyle==las_zelda3 || zinit.heroAnimationStyle==las_zelda3slow)
+            hero_count=(hero_count+1)%16;
             
         if((i&3)==0)
             --y;
@@ -22356,10 +22355,10 @@ void LinkClass::walkup2(bool opening) //entering cave2
     
     map_bkgsfx(true);
     loadside=dir^1;
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setHeroAction(none);
 }
 
-void LinkClass::stepout() // Step out of item cellars and passageways
+void HeroClass::stepout() // Step out of item cellars and passageways
 {
     int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
@@ -22371,7 +22370,7 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     blackscr(30,true);
     ringcolor(false);
     
-    if(sc==PASSAGEWAY && abs(x-warpx)>16) // How did Link leave the passageway?
+    if(sc==PASSAGEWAY && abs(x-warpx)>16) // How did Hero leave the passageway?
     {
         currdmap=stepoutdmap;
         currmap=DMaps[currdmap].map;
@@ -22466,12 +22465,12 @@ void LinkClass::stepout() // Step out of item cellars and passageways
     loadside=dir^1;
 }
 
-bool LinkClass::nextcombo_wf(int32_t d2)
+bool HeroClass::nextcombo_wf(int32_t d2)
 {
     if(toogam || (action!=swimming && !IsSideSwim() && action != swimhit) || hopclk==0) //!DIMITODO: ...does swimming just let you ignore smart scrolling entirely!?
         return false;
         
-    // assumes Link is about to scroll screens
+    // assumes Hero is about to scroll screens
     
     int32_t ns = nextscr(d2);
     
@@ -22545,12 +22544,12 @@ bool LinkClass::nextcombo_wf(int32_t d2)
     return (c.walk&b) ? !dried && !swim : false;
 }
 
-bool LinkClass::nextcombo_solid(int32_t d2)
+bool HeroClass::nextcombo_solid(int32_t d2)
 {
 	if(toogam || currscr>=128)
 		return false;
 		
-	// assumes Link is about to scroll screens
+	// assumes Hero is about to scroll screens
 	
 	int32_t ns = nextscr(d2);
 	
@@ -22711,9 +22710,9 @@ bool LinkClass::nextcombo_solid(int32_t d2)
 	return false;
 }
 
-void LinkClass::checkscroll()
+void HeroClass::checkscroll()
 {
-    //DO NOT scroll if Link is vibrating due to Farore's Wind effect -DD
+    //DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
     if(action == casting||action==sideswimcasting)
         return;
         
@@ -22757,7 +22756,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none; FFCore.setLinkAction(none);
+                    action=none; FFCore.setHeroAction(none);
                     restart_level();
                 }
                 else
@@ -22818,7 +22817,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none; FFCore.setLinkAction(none);
+                    action=none; FFCore.setHeroAction(none);
                     restart_level();
                 }
                 else
@@ -22880,7 +22879,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none; FFCore.setLinkAction(none);
+                    action=none; FFCore.setHeroAction(none);
                     restart_level();
                 }
                 else
@@ -22942,7 +22941,7 @@ void LinkClass::checkscroll()
             {
                 if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
                 {
-                    action=none; FFCore.setLinkAction(none);
+                    action=none; FFCore.setHeroAction(none);
                     restart_level();
                 }
                 else
@@ -22977,7 +22976,7 @@ void LinkClass::checkscroll()
 
 // assumes current direction is in lastdir[3]
 // compares directions with scr->path and scr->exitdir
-bool LinkClass::checkmaze(mapscr *scr, bool sound)
+bool HeroClass::checkmaze(mapscr *scr, bool sound)
 {
     if(!(scr->flags&fMAZE))
         return true;
@@ -22995,7 +22994,7 @@ bool LinkClass::checkmaze(mapscr *scr, bool sound)
     return true;
 }
 
-bool LinkClass::edge_of_dmap(int32_t side)
+bool HeroClass::edge_of_dmap(int32_t side)
 {
     if(checkmaze(tmpscr,false)==false)
         return false;
@@ -23034,7 +23033,7 @@ bool LinkClass::edge_of_dmap(int32_t side)
     return false;
 }
 
-bool LinkClass::lookaheadraftflag(int32_t d2)
+bool HeroClass::lookaheadraftflag(int32_t d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
     // Can use destscr for scrolling warps,
@@ -23043,8 +23042,8 @@ bool LinkClass::lookaheadraftflag(int32_t d2)
     int32_t cx = x;
     int32_t cy = y + 8;
 	
-	bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
-	bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+	bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
 	//Applying this here, too. -Z
     
@@ -23074,15 +23073,15 @@ bool LinkClass::lookaheadraftflag(int32_t d2)
     return ( isRaftFlag(combobuf[tmpscr[0].data[combo]].flag) || isRaftFlag(tmpscr[0].sflag[combo]));
     
 }
-int32_t LinkClass::lookahead(int32_t d2)                       // Helper for scrollscr that gets next combo on next screen.
+int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scrollscr that gets next combo on next screen.
 {
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
 	int32_t cx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
 	int32_t cy = vbound(y + 8,0,160);
-	//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
-	//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
     switch(d2)
     {
@@ -23111,7 +23110,7 @@ int32_t LinkClass::lookahead(int32_t d2)                       // Helper for scr
     return tmpscr[0].data[combo];            // entire combo code
 }
 
-int32_t LinkClass::lookaheadflag(int32_t d2)
+int32_t HeroClass::lookaheadflag(int32_t d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
     // Can use destscr for scrolling warps,
@@ -23120,8 +23119,8 @@ int32_t LinkClass::lookaheadflag(int32_t d2)
     int32_t cx = vbound(x,0,240);
     int32_t cy = vbound(y + 8,0,160);
 	
-	//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
-	//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
 	//Applying this here, too. -Z
     
@@ -23157,14 +23156,14 @@ int32_t LinkClass::lookaheadflag(int32_t d2)
     return tmpscr[0].sflag[combo];           // flag
 }
 
-//Bit of a messy kludge to give the correct Link->X/Link->Y in the script
-void LinkClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+//Bit of a messy kludge to give the correct Hero->X/Hero->Y in the script
+void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
 	// For rafting (and possibly other esoteric things)
-	// Link's action should remain unchanged while scrolling,
+	// Hero's action should remain unchanged while scrolling,
 	// but for the sake of scripts, here's an eye-watering kludge.
 	actiontype lastaction = action;
-	action=scrolling; FFCore.setLinkAction(scrolling);
+	action=scrolling; FFCore.setHeroAction(scrolling);
 	
 	zfix storex = x, storey = y;
 	switch(scrolldir)
@@ -23208,10 +23207,10 @@ void LinkClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		{
 			FFCore.itemScriptEngineOnWaitdraw();
 		}
-		if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
-			link_waitdraw = false;
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			player_waitdraw = false;
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -23245,9 +23244,9 @@ void LinkClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		{
 			FFCore.itemScriptEngine();
 		}
-		if ((!( FFCore.system_suspend[susptLINKACTIVE] )) && link_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
@@ -23265,14 +23264,14 @@ void LinkClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	
 	x = storex, y = storey;
 	
-	action=lastaction; FFCore.setLinkAction(lastaction);
+	action=lastaction; FFCore.setHeroAction(lastaction);
 }
 
 //Has solving the maze enabled a side warp?
 //Only used just before scrolling screens
 // Note: since scrollscr() calls this, and dowarp() calls scrollscr(),
 // return true to abort the topmost scrollscr() call. -L
-bool LinkClass::maze_enabled_sizewarp(int32_t scrolldir)
+bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
 {
     for(int32_t i = 0; i < 3; i++) lastdir[i] = lastdir[i+1];
     
@@ -23331,7 +23330,7 @@ bool LinkClass::maze_enabled_sizewarp(int32_t scrolldir)
     return false;
 }
 
-int32_t LinkClass::get_scroll_step(int32_t scrolldir)
+int32_t HeroClass::get_scroll_step(int32_t scrolldir)
 {
 	// For side-scrollers, where the relative speed of 'fast' scrolling is a bit slow.
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
@@ -23354,7 +23353,7 @@ int32_t LinkClass::get_scroll_step(int32_t scrolldir)
     }
 }
 
-int32_t LinkClass::get_scroll_delay(int32_t scrolldir)
+int32_t HeroClass::get_scroll_delay(int32_t scrolldir)
 {
 	if(get_bit(quest_rules, qr_NOSCROLL))
 		return 0;
@@ -23377,7 +23376,7 @@ int32_t LinkClass::get_scroll_delay(int32_t scrolldir)
 	}
 }
 
-void LinkClass::calc_darkroom_link(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
 	int32_t itemid = current_item_id(itype_lantern);
 	if(itemid < 0) return; //no lantern light circle
@@ -23400,7 +23399,7 @@ void LinkClass::calc_darkroom_link(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	}
 }
 
-void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
+void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
 	if(action==freeze||action==sideswimfreeze)
 	{
@@ -23496,8 +23495,8 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
   
 	actiontype lastaction = action;
 	ALLOFF(false, false);
-	// for now, restore Link's previous action
-	action=lastaction; FFCore.setLinkAction(lastaction);
+	// for now, restore Hero's previous action
+	action=lastaction; FFCore.setHeroAction(lastaction);
 	
 	lstep = (lstep + 6) % 12;
 	cx = scx;
@@ -23507,10 +23506,10 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
 	}
-	if ( (!( FFCore.system_suspend[susptLINKACTIVE] )) && link_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_ACTIVE, SCRIPT_LINK_ACTIVE);
-		link_waitdraw = false;
+		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+		player_waitdraw = false;
 	}
 	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
@@ -23588,8 +23587,8 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	script_drawing_commands.Clear();
 	
 	
-	//clear Link's last hits 
-	//for ( int32_t q = 0; q < 4; q++ ) sethitLinkUID(q, 0);
+	//clear Hero's last hits 
+	//for ( int32_t q = 0; q < 4; q++ ) sethitHeroUID(q, 0);
 	
 	switch(DMaps[currdmap].type&dmfTYPE)
 	{
@@ -23693,13 +23692,13 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	break;
 	}
 
-	// change Link's state if entering water
+	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir);
 	int32_t aheadflag = lookaheadflag(scrolldir);
 	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
 	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
-		//bound(cx, 0, 240); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
-		//bound(cy, 0, 168); //Fix crash during screen scroll when Link is moving too quickly through a corner - DarkDragon
+		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+		//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
 	switch(scrolldir)
 	{
@@ -23728,7 +23727,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			if (lookaheadraftflag(scrolldir))
 			{
-				action=rafting; FFCore.setLinkAction(rafting);
+				action=rafting; FFCore.setHeroAction(rafting);
 				raftclk=0;
 			}
 		}
@@ -23742,14 +23741,14 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			else
 			{
-				action=hopping; FFCore.setLinkAction(hopping);
+				action=hopping; FFCore.setHeroAction(hopping);
 				hopclk = 2;
 				nowinwater = true;
 			}
 		}
 		else
 		{
-			action=none; FFCore.setLinkAction(none);
+			action=none; FFCore.setHeroAction(none);
 		}
 	}
 	
@@ -23833,7 +23832,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 		
-		//Move Link and the scroll position
+		//Move Hero and the scroll position
 		if(!no_move)
 		{
 			switch(scrolldir)
@@ -23859,7 +23858,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				break;
 			}
 			
-			//bound Link when me move him off the screen in the last couple of frames of scrolling
+			//bound Hero when me move him off the screen in the last couple of frames of scrolling
 			if(y > 160) y = 160;
 			
 			if(y < 0)   y = 0;
@@ -24035,7 +24034,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
-		linkstep();
+		herostep();
 		
 		if(z > 0 && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
 		{
@@ -24046,7 +24045,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
-			draw(framebuf); //Link
+			draw(framebuf); //Hero
 			decorations.draw(framebuf,  true);
 		}
 		
@@ -24097,7 +24096,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 			calc_darkroom_combos(true);
-			calc_darkroom_link(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
 		}
 		
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
@@ -24187,10 +24186,10 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//end drawing
 		advanceframe(true/*,true,false*/);
 		actiontype lastaction = action;
-		action=scrolling; FFCore.setLinkAction(scrolling);
+		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
 		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
-		action=lastaction; FFCore.setLinkAction(lastaction);
+		action=lastaction; FFCore.setHeroAction(lastaction);
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 	
 	
@@ -24201,7 +24200,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
 	
-	//Move link to the other side of the screen if scrolling's not turned on
+	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_bit(quest_rules, qr_NOSCROLL))
 	{
 		switch(scrolldir)
@@ -24224,7 +24223,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 	}
 	
-	if(z > 0 && isSideViewLink())
+	if(z > 0 && isSideViewHero())
 	{
 		y -= z;
 		z = 0;
@@ -24245,9 +24244,9 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if(destdmap != -1)
 		currdmap = destdmap;
 		
-	//if Link is going from non-water to water, and we set his animation to "hopping" above, we must now
-	//change it to swimming - since we have manually moved Link onto the first tile, the hopping code
-	//will get confused and try to hop Link onto the next (possibly nonexistant) water tile in his current
+	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
+	//change it to swimming - since we have manually moved Hero onto the first tile, the hopping code
+	//will get confused and try to hop Hero onto the next (possibly nonexistant) water tile in his current
 	//direction. -DD
 	
 	if(nowinwater)
@@ -24270,7 +24269,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
 			sfx(tmpscr->secretsfx);
-			action=rafting; FFCore.setLinkAction(rafting);
+			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
 		
@@ -24278,7 +24277,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
 		{
 			sfx(tmpscr->secretsfx);
-			action=rafting; FFCore.setLinkAction(rafting);
+			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
 	}
@@ -24322,7 +24321,7 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(action == scrolling)
 	{
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 	}
 		
 	if(action != attacking && action != sideswimattacking)
@@ -24356,8 +24355,8 @@ void LinkClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 
 
-// How much to reduce Link's damage, taking into account various rings.
-int32_t LinkClass::ringpower(int32_t dmg)
+// How much to reduce Hero's damage, taking into account various rings.
+int32_t HeroClass::ringpower(int32_t dmg)
 {
 	if(dmg < 0) return dmg; //Don't reduce healing
 	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
@@ -24464,8 +24463,8 @@ int32_t LinkClass::ringpower(int32_t dmg)
 }
 
 // Should swinging the hammer make the 'pound' sound?
-// Or is Link just hitting air?
-bool LinkClass::sideviewhammerpound()
+// Or is Hero just hitting air?
+bool HeroClass::sideviewhammerpound()
 {
     int32_t wx=0,wy=0;
     
@@ -24475,7 +24474,7 @@ bool LinkClass::sideviewhammerpound()
         wx=-1;
         wy=-15;
         
-        if(isSideViewLink())  wy+=8;
+        if(isSideViewHero())  wy+=8;
         
         break;
         
@@ -24483,7 +24482,7 @@ bool LinkClass::sideviewhammerpound()
         wx=8;
         wy=28;
         
-        if(isSideViewLink())  wy-=8;
+        if(isSideViewHero())  wy-=8;
         
         break;
         
@@ -24491,7 +24490,7 @@ bool LinkClass::sideviewhammerpound()
         wx=-8;
         wy=14;
         
-        if(isSideViewLink()) wy+=8;
+        if(isSideViewHero()) wy+=8;
         
         break;
         
@@ -24499,12 +24498,12 @@ bool LinkClass::sideviewhammerpound()
         wx=21;
         wy=14;
         
-        if(isSideViewLink()) wy+=8;
+        if(isSideViewHero()) wy+=8;
         
         break;
     }
     
-    if(!isSideViewLink())
+    if(!isSideViewHero())
     {
         return (COMBOTYPE(x+wx,y+wy)!=cSHALLOWWATER && !iswaterex(MAPCOMBO(x+wx,y+wy), currmap, currscr, -1, x+wx,y+wy));
     }
@@ -24525,7 +24524,7 @@ bool LinkClass::sideviewhammerpound()
 /********  More Items Code  *********/
 /************************************/
 
-// The following are only used for Link damage. Damage is in quarter hearts.
+// The following are only used for Hero damage. Damage is in quarter hearts.
 int32_t enemy_dp(int32_t index)
 {
     return (((enemy*)guys.spr(index))->dp)*(game->get_ene_dmgmult());
@@ -24543,7 +24542,7 @@ int32_t lwpn_dp(int32_t index)
 
 bool checkbunny(int32_t itemid)
 {
-	return !Link.BunnyClock() || (itemid > 0 && itemsbuf[itemid].flags&ITEM_BUNNY_ENABLED);
+	return !Hero.BunnyClock() || (itemid > 0 && itemsbuf[itemid].flags&ITEM_BUNNY_ENABLED);
 }
 
 bool checkmagiccost(int32_t itemid)
@@ -24863,7 +24862,7 @@ void stopCaneOfByrna()
 }
 */
 //Check if there are no beams, kill sfx, and reset last_cane_of_byrna_item_id
-void LinkClass::cleanupByrna()
+void HeroClass::cleanupByrna()
 {
 	if ( last_cane_of_byrna_item_id > -1 )
 	{
@@ -25276,7 +25275,7 @@ void dospecialmoney(int32_t index)
                 game->change_maxcounter(4/div, 6);
         }
         
-        //also give Link an actual Bomb item
+        //also give Hero an actual Bomb item
         for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
@@ -25557,9 +25556,9 @@ void getitem(int32_t id, bool nosound)
 		{
 			if(idat.flags & ITEM_FLAG1)
 			{
-				if(LinkSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
+				if(HeroSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
 				
-				if(LinkItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
+				if(HeroItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
 			}
 			
 			if(idat.power==0)
@@ -25706,8 +25705,8 @@ void takeitem(int32_t id)
     }
 }
 
-// Attempt to pick up an item. (-1 = check items touching Link.)
-void LinkClass::checkitems(int32_t index)
+// Attempt to pick up an item. (-1 = check items touching Hero.)
+void HeroClass::checkitems(int32_t index)
 {
 	int32_t tmp=currscr>=128?1:0;
 	
@@ -25967,30 +25966,30 @@ void LinkClass::checkitems(int32_t index)
 			// don't hold up bombs unless swimming or the bomb hold fix quest rule is on
 			if(action==swimming)
 			{
-				action=waterhold1; FFCore.setLinkAction(waterhold1);
+				action=waterhold1; FFCore.setHeroAction(waterhold1);
 			}
 			else if(IsSideSwim())
 			{
-				action=sidewaterhold1; FFCore.setLinkAction(sidewaterhold1);
+				action=sidewaterhold1; FFCore.setHeroAction(sidewaterhold1);
 			}
 			else
 			{
-				action=landhold1; FFCore.setLinkAction(landhold1);
+				action=landhold1; FFCore.setHeroAction(landhold1);
 			}
 			
 			if(ptr->twohand)
 			{
 				if(action==waterhold1)
 				{
-					action=waterhold2; FFCore.setLinkAction(waterhold2);
+					action=waterhold2; FFCore.setHeroAction(waterhold2);
 				}
 				else if(action==sidewaterhold1)
 				{
-					action=sidewaterhold2; FFCore.setLinkAction(sidewaterhold2);
+					action=sidewaterhold2; FFCore.setHeroAction(sidewaterhold2);
 				}
 				else
 				{
-					action=landhold2; FFCore.setLinkAction(landhold2);
+					action=landhold2; FFCore.setHeroAction(landhold2);
 				}
 			}
 			
@@ -26158,7 +26157,7 @@ void LinkClass::checkitems(int32_t index)
 	}
 }
 
-void LinkClass::StartRefill(int32_t refillWhat)
+void HeroClass::StartRefill(int32_t refillWhat)
 {
     if(!refilling)
     {
@@ -26203,7 +26202,7 @@ void LinkClass::StartRefill(int32_t refillWhat)
     }
 }
 
-void LinkClass::Start250Refill(int32_t refillWhat){
+void HeroClass::Start250Refill(int32_t refillWhat){
 	if(!refilling)
 	{
 		refillclk=21;
@@ -26236,7 +26235,7 @@ void LinkClass::Start250Refill(int32_t refillWhat){
 	}
 }
 
-bool LinkClass::refill()
+bool HeroClass::refill()
 {
     if(refilling==REFILL_NONE || refilling==REFILL_FAIRYDONE)
     {
@@ -26326,7 +26325,7 @@ bool LinkClass::refill()
     return true;
 }
 
-void LinkClass::getTriforce(int32_t id2)
+void HeroClass::getTriforce(int32_t id2)
 {
 		
 	PALETTE flash_pal;
@@ -26339,7 +26338,7 @@ void LinkClass::getTriforce(int32_t id2)
 
 
 
-	//get rid off all sprites but Link
+	//get rid off all sprites but Hero
 	guys.clear();
 	items.clear();
 	Ewpns.clear();
@@ -26454,7 +26453,7 @@ void LinkClass::getTriforce(int32_t id2)
 			actiontype oldaction = action;
 			ALLOFF((!(itemsbuf[id2].flags & ITEM_FLAG9)), false);
 			action=oldaction;                                    // have to reset this flag
-			FFCore.setLinkAction(oldaction);
+			FFCore.setHeroAction(oldaction);
 		}
 	
 	
@@ -26552,7 +26551,6 @@ void LinkClass::getTriforce(int32_t id2)
 				draw_screen_clip_rect_x2=255-curtain_x;
 				draw_screen_clip_rect_y1=0;
 				draw_screen_clip_rect_y2=223;
-				//draw_screen_clip_rect_show_link=true;
 				//draw_screen(tmpscr);
 			}
 		}
@@ -26574,17 +26572,16 @@ void LinkClass::getTriforce(int32_t id2)
 		|| (/*!(itemsbuf[id2].flags & ITEM_FLAG15) &&*/ !(itemsbuf[id2].flags & ITEM_FLAG11) && (zcmusic!=NULL) && (zcmusic->position<800) ) 
 	);   // 800 may not be just right, but it works
 
-	action=none; FFCore.setLinkAction(none);
+	action=none; FFCore.setHeroAction(none);
 	holdclk=0;
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=223;
-	//draw_screen_clip_rect_show_link=true;
 	show_subscreen_items=true;
     
-	//Warp Link out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
-	//Added a QR for this, to Other->2, as `Triforce in Cellar Warps Link Out`. -Z 15th March, 2019 
+	//Warp Hero out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
+	//Added a QR for this, to Other->2, as `Triforce in Cellar Warps Hero Out`. -Z 15th March, 2019 
 	if(itemsbuf[id2].flags & ITEM_FLAG1 && ( get_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
 	{
 		sdir=dir;
@@ -26680,7 +26677,7 @@ void setup_red_screen_old()
         }
     }
     
-    //  Link->draw(framebuf);
+    //  Hero->draw(framebuf);
     blit(framebuf,scrollbuf, 0, playing_field_offset, 256, playing_field_offset, 256, 168);
     
     clear_bitmap(framebuf);
@@ -26778,23 +26775,23 @@ void slide_in_color(int32_t color)
 }
 
 
-void LinkClass::heroDeathAnimation()
+void HeroClass::heroDeathAnimation()
 {
 	int32_t f=0;
 	int32_t deathclk=0,deathfrm=0;
     
-	action=none; FFCore.setLinkAction(dying); //mayhaps a new action of 'gameover'? -Z
+	action=none; FFCore.setHeroAction(dying); //mayhaps a new action of 'gameover'? -Z
 	
 	kill_sfx();  //call before the onDeath script.
 	
 	//do
 	//{
 		
-	//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
+	//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
 	//	FFCore.Waitframe();
-	//}while(link_doscript);
-	//ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_DEATH, SCRIPT_LINK_DEATH);
-	//while(link_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
+	//}while(player_doscript);
+	//ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+	//while(player_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
 	
 	//Playing=false;
 	if(!debug_enabled)
@@ -26817,24 +26814,24 @@ void LinkClass::heroDeathAnimation()
 	playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
 	quakeclk=wavy=0;
     
-	//in original Z1, Link marker vanishes at death.
+	//in original Z1, Hero marker vanishes at death.
 	//code in subscr.cpp, put_passive_subscr checks the following value.
 	//color 255 is a GUI color, so quest makers shouldn't be using this value.
 	//Also, subscreen is static after death in Z1.
-	int32_t tmp_link_dot = QMisc.colors.link_dot;
-	QMisc.colors.link_dot = 255;
+	int32_t tmp_hero_dot = QMisc.colors.hero_dot;
+	QMisc.colors.hero_dot = 255;
 	//doesn't work
 	//scrollbuf is tampered with by draw_screen()
 	//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
 	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
 	clear_bitmap(subscrbmp);
 	put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
-	QMisc.colors.link_dot = tmp_link_dot;
+	QMisc.colors.hero_dot = tmp_hero_dot;
     */
     
 	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
 				clear_bitmap(subscrbmp);
-				//get rid off all sprites but Link
+				//get rid off all sprites but Hero
 				guys.clear();
 				items.clear();
 				Ewpns.clear();
@@ -26858,12 +26855,12 @@ void LinkClass::heroDeathAnimation()
 				playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
 				quakeclk=wavy=0;
 			    
-				//in original Z1, Link marker vanishes at death.
+				//in original Z1, Hero marker vanishes at death.
 				//code in subscr.cpp, put_passive_subscr checks the following value.
 				//color 255 is a GUI color, so quest makers shouldn't be using this value.
 				//Also, subscreen is static after death in Z1.
-				int32_t tmp_link_dot = QMisc.colors.link_dot;
-				QMisc.colors.link_dot = 255;
+				int32_t tmp_hero_dot = QMisc.colors.hero_dot;
+				QMisc.colors.hero_dot = 255;
 				//doesn't work
 				//scrollbuf is tampered with by draw_screen()
 				//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
@@ -26886,13 +26883,13 @@ void LinkClass::heroDeathAnimation()
 					framebuf = tmp;
 					script_drawing_commands.Clear(); //Don't let these draws repeat during 'draw_screen()'
 				}
-				QMisc.colors.link_dot = tmp_link_dot;
+				QMisc.colors.hero_dot = tmp_hero_dot;
         bool clearedit = false;
 	do
 	{
-		//if ( link_doscript ) 
+		//if ( player_doscript ) 
 		//{
-		//	ZScriptVersion::RunScript(SCRIPT_LINK, SCRIPT_LINK_WIN, SCRIPT_LINK_WIN);
+		//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 			//if ( f ) --f; 
 		//	load_control_state(); //goto adv;
 		//}
@@ -26935,7 +26932,7 @@ void LinkClass::heroDeathAnimation()
 					break;
 				}
                 
-				linkstep();
+				herostep();
 			}
             
 			if(f>=194 && f<208)
@@ -26943,7 +26940,7 @@ void LinkClass::heroDeathAnimation()
 				if(f==194)
 				{
 					action=dying;
-					FFCore.setLinkAction(dying);
+					FFCore.setHeroAction(dying);
 				}
                     
 				extend = 0;
@@ -27030,7 +27027,7 @@ void LinkClass::heroDeathAnimation()
 				}
 				else //f>=170
 				{
-					if(f==170)//make Link grayish
+					if(f==170)//make Hero grayish
 					{
 						fade_interpolate(RAMpal,black_palette,RAMpal,64, 224, 255);
                         
@@ -27043,7 +27040,7 @@ void LinkClass::heroDeathAnimation()
 						refreshpal = true;
 					}
                     
-					//draw only link. otherwise black layers might cover him.
+					//draw only hero. otherwise black layers might cover him.
 					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
 					draw(framebuf);
 					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
@@ -27129,7 +27126,7 @@ void LinkClass::heroDeathAnimation()
 				}
 				else
 				{
-					//draw only link. otherwise black layers might cover him.
+					//draw only hero. otherwise black layers might cover him.
 					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
 					draw(framebuf);
 					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
@@ -27183,24 +27180,24 @@ void LinkClass::heroDeathAnimation()
 		//adv:
 		advanceframe(true);
 		++f;
-		//if (!link_doscript ) ++f;
+		//if (!player_doscript ) ++f;
 	}
 	while(f<353 && !Quit);
     
 	destroy_bitmap(subscrbmp);
-	action=none; FFCore.setLinkAction(none);
+	action=none; FFCore.setHeroAction(none);
 	if ( dontdraw < 2 ) { dontdraw=0; }
 }
 
 
-void LinkClass::ganon_intro()
+void HeroClass::ganon_intro()
 {
     /*
     ************************
     * GANON INTRO SEQUENCE *
     ************************
     -25 DOT updates
-    -24 LINK in
+    -24 HERO in
     0 TRIFORCE overhead - code begins at this point (f == 0)
     47 GANON in
     58 LIGHT step
@@ -27209,7 +27206,7 @@ void LinkClass::ganon_intro()
     255 TRIFORCE out
     256 TRIFORCE in
     270 TRIFORCE out
-    271 GANON out, LINK face up
+    271 GANON out, HERO face up
     */
     loaded_guys=true;
     loaditem();
@@ -27220,14 +27217,14 @@ void LinkClass::ganon_intro()
     }
     
     dir=down;
-    if ( !isSideViewLink() )
+    if ( !isSideViewHero() )
     {
 	fall = 0; //Fix midair glitch on holding triforce. -Z
 	z = 0;
     }
-    action=landhold2; FFCore.setLinkAction(landhold2);
+    action=landhold2; FFCore.setHeroAction(landhold2);
     holditem=getItemID(itemsbuf,itype_triforcepiece, 1);
-    //not good, as this only returns the highest level that Link possesses. -DD
+    //not good, as this only returns the highest level that Hero possesses. -DD
     //getHighestLevelOfFamily(game, itemsbuf, itype_triforcepiece, false));
     
     for(int32_t f=0; f<271 && !Quit; f++)
@@ -27266,7 +27263,7 @@ void LinkClass::ganon_intro()
         }
         
         //NES Z1, the triforce vanishes for one frame in two cases
-        //while still showing Link's two-handed overhead sprite.
+        //while still showing Hero's two-handed overhead sprite.
 	//This should be a Quest Rule for NES Accuracy. -Z
         if(f==255 || f==270)
         {
@@ -27291,7 +27288,7 @@ void LinkClass::ganon_intro()
         
     }
     
-    action=none; FFCore.setLinkAction(none);
+    action=none; FFCore.setHeroAction(none);
     dir=up;
     
     if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
@@ -27322,10 +27319,10 @@ void LinkClass::ganon_intro()
     cont_sfx(WAV_ROAR);	
 }
 
-void LinkClass::saved_Zelda()
+void HeroClass::saved_Zelda()
 {
     Playing=Paused=false;
-    action=won; FFCore.setLinkAction(won);
+    action=won; FFCore.setHeroAction(won);
     Quit=qWON;
     hclk=0;
     x = 136;
@@ -27334,21 +27331,21 @@ void LinkClass::saved_Zelda()
     dir=left;
 }
 
-void LinkClass::reset_swordcharge()
+void HeroClass::reset_swordcharge()
 {
     charging=spins=tapping=0;
 }
 
-void LinkClass::reset_hookshot()
+void HeroClass::reset_hookshot()
 {
 	if(action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
 	{
-		action=none; FFCore.setLinkAction(none);
+		action=none; FFCore.setHeroAction(none);
 	}
 	
 	hookshot_frozen=false;
 	hookshot_used=false;
-	pull_link=false;
+	pull_hero=false;
 	hs_fix=false;
 	switchhookclk = switchhookmaxtime = switchhookstyle = switchhookarg = 0;
 	switch_hooked = false;
@@ -27376,22 +27373,22 @@ void LinkClass::reset_hookshot()
 }
 
 
-bool LinkClass::can_deploy_ladder()
+bool HeroClass::can_deploy_ladder()
 {
     bool ladderallowed = ((!get_bit(quest_rules,qr_LADDERANYWHERE) && tmpscr->flags&fLADDER) || isdungeon()
                           || (get_bit(quest_rules,qr_LADDERANYWHERE) && !(tmpscr->flags&fLADDER)));
     return (current_item_id(itype_ladder)>-1 && ladderallowed && !ilswim && z==0 &&
-            (!isSideViewLink() || on_sideview_solid(x,y)));
+            (!isSideViewHero() || on_sideview_solid(x,y)));
 }
 
-void LinkClass::reset_ladder()
+void HeroClass::reset_ladder()
 {
     ladderx=laddery=0;
 }
 
-void LinkClass::check_conveyor()
+void HeroClass::check_conveyor()
 {
-	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_link||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
+	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
 	{
 		return;
 	}
@@ -27433,7 +27430,7 @@ void LinkClass::check_conveyor()
 			deltay = zslongToFix(combobuf[cmb].attributes[1]);
 		}
 		
-		if((deltax==0&&deltay==0)&&(isSideViewLink() && on_sideview_solid(x,y)))
+		if((deltax==0&&deltay==0)&&(isSideViewHero() && on_sideview_solid(x,y)))
 		{
 			cmb = MAPCOMBO(x+8,y+16);
 			ctype=(combobuf[cmb].type);
@@ -27462,7 +27459,7 @@ void LinkClass::check_conveyor()
 				
 				if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
 				{
-					while(step<(abs(deltay)*(isSideViewLink()?2:1)))
+					while(step<(abs(deltay)*(isSideViewHero()?2:1)))
 					{
 						yoff=int32_t(y-step)&7;
 						
@@ -27635,50 +27632,50 @@ void LinkClass::check_conveyor()
 	}
 }
 
-void LinkClass::setNayrusLoveShieldClk(int32_t newclk)
+void HeroClass::setNayrusLoveShieldClk(int32_t newclk)
 {
     NayrusLoveShieldClk=newclk;
     
     if(decorations.idCount(dNAYRUSLOVESHIELD)==0)
     {
         decoration *dec;
-        decorations.add(new dNayrusLoveShield(LinkX(), LinkY(), dNAYRUSLOVESHIELD, 0));
+        decorations.add(new dNayrusLoveShield(HeroX(), HeroY(), dNAYRUSLOVESHIELD, 0));
         decorations.spr(decorations.Count()-1)->misc=0;
-        decorations.add(new dNayrusLoveShield(LinkX(), LinkY(), dNAYRUSLOVESHIELD, 0));
+        decorations.add(new dNayrusLoveShield(HeroX(), HeroY(), dNAYRUSLOVESHIELD, 0));
         dec=(decoration *)decorations.spr(decorations.Count()-1);
         decorations.spr(decorations.Count()-1)->misc=1;
     }
 }
 
-int32_t LinkClass::getNayrusLoveShieldClk()
+int32_t HeroClass::getNayrusLoveShieldClk()
 {
     return NayrusLoveShieldClk;
 }
 
-int32_t LinkClass::getHoverClk()
+int32_t HeroClass::getHoverClk()
 {
     return hoverclk;
 }
 
-int32_t LinkClass::getHoldClk()
+int32_t HeroClass::getHoldClk()
 {
     return holdclk;
 }
 
-int32_t LinkClass::getLastLensID(){
+int32_t HeroClass::getLastLensID(){
 	return last_lens_id;
 }
 
-void LinkClass::setLastLensID(int32_t p_item){
+void HeroClass::setLastLensID(int32_t p_item){
 	last_lens_id = p_item;
 }
 
-bool LinkClass::getOnSideviewLadder()
+bool HeroClass::getOnSideviewLadder()
 {
 	return on_sideview_ladder;
 }
 
-void LinkClass::setOnSideviewLadder(bool val)
+void HeroClass::setOnSideviewLadder(bool val)
 {
 	if(val)
 	{
@@ -27688,9 +27685,9 @@ void LinkClass::setOnSideviewLadder(bool val)
 	on_sideview_ladder = val;
 }
 
-bool LinkClass::canSideviewLadder(bool down)
+bool HeroClass::canSideviewLadder(bool down)
 {
-	if(!isSideViewLink()) return false;
+	if(!isSideViewHero()) return false;
 	if(jumping < 0) return false;
 	if(down && get_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS))
 	{
@@ -27707,9 +27704,9 @@ bool LinkClass::canSideviewLadder(bool down)
 		|| (down && (isSVLadder(x+4,y+16) || isSVLadder(x+12,y+16)));
 }
 
-bool LinkClass::canSideviewLadderRemote(int32_t wx, int32_t wy, bool down)
+bool HeroClass::canSideviewLadderRemote(int32_t wx, int32_t wy, bool down)
 {
-	if(!isSideViewLink()) return false;
+	if(!isSideViewHero()) return false;
 	if(jumping < 0) return false;
 	if(down && get_bit(quest_rules, qr_DOWN_DOESNT_GRAB_LADDERS))
 	{
@@ -27726,7 +27723,7 @@ bool LinkClass::canSideviewLadderRemote(int32_t wx, int32_t wy, bool down)
 		|| (down && (isSVLadder(wx+4,wy+16) || isSVLadder(wx+12,wy+16)));
 }
 
-void LinkClass::execute(LinkClass::WalkflagInfo info)
+void HeroClass::execute(HeroClass::WalkflagInfo info)
 {
     int32_t flags = info.getFlags();
     
@@ -27758,9 +27755,9 @@ void LinkClass::execute(LinkClass::WalkflagInfo info)
     
 }
 
-LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator ||(LinkClass::WalkflagInfo other)
+HeroClass::WalkflagInfo HeroClass::WalkflagInfo::operator ||(HeroClass::WalkflagInfo other)
 {
-    LinkClass::WalkflagInfo ret;
+    HeroClass::WalkflagInfo ret;
     ret.newhopclk = newhopclk;
     ret.newdir = newdir;
     ret.newhopdir = (other.newhopdir >-1 ? other.newhopdir : newhopdir);
@@ -27771,9 +27768,9 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator ||(LinkClass::Walkflag
     return ret;
 }
 
-LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator &&(LinkClass::WalkflagInfo other)
+HeroClass::WalkflagInfo HeroClass::WalkflagInfo::operator &&(HeroClass::WalkflagInfo other)
 {
-    LinkClass::WalkflagInfo ret;
+    HeroClass::WalkflagInfo ret;
     ret.newhopclk = newhopclk;
     ret.newdir = newdir;
     ret.newhopdir = (other.newhopdir >-1 ? other.newhopdir : newhopdir);
@@ -27782,9 +27779,9 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator &&(LinkClass::Walkflag
     return ret;
 }
 
-LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator !()
+HeroClass::WalkflagInfo HeroClass::WalkflagInfo::operator !()
 {
-    LinkClass::WalkflagInfo ret;
+    HeroClass::WalkflagInfo ret;
     ret.newhopclk = newhopclk;
     ret.newdir = newdir;
     ret.newhopdir = newhopdir;
@@ -27793,33 +27790,33 @@ LinkClass::WalkflagInfo LinkClass::WalkflagInfo::operator !()
     return ret;
 }
 
-void LinkClass::explode(int32_t type)
+void HeroClass::explode(int32_t type)
 {
 	static int32_t tempx, tempy;
-	static byte linktilebuf[256];
+	static byte herotilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
 	bool shieldModify=true;
 	unpack_tile(newtilebuf, tile, flip, true);
-	memcpy(linktilebuf, unpackbuf, 256);
-	tempx=Link.getX();
-	tempy=Link.getY();
+	memcpy(herotilebuf, unpackbuf, 256);
+	tempx=Hero.getX();
+	tempy=Hero.getY();
 	for(int32_t i=0; i<16; ++i)
 	{
                 for(int32_t j=0; j<16; ++j)
                 {
-                    if(linktilebuf[i*16+j])
+                    if(herotilebuf[i*16+j])
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
                         }
                         else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -27832,52 +27829,52 @@ void LinkClass::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Link.getX()+j, Link.getY()-Link.getZ()+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pFaroresWindDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->angular=true;
                             p->angle=zc_oldrand();
                             p->step=(((double)j)/8);
-                            p->yofs=Link.getYOfs();
+                            p->yofs=Hero.getYOfs();
                         }
                     }
                 }
 	}
 }
 
-void LinkClass::SetSwim()
+void HeroClass::SetSwim()
 {
 	if (CanSideSwim()) 
 	{
-		if (action != sideswimattacking && action != attacking) {action=sideswimming; FFCore.setLinkAction(sideswimming);}
-		else {action=sideswimattacking; FFCore.setLinkAction(sideswimattacking);}
+		if (action != sideswimattacking && action != attacking) {action=sideswimming; FFCore.setHeroAction(sideswimming);}
+		else {action=sideswimattacking; FFCore.setHeroAction(sideswimattacking);}
 		if (get_bit(quest_rules,qr_SIDESWIMDIR) && spins <= 0 && dir != left && dir != right) dir = sideswimdir;
 	}
-        else {action=swimming; FFCore.setLinkAction(swimming);}
+        else {action=swimming; FFCore.setHeroAction(swimming);}
 }
 
-void LinkClass::SetAttack()
+void HeroClass::SetAttack()
 {
-	if (IsSideSwim()) {action=sideswimattacking; FFCore.setLinkAction(sideswimattacking);}
-        else {action=attacking; FFCore.setLinkAction(attacking);}
+	if (IsSideSwim()) {action=sideswimattacking; FFCore.setHeroAction(sideswimattacking);}
+        else {action=attacking; FFCore.setHeroAction(attacking);}
 }
 
-bool LinkClass::IsSideSwim()
+bool HeroClass::IsSideSwim()
 {
 	return (action==sideswimming || action==sideswimhit || action == sideswimattacking || action == sidewaterhold1 || action == sidewaterhold2 || action == sideswimcasting || action == sideswimfreeze);
 }
 
-bool LinkClass::CanSideSwim()
+bool HeroClass::CanSideSwim()
 {
-	return (isSideViewLink() && get_bit(quest_rules,qr_SIDESWIM));
+	return (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM));
 }
 
-int32_t LinkClass::getTileModifier()
+int32_t HeroClass::getTileModifier()
 {
 	return item_tile_mod() + bunny_tile_mod();
 }
-/*** end of link.cpp ***/
+/*** end of hero.cpp ***/
 
 
 

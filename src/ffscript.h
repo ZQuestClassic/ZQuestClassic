@@ -35,7 +35,7 @@
 #define MAX_INTERNAL_BITMAP 6 //RT_BITMAP6
 #define FFRULES_SIZE 1024
 
-//Link->WarpEx Flags
+//Hero->WarpEx Flags
 #define warpFlagDONTKILLSCRIPTDRAWS 0x01
 #define warpFlagDONTKILLSOUNDS 0x02
 #define warpFlagDONTKILLMUSIC 0x04
@@ -57,7 +57,7 @@
 
 
 
-//Visual Warp Effect Types for Link->WarpEx()
+//Visual Warp Effect Types for Hero->WarpEx()
 enum { warpEffectNONE, warpEffectZap, warpEffectWave, warpEffectInstant, warpEffectOpen, warpEffectMozaic }; 
 void doWarpEffect(int32_t warpEffect, bool out);
 
@@ -69,7 +69,7 @@ void doWarpEffect(int32_t warpEffect, bool out);
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
-enum linkspritetype
+enum herospritetype
 {
 	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
 	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
@@ -98,7 +98,7 @@ enum {
 	susptCOMBOANIM,
 	
 	//1->5 Main Sprite animation by type
-	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptHERO, 
 	
 	//6 : FFC (e.g. movement, changers, but not scripts)
 	susptUPDATEFFC, //ffcs
@@ -115,7 +115,7 @@ enum {
 	//16->27 Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
 	//21
-	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
+	susptFFCSCRIPTS, susptHEROACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
 	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
 	
 	//28->59: Reserved padding
@@ -130,7 +130,7 @@ enum {
 //npc function enums
 // npc_collision()
 	//bool npc->Collision
-enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_link, 
+enum { obj_type_lweapon, obj_type_eweapon, obj_type_npc, obj_type_player, 
 	obj_type_ffc, obj_type_combo_pos, obj_type_item, obj_type_LAST };
 	
 //do_npc_simulate_hit
@@ -176,7 +176,7 @@ enum
 	vZelda, qQuestNumber, vBuild, vBeta, vHeader, vRules, vStrings, vMisc,
 	vTiles, vCombos, vCSets, vMaps, vDMaps, vDoors, vItems, vWeaponSprites,
 	vColours, vIcons, vGfxPack, vInitData, vGuys, vMIDIs, vCheats, vSaveformat,
-	vComboAliases, vLinkSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
+	vComboAliases, vHeroSprites, vSubscreen, vItemDropsets, vFFScript, vSFX, vFavourites,
 	qMapCount, vLastCompile, vCompatRule,
 	versiontypesLAST
 	
@@ -203,7 +203,7 @@ enum mapflagtype
 	MSF_INTERIOR, MSF_DUNGEON, MSF_SIDEVIEW,
 	
 	// View
-	MSF_INVISLINK, MSF_NOLINKMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET,
+	MSF_INVISHERO, MSF_NOHEROMARKER, MSF_NOSUBSCREEN, MSF_NOOFFSET,
 	MSF_LAYER2BG, MSF_LAYER3BG, MSF_DARKROOM,
 	
 	// Secrets
@@ -573,10 +573,10 @@ int32_t getQRBit(int32_t rule);
 void setRule(int32_t rule, bool s);
 bool getRule(int32_t rule_bit);
 void setFFRules();
-void setLinkTile(int32_t t);
-int32_t getLinkTile();
-void setLinkAction(int32_t a);
-int32_t getLinkAction();
+void setHeroTile(int32_t t);
+int32_t getHeroTile();
+void setHeroAction(int32_t a);
+int32_t getHeroAction();
 void Play_Level_Music();
 int32_t getTime(int32_t type); //get system RTC Information.
 void getRTC(const bool v);
@@ -656,8 +656,8 @@ void do_getitembyname();
 void do_getcombobyname();
 void do_getdmapbyname();
 
-int32_t getLinkOTile(int32_t index1, int32_t index2);
-int32_t getLinkOFlip(int32_t index1, int32_t index2);
+int32_t getHeroOTile(int32_t index1, int32_t index2);
+int32_t getHeroOFlip(int32_t index1, int32_t index2);
 
 int32_t IsBlankTile(int32_t i);
 
@@ -732,10 +732,10 @@ int32_t getQuestHeaderInfo(int32_t type)
 
 */
 
-//Script-only Warp, Link->WarpEx(int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir)
-//Script-only Warp, Link->WarpEx(int32_t array[])
+//Script-only Warp, Hero->WarpEx(int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir)
+//Script-only Warp, Hero->WarpEx(int32_t array[])
 //{int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
-bool warp_link(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t linkFacesDir);
+bool warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir);
 
 void user_files_init();
 void user_dirs_init();
@@ -804,7 +804,7 @@ void do_warp_ex(const bool v);
 //static void init();
 
 int32_t quest_format[versiontypesLAST];
-byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Link's Win script. -Z
+byte skip_ending_credits; //checked in ending.cpp. If > 0, then we skip the game credits, but not Hero's Win script. -Z
 
 byte system_suspend[susptLAST];
 
@@ -813,9 +813,9 @@ int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 
 byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
-int32_t FF_link_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
-byte FF_link_action; //This way, we can make safe replicas of internal Link actions to be set by script. 
-bool kb_typing_mode; //script only, for disbaling key presses affecting Link, etc. 
+int32_t FF_hero_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
+byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
+bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
 int32_t FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 int32_t FF_subscreen_dimensions[4];
@@ -832,7 +832,7 @@ int32_t GhostArray[256];
 int32_t TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
-int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Linkaction, anims, and so forth 
+int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, and so forth 
 
 #define SCRIPT_DRAWING_RULES 20
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
@@ -847,8 +847,8 @@ int32_t FF_gravity;
 word FF_terminalv;
 byte FF_msg_speed;
 byte FF_transition_type; // Can't edit, yet.
-byte FF_jump_link_layer_threshold; // Link is drawn above layer 3 if z > this.
-byte FF_link_swim_speed;
+byte FF_jump_hero_layer_threshold; // Hero is drawn above layer 3 if z > this.
+byte FF_hero_swim_speed;
 
 byte zasm_break_mode;
 
@@ -873,14 +873,14 @@ void gfxmonohue();
 void Tint();
 void clearTint();
 //Advances the game frame without checking 'Quit' variable status.
-//Used for making scripts such as Link's onWin and onDeath scripts
+//Used for making scripts such as Hero's onWin and onDeath scripts
 //run for multiple frames.
 void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
 void initZScriptOnMapScript();
 void initZScriptActiveSubscreenScript();
-void initZScriptLinkScripts();
+void initZScriptHeroScripts();
 void initZScriptItemScripts();
 
 //Combo Scripts
@@ -948,7 +948,7 @@ void do_npc_breathefire();
 void do_npc_newdir8();
 int32_t npc_collision();
 int32_t npc_linedup();
-void do_npc_link_in_range(const bool v);
+void do_npc_hero_in_range(const bool v);
 void do_npc_simulate_hit(const bool v);
 void do_npc_knockback(const bool v);
 void do_npc_add(const bool v);
@@ -1049,13 +1049,13 @@ void do_itemsprite_delete();
         return 0;
     }
     
-    static bool enemy_hasLink()
+    static bool enemy_hasHero()
     {
         if(temp_ff_enemy->family == eeWALLM)
-            return ((eWallM *) temp_ff_enemy)->haslink;
+            return ((eWallM *) temp_ff_enemy)->hashero;
             
         if(temp_ff_enemy->family == eeWALK)
-            return ((eStalfos *) temp_ff_enemy)->haslink;
+            return ((eStalfos *) temp_ff_enemy)->hashero;
             
         return false;
     }
@@ -1275,10 +1275,10 @@ static void do_wavyout();
 static void do_triggersecret(const bool v);
 static void do_changeffcscript(const bool v);
 
-static void setLinkDiagonal(bool v);
-static bool getLinkDiagonal();
-static bool getLinkBigHitbox();
-static void setLinkBigHitbox(bool v);
+static void setHeroDiagonal(bool v);
+static bool getHeroDiagonal();
+static bool getHeroBigHitbox();
+static void setHeroBigHitbox(bool v);
 
 
 
@@ -1931,7 +1931,7 @@ int32_t ffscript_engine(const bool preload);
 
 void clear_ffc_stack(const byte i);
 void clear_global_stack(const byte i);
-void clear_link_stack();
+void clear_player_stack();
 void clear_dmap_stack();
 void clear_active_subscreen_stack();
 void clear_passive_subscreen_stack();
@@ -3035,7 +3035,7 @@ enum ASM_DEFINE
 #define LINKTILE             0x0246
 #define LINKFLIP             0x0247
 #define INPUTPRESSMAP        0x0248
-//0x0249-0x0258 are reserved for future Link variables
+//0x0249-0x0258 are reserved for future Hero variables
 #define LINKDIAG             0x0249
 #define LINKBIGHITBOX             0x024A
 #define __RESERVED_FOR_LINKRETSQUARE             0x024B

@@ -32,7 +32,7 @@ using std::set;
 #include "zsys.h"
 #include "subscr.h"
 #include "zc_subscr.h"
-#include "link.h"
+#include "hero.h"
 #include "guys.h"
 #include "ffscript.h"
 #include "drawing.h"
@@ -81,7 +81,7 @@ extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal* mirror_portal;
 extern zinitdata zinit;
-extern LinkClass Link;
+extern HeroClass Hero;
 int32_t current_ffcombo=-1;
 bool triggered_screen_secrets=false;
 
@@ -118,8 +118,6 @@ void Z_message_d(const char *format,...)
 
 
 
-//bool draw_screen_clip_rect_show_link=true;
-//bool draw_screen_clip_rect_show_guys=false;
 bool checktrigger=false;
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
@@ -1112,7 +1110,7 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 {
 	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
 }
-int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool link)
+int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
 	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
 	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
@@ -1177,8 +1175,8 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 						}						
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)
-						|| (link && current_item(itype_flippers) < cmb.attribytes[0])
-						|| (link && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))))
+						|| (hero && current_item(itype_flippers) < cmb.attribytes[0])
+						|| (hero && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))))
 					{
 						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
 					}
@@ -2482,8 +2480,8 @@ void update_freeform_combos()
         if(tmpscr->ffflags[i]&ffSTATIONARY)
             continue;
             
-        // Frozen because Link's holding up an item?
-        if(Link.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
+        // Frozen because Hero's holding up an item?
+        if(Hero.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
             continue;
             
         // Check for changers
@@ -2831,7 +2829,7 @@ void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
 	int32_t cset, byte layer, bool over, bool transp)
 {
-	byte plpos = COMBOPOS(Link.x+8, Link.y+8);
+	byte plpos = COMBOPOS(Hero.x+8, Hero.y+8);
 	bool dosw = false;
 	if(pos == hooked_combopos && (hooked_layerbits & (1<<layer)))
 	{
@@ -2848,20 +2846,20 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
 	}
 	if(dosw)
 	{
-		switch(Link.switchhookstyle)
+		switch(Hero.switchhookstyle)
 		{
 			default: case swPOOF:
 				break; //Nothing special here
 			case swFLICKER:
 			{
-				if(abs(Link.switchhookclk-33)&0b1000)
+				if(abs(Hero.switchhookclk-33)&0b1000)
 					break; //Drawn this frame
 				return; //Not drawn this frame
 			}
 			case swRISE:
 			{
 				//Draw rising up
-				y -= 8-(abs(Link.switchhookclk-32)/4);
+				y -= 8-(abs(Hero.switchhookclk-32)/4);
 				break;
 			}
 		}
@@ -3373,7 +3371,7 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
-void draw_screen(mapscr* this_screen, bool showlink)
+void draw_screen(mapscr* this_screen, bool showhero)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
@@ -3445,28 +3443,28 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	
 	if(!(get_bit(quest_rules,qr_LAYER12UNDERCAVE)))
 	{
-		if(showlink &&
-				((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
+		if(showhero &&
+				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
 		{
-			if(Link.getAction()==climbcovertop)
+			if(Hero.getAction()==climbcovertop)
 			{
 				cmby2=16;
 			}
-			else if(Link.getAction()==climbcoverbottom)
+			else if(Hero.getAction()==climbcoverbottom)
 			{
 				cmby2=-16;
 			}
 			
 			decorations.draw2(scrollbuf,true);
-			Link.draw(scrollbuf);
+			Hero.draw(scrollbuf);
 			decorations.draw(scrollbuf,true);
-			int32_t ccx = (int32_t)(Link.getClimbCoverX());
-			int32_t ccy = (int32_t)(Link.getClimbCoverY());
+			int32_t ccx = (int32_t)(Hero.getClimbCoverX());
+			int32_t ccy = (int32_t)(Hero.getClimbCoverY());
 			
 			overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
 			putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
 			
-			if(int32_t(Link.getX())&15)
+			if(int32_t(Hero.getX())&15)
 			{
 				overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
 				putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
@@ -3489,28 +3487,28 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
 	{
-		if(showlink &&
-				((Link.getAction()==climbcovertop)||(Link.getAction()==climbcoverbottom)))
+		if(showhero &&
+				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
 		{
-			if(Link.getAction()==climbcovertop)
+			if(Hero.getAction()==climbcovertop)
 			{
 				cmby2=16;
 			}
-			else if(Link.getAction()==climbcoverbottom)
+			else if(Hero.getAction()==climbcoverbottom)
 			{
 				cmby2=-16;
 			}
 			
 			decorations.draw2(scrollbuf,true);
-			Link.draw(scrollbuf);
+			Hero.draw(scrollbuf);
 			decorations.draw(scrollbuf,true);
-			int32_t ccx = (int32_t)(Link.getClimbCoverX());
-			int32_t ccy = (int32_t)(Link.getClimbCoverY());
+			int32_t ccx = (int32_t)(Hero.getClimbCoverX());
+			int32_t ccy = (int32_t)(Hero.getClimbCoverY());
 			
 			overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
 			putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
 			
-			if(int32_t(Link.getX())&15)
+			if(int32_t(Hero.getX())&15)
 			{
 				overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
 				putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
@@ -3560,14 +3558,14 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
 	}
 	
-	if(showlink && ((Link.getAction()!=climbcovertop)&&(Link.getAction()!=climbcoverbottom)))
+	if(showhero && ((Hero.getAction()!=climbcovertop)&&(Hero.getAction()!=climbcoverbottom)))
 	{
-		Link.draw_under(framebuf);
+		Hero.draw_under(framebuf);
 		
-		if(Link.isSwimming())
+		if(Hero.isSwimming())
 		{
 			decorations.draw2(framebuf,true);
-			Link.draw(framebuf);
+			Hero.draw(framebuf);
 			decorations.draw(framebuf,true);
 		}
 	}
@@ -3659,21 +3657,21 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	if(mirror_portal)
 		mirror_portal->draw(framebuf);
 	
-	if(showlink && ((Link.getAction()!=climbcovertop)&& (Link.getAction()!=climbcoverbottom)))
+	if(showhero && ((Hero.getAction()!=climbcovertop)&& (Hero.getAction()!=climbcoverbottom)))
 	{
 		mblock2.draw(framebuf);
 		
-		if(!Link.isSwimming())
+		if(!Hero.isSwimming())
 		{
-			if(Link.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			if(Hero.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
 			{
-				Link.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
+				Hero.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
 			}
 			
-			if(Link.getZ() <= (zfix)zinit.jump_link_layer_threshold)
+			if(Hero.getZ() <= (zfix)zinit.jump_hero_layer_threshold)
 			{
 				decorations.draw2(framebuf,true);
-				Link.draw(framebuf);
+				Hero.draw(framebuf);
 				decorations.draw(framebuf,true);
 			}
 		}
@@ -3683,7 +3681,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	{
 		if(((enemy*)guys.spr(i))->family == eeWALK)
 		{
-			if(((eStalfos*)guys.spr(i))->haslink)
+			if(((eStalfos*)guys.spr(i))->hashero)
 			{
 				guys.spr(i)->draw(framebuf);
 			}
@@ -3691,15 +3689,15 @@ void draw_screen(mapscr* this_screen, bool showlink)
 		
 		if(((enemy*)guys.spr(i))->family == eeWALLM)
 		{
-			if(((eWallM*)guys.spr(i))->haslink)
+			if(((eWallM*)guys.spr(i))->hashero)
 			{
 				guys.spr(i)->draw(framebuf);
 			}
 		}
 		
-		if(guys.spr(i)->z > Link.getZ())
+		if(guys.spr(i)->z > Hero.getZ())
 		{
-			//Jumping enemies in front of Link.
+			//Jumping enemies in front of Hero.
 			guys.spr(i)->draw(framebuf);
 		}
 	}
@@ -3753,16 +3751,16 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	//7. Draw some flying sprites onto framebuf
 	set_clip_rect(framebuf,0,0,256,224);
 	
-	//Jumping Link and jumping enemies are drawn on this layer.
-	if(Link.getZ() > (zfix)zinit.jump_link_layer_threshold)
+	//Jumping Hero and jumping enemies are drawn on this layer.
+	if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
 	{
 		decorations.draw2(framebuf,false);
-		Link.draw(framebuf);
+		Hero.draw(framebuf);
 		chainlinks.draw(framebuf,true);
 		
 		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
-			if(Lwpns.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
+			if(Lwpns.spr(i)->z > (zfix)zinit.jump_hero_layer_threshold)
 			{
 				Lwpns.spr(i)->draw(framebuf);
 			}
@@ -3773,7 +3771,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (zfix)zinit.jump_link_layer_threshold)
+			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (zfix)zinit.jump_hero_layer_threshold)
 			{
 				guys.spr(i)->draw(framebuf);
 			}
@@ -3831,7 +3829,7 @@ void draw_screen(mapscr* this_screen, bool showlink)
 	if(get_bit(quest_rules, qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
 	{
 		calc_darkroom_combos();
-		Link.calc_darkroom_link();
+		Hero.calc_darkroom_hero();
 	}
 	//Darkroom if under the subscreen
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
@@ -4157,7 +4155,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		break;
 		
 	case dSHUTTER:
-		if(screenscrolling && ((LinkDir()^1)==side))
+		if(screenscrolling && ((HeroDir()^1)==side))
 		{
 			doortype=dt_osht;
 			opendoors=-4;
@@ -5856,8 +5854,8 @@ void ViewMap()
 	
 	int32_t px = ((8-(currscr&15)) << 9)  - 256;
 	int32_t py = ((4-(currscr>>4)) * 352) - 176;
-	int32_t lx = ((currscr&15)<<8)  + LinkX()+8;
-	int32_t ly = ((currscr>>4)*176) + LinkY()+8;
+	int32_t lx = ((currscr&15)<<8)  + HeroX()+8;
+	int32_t ly = ((currscr>>4)*176) + HeroY()+8;
 	int32_t sc = 6;
 	
 	bool done=false, redraw=true;

@@ -33,7 +33,7 @@ extern int32_t guycarryingitem;
 int32_t random_layer_enemy();
 int32_t count_layer_enemies();
 bool can_do_clock();
-int32_t link_on_wall();
+int32_t hero_on_wall();
 bool tooclose(int32_t x,int32_t y,int32_t d);
 bool isflier(int32_t id);
 bool never_in_air(int32_t id);
@@ -100,7 +100,7 @@ public:
 	int32_t SIZEflags; //Flags for size panel offsets. The user must enable these to override defaults. 
 	int32_t frozentile, frozencset, frozenclock;
 	
-	bool haslink;
+	bool hashero;
 	
 	int16_t frozenmisc[10];
 	
@@ -231,16 +231,16 @@ public:
 	// g is graduality :)
 	void floater_walk(int32_t rate,int32_t newclk,zfix ms,zfix ss,int32_t s,int32_t p, int32_t g);
 	void floater_walk(int32_t rate,int32_t newclk,zfix s);
-	// Checks if enemy is lined up with Link. If so, returns direction Link is
+	// Checks if enemy is lined up with Hero. If so, returns direction Hero is
 	// at as compared to enemy. Returns -1 if not lined up. Range is inclusive.
 	int32_t lined_up(int32_t range, bool dir8);
-	// returns true if Link is within 'range' pixels of the enemy
-	bool LinkInRange(int32_t range);
+	// returns true if Hero is within 'range' pixels of the enemy
+	bool HeroInRange(int32_t range);
 	// Breathe fire
-	void FireBreath(bool seeklink);
+	void FireBreath(bool seekhero);
 	// Shoot weapons
 	void FireWeapon();
-	// place the enemy in line with Link (red wizzrobes)
+	// place the enemy in line with Hero (red wizzrobes)
 	void place_on_axis(bool floater, bool solid_ok);
 	void update_enemy_frame();
 	void n_frame_n_dir(int32_t frames, int32_t dir, int32_t f4);
@@ -449,7 +449,7 @@ public:
 	eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	void wallm_crawl();
-	void grablink();
+	void grabhero();
 	virtual void draw(BITMAP *dest);
 	virtual bool isSubmerged();
 };
@@ -539,7 +539,7 @@ class eSpinTile : public enemy
 public:
 	eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eSpinTile(zfix X,zfix Y,int32_t Id,int32_t Clk);                       // : enemy(X,Y,Id,Clk)
-	virtual void facelink();
+	virtual void facehero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
@@ -550,7 +550,7 @@ class eZora : public enemy
 public:
 	eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eZora(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : enemy(X,Y,Id,0)
-	virtual void facelink();
+	virtual void facehero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual bool isSubmerged();
@@ -571,7 +571,7 @@ public:
 	bool WeaponOut();
 	void KillWeapon();
 	void charge_attack();
-	void eatlink();
+	void eathero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w);
@@ -872,21 +872,21 @@ public:
 /**********  Misc Code  ***********/
 /**********************************/
 void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_gen = 0);
-// Used by Link's swords & stomp boots
+// Used by Hero's swords & stomp boots
 int32_t hit_enemy(int32_t index,int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon);
 void enemy_scored(int32_t index);
 void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk);
 void kill_em_all();
-// For Link's hit detection. Don't count them if they are stunned or are guys.
+// For Hero's hit detection. Don't count them if they are stunned or are guys.
 int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
-// For Link's hit detection. Count them if they are dying.
+// For Hero's hit detection. Count them if they are dying.
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 bool hasMainGuy();
-void EatLink(int32_t index);
-void GrabLink(int32_t index);
-bool CarryLink();
+void EatHero(int32_t index);
+void GrabHero(int32_t index);
+bool CarryHero();
 void movefairy(zfix &x,zfix &y,int32_t misc);
 void movefairy2(zfix x,zfix y,int32_t misc);
 void movefairynew(zfix &x,zfix &y,item const &itemfairy);

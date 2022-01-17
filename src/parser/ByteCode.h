@@ -8082,25 +8082,25 @@ namespace ZScript
 		}
 	};
 	
-	class OLinkWarpExRegister : public UnaryOpcode
+	class OHeroWarpExRegister : public UnaryOpcode
 	{
 	public:
-		OLinkWarpExRegister(Argument *A) : UnaryOpcode(A) {}
+		OHeroWarpExRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OLinkWarpExRegister(a->clone());
+			return new OHeroWarpExRegister(a->clone());
 		}
 	};
 	
-	class OLinkExplodeRegister : public UnaryOpcode
+	class OHeroExplodeRegister : public UnaryOpcode
 	{
 	public:
-		OLinkExplodeRegister(Argument *A) : UnaryOpcode(A) {}
+		OHeroExplodeRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new OLinkExplodeRegister(a->clone());
+			return new OHeroExplodeRegister(a->clone());
 		}
 	};
 	
@@ -8506,14 +8506,14 @@ namespace ZScript
 			return new ONPCNewDir8(a->clone());
 		}
 	};
-	class ONPCLinkInRange : public UnaryOpcode
+	class ONPCHeroInRange : public UnaryOpcode
 	{
 	public:
-		ONPCLinkInRange(Argument *A) : UnaryOpcode(A) {}
+		ONPCHeroInRange(Argument *A) : UnaryOpcode(A) {}
 		std::string toString();
 		Opcode *clone()
 		{
-			return new ONPCLinkInRange(a->clone());
+			return new ONPCHeroInRange(a->clone());
 		}
 	};
 	class ONPCAdd : public UnaryOpcode

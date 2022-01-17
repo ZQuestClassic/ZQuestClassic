@@ -247,8 +247,8 @@ extern uint8_t console_is_open;
 
 // qst.cc helpers
 bool bad_version(int32_t ver);
-zfix LinkModifiedX();
-zfix LinkModifiedY();
+zfix HeroModifiedX();
+zfix HeroModifiedY();
 
 extern MENU colors_menu[];
 
@@ -566,10 +566,10 @@ void build_bieweapons_list();
 extern script_struct bieweapons[NUMSCRIPTWEAPONS]; //item script
 extern int32_t bieweapons_cnt;
 
-//link script list for editors
-void build_bilinks_list();
-extern script_struct bilinks[NUMSCRIPTLINK]; //item script
-extern int32_t bilinks_cnt;
+//player script list for editors
+void build_bihero_list();
+extern script_struct bihero[NUMSCRIPTPLAYER]; //item script
+extern int32_t bihero_cnt;
 
 //screen script list for editors
 void build_biscreens_list();
@@ -665,7 +665,7 @@ enum
     cmdLayers,
     cmdPasteLayers,
     cmdColors_Levels,
-    cmdCustomLink,
+    cmdCustomHero,
     cmdUsedCombos,
     cmdColors_Main,
     cmdMapCount,

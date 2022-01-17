@@ -113,7 +113,7 @@ extern std::map<int32_t, script_slot_data > itemmap;
 extern std::map<int32_t, script_slot_data > npcmap;
 extern std::map<int32_t, script_slot_data > ewpnmap;
 extern std::map<int32_t, script_slot_data > lwpnmap;
-extern std::map<int32_t, script_slot_data > linkmap;
+extern std::map<int32_t, script_slot_data > playermap;
 extern std::map<int32_t, script_slot_data > dmapmap;
 extern std::map<int32_t, script_slot_data > screenmap;
 extern std::map<int32_t, script_slot_data > itemspritemap;
@@ -160,7 +160,7 @@ enum
     skip_tiles, skip_combos, skip_comboaliases, skip_csets,
     skip_maps, skip_dmaps, skip_doors, skip_items,
     skip_weapons, skip_colors, skip_icons, skip_initdata,
-    skip_guys, skip_linksprites, skip_subscreens, skip_ffscript,
+    skip_guys, skip_herosprites, skip_subscreens, skip_ffscript,
     skip_sfx, skip_midis, skip_cheats, skip_itemdropsets,
     skip_favorites, skip_max
 };

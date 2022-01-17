@@ -2394,7 +2394,7 @@ int32_t get_script_type(string const& name)
 	else if(name=="SCREEN")
 		return SCRIPT_SCREEN;
 	else if(name=="HERO" || name=="PLAYER" || name=="LINK")
-		return SCRIPT_LINK;
+		return SCRIPT_PLAYER;
 	else if(name=="ITEMDATA" || name=="ITEM")
 		return SCRIPT_ITEM;
 	else if(name=="LWEAPON" || name=="LWPN")
@@ -2423,7 +2423,7 @@ string get_script_name(int32_t type)
 			return "FFC";
 		case SCRIPT_SCREEN:
 			return "SCREEN";
-		case SCRIPT_LINK:
+		case SCRIPT_PLAYER:
 			return "HERO";
 		case SCRIPT_ITEM:
 			return "ITEMDATA";

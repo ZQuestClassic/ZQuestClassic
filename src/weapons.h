@@ -39,7 +39,7 @@ extern byte bszboomflip[4];
 class weapon : public sprite
 {
 private:
-    void seekLink();
+    void seekHero();
     void seekEnemy(int32_t j);
     int32_t seekEnemy2(int32_t j);
 
@@ -56,7 +56,7 @@ public:
         parentitem; //Item which created it
     int32_t dragging;
     zfix step;
-    bool bounce, ignoreLink;
+    bool bounce, ignoreHero;
     word flash,wid,aframe,csclk;
     int32_t o_tile, o_cset, o_speed, o_type, frames, o_flip;
 	byte script_wrote_otile;
@@ -102,8 +102,8 @@ public:
     int32_t getParentScriptUID();
     void setScriptUID(int32_t new_id);
     void setParentScriptUID(int32_t new_id);
-    bool isLinkWeapon();
-    bool isLinkMelee();
+    bool isHeroWeapon();
+    bool isHeroMelee();
     //2.6 ZScript -Z
     int32_t scriptrange,blastsfx;
     
@@ -112,7 +112,7 @@ public:
     int32_t magiccosttimer; ///Magic cost for byrna beam, boots. -Z
     
     //Used only by ffscript! No not make readable by scripts!
-    byte ScriptGenerated; //Used to permit creating LinkClass weapons, or other weapon types that the engine does not control.
+    byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
 	bool weapon_dying_frame; //a last_hurrah for weapons -V
     byte specialinfo;
@@ -132,7 +132,7 @@ public:
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     virtual bool animate(int32_t index);
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);
-    virtual void onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e = NULL, int32_t ehitType = -1);
+    virtual void onhit(bool clipped, int32_t special, int32_t herodir, enemy* e = NULL, int32_t ehitType = -1);
     // override hit detection to check for invicibility, etc
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);

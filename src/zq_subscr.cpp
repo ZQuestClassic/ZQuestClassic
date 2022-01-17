@@ -276,7 +276,7 @@ int32_t jwin_fontdrop_proc(int32_t msg,DIALOG *d,int32_t c)
 const char *misccolor_str[ssctMAX] =
 {
     "Text", "Caption", "Overworld BG", "Dungeon BG", "Dungeon FG", "Cave FG", "BS Dark", "BS Goal", "Compass (Lt)", "Compass (Dk)",
-    "SS BG", "SS Shadow", "Tri. Frame", "Big Map BG", "Big Map FG", "Link's Pos", "Message Text"
+    "SS BG", "SS Shadow", "Tri. Frame", "Big Map BG", "Big Map FG", "Player's Pos", "Message Text"
 };
 
 const char *misccolorlist(int32_t index, int32_t *list_size)
@@ -2421,11 +2421,11 @@ int32_t sso_properties(subscreen_object *tempsso)
         char show1[80];
         char show2[80];
         char show3[80];
-        sprintf(t_color_caption, " Link Color ");
+        sprintf(t_color_caption, " Player Color ");
         sprintf(s_color_caption, " C. Blink Color ");
         sprintf(b_color_caption, " C. Const Color ");
         sprintf(show1, " Show Map ");
-        sprintf(show2, " Show Link ");
+        sprintf(show2, " Show Player ");
         sprintf(show3, " Show Compass ");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
@@ -2487,10 +2487,10 @@ int32_t sso_properties(subscreen_object *tempsso)
         char show3[80];
         char bs_style[80];
         sprintf(t_color_caption, " Room Color ");
-        sprintf(s_color_caption, " Link Color ");
+        sprintf(s_color_caption, " Player Color ");
         sprintf(show1, " Show Map ");
         sprintf(show2, " Show Rooms ");
-        sprintf(show3, " Show Link ");
+        sprintf(show3, " Show Player ");
         sprintf(x_str, "%d", tempsso->x);
         sprintf(y_str, "%d", tempsso->y);
         sprintf(bs_style, "Large");
@@ -4937,7 +4937,7 @@ const char *sso_colortype[2]=
 const char *sso_specialcolor[ssctMAX]=
 {
     "ssctTEXT", "ssctCAPTION", "ssctOVERWBG", "ssctDNGNBG", "ssctDNGNFG", "ssctCAVEFG", "ssctBSDK", "ssctBSGOAL", "ssctCOMPASSLT", "ssctCOMPASSDK", "ssctSUBSCRBG", "ssctSUBSCRSHADOW",
-    "ssctTRIFRAMECOLOR", "ssctBMAPBG", "ssctBMAPFG", "ssctLINKDOT", "ssctMSGTEXT"
+    "ssctTRIFRAMECOLOR", "ssctBMAPBG", "ssctBMAPFG", "ssctHERODOT", "ssctMSGTEXT"
 };
 
 const char *sso_specialcset[sscsMAX]=

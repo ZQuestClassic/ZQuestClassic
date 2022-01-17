@@ -23,9 +23,9 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		Column(
 			hPadding = 0_px, 
 			Label(
-				hPadding = sized(1_em,3_em),
+				hPadding = sized(1_em,2_em),
 				maxLines = 20,
-				maxwidth = sized(320_px,800_px)-sized(8_px,12_px)-sized(2_em,6_em),
+				maxwidth = sized(320_px-8_px-2_em, 800_px-12_px-4_em)-1_em,
 				textAlign = 1,
 				text = std::move(dlgText)),
 			Row(

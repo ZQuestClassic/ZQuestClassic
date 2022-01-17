@@ -102,7 +102,7 @@ static const GUI::ListData animRulesList
 		"If enabled, the shadows of all sprites are drawn as translucent."
 		" This includes the Player, Weapons, Enemies, and Items."},
 	{ "Shadows Flicker", qr_SHADOWSFLICKER,
-		" If enabled, Link's Shadow and Enemy Shadows only draw every other frame."
+		" If enabled, the Player's Shadow and Enemy Shadows only draw every other frame."
 		" Items and Weapons are not affected by this."},
 	{ "CSet 1 is level-specific", qr_CSET1_LEVEL,
 		" If enabled, CSet 1 becomes level dependent, allowing you to"
@@ -314,8 +314,7 @@ static const GUI::ListData comboRulesList
 		" in water placed in Sideview. If disabled, water in Sideview"
 		" acts very oddly, with gravity still applying."},
 	{ "Player Faces Left/Right While Sideview Swimming", qr_SIDESWIMDIR, 
-		"When enabled, the Player can only face Left and Right in"
-		" sideview, much like Link's Awakening or the Oracle Games."},
+		"When enabled, the Player can only face Left and Right in sideview water."},
 	{ "New Shallow Water Detection", qr_SHALLOW_SENSITIVE, 
 		"When enabled, Shallow Water will use the same collision"
 		" used to check if the Player should swim/drown. If disabled,"
@@ -381,7 +380,7 @@ static const GUI::ListData compatRulesList
 		"If this is enabled, the check for if a hookshot has grabbed a"
 		" combo going left or right will check it's Y value plus 7."
 		" If disabled, it will check it's Y value plus 13. Note that"
-		" the hookshot's Y position is 3 pixels more than Link's when"
+		" the hookshot's Y position is 3 pixels more than the Player's when"
 		" facing left/right, and note that this rule does not affect"
 		" the hookshot when travelling up or down."},
 	{ "Peahats Are Vulnerable When Frozen By Clocks", qr_PEAHATCLOCKVULN, 
@@ -986,8 +985,8 @@ static const GUI::ListData miscRulesList
 		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
 		"Has no downsides, is only here for compatibility sake."},
 	{ "New Dark Rooms", qr_NEW_DARKROOM,
-		"If enabled, Dark Rooms behave less like Z1 and mroe like LttP/Minish Cap, having light circles around torches and giving a customizeable"
-		"spotlight around the Player. If disabled, Z1-styled dark rooms are used, which only darken the screen until lit up with a candle."},
+		"If enabled, Dark Rooms behave less like Z1 and more like LttP/Minish Cap, having light circles around torches and giving a customizeable"
+		" spotlight around the Player. If disabled, Z1-styled dark rooms are used, which only darken the screen until lit up with a candle."},
 	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6,
 		"If enabled, the new dark rooms will draw under layer 7, allowing scripts to draw over dark rooms by drawing to Layer 7."
 		" If disabled, scripts are never able to draw above the new dark rooms."},
@@ -1013,7 +1012,7 @@ static const GUI::ListData nesfixesRulesList
 		" direction perpendicular to the screen edge you'e close to when you're within 2 tiles of the screen edge, and you can't"
 		" use items at all when in the corner of the screen. Enabling this will disable this behavior and allow you to use items"
 		" and weapons on the screen edge."},
-	{ "Fix Player's Position in Dungeons", qr_LINKDUNGEONPOSFIX,
+	{ "Fix Player's Position in Dungeons", qr_HERODUNGEONPOSFIX,
 		"If disabled, and the rule 'BS-Zelda Animation Quirks' is disabled, the player gains a -2 y offset when in dungeons."
 		"Having either this or 'BS-Zelda Animation Quirks' enabled will disable this -2 y offset in dungeons."},
 	{ "Raft/Ladder Sprite Direction Fix", qr_RLFIX,
@@ -1042,7 +1041,7 @@ static const GUI::ListData nesfixesRulesList
 	{ "Trap Position Fix", qr_TRAPPOSFIX,
 		"If enabled, Traps don't have the -2 Y offset that all enemies spawn with in topdown gravity. If disabled, they will"
 		" have the -2 Y offset all enemies usually spawn with."},
-	{ "No Invisible Border on Non-Dungeon Dmaps", qr_NOBORDER,
+	{ "No Invisible Border on Non-Dungeon DMaps", qr_NOBORDER,
 		"Normally, there is a 1 tile border surrounding the edge of the screen that prevents enemies from walking on the"
 		" screen edge, a 16 pixel border that kills the player's weapons around the edge of the screen early, and a 8"
 		" pixel border that kills enemy weapons around the edge of the screen early. Additionally, there is a change to"
@@ -1082,7 +1081,7 @@ static const GUI::ListData nesfixesRulesList
 		" The order alternates between 'Behind Weapons, Shadows, Enemies, Chainlinks, Non-Behind Weapons, Items'"
 		" and 'Behind Weapons, Shadows, Items, Chainlinks, Enemies, Non-Behind Weapons'. If this rule is enabled,"
 		" the drawing order is forced to be the former order regardless of frame."},
-	{ "Invincible Player Isn't Hurt By Own Fire Weapons", qr_FIREPROOFLINK2,
+	{ "Invincible Player Isn't Hurt By Own Fire Weapons", qr_FIREPROOFHERO2,
 		"Normally, the player can be hurt by their own fire weapons even if they are invincible from some source,"
 		" like the clock item or scripts. Enabling this rule disables this, making them actually invincible."},
 	{ "No Position Offset Of Screen Items", qr_NOITEMOFFSET,
@@ -1161,7 +1160,7 @@ static const GUI::ListData playerRulesList
 	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK,
 		"If enabled, disables the built in player gridlock. This does not allow the player to move diagonally,"
 		" but it does allow them to change direction when not aligned with the 8x8 pixel grid."},
-	{ "Invincible Player Flickers", qr_LINKFLICKER,
+	{ "Invincible Player Flickers", qr_HEROFLICKER,
 		"If enabled, the Player will flicker when invincible or after taking damage instead of flashing colors."}
 };
 
@@ -1195,7 +1194,7 @@ static const GUI::ListData weaponsRulesList
 		" the room temporarily, and will unlight the room when the last one"
 		" disappears. This used to affect Player-created fire, but that functionality"
 		" can now be toggled on a per-candle or per-book basis in the item editor."},
-	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFLINK,
+	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFHERO,
 		"If enabled, script-created Fire LWeapons will not hurt the Player. In the original"
 		" NES Zelda, the Player took damage from their own fire weapons. Though Candle and Book"
 		"-created fire weapons are determined by the item editor for those items now, this rule"

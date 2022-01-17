@@ -1968,7 +1968,7 @@ int32_t doInit(zinitdata *local_zinit, bool isZC)
     sprintf(gravitystring, "%d.%02d\0", local_zinit->gravity2/10000L, abs((local_zinit->gravity2/100)%100L));
     sprintf(swimgravitystring, "%ld.%02d\0", local_zinit->swimgravity/10000L, abs((local_zinit->swimgravity/100)%100L));
     sprintf(terminalvstring, "%.2f", local_zinit->terminalv/100.0);
-    sprintf(thresholdstring, "%d", local_zinit->jump_link_layer_threshold);
+    sprintf(thresholdstring, "%d", local_zinit->jump_hero_layer_threshold);
     
     init_dlg[1662].dp=hcstring;
     init_dlg[1663].dp=sheartstring;
@@ -2113,7 +2113,7 @@ int32_t doInit(zinitdata *local_zinit, bool isZC)
         local_zinit->gravity = vbound(int32_t(strtod(gravitystring, NULL)*10000),1,255);
         local_zinit->gravity2 = int32_t(strtod(gravitystring, NULL)*10000);
         local_zinit->terminalv = vbound(int32_t(strtod(terminalvstring, NULL)*100), 1, 9999);
-        local_zinit->jump_link_layer_threshold = vbound(atoi(thresholdstring),0,255);
+        local_zinit->jump_hero_layer_threshold = vbound(atoi(thresholdstring),0,255);
         local_zinit->heroStep = vbound(atoi(herostepstr),0,9999);
         local_zinit->subscrSpeed = vbound(atoi(subscrspeedstr),1,85);
 		local_zinit->hp_per_heart = vbound(atoi(hpperheartstr),1,255);

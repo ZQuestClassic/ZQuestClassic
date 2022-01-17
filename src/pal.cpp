@@ -15,13 +15,13 @@
 #include "zdefs.h"
 #include "maps.h"
 #include "zelda.h"
-#include "link.h"
+#include "hero.h"
 #include "colors.h"
 #include "zsys.h"
 #include "pal.h"
 #include "subscr.h"
 
-extern LinkClass Link;
+extern HeroClass Hero;
 
 int32_t CSET_SIZE = 16;                                         // this is only changed to 4 in the NES title screen
 int32_t CSET_SHFT = 4;                                          // log2 of CSET_SIZE
@@ -205,8 +205,8 @@ void loadpalset(int32_t cset,int32_t dataset)
     
     for(int32_t i=0; i<16; i++,j+=3)
     {
-	   // if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
-	    if ( isMonochrome() || isUserTinted() ) tempgreypal[CSET(cset)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Link pal... 
+	   // if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
+	    if ( isMonochrome() || isUserTinted() ) tempgreypal[CSET(cset)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
 		else 
 			RAMpal[CSET(cset)+i] = _RGB(&colordata[j]); 
     }
@@ -449,7 +449,7 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
     if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
-		fade((Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
+		fade((Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
         darkroom = newstate;
     }
     
@@ -465,7 +465,7 @@ void lightingInstant()
 	if(get_bit(quest_rules, qr_NEW_DARKROOM)) newstate = false;
 	if(darkroom != newstate)
 	{
-		int32_t level = (Link.getSpecialCave()>0) ? (Link.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
+		int32_t level = (Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
 
 		if(darkroom) // Old room dark, new room lit
 		{
@@ -641,7 +641,7 @@ void cycle_palette()
     if(!get_bit(quest_rules,qr_FADE) || darkroom)
         return;
         
-    int32_t level = (Link.getSpecialCave()==0) ? DMaps[currdmap].color : (Link.getSpecialCave()<GUYCAVE ? 11 : 10);
+    int32_t level = (Hero.getSpecialCave()==0) ? DMaps[currdmap].color : (Hero.getSpecialCave()<GUYCAVE ? 11 : 10);
     palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
 	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int32_t i=0; i<3; i++)

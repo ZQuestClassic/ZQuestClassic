@@ -17,7 +17,7 @@
 #include "zelda.h"
 #include "zsys.h"
 #include "maps.h"
-#include "link.h"
+#include "hero.h"
 #include "subscr.h"
 #include "ffscript.h"
 #include "gamedata.h"
@@ -32,7 +32,7 @@ extern word item_doscript[256];
 extern refInfo itemScriptData[256];
 extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern ZModule zcm;
-extern LinkClass   Link;
+extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern zinitdata    zinit;
 
@@ -195,14 +195,14 @@ int32_t count_layer_enemies()
 	return cnt;
 }
 
-int32_t link_on_wall()
+int32_t hero_on_wall()
 {
-	zfix lx = Link.getX();
-	zfix ly = Link.getY();
+	zfix lx = Hero.getX();
+	zfix ly = Hero.getY();
 	
 	
-	//zprint2("link_on_wall x is: %d\n", lx);
-	//zprint2("link_on_wall y is: %d\n", ly);
+	//zprint2("hero_on_wall x is: %d\n", lx);
+	//zprint2("hero_on_wall y is: %d\n", ly);
 	
 	if(lx>=48 && lx<=192)
 	{
@@ -223,7 +223,7 @@ int32_t link_on_wall()
 
 bool tooclose(int32_t x,int32_t y,int32_t d)
 {
-	return (abs(int32_t(LinkX())-x)<d && abs(int32_t(LinkY())-y)<d);
+	return (abs(int32_t(HeroX())-x)<d && abs(int32_t(HeroY())-y)<d);
 }
 
 bool enemy::overpit(enemy *e)
@@ -2449,7 +2449,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	immortal = false;
 	noSlide = false;
 	
-	haslink=false;
+	hashero=false;
 	
 	// If they forgot the invisibility flag, here's another failsafe:
 	if(o_tile==0 && family!=eeSPINTILE)
@@ -2648,7 +2648,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
    
 	wpn(other.wpn),			//int32_t
 	SIZEflags(other.SIZEflags),			//int32_t
-	haslink(haslink)
+	hashero(hashero)
 
 {
 	
@@ -3325,13 +3325,13 @@ bool enemy::animate(int32_t index)
 			--stunclk;
 		if ( frozenclock > 0 ) 
 			--frozenclock;
-		if(haslink)
+		if(hashero)
 		{
-			Link.setX(x);
-			Link.setY(y);
-			Link.fallCombo = fallCombo;
-			Link.fallclk = fallclk;
-			haslink = false; //Let Link go if falling
+			Hero.setX(x);
+			Hero.setY(y);
+			Hero.fallCombo = fallCombo;
+			Hero.fallclk = fallclk;
+			hashero = false; //Let Hero go if falling
 		}
 		run_script(MODE_NORMAL);
 		return false;
@@ -3346,12 +3346,12 @@ bool enemy::animate(int32_t index)
 			--stunclk;
 		if ( frozenclock > 0 ) 
 			--frozenclock;
-		if(haslink)
+		if(hashero)
 		{
-			Link.setX(x);
-			Link.setY(y);
-			Link.drownclk = drownclk;
-			haslink = false; //Let Link go if falling
+			Hero.setX(x);
+			Hero.setY(y);
+			Hero.drownclk = drownclk;
+			hashero = false; //Let Hero go if falling
 		}
 		run_script(MODE_NORMAL);
 		return false;
@@ -3787,7 +3787,7 @@ bool enemy::isSubmerged()
 	return submerged;
 }
 
-void enemy::FireBreath(bool seeklink)
+void enemy::FireBreath(bool seekhero)
 {
 	if(wpn==wNone)
 		return;
@@ -3802,7 +3802,7 @@ void enemy::FireBreath(bool seeklink)
 	float fire_angle=0.0;
 	int32_t wx=0, wy=0, wdir=dir;
 	
-	if(!seeklink)
+	if(!seekhero)
 	{
 		switch(dir)
 		{
@@ -3850,14 +3850,14 @@ void enemy::FireBreath(bool seeklink)
 		wy = y;
 	}
 	
-	addEwpn(wx,wy,z,wpn,2,wdp,seeklink ? 0xFF : wdir, getUID());
+	addEwpn(wx,wy,z,wpn,2,wdp,seekhero ? 0xFF : wdir, getUID());
 	sfx(wpnsfx(wpn),pan(int32_t(x)));
 	
 	int32_t i=Ewpns.Count()-1;
 	weapon *ew = (weapon*)(Ewpns.spr(i));
 	ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
 	
-	if(!seeklink && (zc_oldrand()&4))
+	if(!seekhero && (zc_oldrand()&4))
 	{
 		ew->angular=true;
 		ew->angle=fire_angle;
@@ -3880,7 +3880,7 @@ void enemy::FireWeapon()
 	/*
 	 * Type:
 	 * 0x01: Boss fireball
-	 * 0x02: Seeks Link
+	 * 0x02: Seeks Hero
 	 * 0x04: Fast projectile
 	 * 0x00-0x30: If 0x02, slants toward (type>>3)-1
 	 */
@@ -3927,9 +3927,9 @@ void enemy::FireWeapon()
 	{
 		int32_t slant = 0;
 		
-		if(((Link.x-x) < -8 && dir==up) || ((Link.x-x) > 8 && dir==down) || ((Link.y-y) < -8 && dir==left) || ((Link.y-y) > 8 && dir==right))
+		if(((Hero.x-x) < -8 && dir==up) || ((Hero.x-x) > 8 && dir==down) || ((Hero.y-y) < -8 && dir==left) || ((Hero.y-y) > 8 && dir==right))
 			slant = left;
-		else if(((Link.x-x) > 8 && dir==up) || ((Link.x-x) < -8 && dir==down) || ((Link.y-y) > 8 && dir==left) || ((Link.y-y) < -8 && dir==right))
+		else if(((Hero.x-x) > 8 && dir==up) || ((Hero.x-x) < -8 && dir==down) || ((Hero.y-y) > 8 && dir==left) || ((Hero.y-y) < -8 && dir==right))
 			slant = right;
 			
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^slant)+1)<<3),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
@@ -4025,7 +4025,7 @@ void enemy::FireWeapon()
 					x2=16*((zc_oldrand()%12)+2);
 					y2=16*((zc_oldrand()%7)+2);
 					
-					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Link.getX())>=32)||(abs(y2-Link.getY())>=32)))
+					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
 				//zprint2("summon\n");
 				//al_trace("summon\n");
@@ -4983,13 +4983,13 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				}
 				case -5: 
 				{
-					weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
+					weapon *w = new weapon(x,y,z,wBomb,effect_type,0,0,Hero.getUID(), txsz, tysz);
 					Lwpns.add(w);
 					break;
 				}
 				case -4:
 				{
-					weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Link.getUID(), txsz, tysz);
+					weapon *w = new weapon(x,y,z,wSBomb,effect_type,0,0,Hero.getUID(), txsz, tysz);
 					Lwpns.add(w);
 					break;
 				}
@@ -5002,8 +5002,8 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				{
 					//Dummy weapon function
 					if ( effect_type > 255 ) effect_type = 0; //Sanity bound the sprite ID.
-					//weapon *w = new weapon(x,y,z,dummy_wpn_id,effect_type,0,0,Link.getUID(), txsz, tysz);
-					weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Link.getUID(), txsz, tysz,0,0,0,0,0,0,0);
+					//weapon *w = new weapon(x,y,z,dummy_wpn_id,effect_type,0,0,Hero.getUID(), txsz, tysz);
+					weapon *w = new weapon(x,y,z,wSSparkle,effect_type,0,0,Hero.getUID(), txsz, tysz,0,0,0,0,0,0,0);
 					Lwpns.add(w);
 					break;
 				}
@@ -5257,7 +5257,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 		case edSWITCH:
 		{
-			if(Link.switchhookclk) return 0; //Already switching!
+			if(Hero.switchhookclk) return 0; //Already switching!
 			switch(family)
 			{
 				case eeAQUA: case eeMOLD: case eeDONGO: case eeMANHAN: case eeGLEEOK:
@@ -5268,7 +5268,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			hooked_layerbits = 0;
 			switching_object = this;
 			switch_hooked = true;
-			Link.doSwitchHook(game->get_switchhookstyle());
+			Hero.doSwitchHook(game->get_switchhookstyle());
 			if(QMisc.miscsfx[sfxSWITCHED])
 				sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(x));
 			return 1;
@@ -5753,8 +5753,8 @@ int32_t enemy::takehit(weapon *w)
 			// Weapons which shields protect against
 		case wSword:
 		case wWand:
-			if(Link.getCharging()>0)
-				Link.setAttackClk(Link.getAttackClk()+1); //Cancel charging
+			if(Hero.getCharging()>0)
+				Hero.setAttackClk(Hero.getAttackClk()+1); //Cancel charging
 
 			[[fallthrough]];
 		case wHookshot:
@@ -6122,8 +6122,8 @@ bool enemy::dont_draw()
 	if(flags&lens_only && !lensclk)
 		return true;
 		
-	if(lensclk && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG7) &&
-	!((flags&lens_only) && (get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5))))
+	if(lensclk && (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) &&
+	!((flags&lens_only) && (get_bit(quest_rules,qr_LENSSEESENEMIES) || (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5))))
 		return true;
 		
 	return false;
@@ -6140,7 +6140,7 @@ void enemy::draw(BITMAP *dest)
 		return;
 	if(flags&guy_invisible)
 		return;
-	if(lensclk && (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG7) && !(flags&lens_only))
+	if(lensclk && (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) && !(flags&lens_only))
 		return;
 	
 	//We did the normal don't_draw stuff here so we can make exceptions; specifically the lens check (which should make enemies
@@ -6173,16 +6173,16 @@ void enemy::draw(BITMAP *dest)
 	if (tmpscr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
-		!((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
+		!((itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
 	}
 	//Lens check
 	if (lensclk)
 	{
-		if((itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG6) && !(flags&lens_only))
+		if((itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG6) && !(flags&lens_only))
 		{
 			if (canSee == DRAW_NORMAL) 
 			{
-				if (itemsbuf[Link.getLastLensID()].flags & ITEM_FLAG7) canSee = DRAW_CLOAKED;
+				if (itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG7) canSee = DRAW_CLOAKED;
 				else canSee = DRAW_INVIS; //Should never happen cause dont_draw should catch this, but just in case.
 			}
 		}
@@ -6222,7 +6222,7 @@ void enemy::draw(BITMAP *dest)
 		{
 			if(!(clk2&2))
 			{
-				//if the enemy isn't totally invisible, or if it is, but Link has the item needed to reveal it, draw it.
+				//if the enemy isn't totally invisible, or if it is, but Hero has the item needed to reveal it, draw it.
 				if (canSee == DRAW_CLOAKED)
 				{
 					sprite::drawcloaked(dest);
@@ -8188,12 +8188,12 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix s)
 	floater_walk(newrate,newclk,s,(zfix)0.125,3,80,32);
 }
 
-// Checks if enemy is lined up with Link. If so, returns direction Link is
+// Checks if enemy is lined up with Hero. If so, returns direction Hero is
 // at as compared to enemy. Returns -1 if not lined up. Range is inclusive.
 int32_t enemy::lined_up(int32_t range, bool dir8)
 {
-	int32_t lx = Link.getX();
-	int32_t ly = Link.getY();
+	int32_t lx = Hero.getX();
+	int32_t ly = Hero.getY();
 	
 	if(abs(lx-int32_t(x))<=range)
 	{
@@ -8218,7 +8218,7 @@ int32_t enemy::lined_up(int32_t range, bool dir8)
 	if(dir8)
 	{
 	if(abs(lx-x)-abs(ly-y)<=range)
-		//if(abs(lx-x)-abs(ly-y)<=range && abs(ly-y)-abs(lx-x)<=range) //Fix floating enemies not seeking link. -Tamamo
+		//if(abs(lx-x)-abs(ly-y)<=range && abs(ly-y)-abs(lx-x)<=range) //Fix floating enemies not seeking hero. -Tamamo
 		{
 			if(ly<y)
 			{
@@ -8248,19 +8248,19 @@ int32_t enemy::lined_up(int32_t range, bool dir8)
 	return -1;
 }
 
-// returns true if Link is within 'range' pixels of the enemy
-bool enemy::LinkInRange(int32_t range)
+// returns true if Hero is within 'range' pixels of the enemy
+bool enemy::HeroInRange(int32_t range)
 {
-	int32_t lx = Link.getX();
-	int32_t ly = Link.getY();
+	int32_t lx = Hero.getX();
+	int32_t ly = Hero.getY();
 	return abs(lx-int32_t(x))<=range && abs(ly-int32_t(y))<=range;
 }
 
-// place the enemy in line with Link (red wizzrobes)
+// place the enemy in line with Hero (red wizzrobes)
 void enemy::place_on_axis(bool floater, bool solid_ok)
 {
-	int32_t lx=zc_min(zc_max(int32_t(Link.getX())&0xF0,32),208);
-	int32_t ly=zc_min(zc_max(int32_t(Link.getY())&0xF0,32),128);
+	int32_t lx=zc_min(zc_max(int32_t(Hero.getX())&0xF0,32),208);
+	int32_t ly=zc_min(zc_max(int32_t(Hero.getY())&0xF0,32),128);
 	int32_t pos2=zc_oldrand()%23;
 	int32_t tried=0;
 	bool last_resort,placed=false;
@@ -9064,7 +9064,7 @@ waves2:
 		tilerows = 2;
 		int fakex = x + 8*(zc_max(1,txsz)-1);
 		int fakey = y + 8*(zc_max(1,tysz)-1);
-		double ddir=atan2(double(fakey-(Link.y)),double(Link.x-fakex));
+		double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
 		int32_t lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
@@ -10920,7 +10920,7 @@ bool eLeever::animate(int32_t index)
 				
 				int32_t d2=zc_oldrand()&1;
 				
-				if(LinkDir()>=left)
+				if(HeroDir()>=left)
 				{
 					d2+=2;
 				}
@@ -11016,8 +11016,8 @@ bool eLeever::animate(int32_t index)
 
 bool eLeever::canplace(int32_t d2)
 {
-	int32_t nx=LinkX();
-	int32_t ny=LinkY();
+	int32_t nx=HeroX();
+	int32_t ny=HeroY();
 	
 	if(d2<left) ny&=0xF0;
 	else       nx&=0xF0;
@@ -11025,9 +11025,9 @@ bool eLeever::canplace(int32_t d2)
 	switch(d2)
 	{
 //    case up:    ny-=((d->misc1==0)?32:48); break;
-//    case down:  ny+=((d->misc1==0)?32:48); if(ny-LinkY()<32) ny+=((d->misc1==0)?16:0); break;
+//    case down:  ny+=((d->misc1==0)?32:48); if(ny-HeroY()<32) ny+=((d->misc1==0)?16:0); break;
 //    case left:  nx-=((d->misc1==0)?32:48); break;
-//    case right: nx+=((d->misc1==0)?32:48); if(nx-LinkX()<32) nx+=((d->misc1==0)?16:0); break;
+//    case right: nx+=((d->misc1==0)?32:48); if(nx-HeroX()<32) nx+=((d->misc1==0)?16:0); break;
 	case up:
 		ny-=((dmisc1==0||dmisc1==2)?32:48);
 		break;
@@ -11035,7 +11035,7 @@ bool eLeever::canplace(int32_t d2)
 	case down:
 		ny+=((dmisc1==0||dmisc1==2)?32:48);
 		
-		if(ny-LinkY()<32) ny+=((dmisc1==0||dmisc1==2)?16:0);
+		if(ny-HeroY()<32) ny+=((dmisc1==0||dmisc1==2)?16:0);
 		
 		break;
 		
@@ -11046,7 +11046,7 @@ bool eLeever::canplace(int32_t d2)
 	case right:
 		nx+=((dmisc1==0||dmisc1==2)?32:48);
 		
-		if(nx-LinkX()<32) nx+=((dmisc1==0||dmisc1==2)?16:0);
+		if(nx-HeroX()<32) nx+=((dmisc1==0||dmisc1==2)?16:0);
 		
 		break;
 	}
@@ -11055,7 +11055,7 @@ bool eLeever::canplace(int32_t d2)
 		return false;
 		
 	if(d2>=left)
-		if(m_walkflag(LinkX(),LinkY(),spw_halfstep, dir)||m_walkflag(LinkX(),LinkY()-8,spw_halfstep, dir))                         /*none*/
+		if(m_walkflag(HeroX(),HeroY(),spw_halfstep, dir)||m_walkflag(HeroX(),HeroY()-8,spw_halfstep, dir))                         /*none*/
 			return false;
 			
 	x=nx;
@@ -11085,7 +11085,7 @@ void eLeever::draw(BITMAP *dest)
 eWallM::eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	//zprint2("eWallM::eWallM\n");
-	haslink=false;
+	hashero=false;
 	//nets+1000;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
@@ -11132,7 +11132,7 @@ bool eWallM::animate(int32_t index)
 		if(frame-wallm_load_clk>80 && clk>=0)
 		{
 		//zprint2("getting wall\n");
-			int32_t wall=link_on_wall();
+			int32_t wall=hero_on_wall();
 		//zprint2("Wallmaster wall is %d\n",wall);
 			int32_t wallm_cnt=0;
 			
@@ -11158,14 +11158,14 @@ bool eWallM::animate(int32_t index)
 				
 				if(wall<=down)
 				{
-					if(LinkDir()==left)
+					if(HeroDir()==left)
 						dir=right;
 					else
 						dir=left;
 				}
 				else
 				{
-					if(LinkDir()==up)
+					if(HeroDir()==up)
 						dir=down;
 					else
 						dir=up;
@@ -11196,22 +11196,22 @@ bool eWallM::animate(int32_t index)
 				switch(dir)
 				{
 				case up:
-					y=(LinkY()+48-(wallm_cnt&1)*12);
+					y=(HeroY()+48-(wallm_cnt&1)*12);
 					flip=wall&1;
 					break;
 					
 				case down:
-					y=(LinkY()-48+(wallm_cnt&1)*12);
+					y=(HeroY()-48+(wallm_cnt&1)*12);
 					flip=((wall&1)^1)+2;
 					break;
 					
 				case left:
-					x=(LinkX()+48-(wallm_cnt&1)*12);
+					x=(HeroX()+48-(wallm_cnt&1)*12);
 					flip=(wall==up?2:0)+1;
 					break;
 					
 				case right:
-					x=(LinkX()-48+(wallm_cnt&1)*12);
+					x=(HeroX()-48+(wallm_cnt&1)*12);
 					flip=(wall==up?2:0);
 					break;
 				}
@@ -11237,8 +11237,8 @@ void eWallM::wallm_crawl()
 		return;
 	}
 	
-	//  if(dying || watch || (!haslink && stunclk))
-	if(dying || (!haslink && ( stunclk || frozenclock )))
+	//  if(dying || watch || (!hashero && stunclk))
+	if(dying || (!hashero && ( stunclk || frozenclock )))
 	{
 		return;
 	}
@@ -11298,15 +11298,15 @@ void eWallM::wallm_crawl()
 	watch=w;
 }
 
-void eWallM::grablink()
+void eWallM::grabhero()
 {
-	haslink=true;
+	hashero=true;
 	superman=1;
 }
 
 void eWallM::draw(BITMAP *dest)
 {
-	dummy_bool[1]=haslink;
+	dummy_bool[1]=hashero;
 	update_enemy_frame();
 	
 	if(misc>0 || fallclk||drownclk)
@@ -11373,7 +11373,7 @@ bool eTrap::animate(int32_t index)
 	{
 		ox = x;
 		oy = y;
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -12161,7 +12161,7 @@ bool eProjectile::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+	double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 	
 	if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 	{
@@ -12212,7 +12212,7 @@ bool eProjectile::animate(int32_t index)
 		{
 			unsigned r=zc_oldrand();
 			
-			if(!(r&63) && !LinkInRange(minRange))
+			if(!(r&63) && !HeroInRange(minRange))
 			{
 				FireWeapon();
 				
@@ -12297,7 +12297,7 @@ bool eNPC::animate(int32_t index)
 	{
 	case 0:
 	{
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -12382,18 +12382,18 @@ eSpinTile::eSpinTile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
 }
 
-void eSpinTile::facelink()
+void eSpinTile::facehero()
 {
-	if(Link.x-x==0)
+	if(Hero.x-x==0)
 	{
-		if (Link.y + 8 < y)
+		if (Hero.y + 8 < y)
 			dir = up;
 		else
 			dir = down;
 	}
 	else
 	{
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
 		{
@@ -12449,8 +12449,8 @@ bool eSpinTile::animate(int32_t index)
 	
 	if(misc==96)
 	{
-		facelink();
-		double ddir=atan2(double((Link.y)-y),double(Link.x-x));
+		facehero();
+		double ddir=atan2(double((Hero.y)-y),double(Hero.x-x));
 		angular=true;
 		angle=ddir;
 		step=zslongToFix(dstep*100);
@@ -12515,15 +12515,15 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = d->zofs;
 }
 
-void eZora::facelink()
+void eZora::facehero()
 {
-	if(Link.x-x==0)
+	if(Hero.x-x==0)
 	{
-		dir=(Link.y+8<y)?up:down;
+		dir=(Hero.y+8<y)?up:down;
 	}
 	else
 	{
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{
@@ -12579,7 +12579,7 @@ bool eZora::animate(int32_t index)
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
-		facelink();
+		facehero();
 	}
 	
 	switch(clk)
@@ -12622,7 +12622,7 @@ bool eZora::animate(int32_t index)
 	case 35:
 		if(!get_bit(quest_rules,qr_NEWENEMYTILES))
 		{
-			dir=(Link.y+8<y)?up:down;
+			dir=(Hero.y+8<y)?up:down;
 		}
 		
 		hxofs=0;
@@ -12663,7 +12663,7 @@ bool eZora::isSubmerged()
 eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	multishot= timer = fired = dashing = 0;
-	haslink = false;
+	hashero = false;
 	dummy_bool[0]=false;
 	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
 	if(dmisc9==e9tARMOS && zc_oldrand()&1)
@@ -12722,10 +12722,10 @@ bool eStalfos::animate(int32_t index)
 	}
 	if(dying)
 	{
-		if(haslink)
+		if(hashero)
 		{
-			Link.setEaten(0);
-			haslink=false;
+			Hero.setEaten(0);
+			hashero=false;
 		}
 		
 		if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
@@ -12802,10 +12802,10 @@ bool eStalfos::animate(int32_t index)
 			itemguy = false;
 		}
 		
-		if(haslink)
+		if(hashero)
 		{
-			Link.setEaten(0);
-			haslink=false;
+			Hero.setEaten(0);
+			hashero=false;
 		}
 		
 		if(deadsfx > 0 && dmisc2==e2tSPLIT)
@@ -12834,10 +12834,10 @@ bool eStalfos::animate(int32_t index)
 			itemguy = false;
 		}
 		
-		if(haslink)
+		if(hashero)
 		{
-			Link.setEaten(0);
-			haslink=false;
+			Hero.setEaten(0);
+			hashero=false;
 		}
 					
 		return true;
@@ -12914,10 +12914,10 @@ bool eStalfos::animate(int32_t index)
 		removearmos(x,y);
 		
 	
-	if(haslink)
+	if(hashero)
 	{
-		Link.setX(x);
-		Link.setY(y);
+		Hero.setX(x);
+		Hero.setY(y);
 		++clk2;
 		
 		if(clk2==(dmisc8==0 ? 95 : dmisc8))
@@ -12987,7 +12987,7 @@ bool eStalfos::animate(int32_t index)
 				{
 					if(!fired && dashing && !stunclk && !watch && !frozenclock)
 					{
-						if(dmisc2==e2tBOMBCHU && LinkInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
+						if(dmisc2==e2tBOMBCHU && HeroInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
 						{
 				
 							if (  get_bit(quest_rules,qr_BOMBCHUSUPERBOMB) ) 
@@ -13088,11 +13088,11 @@ bool eStalfos::animate(int32_t index)
 					}
 				}
 				
-				//if not in midair, and Link's swinging sword is nearby, jump.
+				//if not in midair, and Hero's swinging sword is nearby, jump.
 				/*if (dmisc9==e9tZ3STALFOS && z==0 && (!(isSideViewGravity()) || !_walkflag(x,y+16,0))
-				  && Link.getAttackClk()==5 && Link.getAttack()==wSword && distance(x,y,Link.getX(),Link.getY())<32)
+				  && Hero.getAttackClk()==5 && Hero.getAttack()==wSword && distance(x,y,Hero.getX(),Hero.getY())<32)
 					{
-					  facelink(false);
+					  facehero(false);
 					  sclk=16+((dir^1)<<8);
 					fall=-FEATHERJUMP;
 					  sfx(WAV_ZN1JUMP,pan(int32_t(x)));
@@ -13222,13 +13222,13 @@ bool eStalfos::animate(int32_t index)
 		{
 			int32_t ndir=dir;
 			
-			if(Link.x-x==0)
+			if(Hero.x-x==0)
 			{
-				ndir=(Link.y+8<y)?up:down;
+				ndir=(Hero.y+8<y)?up:down;
 			}
-			else //turn to face Link
+			else //turn to face Hero
 			{
-				double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+				double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 				
 				if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
 				{
@@ -13297,10 +13297,10 @@ bool eStalfos::animate(int32_t index)
 	/* Fire again if:
 	 * - clk2 about to run out
 	 * - not already double-firing (dmisc1 is 1)
-	 * - not carrying Link
+	 * - not carrying Hero
 	 * - one in 0xF chance
 	 */
-	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !haslink && !(zc_oldrand()&15))
+	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !hashero && !(zc_oldrand()&15))
 	{
 #if 1
 		newdir(rate, homing, grumble);
@@ -13351,10 +13351,10 @@ bool eStalfos::animate(int32_t index)
 			}
 		}
 		
-		if(haslink)
+		if(hashero)
 		{
-			Link.setEaten(0);
-			haslink=false;
+			Hero.setEaten(0);
+			hashero=false;
 		}
 		
 		stop_bgsfx(index);
@@ -13597,23 +13597,23 @@ void eStalfos::vire_hop()
 		shadowdistance = 0;
 }
 
-void eStalfos::eatlink()
+void eStalfos::eathero()
 {
-	if(!haslink && Link.getEaten()==0 && Link.getAction() != hopping && Link.getAction() != swimming)
+	if(!hashero && Hero.getEaten()==0 && Hero.getAction() != hopping && Hero.getAction() != swimming)
 	{
-		haslink=true;
+		hashero=true;
 		y=floor_y;
 		z=0;
 		
-		if(Link.isSwimming())
+		if(Hero.isSwimming())
 		{
-			Link.setX(x);
-			Link.setY(y);
+			Hero.setX(x);
+			Hero.setY(y);
 		}
 		else
 		{
-			x=Link.getX();
-			y=Link.getY();
+			x=Hero.getX();
+			y=Hero.getY();
 		}
 		
 		clk2=0;
@@ -13766,8 +13766,8 @@ bool eKeese::animate(int32_t index)
 	else if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 	{
 		z=int32_t(step/zslongToFix(dstep*100));
-		// Some variance in keese flight heights when away from Link
-		z+=int32_t(step*zc_max(0,(distance(x,y,LinkX(),LinkY())-128)/10));
+		// Some variance in keese flight heights when away from Hero
+		z+=int32_t(step*zc_max(0,(distance(x,y,HeroX(),HeroY())-128)/10));
 	}
 	
 	return enemy::animate(index);
@@ -13874,7 +13874,7 @@ bool eWizzrobe::animate(int32_t index)
 					else if (editorflags&ENEMY_FLAG5) 
 			{
 				//2.10 Windrobe
-				//randomise location and face Link
+				//randomise location and face Hero
 			int32_t t=0;
 			bool placed=false;
 					
@@ -13891,7 +13891,7 @@ bool eWizzrobe::animate(int32_t index)
 					y=((zc_oldrand()%9)+1)*16;
 				}
 						
-				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
 				{
 					placed=true;
 				}
@@ -13899,9 +13899,9 @@ bool eWizzrobe::animate(int32_t index)
 				++t;
 			}
 					
-			if(abs(x-Link.getX())<abs(y-Link.getY()))
+			if(abs(x-Hero.getX())<abs(y-Hero.getY()))
 			{
-				if(y<Link.getY())
+				if(y<Hero.getY())
 				{
 					dir=down;
 				}
@@ -13912,7 +13912,7 @@ bool eWizzrobe::animate(int32_t index)
 			}
 			else
 			{
-				if(x<Link.getX())
+				if(x<Hero.getX())
 				{
 					dir=right;
 				}
@@ -13949,7 +13949,7 @@ bool eWizzrobe::animate(int32_t index)
 							y=((zc_oldrand()%9)+1)*16;
 						}
 						
-						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Link.getX())>=32)||(abs(y-Link.getY())>=32)))
+						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
 						{
 							placed=true;
 						}
@@ -13957,9 +13957,9 @@ bool eWizzrobe::animate(int32_t index)
 						++t;
 					}
 					
-					if(abs(x-Link.getX())<abs(y-Link.getY()))
+					if(abs(x-Hero.getX())<abs(y-Hero.getY()))
 					{
-						if(y<Link.getY())
+						if(y<Hero.getY())
 						{
 							dir=down;
 						}
@@ -13970,7 +13970,7 @@ bool eWizzrobe::animate(int32_t index)
 					}
 					else
 					{
-						if(x<Link.getX())
+						if(x<Hero.getX())
 						{
 							dir=right;
 						}
@@ -14137,7 +14137,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					x2=16*((zc_oldrand()%12)+2);
 					y2=16*((zc_oldrand()%7)+2);
 					
-					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Link.getX())>=32 || abs(y2-Link.getY())>=32))
+					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
 					{
 						if(addchild(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
@@ -16080,7 +16080,7 @@ void getBigTri(int32_t id2)
 	
 	if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
 	{
-		Link.dowarp(1,0); //side warp
+		Hero.dowarp(1,0); //side warp
 	}
 }
 
@@ -18132,7 +18132,7 @@ bool ePatra::animate(int32_t index)
 					}
 					break;
 				}
-			} //ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+			} //ew->setAngle(atan2(double(HeroY()-y),double(HeroX()-x)));
 		}
 		if (clk6 < 0)
 		{
@@ -18410,7 +18410,7 @@ bool ePatra::animate(int32_t index)
 										int32_t m=Ewpns.Count()-1;
 										weapon *ew = (weapon*)(Ewpns.spr(m));
 										
-										ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+										ew->setAngle(atan2(double(HeroY()-y),double(HeroX()-x)));
 										((esPatra*)guys.spr(i))->clk5 = 0;
 										clk5 = 0;
 										if (editorflags & ENEMY_FLAG6) clk4 = 16;
@@ -18423,7 +18423,7 @@ bool ePatra::animate(int32_t index)
 									int32_t m=Ewpns.Count()-1;
 									weapon *ew = (weapon*)(Ewpns.spr(m));
 									
-									ew->setAngle(atan2(double(LinkY()-y),double(LinkX()-x)));
+									ew->setAngle(atan2(double(HeroY()-y),double(HeroX()-x)));
 								}
 								break;
 							}
@@ -18905,7 +18905,7 @@ void ePatraBS::draw(BITMAP *dest)
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
-		double ddir=atan2(double(y-(Link.y)),double(Link.x-x));
+		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{
@@ -19194,8 +19194,8 @@ void kill_em_all()
 	}
 }
 
-//This needs a quest rule, or enemy flag, Dying Enemy Doesn't  Hurt Link
-// For Link's hit detection. Don't count them if they are stunned or are guys.
+//This needs a quest rule, or enemy flag, Dying Enemy Doesn't  Hurt Hero
+// For Hero's hit detection. Don't count them if they are stunned or are guys.
 int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz)
 {
 	for(int32_t i=0; i<guys.Count(); i++)
@@ -19213,7 +19213,7 @@ int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_
 	return -1;
 }
 
-// For Link's hit detection. Count them if they are dying.
+// For Hero's hit detection. Count them if they are dying.
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz)
 {
 	enemy *e = (enemy*)guys.spr(index);
@@ -19245,38 +19245,38 @@ bool hasMainGuy()
 	return false;
 }
 
-void EatLink(int32_t index)
+void EatHero(int32_t index)
 {
-	((eStalfos*)guys.spr(index))->eatlink();
+	((eStalfos*)guys.spr(index))->eathero();
 }
 
-void GrabLink(int32_t index)
+void GrabHero(int32_t index)
 {
-	((eWallM*)guys.spr(index))->grablink();
+	((eWallM*)guys.spr(index))->grabhero();
 }
 
-bool CarryLink()
+bool CarryHero()
 {
 	for(int32_t i=0; i<guys.Count(); i++)
 	{
 		if(((guy*)(guys.spr(i)))->family==eeWALLM)
 		{
-			if(((eWallM*)guys.spr(i))->haslink)
+			if(((eWallM*)guys.spr(i))->hashero)
 			{
-				Link.x=guys.spr(i)->x;
-				Link.y=guys.spr(i)->y;
+				Hero.x=guys.spr(i)->x;
+				Hero.y=guys.spr(i)->y;
 				return ((eWallM*)guys.spr(i))->misc > 0;
 			}
 		}
 		
-		// Like Likes currently can't carry Link.
+		// Like Likes currently can't carry Hero.
 		/*
 		if(((guy*)(guys.spr(i)))->family==eeLIKE)
 		{
-		  if(((eLikeLike*)guys.spr(i))->haslink)
+		  if(((eLikeLike*)guys.spr(i))->hashero)
 		  {
-			Link.x=guys.spr(i)->x;
-			Link.y=guys.spr(i)->y;
+			Hero.x=guys.spr(i)->x;
+			Hero.y=guys.spr(i)->y;
 			return (true);
 		  }
 		}*/
@@ -20476,7 +20476,7 @@ void loadguys()
 			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
 	}
 	
-	// The Guy appears if 'Link is in cave' equals 'Guy is in cave'.
+	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
 	if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
 	{
 		if(tmpscr->room==rZELDA)
@@ -20558,7 +20558,7 @@ void loadguys()
 				sfx(WAV_SCALE);
 				
 			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
-			Link.Freeze();
+			Hero.Freeze();
 		}
 	}
 	else if(Guy==gFAIRY)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
@@ -21941,7 +21941,7 @@ void setupscreen()
 	}
 	else
 	{
-		Link.unfreeze();
+		Hero.unfreeze();
 	}
 }
 
@@ -22075,7 +22075,7 @@ bool parsemsgcode()
 			int32_t    dy =  grab_next_argument();
 			int32_t    wfx =  grab_next_argument();
 			int32_t    sfx =  grab_next_argument();
-			FFCore.warp_link(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, warpFlagDONTKILLMUSIC, 0);
+			FFCore.warp_player(wtIWARP, dmap, scrn, dx, dy, wfx, sfx, warpFlagDONTKILLMUSIC, 0);
 			return true;
 		}
 		
@@ -22788,7 +22788,7 @@ reparsesinglechar:
 			{
 disappear:
 				msg_active = false;
-				Link.finishedmsg();
+				Hero.finishedmsg();
 			}
 			
 			if(repaircharge)
@@ -22906,7 +22906,7 @@ void check_collisions()
 					  else
 						w->flip ^= 2;
 					}
-					w->ignoreLink=false;
+					w->ignoreHero=false;
 					}
 					else*/
 					if(h)
@@ -22957,7 +22957,7 @@ void check_collisions()
 							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 								|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 							{
-								if(!Link.switchhookclk)
+								if(!Hero.switchhookclk)
 								{
 									hooked_combopos = -1;
 									hooked_layerbits = 0;
@@ -22966,7 +22966,7 @@ void check_collisions()
 									w->misc = 2;
 									w->step = 0;
 									theItem->clk2=256;
-									Link.doSwitchHook(game->get_switchhookstyle());
+									Hero.doSwitchHook(game->get_switchhookstyle());
 									if(QMisc.miscsfx[sfxSWITCHED])
 										sfx(QMisc.miscsfx[sfxSWITCHED],int32_t(w->x));
 								}
@@ -22991,7 +22991,7 @@ void check_collisions()
 									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
 								}
 								
-								Link.checkitems(j);
+								Hero.checkitems(j);
 							}
 						}
 					}
@@ -23110,7 +23110,7 @@ void roaming_item()
 		if(guycarryingitem == -1)                                      //This happens when "default enemies" such as
 		{
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
-		}                                                       //are not. Defer to LinkClass::checkspecial().
+		}                                                       //are not. Defer to HeroClass::checkspecial().
 		
 		int32_t Item=tmpscr->item;
 		

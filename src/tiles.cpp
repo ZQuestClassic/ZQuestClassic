@@ -38,8 +38,8 @@ int32_t animated_combos2;
 bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
 bool used_tile_table[NEWMAXTILES];                          //keeps track of used tiles
 bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tile quarters
-extern zfix  LinkModifiedX();
-extern zfix  LinkModifiedY();
+extern zfix  HeroModifiedX();
+extern zfix  HeroModifiedY();
 
 bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused tiles
 
@@ -1666,7 +1666,7 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
         
     case 1: //cOLD_EYEBALL_A
     {
-        double ddir=atan2((double)(y-LinkModifiedY()-playing_field_offset), (double)(LinkModifiedX()-x));
+        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
         {
@@ -1706,7 +1706,7 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
     
     case 3: // 4-way Eyeball (up-down-left-right)
     {
-        double ddir=atan2((double)(y-LinkModifiedY()-playing_field_offset), (double)(LinkModifiedX()-x));
+        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
         {
@@ -1730,7 +1730,7 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
     
     case 2: //cOLD_EYEBALL_B
     {
-        double ddir=atan2((double)(y-LinkModifiedY()-playing_field_offset), (double)(LinkModifiedX()-x));
+        double ddir=atan2((double)(y-HeroModifiedY()-playing_field_offset), (double)(HeroModifiedX()-x));
         
         if((ddir<=(((-6)*PI)/8))&&(ddir>(((-8)*PI)/8)))
         {

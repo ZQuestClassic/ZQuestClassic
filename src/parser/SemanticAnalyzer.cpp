@@ -86,9 +86,9 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		DataTypeId thisTypeId = script->getType().getThisTypeId();
 		switch(thisTypeId)
 		{
-			case ZVARTYPEID_LINK:
+			case ZVARTYPEID_PLAYER:
 				function.thisVar =
-					BuiltinConstant::create(functionScope, DataType::LINK, "this", 0);
+					BuiltinConstant::create(functionScope, DataType::PLAYER, "this", 0);
 				break;
 			case ZVARTYPEID_SCREEN:
 				function.thisVar =

@@ -26,10 +26,10 @@
 #include "maps.h"
 
 #ifndef IS_ZQUEST
-#include "link.h"
+#include "hero.h"
 #include "decorations.h"
 #include "items.h"
-extern LinkClass Link;
+extern HeroClass Hero;
 extern sprite_list decorations;
 #endif
 extern particle_list particles;
@@ -1098,20 +1098,20 @@ void sprite::draw(BITMAP* dest)
 #ifndef IS_ZQUEST
 	if(switch_hooked)
 	{
-		switch(Link.switchhookstyle)
+		switch(Hero.switchhookstyle)
 		{
 			default: case swPOOF:
 				break; //Nothing special here
 			case swFLICKER:
 			{
-				if(abs(Link.switchhookclk-33)&0b1000)
+				if(abs(Hero.switchhookclk-33)&0b1000)
 					break; //Drawn this frame
 				return; //Not drawn this frame
 			}
 			case swRISE:
 			{
 				//Draw rising up
-				yofs -= 8-(abs(Link.switchhookclk-32)/4);
+				yofs -= 8-(abs(Hero.switchhookclk-32)/4);
 				break;
 			}
 		}
@@ -2468,13 +2468,13 @@ void sprite::explode(int32_t type)
 	tiledata *temptilebuf = NULL;
 	memset(temptilebuf, 0, sizeof(temptilebuf));
 	static int32_t tempx, tempy;
-	static byte linktilebuf[256];
+	static byte herotilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
 	unpack_tile(temptilebuf, tile, flip, true);
 	//unpack_tile(temptilebuf, tile, flip, true);
 	//unpack_tile(temptilebuf, o_tile, 0, true);
-	memcpy(linktilebuf, temptilebuf, 256);
+	memcpy(herotilebuf, temptilebuf, 256);
 	tempx=x;
 	tempy=y;
 	*/
@@ -2540,18 +2540,18 @@ void sprite::explode(int32_t type)
 void sprite::explode(int32_t type)
 {
 	static int32_t tempx, tempy;
-	static byte linktilebuf[256];
+	static byte herotilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
 	unpack_tile(newtilebuf, tile, flip, true);
-	memcpy(linktilebuf, unpackbuf, 256);
+	memcpy(herotilebuf, unpackbuf, 256);
 	tempx=x;
 	tempy=y;
 	for(int32_t i=0; i<16; ++i)
 	{
                 for(int32_t j=0; j<16; ++j)
                 {
-                    if(linktilebuf[i*16+j])
+                    if(herotilebuf[i*16+j])
                     {
                         if(type==0)  // Twilight
                         {
@@ -2575,7 +2575,7 @@ void sprite::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, linktilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));

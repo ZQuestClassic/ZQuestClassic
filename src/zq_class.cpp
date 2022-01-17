@@ -7798,7 +7798,7 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			new_return(16);
 		}
 		
-		if(!p_putc(Misc->colors.link_dot,f))
+		if(!p_putc(Misc->colors.hero_dot,f))
 		{
 			new_return(17);
 		}
@@ -11035,14 +11035,14 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 	new_return(0);
 }
 
-int32_t writelinksprites(PACKFILE *f, zquestheader *Header)
+int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
     
-    dword section_id=ID_LINKSPRITES;
-    dword section_version=V_LINKSPRITES;
-    dword section_cversion=CV_LINKSPRITES;
+    dword section_id=ID_HEROSPRITES;
+    dword section_version=V_HEROSPRITES;
+    dword section_cversion=CV_HEROSPRITES;
     dword section_size=0;
     
     //section id
@@ -11273,12 +11273,12 @@ int32_t writelinksprites(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        if(!p_putc((byte)zinit.link_swim_speed,f))
+        if(!p_putc((byte)zinit.hero_swim_speed,f))
         {
             new_return(14);
         }
 		
-		//{ V_LINKSPRITES >= 7
+		//{ V_HEROSPRITES >= 7
 		for(int32_t q = 0; q < 4; ++q)
 		{
 			if(!p_iputl(frozenspr[q][spr_tile],f))
@@ -11581,9 +11581,9 @@ int32_t writelinksprites(PACKFILE *f, zquestheader *Header)
 		}
         
 		
-        for (int32_t q = 0; q < wMax; q++) // Link defense values
+        for (int32_t q = 0; q < wMax; q++) // Player defense values
         {
-            if (!p_putc(link_defence[q], f))
+            if (!p_putc(hero_defence[q], f))
                 new_return(15);
         }
 		//}
@@ -11600,7 +11600,7 @@ int32_t writelinksprites(PACKFILE *f, zquestheader *Header)
     {
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writelinksprites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error:  writeherosprites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
     }
     
     new_return(0);
@@ -11880,7 +11880,7 @@ extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
-extern script_data *linkscripts[NUMSCRIPTLINK];
+extern script_data *playerscripts[NUMSCRIPTPLAYER];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -11996,9 +11996,9 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int32_t i=0; i<NUMSCRIPTLINK; i++)
+        for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
         {
-            int32_t ret = write_one_ffscript(f, Header, i, &linkscripts[i]);
+            int32_t ret = write_one_ffscript(f, Header, i, &playerscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12297,23 +12297,23 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
 	
-	//link scripts
-	word numlinkbindings=0;
+	//player scripts
+	word numherobindings=0;
         
-        for(std::map<int32_t, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
-                numlinkbindings++;
+                numherobindings++;
             }
         }
         
-        if(!p_iputw(numlinkbindings, f))
+        if(!p_iputw(numherobindings, f))
         {
             new_return(2027);
         }
         
-        for(std::map<int32_t, script_slot_data >::iterator it = linkmap.begin(); it != linkmap.end(); it++)
+        for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
         {
             if(it->second.scriptname != "")
             {
@@ -12930,7 +12930,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(45);
 		}
 		
-		if(!p_putc(zinit.linkanimationstyle,f))
+		if(!p_putc(zinit.heroAnimationStyle,f))
 		{
 			new_return(46);
 		}
@@ -13023,7 +13023,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(65);
 		}
 		
-		if(!p_putc(zinit.jump_link_layer_threshold,f))
+		if(!p_putc(zinit.jump_hero_layer_threshold,f))
 		{
 			new_return(66);
 		}
@@ -13598,9 +13598,9 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("okay.");
 	box_eol();
 	
-	box_out("Writing Custom Link Sprite Data...");
+	box_out("Writing Custom Player Sprite Data...");
 	
-	if(writelinksprites(f,&header)!=0)
+	if(writeherosprites(f,&header)!=0)
 	{
 		new_return(21);
 	}
