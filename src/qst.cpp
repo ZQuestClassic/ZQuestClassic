@@ -53,6 +53,7 @@ extern particle_list particles;
 
 int32_t temp_ffscript_version = 0;
 static bool read_ext_zinfo = false, read_zinfo = false;
+static bool loadquest_report = false;
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -2731,30 +2732,36 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		|| tempheader.getAlphaState() > ALPHA_STATE
 		|| tempheader.getAlphaVer() > ALPHA_VER)
 	{
-		bool r = false;
-		AlertDialog("Quest saved in newer version",
-			"This quest was last saved in a newer version of ZQuest."
-			" Attempting to load this quest may not work correctly; to"
-			" avoid issues, try loading this quest in at least '" + tempheader.getVerStr() + "'"
-			"\n\nWould you like to continue loading anyway? (Not recommended)",
-			[&](bool ret)
-			{
-				r = ret;
-			}).show();
+		bool r = true;
+		if(loadquest_report)
+		{
+			AlertDialog("Quest saved in newer version",
+				"This quest was last saved in a newer version of ZQuest."
+				" Attempting to load this quest may not work correctly; to"
+				" avoid issues, try loading this quest in at least '" + tempheader.getVerStr() + "'"
+				"\n\nWould you like to continue loading anyway? (Not recommended)",
+				[&](bool ret)
+				{
+					r = ret;
+				}).show();
+		}
 		if(!r)
 			return qe_silenterr;
 	}
 	else if(tempheader.compareDate() > 0)
 	{
-		bool r = false;
-		AlertDialog("Quest saved in newer build",
-			"This quest was last saved in a newer build of ZQuest, and may have"
-			" issues loading in this build."
-			"\n\nWould you like to continue loading anyway?",
-			[&](bool ret)
-			{
-				r = ret;
-			}).show();
+		bool r = true;
+		if(loadquest_report)
+		{
+			AlertDialog("Quest saved in newer build",
+				"This quest was last saved in a newer build of ZQuest, and may have"
+				" issues loading in this build."
+				"\n\nWould you like to continue loading anyway?",
+				[&](bool ret)
+				{
+					r = ret;
+				}).show();
+		}
 		if(!r)
 			return qe_silenterr;
 	}
@@ -19898,7 +19905,7 @@ void portBombRules()
 
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata, bool report)
 {
-	
+	loadquest_report = report;
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
