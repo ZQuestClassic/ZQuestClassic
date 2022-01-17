@@ -537,8 +537,25 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 		if(unsigned(id) >= MAXITEMS)
 			continue;
 		lastid = id;
+		
+		//Skip items that are owned as 'Equipment Item's
 		if(game->get_item(id))
 			continue;
+		itemdata const& targItem = itemsbuf[id];
+		//Skip items that would increase a counter max by 0, due to 'Not Above...'
+		if(targItem.setmax > 0) //Increases a counter
+			if(game->get_maxcounter(targItem.count) >= targItem.max) //...but can't
+				continue;
+		if(targItem.family == itype_heartpiece)
+		{
+			int32_t hcid = heart_container_id();
+			if(hcid < 0) continue;
+			itemdata const& hcitem = itemsbuf[hcid];
+			if(hcitem.setmax > 0)
+				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
+					continue;
+		}
+		
 		if(lastOwned) return lastid;
 		return id;
 	}

@@ -2309,6 +2309,18 @@ int32_t current_item_power(int32_t itemtype)
     return (result<0) ? 0 : itemsbuf[result].power;
 }
 
+int32_t heart_container_id()
+{
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		if(itemsbuf[i].family == itype_heartcontainer)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 int32_t item_tile_mod()
 {
 	int32_t tile=0;
@@ -10344,11 +10356,20 @@ void load_control_state()
     
     if(num_joysticks != 0)
     {
-        control_state[14]= STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
-        control_state[15]= STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
-        control_state[16]= STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
-        control_state[17]= STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
+        control_state[14] = STICK_2_Y.pos - js_stick_2_y_offset < -STICK_PRECISION;
+        control_state[15] = STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
+        control_state[16] = STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
+        control_state[17] = STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
+		// zprint2("Detected %d joysticks... %d%d%d%d\n", num_joysticks, control_state[14]?1:0, control_state[15]?1:0, control_state[16]?1:0, control_state[17]?1:0);
     }
+	else
+	{
+		control_state[14] = false;
+		control_state[15] = false;
+		control_state[16] = false;
+		control_state[17] = false;
+		// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
+	}
     
     button_press[0]=rButton(control_state[0],button_hold[0]);
     button_press[1]=rButton(control_state[1],button_hold[1]);

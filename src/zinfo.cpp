@@ -125,8 +125,12 @@ const char *itemclass_help_string_defaults[itype_max] =
 		"\nOtherwise, set the 'Mirror DMap' to the ID of the dmap you wish to warp to.", //Mirrors
 	"Acts similarly to the hookshot, but swaps the player with certain blocks, or enemies.",
 	"When collected, gives the player a number of other items together.",
-	"Displays itself graphically as the next item not owned in"
-		" a set of items. Acts as picking up that item when collected."
+	"Displays itself graphically as the next item not owned in a set of items."
+		" Acts as picking up that item when collected.\n\nIf an item increases"
+		" the max of a counter, but won't be able to due to the 'But Not Above...'"
+		" field, it is considered 'owned', in addition to any 'Equipment Item'"
+		" that has been collected.\nHeart pieces check the counter max increase"
+		" of the heart container they grant."
 };
 #else
 #endif

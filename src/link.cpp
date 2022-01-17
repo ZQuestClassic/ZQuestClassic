@@ -25442,15 +25442,7 @@ void getitem(int32_t id, bool nosound)
 				
 			game->set_HCpieces(0);
 			
-			for(int32_t i=0; i<MAXITEMS; i++)
-			{
-				if(itemsbuf[i].family == itype_heartcontainer)
-				{
-					getitem(i);
-					break;
-				}
-			}
-			
+			getitem(heart_container_id());
 			break;
 			
 		case itype_killem:
