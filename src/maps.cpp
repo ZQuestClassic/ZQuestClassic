@@ -1164,7 +1164,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					}
 					else
 					{
-						if (cmb.type == cBRIDGE && !(cmb.walk&(0x10<<b))) 
+						if (cmb.type == cBRIDGE && (cmb.walk&(0x10<<b))) 
 						{
 							return 0;
 						}
