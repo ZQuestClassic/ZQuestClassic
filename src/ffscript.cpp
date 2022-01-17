@@ -7984,7 +7984,13 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATAGUY: 		GET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
 		case SCREENDATASTRING:		GET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
 		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
-		case SCREENDATAITEM: 		GET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
+		case SCREENDATAITEM:
+		{
+			if(tmpscr->hasitem)
+				ret = (tmpscr->item *10000);
+			else ret = -10000;
+			break;
+		}
 		case SCREENDATAHASITEM: 		GET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 		case SCREENDATATILEWARPTYPE: 	GET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
 		//case SCREENDATATILEWARPOVFLAGS: 	GET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
@@ -8281,7 +8287,7 @@ int32_t get_register(const int32_t arg)
 		case MAPDATASCRIPTDRAWS: 	
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if(indx < 0 || indx > 6 )
+			if(indx < 0 || indx > 7 )
 			{
 				Z_scripterrlog("Invalid Index passed to mapdata->DisableScriptDraws[]: %d\n", indx);
 				ret = 0;
@@ -8890,7 +8896,21 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
 		case MAPDATASTRING:		GET_MAPDATA_VAR_INT32(str, "String"); break;		//w
 		case MAPDATAROOM: 		GET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
-		case MAPDATAITEM: 		GET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
+		case MAPDATAITEM:
+		{
+			if ( mapscr *m = GetMapscr(ri->mapsref) )
+			{
+				if(m->hasitem)
+					ret = (m->item *10000);
+				else ret = -10000;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Item"); \
+				ret = -10000;
+			}
+			break;
+		}
 		case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 		case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
 		//case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags

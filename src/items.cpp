@@ -529,6 +529,9 @@ void item::load_gfx(itemdata const& itm)
 
 int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 {
+#ifdef IS_ZQUEST
+	return -1;
+#else
 	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
 	int32_t lastid = -1;
@@ -537,12 +540,30 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 		if(unsigned(id) >= MAXITEMS)
 			continue;
 		lastid = id;
+		
+		//Skip items that are owned as 'Equipment Item's
 		if(game->get_item(id))
 			continue;
+		itemdata const& targItem = itemsbuf[id];
+		//Skip items that would increase a counter max by 0, due to 'Not Above...'
+		if(targItem.setmax > 0) //Increases a counter
+			if(game->get_maxcounter(targItem.count) >= targItem.max) //...but can't
+				continue;
+		if(targItem.family == itype_heartpiece)
+		{
+			int32_t hcid = heart_container_id();
+			if(hcid < 0) continue;
+			itemdata const& hcitem = itemsbuf[hcid];
+			if(hcitem.setmax > 0)
+				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
+					continue;
+		}
+		
 		if(lastOwned) return lastid;
 		return id;
 	}
 	return lastid;
+#endif
 }
 // Linker issues because this is shared with ZQu4est. :( -Z
 #ifndef IS_ZQUEST
