@@ -1102,216 +1102,256 @@ int32_t zmap::warpindex(int32_t combo)
 
 void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer)
 {
-    int32_t cx = COMBOX(pos);
-    int32_t cy = COMBOY(pos);
-    
-    newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
-    
-    if (c.type == cBRIDGE) return;
-    
-    int32_t bridgedetected = 0;
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        int32_t tx=((i&2)<<2)+x;
-        int32_t ty=((i&1)<<3)+y;
-	int32_t tx2=((i&2)<<2)+cx;
-        int32_t ty2=((i&1)<<3)+cy;
-        for (int32_t m = layer; m <= 1; m++)
+	int32_t cx = COMBOX(pos);
+	int32_t cy = COMBOY(pos);
+	
+	newcombo c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
+	
+	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	
+	int32_t bridgedetected = 0;
+	
+	for(int32_t i=0; i<4; i++)
 	{
-		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+		int32_t tx=((i&2)<<2)+x;
+		int32_t ty=((i&1)<<3)+y;
+		int32_t tx2=((i&2)<<2)+cx;
+		int32_t ty2=((i&1)<<3)+cy;
+		for (int32_t m = layer; m <= 1; m++)
 		{
-			bridgedetected |= (1<<i);
-		}
-        }
-	if (bridgedetected & (1<<i))
-	{
-		if (i >= 3) break;
-		else continue;
-	}
-        if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
-            rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
-            
-        if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
-        {
-            if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
-            {
-                for(int32_t k=0; k<8; k+=2)
-                    for(int32_t j=0; j<8; j+=2)
-                        rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
-            }
-            else
-            {
-                int32_t color = vc(12);
-                
-                if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
-                    color=vc(6);
-                else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
-                    color=vc(7);
-                    
-                rectfill(dest,tx,ty,tx+7,ty+7,color);
-            }
-        }
-    }
-    
-    bridgedetected = 0;
-     for(int32_t i=0; i<4; i++)
-    {
-	int32_t tx2=((i&2)<<2)+cx;
-        int32_t ty2=((i&1)<<3)+cy;
-	for (int32_t m = 0; m <= 1; m++)
-	{
-		if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
-		{
-			bridgedetected |= (1<<i);
-		}
-        }
-    }
-    
-    // Draw damage combos
-    bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
-               || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
-               || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
-	       
-	if (combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
-               
-    if(dmg)
-    {
-	if (bridgedetected <= 0)
-	{
-		for(int32_t k=0; k<16; k+=2)
-		    for(int32_t j=0; j<16; j+=2)
-			if(((k+j)/2)%2)
-			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
-	}
-	else
-	{
-		for(int32_t i=0; i<4; i++)
-		{
-			if (!(bridgedetected & (1<<i)))
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				int32_t tx=((i&2)<<2)+x;
-				int32_t ty=((i&1)<<3)+y;
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && (combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(0x10<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+		}
+		if (bridgedetected & (1<<i))
+		{
+			if (i >= 3) break;
+			else continue;
+		}
+		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+			
+		if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
+		{
+			if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO(cx,cy)) && ishookshottable(cx,cy,i))
+			{
 				for(int32_t k=0; k<8; k+=2)
-				    for(int32_t j=0; j<8; j+=2)
-					if(((k+j)/2)%2)
-					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+					for(int32_t j=0; j<8; j+=2)
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
+			}
+			else
+			{
+				int32_t color = vc(12);
+				
+				if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
+					color=vc(6);
+				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
+					color=vc(7);
+					
+				rectfill(dest,tx,ty,tx+7,ty+7,color);
 			}
 		}
 	}
-    }
+	
+	bridgedetected = 0;
+	for(int32_t i=0; i<4; i++)
+	{
+		int32_t tx2=((i&2)<<2)+cx;
+		int32_t ty2=((i&1)<<3)+cy;
+		for (int32_t m = 0; m <= 1; m++)
+		{
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && (combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(0x10<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+		}
+	}
+	
+	// Draw damage combos
+	bool dmg = combo_class_buf[combobuf[MAPCOMBO2(-1,cx,cy)].type].modify_hp_amount
+	   || combo_class_buf[combobuf[MAPCOMBO2(0,cx,cy)].type].modify_hp_amount
+	   || combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount;
+		   
+	if (combo_class_buf[combobuf[MAPCOMBO2(1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
+			   
+	if(dmg)
+	{
+		if (bridgedetected <= 0)
+		{
+			for(int32_t k=0; k<16; k+=2)
+				for(int32_t j=0; j<16; j+=2)
+				if(((k+j)/2)%2)
+					rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+		}
+		else
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if (!(bridgedetected & (1<<i)))
+				{
+					int32_t tx=((i&2)<<2)+x;
+					int32_t ty=((i&1)<<3)+y;
+					for(int32_t k=0; k<8; k+=2)
+						for(int32_t j=0; j<8; j+=2)
+						if(((k+j)/2)%2)
+							rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+				}
+			}
+		}
+	}
 }
 
 void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer, int32_t map, int32_t screen)
 {
-    int32_t cx = COMBOX(pos);
-    int32_t cy = COMBOY(pos);
-    
-    if (screen < 0) return;
-    if (map < 0) return;
-    
-    newcombo const& c = combobuf[MAPCOMBO3(map, screen, layer, pos)];
-    
-    if (c.type == cBRIDGE) return;
-    
-    int32_t bridgedetected = 0;
-    for(int32_t i=0; i<4; i++)
-    {
-        int32_t tx=((i&2)<<2)+x;
-        int32_t ty=((i&1)<<3)+y;
-	int32_t tx2=((i&2)<<2)+cx;
-        int32_t ty2=((i&1)<<3)+cy;
-        for (int32_t m = layer; m <= 1; m++)
+	int32_t cx = COMBOX(pos);
+	int32_t cy = COMBOY(pos);
+	
+	if (screen < 0) return;
+	if (map < 0) return;
+	
+	newcombo const& c = combobuf[MAPCOMBO3(map, screen, layer, pos)];
+	
+	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	
+	int32_t bridgedetected = 0;
+	for(int32_t i=0; i<4; i++)
 	{
-		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
-		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+		int32_t tx=((i&2)<<2)+x;
+		int32_t ty=((i&1)<<3)+y;
+		int32_t tx2=((i&2)<<2)+cx;
+		int32_t ty2=((i&1)<<3)+cy;
+		for (int32_t m = layer; m <= 1; m++)
 		{
-			bridgedetected |= (1<<i);
-		}
-        }
-	if (bridgedetected & (1<<i))
-	{
-		continue;
-	}
-        if((layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
-            rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
-            
-        if(c.walk&(1<<i))
-        {
-            if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO3(map, screen, layer, cx,cy)) && ishookshottable(map, screen, cx,cy,i) && layer < 0)
-            {
-                for(int32_t k=0; k<8; k+=2)
-                    for(int32_t j=0; j<8; j+=2)
-                        rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
-            }
-            else
-            {
-                int32_t color = vc(12);
-                
-                if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
-                    color=vc(6);
-                else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(map, screen, cx,cy,i))
-                    color=vc(7);
-                    
-                rectfill(dest,tx,ty,tx+7,ty+7,color);
-            }
-        }
-    }
-    
-    bridgedetected = 0;
-     for(int32_t i=0; i<4; i++)
-    {
-	int32_t tx2=((i&2)<<2)+cx;
-        int32_t ty2=((i&1)<<3)+cy;
-	for (int32_t m = 0; m <= 1; m++)
-	{
-		newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
-		if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
-		{
-			bridgedetected |= (1<<i);
-		}
-        }
-    }
-    
-    // Draw damage combos
-    bool dmg = combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1,cx,cy)].type].modify_hp_amount
-               || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 0,cx,cy)].type].modify_hp_amount
-               || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount;
-	       
-	if (combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
-               
-    if(dmg)
-    {
-	if (bridgedetected <= 0)
-	{
-		for(int32_t k=0; k<16; k+=2)
-		    for(int32_t j=0; j<16; j+=2)
-			if(((k+j)/2)%2)
-			    rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
-	}
-	else
-	{
-		for(int32_t i=0; i<4; i++)
-		{
-			if (!(bridgedetected & (1<<i)))
+			newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				int32_t tx=((i&2)<<2)+x;
-				int32_t ty=((i&1)<<3)+y;
+				if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+			else
+			{
+				if (cmb.type == cBRIDGE && (cmb.walk&(0x10<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+		}
+		if (bridgedetected & (1<<i))
+		{
+			continue;
+		}
+		if((layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+			rectfill(dest,tx,ty,tx+7,ty+7,vc(9));
+			
+		if(c.walk&(1<<i))
+		{
+			if(c.type==cLADDERHOOKSHOT && isstepable(MAPCOMBO3(map, screen, layer, cx,cy)) && ishookshottable(map, screen, cx,cy,i) && layer < 0)
+			{
 				for(int32_t k=0; k<8; k+=2)
-				    for(int32_t j=0; j<8; j+=2)
-					if(((k+j)/2)%2)
-					    rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+					for(int32_t j=0; j<8; j+=2)
+						rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(6+((k+j)/2)%2));
+			}
+			else
+			{
+				int32_t color = vc(12);
+				
+				if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
+					color=vc(6);
+				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(map, screen, cx,cy,i))
+					color=vc(7);
+					
+				rectfill(dest,tx,ty,tx+7,ty+7,color);
 			}
 		}
 	}
-    }
+	
+	bridgedetected = 0;
+	for(int32_t i=0; i<4; i++)
+	{
+		int32_t tx2=((i&2)<<2)+cx;
+		int32_t ty2=((i&1)<<3)+cy;
+		for (int32_t m = 0; m <= 1; m++)
+		{
+			newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+			else
+			{
+				if (cmb.type == cBRIDGE && (cmb.walk&(0x10<<i))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+		}
+	}
+	
+	// Draw damage combos
+	bool dmg = combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1,cx,cy)].type].modify_hp_amount
+	   || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 0,cx,cy)].type].modify_hp_amount
+	   || combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount;
+		   
+	if (combo_class_buf[combobuf[MAPCOMBO3(map, screen, 1,cx,cy)].type].modify_hp_amount) bridgedetected = 0;
+			   
+	if(dmg)
+	{
+		if (bridgedetected <= 0)
+		{
+			for(int32_t k=0; k<16; k+=2)
+				for(int32_t j=0; j<16; j+=2)
+				if(((k+j)/2)%2)
+					rectfill(dest,x+k,y+j,x+k+1,y+j+1,vc(14));
+		}
+		else
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if (!(bridgedetected & (1<<i)))
+				{
+					int32_t tx=((i&2)<<2)+x;
+					int32_t ty=((i&1)<<3)+y;
+					for(int32_t k=0; k<8; k+=2)
+						for(int32_t j=0; j<8; j+=2)
+						if(((k+j)/2)%2)
+							rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(14));
+				}
+			}
+		}
+	}
 }
 
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 {
     newcombo c = combobuf[cmbdat];
     
-    if (c.type == cBRIDGE) return;
+    if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
     
     for(int32_t i=0; i<4; i++)
     {
@@ -1319,7 +1359,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
         int32_t ty=((i&1)<<3)+y;
         
 	bool bridgedetected = false;
-	/*
+	/* //!DIMI: Why is this commented out? God, I can't remember my own shitty code. 
 	for (int32_t m = -1; m <= 1; m++)
 	{
 		if (combobuf[Map.MAPCOMBO2(m,tx,ty)].type == cBRIDGE && !(combobuf[Map.MAPCOMBO2(m,tx,ty)].walk&(1<<i))) 
@@ -1873,288 +1913,436 @@ void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t 
 
 bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 {
-    word cmbcheck1, cmbcheck2;
-    newcombo combocheck1, combocheck2;
-    combocheck1 = combobuf[0];
-    combocheck2 = combobuf[0];
-    combocheck1.walk = 0;
-    combocheck2.walk = 0;
-    
-    int32_t layermap, layerscreen;
-    
-    switch(dir)
-    {
-    case up:
-        if(i>15)                                              //not top row of combos
-        {
-            return false;
-        }
-        
-        if(scr<16)                                            //top row of screens
-        {
-            return false;
-            
-        }
-        
-        //check main screen
-        cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
-        cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
-        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
-        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
-        //check layer 1
-        layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
-	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
-	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        //check layer 2
-        layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
-            
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk;
-	    else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk;
-	    else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        if(((combocheck1.walk&5)*2)!=(combocheck2.walk&10))
-        {
-            return true;
-        }
-        
-        break;
-        
-    case down:
-        if(i<160)                                             //not bottom row of combos
-        {
-            return false;
-        }
-        
-        if(scr>111)                                           //bottom row of screens
-        {
-            return false;
-        }
-        
-        //check main screen
-        cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
-        cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
-        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
-        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
-        
-        //check layer 1
-        layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
-		else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
-		else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        //check layer 2
-        layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
-		else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
-		else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        if((combocheck1.walk&10)!=((combocheck2.walk&5)*2))
-        {
-            return true;
-        }
-        
-        break;
-        
-    case left:
-        if((i&0xF)!=0)                                        //not left column of combos
-        {
-            return false;
-        }
-        
-        if((scr&0xF)==0)                                      //left column of screens
-        {
-            return false;
-        }
-        
-        //check main screen
-        cmbcheck1 = AbsoluteScr(map, scr)->data[i];
-        cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
-        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
-        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
-        //check layer 1
-        layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
-		else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
-		else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        //check layer 2
-        layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
-		else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
-		else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        if(((combocheck1.walk&3)*4)!=(combocheck2.walk&12))
-        {
-            return true;
-        }
-        
-        break;
-        
-    case right:
-    
-        if((i&0xF)!=15)                                       //not right column of combos
-        {
-            return false;
-        }
-        
-        if((scr&0xF)==15)                                     //right column of screens
-        {
-            return false;
-        }
-        
-        //check main screen
-        cmbcheck1 = AbsoluteScr(map, scr)->data[i];
-        cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
-        if (combobuf[cmbcheck1].type != cBRIDGE) combocheck1.walk|=combobuf[cmbcheck1].walk;
-        if (combobuf[cmbcheck2].type != cBRIDGE) combocheck2.walk|=combobuf[cmbcheck2].walk;
-        
-        //check layer 1
-        layermap=AbsoluteScr(map, scr)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
-		else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
-		else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        //check layer 2
-        layermap=AbsoluteScr(map, scr)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
-            cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
-            if (combobuf[cmbcheck1].type == cBRIDGE) combocheck1.walk&=combobuf[cmbcheck1].walk; 
-		else combocheck1.walk|=combobuf[cmbcheck1].walk;
-        }
-        
-        layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
-        
-        if(layermap>-1 && layermap<map_count)
-        {
-            layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
-            
-            cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
-            if (combobuf[cmbcheck2].type == cBRIDGE) combocheck2.walk&=combobuf[cmbcheck2].walk; 
-		else combocheck2.walk|=combobuf[cmbcheck2].walk;
-        }
-        
-        if((combocheck1.walk&12)!=((combocheck2.walk&3)*4))
-        {
-            return true;
-        }
-        
-        break;
-    }
-    
-    return false;
+	word cmbcheck1, cmbcheck2;
+	newcombo combocheck1, combocheck2;
+	combocheck1 = combobuf[0];
+	combocheck2 = combobuf[0];
+	combocheck1.walk = 0;
+	combocheck2.walk = 0;
+	
+	int32_t layermap, layerscreen;
+	
+	switch(dir)
+	{
+		case up:
+		{
+			if(i>15)											  //not top row of combos
+			{
+				return false;
+			}
+			
+			if(scr<16)											//top row of screens
+			{
+				return false;
+				
+			}
+			
+			//check main screen
+			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
+			cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			
+			//check layer 1
+			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			//check layer 2
+			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			if(((combocheck1.walk&5)*2)!=(combocheck2.walk&10))
+			{
+				return true;
+			}
+			
+			break;
+		}
+		case down:
+		{
+			if(i<160)											 //not bottom row of combos
+			{
+				return false;
+			}
+			
+			if(scr>111)										   //bottom row of screens
+			{
+				return false;
+			}
+			
+			//check main screen
+			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
+			cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			
+			
+			//check layer 1
+			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			//check layer 2
+			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			if((combocheck1.walk&10)!=((combocheck2.walk&5)*2))
+			{
+				return true;
+			}
+			
+			break;
+		}
+		case left:
+		{
+			if((i&0xF)!=0)										//not left column of combos
+			{
+				return false;
+			}
+			
+			if((scr&0xF)==0)									  //left column of screens
+			{
+				return false;
+			}
+			
+			//check main screen
+			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
+			cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			
+			//check layer 1
+			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			//check layer 2
+			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			if(((combocheck1.walk&3)*4)!=(combocheck2.walk&12))
+			{
+				return true;
+			}
+			
+			break;
+		}
+		case right:
+		{
+			if((i&0xF)!=15)									   //not right column of combos
+			{
+				return false;
+			}
+			
+			if((scr&0xF)==15)									 //right column of screens
+			{
+				return false;
+			}
+			
+			//check main screen
+			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
+			cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			
+			//check layer 1
+			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			//check layer 2
+			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
+				if (combobuf[cmbcheck1].type == cBRIDGE) 
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
+						combocheck1.walk = ((newsolid | combocheck1.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck1.walk&=combobuf[cmbcheck1].walk;
+				}
+				else combocheck1.walk|=combobuf[cmbcheck1].walk;
+			}
+			
+			layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
+				
+				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
+				if (combobuf[cmbcheck2].type == cBRIDGE)
+				{
+					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
+						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
+						combocheck2.walk = ((newsolid | combocheck2.walk) & (~efflag)) | (newsolid & efflag);
+					}
+					else combocheck2.walk&=combobuf[cmbcheck2].walk;
+				}
+				else combocheck2.walk|=combobuf[cmbcheck2].walk;
+			}
+			
+			if((combocheck1.walk&12)!=((combocheck2.walk&3)*4))
+			{
+				return true;
+			}
+			
+			break;
+		}
+	}
+	
+	return false;
 }
 
 void zmap::check_alignments(BITMAP* dest,int32_t x,int32_t y,int32_t scr)

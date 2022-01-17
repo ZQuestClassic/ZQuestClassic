@@ -334,7 +334,14 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			}
 		}
 	}
 	int32_t b=1;
@@ -370,7 +377,14 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			}
 		}
 	}
 	int32_t b=1;
@@ -579,7 +593,14 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+			}
 		}
 	}
     }
@@ -1131,36 +1152,41 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					if(tx2&8) b+=2;
 					if(ty2&8) b+=1;
 				}
-				bool bridgedetected = false;
 				for (int32_t m = layer; m <= 1; m++)
 				{
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
-					if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						bridgedetected = true;
+						if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
+						{
+							return 0;
+						}
+					}
+					else
+					{
+						if (cmb.type == cBRIDGE && !(cmb.walk&(0x10<<b))) 
+						{
+							return 0;
+						}
 					}
 					if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
 					{
-						if (cmb.type != cBRIDGE && (cmb.walk&(1<<b)) && !((cmb.usrflags&cflag4) && ShallowCheck) )
+						if ((cmb.type != cBRIDGE || (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS) && !(cmb.walk&(0x10<<b)))) && (cmb.walk&(1<<b)) && !((cmb.usrflags&cflag4) && cmb.type == cWATER && (cmb.walk&(0x10<<b)) && ShallowCheck))
 						{
-							bridgedetected = true;
+							return 0;
 						}						
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)
 						|| (link && current_item(itype_flippers) < cmb.attribytes[0])
 						|| (link && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))))
 					{
-						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) bridgedetected = true;
+						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
 					}
 				}
 				for(int32_t k=0; k<32; k++)
 				{
 					if(ffcIsAt(k, tx2, ty2) && !combo_class_buf[FFCOMBOTYPE(tx2,ty2)].water && !(ShallowCheck && FFCOMBOTYPE(tx2,ty2) == cSHALLOWWATER))
-						bridgedetected = true;
-				}
-				if (bridgedetected)
-				{
-					return 0;
+						return 0;
 				}
 				for(int32_t k=0; k<32; k++)
 				{
@@ -1222,13 +1248,27 @@ bool ispitfall(int32_t x, int32_t y)
 	if(ispitfall(c)) return true;
 	if(tmpscr2[1].valid!=0)
 	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return false;
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return false;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return false;
+		}
 	}
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return true;
 	if(tmpscr2[0].valid!=0)
 	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return false;
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return false;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return false;
+		}
 	}
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return true;
@@ -1245,13 +1285,27 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	if(ispitfall(c)) return c;
 	if(tmpscr2[1].valid!=0)
 	{
-		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		}
 	}
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return c;
 	if(tmpscr2[0].valid!=0)
 	{
-		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		}
 	}
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return c;
@@ -3047,7 +3101,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 {
 	newcombo const &c = combobuf[cmbdat];
 	
-	if (c.type == cBRIDGE) return;
+	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
 	
 	int32_t xx = x-xofs;
 	int32_t yy = y+playing_field_offset-yofs;
@@ -3062,9 +3116,19 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		int32_t ty2=((i&1)<<3)+y;
 		for (int32_t m = lyr-1; m <= 1; m++)
 		{
-			if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				bridgedetected |= (1<<i);
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				{
+					bridgedetected |= (1<<i);
+				}
 			}
 		}
 		if ((bridgedetected & (1<<i))) 
@@ -4984,18 +5048,38 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	
 	int32_t cwalkflag = c.walk;
 	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0)
 	{
 		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if (c1.type == cBRIDGE)
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c1.walk & 0xF0)>>4;
+				int newsolid = (c1.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c1.walk;
+		}
 		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (((*tmpscr).layermap[1]-1)>=0)
 	{
 		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if (c2.type == cBRIDGE)
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c2.walk & 0xF0)>>4;
+				int newsolid = (c2.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c2.walk;
+		}
 		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
@@ -5022,18 +5106,38 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	}
 	cwalkflag = c.walk;
 	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0)
 	{
 		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if (c1.type == cBRIDGE || (iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if (c1.type == cBRIDGE)
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c1.walk & 0xF0)>>4;
+				int newsolid = (c1.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c1.walk;
+		}
 		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (((*tmpscr).layermap[1]-1)>=0)
 	{
 		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if (c2.type == cBRIDGE || (iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if (c2.type == cBRIDGE)
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c2.walk & 0xF0)>>4;
+				int newsolid = (c2.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c2.walk;
+		}
 		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
@@ -5184,9 +5288,27 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	if(y&8) b<<=1;
 	
 	int32_t cwalkflag = c.walk;
-	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	if (c1.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c1.walk & 0xF0)>>4;
+			int newsolid = (c1.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c1.walk;
+	}
 	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	if (c2.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c2.walk & 0xF0)>>4;
+			int newsolid = (c2.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c2.walk;
+	}
 	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
 	
 	if((cwalkflag&b) && !dried)
@@ -5211,9 +5333,27 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	}
 	
 	cwalkflag = c.walk;
-	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	if (c1.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c1.walk & 0xF0)>>4;
+			int newsolid = (c1.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c1.walk;
+	}
 	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	if (c2.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c2.walk & 0xF0)>>4;
+			int newsolid = (c2.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c2.walk;
+	}
 	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
 	return (cwalkflag&b) ? !dried : false;
 }
@@ -5258,9 +5398,27 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	if(y&8) b<<=1;
 	
 	int32_t cwalkflag = c.walk;
-	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	if (c1.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c1.walk & 0xF0)>>4;
+			int newsolid = (c1.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c1.walk;
+	}
 	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	if (c2.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c2.walk & 0xF0)>>4;
+			int newsolid = (c2.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c2.walk;
+	}
 	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
 	
 	if((cwalkflag&b) && !dried)
@@ -5285,9 +5443,27 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	}
 	
 	cwalkflag = c.walk;
-	if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+	if (c1.type == cBRIDGE)
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c1.walk & 0xF0)>>4;
+			int newsolid = (c1.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c1.walk;
+	}
 	else if (((*tmpscr).layermap[0]-1)>=0) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+	if (c2.type == cBRIDGE) 
+	{
+		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			int efflag = (c2.walk & 0xF0)>>4;
+			int newsolid = (c2.walk & 0xF);
+			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+		}
+		else cwalkflag &= c2.walk;
+	}
 	else if (((*tmpscr).layermap[1]-1)>=0) cwalkflag |= c2.walk;
 	return (cwalkflag&b) ? !dried : false;
 }

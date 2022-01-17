@@ -2865,15 +2865,33 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	bool needpit = (moveflags & FLAG_ONLY_PITWALK);
 
 	int32_t cwalkflag = c.walk & 0xF;
-	if (c.type == cBRIDGE) cwalkflag = 0;
+	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) cwalkflag = 0;
 	if (s1)
 	{
-		if (c1.type == cBRIDGE) cwalkflag &= c1.walk;
+		if (c1.type == cBRIDGE) 
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c1.walk & 0xF0)>>4;
+				int newsolid = (c1.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c1.walk;
+		}
 		else cwalkflag |= c1.walk & 0xF;
 	}
 	if (s2)
 	{
-		if (c2.type == cBRIDGE) cwalkflag &= c2.walk;
+		if (c2.type == cBRIDGE) 
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c2.walk & 0xF0)>>4;
+				int newsolid = (c2.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c2.walk;
+		}
 		else cwalkflag |= c2.walk & 0xF;
 	}
 	bool solid = cwalkflag & b;

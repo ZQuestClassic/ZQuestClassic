@@ -6242,15 +6242,29 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	
 	int32_t hp_modtotal=0;
+	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+	if (!_effectflag(dx2,dy1,1, layer)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+	if (!_effectflag(dx2,dy2,1, layer)) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
 	
 	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (!_effectflag(dx1,dy1,1, layer) || (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i])))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
-			if (!_effectflag(dx1,dy2,1, layer) || (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i])))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
-			if (!_effectflag(dx2,dy1,1, layer) || (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i])))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
-			if (!_effectflag(dx2,dy2,1, layer) || (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i])))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
+			}
 		}
 	}
 	
@@ -6322,10 +6336,20 @@ bool LinkClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
-			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+			}
 		}
 	}
 	
@@ -15178,7 +15202,14 @@ void LinkClass::move(int32_t d2, int32_t forceRate)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
+			}
 		}
 	}
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
@@ -16140,8 +16171,16 @@ LinkClass::WalkflagInfo LinkClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 		{
 			if(tmpscr2[i].valid!=0)
 			{
-				if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && !_walkflag_layer(wx,wy,1, &(tmpscr2[i]))) wtrx = false;
-				if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && !_walkflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && !_walkflag_layer(wx,wy,1, &(tmpscr2[i]))) wtrx = false;
+					if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && !_walkflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && _effectflag_layer(wx,wy,1, &(tmpscr2[i]))) wtrx = false;
+					if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && _effectflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
+				}
 			}
 		}
             bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy));
@@ -16697,130 +16736,146 @@ bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 
 void LinkClass::checklockblock()
 {
-    if(toogam) return;
-    
-    int32_t bx = x.getInt()&0xF0;
-    int32_t bx2 = int32_t(x+8)&0xF0;
-    int32_t by = y.getInt()&0xF0;
-    
-    switch(dir)
-    {
+	if(toogam) return;
+	
+	int32_t bx = x.getInt()&0xF0;
+	int32_t bx2 = int32_t(x+8)&0xF0;
+	int32_t by = y.getInt()&0xF0;
+	
+	switch(dir)
+	{
 		case up:
 			if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
-        
+		
 			break;
-        
+		
 		case down:
 			by+=16;
 			break;
-        
+		
 		case left:
 			if((((int32_t)x)&0x0F)<8)
 				bx-=16;
-        
+		
 			if(y.getInt()&8)
 			{
 				by+=16;
 			}
-        
+		
 			bx2=bx;
 			break;
-        
+		
 		case right:
 			bx+=16;
-        
+		
 			if(y.getInt()&8)
 			{
 				by+=16;
 			}
-        
+		
 			bx2=bx;
 			break;
-    }
-    
-    bool found1=false;
-    bool found2=false;
-    int32_t foundlayer = -1;
-    int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
-    // Layer 0 is overridden by Locked Doors
-    if((combobuf[cid1].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
-    {
+	}
+	
+	bool found1=false;
+	bool found2=false;
+	int32_t foundlayer = -1;
+	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
+	// Layer 0 is overridden by Locked Doors
+	if((combobuf[cid1].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
+	{
 		found1=true;
 		foundlayer = 0;
-    }
-    else if (combobuf[cid2].type==cLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
-    {
-        found2=true;
+	}
+	else if (combobuf[cid2].type==cLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
+	{
+		found2=true;
 		foundlayer = 0;
-    }
-    
+	}
+	
 	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found1 = false;
-			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found2 = false;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found1 = false;
+				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found2 = false;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found1 = false;
+				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[i]))) found2 = false;
+			}
 		}
 	}
-    
+	
    
-    // Layers
-    if(!(found1 || found2))
-    {
+	// Layers
+	if(!(found1 || found2))
+	{
 		foundlayer = -1;
-        for(int32_t i=0; i<2; i++)
-        {
+		for(int32_t i=0; i<2; i++)
+		{
 			cid1 = MAPCOMBO2(i, bx, by);
 			cid2 = MAPCOMBO2(i, bx2, by);
 			if (i == 0)
 			{
 				if(tmpscr2[1].valid!=0)
 				{
-					if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-					if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue; //Continue, because It didn't find any on layer 0, and if you're checking
+						if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue; //layer 1 and there's a bridge on layer 2, stop checking layer 1.
+					}
+					else
+					{
+						if (combobuf[cid1].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+						if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+					}
 				} 
 			}
-            if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, i))
+			if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, i))
 			{
-                found1=true;
+				found1=true;
 				foundlayer = i;
 				//zprint("Found layer: %d \n", i);
-                break;
-            }
+				break;
+			}
 			else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, i))
-            {
-                found2=true;
+			{
+				found2=true;
 				foundlayer = i;
 				//zprint("Found layer: %d \n", i);
-                break;
-            }
-        }
-    }
-    
-    if(!(found1 || found2) || pushing<8)
-    {
-        return;
-    }
+				break;
+			}
+		}
+	}
+	
+	if(!(found1 || found2) || pushing<8)
+	{
+		return;
+	}
 	int32_t cid = found1 ? cid1 : cid2;
-    //zprint("foundlayer: %d\n", foundlayer);
-    //zprint("cid: %d\n", cid);
-    //zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
-    int32_t requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
-    int32_t itemonly = combobuf[cid].usrflags&cflag2;
-    int32_t thecounter = combobuf[cid].attribytes[1];
-    int32_t ctr_amount = combobuf[cid].attributes[0]/10000L;
-    if( requireditem && game->item[requireditem]) 
-    {
-	    if ((combobuf[cid].usrflags&cflag5)) 
-	    {
-		    //zprint("Setting item %d false.\n", requireditem);
-		    takeitem(requireditem);
-	    }
-	    goto unlock;
-    }
+	//zprint("foundlayer: %d\n", foundlayer);
+	//zprint("cid: %d\n", cid);
+	//zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
+	int32_t requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
+	int32_t itemonly = combobuf[cid].usrflags&cflag2;
+	int32_t thecounter = combobuf[cid].attribytes[1];
+	int32_t ctr_amount = combobuf[cid].attributes[0]/10000L;
+	if( requireditem && game->item[requireditem]) 
+	{
+		if ((combobuf[cid].usrflags&cflag5)) 
+		{
+			//zprint("Setting item %d false.\n", requireditem);
+			takeitem(requireditem);
+		}
+		goto unlock;
+	}
 	else if((combobuf[cid].usrflags&cflag1) && itemonly) return; //Nothing but item works
-    else if ( (combobuf[cid].usrflags&cflag4) )
-    {
+	else if ( (combobuf[cid].usrflags&cflag4) )
+	{
 		if ( game->get_counter(thecounter) >= ctr_amount )
 		{
 			//flag 6 only checks the required count; it doesn't drain it
@@ -16833,69 +16888,69 @@ void LinkClass::checklockblock()
 			if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
 			return;
 		}
-    }
-    else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
-    else if(!ctr_amount && !requireditem && !itemonly && usekey() ) goto unlock;
-    
-    
-    return;
-     
-    
-    unlock:
-    
-    
-    setmapflag(mLOCKBLOCK);
-    remove_lockblocks((currscr>=128)?1:0);
-    if ( combobuf[cid].usrflags&cflag3 )
-    {
+	}
+	else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
+	else if(!ctr_amount && !requireditem && !itemonly && usekey() ) goto unlock;
+	
+	
+	return;
+	 
+	
+	unlock:
+	
+	
+	setmapflag(mLOCKBLOCK);
+	remove_lockblocks((currscr>=128)?1:0);
+	if ( combobuf[cid].usrflags&cflag3 )
+	{
 		if ( (combobuf[cid].attribytes[3]) )
 			sfx(combobuf[cid].attribytes[3]);
-    }
-    else sfx(WAV_DOOR);
+	}
+	else sfx(WAV_DOOR);
 }
 
 void LinkClass::checkbosslockblock()
 {
-    if(toogam) return;
-    
-    int32_t bx = x.getInt()&0xF0;
-    int32_t bx2 = int32_t(x+8)&0xF0;
-    int32_t by = y.getInt()&0xF0;
-    
-    switch(dir)
-    {
+	if(toogam) return;
+	
+	int32_t bx = x.getInt()&0xF0;
+	int32_t bx2 = int32_t(x+8)&0xF0;
+	int32_t by = y.getInt()&0xF0;
+	
+	switch(dir)
+	{
 		case up:
 			if(!((int32_t)y&15)&&y!=0) by-=bigHitbox ? 16 : 0;
-        
+		
 			break;
-        
+		
 		case down:
 			by+=16;
 			break;
-        
+		
 		case left:
 			if((((int32_t)x)&0x0F)<8)
 				bx-=16;
-        
+		
 			if(y.getInt()&8)
 			{
 				by+=16;
 			}
-        
+		
 			bx2=bx;
 			break;
-        
+		
 		case right:
 			bx+=16;
-        
+		
 			if(y.getInt()&8)
 			{
 				by+=16;
 			}
-        
+		
 			bx2=bx;
 			break;
-    }
+	}
 	
 
 	bool found1 = false;
@@ -16918,8 +16973,16 @@ void LinkClass::checkbosslockblock()
 	{
 		if (tmpscr2[i].valid != 0)
 		{
-			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[i]))) found1 = false;
-			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[i]))) found2 = false;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[i]))) found1 = false;
+				if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[i]))) found2 = false;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && _effectflag_layer(bx, by, 1, &(tmpscr2[i]))) found1 = false;
+				if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && _effectflag_layer(bx2, by, 1, &(tmpscr2[i]))) found2 = false;
+			}
 		}
 	}
 
@@ -16936,8 +16999,16 @@ void LinkClass::checkbosslockblock()
 			{
 				if (tmpscr2[1].valid != 0)
 				{
-					if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[1]))) continue;
-					if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[1]))) continue;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[1]))) continue;
+						if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[1]))) continue;
+					}
+					else
+					{
+						if (combobuf[cid1].type == cBRIDGE && _effectflag_layer(bx, by, 1, &(tmpscr2[1]))) continue;
+						if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2, by, 1, &(tmpscr2[1]))) continue;
+					}
 				}
 			}
 			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBOSSLOCKBLOCK && _effectflag(bx, by, 1, i))
@@ -16960,10 +17031,10 @@ void LinkClass::checkbosslockblock()
 		return;
 	}
 	int32_t cid = found1 ? cid1 : cid2;
-    
-    if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
 	
-    
+	if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
+	
+	
 	// Run Boss Key Script
 	int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 	for ( int32_t q = 0; q < MAXITEMS; ++q )
@@ -16983,15 +17054,15 @@ void LinkClass::checkbosslockblock()
 		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 	}
-    
-    setmapflag(mBOSSLOCKBLOCK);
-    remove_bosslockblocks((currscr>=128)?1:0);
-    if ( combobuf[cid].usrflags&cflag3 )
-    {
+	
+	setmapflag(mBOSSLOCKBLOCK);
+	remove_bosslockblocks((currscr>=128)?1:0);
+	if ( combobuf[cid].usrflags&cflag3 )
+	{
 		if ( (combobuf[cid].attribytes[3]) )
 			sfx(combobuf[cid].attribytes[3]);
-    }
-    else sfx(WAV_DOOR);
+	}
+	else sfx(WAV_DOOR);
 }
 
 void LinkClass::oldcheckchest(int32_t type)
@@ -17032,8 +17103,16 @@ void LinkClass::oldcheckchest(int32_t type)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
-			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
+				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
+				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
+			}
 		}
 	}
 	
@@ -17045,8 +17124,16 @@ void LinkClass::oldcheckchest(int32_t type)
 			{
 				if(tmpscr2[1].valid!=0)
 				{
-					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-					if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+						if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
+						if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
+					}
 				}    
 			}
 			if((combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))||
@@ -17173,7 +17260,14 @@ void LinkClass::checkchest(int32_t type)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
-				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+				}
 			}
 		}
 	}
@@ -17185,7 +17279,14 @@ void LinkClass::checkchest(int32_t type)
 		{
 			if(tmpscr2[i].valid!=0)
 			{
-				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+				}
 			}
 		}
 	}
@@ -17200,7 +17301,14 @@ void LinkClass::checkchest(int32_t type)
 				fx = bx; fy = by;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
-					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+					}
 				}
 			}
 			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && _effectflag(bx2,by2,1, i))
@@ -17209,7 +17317,14 @@ void LinkClass::checkchest(int32_t type)
 				fx = bx2; fy = by2;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
-					if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+					}
 				}
 			}
 			if(found>-1) break;
@@ -17347,7 +17462,14 @@ void LinkClass::checksigns()
 		{
 			if(tmpscr2[i].valid!=0)
 			{
-				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+				}
 			}
 		}
 	}
@@ -17359,7 +17481,14 @@ void LinkClass::checksigns()
 		{
 			if(tmpscr2[i].valid!=0)
 			{
-				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+				}
 			}
 		}
 	}
@@ -17374,7 +17503,14 @@ void LinkClass::checksigns()
 				fx = bx; fy = by;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
-					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+					}
 				}
 			}
 			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, i))
@@ -17383,7 +17519,14 @@ void LinkClass::checksigns()
 				fx = bx2; fy = by2;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
-					if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+					}
 				}
 			}
 			if(found>-1) break;
@@ -17442,27 +17585,27 @@ void LinkClass::checksigns()
 
 void LinkClass::checklocked()
 {
-    if(toogam) return; //Walk through walls. 
-    
-    if(!isdungeon()) return;
-    
-    if( !diagonalMovement && pushing!=8) return;
+	if(toogam) return; //Walk through walls. 
+	
+	if(!isdungeon()) return;
+	
+	if( !diagonalMovement && pushing!=8) return;
 	/*This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
 	*/
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
-    
+	
 	
 	bool found = false;
 	for ( int32_t q = 0; q < 4; q++ ) {
 		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
 	}
 	
-    if ( !found ) return;
-    
-    int32_t si = (currmap<<7) + currscr;
-    int32_t di = NULL;
-    
-    
+	if ( !found ) return;
+	
+	int32_t si = (currmap<<7) + currscr;
+	int32_t di = NULL;
+	
+	
 	
 	if ( diagonalMovement || get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK)) 
 	{
@@ -17477,29 +17620,29 @@ void LinkClass::checklocked()
 				di = nextscr(up);
 				if(tmpscr->door[0]==dLOCKED)
 				{
-				    if(usekey())
-				    {
+					if(usekey())
+					{
 					putdoor(scrollbuf,0,up,dUNLOCKED);
 					tmpscr->door[0]=dUNLOCKED;
 					setmapflag(si, mDOOR_UP);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_DOWN);
+						setmapflag(di, mDOOR_DOWN);
 					sfx(WAV_DOOR);
 					markBmap(-1);
-				    }
-				    else return;
+					}
+					else return;
 				}
 				else if(tmpscr->door[0]==dBOSS)
 				{
-				    if(game->lvlitems[dlevel]&liBOSSKEY)
-				    {
+					if(game->lvlitems[dlevel]&liBOSSKEY)
+					{
 					putdoor(scrollbuf,0,up,dOPENBOSS);
 					tmpscr->door[0]=dOPENBOSS;
 					setmapflag(si, mDOOR_UP);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_DOWN);
+						setmapflag(di, mDOOR_DOWN);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -17521,8 +17664,8 @@ void LinkClass::checklocked()
 						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
-				    }
-				    else return;
+					}
+					else return;
 
 				}
 					
@@ -17536,29 +17679,29 @@ void LinkClass::checklocked()
 				di = nextscr(down);
 				if(tmpscr->door[1]==dLOCKED)
 				{
-				    if(usekey())
-				    {
+					if(usekey())
+					{
 					putdoor(scrollbuf,0,down,dUNLOCKED);
 					tmpscr->door[1]=dUNLOCKED;
 					setmapflag(si, mDOOR_DOWN);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_UP);
+						setmapflag(di, mDOOR_UP);
 					sfx(WAV_DOOR);
 					markBmap(-1);
-				    }
-				    else return;
+					}
+					else return;
 				}
 				else if(tmpscr->door[1]==dBOSS)
 				{
-				    if(game->lvlitems[dlevel]&liBOSSKEY)
-				    {
+					if(game->lvlitems[dlevel]&liBOSSKEY)
+					{
 					putdoor(scrollbuf,0,down,dOPENBOSS);
 					tmpscr->door[1]=dOPENBOSS;
 					setmapflag(si, mDOOR_DOWN);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_UP);
+						setmapflag(di, mDOOR_UP);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -17580,8 +17723,8 @@ void LinkClass::checklocked()
 						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
-				    }
-				    else return;
+					}
+					else return;
 				}
 			}
 		}
@@ -17593,29 +17736,29 @@ void LinkClass::checklocked()
 				di = nextscr(left);
 				if(tmpscr->door[2]==dLOCKED)
 				{
-				    if(usekey())
-				    {
+					if(usekey())
+					{
 					putdoor(scrollbuf,0,left,dUNLOCKED);
 					tmpscr->door[2]=dUNLOCKED;
 					setmapflag(si, mDOOR_LEFT);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_RIGHT);
+						setmapflag(di, mDOOR_RIGHT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
-				    }
-				    else return;
+					}
+					else return;
 				}
 				else if(tmpscr->door[2]==dBOSS)
 				{
-				    if(game->lvlitems[dlevel]&liBOSSKEY)
-				    {
+					if(game->lvlitems[dlevel]&liBOSSKEY)
+					{
 					putdoor(scrollbuf,0,left,dOPENBOSS);
 					tmpscr->door[2]=dOPENBOSS;
 					setmapflag(si, mDOOR_LEFT);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_RIGHT);
+						setmapflag(di, mDOOR_RIGHT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -17637,8 +17780,8 @@ void LinkClass::checklocked()
 						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
-				    }
-				    else return;
+					}
+					else return;
 				}
 			}
 		}
@@ -17654,29 +17797,29 @@ void LinkClass::checklocked()
 				di  = nextscr(right);
 				if(tmpscr->door[right]==dLOCKED)
 				{
-				    if(usekey())
-				    {
+					if(usekey())
+					{
 					putdoor(scrollbuf,0,right,dUNLOCKED);
 					tmpscr->door[3]=dUNLOCKED;
 					setmapflag(si, mDOOR_RIGHT);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_LEFT);
+						setmapflag(di, mDOOR_LEFT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
-				    }
-				    else return;
+					}
+					else return;
 				}
 				else if(tmpscr->door[right]==dBOSS)
 				{
-				    if(game->lvlitems[dlevel]&liBOSSKEY)
-				    {
+					if(game->lvlitems[dlevel]&liBOSSKEY)
+					{
 					putdoor(scrollbuf,0,right,dOPENBOSS);
 					tmpscr->door[3]=dOPENBOSS;
 					setmapflag(si, mDOOR_RIGHT);
 					
 					if(di != 0xFFFF)
-					    setmapflag(di, mDOOR_LEFT);
+						setmapflag(di, mDOOR_LEFT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -17698,8 +17841,8 @@ void LinkClass::checklocked()
 						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
-				    }
-				    else return;
+					}
+					else return;
 				}
 			
 			}
@@ -17721,29 +17864,29 @@ void LinkClass::checklocked()
 					di  = nextscr(up);
 					if(tmpscr->door[0]==dLOCKED)
 					{
-					    if(usekey())
-					    {
+						if(usekey())
+						{
 						putdoor(scrollbuf,0,up,dUNLOCKED);
 						tmpscr->door[0]=dUNLOCKED;
 						setmapflag(si, mDOOR_UP);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_DOWN);
+							setmapflag(di, mDOOR_DOWN);
 						sfx(WAV_DOOR);
 						markBmap(-1);
-					    }
-					    else return;
+						}
+						else return;
 					}
 					else if(tmpscr->door[0]==dBOSS)
 					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
+						if(game->lvlitems[dlevel]&liBOSSKEY)
+						{
 						putdoor(scrollbuf,0,up,dOPENBOSS);
 						tmpscr->door[0]=dOPENBOSS;
 						setmapflag(si, mDOOR_UP);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_DOWN);
+							setmapflag(di, mDOOR_DOWN);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -17765,8 +17908,8 @@ void LinkClass::checklocked()
 							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
-					    }
-					    else return;
+						}
+						else return;
 					}
 					break;
 				}
@@ -17788,29 +17931,29 @@ void LinkClass::checklocked()
 					
 					if(tmpscr->door[1]==dLOCKED)
 					{
-					    if(usekey())
-					    {
+						if(usekey())
+						{
 						putdoor(scrollbuf,0,down,dUNLOCKED);
 						tmpscr->door[1]=dUNLOCKED;
 						setmapflag(si, mDOOR_DOWN);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_UP);
+							setmapflag(di, mDOOR_UP);
 						sfx(WAV_DOOR);
 						markBmap(-1);
-					    }
-					    else return;
+						}
+						else return;
 					}
 					else if(tmpscr->door[1]==dBOSS)
 					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
+						if(game->lvlitems[dlevel]&liBOSSKEY)
+						{
 						putdoor(scrollbuf,0,down,dOPENBOSS);
 						tmpscr->door[1]=dOPENBOSS;
 						setmapflag(si, mDOOR_DOWN);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_UP);
+							setmapflag(di, mDOOR_UP);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -17832,8 +17975,8 @@ void LinkClass::checklocked()
 							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
-					    }
-					    else return;
+						}
+						else return;
 					}
 					break;
 				}
@@ -17853,29 +17996,29 @@ void LinkClass::checklocked()
 					di  = nextscr(left);
 					if(tmpscr->door[2]==dLOCKED)
 					{
-					    if(usekey())
-					    {
+						if(usekey())
+						{
 						putdoor(scrollbuf,0,left,dUNLOCKED);
 						tmpscr->door[2]=dUNLOCKED;
 						setmapflag(si, mDOOR_LEFT);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_RIGHT);
+							setmapflag(di, mDOOR_RIGHT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
-					    }
-					    else return;
+						}
+						else return;
 					}
 					else if(tmpscr->door[2]==dBOSS)
 					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
+						if(game->lvlitems[dlevel]&liBOSSKEY)
+						{
 						putdoor(scrollbuf,0,left,dOPENBOSS);
 						tmpscr->door[2]=dOPENBOSS;
 						setmapflag(si, mDOOR_LEFT);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_RIGHT);
+							setmapflag(di, mDOOR_RIGHT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -17897,8 +18040,8 @@ void LinkClass::checklocked()
 							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
-					    }
-					    else return;
+						}
+						else return;
 					}
 					
 					break;	
@@ -17920,30 +18063,30 @@ void LinkClass::checklocked()
 					di  = nextscr(right);
 					if(tmpscr->door[3]==dLOCKED)
 					{
-					    if(usekey())
-					    {
+						if(usekey())
+						{
 						putdoor(scrollbuf,0,right,dUNLOCKED);
 						tmpscr->door[3]=dUNLOCKED;
 						setmapflag(si, mDOOR_RIGHT);
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_LEFT);
+							setmapflag(di, mDOOR_LEFT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
-					    }
-					    else return;
+						}
+						else return;
 					}
 					else if(tmpscr->door[3]==dBOSS)
 					{
-					    if(game->lvlitems[dlevel]&liBOSSKEY)
-					    {
+						if(game->lvlitems[dlevel]&liBOSSKEY)
+						{
 						putdoor(scrollbuf,0,right,dOPENBOSS);
 						tmpscr->door[3]=dOPENBOSS;
 						setmapflag(si, mDOOR_RIGHT);
 						
 						
 						if(di != 0xFFFF)
-						    setmapflag(di, mDOOR_LEFT);
+							setmapflag(di, mDOOR_LEFT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -17966,8 +18109,8 @@ void LinkClass::checklocked()
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
 
-					    }
-					    else return;
+						}
+						else return;
 					}
 					
 					
@@ -17982,133 +18125,133 @@ void LinkClass::checklocked()
 
 void LinkClass::checkswordtap()
 {
-    if(attack!=wSword || charging<=0 || pushing<8) return;
-    
-    int32_t bx=x;
-    int32_t by=y+8;
-    
-    switch(dir)
-    {
-    case up:
-        if(!Up()) return;
-        
-        by-=16;
-        break;
-        
-    case down:
-        if(!Down()) return;
-        
-        by+=16;
-        bx+=8;
-        break;
-        
-    case left:
-        if(!Left()) return;
-        
-        bx-=16;
-        by+=8;
-        break;
-        
-    case right:
-        if(!Right()) return;
-        
-        bx+=16;
-        by+=8;
-        break;
-    }
-    
-    if(!_walkflag(bx,by,0,SWITCHBLOCK_STATE)) return;
-    
-    attackclk=SWORDTAPFRAME;
-    pushing=-8; //16 frames between taps
-    tapping=true;
-    
-    int32_t type = COMBOTYPE(bx,by);
-    
-    if(!isCuttableType(type))
-    {
-        bool hollow = (MAPFLAG(bx,by) == mfBOMB || MAPCOMBOFLAG(bx,by) == mfBOMB ||
-                       MAPFLAG(bx,by) == mfSBOMB || MAPCOMBOFLAG(bx,by) == mfSBOMB);
-                       
-        // Layers
-        for(int32_t i=0; i < 6; i++)
-            hollow = (hollow || MAPFLAG2(i,bx,by) == mfBOMB || MAPCOMBOFLAG2(i,bx,by) == mfBOMB ||
-                      MAPFLAG2(i,bx,by) == mfSBOMB || MAPCOMBOFLAG2(i,bx,by) == mfSBOMB);
-                      
-        for(int32_t i=0; i<4; i++)
-            if(tmpscr->door[i]==dBOMB && i==dir)
-                switch(i)
-                {
-                case up:
-                case down:
-                    if(bx>=112 && bx<144 && (by>=144 || by<=32)) hollow=true;
-                    
-                    break;
-                    
-                case left:
-                case right:
-                    if(by>=72 && by<104 && (bx>=224 || bx<=32)) hollow=true;
-                    
-                    break;
-                }
-                
-        sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(x.getInt()));
-    }
-    
+	if(attack!=wSword || charging<=0 || pushing<8) return;
+	
+	int32_t bx=x;
+	int32_t by=y+8;
+	
+	switch(dir)
+	{
+	case up:
+		if(!Up()) return;
+		
+		by-=16;
+		break;
+		
+	case down:
+		if(!Down()) return;
+		
+		by+=16;
+		bx+=8;
+		break;
+		
+	case left:
+		if(!Left()) return;
+		
+		bx-=16;
+		by+=8;
+		break;
+		
+	case right:
+		if(!Right()) return;
+		
+		bx+=16;
+		by+=8;
+		break;
+	}
+	
+	if(!_walkflag(bx,by,0,SWITCHBLOCK_STATE)) return;
+	
+	attackclk=SWORDTAPFRAME;
+	pushing=-8; //16 frames between taps
+	tapping=true;
+	
+	int32_t type = COMBOTYPE(bx,by);
+	
+	if(!isCuttableType(type))
+	{
+		bool hollow = (MAPFLAG(bx,by) == mfBOMB || MAPCOMBOFLAG(bx,by) == mfBOMB ||
+					   MAPFLAG(bx,by) == mfSBOMB || MAPCOMBOFLAG(bx,by) == mfSBOMB);
+					   
+		// Layers
+		for(int32_t i=0; i < 6; i++)
+			hollow = (hollow || MAPFLAG2(i,bx,by) == mfBOMB || MAPCOMBOFLAG2(i,bx,by) == mfBOMB ||
+					  MAPFLAG2(i,bx,by) == mfSBOMB || MAPCOMBOFLAG2(i,bx,by) == mfSBOMB);
+					  
+		for(int32_t i=0; i<4; i++)
+			if(tmpscr->door[i]==dBOMB && i==dir)
+				switch(i)
+				{
+				case up:
+				case down:
+					if(bx>=112 && bx<144 && (by>=144 || by<=32)) hollow=true;
+					
+					break;
+					
+				case left:
+				case right:
+					if(by>=72 && by<104 && (bx>=224 || bx<=32)) hollow=true;
+					
+					break;
+				}
+				
+		sfx(hollow ? WAV_ZN1TAP2 : WAV_ZN1TAP,pan(x.getInt()));
+	}
+	
 }
 
 void LinkClass::fairycircle(int32_t type)
 {
-    if(fairyclk==0)
-    {
-        switch(type)
-        {
-        case REFILL_LIFE:
-            if(didstuff&did_fairy) return;
-            
-            didstuff|=did_fairy;
-            break;
-            
-        case REFILL_MAGIC:
-            if(didstuff&did_magic) return;
-            
-            didstuff|=did_magic;
-            break;
-            
-        case REFILL_ALL:
-            if(didstuff&did_all) return;
-            
-            didstuff|=did_all;
-        }
-        
-        refill_what=type;
-        refill_why=REFILL_FAIRY;
-        StartRefill(type);
-        if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
+	if(fairyclk==0)
+	{
+		switch(type)
+		{
+		case REFILL_LIFE:
+			if(didstuff&did_fairy) return;
+			
+			didstuff|=did_fairy;
+			break;
+			
+		case REFILL_MAGIC:
+			if(didstuff&did_magic) return;
+			
+			didstuff|=did_magic;
+			break;
+			
+		case REFILL_ALL:
+			if(didstuff&did_all) return;
+			
+			didstuff|=did_all;
+		}
+		
+		refill_what=type;
+		refill_why=REFILL_FAIRY;
+		StartRefill(type);
+		if (IsSideSwim()) {action=sideswimfreeze; FFCore.setLinkAction(sideswimfreeze);} 
 	else {action=freeze; FFCore.setLinkAction(freeze);} 
-        holdclk=0;
-        hopclk=0;
-    }
-    
-    ++fairyclk;
-    
-    if(refilling!=REFILL_FAIRYDONE)
-    {
-        if(!refill())
-            refilling=REFILL_FAIRYDONE;
-    }
-    
-    else if(++holdclk>80)
-    {
-        reset_swordcharge();
-        attackclk=0;
-        action=none; FFCore.setLinkAction(none);
-        fairyclk=0;
-        holdclk=0;
-        refill_why = 0;
-        refilling=REFILL_NONE;
-        map_bkgsfx(true);
-    }
+		holdclk=0;
+		hopclk=0;
+	}
+	
+	++fairyclk;
+	
+	if(refilling!=REFILL_FAIRYDONE)
+	{
+		if(!refill())
+			refilling=REFILL_FAIRYDONE;
+	}
+	
+	else if(++holdclk>80)
+	{
+		reset_swordcharge();
+		attackclk=0;
+		action=none; FFCore.setLinkAction(none);
+		fairyclk=0;
+		holdclk=0;
+		refill_why = 0;
+		refilling=REFILL_NONE;
+		map_bkgsfx(true);
+	}
 }
 
 int32_t touchcombo(int32_t x,int32_t y)
@@ -18117,7 +18260,14 @@ int32_t touchcombo(int32_t x,int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
+			}
 		}
 	}
 	if (!_effectflag(x,y,1, -1)) return 0;
@@ -22472,7 +22622,13 @@ bool LinkClass::nextcombo_solid(int32_t d2)
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,cx,cy, true)];
 					if (cmb.type == cBRIDGE) 
 					{
-						walk &= cmb.walk;
+						if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+						{
+							int efflag = (cmb.walk & 0xF0)>>4;
+							int newsolid = (cmb.walk & 0xF);
+							walk = ((newsolid | walk) & (~efflag)) | (newsolid & efflag);
+						}
+						else walk &= cmb.walk;
 					}
 					else walk |= cmb.walk;
 				}
@@ -27263,7 +27419,14 @@ void LinkClass::check_conveyor()
 		{
 			if(tmpscr2[i].valid!=0)
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && _effectflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
+				}
 			}
 		}
 		if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;

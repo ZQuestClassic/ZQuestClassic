@@ -668,7 +668,13 @@ static const GUI::ListData compatRulesList
 	{ "'Prisms Reflect Angular Weapons' Uses Broken Logic", qr_ANGULAR_REFLECT_BROKEN,
 		"If enabled, Angular Reflected Weapons use completely wrong code. This is only"
 		" here for compatibility purposes; enabling this is liable to result in undefined"
-		" behavior. Keep this disabled."}
+		" behavior. Keep this disabled."},
+	{ "Old Bridge Combo Behavior", qr_OLD_BRIDGE_COMBOS, 
+		"If enabled, Bridge Combos use the solidity box instead of the effects square to determine"
+		" what sections the bridge covers. Solid portions will use the solidity of what is beneath"
+		" it, while walkable portions will be walkable regardless of what is beneath it. \nIf disabled,"
+		" the bridge will use the effects square to determine what parts should cover the below segments,"
+		" regardless of whether it's solid or not."}
 };
 
 static const GUI::ListData enemiesRulesList
