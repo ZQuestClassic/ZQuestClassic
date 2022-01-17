@@ -5194,11 +5194,11 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0 && layer < 0)
 	{
-		if (c1.type == cBRIDGE) cwalkflag &= (c1.walk>>4);
+		if (c1.type == cBRIDGE) cwalkflag &= (~(c1.walk>>4));
 	}
 	if (((*tmpscr).layermap[1]-1)>=0 && layer < 1)
 	{
-		if (c2.type == cBRIDGE) cwalkflag &= (c2.walk>>4);
+		if (c2.type == cBRIDGE) cwalkflag &= (~(c2.walk>>4));
 	}
 	
 	if((cwalkflag&b) && !dried)
@@ -5227,11 +5227,17 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (((*tmpscr).layermap[0]-1)>=0 && layer < 0)
 	{
-		if (c1.type == cBRIDGE) cwalkflag &= (c1.walk>>4);
+		if (c1.type == cBRIDGE) 
+		{
+			cwalkflag &= (~(c1.walk>>4));
+		}
 	}
 	if (((*tmpscr).layermap[1]-1)>=0 && layer < 1)
 	{
-		if (c2.type == cBRIDGE) cwalkflag &= (c2.walk>>4);
+		if (c2.type == cBRIDGE) 
+		{
+			cwalkflag &= (~(c2.walk>>4));
+		}
 	}
 	return (cwalkflag&b) ? !dried : false;
 }
