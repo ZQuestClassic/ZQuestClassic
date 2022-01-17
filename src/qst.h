@@ -200,7 +200,7 @@ void portCandleRules();
 void portBombRules();
 
 int32_t loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata = 1);
+              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata = 1, bool report = true);
 
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);

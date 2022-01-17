@@ -3344,13 +3344,12 @@ struct zquestheader
 			return 1;
 		if(new_version_id_date_day < BUILDTM_DAY)
 			return -1;
-		if(new_version_id_date_hour > BUILDTM_HOUR)
+		#define BUILDTIME_FUZZ 10
+		word time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
+		word btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
+		if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
 			return 1;
-		if(new_version_id_date_hour< BUILDTM_HOUR)
-			return -1;
-		if(new_version_id_date_minute > BUILDTM_MINUTE)
-			return 1;
-		if(new_version_id_date_minute < BUILDTM_MINUTE)
+		if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
 			return -1;
 		return 0;
 	}

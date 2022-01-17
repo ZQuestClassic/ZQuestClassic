@@ -19896,7 +19896,7 @@ void portBombRules()
 	
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata, bool report)
 {
 	
     DMapEditorLastMaptileUsed = 0;
