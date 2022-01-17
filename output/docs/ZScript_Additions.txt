@@ -5902,7 +5902,7 @@ int HasItem;
 
 int TileWarpType[4];
  * The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3] respectively.
- * See std_constants.zh TWTYPE_* constants for valid types.
+ * See std_constants.zh WT_* constants for valid types.
 	
 bool SideWarpOverlay[4];
 bool TileWarpOverlay[4];
@@ -5974,7 +5974,7 @@ int SideWarpID[4];
 
 int SideWarpType[4];
  * The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3] respectively.
- * See std_constants.zh SWTYPE_* constants for valid types.
+ * See std_constants.zh WT_* constants for valid types.
 	
 int SideWarpScreen[4];
  * The destination screen for each of the four sidewarps.

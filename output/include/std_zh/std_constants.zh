@@ -2602,15 +2602,22 @@ const int AT_RAND8DIR		= 5;
 const int AT_RANDANGULAR	= 6;
 
 //Tile and Side Warps
-const int TILEWARP_A 		= 0;
-const int TILEWARP_B		= 1;
-const int TILEWARP_C		= 2;
-const int TILEWARP_D		= 3;
-const int SIDEWARP_NONE 	= -1;
-const int SIDEWARP_A		= 0;
-const int SIDEWARP_B		= 1;
-const int SIDEWARP_C		= 2;
-const int SIDEWARP_D		= 3;
+const int TILEWARP_A        = 0;
+const int TILEWARP_B        = 1;
+const int TILEWARP_C        = 2;
+const int TILEWARP_D        = 3;
+
+const int SIDEWARP_NONE     = -1;
+const int SIDEWARP_A        = 0;
+const int SIDEWARP_B        = 1;
+const int SIDEWARP_C        = 2;
+const int SIDEWARP_D        = 3;
+
+const int WARP_NONE         = -1;
+const int WARP_A            = 0;
+const int WARP_B            = 1;
+const int WARP_C            = 2;
+const int WARP_D            = 3;
 
 
 //Game Over Screen
@@ -2781,6 +2788,7 @@ const int SECCMB_WAND		= 41;
 const int SECCMB_HAMMER		= 42;
 const int SECCMB_STRIKE		= 43;
 const int SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this index
+const int SECCMB_MAX            = 45;
 //45 to 127 unused. 
 
 //Audio->
