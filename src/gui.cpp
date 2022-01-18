@@ -190,19 +190,9 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
         /* If a menu is active, we yield here, since the dialog
         * engine is shut down so no user code can be running.
         */
-        if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
+		#ifdef IS_ZQUEST
+		update_hw_screen();
+		#endif
         
         //if (active_menu_player2)
         //rest(1);

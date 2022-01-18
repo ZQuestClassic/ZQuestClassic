@@ -31,11 +31,11 @@
 #include "tab_ctl.h"
 #include "zc_malloc.h"
 
-//#ifdef _ZQUEST_SCALE_
+#ifdef IS_ZQUEST
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
-extern BITMAP *hw_screen;
-//#endif
+void update_hw_screen();
+#endif
 
 extern bool is_zquest();
 
@@ -162,26 +162,10 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
                 over=false;
             }
         }
-        
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		
+        #ifdef IS_ZQUEST
+		update_hw_screen();
+		#endif
     }
     
     return over;
@@ -216,25 +200,9 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             }
         }
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+        #ifdef IS_ZQUEST
+		update_hw_screen();
+		#endif
     }
     
     if(over)
@@ -244,25 +212,9 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
         draw_button(screen,x,y,w,h,text,bg,fg,0);
         unscare_mouse();
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+        #ifdef IS_ZQUEST
+		update_hw_screen();
+		#endif
     }
     
     return over;

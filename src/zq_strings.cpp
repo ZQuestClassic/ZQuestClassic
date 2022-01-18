@@ -1954,23 +1954,9 @@ int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c)
 			msg_y = vbound(omy+(oy-gui_mouse_y()),0,zc_max(0,h-32));
 			
 			broadcast_dialog_message(MSG_IDLE, 0);
-#ifdef _ZQUEST_SCALE_
-			
-			if(myvsync)
-			{
-				if(zqwin_scale > 1)
-				{
-					stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-				}
-				else
-				{
-					blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-				}
-				
-				myvsync=0;
-			}
-			
-#endif
+			#ifdef IS_ZQUEST
+			update_hw_screen();
+			#endif
 		}
 		
 		break;

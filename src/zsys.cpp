@@ -38,11 +38,11 @@ using std::getline;
 #define stricmp _stricmp
 #endif
 
-//#ifdef _ZQUEST_SCALE_
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
-extern BITMAP *hw_screen;
-//#endif
+#ifdef IS_ZQUEST
+void update_hw_screen();
+#endif
 
 extern bool is_zquest();
 bool zconsole = false;
@@ -1128,25 +1128,9 @@ void box_out(const char *msg)
         box_log = oldlog;
     }
     
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        //if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+    #ifdef IS_ZQUEST
+	update_hw_screen();
+	#endif
 }
 
 /* calls box_out, and box_eol for newlines */
@@ -1210,25 +1194,9 @@ void box_eol()
         memset(box_log_msg, 0, 480);
     }
     
-    //	#ifdef _ZQUEST_SCALE_
-    if(is_zquest())
-    {
-        //if(myvsync)
-        {
-            if(zqwin_scale > 1)
-            {
-                stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            else
-            {
-                blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
-            
-            myvsync=0;
-        }
-    }
-    
-    //	#endif
+    #ifdef IS_ZQUEST
+	update_hw_screen();
+	#endif
 }
 
 /* ends output of a progress message */

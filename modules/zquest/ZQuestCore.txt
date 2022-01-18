@@ -25,6 +25,7 @@ src/random.cpp
 src/module.cpp
 src/fonts.cpp
 src/zinfo.cpp
+src/zdefs.cpp
 
 ## End of ZQuest Core module
 )

@@ -73,7 +73,12 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
 )
 
-foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES})
+set(LAUNCHER_MODULES
+	${CMAKE_SOURCE_DIR}/modules/launcher/LauncherCore.txt
+	${CMAKE_SOURCE_DIR}/modules/launcher/LauncherGUI.txt
+)
+
+foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES} ${LAUNCHER_MODULES})
 	include(${module})
 	set_source_files_properties(${module} PROPERTIES HEADER_FILE_ONLY true)
 endforeach()
@@ -151,7 +156,6 @@ if(MSVC)
 	endif()
 
 # Linux
-
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
@@ -223,6 +227,7 @@ if(UNITY_BUILD)
 endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
+target_compile_definitions(zelda PRIVATE IS_PLAYER)
 
 if(WIN32)
 	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
@@ -291,3 +296,20 @@ if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
 	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()
+
+#############################################################
+# Launcher
+#############################################################
+
+if(MSVC)
+	list(APPEND LAUNCHEREXTRASOURCES zl_icon.rc)
+
+elseif(LINUX)
+	list(APPEND LAUNCHEREXTRASOURCES zl_icon.c src/single_instance_unix.cpp)
+	set(LAUNCHERLIBSEXTRA ${X11_LIBRARIES})
+endif()
+
+add_executable(launcher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
+target_link_libraries(launcher ${ALLEGROLIB} ${LAUNCHERLIBSEXTRA})
+target_compile_definitions(launcher PRIVATE IS_LAUNCHER)
+

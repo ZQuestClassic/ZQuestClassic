@@ -92,13 +92,6 @@ zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int32_t index);
 
-static inline bool fileexists(const char *filename) 
-{
-	std::ifstream ifile(filename);
-	if(ifile) return true;
-	return false;
-}
-
 const char scripttypenames[15][40]=
 {
 	"none script",
@@ -30697,44 +30690,6 @@ const char * select_screen_tile_cset_cats[sels_tile_LAST] =
 	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
 };
 
-static const char months[13][13] =
-{ 
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int32_t dy)
-{ 
-	char temp[6]; 
-	switch(dy)
-	{
-		
-		
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-	
-	return std::string(temp); 
-} 
-
-
 bool ZModule::init(bool d) //bool default
 {
 	
@@ -31096,58 +31051,6 @@ bool ZModule::init(bool d) //bool default
 	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
 	return true;
 }
-
-//Prints out the current Module struct data to allegro.log
-void ZModule::debug()
-{
-	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
-	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
-	
-	//quests
-	/*
-	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
-	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
-	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
-	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
-	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
-	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
-	
-	//skip codes
-	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
-
-	//datafiles
-	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
-	*/
-}
-
-bool ZModule::load(bool zquest)
-{
-	set_config_file(moduledata.module_name);
-	//load config settings
-	if ( zquest )
-	{
-		al_trace("ZModule::load() was called by: %s\n","ZQuest");
-		//load ZQuest section data
-		set_config_file("zquest.cfg"); //shift back when done
-	}
-	else
-	{
-		al_trace("ZModule::load() was called by: %s\n","ZC Player");
-		//load ZC section data
-		set_config_file("zc.cfg"); //shift back when done
-	}
-	return true;
-}
-
-
 
 void FFScript::Play_Level_Music()
 {

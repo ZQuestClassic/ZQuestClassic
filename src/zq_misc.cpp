@@ -81,43 +81,6 @@ int32_t filetype(const char *path)
     return ftBIN;
 }
 
-static const char months[13][13] =
-{
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int32_t dy)
-{
-	char temp[6];
-	switch(dy)
-	{
-
-
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st");
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd");
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd");
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-
-	return std::string(temp);
-}
-
 int32_t cursorColor(int32_t col)
 {
 	switch(col)

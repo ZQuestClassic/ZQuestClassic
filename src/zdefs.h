@@ -5261,5 +5261,11 @@ enum swStyle //Switchhook animation styles
 	swPOOF, swFLICKER, swRISE
 };
 
+//
+
+extern const char months[13][13];
+char *VerStr(int32_t version);
+void set_config_standard();
+
 #endif                                                      //_ZDEFS_H_
 

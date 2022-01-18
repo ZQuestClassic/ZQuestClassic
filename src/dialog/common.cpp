@@ -94,3 +94,4 @@ GUI::ListData getInfoShopListData()
 			return index;
 		});
 }
+

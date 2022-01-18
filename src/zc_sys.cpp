@@ -262,7 +262,7 @@ void load_game_configs()
 {
 	//set_config_file("zc.cfg"); //shift back when done
 	//load the module
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE",qst_module_name,"default.zmod"));
+	strcpy(moduledata.module_name,get_config_string("ZCMODULE",qst_module_name,"classic.zmod"));
     joystick_index = get_config_int(cfg_sect,"joystick_index",0);
     js_stick_1_x_stick = get_config_int(cfg_sect,"js_stick_1_x_stick",0);
     js_stick_1_x_axis = get_config_int(cfg_sect,"js_stick_1_x_axis",0);
@@ -6537,44 +6537,6 @@ static DIALOG module_info_dlg[] =
     { jwin_button_proc,   200-40-50,  160,  50,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
-
-static const char months[13][13] =
-{ 
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int32_t dy)
-{ 
-	char temp[6]; 
-	switch(dy)
-	{
-		
-		
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-	
-	return std::string(temp); 
-} 
-
 
 void about_zcplayer_module(const char *prompt,int32_t initialval)
 {	

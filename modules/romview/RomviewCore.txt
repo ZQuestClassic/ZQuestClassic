@@ -9,6 +9,7 @@ src/zsys.cpp
 src/romview.cpp
 src/alleg_compat.cpp
 src/util.cpp
+src/zdefs.cpp
 
 ## End of Romview Core module
 )

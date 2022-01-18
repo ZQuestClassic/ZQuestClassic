@@ -60,7 +60,6 @@ bool is_large=false;
 int32_t joystick_index=0;
 
 volatile int32_t myvsync=0;
-BITMAP *hw_screen;
 
 char *VerStr(int32_t version)
 {
@@ -2338,19 +2337,13 @@ int32_t d_dummy_proc(int32_t msg, DIALOG* d, int32_t)
     return D_O_K;
 }
 
-int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    d=d;
-    msg=msg;
-    
     return D_O_K;
 }
 
-void large_dialog(DIALOG *d)
+void large_dialog(DIALOG *)
 {
-    d=d;
 }
 
 /* That's all folks */

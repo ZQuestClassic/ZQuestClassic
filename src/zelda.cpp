@@ -344,7 +344,6 @@ combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compil
 SAMPLE customsfxdata[WAV_COUNT] = {0};
 uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
 int32_t sfxdat=1;
-BITMAP *hw_screen;
 int32_t zqwin_scale = 0;
 
 extern int32_t jwin_pal[jcMAX];
@@ -4578,43 +4577,6 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
-static const char months[13][13] =
-{ 
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int32_t dy)
-{ 
-	char temp[6]; 
-	switch(dy)
-	{
-		
-		
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-	
-	return std::string(temp); 
-} 
-
 int32_t main(int32_t argc, char* argv[])
 {
 	bool onlyInstance=true;
@@ -4812,7 +4774,6 @@ int32_t main(int32_t argc, char* argv[])
 	{
 	exit(1);    
 	}
-	zcm.load(false);
 	
 	
 #ifdef _WIN32
