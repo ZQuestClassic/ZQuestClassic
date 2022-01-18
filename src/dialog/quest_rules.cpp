@@ -14,6 +14,17 @@ using GUI::sized;
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
 
+static bool reload_qr_dlg = false;
+void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs)
+{
+	do
+	{
+		reload_qr_dlg = false;
+		QRDialog(quest_rules, qrs_per_tab, setQRs).show();
+	}
+	while(reload_qr_dlg);
+}
+
 //{
 
 static const GUI::ListData animRulesList
@@ -1395,7 +1406,8 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();
-			return false;
+			reload_qr_dlg = true;
+			return true;
 		case message::CHEATS:
 			call_cheats_dlg();
 			return false;

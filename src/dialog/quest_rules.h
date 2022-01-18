@@ -9,6 +9,8 @@
 
 #define QR_SZ QUESTRULES_NEW_SIZE
 
+void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs);
+
 class QRDialog: public GUI::Dialog<QRDialog>
 {
 public:

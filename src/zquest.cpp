@@ -1707,26 +1707,28 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+void set_rules(byte* newrules)
+{
+	saved = false;
+	memcpy(quest_rules, newrules, QR_SZ);
+	if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+	{
+		combobuf[0].walk = 0xF0;
+		combobuf[0].type = 0;
+		combobuf[0].flag = 0;
+	}
+	
+	// For 2.50.0 and 2.50.1
+	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+		set_bit(quest_rules, qr_FASTDNGN, 1);
+	
+	//this is only here until the subscreen style is selectable by itself
+	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+}
+
 int32_t onRulesDlg()
 {
-	QRDialog(quest_rules, (is_large?20:13), [](byte* newrules)
-	{
-		saved = false;
-		memcpy(quest_rules, newrules, QR_SZ);
-		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
-		{
-			combobuf[0].walk = 0xF0;
-			combobuf[0].type = 0;
-			combobuf[0].flag = 0;
-		}
-        
-        // For 2.50.0 and 2.50.1
-        if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
-            set_bit(quest_rules, qr_FASTDNGN, 1);
-        
-        //this is only here until the subscreen style is selectable by itself
-        zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
-	}).show();
+	call_qr_dialog((is_large?20:13), set_rules);
 	return D_O_K;
 }
 
