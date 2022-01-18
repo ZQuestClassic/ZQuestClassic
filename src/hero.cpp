@@ -1643,7 +1643,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 wy-=2;
             }
             
-            if(attackclk>=14||FIXED_Z3_ANIMATION && attackclk >= 12) //retracting stab
+            if(attackclk>=14) //retracting stab
             {
                 slashyofs+=3;
                 wy+=2;
@@ -2059,15 +2059,18 @@ attack:
 				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimstab:ls_stab, dir, zinit.heroAnimationStyle);
 				if (FIXED_Z3_ANIMATION)
 				{
-					tile+=(((attackclk>>2)%3)*(extend==2?2:1));
+					if (attackclk >= 2) tile += (extend==2?2:1);
+					if (attackclk >= 13) tile += (extend==2?2:1);
 				}
 				
-				if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7))
+				if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16)))
 				{
 					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
 					if (FIXED_Z3_ANIMATION)
 					{
-						tile+=(((attackclk>>2)%6)*(extend==2?2:1));
+						if (attackclk >= 7) tile += (extend==2?2:1);
+						if (attackclk >= 11) tile += (extend==2?2:1);
+						if (attackclk >= 14) tile += (extend==2?2:1);
 					}
 				}
 				
@@ -2076,7 +2079,8 @@ attack:
 					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimpound:ls_pound, dir, zinit.heroAnimationStyle);
 					if (FIXED_Z3_ANIMATION)
 					{
-						tile+=(((attackclk>>2)%3)*(extend==2?2:1));
+						if (attackclk >= 14) tile += (extend==2?2:1);
+						if (attackclk >= 16) tile += (extend==2?2:1);
 					}
 				}
 				
@@ -10443,7 +10447,6 @@ bool HeroClass::doattack()
 {
 	//int32_t s = BSZ ? 0 : 11;
 	int32_t s = (zinit.heroAnimationStyle==las_bszelda) ? 0 : 11;
-	int32_t z3fixed = (FIXED_Z3_ANIMATION) ? 2 : 0;
 	
 	int32_t bugnetid = (directWpn>-1 && itemsbuf[directWpn].family==itype_bugnet) ? directWpn : current_item_id(itype_bugnet);
 	if(attack==wBugNet && bugnetid!=-1)
@@ -10458,7 +10461,7 @@ bool HeroClass::doattack()
 	// * the attack is not Hammer, Sword with Spin Scroll, Candle, or Wand, OR
 	// * you aren't holding down the A button, you're not charging, and/or you're still spinning
 	
-	if(attackclk>=(spins>0?8:14+z3fixed) && attack!=wHammer &&
+	if(attackclk>=(spins>0?8:14) && attack!=wHammer &&
 			(((attack!=wSword || !current_item(itype_spinscroll) || inlikelike) && attack!=wWand && attack!=wFire && attack!=wCByrna) || !((attack==wSword && isWpnPressed(itype_sword) && spins==0) || charging>0)))
 	{
 		tapping=false;
