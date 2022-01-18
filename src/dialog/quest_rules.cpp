@@ -673,7 +673,10 @@ static const GUI::ListData compatRulesList
 		" what sections the bridge covers. Solid portions will use the solidity of what is beneath"
 		" it, while walkable portions will be walkable regardless of what is beneath it. \nIf disabled,"
 		" the bridge will use the effects square to determine what parts should cover the below segments,"
-		" regardless of whether it's solid or not."}
+		" regardless of whether it's solid or not."},
+	{ "Broken Z3 Animation", qr_BROKEN_Z3_ANIMATION,
+		"If enabled, Z3 animation will use broken, 1 tile animation for stabbing, slashing, pounding, and charging."
+		" If disabled, Z3 animation will use the intended animation for stabbing, slashing, pounding, and charging."}
 };
 
 static const GUI::ListData enemiesRulesList

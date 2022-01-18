@@ -7467,7 +7467,7 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
 				break;
 				
 			case ls_slash:
-				if(p[lt_clock]>23)
+				if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
 				{
 					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_slash, d->d1, zinit.heroAnimationStyle);
 					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
@@ -7484,7 +7484,7 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
 				
 				break;
 				
-			case ls_stab:
+			case ls_stab: //12 frames, advances by one every 4 frames, 3 tiles total.
 				if(p[lt_clock]>35)
 				{
 					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_stab, d->d1, zinit.heroAnimationStyle);

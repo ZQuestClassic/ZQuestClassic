@@ -1183,10 +1183,11 @@ void sprite::draw(BITMAP* dest)
 				//clean-up
 				destroy_bitmap(temp);
 				break;
-            }
+			}
 			case 2:
 			{
 				BITMAP *temp = create_bitmap_ex(8,48,32);
+				BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 				//clear_bitmap(temp);
 				clear_bitmap(sprBMP2);
@@ -1206,6 +1207,7 @@ void sprite::draw(BITMAP* dest)
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation),ftofix(new_scale));
 					}
 					else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
+					blit(sprBMP2, temp2, 8, 0, 0, 0, 32, 32);
 					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 				}
 				else
@@ -1214,15 +1216,20 @@ void sprite::draw(BITMAP* dest)
 					{
 						double new_scale = scale / 100.0;
 						rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0),ftofix(new_scale));
+						blit(sprBMP2, temp2, 8, 0, 0, 0, 32, 32);
 						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
 					}
-					else doSpriteDraw(drawstyle, dest, temp, sx-8, sy-16);
+					else 
+					{
+						blit(temp, temp2, 8, 0, 0, 0, 32, 32);
+						doSpriteDraw(drawstyle, dest, temp2, sx-8, sy-16);
+					}
 				}
 					
 				
 				destroy_bitmap(temp);
 				break;
-            }
+			}
 			case 3:
 			{
 				int32_t tileToDraw;

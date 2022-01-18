@@ -7,10 +7,7 @@
 
 void call_ruleset_dlg()
 {
-	PickRulesetDialog([](int32_t ruleset)
-	{
-		applyRuleset(ruleset);
-	}).show();
+	PickRulesetDialog(applyRuleset).show();
 }
 
 static const GUI::ListData rulesetsList
