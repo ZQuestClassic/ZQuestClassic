@@ -28145,7 +28145,7 @@ SAMPLE templist[WAV_COUNT];
 bool sfx_init(int32_t index)
 {
     // check index
-    if(index<0 || index>=WAV_COUNT)
+    if(index<1 || index>=WAV_COUNT)
         return false;
         
     if(sfx_voice[index]==-1)

@@ -230,7 +230,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEADER           6
 #define V_RULES           17
 #define V_STRINGS          8
-#define V_MISC             14
+#define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           20
 #define V_CSETS            5 //palette data
@@ -3852,6 +3852,12 @@ enum miscsfx
 	sfxSWITCHED,
 	sfxLOWHEART,
 	sfxERROR,
+	sfxHURTPLAYER,
+	sfxHAMMERPOUND,
+	sfxSUBSCR_ITEM_ASSIGN,
+	sfxSUBSCR_CURSOR_MOVE,
+	sfxREFILL,
+	sfxDRAIN,
 	sfxMAX = 256
 };
 struct miscQdata

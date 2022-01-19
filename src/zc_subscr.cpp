@@ -70,7 +70,8 @@ void dosubscr(miscQdata *misc)
         pause_sfx(itemsbuf[current_item_id(itype_hookshot)].usesound);
         
     adjust_sfx(QMisc.miscsfx[sfxLOWHEART],128,false);
-    adjust_sfx(WAV_MSG,128,false);
+    adjust_sfx(QMisc.miscsfx[sfxREFILL],128,false);
+    adjust_sfx(QMisc.miscsfx[sfxDRAIN],128,false);
     
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
@@ -191,7 +192,7 @@ void dosubscr(miscQdata *misc)
 			
 			Bwpn = t;
 			game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
-			if(!b_only) sfx(WAV_PLACE);
+			if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			
 			game->bwpn = Bpos;
 			directItemB = directItem;
@@ -219,7 +220,7 @@ void dosubscr(miscQdata *misc)
 			}
 			
 			Awpn = t;
-			sfx(WAV_PLACE);
+			sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			game->awpn = Bpos;
 			game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
 			directItemA = directItem;
@@ -247,7 +248,7 @@ void dosubscr(miscQdata *misc)
 			}
 			
 			Xwpn = t;
-			sfx(WAV_PLACE);
+			sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			game->xwpn = Bpos;
 			game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
 			directItemX = directItem;
@@ -275,14 +276,14 @@ void dosubscr(miscQdata *misc)
 			}
 			
 			Ywpn = t;
-			sfx(WAV_PLACE);
+			sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 			game->ywpn = Bpos;
 			game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
 			directItemY = directItem;
 		}
         
         if(pos!=Bpos)
-            sfx(WAV_CHIME);
+            sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
             
         do_dcounters();
         Hero.refill();

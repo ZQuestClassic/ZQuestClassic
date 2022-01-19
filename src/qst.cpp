@@ -5922,6 +5922,14 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		temp_misc.miscsfx[sfxBUSHGRASS] = WAV_ZN1GRASSCUT;
 		temp_misc.miscsfx[sfxLOWHEART] = WAV_ER;
 	}
+	if(s_version < 15)
+	{
+		temp_misc.miscsfx[sfxHURTPLAYER] = WAV_OUCH;
+		temp_misc.miscsfx[sfxHAMMERPOUND] = WAV_ZN1HAMMERPOST;
+		temp_misc.miscsfx[sfxSUBSCR_ITEM_ASSIGN] = WAV_PLACE;
+		temp_misc.miscsfx[sfxSUBSCR_CURSOR_MOVE] = WAV_CHIME;
+		temp_misc.miscsfx[sfxREFILL] = WAV_MSG;
+	}
 	
 	if(keepdata==true)
 	{

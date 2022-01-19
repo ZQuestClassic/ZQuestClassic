@@ -461,11 +461,13 @@ int32_t HeroClass::get_defence(int32_t type)
 
 
 //Set Hero;s hurt sfx
-void HeroClass::setHurtSFX(int32_t sfx){
-	hurtsfx = sfx;
+void HeroClass::setHurtSFX(int32_t sfx)
+{
+	QMisc.miscsfx[sfxHURTPLAYER] = sfx;
 }	
-int32_t HeroClass::getHurtSFX() {
-	return hurtsfx;
+int32_t HeroClass::getHurtSFX()
+{
+	return QMisc.miscsfx[sfxHURTPLAYER];
 }
 
 bool  HeroClass::getDiagMove()
@@ -1393,7 +1395,6 @@ void HeroClass::init()
     
     //2.6
 	preventsubscreenfalling = false;  //-Z
-	hurtsfx = 19; //getHurtSFX(); //Set the default sound. 
 	flickerorflash = true; //flicker or flash unless disabled externally.
 	walkspeed = 0; //not used, yet. -Z
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
@@ -4544,7 +4545,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
         }
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
             
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
     }
@@ -4554,7 +4555,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
         set_bit(ffcgrid,current_ffcombo,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
     }
     
     return;
@@ -5027,7 +5028,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         }
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
             
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
     }
@@ -5037,7 +5038,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         set_bit(ffcgrid,current_ffcombo,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
     }
     
     return;
@@ -5252,7 +5253,7 @@ void HeroClass::check_pound_block(weapon *w)
         }
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
             
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
     }
@@ -5262,7 +5263,7 @@ void HeroClass::check_pound_block(weapon *w)
         set_bit(ffcgrid,current_ffcombo,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(WAV_ZN1HAMMERPOST,int32_t(bx));
+            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
     }
     
     return;
@@ -7983,7 +7984,7 @@ bool HeroClass::animate(int32_t)
 						for(size_t q = 0; q < 60; ++q)
 						{
 							if(!(q%6) && (toFill[0]||toFill[1]||toFill[2]))
-								sfx(WAV_MSG); //!TODO Need to make this configurable at some point... -Em
+								sfx(QMisc.miscsfx[sfxREFILL]);
 							for(size_t j = 0; j < 3; ++j)
 							{
 								xtra[j] += inc;
@@ -9330,7 +9331,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					for(size_t q = 0; q < 60; ++q)
 					{
 						if(!(q%6) && (toFill[0]||toFill[1]||toFill[2]))
-							sfx(WAV_MSG); //!TODO Need to make this configurable at some point... -Em
+							sfx(QMisc.miscsfx[sfxREFILL]);
 						for(size_t j = 0; j < 3; ++j)
 						{
 							xtra[j] += inc;
@@ -26289,7 +26290,7 @@ bool HeroClass::refill()
 					if ( q == (int32_t)tmpscr->bosssfx ) continue;
 					stop_sfx(q);
 				}
-				sfx(WAV_MSG);
+				sfx(QMisc.miscsfx[sfxREFILL]);
                 refilling=REFILL_NONE;
                 return false;
             }
@@ -26309,7 +26310,7 @@ bool HeroClass::refill()
 					if ( q == (int32_t)tmpscr->bosssfx ) continue;
 					stop_sfx(q);
 				}
-                sfx(WAV_MSG);
+                sfx(QMisc.miscsfx[sfxREFILL]);
                 refilling=REFILL_NONE;
                 return false;
             }
@@ -26331,7 +26332,7 @@ bool HeroClass::refill()
 					if ( q == (int32_t)tmpscr->bosssfx ) continue;
 					stop_sfx(q);
 				}
-                sfx(WAV_MSG);
+                sfx(QMisc.miscsfx[sfxREFILL]);
                 refilling=REFILL_NONE;
                 return false;
             }

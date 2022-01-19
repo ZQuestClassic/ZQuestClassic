@@ -2911,7 +2911,7 @@ void putintro()
             ++intropos;
     }
     
-    sfx(WAV_MSG);
+    sfx(WAV_MSG); //actual message display
     
     
     //using the clip value to indicate the bitmap is "dirty"
@@ -3425,22 +3425,19 @@ void update_hookshot()
 
 void do_dcounters()
 {
-    static bool sfxon = false;
-    
     for(int32_t i=0; i<32; i++)
     {
         if(game->get_dcounter(i)==0)
         {
-            sfxon = false;
             continue;
         }
         
+		byte sfx_to_use = 0;
         if(frame&1)
         {
-            sfxon = true;
-            
             if(game->get_dcounter(i)>0)
             {
+				sfx_to_use = QMisc.miscsfx[sfxREFILL];
                 int32_t drain = (i==4 ? game->get_mp_per_block()/4 : 1);
                 drain = zc_min(game->get_dcounter(i),drain);
                 
@@ -3460,8 +3457,8 @@ void do_dcounters()
             }
             else
             {
-                if(i!=1)   // Only rupee drain is sounded
-                    sfxon = false;
+                if(i==1)   // Only rupee drain is sounded
+                    sfx_to_use = QMisc.miscsfx[sfxDRAIN];;
                     
                 int32_t drain = (i==4 ? 2*game->get_magicdrainrate() : 1);
                 
@@ -3481,8 +3478,8 @@ void do_dcounters()
             }
         }
         
-        if((sfxon || i==1) && !lensclk && (i<2 || i==4)) // Life, Rupees and Magic
-            sfx(WAV_MSG);
+        if((sfx_to_use) && !lensclk && (i<2 || i==4)) // Life, Rupees and Magic
+            sfx(sfx_to_use);
     }
 }
 #define F7 46+7
