@@ -1954,9 +1954,7 @@ int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c)
 			msg_y = vbound(omy+(oy-gui_mouse_y()),0,zc_max(0,h-32));
 			
 			broadcast_dialog_message(MSG_IDLE, 0);
-			#ifdef IS_ZQUEST
 			update_hw_screen();
-			#endif
 		}
 		
 		break;

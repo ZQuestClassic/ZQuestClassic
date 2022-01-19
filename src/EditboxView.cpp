@@ -19,11 +19,9 @@ extern int32_t scheme[];
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
 
-#ifdef IS_ZQUEST
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
 void update_hw_screen();
-#endif
 
 extern bool is_zquest();
 
@@ -367,9 +365,7 @@ void BasicEditboxView::draw()
 	blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
 	set_clip_rect(screen, 0, 0,SCREEN_W,SCREEN_H);
 	
-	#ifdef IS_ZQUEST
 	update_hw_screen();
-	#endif
 }
 
 bool BasicEditboxView::mouseClick(int32_t x, int32_t y)

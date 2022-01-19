@@ -89,6 +89,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 		{
 			cyclebutton->setDisabled(interpfad?(index>=256):(paltab == 1));
 			updatePal();
+			return false;
 		},
 		Column(
 			tabpan = TabPanel(

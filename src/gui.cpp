@@ -190,9 +190,7 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
         /* If a menu is active, we yield here, since the dialog
         * engine is shut down so no user code can be running.
         */
-		#ifdef IS_ZQUEST
 		update_hw_screen();
-		#endif
         
         //if (active_menu_player2)
         //rest(1);

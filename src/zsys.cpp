@@ -40,9 +40,7 @@ using std::getline;
 
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
-#ifdef IS_ZQUEST
 void update_hw_screen();
-#endif
 
 extern bool is_zquest();
 bool zconsole = false;
@@ -1128,9 +1126,7 @@ void box_out(const char *msg)
         box_log = oldlog;
     }
     
-    #ifdef IS_ZQUEST
 	update_hw_screen();
-	#endif
 }
 
 /* calls box_out, and box_eol for newlines */
@@ -1194,9 +1190,7 @@ void box_eol()
         memset(box_log_msg, 0, 480);
     }
     
-    #ifdef IS_ZQUEST
 	update_hw_screen();
-	#endif
 }
 
 /* ends output of a progress message */

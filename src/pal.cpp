@@ -31,46 +31,6 @@ bool stayLit = false;
 bool usingdrypal = false; //using dried up lake colors
 RGB olddrypal; //palette to restore when lake rehydrates
 
-RGB _RGB(byte *si)
-{
-    RGB x;
-    x.r = si[0];
-    x.g = si[1];
-    x.b = si[2];
-    x.filler=0; // Suppress warning "used undefined"
-    return x;
-}
-
-RGB _RGB(int32_t r,int32_t g,int32_t b)
-{
-    RGB x;
-    x.r = r;
-    x.g = g;
-    x.b = b;
-    x.filler=0; // Suppress warning "used undefined"
-    return x;
-}
-
-RGB invRGB(RGB s)
-{
-    RGB x;
-    x.r = 63-s.r;
-    x.g = 63-s.g;
-    x.b = 63-s.b;
-    x.filler=0; // Suppress warning "used undefined"
-    return x;
-}
-
-RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio)
-{
-    RGB x;
-    x.r = (r1*(64-ratio) + r2*ratio) >> 6;
-    x.g = (g1*(64-ratio) + g2*ratio) >> 6;
-    x.b = (b1*(64-ratio) + b2*ratio) >> 6;
-    x.filler=0; // Suppress warning "used undefined"
-    return x;
-}
-
 void copy_pal(RGB *src,RGB *dest)
 {
     for(int32_t i=0; i<256; i++)

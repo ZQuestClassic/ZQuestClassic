@@ -5,6 +5,10 @@
 #include "zsys.h"
 #include "fonts.h"
 #include "dialog/alert.h"
+#include "launcher_dialog.h"
+
+#define QUICK_EXIT 0
+
 
 #define QUIT_LAUNCHER() \
 do{ \
@@ -28,11 +32,14 @@ int32_t zqwin_scale = 1;
 int32_t zq_screen_w=800;
 int32_t zq_screen_h=600;
 BITMAP *tmp_scr;
+BITMAP *hw_screen;
 BITMAP *mouse_bmp;
+int32_t gui_colorset = 99;
 volatile bool close_button_quit = false;
 
 void init_launcher_palette();
 void fps_callback();
+void myvsync_callback();
 
 int32_t cursorColor(int32_t col)
 {
@@ -59,12 +66,13 @@ void hit_close_button()
 
 int32_t main(int32_t argc, char* argv[])
 {
+	set_uformat(U_ASCII);
 	zc_srand(time(0));
 	
 	
-	set_uformat(U_ASCII);
 	Z_message("Initializing Allegro... "); //{
 	allegro_init();
+	set_config_standard();
 	// register_bitmap_file_type("GIF",  load_gif, save_gif);
 	// jpgalleg_init();
 	// loadpng_init();
@@ -84,7 +92,14 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
 	{
-		Z_error("couldn't allocate timer");
+		Z_error("couldn't allocate timer\n");
+		QUIT_LAUNCHER();
+	}
+	LOCK_VARIABLE(myvsync);
+	LOCK_FUNCTION(myvsync_callback);
+	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(60)))
+	{
+		Z_error("couldn't allocate timer\n");
 		QUIT_LAUNCHER();
 	}
 	
@@ -92,6 +107,7 @@ int32_t main(int32_t argc, char* argv[])
 	LOCK_VARIABLE(dclick_time);
 	lock_dclick_function();
 	install_int(dclick_check, 20);
+	
 	
 	set_gfx_mode(GFX_TEXT,80,50,0,0);
 	Z_message("OK\n");
@@ -106,7 +122,7 @@ int32_t main(int32_t argc, char* argv[])
 	resolve_password(datapwd);
 	packfile_password(datapwd);
 	
-	Z_message("Fonts.Dat..."); //{
+	Z_message("....Fonts.Dat..."); //{
 	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
 	{
 		Z_error("failed: load error\n");
@@ -122,7 +138,9 @@ int32_t main(int32_t argc, char* argv[])
 	initFonts();
 	Z_message("OK\n");
 	//} end Fonts.Dat...OK
+	packfile_password("");
 	
+	Z_message("....OK\n");
 	//} end Loading data files:
 	
 	set_color_depth(8);
@@ -134,19 +152,34 @@ int32_t main(int32_t argc, char* argv[])
 		QUIT_LAUNCHER();
 	}
 	
-	Z_message("Loading bitmaps...");
+	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
+	//{ Screen setup
+	hw_screen = screen;
+	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	//}
 	
-	if(!(tmp_scr && mouse_bmp))
+	if(!(tmp_scr && mouse_bmp && screen))
 	{
 		Z_error("failed\n");
 		QUIT_LAUNCHER();
 	}
 	Z_message("OK\n");
+	//}
 	
+	while(!key[KEY_SPACE]);
+	
+	Z_message("Loading configs...");
+	gui_colorset = zc_get_config("ZLAUNCH","gui_colorset",99);
+	Z_message("OK\n");
+	
+	Z_message("Initializing palette...");
 	init_launcher_palette();
+	Z_message("OK\n");
 	
+	
+	Z_message("Initializing mouse...");
 	//{ Mouse setup
 	scare_mouse();
 	set_mouse_sprite(NULL);
@@ -160,31 +193,25 @@ int32_t main(int32_t argc, char* argv[])
 	unscare_mouse();
 	show_mouse(screen);
 	//}
+	Z_message("OK\n");
 	
 	set_window_title("ZQuest Launcher");
 	set_close_button_callback((void (*)()) hit_close_button);
 	//
+	Z_message("Launcher opened successfully.\n");
+	#if QUICK_EXIT > 0
+	goto exit;
+	#endif
 	
-	while(true)
-	{
-		//InfoDialog("Info","Hello! This is a popup!!!").show();
-		if(close_button_quit)
-		{
-			bool r = false;
-			AlertDialog("Exit",
-				"Are you sure?",
-				[&](bool ret)
-				{
-					r = ret;
-				}).show();
-			close_button_quit = false;
-			if(r)
-				break;
-		}
-	}
-	
+	LauncherDialog().show();
+
+#if QUICK_EXIT > 0
+exit:
+#endif
+	Z_message("Exiting launcher...\n");
 	//
 	
+	flush_config_file();
 	allegro_exit();
 	return 0;
 }
@@ -339,46 +366,6 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 	return D_O_K;
 }
 
-RGB _RGB(byte *si)
-{
-	RGB x;
-	x.r = si[0];
-	x.g = si[1];
-	x.b = si[2];
-	x.filler=0;
-	return x;
-}
-
-RGB _RGB(int32_t r,int32_t g,int32_t b)
-{
-	RGB x;
-	x.r = r;
-	x.g = g;
-	x.b = b;
-	x.filler=0;
-	return x;
-}
-
-RGB invRGB(RGB s)
-{
-	RGB x;
-	x.r = 63-s.r;
-	x.g = 63-s.g;
-	x.b = 63-s.b;
-	x.filler=0;
-	return x;
-}
-
-RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio)
-{
-	RGB x;
-	x.r = (r1*(64-ratio) + r2*ratio) >> 6;
-	x.g = (g1*(64-ratio) + g2*ratio) >> 6;
-	x.b = (b1*(64-ratio) + b2*ratio) >> 6;
-	x.filler=0;
-	return x;
-}
-
 void go()
 {
 	scare_mouse();
@@ -440,51 +427,9 @@ void init_launcher_palette()
 	RAMpal[254].r = 34; RAMpal[254].g = 42; RAMpal[254].b = 53;
 	RAMpal[255].r = 41; RAMpal[255].g = 49; RAMpal[255].b = 59;
 	//}
-	//{Theme stuff
-	RAMpal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-	RAMpal[dvc(2)] = _RGB(66*63/255,  65*63/255,  66*63/255);
-	RAMpal[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
-	RAMpal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-	RAMpal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-	RAMpal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-	RAMpal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-	RAMpal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
 	
-	byte palrstart= 10*63/255, palrend=166*63/255,
-		 palgstart= 36*63/255, palgend=202*63/255,
-		 palbstart=106*63/255, palbend=240*63/255,
-		 paldivs=7;
-		 
-	for(int32_t i=0; i<paldivs; i++)
-	{
-		RAMpal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-		RAMpal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-		RAMpal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	}
+	load_colorset(gui_colorset);
 	
-	jwin_pal[jcBOX]	=dvc(4);
-	jwin_pal[jcLIGHT]  =dvc(5);
-	jwin_pal[jcMEDLT]  =dvc(4);
-	jwin_pal[jcMEDDARK]=dvc(3);
-	jwin_pal[jcDARK]   =dvc(2);
-	jwin_pal[jcBOXFG]  =dvc(1);
-	jwin_pal[jcTITLEL] =dvc(9);
-	jwin_pal[jcTITLER] =dvc(15);
-	jwin_pal[jcTITLEFG]=dvc(7);
-	jwin_pal[jcTEXTBG] =dvc(5);
-	jwin_pal[jcTEXTFG] =dvc(1);
-	jwin_pal[jcSELBG]  =dvc(8);
-	jwin_pal[jcSELFG]  =dvc(6);
-	jwin_pal[jcCURSORMISC] = dvc(1);
-	jwin_pal[jcCURSOROUTLINE] = dvc(2);
-	jwin_pal[jcCURSORLIGHT] = dvc(3);
-	jwin_pal[jcCURSORDARK] = dvc(5);
-	
-	gui_bg_color=jwin_pal[jcBOX];
-	gui_fg_color=jwin_pal[jcBOXFG];
-	gui_mg_color=jwin_pal[jcMEDDARK];
-	jwin_set_colors(jwin_pal);
-	//}
 	set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 }
@@ -496,6 +441,20 @@ void fps_callback()
 }
 END_OF_FUNCTION(fps_callback)
 
+void myvsync_callback()
+{
+    ++myvsync;
+}
+END_OF_FUNCTION(myvsync_callback)
 
+void update_hw_screen()
+{
+	if(myvsync)
+	{
+		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+		
+		myvsync=0;
+	}
+}
 
 

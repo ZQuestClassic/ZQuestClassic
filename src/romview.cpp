@@ -459,28 +459,6 @@ BITMAP *create_save_bitmap()
     return bmp;
 }
 
-
-
-RGB _RGB(int32_t r,int32_t g,int32_t b)
-{
-    RGB x;
-    x.r = r;
-    x.g = g;
-    x.b = b;
-    return x;
-}
-
-
-RGB invRGB(RGB c)
-{
-    RGB x;
-    x.r = 63-c.r;
-    x.g = 63-c.g;
-    x.b = 63-c.b;
-    return x;
-}
-
-
 inline int32_t pal_sum(RGB p)
 {
     return p.r + p.g + p.b;

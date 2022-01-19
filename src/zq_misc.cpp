@@ -243,53 +243,6 @@ void dotted_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t fg, int
     }
 }
 
-RGB _RGB(byte *si)
-{
-    RGB x;
-    x.r = si[0];
-    x.g = si[1];
-    x.b = si[2];
-    x.filler=0;
-    return x;
-}
-
-RGB _RGB(int32_t r,int32_t g,int32_t b)
-{
-    RGB x;
-    x.r = r;
-    x.g = g;
-    x.b = b;
-    x.filler=0;
-    return x;
-}
-
-RGB invRGB(RGB s)
-{
-    RGB x;
-    x.r = 63-s.r;
-    x.g = 63-s.g;
-    x.b = 63-s.b;
-    x.filler=0;
-    return x;
-}
-
-/*
-  INLINE RGB NESpal(int32_t i)
-  {
-  return _RGB(nes_pal+(i*3));
-  }
-  */
-
-RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio)
-{
-    RGB x;
-    x.r = (r1*(64-ratio) + r2*ratio) >> 6;
-    x.g = (g1*(64-ratio) + g2*ratio) >> 6;
-    x.b = (b1*(64-ratio) + b2*ratio) >> 6;
-    x.filler=0;
-    return x;
-}
-
 void reset_pal_cycling();
 void cycle_palette();
 

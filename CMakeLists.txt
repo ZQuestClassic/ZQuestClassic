@@ -73,6 +73,15 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
 )
 
+set(ZSCRIPT_MODULES
+	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
+)
+
+set(ZSCRIPT_CORE_SOURCES
+	${CMAKE_SOURCE_DIR}/src/parser/ZScript_main.cpp
+	${CMAKE_SOURCE_DIR}/src/util.cpp
+)
+
 set(LAUNCHER_MODULES
 	${CMAKE_SOURCE_DIR}/modules/launcher/LauncherCore.txt
 	${CMAKE_SOURCE_DIR}/modules/launcher/LauncherGUI.txt
@@ -293,7 +302,7 @@ if(LINUX)
 endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
-	add_executable(zscript src/parser/ZScript_main.cpp src/util.cpp ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS})
+	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 endif()
 

@@ -1161,8 +1161,8 @@ void fps_callback();
 
 #ifdef IS_ZQUEST
 extern BITMAP *hw_screen;
-void update_hw_screen();
 #endif
+void update_hw_screen();
 
 /********************/
 /******  MAIN  ******/

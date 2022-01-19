@@ -140,7 +140,7 @@ void Window::realize(DialogRunner& runner)
 			0, 0, 0, 0,
 			0, 0,
 			0, // key
-			0, // flags,
+			D_NEW_GUI, // flags,
 			0, 0, // d1, d2
 			tfunc, nullptr, nullptr // dp, dp2, dp3
 		});
@@ -161,7 +161,7 @@ int32_t Window::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	return TopLevelWidget::onEvent(event, sendMessage);
 }
 
-void Window::setOnTick(std::function<void()> newOnTick)
+void Window::setOnTick(std::function<int32_t()> newOnTick)
 {
 	onTick = std::move(newOnTick);
 }

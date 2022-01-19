@@ -388,8 +388,7 @@ bool ZModule::init(bool d) //bool default
 	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
-		
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE","current_module","modules/classic.zmod"));
+	strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module","modules/classic.zmod"));
 	al_trace("The Current ZQuest Creator Module is: %s\n",moduledata.module_name); 
 	if(!fileexists((char*)moduledata.module_name))
 	{
@@ -405,78 +404,78 @@ bool ZModule::init(bool d) //bool default
 		//al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//Metadata
-		strcpy(moduledata.moduletitle,get_config_string("METADATA","title",""));
-		strcpy(moduledata.moduleauthor,get_config_string("METADATA","author",""));
-		strcpy(moduledata.moduleinfo0,get_config_string("METADATA","info_0",""));
-		strcpy(moduledata.moduleinfo1,get_config_string("METADATA","info_1",""));
-		strcpy(moduledata.moduleinfo2,get_config_string("METADATA","info_2",""));
-		strcpy(moduledata.moduleinfo3,get_config_string("METADATA","info_3",""));
-		strcpy(moduledata.moduleinfo4,get_config_string("METADATA","info_4",""));
-		strcpy(moduledata.moduletimezone,get_config_string("METADATA","timezone","GMT"));
-		//strcpy(moduledata.module_base_nsf,get_config_string("METADATA","nsf",""));
-		moduledata.modver_1 = get_config_int("METADATA","version_first",0);
-		moduledata.modver_2 = get_config_int("METADATA","version_second",0);	
-		moduledata.modver_3 = get_config_int("METADATA","version_third",0);
-		moduledata.modver_4 = get_config_int("METADATA","version_fourth",0);
-		moduledata.modbuild = get_config_int("METADATA","version_build",0);
-		moduledata.modbeta = get_config_int("METADATA","version_beta",0);
-		moduledata.modmonth = get_config_int("METADATA","version_month",0);
-		moduledata.modday = get_config_int("METADATA","version_day",0);
-		moduledata.modyear = get_config_int("METADATA","version_year",0);
-		moduledata.modhour = get_config_int("METADATA","version_hour",0);
-		moduledata.modminute = get_config_int("METADATA","version_minute",0); 
+		strcpy(moduledata.moduletitle,zc_get_config("METADATA","title",""));
+		strcpy(moduledata.moduleauthor,zc_get_config("METADATA","author",""));
+		strcpy(moduledata.moduleinfo0,zc_get_config("METADATA","info_0",""));
+		strcpy(moduledata.moduleinfo1,zc_get_config("METADATA","info_1",""));
+		strcpy(moduledata.moduleinfo2,zc_get_config("METADATA","info_2",""));
+		strcpy(moduledata.moduleinfo3,zc_get_config("METADATA","info_3",""));
+		strcpy(moduledata.moduleinfo4,zc_get_config("METADATA","info_4",""));
+		strcpy(moduledata.moduletimezone,zc_get_config("METADATA","timezone","GMT"));
+		//strcpy(moduledata.module_base_nsf,zc_get_config("METADATA","nsf",""));
+		moduledata.modver_1 = zc_get_config("METADATA","version_first",0);
+		moduledata.modver_2 = zc_get_config("METADATA","version_second",0);	
+		moduledata.modver_3 = zc_get_config("METADATA","version_third",0);
+		moduledata.modver_4 = zc_get_config("METADATA","version_fourth",0);
+		moduledata.modbuild = zc_get_config("METADATA","version_build",0);
+		moduledata.modbeta = zc_get_config("METADATA","version_beta",0);
+		moduledata.modmonth = zc_get_config("METADATA","version_month",0);
+		moduledata.modday = zc_get_config("METADATA","version_day",0);
+		moduledata.modyear = zc_get_config("METADATA","version_year",0);
+		moduledata.modhour = zc_get_config("METADATA","version_hour",0);
+		moduledata.modminute = zc_get_config("METADATA","version_minute",0); 
 		
 		//quests
-		moduledata.old_quest_serial_flow = get_config_int("QUESTS","quest_flow",1);
-		moduledata.max_quest_files = get_config_int("QUESTS","num_quest_files",5);
+		moduledata.old_quest_serial_flow = zc_get_config("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = zc_get_config("QUESTS","num_quest_files",5);
 		//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
 		//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
-		strcpy(moduledata.quests[0],get_config_string("QUESTS","first_qst","1st.qst"));
+		strcpy(moduledata.quests[0],zc_get_config("QUESTS","first_qst","1st.qst"));
 		//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
-		strcpy(moduledata.quests[1],get_config_string("QUESTS","second_qst","2nd.qst"));
+		strcpy(moduledata.quests[1],zc_get_config("QUESTS","second_qst","2nd.qst"));
 		//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
-		strcpy(moduledata.quests[2],get_config_string("QUESTS","third_qst","3rd.qst"));
+		strcpy(moduledata.quests[2],zc_get_config("QUESTS","third_qst","3rd.qst"));
 		//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
-		strcpy(moduledata.quests[3],get_config_string("QUESTS","fourth_qst","4th.qst"));
+		strcpy(moduledata.quests[3],zc_get_config("QUESTS","fourth_qst","4th.qst"));
 		//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
-		strcpy(moduledata.quests[4],get_config_string("QUESTS","fifth_qst","5th.qst"));
+		strcpy(moduledata.quests[4],zc_get_config("QUESTS","fifth_qst","5th.qst"));
 		//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
 		
 		//quest skip names
-		strcpy(moduledata.skipnames[0],get_config_string("NAMEENTRY","first_qst_skip"," "));
+		strcpy(moduledata.skipnames[0],zc_get_config("NAMEENTRY","first_qst_skip"," "));
 		//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
-		strcpy(moduledata.skipnames[1],get_config_string("NAMEENTRY","second_qst_skip","ZELDA"));
+		strcpy(moduledata.skipnames[1],zc_get_config("NAMEENTRY","second_qst_skip","ZELDA"));
 		//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
-		strcpy(moduledata.skipnames[2],get_config_string("NAMEENTRY","third_qst_skip","ALPHA"));
+		strcpy(moduledata.skipnames[2],zc_get_config("NAMEENTRY","third_qst_skip","ALPHA"));
 		//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
-		strcpy(moduledata.skipnames[3],get_config_string("NAMEENTRY","fourth_qst_skip","GANON"));
+		strcpy(moduledata.skipnames[3],zc_get_config("NAMEENTRY","fourth_qst_skip","GANON"));
 		//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
-		strcpy(moduledata.skipnames[4],get_config_string("NAMEENTRY","fifth_qst_skip","JEAN"));
+		strcpy(moduledata.skipnames[4],zc_get_config("NAMEENTRY","fifth_qst_skip","JEAN"));
 		//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
 		
 		//datafiles
-		strcpy(moduledata.datafiles[zelda_dat],get_config_string("DATAFILES","zcplayer_datafile","zelda.dat"));
+		strcpy(moduledata.datafiles[zelda_dat],zc_get_config("DATAFILES","zcplayer_datafile","zelda.dat"));
 		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
-		strcpy(moduledata.datafiles[zquest_dat],get_config_string("DATAFILES","zquest_datafile","zquest.dat"));
+		strcpy(moduledata.datafiles[zquest_dat],zc_get_config("DATAFILES","zquest_datafile","zquest.dat"));
 		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
-		strcpy(moduledata.datafiles[fonts_dat],get_config_string("DATAFILES","fonts_datafile","fonts.dat"));
+		strcpy(moduledata.datafiles[fonts_dat],zc_get_config("DATAFILES","fonts_datafile","fonts.dat"));
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
-		strcpy(moduledata.datafiles[sfx_dat],get_config_string("DATAFILES","sounds_datafile","sfx.dat"));
+		strcpy(moduledata.datafiles[sfx_dat],zc_get_config("DATAFILES","sounds_datafile","sfx.dat"));
 		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
-		strcpy(moduledata.datafiles[qst_dat],get_config_string("DATAFILES","quest_template_datafile","qst.dat"));
+		strcpy(moduledata.datafiles[qst_dat],zc_get_config("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
 		
-		strcpy(moduledata.base_NSF_file,get_config_string("DATAFILES","base_NSF_file","zelda.nsf"));
+		strcpy(moduledata.base_NSF_file,zc_get_config("DATAFILES","base_NSF_file","zelda.nsf"));
 		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
 		
-		moduledata.title_track = get_config_int("DATAFILES","title_track",0);
-		moduledata.ending_track = get_config_int("DATAFILES","ending_track",1);
-		moduledata.tf_track = get_config_int("DATAFILES","tf_track",5);
-		moduledata.gameover_track = get_config_int("DATAFILES","gameover_track",0);
-		moduledata.dungeon_track = get_config_int("DATAFILES","dungeon_track",0);
-		moduledata.overworld_track = get_config_int("DATAFILES","overworld_track",0);
-		moduledata.lastlevel_track = get_config_int("DATAFILES","lastlevel_track",0);
+		moduledata.title_track = zc_get_config("DATAFILES","title_track",0);
+		moduledata.ending_track = zc_get_config("DATAFILES","ending_track",1);
+		moduledata.tf_track = zc_get_config("DATAFILES","tf_track",5);
+		moduledata.gameover_track = zc_get_config("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = zc_get_config("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = zc_get_config("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = zc_get_config("DATAFILES","lastlevel_track",0);
 		
 		const char enemy_family_strings[eeMAX][255] =
 		{
@@ -523,7 +522,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < eeMAX; q++ )
 		{
-			strcpy(moduledata.enem_type_names[q],get_config_string("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
+			strcpy(moduledata.enem_type_names[q],zc_get_config("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
 			//al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
 		}
 		const char default_enemy_anims[aMAX][255] =
@@ -557,7 +556,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < aMAX; q++ )
 		{
-			strcpy(moduledata.enem_anim_type_names[q],get_config_string("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
+			strcpy(moduledata.enem_anim_type_names[q],zc_get_config("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
 			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
 		}
 		
@@ -641,7 +640,7 @@ bool ZModule::init(bool d) //bool default
 			{
 				strcpy(moduledata.combo_type_names[q],"-");
 			}
-			else strcpy(moduledata.combo_type_names[q],get_config_string("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
+			else strcpy(moduledata.combo_type_names[q],zc_get_config("COMBOS",combo_name_fields[q],default_ctype_strings[q]));
 		}
 		
 		//map flags
@@ -698,7 +697,7 @@ bool ZModule::init(bool d) //bool default
 		{
 			if(map_flag_default_string[q][0] == '-')
 				strcpy(moduledata.combo_flag_names[q], map_flag_default_string[q]);
-			else strcpy(moduledata.combo_flag_names[q],get_config_string("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
+			else strcpy(moduledata.combo_flag_names[q],zc_get_config("MAPFLAGS",map_flag_cats[q],map_flag_default_string[q]));
 		}
 		const char roomtype_cats[rMAX][256] =
 		{
@@ -716,7 +715,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < rMAX; q++ )
 		{
-			strcpy(moduledata.roomtype_names[q],get_config_string("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			strcpy(moduledata.roomtype_names[q],zc_get_config("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
 		
@@ -731,7 +730,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < e9tARMOS+1; q++ )
 		{
-			strcpy(moduledata.walkmisc9_names[q],get_config_string("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
+			strcpy(moduledata.walkmisc9_names[q],zc_get_config("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
 		}
 		const char guy_types[gDUMMY1][255]=
@@ -748,7 +747,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < gDUMMY1; q++ )
 		{
-			strcpy(moduledata.guy_type_names[q],get_config_string("GUYS",guy_types[q],guy_default_names[q]));
+			strcpy(moduledata.guy_type_names[q],zc_get_config("GUYS",guy_types[q],guy_default_names[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
 		}
 		
@@ -798,21 +797,21 @@ bool ZModule::init(bool d) //bool default
 		
 		for ( int32_t q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
 		{
-			strcpy(moduledata.enemy_weapon_names[q],get_config_string("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
+			strcpy(moduledata.enemy_weapon_names[q],zc_get_config("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
 			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
 		}
 		
 		
-		strcpy(moduledata.enemy_scriptweaponweapon_names[0],get_config_string("EWEAPONS","Custom_1","Custom 01"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[1],get_config_string("EWEAPONS","Custom_2","Custom 02"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[2],get_config_string("EWEAPONS","Custom_3","Custom 03"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[3],get_config_string("EWEAPONS","Custom_4","Custom 04"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[4],get_config_string("EWEAPONS","Custom_5","Custom 05"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[5],get_config_string("EWEAPONS","Custom_6","Custom 06"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[6],get_config_string("EWEAPONS","Custom_7","Custom 07"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[7],get_config_string("EWEAPONS","Custom_8","Custom 08"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[8],get_config_string("EWEAPONS","Custom_9","Custom 09"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[9],get_config_string("EWEAPONS","Custom_10","Custom 10"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[0],zc_get_config("EWEAPONS","Custom_1","Custom 01"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[1],zc_get_config("EWEAPONS","Custom_2","Custom 02"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[2],zc_get_config("EWEAPONS","Custom_3","Custom 03"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[3],zc_get_config("EWEAPONS","Custom_4","Custom 04"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[4],zc_get_config("EWEAPONS","Custom_5","Custom 05"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[5],zc_get_config("EWEAPONS","Custom_6","Custom 06"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[6],zc_get_config("EWEAPONS","Custom_7","Custom 07"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[7],zc_get_config("EWEAPONS","Custom_8","Custom 08"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[8],zc_get_config("EWEAPONS","Custom_9","Custom 09"));
+		strcpy(moduledata.enemy_scriptweaponweapon_names[9],zc_get_config("EWEAPONS","Custom_10","Custom 10"));
 		
 		const char lweapon_cats[wIce+1][255]=
 		{
@@ -834,7 +833,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < wIce+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? get_config_string("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
+			strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		const char counter_cats[33][255]=
@@ -849,22 +848,22 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < 20; q++ )
 		{
 			for ( int32_t w = 0; w < 4; w++ )
-				strcpy(moduledata.combotypeCustomAttributes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
+				strcpy(moduledata.combotypeCustomAttributes[q][w],zc_get_config("CUSTOMCOMBOTYPES",CustomComboAttributeTypes[q][w],defaultCustomComboAttributes[q][w]));
 		}
 		for ( int32_t q = 0; q < 20; q++ )
 		{
 			for ( int32_t w = 0; w < 8; w++ )
-				strcpy(moduledata.combotypeCustomAttribytes[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttribyteTypes[q][w],defaultCustomComboAttribytes[q][w]));
+				strcpy(moduledata.combotypeCustomAttribytes[q][w],zc_get_config("CUSTOMCOMBOTYPES",CustomComboAttribyteTypes[q][w],defaultCustomComboAttribytes[q][w]));
 		}
 		for ( int32_t q = 0; q < 20; q++ )
 		{
 			for ( int32_t w = 0; w < 8; w++ )
-				strcpy(moduledata.combotypeCustomAttrishorts[q][w],get_config_string("CUSTOMCOMBOTYPES",CustomComboAttrishortTypes[q][w],defaultCustomComboAttrishorts[q][w]));
+				strcpy(moduledata.combotypeCustomAttrishorts[q][w],zc_get_config("CUSTOMCOMBOTYPES",CustomComboAttrishortTypes[q][w],defaultCustomComboAttrishorts[q][w]));
 		}
 		for ( int32_t q = 0; q < 20; q++ )
 		{
 			for ( int32_t e = 0; e < 16; e++ )
-				strcpy(moduledata.combotypeCustomFlags[q][e],get_config_string("CUSTOMCOMBOFLAGS",CustomComboAttributeFlags[q][e],defaultCustomComboFlags[q][e]));
+				strcpy(moduledata.combotypeCustomFlags[q][e],zc_get_config("CUSTOMCOMBOFLAGS",CustomComboAttributeFlags[q][e],defaultCustomComboFlags[q][e]));
 		
 		}
 		
@@ -880,7 +879,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < 33; q++ )
 		{
-			strcpy(moduledata.counter_names[q],get_config_string("COUNTERS",counter_cats[q],counter_default_names[q]));
+			strcpy(moduledata.counter_names[q],zc_get_config("COUNTERS",counter_cats[q],counter_default_names[q]));
 			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
 		}
 		

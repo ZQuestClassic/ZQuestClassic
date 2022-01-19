@@ -592,6 +592,7 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
+void update_hw_screen(){}
 
 /*
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	

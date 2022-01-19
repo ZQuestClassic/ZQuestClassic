@@ -731,9 +731,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				unscare_mouse();
 				over=true;
 				
-				#ifdef IS_ZQUEST
 				update_hw_screen();
-				#endif
 			}
 		}
 		else
@@ -746,9 +744,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				unscare_mouse();
 				over=false;
 				
-				#ifdef IS_ZQUEST
 				update_hw_screen();
-				#endif
 			}
 		}
 		
@@ -761,9 +757,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 		draw_layer_button(screen, x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
 		unscare_mouse();
 		
-		#ifdef IS_ZQUEST
 		update_hw_screen();
-		#endif
 	}
 	
 	return over;

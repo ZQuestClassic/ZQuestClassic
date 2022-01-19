@@ -30,6 +30,11 @@ public:
 	{
 		runner.pendDraw();
 	}
+	
+	inline void close()
+	{
+		runner.done = true;
+	}
 
 	/* Subclasses must define an int32_t-convertible type called `message`
 	 * and implement:
