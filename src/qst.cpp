@@ -5929,6 +5929,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		temp_misc.miscsfx[sfxSUBSCR_ITEM_ASSIGN] = WAV_PLACE;
 		temp_misc.miscsfx[sfxSUBSCR_CURSOR_MOVE] = WAV_CHIME;
 		temp_misc.miscsfx[sfxREFILL] = WAV_MSG;
+		temp_misc.miscsfx[sfxDRAIN] = WAV_MSG;
 	}
 	
 	if(keepdata==true)
