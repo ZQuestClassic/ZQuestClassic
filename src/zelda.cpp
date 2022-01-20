@@ -592,7 +592,15 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
-void update_hw_screen(){}
+bool update_hw_pal = false;
+void update_hw_screen()
+{
+	if(update_hw_pal)
+	{
+		set_palette(RAMpal);
+		update_hw_pal = false;
+	}
+}
 
 /*
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	

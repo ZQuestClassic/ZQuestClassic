@@ -5292,6 +5292,13 @@ RGB _RGB(int32_t r,int32_t g,int32_t b);
 RGB invRGB(RGB s);
 RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio);
 
+extern char tmp_themefile[2048];
+char const* get_themefile();
+void set_theme(char const* fpath);
+void reset_theme();
+void load_themefile(char const* fpath);
+void save_themefile(char const* fpath);
+void load_udef_colorset(char const* fpath);
 void load_colorset(int32_t colorset);
 
 #endif                                                      //_ZDEFS_H_

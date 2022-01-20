@@ -2,6 +2,7 @@
 #include "zdefs.h"
 #include "jwin.h"
 extern PALETTE RAMpal;
+extern bool update_hw_pal;
 
 const char months[13][13] =
 { 
@@ -61,8 +62,24 @@ RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int
 	return x;
 }
 
+static char themefile[2048] = {0};
+char tmp_themefile[2048] = {0};
+char const* get_themefile()
+{
+	return themefile;
+}
+void set_theme(char const* fpath)
+{
+	strcpy(themefile, fpath);
+	reset_theme();
+}
+void reset_theme()
+{
+	load_themefile(themefile);
+}
 void load_themefile(char const* fpath)
 {
+	push_config_state();
 	set_config_file(fpath);
 	RAMpal[dvc(1)] = _RGB(zc_get_config("Theme","dvc1_r",4),zc_get_config("Theme","dvc1_g",38),zc_get_config("Theme","dvc1_b",46)); //box fg is text
 	RAMpal[dvc(2)] = _RGB(zc_get_config("Theme","dvc2_r",(16*63/255)), zc_get_config("Theme","dvc2_g",(10*63/255)), zc_get_config("Theme","dvc2_b",0));
@@ -90,11 +107,18 @@ void load_themefile(char const* fpath)
 	jwin_pal[jcCURSOROUTLINE] = dvc(zc_get_config("Theme","jccursoroutline",2));
 	jwin_pal[jcCURSORLIGHT] = dvc(zc_get_config("Theme","jccursorlight",3));
 	jwin_pal[jcCURSORDARK] = dvc(zc_get_config("Theme","jccursordark",5));
-	set_config_standard();
+	pop_config_state();
+	
+    gui_bg_color=jwin_pal[jcBOX];
+    gui_fg_color=jwin_pal[jcBOXFG];
+    gui_mg_color=jwin_pal[jcMEDDARK];
+    jwin_set_colors(jwin_pal);
+	update_hw_pal = true;
 }
 
 void save_themefile(char const* fpath)
 {
+	push_config_state();
 	set_config_file(fpath);
 	zc_set_config("Theme","dvc1_r",RAMpal[dvc(1)].r); zc_set_config("Theme","dvc1_g",RAMpal[dvc(1)].g); zc_set_config("Theme","dvc1_b",RAMpal[dvc(1)].b);
 	zc_set_config("Theme","dvc2_r",RAMpal[dvc(2)].r); zc_set_config("Theme","dvc2_g",RAMpal[dvc(2)].g); zc_set_config("Theme","dvc2_b",RAMpal[dvc(2)].b);
@@ -121,7 +145,37 @@ void save_themefile(char const* fpath)
 	zc_set_config("Theme","jccursoroutline",r_dvc(jwin_pal[jcCURSOROUTLINE]));
 	zc_set_config("Theme","jccursorlight",r_dvc(jwin_pal[jcCURSORLIGHT]));
 	zc_set_config("Theme","jccursordark",r_dvc(jwin_pal[jcCURSORDARK]));
-	set_config_standard();
+	pop_config_state();
+}
+
+void load_udef_colorset(char const* fpath)
+{
+	push_config_state();
+	set_config_file(fpath);
+	char const* darkthemename = "themes/dark.ztheme";
+	char const* tfnm = zc_get_config("Theme", "theme_filename", "-");
+	bool defaulted_theme = !(tfnm[0]&&tfnm[0]!='-');
+	strcpy(tmp_themefile, defaulted_theme ? darkthemename : tfnm);
+	if(defaulted_theme
+		&& get_config_int("Theme","dvc1_r",4)==get_config_int("Theme","dvc1_r",5))
+	{
+		//Write these back to the custom theme file
+		#ifdef IS_ZQUEST
+		strcpy(tmp_themefile, "_custom_zq.ztheme");
+		#elif defined(IS_PLAYER)
+		strcpy(tmp_themefile, "_custom_zc.ztheme");
+		#elif defined(IS_LAUNCHER)
+		strcpy(tmp_themefile, "_custom_zcl.ztheme");
+		#else
+		strcpy(tmp_themefile, "_custom.ztheme");
+		#endif
+		zc_set_config("Theme","theme_filename", tmp_themefile);
+		save_themefile(tmp_themefile);
+	}
+	else load_themefile(tmp_themefile);
+	if (defaulted_theme)
+		zc_set_config("Theme", "theme_filename", tmp_themefile);
+	pop_config_state();
 }
 
 void load_colorset(int32_t colorset)
@@ -384,31 +438,8 @@ void load_colorset(int32_t colorset)
 		
 		case 99:  //User Defined
 		{
-			char themefile[2048] = {0};
-			char const* darkthemename = "themes/dark.ztheme";
-			char const* tfnm = zc_get_config("Theme", "theme_filename", "-");
-			bool defaulted_theme = !(tfnm[0]&&tfnm[0]!='-');
-			strcpy(themefile, defaulted_theme ? darkthemename : tfnm);
-			if(defaulted_theme
-				&& get_config_int("Theme","dvc1_r",4)==get_config_int("Theme","dvc1_r",5))
-			{
-				load_themefile(STANDARD_CFG);
-				//Write these back to the custom theme file
-				#ifdef IS_ZQUEST
-				strcpy(themefile, "_custom_zq.ztheme");
-				#elif defined(IS_PLAYER)
-				strcpy(themefile, "_custom_zc.ztheme");
-				#elif defined(IS_LAUNCHER)
-				strcpy(themefile, "_custom_zcl.ztheme");
-				#else
-				strcpy(themefile, "_custom.ztheme");
-				#endif
-				zc_set_config("Theme","theme_filename", themefile);
-				save_themefile(themefile);
-			}
-			else load_themefile(themefile);
-			if (defaulted_theme)
-				zc_set_config("Theme", "theme_filename", themefile);
+			load_udef_colorset(STANDARD_CFG);
+			strcpy(themefile, tmp_themefile);
 		}
 		break;
 		

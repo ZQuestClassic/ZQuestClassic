@@ -40,6 +40,7 @@ using std::getline;
 
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
+extern bool update_hw_pal;
 void update_hw_screen();
 
 extern bool is_zquest();

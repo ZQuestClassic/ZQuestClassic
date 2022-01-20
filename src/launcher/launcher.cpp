@@ -447,12 +447,14 @@ void myvsync_callback()
 }
 END_OF_FUNCTION(myvsync_callback)
 
+bool update_hw_pal = false;
 void update_hw_screen()
 {
 	if(myvsync)
 	{
 		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-		
+		if(update_hw_pal) set_palette(RAMpal);
+		update_hw_pal=false;
 		myvsync=0;
 	}
 }

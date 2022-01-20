@@ -33962,7 +33962,7 @@ void zprint2(const char * const format,...)
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
-
+bool update_hw_pal = false;
 void update_hw_screen()
 {
 	if(myvsync)
@@ -33975,6 +33975,8 @@ void update_hw_screen()
 		{
 			blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 		}
+		if(update_hw_pal) set_palette(RAMpal);
+		update_hw_pal=false;
 		
 		myvsync=0;
 	}
