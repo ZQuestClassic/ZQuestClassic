@@ -687,7 +687,12 @@ static const GUI::ListData compatRulesList
 		" regardless of whether it's solid or not."},
 	{ "Broken Z3 Animation", qr_BROKEN_Z3_ANIMATION,
 		"If enabled, Z3 animation will use broken, 1 tile animation for stabbing, slashing, pounding, and charging."
-		" If disabled, Z3 animation will use the intended animation for stabbing, slashing, pounding, and charging."}
+		" If disabled, Z3 animation will use the intended animation for stabbing, slashing, pounding, and charging."},
+	{ "Old Enemy Tile Behavior with Animation (None) Enemies", qr_OLD_TILE_INITIALIZATION,
+		"If enabled, enemies initialize their tile every frame by setting it to their O_Tile, even if they have an animation"
+		" of type (none). If disabled, enemies without animation will only initialize their tile if their tile is 0; which it"
+		" is when it is first created. This does not affect enemies that has an animation set."},
+		
 };
 
 static const GUI::ListData enemiesRulesList

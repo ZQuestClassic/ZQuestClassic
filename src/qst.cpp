@@ -3402,8 +3402,14 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(compatrule_version < 15)
 	{
-		//Old Bridge Combo Behavior
+		//Broken Z3 Animation
 		set_bit(quest_rules,qr_BROKEN_Z3_ANIMATION,1);
+	}
+	
+	if(compatrule_version < 16)
+	{
+		//Old Enemy Tile Behavior with Animation (None) Enemies
+		set_bit(quest_rules,qr_OLD_TILE_INITIALIZATION,1);
 	}
 	
 	//always set

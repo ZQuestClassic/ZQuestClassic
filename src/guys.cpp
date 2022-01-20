@@ -8606,6 +8606,9 @@ void enemy::update_enemy_frame()
 	if(fallclk||drownclk) return;
 	if (!do_animation)
 		return;
+	
+	if (get_bit(quest_rules,qr_OLD_TILE_INITIALIZATION) || tile == 0) tile = o_tile; //tile was initialized here before. It needs to be initialized here as well.
+	
 	if(get_bit(quest_rules,qr_ANONE_NOANIM)
 		&& anim == aNONE && family != eeGUY)
 		return;
