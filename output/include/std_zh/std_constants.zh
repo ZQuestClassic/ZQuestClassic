@@ -2680,12 +2680,6 @@ const int WARPFX_WAVE = 5;
 const int WARPFX_CANCEL = 6;
 const int WARPFX_SCROLL = 7;
 
-//Warp Return Types for Link->UseWarpReturn
-const int WARP_A = 0;
-const int WARP_B = 1;
-const int WARP_C = 2;
-const int WARP_D = 3;
-
 //Sprites for Link->SetTile(sprite, int, int, int)
 //See Quest->Graphics->Sprites->Link for what these are. 
 const int LSPR_NORMAL = 1;
