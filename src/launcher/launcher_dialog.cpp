@@ -41,6 +41,8 @@ int32_t LauncherDialog::launcher_on_tick()
 	return ONTICK_CONTINUE;
 }
 
+static char zthemepath[4096] = {0};
+
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
 {
 	using namespace GUI::Builder;
@@ -86,7 +88,17 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						}),
 						Button(text = "Browse", onPressFunc = [&]()
 						{
-							
+							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
+							{
+								char path[4096] = {0};
+								relativize_path(path, temppath);
+								tf_theme->setText(path);
+								for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+								{
+									temppath[q] = 0;
+								}
+								strcpy(zthemepath, temppath);
+							}
 						}),
 						DummyWidget(),
 						lbl_theme_error = Label(text = "")
@@ -130,6 +142,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								lbl_theme_error->setText("");
 								set_config_file("zquest.cfg");
 								zc_set_config("Theme","theme_filename",themename.c_str());
+								zc_set_config("zquest","gui_colorset",99);
 								set_config_standard();
 							}
 							else
@@ -143,7 +156,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							reset_theme();
 							tf_theme->setText(tmp_themefile);
 						}),
-						Button(text = "Save ZC", onPressFunc = [&]()
+						Button(text = "Save ZCL", onPressFunc = [&]()
 						{
 							std::string themename;
 							themename.assign(tf_theme->getText());
@@ -152,6 +165,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								lbl_theme_error->setText("");
 								set_config_file("zcl.cfg");
 								zc_set_config("Theme","theme_filename",themename.c_str());
+								zc_set_config("ZLAUNCH","gui_colorset",99);
 								set_config_standard();
 							}
 							else
@@ -188,10 +202,10 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::ZC:
-			InfoDialog("ZC", "This should launch ZC, but it pops up this message as a placeholder.").show();
+			launch_process("zelda.exe");
 			break;
 		case message::ZQ:
-			InfoDialog("ZQ", "This should launch ZQ, but it pops up this message as a placeholder.").show();
+			launch_process("zquest.exe");
 			break;
 		case message::EXIT:
 			close_button_quit = true;

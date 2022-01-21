@@ -2,7 +2,6 @@
 #include "zdefs.h"
 #include "launcher.h"
 #include "module.h"
-#include "zsys.h"
 #include "fonts.h"
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
@@ -36,6 +35,10 @@ BITMAP *hw_screen;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
 volatile bool close_button_quit = false;
+
+
+char temppath[4096] = {0}, rootpath[4096] = {0};
+
 
 void init_launcher_palette();
 void fps_callback();
@@ -168,7 +171,7 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("OK\n");
 	//}
 	
-	while(!key[KEY_SPACE]);
+	// while(!key[KEY_SPACE]);
 	
 	Z_message("Loading configs...");
 	gui_colorset = zc_get_config("ZLAUNCH","gui_colorset",99);
@@ -195,10 +198,31 @@ int32_t main(int32_t argc, char* argv[])
 	//}
 	Z_message("OK\n");
 	
+	get_root_path(rootpath, 4096);
+	
 	set_window_title("ZQuest Launcher");
 	set_close_button_callback((void (*)()) hit_close_button);
 	//
 	Z_message("Launcher opened successfully.\n");
+	
+	char thepath[4096] = {0};
+	relativize_path(thepath, "C:\\Users\\Emily\\Documents\\ZC\\ZC255\\themes\\mooshmood.ztheme");
+	Z_message("%s\n",thepath);
+	derelativize_path(thepath, thepath);
+	Z_message("%s\n",thepath);
+	relativize_path(thepath, "C:\\Users\\Emily\\Documents\\ZC\\ZQSRC255\\src\\");
+	Z_message("%s\n",thepath);
+	derelativize_path(thepath, thepath);
+	Z_message("%s\n",thepath);
+	relativize_path(thepath, "C:\\Users\\Emily\\Documents\\ZC\\ZC255\\modules\\classic.zmod");
+	Z_message("%s\n",thepath);
+	derelativize_path(thepath, thepath);
+	Z_message("%s\n",thepath);
+	relativize_path(thepath, "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Among Us\\Among Us_Data");
+	Z_message("%s\n",thepath);
+	derelativize_path(thepath, thepath);
+	Z_message("%s\n",thepath);
+	
 	#if QUICK_EXIT > 0
 	goto exit;
 	#endif
@@ -459,4 +483,53 @@ void update_hw_screen()
 	}
 }
 
+bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
+{
+	Z_message("getname_nogo\n");
+    if(def!=temppath)
+        strcpy(temppath,def);
+        
+    if(!usefilename)
+    {
+        int32_t i=(int32_t)strlen(temppath);
+        
+        while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
+            temppath[i--]=0;
+    }
+    
+    //  int32_t ret = file_select_ex(prompt,temppath,ext,255,-1,-1);
+    int32_t ret=0;
+    int32_t sel=0;
+    
+    if(list==NULL)
+    {
+        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,lfont);
+    }
+    else
+    {
+        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, lfont);
+    }
+    
+    return ret!=0;
+}
+
+bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
+{
+	Z_message("getname\n");
+    go();
+    int32_t ret=0;
+    ret = getname_nogo(prompt,ext,list,def,usefilename);
+    comeback();
+    return ret != 0;
+}
+
+void launch_process(char const* relative_path)
+{
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	GetStartupInfo(&si);
+	char path[MAX_PATH];
+	strcpy(path, relative_path);
+	CreateProcess(NULL,path,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+}
 

@@ -595,11 +595,6 @@ volatile int32_t myvsync=0;
 bool update_hw_pal = false;
 void update_hw_screen()
 {
-	if(update_hw_pal)
-	{
-		set_palette(RAMpal);
-		update_hw_pal = false;
-	}
 }
 
 /*
