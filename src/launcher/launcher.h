@@ -8,4 +8,3 @@ extern bool is_large;
 extern char temppath[4096], rootpath[4096];
 
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
-void launch_process(char const* relative_path);

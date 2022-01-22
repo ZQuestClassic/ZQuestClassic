@@ -5279,13 +5279,20 @@ char *VerStr(int32_t version);
 #define STANDARD_CFG "ag.cfg"
 #endif
 void set_config_standard();
-void zc_set_config_file(char const* fname);
+
 int32_t zc_get_config(char const* header, char const* name, int32_t default_val);
 double zc_get_config(char const* header, char const* name, double default_val);
 char const* zc_get_config(char const* header, char const* name, char const* default_val);
 void zc_set_config(char const* header, char const* name, int32_t val);
 void zc_set_config(char const* header, char const* name, double default_val);
 void zc_set_config(char const* header, char const* name, char const* val);
+
+int32_t zc_get_config(char const* cfg_file, char const* header, char const* name, int32_t default_val);
+double zc_get_config(char const* cfg_file, char const* header, char const* name, double default_val);
+char const* zc_get_config(char const* cfg_file, char const* header, char const* name, char const* default_val);
+void zc_set_config(char const* cfg_file, char const* header, char const* name, int32_t val);
+void zc_set_config(char const* cfg_file, char const* header, char const* name, double default_val);
+void zc_set_config(char const* cfg_file, char const* header, char const* name, char const* val);
 
 RGB _RGB(byte *si);
 RGB _RGB(int32_t r,int32_t g,int32_t b);
@@ -5304,6 +5311,22 @@ void load_udef_colorset(char const* fpath, PALETTE pal);
 void load_udef_colorset(char const* fpath);
 void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
+
+
+struct process_killer
+{
+	void* process_handle;
+	void kill(uint32_t exitcode = 0);
+	void init(void* h, uint32_t exitcode = 0)
+	{
+		if(process_handle)
+			kill(exitcode);
+		process_handle = h;
+	}
+	process_killer(void* h) : process_handle(h) {}
+	process_killer() : process_handle(NULL) {}
+};
+process_killer launch_process(char const* relative_path);
 
 #endif                                                      //_ZDEFS_H_
 

@@ -318,7 +318,7 @@ elseif(LINUX)
 	set(LAUNCHERLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
-add_executable(launcher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
-target_link_libraries(launcher ${ALLEGROLIB} ${LAUNCHERLIBSEXTRA})
-target_compile_definitions(launcher PRIVATE IS_LAUNCHER)
+add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
+target_link_libraries(zlauncher ${ALLEGROLIB} ${LAUNCHERLIBSEXTRA})
+target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 

@@ -184,6 +184,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Initializing mouse...");
 	//{ Mouse setup
+	gui_mouse_focus=0;
 	scare_mouse();
 	set_mouse_sprite(NULL);
 	byte mousepx[16][16] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 0, }, { 0, 241, 242, 243, 245, 245, 245, 245, 245, 245, 245, 245, 243, 241, 0, 0, }, { 0, 0, 241, 242, 243, 243, 245, 245, 245, 245, 245, 245, 243, 241, 0, 0, }, { 0, 0, 0, 241, 242, 243, 243, 243, 245, 245, 245, 243, 241, 0, 0, 0, }, { 0, 0, 0, 0, 241, 242, 243, 243, 243, 243, 245, 243, 241, 0, 0, 0, }, { 0, 0, 0, 0, 0, 241, 242, 243, 243, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 241, 242, 243, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 241, 242, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 241, 242, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 241, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, } };
@@ -205,33 +206,15 @@ int32_t main(int32_t argc, char* argv[])
 	//
 	Z_message("Launcher opened successfully.\n");
 	
-	char thepath[4096] = {0};
-	relativize_path(thepath, "C:\\Users\\Emily\\Documents\\ZC\\ZC255\\themes\\mooshmood.ztheme");
-	Z_message("%s\n",thepath);
-	derelativize_path(thepath, thepath);
-	Z_message("%s\n",thepath);
-	relativize_path(thepath, "C:\\Users\\Emily\\Documents\\ZC\\ZQSRC255\\src\\");
-	Z_message("%s\n",thepath);
-	derelativize_path(thepath, thepath);
-	Z_message("%s\n",thepath);
-	relativize_path(thepath, "C:\\Users\\Emily\\Documents\\ZC\\ZC255\\modules\\classic.zmod");
-	Z_message("%s\n",thepath);
-	derelativize_path(thepath, thepath);
-	Z_message("%s\n",thepath);
-	relativize_path(thepath, "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Among Us\\Among Us_Data");
-	Z_message("%s\n",thepath);
-	derelativize_path(thepath, thepath);
-	Z_message("%s\n",thepath);
-	
 	#if QUICK_EXIT > 0
 	goto exit;
 	#endif
 	
 	LauncherDialog().show();
 
-#if QUICK_EXIT > 0
-exit:
-#endif
+	#if QUICK_EXIT > 0
+	exit:
+	#endif
 	Z_message("Exiting launcher...\n");
 	//
 	
@@ -523,13 +506,4 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
     return ret != 0;
 }
 
-void launch_process(char const* relative_path)
-{
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	GetStartupInfo(&si);
-	char path[MAX_PATH];
-	strcpy(path, relative_path);
-	CreateProcess(NULL,path,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
-}
 

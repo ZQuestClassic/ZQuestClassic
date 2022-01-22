@@ -600,4 +600,78 @@ void zc_set_config(char const* header, char const* name, char const* val)
 	set_config_string(header,name,val);
 }
 
+int32_t zc_get_config(char const* cfg_file, char const* header, char const* name, int32_t default_val)
+{
+	push_config_state();
+	set_config_file(cfg_file);
+	int32_t ret = get_config_int(header,name,default_val);
+	if(ret == default_val) //Might have been defaulted, so write it back
+		set_config_int(header, name, ret);
+	pop_config_state();
+	return ret;
+}
+double zc_get_config(char const* cfg_file, char const* header, char const* name, double default_val)
+{
+	push_config_state();
+	set_config_file(cfg_file);
+	double ret = get_config_float(header,name,default_val);
+	if(ret == default_val) //Might have been defaulted, so write it back
+		set_config_float(header, name, ret);
+	pop_config_state();
+	return ret;
+}
+char const* zc_get_config(char const* cfg_file, char const* header, char const* name, char const* default_val)
+{
+	push_config_state();
+	set_config_file(cfg_file);
+	char const* ret = get_config_string(header,name,default_val);
+	if(ret==default_val) //Defaulted, so write it back
+	{
+		if(default_val[0]) //Writing back the empty string destroys the value?? -Em
+			set_config_string(header, name, default_val);
+	}
+	pop_config_state();
+	return ret;
+}
+void zc_set_config(char const* cfg_file, char const* header, char const* name, int32_t val)
+{
+	push_config_state();
+	set_config_file(cfg_file);
+	set_config_int(header,name,val);
+	pop_config_state();
+}
+void zc_set_config(char const* cfg_file, char const* header, char const* name, double default_val)
+{
+	push_config_state();
+	set_config_file(cfg_file);
+	set_config_float(header, name, default_val);
+	pop_config_state();
+}
+void zc_set_config(char const* cfg_file, char const* header, char const* name, char const* val)
+{
+	push_config_state();
+	set_config_file(cfg_file);
+	set_config_string(header,name,val);
+	pop_config_state();
+}
+
+void process_killer::kill(uint32_t exitcode)
+{
+	if(process_handle)
+	{
+		TerminateProcess(process_handle, exitcode);
+		process_handle = NULL;
+	}
+}
+
+process_killer launch_process(char const* relative_path)
+{
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	GetStartupInfo(&si);
+	char path[MAX_PATH];
+	strcpy(path, relative_path);
+	CreateProcess(NULL,path,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+	return process_killer(pi.hProcess);
+}
 

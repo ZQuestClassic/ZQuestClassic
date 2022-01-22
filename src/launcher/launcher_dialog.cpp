@@ -43,6 +43,17 @@ int32_t LauncherDialog::launcher_on_tick()
 
 static char zthemepath[4096] = {0};
 
+//{ Macros
+#define CONFIG_CHECKBOX(name, file, head, subhead, def) \
+Checkbox( \
+	text = name, hAlign = 0.0, \
+	checked = zc_get_config(file,head,subhead,def)!=0, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		zc_set_config(file,head,subhead,state?1:0); \
+	})
+//}
+
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
 {
 	using namespace GUI::Builder;
@@ -175,10 +186,28 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						})
 					)
 				)),
-				TabRef(name = "ZC Player", Column(
-					Label(text = "Some Settings here, or like, something?")
-				)),
-				TabRef(name = "ZQ Creator", DummyWidget())
+				TabRef(name = "ZC Player", DummyWidget()),
+				TabRef(name = "ZQ Creator", Column(
+					CONFIG_CHECKBOX("Fullscreen","zquest.cfg","zquest","fullscreen",0),
+					CONFIG_CHECKBOX("Small Mode","zquest.cfg","zquest","small",0),
+					CONFIG_CHECKBOX("VSync","zquest.cfg","zquest","vsync",1),
+					CONFIG_CHECKBOX("Show FPS","zquest.cfg","zquest","showfps",0),
+					CONFIG_CHECKBOX("Disable Sound","zquest.cfg","zquest","nosound",0),
+					CONFIG_CHECKBOX("Animate Combos","zquest.cfg","zquest","animation_on",1),
+					CONFIG_CHECKBOX("Combo Brush","zquest.cfg","zquest","combo_brush",0),
+					CONFIG_CHECKBOX("Enable Tooltips","zquest.cfg","zquest","enable_tooltips",1),
+					CONFIG_CHECKBOX("Floating Brush","zquest.cfg","zquest","float_brush",0),
+					CONFIG_CHECKBOX("Mouse Scroll","zquest.cfg","zquest","mouse_scroll",1),
+					CONFIG_CHECKBOX("Overwrite Protection","zquest.cfg","zquest","overwrite_prevention",1),
+					CONFIG_CHECKBOX("Palette Cycle","zquest.cfg","zquest","cycle_on",1),
+					CONFIG_CHECKBOX("Reload Last Quest","zquest.cfg","zquest","open_last_quest",1),
+					CONFIG_CHECKBOX("Save Paths","zquest.cfg","zquest","save_paths",1),
+					CONFIG_CHECKBOX("Show Misalignments","zquest.cfg","zquest","show_misalignments",0),
+					CONFIG_CHECKBOX("Show Ruleset Dialog on New Quest","zquest.cfg","zquest","rulesetdialog",1),
+					CONFIG_CHECKBOX("Tile Protection","zquest.cfg","zquest","tile_protection",1),
+					CONFIG_CHECKBOX("Uncompressed Autosaves","zquest.cfg","zquest","uncompressed_auto_saves",1),
+					CONFIG_CHECKBOX("Static effect for invalid data","zquest.cfg","zquest","invalid_static",0)
+				))
 			),
 			Row(
 				vAlign = 1.0,

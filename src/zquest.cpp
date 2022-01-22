@@ -182,7 +182,8 @@ public:
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
-				const char *helper_executable=NULL);
+				const char *helper_executable=NULL,
+                process_killer* killer = NULL);
 
 	// close everything
 	int32_t Close(void);
@@ -389,7 +390,8 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/)
+							const char	*helper_executable/*=NULL*/,
+                            process_killer* killer)
 {
 	// Ensure there's no pipe connected
 	if (m_hPipe != INVALID_HANDLE_VALUE)
@@ -868,7 +870,8 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/)
+							const char	*helper_executable/*=NULL*/,
+                            process_killer* killer = NULL)
 {
 	return 0;
 }
@@ -30998,7 +31001,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("Initializing sound driver... ");
 	
-	if(used_switch(argc,argv,"-s"))
+	if(used_switch(argc,argv,"-s") || zc_get_config("zquest","nosound",0))
 	{
 		Z_message("skipped\n");
 	}

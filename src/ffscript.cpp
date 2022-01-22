@@ -77,6 +77,7 @@ extern zinitdata zinit;
 int32_t hangcount = 0;
 
 extern byte monochrome_console;
+extern process_killer zscript_console_process, zasm_console_process;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
@@ -309,7 +310,8 @@ public:
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
-				const char *helper_executable=NULL);
+				const char *helper_executable=NULL,
+				process_killer *killer);
 
 	// close everything
 	int32_t Close(void);
@@ -512,7 +514,8 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/)
+							const char	*helper_executable/*=NULL*/,
+							process_killer *killer/*=NULL*/)
 {
 	
 	// Ensure there's no pipe connected
@@ -585,7 +588,8 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 			return -1;
 		}
 	}
-	
+	if(killer)
+		killer->init(pi.hProcess);
 	
 	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
 		 TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
@@ -1002,7 +1006,8 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/)
+							const char	*helper_executable/*=NULL*/,
+							process_killer *killer/*=NULL*/)
 {
 	return 0;
 }
@@ -35734,7 +35739,7 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 	#ifdef _WIN32
 	//if ( open )
 	{
-		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
+		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200, NULL, NULL, &zscript_console_process);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
@@ -35756,7 +35761,7 @@ void FFScript::ZScriptConsole(bool open)
 	#ifdef _WIN32
 	if ( open )
 	{
-		zscript_coloured_console.Create("ZScript Debug Console", 600, 200);
+		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL, &zscript_console_process);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 	
@@ -35814,7 +35819,7 @@ void FFScript::ZASMPrint(bool open)
 	#ifdef _WIN32
 	if ( open )
 	{
-		coloured_console.Create("ZASM Debugger", 600, 200);
+		coloured_console.Create("ZASM Debugger", 600, 200, NULL, NULL, &zasm_console_process);
 		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		coloured_console.gotoxy(0,0);
 		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
