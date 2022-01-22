@@ -1359,7 +1359,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
         }
         
         fg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcMEDDARK] : scheme[jcTEXTFG];
-        bg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcBOX] : scheme[jcTEXTBG];
+        bg = (d->flags&D_READONLY)?scheme[jcTEXTFG]:((d->flags & D_DISABLED) ? scheme[jcBOX] : scheme[jcTEXTBG]);
         x = 3;
         y = (d->h - text_height(font)) / 2 + d->y;
         
@@ -1404,6 +1404,8 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
         break;
         
     case MSG_CLICK:
+		if(d->flags & (D_DISABLED|D_READONLY))
+			break;
         x = d->x+3;
         
         if(scroll)
@@ -1432,9 +1434,13 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_WANTFOCUS:
     case MSG_LOSTFOCUS:
     case MSG_KEY:
+		if(d->flags & (D_DISABLED|D_READONLY))
+			break;
         return D_WANTFOCUS;
         
     case MSG_CHAR:
+		if(d->flags & (D_DISABLED|D_READONLY))
+			break;
         if((c >> 8) == KEY_LEFT)
         {
             if(d->d2 > 0) d->d2--;
@@ -4757,7 +4763,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		
 		case MSG_CLICK:
 		{
-			if(d->flags&D_DISABLED) break;
+			if(d->flags&(D_READONLY|D_DISABLED)) break;
 			selcolor_dlg[0].dp2 = lfont;
 			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
 			selcolor_dlg[3].fg = jwin_pal[jcBOX];

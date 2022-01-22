@@ -4,6 +4,7 @@
 #include "dialog_message.h"
 #include "dialog_runner.h"
 #include "widget.h"
+#include <dialog/common.h>
 #include <memory>
 
 namespace GUI

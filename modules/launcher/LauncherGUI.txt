@@ -16,10 +16,12 @@ src/fonts.cpp
 src/launcher/launcher_dialog.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
+src/dialog/theme_editor.cpp
 
 src/gui/button.cpp
 src/gui/checkbox.cpp
 src/gui/common.cpp
+src/gui/colorsel.cpp
 src/gui/dialog_ref.cpp
 src/gui/dialog_runner.cpp
 src/gui/drop_down_list.cpp

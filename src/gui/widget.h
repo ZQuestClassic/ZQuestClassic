@@ -225,6 +225,24 @@ public:
 		return flags&f_DISABLED;
 	}
 	
+	/* If this is true, this widget is non-interactable (but NOT greyed-out) 
+	 * when the dialog starts.
+	 * This does not affect the status if the dialog is open already
+	 */
+	void setReadOnly(bool ro) noexcept
+	{
+		if(ro)
+			flags |= f_READ_ONLY;
+		else
+			flags &= ~f_READ_ONLY;
+	}
+
+	/* Returns true if this widget should be read-only initially. */
+	inline bool getReadOnly() const noexcept
+	{
+		return flags&f_READ_ONLY;
+	}
+	
 	/* If this is true, a frame proc will be generated around this widget
 	 */
 	void setFramed(bool framed) noexcept;
@@ -344,21 +362,22 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN =  0b000000001,
-		f_HEIGHT_OVERRIDDEN = 0b000000010,
-		f_INVISIBLE =         0b000000100,
-		f_FOCUSED =           0b000001000,
-		f_DISABLED =          0b000010000,
-		f_FRAMED =            0b000100000,
-		f_FIT_PARENT =        0b001000000,
-		f_FORCE_FIT_W =       0b010000000,
-		f_FORCE_FIT_H =       0b100000000
+		f_WIDTH_OVERRIDDEN =  0b0000000001,
+		f_HEIGHT_OVERRIDDEN = 0b0000000010,
+		f_INVISIBLE =         0b0000000100,
+		f_FOCUSED =           0b0000001000,
+		f_DISABLED =          0b0000010000,
+		f_FRAMED =            0b0000100000,
+		f_FIT_PARENT =        0b0001000000,
+		f_FORCE_FIT_W =       0b0010000000,
+		f_FORCE_FIT_H =       0b0100000000,
+		f_READ_ONLY =         0b1000000000
 	};
 
 	int32_t width, height, maxwidth, maxheight, minwidth, minheight;
 	uint8_t rowSpan, colSpan;
 	DialogRunner *owner;
-	uint16_t flags : 9;
+	uint16_t flags : 10;
 
 	/* The number of containers hiding this widget. Shouldn't be too many,
 	 * but there might be, say, a switcher in nested tab containers.
