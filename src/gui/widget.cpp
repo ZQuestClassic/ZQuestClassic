@@ -322,6 +322,8 @@ int32_t Widget::getFlags() const noexcept
 		ret |= D_HIDDEN;
 	if(flags&f_DISABLED)
 		ret |= D_DISABLED;
+	if(flags&f_READ_ONLY)
+		ret |= D_READONLY;
 	return ret;
 }
 

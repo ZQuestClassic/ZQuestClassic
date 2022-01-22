@@ -2,13 +2,26 @@
 #include <gui/builder.h>
 #include <utility>
 
-AlertDialog::AlertDialog(std::string title, std::string text, std::function<void(bool)> onEnd):
-	InfoDialog(title,text), onEnd(onEnd)
+AlertDialog::AlertDialog(std::string title, std::string text, std::function<void(bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret):
+	InfoDialog(title,text), onEnd(onEnd), timer(0), timeout(timeout), default_ret(default_ret), truebtn(truebtn), falsebtn(falsebtn)
 {}
 
-AlertDialog::AlertDialog(std::string title, std::vector<std::string_view> lines, std::function<void(bool)> onEnd):
-	InfoDialog(title,lines), onEnd(onEnd)
+AlertDialog::AlertDialog(std::string title, std::vector<std::string_view> lines, std::function<void(bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret):
+	InfoDialog(title,lines), onEnd(onEnd), timer(0), timeout(timeout), default_ret(default_ret), truebtn(truebtn), falsebtn(falsebtn)
 {}
+
+int32_t AlertDialog::alert_on_tick()
+{
+	if(timeout)
+	{
+		if(++timer > timeout)
+		{
+			onEnd(default_ret);
+			return ONTICK_EXIT;
+		}
+	}
+	return ONTICK_CONTINUE;
+}
 
 std::shared_ptr<GUI::Widget> AlertDialog::view()
 {
@@ -19,7 +32,9 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		title = std::move(dlgTitle),
 		onEnter = message::OK,
 		onClose = message::CANCEL,
-		hPadding = 0_px, 
+		use_vsync = true,
+		onTick = [&](){return alert_on_tick();},
+		hPadding = 0_px,
 		Column(
 			hPadding = 0_px, 
 			Label(
@@ -33,13 +48,13 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(
-					text = "OK",
+					text = truebtn,
 					minwidth = 90_lpx,
 					onClick = message::OK,
 					focused=true
 				),
 				Button(
-					text = "Cancel",
+					text = falsebtn,
 					minwidth = 90_lpx,
 					onClick = message::CANCEL
 				)

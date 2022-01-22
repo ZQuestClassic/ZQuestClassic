@@ -40,6 +40,9 @@ namespace util
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 double vbound(double val, double low, double high);
 
+std::string dayextension(int32_t dy);
+bool fileexists(const char *filename);
+
 //#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif

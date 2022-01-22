@@ -892,15 +892,6 @@ bool grab_dataset(int32_t dataset)
                         set_palette(picpal);
                     else
                         set_palette(tmp);
-                        
-                    //if(zqwin_scale > 1)
-                    {
-                        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    //else
-                    {
-                        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
                 }
                 
                 break;
@@ -922,15 +913,6 @@ bool grab_dataset(int32_t dataset)
         blit(screen2, screen, 0, 0, 0, 0, screen->w, screen->h);
         unscare_mouse();
         SCRFIX();
-        
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        //else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
     }
     while(!done);
     
@@ -1166,14 +1148,6 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				//        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
 				((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
 				set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
-				//if(zqwin_scale > 1)
-				{
-					//stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-				}
-				//else
-				{
-					//blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-				}
 			}
 			while(gui_mouse_b());
 			
@@ -1512,15 +1486,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
                         colors_dlg[23].flags = en  ? D_EXIT : D_DISABLED;
                 broadcast_dialog_message(MSG_DRAW,0);
                 enable = en;
-            }
-            
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            //else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
             }
         }
         

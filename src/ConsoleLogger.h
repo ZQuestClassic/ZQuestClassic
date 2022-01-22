@@ -50,7 +50,8 @@ public:
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
-				const char *helper_executable=NULL);
+				const char *helper_executable=NULL,
+				process_killer *killer=NULL);
 
 	// close everything
 	int32_t Close(void);

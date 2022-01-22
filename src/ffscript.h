@@ -459,21 +459,7 @@ struct user_rng
 
 //Module System.
 //Putting this here for now.
-
-//char runningItemScripts[256];
-
-//ZC and ZQuest System Modules
-class ZModule
-{
-	public:
-		bool init(bool d); //bool default
-		bool load(bool zquest);
-		void debug(); //Print struct data to allegro.log.
-		
-	private:
-		char n;
-};
-
+#include "module.h"
 
 typedef struct ZSCRIPT_CONFIG_ENTRY
 {

@@ -731,22 +731,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				unscare_mouse();
 				over=true;
 				
-				if(is_zquest())
-				{
-					if(myvsync)
-					{
-						if(zqwin_scale > 1)
-						{
-							stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-						}
-						else
-						{
-							blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-						}
-						
-						myvsync=0;
-					}
-				}
+				update_hw_screen();
 			}
 		}
 		else
@@ -759,22 +744,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 				unscare_mouse();
 				over=false;
 				
-				if(is_zquest())
-				{
-					if(myvsync)
-					{
-						if(zqwin_scale > 1)
-						{
-							stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-						}
-						else
-						{
-							blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-						}
-						
-						myvsync=0;
-					}
-				}
+				update_hw_screen();
 			}
 		}
 		
@@ -787,22 +757,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 		draw_layer_button(screen, x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
 		unscare_mouse();
 		
-		if(is_zquest())
-		{
-			if(myvsync)
-			{
-				if(zqwin_scale > 1)
-				{
-					stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-				}
-				else
-				{
-					blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-				}
-				
-				myvsync=0;
-			}
-		}
+		update_hw_screen();
 	}
 	
 	return over;

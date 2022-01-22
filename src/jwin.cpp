@@ -49,7 +49,7 @@ using namespace util;
 //#ifdef _ZQUEST_SCALE_
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
-extern BITMAP *hw_screen;
+void update_hw_screen();
 //#endif
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
@@ -91,6 +91,8 @@ int32_t new_gui_event(DIALOG* d, guiEvent event)
 		}
 	}
 }
+
+void close_new_gui_dlg(DIALOG* d);
 
 int32_t bound(int32_t x,int32_t low,int32_t high)
 {
@@ -1164,22 +1166,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 					/* let other objects continue to animate */
 					broadcast_dialog_message(MSG_IDLE, 0);
 					
-					if(is_zquest())
-					{
-						if(myvsync)
-						{
-							if(zqwin_scale > 1)
-							{
-								stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-							}
-							else
-							{
-								blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-							}
-							
-							myvsync=0;
-						}
-					}
+					update_hw_screen();
 				}
 				
 				/* redraw in normal state */
@@ -1242,22 +1229,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
+			update_hw_screen();
         }
         
         /* redraw in normal state */
@@ -1387,7 +1359,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
         }
         
         fg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcMEDDARK] : scheme[jcTEXTFG];
-        bg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcBOX] : scheme[jcTEXTBG];
+        bg = (d->flags&D_READONLY)?scheme[jcTEXTFG]:((d->flags & D_DISABLED) ? scheme[jcBOX] : scheme[jcTEXTBG]);
         x = 3;
         y = (d->h - text_height(font)) / 2 + d->y;
         
@@ -1432,6 +1404,8 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
         break;
         
     case MSG_CLICK:
+		if(d->flags & (D_DISABLED|D_READONLY))
+			break;
         x = d->x+3;
         
         if(scroll)
@@ -1460,9 +1434,13 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_WANTFOCUS:
     case MSG_LOSTFOCUS:
     case MSG_KEY:
+		if(d->flags & (D_DISABLED|D_READONLY))
+			break;
         return D_WANTFOCUS;
         
     case MSG_CHAR:
+		if(d->flags & (D_DISABLED|D_READONLY))
+			break;
         if((c >> 8) == KEY_LEFT)
         {
             if(d->d2 > 0) d->d2--;
@@ -2376,25 +2354,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
                 // let other objects continue to animate
                 broadcast_dialog_message(MSG_IDLE, 0);
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
             
             break;
@@ -2403,25 +2363,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
         
         redraw = 0;
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		update_hw_screen();
         // let other objects continue to animate
         broadcast_dialog_message(MSG_IDLE, 0);
     }
@@ -2855,25 +2797,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				d->flags &= ~D_INTERNAL;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
             
             if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
@@ -3124,25 +3048,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 					}
 					d->flags &= ~D_INTERNAL;
 					
-					//	#ifdef _ZQUEST_SCALE_
-					if(is_zquest())
-					{
-						if(myvsync)
-						{
-							if(zqwin_scale > 1)
-							{
-								stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-							}
-							else
-							{
-								blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-							}
-							
-							myvsync=0;
-						}
-					}
-					
-					//	#endif
+					update_hw_screen();
 				}
 				
 				if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
@@ -4546,26 +4452,8 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
                 ((gui_mouse_x() < m.x) || (gui_mouse_x() > m.x+m.w) ||
                  (gui_mouse_y() < m.y) || (gui_mouse_y() > m.y+m.h)))
             break;
-            
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		
+		update_hw_screen();
         
     }
     while(ret < 0);
@@ -4875,7 +4763,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		
 		case MSG_CLICK:
 		{
-			if(d->flags&D_DISABLED) break;
+			if(d->flags&(D_READONLY|D_DISABLED)) break;
 			selcolor_dlg[0].dp2 = lfont;
 			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
 			selcolor_dlg[3].fg = jwin_pal[jcBOX];
@@ -5481,25 +5369,7 @@ dropit:
         
         clear_keybuf();
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		update_hw_screen();
     }
     
     if(!down)
@@ -6518,25 +6388,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 unscare_mouse();
                 over=true;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
         }
         else
@@ -6549,25 +6401,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 unscare_mouse();
                 over=false;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
         }
     }
@@ -6592,25 +6426,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
                 unscare_mouse();
                 over=true;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
         }
         else
@@ -6623,25 +6439,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
                 unscare_mouse();
                 over=false;
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
         }
         
@@ -6654,25 +6452,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
         jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
         unscare_mouse();
         
-        //	#ifdef _ZQUEST_SCALE_
-        if(is_zquest())
-        {
-            if(myvsync)
-            {
-                if(zqwin_scale > 1)
-                {
-                    stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                else
-                {
-                    blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
-                
-                myvsync=0;
-            }
-        }
-        
-        //	#endif
+		update_hw_screen();
     }
     
     return over;
@@ -7547,25 +7327,7 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
                 
                 object_message(d, MSG_DRAW, 0);
                 
-                //	#ifdef _ZQUEST_SCALE_
-                if(is_zquest())
-                {
-                    if(myvsync)
-                    {
-                        if(zqwin_scale > 1)
-                        {
-                            stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                        }
-                        else
-                        {
-                            blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                        }
-                        
-                        myvsync=0;
-                    }
-                }
-                
-                //	#endif
+				update_hw_screen();
             }
             
             /* let other objects continue to animate */
@@ -7676,25 +7438,7 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
             
-            //	#ifdef _ZQUEST_SCALE_
-            if(is_zquest())
-            {
-                if(myvsync)
-                {
-                    if(zqwin_scale > 1)
-                    {
-                        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                    }
-                    else
-                    {
-                        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                    }
-                    
-                    myvsync=0;
-                }
-            }
-            
-            //	#endif
+			update_hw_screen();
         }
         
 	if(d->dp3 != NULL)
@@ -7743,7 +7487,25 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 				broadcast_dialog_message(MSG_VSYNC, c);
 				if(d->dp)
 				{
-					(*(std::function<void()>*)d->dp)();
+					int32_t ret = (*(std::function<int32_t()>*)d->dp)();
+					switch(ret)
+					{
+						case ONTICK_EXIT:
+							if(d->flags&D_NEW_GUI)
+								close_new_gui_dlg(d);
+							return D_EXIT;
+						case ONTICK_CLOSE:
+							if(d->flags&D_NEW_GUI)
+							{
+								//Simulate a GUI_EVENT for the window proc
+								DIALOG* window = d-1;
+								while(window->proc != jwin_win_proc) --window;
+								int32_t ret = new_gui_event(window-1, geCLOSE);
+								if(ret >= 0)
+									return ret;
+							}
+							return D_EXIT;
+					}
 				}
 			}
 			break;

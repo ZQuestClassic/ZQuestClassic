@@ -69,6 +69,17 @@ public:
 	{
 		redrawPending = true;
 	}
+	
+	void forceDraw()
+	{
+		broadcast_dialog_message(MSG_DRAW, 0);
+		redrawPending = false;
+	}
+
+	void close()
+	{
+		done = true;
+	}
 
 	/* A signal emitted when construction of the DIALOG array is finished.
 	 * Shouldn't really be public, but that can be dealt with later.

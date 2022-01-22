@@ -4,6 +4,7 @@
 #include "dialog_message.h"
 #include "dialog_runner.h"
 #include "widget.h"
+#include <dialog/common.h>
 #include <memory>
 
 namespace GUI
@@ -29,6 +30,16 @@ public:
 	inline void pendDraw()
 	{
 		runner.pendDraw();
+	}
+	
+	inline void forceDraw()
+	{
+		runner.forceDraw();
+	}
+	
+	inline void close()
+	{
+		runner.done = true;
 	}
 
 	/* Subclasses must define an int32_t-convertible type called `message`

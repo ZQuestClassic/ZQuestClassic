@@ -40,7 +40,6 @@
 //Other
 //#define _SKIPPASSWORDCHECK
 
-
 /*
   //DOS Graphics Modes
   GFX_TEXT
@@ -102,6 +101,17 @@
   GFX_QUARTZ_FULLSCREEN
   GFX_QUARTZ_WINDOW
   */
+
+
+#ifdef IS_ZQUEST
+#define PROJECT_MAIN_HEADER "zquest.h"
+#elif defined IS_LAUNCHER
+#define PROJECT_MAIN_HEADER "launcher/launcher.h"
+#elif defined IS_PLAYER
+#define PROJECT_MAIN_HEADER "zelda.h"
+#else
+#define PROJECT_MAIN_HEADER "zdefs.h"
+#endif
 
 #include <cstdio>
 #include <math.h>
@@ -339,6 +349,10 @@ extern bool fake_pack_writing;
 #define lc2(x) ((x)+208)                                    // offset to 'level fg color' x (row 13)
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
 #define dvc(x) ((x)+240)                                    // offset to dark 'VGA color' x (row 15)
+#define r_lc1(x) ((x)-192)
+#define r_lc2(x) ((x)-208)
+#define r_vc(x)  ((x)-224)
+#define r_dvc(x) ((x)-240)
 #define BLACK         253
 #define WHITE         254
 
@@ -5266,6 +5280,70 @@ enum swStyle //Switchhook animation styles
 {
 	swPOOF, swFLICKER, swRISE
 };
+
+//
+
+extern const char months[13][13];
+char *VerStr(int32_t version);
+
+#ifdef IS_ZQUEST
+#define STANDARD_CFG "zquest.cfg"
+#elif defined IS_LAUNCHER
+#define STANDARD_CFG "zcl.cfg"
+#elif defined IS_PLAYER
+#define STANDARD_CFG "zc.cfg"
+#else
+#define STANDARD_CFG "ag.cfg"
+#endif
+void set_config_standard();
+
+int32_t zc_get_config(char const* header, char const* name, int32_t default_val);
+double zc_get_config(char const* header, char const* name, double default_val);
+char const* zc_get_config(char const* header, char const* name, char const* default_val);
+void zc_set_config(char const* header, char const* name, int32_t val);
+void zc_set_config(char const* header, char const* name, double default_val);
+void zc_set_config(char const* header, char const* name, char const* val);
+
+int32_t zc_get_config(char const* cfg_file, char const* header, char const* name, int32_t default_val);
+double zc_get_config(char const* cfg_file, char const* header, char const* name, double default_val);
+char const* zc_get_config(char const* cfg_file, char const* header, char const* name, char const* default_val);
+void zc_set_config(char const* cfg_file, char const* header, char const* name, int32_t val);
+void zc_set_config(char const* cfg_file, char const* header, char const* name, double default_val);
+void zc_set_config(char const* cfg_file, char const* header, char const* name, char const* val);
+
+RGB _RGB(byte *si);
+RGB _RGB(int32_t r,int32_t g,int32_t b);
+RGB invRGB(RGB s);
+RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio);
+
+extern char tmp_themefile[2048];
+char const* get_themefile();
+void set_theme(char const* fpath);
+void reset_theme();
+void load_themefile(char const* fpath, PALETTE pal);
+void load_themefile(char const* fpath);
+void save_themefile(char const* fpath, PALETTE pal);
+void save_themefile(char const* fpath);
+void load_udef_colorset(char const* fpath, PALETTE pal);
+void load_udef_colorset(char const* fpath);
+void load_colorset(int32_t colorset, PALETTE pal);
+void load_colorset(int32_t colorset);
+
+
+struct process_killer
+{
+	void* process_handle;
+	void kill(uint32_t exitcode = 0);
+	void init(void* h, uint32_t exitcode = 0)
+	{
+		if(process_handle)
+			kill(exitcode);
+		process_handle = h;
+	}
+	process_killer(void* h) : process_handle(h) {}
+	process_killer() : process_handle(NULL) {}
+};
+process_killer launch_process(char const* relative_path);
 
 #endif                                                      //_ZDEFS_H_
 

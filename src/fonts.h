@@ -12,5 +12,7 @@ extern FONT *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *
 		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
 		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont;
 
+void initFonts();
+
 #endif
 

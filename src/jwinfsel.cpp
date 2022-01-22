@@ -888,7 +888,6 @@ void enlarge_file_selector(int32_t width, int32_t height)
         stretch_dialog(file_selector, width, height, 1);
     }
     
-    jwin_center_dialog(file_selector);
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
     
     if(is_large)
@@ -915,6 +914,14 @@ void enlarge_file_selector(int32_t width, int32_t height)
         ((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
 #endif
     }
+	#define DIFF_VAL int32_t(20 * (is_large ? 1.5 : 1.0))
+	if(file_selector[FS_EDIT].y - DIFF_VAL < file_selector[FS_WIN].y)
+	{
+		int32_t diff = file_selector[FS_WIN].y - (file_selector[FS_EDIT].y - DIFF_VAL);
+		file_selector[FS_WIN].y -= diff;
+		file_selector[FS_WIN].h += diff;
+	}
+    jwin_center_dialog(file_selector);
 }
 
 /* jwin_file_select_ex:
@@ -928,6 +935,7 @@ void enlarge_file_selector(int32_t width, int32_t height)
   */
 int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font)
 {
+	Z_message("jwin_file_select_ex\n");
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
     int32_t ret;
     char *p;
@@ -1000,6 +1008,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     while(gui_mouse_b());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
+	Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
     ret = popup_zqdialog(file_selector, FS_EDIT);
     
@@ -1242,6 +1251,114 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     return TRUE;
 }
 
+/* get_root_path:
+  *  Gets the program root directory as a path
+  */
+void get_root_path(char* path, int32_t size)
+{
+#ifdef HAVE_DIR_LIST
+	int32_t drive = _al_getdrive();
+#else
+	int32_t drive = 0;
+#endif
+	_al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
+	fix_filename_case(path);
+	fix_filename_slashes(path);
+	put_backslash(path);
+}
+
+/* relativize_path:
+  *  Takes a path, and returns it's relative path from the root directory.
+  */
+void relativize_path(char* dest, char const* src_path)
+{
+	char path[4096] = {0};
+	strcpy(path, src_path);
+	dest[0] = 0;
+	char rootpath[4096] = {0};
+	get_root_path(rootpath, 4096);
+	size_t ind = 0;
+	while(true)
+	{
+		if(!(path[ind] && rootpath[ind]) || toupper(rootpath[ind]) != toupper(path[ind]))
+		{
+			if(rootpath[ind]) //'path' is above the root directory
+			{
+				if(!ind) //'path' includes NONE of the root directory... no relative path can be formed.
+				{
+					strcpy(dest, path);
+					return;
+				}
+				--ind;
+				while(rootpath[ind] != '/' && rootpath[ind] != '\\' && ind > 0)
+					--ind; //return to previous slash
+				++ind;
+				size_t slashes = 0;
+				for(auto q = 0; rootpath[q+ind]; ++q)
+				{
+					if(rootpath[q+ind] == '/' || rootpath[q+ind] == '\\')
+					{
+						while(rootpath[q+ind+1] == '/' || rootpath[q+ind+1] == '\\')
+							++q;
+						++slashes;
+					}
+				}
+				
+                for (size_t q = 0; q < slashes; ++q)
+                    strcat(dest, "../");
+				
+				strcat(dest, path+ind);
+			}
+			else if(path[ind]) //'path' is under the root directory
+			{
+				strcpy(dest, path+ind);
+			}
+			//else 'path' is 'rootpath'
+			fix_filename_case(dest);
+			fix_filename_slashes(dest);
+			return;
+		}
+		++ind;
+	}
+}
+
+/* derelativize_path:
+  *  Takes a relative path from the root directory, and returns its' absolute path.
+  */
+void derelativize_path(char* dest, char const* src_path)
+{
+	char path[4096] = {0};
+	strcpy(path, src_path);
+	dest[0] = 0;
+	char rootpath[4096] = {0};
+	get_root_path(rootpath, 4096);
+	size_t root_ind = strlen(rootpath)-1;
+	bool running = true;
+	char* path_ptr = path;
+	while(running)
+	{
+		running = false;
+		while(path_ptr[0]=='.' && path_ptr[1] == '.' && (path_ptr[2] == '/' || path_ptr[2] == '\\'))
+		{
+			if(root_ind > 0)
+			{
+				do --root_ind; while(rootpath[root_ind] != '/' && rootpath[root_ind] != '\\' && root_ind > 0);
+				size_t offs = (rootpath[root_ind] == '/' || rootpath[root_ind] == '\\')?1:0;
+				rootpath[root_ind+offs] = 0;
+			}
+			running = true;
+			path_ptr += 3;
+		}
+		while(path_ptr[0]=='.' && (path_ptr[1] == '/' || path_ptr[1] == '\\'))
+		{
+			running = true;
+			path_ptr += 3;
+		}
+	}
+	strcat(dest, rootpath);
+	strcat(dest, path_ptr);
+}
+
 /* jwin_file_browse_ex:
   *  Same as jwin_file_select but it lets you give it a list of
   *  possible extensions to choose from.
@@ -1300,20 +1417,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     
     if(!ugetc(path))
     {
-    
-#ifdef HAVE_DIR_LIST
-    
-        int32_t drive = _al_getdrive();
-        
-#else
-        
-        int32_t drive = 0;
-#endif
-        
-        _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
-        fix_filename_case(path);
-        fix_filename_slashes(path);
-        put_backslash(path);
+        get_root_path(path, size);
     }
     
     clear_keybuf();

@@ -2,6 +2,8 @@
 #include <boost/format.hpp>
 #include <map>
 #include "../qst.h"
+
+#ifndef IS_LAUNCHER
 extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
@@ -11,6 +13,8 @@ extern miscQdata misc;
 #define QMisc misc
 #else
 extern miscQdata QMisc;
+#endif
+
 #endif
 
 using std::map, std::string, std::set, std::function, std::move, std::to_string;
@@ -57,6 +61,22 @@ const char* ListData::jwinWrapper(int32_t index, int32_t* size, void* owner)
 	}
 }
 
+ListData ListData::numbers(bool none, int32_t start, uint32_t count)
+{
+	ListData ls;
+	if(none)
+	{
+		ls.add("(None)", start>0 ? 0 : start-1);
+	}
+	for(uint32_t i=0; i<count; ++i)
+	{
+		ls.add(std::to_string(start+i), start+i);
+	}
+	
+	return ls;
+}
+
+#ifndef IS_LAUNCHER
 ListData ListData::itemclass(bool numbered)
 {
 	map<string, int32_t> fams;
@@ -261,22 +281,6 @@ ListData ListData::sfxnames()
 	return ls;
 }
 
-ListData ListData::numbers(bool none, int32_t start, uint32_t count)
-{
-	ListData ls;
-	if(none)
-	{
-		ls.add("(None)", start>0 ? 0 : start-1);
-	}
-	for(uint32_t i=0; i<count; ++i)
-	{
-		ls.add(std::to_string(start+i), start+i);
-	}
-	
-	return ls;
-}
-
-
 
 static void load_scriptnames(set<string> &names, map<string, int32_t> &vals,
 	map<int32_t, script_slot_data> scrmap, int32_t count)
@@ -357,6 +361,7 @@ ListData ListData::combodata_script()
 	ls.add(names,vals);
 	return ls;
 }
+#endif
 
 void ListData::add(set<string> names, map<string, int32_t> vals)
 {

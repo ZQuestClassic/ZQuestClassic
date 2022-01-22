@@ -72,6 +72,10 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
 //int32_t jwin_dfile_select(char *message, char *path, char *ext);
 int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font);
 
+void get_root_path(char* path, int32_t size);
+void relativize_path(char* dest, char const* path);
+void derelativize_path(char* dest, char const* path);
+
 typedef struct EXT_LIST
 {
     char *text;                                             // appears in drop list

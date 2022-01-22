@@ -95,3 +95,13 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 }
 
 }
+
+void close_new_gui_dlg(DIALOG* d)
+{
+	while(d->dp3 != &newGuiMarker)
+	{
+		--d;
+	}
+	auto* dr = static_cast<GUI::DialogRunner*>(d->dp);
+	dr->close();
+}

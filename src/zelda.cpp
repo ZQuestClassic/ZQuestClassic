@@ -88,6 +88,8 @@ int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
 
+process_killer zscript_console_process, zasm_console_process;
+
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -344,7 +346,6 @@ combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compil
 SAMPLE customsfxdata[WAV_COUNT] = {0};
 uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
 int32_t sfxdat=1;
-BITMAP *hw_screen;
 int32_t zqwin_scale = 0;
 
 extern int32_t jwin_pal[jcMAX];
@@ -593,6 +594,10 @@ volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
+bool update_hw_pal = false;
+void update_hw_screen()
+{
+}
 
 /*
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
@@ -4575,43 +4580,6 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
-static const char months[13][13] =
-{ 
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int32_t dy)
-{ 
-	char temp[6]; 
-	switch(dy)
-	{
-		
-		
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-	
-	return std::string(temp); 
-} 
-
 int32_t main(int32_t argc, char* argv[])
 {
 	bool onlyInstance=true;
@@ -4786,7 +4754,7 @@ int32_t main(int32_t argc, char* argv[])
 	#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
 	if(!is_only_instance("zc.lck"))
 	{
-		if(used_switch(argc, argv, "-multiple") || get_config_int("zeldadx","multiple_instances",0))
+		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
 			onlyInstance=false;
 		else
 			exit(1);
@@ -4794,7 +4762,7 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	
 	//ZC Menu Position
-	zc_menu_on_left = get_config_int("zeldadx","zc_menu_on_left",0);
+	zc_menu_on_left = zc_get_config("zeldadx","zc_menu_on_left",0);
 	if ( zc_menu_on_left )
 	{
 	memcpy(the_player_menu, the_player_menu_zc_on_left, sizeof(MENU)*(DEVLEVEL>0 ? 9 : 8) );
@@ -4809,7 +4777,6 @@ int32_t main(int32_t argc, char* argv[])
 	{
 	exit(1);    
 	}
-	zcm.load(false);
 	
 	
 #ifdef _WIN32
@@ -5132,7 +5099,7 @@ int32_t main(int32_t argc, char* argv[])
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 	
-	skipicon = standalone_mode || used_switch(argc,argv,"-quickload");
+	skipicon = standalone_mode || used_switch(argc,argv,"-quickload") || zc_get_config("zeldadx","skip_icons",0);
 	
 	int32_t load_save=0;
 	
@@ -5162,10 +5129,10 @@ int32_t main(int32_t argc, char* argv[])
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || get_config_int("zeldadx","skiptitle",0);
+	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skiptitle",0);
 	int32_t save_arg = used_switch(argc,argv,"-savefile");
 	
-	int32_t checked_epilepsy = get_config_int("zeldadx","checked_epilepsy",0);
+	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	/*
 	if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
 	{
@@ -5438,7 +5405,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Initializing sound driver... ");
 	
-	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound"))
+	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound") || zc_get_config("zeldadx","nosound",0))
 	{
 		Z_message("skipped\n");
 	}
@@ -5555,12 +5522,12 @@ int32_t main(int32_t argc, char* argv[])
 	
 	//is the config file wrong (not zc.cfg!) here? -Z
 	if(used_switch(argc,argv,"-fullscreen") ||
-			(!used_switch(argc, argv, "-windowed") && get_config_int("zeldadx","fullscreen",0)==1))
+			(!used_switch(argc, argv, "-windowed") && zc_get_config("zeldadx","fullscreen",0)==1))
 	{
 		al_trace("Used switch: -fullscreen\n");
 		tempmode = GFX_AUTODETECT_FULLSCREEN;
 	}
-	else if(used_switch(argc,argv,"-windowed") || get_config_int("zeldadx","fullscreen",0)==0)
+	else if(used_switch(argc,argv,"-windowed") || zc_get_config("zeldadx","fullscreen",0)==0)
 	{
 		al_trace("Used switch: -windowed\n");
 		tempmode=GFX_AUTODETECT_WINDOWED;
@@ -5708,7 +5675,7 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	
 	// AG logo
-	if(!(fast_start||get_config_int("zeldadx","skip_logo",1)))
+	if(!(fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
 		set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
@@ -5728,7 +5695,7 @@ int32_t main(int32_t argc, char* argv[])
 	game = new gamedata;
 	game->Clear();
 	
-	hangcount = get_config_int("ZSCRIPT","ZASM_Hangcount",1000);
+	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",1000);
 	
 #ifdef _WIN32
 	
@@ -5959,6 +5926,9 @@ int32_t main(int32_t argc, char* argv[])
 	
 	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
 	skipcont = 0;
+	
+	zscript_console_process.kill();
+	zasm_console_process.kill();
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		

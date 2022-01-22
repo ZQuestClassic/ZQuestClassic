@@ -114,6 +114,9 @@ public:
 		}
 	}
 	//Static constructors for specific lists
+	static ListData numbers(bool none, int32_t start, uint32_t count);
+	
+#ifndef IS_LAUNCHER
 	static ListData itemclass(bool numbered = false);
 	static ListData combotype(bool numbered = false);
 	static ListData mapflag(bool numbered = false);
@@ -124,16 +127,14 @@ public:
 	static ListData lweaptypes();
 	static ListData sfxnames();
 	
-	static ListData numbers(bool none, int32_t start, uint32_t count);
-	
-	static ListData const& deftypes();
-	
 	static ListData itemdata_script();
 	static ListData itemsprite_script();
 	static ListData ffc_script();
 	static ListData lweapon_script();
 	static ListData combodata_script();
+#endif
 	
+	static ListData const& deftypes();
 private:
 	std::vector<ListItem> listItems;
 	

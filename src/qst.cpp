@@ -161,14 +161,6 @@ void delete_combo_aliases()
     
 }
 
-
-char *VerStr(int32_t version)
-{
-    static char ver_str[12];
-    sprintf(ver_str,"v%d.%02X",version>>8,version&0xFF);
-    return ver_str;
-}
-
 char *byte_conversion(int32_t number, int32_t format)
 {
     static char num_str[40];

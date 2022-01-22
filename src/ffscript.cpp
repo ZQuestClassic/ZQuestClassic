@@ -77,6 +77,7 @@ extern zinitdata zinit;
 int32_t hangcount = 0;
 
 extern byte monochrome_console;
+extern process_killer zscript_console_process, zasm_console_process;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
@@ -91,13 +92,6 @@ user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int32_t index);
-
-static inline bool fileexists(const char *filename) 
-{
-	std::ifstream ifile(filename);
-	if(ifile) return true;
-	return false;
-}
 
 const char scripttypenames[15][40]=
 {
@@ -316,7 +310,8 @@ public:
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
-				const char *helper_executable=NULL);
+				const char *helper_executable=NULL,
+				process_killer *killer);
 
 	// close everything
 	int32_t Close(void);
@@ -519,7 +514,8 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/)
+							const char	*helper_executable/*=NULL*/,
+							process_killer *killer/*=NULL*/)
 {
 	
 	// Ensure there's no pipe connected
@@ -592,7 +588,8 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 			return -1;
 		}
 	}
-	
+	if(killer)
+		killer->init(pi.hProcess);
 	
 	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
 		 TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
@@ -1009,7 +1006,8 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/)
+							const char	*helper_executable/*=NULL*/,
+							process_killer *killer/*=NULL*/)
 {
 	return 0;
 }
@@ -30697,44 +30695,6 @@ const char * select_screen_tile_cset_cats[sels_tile_LAST] =
 	"sels_cusror_cset", "sels_heart_tilettile_cset", "sels_link_cset"
 };
 
-static const char months[13][13] =
-{ 
-	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-};
-
-static std::string dayextension(int32_t dy)
-{ 
-	char temp[6]; 
-	switch(dy)
-	{
-		
-		
-		//st
-		case 1:
-		case 21:
-		case 31:
-			sprintf(temp,"%d%s",dy,"st"); 
-			break;
-		//nd
-		case 2:
-		case 22:
-			sprintf(temp,"%d%s",dy,"nd"); 
-			break;
-		//rd
-		case 3:
-		case 23:
-			sprintf(temp,"%d%s",dy,"rd"); 
-			break;
-		//th
-		default:
-			sprintf(temp,"%d%s",dy,"th");
-			break;
-	}
-	
-	return std::string(temp); 
-} 
-
-
 bool ZModule::init(bool d) //bool default
 {
 	
@@ -31096,58 +31056,6 @@ bool ZModule::init(bool d) //bool default
 	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
 	return true;
 }
-
-//Prints out the current Module struct data to allegro.log
-void ZModule::debug()
-{
-	//al_trace("Module field: %s, is: %s\n", "module_name", moduledata.module_name);
-	//al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
-	
-	//quests
-	/*
-	al_trace("Module field: %s, is: %s\n", "quest_flow",moduledata.old_quest_serial_flow);
-	al_trace("Module field: %s, is: %s\n", "quests[0]",moduledata.quests[0]);
-	al_trace("Module field: %s, is: %s\n", "quests[1]",moduledata.quests[1]);
-	al_trace("Module field: %s, is: %s\n", "quests[2]",moduledata.quests[2]);
-	al_trace("Module field: %s, is: %s\n", "quests[3]",moduledata.quests[3]);
-	al_trace("Module field: %s, is: %s\n", "quests[4]",moduledata.quests[4]);
-	
-	//skip codes
-	al_trace("Module field: %s, is: %s\n", "skipnames[0]",moduledata.skipnames[0]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[1]",moduledata.skipnames[1]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[2]",moduledata.skipnames[2]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[3]",moduledata.skipnames[3]);
-	al_trace("Module field: %s, is: %s\n", "skipnames[4]",moduledata.skipnames[4]);
-
-	//datafiles
-	al_trace("Module field: %s, is: %s\n", "datafiles[zelda_dat]",moduledata.datafiles[zelda_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[zquest_dat]",moduledata.datafiles[zquest_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[fonts_dat]",moduledata.datafiles[fonts_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[sfx_dat]",moduledata.datafiles[sfx_dat]);
-	al_trace("Module field: %s, is: %s\n", "datafiles[qst_dat]",moduledata.datafiles[qst_dat]);
-	*/
-}
-
-bool ZModule::load(bool zquest)
-{
-	set_config_file(moduledata.module_name);
-	//load config settings
-	if ( zquest )
-	{
-		al_trace("ZModule::load() was called by: %s\n","ZQuest");
-		//load ZQuest section data
-		set_config_file("zquest.cfg"); //shift back when done
-	}
-	else
-	{
-		al_trace("ZModule::load() was called by: %s\n","ZC Player");
-		//load ZC section data
-		set_config_file("zc.cfg"); //shift back when done
-	}
-	return true;
-}
-
-
 
 void FFScript::Play_Level_Music()
 {
@@ -35831,7 +35739,7 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 	#ifdef _WIN32
 	//if ( open )
 	{
-		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
+		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200, NULL, NULL, &zscript_console_process);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
@@ -35853,7 +35761,7 @@ void FFScript::ZScriptConsole(bool open)
 	#ifdef _WIN32
 	if ( open )
 	{
-		zscript_coloured_console.Create("ZScript Debug Console", 600, 200);
+		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL, &zscript_console_process);
 		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		zscript_coloured_console.gotoxy(0,0);
 	
@@ -35911,7 +35819,7 @@ void FFScript::ZASMPrint(bool open)
 	#ifdef _WIN32
 	if ( open )
 	{
-		coloured_console.Create("ZASM Debugger", 600, 200);
+		coloured_console.Create("ZASM Debugger", 600, 200, NULL, NULL, &zasm_console_process);
 		coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 		coloured_console.gotoxy(0,0);
 		coloured_console.cprintf( CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |

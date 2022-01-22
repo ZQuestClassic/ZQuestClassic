@@ -139,6 +139,8 @@ extern int32_t abc_patternmatch;
 /* a copy of the default color scheme; do what you want with this */
 extern int32_t jwin_colors[jcMAX];
 
+extern int32_t jwin_pal[jcMAX];
+
 extern int32_t scheme[jcMAX];
 
 extern int32_t mix_value(int32_t c1,int32_t c2,int32_t pos,int32_t max);
@@ -159,15 +161,20 @@ enum guiEvent
 	geRADIO
 };
 
+enum
+{
+	ONTICK_EXIT = -1, ONTICK_CONTINUE, ONTICK_CLOSE
+};
+
 #define GUI_EVENT(dlg, event)                  \
 do                                             \
 {                                              \
-    if(dlg->flags&D_NEW_GUI)                   \
-    {                                          \
-        int32_t ret = new_gui_event(dlg-1, event); \
-        if(ret >= 0)                           \
-            return ret;                        \
-    }                                          \
+	if(dlg->flags&D_NEW_GUI)                   \
+	{                                          \
+		int32_t ret = new_gui_event(dlg-1, event); \
+		if(ret >= 0)                           \
+			return ret;                        \
+	}                                          \
 } while(false)
 
 /* Triggers a message in the new GUI system. You should use the macro below

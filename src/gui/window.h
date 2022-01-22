@@ -35,7 +35,7 @@ public:
 		closeMessage = static_cast<int32_t>(m);
 	}
 	
-	void setOnTick(std::function<void()> newOnTick);
+	void setOnTick(std::function<int32_t()> newOnTick);
 
 private:
 	std::shared_ptr<Widget> content;
@@ -43,7 +43,7 @@ private:
 	DialogRef alDialog;
 	int32_t closeMessage;
 	bool use_vsync;
-	std::function<void()> onTick;
+	std::function<int32_t()> onTick;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
