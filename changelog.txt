@@ -1,7 +1,34 @@
 // 2.55 Change Log
-// Updated 14th Jan, 2022
+// Updated 22nd Jan, 2022
 
-//Since A101
+//Since A102
+
+//A102
+
+Completely redesign ZC Launcher from the ground up; now 'zlauncher.exe'
+	Has access to more configs for both ZC and ZQ, and can set custom
+		resolution options in ZC.
+	Can load Themes for itself as well as ZC/ZQ, and comes with a built-in
+		theme editor to create new '.ztheme' files!
+	( EmilyV, Jan 22nd, 2022 )
+
+Add more Misc SFX
+	( EmilyV, Jan 19th, 2022 )
+
+Z3 animation and lens layer hiding fixes
+	( Deedee, Jan 18th, 2022 )
+
+Fix excessive 'saved in newer build' warnings
+	( EmilyV, Jan 17th, 2022 )
+
+Bridge combos respect effect flags
+	( Deedee, Jan 17th, 2022 )
+
+Upgrade progressive items
+	Now they will skip items which normally increase a max counter,
+	but would increase by 0 due to 'But Not Above...';
+	including heart pieces checking the heart container increase.
+	( EmilyV, Jan 17th, 2022 )
 
 Fix random pixels appearing during opening wipe
 	( EmilyV, Jan 11th, 2022 )
