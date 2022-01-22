@@ -32,6 +32,11 @@ public:
 		runner.pendDraw();
 	}
 	
+	inline void forceDraw()
+	{
+		runner.forceDraw();
+	}
+	
 	inline void close()
 	{
 		runner.done = true;

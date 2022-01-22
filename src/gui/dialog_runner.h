@@ -69,6 +69,12 @@ public:
 	{
 		redrawPending = true;
 	}
+	
+	void forceDraw()
+	{
+		broadcast_dialog_message(MSG_DRAW, 0);
+		redrawPending = false;
+	}
 
 	void close()
 	{

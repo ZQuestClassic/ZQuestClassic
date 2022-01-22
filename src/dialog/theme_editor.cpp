@@ -1,11 +1,16 @@
 #include "theme_editor.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
+#include "jwinfsel.h"
 #include <gui/builder.h>
 #include <boost/format.hpp>
+#include PROJECT_MAIN_HEADER
 
 extern int32_t zq_screen_w, zq_screen_h;
 extern PALETTE RAMpal;
+
+extern char temppath[4096];
+char zthemepath[4096] = {0};
 
 ThemeEditor::ThemeEditor(char* buf) : saved_path(buf)
 {
@@ -89,6 +94,7 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
+	queue_revert = 0;
 	
 	memcpy(t_jwin_pal, jwin_pal, sizeof(jwin_pal));
 	memcpy(restore_jwin_pal, jwin_pal, sizeof(jwin_pal));
@@ -102,8 +108,8 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	}
 	for(auto q = 0; q < jcMAX; ++q)
 	{
-		t_jwin_pal[q] = r_dvc(t_jwin_pal[q]);
-		jwin_pal[q] = r_dvc(jwin_pal[q]);
+		t_jwin_pal[q] -= dvc(0);
+		jwin_pal[q] -= dvc(0);
 	}
 	set_palette(temp_pal);
 	jwin_set_colors(jwin_pal);
@@ -175,20 +181,28 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 							{
 								tfield->setVal(work_pal[8-ind].b);
 							});
+						tf_jc.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
+							{
+								tfield->setVal(jwin_pal[ind]);
+							});
 						set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
 					}),
 				Button(text = "Hard Revert", onPressFunc = [&]()
 					{
 						memcpy(work_pal, restore_pal, sizeof(PALETTE));
+						memcpy(temp_pal, restore_pal, sizeof(PALETTE));
 						memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
+						memcpy(t_jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 						for(auto q = 1; q <= 8; ++q)
 						{
 							work_pal[q] = work_pal[dvc(q)];
+							temp_pal[q] = temp_pal[dvc(q)];
 						}
 						for(auto q = 0; q < jcMAX; ++q)
 						{
-							jwin_pal[q] = r_dvc(jwin_pal[q]);
+							jwin_pal[q] -= dvc(0);
+							t_jwin_pal[q] -= dvc(0);
 						}
 						tf_red.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
@@ -201,6 +215,10 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 						tf_blue.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
 								tfield->setVal(work_pal[8-ind].b);
+							});
+						tf_jc.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
+							{
+								tfield->setVal(jwin_pal[ind]);
 							});
 						set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
@@ -228,11 +246,41 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::OK:
+		{
+			if(saved_path) saved_path[0] = 0;
+			//Save?
+			char path[4096] = {0};
+			if(getname("Save Theme", "ztheme", NULL, zthemepath, false))
+			{
+				relativize_path(path, temppath);
+				if(saved_path)
+					strcpy(saved_path,path);
+				
+				for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+				{
+					temppath[q] = 0;
+				}
+				strcpy(zthemepath, temppath);
+			}
+			else return false;
 			//Save things
-			set_palette(restore_pal);
+			for(auto q = 1; q <= 8; ++q)
+			{
+				work_pal[dvc(q)] = work_pal[q];
+			}
+			for(auto q = 0; q < jcMAX; ++q)
+			{
+				jwin_pal[q] += dvc(0);
+			}
+			save_themefile(path, work_pal);
+			//Restore
 			memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 			jwin_set_colors(jwin_pal);
+			forceDraw();
+			update_hw_screen();
+			set_palette(restore_pal);
 			return true;
+		}
 		case message::CANCEL:
 			if(saved_path) saved_path[0] = 0;
 			set_palette(restore_pal);

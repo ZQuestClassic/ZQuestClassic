@@ -102,6 +102,17 @@
   GFX_QUARTZ_WINDOW
   */
 
+
+#ifdef IS_ZQUEST
+#define PROJECT_MAIN_HEADER "zquest.h"
+#elif defined IS_LAUNCHER
+#define PROJECT_MAIN_HEADER "launcher/launcher.h"
+#elif defined IS_PLAYER
+#define PROJECT_MAIN_HEADER "zelda.h"
+#else
+#define PROJECT_MAIN_HEADER "zdefs.h"
+#endif
+
 #include <cstdio>
 #include <math.h>
 #include <string.h>

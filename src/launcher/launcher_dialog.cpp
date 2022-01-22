@@ -1,6 +1,7 @@
 #include "launcher_dialog.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
+#include "dialog/alertfunc.h"
 #include "dialog/theme_editor.h"
 #include "launcher.h"
 #include <gui/builder.h>
@@ -42,7 +43,7 @@ int32_t LauncherDialog::launcher_on_tick()
 	return ONTICK_CONTINUE;
 }
 
-static char zthemepath[4096] = {0};
+extern char zthemepath[4096];
 static char zmodpath[4096] = {0};
 static char savpath[4096] = {0};
 
@@ -61,6 +62,7 @@ namespace GUI::Lists
 
 	static const ListData autoBackupCopiesList = ListData::numbers(false, 0, 11);
 	static const ListData autoSaveCopiesList = ListData::numbers(false, 1, 10);
+	static const ListData frameRestSuggestList = ListData::numbers(false, 0, 3);
 
 	static const ListData scaleList
 	{
@@ -220,6 +222,21 @@ Button(forceFitH = true, text = "?", \
 
 //{ TextField
 #define CONFIG_TEXTFIELD_MINWIDTH 7_em
+
+#define CONFIG_TEXTFIELD_FL(name, file, head, subhead, def, _min, _max, _places) \
+Label(text = name, hAlign = 1.0), \
+TextField(fitParent = true, \
+	minwidth = CONFIG_TEXTFIELD_MINWIDTH, \
+	type = GUI::TextField::type::FIXED_DECIMAL, fitParent = true, \
+	low = _min*int32_t(pow(10, _places)), high = _max*int32_t(pow(10, _places)), \
+	val = zc_get_config(file, head, subhead, def)*int32_t(pow(10, _places)), \
+	places = _places, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		zc_set_config(file, head, subhead, val/double(pow(10, _places))); \
+	}), \
+DummyWidget()
+
 #define CONFIG_TEXTFIELD(name, file, head, subhead, def, _min, _max) \
 Label(text = name, hAlign = 1.0), \
 TextField(fitParent = true, \
@@ -412,12 +429,30 @@ int32_t getResPreset(int32_t resx, int32_t resy)
 
 //}
 
+char theme_saved_filepath[4096] = {0};
+static bool set_zq_theme()
+{
+	zc_set_config("zquest.cfg","Theme","theme_filename",theme_saved_filepath);
+	return false;
+}
+static bool set_zc_theme()
+{
+	zc_set_config("zc.cfg","Theme","theme_filename",theme_saved_filepath);
+	return false;
+}
+static bool set_zcl_theme()
+{
+	zc_set_config("zcl.cfg","Theme","theme_filename",theme_saved_filepath);
+	return false;
+}
+
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	using namespace GUI::Lists;
+	queue_revert = 0;
 	
 	window = Window(
 		title = "",
@@ -434,6 +469,155 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				focused = true,
 				minwidth = zq_screen_w - 60_px,
 				minheight = zq_screen_h - 100_px,
+				TabRef(name = "ZC Player", Row(framed = true,
+					Rows<2>(fitParent = true,
+						CONFIG_CHECKBOX("Fullscreen","zc.cfg","zeldadx","fullscreen",0),
+						CONFIG_CHECKBOX("Cap FPS","zc.cfg","zeldadx","throttlefps",1),
+						CONFIG_CHECKBOX("Show FPS","zc.cfg","zeldadx","showfps",0),
+						CONFIG_CHECKBOX("Skip Logo","zc.cfg","zeldadx","skip_logo",1),
+						CONFIG_CHECKBOX("Skip Title","zc.cfg","zeldadx","skip_title",1),
+						CONFIG_CHECKBOX("Skip Quest Icons","zc.cfg","zeldadx","skip_icons",0),
+						CONFIG_CHECKBOX("Force-reload Quest Icons","zc.cfg","zeldadx","reload_game_icons",0),
+						CONFIG_CHECKBOX("Cont. Heart Beep","zc.cfg","zeldadx","heart_beep",1),
+						CONFIG_CHECKBOX("Disable Sound","zc.cfg","zeldadx","nosound",0),
+						CONFIG_CHECKBOX_I("Allow Multiple Instances","zc.cfg","zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
+						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1)
+					),
+					Rows<3>(fitParent = true,
+						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zc.cfg","zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
+						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", "zc.cfg","zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_DROPDOWN_I("Frame Rest Suggest:", "zc.cfg","zeldadx","frame_rest_suggest",0,frameRestSuggestList,"Adjusts vsync to attempt to reduce lag. What value works best depends on your hardware / OS.\nPressing '[' and ']' during gameplay will lower/raise this value."),
+						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",4,screenshotOutputList,"The output format of screenshots"),
+						CONFIG_DROPDOWN_I("Name Entry Mode:", "zc.cfg","zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
+						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
+						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zc.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
+						GFXCARD_DROPDOWN("Graphics Driver (Fullscreen):", "zc.cfg", "graphics", "gfx_card", 0, gfxCardList),
+						DXGL_ENABLER(),
+						//
+						Button(hAlign = 1.0, forceFitH = true,
+							text = "Browse Module", onPressFunc = [&]()
+							{
+								if(getname("Load Module [ZC]", "zmod", NULL, zmodpath, false))
+								{
+									char path[4096] = {0};
+									relativize_path(path, temppath);
+									tf_module_zc->setText(path);
+									zc_set_config("zc.cfg", "ZCMODULE", "current_module", path);
+									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+									{
+										temppath[q] = 0;
+									}
+									strcpy(zmodpath, temppath);
+								}
+							}),
+						tf_module_zc = TextField(
+							read_only = true, fitParent = true,
+							text = zc_get_config("zc.cfg", "ZCMODULE", "current_module", "modules/classic.zmod")
+						),
+						DummyWidget(),
+						//
+						Button(hAlign = 1.0, forceFitH = true,
+							text = "Select Save File", onPressFunc = [&]()
+							{
+								if(getname("Load Save File (.sav)", "sav", NULL, savpath, false))
+								{
+									char path[4096] = {0};
+									relativize_path(path, temppath);
+									tf_savefile->setText(path);
+									zc_set_config("zc.cfg", "SAVEFILE", "save_filename", path);
+									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+									{
+										temppath[q] = 0;
+									}
+									strcpy(savpath, temppath);
+								}
+							}),
+						tf_savefile = TextField(
+							read_only = true, fitParent = true,
+							text = zc_get_config("zc.cfg", "SAVEFILE", "save_filename", "zc.sav")
+						),
+						DummyWidget(),
+						//
+						Button(hAlign = 1.0, forceFitH = true,
+							text = "Use Resolution Preset", onPressFunc = [&]()
+							{
+								int32_t mult = ddl_res->getSelectedValue();
+								int32_t resx = 320*mult, resy = 240*mult;
+								tf_resx->setVal(resx);
+								tf_resy->setVal(resy);
+								zc_set_config("zc.cfg","zeldadx","resx",resx);
+								zc_set_config("zc.cfg","zeldadx","resy",resy);
+							}),
+						ddl_res = DropDownList(data = resPresetList,
+							fitParent = true,
+							minwidth = CONFIG_DROPDOWN_MINWIDTH,
+							selectedValue = getResPreset(zc_get_config("zc.cfg","zeldadx","resx",640), zc_get_config("zc.cfg","zeldadx","resx",480))
+						),
+						DummyWidget(),
+						//
+						L_CONFIG_TEXTFIELD(tf_resx, "ResX:", "zc.cfg", "zeldadx", "resx", 640, 320, 1600),
+						//
+						L_CONFIG_TEXTFIELD(tf_resy, "ResY:", "zc.cfg", "zeldadx", "resy", 480, 240, 1200)
+					)
+				)),
+				TabRef(name = "ZQ Creator", Row(framed = true,
+					Rows<2>(fitParent = true,
+						CONFIG_CHECKBOX_I("Fullscreen","zquest.cfg","zquest","fullscreen",0,"Not exactly 'stable'."),
+						CONFIG_CHECKBOX_I("Small Mode","zquest.cfg","zquest","small",0,"If enabled, the 'classic' small mode interface will be used. This mode has less screen space, and lacks features such as favorite combos, favorite commands, multiple combo rows, next-screen preview, etc."),
+						CONFIG_CHECKBOX("VSync","zquest.cfg","zquest","vsync",1),
+						CONFIG_CHECKBOX("Show FPS","zquest.cfg","zquest","showfps",0),
+						CONFIG_CHECKBOX("Disable Sound","zquest.cfg","zquest","nosound",0),
+						CONFIG_CHECKBOX("Animate Combos","zquest.cfg","zquest","animation_on",1),
+						CONFIG_CHECKBOX("Combo Brush","zquest.cfg","zquest","combo_brush",0),
+						CONFIG_CHECKBOX("Enable Tooltips","zquest.cfg","zquest","enable_tooltips",1),
+						CONFIG_CHECKBOX("Floating Brush","zquest.cfg","zquest","float_brush",0),
+						CONFIG_CHECKBOX("Mouse Scroll","zquest.cfg","zquest","mouse_scroll",1),
+						CONFIG_CHECKBOX("Overwrite Protection","zquest.cfg","zquest","overwrite_prevention",1),
+						CONFIG_CHECKBOX("Palette Cycle","zquest.cfg","zquest","cycle_on",1),
+						CONFIG_CHECKBOX_I("Reload Last Quest","zquest.cfg","zquest","open_last_quest",1,"On launching, immediately attempt to open the last file edited."),
+						CONFIG_CHECKBOX("Save Paths","zquest.cfg","zquest","save_paths",1),
+						CONFIG_CHECKBOX_I("Show Misalignments","zquest.cfg","zquest","show_misalignments",0,"Shows blinking arrows on the sides of the screen where the solidity does not match across the screen border."),
+						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest","zquest.cfg","zquest","rulesetdialog",1,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
+						CONFIG_CHECKBOX("Tile Protection","zquest.cfg","zquest","tile_protection",1),
+						CONFIG_CHECKBOX("Uncompressed Autosaves","zquest.cfg","zquest","uncompressed_auto_saves",1),
+						CONFIG_CHECKBOX_I("Static effect for invalid data","zquest.cfg","zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
+						CONFIG_CHECKBOX_I("Warn on Init Script Change","zquest.cfg","zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)")
+					),
+					Rows<3>(fitParent = true,
+						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),
+						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", "zquest.cfg","zquest","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_DROPDOWN_I("Screenshot Output:", "zquest.cfg","zquest","snapshot_format",4,screenshotOutputList,"The output format of screenshots"),
+						CONFIG_DROPDOWN_I("Auto-Backup Retention:", "zquest.cfg","zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
+						CONFIG_DROPDOWN_I("Auto-Save Retention:", "zquest.cfg","zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
+						CONFIG_TEXTFIELD_I("Auto-Save Interval:", "zquest.cfg", "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
+						CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
+						CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
+						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zquest.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
+						GFXCARD_DROPDOWN("Graphics Driver (Fullscreen):", "zquest.cfg", "graphics", "gfx_card", 0, gfxCardList),
+						DXGL_ENABLER(),
+						Button(hAlign = 1.0, forceFitH = true,
+							text = "Browse Module", onPressFunc = [&]()
+							{
+								if(getname("Load Module [ZQ]", "zmod", NULL, zmodpath, false))
+								{
+									char path[4096] = {0};
+									relativize_path(path, temppath);
+									tf_module_zq->setText(path);
+									zc_set_config("zquest.cfg", "ZCMODULE", "current_module", path);
+									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+									{
+										temppath[q] = 0;
+									}
+									strcpy(zmodpath, temppath);
+								}
+							}),
+						tf_module_zq = TextField(
+							read_only = true, fitParent = true,
+							text = zc_get_config("zquest.cfg", "ZCMODULE", "current_module", "modules/classic.zmod")
+						),
+						DummyWidget()
+					))
+				),
 				TabRef(name = "Themes", Column(
 					Label(text = "Here you can load themes, and save them for each program separately."),
 					Rows<4>(padding = 0_px,
@@ -544,156 +728,24 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							}
 						})
 					),
-					/*Button(text = "Theme Editor", onPressFunc = [&]()
+					Button(text = "Theme Editor", onPressFunc = [&]()
 						{
-							char buf[4096] = {0};
-							ThemeEditor(buf).show();
-							if(buf[0])
+							ThemeEditor(theme_saved_filepath).show();
+							queue_revert = 0;
+							if(theme_saved_filepath[0])
 							{
-								tf_theme->setText(buf);
+								tf_theme->setText(theme_saved_filepath);
+								AlertFuncDialog("New Theme",
+									"Set the new theme to a program?",
+									4, 3, //4 buttons, where buttons[3] is focused
+									"Save ZC", set_zc_theme,
+									"Save ZQ", set_zq_theme,
+									"Save ZCL", set_zcl_theme,
+									"Done", NULL
+								).show();
 							}
-						})*/
-				)),
-				TabRef(name = "ZC Player", Row(framed = true,
-					Rows<2>(fitParent = true,
-						CONFIG_CHECKBOX("Fullscreen","zc.cfg","zeldadx","fullscreen",0),
-						CONFIG_CHECKBOX("Cap FPS","zc.cfg","zeldadx","throttlefps",1),
-						CONFIG_CHECKBOX("Show FPS","zc.cfg","zeldadx","showfps",0),
-						CONFIG_CHECKBOX("Skip Logo","zc.cfg","zeldadx","skip_logo",1),
-						CONFIG_CHECKBOX("Skip Quest Icons","zc.cfg","zeldadx","skip_icons",0),
-						CONFIG_CHECKBOX("Cont. Heart Beep","zc.cfg","zeldadx","heart_beep",1),
-						CONFIG_CHECKBOX("Disable Sound","zc.cfg","zeldadx","nosound",0),
-						CONFIG_CHECKBOX_I("Allow Multiple Instances","zc.cfg","zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion.")
-					),
-					Rows<3>(fitParent = true,
-						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",4,screenshotOutputList,"The output format of screenshots"),
-						CONFIG_DROPDOWN_I("Name Entry Mode:", "zc.cfg","zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
-						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
-						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zc.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
-						GFXCARD_DROPDOWN("Graphics Driver (Fullscreen):", "zc.cfg", "graphics", "gfx_card", 0, gfxCardList),
-						DXGL_ENABLER(),
-						//
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Browse Module", onPressFunc = [&]()
-							{
-								if(getname("Load Module [ZC]", "zmod", NULL, zmodpath, false))
-								{
-									char path[4096] = {0};
-									relativize_path(path, temppath);
-									tf_module_zc->setText(path);
-									zc_set_config("zc.cfg", "ZCMODULE", "current_module", path);
-									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-									{
-										temppath[q] = 0;
-									}
-									strcpy(zmodpath, temppath);
-								}
-							}),
-						tf_module_zc = TextField(
-							read_only = true, fitParent = true,
-							text = zc_get_config("zc.cfg", "ZCMODULE", "current_module", "modules/classic.zmod")
-						),
-						DummyWidget(),
-						//
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Select Save File", onPressFunc = [&]()
-							{
-								if(getname("Load Save File (.sav)", "sav", NULL, savpath, false))
-								{
-									char path[4096] = {0};
-									relativize_path(path, temppath);
-									tf_savefile->setText(path);
-									zc_set_config("zc.cfg", "SAVEFILE", "save_filename", path);
-									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-									{
-										temppath[q] = 0;
-									}
-									strcpy(savpath, temppath);
-								}
-							}),
-						tf_savefile = TextField(
-							read_only = true, fitParent = true,
-							text = zc_get_config("zc.cfg", "SAVEFILE", "save_filename", "zc.sav")
-						),
-						DummyWidget(),
-						//
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Use Resolution Preset", onPressFunc = [&]()
-							{
-								int32_t mult = ddl_res->getSelectedValue();
-								int32_t resx = 320*mult, resy = 240*mult;
-								tf_resx->setVal(resx);
-								tf_resy->setVal(resy);
-								zc_set_config("zc.cfg","zeldadx","resx",resx);
-								zc_set_config("zc.cfg","zeldadx","resy",resy);
-							}),
-						ddl_res = DropDownList(data = resPresetList,
-							fitParent = true,
-							minwidth = CONFIG_DROPDOWN_MINWIDTH,
-							selectedValue = getResPreset(zc_get_config("zc.cfg","zeldadx","resx",640), zc_get_config("zc.cfg","zeldadx","resx",480))
-						),
-						DummyWidget(),
-						//
-						L_CONFIG_TEXTFIELD(tf_resx, "ResX:", "zc.cfg", "zeldadx", "resx", 640, 320, 1600),
-						//
-						L_CONFIG_TEXTFIELD(tf_resy, "ResY:", "zc.cfg", "zeldadx", "resy", 480, 240, 1200)
-					)
-				)),
-				TabRef(name = "ZQ Creator", Row(framed = true,
-					Rows<2>(fitParent = true,
-						CONFIG_CHECKBOX_I("Fullscreen","zquest.cfg","zquest","fullscreen",0,"Not exactly 'stable'."),
-						CONFIG_CHECKBOX_I("Small Mode","zquest.cfg","zquest","small",0,"If enabled, the 'classic' small mode interface will be used. This mode has less screen space, and lacks features such as favorite combos, favorite commands, multiple combo rows, next-screen preview, etc."),
-						CONFIG_CHECKBOX("VSync","zquest.cfg","zquest","vsync",1),
-						CONFIG_CHECKBOX("Show FPS","zquest.cfg","zquest","showfps",0),
-						CONFIG_CHECKBOX("Disable Sound","zquest.cfg","zquest","nosound",0),
-						CONFIG_CHECKBOX("Animate Combos","zquest.cfg","zquest","animation_on",1),
-						CONFIG_CHECKBOX("Combo Brush","zquest.cfg","zquest","combo_brush",0),
-						CONFIG_CHECKBOX("Enable Tooltips","zquest.cfg","zquest","enable_tooltips",1),
-						CONFIG_CHECKBOX("Floating Brush","zquest.cfg","zquest","float_brush",0),
-						CONFIG_CHECKBOX("Mouse Scroll","zquest.cfg","zquest","mouse_scroll",1),
-						CONFIG_CHECKBOX("Overwrite Protection","zquest.cfg","zquest","overwrite_prevention",1),
-						CONFIG_CHECKBOX("Palette Cycle","zquest.cfg","zquest","cycle_on",1),
-						CONFIG_CHECKBOX_I("Reload Last Quest","zquest.cfg","zquest","open_last_quest",1,"On launching, immediately attempt to open the last file edited."),
-						CONFIG_CHECKBOX("Save Paths","zquest.cfg","zquest","save_paths",1),
-						CONFIG_CHECKBOX_I("Show Misalignments","zquest.cfg","zquest","show_misalignments",0,"Shows blinking arrows on the sides of the screen where the solidity does not match across the screen border."),
-						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest","zquest.cfg","zquest","rulesetdialog",1,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
-						CONFIG_CHECKBOX("Tile Protection","zquest.cfg","zquest","tile_protection",1),
-						CONFIG_CHECKBOX("Uncompressed Autosaves","zquest.cfg","zquest","uncompressed_auto_saves",1),
-						CONFIG_CHECKBOX_I("Static effect for invalid data","zquest.cfg","zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)")
-					),
-					Rows<3>(fitParent = true,
-						CONFIG_DROPDOWN_I("Screenshot Output:", "zquest.cfg","zquest","snapshot_format",4,screenshotOutputList,"The output format of screenshots"),
-						CONFIG_DROPDOWN_I("Auto-Backup Retention:", "zquest.cfg","zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
-						CONFIG_DROPDOWN_I("Auto-Save Retention:", "zquest.cfg","zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
-						CONFIG_TEXTFIELD_I("Auto-Save Interval:", "zquest.cfg", "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
-						CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
-						CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
-						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zquest.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
-						GFXCARD_DROPDOWN("Graphics Driver (Fullscreen):", "zquest.cfg", "graphics", "gfx_card", 0, gfxCardList),
-						DXGL_ENABLER(),
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Browse Module", onPressFunc = [&]()
-							{
-								if(getname("Load Module [ZQ]", "zmod", NULL, zmodpath, false))
-								{
-									char path[4096] = {0};
-									relativize_path(path, temppath);
-									tf_module_zq->setText(path);
-									zc_set_config("zquest.cfg", "ZCMODULE", "current_module", path);
-									for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
-									{
-										temppath[q] = 0;
-									}
-									strcpy(zmodpath, temppath);
-								}
-							}),
-						tf_module_zq = TextField(
-							read_only = true, fitParent = true,
-							text = zc_get_config("zquest.cfg", "ZCMODULE", "current_module", "modules/classic.zmod")
-						),
-						DummyWidget()
-					))
-				)
+						})
+				))
 			),
 			Row(
 				vAlign = 1.0,
