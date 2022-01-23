@@ -15,6 +15,12 @@ set conf=%out%\config
 set mod=%out%\modules
 set pack=%out%\package
 
+if exist "%nb%" (
+	echo Clearing old buildpack folder...
+	echo Clearing old buildpack folder...>%log%
+	rmdir /S /Q "%nb%"
+)
+
 echo Copying '\output\package' files...
 echo Copying '\output\package' files...>%log%
 xcopy /e /y /i "%pack%" "%nb%" >>%log%
