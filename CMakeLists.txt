@@ -74,12 +74,8 @@ set(ZQUEST_MODULES
 )
 
 set(ZSCRIPT_MODULES
+	${CMAKE_SOURCE_DIR}/modules/zscript/ParserCore.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
-)
-
-set(ZSCRIPT_CORE_SOURCES
-	${CMAKE_SOURCE_DIR}/src/parser/ZScript_main.cpp
-	${CMAKE_SOURCE_DIR}/src/util.cpp
 )
 
 set(LAUNCHER_MODULES
@@ -87,7 +83,7 @@ set(LAUNCHER_MODULES
 	${CMAKE_SOURCE_DIR}/modules/launcher/LauncherGUI.txt
 )
 
-foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES} ${LAUNCHER_MODULES})
+foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES} ${LAUNCHER_MODULES} ${ZSCRIPT_MODULES})
 	include(${module})
 	set_source_files_properties(${module} PROPERTIES HEADER_FILE_ONLY true)
 endforeach()
@@ -304,6 +300,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
+	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
 #############################################################
