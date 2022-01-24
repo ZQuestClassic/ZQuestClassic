@@ -118,6 +118,26 @@ namespace GUI::Lists
 		{ "1280x960", 4 },
 		{ "1600x1200", 5 }
 	};
+
+	static const ListData quickSlotList
+	{
+		{ "Disabled", 0 },
+		{ "Slot 1", 1 },
+		{ "Slot 2", 2 },
+		{ "Slot 3", 3 },
+		{ "Slot 4", 4 },
+		{ "Slot 5", 5 },
+		{ "Slot 6", 6 },
+		{ "Slot 7", 7 },
+		{ "Slot 8", 8 },
+		{ "Slot 9", 9 },
+		{ "Slot 10", 10 },
+		{ "Slot 11", 11 },
+		{ "Slot 12", 12 },
+		{ "Slot 13", 13 },
+		{ "Slot 14", 14 },
+		{ "Slot 15", 15 }
+	};
 }
 //}
 
@@ -481,7 +501,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Cont. Heart Beep","zc.cfg","zeldadx","heart_beep",1),
 						CONFIG_CHECKBOX("Disable Sound","zc.cfg","zeldadx","nosound",0),
 						CONFIG_CHECKBOX_I("Allow Multiple Instances","zc.cfg","zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
-						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1)
+						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1),
+						CONFIG_CHECKBOX_I("Quickload Last Quest","zc.cfg","zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zc.cfg","zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
@@ -538,26 +559,20 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						),
 						DummyWidget(),
 						//
-						Button(hAlign = 1.0, forceFitH = true,
-							text = "Use Resolution Preset", onPressFunc = [&]()
-							{
-								int32_t mult = ddl_res->getSelectedValue();
-								int32_t resx = 320*mult, resy = 240*mult;
-								tf_resx->setVal(resx);
-								tf_resy->setVal(resy);
-								zc_set_config("zc.cfg","zeldadx","resx",resx);
-								zc_set_config("zc.cfg","zeldadx","resy",resy);
-							}),
+						Label(text = "Resolution:", hAlign = 1.0),
 						ddl_res = DropDownList(data = resPresetList,
 							fitParent = true,
 							minwidth = CONFIG_DROPDOWN_MINWIDTH,
-							selectedValue = getResPreset(zc_get_config("zc.cfg","zeldadx","resx",640), zc_get_config("zc.cfg","zeldadx","resx",480))
+							selectedValue = getResPreset(zc_get_config("zc.cfg","zeldadx","resx",640), zc_get_config("zc.cfg","zeldadx","resx",480)),
+							onSelectFunc = [&](int32_t val)
+							{
+								zc_set_config("zc.cfg","zeldadx","resx",320*val);
+								zc_set_config("zc.cfg","zeldadx","resy",240*val);
+							}
 						),
 						DummyWidget(),
 						//
-						L_CONFIG_TEXTFIELD(tf_resx, "ResX:", "zc.cfg", "zeldadx", "resx", 640, 320, 1600),
-						//
-						L_CONFIG_TEXTFIELD(tf_resy, "ResY:", "zc.cfg", "zeldadx", "resy", 480, 240, 1200)
+						CONFIG_DROPDOWN_I("Quickload Slot:", "zc.cfg","zeldadx","quickload_slot",0,quickSlotList,"Unless 'disabled', this save slot will be immediately loaded upon launching.")
 					)
 				)),
 				TabRef(name = "ZQ Creator", Row(framed = true,

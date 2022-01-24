@@ -25,8 +25,7 @@ public:
 private:
 	int32_t launcher_on_tick();
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::TextField> tf_theme, tf_module_zc, tf_module_zq, tf_savefile,
-		tf_resx, tf_resy;
+	std::shared_ptr<GUI::TextField> tf_theme, tf_module_zc, tf_module_zq, tf_savefile;
 	std::shared_ptr<GUI::Label> lbl_theme_error;
 	std::shared_ptr<GUI::DropDownList> ddl_res;
 	WidgetSet<GUI::Button> dxglButtons;

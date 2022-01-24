@@ -5105,10 +5105,15 @@ int32_t main(int32_t argc, char* argv[])
 	
 	load_save = used_switch(argc,argv,"-load");
 	load_save = load_save?(argc>load_save+1)?atoi(argv[load_save+1]):0:0;
-	
-	if(!(used_switch(argc,argv,"-load")))
-		if(used_switch(argc,argv,"-loadlast"))
+	if(!load_save)
+	{
+		load_save = zc_get_config("zeldadx","quickload_slot",0);
+	}
+	if(!load_save)
+	{
+		if(used_switch(argc,argv,"-loadlast") || zc_get_config("zeldadx","quickload_last",0))
 			load_save = loadlast;
+	}
 			
 	slot_arg = used_switch(argc,argv,"-slot");
 	
