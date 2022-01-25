@@ -5134,7 +5134,7 @@ int32_t main(int32_t argc, char* argv[])
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skiptitle",0);
+	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",1);
 	int32_t save_arg = used_switch(argc,argv,"-savefile");
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
