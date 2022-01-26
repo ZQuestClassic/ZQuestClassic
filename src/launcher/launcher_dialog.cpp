@@ -55,8 +55,8 @@ namespace GUI::Lists
 		{ "BMP", 0 },
 		{ "GIF", 1 },
 		{ "JPEG", 2 },
-		{ "PCX", 3 },
-		{ "PNG", 4 },
+		{ "PNG", 3 },
+		{ "PCX", 4 },
 		{ "TGA", 5 }
 	};
 
@@ -508,7 +508,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zc.cfg","zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", "zc.cfg","zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Frame Rest Suggest:", "zc.cfg","zeldadx","frame_rest_suggest",0,frameRestSuggestList,"Adjusts vsync to attempt to reduce lag. What value works best depends on your hardware / OS.\nPressing '[' and ']' during gameplay will lower/raise this value."),
-						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",4,screenshotOutputList,"The output format of screenshots"),
+						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", "zc.cfg","zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
 						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zc.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
@@ -601,7 +601,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", "zquest.cfg","zquest","cursor_scale_large",1.5,1.0,5.0, 4),
-						CONFIG_DROPDOWN_I("Screenshot Output:", "zquest.cfg","zquest","snapshot_format",4,screenshotOutputList,"The output format of screenshots"),
+						CONFIG_DROPDOWN_I("Screenshot Output:", "zquest.cfg","zquest","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", "zquest.cfg","zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", "zquest.cfg","zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", "zquest.cfg", "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
