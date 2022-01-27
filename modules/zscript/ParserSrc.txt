@@ -1,5 +1,5 @@
 ## Source list for ZQuest ZScript module, when Flex and Bison are available
-set(ZQUEST_ZSCRIPT_SOURCES
+set(PARSER_SOURCES
 
 ################################
 # Add or remove files here

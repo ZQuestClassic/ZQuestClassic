@@ -1,19 +1,44 @@
 #ifndef ZSCR_DATA_H
 #define ZSCR_DATA_H
 
-#include "parser/Compiler.h"
 #include "zdefs.h"
+
 using std::map;
 using std::string;
 using std::vector;
 
-void read_compile_data(io_manager* reader, map<string, ZScript::ScriptType>& stypes, map<string, disassembled_script_data>& scripts)
+namespace ZScript
+{
+	enum ScriptTypeID
+	{
+		scrTypeIdInvalid,
+		scrTypeIdStart,
+		scrTypeIdGlobal = scrTypeIdStart,
+		scrTypeIdFfc,
+		scrTypeIdItem,
+		scrTypeIdNPC,
+		scrTypeIdEWeapon,
+		scrTypeIdLWeapon,
+		scrTypeIdPlayer,
+		scrTypeIdScreen,
+		scrTypeIdDMap,
+		scrTypeIdItemSprite,
+		scrTypeIdUntyped,
+		scrTypeIdComboData,
+		scrTypeIdSubscreenData,
+		
+		scrTypeIdEnd
+	};
+}
+
+void read_compile_data(io_manager* reader, map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
 {
 	stypes.clear();
 	scripts.clear();
 	if(!reader) return;
 	size_t stypes_sz, scripts_sz;
-	size_t _id, dummy;
+	size_t dummy;
+	ZScript::ScriptTypeID _id;
 	char buf[512] = {0};
 	char buf2[512] = {0};
 	
@@ -23,8 +48,8 @@ void read_compile_data(io_manager* reader, map<string, ZScript::ScriptType>& sty
 		reader->read(&dummy, sizeof(size_t));
 		reader->read(buf, dummy, &dummy);
 		buf[dummy] = 0;
-		reader->read(&_id, sizeof(size_t));
-		stypes[buf] = ZScript::ScriptType((ZScript::ScriptType::Id)_id);
+		reader->read(&_id, sizeof(ZScript::ScriptTypeID));
+		stypes[buf] = _id;
 	}
 	
 	reader->read(&scripts_sz, sizeof(size_t));
@@ -58,7 +83,7 @@ void read_compile_data(io_manager* reader, map<string, ZScript::ScriptType>& sty
 	}
 }
 
-void write_compile_data(io_manager* writer, map<string, ZScript::ScriptType>& stypes, map<string, disassembled_script_data>& scripts)
+void write_compile_data(io_manager* writer, map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
 {
 	if(!writer) return;
 	size_t dummy = stypes.size();
@@ -67,11 +92,11 @@ void write_compile_data(io_manager* writer, map<string, ZScript::ScriptType>& st
 	for(auto it = stypes.begin(); it != stypes.end(); ++it)
 	{
 		string const& str = it->first;
-		size_t v = it->second.getId();
+		ZScript::ScriptTypeID v = it->second;
 		dummy = str.size();
 		writer->write(&dummy, sizeof(size_t));
 		writer->write((void*)str.c_str(), dummy);
-		writer->write(&v, sizeof(size_t));
+		writer->write(&v, sizeof(ZScript::ScriptTypeID));
 	}
 	
 	dummy = scripts.size();
@@ -104,6 +129,19 @@ void write_compile_data(io_manager* writer, map<string, ZScript::ScriptType>& st
 		}
 	}
 }
+
+#ifdef IS_PARSER
+#include "parser/Compiler.h"
+void write_compile_data(io_manager* writer, map<string, ZScript::ScriptType>& stypes, map<string, disassembled_script_data>& scripts)
+{
+	map<string, ZScript::ScriptTypeID> sid_types;
+	for(auto it = stypes.begin(); it != stypes.end(); ++it)
+	{
+		sid_types[it->first] = (ZScript::ScriptTypeID)(it->second.getId());
+	}
+	write_compile_data(writer, sid_types, scripts);
+}
+#endif //IS_PARSER
 
 #endif
 

@@ -3,6 +3,9 @@
 
 //Since A102
 
+Implement external ZScript parser (zscript.exe)
+	( EmilyV, Jan 27th, 2022 )
+
 //A102
 
 Completely redesign ZC Launcher from the ground up; now 'zlauncher.exe'

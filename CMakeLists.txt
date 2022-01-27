@@ -70,12 +70,11 @@ set(ZQUEST_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestCore.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestGUI.txt
 	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestMisc.txt
-	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
 )
 
 set(ZSCRIPT_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zscript/ParserCore.txt
-	${CMAKE_SOURCE_DIR}/modules/zquest/ZQuestZScript.txt
+	${CMAKE_SOURCE_DIR}/modules/zscript/ParserSrc.txt
 )
 
 set(LAUNCHER_MODULES
@@ -261,7 +260,7 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestCore ZQUEST_CORE_SOURCES)
 	enable_unity_build(ZQuestGUI ZQUEST_GUI_SOURCES)
 	enable_unity_build(ZQuestMisc ZQUEST_MISC_SOURCES)
-	enable_unity_build(ZQuestZScript ZQUEST_ZSCRIPT_SOURCES)
+	enable_unity_build(ZQuestZScript PARSER_SOURCES)
 endif()
 
 set(Boost_DEBUG ON) # set to ON if you want to see more info in cmake
@@ -273,7 +272,7 @@ find_package(Boost 1.74.0)
 if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 	add_definitions(-DHAS_BOOST)
-    add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${ZQUESTEXTRASOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZQUEST_MODULES})
+    add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
 	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
 	if(MSVC AND USE_PCH)
@@ -298,7 +297,7 @@ if(LINUX)
 endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
-	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${ZQUEST_ZSCRIPT_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
+	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()

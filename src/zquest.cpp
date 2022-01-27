@@ -33,6 +33,7 @@
 #include "mem_debug.h"
 #include "particles.h"
 #include "metadata/versionsig.h"
+#include "dialog/alert.h"
 #include "dialog/alertfunc.h"
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
@@ -24199,6 +24200,38 @@ void zconsole_warn(const char *format,...){}
 void zconsole_error(const char *format,...){}
 void zconsole_info(const char *format,...){}
 
+void compile_sfx(bool success)
+{
+	if ( success )
+	{
+		compile_error_sample = 0;
+		compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+		if ( compile_success_sample > 0 )
+		{
+			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			if(sfxdat)
+				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+			voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+			voice_start(sfx_voice[compile_success_sample]);
+		}
+	}
+	else
+	{
+		compile_success_sample = 0;
+		compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
+		if ( compile_error_sample > 0 )
+		{
+			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			if(sfxdat)
+				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+			voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+			voice_start(sfx_voice[compile_error_sample]);
+		}
+	}
+}
+
 int32_t onCompileScript()
 {
 	compile_dlg[0].dp2 = lfont;
@@ -24329,90 +24362,59 @@ int32_t onCompileScript()
 			
 			script_data old_init_script(*globalscripts[0]);
 			uint32_t lastInitSize = old_init_script.size();
-			map<string, ZScript::ScriptType> stypes;
+			map<string, ZScript::ScriptTypeID> stypes;
 			map<string, disassembled_script_data> scripts;
 			
-			box_start(1, "External Parser", lfont, sfont, true);
 			int32_t code = -9999;
-			box_out("Launching 'zscript.exe'... ");
 			if(!fileexists("zscript.exe"))
 			{
-				box_out("failed!");
-				box_eol();
-				box_end(false);
 				InfoDialog("Parser","'zscript.exe' was not found!").show();
 				break;
 			}
 			clock_t start_compile_time = clock();
-			clock_t end_compile_time;
 			process_manager* pm = launch_piped_process("zscript.exe -input tmp -linked");
-			if(pm)
+			if(!pm)
 			{
-				box_out("launched!");
-				box_eol();
-				pm->write(quest_rules, QUESTRULES_NEW_SIZE);
-				pm->read(&code, sizeof(int32_t));
-				end_compile_time = clock();
-				char buf[512] = {0};
-				sprintf(buf, "Return code '%ld'", code);
-				box_out(buf);
-				box_eol();
-				if(!code)
-				{
-					read_compile_data(pm, stypes, scripts);
-				}
-				box_out("Press any key...");
-				box_eol();
-			}
-			else
-			{
-				end_compile_time = clock();
-				box_out("failed!");
-				box_eol();
-				box_end(false);
 				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();
 				break;
 			}
 			
+			pm->write(quest_rules, QUESTRULES_NEW_SIZE);
+			pm->read(&code, sizeof(int32_t));
+			clock_t end_compile_time = clock();
+			
+			
+			char tmp[128] = {0};
+			sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
+			for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
+			{
+				if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
+				else break;
+			}
+			char buf[1024] = {0};
+			sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
+				"Compile took %s seconds (%ld cycles)%s",
+				code, code ? "failure" : "success",
+				tmp, end_compile_time - start_compile_time,
+				code ? "\nCompilation failed. See console for details." : "");
+			
+			compile_sfx(!code);
+			if(!code)
+			{
+				read_compile_data(pm, stypes, scripts);
+			}
+			
 			delete pm;
 			
-			char buf[256] = {0};
-			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
-			box_out(buf);
-			box_eol();
-			unlink("tmp");
-			if ( !code )
-			{
-				compile_error_sample = 0;
-				compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
-				if ( compile_success_sample > 0 )
-				{
-					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-					if(sfxdat)
-						sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-					else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-					voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-					voice_start(sfx_voice[compile_success_sample]);
-				}
-			}
-			else
-			{
-				compile_success_sample = 0;
-				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
-				if ( compile_error_sample > 0 )
-				{
-					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-					if(sfxdat)
-						sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-					else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-					voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-					voice_start(sfx_voice[compile_error_sample]);
-				}
-				
-			}
+			bool cancel = code;
+			if(code)
+				InfoDialog("ZScript Parser", buf).show();
+			else AlertDialog("ZScript Parser", buf,
+					[&](bool ret)
+					{
+						cancel = !ret;
+					}, "Continue", "Cancel").show();
 			
-			
-			box_end(true);
 			if ( compile_success_sample > 0 )
 			{
 				if(sfx_voice[compile_success_sample]!=-1)
@@ -24431,11 +24433,8 @@ int32_t onCompileScript()
 			}
 			refresh(rALL);
 			
-			if(code)
-			{
-				InfoDialog("Compile Error", "Compilation failed. See console for details.").show();
+			if(cancel)
 				break;
-			}
 			
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
@@ -24461,37 +24460,48 @@ int32_t onCompileScript()
 			ascomboscripts.push_back("<none>");
 			clear_map_states();
 			
-			for (map<string, ZScript::ScriptType>::iterator it =
-					 stypes.begin(); it != stypes.end(); ++it)
+			using namespace ZScript;
+			for (auto it = stypes.begin(); it != stypes.end(); ++it)
 			{
 				string const& name = it->first;
-				ZScript::ScriptType type = it->second;
-				if ( type == ZScript::ScriptType::ffc )
-					asffcscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::item )
-					asitemscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::npc )
-					asnpcscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::eweapon )
-					aseweaponscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::lweapon )
-					aslweaponscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::player )
-					asplayerscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::dmapdata )
-					asdmapscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::screendata )
-					asscreenscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::itemsprite )
-					asitemspritescripts.push_back(name);
-				else if ( type == ZScript::ScriptType::combodata )
-					ascomboscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::global )
+				switch(it->second)
 				{
-					if (name != "~Init")
-					{
-						asglobalscripts.push_back(name);
-					}
+					case scrTypeIdFfc:
+						asffcscripts.push_back(name);
+						break;
+					case scrTypeIdItem:
+						asitemscripts.push_back(name);
+						break;
+					case scrTypeIdNPC:
+						asnpcscripts.push_back(name);
+						break;
+					case scrTypeIdEWeapon:
+						aseweaponscripts.push_back(name);
+						break;
+					case scrTypeIdLWeapon:
+						aslweaponscripts.push_back(name);
+						break;
+					case scrTypeIdPlayer:
+						asplayerscripts.push_back(name);
+						break;
+					case scrTypeIdDMap:
+						asdmapscripts.push_back(name);
+						break;
+					case scrTypeIdScreen:
+						asscreenscripts.push_back(name);
+						break;
+					case scrTypeIdItemSprite:
+						asitemspritescripts.push_back(name);
+						break;
+					case scrTypeIdComboData:
+						ascomboscripts.push_back(name);
+						break;
+					case scrTypeIdGlobal:
+						if (name != "~Init")
+						{
+							asglobalscripts.push_back(name);
+						}
+						break;
 				}
 			}
 		
@@ -31993,7 +32003,7 @@ int32_t save_config_file()
     set_config_int("zquest","gui_colorset",gui_colorset);
     set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
     set_config_int("zquest","no_preview",NoScreenPreview);
-	set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
+	//set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
     
     for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
