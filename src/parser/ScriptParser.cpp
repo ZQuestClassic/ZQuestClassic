@@ -47,12 +47,15 @@ void ScriptParser::initialize()
 	CompileError::initialize();
 	CompileOption::initialize();
 }
-
+extern uint32_t zscript_failcode;
+extern bool zscript_had_warn_err;
 unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
-	
+	zscript_failcode = 0;
+	zscript_had_warn_err = false;
 	ScriptParser::initialize();
 	
+	zconsole_info("Pass 1: Parsing");
 	box_out("Pass 1: Parsing");
 	box_eol();
 
@@ -63,6 +66,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		return nullptr;
 	}
 
+	zconsole_info("Pass 2: Preprocessing");
 	box_out("Pass 2: Preprocessing");
 	box_eol();
 
@@ -74,12 +78,14 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	if (handler.hasError())
 		return nullptr;
 
+	zconsole_info("Pass 3: Registration");
 	box_out("Pass 3: Registration");
 	box_eol();
 
 	RegistrationVisitor regVisitor(program);
 	if(regVisitor.hasFailed()) return nullptr;
 
+	zconsole_info("Pass 4: Analyzing Code");
 	box_out("Pass 4: Analyzing Code");
 	box_eol();
 
@@ -94,6 +100,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		return nullptr;
 	}
 
+	zconsole_info("Pass 5: Generating object code");
 	box_out("Pass 5: Generating object code");
 	box_eol();
 
@@ -101,6 +108,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	if (!id.get())
 		return nullptr;
 	
+	zconsole_info("Pass 6: Assembling");
 	box_out("Pass 6: Assembling");
 	box_eol();
 
@@ -108,6 +116,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 	unique_ptr<ScriptsData> result(new ScriptsData(program));
 
+	zconsole_info("Success!");
 	box_out("Success!");
 	box_eol();
 

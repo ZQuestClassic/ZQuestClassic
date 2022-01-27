@@ -33,6 +33,7 @@
 #include "mem_debug.h"
 #include "particles.h"
 #include "metadata/versionsig.h"
+#include "dialog/alert.h"
 #include "dialog/alertfunc.h"
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
@@ -93,6 +94,8 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <fstream>
 
 #include "module.h"
+
+#include "zscrdata.h"
 
 //Windows mmemory tools
 #ifdef _WIN32
@@ -164,874 +167,13 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
+byte monochrome_console = 0;
 
-#ifdef _WIN32
 #include "ConsoleLogger.h"
-#else
-//unix
 
-class CConsoleLogger
-{
-public:
-
-	// ctor,dtor
-	CConsoleLogger();
-	virtual ~CConsoleLogger();
-	
-	// create a logger: starts a pipe+create the child process
-	int32_t Create(const char *lpszWindowTitle=NULL,
-				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
-				const char *logger_name=NULL,
-				const char *helper_executable=NULL,
-                process_killer* killer = NULL);
-
-	// close everything
-	int32_t Close(void);
-	
-	// output functions
-	inline int32_t print(const char *lpszText,int32_t iSize=-1);
-	int32_t printf(const char *format,...);
-	
-	// play with the CRT output functions
-	int32_t SetAsDefaultOutput(void);
-	static int32_t ResetDefaultOutput(void);
-
-protected:
-	char	m_name[64];
-	
-#ifdef CONSOLE_LOGGER_USING_MS_SDK
-	// we'll use this DWORD as VERY fast critical-section . for more info:
-	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
-	//		Vance Morrison , MSDN Magazine  October 2005
-	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
-	volatile int32_t m_fast_critical_section;
-
-	inline void InitializeCriticalSection(void)
-	{  }
-	
-	inline void DeleteCriticalSection(void)
-	{  }
-
-	// our own LOCK function
-	inline void EnterCriticalSection(void)
-	{}
-
-	// our own UNLOCK function
-	inline void LeaveCriticalSection(void)
-	{ m_fast_critical_section=0; }
-#else
-	inline void InitializeCriticalSection(void)
-	{  }
-	
-	inline void DeleteCriticalSection(void)
-	{  }
-
-	// our own LOCK function
-	inline void EnterCriticalSection(void)
-	{ }
-
-	// our own UNLOCK function
-	inline void LeaveCriticalSection(void)
-	{ }
-
-#endif
-
-	// you can extend this class by overriding the function
-	virtual int32_t	AddHeaders(void)
-	{ return 0;}
-
-	// the _print() helper function
-	virtual int32_t _print(const char *lpszText,int32_t iSize);
-
-	
-
-
-	// SafeWriteFile : write safely to the pipe
-	inline bool SafeWriteFile(
-		/*__in*/ int32_t hFile,
-		/*__in_bcount(nNumberOfBytesToWrite)*/	int32_t lpBuffer,
-		/*__in        */ int32_t nNumberOfBytesToWrite,
-		/*__out_opt   */ int32_t lpNumberOfBytesWritten,
-		/*__inout_opt */ int32_t lpOverlapped
-		)
-	{
-		return false;
-	}
-
-};
-
-
-class CConsoleLoggerEx : public CConsoleLogger
-{
-	int32_t	m_dwCurrentAttributes;
-	enum enumCommands
-	{
-		COMMAND_PRINT,
-		COMMAND_CPRINT,
-		COMMAND_CLEAR_SCREEN,
-		COMMAND_COLORED_CLEAR_SCREEN,
-		COMMAND_GOTOXY,
-		COMMAND_CLEAR_EOL,
-		COMMAND_COLORED_CLEAR_EOL
-	};
-public:
-	CConsoleLoggerEx();
-
-	enum enumColors
-	{
-		COLOR_BLACK=0,
-		COLOR_BLUE,
-		COLOR_GREEN,
-		COLOR_RED,
-		COLOR_WHITE,
-		COLOR_INTENSITY,
-		COLOR_BACKGROUND_BLACK,
-		COLOR_BACKGROUND_BLUE,
-		COLOR_BACKGROUND_GREEN,
-		COLOR_BACKGROUND_RED,
-		COLOR_BACKGROUND_WHITE,
-		COLOR_BACKGROUND_INTENSITY,
-		COLOR_COMMON_LVB_LEADING_BYTE,
-		COLOR_COMMON_LVB_TRAILING_BYTE,
-		COLOR_COMMON_LVB_GRID_HORIZONTAL,
-		COLOR_COMMON_LVB_GRID_LVERTICAL,
-		COLOR_COMMON_LVB_GRID_RVERTICAL,
-		COLOR_COMMON_LVB_REVERSE_VIDEO,
-		COLOR_COMMON_LVB_UNDERSCORE
-	};
-	
-	
-	// Clear screen , use default color (black&white)
-	void cls(void);
-	
-	// Clear screen use specific color
-	void cls(word color);
-
-	// Clear till End Of Line , use default color (black&white)
-	void clear_eol(void);
-	
-	// Clear till End Of Line , use specified color
-	void clear_eol(word color);
-	
-	// write string , use specified color
-	int32_t cprintf(int32_t attributes,const char *format,...);
-	
-	// write string , use current color
-	int32_t cprintf(const char *format,...);
-	
-	// goto(x,y)
-	void gotoxy(int32_t x,int32_t y);
-
-
-
-	word	GetCurrentColor(void)
-	{  }
-	
-	void	SetCurrentColor(word dwColor)
-	{ }
-	
-
-protected:
-	virtual int32_t	AddHeaders(void)
-	{	
-		return  0;
-	}
-	
-	virtual int32_t _print(const char *lpszText,int32_t iSize);
-	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
-
-
-};
-#endif
-
-
-#ifdef _WIN32
-//////////////////////////////////////////////////////////////////////
-// ConsoleLogger.cpp: implementation of the CConsoleLogger class.
-//////////////////////////////////////////////////////////////////////
-
-
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-
-
-// CTOR: reset everything
-CConsoleLogger::CConsoleLogger()
-{
-	InitializeCriticalSection();
-	m_name[0]=0;
-	m_hPipe = INVALID_HANDLE_VALUE;
-}
-
-// DTOR: delete everything
-CConsoleLogger::~CConsoleLogger()
-{
-	DeleteCriticalSection();
-	
-	// Notice: Because we want the pipe to stay alive until all data is passed,
-	//         it's better to avoid closing the pipe here....
-	//Close();
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Create: create a new console (logger) with the following OPTIONAL attributes:
-//
-// lpszWindowTitle : window title
-// buffer_size_x   : width
-// buffer_size_y   : height
-// logger_name     : pipe name . the default is f(this,time)
-// helper_executable: which (and where) is the EXE that will write the pipe's output
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
-							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
-							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/,
-                            process_killer* killer)
-{
-	// Ensure there's no pipe connected
-	if (m_hPipe != INVALID_HANDLE_VALUE)
-	{
-		DisconnectNamedPipe(m_hPipe);
-		CloseHandle(m_hPipe);
-		m_hPipe=INVALID_HANDLE_VALUE;
-	}
-	strcpy(m_name,"\\\\.\\pipe\\");
-
-	
-	if (!logger_name)
-	{	// no name was give , create name based on the current address+time
-		// (you can modify it to use PID , zc_oldrand() ,...
-		uint32_t now = GetTickCount();
-		logger_name = m_name+ strlen(m_name);
-		sprintf((char*)logger_name,"logger%d_%lu",(int32_t)this,now);
-	}
-	else
-	{	// just use the given name
-		strcat(m_name,logger_name);
-	}
-
-	
-	// Create the pipe
-	m_hPipe = CreateNamedPipe( 
-		  m_name,					// pipe name 
-		  PIPE_ACCESS_OUTBOUND,		// read/write access, we're only writing...
-		  PIPE_TYPE_MESSAGE |       // message type pipe 
-		  PIPE_READMODE_BYTE|		// message-read mode 
-		  PIPE_WAIT,                // blocking mode 
-		  1,						// max. instances  
-		  32768,						// output buffer size 
-		  0,						// input buffer size (we don't read data, so 0 is fine)
-		  1,						// client time-out 
-		  NULL);                    // no security attribute 
-	if (m_hPipe==INVALID_HANDLE_VALUE)
-	{	// failure
-		MessageBox(NULL,"CreateNamedPipe failed","ConsoleLogger failed",MB_OK);
-		return -1;
-	}
-
-	// Extra console : create another process , it's role is to display the pipe's output
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	GetStartupInfo(&si);
-	
-	char cmdline[MAX_PATH];;
-	if (!helper_executable)
-		helper_executable=
-			( get_config_int("CONSOLE","console_on_top",0) ) 
-			? "ZConsole_OnTop.exe"
-			: "ZConsole.exe"; //DEFAULT_HELPER_EXE
-	sprintf(cmdline,"%s %s",helper_executable,logger_name);
-	BOOL bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
-	if (!bRet)
-	{	// on failure - try to get the path from the environment
-		char *path = getenv("ConsoleLoggerHelper");
-		if (path)
-		{
-			sprintf(cmdline,"%s %s",path,logger_name);
-			bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
-		}
-		if (!bRet)
-		{
-			MessageBox(NULL,"Helper executable not found","ConsoleLogger failed",MB_OK);
-			CloseHandle(m_hPipe);
-			m_hPipe = INVALID_HANDLE_VALUE;
-			return -1;
-		}
-	}
-	
-	
-	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
-					  TRUE : (GetLastError() == ERROR_PIPE_CONNECTED); 
-	if (!bConnected)
-	{
-		MessageBox(NULL,"ConnectNamedPipe failed","ConsoleLogger failed",MB_OK);
-		
-		CloseHandle(m_hPipe);
-		m_hPipe = INVALID_HANDLE_VALUE;
-		return -1;
-	}
-	
-	DWORD cbWritten;
-
-	//////////////////////////////////////////////////////////////////////////
-	// In order to easily add new future-features , i've chosen to pass the "extra"
-	// parameters just the HTTP protocol - via textual "headers" .
-	// the last header should end with NULL
-	//////////////////////////////////////////////////////////////////////////
-	
-
-	char buffer[128];
-	// Send title
-	if (!lpszWindowTitle)	lpszWindowTitle=m_name+9;
-	sprintf(buffer,"TITLE: %s\r\n",lpszWindowTitle);
-	WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
-	if (cbWritten!=strlen(buffer))
-	{
-		MessageBox(NULL,"WriteFile failed(1)","ConsoleLogger failed",MB_OK);
-		DisconnectNamedPipe(m_hPipe);
-		CloseHandle(m_hPipe);
-		m_hPipe=INVALID_HANDLE_VALUE;
-		return -1;
-	}
-
-	
-	if (buffer_size_x!=-1 && buffer_size_y!=-1)
-	{	// Send buffer-size
-		sprintf(buffer,"BUFFER-SIZE: %dx%d\r\n",buffer_size_x,buffer_size_y);
-		WriteFile(m_hPipe,buffer,strlen(buffer),&cbWritten,NULL);
-		if (cbWritten!=strlen(buffer))
-		{
-			MessageBox(NULL,"WriteFile failed(2)","ConsoleLogger failed",MB_OK);
-			DisconnectNamedPipe(m_hPipe);
-			CloseHandle(m_hPipe);
-			m_hPipe=INVALID_HANDLE_VALUE;
-			return -1;
-		}
-	}
-
-	// Send more headers. you can override the AddHeaders() function to 
-	// extend this class
-	if (AddHeaders())
-	{	
-		DisconnectNamedPipe(m_hPipe);
-		CloseHandle(m_hPipe);
-		m_hPipe=INVALID_HANDLE_VALUE;
-		return -1;
-	}
-
-
-
-	// send NULL as "end of header"
-	buffer[0]=0;
-	WriteFile(m_hPipe,buffer,1,&cbWritten,NULL);
-	if (cbWritten!=1)
-	{
-		MessageBox(NULL,"WriteFile failed(3)","ConsoleLogger failed",MB_OK);
-		DisconnectNamedPipe(m_hPipe);
-		CloseHandle(m_hPipe);
-		m_hPipe=INVALID_HANDLE_VALUE;
-		return -1;
-	}
-	return 0;
-}
-
-
-// Close and disconnect
-int32_t CConsoleLogger::Close(void)
-{
-	if (m_hPipe==INVALID_HANDLE_VALUE || m_hPipe==NULL)
-		return -1;
-	else
-		return DisconnectNamedPipe( m_hPipe );
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// print: print string lpszText with size iSize
-// if iSize==-1 (default) , we'll use strlen(lpszText)
-// 
-// this is the fastest way to print a simple (not formatted) string
-//////////////////////////////////////////////////////////////////////////
-inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
-{
-	if (m_hPipe==INVALID_HANDLE_VALUE)
-		return -1;
-	return _print(lpszText,(iSize==-1) ? strlen(lpszText) : iSize);
-}
-
-//////////////////////////////////////////////////////////////////////////
-// printf: print a formatted string
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::printf(const char *format,...)
-{
-	if (m_hPipe==INVALID_HANDLE_VALUE)
-		return -1;
-	int32_t ret;
-	char tmp[1024];
-
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[ret]=0;
-
-	va_end(argList);
-
-	return _print(tmp,ret);
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// set the default (CRT) printf() to use this logger
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::SetAsDefaultOutput(void)
-{
-	int32_t hConHandle = _open_osfhandle(/*lStdHandle*/ (int32_t)m_hPipe, _O_TEXT);
-	if (hConHandle==-1)
-		return -2;
-	FILE *fp = _fdopen( hConHandle, "w" );
-	if (!fp)
-		return -3;
-	*stdout = *fp;
-	return setvbuf( stdout, NULL, _IONBF, 0 );
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Reset the CRT printf() to it's default
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::ResetDefaultOutput(void)
-{
-	int32_t lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
-	if (lStdHandle ==  (int32_t)INVALID_HANDLE_VALUE)
-		return -1;
-	int32_t hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-	if (hConHandle==-1)
-		return -2;
-	FILE *fp = _fdopen( hConHandle, "w" );
-	if (!fp)
-		return -3;
-	*stdout = *fp;
-	return setvbuf( stdout, NULL, _IONBF, 0 );
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// _print: print helper
-// we use the thread-safe funtion "SafeWriteFile()" to output the data
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::_print(const char *lpszText,int32_t iSize)
-{
-	DWORD dwWritten=(DWORD)-1;
-	
-	return (!SafeWriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
-}
-
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Implementation of the derived class: CConsoleLoggerEx
-//////////////////////////////////////////////////////////////////////////
-
-// ctor: just set the default color
-CConsoleLoggerEx::CConsoleLoggerEx()
-{
-	m_dwCurrentAttributes = COLOR_WHITE | COLOR_BACKGROUND_BLACK;
-}
-
-
-	
-//////////////////////////////////////////////////////////////////////////
-// override the _print.
-// first output the "command" (which is COMMAND_PRINT) and the size,
-// and than output the string itself	
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::_print(const char *lpszText,int32_t iSize)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
-	
-	DWORD command_plus_size = (COMMAND_PRINT <<24)| iSize;
-	EnterCriticalSection();
-	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
-		|| dwWritten != sizeof(DWORD))
-	{
-		LeaveCriticalSection();
-		return -1;
-	}
-	
-	int32_t iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
-	LeaveCriticalSection();
-	return iRet;
-}
-
-	
-//////////////////////////////////////////////////////////////////////////
-// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::cls(void)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
-	DWORD command = COMMAND_CLEAR_SCREEN<<24;
-	SafeWriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
-}	
-
-
-//////////////////////////////////////////////////////////////////////////
-// cls(DWORD) : clear screen with specific color
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::cls(DWORD color)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
-	DWORD command = COMMAND_COLORED_CLEAR_SCREEN<<24;
-	EnterCriticalSection();
-	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
-	WriteFile (m_hPipe, &color,sizeof(DWORD),&dwWritten,NULL);
-	LeaveCriticalSection();
-}	
-
-//////////////////////////////////////////////////////////////////////////
-// clear_eol() : clear till the end of current line
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::clear_eol(void)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
-	DWORD command = COMMAND_CLEAR_EOL<<24;
-	SafeWriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
-}	
-
-//////////////////////////////////////////////////////////////////////////
-// clear_eol(DWORD) : clear till the end of current line with specific color
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::clear_eol(DWORD color)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
-	DWORD command = COMMAND_COLORED_CLEAR_EOL<<24;
-	EnterCriticalSection();
-	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
-	WriteFile (m_hPipe, &color,sizeof(DWORD),&dwWritten,NULL);
-	LeaveCriticalSection();
-}	
-
-
-//////////////////////////////////////////////////////////////////////////
-// gotoxy(x,y) : sets the cursor to x,y location
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::gotoxy(int32_t x,int32_t y)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_PRINT) , and 3 bytes for size
-	DWORD command = COMMAND_GOTOXY<<24;
-	EnterCriticalSection();
-	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
-	command = (x<<16)  | y;
-	WriteFile (m_hPipe, &command,sizeof(DWORD),&dwWritten,NULL);
-	LeaveCriticalSection();
-}	
-
-
-//////////////////////////////////////////////////////////////////////////
-// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
-{
-	if (m_hPipe==INVALID_HANDLE_VALUE)
-		return -1;
-	int32_t ret;
-	char tmp[1024];
-
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[ret]=0;
-
-	va_end(argList);
-
-	return _cprint(attributes,tmp,ret);
-
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// cprintf(str,...) : prints a formatted string with current color
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::cprintf(const char *format,...)
-{
-	if (m_hPipe==INVALID_HANDLE_VALUE)
-		return -1;
-
-	int32_t ret;
-	char tmp[1024];
-
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[ret]=0;
-
-	va_end(argList);
-
-	return _cprint(m_dwCurrentAttributes,tmp,ret);
-
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// the _cprintf() helper . do the actual output
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_t iSize)
-{
-	DWORD dwWritten=(DWORD)-1;
-	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
-	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_CPRINT) , and 3 bytes for size
-	DWORD command_plus_size = (COMMAND_CPRINT <<24)| iSize;
-	EnterCriticalSection();
-	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
-		|| dwWritten != sizeof(DWORD))
-	{
-		LeaveCriticalSection();
-		return -1;
-	}
-	
-	command_plus_size = attributes;	// reuse of the prev variable
-	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
-		|| dwWritten != sizeof(DWORD))
-	{
-		LeaveCriticalSection();
-		return -1;
-	}
-	
-	int32_t iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
-	LeaveCriticalSection();
-	return iRet;
-}
-
-#else
-//Unix
-
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-
-
-// CTOR: reset everything
-CConsoleLogger::CConsoleLogger()
-{
-}
-
-// DTOR: delete everything
-CConsoleLogger::~CConsoleLogger()
-{
-
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Create: create a new console (logger) with the following OPTIONAL attributes:
-//
-// lpszWindowTitle : window title
-// buffer_size_x   : width
-// buffer_size_y   : height
-// logger_name     : pipe name . the default is f(this,time)
-// helper_executable: which (and where) is the EXE that will write the pipe's output
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
-							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
-							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/,
-                            process_killer* killer = NULL)
-{
-	return 0;
-}
-
-
-// Close and disconnect
-int32_t CConsoleLogger::Close(void)
-{
-	return 0;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// print: print string lpszText with size iSize
-// if iSize==-1 (default) , we'll use strlen(lpszText)
-// 
-// this is the fastest way to print a simple (not formatted) string
-//////////////////////////////////////////////////////////////////////////
-inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
-{
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////
-// printf: print a formatted string
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::printf(const char *format,...)
-{
-	return 0;
-
-}
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// set the default (CRT) printf() to use this logger
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::SetAsDefaultOutput(void)
-{
-	return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Reset the CRT printf() to it's default
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::ResetDefaultOutput(void)
-{
-	return 0;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// _print: print helper
-// we use the thread-safe funtion "SafeWriteFile()" to output the data
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLogger::_print(const char *lpszText,int32_t iSize)
-{
-	return 0;
-}
-
-
-
-
-//////////////////////////////////////////////////////////////////////////
-// Implementation of the derived class: CConsoleLoggerEx
-//////////////////////////////////////////////////////////////////////////
-
-// ctor: just set the default color
-CConsoleLoggerEx::CConsoleLoggerEx()
-{
-}
-
-
-	
-//////////////////////////////////////////////////////////////////////////
-// override the _print.
-// first output the "command" (which is COMMAND_PRINT) and the size,
-// and than output the string itself	
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::_print(const char *lpszText,int32_t iSize)
-{
-	return 0;
-}
-
-	
-//////////////////////////////////////////////////////////////////////////
-// cls: clear screen  (just sends the COMMAND_CLEAR_SCREEN)
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::cls(void)
-{
-
-}	
-
-
-//////////////////////////////////////////////////////////////////////////
-// cls(DWORD) : clear screen with specific color
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::cls(word color)
-{
-
-}	
-
-//////////////////////////////////////////////////////////////////////////
-// clear_eol() : clear till the end of current line
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::clear_eol(void)
-{
-
-}	
-
-//////////////////////////////////////////////////////////////////////////
-// clear_eol(DWORD) : clear till the end of current line with specific color
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::clear_eol(word color)
-{
-
-}	
-
-
-//////////////////////////////////////////////////////////////////////////
-// gotoxy(x,y) : sets the cursor to x,y location
-//////////////////////////////////////////////////////////////////////////
-void CConsoleLoggerEx::gotoxy(int32_t x,int32_t y)
-{
-
-}	
-
-
-//////////////////////////////////////////////////////////////////////////
-// cprintf(attr,str,...) : prints a formatted string with the "attributes" color
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
-{
-	return 0;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// cprintf(str,...) : prints a formatted string with current color
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::cprintf(const char *format,...)
-{
-	return 0;
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-// the _cprintf() helper . do the actual output
-//////////////////////////////////////////////////////////////////////////
-int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_t iSize)
-{
-	return 0;
-}
-
-#endif
-
-//#ifdef _WIN32
 CConsoleLoggerEx coloured_console;
 CConsoleLoggerEx zscript_coloured_console;
-//#endif
+
 uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
@@ -1040,14 +182,16 @@ uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 using namespace util;
 
 using std::vector;
+using std::map;
+using std::stringstream;
 
 FFScript FFCore;
 ZModule zcm;
 zcmodule moduledata;
 
 void do_previewtext();
-bool do_slots(std::map<std::string, disassembled_script_data> &scripts);
-void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile);
+bool do_slots(map<string, disassembled_script_data> &scripts);
+void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
@@ -1067,26 +211,25 @@ bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 
-byte compile_tune = 0;
 byte compile_success_sample = 0;
 byte compile_error_sample = 0;
 byte compile_finish_sample = 0;
 byte compile_audio_volume = 0;
 
 // Used to find FFC script names
-std::vector<string> asffcscripts;
-std::vector<string> asglobalscripts;
-std::vector<string> asitemscripts;
-std::vector<string> asnpcscripts;
-std::vector<string> aseweaponscripts;
-std::vector<string> aslweaponscripts;
-std::vector<string> asplayerscripts;
-std::vector<string> asdmapscripts;
-std::vector<string> asscreenscripts;
-std::vector<string> asitemspritescripts;
-std::vector<string> ascomboscripts;
+vector<string> asffcscripts;
+vector<string> asglobalscripts;
+vector<string> asitemscripts;
+vector<string> asnpcscripts;
+vector<string> aseweaponscripts;
+vector<string> aslweaponscripts;
+vector<string> asplayerscripts;
+vector<string> asdmapscripts;
+vector<string> asscreenscripts;
+vector<string> asitemspritescripts;
+vector<string> ascomboscripts;
 
-std::vector<string> ZQincludePaths;
+vector<string> ZQincludePaths;
 
 int32_t CSET_SIZE = 16;
 int32_t CSET_SHFT = 4;
@@ -1214,7 +357,7 @@ script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
 
-extern std::string zScript;
+extern string zScript;
 char zScriptBytes[512];
 char zLastVer[512] = { 0 };
 SAMPLE customsfxdata[WAV_COUNT];
@@ -1391,7 +534,7 @@ byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
 miscQdata           misc;
-std::vector<mapscr> TheMaps;
+vector<mapscr> TheMaps;
 zcmap               *ZCMaps;
 byte                *quest_file;
 dmap                *DMaps;
@@ -1416,8 +559,6 @@ miscQdata           QMisc;
 int32_t gme_track=0;
 
 int32_t dlevel; // just here until gamedata is properly done
-
-bool gotoless_not_equal;  // Used by BuildVisitors.cpp
 
 bool bad_version(int32_t ver)
 {
@@ -23358,7 +22499,7 @@ void build_biglobal_list()
         if(globalmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << globalmap[i].scriptname << " (" << i << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biglobal[biglobal_cnt].first = ss.str();
         biglobal[biglobal_cnt].second = i;
@@ -23400,7 +22541,7 @@ void build_biffs_list()
         if(ffcmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << ffcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biffs[biffs_cnt].first = ss.str();
         biffs[biffs_cnt].second = i;
@@ -23443,7 +22584,7 @@ void build_binpcs_list()
         if(npcmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << npcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         binpcs[binpcs_cnt].first = ss.str();
         binpcs[binpcs_cnt].second = i;
@@ -23487,7 +22628,7 @@ void build_bilweapons_list()
         if(lwpnmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << lwpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bilweapons[bilweapons_cnt].first = ss.str();
         bilweapons[bilweapons_cnt].second = i;
@@ -23530,7 +22671,7 @@ void build_bieweapons_list()
         if(ewpnmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << ewpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bieweapons[bieweapons_cnt].first = ss.str();
         bieweapons[bieweapons_cnt].second = i;
@@ -23573,7 +22714,7 @@ void build_bihero_list()
         if(playermap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << playermap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bihero[bihero_cnt].first = ss.str();
         bihero[bihero_cnt].second = i;
@@ -23616,7 +22757,7 @@ void build_bidmaps_list()
         if(dmapmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << dmapmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bidmaps[bidmaps_cnt].first = ss.str();
         bidmaps[bidmaps_cnt].second = i;
@@ -23659,7 +22800,7 @@ void build_biscreens_list()
         if(screenmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << screenmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biscreens[biscreens_cnt].first = ss.str();
         biscreens[biscreens_cnt].second = i;
@@ -23702,7 +22843,7 @@ void build_biitemsprites_list()
         if(itemspritemap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << itemspritemap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biditemsprites[biitemsprites_cnt].first = ss.str();
         biditemsprites[biitemsprites_cnt].second = i;
@@ -23741,7 +22882,7 @@ void build_biitems_list()
     
     for(int32_t i = 0; i < NUMSCRIPTITEM - 1; i++, biitems_cnt++)
     {
-        std::stringstream ss;
+        stringstream ss;
         
         if(!itemmap[i].isEmpty())
             ss << itemmap[i].scriptname << " (" << i+1 << ")";
@@ -23779,7 +22920,7 @@ void build_bidcomboscripts_list()
         if(comboscriptmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << comboscriptmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bidcomboscripts[bidcomboscripts_cnt].first = ss.str();
         bidcomboscripts[bidcomboscripts_cnt].second = i;
@@ -24997,60 +24138,97 @@ static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
 
 void clear_map_states()
 {
-	for(std::map<int32_t, script_slot_data>::iterator it = ffcmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = ffcmap.begin();
 		it != ffcmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = globalmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = globalmap.begin();
 		it != globalmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = itemmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = itemmap.begin();
 		it != itemmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = npcmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = npcmap.begin();
 		it != npcmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = ewpnmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = ewpnmap.begin();
 		it != ewpnmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = lwpnmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = lwpnmap.begin();
 		it != lwpnmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = playermap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = playermap.begin();
 		it != playermap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = dmapmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = dmapmap.begin();
 		it != dmapmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = screenmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = screenmap.begin();
 		it != screenmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = itemspritemap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = itemspritemap.begin();
 		it != itemspritemap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = comboscriptmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = comboscriptmap.begin();
 		it != comboscriptmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
+	}
+}
+
+
+void zconsole_warn(const char *format,...){}
+void zconsole_error(const char *format,...){}
+void zconsole_info(const char *format,...){}
+
+void compile_sfx(bool success)
+{
+	if ( success )
+	{
+		compile_error_sample = 0;
+		compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+		if ( compile_success_sample > 0 )
+		{
+			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			if(sfxdat)
+				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+			voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+			voice_start(sfx_voice[compile_success_sample]);
+		}
+	}
+	else
+	{
+		compile_success_sample = 0;
+		compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
+		if ( compile_error_sample > 0 )
+		{
+			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			if(sfxdat)
+				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
+			voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
+			voice_start(sfx_voice[compile_error_sample]);
+		}
 	}
 }
 
@@ -25184,85 +24362,59 @@ int32_t onCompileScript()
 			
 			script_data old_init_script(*globalscripts[0]);
 			uint32_t lastInitSize = old_init_script.size();
-			box_start(1, "Compile Progress", lfont, sfont,true);
-			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
+			map<string, ZScript::ScriptTypeID> stypes;
+			map<string, disassembled_script_data> scripts;
+			
+			int32_t code = -9999;
+			if(!fileexists("zscript.exe"))
+			{
+				InfoDialog("Parser","'zscript.exe' was not found!").show();
+				break;
+			}
 			clock_t start_compile_time = clock();
-			unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
+			process_manager* pm = launch_piped_process("zscript.exe -input tmp -linked");
+			if(!pm)
+			{
+				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();
+				break;
+			}
+			
+			pm->write(quest_rules, QUESTRULES_NEW_SIZE);
+			pm->read(&code, sizeof(int32_t));
 			clock_t end_compile_time = clock();
-			char buf[256] = {0};
-			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
-			box_out(buf);
-			box_eol();
-			unlink("tmp");
-			if ( result )
+			
+			
+			char tmp[128] = {0};
+			sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
+			for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
 			{
-				compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
-				//al_trace("Succ, play compiled sfx.\n");
-				//set_volume(255,255);
-				//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
-				//kill_sfx(); //crashes
-				//sfx(20, 128, false,true);//has no volume   
-				//try_zcmusic("compile_success.smc", track, -1000);
-				//if ( (unsigned)compile_tune < 19 ) 
-				// {
-				switch(compile_tune)
-				{
-					case 1: playTune1(); break;
-					case 2: playTune2(); break;
-					case 3: playTune3(); break;
-					case 4: playTune4(); break;
-					case 5: playTune5(); break;
-					case 6: playTune6(); break;
-					case 7: playTune7(); break;
-					case 8: playTune8(); break;
-					case 9: playTune9(); break;
-					case 10: playTune10(); break;
-					case 11: playTune11(); break;
-					case 12: playTune12(); break;
-					case 13: playTune13(); break;
-					case 14: playTune14(); break;
-					case 15: playTune15(); break;
-					case 16: playTune16(); break;
-					case 17: playTune17(); break;
-					case 18: playTune18(); break;
-					case 19: playTune12(); break;
-					default: 
+				if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
+				else break;
+			}
+			char buf[1024] = {0};
+			sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
+				"Compile took %s seconds (%ld cycles)%s",
+				code, code ? "failure" : "success",
+				tmp, end_compile_time - start_compile_time,
+				code ? "\nCompilation failed. See console for details." : "");
+			
+			compile_sfx(!code);
+			if(!code)
+			{
+				read_compile_data(pm, stypes, scripts);
+			}
+			
+			delete pm;
+			
+			bool cancel = code;
+			if(code)
+				InfoDialog("ZScript Parser", buf).show();
+			else AlertDialog("ZScript Parser", buf,
+					[&](bool ret)
 					{
-						compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
-						compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-						if ( compile_success_sample > 0 )
-						{
-							if(sfxdat)
-							sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-							else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-							voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-							voice_start(sfx_voice[compile_success_sample]);
-						}
-						break;
-					}
-				}
-			}
-			else
-			{
-				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
-				if ( compile_error_sample > 0 )
-				{
-					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-					if(sfxdat)
-					sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-					else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-					voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-					//set_volume(255,-1);
-					//kill_sfx();
-					voice_start(sfx_voice[compile_error_sample]);
-					//sfx(28, 128, false,true);  
-				}
-				
-			}
+						cancel = !ret;
+					}, "Continue", "Cancel").show();
 			
-			
-			box_end(true);
 			if ( compile_success_sample > 0 )
 			{
 				if(sfx_voice[compile_success_sample]!=-1)
@@ -25280,17 +24432,10 @@ int32_t onCompileScript()
 				}
 			}
 			refresh(rALL);
-			if ( compile_tune ) stopMusic();
 			
-			if(result == NULL)
-			{
-				jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
+			if(cancel)
 				break;
-			}
 			
-			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
-			std::map<string, disassembled_script_data> scripts = result->theScripts;
-			result.reset();
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
 			asglobalscripts.clear();
@@ -25315,37 +24460,48 @@ int32_t onCompileScript()
 			ascomboscripts.push_back("<none>");
 			clear_map_states();
 			
-			for (std::map<string, ZScript::ScriptType>::iterator it =
-					 stypes.begin(); it != stypes.end(); ++it)
+			using namespace ZScript;
+			for (auto it = stypes.begin(); it != stypes.end(); ++it)
 			{
 				string const& name = it->first;
-				ZScript::ScriptType type = it->second;
-				if ( type == ZScript::ScriptType::ffc )
-					asffcscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::item )
-					asitemscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::npc )
-					asnpcscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::eweapon )
-					aseweaponscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::lweapon )
-					aslweaponscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::player )
-					asplayerscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::dmapdata )
-					asdmapscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::screendata )
-					asscreenscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::itemsprite )
-					asitemspritescripts.push_back(name);
-				else if ( type == ZScript::ScriptType::combodata )
-					ascomboscripts.push_back(name);
-				else if ( type == ZScript::ScriptType::global )
+				switch(it->second)
 				{
-					if (name != "~Init")
-					{
-						asglobalscripts.push_back(name);
-					}
+					case scrTypeIdFfc:
+						asffcscripts.push_back(name);
+						break;
+					case scrTypeIdItem:
+						asitemscripts.push_back(name);
+						break;
+					case scrTypeIdNPC:
+						asnpcscripts.push_back(name);
+						break;
+					case scrTypeIdEWeapon:
+						aseweaponscripts.push_back(name);
+						break;
+					case scrTypeIdLWeapon:
+						aslweaponscripts.push_back(name);
+						break;
+					case scrTypeIdPlayer:
+						asplayerscripts.push_back(name);
+						break;
+					case scrTypeIdDMap:
+						asdmapscripts.push_back(name);
+						break;
+					case scrTypeIdScreen:
+						asscreenscripts.push_back(name);
+						break;
+					case scrTypeIdItemSprite:
+						asitemspritescripts.push_back(name);
+						break;
+					case scrTypeIdComboData:
+						ascomboscripts.push_back(name);
+						break;
+					case scrTypeIdGlobal:
+						if (name != "~Init")
+						{
+							asglobalscripts.push_back(name);
+						}
+						break;
 				}
 			}
 		
@@ -25366,35 +24522,7 @@ int32_t onCompileScript()
 			do_script_disassembly(scripts, true);
 			
 			//assign scripts to slots
-			if(do_slots(scripts))
-			{
-				//Success
-			}
-			else
-			{
-				//fail
-			}
-			//Need to manually delete the contents of the map here.
-			//2.53.x has this, to do it:
-			//for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
-			//{
-			//    al_trace("Iterating 1\n");
-			//    for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
-			//    {
-			//	al_trace("Iterating 2\n");
-				//delete *it2;
-			//    }
-			//}
-			/*for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
-			{
-				for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-				{
-				    delete *it2;
-				}
-			}*/	
-			//scripts.clear(); //Doesn't release it back to Windows. 
-			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
-			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
+			do_slots(scripts);
 			
 			if(WarnOnInitChanged)
 			{
@@ -25479,7 +24607,7 @@ int32_t onSlotAssign()
 	ascomboscripts.clear();
 	ascomboscripts.push_back("<none>");
 	//Declare new script vector
-	std::map<string, disassembled_script_data> scripts;
+	map<string, disassembled_script_data> scripts;
 	
 	do_script_disassembly(scripts, false);
 	
@@ -25504,7 +24632,7 @@ void inc_script_name(string& name)
 	name = oss.str();
 }
 
-void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile)
+void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
 	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
 	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
@@ -26133,7 +25261,7 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 	//}
 }
 
-byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
+byte reload_scripts(map<string, disassembled_script_data> &scripts)
 {
 	byte slotflags = 0;
 	char temp[100];
@@ -26413,7 +25541,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 
 void doClearSlots(byte* flags);
 
-bool do_slots(std::map<string, disassembled_script_data> &scripts)
+bool do_slots(map<string, disassembled_script_data> &scripts)
 {
 	if(is_large)
 		large_dialog(assignscript_dlg);
@@ -26441,7 +25569,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
 				clock_t start_assign_time = clock();
-				for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26486,7 +25614,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26530,7 +25658,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26573,7 +25701,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						itemscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26616,7 +25744,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						guyscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26659,7 +25787,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						lwpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26702,7 +25830,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						ewpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26745,7 +25873,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						playerscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26788,7 +25916,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						dmapscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26831,7 +25959,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						screenscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26876,7 +26004,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -31417,7 +30545,7 @@ int32_t main(int32_t argc,char **argv)
 		comboscripts[i] = new script_data();
 	}
 	
-	zScript = std::string();
+	zScript = string();
 	strcpy(zScriptBytes, "0 Bytes in Buffer");
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
@@ -32810,7 +31938,6 @@ int32_t save_config_file()
 	}
 	//
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
-	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
 	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
@@ -32876,7 +32003,7 @@ int32_t save_config_file()
     set_config_int("zquest","gui_colorset",gui_colorset);
     set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
     set_config_int("zquest","no_preview",NoScreenPreview);
-	set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
+	//set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
     
     for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
     {
@@ -33622,7 +32749,7 @@ void FFScript::updateIncludePaths()
 			++dest;
 		}
 		++pos;
-		std::string str(buf);
+		string str(buf);
 		includePaths.push_back(str);
 	}
 }

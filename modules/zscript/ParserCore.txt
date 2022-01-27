@@ -1,0 +1,15 @@
+## Source list for ZScript Core module
+set(ZSCRIPT_CORE_SOURCES
+
+################################
+# Add or remove files here
+################################
+src/parser/parser.cpp
+src/util.cpp
+src/ConsoleLogger.cpp
+src/process_managment.cpp
+src/zconfig.cpp
+
+## End of ZScript Core module
+)
+

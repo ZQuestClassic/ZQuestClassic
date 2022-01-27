@@ -726,6 +726,7 @@ namespace ZScript
 			}
 			return SCRIPT_NONE;
 		}
+		Id getId() const {return id_;}
 		DataTypeId getThisTypeId() const;
 		bool isValid() const {return id_ >= idStart && id_ < idEnd;}
 
@@ -744,8 +745,9 @@ namespace ZScript
 		static ScriptType const subscreendata;
 		static ScriptType const combodata;
 
-	private:
 		ScriptType(Id id) : id_(id) {}
+
+	private:
 		
 		Id id_;
 	};
