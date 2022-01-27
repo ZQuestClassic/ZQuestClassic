@@ -94,6 +94,8 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 #include "module.h"
 
+#include "zscrdata.h"
+
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -179,14 +181,16 @@ uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 using namespace util;
 
 using std::vector;
+using std::map;
+using std::stringstream;
 
 FFScript FFCore;
 ZModule zcm;
 zcmodule moduledata;
 
 void do_previewtext();
-bool do_slots(std::map<std::string, disassembled_script_data> &scripts);
-void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile);
+bool do_slots(map<string, disassembled_script_data> &scripts);
+void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
@@ -206,26 +210,25 @@ bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
 
-byte compile_tune = 0;
 byte compile_success_sample = 0;
 byte compile_error_sample = 0;
 byte compile_finish_sample = 0;
 byte compile_audio_volume = 0;
 
 // Used to find FFC script names
-std::vector<string> asffcscripts;
-std::vector<string> asglobalscripts;
-std::vector<string> asitemscripts;
-std::vector<string> asnpcscripts;
-std::vector<string> aseweaponscripts;
-std::vector<string> aslweaponscripts;
-std::vector<string> asplayerscripts;
-std::vector<string> asdmapscripts;
-std::vector<string> asscreenscripts;
-std::vector<string> asitemspritescripts;
-std::vector<string> ascomboscripts;
+vector<string> asffcscripts;
+vector<string> asglobalscripts;
+vector<string> asitemscripts;
+vector<string> asnpcscripts;
+vector<string> aseweaponscripts;
+vector<string> aslweaponscripts;
+vector<string> asplayerscripts;
+vector<string> asdmapscripts;
+vector<string> asscreenscripts;
+vector<string> asitemspritescripts;
+vector<string> ascomboscripts;
 
-std::vector<string> ZQincludePaths;
+vector<string> ZQincludePaths;
 
 int32_t CSET_SIZE = 16;
 int32_t CSET_SHFT = 4;
@@ -353,7 +356,7 @@ script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 // Dummy - needed to compile, but unused
 refInfo ffcScriptData[32];
 
-extern std::string zScript;
+extern string zScript;
 char zScriptBytes[512];
 char zLastVer[512] = { 0 };
 SAMPLE customsfxdata[WAV_COUNT];
@@ -530,7 +533,7 @@ byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
 miscQdata           misc;
-std::vector<mapscr> TheMaps;
+vector<mapscr> TheMaps;
 zcmap               *ZCMaps;
 byte                *quest_file;
 dmap                *DMaps;
@@ -555,8 +558,6 @@ miscQdata           QMisc;
 int32_t gme_track=0;
 
 int32_t dlevel; // just here until gamedata is properly done
-
-bool gotoless_not_equal;  // Used by BuildVisitors.cpp
 
 bool bad_version(int32_t ver)
 {
@@ -22497,7 +22498,7 @@ void build_biglobal_list()
         if(globalmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << globalmap[i].scriptname << " (" << i << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biglobal[biglobal_cnt].first = ss.str();
         biglobal[biglobal_cnt].second = i;
@@ -22539,7 +22540,7 @@ void build_biffs_list()
         if(ffcmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << ffcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biffs[biffs_cnt].first = ss.str();
         biffs[biffs_cnt].second = i;
@@ -22582,7 +22583,7 @@ void build_binpcs_list()
         if(npcmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << npcmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         binpcs[binpcs_cnt].first = ss.str();
         binpcs[binpcs_cnt].second = i;
@@ -22626,7 +22627,7 @@ void build_bilweapons_list()
         if(lwpnmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << lwpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bilweapons[bilweapons_cnt].first = ss.str();
         bilweapons[bilweapons_cnt].second = i;
@@ -22669,7 +22670,7 @@ void build_bieweapons_list()
         if(ewpnmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << ewpnmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bieweapons[bieweapons_cnt].first = ss.str();
         bieweapons[bieweapons_cnt].second = i;
@@ -22712,7 +22713,7 @@ void build_bihero_list()
         if(playermap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << playermap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bihero[bihero_cnt].first = ss.str();
         bihero[bihero_cnt].second = i;
@@ -22755,7 +22756,7 @@ void build_bidmaps_list()
         if(dmapmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << dmapmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bidmaps[bidmaps_cnt].first = ss.str();
         bidmaps[bidmaps_cnt].second = i;
@@ -22798,7 +22799,7 @@ void build_biscreens_list()
         if(screenmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << screenmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biscreens[biscreens_cnt].first = ss.str();
         biscreens[biscreens_cnt].second = i;
@@ -22841,7 +22842,7 @@ void build_biitemsprites_list()
         if(itemspritemap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << itemspritemap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         biditemsprites[biitemsprites_cnt].first = ss.str();
         biditemsprites[biitemsprites_cnt].second = i;
@@ -22880,7 +22881,7 @@ void build_biitems_list()
     
     for(int32_t i = 0; i < NUMSCRIPTITEM - 1; i++, biitems_cnt++)
     {
-        std::stringstream ss;
+        stringstream ss;
         
         if(!itemmap[i].isEmpty())
             ss << itemmap[i].scriptname << " (" << i+1 << ")";
@@ -22918,7 +22919,7 @@ void build_bidcomboscripts_list()
         if(comboscriptmap[i].scriptname.length()==0)
             continue;
             
-        std::stringstream ss;
+        stringstream ss;
         ss << comboscriptmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
         bidcomboscripts[bidcomboscripts_cnt].first = ss.str();
         bidcomboscripts[bidcomboscripts_cnt].second = i;
@@ -24136,57 +24137,57 @@ static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
 
 void clear_map_states()
 {
-	for(std::map<int32_t, script_slot_data>::iterator it = ffcmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = ffcmap.begin();
 		it != ffcmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = globalmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = globalmap.begin();
 		it != globalmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = itemmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = itemmap.begin();
 		it != itemmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = npcmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = npcmap.begin();
 		it != npcmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = ewpnmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = ewpnmap.begin();
 		it != ewpnmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = lwpnmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = lwpnmap.begin();
 		it != lwpnmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = playermap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = playermap.begin();
 		it != playermap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = dmapmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = dmapmap.begin();
 		it != dmapmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = screenmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = screenmap.begin();
 		it != screenmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = itemspritemap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = itemspritemap.begin();
 		it != itemspritemap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
 	}
-	for(std::map<int32_t, script_slot_data>::iterator it = comboscriptmap.begin();
+	for(map<int32_t, script_slot_data>::iterator it = comboscriptmap.begin();
 		it != comboscriptmap.end(); ++it)
 	{
 		(*it).second.format = SCRIPT_FORMAT_DEFAULT;
@@ -24326,119 +24327,86 @@ int32_t onCompileScript()
 			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 			fclose(tempfile);
 			
-			//!TEMP TEST CODE
-			//{
-			box_start(1, "External Parser Test", lfont, sfont, true);
-			box_out("Launching external process...  ");
-			process_manager* pm = launch_piped_process("zscript.exe -input tmp");
+			script_data old_init_script(*globalscripts[0]);
+			uint32_t lastInitSize = old_init_script.size();
+			map<string, ZScript::ScriptType> stypes;
+			map<string, disassembled_script_data> scripts;
+			
+			box_start(1, "External Parser", lfont, sfont, true);
+			int32_t code = -9999;
+			box_out("Launching 'zscript.exe'... ");
+			if(!fileexists("zscript.exe"))
+			{
+				box_out("failed!");
+				box_eol();
+				box_end(false);
+				InfoDialog("Parser","'zscript.exe' was not found!").show();
+				break;
+			}
+			clock_t start_compile_time = clock();
+			clock_t end_compile_time;
+			process_manager* pm = launch_piped_process("zscript.exe -input tmp -linked");
 			if(pm)
 			{
 				box_out("launched!");
 				box_eol();
-				int32_t code = -9999;
-				uint32_t dummy;
-				pm->read(&code, sizeof(int32_t), &dummy);
+				pm->write(quest_rules, QUESTRULES_NEW_SIZE);
+				pm->read(&code, sizeof(int32_t));
+				end_compile_time = clock();
 				char buf[512] = {0};
-				sprintf(buf, "Return code '%ld'...", code);
+				sprintf(buf, "Return code '%ld'", code);
 				box_out(buf);
 				box_eol();
-				//{
-				tempfile = fopen("tmp","w");
-				
-				if(!tempfile)
+				if(!code)
 				{
-					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					return D_O_K;
+					read_compile_data(pm, stypes, scripts);
 				}
-				
-				fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-				fclose(tempfile);
-				//}
+				box_out("Press any key...");
+				box_eol();
 			}
 			else
 			{
-				box_out("failed. . .");
+				end_compile_time = clock();
+				box_out("failed!");
 				box_eol();
+				box_end(false);
+				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();
+				break;
 			}
-			box_end(true);
-			delete pm;
-			//}
 			
-			script_data old_init_script(*globalscripts[0]);
-			uint32_t lastInitSize = old_init_script.size();
-			box_start(1, "Compile Progress", lfont, sfont,true);
-			gotoless_not_equal = (0 != get_bit(quest_rules, qr_GOTOLESSNOTEQUAL)); // Used by BuildVisitors.cpp
-			clock_t start_compile_time = clock();
-			unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
-			clock_t end_compile_time = clock();
+			delete pm;
+			
 			char buf[256] = {0};
 			sprintf(buf, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
 			box_out(buf);
 			box_eol();
 			unlink("tmp");
-			if ( result )
+			if ( !code )
 			{
-				compile_tune = get_config_int("Compiler","Compile_Success_Tune",0);
-				//al_trace("Succ, play compiled sfx.\n");
-				//set_volume(255,255);
-				//al_trace("success sfx is: %s \n", sfx_init(20) ? "valid" : "invalid");
-				//kill_sfx(); //crashes
-				//sfx(20, 128, false,true);//has no volume   
-				//try_zcmusic("compile_success.smc", track, -1000);
-				//if ( (unsigned)compile_tune < 19 ) 
-				// {
-				switch(compile_tune)
+				compile_error_sample = 0;
+				compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+				if ( compile_success_sample > 0 )
 				{
-					case 1: playTune1(); break;
-					case 2: playTune2(); break;
-					case 3: playTune3(); break;
-					case 4: playTune4(); break;
-					case 5: playTune5(); break;
-					case 6: playTune6(); break;
-					case 7: playTune7(); break;
-					case 8: playTune8(); break;
-					case 9: playTune9(); break;
-					case 10: playTune10(); break;
-					case 11: playTune11(); break;
-					case 12: playTune12(); break;
-					case 13: playTune13(); break;
-					case 14: playTune14(); break;
-					case 15: playTune15(); break;
-					case 16: playTune16(); break;
-					case 17: playTune17(); break;
-					case 18: playTune18(); break;
-					case 19: playTune12(); break;
-					default: 
-					{
-						compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
-						compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-						if ( compile_success_sample > 0 )
-						{
-							if(sfxdat)
-							sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-							else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-							voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-							voice_start(sfx_voice[compile_success_sample]);
-						}
-						break;
-					}
+					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+					if(sfxdat)
+						sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
+					else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
+					voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
+					voice_start(sfx_voice[compile_success_sample]);
 				}
 			}
 			else
 			{
+				compile_success_sample = 0;
 				compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
 				if ( compile_error_sample > 0 )
 				{
 					compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
-					//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 					if(sfxdat)
-					sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
+						sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
 					else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
 					voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-					//set_volume(255,-1);
-					//kill_sfx();
 					voice_start(sfx_voice[compile_error_sample]);
-					//sfx(28, 128, false,true);  
 				}
 				
 			}
@@ -24462,17 +24430,13 @@ int32_t onCompileScript()
 				}
 			}
 			refresh(rALL);
-			if ( compile_tune ) stopMusic();
 			
-			if(result == NULL)
+			if(code)
 			{
-				jwin_alert("Error","There were compile errors.","Compilation halted.",NULL,"O&K",NULL,'k',0,lfont);
+				InfoDialog("Compile Error", "Compilation failed. See console for details.").show();
 				break;
 			}
 			
-			std::map<string, ZScript::ScriptType> stypes = result->scriptTypes;
-			std::map<string, disassembled_script_data> scripts = result->theScripts;
-			result.reset();
 			asffcscripts.clear();
 			asffcscripts.push_back("<none>");
 			asglobalscripts.clear();
@@ -24497,7 +24461,7 @@ int32_t onCompileScript()
 			ascomboscripts.push_back("<none>");
 			clear_map_states();
 			
-			for (std::map<string, ZScript::ScriptType>::iterator it =
+			for (map<string, ZScript::ScriptType>::iterator it =
 					 stypes.begin(); it != stypes.end(); ++it)
 			{
 				string const& name = it->first;
@@ -24548,35 +24512,7 @@ int32_t onCompileScript()
 			do_script_disassembly(scripts, true);
 			
 			//assign scripts to slots
-			if(do_slots(scripts))
-			{
-				//Success
-			}
-			else
-			{
-				//fail
-			}
-			//Need to manually delete the contents of the map here.
-			//2.53.x has this, to do it:
-			//for(map<string, disassembled_script_data>::iterator it = scripts.begin(); it != scripts.end(); it++)
-			//{
-			//    al_trace("Iterating 1\n");
-			//    for(vector<ZScript::Opcode *>::iterator it2 = it->second.second.begin(); it2 != it->second.second.end(); it2++)
-			//    {
-			//	al_trace("Iterating 2\n");
-				//delete *it2;
-			//    }
-			//}
-			/*for(map<string, vector<ZScript::Opcode *> >::iterator it = scripts.begin(); it != scripts.end(); it++)
-			{
-				for(vector<ZScript::Opcode *>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-				{
-				    delete *it2;
-				}
-			}*/	
-			//scripts.clear(); //Doesn't release it back to Windows. 
-			//std::map<string, disassembled_script_data>().swap(scripts); //Doesn't release it back to Windows. 
-			//malloc_trim(); //This is Unix only, and will release heap memory allocation back to the host OS
+			do_slots(scripts);
 			
 			if(WarnOnInitChanged)
 			{
@@ -24661,7 +24597,7 @@ int32_t onSlotAssign()
 	ascomboscripts.clear();
 	ascomboscripts.push_back("<none>");
 	//Declare new script vector
-	std::map<string, disassembled_script_data> scripts;
+	map<string, disassembled_script_data> scripts;
 	
 	do_script_disassembly(scripts, false);
 	
@@ -24686,7 +24622,7 @@ void inc_script_name(string& name)
 	name = oss.str();
 }
 
-void do_script_disassembly(std::map<string, disassembled_script_data>& scripts, bool fromCompile)
+void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
 	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
 	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
@@ -25315,7 +25251,7 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 	//}
 }
 
-byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
+byte reload_scripts(map<string, disassembled_script_data> &scripts)
 {
 	byte slotflags = 0;
 	char temp[100];
@@ -25595,7 +25531,7 @@ byte reload_scripts(std::map<string, disassembled_script_data> &scripts)
 
 void doClearSlots(byte* flags);
 
-bool do_slots(std::map<string, disassembled_script_data> &scripts)
+bool do_slots(map<string, disassembled_script_data> &scripts)
 {
 	if(is_large)
 		large_dialog(assignscript_dlg);
@@ -25623,7 +25559,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 				//OK
 				bool output = (assignscript_dlg[13].flags == D_SELECTED);
 				clock_t start_assign_time = clock();
-				for(std::map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25668,7 +25604,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25712,7 +25648,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25755,7 +25691,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						itemscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25798,7 +25734,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						guyscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25841,7 +25777,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						lwpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25884,7 +25820,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						ewpnscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25927,7 +25863,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						playerscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -25970,7 +25906,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						dmapscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26013,7 +25949,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 						screenscripts[it->first+1] = new script_data();
 					}
 				}
-				for(std::map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -26058,7 +25994,7 @@ bool do_slots(std::map<string, disassembled_script_data> &scripts)
 					}
 				}
 				
-				for(std::map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+				for(map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
 				{
 					if(it->second.hasScriptData())
 					{
@@ -30599,7 +30535,7 @@ int32_t main(int32_t argc,char **argv)
 		comboscripts[i] = new script_data();
 	}
 	
-	zScript = std::string();
+	zScript = string();
 	strcpy(zScriptBytes, "0 Bytes in Buffer");
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
@@ -31992,7 +31928,6 @@ int32_t save_config_file()
 	}
 	//
 	set_config_string("Compiler","run_string",FFCore.scriptRunString);
-	//set_config_int("Compiler","Compile_Success_Tune",compile_tune); //Can't save here until we assign this in a dialogue. Otherwise, quitting will write it 0.
 	
     set_config_string("zquest",data_path_name,datapath2);
     set_config_string("zquest",midi_path_name,midipath2);
@@ -32804,7 +32739,7 @@ void FFScript::updateIncludePaths()
 			++dest;
 		}
 		++pos;
-		std::string str(buf);
+		string str(buf);
 		includePaths.push_back(str);
 	}
 }

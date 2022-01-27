@@ -5,6 +5,7 @@
 #include <string>
 #include "zconfig.h"
 #include "ConsoleLogger.h"
+#include "zscrdata.h"
 
 FFScript FFCore;
 
@@ -109,7 +110,7 @@ int32_t used_switch(int32_t argc,char *argv[],const char *s)
 	return 0;
 }
 
-int32_t compile(std::string script_path)
+std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 {
 	zconsole_info("Compiling '%s'", script_path.c_str());
 
@@ -119,7 +120,8 @@ int32_t compile(std::string script_path)
 	if(zscript == NULL)
 	{
 		zconsole_error(" Cannot open specified file!");
-		return 1;
+		zscript_failcode = -404;
+		return NULL;
 	}
 
 	char c = fgetc(zscript);
@@ -134,21 +136,15 @@ int32_t compile(std::string script_path)
 	if(!tempfile)
 	{
 		zconsole_error("Unable to create a temporary file in current directory!");
-		return 1;
+		zscript_failcode = -404;
+		return NULL;
 	}
 	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 	fclose(tempfile);
-
-	unique_ptr<ZScript::ScriptsData> result(ZScript::compile("tmp"));
-	unlink("tmp");
 	
-	if(result)
-	{
-		
-		return 0;
-	}
-
-	return zscript_failcode ? zscript_failcode : -1;
+	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile("tmp"));
+	unlink("tmp");
+	return res;
 }
 
 void updateIncludePaths()
@@ -192,10 +188,15 @@ void updateIncludePaths()
 
 int32_t main(int32_t argc, char **argv)
 {
-	//{
-	process_killer parser_console_killer;
+	if (!used_switch(argc, argv, "-linked"))
+	{
+		return 1;
+	}
 	
-	parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe", &parser_console_killer);
+	child_process_handler cph;
+	allegro_init();
+	
+	parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe");
 	parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 	parser_console.gotoxy(0,0);
 	zconsole_info("External ZScript Parser\n");
@@ -207,27 +208,32 @@ int32_t main(int32_t argc, char **argv)
 		return 1;
 	}
 	
-	child_process_handler cph;
 	std::string script_path = argv[script_path_index + 1];
 
-	allegro_init();
+	cph.read(quest_rules, QUESTRULES_NEW_SIZE);
+	
 	set_config_file("zscript.cfg");
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	strcpy(FFCore.scriptRunString, zc_get_config("zquest.cfg","Compiler","run_string","run"));
+	char const* runstr = zc_get_config("zquest.cfg","Compiler","run_string","run");
+	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
-	int32_t res = compile(script_path);
-	uint32_t dummy;
-	cph.write(&res, sizeof(int32_t), &dummy);
-	zconsole_info("Exiting with code '%ld'...", res);
+	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
+	
+	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
+	
+	cph.write(&res, sizeof(int32_t));
+	if(!res)
+	{
+		write_compile_data(&cph, result->scriptTypes, result->theScripts);
+	}
+	
 	if(zscript_had_warn_err)
 		zconsole_warn("Leaving console open; there were errors or warnings during compile!");
 	else
-		parser_console_killer.kill();
+		parser_console.kill();
 	allegro_exit();
 	return res;
-	//}
-	
 }
 END_OF_MAIN()
 

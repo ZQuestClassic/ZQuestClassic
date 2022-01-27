@@ -51,9 +51,10 @@ public:
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
-				const char *helper_executable=NULL,
-				process_killer *killer=NULL);
-
+				const char *helper_executable=NULL);
+	
+	void kill();
+	
 	// close everything
 	int32_t Close(void);
 	
@@ -68,6 +69,8 @@ public:
 protected:
 	char	m_name[64];
 	HANDLE	m_hPipe;
+	process_killer killer;
+	bool kill_on_close;
 	
 #ifdef CONSOLE_LOGGER_USING_MS_SDK
 	// we'll use this DWORD as VERY fast critical-section . for more info:
@@ -247,8 +250,9 @@ public:
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
-				const char *helper_executable=NULL,
-				process_killer *killer);
+				const char *helper_executable=NULL);
+	
+	void kill();
 
 	// close everything
 	int32_t Close(void);
@@ -263,6 +267,8 @@ public:
 
 protected:
 	char	m_name[64];
+	process_killer killer;
+	bool kill_on_close;
 	
 #ifdef CONSOLE_LOGGER_USING_MS_SDK
 	// we'll use this DWORD as VERY fast critical-section . for more info:

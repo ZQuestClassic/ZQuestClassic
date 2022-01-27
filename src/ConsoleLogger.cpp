@@ -10,7 +10,7 @@ extern byte monochrome_console;
 //////////////////////////////////////////////////////////////////////
 
 // CTOR: reset everything
-CConsoleLogger::CConsoleLogger()
+CConsoleLogger::CConsoleLogger() : kill_on_close(true)
 {
 	InitializeCriticalSection();
 	m_name[0]=0;
@@ -39,8 +39,7 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/,
-							process_killer *killer/*=NULL*/)
+							const char	*helper_executable/*=NULL*/)
 {
 	#define _CONSOLE_DEBUG(str) al_trace(str)
 	// Ensure there's no pipe connected
@@ -112,8 +111,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 			return -1;
 		}
 	}
-	if(killer)
-		killer->init(pi.hProcess);
+	killer.init(pi.hProcess);
 	
 	_CONSOLE_DEBUG("Created process!\nConnecting pipe...\n");
 	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 
@@ -188,13 +186,21 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	return 0;
 }
 
+void CConsoleLogger::kill()
+{
+	killer.kill();
+}
+
 // Close and disconnect
 int32_t CConsoleLogger::Close(void)
 {
+	int32_t ret;
 	if (m_hPipe==INVALID_HANDLE_VALUE || m_hPipe==NULL)
-		return -1;
+		ret = -1;
 	else
-		return DisconnectNamedPipe( m_hPipe );
+		ret = DisconnectNamedPipe( m_hPipe );
+	if(kill_on_close) kill();
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -478,7 +484,7 @@ int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_
 //////////////////////////////////////////////////////////////////////
 
 // CTOR: reset everything
-CConsoleLogger::CConsoleLogger()
+CConsoleLogger::CConsoleLogger() : kill_on_close(true)
 {
 }
 
@@ -500,15 +506,20 @@ CConsoleLogger::~CConsoleLogger()
 int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							int32_t			buffer_size_x/*=-1*/,int32_t buffer_size_y/*=-1*/,
 							const char	*logger_name/*=NULL*/,
-							const char	*helper_executable/*=NULL*/,
-							process_killer *killer/*=NULL*/)
+							const char	*helper_executable/*=NULL*/)
 {
 	return 0;
+}
+
+void CConsoleLogger::kill()
+{
+	killer.kill();
 }
 
 // Close and disconnect
 int32_t CConsoleLogger::Close(void)
 {
+	if(kill_on_close) kill();
 	return 0;
 }
 

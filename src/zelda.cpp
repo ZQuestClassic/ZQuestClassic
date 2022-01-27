@@ -88,8 +88,6 @@ int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
 
-process_killer zscript_console_process, zasm_console_process;
-
 #include "init.h"
 #include <assert.h>
 #include "zc_array.h"
@@ -1133,6 +1131,7 @@ extern word curScriptNum;
 
 #ifdef _WIN32
 extern CConsoleLoggerEx zscript_coloured_console;
+extern CConsoleLoggerEx coloured_console;
 #endif
 
 void Z_eventlog(const char *format,...)
@@ -5932,8 +5931,8 @@ int32_t main(int32_t argc, char* argv[])
 	__zc_debug_malloc_free_print_memory_leaks(); //this won't do anything without debug_malloc_logging defined.
 	skipcont = 0;
 	
-	zscript_console_process.kill();
-	zasm_console_process.kill();
+	zscript_coloured_console.kill();
+	coloured_console.kill();
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		

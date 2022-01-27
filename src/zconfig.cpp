@@ -7,6 +7,8 @@ void set_config_standard()
 	set_config_file(STANDARD_CFG);
 }
 
+static char cfg_str[2048];
+
 int32_t zc_get_config(char const* header, char const* name, int32_t default_val)
 {
 	int32_t ret = get_config_int(header,name,default_val);
@@ -29,7 +31,8 @@ char const* zc_get_config(char const* header, char const* name, char const* defa
 		if(default_val[0]) //Writing back the empty string destroys the value?? -Em
 			set_config_string(header, name, default_val);
 	}
-	return ret;
+	strcpy(cfg_str, ret);
+	return cfg_str;
 }
 void zc_set_config(char const* header, char const* name, int32_t val)
 {
@@ -74,8 +77,9 @@ char const* zc_get_config(char const* cfg_file, char const* header, char const* 
 		if(default_val[0]) //Writing back the empty string destroys the value?? -Em
 			set_config_string(header, name, default_val);
 	}
+	strcpy(cfg_str, ret);
 	pop_config_state();
-	return ret;
+	return cfg_str;
 }
 void zc_set_config(char const* cfg_file, char const* header, char const* name, int32_t val)
 {

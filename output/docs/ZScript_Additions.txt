@@ -5088,15 +5088,6 @@ int SetItemSlot(int itm_id, int button, int force);
  * This allows you to set Link's button items without binary operation with options for forcing them.
  * Use the constants ITM_REQUIRE_* and ITM_SLOT_* from <std> when passing values into this function. 
 
-int UsingItem;			
- * Returns the ID of an item used when Link uses an item. Returns -1 if Link is not using an item this frame. 
-
-int UsingItemA;		
- * Returns the ID of an item used when Link uses an item on button A. Returns -1 if Link is not using an item this frame. 
-
-int UsingItemB;	
- * Returns the ID of an item used when Link uses an item on button B. Returns -1 if Link is not using an item this frame. 
-
 bool Diagonal;	
  * This corresponds to whether 'Diagonal Movement' is enabled, or not. 
 

@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <string>
 
+static uint32_t __dummy_;
+
 #ifdef _WIN32
 #define NOGDI
 #define WinMain __win_main
@@ -26,7 +28,13 @@ struct process_killer
 	process_killer() : process_handle(NULL) {}
 };
 
-struct process_manager
+struct io_manager
+{
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL) = 0;
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL) = 0;
+};
+
+struct process_manager : public io_manager
 {
 	#ifdef _WIN32
 	//{ Windows
@@ -76,15 +84,17 @@ struct process_manager
 			kill();
 	}
 	
-	bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
+		if(!bytes_read) bytes_read = &__dummy_;
 		if(child_out_read)
 			return ReadFile((HANDLE)child_out_read, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 		return false;
 	}
 	
-	bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written)
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
+		if(!bytes_written) bytes_written = &__dummy_;
 		if(child_in_write)
 			return WriteFile((HANDLE)child_in_write, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, NULL);
 		return false;
@@ -109,12 +119,12 @@ struct process_manager
 			kill();
 	}
 	
-	bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		return false;
 	}
 	
-	bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written)
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		return false;
 	}
@@ -122,7 +132,7 @@ struct process_manager
 	#endif
 };
 
-struct child_process_handler
+struct child_process_handler : public io_manager
 {
 	#ifdef _WIN32
 	//{
@@ -144,15 +154,17 @@ struct child_process_handler
 		init();
 	}
 	
-	bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
+		if(!bytes_read) bytes_read = &__dummy_;
 		if(valid && in)
 			return ReadFile((HANDLE)in, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 		return false;
 	}
 	
-	bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written)
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
+		if(!bytes_written) bytes_written = &__dummy_;
 		if(valid && out)
 			return WriteFile((HANDLE)out, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, NULL);
 		return false;
@@ -172,12 +184,12 @@ struct child_process_handler
 		init();
 	}
 	
-	bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		return false;
 	}
 	
-	bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written)
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		return false;
 	}
