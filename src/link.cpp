@@ -9075,7 +9075,7 @@ void LinkClass::checklocked()
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
     
 	
-	bool found;
+	bool found = false;
 	for ( int q = 0; q < 4; q++ ) {
 		if ( tmpscr->door[q] == dLOCKED || tmpscr->door[q] == dBOSS ) { found = true; }
 	}

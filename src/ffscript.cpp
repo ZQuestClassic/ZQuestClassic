@@ -4385,9 +4385,10 @@ long get_register(const long arg)
         
     case ITEMJUMP:
         if(0!=(s=checkItem(ri->itemref)))
-        {
-	    ret = (long(((item*)(s))->fall / fix(100.0)) * 10000);
-        }
+	{
+		if (quest_header_zelda_version < 0x253 || (quest_header_zelda_version == 0x253 && quest_header_zelda_build < 33)) ret = (long(((item*)(s))->fall / fix(100.0)) * 10000);
+		else ret = long(((item*)(s))->fall) * -100.0;
+	}
         
         break;
         
@@ -4782,7 +4783,10 @@ long get_register(const long arg)
         if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
             ret = -10000;
         else
-            ret = (long(-GuyH::getNPC()->fall / fix(100.0)) * 10000);
+	{
+		if (quest_header_zelda_version < 0x253 || (quest_header_zelda_version == 0x253 && quest_header_zelda_build < 33)) ret = (long(-GuyH::getNPC()->fall / fix(100.0)) * 10000);
+		else ret = long(GuyH::getNPC()->fall) * -100.0;
+	}
             
         break;
         
@@ -4870,7 +4874,10 @@ long get_register(const long arg)
         
     case LWPNJUMP:
         if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
-	    ret = (long(((weapon*)(s))->fall / fix(100.0)) * 10000);
+	{
+		if (quest_header_zelda_version < 0x253 || (quest_header_zelda_version == 0x253 && quest_header_zelda_build < 33)) ret = (long(((weapon*)(s))->fall / fix(100.0)) * 10000);
+		else ret = long(((weapon*)(s))->fall) * -100.0;
+	}
             
         break;
         
@@ -5095,7 +5102,10 @@ long get_register(const long arg)
         
     case EWPNJUMP:
         if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
-            ret = (long(((weapon*)(s))->fall / fix(100.0)) * 10000);
+        {
+		if (quest_header_zelda_version < 0x253 || (quest_header_zelda_version == 0x253 && quest_header_zelda_build < 33)) ret = (long(((weapon*)(s))->fall / fix(100.0)) * 10000);
+		else ret = long(((weapon*)(s))->fall) * -100.0;
+	}
             
         break;
         
