@@ -3435,6 +3435,8 @@ bool enemy::animate(int32_t index)
 			else if(fall <= (int32_t)zinit.terminalv)
 				fall += (zinit.gravity2/100);
 			
+			if (z<=0 && fall > 0 && !get_bit(quest_rules, qr_FLUCTUATING_ENEMY_JUMP)) fall = 0;
+			
 		}
 	}
 	if(!isSideViewGravity() && (moveflags & FLAG_CAN_PITFALL))
@@ -7846,10 +7848,11 @@ void enemy::constant_walk(int32_t newrate,int32_t newhoming,int32_t special)
 	else if(scored)
 	{
 		dir^=1;
-		clk3=int32_t(16.0/step)-clk3;
+		if (step != 0) clk3=int32_t(16.0/step)-clk3;
+		else clk3=32767;
 	}
 	
-	--clk3;
+	if (step != 0) --clk3;
 	move(step);
 }
 
@@ -7957,7 +7960,7 @@ void enemy::halting_walk(int32_t newrate,int32_t newhoming,int32_t special,int32
 		fix_coords(true);
 		newdir(newrate,newhoming,special);
 		clk3=int32_t(16.0/step);
-		
+		if (step == 0) clk3 = 32767; //It used to return this in 2.53 and I'm unsure why; I'm guessing dividing by 0 gave max int? Either way, can't be 0 here or scripts break.
 		if(clk2<0)
 		{
 			clk2=0;
@@ -7972,10 +7975,11 @@ void enemy::halting_walk(int32_t newrate,int32_t newhoming,int32_t special,int32
 	{
 		dir^=1;
 		
-		clk3=int32_t(16.0/step)-clk3;
+		if (step != 0) clk3=int32_t(16.0/step)-clk3;
+		else clk3=32767;
 	}
 	
-	--clk3;
+	if (step != 0) --clk3;
 	move(step);
 }
 
@@ -7989,9 +7993,10 @@ void enemy::constant_walk_8(int32_t newrate,int32_t newhoming,int32_t special)
 	{
 		newdir_8(newrate,newhoming,special);
 		clk3=int32_t(8.0/step);
+		if (step == 0) clk3 = 32767;
 	}
 	
-	--clk3;
+	if (step != 0) --clk3;
 	move(step);
 }
 // 8-directional movement, aligns to 8 pixels
@@ -8004,9 +8009,10 @@ void enemy::constant_walk_8_old(int32_t newrate,int32_t newhoming,int32_t specia
 	{
 		newdir_8(newrate,newhoming,special);
 		clk3=int32_t(8.0/step);
+		if (step == 0) clk3 = 32767;
 	}
 	
-	--clk3;
+	if (step != 0) --clk3;
 	move(step);
 }
 

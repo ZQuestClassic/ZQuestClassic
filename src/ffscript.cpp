@@ -3685,6 +3685,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				ret = ((item*)(s))->fall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 			break;
 			
@@ -4683,7 +4684,10 @@ int32_t get_register(const int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
 				ret = -10000;
 			else
+			{
 				ret = GuyH::getNPC()->fall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
 				
 			break;
 		
@@ -5215,7 +5219,10 @@ int32_t get_register(const int32_t arg)
 			
 		case LWPNJUMP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
+			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
 				
 			break;
 			
@@ -5651,7 +5658,10 @@ int32_t get_register(const int32_t arg)
 			
 		case EWPNJUMP:
 			if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
+			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
 				
 			break;
 			
@@ -7587,7 +7597,7 @@ int32_t get_register(const int32_t arg)
 				ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 				
 				weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-				w->LOADGFX(FFCore.getDefWeaponSprite(ID));
+				//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //What the fuck Zoria, this broke old quests...
 				w->ScriptGenerated = 1;
 				w->isLWeapon = 1;
 				if(ID == wWind) w->specialinfo = 1;
@@ -21280,7 +21290,7 @@ void do_createlweapon(const bool v)
 		//Lwpns.spr(Lwpns.Count() - 1)->ScriptGenerated = 1;
 		//Lwpns.spr(Lwpns.Count() - 1)->isLWeapon = 1;
 		weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-		w->LOADGFX(FFCore.getDefWeaponSprite(ID));
+		//w->LOADGFX(FFCore.getDefWeaponSprite(ID)); //No.
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
 		if(ID == wWind) w->specialinfo = 1;
@@ -21336,7 +21346,7 @@ void do_createeweapon(const bool v)
 		if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
 		{
 			weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-			w->LOADGFX(FFCore.getDefWeaponSprite(ID));
+			//w->LOADGFX(FFCore.getDefWeaponSprite(ID));
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 0;
 			ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();

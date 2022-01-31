@@ -12009,24 +12009,24 @@ extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-    int32_t dummy;
-    word s_version=0, s_cversion=0, zmeta_version=0;
-    byte numscripts=0;
-    numscripts=numscripts; //to avoid unused variables warnings
-    int32_t ret;
-    
-    //section version info
-    if(!p_igetw(&s_version,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    FFCore.quest_format[vFFScript] = s_version;
-    
-    if(!p_igetw(&s_cversion,f,true))
-    {
-        return qe_invalid;
-    }
+	int32_t dummy;
+	word s_version=0, s_cversion=0, zmeta_version=0;
+	byte numscripts=0;
+	numscripts=numscripts; //to avoid unused variables warnings
+	int32_t ret;
+	
+	//section version info
+	if(!p_igetw(&s_version,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	FFCore.quest_format[vFFScript] = s_version;
+	
+	if(!p_igetw(&s_cversion,f,true))
+	{
+		return qe_invalid;
+	}
 	
 	if(s_version >= 18)
 	{
@@ -12035,59 +12035,73 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			return qe_invalid;
 		}
 	}
-    
-    //al_trace("Scripts version %d\n", s_version);
-    //section size
-    if(!p_igetl(&dummy,f,true))
-    {
-        return qe_invalid;
-    }
-    
-    //ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
-    setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
-    temp_ffscript_version = s_version;
-    //miscQdata *the_misc;
-    if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
-    al_trace("Loaded scripts last compiled in ZScript version: %ld\n", (FFCore.quest_format[vLastCompile]));
-    
-    //finally...  section data
-    for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
-    {
-        ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
-        
-        if(ret != 0) return qe_invalid;
-    }
-    
-    if(s_version > 1)
-    {
-        for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
-        for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
-        for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
-            
-            if(ret != 0) return qe_invalid;
-        }
-        
 	
-        for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
-        {
-            ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
-            
-            if(ret != 0) return qe_invalid;
-        }
+	//al_trace("Scripts version %d\n", s_version);
+	//section size
+	if(!p_igetl(&dummy,f,true))
+	{
+		return qe_invalid;
+	}
+	
+	//ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
+	setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
+	temp_ffscript_version = s_version;
+	//miscQdata *the_misc;
+	if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
+	al_trace("Loaded scripts last compiled in ZScript version: %ld\n", (FFCore.quest_format[vLastCompile]));
+	
+	//finally...  section data
+	for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
+	{
+		ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
+		
+		if(ret != 0) return qe_invalid;
+	}
+	
+	/* HIGHLY UNORTHODOX UPDATING THING, by Deedee
+	* This fixes changes to sprite jump values introduced in early 2.55 alphas.
+	* Zoria didn't bump up the versions as liberally as he should have, but thankfully
+	* there was a version bump a week before a change that broke stuff.
+	*/
+	if(s_version < 12 && keepdata)
+	{
+		set_bit(quest_rules,qr_SPRITE_JUMP_IS_TRUNCATED,1);
+	}
+	if(s_version < 19 && keepdata)
+	{
+		set_bit(quest_rules,qr_FLUCTUATING_ENEMY_JUMP,1);
+	}
+	
+	if(s_version > 1)
+	{
+		for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
+		}
+		
+		for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
+		}
+		
+		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
+		}
+		
+	
+		for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
+		{
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
+		}
 	
 		if(s_version > 16)
 		{
@@ -12175,80 +12189,80 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
 		}
-        
+		
 	if(s_version > 10) //expanded the number of Player scripts to 5. 
-        {
+		{
 		for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
 		{
-		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
-		    
-		    if(ret != 0) return qe_invalid;
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
 		}
-        }
+		}
 	else
 	{
 		for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
 		{
-		    ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
-		    
-		    if(ret != 0) return qe_invalid;
+			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+			
+			if(ret != 0) return qe_invalid;
 		}
 		if(playerscripts[3] != NULL)
-                delete playerscripts[3];
-                
+				delete playerscripts[3];
+				
 		playerscripts[3] = new script_data();
 		
 		if(playerscripts[4] != NULL)
-                delete playerscripts[4];
-                
+				delete playerscripts[4];
+				
 		playerscripts[4] = new script_data();
 	}
-        if(s_version > 8 && s_version < 10)
-        {
-            
-            for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
-                
-                if(ret != 0) return qe_invalid;
-            }
-            for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
-            
-                if(ret != 0) return qe_invalid;
-            }
-            
-        }
+		if(s_version > 8 && s_version < 10)
+		{
+			
+			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+			
+				if(ret != 0) return qe_invalid;
+			}
+			
+		}
 	if(s_version >= 10)
-        {
-            
-            for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
-                
-                if(ret != 0) return qe_invalid;
-            }
-	    for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
-                
-                if(ret != 0) return qe_invalid;
-            }
-            for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
-            {
-                ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
-            
-                if(ret != 0) return qe_invalid;
-            }
-            
-        }
+		{
+			
+			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+			
+				if(ret != 0) return qe_invalid;
+			}
+			
+		}
 	if(s_version >=12)
 	{
 		for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
-                
+				
 			if(ret != 0) return qe_invalid;
 		}
 		
@@ -12258,294 +12272,294 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
-                
+				
 			if(ret != 0) return qe_invalid;
 		}
 		
 	}
 	
-        /*
-        else //Is this trip really necessary?
-        {
-            for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
-            {
-                
-                ewpnscripts[i] = NULL;
-            }
-            for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
-            {
-                dmapscripts[i] = NULL;
-            }
-        }
-        */
-        
-    }
-    
-    if(s_version > 2)
-    {
-        int32_t bufsize;
-        p_igetl(&bufsize, f, true);
-        char * buf = new char[bufsize+1];
-        pfread(buf, bufsize, f, true);
-        buf[bufsize]=0;
-        
-        if(keepdata)
-            zScript = string(buf);
-            
-        delete[] buf;
-        word numffcbindings;
-        p_igetw(&numffcbindings, f, true);
-        
-        for(int32_t i=0; i<numffcbindings; i++)
-        {
-            word id;
-            p_igetw(&id, f, true);
-            p_igetl(&bufsize, f, true);
-            buf = new char[bufsize+1];
-            pfread(buf, bufsize, f, true);
-            buf[bufsize]=0;
-            
-            //fix for buggy older saved quests -DD
-            if(keepdata && id < NUMSCRIPTFFC-1)
-                ffcmap[id].scriptname = buf;
-                
-            delete[] buf;
-        }
-        
-        word numglobalbindings;
-        p_igetw(&numglobalbindings, f, true);
-        
-        for(int32_t i=0; i<numglobalbindings; i++)
-        {
-            word id;
-            p_igetw(&id, f, true);
-            p_igetl(&bufsize, f, true);
-            buf = new char[bufsize+1];
-            pfread(buf, bufsize, f, true);
-            buf[bufsize]=0;
-            
+		/*
+		else //Is this trip really necessary?
+		{
+			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			{
+				
+				ewpnscripts[i] = NULL;
+			}
+			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
+			{
+				dmapscripts[i] = NULL;
+			}
+		}
+		*/
+		
+	}
+	
+	if(s_version > 2)
+	{
+		int32_t bufsize;
+		p_igetl(&bufsize, f, true);
+		char * buf = new char[bufsize+1];
+		pfread(buf, bufsize, f, true);
+		buf[bufsize]=0;
+		
+		if(keepdata)
+			zScript = string(buf);
+			
+		delete[] buf;
+		word numffcbindings;
+		p_igetw(&numffcbindings, f, true);
+		
+		for(int32_t i=0; i<numffcbindings; i++)
+		{
+			word id;
+			p_igetw(&id, f, true);
+			p_igetl(&bufsize, f, true);
+			buf = new char[bufsize+1];
+			pfread(buf, bufsize, f, true);
+			buf[bufsize]=0;
+			
+			//fix for buggy older saved quests -DD
+			if(keepdata && id < NUMSCRIPTFFC-1)
+				ffcmap[id].scriptname = buf;
+				
+			delete[] buf;
+		}
+		
+		word numglobalbindings;
+		p_igetw(&numglobalbindings, f, true);
+		
+		for(int32_t i=0; i<numglobalbindings; i++)
+		{
+			word id;
+			p_igetw(&id, f, true);
+			p_igetl(&bufsize, f, true);
+			buf = new char[bufsize+1];
+			pfread(buf, bufsize, f, true);
+			buf[bufsize]=0;
+			
 			// id in principle should be valid, since slot assignment cannot assign a global script to a bogus slot.
 			// However, because of a corruption bug, some 2.50.x quests contain bogus entries in the global bindings table.
 			// Ignore these. -DD
-            if(keepdata && id >= 0 && id < NUMSCRIPTGLOBAL)
-            {
-                //Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
-                if(strcmp(buf,"~Continue") == 0)
-                {
-                    globalmap[id].scriptname = "";
-                    
-                    if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
-                        globalscripts[GLOBAL_SCRIPT_ONSAVELOAD]->disable();
-                }
-                else
-                {
-                    globalmap[id].scriptname = buf;
-                }
-            }
-            
-            delete[] buf;
-        }
-        
-        if(s_version > 3)
-        {
-            word numitembindings;
-            p_igetw(&numitembindings, f, true);
-            
-            for(int32_t i=0; i<numitembindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTITEM-1)
-                    itemmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
-        	//(v9+)
+			if(keepdata && id >= 0 && id < NUMSCRIPTGLOBAL)
+			{
+				//Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
+				if(strcmp(buf,"~Continue") == 0)
+				{
+					globalmap[id].scriptname = "";
+					
+					if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
+						globalscripts[GLOBAL_SCRIPT_ONSAVELOAD]->disable();
+				}
+				else
+				{
+					globalmap[id].scriptname = buf;
+				}
+			}
+			
+			delete[] buf;
+		}
+		
+		if(s_version > 3)
+		{
+			word numitembindings;
+			p_igetw(&numitembindings, f, true);
+			
+			for(int32_t i=0; i<numitembindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTITEM-1)
+					itemmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
+			//(v9+)
 	//npc scripts
 	if(s_version > 8)
-        {
-            word numnpcbindings;
-            p_igetw(&numnpcbindings, f, true);
-            
-            for(int32_t i=0; i<numnpcbindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTGUYS-1)
-                    npcmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numnpcbindings;
+			p_igetw(&numnpcbindings, f, true);
+			
+			for(int32_t i=0; i<numnpcbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTGUYS-1)
+					npcmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	//
 	//lweapon
 	if(s_version > 8)
-        {
-            word numlwpnbindings;
-            p_igetw(&numlwpnbindings, f, true);
-            
-            for(int32_t i=0; i<numlwpnbindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTWEAPONS-1)
-                    lwpnmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numlwpnbindings;
+			p_igetw(&numlwpnbindings, f, true);
+			
+			for(int32_t i=0; i<numlwpnbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTWEAPONS-1)
+					lwpnmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	//eweapon
 	if(s_version > 8)
-        {
-            word numewpnbindings;
-            p_igetw(&numewpnbindings, f, true);
-            
-            for(int32_t i=0; i<numewpnbindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTWEAPONS-1)
-                    ewpnmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numewpnbindings;
+			p_igetw(&numewpnbindings, f, true);
+			
+			for(int32_t i=0; i<numewpnbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTWEAPONS-1)
+					ewpnmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	//hero
 	if(s_version > 8)
-        {
-            word numherobindings;
-            p_igetw(&numherobindings, f, true);
-            
-            for(int32_t i=0; i<numherobindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTPLAYER-1)
-                    playermap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numherobindings;
+			p_igetw(&numherobindings, f, true);
+			
+			for(int32_t i=0; i<numherobindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTPLAYER-1)
+					playermap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	//dmaps
 	if(s_version > 8)
-        {
-            word numdmapbindings;
-            p_igetw(&numdmapbindings, f, true);
-            
-            for(int32_t i=0; i<numdmapbindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTSDMAP-1)
-                    dmapmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numdmapbindings;
+			p_igetw(&numdmapbindings, f, true);
+			
+			for(int32_t i=0; i<numdmapbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSDMAP-1)
+					dmapmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 		//screen
 	if(s_version > 8)
-        {
-            word numscreenbindings;
-            p_igetw(&numscreenbindings, f, true);
-            
-            for(int32_t i=0; i<numscreenbindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTSDMAP-1)
-                    screenmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numscreenbindings;
+			p_igetw(&numscreenbindings, f, true);
+			
+			for(int32_t i=0; i<numscreenbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSDMAP-1)
+					screenmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	if(s_version > 11)
-        {
-            word numspritebindings;
-            p_igetw(&numspritebindings, f, true);
-            
-            for(int32_t i=0; i<numspritebindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTSDMAP-1)
-                    itemspritemap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
+		{
+			word numspritebindings;
+			p_igetw(&numspritebindings, f, true);
+			
+			for(int32_t i=0; i<numspritebindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSDMAP-1)
+					itemspritemap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	if(s_version >= 15)
-        {
-            word numcombobindings;
-            p_igetw(&numcombobindings, f, true);
-            
-            for(int32_t i=0; i<numcombobindings; i++)
-            {
-                word id;
-                p_igetw(&id, f, true);
-                p_igetl(&bufsize, f, true);
-                buf = new char[bufsize+1];
-                pfread(buf, bufsize, f, true);
-                buf[bufsize]=0;
-                
-                //fix this too
-                if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
-                    comboscriptmap[id].scriptname = buf;
-                    
-                delete[] buf;
-            }
-        }
-    }
-    
-    return 0;
+		{
+			word numcombobindings;
+			p_igetw(&numcombobindings, f, true);
+			
+			for(int32_t i=0; i<numcombobindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
+					comboscriptmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
+	}
+	
+	return 0;
 }
 
 //Eh?
