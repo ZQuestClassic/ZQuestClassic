@@ -12063,7 +12063,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	* Zoria didn't bump up the versions as liberally as he should have, but thankfully
 	* there was a version bump a week before a change that broke stuff.
 	*/
-	if(s_version < 12 && keepdata)
+	if(((Header->zelda_version < 0x253)||((Header->zelda_version == 0x253)&&(Header->build<33))||((Header->zelda_version > 0x253) && s_version < 12)) && keepdata)
 	{
 		set_bit(quest_rules,qr_SPRITE_JUMP_IS_TRUNCATED,1);
 	}
