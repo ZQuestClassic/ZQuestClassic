@@ -1973,6 +1973,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hxsz=15;
 	hysz=15;
 	hzsz=8;
+	do_animation = 1;
 	useweapon = usedefence = 0;
 	weaprange = weapduration = 0;
 	script_wrote_otile = 0;
@@ -2153,11 +2154,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			else 
 			{
-				if ( !o_tile )
-				{
-					LOADGFX(0);
-					o_tile = tile;
-				}
+				LOADGFX(0);
 			}
 			break;
 		}
@@ -3914,6 +3911,7 @@ void weapon::LOADGFX(int32_t wpn)
     tile  = wpnsbuf[wid].newtile;
     cs = wpnsbuf[wid].csets&15;
     o_tile = wpnsbuf[wid].newtile;
+    tile = o_tile;
     o_cset = wpnsbuf[wid].csets;
     o_flip=(wpnsbuf[wid].misc>>2)&3;
     o_speed = wpnsbuf[wid].speed;
