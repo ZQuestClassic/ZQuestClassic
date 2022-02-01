@@ -26026,14 +26026,17 @@ void HeroClass::checkitems(int32_t index)
 			//if (pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || itemsbuf[index].pickup_string_flags&itemdataPSTRING_IP_HOLDUP ) ) )
 			
 			int32_t shop_pstr = 0;
-			switch(tmpscr[tmp].room)
+			if (PriceIndex > -1) 
 			{
-				case rSHOP:
-					shop_pstr = QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex];
-					break;
-				case rBOTTLESHOP:
-					shop_pstr = QMisc.bottle_shop_types[tmpscr[tmp].catchall].str[PriceIndex];
-					break;
+				switch(tmpscr[tmp].room)
+				{
+					case rSHOP:
+						shop_pstr = QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex];
+						break;
+					case rBOTTLESHOP:
+						shop_pstr = QMisc.bottle_shop_types[tmpscr[tmp].catchall].str[PriceIndex];
+						break;
+				}
 			}
 			if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 			{
