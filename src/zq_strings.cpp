@@ -95,6 +95,8 @@ DIALOG strlist_dlg[] =
 	//21
 	{ jwin_text_proc,      158, 165+22,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Template: ", NULL, NULL },
 	{ jwin_edit_proc,      204, 165+18,     36,     16,   vc(12),  vc(1),   0,       0,       5,             0,       NULL, NULL, NULL },
+	{ jwin_button_proc,    213,     18,     30,     12,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Sort", NULL, NULL },
+	{ jwin_button_proc,    238,     18,     30,     12,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Unsort", NULL, NULL },
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
@@ -589,11 +591,12 @@ int32_t onStrings()
 	sprintf(tempbuf, "0");
 	
 	strlist_dlg[17].d1=0;
+	strlist_dlg[24].flags |= D_DISABLED;
 	build_bistringcat_list();
 	
 	//Message more is offset
 	strlist_dlg[15].flags=(zinit.msg_more_is_offset!=0)?D_SELECTED:0;
-	
+	std::map<int32_t, int32_t> msg_sort_cache;
 	while(index!=-1)
 	{
 		bool hasroom=false;
@@ -630,235 +633,253 @@ int32_t onStrings()
 		
 		switch(ret)
 		{
-		case 18:
-			jwin_alert("String Index","Create a string beginning with two hyphens '--'",
-					   "and it will be listed in this index, serving as a",
-					   "shortcut to a location in your string list.","O&K",NULL,'k',0,lfont);
-			break;
-			
-		case 17: // Go to category
-		{
-			strlist_dlg[2].d1 = MsgStrings[bistringcat[strlist_dlg[17].d1]].listpos;
-			break;
-		}
-		
-		case 11: // Move string up
-		{
-			if(index==0 || index==msg_count-1)
+			case 18:
+				jwin_alert("String Index","Create a string beginning with two hyphens '--'",
+						   "and it will be listed in this index, serving as a",
+						   "shortcut to a location in your string list.","O&K",NULL,'k',0,lfont);
 				break;
 				
-			// Find the string with index's listpos - 1, and increment it
-			int32_t nextlistpos = MsgStrings[index].listpos-1;
-			
-			if(nextlistpos<0)
-				break;
-				
-			std::map<int32_t,int32_t>::iterator res = msglistcache.find(nextlistpos);
-			
-			if(res == msglistcache.end())
-				(void)addtomsglist(nextlistpos);
-				
-			int32_t otherindex = msglistcache[nextlistpos];
-			
-			if(otherindex==0)
-				break; // It's obviously not in here...
-				
-			MsgStrings[index].listpos--;
-			MsgStrings[otherindex].listpos++;
-			
-			// Fix msglistcache
-			(void)addtomsglist(MsgStrings[index].listpos);
-			(void)addtomsglist(MsgStrings[index].listpos+1);
-			
-			strlist_dlg[2].d1--;
-			saved=false;
-			break;
-		}
-		
-		case 12: // Move string down
-		{
-			if(index==0 || index==msg_count-1)
-				break;
-				
-			// Find the string with index's listpos + 1, and decrement it
-			int32_t nextlistpos = MsgStrings[index].listpos+1;
-			
-			if(nextlistpos>=msg_count-1)
-				break;
-				
-			std::map<int32_t,int32_t>::iterator res = msglistcache.find(nextlistpos);
-			
-			if(res == msglistcache.end())
-				(void)addtomsglist(nextlistpos);
-				
-			int32_t otherindex = msglistcache[nextlistpos];
-			
-			if(otherindex==0)
-				break; // It's obviously not in here...
-				
-			MsgStrings[index].listpos++;
-			MsgStrings[otherindex].listpos--;
-			
-			// Fix msglistcache
-			(void)addtomsglist(MsgStrings[index].listpos);
-			(void)addtomsglist(MsgStrings[index].listpos-1);
-			
-			strlist_dlg[2].d1++;
-			saved=false;
-			break;
-		}
-		
-		case 13: // Move string up - 12
-		case 14: // Move string down - 12
-		{
-			if(index==0 || index==msg_count-1)
-				break;
-				
-			int32_t diff = (ret == 13) ? zc_max(MsgStrings[index].listpos-12, 1) : zc_min(MsgStrings[index].listpos+12, msg_count-2);
-			int32_t sign = (ret == 13) ? -1 : 1;
-			
-			int32_t nextindex;
-			
-			// For all strings above or below, de/increment
-			for(int32_t i=MsgStrings[index].listpos; i!=diff+sign; i+=sign)
+			case 17: // Go to category
 			{
-				std::map<int32_t,int32_t>::iterator res = msglistcache.find(i);
+				strlist_dlg[2].d1 = MsgStrings[bistringcat[strlist_dlg[17].d1]].listpos;
+				break;
+			}
+			
+			case 11: // Move string up
+			{
+				if(index==0 || index==msg_count-1)
+					break;
+					
+				// Find the string with index's listpos - 1, and increment it
+				int32_t nextlistpos = MsgStrings[index].listpos-1;
+				
+				if(nextlistpos<0)
+					break;
+					
+				std::map<int32_t,int32_t>::iterator res = msglistcache.find(nextlistpos);
 				
 				if(res == msglistcache.end())
-					(void)addtomsglist(i);
+					(void)addtomsglist(nextlistpos);
 					
-				int32_t otherindex = msglistcache[i];
+				int32_t otherindex = msglistcache[nextlistpos];
 				
 				if(otherindex==0)
 					break; // It's obviously not in here...
 					
-				if(i==diff)
+				MsgStrings[index].listpos--;
+				MsgStrings[otherindex].listpos++;
+				
+				// Fix msglistcache
+				(void)addtomsglist(MsgStrings[index].listpos);
+				(void)addtomsglist(MsgStrings[index].listpos+1);
+				
+				strlist_dlg[2].d1--;
+				saved=false;
+				break;
+			}
+			
+			case 12: // Move string down
+			{
+				if(index==0 || index==msg_count-1)
+					break;
+					
+				// Find the string with index's listpos + 1, and decrement it
+				int32_t nextlistpos = MsgStrings[index].listpos+1;
+				
+				if(nextlistpos>=msg_count-1)
+					break;
+					
+				std::map<int32_t,int32_t>::iterator res = msglistcache.find(nextlistpos);
+				
+				if(res == msglistcache.end())
+					(void)addtomsglist(nextlistpos);
+					
+				int32_t otherindex = msglistcache[nextlistpos];
+				
+				if(otherindex==0)
+					break; // It's obviously not in here...
+					
+				MsgStrings[index].listpos++;
+				MsgStrings[otherindex].listpos--;
+				
+				// Fix msglistcache
+				(void)addtomsglist(MsgStrings[index].listpos);
+				(void)addtomsglist(MsgStrings[index].listpos-1);
+				
+				strlist_dlg[2].d1++;
+				saved=false;
+				break;
+			}
+			
+			case 13: // Move string up - 12
+			case 14: // Move string down - 12
+			{
+				if(index==0 || index==msg_count-1)
+					break;
+					
+				int32_t diff = (ret == 13) ? zc_max(MsgStrings[index].listpos-12, 1) : zc_min(MsgStrings[index].listpos+12, msg_count-2);
+				int32_t sign = (ret == 13) ? -1 : 1;
+				
+				int32_t nextindex;
+				
+				// For all strings above or below, de/increment
+				for(int32_t i=MsgStrings[index].listpos; i!=diff+sign; i+=sign)
 				{
-					nextindex = index;
-				}
-				else
-				{
-					res = msglistcache.find(i+sign);
+					std::map<int32_t,int32_t>::iterator res = msglistcache.find(i);
 					
 					if(res == msglistcache.end())
-						(void)addtomsglist(i+sign);
+						(void)addtomsglist(i);
 						
-					nextindex = msglistcache[i+sign];
-				}
-				
-				MsgStrings[otherindex].listpos+=sign;
-				MsgStrings[nextindex].listpos-=sign;
-				(void)addtomsglist(MsgStrings[otherindex].listpos);
-				(void)addtomsglist(MsgStrings[nextindex].listpos);
-			}
-			
-			//MsgStrings[index].listpos=diff;
-			//(void)addtomsglist(MsgStrings[index].listpos);
-			strlist_dlg[2].d1=diff;
-			saved=false;
-			break;
-		}
-		
-		case 16:
-			addAfter=zc_min(index, msg_count-2);
-			index=msg_count-1;
-			strlist_dlg[2].d1 = index;
-			
-		case 2:
-		case 3:
-			doedit=true;
-			break;
-			
-		case 0: // ???
-		case 4:
-		
-			index=-1;
-			zinit.msg_more_x=atoi(msgmore_xstring);
-			zinit.msg_more_y=atoi(msgmore_ystring);
-			zinit.msg_speed=atoi(msgspeed_string);
-			zinit.msg_more_is_offset=(strlist_dlg[15].flags&D_SELECTED)?1:0;
-			
-			if(morex!=zinit.msg_more_x||morey!=zinit.msg_more_y||msgspeed!=zinit.msg_speed)
-			{
-				saved=false;
-			}
-			
-			break;
-			
-		case 5: // Delete
-			char buf[73], shortbuf[73];
-			memset(buf, 0, 73);
-			memset(shortbuf, 0, 73);
-			strncpy(buf,MsgString(index, true, false),72);
-			strip_extra_spaces(buf);
-			shorten_string(shortbuf, buf, font, 72, 288);
-			
-			if(jwin_alert("Confirm Clear","Clear this message string?"," ",shortbuf,"Yes","No",'y',27,lfont)==1)
-			{
-				saved=false;
-				word pos=MsgStrings[index].listpos;
-				memset((void*)(&MsgStrings[index]), 0, sizeof(MsgStr));
-				MsgStrings[index].x=24;
-				MsgStrings[index].y=32;
-				MsgStrings[index].w=24*8;
-				MsgStrings[index].h=3*8;
-				MsgStrings[index].listpos=pos; // Since the stuff below isn't being run, do this instead
-				
-				
-				/*// Go through strings with higher listpos and decrement listpos
-				for(int32_t j=MsgStrings[index].listpos; j<msg_count; j++)
-				{
-					MsgStrings[addtomsglist(j)].listpos--;
-				}
-				// Delete string
-				for(int32_t i=index; i<msg_strings_size-1; i++)
-					MsgStrings[i]=MsgStrings[i+1];
-				// This is now inaccurate
-				msglistcache.clear();
-				reset_msgstr(msg_strings_size-1);
-				--msg_count;
-				int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
-				
-				for(int32_t s=0; s<sc; s++)                           //room strings
-				{
-					fix_string(TheMaps[s].str, index);
-				}
-				for(int32_t i=0; i<16; i++)                           //info strings
-				{
-					for(int32_t j=0; j<3; j++)
-					{
-						fix_string(misc.info[i].str[j], index);
-					}
-				}
-				fix_string(misc.endstring, index);              //ending string */
-				// Fix the quick-category menu
-				strlist_dlg[17].d1=0;
-				build_bistringcat_list();
-				
-				refresh(rMENU);
-			}
-			
-			break;
-			
-		case 19: // copy
-			if(index==msg_count-1)
-				zqstr_copysrc=-1;
-			else
-				zqstr_copysrc=index;
-				
-			break;
-			
-		case 20: // paste
-			if(zqstr_copysrc>0 && index>0)
-			{
-				if(index==msg_count-1)
-					++msg_count;
+					int32_t otherindex = msglistcache[i];
 					
-				MsgStrings[index]=MsgStrings[zqstr_copysrc];
-				saved = false;
+					if(otherindex==0)
+						break; // It's obviously not in here...
+						
+					if(i==diff)
+					{
+						nextindex = index;
+					}
+					else
+					{
+						res = msglistcache.find(i+sign);
+						
+						if(res == msglistcache.end())
+							(void)addtomsglist(i+sign);
+							
+						nextindex = msglistcache[i+sign];
+					}
+					
+					MsgStrings[otherindex].listpos+=sign;
+					MsgStrings[nextindex].listpos-=sign;
+					(void)addtomsglist(MsgStrings[otherindex].listpos);
+					(void)addtomsglist(MsgStrings[nextindex].listpos);
+				}
+				
+				//MsgStrings[index].listpos=diff;
+				//(void)addtomsglist(MsgStrings[index].listpos);
+				strlist_dlg[2].d1=diff;
+				saved=false;
+				break;
 			}
 			
-			break;
+			case 16:
+				addAfter=zc_min(index, msg_count-2);
+				index=msg_count-1;
+				strlist_dlg[2].d1 = index;
+				
+			case 2:
+			case 3:
+				doedit=true;
+				break;
+				
+			case 0: // ???
+			case 4:
+			
+				index=-1;
+				zinit.msg_more_x=atoi(msgmore_xstring);
+				zinit.msg_more_y=atoi(msgmore_ystring);
+				zinit.msg_speed=atoi(msgspeed_string);
+				zinit.msg_more_is_offset=(strlist_dlg[15].flags&D_SELECTED)?1:0;
+				
+				if(morex!=zinit.msg_more_x||morey!=zinit.msg_more_y||msgspeed!=zinit.msg_speed)
+				{
+					saved=false;
+				}
+				
+				break;
+				
+			case 5: // Delete
+				char buf[73], shortbuf[73];
+				memset(buf, 0, 73);
+				memset(shortbuf, 0, 73);
+				strncpy(buf,MsgString(index, true, false),72);
+				strip_extra_spaces(buf);
+				shorten_string(shortbuf, buf, font, 72, 288);
+				
+				if(jwin_alert("Confirm Clear","Clear this message string?"," ",shortbuf,"Yes","No",'y',27,lfont)==1)
+				{
+					saved=false;
+					word pos=MsgStrings[index].listpos;
+					memset((void*)(&MsgStrings[index]), 0, sizeof(MsgStr));
+					MsgStrings[index].x=24;
+					MsgStrings[index].y=32;
+					MsgStrings[index].w=24*8;
+					MsgStrings[index].h=3*8;
+					MsgStrings[index].listpos=pos; // Since the stuff below isn't being run, do this instead
+					
+					
+					/*// Go through strings with higher listpos and decrement listpos
+					for(int32_t j=MsgStrings[index].listpos; j<msg_count; j++)
+					{
+						MsgStrings[addtomsglist(j)].listpos--;
+					}
+					// Delete string
+					for(int32_t i=index; i<msg_strings_size-1; i++)
+						MsgStrings[i]=MsgStrings[i+1];
+					// This is now inaccurate
+					msglistcache.clear();
+					reset_msgstr(msg_strings_size-1);
+					--msg_count;
+					int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
+					
+					for(int32_t s=0; s<sc; s++)                           //room strings
+					{
+						fix_string(TheMaps[s].str, index);
+					}
+					for(int32_t i=0; i<16; i++)                           //info strings
+					{
+						for(int32_t j=0; j<3; j++)
+						{
+							fix_string(misc.info[i].str[j], index);
+						}
+					}
+					fix_string(misc.endstring, index);              //ending string */
+					// Fix the quick-category menu
+					strlist_dlg[17].d1=0;
+					build_bistringcat_list();
+					
+					refresh(rMENU);
+				}
+				
+				break;
+				
+			case 19: // copy
+				if(index==msg_count-1)
+					zqstr_copysrc=-1;
+				else
+					zqstr_copysrc=index;
+					
+				break;
+				
+			case 20: // paste
+				if(zqstr_copysrc>0 && index>0)
+				{
+					if(index==msg_count-1)
+						++msg_count;
+						
+					MsgStrings[index]=MsgStrings[zqstr_copysrc];
+					saved = false;
+				}
+				
+				break;
+			case 23: // sort
+				strlist_dlg[24].flags &= ~D_DISABLED;
+				for(auto q = 1; q < msg_count-1; ++q)
+				{
+					msg_sort_cache[q] = MsgStrings[q].listpos;
+					MsgStrings[q].listpos = q;
+					msglistcache[q] = q;
+				}
+				break;
+			case 24: // unsort
+				for(auto q = 1; q < msg_count-1; ++q)
+				{
+					auto temp = MsgStrings[q].listpos;
+					MsgStrings[q].listpos = msg_sort_cache[q];
+					msglistcache[msg_sort_cache[q]] = q;
+					msg_sort_cache[q] = temp;
+				}
+				break;
 		}
 		
 		if(hasroom)
