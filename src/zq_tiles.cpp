@@ -17569,8 +17569,6 @@ int32_t click_d_combo_proc();
 
 static ListData flag_list(flaglist, &font);
 
-int32_t get_tick_sel(){ return D_CLOSE; } 
-
 const char *comboscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
