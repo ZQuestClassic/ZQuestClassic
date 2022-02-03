@@ -2385,10 +2385,6 @@ void LinkClass::check_slash_block(int bx, int by)
     
     int sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
-    if ( (!(emulation_patches[emuBUGGYNEXTCOMBOS]) ) && isNextType(type))
-    {
-	    skipsecrets = 1;
-    }
     if(!ignorescreen && !skipsecrets)
     {
         if((flag >= 16)&&(flag <= 31))

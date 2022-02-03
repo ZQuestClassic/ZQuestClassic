@@ -7337,28 +7337,6 @@ int onPauseInBackground()
     return D_O_K;
 }
 
-int buggy_next_combo_secrets_emulation()
-{
-	if(jwin_alert3(
-			"EMULATION: Buggy ->Next Combos", 
-			"This action will change if ->Next Combos Trigger Secrets.",
-			"If enabled, some ->Next combos will immediately trigger secrets.",
-			"Proceed?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-	{
-	    if (emulation_patches[emuBUGGYNEXTCOMBOS] ) emulation_patches[emuBUGGYNEXTCOMBOS] = 0;
-	    else emulation_patches[emuBUGGYNEXTCOMBOS] = 1;
-	}
-    return D_O_K;
-	
-}
-
 int old_210_water_emulation()
 {
 	if(jwin_alert3(
@@ -7713,7 +7691,6 @@ static MENU compat_patch_menu[] =
     { (char *)"C&ontinuous Sword Triggers",                     continuous_sword_triggers,                 NULL,                      0, NULL },
     { (char *)"&Eight Way Shot Uses Flame Sound",                     eight_way_shot_sfx_fix,                 NULL,                      0, NULL },
     { (char *)"&Bombchus Use Superbomb Blasts",                     v210_bombchus,                 NULL,                      0, NULL },
-    { (char *)"Buggy ->&Next Combos",                     buggy_next_combo_secrets_emulation,                 NULL,                      0, NULL },
     { (char *)"2.10 Water/Ladder Up/Down",                     old_210_water_emulation,                 NULL,                      0, NULL },
     { (char *)"2.10 Hammer Upward Reach",                     old_210_hammer_emulation,                 NULL,                      0, NULL },
     //{ (char *)"Fix &Triforce Cellars",                     v210_fix_triforce_cellar,                 NULL,                      0, NULL },
@@ -8967,9 +8944,8 @@ void System()
 	//Fix Triforce Cellar in 2.10 aND EARLIER QUESTS. 
 	//This should simply be fixed, in-source now. I'll re-enable this as an emulation flag, only if needed. 
 	//compat_patch_menu[8].flags = ( quest_header_zelda_version > 0x210 ) ? D_DISABLED : ((emulation_patches[emuFIXTRIFORCECELLAR])?D_SELECTED:0);
-	compat_patch_menu[11].flags = ((emulation_patches[emuBUGGYNEXTCOMBOS])?D_SELECTED:0);
-	compat_patch_menu[12].flags = ((emulation_patches[emuOLD210WATER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
-	compat_patch_menu[13].flags = ((emulation_patches[emu210HAMMER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
+	compat_patch_menu[11].flags = ((emulation_patches[emuOLD210WATER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
+	compat_patch_menu[12].flags = ((emulation_patches[emu210HAMMER])?D_SELECTED:0); //Add version < 0x250 here once this is confirmed to work. -Z
 	
 	//compat_patch_menu[0].flags =(zc_192b163_compatibility)?D_SELECTED:0;
 	misc_menu[12].flags =(zconsole)?D_SELECTED:0;

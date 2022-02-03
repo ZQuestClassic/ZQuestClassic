@@ -2359,10 +2359,6 @@ int readheader(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
 	emulation_patches[emu210BOMBCHU] = 1;
     }
-    if ( quest_header_zelda_version == 0x250 && quest_header_zelda_build < 33 )
-    {
-	emulation_patches[emuBUGGYNEXTCOMBOS] = 1;
-    }
     //2.10, or older. 
     if ( quest_header_zelda_version < 0x211 ) 
     {
