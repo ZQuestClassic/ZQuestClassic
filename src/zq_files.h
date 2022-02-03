@@ -28,6 +28,8 @@ void applyRuleset(int32_t ruleset);
 int32_t PickRuleset();
 int32_t onSave();
 int32_t onSaveAs();
+int32_t open_quest(char const* path);
+int32_t customOpen(char const* path);
 int32_t onOpen();
 int32_t onRevert();
 int32_t get_import_map_bias();

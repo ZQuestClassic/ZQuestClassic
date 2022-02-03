@@ -870,6 +870,8 @@ int32_t onSave()
     return D_O_K;
 }
 
+void update_recent_quest(char const* path);
+
 int32_t onSaveAs()
 {
     if(disable_saving)
@@ -902,6 +904,7 @@ int32_t onSaveAs()
     if(!ret)
     {
         strcpy(filepath,temppath);
+		update_recent_quest(temppath);
         sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
         set_window_title(buf);
         sprintf(buf,"Saved %s",name);
@@ -921,88 +924,104 @@ int32_t onSaveAs()
     return D_O_K;
 }
 
+int32_t open_quest(char const* path)
+{
+	bool compressed=true;
+	bool encrypted=true;
+	char ext[2048];
+	char ext2[5];
+	strcpy(ext,get_extension(path));
+	strupr(ext);
+	
+	for(int32_t i=0; i<10; ++i)
+	{
+		sprintf(ext2,"qu%d",i);
+		
+		if(stricmp(ext,ext2)==0)
+		{
+			compressed=false;
+			encrypted=false;
+			break;
+		}
+	}
+	
+	if(stricmp(ext,"qsu")==0)
+	{
+		compressed=false;
+		encrypted=false;
+	}
+	
+	int32_t ret = load_quest(path, compressed, encrypted);
+	
+	if(ret == qe_OK)
+	{
+		update_recent_quest(path);
+		saved = true;
+		strcpy(filepath, path);
+		first_save=true;
+	}
+	else if(ret == qe_cancel)
+	{
+		saved = true;
+		filepath[0]=0;
+	}
+	else
+	{
+		char buf[256+20],name[256];
+		extract_name(path,name,FILENAMEALL);
+		sprintf(buf,"Unable to load %s",name);
+		jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
+		filepath[0]=0;
+	}
+	
+	setup_combo_animations();
+	setup_combo_animations2();
+	Map.setCurrMap(zinit.last_map);
+	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
+	Map.setCurrScr(zinit.last_screen);
+	Map.setCanPaste(false);
+	Map.setCanUndo(false);
+	rebuild_trans_table();
+	rebuild_string_list();
+	onDrawingModeNormal();
+	refresh(rALL);
+	last_timed_save[0]=0;
+	return ret;
+}
+
+int32_t customOpen(char const* path)
+{
+	restore_mouse();
+	
+	if(checksave()==0)
+		return D_O_K;
+	
+	open_quest(path);
+	return D_O_K;
+}
 int32_t onOpen()
 {
-    bool compressed=true;
-    bool encrypted=true;
-    restore_mouse();
-    
-    if(checksave()==0)
-        return D_O_K;
-        
-    static EXT_LIST list[] =
-    {
-        { (char *)"Quest Files (*.qst)", (char *)"qst"                                     },
-        { (char *)"Unencrypted Quest Files (*.qsu)", (char *)"qsu"                                     },
-        { (char *)"Quest Auto-backups (*.qb?)", (char *)"qb0,qb1,qb2,qb3,qb4,qb5,qb6,qb7,qb8,qb9" },
-        { (char *)"Quest Timed Auto-saves (*.qt?)", (char *)"qt0,qt1,qt2,qt3,qt4,qt5,qt6,qt7,qt8,qt9" },
-        { (char *)"Uncompressed Quest Timed Auto-saves (*.qu?)", (char *)"qu0,qu1,qu2,qu3,qu4,qu5,qu6,qu7,qu8,qu9" },
-        { (char *)"All Files (*.*)",                             NULL                                              },
-        { NULL,                                                  NULL                                              }
-    };
-    
-    if(!getname("Load File",NULL,list,filepath,true))
-        return D_O_K;
-        
-    char ext[2048];
-    char ext2[5];
-    strcpy(ext,get_extension(temppath));
-    strupr(ext);
-    
-    for(int32_t i=0; i<10; ++i)
-    {
-        sprintf(ext2,"qu%d",i);
-        
-        if(stricmp(ext,ext2)==0)
-        {
-            compressed=false;
-            encrypted=false;
-            break;
-        }
-    }
-    
-    if(stricmp(ext,"qsu")==0)
-    {
-        compressed=false;
-        encrypted=false;
-    }
-    
-    
-    int32_t ret = load_quest(temppath, compressed, encrypted);
-    
-    if(ret == qe_OK)
-    {
-        saved = true;
-        strcpy(filepath, temppath);
-        first_save=true;
-    }
-    else if(ret == qe_cancel)
-    {
-        saved = true;
-        filepath[0]=0;
-    }
-    else
-    {
-        char buf[256+20],name[256];
-        extract_name(temppath,name,FILENAMEALL);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
-        filepath[0]=0;
-    }
-    
-    setup_combo_animations();
-    setup_combo_animations2();
-    Map.setCurrMap(zinit.last_map);
-    Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
-    Map.setCurrScr(zinit.last_screen);
-    Map.setCanPaste(false);
-    Map.setCanUndo(false);
-    rebuild_trans_table();
-    rebuild_string_list();
-    onDrawingModeNormal();
-    refresh(rALL);
-    last_timed_save[0]=0;
-    return D_O_K;
+	restore_mouse();
+	
+	if(checksave()==0)
+		return D_O_K;
+		
+	static EXT_LIST list[] =
+	{
+		{ (char *)"Quest Files (*.qst)", (char *)"qst"                                     },
+		{ (char *)"Unencrypted Quest Files (*.qsu)", (char *)"qsu"                                     },
+		{ (char *)"Quest Auto-backups (*.qb?)", (char *)"qb0,qb1,qb2,qb3,qb4,qb5,qb6,qb7,qb8,qb9" },
+		{ (char *)"Quest Timed Auto-saves (*.qt?)", (char *)"qt0,qt1,qt2,qt3,qt4,qt5,qt6,qt7,qt8,qt9" },
+		{ (char *)"Uncompressed Quest Timed Auto-saves (*.qu?)", (char *)"qu0,qu1,qu2,qu3,qu4,qu5,qu6,qu7,qu8,qu9" },
+		{ (char *)"All Files (*.*)",                             NULL                                              },
+		{ NULL,                                                  NULL                                              }
+	};
+	
+	if(!getname("Load File",NULL,list,filepath,true))
+		return D_O_K;
+	
+	open_quest(temppath);
+	return D_O_K;
 }
 
 int32_t onRevert()
