@@ -451,7 +451,6 @@ int32_t CurrentLayer=0;
 int32_t DuplicateAction[4]={0};
 int32_t OnlyCheckNewTilesForDuplicates = 0;
 int32_t try_recovering_missing_scripts = 0;
-int32_t zc_menu_on_left = 0;
 
 uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
 int32_t DMapEditorLastMaptileUsed = 0;
@@ -29909,8 +29908,7 @@ int32_t main(int32_t argc,char **argv)
 	abc_patternmatch			   = get_config_int("zquest", "lister_pattern_matching", 1);
 	NoScreenPreview			   = get_config_int("zquest", "no_preview", 1);
 	
-	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
-	zc_menu_on_left = get_config_int("zquest", "zc_menu_on_left",0);
+	try_recovering_missing_scripts = 0;//get_config_int("Compiler", "try_recovering_missing_scripts",0);
 	//We need to remove all of the zeldadx refs to the config file for zquest. 
 	
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -29933,11 +29931,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(is_large)
 	{
-		if ( zc_menu_on_left ) 
-		{
-			memcpy(the_menu, the_menu_large_zcleft, sizeof(the_menu));
-		}
-		else memcpy(the_menu, the_menu_large, sizeof(the_menu));
+		memcpy(the_menu, the_menu_large, sizeof(the_menu));
 		blackout_color=8;
 		zq_screen_w=800;
 		zq_screen_h=600;
@@ -30108,11 +30102,7 @@ int32_t main(int32_t argc,char **argv)
 	else
 	{
 		//the_menu[8] = the_menu[9]; //end menus at visible length
-		if ( zc_menu_on_left ) 
-		{
-			memcpy(the_menu, the_menu_small_zcleft, sizeof(the_menu));
-		}
-		else memcpy(the_menu, the_menu_small, sizeof(the_menu));
+		memcpy(the_menu, the_menu_small, sizeof(the_menu));
 		blackout_color=0;
 		zq_screen_w=320;
 		zq_screen_h=240;
