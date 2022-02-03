@@ -7354,110 +7354,108 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
     
     switch(msg)
     {
-    
-    case MSG_DRAW:
-        if(d->flags & D_SELECTED)
-        {
-            g = 1;
-            state1 = d->bg;
-            state2 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-        }
-        else
-        {
-            g = 0;
-            state1 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-            state2 = d->bg;
-        }
-        
-        rectfill(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
-        rect(gui_bmp, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
-        gui_textout_ex(gui_bmp, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
-        
-        if(d->flags & D_SELECTED)
-        {
-            vline(gui_bmp, d->x, d->y, d->y+d->h-2, d->bg);
-            hline(gui_bmp, d->x, d->y, d->x+d->w-2, d->bg);
-        }
-        else
-        {
-            black = makecol(0,0,0);
-            vline(gui_bmp, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
-            hline(gui_bmp, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
-        }
-        
-        if((d->flags & D_GOTFOCUS) &&
-                (!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
-            dotted_rect(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state1, state2);
-            
-        break;
-        
-    case MSG_WANTFOCUS:
-        return D_WANTFOCUS;
-        
-    case MSG_KEY:
-    
-        /* close dialog? */
-        if(d->flags & D_EXIT)
-        {
-            return D_CLOSE;
-        }
-        
-        /* or just toggle */
-        d->flags ^= D_SELECTED;
-        GUI_EVENT(d, geTOGGLE);
-        object_message(d, MSG_DRAW, 0);
-        break;
-        
-    case MSG_CLICK:
-        /* what state was the button originally in? */
-        state1 = d->flags & D_SELECTED;
-        
-        if(d->flags & D_EXIT)
-            swap = FALSE;
-        else
-            swap = state1;
-            
-        /* track the mouse until it is released */
-        while(gui_mouse_b())
-        {
-            state2 = ((gui_mouse_x() >= d->x) && (gui_mouse_y() >= d->y) &&
-                      (gui_mouse_x() < d->x + d->w) && (gui_mouse_y() < d->y + d->h));
-                      
-            if(swap)
-                state2 = !state2;
-                
-            /* redraw? */
-            if(((state1) && (!state2)) || ((state2) && (!state1)))
-            {
-                d->flags ^= D_SELECTED;
-                GUI_EVENT(d, geTOGGLE);
-                state1 = d->flags & D_SELECTED;
-                object_message(d, MSG_DRAW, 0);
-            }
-            
-            /* let other objects continue to animate */
-            broadcast_dialog_message(MSG_IDLE, 0);
-            
-			update_hw_screen();
-        }
-        
-	if(d->dp3 != NULL)
-        {
-            //object_message(d, MSG_DRAW, 0);
-            typedef int32_t (*funcType)(void);
-            funcType func=reinterpret_cast<funcType>(d->dp3);
-            
-	    return func();
-        }
-	
-        /* should we close the dialog? */
-        if((d->flags & D_SELECTED) && (d->flags & D_EXIT))
-        {
-            d->flags ^= D_SELECTED;
-            return D_CLOSE;
-        }
-        
-        break;
+		case MSG_DRAW:
+		{
+			if(d->flags & D_SELECTED)
+			{
+				g = 1;
+				state1 = d->bg;
+				state2 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+			}
+			else
+			{
+				g = 0;
+				state1 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+				state2 = d->bg;
+			}
+			
+			rectfill(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
+			rect(gui_bmp, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
+			gui_textout_ex(gui_bmp, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
+			
+			if(d->flags & D_SELECTED)
+			{
+				vline(gui_bmp, d->x, d->y, d->y+d->h-2, d->bg);
+				hline(gui_bmp, d->x, d->y, d->x+d->w-2, d->bg);
+			}
+			else
+			{
+				black = makecol(0,0,0);
+				vline(gui_bmp, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
+				hline(gui_bmp, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
+			}
+			
+			if((d->flags & D_GOTFOCUS) &&
+					(!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
+				dotted_rect(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state1, state2);
+				
+			break;
+		}
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+		{
+			/* close dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			
+			/* or just toggle */
+			d->flags ^= D_SELECTED;
+			GUI_EVENT(d, geTOGGLE);
+			object_message(d, MSG_DRAW, 0);
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			/* what state was the button originally in? */
+			state1 = d->flags & D_SELECTED;
+			
+			swap = state1;
+				
+			/* track the mouse until it is released */
+			while(gui_mouse_b())
+			{
+				state2 = ((gui_mouse_x() >= d->x) && (gui_mouse_y() >= d->y) &&
+						  (gui_mouse_x() < d->x + d->w) && (gui_mouse_y() < d->y + d->h));
+						  
+				if(swap)
+					state2 = !state2;
+					
+				/* redraw? */
+				if(((state1) && (!state2)) || ((state2) && (!state1)))
+				{
+					d->flags ^= D_SELECTED;
+					GUI_EVENT(d, geTOGGLE);
+					state1 = d->flags & D_SELECTED;
+					object_message(d, MSG_DRAW, 0);
+				}
+				
+				/* let other objects continue to animate */
+				broadcast_dialog_message(MSG_IDLE, 0);
+				
+				update_hw_screen();
+			}
+			
+			if(d->dp3 != NULL)
+			{
+				//object_message(d, MSG_DRAW, 0);
+				typedef int32_t (*funcType)(void);
+				funcType func=reinterpret_cast<funcType>(d->dp3);
+				
+				return func();
+			}
+			
+			/* should we close the dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			break;
+		}
     }
     
     return D_O_K;

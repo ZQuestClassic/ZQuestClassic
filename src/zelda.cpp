@@ -172,10 +172,9 @@ int32_t draw_screen_clip_rect_x2=255;
 int32_t draw_screen_clip_rect_y1=0;
 int32_t draw_screen_clip_rect_y2=223;
 
-extern int32_t script_hero_sprite; 
-extern int32_t script_hero_cset; 
-extern int32_t script_hero_flip; 
-int32_t zc_menu_on_left = 0;
+extern int32_t script_hero_sprite;
+extern int32_t script_hero_cset;
+extern int32_t script_hero_flip;
 
 volatile int32_t logic_counter=0;
 bool trip=false;
@@ -4759,14 +4758,6 @@ int32_t main(int32_t argc, char* argv[])
 			exit(1);
 	}
 #endif
-	
-	//ZC Menu Position
-	zc_menu_on_left = zc_get_config("zeldadx","zc_menu_on_left",0);
-	if ( zc_menu_on_left )
-	{
-	memcpy(the_player_menu, the_player_menu_zc_on_left, sizeof(MENU)*(DEVLEVEL>0 ? 9 : 8) );
-	memcpy(the_player_menu2, the_player_menu_zc_on_left2, sizeof(MENU)*(DEVLEVEL>0 ? 8 : 7));    
-	}
 	
 	//Set up MODULES: This must occur before trying to load the default quests, as the 
 	//data for quest names and so forth is set by the MODULE file!

@@ -17,6 +17,7 @@
 #include <map>
 #include <string>
 
+static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);
 int32_t strlist_del();
 int32_t addtomsglist(int32_t index);
@@ -95,8 +96,7 @@ DIALOG strlist_dlg[] =
 	//21
 	{ jwin_text_proc,      158, 165+22,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Template: ", NULL, NULL },
 	{ jwin_edit_proc,      204, 165+18,     36,     16,   vc(12),  vc(1),   0,       0,       5,             0,       NULL, NULL, NULL },
-	{ jwin_button_proc,    213,     18,     30,     12,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Sort", NULL, NULL },
-	{ jwin_button_proc,    238,     18,     30,     12,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Unsort", NULL, NULL },
+	{ jwin_check_proc,     213,     18,      0,      9,   vc(14),  vc(1),   0,  D_EXIT,       1,             0, (void *) "Sort Numerically", NULL, NULL },
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
@@ -318,7 +318,8 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 {
 	bound(index,0,msg_strings_size-1);
 	static char u[80];
-	bool indent = is_large && index>0 && MsgStrings[addtomsglist(MsgStrings[index].listpos-1)].nextstring==index;
+	auto ind = strlist_numerical_sort ? index-1 : MsgStrings[index].listpos-1;
+	bool indent = is_large && index>0 && MsgStrings[addtomsglist(ind)].nextstring==index;
 	sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
 	char *s=strcat(u,": ");
 	
@@ -591,12 +592,14 @@ int32_t onStrings()
 	sprintf(tempbuf, "0");
 	
 	strlist_dlg[17].d1=0;
-	strlist_dlg[24].flags |= D_DISABLED;
 	build_bistringcat_list();
-	
 	//Message more is offset
 	strlist_dlg[15].flags=(zinit.msg_more_is_offset!=0)?D_SELECTED:0;
-	std::map<int32_t, int32_t> msg_sort_cache;
+	SETFLAG(strlist_dlg[23].flags, D_SELECTED, strlist_numerical_sort);
+	SETFLAG(strlist_dlg[11].flags, D_DISABLED, strlist_numerical_sort);
+	SETFLAG(strlist_dlg[12].flags, D_DISABLED, strlist_numerical_sort);
+	SETFLAG(strlist_dlg[13].flags, D_DISABLED, strlist_numerical_sort);
+	SETFLAG(strlist_dlg[14].flags, D_DISABLED, strlist_numerical_sort);
 	while(index!=-1)
 	{
 		bool hasroom=false;
@@ -863,21 +866,14 @@ int32_t onStrings()
 				
 				break;
 			case 23: // sort
-				strlist_dlg[24].flags &= ~D_DISABLED;
+				strlist_numerical_sort = strlist_dlg[23].flags & D_SELECTED;
+				SETFLAG(strlist_dlg[11].flags, D_DISABLED, strlist_numerical_sort);
+				SETFLAG(strlist_dlg[12].flags, D_DISABLED, strlist_numerical_sort);
+				SETFLAG(strlist_dlg[13].flags, D_DISABLED, strlist_numerical_sort);
+				SETFLAG(strlist_dlg[14].flags, D_DISABLED, strlist_numerical_sort);
 				for(auto q = 1; q < msg_count-1; ++q)
 				{
-					msg_sort_cache[q] = MsgStrings[q].listpos;
-					MsgStrings[q].listpos = q;
-					msglistcache[q] = q;
-				}
-				break;
-			case 24: // unsort
-				for(auto q = 1; q < msg_count-1; ++q)
-				{
-					auto temp = MsgStrings[q].listpos;
-					MsgStrings[q].listpos = msg_sort_cache[q];
-					msglistcache[msg_sort_cache[q]] = q;
-					msg_sort_cache[q] = temp;
+					msglistcache[strlist_numerical_sort ? q : MsgStrings[q].listpos] = q;
 				}
 				break;
 		}
@@ -1141,23 +1137,31 @@ int32_t addtomsglist(int32_t index)
 		return msg_count; // '<New String>' is always at the bottom
 		
 	int32_t pos = 0;
-	// Easy heuristic:
-	// - Search backwards if index>(msg_count/2)
-	int32_t increment = 1;
-	int32_t i = 0;
 	
-	if(index > (msg_count/2))
+	if(strlist_numerical_sort)
 	{
-		increment = -1;
-		i = msg_count-1;
+		msglistcache[index] = pos = index;
 	}
-	
-	for(; i<msg_count && i>=0; i+=increment)
+	else
 	{
-		if(MsgStrings[i].listpos==index)
+		// Easy heuristic:
+		// - Search backwards if index>(msg_count/2)
+		int32_t increment = 1;
+		int32_t i = 0;
+		
+		if(index > (msg_count/2))
 		{
-			msglistcache[index] = pos = i;
-			break;
+			increment = -1;
+			i = msg_count-1;
+		}
+		
+		for(; i<msg_count && i>=0; i+=increment)
+		{
+			if(MsgStrings[i].listpos==index)
+			{
+				msglistcache[index] = pos = i;
+				break;
+			}
 		}
 	}
 	

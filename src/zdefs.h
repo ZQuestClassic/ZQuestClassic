@@ -5256,7 +5256,7 @@ extern void removeFromItemCache(int32_t itemid);
 
 #define until(n) while(!(n))
 #define unless(n) if(!(n))
-#define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl);
+#define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
 
 enum //Mapscr hardcodes for temp mapscrs
 {

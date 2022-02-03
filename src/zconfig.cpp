@@ -28,10 +28,14 @@ char const* zc_get_config(char const* header, char const* name, char const* defa
 	char const* ret = get_config_string(header,name,default_val);
 	if(ret==default_val) //Defaulted, so write it back
 	{
-		if(default_val[0]) //Writing back the empty string destroys the value?? -Em
+		if (!default_val)
+			set_config_string(header, name, "");
+		else if(default_val[0]) //Writing back the empty string destroys the value?? -Em
 			set_config_string(header, name, default_val);
 	}
-	strcpy(cfg_str, ret);
+	if(!ret)
+		cfg_str[0] = 0;
+	else strcpy(cfg_str, ret);
 	return cfg_str;
 }
 void zc_set_config(char const* header, char const* name, int32_t val)

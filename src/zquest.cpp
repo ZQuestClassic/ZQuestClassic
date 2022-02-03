@@ -451,7 +451,6 @@ int32_t CurrentLayer=0;
 int32_t DuplicateAction[4]={0};
 int32_t OnlyCheckNewTilesForDuplicates = 0;
 int32_t try_recovering_missing_scripts = 0;
-int32_t zc_menu_on_left = 0;
 
 uint8_t PreFillTileEditorPage = 0, PreFillComboEditorPage = 0, PreFillMapTilePage = 0;
 int32_t DMapEditorLastMaptileUsed = 0;
@@ -707,19 +706,165 @@ static MENU export_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+
+static MENU recent_menu[11];
+static char rec_menu_fullpaths[10][512];
+static char rec_menu_strs[10][64];
+
+int32_t customOpen(char const* path);
+void do_recent_quest(uint32_t ind)
+{
+	if(ind > 9) return;
+	strcpy(temppath, rec_menu_fullpaths[ind]);
+	customOpen(temppath);
+}
+int32_t do_RecentQuest_0() { do_recent_quest(0); return D_O_K; }
+int32_t do_RecentQuest_1() { do_recent_quest(1); return D_O_K; }
+int32_t do_RecentQuest_2() { do_recent_quest(2); return D_O_K; }
+int32_t do_RecentQuest_3() { do_recent_quest(3); return D_O_K; }
+int32_t do_RecentQuest_4() { do_recent_quest(4); return D_O_K; }
+int32_t do_RecentQuest_5() { do_recent_quest(5); return D_O_K; }
+int32_t do_RecentQuest_6() { do_recent_quest(6); return D_O_K; }
+int32_t do_RecentQuest_7() { do_recent_quest(7); return D_O_K; }
+int32_t do_RecentQuest_8() { do_recent_quest(8); return D_O_K; }
+int32_t do_RecentQuest_9() { do_recent_quest(9); return D_O_K; }
+
+void refresh_recent_menu()
+{
+	int32_t (*procs[10])(void) = { 
+		do_RecentQuest_0, do_RecentQuest_1, do_RecentQuest_2, do_RecentQuest_3,
+		do_RecentQuest_4, do_RecentQuest_5, do_RecentQuest_6,
+		do_RecentQuest_7, do_RecentQuest_8, do_RecentQuest_9
+	};
+	for(auto q = 0; q < 10; ++q)
+	{
+        bool valid = rec_menu_fullpaths[q][0] != '-';
+		recent_menu[q].text = rec_menu_strs[q];
+		recent_menu[q].proc = valid ? procs[q] : nullptr;
+		recent_menu[q].child = nullptr;
+		recent_menu[q].flags = valid ? 0 : D_DISABLED;
+		recent_menu[q].dp = rec_menu_fullpaths[q];
+	}
+	recent_menu[10].text = nullptr;
+	recent_menu[10].proc = nullptr;
+	recent_menu[10].child = nullptr;
+	recent_menu[10].flags = 0;
+	recent_menu[10].dp = nullptr;
+}
+
+void load_recent_quests()
+{
+	char configname[64] = "rec_qst_";
+	char* ptr = &configname[strlen(configname)];
+	char buf[512] = {0};
+	for(auto q = 0; q < 10; ++q)
+	{
+		sprintf(ptr, "%d", q); //increment the configname value
+		char const* qst_str = zc_get_config("zquest",configname,nullptr);
+		if(qst_str[0])
+		{
+			strncpy(rec_menu_fullpaths[q], qst_str, 511);
+			relativize_path(buf, rec_menu_fullpaths[q]);
+			if(strlen(buf) > 62)
+			{
+				buf[60] = buf[61] = buf[62] = '.'; //add "..." as the last 3 characters
+			}
+			strncpy(rec_menu_strs[q], buf, 63);
+		}
+		else
+		{
+			strcpy(rec_menu_fullpaths[q], "---");
+			strcpy(rec_menu_strs[q], "---");
+		}
+		rec_menu_fullpaths[q][511] = 0;
+		rec_menu_strs[q][63] = 0;
+	}
+	refresh_recent_menu();
+}
+
+void write_recent_quests()
+{
+	char configname[64] = "rec_qst_";
+	char* ptr = &configname[strlen(configname)];
+	for(auto q = 0; q < 10; ++q)
+	{
+		sprintf(ptr, "%d", q); //increment the configname value
+		zc_set_config("zquest",configname,(rec_menu_fullpaths[q][0]!='-') ? rec_menu_fullpaths[q] : nullptr);
+	}
+}
+
+void update_recent_quest(char const* path)
+{
+	int32_t ind = -1;
+	for(auto q = 0; q < 10; ++q)
+	{
+		if(!strcmp(path, rec_menu_fullpaths[q]))
+		{
+			ind = q;
+			break;
+		}
+	}
+	if(ind > -1)
+	{
+		for(auto q = ind; q > 0; --q)
+		{
+			strcpy(rec_menu_fullpaths[q], rec_menu_fullpaths[q-1]);
+			strcpy(rec_menu_strs[q], rec_menu_strs[q-1]);
+		}
+	}
+	else
+	{
+		int32_t free_ind = 9; //if none found, override the last index
+		for(auto q = 0; q < 9; ++q)
+		{
+			if(rec_menu_fullpaths[q][0] == '-')
+			{
+				free_ind = q;
+				break;
+			}
+		}
+		
+		for(auto q = free_ind; q > 0; --q)
+		{
+			strcpy(rec_menu_fullpaths[q], rec_menu_fullpaths[q-1]);
+			strcpy(rec_menu_strs[q], rec_menu_strs[q-1]);
+		}
+	}
+	char buf[512] = {0};
+	strcpy(rec_menu_fullpaths[0], path);
+	relativize_path(buf, rec_menu_fullpaths[0]);
+	if(strlen(buf) > 62)
+	{
+		buf[60] = buf[61] = buf[62] = '.'; //add "..." as the last 3 characters
+	}
+	strncpy(rec_menu_strs[0], buf, 63);
+	refresh_recent_menu();
+	write_recent_quests();
+}
+
+enum
+{
+	fileSave = 4,
+	fileSaveAs,
+	fileRevert
+};
+
 static MENU file_menu[] =
 {
-    { (char *)"&New",                       do_NewQuest,                     NULL,                     0,            NULL   },
-    { (char *)"&Open\tF3",                  do_OpenQuest,                    NULL,                     0,            NULL   },
-    { (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
-    { (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
-    { (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
-    { (char *)"Quest &Templates...",        onQuestTemplates,          NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
-    { (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
-    //separator { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
+	{ (char *)"&Open\tF3",                  do_OpenQuest,              NULL,                     0,            NULL   },
+	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
+	{ (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
+	{ (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
+	{ (char *)"Quest &Templates...",        onQuestTemplates,          NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
+	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU maps_menu[] =
@@ -1077,8 +1222,6 @@ static MENU etc_menu[] =
     { (char *)"C&lear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
     { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
     { (char *)"Mo&dules",        NULL,           module_menu,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1131,8 +1274,6 @@ static MENU etc_menu_smallmode[] =
 	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
-	
-	{ (char *)"E&xit\tESC",                 onExit,                    NULL,                     0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -29767,8 +29908,7 @@ int32_t main(int32_t argc,char **argv)
 	abc_patternmatch			   = get_config_int("zquest", "lister_pattern_matching", 1);
 	NoScreenPreview			   = get_config_int("zquest", "no_preview", 1);
 	
-	try_recovering_missing_scripts = get_config_int("Compiler", "try_recovering_missing_scripts",0);
-	zc_menu_on_left = get_config_int("zquest", "zc_menu_on_left",0);
+	try_recovering_missing_scripts = 0;//get_config_int("Compiler", "try_recovering_missing_scripts",0);
 	//We need to remove all of the zeldadx refs to the config file for zquest. 
 	
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -29791,11 +29931,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(is_large)
 	{
-	if ( zc_menu_on_left ) 
-	{
-		memcpy(the_menu, the_menu_large_zcleft, sizeof(the_menu));
-	}
-	else memcpy(the_menu, the_menu_large, sizeof(the_menu));
+		memcpy(the_menu, the_menu_large, sizeof(the_menu));
 		blackout_color=8;
 		zq_screen_w=800;
 		zq_screen_h=600;
@@ -29965,12 +30101,8 @@ int32_t main(int32_t argc,char **argv)
 	}
 	else
 	{
-	//the_menu[8] = the_menu[9]; //end menus at visible length
-	if ( zc_menu_on_left ) 
-	{
-		memcpy(the_menu, the_menu_small_zcleft, sizeof(the_menu));
-	}
-	else memcpy(the_menu, the_menu_small, sizeof(the_menu));
+		//the_menu[8] = the_menu[9]; //end menus at visible length
+		memcpy(the_menu, the_menu_small, sizeof(the_menu));
 		blackout_color=0;
 		zq_screen_w=320;
 		zq_screen_h=240;
@@ -30603,6 +30735,9 @@ int32_t main(int32_t argc,char **argv)
 	
 	bool load_last_timed_save=false;
 	
+	load_recent_quests();
+	refresh_recent_menu();
+	
 	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
 	{
 		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
@@ -30742,7 +30877,7 @@ int32_t main(int32_t argc,char **argv)
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
-		*/
+	*/
 	
 	
 	call_foo_dlg();
@@ -30767,12 +30902,12 @@ int32_t main(int32_t argc,char **argv)
 		
 		check_autosave();
 		/*
-	if (!is_large) 
-	{
-		dialogs[0].dp = (void *) the_menu;
-	}
-	else
-		dialogs[0].dp = (void *) the_menu_large;
+		if (!is_large) 
+		{
+			dialogs[0].dp = (void *) the_menu;
+		}
+		else
+			dialogs[0].dp = (void *) the_menu_large;
 		*/
 		++alignment_arrow_timer;
 		
@@ -30780,26 +30915,26 @@ int32_t main(int32_t argc,char **argv)
 		{
 			alignment_arrow_timer=0;
 		}
-
-	/* Notice: Adjust and Update these values if you hae modified any of the following, where
-		your modifications hae inserted or removed ANY entries. 
-		dialogs[]
-		paste_item_menu[]
-		commands[]
-		file_menu[]
-		tool_menu[]
-		defs_menu[]
-		view_menu[]
-		maps_menu[]
-	*/
-	
-		file_menu[2].flags =
-			file_menu[4].flags =
+		
+		/* Notice: Adjust and Update these values if you hae modified any of the following, where
+			your modifications hae inserted or removed ANY entries. 
+			dialogs[]
+			paste_item_menu[]
+			commands[]
+			file_menu[]
+			tool_menu[]
+			defs_menu[]
+			view_menu[]
+			maps_menu[]
+		*/
+		
+		file_menu[fileSave].flags =
+			file_menu[fileRevert].flags =
 				dialogs[16].flags =
 					commands[cmdSave].flags =
 						commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
 						
-		file_menu[3].flags =
+		file_menu[fileSaveAs].flags =
 			commands[cmdSaveAs].flags = disable_saving ? D_DISABLED : 0;
 			
 		edit_menu[0].flags =
