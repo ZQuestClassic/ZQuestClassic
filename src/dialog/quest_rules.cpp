@@ -699,6 +699,10 @@ static const GUI::ListData compatRulesList
 	{ "Script Sprite->Jump is truncated", qr_SPRITE_JUMP_IS_TRUNCATED,
 		"If enabled, reading Sprite->Jump via script will return the value without the decimal portion."
 		" If disabled, the correct Sprite->Jump value will be returned."},
+	{ "->Next combos ignore trigger flags", qr_BUGGY_BUGGY_SLASH_TRIGGERS,
+		"If enabled, trigger flags cannot be triggered if placed on a ->Next combo type."
+		" This was a bug introduced by a poor implementation of the 'Old Slash Combo Secret Flag Behavior'"
+		" rule. Note that this rule does nothing if 'Old Slash Combo Secret Flag Behavior' is enabled."}
 		
 };
 

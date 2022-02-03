@@ -2735,13 +2735,13 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						}
 					
 					default:
+						step = 0.5;
 						defaultw = wFIRE;
 				}
 			}
-			else { defaultw = wFIRE; step = 0; }
+			else { defaultw = wFIRE; step = 0.5;}
 			
 			LOADGFX(defaultw);
-			step = (type<2)?.5:0;
 			
 			
 			if(BSZ)

@@ -244,7 +244,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          8
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           20
+#define V_COMBOS           21
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -1062,7 +1062,7 @@ enum
 	qr_FADECS7, qr_FADECS8, qr_FADECS9, qr_UNBEATABLES_DONT_KEEP_DEAD,
 	//40
 	qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK, qr_OLD_BRIDGE_COMBOS, qr_BROKEN_Z3_ANIMATION, qr_OLD_TILE_INITIALIZATION,
-	qr_FLUCTUATING_ENEMY_JUMP, qr_SPRITE_JUMP_IS_TRUNCATED,
+	qr_FLUCTUATING_ENEMY_JUMP, qr_SPRITE_JUMP_IS_TRUNCATED, qr_BUGGY_BUGGY_SLASH_TRIGGERS,
 	
 	//ZScript Parser //room for 20 of these
 	//80

@@ -3526,9 +3526,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		else skipsecrets = 1; ;
     }
     
-    if(!ignorescreen && !skipsecrets)
+    if(!ignorescreen && (!skipsecrets || !get_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS)))
     {
-        if((flag >= 16)&&(flag <= 31))
+        if((flag >= 16)&&(flag <= 31) && !skipsecrets)
         {  
             s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
             s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
@@ -4092,9 +4092,9 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		}
 		else skipsecrets = 1; 
     }
-    if(!skipsecrets && (!ignorescreen || dontignore))
+    if((!skipsecrets || !get_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS)) && (!ignorescreen || dontignore))
     {
-        if((flag >= 16)&&(flag <= 31))
+        if((flag >= 16)&&(flag <= 31)&&!skipsecrets)
         { 
             s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
             s->cset[i] = s->secretcset[(s->sflag[i])-16+4];

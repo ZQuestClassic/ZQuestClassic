@@ -17050,6 +17050,15 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			}
 			
 		}
+		/* HIGHLY UNORTHODOX UPDATING THING, by Deedee
+		* This fixes a poor implementation of a ->next flag bug thing.
+		* Zoria didn't bump up the versions as liberally as he should have, but thankfully
+		* there was a version bump a few weeks before a change that broke stuff.
+		*/
+		if (section_version >= 13 && section_version < 21)
+		{
+			set_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS,1);
+		}
 		//combo scripts
 		if(section_version>=14) 
 		{
