@@ -2735,7 +2735,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						}
 					
 					default:
-						step = 0.5;
+						step = 0;
 						defaultw = wFIRE;
 				}
 			}
