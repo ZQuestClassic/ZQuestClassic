@@ -2894,6 +2894,7 @@ struct script_data
 	script_data& operator=(script_data const& other)
 	{
 		set(other);
+		return *this;
 	}
 	
 };
