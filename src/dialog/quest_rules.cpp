@@ -703,8 +703,8 @@ static const GUI::ListData compatRulesList
 		"If enabled, trigger flags cannot be triggered if placed on a ->Next combo type."
 		" This was a bug introduced by a poor implementation of the 'Old Slash Combo Secret Flag Behavior'"
 		" rule. Note that this rule does nothing if 'Old Slash Combo Secret Flag Behavior' is enabled."},
-	{ "Old Quake/Drawoffset script behavior", qr_OLD_DRAWOFFSET,
-		"If enabled, certain draw offsets will have their affected by Screen->Quake when read via script."
+	{ "Old Quake/DrawYOffset behavior", qr_OLD_DRAWOFFSET,
+		"If enabled, certain enemies will have their draw offsets affected by Screen->Quake when they spawn."
 		" If disabled, the offset will not be affected by Screen->Quake."}
 		
 };

@@ -1351,7 +1351,7 @@ void HeroClass::init()
     attackid=-1;
     action=none; FFCore.setHeroAction(none); tempaction=none;
     xofs=0;
-    yofs=playing_field_offset;
+    yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
     cs=6;
     pushing=fairyclk=0;
     id=0;
@@ -2611,7 +2611,7 @@ attack:
 	
 	if(action==won)
 	{
-		yofs=playing_field_offset - 2;
+		yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
 	}
 	
 	if(action==landhold1 || action==landhold2)

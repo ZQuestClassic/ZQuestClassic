@@ -33,7 +33,7 @@ decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : s
 	id=Id;
 	clk=Clk;
 	misc = 0;
-	yofs = playing_field_offset - 2;
+	yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
 	the_deco_sprite = vbound(wpnSpr,0,255);
 }
 
