@@ -15,7 +15,7 @@ void displayinfo(std::string title, std::string text);
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	using message = int32_t;
+	enum class message { OK, CANCEL };
 
 	InfoDialog(std::string title, std::string text);
 	InfoDialog(std::string title, std::vector<std::string_view> lines);
