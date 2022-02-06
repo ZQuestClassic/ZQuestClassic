@@ -18,9 +18,9 @@ struct zinfo
 	//Shared
 	char *ic_name[itype_max];
 	
-	bool zinfo::isUsableItemclass(size_t q);
-	char const* zinfo::getItemClassName(size_t q);
-	char const* zinfo::getItemClassHelp(size_t q);
+	bool isUsableItemclass(size_t q);
+	char const* getItemClassName(size_t q);
+	char const* getItemClassHelp(size_t q);
 	
 	void copyFrom(zinfo const& other);
 	bool isNull();
