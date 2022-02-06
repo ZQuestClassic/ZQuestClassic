@@ -3034,10 +3034,10 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LINKYOFS:
-			ret = (int32_t)(Hero.yofs-playing_field_offset)*10000;
+			ret = (int32_t)(Hero.yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))*10000;
 			break;
 		case HEROTOTALDYOFFS:
-			ret = 10000*(((int32_t)(Hero.yofs-playing_field_offset))
+			ret = 10000*(((int32_t)(Hero.yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))
 				+ ((Hero.switch_hooked && Hero.switchhookstyle == swRISE)
 					? -(8-(abs(Hero.switchhookclk-32)/4)) : 0));
 			break;
@@ -3326,8 +3326,8 @@ int32_t get_register(const int32_t arg)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
-			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			ret=((gui_mouse_y()-topOffset)/screen_scale)*10000;
 			break;
@@ -3548,8 +3548,8 @@ int32_t get_register(const int32_t arg)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
-					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					rv=((gui_mouse_y()-topOffset)/screen_scale)*10000;
 					break;
@@ -3857,7 +3857,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMYOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=((int32_t)(((item*)(s))->yofs-playing_field_offset))*10000;
+				ret=((int32_t)(((item*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 			}
 			break;
 			
@@ -4659,7 +4659,7 @@ int32_t get_register(const int32_t arg)
 			GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
 			
 		case NPCYOFS:
-			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=playing_field_offset*10000;
+			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
 			break;
 		case NPCTOTALDYOFFS:
 		{
@@ -4669,7 +4669,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = ((int32_t(GuyH::getNPC()->yofs - playing_field_offset)
+				ret = ((int32_t(GuyH::getNPC()->yofs - (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((GuyH::getNPC()->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000);
 			}
@@ -5410,12 +5410,12 @@ int32_t get_register(const int32_t arg)
 			
 		case LWPNYOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
-				ret=((int32_t)(((weapon*)(s))->yofs-playing_field_offset))*10000;
+				ret=((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 		case LWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
-				ret = ((int32_t)(((weapon*)(s))->yofs-playing_field_offset)
+				ret = ((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000;
 			break;
@@ -5859,12 +5859,12 @@ int32_t get_register(const int32_t arg)
 			
 		case EWPNYOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
-				ret=((int32_t)(((weapon*)(s))->yofs-playing_field_offset))*10000;
+				ret=((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 		case EWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->ewpn,"TotalDYOffset")))
-				ret = ((int32_t)(((weapon*)(s))->yofs-playing_field_offset)
+				ret = ((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
 			break;
@@ -11211,7 +11211,7 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 			
 		case LINKYOFS:
-			(Hero.yofs)=(zfix)(value/10000)+playing_field_offset;
+			(Hero.yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			break;
 		case HEROTOTALDYOFFS:
 			break; //READ-ONLY
@@ -11682,8 +11682,8 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case INPUTMOUSEY:
 		{
-			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
-			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+			int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 			position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
 			break;
@@ -11838,8 +11838,8 @@ void set_register(const int32_t arg, const int32_t value)
 				}
 				case 1: //MouseY
 				{
-					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(--quakeclk*int64_t(2)-frame))*4));
-					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : playing_field_offset;
+					int32_t mousequakeoffset = 56+((int32_t)(sin((double)(quakeclk*int64_t(2)-frame))*4));
+					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset=(resy/2)-((112-tempoffset)*screen_scale);
 					position_mouse(gui_mouse_x(), (value/10000)*screen_scale+topOffset);
 					break;
@@ -12182,7 +12182,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case ITEMYOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->yofs=(zfix)(value/10000)+playing_field_offset;
+				((item*)(s))->yofs=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			}
 			
 			break;
@@ -13060,7 +13060,7 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case LWPNYOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
-				(((weapon*)s)->yofs)=(zfix)(value/10000)+playing_field_offset;
+				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		case LWPNTOTALDYOFFS:
@@ -13483,7 +13483,7 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case EWPNYOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
-				(((weapon*)s)->yofs)=(zfix)(value/10000)+playing_field_offset;
+				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		case EWPNTOTALDYOFFS:
@@ -13814,7 +13814,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case NPCYOFS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
-				GuyH::getNPC()->yofs = zfix(value / 10000) + playing_field_offset;
+				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 		}
 		break;
 		case NPCTOTALDYOFFS:

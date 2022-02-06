@@ -3404,6 +3404,14 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_OLD_TILE_INITIALIZATION,1);
 	}
 	
+	if(compatrule_version < 17)
+	{
+		//Old Quake/DrawYOffset behavior
+		//set_bit(quest_rules,qr_OLD_DRAWOFFSET,1);
+		//I'm leaving this commented cause I doubt it'll break anything and I think the bugfix might be appreciated in older versions.
+		//On the offchance that it *does* break old quests, fixing it is as simple as uncommenting the set_bit above.
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -17049,6 +17057,15 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 				temp_combo.attribytes[q] = 0;
 			}
 			
+		}
+		/* HIGHLY UNORTHODOX UPDATING THING, by Deedee
+		* This fixes a poor implementation of a ->next flag bug thing.
+		* Zoria didn't bump up the versions as liberally as he should have, but thankfully
+		* there was a version bump a few weeks before a change that broke stuff.
+		*/
+		if (section_version >= 13 && section_version < 21)
+		{
+			set_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS,1);
 		}
 		//combo scripts
 		if(section_version>=14) 

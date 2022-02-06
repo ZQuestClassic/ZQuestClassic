@@ -81,7 +81,7 @@ sprite::sprite()
     id=-1;
     hxsz=hysz=16;
     hzsz=1;
-    yofs=playing_field_offset;
+    yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
     dir=down;
     angular=canfreeze=false;
     drawstyle=0;

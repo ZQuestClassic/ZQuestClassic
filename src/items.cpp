@@ -436,7 +436,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itm.xofs;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+playing_field_offset;} 
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);} 
 		/* yofs+playing_field_offset == yofs+56.
 		It is needed for the passive subscreen offset.
 		*/
