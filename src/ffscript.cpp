@@ -30634,6 +30634,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	}
 	resume_all_sfx();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
 }
 bool FFScript::runOnMapScriptEngine()
@@ -30677,6 +30678,7 @@ bool FFScript::runOnMapScriptEngine()
 	}
 	resume_all_sfx();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
 }
 

@@ -705,8 +705,10 @@ static const GUI::ListData compatRulesList
 		" rule. Note that this rule does nothing if 'Old Slash Combo Secret Flag Behavior' is enabled."},
 	{ "Old Quake/DrawYOffset behavior", qr_OLD_DRAWOFFSET,
 		"If enabled, certain enemies will have their draw offsets affected by Screen->Quake when they spawn."
-		" If disabled, the offset will not be affected by Screen->Quake."}
-		
+		" If disabled, the offset will not be affected by Screen->Quake."},
+	{ "Scrolling Cancels Charge", qr_SCROLLING_KILLS_CHARGE,
+		"If enabled, scrolling screens while charging (i.e. spin attack)"
+		" will not keep the charge on the new screen." }
 };
 
 static const GUI::ListData enemiesRulesList

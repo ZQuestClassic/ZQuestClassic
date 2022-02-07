@@ -23509,12 +23509,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
-
-	  scx = 32; //for sideview very fast screolling. 
-  
+		scx = 32; //for sideview very fast screolling. 
+	
+	
+	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
 	actiontype lastaction = action;
 	ALLOFF(false, false);
 	// for now, restore Hero's previous action
+	if(!get_bit(quest_rules, qr_SCROLLING_KILLS_CHARGE))
+		attackclk = lastattackclk; spins = lastspins; charging = lastcharging; tapping = lasttapping;
 	action=lastaction; FFCore.setHeroAction(lastaction);
 	
 	lstep = (lstep + 6) % 12;
@@ -23764,6 +23767,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				hopclk = 2;
 				nowinwater = true;
 			}
+		}
+		else if((lastaction == attacking || lastaction == sideswimattacking) && charging)
+		{
+			action = lastaction; FFCore.setHeroAction(lastaction);
 		}
 		else
 		{

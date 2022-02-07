@@ -3489,36 +3489,43 @@ void do_dcounters()
 //bool zasmstacktrace = false;
 void game_loop()
 {
-	
-	//for ( int32_t qq = 0; qq < 256; qq++ )
-    //{
-	    
-	// al_trace("ZC Init: LWeapon Script (0), Instruction (%d) is: %d\n", qq,lwpnscripts[0][qq].command); 
-	    
-    //}
-    //for ( int32_t qq = 0; qq < 256; qq++ )
-    //{
-	    
-	// al_trace("ZC Init: LWeapon Script (1), Instruction (%d) is: %d\n", qq,lwpnscripts[1][qq].command); 
-	    
-    //}
-    
-    //clear Hero's last hits 
-    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
-    //Hero.ClearhitHeroUIDs();
-	
-    //Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
-		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
-		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
-		//I suppose I will need to do this inside the script engine, and not the game_loop() ? -Z
-	
-    if((pause_in_background && callback_switchin && midi_patch_fix))
-    {
-	
-	if(currmidi!=0)
+	while(true)
 	{
-		
-		if(callback_switchin == 2) 
+		GameFlags &= ~GAMEFLAG_RESET_GAME_LOOP;
+		if((pause_in_background && callback_switchin && midi_patch_fix))
+		{
+			if(currmidi!=0)
+			{
+				if(callback_switchin == 2) 
+				{
+					if ( currmidi != 0 )
+					{
+						int32_t digi_vol, midi_vol;
+					
+						get_volume(&digi_vol, &midi_vol);
+						stop_midi();
+						jukebox(currmidi);
+						set_volume(digi_vol, midi_vol);
+						midi_seek(paused_midi_pos);
+					}
+					midi_paused=false;
+					midi_suspended = midissuspNONE;
+					callback_switchin = 0;
+				}
+				if(callback_switchin == 1) 
+				{
+					paused_midi_pos = midi_pos;
+					midi_paused=true;
+					stop_midi();
+					++callback_switchin;
+				}
+			}
+			else //no MIDI playing
+			{
+				callback_switchin = 0;
+			}
+		}
+		else if(midi_suspended==midissuspRESUME )
 		{
 			if ( currmidi != 0 )
 			{
@@ -3529,520 +3536,485 @@ void game_loop()
 				jukebox(currmidi);
 				set_volume(digi_vol, midi_vol);
 				midi_seek(paused_midi_pos);
-				
-				
-				
 			}
 			midi_paused=false;
 			midi_suspended = midissuspNONE;
-			callback_switchin = 0;
 		}
-		if(callback_switchin == 1) 
-		{
-			paused_midi_pos = midi_pos;
-			midi_paused=true;
-			stop_midi();
-			++callback_switchin;
-		}
-	}
-	else //no MIDI playing
-	{
-		callback_switchin = 0;
-	}
-    }
-    
-    else if(midi_suspended==midissuspRESUME )
-    {
-	if ( currmidi != 0 )
-	{
 		
-		int32_t digi_vol, midi_vol;
-	
-		get_volume(&digi_vol, &midi_vol);
-		stop_midi();
-		jukebox(currmidi);
-		set_volume(digi_vol, midi_vol);
-		midi_seek(paused_midi_pos);
+		//  walkflagx=0; walkflagy=0;
+		runDrunkRNG();
+		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 		
+		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
-	}
-	midi_paused=false;
-	midi_suspended = midissuspNONE;
-	    
-    }
-	
-	//  walkflagx=0; walkflagy=0;
-	runDrunkRNG();
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-    
-    // Three kinds of freezes: freeze, freezemsg, freezeff
-    
-    // freezemsg if message is being printed && qr_MSGFREEZE is on,
-    // or if a message is being prepared && qr_MSGDISAPPEAR is on.
-    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
+		// freezemsg if message is being printed && qr_MSGFREEZE is on,
+		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
+		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
 			&& (get_bit(quest_rules,qr_MSGFREEZE)));
-	
-    if(fadeclk>=0 && !freezemsg)
-    {
-        if(fadeclk==0 && currscr<128)
-            blockpath=false;
-            
-        --fadeclk;
-    }
-                      
-    // Messages also freeze FF combos.
-    bool freezeff = freezemsg;
-    
-    bool freeze = false;
-    
-    for(int32_t i=0; i<32; i++)
-    {
-        if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
-        
-        if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
-    }
-    
-    for(int32_t i=0; i<176; i++)
-    {
-        if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
-        
-        if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
-        
-        if(guygrid[i]>0)
-        {
-            --guygrid[i];
-        }
-    }
-    #if LOGGAMELOOP > 0
-    al_trace("game_loop is calling: %s\n", "animate_combos()\n");
-    #endif
-    if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
-    #if LOGGAMELOOP > 0
-    al_trace("game_loop is calling: %s\n", "load_control_state()\n");
-    #endif
-    if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
-    
-    if(!freezemsg)
-    {
-        if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
-    }
-    
-    if(!freezeff)
-    {
-        if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
-    }
-    
-    // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-    }
-    if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-    {
-        ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-    }
-    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-    {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-    }
-    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-    {
-        ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-    }
-    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	FFCore.combo_script_engine(false);    
-    }
-    
-    
-    if(!freeze && !freezemsg)
-    {
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "items.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
-	if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
-	
-	    //Can't be called in items.animate(), as ZQuest also uses this function.
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "guys.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "roaming_item()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "dragging_item()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
-	if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptHERO] ) checkhero = true;
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
-	#endif
-        
-	if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
-	
-	if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
-		FFCore.itemScriptEngine(); //run before lweapon scripts
-	if ( !FFCore.system_suspend[susptHERO] )
-	{
-		for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
+		
+		if(fadeclk>=0 && !freezemsg)
+		{
+			if(fadeclk==0 && currscr<128)
+				blockpath=false;
+				
+			--fadeclk;
+		}
+		
+		// Messages also freeze FF combos.
+		bool freezeff = freezemsg;
+		
+		bool freeze = false;
+		
+		for(int32_t i=0; i<32; i++)
+		{
+			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
+			
+			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
+		}
+		
+		for(int32_t i=0; i<176; i++)
+		{
+			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
+			
+			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
+			
+			if(guygrid[i]>0)
+			{
+				--guygrid[i];
+			}
+		}
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "animate_combos()\n");
+		#endif
+		if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "load_control_state()\n");
+		#endif
+		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
+		
+		if(!freezemsg)
+		{
+			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
+		}
+		
+		if(!freezeff)
+		{
+			if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
+		}
+		
+		// Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
+		if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+		}
+		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+		}
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		}
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+		}
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			FFCore.combo_script_engine(false);    
+		}
+		
+		
+		if(!freeze && !freezemsg)
 		{
 			#if LOGGAMELOOP > 0
-			al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
+			al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
 			#endif
-			if(Hero.animate(0))
+			if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "items.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
+			if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
+		
+			//Can't be called in items.animate(), as ZQuest also uses this function.
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "guys.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "roaming_item()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "dragging_item()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
+			if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
+			#endif
+			
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
+			#endif
+			
+			if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
+			
+			if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+				FFCore.itemScriptEngine(); //run before lweapon scripts
+			if ( !FFCore.system_suspend[susptHERO] )
 			{
-				if(!Quit)
+				for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
 				{
-					//set a B item hack
-					//Bwpn = Bweapon(Bpos);
-					Quit = qGAMEOVER;
+					#if LOGGAMELOOP > 0
+					al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
+					#endif
+					if(Hero.animate(0))
+					{
+						if(!Quit)
+						{
+							//set a B item hack
+							//Bwpn = Bweapon(Bpos);
+							Quit = qGAMEOVER;
+						}
+						
+						return;
+					}
+					if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) break; //break the for()
 				}
-				
-				return;
+				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
+			}
+			if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+				FFCore.itemScriptEngine(); //run before lweapon scripts
+			
+			//FFCore.itemScriptEngine(); //run before lweapon scripts
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
+			#endif
+			Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
+			if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
+			#endif
+			//perhaps add sprite.waitdraw, and call sprite script here too?
+			//FFCore.lweaponScriptEngine();
+			if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
+			
+			//FFCore.lweaponScriptEngine();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
+			#endif
+			
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "particles.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
+			
+			if(conveyclk<=0)
+			{
+				conveyclk=3;
 			}
 			
-			checkhero=false;
+			--conveyclk;
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "check_collisions()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "dryuplake()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
 		}
-	}
-	if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
-		FFCore.itemScriptEngine(); //run before lweapon scripts
-	
-	//FFCore.itemScriptEngine(); //run before lweapon scripts
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
-	#endif
-	Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
-        if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
-	#endif
-	//perhaps add sprite.waitdraw, and call sprite script here too?
-        //FFCore.lweaponScriptEngine();
-	if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
-	
-	//FFCore.lweaponScriptEngine();
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
-	#endif
-      
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "particles.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
-        
-        if(conveyclk<=0)
-        {
-            conveyclk=3;
-        }
-        
-        --conveyclk;
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "check_collisions()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "dryuplake()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
-    }
-    else if(freezemsg)
-    {
-        for(int32_t i=0; i<guys.Count(); i++)
-	{
-            if(((enemy*)guys.spr(i))->ignore_msg_freeze())
-	    {
-                if ( !FFCore.system_suspend[susptGUYS] ) guys.spr(i)->animate(i);
-	    }
-        }
-    }
-    #if LOGGAMELOOP > 0
-	al_trace("game_loop at: %s\n", "if(global_wait)\n");
-	#endif
-    if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-        global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
-    }
-    if ( !FFCore.system_suspend[susptHEROACTIVE] && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	    ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-	    player_waitdraw = false;
-    }
-    if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-		dmap_waitdraw = false;
-    }
-	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-	{
-		ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-		passive_subscreen_waitdraw = false;
-	}
-    
-    
-    if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-	tmpscr->screen_waitdraw = 0;	    
-    }
-    
-    for ( int32_t q = 0; q < 32; ++q )
-    {
-	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
-	if ( tmpscr->ffcswaitdraw&(1<<q) )
-	{
-		//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-		if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+		else if(freezemsg)
 		{
-			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
-			tmpscr->ffcswaitdraw &= ~(1<<q);
-		}
-	}
-    }
-    
-    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	FFCore.combo_script_engine_waitdraw(false);    
-    }
-    
-    //Waitdraw for item scripts. 
-    if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
-    
-    //Sprite scripts on Waitdraw in order of : npc, ewpn, lwpn, itemsprite
-    if ( !FFCore.system_suspend[susptNPCSCRIPTS] ) FFCore.npcScriptEngineOnWaitdraw();
-    if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
-    if ( !FFCore.system_suspend[susptLWEAPONSCRIPTS] ) FFCore.lweaponScriptEngineOnWaitdraw();
-    if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
-    
-    
-    
-    
-    
-    #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
-	#endif
-    if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
-    
-    //clear Hero's last hits 
-    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
-    #if LOGGAMELOOP > 0
-	al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
-	#endif
-    if(linkedmsgclk==1)
-    {
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");
-	#endif
-        if(wpnsbuf[iwMore].newtile!=0)
-        {
-            putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
-        }
-    }
-    
-    if(!freeze)
-    {
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "putintro()\n");
-	#endif
-        putintro();
-    }
-    
-    if(dmapmsgclk>0)
-    {
-        Hero.Freeze();
-        
-        if(dmapmsgclk<=50)
-        {
-            --dmapmsgclk;
-        }
-    }
-    
-    if(dmapmsgclk==1)
-    {
-        Hero.finishedmsg();
-        dmapmsgclk=0;
-        introclk=72;
-        clear_bitmap(msg_bg_display_buf);
-        set_clip_state(msg_bg_display_buf, 1);
-        clear_bitmap(msg_txt_display_buf);
-        set_clip_state(msg_txt_display_buf, 1);
-        clear_bitmap(msg_portrait_display_buf);
-        set_clip_state(msg_portrait_display_buf, 1);
-        //    clear_bitmap(pricesdisplaybuf);
-    }
-    
-    if(!freeze)
-    {
-        if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-        {
-            putmsg();
-            
-            if(msgstr)
-            {
-                set_clip_state(msg_bg_display_buf, 0);
-                blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-                set_clip_state(msg_txt_display_buf, 0);
-				if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
-				{
-					blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-				}
-				else
-				{
-					blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-				}
-				set_clip_state(msg_portrait_display_buf, 0);
-				blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+			for(int32_t i=0; i<guys.Count(); i++)
+		{
+				if(((enemy*)guys.spr(i))->ignore_msg_freeze())
+			{
+					if ( !FFCore.system_suspend[susptGUYS] ) guys.spr(i)->animate(i);
 			}
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
-	#endif
-        do_dcounters();
-        
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
-	#endif
-        if(!freezemsg && current_item(itype_heartring))
-        {
-            int32_t itemid = current_item_id(itype_heartring);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-                game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
-	#endif
-        if(!freezemsg && current_item(itype_magicring))
-        {
-            int32_t itemid = current_item_id(itype_magicring);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-            {
-                game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
-	#endif
-        if(!freezemsg && current_item(itype_wallet))
-        {
-            int32_t itemid = current_item_id(itype_wallet);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-            {
-                game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
-	#endif
-        if(!freezemsg && current_item(itype_bombbag))
-        {
-            int32_t itemid = current_item_id(itype_bombbag);
-            
-            if(itemsbuf[itemid].misc1)
-            {
-                int32_t fskip = itemsbuf[itemid].misc2;
-                
-                if(fskip == 0 || frame % fskip == 0)
-                {
-                    game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
-                }
-                
-                if(itemsbuf[itemid].flags & ITEM_FLAG1)
-                {
-                    int32_t ratio = zinit.bomb_ratio;
-                    
-                    fskip = itemsbuf[itemid].misc2 * ratio;
-                    
-                    if(fskip == 0 || frame % fskip == 0)
-                    {
-                        game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
-                    }
-                }
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
-	#endif
-        if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
-        {
-            int32_t itemid = current_item_id(itype_quiver);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-            {
-                game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
-	#endif
-        if(lensclk && !FFCore.system_suspend[susptLENS])
-        {
-            draw_lens_over();
-            --lensclk;
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
-	#endif
-        // Earthquake!
-        if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
-        {
-            playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
-        }
-        else
-        {
-            playing_field_offset=56;
-        }
-        
-	if ( previous_DMap != currdmap )
-	{
-		FFCore.initZScriptDMapScripts();
-		FFCore.initZScriptActiveSubscreenScript();
-		previous_DMap = currdmap;
+			}
+		}
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop at: %s\n", "if(global_wait)\n");
+		#endif
+		if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
+		}
+		if ( !FFCore.system_suspend[susptHEROACTIVE] && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			player_waitdraw = false;
+		}
+		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+			dmap_waitdraw = false;
+		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+			passive_subscreen_waitdraw = false;
+		}
+		
+		
+		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+		tmpscr->screen_waitdraw = 0;	    
+		}
+		
+		for ( int32_t q = 0; q < 32; ++q )
+		{
+		//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
+		if ( tmpscr->ffcswaitdraw&(1<<q) )
+		{
+			//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
+			if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+			{
+				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+				tmpscr->ffcswaitdraw &= ~(1<<q);
+			}
+		}
+		}
+		
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+		FFCore.combo_script_engine_waitdraw(false);    
+		}
+		
+		//Waitdraw for item scripts. 
+		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
+		
+		//Sprite scripts on Waitdraw in order of : npc, ewpn, lwpn, itemsprite
+		if ( !FFCore.system_suspend[susptNPCSCRIPTS] ) FFCore.npcScriptEngineOnWaitdraw();
+		if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
+		if ( !FFCore.system_suspend[susptLWEAPONSCRIPTS] ) FFCore.lweaponScriptEngineOnWaitdraw();
+		if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
+		
+		
+		
+		
+		
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
+		#endif
+		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
+		
+		//clear Hero's last hits 
+		//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
+		#endif
+		if(linkedmsgclk==1)
+		{
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");
+		#endif
+			if(wpnsbuf[iwMore].newtile!=0)
+			{
+				putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+			}
+		}
+		
+		if(!freeze)
+		{
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "putintro()\n");
+		#endif
+			putintro();
+		}
+		
+		if(dmapmsgclk>0)
+		{
+			Hero.Freeze();
+			
+			if(dmapmsgclk<=50)
+			{
+				--dmapmsgclk;
+			}
+		}
+		
+		if(dmapmsgclk==1)
+		{
+			Hero.finishedmsg();
+			dmapmsgclk=0;
+			introclk=72;
+			clear_bitmap(msg_bg_display_buf);
+			set_clip_state(msg_bg_display_buf, 1);
+			clear_bitmap(msg_txt_display_buf);
+			set_clip_state(msg_txt_display_buf, 1);
+			clear_bitmap(msg_portrait_display_buf);
+			set_clip_state(msg_portrait_display_buf, 1);
+			//    clear_bitmap(pricesdisplaybuf);
+		}
+		
+		if(!freeze)
+		{
+			if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
+			{
+				putmsg();
+				
+				if(msgstr)
+				{
+					set_clip_state(msg_bg_display_buf, 0);
+					blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+					set_clip_state(msg_txt_display_buf, 0);
+					if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+					{
+						blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+					}
+					else
+					{
+						blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+					}
+					set_clip_state(msg_portrait_display_buf, 0);
+					blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
+		#endif
+			do_dcounters();
+			
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
+		#endif
+			if(!freezemsg && current_item(itype_heartring))
+			{
+				int32_t itemid = current_item_id(itype_heartring);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+					game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
+		#endif
+			if(!freezemsg && current_item(itype_magicring))
+			{
+				int32_t itemid = current_item_id(itype_magicring);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+				{
+					game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
+		#endif
+			if(!freezemsg && current_item(itype_wallet))
+			{
+				int32_t itemid = current_item_id(itype_wallet);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+				{
+					game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
+		#endif
+			if(!freezemsg && current_item(itype_bombbag))
+			{
+				int32_t itemid = current_item_id(itype_bombbag);
+				
+				if(itemsbuf[itemid].misc1)
+				{
+					int32_t fskip = itemsbuf[itemid].misc2;
+					
+					if(fskip == 0 || frame % fskip == 0)
+					{
+						game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
+					}
+					
+					if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					{
+						int32_t ratio = zinit.bomb_ratio;
+						
+						fskip = itemsbuf[itemid].misc2 * ratio;
+						
+						if(fskip == 0 || frame % fskip == 0)
+						{
+							game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
+						}
+					}
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
+		#endif
+			if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
+			{
+				int32_t itemid = current_item_id(itype_quiver);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+				{
+					game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
+		#endif
+			if(lensclk && !FFCore.system_suspend[susptLENS])
+			{
+				draw_lens_over();
+				--lensclk;
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
+		#endif
+			// Earthquake!
+			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
+			{
+				playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+			}
+			else
+			{
+				playing_field_offset=56;
+			}
+			
+		if ( previous_DMap != currdmap )
+		{
+			FFCore.initZScriptDMapScripts();
+			FFCore.initZScriptActiveSubscreenScript();
+			previous_DMap = currdmap;
+		}
+			// Other effects in zc_sys.cpp
+		}
+		
+		//  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
+		break;
 	}
-        // Other effects in zc_sys.cpp
-    }
-    
-    //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
 }
 
 void runDrunkRNG(){
