@@ -1875,7 +1875,7 @@ void weapon::cleanup_sfx()
     
     // Check each Lwpn to see if this weapon's sound is also allocated by it.
 	int32_t use_sfx = 0;
-	if(parentitem >= 0) use_sfx = itemsbuf[parentitem].usesound;
+	if(parentitem >= 0 && (itemsbuf[parentitem].family != itype_whistle || id != wWind)) use_sfx = itemsbuf[parentitem].usesound;
 	else switch(id)
 	{
 		case ewBrang:
@@ -1916,7 +1916,7 @@ void weapon::cleanup_sfx()
     
 	stop_sfx(use_sfx);
 	
-    /*switch(id)
+    /*==switch(id)
     {
     case wWind:
         stop_sfx(WAV_ZN1WHIRLWIND);
@@ -2460,7 +2460,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				
 			LOADGFX(defaultw);
 			
-			if(get_bit(quest_rules,qr_MORESOUNDS))
+			if(get_bit(quest_rules,qr_MORESOUNDS) && dead != 1 && dead != 2)
 				cont_sfx(WAV_ZN1WHIRLWIND);
 				
 			

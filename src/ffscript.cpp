@@ -26974,6 +26974,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		++script_execount[*command];
 #endif
 		
+		if (type == SCRIPT_COMBO)
+		{
+			if(this_combo_id != FFCore.tempScreens[i/176]->data[i%176])
+			{
+				//Combo changed! Abort script!
+				return RUNSCRIPT_OK;
+			}
+		}
 		if(increment)	ri->pc++;
 		else			increment = true;
 		if ( ri->pc < 0 ) //rolled over from overflow
@@ -27008,14 +27016,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 					default:
 						ri->pc = 1; scommand = 0xFFFF; break;
 				
-			}
-		}
-		if (type == SCRIPT_COMBO)
-		{
-			if(this_combo_id != FFCore.tempScreens[i/176]->data[i%176])
-			{
-				//Combo changed! Abort script!
-				return RUNSCRIPT_OK;
 			}
 		}
 		if(scommand != 0xFFFF)
