@@ -61,7 +61,7 @@ extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 
-byte monochrome_console = 0;
+extern byte monochrome_console;
 
 extern FONT *lfont;
 extern HeroClass Hero;
@@ -223,7 +223,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
             continue;
             
         // Bigger font
-        bool bigfontproc = (d[i].proc != jwin_initlist_proc && d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
+        bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
         
         if(!d[i].dp2 && bigfontproc)
         {
@@ -9061,7 +9061,6 @@ void fix_dialogs()
     jwin_center_dialog(gamemode_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(goto_dlg);
-    center_zc_init_dialog();
     jwin_center_dialog(keyboard_control_dlg);
     jwin_center_dialog(midi_dlg);
     jwin_center_dialog(quest_dlg);

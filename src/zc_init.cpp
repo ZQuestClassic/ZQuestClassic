@@ -32,39 +32,12 @@
 
 int32_t onCheatConsole()
 {
-    char init_title[80];
-    sprintf(init_title, "Current Data");
-    init_dlg[0].dp=init_title;
     zinitdata *zinit2 = copyIntoZinit(game);
-    //modify some entries
-    init_dlg[1655].dp = (void *)"";
-    init_dlg[1658].dp = (void *)"Current HP (hearts):";
-    init_dlg[1658].flags |= D_DISABLED;
-    init_dlg[1659].flags |= D_DISABLED;
-    init_dlg[1663].flags |= D_DISABLED;
-    init_dlg[1664].flags |= D_DISABLED;
-    init_dlg[1664].dp = (void *)"";
-    init_dlg[1670].flags |= D_DISABLED;
-    init_dlg[1671].flags |= D_DISABLED;
-    init_dlg[1667].flags |= D_DISABLED;
-    init_dlg[1698].flags |= D_DISABLED;
-    init_dlg[1699].flags |= D_DISABLED;
-    init_dlg[1703].flags |= D_DISABLED;
-    init_dlg[1704].flags |= D_DISABLED;
-    init_dlg[1705].flags |= D_DISABLED;
-//  the following statement has no effect, as the D_DISABLED flag is ignored by the jwin_tab_proc
-//  init_tabs[4].flags |= D_DISABLED;
     int32_t rval = doInit(zinit2, true);
     resetItems(game, zinit2, false);
     delete zinit2;
     ringcolor(false);
     return rval;
-}
-
-
-void center_zc_init_dialog()
-{
-    jwin_center_dialog(init_dlg);
 }
 
 void onInitOK()

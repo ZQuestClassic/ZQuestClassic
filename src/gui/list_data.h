@@ -125,7 +125,7 @@ public:
 	static ListData bottletype();
 	
 	static ListData lweaptypes();
-	static ListData sfxnames();
+	static ListData sfxnames(bool numbered = false);
 	
 	static ListData itemdata_script();
 	static ListData itemsprite_script();

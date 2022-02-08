@@ -41,9 +41,12 @@ void OptionsDialog::loadOptions()
 	opts[OPT_SNAPFORMAT] = SnapshotFormat;
 	opts[OPT_KBREPDEL] = KeyboardRepeatDelay;
 	opts[OPT_KBREPRATE] = KeyboardRepeatRate;
-	opts[OPT_CURS_LARGE] = int32_t(get_config_float("zquest","cursor_scale_large",1.5)*10000);
-	opts[OPT_CURS_SMALL] = int32_t(get_config_float("zquest","cursor_scale_small",1)*10000);
-	
+	opts[OPT_CURS_LARGE] = int32_t(zc_get_config("zquest","cursor_scale_large",1.5)*10000);
+	opts[OPT_CURS_SMALL] = int32_t(zc_get_config("zquest","cursor_scale_small",1)*10000);
+	opts[OPT_COMPILE_OK] = zc_get_config("Compiler", "compile_success_sample", 20);
+	opts[OPT_COMPILE_ERR] = zc_get_config("Compiler", "compile_error_sample", 28);
+	opts[OPT_COMPILE_DONE] = zc_get_config("Compiler", "compile_finish_sample", 34);
+	opts[OPT_COMPILE_VOL] = zc_get_config("Compiler", "compile_audio_volume", 100);
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -81,13 +84,17 @@ void OptionsDialog::saveOptions()
 	SnapshotFormat = opts[OPT_SNAPFORMAT];
 	KeyboardRepeatDelay = opts[OPT_KBREPDEL];
 	KeyboardRepeatRate = opts[OPT_KBREPRATE];
-	set_config_float("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
-	set_config_float("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
+	zc_set_config("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
+	zc_set_config("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
+	zc_set_config("Compiler", "compile_success_sample", opts[OPT_COMPILE_OK]);
+	zc_set_config("Compiler", "compile_error_sample", opts[OPT_COMPILE_ERR]);
+	zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
+	zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
 	load_mice(); //Reset cursor scale
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 }
 
-OptionsDialog::OptionsDialog()
+OptionsDialog::OptionsDialog() : sfx_list(GUI::ListData::sfxnames(true))
 {
 	loadOptions();
 }
@@ -270,7 +277,11 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 				)),
 				TabRef(name = "4", Rows<2>(
 					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale (Large Mode)", 1, 5),
-					ROW_TF_FLOAT(OPT_CURS_SMALL, "Cursor Scale (Small Mode)", 1, 5)
+					ROW_TF_FLOAT(OPT_CURS_SMALL, "Cursor Scale (Small Mode)", 1, 5),
+					ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
+					ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500)
 				))
 			),
 			Row(

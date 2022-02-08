@@ -298,7 +298,7 @@ int32_t getScreen(int32_t ref)
 
 //no ifdef here
 CConsoleLoggerEx coloured_console;
-CConsoleLoggerEx zscript_coloured_console;
+extern CConsoleLoggerEx zscript_coloured_console;
 
 
 const char script_types[16][16]=

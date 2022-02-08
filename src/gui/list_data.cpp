@@ -180,8 +180,8 @@ ListData ListData::mapflag(bool numbered)
 		if(numbered)
 			sprintf(name, "%s (%03d)", module_str, q);
 		else strcpy(name, module_str);
-		string sname(name);
 		ls.add(name, q);
+		delete[] name;
 	}
 	
 	return ls;
@@ -245,7 +245,6 @@ ListData ListData::bottletype()
 ListData ListData::lweaptypes()
 {
 	map<string, int32_t> vals;
-	set<string> sprnames;
 	
 	string none(moduledata.player_weapon_names[0]);
 	if(skipchar(moduledata.player_weapon_names[0][0]))
@@ -265,17 +264,21 @@ ListData ListData::lweaptypes()
 	return ls;
 }
 
-ListData ListData::sfxnames()
+ListData ListData::sfxnames(bool numbered)
 {
 	map<string, int32_t> vals;
-	set<string> sprnames;
 	
 	ListData ls;
 	ls.add("(None)", 0);
 	for(int32_t i=1; i<WAV_COUNT; ++i)
 	{
-		string sname(sfx_string[i]);
-		ls.add(sname, i);
+		char const* sfx_name = sfx_string[i];
+		char* name = new char[strlen(sfx_name) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", sfx_name, i);
+		else strcpy(name, sfx_name);
+		ls.add(name, i);
+		delete[] name;
 	}
 	
 	return ls;

@@ -30,10 +30,12 @@ private:
 		OPT_SNAPFORMAT, OPT_KBREPDEL, OPT_KBREPRATE,
 		//
 		OPT_CURS_LARGE, OPT_CURS_SMALL,
+		OPT_COMPILE_OK, OPT_COMPILE_ERR, OPT_COMPILE_DONE, OPT_COMPILE_VOL,
 		//
 		OPT_MAX
 	};
 	int32_t opts[OPT_MAX];
+	GUI::ListData sfx_list;
 	void loadOptions();
 	void saveOptions();
 };

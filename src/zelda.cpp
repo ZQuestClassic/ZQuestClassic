@@ -4393,8 +4393,6 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 /********** Main **********/
 /**************************/
 
-void PopulateInitDialog();
-
 bool is_zquest()
 {
     return false;
@@ -4658,9 +4656,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 #endif
 	
-	
-	
-	PopulateInitDialog();
 	//FFScript::init();
 	
 	memrequested += 4096;

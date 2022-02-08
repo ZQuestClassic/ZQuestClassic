@@ -30,11 +30,9 @@ void build_biic_list();
 void deallocate_biic_list();
 const char *item_class_list(int32_t index, int32_t *list_size);
 
-int32_t jwin_initlist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_bombratio_proc(int32_t msg,DIALOG *d,int32_t c);
-extern DIALOG init_dlg[];
 extern TABPANEL init_tabs[];
 int32_t doInit(zinitdata *zinit, bool isZC);
 void resetItems(gamedata *data, zinitdata *zinit, bool lvlitems);

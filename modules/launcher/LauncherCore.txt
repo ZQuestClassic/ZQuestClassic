@@ -13,7 +13,7 @@ src/alleg_compat.cpp
 src/module.cpp
 src/zdefs.cpp
 src/process_managment.cpp
-#src/ConsoleLogger.cpp
+src/ConsoleLogger.cpp
 src/zconfig.cpp
 
 ## End of Launcher Core module

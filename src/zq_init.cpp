@@ -38,19 +38,9 @@ extern int32_t doInit(zinitdata *zinit);
 
 int32_t onInit()
 {
-    char init_title[80];
-    sprintf(init_title, "Initialization Data");
-    init_dlg[0].dp=init_title;
-    
     dmap_list_size=MAXDMAPS;
     dmap_list_zero=true;
-    init_dlg[1656].d1 = zinit.start_dmap;
     return doInit(&zinit, false);
-}
-
-void center_zq_init_dialog()
-{
-    jwin_center_dialog(init_dlg);
 }
 
 void onInitOK()

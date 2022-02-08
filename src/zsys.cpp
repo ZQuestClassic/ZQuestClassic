@@ -33,6 +33,7 @@ using std::getline;
 #include "zc_sys.h"
 #include "jwin.h"
 #include "mem_debug.h"
+#include "ConsoleLogger.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -43,6 +44,7 @@ extern int32_t zqwin_scale;
 extern bool update_hw_pal;
 void update_hw_screen();
 
+CConsoleLoggerEx zscript_coloured_console;
 extern bool is_zquest();
 bool zconsole = false;
 
@@ -320,9 +322,12 @@ void Z_error(const char *format,...)
     va_end(ap);
     
 #if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
-    printf("%s\n",buf);
+    printf("%s",buf);
 #endif
-    al_trace("%s\n",buf);
+    if(zscript_coloured_console.valid())
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+	al_trace("%s",buf);
     exit(1);
 }
 
@@ -339,7 +344,9 @@ void Z_message(const char *format,...)
     printf("%s",buf);
 #endif
     al_trace("%s",buf);
-    
+    if(zscript_coloured_console.valid())
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
     if(zconsole)
         printf("%s",buf);
 }
@@ -389,6 +396,10 @@ void Z_title(const char *format,...)
         printf("%s\n",buf);
     
 #endif
+	
+    if(zscript_coloured_console.valid())
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s\n", buf);
 }
 
 int32_t anim_3_4(int32_t clk, int32_t speed)
