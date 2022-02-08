@@ -2217,7 +2217,7 @@ int32_t init_game()
     sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
     fadeclk=-1;
     
-    if(DMaps[currdmap].flags&dmfVIEWMAP)
+    if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
     {
         game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;              // mark as visited
     }

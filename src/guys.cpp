@@ -20513,7 +20513,7 @@ void loadguys()
 	{
 		Guy=tmpscr->guy;
 		
-		if(DMaps[currdmap].flags&dmfVIEWMAP)
+		if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
 			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
 	}
 	
