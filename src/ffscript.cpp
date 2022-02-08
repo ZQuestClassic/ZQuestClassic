@@ -92,7 +92,7 @@ zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int32_t index);
 
-static int32_t combopos_modified = -1;
+int32_t combopos_modified = -1;
 
 const char scripttypenames[15][40]=
 {
@@ -14954,36 +14954,6 @@ void set_register(const int32_t arg, const int32_t value)
 			screen_combo_modify_preroutine(tmpscr,pos);
 			tmpscr->data[pos]=(val);
 			screen_combo_modify_postroutine(tmpscr,pos);
-			//Start the script for the new combo
-			FFCore.clear_combo_stack(pos);
-			comboScriptData[pos].Clear();
-			combopos_modified = pos;
-			
-			/*
-			ri = &(comboScriptData[i]);
-
-				curscript = comboscripts[script];
-				stack = &(combo_stack[i]);
-				int32_t pos = ((i%176));
-				int32_t lyr = i/176;
-				int32_t id = comboscript_combo_ids[i]; 
-
-				if(!(combo_initialised[pos] & (1<<lyr)))
-				{
-					memset(ri->d, 0, 8 * sizeof(int32_t));
-					for ( int32_t q = 0; q < 2; q++ )
-						ri->d[q] = combobuf[id].initd[q];
-					combo_initialised[pos] |= 1<<lyr;
-				}
-
-				ri->combosref = id; //'this' pointer
-				ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
-				break;
-				*/
-			combo_doscript[pos] = 1;
-			combo_initialised[pos] &= ~(1<<0);
-			//Not ure if combodata arrays clean themselves up, or leak. -Z
-			//Not sure if this could result in stack corruption. 
 		}
 	}
 	break;
@@ -16960,67 +16930,6 @@ void set_register(const int32_t arg, const int32_t value)
 					screen_combo_modify_preroutine(m,pos);
 					m->data[pos]=val;
 					screen_combo_modify_postroutine(m,pos);
-					
-					switch(ri->mapsref)
-					{
-						case MAPSCR_TEMP0:
-						//case MAPSCR_SCROLL0:
-							FFCore.clear_combo_stack(pos);
-							comboScriptData[pos].Clear();
-							combo_doscript[pos] = 1;
-							combo_initialised[pos] &= ~(1<<0);
-							combopos_modified = pos;
-							break;
-						case MAPSCR_TEMP1: 
-						//case MAPSCR_SCROLL1:
-							FFCore.clear_combo_stack(pos+(176*1));
-							comboScriptData[pos+(176*1)].Clear();
-							combo_doscript[pos+(176*1)] = 1;
-							combo_initialised[pos] &= ~(1<<1);
-							combopos_modified = pos+(176*1);
-							break;
-						case MAPSCR_TEMP2: 
-						//case MAPSCR_SCROLL2:
-							FFCore.clear_combo_stack(pos+(176*2));
-							comboScriptData[pos+(176*2)].Clear();
-							combo_doscript[pos+(176*2)] = 1;
-							combo_initialised[pos] &= ~(1<<2);
-							combopos_modified = pos+(176*2);
-							break;
-						case MAPSCR_TEMP3:
-						//case MAPSCR_SCROLL3:
-							FFCore.clear_combo_stack(pos+(176*3));
-							comboScriptData[pos+(176*3)].Clear();
-							combo_doscript[pos+(176*3)] = 1;
-							combo_initialised[pos] &= ~(1<<3);
-							combopos_modified = pos+(176*3);
-							break;
-						case MAPSCR_TEMP4: 
-						//case MAPSCR_SCROLL4:
-							FFCore.clear_combo_stack(pos+(176*4));
-							comboScriptData[pos+(176*4)].Clear();
-							combo_doscript[pos+(176*4)] = 1;
-							combo_initialised[pos] &= ~(1<<4);
-							combopos_modified = pos+(176*4);
-							break;
-						case MAPSCR_TEMP5:
-						//case MAPSCR_SCROLL5:
-							FFCore.clear_combo_stack(pos+(176*5));
-							comboScriptData[pos+(176*5)].Clear();
-							combo_doscript[pos+(176*5)] = 1;
-							combo_initialised[pos] &= ~(1<<5);
-							combopos_modified = pos+(176*5);
-							break;
-						case MAPSCR_TEMP6:
-						//case MAPSCR_SCROLL6:
-							FFCore.clear_combo_stack(pos+(176*6));
-							comboScriptData[pos+(176*6)].Clear();
-							combo_doscript[pos+(176*6)] = 1;
-							combo_initialised[pos] &= ~(1<<6);
-							combopos_modified = pos+(176*6);
-							break;
-						default: break;
-					}
 				}
 			}
 			else
@@ -39792,7 +39701,7 @@ void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
 	if(lyr < 0) return;
 	uint32_t ind = pos+(176*lyr);
 	if(ind >= 176*7) return;
-	
+	combopos_modified = ind;
 	combo_doscript[ind] = 1;
 	combo_initialised[pos] &= ~(1<<lyr);
 	FFCore.clear_combo_stack(ind);
