@@ -2710,8 +2710,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						if(itemsbuf[parentitem].flags & ITEM_FLAG2)
 							glowRad = 0;
 						hxofs = hyofs=1;
-						hxsz = hysz = 14;    
-						step = 0.5;
+						hxsz = hysz = 14;
+						step = zfix(itemsbuf[parentitem].misc4)/100;
 						//Port Item Editor Weapon Size Values
 						if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 							extend = 3; 

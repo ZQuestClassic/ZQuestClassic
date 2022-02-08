@@ -5573,8 +5573,10 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
 	
+	
 	set_close_button_callback((void (*)()) hit_close_button);
 	set_window_title("Zelda Classic");
+	
 	
 	fix_dialogs();
 	gui_mouse_focus = FALSE;
@@ -5619,8 +5621,8 @@ int32_t main(int32_t argc, char* argv[])
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
 	
+	clearConsole();
 	// load saved games
-	Z_message("Loading saved games... ");
 	zprint2("Loading Saved Games\n");
 	if(load_savedgames() != 0)
 	{

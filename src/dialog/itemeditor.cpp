@@ -50,9 +50,6 @@ static const GUI::ListData WeapMoveTypeList
 	{ "Pattern F", 11 }
 };
 
-//Sets the Item Editor Field Names
-ItemNameInfo inameinf[itype_max];
-
 ItemNameInfo defInfo =
 {
 	-1,
@@ -578,6 +575,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->power = "Damage:";
 			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 2");
+			_SET(misc[3], "Step Speed", "The step speed of the created fire weapon, where 100 = 1px/frame. Default 50.");
 			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
 			_SET(flag[1], "Don't Provide Light", "Does not light up dark rooms");
 			inf->flag[2] = "Fire Doesn't Hurt Player";

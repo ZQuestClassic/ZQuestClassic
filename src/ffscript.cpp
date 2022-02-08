@@ -34844,6 +34844,36 @@ void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 	#endif	
 }
 
+void clearConsole()
+{
+	zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+	zscript_coloured_console.gotoxy(0,0);
+
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\n       _____   ____                  __ \n");
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /__  /  / __ \\__  _____  _____/ /_\n");
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"        / /  / / / / / / / _ \\/ ___/ __/\n");
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"       / /__/ /_/ / /_/ /  __(__  ) /_ \n");
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n");
+
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+	CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
+	
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
+	{
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
+	}
+	else
+	{
+		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
+	}
+}
 void FFScript::ZScriptConsole(bool open)
 {
 	al_trace("Opening ZScript Console");
@@ -34851,33 +34881,7 @@ void FFScript::ZScriptConsole(bool open)
 	if ( open )
 	{
 		zscript_coloured_console.Create("ZScript Debug Console", 600, 200, NULL, NULL);
-		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		zscript_coloured_console.gotoxy(0,0);
-	
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"\n       _____   ____                  __ \n");
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /__  /  / __ \\__  _____  _____/ /_\n");
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"        / /  / / / / / / / _ \\/ ___/ __/\n");
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"       / /__/ /_/ / /_/ /  __(__  ) /_ \n");
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n");
-	
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Data Logging & ZScript Debug Console\n");
-		
-		if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
-		{
-			zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-		}
-		else
-		{
-			zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE |CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
-		}
+		clearConsole();
 	
 		//coloured_console.SetAsDefaultOutput();
 		zscript_debugger = 1;
@@ -35602,6 +35606,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 void FFScript::do_cleartrace()
 {
 	zc_trace_clear();
+	clearConsole();
 }
 
 string inttobase(word base, int32_t x, word mindigits)

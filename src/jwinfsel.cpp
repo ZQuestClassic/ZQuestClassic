@@ -935,7 +935,7 @@ void enlarge_file_selector(int32_t width, int32_t height)
   */
 int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font)
 {
-	Z_message("jwin_file_select_ex\n");
+	// Z_message("jwin_file_select_ex\n");
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
     int32_t ret;
     char *p;
@@ -1008,7 +1008,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     while(gui_mouse_b());
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
-	Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
+	// Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
     ret = popup_zqdialog(file_selector, FS_EDIT);
     

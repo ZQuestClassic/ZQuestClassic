@@ -542,6 +542,8 @@ int32_t zscript_list_config_entries(const char *section, const char ***names);
 int32_t zscript_list_config_sections(const char ***names);
 void zscript_free_config_entries(const char ***names);
 
+void clearConsole();
+
 class FFScript
 {
 	
