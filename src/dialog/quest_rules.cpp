@@ -718,7 +718,10 @@ static const GUI::ListData compatRulesList
 	{ "Broken Enemy Item Carrying", qr_BROKEN_ITEM_CARRYING,
 		"If enabled, enemies will use the topleft corner of their tile as their item carry position when carrying an item,"
 		" which might look off with large enemies. They will also not pass their Z value onto the item."
-		" \nIf disabled, they will use the same position as their item drop position, and will carry the item into the Z axis." }
+		" \nIf disabled, they will use the same position as their item drop position, and will carry the item into the Z axis." },
+	{ "Custom Weapon / Ice Rod Bugged Cost", qr_CUSTOMWEAPON_IGNORE_COST,
+		"Custom Weapon and Ice Rod itemclasses will not charge the use cost set"
+		" in the item editor if this is enabled." }
 };
 
 static const GUI::ListData enemiesRulesList

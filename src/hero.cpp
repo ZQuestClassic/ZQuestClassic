@@ -9789,9 +9789,11 @@ bool HeroClass::startwpn(int32_t itemid)
 		}
 		break;
 		
-		case itype_script1:
+		case itype_script1: case itype_script2: case itype_script3: case itype_script4: case itype_script5:
+		case itype_script6: case itype_script7: case itype_script8: case itype_script9: case itype_script10:
 		{
-			if(Lwpns.idCount(wScript1))
+			int32_t wtype = wScript1 + (itm.family-itype_script1);
+			if(Lwpns.idCount(wtype))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -9800,170 +9802,11 @@ bool HeroClass::startwpn(int32_t itemid)
 					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
 			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript1,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script2:
-		{
-			if(Lwpns.idCount(wScript2))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript2,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script3:
-		{
-			if(Lwpns.idCount(wScript3))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript3,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script4:
-		{
-			if(Lwpns.idCount(wScript4))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript4,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script5:
-		{
-			if(Lwpns.idCount(wScript5))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript5,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script6:
-		{
-			if(Lwpns.idCount(wScript6))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript6,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script7:
-		{
-			if(Lwpns.idCount(wScript7))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript7,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script8:
-		{
-			if(Lwpns.idCount(wScript8))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript8,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script9:
-		{
-			if(Lwpns.idCount(wScript9))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript9,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
-			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
-			sfx(itm.usesound,pan(wx));
-		}
-		break;
-		
-		case itype_script10:
-		{
-			if(Lwpns.idCount(wScript10))
-				return false;
-				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-		
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wScript10,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
+			
+			if(!get_bit(quest_rules, qr_CUSTOMWEAPON_IGNORE_COST))
+				paymagiccost(itemid);
+			
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wtype,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
 			sfx(itm.usesound,pan(wx));
 		}
@@ -9980,6 +9823,9 @@ bool HeroClass::startwpn(int32_t itemid)
 					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
 			}
+			
+			if(!get_bit(quest_rules, qr_CUSTOMWEAPON_IGNORE_COST))
+				paymagiccost(itemid);
 		
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wIce,itm.fam_type,game->get_hero_dmgmult()*itm.power,dir,itemid,getUID(),false,false,true));
 			((weapon*)Lwpns.spr(Lwpns.Count()-1))->step = itm.misc1;
