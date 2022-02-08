@@ -8141,8 +8141,8 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             
             if(gui_mouse_b()==0)
             {
-                px2=byte(x&mask);
-                py2=byte(y&mask);
+                px2=byte(vbound(x,0,255)&mask);
+                py2=byte(vbound(y,0,255)&mask);
             }
             
             zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
@@ -8356,12 +8356,14 @@ finished:
 // Drag FFCs around
 void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
-    int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-    int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffx[i]/10000.0),0,240);
+    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffy[i]/10000.0),0,160);
+	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
     doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
-    
-    if((ffx != int32_t(Map.CurrScr()->ffx[i]/10000.0)) || (ffy != int32_t(Map.CurrScr()->ffy[i]/10000.0)))
+    if(ffx > 240) ffx = 240;
+    if(ffy > 160) ffy = 160;
+    if((ffx != offx) || (ffy != offy))
     {
         Map.CurrScr()->ffx[i] = ffx*10000;
         Map.CurrScr()->ffy[i] = ffy*10000;
