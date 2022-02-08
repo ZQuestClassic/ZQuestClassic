@@ -24053,8 +24053,8 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
-	zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
+	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",3);
 	
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
@@ -29835,62 +29835,62 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
-	MouseScroll					= get_config_int("zquest","mouse_scroll",0);
-	WarnOnInitChanged			  = get_config_int("zquest","warn_initscript_changes",1);
-	InvalidStatic				  = get_config_int("zquest","invalid_static",1);
-	MMapCursorStyle				= get_config_int("zquest","cursorblink_style",1);
-	TileProtection				 = get_config_int("zquest","tile_protection",1);
-	ShowGrid					   = get_config_int("zquest","show_grid",0);
-	GridColor					  = get_config_int("zquest","grid_color",15);
-	SnapshotFormat				 = get_config_int("zquest","snapshot_format",3);
-	SavePaths					  = get_config_int("zquest","save_paths",1);
-	CycleOn						= get_config_int("zquest","cycle_on",1);
-	Vsync						  = get_config_int("zquest","vsync",1)!=0;
-	ShowFPS						= get_config_int("zquest","showfps",0)!=0;
-	ComboBrush					 = get_config_int("zquest","combo_brush",0);
-	BrushPosition				  = get_config_int("zquest","brush_position",0);
-	FloatBrush					 = get_config_int("zquest","float_brush",0);
-	UseSmall					   = get_config_int("zquest","small",0);
-	RulesetDialog				  = get_config_int("zquest","rulesetdialog",1);
-	EnableTooltips				 = get_config_int("zquest","enable_tooltips",1);
-	ShowFFScripts				  = get_config_int("zquest","showffscripts",1);
-	ShowSquares					= get_config_int("zquest","showsquares",1);
-	ShowInfo					   = get_config_int("zquest","showinfo",1);
-	skipLayerWarning			   = get_config_int("zquest","skip_layer_warning",0);
+	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
+	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
+	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
+	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
+	TileProtection				 = zc_get_config("zquest","tile_protection",1);
+	ShowGrid					   = zc_get_config("zquest","show_grid",0);
+	GridColor					  = zc_get_config("zquest","grid_color",15);
+	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
+	SavePaths					  = zc_get_config("zquest","save_paths",1);
+	CycleOn						= zc_get_config("zquest","cycle_on",1);
+	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
+	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
+	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
+	BrushPosition				  = zc_get_config("zquest","brush_position",0);
+	FloatBrush					 = zc_get_config("zquest","float_brush",0);
+	UseSmall					   = zc_get_config("zquest","small",0);
+	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
+	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
+	ShowFFScripts				  = zc_get_config("zquest","showffscripts",1);
+	ShowSquares					= zc_get_config("zquest","showsquares",1);
+	ShowInfo					   = zc_get_config("zquest","showinfo",1);
+	skipLayerWarning			   = zc_get_config("zquest","skip_layer_warning",0);
 	
-	OpenLastQuest				  = get_config_int("zquest","open_last_quest",0);
-	ShowMisalignments			  = get_config_int("zquest","show_misalignments",0);
-	AnimationOn					= get_config_int("zquest","animation_on",1);
-	AutoBackupRetention			= get_config_int("zquest","auto_backup_retention",2);
-	AutoSaveInterval			   = get_config_int("zquest","auto_save_interval",6);
-	AutoSaveRetention			  = get_config_int("zquest","auto_save_retention",2);
-	UncompressedAutoSaves		  = get_config_int("zquest","uncompressed_auto_saves",1);
-	OverwriteProtection			= get_config_int("zquest","overwrite_prevention",0)!=0;
-	ImportMapBias				  = get_config_int("zquest","import_map_bias",0);
+	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
+	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
+	AnimationOn					= zc_get_config("zquest","animation_on",1);
+	AutoBackupRetention			= zc_get_config("zquest","auto_backup_retention",2);
+	AutoSaveInterval			   = zc_get_config("zquest","auto_save_interval",6);
+	AutoSaveRetention			  = zc_get_config("zquest","auto_save_retention",2);
+	UncompressedAutoSaves		  = zc_get_config("zquest","uncompressed_auto_saves",1);
+	OverwriteProtection			= zc_get_config("zquest","overwrite_prevention",0)!=0;
+	ImportMapBias				  = zc_get_config("zquest","import_map_bias",0);
 	
-	KeyboardRepeatDelay		   = get_config_int("zquest","keyboard_repeat_delay",300);
-	KeyboardRepeatRate			= get_config_int("zquest","keyboard_repeat_rate",80);
+	KeyboardRepeatDelay		   = zc_get_config("zquest","keyboard_repeat_delay",300);
+	KeyboardRepeatRate			= zc_get_config("zquest","keyboard_repeat_rate",80);
 	
-//  Frameskip					 = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
-	RequestedFPS				  = get_config_int("zquest","fps",60);
-	ForceExit					 = get_config_int("zquest","force_exit",0);
+//  Frameskip					 = zc_get_config("zquest","frameskip",0); //todo: this is not actually supported yet.
+	RequestedFPS				  = zc_get_config("zquest","fps",60);
+	ForceExit					 = zc_get_config("zquest","force_exit",0);
 	
 	//Combo Page, Tile Page, an Map Tile Page Autofill
-	PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
-	PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
-	PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
-	//ViewLayer3BG = get_config_int("zquest","ViewLayer3BG",0);
-	//ViewLayer2BG = get_config_int("zquest","ViewLayer2BG",0);
+	PreFillTileEditorPage	  = zc_get_config("zquest","PreFillTileEditorPage",0);
+	PreFillComboEditorPage	  = zc_get_config("zquest","PreFillComboEditorPage",0);
+	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
+	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
+	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
 	
 	
 	//This is too much work to fix for 2.5. :| -Gleeok
-	//zqColorDepth				  = get_config_int("zquest","zq_color_depth",8);
+	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);
 	
 #ifdef _WIN32
-	zqUseWin32Proc				 = get_config_int("zquest","zq_win_proc_fix",0);
+	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
 	
 	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
+	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
 #endif
 	
 	if(RequestedFPS < 12) RequestedFPS = 12;
@@ -29907,9 +29907,9 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	// 1 <= zcmusic_bufsz <= 128
-	zcmusic_bufsz = vbound(get_config_int("zquest","zqmusic_bufsz",64),1,128);
-	int32_t tempvalue				  = get_config_int("zquest","layer_mask",-1);
-	int32_t usefullscreen				 = get_config_int("zquest","fullscreen",0);
+	zcmusic_bufsz = vbound(zc_get_config("zquest","zqmusic_bufsz",64),1,128);
+	int32_t tempvalue				  = zc_get_config("zquest","layer_mask",-1);
+	int32_t usefullscreen				 = zc_get_config("zquest","fullscreen",0);
 	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
 	LayerMask[0]=byte(tempvalue&0xFF);
 	LayerMask[1]=byte((tempvalue>>8)&0xFF);
@@ -29919,23 +29919,25 @@ int32_t main(int32_t argc,char **argv)
 		LayerMaskInt[x]=get_bit(LayerMask,x);
 	}
 	
-	DuplicateAction[0]			 = get_config_int("zquest","normal_duplicate_action",2);
-	DuplicateAction[1]			 = get_config_int("zquest","horizontal_duplicate_action",0);
-	DuplicateAction[2]			 = get_config_int("zquest","vertical_duplicate_action",0);
-	DuplicateAction[3]			 = get_config_int("zquest","both_duplicate_action",0);
-	LeechUpdate					= get_config_int("zquest","leech_update",500);
-	LeechUpdateTiles			   = get_config_int("zquest","leech_update_tiles",1);
-	OnlyCheckNewTilesForDuplicates = get_config_int("zquest","only_check_new_tiles_for_duplicates",0);
-	gui_colorset				   = get_config_int("zquest","gui_colorset",0);
+	DuplicateAction[0]			 = zc_get_config("zquest","normal_duplicate_action",2);
+	DuplicateAction[1]			 = zc_get_config("zquest","horizontal_duplicate_action",0);
+	DuplicateAction[2]			 = zc_get_config("zquest","vertical_duplicate_action",0);
+	DuplicateAction[3]			 = zc_get_config("zquest","both_duplicate_action",0);
+	LeechUpdate					= zc_get_config("zquest","leech_update",500);
+	LeechUpdateTiles			   = zc_get_config("zquest","leech_update_tiles",1);
+	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
+	gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
 	strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
 	
-	midi_volume					= get_config_int("zquest", "midi", 255);
+	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
-	abc_patternmatch			   = get_config_int("zquest", "lister_pattern_matching", 1);
-	NoScreenPreview			   = get_config_int("zquest", "no_preview", 1);
+	abc_patternmatch			   = zc_get_config("zquest", "lister_pattern_matching", 1);
+	NoScreenPreview			   = zc_get_config("zquest", "no_preview", 1);
 	
-	try_recovering_missing_scripts = 0;//get_config_int("Compiler", "try_recovering_missing_scripts",0);
+	monochrome_console = zc_get_config("CONSOLE","monochrome_debuggers",0)?1:0;
+	
+	try_recovering_missing_scripts = 0;//zc_get_config("Compiler", "try_recovering_missing_scripts",0);
 	//We need to remove all of the zeldadx refs to the config file for zquest. 
 	
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -30253,7 +30255,7 @@ int32_t main(int32_t argc,char **argv)
 	for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
 	{
 		sprintf(cmdnametitle, "command%02d", x+1);
-		favorite_commands[x]=get_config_int("zquest",cmdnametitle,0);
+		favorite_commands[x]=zc_get_config("zquest",cmdnametitle,0);
 		if(favorite_commands[x] >= cmdMAX || favorite_commands[x] < 0)
 		{
 			favorite_commands[x] = 0;
@@ -30366,8 +30368,8 @@ int32_t main(int32_t argc,char **argv)
 	set_close_button_callback((void (*)()) hit_close_button);
 	
 #ifndef ALLEGRO_DOS
-	zq_scale_small = get_config_int("zquest","scale",1);
-	zq_scale_large = get_config_int("zquest","scale_large",1);
+	zq_scale_small = zc_get_config("zquest","scale",1);
+	zq_scale_large = zc_get_config("zquest","scale_large",1);
 	zq_scale = is_large ? zq_scale_large : zq_scale_small;
 	scale_arg = used_switch(argc,argv,"-scale");
 	

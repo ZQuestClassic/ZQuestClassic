@@ -345,7 +345,7 @@ void Z_message(const char *format,...)
 #endif
     al_trace("%s",buf);
     if(zscript_coloured_console.valid())
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
     if(zconsole)
         printf("%s",buf);
