@@ -3416,6 +3416,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		//Broken DrawScreen Derivative Functions
 		set_bit(quest_rules,qr_BROKEN_DRAWSCREEN_FUNCTIONS,1);
+		//Scrolling Kills Spin Attack Charge
+		set_bit(quest_rules,qr_SCROLLING_KILLS_CHARGE,1);
 	}
 	
 	//always set

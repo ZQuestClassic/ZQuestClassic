@@ -712,7 +712,9 @@ static const GUI::ListData compatRulesList
 		" \nIf disabled, these functions will not break if a layer exists on the source screen. Note that only"
 		" DrawScreenSolid works properly with layers; the other functions will otherwise only take Layer 0"
 		" of the source screen."},
-		
+	{ "Scrolling Cancels Charge", qr_SCROLLING_KILLS_CHARGE,
+		"If enabled, scrolling screens while charging (i.e. spin attack)"
+		" will not keep the charge on the new screen." }
 };
 
 static const GUI::ListData enemiesRulesList

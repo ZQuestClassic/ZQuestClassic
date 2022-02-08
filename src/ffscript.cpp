@@ -92,6 +92,8 @@ zc_randgen script_rnggens[MAX_USER_RNGS];
 
 FONT *get_zc_font(int32_t index);
 
+static int32_t combopos_modified = -1;
+
 const char scripttypenames[15][40]=
 {
 	"none script",
@@ -14955,6 +14957,7 @@ void set_register(const int32_t arg, const int32_t value)
 			//Start the script for the new combo
 			FFCore.clear_combo_stack(pos);
 			comboScriptData[pos].Clear();
+			combopos_modified = pos;
 			
 			/*
 			ri = &(comboScriptData[i]);
@@ -16960,54 +16963,61 @@ void set_register(const int32_t arg, const int32_t value)
 					
 					switch(ri->mapsref)
 					{
-						case MAPSCR_TEMP0: 
-						case MAPSCR_SCROLL0:
+						case MAPSCR_TEMP0:
+						//case MAPSCR_SCROLL0:
 							FFCore.clear_combo_stack(pos);
 							comboScriptData[pos].Clear();
 							combo_doscript[pos] = 1;
 							combo_initialised[pos] &= ~(1<<0);
+							combopos_modified = pos;
 							break;
 						case MAPSCR_TEMP1: 
-						case MAPSCR_SCROLL1:
+						//case MAPSCR_SCROLL1:
 							FFCore.clear_combo_stack(pos+(176*1));
 							comboScriptData[pos+(176*1)].Clear();
 							combo_doscript[pos+(176*1)] = 1;
 							combo_initialised[pos] &= ~(1<<1);
+							combopos_modified = pos+(176*1);
 							break;
 						case MAPSCR_TEMP2: 
-						case MAPSCR_SCROLL2:
+						//case MAPSCR_SCROLL2:
 							FFCore.clear_combo_stack(pos+(176*2));
 							comboScriptData[pos+(176*2)].Clear();
 							combo_doscript[pos+(176*2)] = 1;
 							combo_initialised[pos] &= ~(1<<2);
+							combopos_modified = pos+(176*2);
 							break;
 						case MAPSCR_TEMP3:
-						case MAPSCR_SCROLL3:
+						//case MAPSCR_SCROLL3:
 							FFCore.clear_combo_stack(pos+(176*3));
 							comboScriptData[pos+(176*3)].Clear();
 							combo_doscript[pos+(176*3)] = 1;
 							combo_initialised[pos] &= ~(1<<3);
+							combopos_modified = pos+(176*3);
 							break;
 						case MAPSCR_TEMP4: 
-						case MAPSCR_SCROLL4:
+						//case MAPSCR_SCROLL4:
 							FFCore.clear_combo_stack(pos+(176*4));
 							comboScriptData[pos+(176*4)].Clear();
 							combo_doscript[pos+(176*4)] = 1;
 							combo_initialised[pos] &= ~(1<<4);
+							combopos_modified = pos+(176*4);
 							break;
 						case MAPSCR_TEMP5:
-						case MAPSCR_SCROLL5:
+						//case MAPSCR_SCROLL5:
 							FFCore.clear_combo_stack(pos+(176*5));
 							comboScriptData[pos+(176*5)].Clear();
 							combo_doscript[pos+(176*5)] = 1;
 							combo_initialised[pos] &= ~(1<<5);
+							combopos_modified = pos+(176*5);
 							break;
 						case MAPSCR_TEMP6:
-						case MAPSCR_SCROLL6:
+						//case MAPSCR_SCROLL6:
 							FFCore.clear_combo_stack(pos+(176*6));
 							comboScriptData[pos+(176*6)].Clear();
 							combo_doscript[pos+(176*6)] = 1;
 							combo_initialised[pos] &= ~(1<<6);
+							combopos_modified = pos+(176*6);
 							break;
 						default: break;
 					}
@@ -23424,6 +23434,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		
 	if(type != SCRIPT_GLOBAL && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
 	
+	combopos_modified = -1;
 	curScriptType=type;
 	curScriptNum=script;
 	numInstructions=0;
@@ -26976,7 +26987,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		
 		if (type == SCRIPT_COMBO)
 		{
-			if(this_combo_id != FFCore.tempScreens[i/176]->data[i%176])
+			if(combopos_modified == i)
 			{
 				//Combo changed! Abort script!
 				return RUNSCRIPT_OK;
@@ -30623,6 +30634,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	}
 	resume_all_sfx();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
 }
 bool FFScript::runOnMapScriptEngine()
@@ -30666,6 +30678,7 @@ bool FFScript::runOnMapScriptEngine()
 	}
 	resume_all_sfx();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
 }
 
