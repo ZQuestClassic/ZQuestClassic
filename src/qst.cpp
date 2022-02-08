@@ -3412,6 +3412,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//On the offchance that it *does* break old quests, fixing it is as simple as uncommenting the set_bit above.
 	}
 	
+	if(compatrule_version < 18)
+	{
+		//Broken DrawScreen Derivative Functions
+		set_bit(quest_rules,qr_BROKEN_DRAWSCREEN_FUNCTIONS,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
