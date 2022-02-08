@@ -3772,8 +3772,15 @@ void enemy::leave_item()
 	
 	if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
-		if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
-		else items.add(new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+		if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+		{
+			items.add(new item(x+hxofs+(hxsz/2)-8,y+hyofs+(hysz/2)-8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+		}
+		else
+		{
+			if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+			else items.add(new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+		}
 	}
 }
 
@@ -6589,8 +6596,33 @@ void enemy::try_death(bool force_kill)
 			{
 				if(((item*)items.spr(i))->pickup&ipENEMY)
 				{
-					items.spr(i)->x = x;
-					items.spr(i)->y = y - 2;
+					if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
+					{
+						if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+						{
+							items.spr(i)->x = x+hxofs+(hxsz/2)-8;
+							items.spr(i)->y = y+hyofs+(hysz/2)-10;
+						}
+						else
+						{
+							if(extend >= 3) 
+							{
+								items.spr(i)->x = x+(txsz-1)*8;
+								items.spr(i)->y = y-2+(tysz-1)*8;
+							}
+							else 
+							{
+								items.spr(i)->x = x;
+								items.spr(i)->y = y - 2;
+							}
+						}
+						items.spr(i)->z = z;
+					}
+					else
+					{
+						items.spr(i)->x = x;
+						items.spr(i)->y = y - 2;
+					}
 				}
 			}
 		}
@@ -23149,8 +23181,33 @@ void roaming_item()
 			}
 			else if(guycarryingitem>=0 && guycarryingitem<guys.Count())
 			{
-				items.spr(i)->x = guys.spr(guycarryingitem)->x;
-				items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+				if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
+				{
+					if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+					{
+						items.spr(i)->x = guys.spr(guycarryingitem)->x+guys.spr(guycarryingitem)->hxofs+(guys.spr(guycarryingitem)->hxsz/2)-8;
+						items.spr(i)->y = guys.spr(guycarryingitem)->y+guys.spr(guycarryingitem)->hyofs+(guys.spr(guycarryingitem)->hysz/2)-10;
+					}
+					else
+					{
+						if(guys.spr(guycarryingitem)->extend >= 3) 
+						{
+							items.spr(i)->x = guys.spr(guycarryingitem)->x+(guys.spr(guycarryingitem)->txsz-1)*8;
+							items.spr(i)->y = guys.spr(guycarryingitem)->y-2+(guys.spr(guycarryingitem)->tysz-1)*8;
+						}
+						else 
+						{
+							items.spr(i)->x = guys.spr(guycarryingitem)->x;
+							items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+						}
+					}
+					items.spr(i)->z = guys.spr(guycarryingitem)->z;
+				}
+				else
+				{
+					items.spr(i)->x = guys.spr(guycarryingitem)->x;
+					items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+				}
 			}
 		}
 	}

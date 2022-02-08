@@ -12292,9 +12292,36 @@ void set_register(const int32_t arg, const int32_t value)
 						{
 							if(((enemy*)guys.spr(i))->itemguy)
 							{
-								((item*)(s))->x = ((enemy*)guys.spr(i))->x;
-								((item*)(s))->y = ((enemy*)guys.spr(i))->y;
-								((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+								if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
+								{
+									if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+									{
+										((item*)(s))->x = ((enemy*)guys.spr(i))->x+((enemy*)guys.spr(i))->hxofs+(((enemy*)guys.spr(i))->hxsz/2)-8;
+										((item*)(s))->y = ((enemy*)guys.spr(i))->y+((enemy*)guys.spr(i))->hyofs+(((enemy*)guys.spr(i))->hysz/2)-10;
+										((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+									}
+									else
+									{
+										if(((enemy*)guys.spr(i))->extend >= 3) 
+										{
+											((item*)(s))->x = ((enemy*)guys.spr(i))->x+(((enemy*)guys.spr(i))->txsz-1)*8;
+											((item*)(s))->y = ((enemy*)guys.spr(i))->y-2+(((enemy*)guys.spr(i))->tysz-1)*8;
+											((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+										}
+										else 
+										{
+											((item*)(s))->x = ((enemy*)guys.spr(i))->x;
+											((item*)(s))->y = ((enemy*)guys.spr(i))->y - 2;
+											((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+										}
+									}
+								}
+								else
+								{
+									((item*)(s))->x = ((enemy*)guys.spr(i))->x;
+									((item*)(s))->y = ((enemy*)guys.spr(i))->y - 2;
+									((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+								}
 								break;
 							}
 						}

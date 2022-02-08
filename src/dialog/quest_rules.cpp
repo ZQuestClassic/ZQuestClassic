@@ -714,7 +714,11 @@ static const GUI::ListData compatRulesList
 		" of the source screen."},
 	{ "Scrolling Cancels Charge", qr_SCROLLING_KILLS_CHARGE,
 		"If enabled, scrolling screens while charging (i.e. spin attack)"
-		" will not keep the charge on the new screen." }
+		" will not keep the charge on the new screen." },
+	{ "Broken Enemy Item Carrying", qr_BROKEN_ITEM_CARRYING,
+		"If enabled, enemies will use the topleft corner of their tile as their item carry position when carrying an item,"
+		" which might look off with large enemies. They will also not pass their Z value onto the item."
+		" \nIf disabled, they will use the same position as their item drop position, and will carry the item into the Z axis." }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -809,6 +813,9 @@ static const GUI::ListData enemiesRulesList
 		" isn't one of the last 6 unique screens visited; regardless of how many enemies are"
 		" left alive. Otherwise, if disabled, the enemies will only return if you either left"
 		" 0 enemies alive on the screen, or if you left and re-entered the map."},
+	{ "Enemy Drops use Hitbox for Position", qr_ENEMY_DROPS_USE_HITOFFSETS,
+		"If enabled, enemies will drop their dropset item at the center of their hitbox."
+		" \nIf disabled, they will drop their item at the center of their tile."},
 		
 	//Maybe we should keep this one last always? -Deedee 
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,

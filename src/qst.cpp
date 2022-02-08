@@ -3420,6 +3420,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_SCROLLING_KILLS_CHARGE,1);
 	}
 	
+	if(compatrule_version < 19)
+	{
+		//Broken Enemy Item Carrying with Large Enemies
+		set_bit(quest_rules,qr_BROKEN_ITEM_CARRYING,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
