@@ -8889,7 +8889,7 @@ void System()
     
     DIALOG_PLAYER *p;
     
-    if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2))
+    if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode))
     {
         p = init_dialog(system_dlg2,-1);
     }
