@@ -2622,7 +2622,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 
 int32_t save_savedgames()
 {
-	if(saves==NULL)
+	if(zqtesting_mode||saves==NULL)
 		return 1;
 	
 	// Not sure why this happens, but apparently it does...

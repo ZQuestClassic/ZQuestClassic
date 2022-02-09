@@ -8234,13 +8234,6 @@ int32_t setCheat()
 #endif //DEVLEVEL > 1
 #endif //DEVLEVEL > 0
 
-/* NOTICE: zelda.cpp uses memcpy on the following MENU arrays using hardcoded
-	literal values:
-		memcpy(the_player_menu, the_player_menu_zc_on_left, sizeof(MENU)*(DEVLEVEL>0 ? 9 : 8) );
-		memcpy(the_player_menu2, the_player_menu_zc_on_left2, sizeof(MENU)*(DEVLEVEL>0 ? 8 : 7));  
-	If you add entries to these arrays, be sure to update these lines in zelda.cpp with the new sizes!
-*/
-
 MENU the_player_menu[] =
 {
     { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
@@ -8253,21 +8246,6 @@ MENU the_player_menu[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
     #else
     { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
-    { NULL,                                 NULL,                    NULL,                      0, NULL }
-    #endif
-};
-
-MENU the_player_menu_zc_on_left[] =
-{
-    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
-    { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
-    { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
-    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
-    #if DEVLEVEL > 0
-    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
-    { NULL,                                 NULL,                    NULL,                      0, NULL }
-    #else
     { NULL,                                 NULL,                    NULL,                      0, NULL }
     #endif
 };
@@ -8287,20 +8265,6 @@ MENU the_player_menu2[] =
     { NULL,                                 NULL,                    NULL,                      0, NULL }
     #endif
     
-};
-
-MENU the_player_menu_zc_on_left2[] =
-{
-    { (char *)"&ZC",                      NULL,                    misc_menu,                 0, NULL },
-    { (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
-    { (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
-    { (char *)"&Fixes",                     NULL,                    fixes_menu,                0, NULL },
-    #if DEVLEVEL > 0
-    { (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
-    { NULL,                                 NULL,                    NULL,                      0, NULL }
-    #else
-    { NULL,                                 NULL,                    NULL,                      0, NULL }
-    #endif
 };
 
 int32_t onMIDIPatch()

@@ -1,7 +1,51 @@
 // 2.55 Change Log
-// Updated 22nd Jan, 2022
+// Updated 9th Feb, 2022
 
 //Since A102
+
+Add 'Quest->Test', to instantly launch ZC to the current quest, dmap, and screen.
+	( EmilyV, Feb 9th, 2022 )
+
+Fix ffc drag bounding error
+Fix screen 80 visited state bug
+Candle step speed attribute
+Fix custom weapon costs
+Add ZQuest debug console
+Add compiler SFX options to options dialog
+Fix tile editor selection issue in non-rect mode
+Clear out some unused code from old init dialog
+	( EmilyV, Feb 8th, 2022 )
+
+Added QR's for proper enemy item carrying and enemy drops.
+	( Deedee, Feb 8th, 2022 )
+
+Fix game_loop timing issue, charging across screens
+	( EmilyV, Feb 7th, 2022 )
+
+Fixed broken DrawScreenSolid and the like.
+Fixed whistle whirlwinds constantly playing sound... again.
+Fixed comboscript issue.
+	( Deedee, Feb 7th, 2022 )
+
+Fixed the enemy quake offset bug
+	( Deedee, Feb 5th, 2022 )
+
+Fixed my own book fire blunder
+Fixed issue with reading MouseY affecting quakeclk
+	( Deedee, Feb 4th, 2022 )
+
+Add 'Recent' menu, allowing loading of recently-opened quests.
+	( EmilyV, Feb 2nd, 2022 )
+
+Allow viewing string list sorted
+	( EmilyV, Feb 1st, 2022 )
+
+Fixed weird string bug in screens with shops
+Fixed the lack of o_tile initialization of script weapons
+	( Deedee, Feb 1st, 2022 )
+
+Fix numerous Panoply-related bugs
+	( Deedee, Jan 31st, 2022 )
 
 Implement external ZScript parser (zscript.exe)
 	( EmilyV, Jan 27th, 2022 )

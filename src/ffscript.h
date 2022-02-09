@@ -4382,8 +4382,9 @@ enum ASM_DEFINE
 #define LWSWHOOKED              0x141B
 #define EWSWHOOKED              0x141C
 #define ITMSWHOOKED             0x141D
+#define DEBUGTESTING            0x141E
 
-#define NUMVARIABLES         	0x141E
+#define NUMVARIABLES         	0x141F
 
 //} End variables
 

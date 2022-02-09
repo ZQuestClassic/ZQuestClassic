@@ -2683,6 +2683,9 @@ int32_t get_register(const int32_t arg)
 		case DONULL: 
 			ret = 0;
 			break;
+		case DEBUGTESTING:
+			ret = zqtesting_mode ? 10000 : 0;
+			break;
 		
 		//debug ri->d[]
 		case DEBUGD:
@@ -34814,6 +34817,7 @@ script_variable ZASMVars[]=
 	{ "LWSWHOOKED",  LWSWHOOKED,  0, 0 },
 	{ "EWSWHOOKED",  EWSWHOOKED,  0, 0 },
 	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
+	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

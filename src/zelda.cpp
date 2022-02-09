@@ -1413,9 +1413,7 @@ HeroClass   Hero;
 
 #include "zc_sys.h"
 //extern MENU the_player_menu;
-//extern MENU the_player_menu_zc_on_left;
 //extern MENU the_player_menu2;
-//extern MENU the_player_menu_zc_on_left2;
 //extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
@@ -2170,7 +2168,7 @@ int32_t init_game()
 		cheat = 4;
 	
     bool firstplay = (game->get_hasplayed() == 0);
-    
+	
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
     //setupherotiles(zinit.heroAnimationStyle);
     
@@ -5646,6 +5644,7 @@ int32_t main(int32_t argc, char* argv[])
 		saves[0].set_continue_scrn(testingqst_screen);
 		strcpy(saves[0].qstpath, testingqst_name);
 		saves[0].set_quest(0xFF);
+		saves[0].set_name("Hero");
 		clearConsole();
 		Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
 	}
@@ -5661,6 +5660,7 @@ int32_t main(int32_t argc, char* argv[])
 				cont_game();
 			else
 			{
+				Quit = 0;
 				init_game();
 			}
 			Quit = 0;
