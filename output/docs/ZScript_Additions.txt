@@ -2733,6 +2733,9 @@ void ResizeArray(untyped[] arr, int size);
 void Trace(untyped)
  * The Trace() instruction now supports all datatypes.
 
+void ClearTrace();
+ * Clears the log file output, and the debug console screen.
+
 untyped Untype(any)
  * Converts the value of any datatype to another, similar to typecasting.
  * Example:
