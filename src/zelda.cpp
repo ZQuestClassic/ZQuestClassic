@@ -87,6 +87,7 @@ extern char zc_aboutstr[80];
 int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
+bool zqtesting_mode = false;
 
 #include "init.h"
 #include <assert.h>
@@ -1918,8 +1919,7 @@ void init_dmap()
 
 int32_t init_game()
 {
-	
-  //port250QuestRules();	
+	//port250QuestRules();	
     zc_srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
@@ -1930,7 +1930,7 @@ int32_t init_game()
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=223;	
 	
-//Some initialising globals
+	//Some initialising globals
     didpit=false;
     Hero.unfreeze();
     Hero.reset_hookshot();
@@ -1973,7 +1973,7 @@ int32_t init_game()
     }
     
     /* Disabling to see if this is causing virus scanner redflags. -Z
-//Confuse the cheaters by moving the game data to a random location
+	//Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
         delete game;
         
@@ -1983,14 +1983,14 @@ int32_t init_game()
     
     zc_free(dummy);
     */
-//Copy saved data to RAM data (but not global arrays)
+	//Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
     ResetSaveScreenSettings();
     
 	//ResetSaveScreenSettings();
     
-//Load the quest
+	//Load the quest
     //setPackfilePassword(datapwd);
     int32_t ret = load_quest(game);
     
@@ -2166,6 +2166,9 @@ int32_t init_game()
 		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
 	}
 	
+	if(zqtesting_mode)
+		cheat = 4;
+	
     bool firstplay = (game->get_hasplayed() == 0);
     
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
@@ -2184,9 +2187,14 @@ int32_t init_game()
     //  currdmap = warpscr = worldscr=0;
     if(firstplay)
     {
-        game->set_continue_dmap(zinit.start_dmap);
+		if(!zqtesting_mode)
+			game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
-	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda)); }
+		if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 )
+		{
+			game->set_maxbombs(8);
+			//al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda));
+		}
     }
     
     previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
@@ -4567,7 +4575,6 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		Z_title("%s, v.%s Alpha %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_ALPHA);
 	}
-		
 	else if ( V_ZC_BETA )
 	{
 		Z_title("%s, v.%s Beta %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_BETA);
@@ -4580,31 +4587,7 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		Z_title("%s, v.%s Release %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_RELEASE);
 	}
-	/*
-		switch(IS_BETA)
-		{
-		
-		case -1:
-		{
-		Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		//Print the current time to allegro.log as a test.
-		
-		//for (int32_t q = 0; q < curTimeLAST; q++) 
-		//{
-		//    int32_t t_time_v = FFCore.getTime(q);
-		//}
-			
-		break;
-		}
-		
-		case 1:
-		Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		break;
-		
-		case 0:
-		Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		}
-	*/
+	
 	if(used_switch(argc, argv, "-standalone"))
 	{
 		standalone_mode=true;
@@ -4642,22 +4625,14 @@ int32_t main(int32_t argc, char* argv[])
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
 	
-	//  Z_title("Zelda Classic %s",VerStr(ZELDA_VERSION));
-	
 	// allocate quest data buffers
-	
 #ifdef _WIN32
-	
 	if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
 	{
 		DebugConsole::Open();
 		zconsole = true;
 	}
-	
 #endif
-	
-	//FFScript::init();
-	
 	memrequested += 4096;
 	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
 	qstdir = (char*)zc_malloc(2048);
@@ -4676,7 +4651,6 @@ int32_t main(int32_t argc, char* argv[])
 	sprintf(qstdir, "../../../");
 	sprintf(qstpath, "../../../");
 #endif
-	
 	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
@@ -4685,10 +4659,7 @@ int32_t main(int32_t argc, char* argv[])
 		quit_game();
 	}
 	
-	// initialize Allegro
-	
 	Z_message("Initializing Allegro... ");
-	
 	if(allegro_init() != 0)
 	{
 		Z_error("Failed Init!");
@@ -4696,8 +4667,6 @@ int32_t main(int32_t argc, char* argv[])
 	}
 	
 	three_finger_flag=false;
-	//atexit(&dumb_exit);
-	//dumb_register_stdfiles();
 	
 	register_bitmap_file_type("GIF",  load_gif, save_gif);
 	jpgalleg_init();
@@ -4716,7 +4685,7 @@ int32_t main(int32_t argc, char* argv[])
 		save_game_configs();
 	}
 	
-	#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
+#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
 	if(!is_only_instance("zc.lck"))
 	{
 		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
@@ -4732,9 +4701,8 @@ int32_t main(int32_t argc, char* argv[])
 	//al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
 	if ( !(zcm.init(true)) ) 
 	{
-	exit(1);    
+		exit(1);    
 	}
-	
 	
 #ifdef _WIN32
 	
@@ -4746,66 +4714,66 @@ int32_t main(int32_t argc, char* argv[])
 	}
 	if ( zscript_debugger )
 	{
-	FFCore.ZScriptConsole(true);
+		FFCore.ZScriptConsole(true);
 	}
 
 #else //Unix
 
 	if(zscript_debugger)
 	{ // Let's try making a console for Linux -Z
-	int32_t termflags = 0;
-	termflags |= O_RDWR; //Open the device for both reading and writing.
-	//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
-	pt = posix_openpt(termflags);
-	if (pt == -1)
-	{
-		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	ptname = ptsname(pt);
-	if (!ptname)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	if (unlockpt(pt) == -1)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-	system(lxconsole_oss.str().c_str());
-
-	int32_t xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
-	{
-		char c = 0; int32_t tries = 10000; 
-		do 
+		int32_t termflags = 0;
+		termflags |= O_RDWR; //Open the device for both reading and writing.
+		//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
+		pt = posix_openpt(termflags);
+		if (pt == -1)
 		{
-			read(xterm_fd, &c, 1); 
-			--tries;
-		} while (c!='\n' && tries > 0);
-	}
+			Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+			use_debug_console = 0; goto no_lx_console;
+		}
+		ptname = ptsname(pt);
+		if (!ptname)
+		{
+			Z_error("Could not get pseudo terminal device name.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
 
-	if (dup2(pt, 1) <0)
-	{
-		Z_error("Could not redirect standard output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	if (dup2(pt, 2) <0)
-	{
-		Z_error("Could not redirect standard error output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
+		if (unlockpt(pt) == -1)
+		{
+			Z_error("Could not get pseudo terminal device name.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
+
+		lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+		system(lxconsole_oss.str().c_str());
+
+		int32_t xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
+		{
+			char c = 0; int32_t tries = 10000; 
+			do 
+			{
+				read(xterm_fd, &c, 1); 
+				--tries;
+			} while (c!='\n' && tries > 0);
+		}
+
+		if (dup2(pt, 1) <0)
+		{
+			Z_error("Could not redirect standard output.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
+		if (dup2(pt, 2) <0)
+		{
+			Z_error("Could not redirect standard error output.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
 	} //this is in a block because I want it in a block. -Z
 	else
 	{
-	al_trace("Linux console disabled by user.\n");
+		al_trace("Linux console disabled by user.\n");
 	}
 	
 	no_lx_console:
@@ -4877,10 +4845,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("OK\n");
 	
-	
-	
-	
-	
 	// check for the included quest files
 	if(!standalone_mode)
 	{
@@ -4888,57 +4852,15 @@ int32_t main(int32_t argc, char* argv[])
 		
 		char path[2048];
 		
-		
-	for ( int32_t q = 0; q < moduledata.max_quest_files; q++ )
-	{
-		append_filename(path, qstdir, moduledata.quests[q], 2048);
-		if(!exists(moduledata.quests[q]) && !exists(path))
+		for ( int32_t q = 0; q < moduledata.max_quest_files; q++ )
 		{
-			Z_error("%s not found.\n", moduledata.quests[q]);
-			quit_game();
+			append_filename(path, qstdir, moduledata.quests[q], 2048);
+			if(!exists(moduledata.quests[q]) && !exists(path))
+			{
+				Z_error("%s not found.\n", moduledata.quests[q]);
+				quit_game();
+			}
 		}
-	}	
-	/*
-		append_filename(path, qstdir, moduledata.quests[0], 2048);
-		
-		if(!exists(moduledata.quests[0]) && !exists(path))
-		{
-			Z_error("\"1st.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[1], 2048);
-		
-		if(!exists(moduledata.quests[1]) && !exists(path))
-		{
-			Z_error("\"2nd.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[2], 2048);
-		
-		if(!exists(moduledata.quests[2]) && !exists(path))
-		{
-			Z_error("\"3rd.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[3], 2048);
-		
-		if(!exists(moduledata.quests[3]) && !exists(path))
-		{
-			Z_error("\"4th.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[4], 2048);
-		
-		if(!exists(moduledata.quests[4]) && !exists(path))
-		{
-			Z_error("\"5th.qst\" not found.");
-			quit_game();
-		}
-		*/
 		Z_message("OK\n");
 	}
 	
@@ -4956,45 +4878,45 @@ int32_t main(int32_t argc, char* argv[])
 		//command-line switches takes priority
 		switch(zc_color_depth)
 		{
-		case 0:
-			set_color_depth(desktop_color_depth());
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 8:
-			set_color_depth(8);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 15:
-			set_color_depth(15);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 16:
-			set_color_depth(16);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 24:
-			set_color_depth(24);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 32:
-			set_color_depth(32);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		default:
-			zc_color_depth = 8; //invalid configuration, set to default in config file.
-			set_color_depth(8);
-			break;
+			case 0:
+				set_color_depth(desktop_color_depth());
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 8:
+				set_color_depth(8);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 15:
+				set_color_depth(15);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 16:
+				set_color_depth(16);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 24:
+				set_color_depth(24);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 32:
+				set_color_depth(32);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			default:
+				zc_color_depth = 8; //invalid configuration, set to default in config file.
+				set_color_depth(8);
+				break;
 		}
 	}
 	
 	//set_color_depth(32);
-   // set_color_conversion(COLORCONV_24_TO_8);
+	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	temp_buf  = create_bitmap_ex(8,256,224);
 	scrollbuf = create_bitmap_ex(8,512,406);
@@ -5051,7 +4973,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	
-	
 	resolve_password(zeldapwd);
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
@@ -5098,16 +5019,15 @@ int32_t main(int32_t argc, char* argv[])
 	/*
 	if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
 	{
-	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-		strcpy(save_file_name,"zc.sav");
-	SAVE_FILE = (char *)save_file_name;  
-		
+		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+			strcpy(save_file_name,"zc.sav");
+		SAVE_FILE = (char *)save_file_name;  
 	}
 	/*else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
 	{	    
-	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-		strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
-	SAVE_FILE = (char *)save_file_name;
+		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+			strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+		SAVE_FILE = (char *)save_file_name;
 	}
 	//al_trace("Current save file is: %s\n", save_file_name);
 	
@@ -5119,13 +5039,10 @@ int32_t main(int32_t argc, char* argv[])
 		regulate_path(SAVE_FILE);
 	}
 	
-	
-	
 	// load the data files
 	resolve_password(datapwd);
-//  setPackfilePassword(datapwd);
+	//setPackfilePassword(datapwd);
 	packfile_password(datapwd);
-	
 	
 	Z_message("Loading data files:\n");
 	set_color_conversion(COLORCONV_NONE);
@@ -5168,7 +5085,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("OK\n");
 	
-//  setPackfilePassword(NULL);
+	//setPackfilePassword(NULL);
 	packfile_password(NULL);
 	
 	Z_message("SFX.Dat...");
@@ -5221,50 +5138,50 @@ int32_t main(int32_t argc, char* argv[])
 	dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
 	dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
 	
-	 atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
-		 acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
-		 adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
-		 baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
-		 apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
-		 apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
-		 apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
-		 aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
-		 atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
-		 c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
-		 c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
-		 cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
-		 cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
-		 coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
-		 coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
-		 cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
-		 fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
-		 fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
-		 fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
-		 fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
-		 finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
-		 futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
-		 gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
-		 hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
-		 jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
-		 kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
-		 manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
-		 mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
-		 motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
-		 msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
-		 msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
-		 petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
-		 pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
-		 saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
-		 scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
-		 sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
-		 sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
-		 spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
-		 speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
-		 ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
-		 trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
-		 z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
-		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
-		 lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
+	atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
+	acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
+	adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
+	baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
+	apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
+	apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
+	apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
+	aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
+	atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
+	c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
+	c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
+	cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
+	cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
+	coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
+	coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
+	cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
+	fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
+	fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
+	fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
+	fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
+	finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
+	futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
+	gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
+	hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
+	jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
+	kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
+	manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
+	mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
+	motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
+	msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
+	msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
+	petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
+	pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
+	saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
+	scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
+	sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
+	sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
+	spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
+	speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
+	ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
+	trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
+	z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
+	zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
+	lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -5357,14 +5274,10 @@ int32_t main(int32_t argc, char* argv[])
 		comboscripts[i] = new script_data();
 	}
 	
-	
-	
 	//script drawing bitmap allocation
 	zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
 	
-	
 	// initialize sound driver
-	
 	Z_message("Initializing sound driver... ");
 	
 	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound") || zc_get_config("zeldadx","nosound",0))
@@ -5472,7 +5385,7 @@ int32_t main(int32_t argc, char* argv[])
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 		
-//    mode = GFX_AUTODETECT;
+		//mode = GFX_AUTODETECT;
 	}
 	
 	if(resx>=640 && resy>=480)
@@ -5621,17 +5534,66 @@ int32_t main(int32_t argc, char* argv[])
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
 	
-	clearConsole();
-	// load saved games
-	zprint2("Loading Saved Games\n");
-	if(load_savedgames() != 0)
+	int32_t test_arg = used_switch(argc,argv,"-test");
+	zqtesting_mode = test_arg > 0;
+	static char testingqst_name[512] = {0};
+	static uint16_t testingqst_dmap = 0;
+	static uint8_t testingqst_screen = 0;
+	if(zqtesting_mode)
 	{
-		Z_error("Insufficient memory");
-		quit_game();
+		clearConsole();
+		Z_message("Initializing test mode...\n");
+		if(test_arg+3 >= argc)
+		{
+			Z_error( "-test missing parameters:\n"
+				"-test \"quest_file_path\" test_dmap test_screen\n" );
+			exit(1);
+		}
+		bool error = false;
+		strcpy(testingqst_name, argv[test_arg+1]);
+		int32_t dm = atoi(argv[test_arg+2]);
+		int32_t scr = atoi(argv[test_arg+3]);
+		if(!fileexists(testingqst_name))
+		{
+			Z_error( "-test invalid parameter: 'quest_file_path' was '%s',"
+				" but that file does not exist!\n", testingqst_name);
+			error = true;
+		}
+		if(unsigned(dm) >= MAXDMAPS)
+		{
+			Z_error( "-test invalid parameter: 'test_dmap' was '%d'."
+				" Must be '0 <= test_dmap < %d'\n", dm, MAXDMAPS);
+			error = true;
+		}
+		if(unsigned(scr) >= 0x80)
+		{
+			Z_error( "-test invalid parameter: 'test_screen' was '%d'."
+				" Must be '0 <= test_screen < 128'\n", scr);
+			error = true;
+		}
+		
+		if(error)
+		{
+			Z_error("Failed '-test \"%s\" %d %d'\n", testingqst_name, dm, scr);
+			exit(1);
+		}
+		testingqst_dmap = (uint16_t)dm;
+		testingqst_screen = (uint8_t)scr;
 	}
-	zprint2("Finished Loading Saved Games\n");
-	Z_message("OK\n");
 	
+	//clearConsole();
+	init_saves();
+	if(!zqtesting_mode)
+	{
+		// load saved games
+		zprint2("Loading Saved Games\n");
+		if(load_savedgames() != 0)
+		{
+			Z_error("Insufficient memory");
+			quit_game();
+		}
+		zprint2("Finished Loading Saved Games\n");
+	}
 #ifdef _WIN32
 	// Nothing for them to do on other platforms
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
@@ -5639,7 +5601,7 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	
 	// AG logo
-	if(!(fast_start||zc_get_config("zeldadx","skip_logo",1)))
+	if(!(zqtesting_mode||fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
 		set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
@@ -5665,7 +5627,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(use_win32_proc != FALSE)
 	{
-		al_trace("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
+		Z_message("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
 		
 		if(win32data.zcSetCustomCallbackProc(win_get_window()) != 0)
 		{
@@ -5676,13 +5638,34 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	
 	
+	if(zqtesting_mode)
+	{
+		currgame = 0;
+		saves[0].Clear();
+		saves[0].set_continue_dmap(testingqst_dmap);
+		saves[0].set_continue_scrn(testingqst_screen);
+		strcpy(saves[0].qstpath, testingqst_name);
+		saves[0].set_quest(0xFF);
+		clearConsole();
+		Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
+	}
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat
 		set_keyboard_rate(250,33);
 		toogam = false;
 		ignoreSideview=false;
-		titlescreen(load_save);
+		if(zqtesting_mode)
+		{
+			if(Quit==qCONT)
+				cont_game();
+			else
+			{
+				init_game();
+			}
+			Quit = 0;
+		}
+		else titlescreen(load_save);
 		
 		load_save=0;
 		setup_combo_animations();
@@ -5719,7 +5702,6 @@ int32_t main(int32_t argc, char* argv[])
 		switch(Quit)
 		{
 			case qSAVE:
-			
 			case qQUIT:
 			case qGAMEOVER:
 			case qRELOAD:

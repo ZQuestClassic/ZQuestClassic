@@ -187,6 +187,26 @@ ListData ListData::mapflag(bool numbered)
 	return ls;
 }
 
+ListData ListData::dmaps(bool numbered)
+{
+	ListData ls;
+	
+	for(int32_t q = 0; q < MAXDMAPS; ++q)
+	{
+		char const* dm_str = DMaps[q].name;
+		if(numbered)
+		{
+			char* name = new char[strlen(dm_str) + 7];
+			sprintf(name, "%3d-%s", q, dm_str);
+			ls.add(name, q);
+			delete[] name;
+		}
+		else ls.add(dm_str, q);
+	}
+	
+	return ls;
+}
+
 ListData ListData::counters()
 {
 	ListData ls;

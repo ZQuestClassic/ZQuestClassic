@@ -2071,6 +2071,23 @@ void set_up_standalone_save()
 	load_game_icon(saves, true, 0);
 }
 
+int32_t init_saves()
+{
+	if(saves == NULL)
+	{
+		saves = new gamedata[MAXSAVES];
+		
+		if(saves==NULL)
+			return 1;
+		
+		for(auto q = 0; q < MAXSAVES; ++q)
+		{
+			saves[q].Clear();
+		}
+	}
+	return 0;
+}
+
 // call once at startup
 int32_t load_savedgames()
 {
@@ -2111,13 +2128,8 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	temp_name(tmpfilename);
 //  const char *passwd = datapwd;
 
-	if(saves == NULL)
-	{
-		saves = new gamedata[MAXSAVES];
-		
-		if(saves==NULL)
-			return 1;
-	}
+	int32_t save_ret = init_saves();
+	if(save_ret) return save_ret;
 	
 	// see if it's there
 	if(!exists(fname))
@@ -4484,10 +4496,13 @@ void save_game(bool savepoint)
 	
 	saves[currgame]=*game;
 	
-	int32_t ring=0;
 	flushItemCache();
+	
+	if(zqtesting_mode) return;
+	
 	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
 	
+	int32_t ring=0;
 	if(maxringid != -1)
 	{
 		ring = itemsbuf[maxringid].fam_type;

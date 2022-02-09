@@ -1007,6 +1007,13 @@ void set_rules(byte* newrules)
 	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
 }
 
+void call_testqst_dialog();
+int32_t onTestQst()
+{
+	call_testqst_dialog();
+	return D_O_K;
+}
+
 int32_t onRulesDlg()
 {
 	call_qr_dialog((is_large?20:13), set_rules);
@@ -1033,6 +1040,7 @@ int32_t onZInfo()
 static MENU quest_menu[] = 
 {
     { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
+    { (char *)"&Test",                 onTestQst,                      NULL,                     0,            NULL   },
     { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
     { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
     { (char *)"&Player",            onCustomHero,                      NULL,                     0,            NULL   },
@@ -32494,7 +32502,8 @@ command_pair commands[cmdMAX]=
     { "Bottle Types",                       0, (intF) onBottleTypes },
     { "Bottle Shop Types",                  0, (intF) onBottleShopTypes },
     { "Water Solidity Fix",                 0, (intF) onWaterSolidity },
-    { "Effect Square Fix",                  0, (intF) onEffectFix }
+    { "Effect Square Fix",                  0, (intF) onEffectFix },
+    { "Test Quest",                         0, (intF) onTestQst }
 };
 
 /********************************/

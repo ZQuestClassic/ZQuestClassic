@@ -1684,10 +1684,7 @@ void trim_trailing_0s(char* str)
 int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 {
 	static char* swp[typeMAX] = {"D", "H", "LD", "LH"};
-	if(msg==MSG_START)
-	{
-		d->dp = swp[d->d1&0xF];
-	}
+	d->dp = swp[d->d1&0xF];
 	//d1 is (0xF0 = old val, 0x0F = new val)
 	//d2 is max val
 	if(d->d2 < 2 || d->d2 > typeMAX) return D_O_K; //Not setup yet, or bad value
