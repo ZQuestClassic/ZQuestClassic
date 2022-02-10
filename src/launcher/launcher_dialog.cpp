@@ -7,6 +7,7 @@
 #include <gui/builder.h>
 #include <boost/format.hpp>
 
+void load_mouse();
 LauncherDialog::LauncherDialog(){}
 
 static int32_t queue_revert = 0;
@@ -33,7 +34,10 @@ int32_t LauncherDialog::launcher_on_tick()
 				[&](bool ret)
 				{
 					if(ret)
+					{
 						reset_theme();
+						load_mouse();
+					}
 					else
 						set_theme(tmp_themefile);
 				}, "Revert", "Keep", 60*4, true).show();
@@ -650,6 +654,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								strcpy(tmp_themefile, themename.c_str());
 								load_themefile(tmp_themefile);
 								queue_revert = 2;
+								load_mouse();
 								pendDraw();
 							}
 							else
