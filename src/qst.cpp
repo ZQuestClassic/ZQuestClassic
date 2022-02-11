@@ -840,13 +840,13 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     int32_t open_error=0;
     deletefilename[0]=0;
     
-	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
     if(Header->templatepath[0]==0)
     {
         filename=(char *)zc_malloc(2048);
-        //sprintf(filename, "qst.dat#NESQST_NEW_QST");
-        sprintf(filename, qstdat_string);
+        //strcpy(filename, "qst.dat#NESQST_NEW_QST");
+        strcpy(filename, qstdat_string);
     }
     else
     {

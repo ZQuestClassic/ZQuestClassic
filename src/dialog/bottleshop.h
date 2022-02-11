@@ -17,7 +17,7 @@ public:
 		OK, CANCEL
 	};
 
-	BottleShopDialog::BottleShopDialog(int32_t index);
+	BottleShopDialog(int32_t index);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);

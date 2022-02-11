@@ -270,7 +270,7 @@ namespace util
 	int32_t ffparse2(const char *string) //bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
-		sprintf(tempstring1, string);
+		strcpy(tempstring1, string);
 		
 		char *ptr=strchr(tempstring1, '.');
 		if(!ptr)
@@ -313,7 +313,7 @@ namespace util
 	int32_t ffparseX(const char *string) //hex before '.', bounds result safely between -214748.3648 and +214748.3647
 	{
 		char tempstring1[32] = {0};
-		sprintf(tempstring1, string);
+		strcpy(tempstring1, string);
 		
 		char *ptr=strchr(tempstring1, '.');
 		if(!ptr)
@@ -323,7 +323,7 @@ namespace util
 		
 		int32_t ret=0;
 
-		sprintf(tempstring1, string);
+		strcpy(tempstring1, string);
 		
 		for(int32_t i=0; i<4; ++i)
 		{
@@ -382,7 +382,7 @@ namespace util
 		size_t len = strlen(str);
 		if(len < 512) //safe already
 		{
-			al_trace(str);
+			al_trace("%s",str);
 			return;
 		}
 		else //Would crash al_trace
@@ -392,12 +392,12 @@ namespace util
 			while(len-q >= 512)
 			{
 				memcpy(buf, str+q, 511);
-				al_trace(buf);
+				al_trace("%s",buf);
 				q+=511;
 			}
 			if(len-q > 0)
 			{
-				al_trace(str+q);
+				al_trace("%s",str+q);
 			}
 		}
 	}

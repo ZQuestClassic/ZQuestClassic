@@ -13776,7 +13776,7 @@ bool eKeese::animate(int32_t index)
 	{
 		z=int32_t(step/zslongToFix(dstep*100));
 		// Some variance in keese flight heights when away from Hero
-		z+=int32_t(step*zc_max(0,(distance(x,y,HeroX(),HeroY())-128)/10));
+		z+=int32_t(step*zc_max(zfix(0),(distance(x,y,HeroX(),HeroY())-128)/10));
 	}
 	
 	return enemy::animate(index);
@@ -14986,11 +14986,11 @@ bool eGohma::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(zc_max(x-16, 0),y);
+		removearmos(zc_max(x-16, zfix(0)),y);
 		did_armos = false;
 		removearmos(x,y);
 		did_armos = false;
-		removearmos(zc_min(x+16, 255),y);
+		removearmos(zc_min(x+16, zfix(255)),y);
 	}
 	
 	if(clk<0) return enemy::animate(index);
@@ -16827,7 +16827,7 @@ bool eManhandla::animate(int32_t index)
 	else
 	{
 		// Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-		step=zc_min(4.5,(((!dmisc2)?4:8)-int64_t(armcnt))*0.5+zslongToFix(dstep*100));
+		step=zc_min(zfix(4.5),(((!dmisc2)?4:8)-int64_t(armcnt))*0.5+zslongToFix(dstep*100));
 		int32_t dx1=0, dy1=-8, dx2=15, dy2=15;
 		
 		if(!dmisc2)

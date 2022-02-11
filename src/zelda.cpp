@@ -61,8 +61,8 @@
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern byte epilepsyFlashReduction;
+#include "ConsoleLogger.h"
 #ifdef _WIN32
-	#include "ConsoleLogger.h"
 #else //Unix
 	#include <fcntl.h>
 	#include <unistd.h>
@@ -87,6 +87,9 @@ extern char zc_aboutstr[80];
 int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
+
+extern CConsoleLoggerEx zscript_coloured_console;
+extern CConsoleLoggerEx coloured_console;
 
 #include "init.h"
 #include <assert.h>
@@ -1127,11 +1130,6 @@ void hit_close_button()
 // Yay, more extern globals.
 extern byte curScriptType;
 extern word curScriptNum;
-
-#ifdef _WIN32
-extern CConsoleLoggerEx zscript_coloured_console;
-extern CConsoleLoggerEx coloured_console;
-#endif
 
 void Z_eventlog(const char *format,...)
 {

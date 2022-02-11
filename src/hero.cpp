@@ -919,7 +919,7 @@ void HeroClass::setZfix(zfix new_z)
         }
     }
     
-    z=(new_z>0 ? new_z : 0);
+    z=(new_z>0 ? new_z : zfix(0));
 }
 
 void HeroClass::setFall(zfix new_fall)
@@ -9496,8 +9496,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 				if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
 						itm.misc2 >= 0 && itm.misc2 <= 8 && !whistleflag)
-					Lwpns.add(new weapon((zfix)(where==left?240:where==right?0:x),
-				(zfix)(where==down?0:where==up?160:y),
+					Lwpns.add(new weapon((zfix)(where==left?zfix(240):where==right?zfix(0):x),
+				(zfix)(where==down?zfix(0):where==up?zfix(160):y),
 				(zfix)0,
 				wWind,
 				0, //type
@@ -15960,8 +15960,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
     }
     else if(ladderx+laddery)                                  // ladder is being used
     {
-        int32_t lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wx : x;
-        int32_t ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? wy : y;
+        int32_t lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(wx) : x;
+        int32_t ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(wy) : y;
         
         if((diagonalMovement||NO_GRIDLOCK))
         {
@@ -18308,8 +18308,8 @@ int32_t touchcombo(int32_t x,int32_t y)
 	return 0;
 }
 
-static int32_t COMBOX(int32_t pos) { return ((pos)%16*16); }
-static int32_t COMBOY(int32_t pos) { return ((pos)&0xF0); }
+//static int32_t COMBOX(int32_t pos) { return ((pos)%16*16); }
+//static int32_t COMBOY(int32_t pos) { return ((pos)&0xF0); }
 
 static int32_t GridX(int32_t x) 
 {

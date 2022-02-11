@@ -1,6 +1,7 @@
 #ifndef ZC_CONSOLE_LOGGER_H
 #define ZC_CONSOLE_LOGGER_H
 
+#include "zdefs.h"
 #include "process_managment.h"
 
 #if !defined(AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_)
@@ -395,10 +396,14 @@ public:
 
 
 	word	GetCurrentColor(void)
-	{  }
+	{
+        return 0;    
+    }
 	
 	void	SetCurrentColor(word dwColor)
-	{ }
+	{
+            
+    }
 	
 
 protected:

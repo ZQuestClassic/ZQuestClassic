@@ -107,7 +107,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 
 bool AlertFuncDialog::handleMessage(const GUI::DialogMessage<int32_t>& msg)
 {
-	switch(msg.message)
+	switch((message)msg.message)
 	{
 		case message::OK:
 			return true;

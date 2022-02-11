@@ -8,7 +8,7 @@
 #include <gui/button.h>
 #include <functional>
 #include <string_view>
-#include <..\colors.h>
+#include "../colors.h"
 
 bool call_paledit_dlg(char* namebuf, byte* cdata, PALETTE* pal, int32_t offset, int32_t index);
 
