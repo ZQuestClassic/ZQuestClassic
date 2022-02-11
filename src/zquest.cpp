@@ -24597,11 +24597,11 @@ int32_t onCompileScript()
 				tmp, end_compile_time - start_compile_time,
 				code ? "\nCompilation failed. See console for details." : "");
 			
-			compile_sfx(!code);
 			if(!code)
 			{
 				read_compile_data(pm, stypes, scripts);
 			}
+			compile_sfx(!code);
 			
 			delete pm;
 			
