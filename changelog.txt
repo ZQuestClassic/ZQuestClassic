@@ -1,7 +1,10 @@
 // 2.55 Change Log
-// Updated 9th Feb, 2022
+// Updated 10th Feb, 2022
 
 //Since A102
+
+Fix module-related issues
+	( EmilyV, Feb 10th, 2022 )
 
 Add 'Quest->Test', to instantly launch ZC to the current quest, dmap, and screen.
 	( EmilyV, Feb 9th, 2022 )
