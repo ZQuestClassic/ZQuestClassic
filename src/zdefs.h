@@ -4630,11 +4630,11 @@ struct zcmodule
 	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
 
 	byte old_quest_serial_flow; //Do we go from 3rd to 5th, 
-		//and from 5th to 4th, or just 1->2->3->4->5
+	//and from 5th to 4th, or just 1->2->3->4->5
 	//If this is 0, we do quests in strict order.
 	//if it is 1, then we use the old hardcoded quest flow.
 	
-	int32_t max_quest_files;
+	byte max_quest_files;
 	word startingdmap[10];
 	word startingscreen[10];
 	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
@@ -4657,9 +4657,9 @@ struct zcmodule
 	int32_t copyright_string_vars[10*3]; //font, 104,136,13,-1
 	char animate_NES_title;
 	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
-        
-        int32_t select_screen_tiles[sels_tile_LAST];
-        char select_screen_tile_csets[sels_tile_cset_LAST];
+		
+	int32_t select_screen_tiles[sels_tile_LAST];
+	char select_screen_tile_csets[sels_tile_cset_LAST];
 	byte refresh_title_screen;
 	
 	//to add, and init
@@ -4679,13 +4679,10 @@ struct zcmodule
 	char moduletimezone[7]; //supports fiveb char abbreviations, and UTC+ or UTC- nn. 
 	//char module_base_nsf[255];
 	
-        char combotypeCustomAttributes[20][4][32];
-        char combotypeCustomAttribytes[20][8][32];
-        char combotypeCustomAttrishorts[20][8][32];
-        char combotypeCustomFlags[20][16][32];
-	
-	uint8_t ignore;
-
+	char combotypeCustomAttributes[20][4][32];
+	char combotypeCustomAttribytes[20][8][32];
+	char combotypeCustomAttrishorts[20][8][32];
+	char combotypeCustomFlags[20][16][32];
 }; //zcmodule
 
 #include "zinfo.h"

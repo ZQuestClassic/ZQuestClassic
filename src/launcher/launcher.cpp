@@ -464,7 +464,11 @@ void update_hw_screen()
 	if(myvsync)
 	{
 		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-		if(update_hw_pal) set_palette(RAMpal);
+		if(update_hw_pal)
+		{
+			set_palette(RAMpal);
+			load_mouse();
+		}
 		update_hw_pal=false;
 		myvsync=0;
 	}

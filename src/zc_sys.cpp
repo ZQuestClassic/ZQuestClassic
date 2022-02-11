@@ -428,7 +428,6 @@ void load_game_configs()
     fullscreen = zc_get_config(cfg_sect,"fullscreen",1);
     use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
     zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
-    moduledata.ignore = zc_get_config(cfg_sect,"ignore_module_quests",0);
 }
 
 void save_game_configs()
@@ -564,8 +563,6 @@ void save_game_configs()
    
     set_config_int(cfg_sect,"save_indicator",use_save_indicator);
     set_config_int(cfg_sect,"zc_192b163_warp_compatibility",zc_192b163_warp_compatibility);
-    set_config_int(cfg_sect,"ignore_module_quests",moduledata.ignore);
-    
    
     flush_config_file();
 }
@@ -6451,28 +6448,6 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
     return ret!=0;
 }
 
-int32_t onIgnore_Module()
-{
-	if(jwin_alert3(
-			"Ignore Module", 
-			"If enabled, new save slots always prompt to load a custom quest, ignoring module quests.",
-			"If disabled, then you will need to manually load custom quests (default).",
-			"Proceed?",
-		 "&Yes", 
-		"&No", 
-		NULL, 
-		'y', 
-		'n', 
-		NULL, 
-		lfont) == 1)
-	{
-	    if (moduledata.ignore) moduledata.ignore = 0;
-	    else moduledata.ignore = 1;
-	}
-	return D_O_K;
-	
-}
-
 //The Dialogue that loads a ZMOD Module File
 int32_t zc_load_zmod_module_file()
 {
@@ -6604,9 +6579,7 @@ static MENU zcmodule_menu[] =
 {
     { (char *)"&Load Module...",        zc_load_zmod_module_file,           NULL,                     0,            NULL   },
     { (char *)"&About Module",        onAbout_ZCP_Module,           NULL,                     0,            NULL   },
-    { (char *)"&Ignore",        onIgnore_Module,           NULL,                     0,            NULL   },
-    //divider
-   
+    
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -8892,7 +8865,6 @@ void System()
 	
 	misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 	misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
-	zcmodule_menu[2].flags = ((moduledata.ignore)?D_SELECTED:0);
         
         /*
           if(!Playing || (!zcheats.flags && !debug))

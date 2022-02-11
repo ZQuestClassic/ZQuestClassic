@@ -58,6 +58,7 @@
 #include "qst.h"
 #include "util.h"
 #include "drawing.h"
+#include "dialog/info.h"
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern byte epilepsyFlashReduction;
@@ -1744,22 +1745,20 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
 	chop_path(qstpath);
 	char *tempdir=(char *)"";
+	int32_t ret = 0;
 #ifndef ALLEGRO_MACOSX
 	tempdir=qstdir;
 #endif
-	
-	if(g->get_quest()<255)
+	byte qst_num = byte(g->get_quest()-1);
+	if(!g->qstpath[0])
 	{
-		// Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
-		if(g->get_quest() < zc_min(10,moduledata.max_quest_files))
-			sprintf(qstpath, moduledata.quests[g->get_quest()], ordinal(g->get_quest()));
-		
-		if(!exists(qstpath))
+		if(qst_num<moduledata.max_quest_files)
 		{
-			sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
+			sprintf(qstpath, moduledata.quests[qst_num], ordinal(qst_num+1));
+			strcpy(g->qstpath, qstpath);
 		}
 	}
-	else
+	if(g->qstpath[0])
 	{
 		if(is_relative_filename(g->qstpath))
 		{
@@ -1780,12 +1779,12 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		// ~Gleeok
 		if(!exists(qstpath))
 		{
-			al_trace("File not found \"%s\". Searching...\n", qstpath);
+			Z_error("File not found \"%s\". Searching...\n", qstpath);
 
 			if(exists(g->qstpath)) //not found? -try this place first:
 			{
 				sprintf(qstpath,"%s", g->qstpath);
-				al_trace("Set quest path to \"%s\".\n", qstpath);
+				Z_error("Set quest path to \"%s\".\n", qstpath);
 			}
 			else // Howsabout in here?
 			{
@@ -1811,7 +1810,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 					if(exists(gQstPath.c_str())) //Quick! Try it now!
 					{
 						sprintf(qstpath,"%s", gQstPath.c_str());
-						al_trace("Set quest path to \"%s\".\n", qstpath);
+						Z_error("Set quest path to \"%s\".\n", qstpath);
 						break;
 					}
 					else //Still no dice eh?
@@ -1835,55 +1834,64 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 						if(exists(fn.c_str())) //Last chance for hookers and blackjack truck stop
 						{
 							sprintf(qstpath,"%s", fn.c_str());
-							al_trace("Set quest path to \"%s\".\n", qstpath);
+							Z_error("Set quest path to \"%s\".\n", qstpath);
 							break;
 						}
 					}
 				} //while
-
 			}
 		}//end hack
-
 	}
+	else ret = qe_no_qst;
 	
-	//setPackfilePassword(datapwd);
-	byte skip_flags[4];
-	
-	for(int32_t i=0; i<4; ++i)
+	if(!ret)
 	{
-		skip_flags[i]=0;
-	}
-	
-	int32_t ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report);
-	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
-	//setPackfilePassword(NULL);
-	
-	if(!g->title[0] || g->get_hasplayed() == 0)
-	{
-		strcpy(g->version,QHeader.version);
-		strcpy(g->title,QHeader.title);
-	}
-	else
-	{
-		if(!ret && strcmp(g->title,QHeader.title))
+		//setPackfilePassword(datapwd);
+		byte skip_flags[4];
+		
+		for(int32_t i=0; i<4; ++i)
 		{
-			ret = qe_match;
+			skip_flags[i]=0;
+		}
+		
+		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report);
+		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
+		//setPackfilePassword(NULL);
+		
+		if(!g->title[0] || g->get_hasplayed() == 0)
+		{
+			strcpy(g->version,QHeader.version);
+			strcpy(g->title,QHeader.title);
+		}
+		else
+		{
+			if(!ret && strcmp(g->title,QHeader.title))
+			{
+				ret = qe_match;
+			}
+		}
+		
+		if(QHeader.minver[0])
+		{
+			if(smart_vercmp(g->version,QHeader.minver) < 0)
+				ret = qe_minver;
 		}
 	}
-	
-	if(QHeader.minver[0])
-	{
-		if(smart_vercmp(g->version,QHeader.minver) < 0)
-			ret = qe_minver;
-	}
-	
 	if(ret && report)
 	{
 		system_pal();
-		char buf1[80],buf2[80];
-		sprintf(buf1,"Error loading %s:",get_filename(qstpath));
-		sprintf(buf2,"%s",qst_error[ret]);
-		jwin_alert("File error",buf1,buf2,qstpath,"OK",NULL,13,27,lfont);
+		std::ostringstream oss;
+		if(ret == qe_no_qst)
+		{
+			oss << qst_error[ret] << ". Press the 'A' button twice to select a custom quest,"
+				"\nor load a module that has a default " << ordinal(qst_num+1) << " quest.";
+		}
+		else
+		{
+			oss << "Error loading " << get_filename(qstpath)
+				<< ":\n" << qst_error[ret] << "\n" << qstpath;
+		}
+		InfoDialog("File Error",oss.str()).show();
 		
 		if(standalone_mode)
 		{
@@ -2282,7 +2290,9 @@ int32_t init_game()
 		
 		zprint2("\n");
 		zprint2("[ZQUEST CREATOR METADATA]\n");
-		if ( FFCore.quest_format[qQuestNumber] > 0 ) zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
+		byte qst_num = byte(game->get_quest()-1);
+		if(qst_num < moduledata.max_quest_files) zprint2("Loading module quest %d\n", qst_num+1);
+		zprint2("Loading '%s'\n", qstpath);
 		if ( QHeader.new_version_id_main > 0 )
 		{
 			zprint2("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", QHeader.new_version_id_main,QHeader.new_version_id_second,QHeader.new_version_id_third,QHeader.new_version_id_fourth);
@@ -2293,7 +2303,7 @@ int32_t init_game()
 			{
 				case 0x255:
 				{
-					zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", QHeader.build);	
+					zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", QHeader.getAlphaStr().c_str(), QHeader.getAlphaVer());	
 					break;
 				}
 				case 0x254:
@@ -4850,7 +4860,7 @@ int32_t main(int32_t argc, char* argv[])
 		
 		char path[2048];
 		
-		for ( int32_t q = 0; q < moduledata.max_quest_files; q++ )
+		for ( byte q = 0; q < moduledata.max_quest_files; q++ )
 		{
 			append_filename(path, qstdir, moduledata.quests[q], 2048);
 			if(!exists(moduledata.quests[q]) && !exists(path))

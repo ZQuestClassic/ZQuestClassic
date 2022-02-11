@@ -801,6 +801,7 @@ void inc_quest()
 	
 	game->set_name(name);
 	game->set_quest(quest);
+	game->qstpath[0] = 0;
 	game->set_deaths(deaths);
 	game->set_maxlife(3*game->get_hp_per_heart());
 	game->set_life(3*game->get_hp_per_heart());

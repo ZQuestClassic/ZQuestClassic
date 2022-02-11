@@ -128,7 +128,7 @@ const char *qst_error[] =
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
     "Doesn't match saved game", "Save file is for older version of quest; please start new save",
-    "Out of memory", "File Debug Mode"
+    "Out of memory", "File Debug Mode", "Canceled", "", "No quest assigned"
 };
 
 //for legacy quests -DD
@@ -2597,7 +2597,6 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			
 			zprint2("\n");
 			zprint2("[ZQUEST CREATOR METADATA]\n");
-			if ( FFCore.quest_format[qQuestNumber] > 0 ) zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
 			if ( tempheader.new_version_id_main > 0 )
 			{
 				zprint2("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", tempheader.new_version_id_main,tempheader.new_version_id_second,tempheader.new_version_id_third,tempheader.new_version_id_fourth);
@@ -2608,7 +2607,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				{
 					case 0x255:
 					{
-						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", tempheader.build);
+						zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", tempheader.getAlphaStr().c_str(), tempheader.getAlphaVer());
 						break;
 					}
 					case 0x254:
@@ -20877,7 +20876,6 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	if( FFCore.quest_format[vZelda] < 0x210 ) 
 	{
 		zprint2("\n[ZQUEST CREATOR METADATA]\n");
-		if ( FFCore.quest_format[qQuestNumber] > 0 )  zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
 		
 		switch(FFCore.quest_format[vZelda])
 		{
