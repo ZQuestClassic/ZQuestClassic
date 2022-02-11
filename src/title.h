@@ -14,6 +14,7 @@
 
 extern DIALOG gamemode_dlg[];
 
+int32_t init_saves();
 int32_t  load_savedgames();
 int32_t  save_savedgames();
 int32_t custom_game(int32_t file);

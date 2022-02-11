@@ -167,12 +167,12 @@ FILE _iob[] = { *stdin, *stdout, *stderr };
 extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #endif
 
-byte monochrome_console = 0;
+extern byte monochrome_console;
 
 #include "ConsoleLogger.h"
 
 CConsoleLoggerEx coloured_console;
-CConsoleLoggerEx zscript_coloured_console;
+extern CConsoleLoggerEx zscript_coloured_console;
 
 uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
@@ -370,6 +370,41 @@ zinitdata zinit;
 
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
+
+void set_console_state();
+
+void clearConsole()
+{
+	if(!console_is_open) return;
+	zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+	zscript_coloured_console.gotoxy(0,0);
+	zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
+}
+
+void initConsole()
+{
+	if(console_is_open) return;
+	console_is_open = 1;
+	set_console_state();
+	zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
+	clearConsole();
+}
+
+void killConsole()
+{
+	if(!console_is_open) return;
+	console_is_open = 0;
+	set_console_state();
+	zscript_coloured_console.kill();
+}
+
+int32_t toggleConsole()
+{
+	console_is_open ? killConsole() : initConsole();
+	zc_set_config("zquest","open_debug_console",console_is_open?1:0);
+	return D_O_K;
+}
 
 typedef struct map_and_screen
 {
@@ -972,6 +1007,13 @@ void set_rules(byte* newrules)
 	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
 }
 
+void call_testqst_dialog();
+int32_t onTestQst()
+{
+	call_testqst_dialog();
+	return D_O_K;
+}
+
 int32_t onRulesDlg()
 {
 	call_qr_dialog((is_large?20:13), set_rules);
@@ -998,6 +1040,7 @@ int32_t onZInfo()
 static MENU quest_menu[] = 
 {
     { (char *)"&Options\t ",          onRulesDlg,                      NULL,                     0,            NULL   },
+    { (char *)"&Test",                 onTestQst,                      NULL,                     0,            NULL   },
     { (char *)"&Items",            onCustomItems,                      NULL,                     0,            NULL   },
     { (char *)"Ene&mies",        onCustomEnemies,                      NULL,                     0,            NULL   },
     { (char *)"&Player",            onCustomHero,                      NULL,                     0,            NULL   },
@@ -1205,24 +1248,28 @@ static MENU module_menu[] =
 
 static MENU etc_menu[] =
 {
-    { (char *)"&Help",                      NULL /*onHelp*/,                    zq_help_menu,                     0,            NULL   },
-    { (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
-    { (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
-    { (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-    { (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Ambient Music  ",        NULL,                      tunes_menu,               0,            NULL   },
-    { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
-    { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
-    { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Save ZQuest &Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
-    { (char *)"C&lear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-    { (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
-    { (char *)"Mo&dules",        NULL,           module_menu,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&Help",                      NULL /*onHelp*/,           zq_help_menu,             0,            NULL   },
+	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	// 5
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
+	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
+	// 10
+	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
+	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
+	{ (char *)"Save ZQuest &Configuraton",  onSaveZQuestSettings,      NULL,                     0,            NULL   },
+	// 15
+	{ (char *)"C&lear Quest Filepath",      onClearQuestFilepath,      NULL,                     0,            NULL   },
+	{ (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU media_menu[] =
@@ -1259,23 +1306,32 @@ static MENU zscript_menu[] =
 
 static MENU etc_menu_smallmode[] =
 {
-	{ (char *)"&Help",                      NULL /*onHelp*/,                    zq_help_menu,                     0,            NULL   },
+	{ (char *)"&Help",                      NULL /*onHelp*/,           zq_help_menu,             0,            NULL   },
 	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
-	{ (char *)"Video &Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
 	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
 	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	// 5
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-	{ (char *)"Media",        NULL,                      media_menu,               0,            NULL   },
+	{ (char *)"Media",                      NULL,                      media_menu,               0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Save ZQuest Configuraton",          onSaveZQuestSettings,                NULL,                     0,            NULL   },
-	{ (char *)"Clear Quest Filepath",          onClearQuestFilepath,                NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
-	{ (char *)"Take &Screen Snapshot",          onMapscrSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
+	// 10
+	{ (char *)"Save ZQuest Configuraton",   onSaveZQuestSettings,      NULL,                     0,            NULL   },
+	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Modules",        NULL,                      module_menu,               0,            NULL   },
+	// 15
+	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
+void set_console_state()
+{
+	SETFLAG(etc_menu[13].flags, D_SELECTED, console_is_open);
+	SETFLAG(etc_menu_smallmode[9].flags, D_SELECTED, console_is_open);
+}
 
 MENU the_menu_large_old[] =
 {
@@ -8093,8 +8149,8 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             
             if(gui_mouse_b()==0)
             {
-                px2=byte(x&mask);
-                py2=byte(y&mask);
+                px2=byte(vbound(x,0,255)&mask);
+                py2=byte(vbound(y,0,255)&mask);
             }
             
             zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
@@ -8308,12 +8364,14 @@ finished:
 // Drag FFCs around
 void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
-    int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-    int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffx[i]/10000.0),0,240);
+    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffy[i]/10000.0),0,160);
+	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
     doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
-    
-    if((ffx != int32_t(Map.CurrScr()->ffx[i]/10000.0)) || (ffy != int32_t(Map.CurrScr()->ffy[i]/10000.0)))
+    if(ffx > 240) ffx = 240;
+    if(ffy > 160) ffy = 160;
+    if((ffx != offx) || (ffy != offy))
     {
         Map.CurrScr()->ffx[i] = ffx*10000;
         Map.CurrScr()->ffy[i] = ffy*10000;
@@ -24003,8 +24061,8 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
-	zscript_parser_dlg[13].d1 = get_config_int("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = get_config_int("Compiler","HEADER_GUARD",3);
+	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
+	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",3);
 	
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
@@ -24346,10 +24404,10 @@ void compile_sfx(bool success)
 	if ( success )
 	{
 		compile_error_sample = 0;
-		compile_success_sample = vbound(get_config_int("Compiler","compile_success_sample",20),0,255);
+		compile_success_sample = vbound(zc_get_config("Compiler","compile_success_sample",20),0,255);
 		if ( compile_success_sample > 0 )
 		{
-			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
 			if(sfxdat)
 				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
 			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
@@ -24360,10 +24418,10 @@ void compile_sfx(bool success)
 	else
 	{
 		compile_success_sample = 0;
-		compile_error_sample = vbound(get_config_int("Compiler","compile_error_sample",20),0,255);
+		compile_error_sample = vbound(zc_get_config("Compiler","compile_error_sample",20),0,255);
 		if ( compile_error_sample > 0 )
 		{
-			compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
 			if(sfxdat)
 				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
 			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
@@ -24539,11 +24597,11 @@ int32_t onCompileScript()
 				tmp, end_compile_time - start_compile_time,
 				code ? "\nCompilation failed. See console for details." : "");
 			
-			compile_sfx(!code);
 			if(!code)
 			{
 				read_compile_data(pm, stypes, scripts);
 			}
+			compile_sfx(!code);
 			
 			delete pm;
 			
@@ -26195,8 +26253,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				char buf[256] = {0};
 				sprintf(buf, "Assign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-				compile_finish_sample = vbound(get_config_int("Compiler","compile_finish_sample",34),0,255);
-				compile_audio_volume = vbound(get_config_int("Compiler","compile_audio_volume",200),0,255);
+				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",34),0,255);
+				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
 				if ( compile_finish_sample > 0 )
 				{
 					if(sfxdat)
@@ -28963,7 +29021,6 @@ void Z_eventlog(const char *format,...)
     format=format; //to prevent a compiler warning
 }
 
-void PopulateInitDialog();
 int32_t get_currdmap()
 {
     return zinit.start_dmap;
@@ -29080,7 +29137,6 @@ int32_t main(int32_t argc,char **argv)
 	{
 		Z_title("%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA);
 	}
-		
 	else if ( V_ZC_BETA )
 	{
 		Z_title("%s, v.%s Beta %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_BETA);
@@ -29094,32 +29150,9 @@ int32_t main(int32_t argc,char **argv)
 		Z_title("%s, v.%s Release %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_RELEASE);
 	}
 	
-	/*
-			switch(IS_BETA)
-			{
-			case -1:
-			{
-			Z_title("ZQuest %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			//Print the current time to allegro.log as a test.
-			
-			break;
-			}
-			case 1:
-			Z_title("ZQuest %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			break;
-			
-			case 0:
-			Z_title("ZQuest %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-			}
-	*/
-	
 	scrtmp = NULL;
 	
-	//turn on MSVC memory checks
-	//this should be interesting...
-	
 	//InitCrtDebug();
-	
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
@@ -29145,7 +29178,7 @@ int32_t main(int32_t argc,char **argv)
 		// Set the window manager title bar
 		SDL_WM_SetCaption("SDL test window", "testwin");
 	*/
-	PopulateInitDialog();
+	
 	//FFScript::init();
 	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
 	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
@@ -29282,6 +29315,8 @@ int32_t main(int32_t argc,char **argv)
 	
 	//set_config_file("ag.cfg");
 	set_config_file("zquest.cfg");
+	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
+		initConsole();
 	if(install_timer() < 0)
 	{
 		Z_error(allegro_error);
@@ -29808,62 +29843,62 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
-	MouseScroll					= get_config_int("zquest","mouse_scroll",0);
-	WarnOnInitChanged			  = get_config_int("zquest","warn_initscript_changes",1);
-	InvalidStatic				  = get_config_int("zquest","invalid_static",1);
-	MMapCursorStyle				= get_config_int("zquest","cursorblink_style",1);
-	TileProtection				 = get_config_int("zquest","tile_protection",1);
-	ShowGrid					   = get_config_int("zquest","show_grid",0);
-	GridColor					  = get_config_int("zquest","grid_color",15);
-	SnapshotFormat				 = get_config_int("zquest","snapshot_format",3);
-	SavePaths					  = get_config_int("zquest","save_paths",1);
-	CycleOn						= get_config_int("zquest","cycle_on",1);
-	Vsync						  = get_config_int("zquest","vsync",1)!=0;
-	ShowFPS						= get_config_int("zquest","showfps",0)!=0;
-	ComboBrush					 = get_config_int("zquest","combo_brush",0);
-	BrushPosition				  = get_config_int("zquest","brush_position",0);
-	FloatBrush					 = get_config_int("zquest","float_brush",0);
-	UseSmall					   = get_config_int("zquest","small",0);
-	RulesetDialog				  = get_config_int("zquest","rulesetdialog",1);
-	EnableTooltips				 = get_config_int("zquest","enable_tooltips",1);
-	ShowFFScripts				  = get_config_int("zquest","showffscripts",1);
-	ShowSquares					= get_config_int("zquest","showsquares",1);
-	ShowInfo					   = get_config_int("zquest","showinfo",1);
-	skipLayerWarning			   = get_config_int("zquest","skip_layer_warning",0);
+	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
+	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
+	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
+	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
+	TileProtection				 = zc_get_config("zquest","tile_protection",1);
+	ShowGrid					   = zc_get_config("zquest","show_grid",0);
+	GridColor					  = zc_get_config("zquest","grid_color",15);
+	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
+	SavePaths					  = zc_get_config("zquest","save_paths",1);
+	CycleOn						= zc_get_config("zquest","cycle_on",1);
+	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
+	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
+	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
+	BrushPosition				  = zc_get_config("zquest","brush_position",0);
+	FloatBrush					 = zc_get_config("zquest","float_brush",0);
+	UseSmall					   = zc_get_config("zquest","small",0);
+	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
+	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
+	ShowFFScripts				  = zc_get_config("zquest","showffscripts",1);
+	ShowSquares					= zc_get_config("zquest","showsquares",1);
+	ShowInfo					   = zc_get_config("zquest","showinfo",1);
+	skipLayerWarning			   = zc_get_config("zquest","skip_layer_warning",0);
 	
-	OpenLastQuest				  = get_config_int("zquest","open_last_quest",0);
-	ShowMisalignments			  = get_config_int("zquest","show_misalignments",0);
-	AnimationOn					= get_config_int("zquest","animation_on",1);
-	AutoBackupRetention			= get_config_int("zquest","auto_backup_retention",2);
-	AutoSaveInterval			   = get_config_int("zquest","auto_save_interval",6);
-	AutoSaveRetention			  = get_config_int("zquest","auto_save_retention",2);
-	UncompressedAutoSaves		  = get_config_int("zquest","uncompressed_auto_saves",1);
-	OverwriteProtection			= get_config_int("zquest","overwrite_prevention",0)!=0;
-	ImportMapBias				  = get_config_int("zquest","import_map_bias",0);
+	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
+	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
+	AnimationOn					= zc_get_config("zquest","animation_on",1);
+	AutoBackupRetention			= zc_get_config("zquest","auto_backup_retention",2);
+	AutoSaveInterval			   = zc_get_config("zquest","auto_save_interval",6);
+	AutoSaveRetention			  = zc_get_config("zquest","auto_save_retention",2);
+	UncompressedAutoSaves		  = zc_get_config("zquest","uncompressed_auto_saves",1);
+	OverwriteProtection			= zc_get_config("zquest","overwrite_prevention",0)!=0;
+	ImportMapBias				  = zc_get_config("zquest","import_map_bias",0);
 	
-	KeyboardRepeatDelay		   = get_config_int("zquest","keyboard_repeat_delay",300);
-	KeyboardRepeatRate			= get_config_int("zquest","keyboard_repeat_rate",80);
+	KeyboardRepeatDelay		   = zc_get_config("zquest","keyboard_repeat_delay",300);
+	KeyboardRepeatRate			= zc_get_config("zquest","keyboard_repeat_rate",80);
 	
-//  Frameskip					 = get_config_int("zquest","frameskip",0); //todo: this is not actually supported yet.
-	RequestedFPS				  = get_config_int("zquest","fps",60);
-	ForceExit					 = get_config_int("zquest","force_exit",0);
+//  Frameskip					 = zc_get_config("zquest","frameskip",0); //todo: this is not actually supported yet.
+	RequestedFPS				  = zc_get_config("zquest","fps",60);
+	ForceExit					 = zc_get_config("zquest","force_exit",0);
 	
 	//Combo Page, Tile Page, an Map Tile Page Autofill
-	PreFillTileEditorPage	  = get_config_int("zquest","PreFillTileEditorPage",0);
-	PreFillComboEditorPage	  = get_config_int("zquest","PreFillComboEditorPage",0);
-	PreFillMapTilePage		  =  get_config_int("zquest","PreFillMapTilePage",0);
-	//ViewLayer3BG = get_config_int("zquest","ViewLayer3BG",0);
-	//ViewLayer2BG = get_config_int("zquest","ViewLayer2BG",0);
+	PreFillTileEditorPage	  = zc_get_config("zquest","PreFillTileEditorPage",0);
+	PreFillComboEditorPage	  = zc_get_config("zquest","PreFillComboEditorPage",0);
+	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
+	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
+	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
 	
 	
 	//This is too much work to fix for 2.5. :| -Gleeok
-	//zqColorDepth				  = get_config_int("zquest","zq_color_depth",8);
+	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);
 	
 #ifdef _WIN32
-	zqUseWin32Proc				 = get_config_int("zquest","zq_win_proc_fix",0);
+	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
 	
 	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) get_config_int("graphics","disable_direct_updating",1);
+	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
 #endif
 	
 	if(RequestedFPS < 12) RequestedFPS = 12;
@@ -29880,9 +29915,9 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	// 1 <= zcmusic_bufsz <= 128
-	zcmusic_bufsz = vbound(get_config_int("zquest","zqmusic_bufsz",64),1,128);
-	int32_t tempvalue				  = get_config_int("zquest","layer_mask",-1);
-	int32_t usefullscreen				 = get_config_int("zquest","fullscreen",0);
+	zcmusic_bufsz = vbound(zc_get_config("zquest","zqmusic_bufsz",64),1,128);
+	int32_t tempvalue				  = zc_get_config("zquest","layer_mask",-1);
+	int32_t usefullscreen				 = zc_get_config("zquest","fullscreen",0);
 	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
 	LayerMask[0]=byte(tempvalue&0xFF);
 	LayerMask[1]=byte((tempvalue>>8)&0xFF);
@@ -29892,23 +29927,25 @@ int32_t main(int32_t argc,char **argv)
 		LayerMaskInt[x]=get_bit(LayerMask,x);
 	}
 	
-	DuplicateAction[0]			 = get_config_int("zquest","normal_duplicate_action",2);
-	DuplicateAction[1]			 = get_config_int("zquest","horizontal_duplicate_action",0);
-	DuplicateAction[2]			 = get_config_int("zquest","vertical_duplicate_action",0);
-	DuplicateAction[3]			 = get_config_int("zquest","both_duplicate_action",0);
-	LeechUpdate					= get_config_int("zquest","leech_update",500);
-	LeechUpdateTiles			   = get_config_int("zquest","leech_update_tiles",1);
-	OnlyCheckNewTilesForDuplicates = get_config_int("zquest","only_check_new_tiles_for_duplicates",0);
-	gui_colorset				   = get_config_int("zquest","gui_colorset",0);
+	DuplicateAction[0]			 = zc_get_config("zquest","normal_duplicate_action",2);
+	DuplicateAction[1]			 = zc_get_config("zquest","horizontal_duplicate_action",0);
+	DuplicateAction[2]			 = zc_get_config("zquest","vertical_duplicate_action",0);
+	DuplicateAction[3]			 = zc_get_config("zquest","both_duplicate_action",0);
+	LeechUpdate					= zc_get_config("zquest","leech_update",500);
+	LeechUpdateTiles			   = zc_get_config("zquest","leech_update_tiles",1);
+	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
+	gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
 	strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
 	
-	midi_volume					= get_config_int("zquest", "midi", 255);
+	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
-	abc_patternmatch			   = get_config_int("zquest", "lister_pattern_matching", 1);
-	NoScreenPreview			   = get_config_int("zquest", "no_preview", 1);
+	abc_patternmatch			   = zc_get_config("zquest", "lister_pattern_matching", 1);
+	NoScreenPreview			   = zc_get_config("zquest", "no_preview", 1);
 	
-	try_recovering_missing_scripts = 0;//get_config_int("Compiler", "try_recovering_missing_scripts",0);
+	monochrome_console = zc_get_config("CONSOLE","monochrome_debuggers",0)?1:0;
+	
+	try_recovering_missing_scripts = 0;//zc_get_config("Compiler", "try_recovering_missing_scripts",0);
 	//We need to remove all of the zeldadx refs to the config file for zquest. 
 	
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
@@ -30226,7 +30263,7 @@ int32_t main(int32_t argc,char **argv)
 	for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
 	{
 		sprintf(cmdnametitle, "command%02d", x+1);
-		favorite_commands[x]=get_config_int("zquest",cmdnametitle,0);
+		favorite_commands[x]=zc_get_config("zquest",cmdnametitle,0);
 		if(favorite_commands[x] >= cmdMAX || favorite_commands[x] < 0)
 		{
 			favorite_commands[x] = 0;
@@ -30339,8 +30376,8 @@ int32_t main(int32_t argc,char **argv)
 	set_close_button_callback((void (*)()) hit_close_button);
 	
 #ifndef ALLEGRO_DOS
-	zq_scale_small = get_config_int("zquest","scale",1);
-	zq_scale_large = get_config_int("zquest","scale_large",1);
+	zq_scale_small = zc_get_config("zquest","scale",1);
+	zq_scale_large = zc_get_config("zquest","scale_large",1);
 	zq_scale = is_large ? zq_scale_large : zq_scale_small;
 	scale_arg = used_switch(argc,argv,"-scale");
 	
@@ -30517,17 +30554,16 @@ int32_t main(int32_t argc,char **argv)
 		//Z_message("OK\n");
 	}
 	//check and log RTC date and time
-
-		for (int32_t q = 0; q < curTimeLAST; q++) 
-		{
-			int32_t t_time_v = FFCore.getTime(q);
-		}
+	
+	for (int32_t q = 0; q < curTimeLAST; q++) 
+	{
+		int32_t t_time_v = FFCore.getTime(q);
+	}
 	scrtmp = screen;
 	hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	screen = hw_screen;
 	hw_screen = scrtmp;
 	scrtmp = screen;
-	
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
@@ -30553,17 +30589,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
 	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Init Error: %s\n", 
-		"Failed to create system bitmaps!\n"
-	);
-
-	Z_message("Failed to create system bitmaps.\n");
-
-		Z_message("Error creating bitmaps\n");
+		Z_error("Failed to create system bitmaps!\n");
 		allegro_exit();
 		quit_game();
 		return 1;
@@ -30737,7 +30763,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	load_recent_quests();
 	refresh_recent_menu();
-	
+	clearConsole();
 	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
 	{
 		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
@@ -30879,7 +30905,6 @@ int32_t main(int32_t argc,char **argv)
 	else dialogs[0].dp = (void *) the_menu_large;
 	*/
 	
-	
 	call_foo_dlg();
 	while(!quit)
 	{
@@ -31018,7 +31043,7 @@ int32_t main(int32_t argc,char **argv)
 			}
 		}
 	}
-	
+	killConsole();
 #ifndef ALLEGRO_DOS
 	zqwin_set_scale(1);
 #endif
@@ -31492,7 +31517,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(glist_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
-    center_zq_init_dialog();
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
@@ -32478,7 +32502,8 @@ command_pair commands[cmdMAX]=
     { "Bottle Types",                       0, (intF) onBottleTypes },
     { "Bottle Shop Types",                  0, (intF) onBottleShopTypes },
     { "Water Solidity Fix",                 0, (intF) onWaterSolidity },
-    { "Effect Square Fix",                  0, (intF) onEffectFix }
+    { "Effect Square Fix",                  0, (intF) onEffectFix },
+    { "Test Quest",                         0, (intF) onTestQst }
 };
 
 /********************************/
@@ -33108,20 +33133,11 @@ void FFScript::ZScriptConsole(bool open)
 	#endif	
 }
 
-
-
 void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
 {
 	#ifdef _WIN32
-		console_is_open = 1;
-		zscript_coloured_console.Create("ZQuest Creator Logging Console", 600, 200);
-		zscript_coloured_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		zscript_coloured_console.gotoxy(0,0);
-		zscript_coloured_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
-	
-		zscript_coloured_console.cprintf( attributes, format );
-	
+	initConsole();
+	zscript_coloured_console.cprintf( attributes, format );
 	#endif	
 }
 

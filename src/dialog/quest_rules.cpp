@@ -692,21 +692,36 @@ static const GUI::ListData compatRulesList
 		"If enabled, enemies initialize their tile every frame by setting it to their O_Tile, even if they have an animation"
 		" of type (none). If disabled, enemies without animation will only initialize their tile if their tile is 0; which it"
 		" is when it is first created. This does not affect enemies that has an animation set."},
-	{ "Enemy->Jump fluctuates when on ground", qr_FLUCTUATING_ENEMY_JUMP,
+	{ "Enemy->Jump Fluctuates When on Ground", qr_FLUCTUATING_ENEMY_JUMP,
 		"If enabled, gravity applies to enemies every other frame when they are on the ground,"
 		" setting their jump value to the negative value of gravity for a frame before reverting"
 		" it back to 0 the next frame. If disabled, enemy jump will not go below 0 when on the ground."},
-	{ "Script Sprite->Jump is truncated", qr_SPRITE_JUMP_IS_TRUNCATED,
+	{ "Script Sprite->Jump is Truncated", qr_SPRITE_JUMP_IS_TRUNCATED,
 		"If enabled, reading Sprite->Jump via script will return the value without the decimal portion."
 		" If disabled, the correct Sprite->Jump value will be returned."},
-	{ "->Next combos ignore trigger flags", qr_BUGGY_BUGGY_SLASH_TRIGGERS,
+	{ "->Next Combos Ignore Trigger Flags", qr_BUGGY_BUGGY_SLASH_TRIGGERS,
 		"If enabled, trigger flags cannot be triggered if placed on a ->Next combo type."
 		" This was a bug introduced by a poor implementation of the 'Old Slash Combo Secret Flag Behavior'"
 		" rule. Note that this rule does nothing if 'Old Slash Combo Secret Flag Behavior' is enabled."},
-	{ "Old Quake/DrawYOffset behavior", qr_OLD_DRAWOFFSET,
+	{ "Old Quake/DrawYOffset Behavior", qr_OLD_DRAWOFFSET,
 		"If enabled, certain enemies will have their draw offsets affected by Screen->Quake when they spawn."
-		" If disabled, the offset will not be affected by Screen->Quake."}
-		
+		" If disabled, the offset will not be affected by Screen->Quake."},
+	{ "Broken DrawScreen Derivative Functions", qr_BROKEN_DRAWSCREEN_FUNCTIONS,
+		"If enabled, DrawScreenSolid, DrawScreenSolidity, DrawScreenComboFlags, DrawScreenComboIFlags,"
+		" and DrawScreenComboTypes will have broken draws if a screen has layers enabled."
+		" \nIf disabled, these functions will not break if a layer exists on the source screen. Note that only"
+		" DrawScreenSolid works properly with layers; the other functions will otherwise only take Layer 0"
+		" of the source screen."},
+	{ "Scrolling Cancels Charge", qr_SCROLLING_KILLS_CHARGE,
+		"If enabled, scrolling screens while charging (i.e. spin attack)"
+		" will not keep the charge on the new screen." },
+	{ "Broken Enemy Item Carrying", qr_BROKEN_ITEM_CARRYING,
+		"If enabled, enemies will use the topleft corner of their tile as their item carry position when carrying an item,"
+		" which might look off with large enemies. They will also not pass their Z value onto the item."
+		" \nIf disabled, they will use the same position as their item drop position, and will carry the item into the Z axis." },
+	{ "Custom Weapon / Ice Rod Bugged Cost", qr_CUSTOMWEAPON_IGNORE_COST,
+		"Custom Weapon and Ice Rod itemclasses will not charge the use cost set"
+		" in the item editor if this is enabled." }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -801,6 +816,9 @@ static const GUI::ListData enemiesRulesList
 		" isn't one of the last 6 unique screens visited; regardless of how many enemies are"
 		" left alive. Otherwise, if disabled, the enemies will only return if you either left"
 		" 0 enemies alive on the screen, or if you left and re-entered the map."},
+	{ "Enemy Drops use Hitbox for Position", qr_ENEMY_DROPS_USE_HITOFFSETS,
+		"If enabled, enemies will drop their dropset item at the center of their hitbox."
+		" \nIf disabled, they will drop their item at the center of their tile."},
 		
 	//Maybe we should keep this one last always? -Deedee 
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,

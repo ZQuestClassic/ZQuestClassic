@@ -1,7 +1,7 @@
 #include "ConsoleLogger.h"
 #include "zconfig.h"
 int32_t vbound(int32_t val, int32_t low, int32_t high);
-extern byte monochrome_console;
+byte monochrome_console;
 #include "zc_alleg.h"
 #ifdef _WIN32
 //{
@@ -214,6 +214,11 @@ inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 	if (m_hPipe==INVALID_HANDLE_VALUE)
 		return -1;
 	return _print(lpszText,(iSize==-1) ? strlen(lpszText) : iSize);
+}
+
+bool CConsoleLogger::valid()
+{
+	return m_hPipe != INVALID_HANDLE_VALUE;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -514,6 +519,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 void CConsoleLogger::kill()
 {
 	killer.kill();
+	m_hPipe = INVALID_HANDLE_VALUE;
 }
 
 // Close and disconnect

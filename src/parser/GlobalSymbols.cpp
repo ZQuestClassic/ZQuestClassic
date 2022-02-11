@@ -11272,6 +11272,7 @@ static AccessorTable DebugTable[] =
 	{ "getNULL",                 ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getNull",                 ZVARTYPEID_UNTYPED,       GETTER,       DONULL,               1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Breakpoint",              ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_DEBUG, ZVARTYPEID_CHAR, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTesting",              ZVARTYPEID_BOOL,          GETTER,       DEBUGTESTING,         1,             0,                                    1,           { ZVARTYPEID_DEBUG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                        -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };

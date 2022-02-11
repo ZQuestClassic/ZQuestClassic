@@ -765,6 +765,7 @@ enum
 	cmdBottleShopTypes,
 	cmdWaterSolidFix,
 	cmdEffectSquareFix,
+	cmdTestQuest,
     cmdMAX
 };
 

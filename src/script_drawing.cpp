@@ -9443,73 +9443,73 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	
-    //sdci[1]=layer
-    //sdci[2]=pos[12]
-    //sdci[3]=uv[8]
-    //sdci[4]=color[4]
-    //sdci[5]=size[2]
-    //sdci[6]=flip
-    //sdci[7]=tile/combo
-    //sdci[8]=polytype
+	//sdci[1]=layer
+	//sdci[2]=pos[12]
+	//sdci[3]=uv[8]
+	//sdci[4]=color[4]
+	//sdci[5]=size[2]
+	//sdci[6]=flip
+	//sdci[7]=tile/combo
+	//sdci[8]=polytype
 	//sdci[9] = other bitmap as texture
 	//sdci[17] Bitmap Pointer
-    if ( sdci[17] <= 0 )
-    {
+	if ( sdci[17] <= 0 )
+	{
 	Z_scripterrlog("bitmap->Quad3D() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
-    }
+	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
-    if(!v_ptr)
-    {
-        al_trace("Quad3d: Vector pointer is null! Internal error. \n");
-        return;
-    }
-    
-    std::vector<int32_t> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
-        
-    int32_t* pos = &v[0];
-    int32_t* uv = &v[12];
-    int32_t* col = &v[20];
-    int32_t* size = &v[24];
-    
-    int32_t w = size[0]; //magic numerical constants... yuck.
-    int32_t h = size[1];
-    int32_t flip = (sdci[6]/10000)&3;
-    int32_t tile = sdci[7]/10000;
-    int32_t polytype = sdci[8]/10000;
-    int32_t quad_render_source = sdci[9]-10;
-    Z_scripterrlog("Quad3D texture is %d\n", quad_render_source);
-    
-    polytype = vbound(polytype, 0, 14);
-    
-    int32_t tex_width = w*16;
-    int32_t tex_height = h*16;
-    
-    bool mustDestroyBmp = false;
-    BITMAP *tex=NULL; 
-    
-    
-    bool tex_is_bitmap = ( sdci[9] != 0 );
-    //Z_scripterrlog("sdci[9] is %d\n", quad_render_source);
-    //Z_scripterrlog("sdci[17] is %d\n", sdci[17]-10);
-    BITMAP *bmptexture;
-    
+	
+	std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
+	
+	if(!v_ptr)
+	{
+		al_trace("Quad3d: Vector pointer is null! Internal error. \n");
+		return;
+	}
+	
+	std::vector<int32_t> &v = *v_ptr;
+	
+	if(v.empty())
+		return;
+		
+	int32_t* pos = &v[0];
+	int32_t* uv = &v[12];
+	int32_t* col = &v[20];
+	int32_t* size = &v[24];
+	
+	int32_t w = size[0]; //magic numerical constants... yuck.
+	int32_t h = size[1];
+	int32_t flip = (sdci[6]/10000)&3;
+	int32_t tile = sdci[7]/10000;
+	int32_t polytype = sdci[8]/10000;
+	int32_t quad_render_source = sdci[9]-10;
+	Z_scripterrlog("Quad3D texture is %d\n", quad_render_source);
+	
+	polytype = vbound(polytype, 0, 14);
+	
+	int32_t tex_width = w*16;
+	int32_t tex_height = h*16;
+	
+	bool mustDestroyBmp = false;
+	BITMAP *tex=NULL; 
+	
+	
+	bool tex_is_bitmap = ( sdci[9] != 0 );
+	//Z_scripterrlog("sdci[9] is %d\n", quad_render_source);
+	//Z_scripterrlog("sdci[17] is %d\n", sdci[17]-10);
+	BITMAP *bmptexture;
+	
 	if ( tex_is_bitmap ) bmptexture = FFCore.GetScriptBitmap(quad_render_source);
-    
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
    
-    
-    if ( !tex_is_bitmap )
-    {
+	
+	if ( !tex_is_bitmap )
+	{
 	tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
+	
 	if(!tex)
 	{
 		mustDestroyBmp = true;
@@ -9522,31 +9522,31 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 		return; //non power of two error
 	}
 	if(tile > 0)   // TILE
-	    {
+		{
 		TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
-	    }
-	    else        // COMBO
-	    {
+		}
+		else		// COMBO
+		{
 		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
-	    }
-	    
+		}
+		
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]),  static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
 	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
-    
+	
 	quad3d_f(refbmp, polytype, tex, &V1, &V2, &V3, &V4);
 	if(mustDestroyBmp)
 		destroy_bitmap(tex);
-    }
-    else
-    {
-	    
-	    if ( !bmptexture ) 
+	}
+	else
+	{
+		
+		if ( !bmptexture ) 
 		{
 			Z_scripterrlog("Bitmap pointer used as a texture in %s is uninitialised.\n Defaulting to using a tile as a texture.\n", "bitmap->Quad3D()");
 			tex_is_bitmap = 0;
@@ -9561,88 +9561,88 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]),  static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]),  static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
 	V3D_f V4 = { static_cast<float>(pos[9]+xoffset), static_cast<float>(pos[10]+yoffset), static_cast<float>(pos[11]), static_cast<float>(uv[6]), static_cast<float>(uv[7]), col[3] };
-        
+		
 	BITMAP *foo = create_bitmap_ex(8, 256, 176);
-	    
-	//quad3d_f(refbmp, polytype, foo, &V1, &V2, &V3, &V4);    
+		
+	//quad3d_f(refbmp, polytype, foo, &V1, &V2, &V3, &V4);	
 	quad3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3, &V4); 
 	destroy_bitmap(foo);
-	    
-    }
-    
-    
-        
+		
+	}
+	
+	
+		
 }
 
 
 
 void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
-    //sdci[1]=layer
-    //sdci[2]=pos[9]
-    //sdci[3]=uv[6]
-    //sdci[4]=color[3]
-    //sdci[5]=size[2]
-    //sdci[6]=flip
-    //sdci[7]=tile/combo
-    //sdci[8]=polytype
+	//sdci[1]=layer
+	//sdci[2]=pos[9]
+	//sdci[3]=uv[6]
+	//sdci[4]=color[3]
+	//sdci[5]=size[2]
+	//sdci[6]=flip
+	//sdci[7]=tile/combo
+	//sdci[8]=polytype
 	//sdci[9] bitmap as texture
 	//sdci[17] Bitmap Pointer
-    if ( sdci[17] <= 0 )
-    {
+	if ( sdci[17] <= 0 )
+	{
 	Z_scripterrlog("bitmap->Triangle3D() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 	return;
-    }
+	}
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
-    
-    if(!v_ptr)
-    {
-        al_trace("bitmap->Triangle3d: Vector pointer is null! Internal error. \n");
-        return;
-    }
-    
-    std::vector<int32_t> &v = *v_ptr;
-    
-    if(v.empty())
-        return;
-        
-    int32_t* pos = &v[0];
-    int32_t* uv = &v[9];
-    int32_t* col = &v[15];
-    int32_t* size = &v[18];
-    
-    int32_t w = size[0]; //magic numerical constants... yuck.
-    int32_t h = size[1];
-    int32_t flip = (sdci[6]/10000)&3;
-    int32_t tile = sdci[7]/10000;
-    int32_t polytype = sdci[8]/10000;
-    int32_t quad_render_source = sdci[9]-10;
-    polytype = vbound(polytype, 0, 14);
-    
+	
+	std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
+	
+	if(!v_ptr)
+	{
+		al_trace("bitmap->Triangle3d: Vector pointer is null! Internal error. \n");
+		return;
+	}
+	
+	std::vector<int32_t> &v = *v_ptr;
+	
+	if(v.empty())
+		return;
+		
+	int32_t* pos = &v[0];
+	int32_t* uv = &v[9];
+	int32_t* col = &v[15];
+	int32_t* size = &v[18];
+	
+	int32_t w = size[0]; //magic numerical constants... yuck.
+	int32_t h = size[1];
+	int32_t flip = (sdci[6]/10000)&3;
+	int32_t tile = sdci[7]/10000;
+	int32_t polytype = sdci[8]/10000;
+	int32_t quad_render_source = sdci[9]-10;
+	polytype = vbound(polytype, 0, 14);
+	
 	if(((w-1) & w) != 0 || ((h-1) & h) != 0)
 	{
 		Z_message("bitmap->Triangle3d() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 		return; //non power of two error
 	}
-    
-    int32_t tex_width = w*16;
-    int32_t tex_height = h*16;
-    
-    bool mustDestroyBmp = false;
-    BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
-    
-    if(!tex)
-    {
-        mustDestroyBmp = true;
-        tex = create_bitmap_ex(8, tex_width, tex_height);
-        clear_bitmap(tex);
-    }
-    
-    bool tex_is_bitmap = ( sdci[9] != 0 );
-    BITMAP *bmptexture=NULL;
+	
+	int32_t tex_width = w*16;
+	int32_t tex_height = h*16;
+	
+	bool mustDestroyBmp = false;
+	BITMAP *tex = script_drawing_commands.GetSmallTextureBitmap(w,h);
+	
+	if(!tex)
+	{
+		mustDestroyBmp = true;
+		tex = create_bitmap_ex(8, tex_width, tex_height);
+		clear_bitmap(tex);
+	}
+	
+	bool tex_is_bitmap = ( sdci[9] != 0 );
+	BITMAP *bmptexture=NULL;
 	if ( tex_is_bitmap ) 
 	{
 		bmptexture = FFCore.GetScriptBitmap(quad_render_source);
@@ -9652,30 +9652,30 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 			tex_is_bitmap = 0;
 		}
 	}
-    
-    if ( !tex_is_bitmap )
-    {
-	    if(tile > 0)   // TILE
-	    {
+	
+	if ( !tex_is_bitmap )
+	{
+		if(tile > 0)   // TILE
+		{
 		TileHelper::OverTile(tex, tile, 0, 0, w, h, col[0], flip);
-	    }
-	    else        // COMBO
-	    {
+		}
+		else		// COMBO
+		{
 		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
 		TileHelper::OldPutTile(tex, tiletodraw, 0, 0, w, h, col[0], flip);
-	    }
-	    
-	    V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
-	    V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
-	    V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-	    
-	    triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
-    }
-    else
-    {
+		}
+		
+		V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
+		V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
+		V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
+		
+		triangle3d_f(refbmp, polytype, tex, &V1, &V2, &V3);
+	}
+	else
+	{
 	if ( !isPowerOfTwo(bmptexture->h) ) Z_scripterrlog("HEIGHT of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(bmptexture->w) ) Z_scripterrlog("WIDTH of Bitmap ( pointer %d ) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", quad_render_source);
 		if ( !isPowerOfTwo(w) ) Z_scripterrlog("WIDTH ARG (%d) provided as a render source for bitmap->Triangle3D is not a POWER OF TWO.\nTextels may render improperly!\n", w);
@@ -9684,522 +9684,525 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 	V3D_f V1 = { static_cast<float>(pos[0]+xoffset), static_cast<float>(pos[1] +yoffset), static_cast<float>(pos[2]), static_cast<float>(uv[0]), static_cast<float>(uv[1]), col[0] };
 	V3D_f V2 = { static_cast<float>(pos[3]+xoffset), static_cast<float>(pos[4] +yoffset), static_cast<float>(pos[5]), static_cast<float>(uv[2]), static_cast<float>(uv[3]), col[1] };
 	V3D_f V3 = { static_cast<float>(pos[6]+xoffset), static_cast<float>(pos[7] +yoffset), static_cast<float>(pos[8]), static_cast<float>(uv[4]), static_cast<float>(uv[5]), col[2] };
-	    
-	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);    
-	    
-	    
-    }
-    if(mustDestroyBmp)
-        destroy_bitmap(tex);
-        
+		
+	triangle3d_f(refbmp, polytype, bmptexture, &V1, &V2, &V3);	
+		
+		
+	}
+	if(mustDestroyBmp)
+		destroy_bitmap(tex);
+		
 }
 
 
 bool is_layer_transparent(const mapscr& m, int32_t layer)
 {
-    layer = vbound(layer, 0, 5);
-    return m.layeropacity[layer] == 128;
+	layer = vbound(layer, 0, 5);
+	return m.layeropacity[layer] == 128;
 }
 
 mapscr *getmapscreen(int32_t map_index, int32_t screen_index, int32_t layer)   //returns NULL for invalid or non-existent layer
 {
-    mapscr *base_screen;
-    int32_t index = map_index*MAPSCRS+screen_index;
-    
-    if((uint32_t)layer > 6 || (uint32_t)index >= TheMaps.size())
-        return NULL;
-        
-    if(layer != 0)
-    {
-        layer = layer - 1;
-        
-        base_screen=&(TheMaps[index]);
-        
-        if(base_screen->layermap[layer]==0)
-            return NULL;
-            
-        index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
-        
-        if((uint32_t)index >= TheMaps.size())   // Might as well make sure
-            return NULL;
-    }
-    
-    return &(TheMaps[index]);
+	mapscr *base_screen;
+	int32_t index = map_index*MAPSCRS+screen_index;
+	
+	if((uint32_t)layer > 6 || (uint32_t)index >= TheMaps.size())
+		return NULL;
+		
+	if(layer != 0)
+	{
+		layer = layer - 1;
+		
+		base_screen=&(TheMaps[index]);
+		
+		if(base_screen->layermap[layer]==0)
+			return NULL;
+			
+		index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
+		
+		if((uint32_t)index >= TheMaps.size())   // Might as well make sure
+			return NULL;
+	}
+	
+	return &(TheMaps[index]);
 }
 
 void draw_mapscr(BITMAP *b, const mapscr& m, int32_t x, int32_t y, bool transparent)
 {
-    for(int32_t i(0); i < 176; ++i)
-    {
-        const int32_t x2 = ((i&15)<<4) + x;
-        const int32_t y2 = (i&0xF0) + y;
-        
-        //const newcombo & c = combobuf[ m.data[i] ];
-	    
-	/*
-	newcombo c = combobuf[m.data[i]];
-	int32_t csets[4];
-        int32_t cofs = c.csets&15;
-        
-        if(cofs&8)
-            cofs |= ~int32_t(0xF);
-            
-        for(int32_t i=0; i<4; ++i)
-            csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
+	for(int32_t i(0); i < 176; ++i)
+	{
+		const int32_t x2 = ((i&15)<<4) + x;
+		const int32_t y2 = (i&0xF0) + y;
+		
+		//const newcombo & c = combobuf[ m.data[i] ];
+		/*
+		newcombo c = combobuf[m.data[i]];
+		int32_t csets[4];
+		int32_t cofs = c.csets&15;
+		
+		if(cofs&8)
+			cofs |= ~int32_t(0xF);
+			
+		for(int32_t i=0; i<4; ++i)
+			csets[i] = c.csets&(16<<i) ? cset + cofs : cset;
 	
 	
-        const int32_t tile = combo_tile(c, x2, y2);
-	    */
-        
-        if(transparent)
-	{
-		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
-		overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
-
-            //overtiletranslucent16(b, tile, x2, y2, m.cset[i], c.flip, 128);
+		const int32_t tile = combo_tile(c, x2, y2);
+		*/
+		
+		if(transparent)
+		{
+			//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
+			overcomboblocktranslucent(b, x2, y2, m.data[i], m.cset[i], 1, 1, 128);
+			//overtiletranslucent16(b, tile, x2, y2, m.cset[i], c.flip, 128);
+		}
+		else
+		{
+			//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
+			overcomboblock(b, x2, y2, m.data[i], m.cset[i], 1, 1);
+			//overtile16(b, tile, x2, y2, m.cset[i], c.flip);
+		}
 	}
-        else
-	{
-		//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
-		overcomboblock(b, x2, y2, m.data[i], m.cset[i], 1, 1);
-            //overtile16(b, tile, x2, y2, m.cset[i], c.flip);
-	}
-    }
 }
 
 void draw_map_solidity(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
-    BITMAP* square = create_bitmap_ex(8,16,16);
-    
-    for(int32_t i(0); i < 176; ++i)
-    {
-        const int32_t x2 = ((i&15)<<4) + x;
-        const int32_t y2 = (i&0xF0) + y;
-	//Blit the palette index of the solidity value.
-	//int32_t col = (combobuf[m.data[i]].walk&15);
-	//if ( col != 0 ) 
-	//{
-	//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
-	//	
-	//}
-	clear_to_color(square,(combobuf[m.data[i]].walk&15));
-	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	BITMAP* square = create_bitmap_ex(8,16,16);
 	
-	
-    }
-    destroy_bitmap(square);
+	for(int32_t i(0); i < 176; ++i)
+	{
+		const int32_t x2 = ((i&15)<<4) + x;
+		const int32_t y2 = (i&0xF0) + y;
+		//Blit the palette index of the solidity value.
+		//int32_t col = (combobuf[m.data[i]].walk&15);
+		//if ( col != 0 ) 
+		//{
+		//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
+		//	
+		//}
+		clear_to_color(square,(combobuf[m.data[i]].walk&15));
+		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	}
+	destroy_bitmap(square);
 }
 
 void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=x
-    //sdci[5]=y
-    //sdci[6]=rotation
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=x
+	//sdci[5]=y
+	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
-    int32_t x = sdci[4]/10000;
-    int32_t y = sdci[5]/10000;
-    int32_t x1 = x + xoffset;
-    int32_t y1 = y + yoffset;
-    int32_t rotation = sdci[6]/10000;
-    
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
-    if(index >= TheMaps.size())
-    {
-        al_trace("DrawScreen: invalid map or screen index. \n");
-        return;
-    }
-    
-    const mapscr & m = TheMaps[index];
-    
-    
-    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+	int32_t scrn = sdci[3]/10000;
+	int32_t x = sdci[4]/10000;
+	int32_t y = sdci[5]/10000;
+	int32_t x1 = x + xoffset;
+	int32_t y1 = y + yoffset;
+	int32_t rotation = sdci[6]/10000;
+	
+	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawScreen: invalid map or screen index. \n");
+		return;
+	}
+	
+	const mapscr & m = TheMaps[index];
+	
+	
+	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-    //draw layer 0
-    draw_map_solidity(b, m, x1, y1);
-    
-    for(int32_t i(0); i < 6; ++i)
-    {
-        if(m.layermap[i] == 0) continue;
-        
-        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
-        if(layer_screen_index >= TheMaps.size())
-            continue;
-        
-        //draw valid layers
-        draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
-    }
-    
-    if(rotation != 0) // rotate
-    {
-        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
+	
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap(256, 176);
+		
+	//draw layer 0
+	draw_map_solidity(b, m, x1, y1);
+	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	{
+		for(int32_t i(0); i < 6; ++i)
+		{
+			if(m.layermap[i] == 0) continue;
+			
+			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+			
+			if(layer_screen_index >= TheMaps.size())
+				continue;
+			
+			//draw valid layers
+			draw_map_solidity(b, TheMaps[ layer_screen_index ], x1, y1);
+		}
+	}
+	
+	if(rotation != 0) // rotate
+	{
+		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
 }
 
 void draw_map_solid(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
-    BITMAP* square = create_bitmap_ex(8,16,16);
-    BITMAP* subsquare = create_bitmap_ex(8,16,16);
+	BITMAP* square = create_bitmap_ex(8,16,16);
+	BITMAP* subsquare = create_bitmap_ex(8,16,16);
 	clear_to_color(subsquare,1);
-    
-    for(int32_t i(0); i < 176; ++i)
-    {
-        const int32_t x2 = ((i&15)<<4) + x;
-        const int32_t y2 = (i&0xF0) + y;
-	//Blit the palette index of the solidity value.
-	//int32_t col = (combobuf[m.data[i]].walk&15);
-	//if ( col != 0 ) 
-	//{
-	//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
-	//	
-	//}
-	clear_bitmap(square);
-	int32_t sol = (combobuf[m.data[i]].walk);
-	//al_trace("Solidity is: %d.\n", sol);
-	if ( sol & 1 )
-	{
-		blit(subsquare, square, 0, 0, 0, 0, 8, 8);
-	}
-	if ( sol & 2 )
-	{
-		blit(subsquare, square, 0, 0, 0, 8, 8, 8);
-	}
-	if ( sol & 4 )
-	{
-		blit(subsquare, square, 0, 0, 8, 0, 8, 8);
-	}
-	if ( sol &8 )	{
-		blit(subsquare, square, 0, 0, 8, 8, 8, 8);
-	}
 	
-	blit(square, b, 0, 0, x2, y2, square->w, square->h);
-	
-	
-    }
-    destroy_bitmap(square);
-    destroy_bitmap(subsquare);
+	for(int32_t i(0); i < 176; ++i)
+	{
+		const int32_t x2 = ((i&15)<<4) + x;
+		const int32_t y2 = (i&0xF0) + y;
+		//Blit the palette index of the solidity value.
+		//int32_t col = (combobuf[m.data[i]].walk&15);
+		//if ( col != 0 ) 
+		//{
+		//	Z_scripterrlog("Position %d has a solidity value of %d.\n", i, col);
+		//	
+		//}
+		clear_bitmap(square);
+		int32_t sol = (combobuf[m.data[i]].walk);
+		//al_trace("Solidity is: %d.\n", sol);
+		if ( sol & 1 )
+		{
+			blit(subsquare, square, 0, 0, 0, 0, 8, 8);
+		}
+		if ( sol & 2 )
+		{
+			blit(subsquare, square, 0, 0, 0, 8, 8, 8);
+		}
+		if ( sol & 4 )
+		{
+			blit(subsquare, square, 0, 0, 8, 0, 8, 8);
+		}
+		if ( sol &8 )	{
+			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
+		}
+		
+		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	}
+	destroy_bitmap(square);
+	destroy_bitmap(subsquare);
 }
 
 void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=x
-    //sdci[5]=y
-    //sdci[6]=rotation
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=x
+	//sdci[5]=y
+	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
-    int32_t x = sdci[4]/10000;
-    int32_t y = sdci[5]/10000;
-    int32_t x1 = x + xoffset;
-    int32_t y1 = y + yoffset;
-    int32_t rotation = sdci[6]/10000;
-    
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
-    if(index >= TheMaps.size())
-    {
-        al_trace("DrawScreen: invalid map or screen index. \n");
-        return;
-    }
-    
-    const mapscr & m = TheMaps[index];
-    
-    
-    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+	int32_t scrn = sdci[3]/10000;
+	int32_t x = sdci[4]/10000;
+	int32_t y = sdci[5]/10000;
+	int32_t x1 = x + xoffset;
+	int32_t y1 = y + yoffset;
+	int32_t rotation = sdci[6]/10000;
+	
+	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawScreen: invalid map or screen index. \n");
+		return;
+	}
+	
+	const mapscr & m = TheMaps[index];
+	
+	
+	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-    //draw layer 0
-    draw_map_solid(b, m, x1, y1);
-    
-    for(int32_t i(0); i < 6; ++i)
-    {
-        if(m.layermap[i] == 0) continue;
-        
-        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
-        if(layer_screen_index >= TheMaps.size())
-            continue;
-        
-        //draw valid layers
-        draw_map_solid(b, TheMaps[ layer_screen_index ], x1, y1);
-    }
-    
-    if(rotation != 0) // rotate
-    {
-        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
+	
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap(256, 176);
+		
+	//draw layer 0
+	draw_map_solid(b, m, x1, y1);
+	
+	for(int32_t i(0); i < 6; ++i) //This one doesn't need the QR; it works just fine.
+	{
+		if(m.layermap[i] == 0) continue;
+		
+		uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+		
+		if(layer_screen_index >= TheMaps.size())
+			continue;
+		
+		//draw valid layers
+		draw_map_solid(b, TheMaps[ layer_screen_index ], x1, y1);
+	}
+	
+	if(rotation != 0) // rotate
+	{
+		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
 }
 
 void draw_map_cflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
-    BITMAP* square = create_bitmap_ex(8,16,16);
-    
-    for(int32_t i(0); i < 176; ++i)
-    {
-        const int32_t x2 = ((i&15)<<4) + x;
-        const int32_t y2 = (i&0xF0) + y;
-	//Blit the palette index of the solidity value.
-	clear_to_color(square,m.sflag[i]);
-	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	BITMAP* square = create_bitmap_ex(8,16,16);
 	
-	
-    }
-    destroy_bitmap(square);
+	for(int32_t i(0); i < 176; ++i)
+	{
+		const int32_t x2 = ((i&15)<<4) + x;
+		const int32_t y2 = (i&0xF0) + y;
+		//Blit the palette index of the solidity value.
+		clear_to_color(square,m.sflag[i]);
+		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	}
+	destroy_bitmap(square);
 }
 
 void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=x
-    //sdci[5]=y
-    //sdci[6]=rotation
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=x
+	//sdci[5]=y
+	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
-    int32_t x = sdci[4]/10000;
-    int32_t y = sdci[5]/10000;
-    int32_t x1 = x + xoffset;
-    int32_t y1 = y + yoffset;
-    int32_t rotation = sdci[6]/10000;
-    
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
-    if(index >= TheMaps.size())
-    {
-        al_trace("DrawScreen: invalid map or screen index. \n");
-        return;
-    }
-    
-    const mapscr & m = TheMaps[index];
-    
-    
-    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+	int32_t scrn = sdci[3]/10000;
+	int32_t x = sdci[4]/10000;
+	int32_t y = sdci[5]/10000;
+	int32_t x1 = x + xoffset;
+	int32_t y1 = y + yoffset;
+	int32_t rotation = sdci[6]/10000;
+	
+	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawScreen: invalid map or screen index. \n");
+		return;
+	}
+	
+	const mapscr & m = TheMaps[index];
+	
+	
+	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-    //draw layer 0
-    draw_map_cflag(b, m, x1, y1);
-    
-    for(int32_t i(0); i < 6; ++i)
-    {
-        if(m.layermap[i] == 0) continue;
-        
-        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
-        if(layer_screen_index >= TheMaps.size())
-            continue;
-        
-        //draw valid layers
-        draw_map_cflag(b, TheMaps[ layer_screen_index ], x1, y1);
-    }
-    
-    if(rotation != 0) // rotate
-    {
-        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
+	
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap(256, 176);
+		
+	//draw layer 0
+	draw_map_cflag(b, m, x1, y1);
+	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	{
+		for(int32_t i(0); i < 6; ++i)
+		{
+			if(m.layermap[i] == 0) continue;
+			
+			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+			
+			if(layer_screen_index >= TheMaps.size())
+				continue;
+			
+			//draw valid layers
+			draw_map_cflag(b, TheMaps[ layer_screen_index ], x1, y1);
+		}
+	}
+	
+	if(rotation != 0) // rotate
+	{
+		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
 }
 
 
 void draw_map_combotype(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
-    BITMAP* square = create_bitmap_ex(8,16,16);
-    
-    for(int32_t i(0); i < 176; ++i)
-    {
-        const int32_t x2 = ((i&15)<<4) + x;
-        const int32_t y2 = (i&0xF0) + y;
-	//Blit the palette index of the solidity value.
-	clear_to_color(square,(combobuf[m.data[i]].type));
-	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	BITMAP* square = create_bitmap_ex(8,16,16);
 	
-	
-    }
-    destroy_bitmap(square);
+	for(int32_t i(0); i < 176; ++i)
+	{
+		const int32_t x2 = ((i&15)<<4) + x;
+		const int32_t y2 = (i&0xF0) + y;
+		//Blit the palette index of the solidity value.
+		clear_to_color(square,(combobuf[m.data[i]].type));
+		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	}
+	destroy_bitmap(square);
 }
 
 void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=x
-    //sdci[5]=y
-    //sdci[6]=rotation
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=x
+	//sdci[5]=y
+	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
-    int32_t x = sdci[4]/10000;
-    int32_t y = sdci[5]/10000;
-    int32_t x1 = x + xoffset;
-    int32_t y1 = y + yoffset;
-    int32_t rotation = sdci[6]/10000;
-    
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
-    if(index >= TheMaps.size())
-    {
-        al_trace("DrawScreen: invalid map or screen index. \n");
-        return;
-    }
-    
-    const mapscr & m = TheMaps[index];
-    
-    
-    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+	int32_t scrn = sdci[3]/10000;
+	int32_t x = sdci[4]/10000;
+	int32_t y = sdci[5]/10000;
+	int32_t x1 = x + xoffset;
+	int32_t y1 = y + yoffset;
+	int32_t rotation = sdci[6]/10000;
+	
+	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawScreen: invalid map or screen index. \n");
+		return;
+	}
+	
+	const mapscr & m = TheMaps[index];
+	
+	
+	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-    //draw layer 0
-    draw_map_combotype(b, m, x1, y1);
-    
-    for(int32_t i(0); i < 6; ++i)
-    {
-        if(m.layermap[i] == 0) continue;
-        
-        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
-        if(layer_screen_index >= TheMaps.size())
-            continue;
-        
-        //draw valid layers
-        draw_map_combotype(b, TheMaps[ layer_screen_index ], x1, y1);
-    }
-    
-    if(rotation != 0) // rotate
-    {
-        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
+	
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap(256, 176);
+		
+	//draw layer 0
+	draw_map_combotype(b, m, x1, y1);
+	
+	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	{
+		for(int32_t i(0); i < 6; ++i)
+		{
+			if(m.layermap[i] == 0) continue;
+			
+			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+			
+			if(layer_screen_index >= TheMaps.size())
+				continue;
+			
+			//draw valid layers
+			draw_map_combotype(b, TheMaps[ layer_screen_index ], x1, y1);
+		}
+	}
+	
+	if(rotation != 0) // rotate
+	{
+		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
 }
 
 
 void draw_map_comboiflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 {
-    BITMAP* square = create_bitmap_ex(8,16,16);
-    
-    for(int32_t i(0); i < 176; ++i)
-    {
-        const int32_t x2 = ((i&15)<<4) + x;
-        const int32_t y2 = (i&0xF0) + y;
-	//Blit the palette index of the solidity value.
-	clear_to_color(square,(combobuf[m.data[i]].flag));
-	blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	BITMAP* square = create_bitmap_ex(8,16,16);
 	
-	
-    }
-    destroy_bitmap(square);
+	for(int32_t i(0); i < 176; ++i)
+	{
+		const int32_t x2 = ((i&15)<<4) + x;
+		const int32_t y2 = (i&0xF0) + y;
+		//Blit the palette index of the solidity value.
+		clear_to_color(square,(combobuf[m.data[i]].flag));
+		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
+	}
+	destroy_bitmap(square);
 }
 
 void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)
 {
-    //sdci[1]=layer
-    //sdci[2]=map
-    //sdci[3]=screen
-    //sdci[4]=x
-    //sdci[5]=y
-    //sdci[6]=rotation
+	//sdci[1]=layer
+	//sdci[2]=map
+	//sdci[3]=screen
+	//sdci[4]=x
+	//sdci[5]=y
+	//sdci[6]=rotation
 	//sdci[17] Bitmap Pointer
 	
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
 
-    if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
-    int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
-    int32_t x = sdci[4]/10000;
-    int32_t y = sdci[5]/10000;
-    int32_t x1 = x + xoffset;
-    int32_t y1 = y + yoffset;
-    int32_t rotation = sdci[6]/10000;
-    
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    
-    if(index >= TheMaps.size())
-    {
-        al_trace("DrawScreen: invalid map or screen index. \n");
-        return;
-    }
-    
-    const mapscr & m = TheMaps[index];
-    
-    
-    BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
+	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
+	int32_t scrn = sdci[3]/10000;
+	int32_t x = sdci[4]/10000;
+	int32_t y = sdci[5]/10000;
+	int32_t x1 = x + xoffset;
+	int32_t y1 = y + yoffset;
+	int32_t rotation = sdci[6]/10000;
+	
+	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	
+	if(index >= TheMaps.size())
+	{
+		al_trace("DrawScreen: invalid map or screen index. \n");
+		return;
+	}
+	
+	const mapscr & m = TheMaps[index];
+	
+	
+	BITMAP* b = FFCore.GetScriptBitmap(sdci[17]-10);
 	if ( refbmp == NULL ) return;
-    
-    if(rotation != 0)
-        b = script_drawing_commands.AquireSubBitmap(256, 176);
-        
-    //draw layer 0
-    draw_map_comboiflag(b, m, x1, y1);
-    
-    for(int32_t i(0); i < 6; ++i)
-    {
-        if(m.layermap[i] == 0) continue;
-        
-        uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
-        
-        if(layer_screen_index >= TheMaps.size())
-            continue;
-        
-        //draw valid layers
-        draw_map_comboiflag(b, TheMaps[ layer_screen_index ], x1, y1);
-    }
-    
-    if(rotation != 0) // rotate
-    {
-        rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
-        script_drawing_commands.ReleaseSubBitmap(b);
-    }
+	
+	if(rotation != 0)
+		b = script_drawing_commands.AquireSubBitmap(256, 176);
+		
+	//draw layer 0
+	draw_map_comboiflag(b, m, x1, y1);
+	
+	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	{
+		for(int32_t i(0); i < 6; ++i)
+		{
+			if(m.layermap[i] == 0) continue;
+			
+			uint32_t layer_screen_index = (m.layermap[i]-1) * MAPSCRS + m.layerscreen[i];
+			
+			if(layer_screen_index >= TheMaps.size())
+				continue;
+			
+			//draw valid layers
+			draw_map_comboiflag(b, TheMaps[ layer_screen_index ], x1, y1);
+		}
+	}
+	
+	if(rotation != 0) // rotate
+	{
+		rotate_sprite(refbmp, b, x1, y1, degrees_to_fixed(rotation));
+		script_drawing_commands.ReleaseSubBitmap(b);
+	}
 }
 
 void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, bool isOffScreen)

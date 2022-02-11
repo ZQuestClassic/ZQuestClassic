@@ -249,7 +249,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           50
+#define V_ITEMS           51
 #define V_WEAPONS          7
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       17
+#define V_COMPATRULE       20
 #define V_ZINFO            0
 
 //= V_SHOPS is under V_MISC
@@ -368,9 +368,9 @@ extern bool fake_pack_writing;
 #define TILE_ROWS_PER_PAGE  13
 #define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
 
-#define TILEROW(tile)		(tile/TILES_PER_ROW)
-#define TILECOL(tile)		(tile%TILES_PER_ROW)
-#define TILEPAGE(tile)		(tile/TILES_PER_PAGE)
+#define TILEROW(tile)		((tile)/TILES_PER_ROW)
+#define TILECOL(tile)		((tile)%TILES_PER_ROW)
+#define TILEPAGE(tile)		((tile)/TILES_PER_PAGE)
 
 #define TILE_PAGES          825
 #define TILE_PAGES_ZC250    252 //2.50.x
@@ -1043,7 +1043,8 @@ enum
 	qr_LIGHTBEAM_TRANSPARENT, qr_CANDLES_SHARED_LIMIT, qr_OLD_RESPAWN_POINTS, qr_HOOKSHOTALLLAYER,
 	//33
 	qr_ANONE_NOANIM, qr_BLOCKHOLE_SAME_ONLY, qr_SWITCHOBJ_RUN_SCRIPT, qr_ITEMCOMBINE_NEW_PSTR,
-	qr_ITEMCOMBINE_CONTINUOUS, qr_SCC_ITEM_COMBINES_ITEMS,
+	qr_ITEMCOMBINE_CONTINUOUS, qr_SCC_ITEM_COMBINES_ITEMS, qr_SCROLLING_KILLS_CHARGE, qr_CUSTOMWEAPON_IGNORE_COST,
+	//34
 	
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
@@ -1063,6 +1064,8 @@ enum
 	//40
 	qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK, qr_OLD_BRIDGE_COMBOS, qr_BROKEN_Z3_ANIMATION, qr_OLD_TILE_INITIALIZATION,
 	qr_FLUCTUATING_ENEMY_JUMP, qr_SPRITE_JUMP_IS_TRUNCATED, qr_BUGGY_BUGGY_SLASH_TRIGGERS, qr_OLD_DRAWOFFSET,
+	//41
+	qr_BROKEN_DRAWSCREEN_FUNCTIONS, qr_ENEMY_DROPS_USE_HITOFFSETS, qr_BROKEN_ITEM_CARRYING,
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -4628,11 +4631,11 @@ struct zcmodule
 	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
 
 	byte old_quest_serial_flow; //Do we go from 3rd to 5th, 
-		//and from 5th to 4th, or just 1->2->3->4->5
+	//and from 5th to 4th, or just 1->2->3->4->5
 	//If this is 0, we do quests in strict order.
 	//if it is 1, then we use the old hardcoded quest flow.
 	
-	int32_t max_quest_files;
+	byte max_quest_files;
 	word startingdmap[10];
 	word startingscreen[10];
 	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
@@ -4655,9 +4658,9 @@ struct zcmodule
 	int32_t copyright_string_vars[10*3]; //font, 104,136,13,-1
 	char animate_NES_title;
 	char delete_quest_data_on_wingame[20]; //Do we purge items, scripts, and other data when moving to the next quest?
-        
-        int32_t select_screen_tiles[sels_tile_LAST];
-        char select_screen_tile_csets[sels_tile_cset_LAST];
+		
+	int32_t select_screen_tiles[sels_tile_LAST];
+	char select_screen_tile_csets[sels_tile_cset_LAST];
 	byte refresh_title_screen;
 	
 	//to add, and init
@@ -4677,13 +4680,10 @@ struct zcmodule
 	char moduletimezone[7]; //supports fiveb char abbreviations, and UTC+ or UTC- nn. 
 	//char module_base_nsf[255];
 	
-        char combotypeCustomAttributes[20][4][32];
-        char combotypeCustomAttribytes[20][8][32];
-        char combotypeCustomAttrishorts[20][8][32];
-        char combotypeCustomFlags[20][16][32];
-	
-	uint8_t ignore;
-
+	char combotypeCustomAttributes[20][4][32];
+	char combotypeCustomAttribytes[20][8][32];
+	char combotypeCustomAttrishorts[20][8][32];
+	char combotypeCustomFlags[20][16][32];
 }; //zcmodule
 
 #include "zinfo.h"
@@ -4702,9 +4702,10 @@ struct zcmodule
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 
 //GameFlags
-#define GAMEFLAG_TRYQUIT	0x01
-#define GAMEFLAG_SCRIPTMENU_ACTIVE	0x02
-#define GAMEFLAG_F6SCRIPT_ACTIVE	0x04
+#define GAMEFLAG_TRYQUIT            0x01
+#define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02
+#define GAMEFLAG_F6SCRIPT_ACTIVE    0x04
+#define GAMEFLAG_RESET_GAME_LOOP    0x08
 
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1

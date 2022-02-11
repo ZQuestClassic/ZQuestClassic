@@ -128,7 +128,7 @@ const char *qst_error[] =
     "Missing new data"  ,                                     /* but let it pass in ZQuest */
     "Internal error occurred", "Invalid password",
     "Doesn't match saved game", "Save file is for older version of quest; please start new save",
-    "Out of memory", "File Debug Mode"
+    "Out of memory", "File Debug Mode", "Canceled", "", "No quest assigned"
 };
 
 //for legacy quests -DD
@@ -2597,7 +2597,6 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			
 			zprint2("\n");
 			zprint2("[ZQUEST CREATOR METADATA]\n");
-			if ( FFCore.quest_format[qQuestNumber] > 0 ) zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
 			if ( tempheader.new_version_id_main > 0 )
 			{
 				zprint2("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", tempheader.new_version_id_main,tempheader.new_version_id_second,tempheader.new_version_id_third,tempheader.new_version_id_fourth);
@@ -2608,7 +2607,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				{
 					case 0x255:
 					{
-						zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", tempheader.build);
+						zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", tempheader.getAlphaStr().c_str(), tempheader.getAlphaVer());
 						break;
 					}
 					case 0x254:
@@ -3410,6 +3409,25 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//set_bit(quest_rules,qr_OLD_DRAWOFFSET,1);
 		//I'm leaving this commented cause I doubt it'll break anything and I think the bugfix might be appreciated in older versions.
 		//On the offchance that it *does* break old quests, fixing it is as simple as uncommenting the set_bit above.
+	}
+	
+	if(compatrule_version < 18)
+	{
+		//Broken DrawScreen Derivative Functions
+		set_bit(quest_rules,qr_BROKEN_DRAWSCREEN_FUNCTIONS,1);
+		//Scrolling Cancels Charge
+		set_bit(quest_rules,qr_SCROLLING_KILLS_CHARGE,1);
+	}
+	
+	if(compatrule_version < 19)
+	{
+		//Broken Enemy Item Carrying with Large Enemies
+		set_bit(quest_rules,qr_BROKEN_ITEM_CARRYING,1);
+	}
+	
+	if(compatrule_version < 20)
+	{
+		set_bit(quest_rules,qr_CUSTOMWEAPON_IGNORE_COST,1);
 	}
 	
 	//always set
@@ -6044,20 +6062,20 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         reset_itembuf(&tempitem,i);
         
 	    
-	if ( s_version > 35 ) //expanded tiles	
-	{    
-		if(!p_igetl(&tempitem.tile,f,true))
-		{
-		    return qe_invalid;
+		if ( s_version > 35 ) //expanded tiles	
+		{    
+			if(!p_igetl(&tempitem.tile,f,true))
+			{
+				return qe_invalid;
+			}
 		}
-	}
-	else
-	{
-		if(!p_igetw(&tempitem.tile,f,true))
+		else
 		{
-		    return qe_invalid;
+			if(!p_igetw(&tempitem.tile,f,true))
+			{
+				return qe_invalid;
+			}
 		}
-	}
 		
         if(!p_getc(&tempitem.misc,f,true))
         {
@@ -6142,19 +6160,19 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         
         if(s_version>1)
         {
-	    if ( s_version >= 31 )
-	    {
-		if(!p_igetl(&tempitem.family,f,true))
-                {
-                    return qe_invalid;
-		}    
-	    }
+			if ( s_version >= 31 )
+			{
+				if(!p_igetl(&tempitem.family,f,true))
+				{
+					return qe_invalid;
+				}    
+			}
             else
-	    {		    
-	        if(!p_getc(&tempitem.family,f,true))
-                {
-                    return qe_invalid;
-		}
+			{		    
+				if(!p_getc(&tempitem.family,f,true))
+				{
+					return qe_invalid;
+				}
             }
             if(s_version < 16)
                 if(tempitem.family == 0xFF)
@@ -6167,37 +6185,36 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             if(s_version>5)
             {
-		if(s_version>=31)
-		{
-			if(!p_igetl(&tempitem.power,f,true))
-			{
-				return qe_invalid;
-			}
-		}
-		else
-		{
-			if(!p_getc(&tempitem.power,f,true))
-			{
-			return qe_invalid;
-			}
-		}
-                
-		//converted flags from 16b to 32b -Z
-		if ( s_version < 41 )
-		{
-			if(!p_igetw(&tempitem.flags,f,true))
-			{
-			    return qe_invalid;
-			}
-		}
-		else
-		{
-			if(!p_igetl(&tempitem.flags,f,true))
-			{
-			    return qe_invalid;
-			}
-		}
-				
+				if(s_version>=31)
+				{
+					if(!p_igetl(&tempitem.power,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					if(!p_getc(&tempitem.power,f,true))
+					{
+					return qe_invalid;
+					}
+				}
+						
+				//converted flags from 16b to 32b -Z
+				if ( s_version < 41 )
+				{
+					if(!p_igetw(&tempitem.flags,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					if(!p_igetl(&tempitem.flags,f,true))
+					{
+						return qe_invalid;
+					}
+				}
             }
             else
             {
@@ -6481,248 +6498,244 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 }
             }
 	    
-	      if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
-		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-			if(!p_getc(&tempitem.useweapon,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_getc(&tempitem.usedefence,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weaprange,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weapduration,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+			if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
+			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+				if(!p_getc(&tempitem.useweapon,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&tempitem.usedefence,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weaprange,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weapduration,f,true))
+				{
+					return qe_invalid;
+				}
+				for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )
+				{
+					if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+			
+			if ( s_version >= 27 )  //! New itemdata vars for weapon editor. -Z
+			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
+				if(!p_igetl(&tempitem.duplicates,f,true))
+				{
+					return qe_invalid;
+				}
+				for ( int32_t q = 0; q < INITIAL_D; q++ )
+				{
+					if(!p_igetl(&tempitem.weap_initiald[q],f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				for ( int32_t q = 0; q < INITIAL_A; q++ )
+				{
+					if(!p_getc(&tempitem.weap_initiala[q],f,true))
+					{
+						return qe_invalid;
+					}
+				}
 				
-				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
-				{
-				    return qe_invalid;
-				}
-			}
-		
-		}
-		
-		if ( s_version >= 27 )  //! New itemdata vars for weapon editor. -Z
-		{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-			if(!p_igetl(&tempitem.duplicates,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			for ( int32_t q = 0; q < INITIAL_D; q++ )
-			{
-				if(!p_igetl(&tempitem.weap_initiald[q],f,true))
-				{
-					return qe_invalid;
-				}
-			}
-			for ( int32_t q = 0; q < INITIAL_A; q++ )
-			{
-				if(!p_getc(&tempitem.weap_initiala[q],f,true))
-				{
-					return qe_invalid;
-				}
-			}
-			
-			if(!p_getc(&tempitem.drawlayer,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			
-			
-			if(!p_igetl(&tempitem.hxofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.hyofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.hxsz,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.hysz,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.hzsz,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.xofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.yofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_hxofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_hyofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_hxsz,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_hysz,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_hzsz,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_xofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_yofs,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetw(&tempitem.weaponscript,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.wpnsprite,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.magiccosttimer,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			
-		
-		}
-		if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
-		{
-			//Item Size FLags, TileWidth, TileHeight
-			if(!p_igetl(&tempitem.overrideFLAGS,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.tilew,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.tileh,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			
-		}
-		if ( s_version >= 29 )  //! More new vars. 
-		{
-			//Item Size FLags, TileWidth, TileHeight
-			if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_tilew,f,true))
-                        {
-                            return qe_invalid;
-                        }
-			if(!p_igetl(&tempitem.weap_tileh,f,true))
-                        {
-                            return qe_invalid;
-                        }
-		}
-		if ( s_version >= 30 )  //! More new vars. 
-		{
-			//Pickup Type
-			if(!p_igetl(&tempitem.pickup,f,true))
-                        {
-                            return qe_invalid;
-                        }
-		}
-		if ( s_version >= 32 )  //! More new vars. 
-		{
-			//Pickup Type
-			if(!p_igetw(&tempitem.pstring,f,true))
-                        {
-                            return qe_invalid;
-                        }
-		}
-		if ( s_version >= 33 )  //! More new vars. 
-		{
-			//Pickup Type
-			if(!p_igetw(&tempitem.pickup_string_flags,f,true))
-                        {
-                            return qe_invalid;
-                        }
-		}
-		if ( s_version >= 34 )  //! cost counter
-		{
-			//Pickup Type
-			if(!p_getc(&tempitem.cost_counter,f,true))
-                        {
-                            return qe_invalid;
-                        }
-		}
-		if ( s_version >= 44 )  //! cost counter
-		{
-			for ( int32_t q = 0; q < 8; q++ )
-			{
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_getc(&(tempitem.initD_label[q][w]),f,keepdata))
-					{
-						return qe_invalid;
-					} 
-				}
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f,keepdata))
-					{
-						return qe_invalid;
-					} 
-				}
-				for ( int32_t w = 0; w < 65; w++ )
-				{
-					if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f,keepdata))
-					{
-						return qe_invalid;
-					} 
-				}
-				if(!p_igetl(&(tempitem.sprite_initiald[q]),f,keepdata))
+				if(!p_getc(&tempitem.drawlayer,f,true))
 				{
 					return qe_invalid;
 				}
 				
-			}
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_getc(&(tempitem.sprite_initiala[q]),f,keepdata))
+				
+				if(!p_igetl(&tempitem.hxofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.hyofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.hxsz,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.hysz,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.hzsz,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.xofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.yofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_hxofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_hyofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_hxsz,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_hysz,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_hzsz,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_xofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_yofs,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetw(&tempitem.weaponscript,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.wpnsprite,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.magiccosttimer,f,true))
 				{
 					return qe_invalid;
 				}
 			}
-			//Pickup Type
-			if(!p_igetw(&tempitem.sprite_script,f,true))
-                        {
-                            return qe_invalid;
-                        }
-		}
-		if ( s_version >= 48 )  //! pickup flags
-		{
-			if(!p_getc(&(tempitem.pickupflag),f,keepdata))
+			if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
 			{
-				return qe_invalid;
+				//Item Size FLags, TileWidth, TileHeight
+				if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.tilew,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.tileh,f,true))
+				{
+					return qe_invalid;
+				}
 			}
-		}
+			if ( s_version >= 29 )  //! More new vars. 
+			{
+				//Item Size FLags, TileWidth, TileHeight
+				if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_tilew,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&tempitem.weap_tileh,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if ( s_version >= 30 )  //! More new vars. 
+			{
+				//Pickup Type
+				if(!p_igetl(&tempitem.pickup,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if ( s_version >= 32 )  //! More new vars. 
+			{
+				//Pickup Type
+				if(!p_igetw(&tempitem.pstring,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if ( s_version >= 33 )  //! More new vars. 
+			{
+				//Pickup Type
+				if(!p_igetw(&tempitem.pickup_string_flags,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if ( s_version >= 34 )  //! cost counter
+			{
+				//Pickup Type
+				if(!p_getc(&tempitem.cost_counter,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if ( s_version >= 44 )  //! cost counter
+			{
+				for ( int32_t q = 0; q < 8; q++ )
+				{
+					for ( int32_t w = 0; w < 65; w++ )
+					{
+						if(!p_getc(&(tempitem.initD_label[q][w]),f,keepdata))
+						{
+							return qe_invalid;
+						} 
+					}
+					for ( int32_t w = 0; w < 65; w++ )
+					{
+						if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f,keepdata))
+						{
+							return qe_invalid;
+						} 
+					}
+					for ( int32_t w = 0; w < 65; w++ )
+					{
+						if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f,keepdata))
+						{
+							return qe_invalid;
+						} 
+					}
+					if(!p_igetl(&(tempitem.sprite_initiald[q]),f,keepdata))
+					{
+						return qe_invalid;
+					}
+					
+				}
+				for ( int32_t q = 0; q < 2; q++ )
+				{
+					if(!p_getc(&(tempitem.sprite_initiala[q]),f,keepdata))
+					{
+						return qe_invalid;
+					}
+				}
+				//Pickup Type
+				if(!p_igetw(&tempitem.sprite_script,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if ( s_version >= 48 )  //! pickup flags
+			{
+				if(!p_getc(&(tempitem.pickupflag),f,keepdata))
+				{
+					return qe_invalid;
+				}
+			}
         }
         else
         {
@@ -9034,6 +9047,14 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version < 47 ) //InitD Labels and Sprite Script Data
 			{
 				tempitem.pickupflag = 0;
+			}
+			
+			if( s_version < 51 )
+			{
+				if( tempitem.family == itype_candle )
+				{
+					tempitem.misc4 = 50; //Step speed
+				}
 			}
 			
 			if(tempitem.fam_type==0)  // Always do this
@@ -20855,7 +20876,6 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	if( FFCore.quest_format[vZelda] < 0x210 ) 
 	{
 		zprint2("\n[ZQUEST CREATOR METADATA]\n");
-		if ( FFCore.quest_format[qQuestNumber] > 0 )  zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
 		
 		switch(FFCore.quest_format[vZelda])
 		{

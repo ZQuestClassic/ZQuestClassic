@@ -371,6 +371,7 @@ ZCGUI_BUILDER_START(TextField)
 	ZCGUI_ACCEPT_PROP(high, setHighBound, int32_t)
 	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(TextField::type,std::string_view,int32_t)>)
 	ZCGUI_ACCEPT_PROP(places, setFixedPlaces, size_t)
+	ZCGUI_ACCEPT_PROP(swap_type, setSwapType, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TextField, TextField, makeTextField)
 

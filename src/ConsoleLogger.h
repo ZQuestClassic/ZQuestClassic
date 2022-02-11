@@ -48,6 +48,8 @@ public:
 	CConsoleLogger();
 	virtual ~CConsoleLogger();
 	
+	bool valid();
+	
 	// create a logger: starts a pipe+create the child process
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,

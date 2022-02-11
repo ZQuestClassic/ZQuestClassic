@@ -427,31 +427,33 @@ bool ZModule::init(bool d) //bool default
 		
 		//quests
 		moduledata.old_quest_serial_flow = zc_get_config("QUESTS","quest_flow",1);
-		moduledata.max_quest_files = zc_get_config("QUESTS","num_quest_files",5);
-		//al_trace("Module flow set to %d\n",moduledata.old_quest_serial_flow);
-		//al_trace("Module number of serial quests set to %d\n",moduledata.max_quest_files);
-		strcpy(moduledata.quests[0],zc_get_config("QUESTS","first_qst","1st.qst"));
-		//al_trace("Module quest 1 set to %s\n",moduledata.quests[0]);
-		strcpy(moduledata.quests[1],zc_get_config("QUESTS","second_qst","2nd.qst"));
-		//al_trace("Module quest 2 set to %s\n",moduledata.quests[1]);
-		strcpy(moduledata.quests[2],zc_get_config("QUESTS","third_qst","3rd.qst"));
-		//al_trace("Module quest 3 set to %s\n",moduledata.quests[2]);
-		strcpy(moduledata.quests[3],zc_get_config("QUESTS","fourth_qst","4th.qst"));
-		//al_trace("Module quest 4 set to %s\n",moduledata.quests[3]);
-		strcpy(moduledata.quests[4],zc_get_config("QUESTS","fifth_qst","5th.qst"));
-		//al_trace("Module quest 5 set to %s\n",moduledata.quests[4]);
+		moduledata.max_quest_files = vbound(zc_get_config("QUESTS","num_quest_files",0),0,10);
+		strcpy(moduledata.quests[0],zc_get_config("QUESTS","first_qst","-"));
+		strcpy(moduledata.quests[1],zc_get_config("QUESTS","second_qst","-"));
+		strcpy(moduledata.quests[2],zc_get_config("QUESTS","third_qst","-"));
+		strcpy(moduledata.quests[3],zc_get_config("QUESTS","fourth_qst","-"));
+		strcpy(moduledata.quests[4],zc_get_config("QUESTS","fifth_qst","-"));
+		strcpy(moduledata.quests[5],zc_get_config("QUESTS","sixth_qst","-"));
+		strcpy(moduledata.quests[6],zc_get_config("QUESTS","seventh_qst","-"));
+		strcpy(moduledata.quests[7],zc_get_config("QUESTS","eighth_qst","-"));
+		strcpy(moduledata.quests[8],zc_get_config("QUESTS","ninth_qst","-"));
+		strcpy(moduledata.quests[9],zc_get_config("QUESTS","tenth_qst","-"));
+		for ( int32_t q = 0; q < 10; q++ )
+		{
+			if ( moduledata.quests[q][0] == '-' ) strcpy(moduledata.quests[q],"");
+		}
 		
 		//quest skip names
-		strcpy(moduledata.skipnames[0],zc_get_config("NAMEENTRY","first_qst_skip"," "));
-		//al_trace("Module quest skip 1 set to %s\n",moduledata.skipnames[0]);
-		strcpy(moduledata.skipnames[1],zc_get_config("NAMEENTRY","second_qst_skip","ZELDA"));
-		//al_trace("Module quest skip 2 set to %s\n",moduledata.skipnames[1]);
-		strcpy(moduledata.skipnames[2],zc_get_config("NAMEENTRY","third_qst_skip","ALPHA"));
-		//al_trace("Module quest skip 3 set to %s\n",moduledata.skipnames[2]);
-		strcpy(moduledata.skipnames[3],zc_get_config("NAMEENTRY","fourth_qst_skip","GANON"));
-		//al_trace("Module quest skip 4 set to %s\n",moduledata.skipnames[3]);
-		strcpy(moduledata.skipnames[4],zc_get_config("NAMEENTRY","fifth_qst_skip","JEAN"));
-		//al_trace("Module quest skip 5 set to %s\n",moduledata.skipnames[4]);
+		moduledata.skipnames[0][0] = 0;
+		strcpy(moduledata.skipnames[1],zc_get_config("NAMEENTRY","second_qst_skip","-"));
+		strcpy(moduledata.skipnames[2],zc_get_config("NAMEENTRY","third_qst_skip","-"));
+		strcpy(moduledata.skipnames[3],zc_get_config("NAMEENTRY","fourth_qst_skip","-"));
+		strcpy(moduledata.skipnames[4],zc_get_config("NAMEENTRY","fifth_qst_skip","-"));
+		strcpy(moduledata.skipnames[5],zc_get_config("NAMEENTRY","sixth_qst_skip","-"));
+		strcpy(moduledata.skipnames[6],zc_get_config("NAMEENTRY","seventh_qst_skip","-"));
+		strcpy(moduledata.skipnames[7],zc_get_config("NAMEENTRY","eighth_qst_skip","-"));
+		strcpy(moduledata.skipnames[8],zc_get_config("NAMEENTRY","ninth_qst_skip","-"));
+		strcpy(moduledata.skipnames[9],zc_get_config("NAMEENTRY","tenth_qst_skip","-"));
 		
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],zc_get_config("DATAFILES","zcplayer_datafile","zelda.dat"));
@@ -896,7 +898,6 @@ bool ZModule::init(bool d) //bool default
 		//al_trace("Build Year: %d\n",moduledata.modyear);
 		al_trace("Build Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
 			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
-		moduledata.ignore = 0;
 	}
 	
 	//shift back to the normal config file, when done

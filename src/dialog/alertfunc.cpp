@@ -75,7 +75,11 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 						minwidth = 90_lpx,
 						onPressFunc = [&,func]()
 						{
+							BITMAP* tmp = create_bitmap_ex(8, screen->w, screen->h);
+							blit(screen,tmp,0,0,0,0,screen->w,screen->h);
 							didend = func();
+							blit(tmp,screen,0,0,0,0,screen->w,screen->h);
+							destroy_bitmap(tmp);
 						},
 						onClick = message::BTN,
 						focused = (q==focused_button)

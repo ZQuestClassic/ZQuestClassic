@@ -92,12 +92,14 @@ public:
 	void setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged);
 	
 	void setFixedPlaces(size_t places);
+	void setSwapType(int32_t newtype);
 private:
 	std::unique_ptr<char[]> buffer;
 	int32_t startVal;
 	int32_t fixedPlaces;
 	int32_t lbound, ubound;
 	type tfType;
+	int32_t swap_type_start;
 	size_t maxLength;
 	bool forced_length;
 	DialogRef alDialog;
