@@ -189,6 +189,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 void CConsoleLogger::kill()
 {
 	killer.kill();
+	m_hPipe = INVALID_HANDLE_VALUE;
 }
 
 // Close and disconnect
@@ -519,7 +520,6 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 void CConsoleLogger::kill()
 {
 	killer.kill();
-	m_hPipe = INVALID_HANDLE_VALUE;
 }
 
 // Close and disconnect
@@ -538,6 +538,11 @@ int32_t CConsoleLogger::Close(void)
 inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
 	return 0;
+}
+
+bool CConsoleLogger::valid()
+{
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
