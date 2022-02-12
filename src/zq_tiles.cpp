@@ -15609,8 +15609,8 @@ REDRAW:
 							TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
 							TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
 					{
-						int32_t x=(i%TILES_PER_ROW)<<(4+is_large);
-						int32_t y=((i-first)/TILES_PER_ROW)<<(4+is_large);
+						int32_t x=TILECOL(i)<<(4+is_large);
+						int32_t y=TILEROW(i-first)<<(4+is_large);
 						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}

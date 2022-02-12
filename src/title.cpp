@@ -2071,6 +2071,23 @@ void set_up_standalone_save()
 	load_game_icon(saves, true, 0);
 }
 
+int32_t init_saves()
+{
+	if(saves == NULL)
+	{
+		saves = new gamedata[MAXSAVES];
+		
+		if(saves==NULL)
+			return 1;
+		
+		for(auto q = 0; q < MAXSAVES; ++q)
+		{
+			saves[q].Clear();
+		}
+	}
+	return 0;
+}
+
 // call once at startup
 int32_t load_savedgames()
 {
@@ -2111,13 +2128,8 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	temp_name(tmpfilename);
 //  const char *passwd = datapwd;
 
-	if(saves == NULL)
-	{
-		saves = new gamedata[MAXSAVES];
-		
-		if(saves==NULL)
-			return 1;
-	}
+	int32_t save_ret = init_saves();
+	if(save_ret) return save_ret;
 	
 	// see if it's there
 	if(!exists(fname))
@@ -2610,7 +2622,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 
 int32_t save_savedgames()
 {
-	if(saves==NULL)
+	if(zqtesting_mode||saves==NULL)
 		return 1;
 	
 	// Not sure why this happens, but apparently it does...
@@ -3067,8 +3079,8 @@ static bool register_name()
 		
 	if ( moduledata.refresh_title_screen ) //refresh
 	{
-	selectscreen();
-	moduledata.refresh_title_screen = 0;
+		selectscreen();
+		moduledata.refresh_title_screen = 0;
 	}
 	int32_t NameEntryMode2=NameEntryMode;
 	
@@ -3442,15 +3454,14 @@ static bool register_name()
 		strcpy(buf,name);
 		strupr(buf);
 		
-		for ( int32_t q = 2; q < moduledata.max_quest_files+1; q++)
+		for ( byte q = 1; q < moduledata.max_quest_files; q++)
 		{
-			// al_trace("Quest number is: %d\n",q);
-			// al_trace("Quest skip string is: %s",moduledata.skipnames[q-1]);
-			if(!stricmp(buf,moduledata.skipnames[q-1]))
+			if(!stricmp(buf,moduledata.skipnames[q]))
 			{
-				quest=q;  
+				zprint2("Quest %d '%s'\n",q+1,moduledata.skipnames[q]);
+				quest=q+1;
+				break;
 			}
-			  
 		}
 		/*
 		if(!stricmp(buf,moduledata.skipnames[1]))
@@ -3466,10 +3477,10 @@ static bool register_name()
 			quest=5;
 		*/
 		saves[s].set_quest(quest);
+		game->qstpath[0] = 0;
+		byte qst_num = byte(quest-1);
 		
-		//	setPackfilePassword(datapwd);
-		//0 is success
-		int32_t ret = load_quest(saves+s);
+		int32_t ret = (qst_num < moduledata.max_quest_files) ? load_quest(saves+s) : qe_no_qst;
 		
 		if(ret==qe_OK)
 		{
@@ -3500,7 +3511,7 @@ static bool register_name()
 			load_game_icon(saves+s, true, s);
 		}
 		
-//    setPackfilePassword(NULL);
+		//setPackfilePassword(NULL);
 		saves[s].set_timevalid(1);
 	}
 	
@@ -3779,7 +3790,7 @@ int32_t custom_game(int32_t file)
 	char infostr[200];
 	char path[2048];
 	int32_t ret=0; 
-	 int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
+	int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
 	
 	if(is_relative_filename(saves[file].qstpath))
 	{
@@ -3789,9 +3800,11 @@ int32_t custom_game(int32_t file)
 	{
 		sprintf(qstpath,"%s", saves[file].qstpath);
 	}
+	char relpath[2048];
+	relativize_path(relpath, qstpath);
 	
 	gamemode_dlg[0].dp2 = lfont;
-	gamemode_dlg[2].dp = get_filename(qstpath);
+	gamemode_dlg[2].dp = relpath;//get_filename(qstpath);
 	
 	if(get_quest_info(&h,infostr)==0)
 	{
@@ -3803,6 +3816,9 @@ int32_t custom_game(int32_t file)
 		gamemode_dlg[4].dp = infostr;
 		gamemode_dlg[5].flags = D_EXIT;
 	}
+	
+	if(byte(saves[file].get_quest()-1) < moduledata.max_quest_files)
+		strcpy(qstpath,qstdir);
 	
 	gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
 	gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
@@ -4026,7 +4042,8 @@ static void select_game(bool skip = false)
 				else
 				{
 					pos = (savecnt-1)%3;
-					popup_choose_quest = ((moduledata.ignore) ? true : false);
+					
+					popup_choose_quest = true;
 				}
 				refreshpal=true;
 				break;
@@ -4484,10 +4501,13 @@ void save_game(bool savepoint)
 	
 	saves[currgame]=*game;
 	
-	int32_t ring=0;
 	flushItemCache();
+	
+	if(zqtesting_mode) return;
+	
 	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
 	
+	int32_t ring=0;
 	if(maxringid != -1)
 	{
 		ring = itemsbuf[maxringid].fam_type;

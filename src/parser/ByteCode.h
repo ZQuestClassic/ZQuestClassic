@@ -1336,8 +1336,9 @@
 #define LWSWHOOKED              1253
 #define EWSWHOOKED              1254
 #define ITMSWHOOKED             1255
+#define DEBUGTESTING            1256
 
-#define LAST_BYTECODE           1256
+#define LAST_BYTECODE           1257
 
 //} END OF BYTECODE
 

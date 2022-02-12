@@ -34,6 +34,7 @@ class sprite;
 
 int32_t isFullScreen();
 int32_t onFullscreen();
+extern bool zqtesting_mode;
 
 #if DEVLEVEL > 0
 extern bool dev_logging;

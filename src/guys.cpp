@@ -3772,8 +3772,15 @@ void enemy::leave_item()
 	
 	if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
-		if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
-		else items.add(new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+		if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+		{
+			items.add(new item(x+hxofs+(hxsz/2)-8,y+hyofs+(hysz/2)-8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+		}
+		else
+		{
+			if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+			else items.add(new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+		}
 	}
 }
 
@@ -6589,8 +6596,33 @@ void enemy::try_death(bool force_kill)
 			{
 				if(((item*)items.spr(i))->pickup&ipENEMY)
 				{
-					items.spr(i)->x = x;
-					items.spr(i)->y = y - 2;
+					if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
+					{
+						if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+						{
+							items.spr(i)->x = x+hxofs+(hxsz/2)-8;
+							items.spr(i)->y = y+hyofs+(hysz/2)-10;
+						}
+						else
+						{
+							if(extend >= 3) 
+							{
+								items.spr(i)->x = x+(txsz-1)*8;
+								items.spr(i)->y = y-2+(tysz-1)*8;
+							}
+							else 
+							{
+								items.spr(i)->x = x;
+								items.spr(i)->y = y - 2;
+							}
+						}
+						items.spr(i)->z = z;
+					}
+					else
+					{
+						items.spr(i)->x = x;
+						items.spr(i)->y = y - 2;
+					}
 				}
 			}
 		}
@@ -13776,7 +13808,7 @@ bool eKeese::animate(int32_t index)
 	{
 		z=int32_t(step/zslongToFix(dstep*100));
 		// Some variance in keese flight heights when away from Hero
-		z+=int32_t(step*zc_max(0,(distance(x,y,HeroX(),HeroY())-128)/10));
+		z+=int32_t(step*zc_max(zfix(0),(distance(x,y,HeroX(),HeroY())-128)/10));
 	}
 	
 	return enemy::animate(index);
@@ -14986,11 +15018,11 @@ bool eGohma::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(zc_max(x-16, 0),y);
+		removearmos(zc_max(x-16, zfix(0)),y);
 		did_armos = false;
 		removearmos(x,y);
 		did_armos = false;
-		removearmos(zc_min(x+16, 255),y);
+		removearmos(zc_min(x+16, zfix(255)),y);
 	}
 	
 	if(clk<0) return enemy::animate(index);
@@ -16827,7 +16859,7 @@ bool eManhandla::animate(int32_t index)
 	else
 	{
 		// Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-		step=zc_min(4.5,(((!dmisc2)?4:8)-int64_t(armcnt))*0.5+zslongToFix(dstep*100));
+		step=zc_min(zfix(4.5),(((!dmisc2)?4:8)-int64_t(armcnt))*0.5+zslongToFix(dstep*100));
 		int32_t dx1=0, dy1=-8, dx2=15, dy2=15;
 		
 		if(!dmisc2)
@@ -20481,7 +20513,7 @@ void loadguys()
 	{
 		Guy=tmpscr->guy;
 		
-		if(DMaps[currdmap].flags&dmfVIEWMAP)
+		if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
 			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
 	}
 	
@@ -23149,8 +23181,33 @@ void roaming_item()
 			}
 			else if(guycarryingitem>=0 && guycarryingitem<guys.Count())
 			{
-				items.spr(i)->x = guys.spr(guycarryingitem)->x;
-				items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+				if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
+				{
+					if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+					{
+						items.spr(i)->x = guys.spr(guycarryingitem)->x+guys.spr(guycarryingitem)->hxofs+(guys.spr(guycarryingitem)->hxsz/2)-8;
+						items.spr(i)->y = guys.spr(guycarryingitem)->y+guys.spr(guycarryingitem)->hyofs+(guys.spr(guycarryingitem)->hysz/2)-10;
+					}
+					else
+					{
+						if(guys.spr(guycarryingitem)->extend >= 3) 
+						{
+							items.spr(i)->x = guys.spr(guycarryingitem)->x+(guys.spr(guycarryingitem)->txsz-1)*8;
+							items.spr(i)->y = guys.spr(guycarryingitem)->y-2+(guys.spr(guycarryingitem)->tysz-1)*8;
+						}
+						else 
+						{
+							items.spr(i)->x = guys.spr(guycarryingitem)->x;
+							items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+						}
+					}
+					items.spr(i)->z = guys.spr(guycarryingitem)->z;
+				}
+				else
+				{
+					items.spr(i)->x = guys.spr(guycarryingitem)->x;
+					items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+				}
 			}
 		}
 	}

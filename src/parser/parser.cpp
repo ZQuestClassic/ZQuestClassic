@@ -12,7 +12,7 @@ FFScript FFCore;
 std::vector<std::string> ZQincludePaths;
 byte quest_rules[QUESTRULES_NEW_SIZE];
 
-byte monochrome_console;
+extern byte monochrome_console;
 
 CConsoleLoggerEx parser_console;
 

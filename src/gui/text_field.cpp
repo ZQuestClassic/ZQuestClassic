@@ -17,7 +17,7 @@ namespace GUI
 
 TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1),
-	fixedPlaces(4), valSet(false), forced_length(false)
+	fixedPlaces(4), valSet(false), forced_length(false), swap_type_start(0)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
@@ -185,6 +185,23 @@ int32_t TextField::getVal()
 	return value;
 }
 
+void TextField::setSwapType(int32_t newtype)
+{
+	swap_type_start = newtype;
+	if(swapBtnDialog)
+	{
+		int32_t d = swapBtnDialog->d1;
+		if((d&0xF) != ((d&0xF0)>>4))
+		{
+			swapBtnDialog->d1 = (d&0xF0) | swap_type_start;
+		}
+		else
+		{
+			swapBtnDialog->d1 = ((d & 0xF)<<4) | swap_type_start;
+		}
+	}
+}
+
 void TextField::setMaxLength(size_t newMax)
 {
 	if(newMax < 1)
@@ -297,7 +314,7 @@ void TextField::realize(DialogRunner& runner)
 			0, 0,
 			0, // key
 			getFlags(), // flags
-			0, 0, // d1, d2
+			swap_type_start, 0, // d1, d2
 			nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
 		});
 		//Set the dp3 to the swapbtn pointer

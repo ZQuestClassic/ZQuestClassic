@@ -605,6 +605,8 @@ string ZScript::VarToString(int32_t ID)
 		return "EWSWHOOKED";
 	case ITMSWHOOKED:
 		return "ITMSWHOOKED";
+	case DEBUGTESTING:
+		return "DEBUGTESTING";
 	case GAMEMISCSPR:
 		return "GAMEMISCSPR";
 	case GAMEMISCSFX:

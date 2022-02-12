@@ -145,7 +145,7 @@ enum
 {
     qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
     qe_missing, qe_internal, qe_pwd, qe_match, qe_minver,
-    qe_nomem, qe_debug, qe_cancel, qe_silenterr
+    qe_nomem, qe_debug, qe_cancel, qe_silenterr, qe_no_qst
 };
 
 enum

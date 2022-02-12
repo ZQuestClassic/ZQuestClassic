@@ -542,6 +542,8 @@ int32_t zscript_list_config_entries(const char *section, const char ***names);
 int32_t zscript_list_config_sections(const char ***names);
 void zscript_free_config_entries(const char ***names);
 
+void clearConsole();
+
 class FFScript
 {
 	
@@ -4380,8 +4382,9 @@ enum ASM_DEFINE
 #define LWSWHOOKED              0x141B
 #define EWSWHOOKED              0x141C
 #define ITMSWHOOKED             0x141D
+#define DEBUGTESTING            0x141E
 
-#define NUMVARIABLES         	0x141E
+#define NUMVARIABLES         	0x141F
 
 //} End variables
 

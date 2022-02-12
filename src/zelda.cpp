@@ -58,6 +58,7 @@
 #include "qst.h"
 #include "util.h"
 #include "drawing.h"
+#include "dialog/info.h"
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern byte epilepsyFlashReduction;
@@ -86,6 +87,10 @@ extern char zc_aboutstr[80];
 int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
+bool zqtesting_mode = false;
+
+extern CConsoleLoggerEx zscript_coloured_console;
+extern CConsoleLoggerEx coloured_console;
 
 #include "init.h"
 #include <assert.h>
@@ -1127,11 +1132,6 @@ void hit_close_button()
 extern byte curScriptType;
 extern word curScriptNum;
 
-#ifdef _WIN32
-extern CConsoleLoggerEx zscript_coloured_console;
-extern CConsoleLoggerEx coloured_console;
-#endif
-
 void Z_eventlog(const char *format,...)
 {
     if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 0)
@@ -1320,9 +1320,7 @@ HeroClass   Hero;
 
 #include "zc_sys.h"
 //extern MENU the_player_menu;
-//extern MENU the_player_menu_zc_on_left;
 //extern MENU the_player_menu2;
-//extern MENU the_player_menu_zc_on_left2;
 //extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
@@ -1653,22 +1651,20 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
 	chop_path(qstpath);
 	char *tempdir=(char *)"";
+	int32_t ret = 0;
 #ifndef ALLEGRO_MACOSX
 	tempdir=qstdir;
 #endif
-	
-	if(g->get_quest()<255)
+	byte qst_num = byte(g->get_quest()-1);
+	if(!g->qstpath[0])
 	{
-		// Check the ZC directory first for 1st-4th quests; check qstdir if they're not there
-		if(g->get_quest() < zc_min(10,moduledata.max_quest_files))
-			sprintf(qstpath, moduledata.quests[g->get_quest()], ordinal(g->get_quest()));
-		
-		if(!exists(qstpath))
+		if(qst_num<moduledata.max_quest_files)
 		{
-			sprintf(qstpath,"%s%s.qst",tempdir,ordinal(g->get_quest()));
+			sprintf(qstpath, moduledata.quests[qst_num], ordinal(qst_num+1));
+			strcpy(g->qstpath, qstpath);
 		}
 	}
-	else
+	if(g->qstpath[0])
 	{
 		if(is_relative_filename(g->qstpath))
 		{
@@ -1689,12 +1685,12 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		// ~Gleeok
 		if(!exists(qstpath))
 		{
-			al_trace("File not found \"%s\". Searching...\n", qstpath);
+			Z_error("File not found \"%s\". Searching...\n", qstpath);
 
 			if(exists(g->qstpath)) //not found? -try this place first:
 			{
 				sprintf(qstpath,"%s", g->qstpath);
-				al_trace("Set quest path to \"%s\".\n", qstpath);
+				Z_error("Set quest path to \"%s\".\n", qstpath);
 			}
 			else // Howsabout in here?
 			{
@@ -1720,7 +1716,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 					if(exists(gQstPath.c_str())) //Quick! Try it now!
 					{
 						sprintf(qstpath,"%s", gQstPath.c_str());
-						al_trace("Set quest path to \"%s\".\n", qstpath);
+						Z_error("Set quest path to \"%s\".\n", qstpath);
 						break;
 					}
 					else //Still no dice eh?
@@ -1744,55 +1740,64 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 						if(exists(fn.c_str())) //Last chance for hookers and blackjack truck stop
 						{
 							sprintf(qstpath,"%s", fn.c_str());
-							al_trace("Set quest path to \"%s\".\n", qstpath);
+							Z_error("Set quest path to \"%s\".\n", qstpath);
 							break;
 						}
 					}
 				} //while
-
 			}
 		}//end hack
-
 	}
+	else ret = qe_no_qst;
 	
-	//setPackfilePassword(datapwd);
-	byte skip_flags[4];
-	
-	for(int32_t i=0; i<4; ++i)
+	if(!ret)
 	{
-		skip_flags[i]=0;
-	}
-	
-	int32_t ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report);
-	//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
-	//setPackfilePassword(NULL);
-	
-	if(!g->title[0] || g->get_hasplayed() == 0)
-	{
-		strcpy(g->version,QHeader.version);
-		strcpy(g->title,QHeader.title);
-	}
-	else
-	{
-		if(!ret && strcmp(g->title,QHeader.title))
+		//setPackfilePassword(datapwd);
+		byte skip_flags[4];
+		
+		for(int32_t i=0; i<4; ++i)
 		{
-			ret = qe_match;
+			skip_flags[i]=0;
+		}
+		
+		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report);
+		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,get_config_string("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
+		//setPackfilePassword(NULL);
+		
+		if(!g->title[0] || g->get_hasplayed() == 0)
+		{
+			strcpy(g->version,QHeader.version);
+			strcpy(g->title,QHeader.title);
+		}
+		else
+		{
+			if(!ret && strcmp(g->title,QHeader.title))
+			{
+				ret = qe_match;
+			}
+		}
+		
+		if(QHeader.minver[0])
+		{
+			if(smart_vercmp(g->version,QHeader.minver) < 0)
+				ret = qe_minver;
 		}
 	}
-	
-	if(QHeader.minver[0])
-	{
-		if(smart_vercmp(g->version,QHeader.minver) < 0)
-			ret = qe_minver;
-	}
-	
 	if(ret && report)
 	{
 		system_pal();
-		char buf1[80],buf2[80];
-		sprintf(buf1,"Error loading %s:",get_filename(qstpath));
-		sprintf(buf2,"%s",qst_error[ret]);
-		jwin_alert("File error",buf1,buf2,qstpath,"OK",NULL,13,27,lfont);
+		std::ostringstream oss;
+		if(ret == qe_no_qst)
+		{
+			oss << qst_error[ret] << ". Press the 'A' button twice to select a custom quest,"
+				"\nor load a module that has a default " << ordinal(qst_num+1) << " quest.";
+		}
+		else
+		{
+			oss << "Error loading " << get_filename(qstpath)
+				<< ":\n" << qst_error[ret] << "\n" << qstpath;
+		}
+		InfoDialog("File Error",oss.str()).show();
 		
 		if(standalone_mode)
 		{
@@ -1826,8 +1831,7 @@ void init_dmap()
 
 int32_t init_game()
 {
-	
-  //port250QuestRules();	
+	//port250QuestRules();	
     zc_srand(time(0));
     //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
@@ -1838,7 +1842,7 @@ int32_t init_game()
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=223;	
 	
-//Some initialising globals
+	//Some initialising globals
     didpit=false;
     Hero.unfreeze();
     Hero.reset_hookshot();
@@ -1881,7 +1885,7 @@ int32_t init_game()
     }
     
     /* Disabling to see if this is causing virus scanner redflags. -Z
-//Confuse the cheaters by moving the game data to a random location
+	//Confuse the cheaters by moving the game data to a random location
     if(game != NULL)
         delete game;
         
@@ -1891,14 +1895,14 @@ int32_t init_game()
     
     zc_free(dummy);
     */
-//Copy saved data to RAM data (but not global arrays)
+	//Copy saved data to RAM data (but not global arrays)
     game->Copy(saves[currgame]);
     flushItemCache();
     ResetSaveScreenSettings();
     
 	//ResetSaveScreenSettings();
     
-//Load the quest
+	//Load the quest
     //setPackfilePassword(datapwd);
     int32_t ret = load_quest(game);
     
@@ -2074,8 +2078,11 @@ int32_t init_game()
 		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
 	}
 	
+	if(zqtesting_mode)
+		cheat = 4;
+	
     bool firstplay = (game->get_hasplayed() == 0);
-    
+	
     BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
     //setupherotiles(zinit.heroAnimationStyle);
     
@@ -2092,9 +2099,14 @@ int32_t init_game()
     //  currdmap = warpscr = worldscr=0;
     if(firstplay)
     {
-        game->set_continue_dmap(zinit.start_dmap);
+		if(!zqtesting_mode)
+			game->set_continue_dmap(zinit.start_dmap);
         resetItems(game,&zinit,true);
-	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 ) { game->set_maxbombs(8); al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda)); }
+		if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 )
+		{
+			game->set_maxbombs(8);
+			//al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda));
+		}
     }
     
     previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
@@ -2125,7 +2137,7 @@ int32_t init_game()
     sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
     fadeclk=-1;
     
-    if(DMaps[currdmap].flags&dmfVIEWMAP)
+    if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
     {
         game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;              // mark as visited
     }
@@ -2184,7 +2196,9 @@ int32_t init_game()
 		
 		zprint2("\n");
 		zprint2("[ZQUEST CREATOR METADATA]\n");
-		if ( FFCore.quest_format[qQuestNumber] > 0 ) zprint2("Quest Number %d of this Module\n", FFCore.quest_format[qQuestNumber]);
+		byte qst_num = byte(game->get_quest()-1);
+		if(qst_num < moduledata.max_quest_files) zprint2("Loading module quest %d\n", qst_num+1);
+		zprint2("Loading '%s'\n", qstpath);
 		if ( QHeader.new_version_id_main > 0 )
 		{
 			zprint2("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", QHeader.new_version_id_main,QHeader.new_version_id_second,QHeader.new_version_id_third,QHeader.new_version_id_fourth);
@@ -2195,7 +2209,7 @@ int32_t init_game()
 			{
 				case 0x255:
 				{
-					zprint2("Last saved in ZC Editor Version: 2.55.0, Alpha Build ID: %d\n", QHeader.build);	
+					zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", QHeader.getAlphaStr().c_str(), QHeader.getAlphaVer());	
 					break;
 				}
 				case 0x254:
@@ -3397,36 +3411,43 @@ void do_dcounters()
 //bool zasmstacktrace = false;
 void game_loop()
 {
-	
-	//for ( int32_t qq = 0; qq < 256; qq++ )
-    //{
-	    
-	// al_trace("ZC Init: LWeapon Script (0), Instruction (%d) is: %d\n", qq,lwpnscripts[0][qq].command); 
-	    
-    //}
-    //for ( int32_t qq = 0; qq < 256; qq++ )
-    //{
-	    
-	// al_trace("ZC Init: LWeapon Script (1), Instruction (%d) is: %d\n", qq,lwpnscripts[1][qq].command); 
-	    
-    //}
-    
-    //clear Hero's last hits 
-    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //clearing these here makes checking them fail both before and after waitdraw.
-    //Hero.ClearhitHeroUIDs();
-	
-    //Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
-		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
-		//that a script can read it before Waitdraw(). --I want it to go stale at the end of a frame.
-		//I suppose I will need to do this inside the script engine, and not the game_loop() ? -Z
-	
-    if((pause_in_background && callback_switchin && midi_patch_fix))
-    {
-	
-	if(currmidi!=0)
+	while(true)
 	{
-		
-		if(callback_switchin == 2) 
+		GameFlags &= ~GAMEFLAG_RESET_GAME_LOOP;
+		if((pause_in_background && callback_switchin && midi_patch_fix))
+		{
+			if(currmidi!=0)
+			{
+				if(callback_switchin == 2) 
+				{
+					if ( currmidi != 0 )
+					{
+						int32_t digi_vol, midi_vol;
+					
+						get_volume(&digi_vol, &midi_vol);
+						stop_midi();
+						jukebox(currmidi);
+						set_volume(digi_vol, midi_vol);
+						midi_seek(paused_midi_pos);
+					}
+					midi_paused=false;
+					midi_suspended = midissuspNONE;
+					callback_switchin = 0;
+				}
+				if(callback_switchin == 1) 
+				{
+					paused_midi_pos = midi_pos;
+					midi_paused=true;
+					stop_midi();
+					++callback_switchin;
+				}
+			}
+			else //no MIDI playing
+			{
+				callback_switchin = 0;
+			}
+		}
+		else if(midi_suspended==midissuspRESUME )
 		{
 			if ( currmidi != 0 )
 			{
@@ -3437,520 +3458,485 @@ void game_loop()
 				jukebox(currmidi);
 				set_volume(digi_vol, midi_vol);
 				midi_seek(paused_midi_pos);
-				
-				
-				
 			}
 			midi_paused=false;
 			midi_suspended = midissuspNONE;
-			callback_switchin = 0;
 		}
-		if(callback_switchin == 1) 
-		{
-			paused_midi_pos = midi_pos;
-			midi_paused=true;
-			stop_midi();
-			++callback_switchin;
-		}
-	}
-	else //no MIDI playing
-	{
-		callback_switchin = 0;
-	}
-    }
-    
-    else if(midi_suspended==midissuspRESUME )
-    {
-	if ( currmidi != 0 )
-	{
 		
-		int32_t digi_vol, midi_vol;
-	
-		get_volume(&digi_vol, &midi_vol);
-		stop_midi();
-		jukebox(currmidi);
-		set_volume(digi_vol, midi_vol);
-		midi_seek(paused_midi_pos);
+		//  walkflagx=0; walkflagy=0;
+		runDrunkRNG();
+		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 		
+		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
-	}
-	midi_paused=false;
-	midi_suspended = midissuspNONE;
-	    
-    }
-	
-	//  walkflagx=0; walkflagy=0;
-	runDrunkRNG();
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-    
-    // Three kinds of freezes: freeze, freezemsg, freezeff
-    
-    // freezemsg if message is being printed && qr_MSGFREEZE is on,
-    // or if a message is being prepared && qr_MSGDISAPPEAR is on.
-    bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
+		// freezemsg if message is being printed && qr_MSGFREEZE is on,
+		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
+		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
 			&& (get_bit(quest_rules,qr_MSGFREEZE)));
-	
-    if(fadeclk>=0 && !freezemsg)
-    {
-        if(fadeclk==0 && currscr<128)
-            blockpath=false;
-            
-        --fadeclk;
-    }
-                      
-    // Messages also freeze FF combos.
-    bool freezeff = freezemsg;
-    
-    bool freeze = false;
-    
-    for(int32_t i=0; i<32; i++)
-    {
-        if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
-        
-        if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
-    }
-    
-    for(int32_t i=0; i<176; i++)
-    {
-        if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
-        
-        if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
-        
-        if(guygrid[i]>0)
-        {
-            --guygrid[i];
-        }
-    }
-    #if LOGGAMELOOP > 0
-    al_trace("game_loop is calling: %s\n", "animate_combos()\n");
-    #endif
-    if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
-    #if LOGGAMELOOP > 0
-    al_trace("game_loop is calling: %s\n", "load_control_state()\n");
-    #endif
-    if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
-    
-    if(!freezemsg)
-    {
-        if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
-    }
-    
-    if(!freezeff)
-    {
-        if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
-    }
-    
-    // Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-    if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-    }
-    if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-    {
-        ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-    }
-    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-    {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-    }
-    if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
-    {
-        ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-    }
-    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	FFCore.combo_script_engine(false);    
-    }
-    
-    
-    if(!freeze && !freezemsg)
-    {
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "items.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
-	if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
-	
-	    //Can't be called in items.animate(), as ZQuest also uses this function.
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "guys.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "roaming_item()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "dragging_item()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
-	if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptHERO] ) checkhero = true;
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
-	#endif
-        
-	if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
-	
-	if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
-		FFCore.itemScriptEngine(); //run before lweapon scripts
-	if ( !FFCore.system_suspend[susptHERO] )
-	{
-		for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
+		
+		if(fadeclk>=0 && !freezemsg)
+		{
+			if(fadeclk==0 && currscr<128)
+				blockpath=false;
+				
+			--fadeclk;
+		}
+		
+		// Messages also freeze FF combos.
+		bool freezeff = freezemsg;
+		
+		bool freeze = false;
+		
+		for(int32_t i=0; i<32; i++)
+		{
+			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
+			
+			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
+		}
+		
+		for(int32_t i=0; i<176; i++)
+		{
+			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
+			
+			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
+			
+			if(guygrid[i]>0)
+			{
+				--guygrid[i];
+			}
+		}
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "animate_combos()\n");
+		#endif
+		if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "load_control_state()\n");
+		#endif
+		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
+		
+		if(!freezemsg)
+		{
+			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
+		}
+		
+		if(!freezeff)
+		{
+			if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
+		}
+		
+		// Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
+		if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+		}
+		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+		}
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+		}
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+		}
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			FFCore.combo_script_engine(false);    
+		}
+		
+		
+		if(!freeze && !freezemsg)
 		{
 			#if LOGGAMELOOP > 0
-			al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
+			al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
 			#endif
-			if(Hero.animate(0))
+			if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "items.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
+			if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
+		
+			//Can't be called in items.animate(), as ZQuest also uses this function.
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "guys.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "roaming_item()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "dragging_item()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
+			if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
+			#endif
+			
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
+			#endif
+			
+			if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
+			
+			if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+				FFCore.itemScriptEngine(); //run before lweapon scripts
+			if ( !FFCore.system_suspend[susptHERO] )
 			{
-				if(!Quit)
+				for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
 				{
-					//set a B item hack
-					//Bwpn = Bweapon(Bpos);
-					Quit = qGAMEOVER;
+					#if LOGGAMELOOP > 0
+					al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
+					#endif
+					if(Hero.animate(0))
+					{
+						if(!Quit)
+						{
+							//set a B item hack
+							//Bwpn = Bweapon(Bpos);
+							Quit = qGAMEOVER;
+						}
+						
+						return;
+					}
+					if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) break; //break the for()
 				}
-				
-				return;
+				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
+			}
+			if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+				FFCore.itemScriptEngine(); //run before lweapon scripts
+			
+			//FFCore.itemScriptEngine(); //run before lweapon scripts
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
+			#endif
+			Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
+			if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
+			#endif
+			//perhaps add sprite.waitdraw, and call sprite script here too?
+			//FFCore.lweaponScriptEngine();
+			if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
+			
+			//FFCore.lweaponScriptEngine();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
+			#endif
+			
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "particles.animate()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
+			
+			if(conveyclk<=0)
+			{
+				conveyclk=3;
 			}
 			
-			checkhero=false;
+			--conveyclk;
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "check_collisions()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "dryuplake()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
+			#if LOGGAMELOOP > 0
+			al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
+			#endif
+			if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
 		}
-	}
-	if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
-		FFCore.itemScriptEngine(); //run before lweapon scripts
-	
-	//FFCore.itemScriptEngine(); //run before lweapon scripts
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
-	#endif
-	Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
-        if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
-	#endif
-	//perhaps add sprite.waitdraw, and call sprite script here too?
-        //FFCore.lweaponScriptEngine();
-	if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
-	
-	//FFCore.lweaponScriptEngine();
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
-	#endif
-      
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "particles.animate()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
-        
-        if(conveyclk<=0)
-        {
-            conveyclk=3;
-        }
-        
-        --conveyclk;
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "check_collisions()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "dryuplake()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
-	#endif
-        if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
-    }
-    else if(freezemsg)
-    {
-        for(int32_t i=0; i<guys.Count(); i++)
-	{
-            if(((enemy*)guys.spr(i))->ignore_msg_freeze())
-	    {
-                if ( !FFCore.system_suspend[susptGUYS] ) guys.spr(i)->animate(i);
-	    }
-        }
-    }
-    #if LOGGAMELOOP > 0
-	al_trace("game_loop at: %s\n", "if(global_wait)\n");
-	#endif
-    if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
-    {
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-        global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
-    }
-    if ( !FFCore.system_suspend[susptHEROACTIVE] && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	    ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-	    player_waitdraw = false;
-    }
-    if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-        ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-		dmap_waitdraw = false;
-    }
-	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-	{
-		ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-		passive_subscreen_waitdraw = false;
-	}
-    
-    
-    if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-	tmpscr->screen_waitdraw = 0;	    
-    }
-    
-    for ( int32_t q = 0; q < 32; ++q )
-    {
-	//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
-	if ( tmpscr->ffcswaitdraw&(1<<q) )
-	{
-		//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-		if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+		else if(freezemsg)
 		{
-			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
-			tmpscr->ffcswaitdraw &= ~(1<<q);
-		}
-	}
-    }
-    
-    if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-    {
-	FFCore.combo_script_engine_waitdraw(false);    
-    }
-    
-    //Waitdraw for item scripts. 
-    if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
-    
-    //Sprite scripts on Waitdraw in order of : npc, ewpn, lwpn, itemsprite
-    if ( !FFCore.system_suspend[susptNPCSCRIPTS] ) FFCore.npcScriptEngineOnWaitdraw();
-    if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
-    if ( !FFCore.system_suspend[susptLWEAPONSCRIPTS] ) FFCore.lweaponScriptEngineOnWaitdraw();
-    if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
-    
-    
-    
-    
-    
-    #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "draw_screen()\n");
-	#endif
-    if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
-    
-    //clear Hero's last hits 
-    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
-    #if LOGGAMELOOP > 0
-	al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
-	#endif
-    if(linkedmsgclk==1)
-    {
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");
-	#endif
-        if(wpnsbuf[iwMore].newtile!=0)
-        {
-            putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
-        }
-    }
-    
-    if(!freeze)
-    {
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "putintro()\n");
-	#endif
-        putintro();
-    }
-    
-    if(dmapmsgclk>0)
-    {
-        Hero.Freeze();
-        
-        if(dmapmsgclk<=50)
-        {
-            --dmapmsgclk;
-        }
-    }
-    
-    if(dmapmsgclk==1)
-    {
-        Hero.finishedmsg();
-        dmapmsgclk=0;
-        introclk=72;
-        clear_bitmap(msg_bg_display_buf);
-        set_clip_state(msg_bg_display_buf, 1);
-        clear_bitmap(msg_txt_display_buf);
-        set_clip_state(msg_txt_display_buf, 1);
-        clear_bitmap(msg_portrait_display_buf);
-        set_clip_state(msg_portrait_display_buf, 1);
-        //    clear_bitmap(pricesdisplaybuf);
-    }
-    
-    if(!freeze)
-    {
-        if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
-        {
-            putmsg();
-            
-            if(msgstr)
-            {
-                set_clip_state(msg_bg_display_buf, 0);
-                blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-                set_clip_state(msg_txt_display_buf, 0);
-				if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
-				{
-					blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-				}
-				else
-				{
-					blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-				}
-				set_clip_state(msg_portrait_display_buf, 0);
-				blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+			for(int32_t i=0; i<guys.Count(); i++)
+		{
+				if(((enemy*)guys.spr(i))->ignore_msg_freeze())
+			{
+					if ( !FFCore.system_suspend[susptGUYS] ) guys.spr(i)->animate(i);
 			}
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
-	#endif
-        do_dcounters();
-        
-	#if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
-	#endif
-        if(!freezemsg && current_item(itype_heartring))
-        {
-            int32_t itemid = current_item_id(itype_heartring);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-                game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
-	#endif
-        if(!freezemsg && current_item(itype_magicring))
-        {
-            int32_t itemid = current_item_id(itype_magicring);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-            {
-                game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
-	#endif
-        if(!freezemsg && current_item(itype_wallet))
-        {
-            int32_t itemid = current_item_id(itype_wallet);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-            {
-                game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
-	#endif
-        if(!freezemsg && current_item(itype_bombbag))
-        {
-            int32_t itemid = current_item_id(itype_bombbag);
-            
-            if(itemsbuf[itemid].misc1)
-            {
-                int32_t fskip = itemsbuf[itemid].misc2;
-                
-                if(fskip == 0 || frame % fskip == 0)
-                {
-                    game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
-                }
-                
-                if(itemsbuf[itemid].flags & ITEM_FLAG1)
-                {
-                    int32_t ratio = zinit.bomb_ratio;
-                    
-                    fskip = itemsbuf[itemid].misc2 * ratio;
-                    
-                    if(fskip == 0 || frame % fskip == 0)
-                    {
-                        game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
-                    }
-                }
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
-	#endif
-        if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
-        {
-            int32_t itemid = current_item_id(itype_quiver);
-            int32_t fskip = itemsbuf[itemid].misc2;
-            
-            if(fskip == 0 || frame % fskip == 0)
-            {
-                game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
-            }
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
-	#endif
-        if(lensclk && !FFCore.system_suspend[susptLENS])
-        {
-            draw_lens_over();
-            --lensclk;
-        }
-        #if LOGGAMELOOP > 0
-	al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
-	#endif
-        // Earthquake!
-        if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
-        {
-            playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
-        }
-        else
-        {
-            playing_field_offset=56;
-        }
-        
-	if ( previous_DMap != currdmap )
-	{
-		FFCore.initZScriptDMapScripts();
-		FFCore.initZScriptActiveSubscreenScript();
-		previous_DMap = currdmap;
+			}
+		}
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop at: %s\n", "if(global_wait)\n");
+		#endif
+		if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
+		}
+		if ( !FFCore.system_suspend[susptHEROACTIVE] && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			player_waitdraw = false;
+		}
+		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+			dmap_waitdraw = false;
+		}
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+			passive_subscreen_waitdraw = false;
+		}
+		
+		
+		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+		tmpscr->screen_waitdraw = 0;	    
+		}
+		
+		for ( int32_t q = 0; q < 32; ++q )
+		{
+		//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
+		if ( tmpscr->ffcswaitdraw&(1<<q) )
+		{
+			//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
+			if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+			{
+				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+				tmpscr->ffcswaitdraw &= ~(1<<q);
+			}
+		}
+		}
+		
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+		FFCore.combo_script_engine_waitdraw(false);    
+		}
+		
+		//Waitdraw for item scripts. 
+		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] ) FFCore.itemScriptEngineOnWaitdraw();
+		
+		//Sprite scripts on Waitdraw in order of : npc, ewpn, lwpn, itemsprite
+		if ( !FFCore.system_suspend[susptNPCSCRIPTS] ) FFCore.npcScriptEngineOnWaitdraw();
+		if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngineOnWaitdraw();
+		if ( !FFCore.system_suspend[susptLWEAPONSCRIPTS] ) FFCore.lweaponScriptEngineOnWaitdraw();
+		if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] ) FFCore.itemSpriteScriptEngineOnWaitdraw();
+		
+		
+		
+		
+		
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
+		#endif
+		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
+		
+		//clear Hero's last hits 
+		//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
+		#endif
+		if(linkedmsgclk==1)
+		{
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");
+		#endif
+			if(wpnsbuf[iwMore].newtile!=0)
+			{
+				putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+			}
+		}
+		
+		if(!freeze)
+		{
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "putintro()\n");
+		#endif
+			putintro();
+		}
+		
+		if(dmapmsgclk>0)
+		{
+			Hero.Freeze();
+			
+			if(dmapmsgclk<=50)
+			{
+				--dmapmsgclk;
+			}
+		}
+		
+		if(dmapmsgclk==1)
+		{
+			Hero.finishedmsg();
+			dmapmsgclk=0;
+			introclk=72;
+			clear_bitmap(msg_bg_display_buf);
+			set_clip_state(msg_bg_display_buf, 1);
+			clear_bitmap(msg_txt_display_buf);
+			set_clip_state(msg_txt_display_buf, 1);
+			clear_bitmap(msg_portrait_display_buf);
+			set_clip_state(msg_portrait_display_buf, 1);
+			//    clear_bitmap(pricesdisplaybuf);
+		}
+		
+		if(!freeze)
+		{
+			if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
+			{
+				putmsg();
+				
+				if(msgstr)
+				{
+					set_clip_state(msg_bg_display_buf, 0);
+					blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+					set_clip_state(msg_txt_display_buf, 0);
+					if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+					{
+						blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+					}
+					else
+					{
+						blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+					}
+					set_clip_state(msg_portrait_display_buf, 0);
+					blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
+		#endif
+			do_dcounters();
+			
+		#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
+		#endif
+			if(!freezemsg && current_item(itype_heartring))
+			{
+				int32_t itemid = current_item_id(itype_heartring);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+					game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
+		#endif
+			if(!freezemsg && current_item(itype_magicring))
+			{
+				int32_t itemid = current_item_id(itype_magicring);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+				{
+					game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
+		#endif
+			if(!freezemsg && current_item(itype_wallet))
+			{
+				int32_t itemid = current_item_id(itype_wallet);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+				{
+					game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
+		#endif
+			if(!freezemsg && current_item(itype_bombbag))
+			{
+				int32_t itemid = current_item_id(itype_bombbag);
+				
+				if(itemsbuf[itemid].misc1)
+				{
+					int32_t fskip = itemsbuf[itemid].misc2;
+					
+					if(fskip == 0 || frame % fskip == 0)
+					{
+						game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
+					}
+					
+					if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					{
+						int32_t ratio = zinit.bomb_ratio;
+						
+						fskip = itemsbuf[itemid].misc2 * ratio;
+						
+						if(fskip == 0 || frame % fskip == 0)
+						{
+							game->set_sbombs(zc_min(game->get_sbombs() + zc_max(itemsbuf[itemid].misc1 / ratio, 1), game->get_maxbombs() / ratio));
+						}
+					}
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
+		#endif
+			if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
+			{
+				int32_t itemid = current_item_id(itype_quiver);
+				int32_t fskip = itemsbuf[itemid].misc2;
+				
+				if(fskip == 0 || frame % fskip == 0)
+				{
+					game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
+				}
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
+		#endif
+			if(lensclk && !FFCore.system_suspend[susptLENS])
+			{
+				draw_lens_over();
+				--lensclk;
+			}
+			#if LOGGAMELOOP > 0
+		al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
+		#endif
+			// Earthquake!
+			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
+			{
+				playing_field_offset=56+((int32_t)(sin((double)(--quakeclk*2-frame))*4));
+			}
+			else
+			{
+				playing_field_offset=56;
+			}
+			
+		if ( previous_DMap != currdmap )
+		{
+			FFCore.initZScriptDMapScripts();
+			FFCore.initZScriptActiveSubscreenScript();
+			previous_DMap = currdmap;
+		}
+			// Other effects in zc_sys.cpp
+		}
+		
+		//  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
+		break;
 	}
-        // Other effects in zc_sys.cpp
-    }
-    
-    //  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
 }
 
 void runDrunkRNG(){
@@ -4329,8 +4315,6 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 /********** Main **********/
 /**************************/
 
-void PopulateInitDialog();
-
 bool is_zquest()
 {
     return false;
@@ -4505,7 +4489,6 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		Z_title("%s, v.%s Alpha %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_ALPHA);
 	}
-		
 	else if ( V_ZC_BETA )
 	{
 		Z_title("%s, v.%s Beta %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_BETA);
@@ -4518,31 +4501,7 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		Z_title("%s, v.%s Release %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_RELEASE);
 	}
-	/*
-		switch(IS_BETA)
-		{
-		
-		case -1:
-		{
-		Z_title("Zelda Classic %s Alpha (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		//Print the current time to allegro.log as a test.
-		
-		//for (int32_t q = 0; q < curTimeLAST; q++) 
-		//{
-		//    int32_t t_time_v = FFCore.getTime(q);
-		//}
-			
-		break;
-		}
-		
-		case 1:
-		Z_title("Zelda Classic %s Beta (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		break;
-		
-		case 0:
-		Z_title("Zelda Classic %s (Build %d)",VerStr(ZELDA_VERSION), VERSION_BUILD);
-		}
-	*/
+	
 	if(used_switch(argc, argv, "-standalone"))
 	{
 		standalone_mode=true;
@@ -4580,25 +4539,14 @@ int32_t main(int32_t argc, char* argv[])
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
 	
-	//  Z_title("Zelda Classic %s",VerStr(ZELDA_VERSION));
-	
 	// allocate quest data buffers
-	
 #ifdef _WIN32
-	
 	if(used_switch(argc, argv, "-console") || used_switch(argc, argv, "-con"))
 	{
 		DebugConsole::Open();
 		zconsole = true;
 	}
-	
 #endif
-	
-	
-	
-	PopulateInitDialog();
-	//FFScript::init();
-	
 	memrequested += 4096;
 	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
 	qstdir = (char*)zc_malloc(2048);
@@ -4617,7 +4565,6 @@ int32_t main(int32_t argc, char* argv[])
 	sprintf(qstdir, "../../../");
 	sprintf(qstpath, "../../../");
 #endif
-	
 	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
@@ -4626,10 +4573,7 @@ int32_t main(int32_t argc, char* argv[])
 		quit_game();
 	}
 	
-	// initialize Allegro
-	
 	Z_message("Initializing Allegro... ");
-	
 	if(allegro_init() != 0)
 	{
 		Z_error("Failed Init!");
@@ -4637,8 +4581,6 @@ int32_t main(int32_t argc, char* argv[])
 	}
 	
 	three_finger_flag=false;
-	//atexit(&dumb_exit);
-	//dumb_register_stdfiles();
 	
 	register_bitmap_file_type("GIF",  load_gif, save_gif);
 	jpgalleg_init();
@@ -4657,7 +4599,7 @@ int32_t main(int32_t argc, char* argv[])
 		save_game_configs();
 	}
 	
-	#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
+#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
 	if(!is_only_instance("zc.lck"))
 	{
 		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
@@ -4673,9 +4615,8 @@ int32_t main(int32_t argc, char* argv[])
 	//al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
 	if ( !(zcm.init(true)) ) 
 	{
-	exit(1);    
+		exit(1);    
 	}
-	
 	
 #ifdef _WIN32
 	
@@ -4694,59 +4635,59 @@ int32_t main(int32_t argc, char* argv[])
 
 	if(zscript_debugger)
 	{ // Let's try making a console for Linux -Z
-	int32_t termflags = 0;
-	termflags |= O_RDWR; //Open the device for both reading and writing.
-	//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
-	pt = posix_openpt(termflags);
-	if (pt == -1)
-	{
-		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	ptname = ptsname(pt);
-	if (!ptname)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	if (unlockpt(pt) == -1)
-	{
-		Z_error("Could not get pseudo terminal device name.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-
-	lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-	system(lxconsole_oss.str().c_str());
-
-	int32_t xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
-	{
-		char c = 0; int32_t tries = 10000; 
-		do 
+		int32_t termflags = 0;
+		termflags |= O_RDWR; //Open the device for both reading and writing.
+		//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
+		pt = posix_openpt(termflags);
+		if (pt == -1)
 		{
-			read(xterm_fd, &c, 1); 
-			--tries;
-		} while (c!='\n' && tries > 0);
-	}
+			Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+			use_debug_console = 0; goto no_lx_console;
+		}
+		ptname = ptsname(pt);
+		if (!ptname)
+		{
+			Z_error("Could not get pseudo terminal device name.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
 
-	if (dup2(pt, 1) <0)
-	{
-		Z_error("Could not redirect standard output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
-	if (dup2(pt, 2) <0)
-	{
-		Z_error("Could not redirect standard error output.\n");
-		close(pt);
-		use_debug_console = 0; goto no_lx_console;
-	}
+		if (unlockpt(pt) == -1)
+		{
+			Z_error("Could not get pseudo terminal device name.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
+
+		lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
+		system(lxconsole_oss.str().c_str());
+
+		int32_t xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
+		{
+			char c = 0; int32_t tries = 10000; 
+			do 
+			{
+				read(xterm_fd, &c, 1); 
+				--tries;
+			} while (c!='\n' && tries > 0);
+		}
+
+		if (dup2(pt, 1) <0)
+		{
+			Z_error("Could not redirect standard output.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
+		if (dup2(pt, 2) <0)
+		{
+			Z_error("Could not redirect standard error output.\n");
+			close(pt);
+			use_debug_console = 0; goto no_lx_console;
+		}
 	} //this is in a block because I want it in a block. -Z
 	else
 	{
-	al_trace("Linux console disabled by user.\n");
+		al_trace("Linux console disabled by user.\n");
 	}
 	
 	no_lx_console:
@@ -4818,10 +4759,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("OK\n");
 	
-	
-	
-	
-	
 	// check for the included quest files
 	if(!standalone_mode)
 	{
@@ -4829,57 +4766,15 @@ int32_t main(int32_t argc, char* argv[])
 		
 		char path[2048];
 		
-		
-	for ( int32_t q = 0; q < moduledata.max_quest_files; q++ )
-	{
-		append_filename(path, qstdir, moduledata.quests[q], 2048);
-		if(!exists(moduledata.quests[q]) && !exists(path))
+		for ( byte q = 0; q < moduledata.max_quest_files; q++ )
 		{
-			Z_error("%s not found.\n", moduledata.quests[q]);
-			quit_game();
+			append_filename(path, qstdir, moduledata.quests[q], 2048);
+			if(!exists(moduledata.quests[q]) && !exists(path))
+			{
+				Z_error("%s not found.\n", moduledata.quests[q]);
+				quit_game();
+			}
 		}
-	}	
-	/*
-		append_filename(path, qstdir, moduledata.quests[0], 2048);
-		
-		if(!exists(moduledata.quests[0]) && !exists(path))
-		{
-			Z_error("\"1st.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[1], 2048);
-		
-		if(!exists(moduledata.quests[1]) && !exists(path))
-		{
-			Z_error("\"2nd.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[2], 2048);
-		
-		if(!exists(moduledata.quests[2]) && !exists(path))
-		{
-			Z_error("\"3rd.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[3], 2048);
-		
-		if(!exists(moduledata.quests[3]) && !exists(path))
-		{
-			Z_error("\"4th.qst\" not found.");
-			quit_game();
-		}
-		
-		append_filename(path, qstdir, moduledata.quests[4], 2048);
-		
-		if(!exists(moduledata.quests[4]) && !exists(path))
-		{
-			Z_error("\"5th.qst\" not found.");
-			quit_game();
-		}
-		*/
 		Z_message("OK\n");
 	}
 	
@@ -4897,45 +4792,45 @@ int32_t main(int32_t argc, char* argv[])
 		//command-line switches takes priority
 		switch(zc_color_depth)
 		{
-		case 0:
-			set_color_depth(desktop_color_depth());
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 8:
-			set_color_depth(8);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 15:
-			set_color_depth(15);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 16:
-			set_color_depth(16);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 24:
-			set_color_depth(24);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		case 32:
-			set_color_depth(32);
-		//setGraphicsMode(fullscreen);
-			break;
-			
-		default:
-			zc_color_depth = 8; //invalid configuration, set to default in config file.
-			set_color_depth(8);
-			break;
+			case 0:
+				set_color_depth(desktop_color_depth());
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 8:
+				set_color_depth(8);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 15:
+				set_color_depth(15);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 16:
+				set_color_depth(16);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 24:
+				set_color_depth(24);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			case 32:
+				set_color_depth(32);
+				//setGraphicsMode(fullscreen);
+				break;
+				
+			default:
+				zc_color_depth = 8; //invalid configuration, set to default in config file.
+				set_color_depth(8);
+				break;
 		}
 	}
 	
 	//set_color_depth(32);
-   // set_color_conversion(COLORCONV_24_TO_8);
+	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	temp_buf  = create_bitmap_ex(8,256,224);
 	scrollbuf = create_bitmap_ex(8,512,406);
@@ -4992,7 +4887,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	
-	
 	resolve_password(zeldapwd);
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(get_config_string("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
@@ -5039,16 +4933,15 @@ int32_t main(int32_t argc, char* argv[])
 	/*
 	if ( !strcmp(get_config_string("zeldadx","debug",""),"") )
 	{
-	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-		strcpy(save_file_name,"zc.sav");
-	SAVE_FILE = (char *)save_file_name;  
-		
+		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+			strcpy(save_file_name,"zc.sav");
+		SAVE_FILE = (char *)save_file_name;  
 	}
 	/*else*/ //if ( strcmp(get_config_string("zeldadx","debug","")) )
 	{	    
-	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-		strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
-	SAVE_FILE = (char *)save_file_name;
+		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
+			strcpy(save_file_name,get_config_string("SAVEFILE","save_filename","zc.sav"));
+		SAVE_FILE = (char *)save_file_name;
 	}
 	//al_trace("Current save file is: %s\n", save_file_name);
 	
@@ -5060,13 +4953,10 @@ int32_t main(int32_t argc, char* argv[])
 		regulate_path(SAVE_FILE);
 	}
 	
-	
-	
 	// load the data files
 	resolve_password(datapwd);
-//  setPackfilePassword(datapwd);
+	//setPackfilePassword(datapwd);
 	packfile_password(datapwd);
-	
 	
 	Z_message("Loading data files:\n");
 	set_color_conversion(COLORCONV_NONE);
@@ -5109,7 +4999,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("OK\n");
 	
-//  setPackfilePassword(NULL);
+	//setPackfilePassword(NULL);
 	packfile_password(NULL);
 	
 	Z_message("SFX.Dat...");
@@ -5162,50 +5052,50 @@ int32_t main(int32_t argc, char* argv[])
 	dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
 	dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
 	
-	 atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
-		 acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
-		 adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
-		 baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
-		 apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
-		 apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
-		 apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
-		 aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
-		 atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
-		 c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
-		 c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
-		 cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
-		 cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
-		 coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
-		 coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
-		 cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
-		 fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
-		 fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
-		 fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
-		 fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
-		 finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
-		 futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
-		 gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
-		 hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
-		 jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
-		 kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
-		 manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
-		 mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
-		 motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
-		 msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
-		 msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
-		 petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
-		 pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
-		 saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
-		 scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
-		 sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
-		 sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
-		 spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
-		 speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
-		 ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
-		 trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
-		 z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
-		 zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
-		 lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
+	atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
+	acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
+	adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
+	baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
+	apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
+	apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
+	apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
+	aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
+	atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
+	c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
+	c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
+	cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
+	cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
+	coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
+	coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
+	cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
+	fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
+	fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
+	fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
+	fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
+	finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
+	futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
+	gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
+	hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
+	jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
+	kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
+	manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
+	mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
+	motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
+	msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
+	msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
+	petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
+	pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
+	saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
+	scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
+	sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
+	sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
+	spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
+	speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
+	ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
+	trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
+	z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
+	zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
+	lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -5298,14 +5188,10 @@ int32_t main(int32_t argc, char* argv[])
 		comboscripts[i] = new script_data();
 	}
 	
-	
-	
 	//script drawing bitmap allocation
 	zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
 	
-	
 	// initialize sound driver
-	
 	Z_message("Initializing sound driver... ");
 	
 	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound") || zc_get_config("zeldadx","nosound",0))
@@ -5413,7 +5299,7 @@ int32_t main(int32_t argc, char* argv[])
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 		
-//    mode = GFX_AUTODETECT;
+		//mode = GFX_AUTODETECT;
 	}
 	
 	if(resx>=640 && resy>=480)
@@ -5514,8 +5400,10 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
 	
+	
 	set_close_button_callback((void (*)()) hit_close_button);
 	set_window_title("Zelda Classic");
+	
 	
 	fix_dialogs();
 	gui_mouse_focus = FALSE;
@@ -5560,17 +5448,66 @@ int32_t main(int32_t argc, char* argv[])
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
 	
-	// load saved games
-	Z_message("Loading saved games... ");
-	zprint2("Loading Saved Games\n");
-	if(load_savedgames() != 0)
+	int32_t test_arg = used_switch(argc,argv,"-test");
+	zqtesting_mode = test_arg > 0;
+	static char testingqst_name[512] = {0};
+	static uint16_t testingqst_dmap = 0;
+	static uint8_t testingqst_screen = 0;
+	if(zqtesting_mode)
 	{
-		Z_error("Insufficient memory");
-		quit_game();
+		clearConsole();
+		Z_message("Initializing test mode...\n");
+		if(test_arg+3 >= argc)
+		{
+			Z_error( "-test missing parameters:\n"
+				"-test \"quest_file_path\" test_dmap test_screen\n" );
+			exit(1);
+		}
+		bool error = false;
+		strcpy(testingqst_name, argv[test_arg+1]);
+		int32_t dm = atoi(argv[test_arg+2]);
+		int32_t scr = atoi(argv[test_arg+3]);
+		if(!fileexists(testingqst_name))
+		{
+			Z_error( "-test invalid parameter: 'quest_file_path' was '%s',"
+				" but that file does not exist!\n", testingqst_name);
+			error = true;
+		}
+		if(unsigned(dm) >= MAXDMAPS)
+		{
+			Z_error( "-test invalid parameter: 'test_dmap' was '%d'."
+				" Must be '0 <= test_dmap < %d'\n", dm, MAXDMAPS);
+			error = true;
+		}
+		if(unsigned(scr) >= 0x80)
+		{
+			Z_error( "-test invalid parameter: 'test_screen' was '%d'."
+				" Must be '0 <= test_screen < 128'\n", scr);
+			error = true;
+		}
+		
+		if(error)
+		{
+			Z_error("Failed '-test \"%s\" %d %d'\n", testingqst_name, dm, scr);
+			exit(1);
+		}
+		testingqst_dmap = (uint16_t)dm;
+		testingqst_screen = (uint8_t)scr;
 	}
-	zprint2("Finished Loading Saved Games\n");
-	Z_message("OK\n");
 	
+	//clearConsole();
+	init_saves();
+	if(!zqtesting_mode)
+	{
+		// load saved games
+		zprint2("Loading Saved Games\n");
+		if(load_savedgames() != 0)
+		{
+			Z_error("Insufficient memory");
+			quit_game();
+		}
+		zprint2("Finished Loading Saved Games\n");
+	}
 #ifdef _WIN32
 	// Nothing for them to do on other platforms
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
@@ -5578,7 +5515,7 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	
 	// AG logo
-	if(!(fast_start||zc_get_config("zeldadx","skip_logo",1)))
+	if(!(zqtesting_mode||fast_start||zc_get_config("zeldadx","skip_logo",1)))
 	{
 		set_volume(240,-1);
 		aglogo(tmp_scr, scrollbuf, resx, resy);
@@ -5604,7 +5541,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(use_win32_proc != FALSE)
 	{
-		al_trace("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
+		Z_message("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
 		
 		if(win32data.zcSetCustomCallbackProc(win_get_window()) != 0)
 		{
@@ -5615,13 +5552,36 @@ int32_t main(int32_t argc, char* argv[])
 #endif
 	
 	
+	if(zqtesting_mode)
+	{
+		currgame = 0;
+		saves[0].Clear();
+		saves[0].set_continue_dmap(testingqst_dmap);
+		saves[0].set_continue_scrn(testingqst_screen);
+		strcpy(saves[0].qstpath, testingqst_name);
+		saves[0].set_quest(0xFF);
+		saves[0].set_name("Hero");
+		clearConsole();
+		Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name, testingqst_dmap, testingqst_screen);
+	}
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat
 		set_keyboard_rate(250,33);
 		toogam = false;
 		ignoreSideview=false;
-		titlescreen(load_save);
+		if(zqtesting_mode)
+		{
+			if(Quit==qCONT)
+				cont_game();
+			else
+			{
+				Quit = 0;
+				init_game();
+			}
+			Quit = 0;
+		}
+		else titlescreen(load_save);
 		
 		load_save=0;
 		setup_combo_animations();
@@ -5658,7 +5618,6 @@ int32_t main(int32_t argc, char* argv[])
 		switch(Quit)
 		{
 			case qSAVE:
-			
 			case qQUIT:
 			case qGAMEOVER:
 			case qRELOAD:

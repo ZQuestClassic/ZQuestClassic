@@ -2733,6 +2733,9 @@ void ResizeArray(untyped[] arr, int size);
 void Trace(untyped)
  * The Trace() instruction now supports all datatypes.
 
+void ClearTrace();
+ * Clears the log file output, and the debug console screen.
+
 untyped Untype(any)
  * Converts the value of any datatype to another, similar to typecasting.
  * Example:
@@ -7421,15 +7424,8 @@ Functions for debugging, and raw access to the internal ZASM stack and mechanics
 ///  Debug->  ///
 /////////////////								// Debug
 
-untyped NULL;
-untyped Null;
-untyped Null();
-untyped NULL();
- * You may assign this function to any datatype to clear it to NULL.
- * Example:
-lweapon l = Screen->LoadLWeapon(16);
-l->Dir = DIR_UP;
-l = NULL(); // Clear the pointer to NULL.
+bool Testing;
+ * Returns true if this instance of ZC was launched from the 'Quest->Test' option in ZQ.
 
 void Breakpoint(char[] string);
  * If the ZASM debugger is open, this will break execution, and print the given string.
@@ -7443,7 +7439,6 @@ void Breakpoint(char[] string);
  * If the ZASM debugger is not open, this instruction does NOTHING.
  * Passing NULL to this function will not produce an error, instead printing no label
  * In ZASM scripts, passing the 'NUL' register to this instruction will not produce an error, instead printing no label
-
 
 float D[256];
  * This is the value of the ri->d[] registers. 
