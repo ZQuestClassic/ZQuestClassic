@@ -3379,7 +3379,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		else set_bit(quest_rules,qr_GANONINTRO,1);
 	}
 	
-	if(compatrule_version < 13)
+	if(compatrule_version < 13 && tempheader.zelda_version >= 0x255)
 	{
 		//ANone doesn't reset to originaltile
 		set_bit(quest_rules,qr_ANONE_NOANIM,1);
