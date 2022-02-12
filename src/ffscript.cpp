@@ -13058,6 +13058,7 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				//zprint("LWPNOTILE before write: %d\n", ((weapon*)s)->o_tile);
 					((weapon*)s)->o_tile=(value/10000);
+					((weapon*)s)->ref_o_tile=(value/10000);
 					//((weapon*)s)->script_wrote_otile=1; //Removing this as of 26th October, 2019 -Z
 				//if at some future point we WANT writing ->Tile to also overwrite ->OriginalTile,
 				//then either the user will need to manually write tile, or we can add a QR and 
@@ -13485,7 +13486,10 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case EWPNOTILE:
 			if(0!=(s=checkEWpn(ri->ewpn,"OriginalTile")))
+			{
 				((weapon*)s)->o_tile=(value/10000);
+				((weapon*)s)->ref_o_tile=(value/10000);
+			}
 				
 			break;
 			

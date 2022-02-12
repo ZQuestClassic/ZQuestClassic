@@ -1691,6 +1691,7 @@ weapon::weapon(weapon const & other):
     maxX(other.maxX),			//int32_t		...before being deleted or bouncing
     minY(other.minY),			//int32_t		...
     maxY(other.maxY),			//int32_t		...
+    ref_o_tile(other.ref_o_tile),	//int32_t
 	
     //! dimi Wand
     /*
@@ -1974,6 +1975,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hysz=15;
 	hzsz=8;
 	do_animation = 1;
+	ref_o_tile = 0;
 	useweapon = usedefence = 0;
 	weaprange = weapduration = 0;
 	script_wrote_otile = 0;
@@ -3912,6 +3914,7 @@ void weapon::LOADGFX(int32_t wpn)
     cs = wpnsbuf[wid].csets&15;
     o_tile = wpnsbuf[wid].newtile;
     tile = o_tile;
+    ref_o_tile = o_tile;
     o_cset = wpnsbuf[wid].csets;
     o_flip=(wpnsbuf[wid].misc>>2)&3;
     o_speed = wpnsbuf[wid].speed;
@@ -4532,29 +4535,38 @@ bool weapon::animate(int32_t index)
 			
 			if(id==ewSword && get_bit(quest_rules,qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_bit(quest_rules,qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
 			{
-				int32_t checkx=0, checky=0;
-				
-				switch(dir)
+				int32_t checkx=0, checky=0, check_x_ofs=0, check_y_ofs=0;
+				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
 				{
-					case up:
-						checkx=x+7;
-						checky=y+8;
-						break;
-						
-					case down:
-						checkx=x+7;
-						checky=y;
-						break;
-						
-					case left:
-						checkx=x+8;
-						checky=y+7;
-						break;
-						
-					case right:
-						checkx=x;
-						checky=y+7;
-						break;
+					checkx = (x+hxofs+(hxsz*0.5));
+					checky = (y+hyofs+(hysz*0.5));
+					check_x_ofs = x - (checkx-8);
+					check_y_ofs = y - (checky-8);
+				}
+				else
+				{
+					switch(dir)
+					{
+						case up:
+							checkx=x+7;
+							checky=y+8;
+							break;
+							
+						case down:
+							checkx=x+7;
+							checky=y;
+							break;
+							
+						case left:
+							checkx=x+8;
+							checky=y+7;
+							break;
+							
+						case right:
+							checkx=x;
+							checky=y+7;
+							break;
+					}
 				}
 				
 				if(ignorecombo==(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
@@ -4571,7 +4583,7 @@ bool weapon::animate(int32_t index)
 					posx=checkx;
 					posy=checky;
 				}
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
+				if(hitcombo(checkx, checky, cMIRROR))
 				{
 					id = wRefBeam;
 					dir ^= 1;
@@ -4583,11 +4595,11 @@ bool weapon::animate(int32_t index)
 						
 					ignoreHero=false;
 					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					y=(int32_t)posy&0xF0;
-					x=(int32_t)posx&0xF0;
+					y=(int32_t)(posy&0xF0)+check_y_ofs;
+					x=(int32_t)(posx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
+				if(hitcombo(checkx, checky, cMIRRORSLASH))
 				{
 					id = wRefBeam;
 					if ( do_animation ) 
@@ -4603,7 +4615,7 @@ bool weapon::animate(int32_t index)
 							else if(dir==down)
 							flip |= 2;  // vert
 						}
-						tile=o_tile;
+						tile=ref_o_tile;
 						
 						if(dir&2)
 						{
@@ -4619,11 +4631,11 @@ bool weapon::animate(int32_t index)
 					}
 					ignoreHero=false;
 					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					y=(int32_t)posy&0xF0;
-					x=(int32_t)posx&0xF0;
+					y=(int32_t)(posy&0xF0)+check_y_ofs;
+					x=(int32_t)(posx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
+				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
 				{
 					id = wRefBeam;
 					dir ^= 2;
@@ -4642,7 +4654,7 @@ bool weapon::animate(int32_t index)
 					}
 					if ( do_animation ) 
 					{
-						tile=o_tile;
+						tile=ref_o_tile;
 						
 						if(dir&2)
 						{
@@ -4658,15 +4670,15 @@ bool weapon::animate(int32_t index)
 					}
 					ignoreHero=false;
 					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					y=(int32_t)posy&0xF0;
-					x=(int32_t)posx&0xF0;
+					y=(int32_t)(posy&0xF0)+check_y_ofs;
+					x=(int32_t)(posx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM))
+				if(hitcombo(checkx, checky, cMAGICPRISM))
 				{
 					int32_t newx, newy;
-					newy=(int32_t)posy&0xF0;
-					newx=(int32_t)posx&0xF0;
+					newy=(int32_t)(posy&0xF0)+check_y_ofs;
+					newx=(int32_t)(posx&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -4705,6 +4717,8 @@ bool weapon::animate(int32_t index)
 									//Fuck, this was a waste of time. -Deedee
 								}
 							}
+							w->o_tile = ref_o_tile;
+							w->tile = ref_o_tile;
 							w->x=newx;
 							w->y=newy;
 							w->z=z;
@@ -4747,11 +4761,11 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4))
+				if(hitcombo(checkx, checky, cMAGICPRISM4))
 				{
 					int32_t newx, newy;
-					newy=(int32_t)posy&0xF0;
-					newx=(int32_t)posx&0xF0;
+					newy=(int32_t)(posy&0xF0)+check_y_ofs;
+					newx=(int32_t)(posx&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -4767,6 +4781,8 @@ bool weapon::animate(int32_t index)
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
+						w->o_tile = ref_o_tile;
+						w->tile = ref_o_tile;
 						w->x=newx;
 						w->y=newy;
 						w->z=z;
@@ -6418,34 +6434,43 @@ bool weapon::animate(int32_t index)
 			
 			
 			//mirrors: //the latter instance should suffice
-			int32_t checkx=0, checky=0;
-			
-			switch(dir)
+			int32_t checkx=0, checky=0, check_x_ofs=0, check_y_ofs=0;
+			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
 			{
-				case up:
-					checkx=x+7;
-					checky=y+8;
-					break;
-					
-				case down:
-					checkx=x+7;
-					checky=y;
-					break;
-					
-				case left:
-					checkx=x+8;
-					checky=y+7;
-					break;
-					
-				case right:
-					checkx=x;
-					checky=y+7;
-					break;
+				checkx = (x+hxofs+(hxsz*0.5));
+				checky = (y+hyofs+(hysz*0.5));
+				check_x_ofs = x - (checkx-8);
+				check_y_ofs = y - (checky-8);
+			}
+			else
+			{
+				switch(dir)
+				{
+					case up:
+						checkx=x+7;
+						checky=y+8;
+						break;
+						
+					case down:
+						checkx=x+7;
+						checky=y;
+						break;
+						
+					case left:
+						checkx=x+8;
+						checky=y+7;
+						break;
+						
+					case right:
+						checkx=x;
+						checky=y+7;
+						break;
+				}
 			}
 			
 			if(ignorecombo!=(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
 			{
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
+				if(hitcombo(checkx, checky, cMIRROR))
 				{
 					weapon *w=NULL;
 					
@@ -6459,7 +6484,6 @@ bool weapon::animate(int32_t index)
 					{
 						w=this;
 					}
-					
 					
 					w->dir ^= 1;
 					
@@ -6475,11 +6499,11 @@ bool weapon::animate(int32_t index)
 					
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=checky&0xF0;
-					w->x=checkx&0xF0;
+					w->y=(checky&0xF0)+check_y_ofs;
+					w->x=(checkx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
+				if(hitcombo(checkx, checky, cMIRRORSLASH))
 				{
 					weapon *w=NULL;
 					
@@ -6494,6 +6518,8 @@ bool weapon::animate(int32_t index)
 						w=this; //Oh, look, a memory leak. The new instruction is making something on the heap, but this circumvents removing it. 
 					}
 					
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
 					w->dir = 3-w->dir;
 					
 					if(w->id != wWind)
@@ -6523,11 +6549,11 @@ bool weapon::animate(int32_t index)
 					}
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=checky&0xF0;
-					w->x=checkx&0xF0;
+					w->y=(checky&0xF0)+check_y_ofs;
+					w->x=(checkx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
+				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
 				{
 					weapon *w = NULL;
 					
@@ -6542,6 +6568,8 @@ bool weapon::animate(int32_t index)
 						w=this;
 					}
 					
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
 					w->dir ^= 2;
 					
 					if(w->id != wWind)
@@ -6574,15 +6602,15 @@ bool weapon::animate(int32_t index)
 					
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=checky&0xF0;
-					w->x=checkx&0xF0;
+					w->y=(checky&0xF0)+check_y_ofs;
+					w->x=(checkx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=checky&0xF0;
-					newx=checkx&0xF0;
+					newy=(checky&0xF0)+check_y_ofs;
+					newx=(checkx&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6600,6 +6628,8 @@ bool weapon::animate(int32_t index)
 									w->dir = AngleToDir(WrapAngle(newangle));
 								}
 							}
+							w->o_tile = ref_o_tile;
+							w->tile = ref_o_tile;
 							w->x=newx;
 							w->y=newy;
 							w->z=z;
@@ -6643,11 +6673,11 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM4) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=checky&0xF0;
-					newx=checkx&0xF0;
+					newy=(checky&0xF0)+check_y_ofs;
+					newx=(checkx&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6663,6 +6693,8 @@ bool weapon::animate(int32_t index)
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
+						w->o_tile = ref_o_tile;
+						w->tile = ref_o_tile;
 						w->x=newx;
 						w->y=newy;
 						w->z=z;
@@ -6753,34 +6785,42 @@ bool weapon::animate(int32_t index)
 			
 			
 		mirrors:
-			int32_t checkx=0, checky=0;
-			
-			switch(dir)
+			int32_t checkx=0, checky=0, check_x_ofs=0, check_y_ofs=0;
+			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
 			{
-				case up:
-					checkx=x+7;
-					checky=y+8;
-					break;
-					
-				case down:
-					checkx=x+7;
-					checky=y;
-					break;
-					
-				case left:
-					checkx=x+8;
-					checky=y+7;
-					break;
-					
-				case right:
-					checkx=x;
-					checky=y+7;
-					break;
+				checkx = (x+hxofs+(hxsz*0.5));
+				checky = (y+hyofs+(hysz*0.5));
+				check_x_ofs = x - (checkx-8);
+				check_y_ofs = y - (checky-8);
 			}
-			
+			else
+			{
+				switch(dir)
+				{
+					case up:
+						checkx=x+7;
+						checky=y+8;
+						break;
+						
+					case down:
+						checkx=x+7;
+						checky=y;
+						break;
+						
+					case left:
+						checkx=x+8;
+						checky=y+7;
+						break;
+						
+					case right:
+						checkx=x;
+						checky=y+7;
+						break;
+				}
+			}
 			if(ignorecombo!=(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
 			{
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRROR))
+				if(hitcombo(checkx, checky, cMIRROR))
 				{
 					weapon *w=NULL;
 					
@@ -6810,11 +6850,11 @@ bool weapon::animate(int32_t index)
 					
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=checky&0xF0;
-					w->x=checkx&0xF0;
+					w->y=(checky&0xF0)+check_y_ofs;
+					w->x=(checkx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORSLASH))
+				if(hitcombo(checkx, checky, cMIRRORSLASH))
 				{
 					weapon *w=NULL;
 					
@@ -6829,6 +6869,8 @@ bool weapon::animate(int32_t index)
 						w=this;
 					}
 					
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
 					w->dir = 3-w->dir;
 					
 					if(w->id != wWind)
@@ -6858,11 +6900,11 @@ bool weapon::animate(int32_t index)
 					}
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=checky&0xF0;
-					w->x=checkx&0xF0;
+					w->y=(checky&0xF0)+check_y_ofs;
+					w->x=(checkx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMIRRORBACKSLASH))
+				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
 				{
 					weapon *w=NULL;
 					
@@ -6877,6 +6919,8 @@ bool weapon::animate(int32_t index)
 						w=this;
 					}
 					
+					w->o_tile = ref_o_tile;
+					w->tile = ref_o_tile;
 					w->dir ^= 2;
 					
 					if(w->id != wWind)
@@ -6909,15 +6953,15 @@ bool weapon::animate(int32_t index)
 					
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=checky&0xF0;
-					w->x=checkx&0xF0;
+					w->y=(checky&0xF0)+check_y_ofs;
+					w->x=(checkx&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=checky&0xF0;
-					newx=checkx&0xF0;
+					newy=(checky&0xF0)+check_y_ofs;
+					newx=(checkx&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6935,6 +6979,8 @@ bool weapon::animate(int32_t index)
 									w->dir = AngleToDir(WrapAngle(newangle));
 								}
 							}
+							w->o_tile = ref_o_tile;
+							w->tile = ref_o_tile;
 							w->x=newx;
 							w->y=newy;
 							w->z=z;
@@ -6978,11 +7024,11 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
-				if(hitcombo((get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (x+hxofs+(hxsz*0.5)) : checkx),(get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE) ? (y+hyofs+(hysz*0.5)) : checky),cMAGICPRISM4) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM4) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=checky&0xF0;
-					newx=checkx&0xF0;
+					newy=(checky&0xF0)+check_y_ofs;
+					newx=(checkx&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6998,6 +7044,8 @@ bool weapon::animate(int32_t index)
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
+						w->o_tile = ref_o_tile;
+						w->tile = ref_o_tile;
 						w->x=newx;
 						w->y=newy;
 						w->z=z;
@@ -8319,6 +8367,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     ignorecombo=-1;
     step=0;
     dead=-1;
+    ref_o_tile = 0;
     bounce= false;
 	ignoreHero=true;
     yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
