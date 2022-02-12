@@ -24513,7 +24513,8 @@ int32_t onCompileScript()
 				break;
 			}
 			clock_t start_compile_time = clock();
-			process_manager* pm = launch_piped_process("zscript.exe -input tmp -linked");
+			char const* argv[] = {"-input", "tmp", "-linked"};
+			process_manager* pm = launch_piped_process("zscript.exe" argv);
 			if(!pm)
 			{
 				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();

@@ -229,11 +229,7 @@ int32_t CConsoleLogger::printf(const char *format,...)
 	
 	va_list argList;
 	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
+	ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
@@ -405,11 +401,7 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	
 	va_list argList;
 	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
+	ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	tmp[vbound(ret, 0, 1023)]=0;
 	
 	va_end(argList);
@@ -431,11 +423,7 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	
 	va_list argList;
 	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
+	ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
 	tmp[vbound(ret, 0, 1023)]=0;
 	
 	va_end(argList);
@@ -539,8 +527,18 @@ inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLogger::printf(const char *format,...)
 {
-	return 0;
-
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	
+	printf("%s",tmp);
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -632,7 +630,18 @@ void CConsoleLoggerEx::gotoxy(int32_t x,int32_t y)
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 {
-	return 0;
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	
+	printf("%s",tmp);
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -640,7 +649,18 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 {
-	return 0;
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	
+	printf("%s",tmp);
+	return ret;
 }
 
 //////////////////////////////////////////////////////////////////////////
