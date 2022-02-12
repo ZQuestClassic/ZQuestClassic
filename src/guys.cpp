@@ -20703,7 +20703,7 @@ bool slowguy(int32_t id)
 
 bool ok2add(int32_t id)
 {
-	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
+	if( ((unsigned)(id&0xFFF)) > MAXGUYS || id <= 0) 
 	{
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "oktoadd()"); 
 		return false;
@@ -21340,7 +21340,9 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 			if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
 			{
 				if(!ok2add(tmpscr->enemy[i]))
-					++loadcnt;
+				{
+					if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+				}
 				else
 				{
 					addenemy(sx,
@@ -21357,7 +21359,9 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 			else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
 			{
 				if(!ok2add(tmpscr->enemy[i]))
-					++loadcnt;
+				{
+					if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+				}
 				else
 				{
 					addenemy(sx,
@@ -21426,7 +21430,9 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 		}
 		
 		if(!ok2add(tmpscr->enemy[i]))
-			++loadcnt;
+		{
+			if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+		}
 		else
 		{
 			if(((tmpscr->enemy[i]>0||tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
