@@ -639,8 +639,21 @@ void ending()
 	load_quest(game);
 	//  setPackfilePassword(NULL);
 	saves[currgame] = *game;
-	load_game_icon_to_buffer(false,currgame);
-	load_game_icon(game,false,currgame);
+	int32_t ring=0;
+	flushItemCache();
+	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+	
+	if(maxringid != -1)
+	{
+		ring = itemsbuf[maxringid].fam_type;
+	}
+	
+	if (ring > 0)
+	{
+		--ring;
+	}
+	load_game_icon_to_buffer_manual(false,currgame,ring);
+	load_game_icon(saves+currgame,false,currgame);
 	
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
@@ -751,8 +764,21 @@ void ending_scripted()
 	strcpy(game->title,QHeader.title);
 	//  setPackfilePassword(NULL);
 	saves[currgame] = *game;
-	load_game_icon_to_buffer(false,currgame);
-	load_game_icon(game,false,currgame);
+	int32_t ring=0;
+	flushItemCache();
+	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+	
+	if(maxringid != -1)
+	{
+		ring = itemsbuf[maxringid].fam_type;
+	}
+	
+	if (ring > 0)
+	{
+		--ring;
+	}
+	load_game_icon_to_buffer_manual(false,currgame,ring);
+	load_game_icon(saves+currgame,false,currgame);
     
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
@@ -812,7 +838,20 @@ void inc_quest()
 	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
 	resetItems(game,&zinit,true);
 	load_quest(game);
-	load_game_icon_to_buffer(false,currgame);
-	load_game_icon(game,false,currgame);
+	int32_t ring=0;
+	flushItemCache();
+	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
+	
+	if(maxringid != -1)
+	{
+		ring = itemsbuf[maxringid].fam_type;
+	}
+	
+	if (ring > 0)
+	{
+		--ring;
+	}
+	load_game_icon_to_buffer_manual(false,currgame,ring);
+	load_game_icon(saves+currgame,false,currgame);
 }
 

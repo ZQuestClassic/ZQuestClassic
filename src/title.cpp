@@ -2232,7 +2232,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 							ring = itemsbuf[maxringid].fam_type;
 						}
 						
-						ring = ring ? ring-1 : 0;
+						if (ring > 0) --ring;
 						iconbuffer[i].ring = zc_min(ring, 3);
 						reload_icon_buffer(i);
 						//load_game_icon_to_buffer(false,i);
@@ -2785,10 +2785,17 @@ void load_game_icon_to_buffer(bool forceDefault, int32_t index)
 	}
 	
 	//blue rings now start at level 2 for some reason, account for that -DD
-	ring = ring ? ring-1 : 0;
+	if (ring > 0) --ring;
 	iconbuffer[index].ring = zc_min(ring, 3);
 	
 	reload_icon_buffer(index);
+}
+
+void load_game_icon_to_buffer_manual(bool forceDefault, int32_t index, int32_t ring_value)
+{
+	iconbuffer[index].ring = zc_min(ring_value, 3);
+	
+	//reload_icon_buffer(index);
 }
 
 static void select_mode()
@@ -4475,7 +4482,7 @@ void game_over(int32_t type)
 				ring = itemsbuf[maxringid].fam_type;
 			}
 			
-			ring = ring ? ring-1 : 0;
+			if (ring > 0) --ring;
 			iconbuffer[currgame].ring = zc_min(ring, 3);
 			
 			load_game_icon(saves+currgame,false,currgame);
@@ -4513,7 +4520,7 @@ void save_game(bool savepoint)
 		ring = itemsbuf[maxringid].fam_type;
 	}
 	
-	ring = ring ? ring-1 : 0;
+	if (ring > 0) --ring;
 	iconbuffer[currgame].ring = zc_min(ring, 3);
 	load_game_icon(saves+currgame,false,currgame);
 	show_saving(screen);
@@ -4656,7 +4663,7 @@ bool save_game(bool savepoint, int32_t type)
 					ring = itemsbuf[maxringid].fam_type;
 				}
 				
-				ring = ring ? ring-1 : 0;
+				if (ring > 0) --ring;
 				iconbuffer[currgame].ring = zc_min(ring, 3);
 				load_game_icon(saves+currgame,false,currgame);
 				show_saving(screen);
