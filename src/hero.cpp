@@ -1510,7 +1510,7 @@ int32_t HeroClass::weaponattackpower()
     return power;
 }
 
-#define NET_CLK_TOTAL 30
+#define NET_CLK_TOTAL 24
 #define NET_DIR_INC (NET_CLK_TOTAL/3)
 // Must only be called once per frame!
 void HeroClass::positionNet(weapon *w, int32_t itemid)
@@ -2053,7 +2053,8 @@ attack:
 		|| FIXED_Z3_ANIMATION && attackclk<(game->get_canslash()?16:12))
 		|| (charging>0 && attackclk!=SWORDCHARGEFRAME)))
 		|| ((attack==wWand || attack==wFire || attack==wCByrna) && attackclk<13)
-		|| (attack==wHammer && attackclk<=30))
+		|| (attack==wHammer && attackclk<=30)
+		|| (attack==wBugNet && attackclk<NET_CLK_TOTAL))
 		{
 			if(!invisible)
 			{
@@ -2064,7 +2065,7 @@ attack:
 					if (attackclk >= 13) tile += (extend==2?2:1);
 				}
 				
-				if((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16)))
+				if(attack==wBugNet && attackclk < 9 || ((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
 				{
 					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
 					if (FIXED_Z3_ANIMATION)
