@@ -113,6 +113,7 @@ private:
 	void realize(DialogRunner& runner) override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
+	void updateReadOnly(bool ro) override;
 	
 	void _updateBuf(size_t sz);
 	void check_len(size_t min);

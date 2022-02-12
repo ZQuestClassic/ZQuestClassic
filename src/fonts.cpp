@@ -2,7 +2,7 @@
 #include "fonts.h"
 #include "fontsdat.h"
 extern DATAFILE *fontsdata;
-FONT    *nfont, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
+FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
 		*goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont,
 		//New fonts for 2.54+
 		*atari800font, *acornfont, *adosfont, *baseallegrofont, *apple2font, *apple280colfont, *apple2gsfont,
@@ -16,6 +16,7 @@ void initFonts()
 {
 	deffont=font;
 	nfont = (FONT*)fontsdata[FONT_GUI_PROP].dat;
+	nfont2 = (FONT*)fontsdata[FONT_GUI_MONO].dat;
 	font = nfont;
 	pfont = (FONT*)fontsdata[FONT_8xPROP_THIN].dat;
 	lfont = (FONT*)fontsdata[FONT_LARGEPROP].dat;
