@@ -12,7 +12,9 @@
 #include <vector>
 #include "../fonts.h"
 
-#define GUI_DEF_FONT sized(nfont, lfont_l)
+#define GUI_DEF_FONT_SMALL nfont
+#define GUI_DEF_FONT_LARGE lfont_l
+#define GUI_DEF_FONT sized(GUI_DEF_FONT_SMALL, GUI_DEF_FONT_LARGE)
 #define DEFAULT_PADDING       sized(1_px,3_px)
 #define DEFAULT_PADDING_INT   sized(1,3)
 namespace GUI
@@ -225,16 +227,19 @@ public:
 		return flags&f_DISABLED;
 	}
 	
+	virtual void updateReadOnly(bool ro){}
+	
 	/* If this is true, this widget is non-interactable (but NOT greyed-out) 
 	 * when the dialog starts.
 	 * This does not affect the status if the dialog is open already
 	 */
-	void setReadOnly(bool ro) noexcept
+	inline void setReadOnly(bool ro) noexcept
 	{
 		if(ro)
 			flags |= f_READ_ONLY;
 		else
 			flags &= ~f_READ_ONLY;
+		updateReadOnly(ro);
 	}
 
 	/* Returns true if this widget should be read-only initially. */
