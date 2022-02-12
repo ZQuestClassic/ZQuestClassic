@@ -7,6 +7,8 @@
 struct DIALOG;
 
 extern bool is_large;
+#define USE_READABLE_FONT zc_get_config("gui","bolder_font",0)
+#define GUI_READABLE_FONT (USE_READABLE_FONT ? sized(GUI_DEF_FONT_SMALL, lfont) : GUI_DEF_FONT)
 
 namespace GUI
 {

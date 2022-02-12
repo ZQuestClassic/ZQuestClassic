@@ -34,6 +34,11 @@ void TextField::setText(std::string_view newText)
 		buffer[std::min(maxLength, newText.size())] = '\0';
 	}
 	else buffer[0] = '\0';
+	
+	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	if(getWidth() < nsz)
+		setPreferredWidth(nsz);
+	
 	valSet = true;
 	pendDraw();
 }
@@ -106,6 +111,11 @@ void TextField::setVal(int32_t val)
 	//
 	v.copy(buffer.get(), maxLength);
 	buffer[std::min(maxLength, v.size())] = '\0';
+	
+	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	if(getWidth() < nsz)
+		setPreferredWidth(nsz);
+	
 	valSet = true;
 	pendDraw();
 }
@@ -268,8 +278,28 @@ void TextField::setFixedPlaces(size_t places)
 	else fixedPlaces = places;
 }
 
+void TextField::updateReadOnly(bool ro)
+{
+	if(GUI_DEF_FONT == GUI_READABLE_FONT) return;
+	if(ro && widgFont == GUI_DEF_FONT)
+	{
+		widgFont = GUI_READABLE_FONT;
+	}
+	else if(!ro && widgFont == GUI_READABLE_FONT)
+	{
+		widgFont = GUI_DEF_FONT;
+	}
+	if (valSet)
+	{
+		Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+		if(getWidth() < nsz)
+			setPreferredWidth(nsz);
+	}
+}
 void TextField::realize(DialogRunner& runner)
 {
+	if(widgFont == GUI_DEF_FONT && getReadOnly())
+		widgFont = GUI_READABLE_FONT;
 	Widget::realize(runner);
 	assert(maxLength > 0);
 

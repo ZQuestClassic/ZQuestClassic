@@ -171,6 +171,20 @@ Checkbox( \
 	{ \
 		zc_set_config(file,head,subhead,state?1:0); \
 	})
+	
+#define CONFIG_CHECKBOX_I_ZCL(name, head, subhead, def, info) \
+Button(forceFitH = true, text = "?", \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",info).show(); \
+	}), \
+Checkbox( \
+	text = name, hAlign = 0.0, \
+	checked = zc_get_config(head,subhead,def)!=0, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		zc_set_config(head,subhead,state?1:0); \
+	})
 //}
 
 //{ Dropdown
@@ -507,7 +521,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Allow Multiple Instances","zc.cfg","zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
 						CONFIG_CHECKBOX("Click to Freeze","zc.cfg","zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest","zc.cfg","zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
-						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text.")
+						CONFIG_CHECKBOX_I("Monochrome Debuggers","zc.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
+						CONFIG_CHECKBOX_I("Text Readability","zc.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zc.cfg","zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
@@ -537,8 +552,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								}
 							}),
 						tf_module_zc = TextField(
-							read_only = true, fitParent = true,
-							text = zc_get_config("zc.cfg", "ZCMODULE", "current_module", "modules/classic.zmod")
+							read_only = true, fitParent = true
 						),
 						DummyWidget(),
 						//
@@ -602,7 +616,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Uncompressed Autosaves","zquest.cfg","zquest","uncompressed_auto_saves",1),
 						CONFIG_CHECKBOX_I("Static effect for invalid data","zquest.cfg","zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
 						CONFIG_CHECKBOX_I("Warn on Init Script Change","zquest.cfg","zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
-						CONFIG_CHECKBOX_I("Monochrome Debuggers","zquest.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text.")
+						CONFIG_CHECKBOX_I("Monochrome Debuggers","zquest.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
+						CONFIG_CHECKBOX_I("Text Readability","zquest.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),
@@ -633,12 +648,41 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								}
 							}),
 						tf_module_zq = TextField(
-							read_only = true, fitParent = true,
-							text = zc_get_config("zquest.cfg", "ZCMODULE", "current_module", "modules/classic.zmod")
+							read_only = true, fitParent = true
 						),
 						DummyWidget()
 					))
 				),
+				TabRef(name = "ZC Launcher", Column(padding = 0_px,
+					Label(text = "ZCL options may require relaunching ZCL to take effect!"),
+					Row(framed = true,
+						Rows<2>(fitParent = true,
+							CONFIG_CHECKBOX_I_ZCL("Text Readability","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
+						),
+						Rows<3>(fitParent = true,
+							Button(hAlign = 1.0, forceFitH = true,
+								text = "Browse Module", onPressFunc = [&]()
+								{
+									if(getname("Load Module [ZQ]", "zmod", NULL, zmodpath, false))
+									{
+										char path[4096] = {0};
+										relativize_path(path, temppath);
+										tf_module_zcl->setText(path);
+										zc_set_config("ZCMODULE", "current_module", path);
+										for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+										{
+											temppath[q] = 0;
+										}
+										strcpy(zmodpath, temppath);
+									}
+								}),
+							tf_module_zcl = TextField(
+								read_only = true, fitParent = true
+							),
+							DummyWidget()
+						)
+					)
+				)),
 				TabRef(name = "Themes", Column(
 					Label(text = "Here you can load themes, and save them for each program separately."),
 					Rows<4>(padding = 0_px,
@@ -738,10 +782,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							if(fileexists(themename.c_str()))
 							{
 								lbl_theme_error->setText("");
-								set_config_file("zcl.cfg");
 								zc_set_config("Theme","theme_filename",themename.c_str());
 								zc_set_config("ZLAUNCH","gui_colorset",99);
-								set_config_standard();
 							}
 							else
 							{
@@ -782,6 +824,14 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 			)
 		)
 	);
+	
+	char path[4096] = {0};
+	relativize_path(path, zc_get_config("zc.cfg", "ZCMODULE", "current_module", "modules/classic.zmod"));
+	tf_module_zc->setText(path);
+	relativize_path(path, zc_get_config("zquest.cfg", "ZCMODULE", "current_module", "modules/classic.zmod"));
+	tf_module_zq->setText(path);
+	relativize_path(path, zc_get_config("ZCMODULE", "current_module", "modules/classic.zmod"));
+	tf_module_zcl->setText(path);
 	return window;
 }
 

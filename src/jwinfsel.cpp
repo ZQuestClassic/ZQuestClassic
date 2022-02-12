@@ -1284,14 +1284,17 @@ void relativize_path(char* dest, char const* src_path)
 		{
 			if(rootpath[ind]) //'path' is above the root directory
 			{
-				if(!ind) //'path' includes NONE of the root directory... no relative path can be formed.
+				if(ind)
+					--ind;
+				while(rootpath[ind] != '/' && rootpath[ind] != '\\')
 				{
-					strcpy(dest, path);
-					return;
-				}
-				--ind;
-				while(rootpath[ind] != '/' && rootpath[ind] != '\\' && ind > 0)
+					if(!ind) //'path' includes NONE of the root directory... no relative path can be formed.
+					{
+						strcpy(dest, path);
+						return;
+					}
 					--ind; //return to previous slash
+				}
 				++ind;
 				size_t slashes = 0;
 				for(auto q = 0; rootpath[q+ind]; ++q)
