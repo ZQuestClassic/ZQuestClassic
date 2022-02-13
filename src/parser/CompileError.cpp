@@ -277,7 +277,7 @@ string CompileError::toString() const
 
 	// Output location data.
 	if (AST const* source = pimpl_->getSource())
-	    oss << "\n" << source->location.asString();
+	    oss << source->location.asString();
 
 	// Error or warning?
 	oss << " - " << (isStrict() ? "Error" : "Warning");
@@ -295,17 +295,14 @@ string CompileError::toString() const
 
 CompileError::CompileError(CompileError::Impl* pimpl) : pimpl_(pimpl) {}
 
-void ZScript::box_out_err(CompileError const& error)
+void ZScript::log_error(CompileError const& error)
 {
-	printf("%s\n", error.toString().c_str());
-	box_out_nl(error.toString().c_str());
-	box_eol();
+	zconsole_error("%s", error.toString().c_str());
 }
 
 void ZScript::logDebugMessage(const char* msg)
 {
-	box_out("Debug: "); box_out(msg);
-	box_eol();
+	zconsole_info("Debug: %s", msg);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -313,9 +310,14 @@ void ZScript::logDebugMessage(const char* msg)
 
 void SimpleCompileErrorHandler::handleError(CompileError const& error)
 {
-	if (error.isStrict()) ++errorCount_;
-	else ++warningCount_;
-
-	box_out_nl(error.toString().c_str());
-	box_eol();
+	if (error.isStrict())
+	{
+		++errorCount_;
+		zconsole_error("%s", error.toString().c_str());
+	}
+	else
+	{
+		++warningCount_;
+		zconsole_warn("%s", error.toString().c_str());
+	}
 }

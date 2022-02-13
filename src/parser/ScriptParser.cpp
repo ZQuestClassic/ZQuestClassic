@@ -56,19 +56,15 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	ScriptParser::initialize();
 	
 	zconsole_info("Pass 1: Parsing");
-	box_out("Pass 1: Parsing");
-	box_eol();
 
 	unique_ptr<ASTFile> root(parseFile(filename));
 	if (!root.get())
 	{
-		box_out_err(CompileError::CantOpenSource(NULL));
+		log_error(CompileError::CantOpenSource(NULL));
 		return nullptr;
 	}
 
 	zconsole_info("Pass 2: Preprocessing");
-	box_out("Pass 2: Preprocessing");
-	box_eol();
 
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return nullptr;
@@ -79,15 +75,11 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		return nullptr;
 
 	zconsole_info("Pass 3: Registration");
-	box_out("Pass 3: Registration");
-	box_eol();
 
 	RegistrationVisitor regVisitor(program);
 	if(regVisitor.hasFailed()) return nullptr;
 
 	zconsole_info("Pass 4: Analyzing Code");
-	box_out("Pass 4: Analyzing Code");
-	box_eol();
 
 	SemanticAnalyzer semanticAnalyzer(program);
 	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
@@ -96,29 +88,23 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	FunctionData fd(program);
 	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 	{
-		box_out_err(CompileError::TooManyGlobal(NULL));
+		log_error(CompileError::TooManyGlobal(NULL));
 		return nullptr;
 	}
 
 	zconsole_info("Pass 5: Generating object code");
-	box_out("Pass 5: Generating object code");
-	box_eol();
 
 	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 	if (!id.get())
 		return nullptr;
 	
 	zconsole_info("Pass 6: Assembling");
-	box_out("Pass 6: Assembling");
-	box_eol();
 
 	ScriptParser::assemble(id.get());
 
 	unique_ptr<ScriptsData> result(new ScriptsData(program));
 
 	zconsole_info("Success!");
-	box_out("Success!");
-	box_eol();
 
 	return unique_ptr<ScriptsData>(result.release());
 }
@@ -188,13 +174,13 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 	}
 	else
 	{
-		box_out_err(CompileError::CantOpenImport(&importDecl, filename));
+		log_error(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
 	}
 	unique_ptr<ASTFile> imported(parseFile(filename));
 	if (!imported.get())
 	{
-		box_out_err(CompileError::CantParseImport(&importDecl, filename));
+		log_error(CompileError::CantParseImport(&importDecl, filename));
 		return false;
 	}
 
@@ -214,7 +200,7 @@ bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 
 	if (reclimit == 0)
 	{
-		box_out_err(CompileError::ImportRecursion(NULL, recursionLimit));
+		log_error(CompileError::ImportRecursion(NULL, recursionLimit));
 		return false;
 	}
 

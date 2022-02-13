@@ -80,7 +80,7 @@ namespace ZScript
 		Impl* pimpl_;
 	};
 
-	void box_out_err(CompileError const&);
+	void log_error(CompileError const&);
 	void logDebugMessage(const char* msg);
 
 	class CompileErrorHandler

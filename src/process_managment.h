@@ -53,6 +53,8 @@ struct process_manager : public io_manager
 	//{ Windows
 	HANDLE write_handle;
 	HANDLE read_handle;
+	HANDLE wr_2;
+	HANDLE re_2;
 	PROCESS_INFORMATION pi;
 	
 	process_killer pk;
@@ -60,7 +62,8 @@ struct process_manager : public io_manager
 	bool kill_on_destructor;
 	
 	process_manager() : write_handle(NULL),
-		read_handle(NULL), kill_on_destructor(true)
+		read_handle(NULL), kill_on_destructor(true),
+		wr_2(NULL), re_2(NULL)
 	{}
 	
 	void kill(uint32_t exitcode = 0)
@@ -79,6 +82,16 @@ struct process_manager : public io_manager
 		{
 			CloseHandle(read_handle);
 			read_handle = NULL;
+		}
+		if(wr_2)
+		{
+			CloseHandle(wr_2);
+			wr_2 = NULL;
+		}
+		if(re_2)
+		{
+			CloseHandle(re_2);
+			re_2 = NULL;
 		}
 		if(kill_on_destructor)
 			kill();
@@ -209,8 +222,8 @@ struct child_process_handler : public io_manager
 	#endif
 };
 
-process_killer launch_process(char const* relative_path, char const* argv = NULL);
-process_manager* launch_piped_process(char const* relative_path, char const* argv = NULL);
+process_killer launch_process(char const* relative_path, char const** argv = NULL);
+process_manager* launch_piped_process(char const* relative_path, char const** argv = NULL);
 
 #endif
 

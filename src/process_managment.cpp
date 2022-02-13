@@ -19,7 +19,7 @@ void process_killer::kill(uint32_t exitcode)
 #endif
 }
 
-process_killer launch_process(char const* relative_path, char const* argv)
+process_killer launch_process(char const* relative_path, char const** argv)
 {
 #ifdef _WIN32
 	STARTUPINFO si;
@@ -47,7 +47,7 @@ process_killer launch_process(char const* relative_path, char const* argv)
 #endif
 }
 
-process_manager* launch_piped_process(char const* relative_path, char const* argv)
+process_manager* launch_piped_process(char const* relative_path, char const** argv)
 {
 	process_manager* pm = new process_manager();
 	#define ERR_EXIT(str) \
@@ -65,12 +65,11 @@ process_manager* launch_piped_process(char const* relative_path, char const* arg
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 	saAttr.bInheritHandle = TRUE;
 	saAttr.lpSecurityDescriptor = NULL;
-	HANDLE dummy;
-	if ( !CreatePipe(&(pm->read_handle), &(dummy), &saAttr, 0))
+	if ( !CreatePipe(&(pm->read_handle), &(pm->re_2), &saAttr, 0))
 		ERR_EXIT("Failed to create child output pipe");
 	if ( !SetHandleInformation(pm->read_handle, HANDLE_FLAG_INHERIT, 0))
 		ERR_EXIT("Failed to set handle information for child output"); 
-	if ( !CreatePipe(&(dummy), &(pm->write_handle), &saAttr, 0))
+	if ( !CreatePipe(&(pm->wr_2), &(pm->write_handle), &saAttr, 0))
 		ERR_EXIT("Failed to create child input pipe");
 	if ( !SetHandleInformation(pm->write_handle, HANDLE_FLAG_INHERIT, 0))
 		ERR_EXIT("Failed to set handle information for child input"); 
@@ -84,9 +83,9 @@ process_manager* launch_piped_process(char const* relative_path, char const* arg
 	ZeroMemory(&si,sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 	
-	si.hStdError = pm->child_out_write;
-	si.hStdOutput = pm->child_out_write;
-	si.hStdInput = pm->child_in_read;
+	si.hStdError = pm->re_2;
+	si.hStdOutput = pm->re_2;
+	si.hStdInput = pm->wr_2;
 	si.dwFlags |= STARTF_USESTDHANDLES;
 	char path_buf[2048];
 	sprintf(path_buf, "\"%s\"", relative_path);
