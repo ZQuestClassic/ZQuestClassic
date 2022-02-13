@@ -6112,7 +6112,7 @@ int32_t onViewMap()
     {
         clear_to_color(framebuf,BLACK);
         //      text_mode(BLACK);
-        textout_center_ex(framebuf,font,"Drawing map...",128,108,WHITE,BLACK);
+        textout_centre_ex(framebuf,font,"Drawing map...",128,108,WHITE,BLACK);
         advanceframe(true);
         ViewMap();
     }

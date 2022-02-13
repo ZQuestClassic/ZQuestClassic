@@ -1837,7 +1837,7 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
             
         case sstsNORMAL:
         default:
-            textout_center_ex(bmp, f, s, x, y, color, bg);
+            textout_centre_ex(bmp, f, s, x, y, color, bg);
             break;
         }
         

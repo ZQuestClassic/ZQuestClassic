@@ -530,7 +530,7 @@ void ending()
 				else if(y==timeYPos)
 				{
 					if(game->get_timevalid() && !game->get_cheat())
-						textout_center_ex(scrollbuf, zfont, time_str_med(game->get_time()), 128, 224, blue, 0);
+						textout_centre_ex(scrollbuf, zfont, time_str_med(game->get_time()), 128, 224, blue, 0);
 				}
 			}
 		}

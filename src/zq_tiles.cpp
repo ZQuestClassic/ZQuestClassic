@@ -683,7 +683,7 @@ void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const
 		rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
 		rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
 		rect(dest,x,y,x+w-2,y+h-2,fg);
-		textout_center_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,fg,-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,fg,-1);
 	}
 	else
 	{
@@ -707,11 +707,11 @@ void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,cons
 	jwin_draw_frame(dest, x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
 	if(flags&D_DISABLED)
 	{
-		textout_center_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
-		textout_center_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcMEDDARK],-1);
+		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcMEDDARK],-1);
 	}
 	else
-		textout_center_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
 }
 
 bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)
@@ -3792,16 +3792,16 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 					blit(tbar, status, 0, 0, 3, 3, 320-6, 18);
 				}
 				
-				textprintf_center_ex(status,font,120,24,jwin_pal[jcTEXTFG],-1,"Checking %d of %d",((ty*width)+tx), (width*height));
-				textprintf_center_ex(status,font,120,34,jwin_pal[jcTEXTFG],-1,"%d tiles imported",currtile-start);
+				textprintf_centre_ex(status,font,120,24,jwin_pal[jcTEXTFG],-1,"Checking %d of %d",((ty*width)+tx), (width*height));
+				textprintf_centre_ex(status,font,120,34,jwin_pal[jcTEXTFG],-1,"%d tiles imported",currtile-start);
 				jwin_draw_frame(status, 40, 49, 160, 70, FR_ETCHED);
-				textprintf_center_ex(status,font,120,46,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]," Duplicates ");
-				textprintf_center_ex(status,font,120,56,jwin_pal[jcTEXTFG],-1,"%d/%d found/discarded",total_duplicates_found, total_duplicates_discarded);
-				textprintf_center_ex(status,font,120,76,jwin_pal[jcTEXTFG],-1,"%d normal %s",duplicates_found[0],((DuplicateAction[0]<2)?"found":"discarded"));
-				textprintf_center_ex(status,font,120,86,jwin_pal[jcTEXTFG],-1,"%d flipped (h) %s",duplicates_found[1],((DuplicateAction[1]<2)?"found":"discarded"));
-				textprintf_center_ex(status,font,120,96,jwin_pal[jcTEXTFG],-1,"%d flipped (v) %s",duplicates_found[2],((DuplicateAction[2]<2)?"found":"discarded"));
-				textprintf_center_ex(status,font,120,106,jwin_pal[jcTEXTFG],-1,"%d flipped (hv) %s",duplicates_found[3],((DuplicateAction[3]<2)?"found":"discarded"));
-				textprintf_center_ex(status,font,120,128,jwin_pal[jcTEXTFG],-1,"Press any key to stop.");
+				textprintf_centre_ex(status,font,120,46,jwin_pal[jcTEXTFG],jwin_pal[jcBOX]," Duplicates ");
+				textprintf_centre_ex(status,font,120,56,jwin_pal[jcTEXTFG],-1,"%d/%d found/discarded",total_duplicates_found, total_duplicates_discarded);
+				textprintf_centre_ex(status,font,120,76,jwin_pal[jcTEXTFG],-1,"%d normal %s",duplicates_found[0],((DuplicateAction[0]<2)?"found":"discarded"));
+				textprintf_centre_ex(status,font,120,86,jwin_pal[jcTEXTFG],-1,"%d flipped (h) %s",duplicates_found[1],((DuplicateAction[1]<2)?"found":"discarded"));
+				textprintf_centre_ex(status,font,120,96,jwin_pal[jcTEXTFG],-1,"%d flipped (v) %s",duplicates_found[2],((DuplicateAction[2]<2)?"found":"discarded"));
+				textprintf_centre_ex(status,font,120,106,jwin_pal[jcTEXTFG],-1,"%d flipped (hv) %s",duplicates_found[3],((DuplicateAction[3]<2)?"found":"discarded"));
+				textprintf_centre_ex(status,font,120,128,jwin_pal[jcTEXTFG],-1,"Press any key to stop.");
 				scare_mouse();
 				blit(status,screen,0, 0, 40, 20, 240, 140);
 				unscare_mouse();
@@ -5126,7 +5126,7 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	
 	textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
 	textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
-	textprintf_center_ex(screen2,tfont,(305*mul+4),220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
+	textprintf_centre_ex(screen2,tfont,(305*mul+4),220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
 	
 	font = tf;
@@ -5237,7 +5237,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	
 	textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
 	textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
-	textprintf_center_ex(screen2,tfont,309*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
+	textprintf_centre_ex(screen2,tfont,309*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
 	
 	
@@ -16023,7 +16023,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	
 	textprintf_ex(screen2,font,(305*mul),(212*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
 	textprintf_ex(screen2,tfont,(293*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
-	textprintf_center_ex(screen2,tfont,(309*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
+	textprintf_centre_ex(screen2,tfont,(309*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,(305*mul),(228*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
 	
 	int32_t window_xofs=0;

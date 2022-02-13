@@ -17761,12 +17761,48 @@ bool esGleeok::animate(int32_t index)
 
 int32_t esGleeok::takehit(weapon *w)
 {
-	int32_t ret = enemy::takehit(w);
-	
-	if(ret==-1)
-		return 2; // force it to wait a frame before checking sword attacks again
+	if ((editorflags & ENEMY_FLAG7) && misc == 1)
+	{
+		int32_t wpnId = w->id;
 		
-	return ret;
+		if(dying)
+			return 0;
+			
+		switch(wpnId)
+		{
+			case wLitBomb:
+			case wLitSBomb:
+			case wBait:
+			case wWhistle:
+			case wFire:
+			case wWind:
+			case wSSparkle:
+			case wFSparkle:
+			case wPhantom:
+				return 0;
+				
+			case wHookshot:
+			case wBrang:
+			case wBeam:
+			case wArrow:
+			case wMagic:
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				break;
+			default:
+				break;
+		}
+		
+		return 1;
+	}
+	else
+	{
+		int32_t ret = enemy::takehit(w);
+		
+		if(ret==-1)
+			return 2; // force it to wait a frame before checking sword attacks again
+			
+		return ret;
+	}
 }
 
 void esGleeok::draw(BITMAP *dest)

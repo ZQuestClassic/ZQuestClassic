@@ -2189,7 +2189,7 @@ void do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
         }
         else if(format_type == 1)   // centered text
         {
-            textout_center_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+            textout_centre_ex(bmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
         }
         else // standard left-sided text
         {
@@ -5749,7 +5749,7 @@ void bmp_do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
         }
         else if(format_type == 1)   // centered text
         {
-            textout_center_ex(refbmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
+            textout_centre_ex(refbmp, font, str->c_str(), x+xoffset, y+yoffset, color, bg_color);
         }
         else // standard left-sided text
         {
