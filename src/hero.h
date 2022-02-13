@@ -587,6 +587,8 @@ int32_t selectSword();
 int32_t selectItemclass(int32_t itemclass);
 void selectNextAWpn(int32_t type);
 void selectNextBWpn(int32_t type);
+void selectNextXWpn(int32_t type);
+void selectNextYWpn(int32_t type);
 void verifyBothWeapons();
 void verifyAWpn();
 void verifyBWpn();

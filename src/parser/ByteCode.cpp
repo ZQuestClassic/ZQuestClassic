@@ -3467,6 +3467,16 @@ string OSelectBWeaponRegister::toString()
     return "SELECTBWPNR " + getArgument()->toString();
 }
 
+string OSelectXWeaponRegister::toString()
+{
+    return "SELECTXWPNR " + getArgument()->toString();
+}
+
+string OSelectYWeaponRegister::toString()
+{
+    return "SELECTYWPNR " + getArgument()->toString();
+}
+
 string OGetFFCScript::toString()
 {
     return "GETFFCSCRIPT " + getArgument()->toString();

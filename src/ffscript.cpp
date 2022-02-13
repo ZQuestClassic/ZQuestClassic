@@ -19658,10 +19658,23 @@ void do_showsavescreen()
 	set_register(sarg1, saved ? 10000 : 0);
 }
 
-void do_selectweapon(bool v, bool Abtn)
+void do_selectweapon(bool v, int32_t btn)
 {
-	if(Abtn && !get_bit(quest_rules,qr_SELECTAWPN))
-		return;
+	switch(btn)
+	{
+		case 1:
+			if(!get_bit(quest_rules,qr_SELECTAWPN))
+				return;
+			break;
+		case 2:
+			if(!get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
+				return;
+			break;
+		case 3:
+			if(!get_bit(quest_rules,qr_SET_YBUTTON_ITEMS))
+				return;
+			break;
+	}
 		
 	byte dir=(byte)(SH::get_arg(sarg1, v)/10000);
 	
@@ -19688,10 +19701,21 @@ void do_selectweapon(bool v, bool Abtn)
 		return;
 	}
 	
-	if(Abtn)
-		selectNextAWpn(dir);
-	else
-		selectNextBWpn(dir);
+	switch(btn)
+	{
+		case 0:
+			selectNextBWpn(dir);
+			break;
+		case 1:
+			selectNextAWpn(dir);
+			break;
+		case 2:
+			selectNextXWpn(dir);
+			break;
+		case 3:
+			selectNextYWpn(dir);
+			break;
+	}
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -24748,19 +24772,27 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				break;
 				
 			case SELECTAWPNV:
-				do_selectweapon(true, true);
+				do_selectweapon(true, 1);
 				break;
 				
 			case SELECTAWPNR:
-				do_selectweapon(false, true);
+				do_selectweapon(false, 1);
 				break;
 				
 			case SELECTBWPNV:
-				do_selectweapon(true, false);
+				do_selectweapon(true, 0);
 				break;
 				
 			case SELECTBWPNR:
-				do_selectweapon(false, false);
+				do_selectweapon(false, 0);
+				break;
+				
+			case SELECTXWPNR:
+				do_selectweapon(false, 2);
+				break;
+				
+			case SELECTYWPNR:
+				do_selectweapon(false, 3);
 				break;
 				
 			case PLAYSOUNDR:
@@ -33541,6 +33573,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "NPCCANMOVEDIR",           0,   0,   0,   0},
 	{ "NPCCANMOVEANGLE",           0,   0,   0,   0},
 	{ "NPCCANMOVEXY",           0,   0,   0,   0},
+	{ "SELECTXWPNR",         1,   0,   0,   0},
+	{ "SELECTYWPNR",         1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

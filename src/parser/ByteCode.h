@@ -4604,6 +4604,28 @@ namespace ZScript
 		}
 	};
 
+	class OSelectXWeaponRegister : public UnaryOpcode
+	{
+	public:
+		OSelectXWeaponRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSelectXWeaponRegister(a->clone());
+		}
+	};
+
+	class OSelectYWeaponRegister : public UnaryOpcode
+	{
+	public:
+		OSelectYWeaponRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSelectYWeaponRegister(a->clone());
+		}
+	};
+
 	class OGetFFCScript : public UnaryOpcode
 	{
 	public:

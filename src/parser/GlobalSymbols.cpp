@@ -2270,6 +2270,8 @@ static AccessorTable HeroSTable[] =
 	{ "setPressMap",            ZVARTYPEID_VOID,          SETTER,       INPUTPRESSMAP,        1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SelectAWeapon",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SelectBWeapon",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SelectXWeapon",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "SelectYWeapon",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInvFrames",           ZVARTYPEID_VOID,          SETTER,       LINKINVFRAME,         1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getInvFrames",           ZVARTYPEID_FLOAT,         GETTER,       LINKINVFRAME,         1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setInvFlicker",          ZVARTYPEID_VOID,          SETTER,       LINKCANFLICKER,       1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -2505,6 +2507,34 @@ void HeroSymbols::generateCode()
         //pop pointer and ignore it
         POPREF();
         addOpcode2 (code, new OSelectBWeaponRegister(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //SelectXWeapon(link, int32_t)
+    {
+	    Function* function = getFunction("SelectXWeapon", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer and ignore it
+        POPREF();
+        addOpcode2 (code, new OSelectXWeaponRegister(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //SelectYWeapon(link, int32_t)
+    {
+	    Function* function = getFunction("SelectYWeapon", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer and ignore it
+        POPREF();
+        addOpcode2 (code, new OSelectYWeaponRegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }
