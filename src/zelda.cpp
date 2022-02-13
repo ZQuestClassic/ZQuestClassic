@@ -1638,12 +1638,12 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		// ~Gleeok
 		if(!exists(qstpath))
 		{
-			Z_error_fatal("File not found \"%s\". Searching...\n", qstpath);
+			Z_error("File not found \"%s\". Searching...\n", qstpath);
 
 			if(exists(g->qstpath)) //not found? -try this place first:
 			{
 				sprintf(qstpath,"%s", g->qstpath);
-				Z_error_fatal("Set quest path to \"%s\".\n", qstpath);
+				Z_error("Set quest path to \"%s\".\n", qstpath);
 			}
 			else // Howsabout in here?
 			{
@@ -1669,7 +1669,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 					if(exists(gQstPath.c_str())) //Quick! Try it now!
 					{
 						sprintf(qstpath,"%s", gQstPath.c_str());
-						Z_error_fatal("Set quest path to \"%s\".\n", qstpath);
+						Z_error("Set quest path to \"%s\".\n", qstpath);
 						break;
 					}
 					else //Still no dice eh?
@@ -1693,7 +1693,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 						if(exists(fn.c_str())) //Last chance for hookers and blackjack truck stop
 						{
 							sprintf(qstpath,"%s", fn.c_str());
-							Z_error_fatal("Set quest path to \"%s\".\n", qstpath);
+							Z_error("Set quest path to \"%s\".\n", qstpath);
 							break;
 						}
 					}
