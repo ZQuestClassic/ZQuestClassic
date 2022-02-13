@@ -129,7 +129,7 @@ void draw_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char
     rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
     rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
     rect(dest,x,y,x+w-2,y+h-2,fg);
-    textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,fg,-1);
+    textout_center_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,fg,-1);
 }
 
 bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg)

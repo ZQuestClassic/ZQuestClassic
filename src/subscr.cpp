@@ -1796,48 +1796,48 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
         switch(textstyle)
         {
         case sstsSHADOW:
-            textout_shadow_centre_ex(bmp, f, s, x, y, shadow, bg);
+            textout_shadow_center_ex(bmp, f, s, x, y, shadow, bg);
             break;
             
         case sstsSHADOWU:
-            textout_shadow_centre_u_ex(bmp, f, s, x, y, shadow, bg);
+            textout_shadow_center_u_ex(bmp, f, s, x, y, shadow, bg);
             break;
             
         case sstsOUTLINE8:
-            textout_shadow_centre_o_ex(bmp, f, s, x, y, shadow, bg);
+            textout_shadow_center_o_ex(bmp, f, s, x, y, shadow, bg);
             break;
             
         case sstsOUTLINEPLUS:
-            textout_shadow_centre_plus_ex(bmp, f, s, x, y, shadow, bg);
+            textout_shadow_center_plus_ex(bmp, f, s, x, y, shadow, bg);
             break;
             
         case sstsOUTLINEX:
-            textout_shadow_centre_x_ex(bmp, f, s, x, y, shadow, bg);
+            textout_shadow_center_x_ex(bmp, f, s, x, y, shadow, bg);
             break;
             
         case sstsSHADOWED:
-            textout_shadowed_centre_ex(bmp, f, s, x, y, color, shadow, bg);
+            textout_shadowed_center_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
             
         case sstsSHADOWEDU:
-            textout_shadowed_centre_u_ex(bmp, f, s, x, y, color, shadow, bg);
+            textout_shadowed_center_u_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
             
         case sstsOUTLINED8:
-            textout_shadowed_centre_o_ex(bmp, f, s, x, y, color, shadow, bg);
+            textout_shadowed_center_o_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
             
         case sstsOUTLINEDPLUS:
-            textout_shadowed_centre_plus_ex(bmp, f, s, x, y, color, shadow, bg);
+            textout_shadowed_center_plus_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
             
         case sstsOUTLINEDX:
-            textout_shadowed_centre_x_ex(bmp, f, s, x, y, color, shadow, bg);
+            textout_shadowed_center_x_ex(bmp, f, s, x, y, color, shadow, bg);
             break;
             
         case sstsNORMAL:
         default:
-            textout_centre_ex(bmp, f, s, x, y, color, bg);
+            textout_center_ex(bmp, f, s, x, y, color, bg);
             break;
         }
         

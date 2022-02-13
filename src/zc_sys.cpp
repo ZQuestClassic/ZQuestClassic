@@ -5601,8 +5601,8 @@ void kb_getkey(DIALOG *d)
     jwin_button_proc(MSG_DRAW,d,0);
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
-    textout_centre_ex(screen, font, "Press a key", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "Press a key", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
     clear_keybuf();
@@ -5629,8 +5629,8 @@ void kb_clearjoystick(DIALOG *d)
     jwin_button_proc(MSG_DRAW,d,0);
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 168, 48, FR_WIN);
     //  text_mode(vc(11));
-    textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
     clear_keybuf();
@@ -5658,8 +5658,8 @@ void kb_clearkey(DIALOG *d)
     jwin_button_proc(MSG_DRAW,d,0);
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
-    textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
     clear_keybuf();
@@ -5741,9 +5741,9 @@ void j_getbtn(DIALOG *d)
     jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
     //  text_mode(vc(11));
     int32_t y = resy/2 - 12;
-    textout_centre_ex(screen, font, "Press a button", resx/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "ESC to cancel", resx/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-    textout_centre_ex(screen, font, "SPACE to disable", resx/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "Press a button", resx/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "ESC to cancel", resx/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+    textout_center_ex(screen, font, "SPACE to disable", resx/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
     int32_t b = next_press_btn();

@@ -981,7 +981,7 @@ int32_t onROMTypes()
     char buf[EXTLEN];
     strcpy(buf, rom_ext);
     
-    centre_dialog(types_dlg);
+    center_dialog(types_dlg);
     
     types_dlg[0].dp2 = lfont;
     types_dlg[2].dp = buf;

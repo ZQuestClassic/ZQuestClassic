@@ -768,7 +768,7 @@ void applyRuleset(int32_t newRuleset)
 			set_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR, 1);
 			set_bit(quest_rules, qr_DUNGEON_DMAPS_PERM_SECRETS, 1);
 			set_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS, 1);
-			set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTRE, 1);
+			set_bit(quest_rules, qr_MIRRORS_USE_WEAPON_CENTER, 1);
 			set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 1);
 			set_bit(quest_rules, qr_SIDEVIEWLADDER_FACEUP, 1);
 			set_bit(quest_rules, qr_ITEMSHADOWS, 1);

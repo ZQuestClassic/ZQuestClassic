@@ -4538,7 +4538,7 @@ bool weapon::animate(int32_t index)
 				zfix checkx=0, checky=0;
 				int32_t check_x_ofs=0, check_y_ofs=0;
 				
-				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
+				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 				{
 					checkx = (x+hxofs+(hxsz*0.5));
 					checky = (y+hyofs+(hysz*0.5));
@@ -6438,7 +6438,7 @@ bool weapon::animate(int32_t index)
 			//mirrors: //the latter instance should suffice
 			zfix checkx=0, checky=0;
 			int32_t check_x_ofs=0, check_y_ofs=0;
-			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
+			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 			{
 				checkx = (x+hxofs+(hxsz*0.5));
 				checky = (y+hyofs+(hysz*0.5));
@@ -6791,7 +6791,7 @@ bool weapon::animate(int32_t index)
 			zfix checkx=0, checky=0;
 			int32_t check_x_ofs=0, check_y_ofs=0;
 			
-			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
+			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 			{
 				checkx = (x+hxofs+(hxsz*0.5));
 				checky = (y+hyofs+(hysz*0.5));

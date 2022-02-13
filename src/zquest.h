@@ -1193,7 +1193,7 @@ extern sprite_list Sitems;
 int32_t main(int32_t argc,char **argv);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
 void center_zquest_dialogs();
-void centre_zscript_dialogs();
+void center_zscript_dialogs();
 void animate_coords();
 void do_animations();
 int32_t onZQVidMode();
