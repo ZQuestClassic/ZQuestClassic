@@ -3568,7 +3568,7 @@ int32_t on0()
 		CurrentLayer = 0;
 		refresh(rALL);
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(0);
 		refresh(rSCRMAP);
