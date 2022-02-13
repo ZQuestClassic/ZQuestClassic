@@ -13715,6 +13715,7 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	dir=(zc_oldrand()&7)+8;
 	step=0;
 	movestatus=1;
+	if (dmisc1 == 2) movestatus=2;
 	c=0;
 	SIZEflags = d->SIZEflags;
 	if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
@@ -13762,7 +13763,7 @@ bool eKeese::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	if(dmisc1) //Walk style. 0 is keese, 1 is bat.
+	if(dmisc1 == 1) //Walk style. 0 is keese, 1 is bat.
 	{
 		floater_walk(rate,hrate,dstep/100,(zfix)0,10,dmisc16,dmisc17);
 	}

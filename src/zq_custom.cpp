@@ -2448,10 +2448,10 @@ const char *keesemisc1list(int32_t index, int32_t *list_size)
 {
 	if(index>=0)
 	{
-		return (index ? "Bat" : "Keese");
+		return (index > 1 ? "Keese (Fast)" : index > 0 ? "Bat" : "Keese");
 	}
 	
-	*list_size = 2;
+	*list_size = 3;
 	return NULL;
 }
 
