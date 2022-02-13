@@ -2,6 +2,7 @@
 #include "util.h"
 #include <fstream>
 #include <sys/stat.h>
+
 using namespace std;
 
 #define PATH_MODE		0755
@@ -236,8 +237,7 @@ namespace util
 			
 			if(*hexstr<='9')
 				val += (*hexstr-'0');
-			else val+= ((*hexstr)|0x20)-('a'+10);
-			
+			else val+= ((*hexstr)|0x20)-'a'+10;
 			++hexstr;
 		}
 		
