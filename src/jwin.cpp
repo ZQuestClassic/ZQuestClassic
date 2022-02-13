@@ -3282,8 +3282,8 @@ void _jwin_draw_textbox(char *thetext, int32_t *listsize, int32_t draw, int32_t 
     /* choose the text color */
     if(disabled)
     {
-        fg = scheme[jcMEDDARK];
-        bg = scheme[jcBOX];
+        fg = scheme[jcDISABLED_FG];
+        bg = scheme[jcDISABLED_BG];
     }
     
     /* do some drawing setup */
@@ -3462,7 +3462,7 @@ void _jwin_draw_textbox(char *thetext, int32_t *listsize, int32_t draw, int32_t 
 
 /* jwin_textbox_proc:
   *  A text box object. The dp field points to a char * which is the text
-  *  to be displayed in the text box. If the text is int32_t, there will be
+  *  to be displayed in the text box. If the text is long, there will be
   *  a vertical scrollbar on the right hand side of the object which can
   *  be used to scroll through the text. The default is to print the text
   *  with word wrapping, but if the D_SELECTED flag is set, the text will
