@@ -452,7 +452,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int32_t  Flags=0,Flag=1,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 bool Vsync = false, ShowFPS = false;
@@ -3590,7 +3590,7 @@ int32_t on1()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(1);
 		refresh(rSCRMAP);
@@ -3612,7 +3612,7 @@ int32_t on2()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(2);
 		refresh(rSCRMAP);
@@ -3634,7 +3634,7 @@ int32_t on3()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(3);
 		refresh(rSCRMAP);
@@ -3656,7 +3656,7 @@ int32_t on4()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(4);
 		refresh(rSCRMAP);
@@ -3678,7 +3678,7 @@ int32_t on5()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(5);
 		refresh(rSCRMAP);
@@ -3698,7 +3698,7 @@ int32_t on6()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(6);
 		refresh(rSCRMAP);
@@ -3707,66 +3707,93 @@ int32_t on6()
 }
 int32_t on7()
 {
-    saved=false;
-    Map.setcolor(7);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(7);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int32_t on8()
 {
-    saved=false;
-    Map.setcolor(8);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(8);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on9()
 {
-    saved=false;
-    Map.setcolor(9);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(9);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 
 int32_t on10()
 {
-    saved=false;
-    Map.setcolor(10);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(10);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on11()
 {
-    saved=false;
-    Map.setcolor(11);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(11);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on12()
 {
-    saved=false;
-    Map.setcolor(12);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(12);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on13()
 {
-    saved=false;
-    Map.setcolor(13);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(13);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on14()
 {
-    saved=false;
-    Map.setcolor(14);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(14);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on15()
 {
-    saved=false;
-    Map.setcolor(15);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(15);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 
@@ -13927,6 +13954,7 @@ int32_t onScreenPalette()
 
 int32_t onDecScrPal()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse();
     int32_t c=Map.getcolor();
     c+=511;
@@ -13939,6 +13967,7 @@ int32_t onDecScrPal()
 
 int32_t onIncScrPal()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse();
     int32_t c=Map.getcolor();
     c+=1;
@@ -13961,6 +13990,7 @@ int32_t PalWrap(int32_t kX, int32_t const kLowerBound, int32_t const kUpperBound
 
 int32_t onDecScrPal16()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse(); 
     int32_t c=Map.getcolor();
       
@@ -13974,6 +14004,7 @@ int32_t onDecScrPal16()
 
 int32_t onIncScrPal16()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse();
     int32_t c=Map.getcolor();
       	    
@@ -29846,6 +29877,7 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
+	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
