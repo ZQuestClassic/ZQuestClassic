@@ -1638,7 +1638,6 @@ void setup_colors()
     get_bw(pal[currpal]);
     gui_bg_color = black;
     gui_fg_color = white;
-    gui_mg_color = ltgray;
     set_dialog_color(main_dlg, gui_fg_color, gui_bg_color);
     
     jwin_colors[jcSELFG] =

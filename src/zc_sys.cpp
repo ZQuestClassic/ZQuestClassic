@@ -6677,7 +6677,7 @@ int32_t onCredits()
     clear_bitmap(win);
     draw_rle_sprite(win,rle,0,0);
     credits_dlg[0].dp2=lfont;
-    credits_dlg[1].fg = gui_mg_color;
+    credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
     credits_dlg[2].dp = win;
     set_palette_range(black_palette,0,127,false);
     
@@ -8597,7 +8597,6 @@ void system_pal2()
     
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
     
     jwin_set_colors(jwin_pal);
     
@@ -8629,7 +8628,6 @@ void system_pal2()
     
       gui_fg_color=vc(14);
       gui_bg_color=vc(1);
-      gui_mg_color=vc(9);
     
       jwin_set_colors(jwin_pal);
       */

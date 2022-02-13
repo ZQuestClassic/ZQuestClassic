@@ -1524,7 +1524,6 @@ int32_t onFullScreen()
 	    gui_mouse_focus=0;
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
-	    gui_mg_color=jwin_pal[jcMEDDARK];
 	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	    //zqwin_set_scale(zq_scale);
 	    set_palette(RAMpal);
