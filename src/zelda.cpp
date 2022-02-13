@@ -1638,12 +1638,12 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		// ~Gleeok
 		if(!exists(qstpath))
 		{
-			Z_error("File not found \"%s\". Searching...\n", qstpath);
+			Z_error_fatal("File not found \"%s\". Searching...\n", qstpath);
 
 			if(exists(g->qstpath)) //not found? -try this place first:
 			{
 				sprintf(qstpath,"%s", g->qstpath);
-				Z_error("Set quest path to \"%s\".\n", qstpath);
+				Z_error_fatal("Set quest path to \"%s\".\n", qstpath);
 			}
 			else // Howsabout in here?
 			{
@@ -1669,7 +1669,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 					if(exists(gQstPath.c_str())) //Quick! Try it now!
 					{
 						sprintf(qstpath,"%s", gQstPath.c_str());
-						Z_error("Set quest path to \"%s\".\n", qstpath);
+						Z_error_fatal("Set quest path to \"%s\".\n", qstpath);
 						break;
 					}
 					else //Still no dice eh?
@@ -1693,7 +1693,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 						if(exists(fn.c_str())) //Last chance for hookers and blackjack truck stop
 						{
 							sprintf(qstpath,"%s", fn.c_str());
-							Z_error("Set quest path to \"%s\".\n", qstpath);
+							Z_error_fatal("Set quest path to \"%s\".\n", qstpath);
 							break;
 						}
 					}
@@ -4463,7 +4463,7 @@ int32_t main(int32_t argc, char* argv[])
 		
 		if(arg==argc-1)
 		{
-			Z_error("-standalone requires a quest file, e.g.\n" \
+			Z_error_fatal("-standalone requires a quest file, e.g.\n" \
 					"  -standalone MyQuest.qst\n" \
 					"  -standalone \"Name with spaces.qst\"");
 			exit(1);
@@ -4477,7 +4477,7 @@ int32_t main(int32_t argc, char* argv[])
 		  stricmp(standalone_quest, "4th.qst")==0 ||
 		  stricmp(standalone_quest, "5th.qst")==0)
 		{
-			Z_error("Standalone mode can only be used with custom quests.");
+			Z_error_fatal("Standalone mode can only be used with custom quests.");
 			exit(1);
 		}
 		
@@ -4507,7 +4507,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(!qstdir || !qstpath)
 	{
-		Z_error("Allocation error");
+		Z_error_fatal("Allocation error");
 		quit_game();
 	}
 	
@@ -4522,14 +4522,14 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(!get_qst_buffers())
 	{
-		Z_error("Error");
+		Z_error_fatal("Error");
 		quit_game();
 	}
 	
 	Z_message("Initializing Allegro... ");
 	if(allegro_init() != 0)
 	{
-		Z_error("Failed Init!");
+		Z_error_fatal("Failed Init!");
 		quit_game();
 	}
 	
@@ -4594,20 +4594,20 @@ int32_t main(int32_t argc, char* argv[])
 		pt = posix_openpt(termflags);
 		if (pt == -1)
 		{
-			Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+			Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
 			use_debug_console = 0; goto no_lx_console;
 		}
 		ptname = ptsname(pt);
 		if (!ptname)
 		{
-			Z_error("Could not get pseudo terminal device name.\n");
+			Z_error_fatal("Could not get pseudo terminal device name.\n");
 			close(pt);
 			use_debug_console = 0; goto no_lx_console;
 		}
 
 		if (unlockpt(pt) == -1)
 		{
-			Z_error("Could not get pseudo terminal device name.\n");
+			Z_error_fatal("Could not get pseudo terminal device name.\n");
 			close(pt);
 			use_debug_console = 0; goto no_lx_console;
 		}
@@ -4627,13 +4627,13 @@ int32_t main(int32_t argc, char* argv[])
 
 		if (dup2(pt, 1) <0)
 		{
-			Z_error("Could not redirect standard output.\n");
+			Z_error_fatal("Could not redirect standard output.\n");
 			close(pt);
 			use_debug_console = 0; goto no_lx_console;
 		}
 		if (dup2(pt, 2) <0)
 		{
-			Z_error("Could not redirect standard error output.\n");
+			Z_error_fatal("Could not redirect standard error output.\n");
 			close(pt);
 			use_debug_console = 0; goto no_lx_console;
 		}
@@ -4645,7 +4645,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	no_lx_console:
 	{
-		//Z_error("Could not open Linux console.\n");
+		//Z_error_fatal("Could not open Linux console.\n");
 	}
 	
 	
@@ -4670,25 +4670,25 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(install_timer() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_keyboard() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_mouse() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
@@ -4706,7 +4706,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(!Z_init_timers())
 	{
-		Z_error("Couldn't Allocate Timers");
+		Z_error_fatal("Couldn't Allocate Timers");
 		quit_game();
 	}
 	
@@ -4724,7 +4724,7 @@ int32_t main(int32_t argc, char* argv[])
 			append_filename(path, qstdir, moduledata.quests[q], 2048);
 			if(!exists(moduledata.quests[q]) && !exists(path))
 			{
-				Z_error("%s not found.\n", moduledata.quests[q]);
+				Z_error_fatal("%s not found.\n", moduledata.quests[q]);
 				quit_game();
 			}
 		}
@@ -4811,7 +4811,7 @@ int32_t main(int32_t argc, char* argv[])
 			|| !screen2 || !msg_txt_display_buf || !msg_bg_display_buf || !pricesdisplaybuf
 			|| !script_menu_buf || !f6_menu_buf)
 	{
-		Z_error("Error");
+		Z_error_fatal("Error");
 		quit_game();
 	}
 	
@@ -4923,13 +4923,13 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if((data=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
 	{
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
 	if(strncmp((char*)data[0].dat,zeldadat_sig,24))
 	{
-		Z_error("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
+		Z_error_fatal("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
 		quit_game();
 	}
 	
@@ -4940,13 +4940,13 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
 	{
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
-		Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
 		quit_game();
 	}
 	
@@ -4959,13 +4959,13 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
 	{
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
 	{
-		Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
+		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 		quit_game();
 	}
 	
@@ -5081,7 +5081,7 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 		{
-			//      Z_error(allegro_error);
+			//      Z_error_fatal(allegro_error);
 			Z_message("Sound driver not available.  Sound disabled.\n");
 		}
 		else
@@ -5100,7 +5100,7 @@ int32_t main(int32_t argc, char* argv[])
 	  {
 	  printf("Initializing CD player... ");
 	  if(cd_init())
-	  Z_error("Error");
+	  Z_error_fatal("Error");
 	  printf("OK\n");
 	  useCD = true;
 	  }
@@ -5242,7 +5242,7 @@ int32_t main(int32_t argc, char* argv[])
 						{
 							Z_message("Unable to set gfx mode at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 							al_trace("Fatal Error...Zelda Classic could not be initialized. Have a nice day :) \n");
-							Z_error(allegro_error);
+							Z_error_fatal(allegro_error);
 							quit_game();
 						}
 						else Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
@@ -5252,7 +5252,7 @@ int32_t main(int32_t argc, char* argv[])
 				else
 				{
 					al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
-					Z_error(allegro_error);
+					Z_error_fatal(allegro_error);
 					quit_game();
 				}
 			}
@@ -5338,7 +5338,7 @@ int32_t main(int32_t argc, char* argv[])
 		Z_message("Initializing test mode...\n");
 		if(test_arg+3 >= argc)
 		{
-			Z_error( "-test missing parameters:\n"
+			Z_error_fatal( "-test missing parameters:\n"
 				"-test \"quest_file_path\" test_dmap test_screen\n" );
 			exit(1);
 		}
@@ -5348,26 +5348,26 @@ int32_t main(int32_t argc, char* argv[])
 		int32_t scr = atoi(argv[test_arg+3]);
 		if(!fileexists(testingqst_name))
 		{
-			Z_error( "-test invalid parameter: 'quest_file_path' was '%s',"
+			Z_error_fatal( "-test invalid parameter: 'quest_file_path' was '%s',"
 				" but that file does not exist!\n", testingqst_name);
 			error = true;
 		}
 		if(unsigned(dm) >= MAXDMAPS)
 		{
-			Z_error( "-test invalid parameter: 'test_dmap' was '%d'."
+			Z_error_fatal( "-test invalid parameter: 'test_dmap' was '%d'."
 				" Must be '0 <= test_dmap < %d'\n", dm, MAXDMAPS);
 			error = true;
 		}
 		if(unsigned(scr) >= 0x80)
 		{
-			Z_error( "-test invalid parameter: 'test_screen' was '%d'."
+			Z_error_fatal( "-test invalid parameter: 'test_screen' was '%d'."
 				" Must be '0 <= test_screen < 128'\n", scr);
 			error = true;
 		}
 		
 		if(error)
 		{
-			Z_error("Failed '-test \"%s\" %d %d'\n", testingqst_name, dm, scr);
+			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name, dm, scr);
 			exit(1);
 		}
 		testingqst_dmap = (uint16_t)dm;
@@ -5382,7 +5382,7 @@ int32_t main(int32_t argc, char* argv[])
 		zprint2("Loading Saved Games\n");
 		if(load_savedgames() != 0)
 		{
-			Z_error("Insufficient memory");
+			Z_error_fatal("Insufficient memory");
 			quit_game();
 		}
 		zprint2("Finished Loading Saved Games\n");

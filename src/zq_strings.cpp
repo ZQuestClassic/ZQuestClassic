@@ -1051,7 +1051,7 @@ void editmsg(int32_t index, int32_t addAfter)
 		}
 		else
 		{
-			Z_error("File Missing: zstrings.txt.");
+			Z_error_fatal("File Missing: zstrings.txt.");
 		}
 		}
 		else

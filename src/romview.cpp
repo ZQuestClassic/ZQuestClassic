@@ -1895,13 +1895,13 @@ int32_t main(int32_t argc, char **argv)
     
     if((fontsdata=load_datafile("fonts.dat"))==NULL)
     {
-        Z_error("failed");
+        Z_error_fatal("failed");
     }
     
     if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,23))
     {
         unload_datafile(fontsdata);
-        Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+        Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
     }
     
     Z_message("OK\n");

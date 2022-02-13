@@ -61,6 +61,7 @@ bool toggle_bit(byte *bitstr,int32_t bit);
 int32_t  get_bitl(int32_t bitstr,int32_t bit);
 void set_bitl(int32_t bitstr,int32_t bit,byte val);
 
+void Z_error_fatal(const char *format,...);
 void Z_error(const char *format,...);
 void Z_message(const char *format,...);
 void Z_title(const char *format,...);

@@ -312,6 +312,24 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
 }
 
 
+void Z_error_fatal(const char *format,...)
+{
+    char buf[256];
+    
+    va_list ap;
+    va_start(ap, format);
+    vsprintf(buf, format, ap);
+    va_end(ap);
+    
+#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+    printf("%s",buf);
+#endif
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+	al_trace("%s",buf);
+    exit(1);
+}
+
 void Z_error(const char *format,...)
 {
     char buf[256];
@@ -324,11 +342,9 @@ void Z_error(const char *format,...)
 #if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
-    if(zscript_coloured_console.valid())
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
-    exit(1);
 }
 
 void Z_message(const char *format,...)
@@ -344,9 +360,8 @@ void Z_message(const char *format,...)
     printf("%s",buf);
 #endif
     al_trace("%s",buf);
-    if(zscript_coloured_console.valid())
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
     if(zconsole)
         printf("%s",buf);
 }

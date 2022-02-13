@@ -392,7 +392,7 @@ bool ZModule::init(bool d) //bool default
 	al_trace("The Current ZQuest Creator Module is: %s\n",moduledata.module_name); 
 	if(!fileexists((char*)moduledata.module_name))
 	{
-		Z_error("ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n","zcl");
+		Z_error_fatal("ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n","zcl");
 		exit(1);
 		return false;
 	}

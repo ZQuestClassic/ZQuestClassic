@@ -29208,7 +29208,7 @@ int32_t main(int32_t argc,char **argv)
 	);
 		*/
 
-		Z_error("Error");
+		Z_error_fatal("Error");
 		quit_game();
 	}
 	
@@ -29219,7 +29219,7 @@ int32_t main(int32_t argc,char **argv)
 	enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
 	if(!enhancedMusic)
 	{
-	  Z_error("Error");
+	  Z_error_fatal("Error");
 	}
 	Z_message("OK\n");									  // Allocating Enhanced Music buffer...
 	*/
@@ -29234,7 +29234,7 @@ int32_t main(int32_t argc,char **argv)
 	);*/
 		
 
-		Z_error("Error");
+		Z_error_fatal("Error");
 		quit_game();
 	}
 	
@@ -29252,7 +29252,7 @@ int32_t main(int32_t argc,char **argv)
 		"No memory for combo undo buffer!"
 	);*/
 
-		Z_error("Error: no memory for combo undo buffer!");
+		Z_error_fatal("Error: no memory for combo undo buffer!");
 		quit_game();
 	}
 	
@@ -29263,7 +29263,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
 	{
-		Z_error("Error: no memory for tile undo buffer!");
+		Z_error_fatal("Error: no memory for tile undo buffer!");
 		quit_game();
 	}
 	
@@ -29299,7 +29299,7 @@ int32_t main(int32_t argc,char **argv)
 	);
 		*/
 
-		Z_error("Error: no memory for file paths!");
+		Z_error_fatal("Error: no memory for file paths!");
 		quit_game();
 	}
 	
@@ -29323,19 +29323,19 @@ int32_t main(int32_t argc,char **argv)
 		initConsole();
 	if(install_timer() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_keyboard() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_mouse() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
@@ -29348,7 +29348,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
 	{
-		Z_error("couldn't allocate timer");
+		Z_error_fatal("couldn't allocate timer");
 		quit_game();
 	}
 	
@@ -29386,7 +29386,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load fonts datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
@@ -29397,7 +29397,7 @@ int32_t main(int32_t argc,char **argv)
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-		Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
+		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
 	);
 
 		quit_game();
@@ -29417,7 +29417,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load ZQ Creator datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
@@ -29446,7 +29446,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load quest datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
@@ -29459,7 +29459,7 @@ int32_t main(int32_t argc,char **argv)
 		if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
 		{
 			pack_fclose(f);
-			Z_error("failed");
+			Z_error_fatal("failed");
 			quit_game();
 		}
 	}
@@ -29474,7 +29474,7 @@ int32_t main(int32_t argc,char **argv)
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);	
 	
-		Z_error("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
+		Z_error_fatal("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
 	);
 
 		quit_game();
@@ -29500,7 +29500,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load SFX datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed %s", allegro_error);
+		Z_error_fatal("failed %s", allegro_error);
 		quit_game();
 	}
 	
@@ -29512,7 +29512,7 @@ int32_t main(int32_t argc,char **argv)
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of sfx.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 		quit_game();
-		Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
+		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
 	);
 
 		quit_game();
@@ -29549,7 +29549,7 @@ int32_t main(int32_t argc,char **argv)
 	helpsize = file_size_ex_password("zquest.txt","");
 	if(helpsize==0)
 	{
-		Z_error("Error: zquest.txt not found.");
+		Z_error_fatal("Error: zquest.txt not found.");
 		quit_game();
 	}
 	}
@@ -29566,7 +29566,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating help buffer.");
+		Z_error_fatal("Error allocating help buffer.");
 		quit_game();
 	}
 	
@@ -29586,7 +29586,7 @@ int32_t main(int32_t argc,char **argv)
 			"Failed to read zquest.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading zquest.txt.");
+		Z_error_fatal("Error loading zquest.txt.");
 		quit_game();
 	}
 	}
@@ -29622,7 +29622,7 @@ int32_t main(int32_t argc,char **argv)
 			"shield_block_flags.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error: shield_block_flags.txt not found.");
+		Z_error_fatal("Error: shield_block_flags.txt not found.");
 		quit_game();
 	}
 	}
@@ -29639,7 +29639,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating shieldblockhelp buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating shieldblockhelp buffer.");
+		Z_error_fatal("Error allocating shieldblockhelp buffer.");
 		quit_game();
 	}
 	
@@ -29658,7 +29658,7 @@ int32_t main(int32_t argc,char **argv)
 			"Failed loading shield_block_flags.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading shield_block_flags.txt.");
+		Z_error_fatal("Error loading shield_block_flags.txt.");
 		quit_game();
 	}
 	}
@@ -29694,7 +29694,7 @@ int32_t main(int32_t argc,char **argv)
 			"zscript.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error: zscript.txt not found.");
+		Z_error_fatal("Error: zscript.txt not found.");
 		quit_game();
 	}
 	}
@@ -29711,7 +29711,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating ZScript Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating ZScript Help buffer.");
+		Z_error_fatal("Error allocating ZScript Help buffer.");
 		quit_game();
 	}
 	
@@ -29730,7 +29730,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading zscript.txt.");
+		Z_error_fatal("Error loading zscript.txt.");
 		quit_game();
 	}
 	}
@@ -29766,7 +29766,7 @@ int32_t main(int32_t argc,char **argv)
 			"zstrings.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error: zstrings.txt not found.");
+		Z_error_fatal("Error: zstrings.txt not found.");
 		quit_game();
 	}
 	}
@@ -29783,7 +29783,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating zstrings Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating zstrings Help buffer.");
+		Z_error_fatal("Error allocating zstrings Help buffer.");
 		quit_game();
 	}
 	
@@ -29802,7 +29802,7 @@ int32_t main(int32_t argc,char **argv)
 			"Failed loading zstrings.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading zstrings.txt.");
+		Z_error_fatal("Error loading zstrings.txt.");
 		quit_game();
 	}
 	}
@@ -29914,7 +29914,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(RequestedFPS)))
 	{
-		Z_error("couldn't allocate timer");
+		Z_error_fatal("couldn't allocate timer");
 		quit_game();
 	}
 	
@@ -30457,7 +30457,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 		}
 		
@@ -30473,7 +30473,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 		}
 		
@@ -30488,7 +30488,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 		}
 		
@@ -30511,7 +30511,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error("couldn't allocate timer");
+		Z_error_fatal("couldn't allocate timer");
 		quit_game();
 		}
 		
@@ -30526,7 +30526,7 @@ int32_t main(int32_t argc,char **argv)
 			
 			
 		//}
-		//Z_error("Vid");
+		//Z_error_fatal("Vid");
 		
 			//The console requires the allegro process to exist, vefore it can lwaunch. 
 		//Let's hope that this doesn't create a magical memory leak, or thread issues.
@@ -30541,7 +30541,7 @@ int32_t main(int32_t argc,char **argv)
 						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease .\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
 
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 	//quit_game here crashes if we call console code
 	//I think that there is no process by the time that the console tries to attach itself?
 	}
@@ -30593,7 +30593,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
 	{
-		Z_error("Failed to create system bitmaps!\n");
+		Z_error_fatal("Failed to create system bitmaps!\n");
 		allegro_exit();
 		quit_game();
 		return 1;
