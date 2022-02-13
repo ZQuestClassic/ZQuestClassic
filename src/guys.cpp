@@ -3441,14 +3441,14 @@ bool enemy::animate(int32_t index)
 	}
 	if(!isSideViewGravity() && (moveflags & FLAG_CAN_PITFALL))
 	{
-		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
+		if(can_pitfall() && ((z <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 		{
 			fallCombo = check_pits();
 		}
 	}
 	if(!isSideViewGravity() && (moveflags & FLAG_CAN_WATERDROWN))
 	{
-		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
+		if(can_pitfall() && ((z <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 		{
 			drownCombo = check_water();
 		}
