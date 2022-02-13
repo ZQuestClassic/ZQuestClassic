@@ -7960,7 +7960,7 @@ void weapon::draw(BITMAP *dest)
         int32_t f = frame&3;
         int32_t type2 = o_type;
         //tile = o_tile+((frames?frames:1)*2);
-        update_weapon_frame(((frames?frames:1)*2),o_tile);
+        update_weapon_frame(((frames?frames:1)*2),ref_o_tile);
         
         if(type2)
             cs = o_cset>>4;
