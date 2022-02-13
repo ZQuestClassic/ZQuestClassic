@@ -16,6 +16,7 @@ static uint32_t __dummy_;
 
 struct process_killer
 {
+	#ifdef _WIN32
 	void* process_handle;
 	void kill(uint32_t exitcode = 0);
 	void init(void* h, uint32_t exitcode = 0)
@@ -26,6 +27,18 @@ struct process_killer
 	}
 	process_killer(void* h) : process_handle(h) {}
 	process_killer() : process_handle(NULL) {}
+	#else
+	int32_t pid;
+	void kill(uint32_t exitcode = 0);
+	void init(int32_t pr_id, uint32_t exitcode = 0)
+	{
+		if(pid)
+			kill(exitcode);
+		pid = pr_id;
+	}
+	process_killer(int32_t pr_id) : pid(pr_id) {}
+	process_killer() : pid(0) {}
+	#endif
 };
 
 struct io_manager
@@ -38,19 +51,19 @@ struct process_manager : public io_manager
 {
 	#ifdef _WIN32
 	//{ Windows
-	HANDLE child_in_read;
-	HANDLE child_in_write;
-	HANDLE child_out_read;
-	HANDLE child_out_write;
+	HANDLE write_handle;
+	HANDLE read_handle;
+	HANDLE wr_2;
+	HANDLE re_2;
 	PROCESS_INFORMATION pi;
 	
 	process_killer pk;
 	
 	bool kill_on_destructor;
 	
-	process_manager() : child_in_read(NULL), child_in_write(NULL),
-		child_out_read(NULL), child_out_write(NULL),
-		kill_on_destructor(true)
+	process_manager() : write_handle(NULL),
+		read_handle(NULL), kill_on_destructor(true),
+		wr_2(NULL), re_2(NULL)
 	{}
 	
 	void kill(uint32_t exitcode = 0)
@@ -60,25 +73,25 @@ struct process_manager : public io_manager
 	
 	~process_manager()
 	{
-		if(child_in_read)
+		if(write_handle)
 		{
-			CloseHandle(child_in_read);
-			child_in_read = NULL;
+			CloseHandle(write_handle);
+			write_handle = NULL;
 		}
-		if(child_in_write)
+		if(read_handle)
 		{
-			CloseHandle(child_in_write);
-			child_in_write = NULL;
+			CloseHandle(read_handle);
+			read_handle = NULL;
 		}
-		if(child_out_read)
+		if(wr_2)
 		{
-			CloseHandle(child_out_read);
-			child_out_read = NULL;
+			CloseHandle(wr_2);
+			wr_2 = NULL;
 		}
-		if(child_out_write)
+		if(re_2)
 		{
-			CloseHandle(child_out_write);
-			child_out_write = NULL;
+			CloseHandle(re_2);
+			re_2 = NULL;
 		}
 		if(kill_on_destructor)
 			kill();
@@ -87,21 +100,22 @@ struct process_manager : public io_manager
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!bytes_read) bytes_read = &__dummy_;
-		if(child_out_read)
-			return ReadFile((HANDLE)child_out_read, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
+		if(read_handle)
+			return ReadFile((HANDLE)read_handle, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 		return false;
 	}
 	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!bytes_written) bytes_written = &__dummy_;
-		if(child_in_write)
-			return WriteFile((HANDLE)child_in_write, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, NULL);
+		if(write_handle)
+			return WriteFile((HANDLE)write_handle, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, NULL);
 		return false;
 	}
 	//}
 	#else
 	//{ Unix
+	FILE* write_handle, read_handle;
 	process_killer pk;
 	
 	bool kill_on_destructor;
@@ -121,12 +135,18 @@ struct process_manager : public io_manager
 	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
-		return false;
+		if(!read_handle) return false;
+		size_t ret = fread(buf, 1, bytes_to_read, read_handle);
+		if(bytes_read) *bytes_read = ret;
+		return ret>0;
 	}
 	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
-		return false;
+		if(!write_handle) return false;
+		size_t ret = fwrite(buf, 1, bytes_to_write, write_handle);
+		if(bytes_written) *bytes_written = ret;
+		return ret==bytes_to_write;
 	}
 	//}
 	#endif
@@ -139,14 +159,11 @@ struct child_process_handler : public io_manager
 	HANDLE in;
 	HANDLE out;
 	
-	bool valid;
-	
 	bool init()
 	{
 		out = GetStdHandle(STD_OUTPUT_HANDLE);
 		in = GetStdHandle(STD_INPUT_HANDLE);
-		valid = (out != INVALID_HANDLE_VALUE && in != INVALID_HANDLE_VALUE);
-		return valid;
+		return (out != INVALID_HANDLE_VALUE && in != INVALID_HANDLE_VALUE);
 	}
 	
 	child_process_handler()
@@ -157,7 +174,7 @@ struct child_process_handler : public io_manager
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!bytes_read) bytes_read = &__dummy_;
-		if(valid && in)
+		if(in != INVALID_HANDLE_VALUE)
 			return ReadFile((HANDLE)in, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
 		return false;
 	}
@@ -165,18 +182,20 @@ struct child_process_handler : public io_manager
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!bytes_written) bytes_written = &__dummy_;
-		if(valid && out)
+		if(out != INVALID_HANDLE_VALUE)
 			return WriteFile((HANDLE)out, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, NULL);
 		return false;
 	}
 	//}
 	#else
 	//{
-	bool valid;
+	FILE *read_handle, *write_handle;
 	
 	bool init()
 	{
-		return valid = false;
+		read_handle = stdin;
+		write_handle = stdout;
+		return (out && in);
 	}
 	
 	child_process_handler()
@@ -186,19 +205,25 @@ struct child_process_handler : public io_manager
 	
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
-		return false;
+		if(!read_handle) return false;
+		size_t ret = fread(buf, 1, bytes_to_read, read_handle);
+		if(bytes_read) *bytes_read = ret;
+		return ret>0;
 	}
 	
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
-		return false;
+		if(!write_handle) return false;
+		size_t ret = fwrite(buf, 1, bytes_to_write, write_handle);
+		if(bytes_written) *bytes_written = ret;
+		return ret==bytes_to_write;
 	}
 	//}
 	#endif
 };
 
-process_killer launch_process(char const* relative_path);
-process_manager* launch_piped_process(char const* relative_path);
+process_killer launch_process(char const* relative_path, char const** argv = NULL);
+process_manager* launch_piped_process(char const* relative_path, char const** argv = NULL);
 
 #endif
 

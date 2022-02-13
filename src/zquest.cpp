@@ -24571,7 +24571,11 @@ int32_t onCompileScript()
 				break;
 			}
 			clock_t start_compile_time = clock();
-			process_manager* pm = launch_piped_process("zscript.exe -input tmp -linked");
+			char const* noclose = "-noclose";
+			char const* argv[5] = {"-input", "tmp", "-linked", NULL, NULL};
+			if(zc_get_config("Compiler","noclose_compile_console",0))
+				argv[3] = noclose;
+			process_manager* pm = launch_piped_process("zscript.exe", argv);
 			if(!pm)
 			{
 				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();

@@ -25,19 +25,13 @@ int32_t get_bit(byte const* bitstr,int32_t bit)
 	return ((*bitstr) >> (bit&7))&1;
 }
 
-// void box_out(const char *msg) {parser_console.cprintf( CConsoleLoggerEx::COLOR_WHITE, "%s", msg);}
-// void box_out_nl(const char *msg) {parser_console.cprintf( CConsoleLoggerEx::COLOR_WHITE, "%s\n", msg);}
-// void box_eol() {parser_console.cprintf( CConsoleLoggerEx::COLOR_WHITE, "\n");}
-void box_out(const char *msg) {}
-void box_out_nl(const char *msg) {}
-void box_eol() {}
-
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
 void zconsole_warn(const char *format,...)
 {
+	zscript_had_warn_err = true;
 	int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
 	if(v < 0) return; //Failed to print
 	//{
@@ -55,10 +49,12 @@ void zconsole_warn(const char *format,...)
 	
 	va_end(argList);
 	//}
+	al_trace("%s\n", tmp);
 	parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
 }
 void zconsole_error(const char *format,...)
 {
+	zscript_had_warn_err = true;
 	int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
 	if(v < 0) return; //Failed to print
 	//{
@@ -76,6 +72,7 @@ void zconsole_error(const char *format,...)
 	
 	va_end(argList);
 	//}
+	al_trace("%s\n", tmp);
 	parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
 }
 void zconsole_info(const char *format,...)
@@ -97,6 +94,7 @@ void zconsole_info(const char *format,...)
 	
 	va_end(argList);
 	//}
+	al_trace("%s\n", tmp);
 	parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
 }
 
@@ -124,23 +122,27 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 		return NULL;
 	}
 
-	char c = fgetc(zscript);
-	while(!feof(zscript))
+	if(strcmp(script_path.c_str(), "tmp")) // if path matches "tmp", no reason to copy it to "tmp"
 	{
-		zScript += c;
-		c = fgetc(zscript);
-	}
-	fclose(zscript);
+		char c = fgetc(zscript);
+		while(!feof(zscript))
+		{
+			zScript += c;
+			c = fgetc(zscript);
+		}
+		fclose(zscript);
 
-	FILE *tempfile = fopen("tmp","w");
-	if(!tempfile)
-	{
-		zconsole_error("Unable to create a temporary file in current directory!");
-		zscript_failcode = -404;
-		return NULL;
+		FILE *tempfile = fopen("tmp","w");
+		if(!tempfile)
+		{
+			zconsole_error("Unable to create a temporary file in current directory!");
+			zscript_failcode = -404;
+			return NULL;
+		}
+		fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+		fclose(tempfile);
 	}
-	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-	fclose(tempfile);
+	else fclose(zscript);
 	
 	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile("tmp"));
 	unlink("tmp");
@@ -230,8 +232,14 @@ int32_t main(int32_t argc, char **argv)
 	
 	if(zscript_had_warn_err)
 		zconsole_warn("Leaving console open; there were errors or warnings during compile!");
+	else if(used_switch(argc, argv, "-noclose"))
+	{
+		zconsole_info("Leaving console open; '-noclose' switch used");
+	}
 	else
+	{
 		parser_console.kill();
+	}
 	allegro_exit();
 	return res;
 }

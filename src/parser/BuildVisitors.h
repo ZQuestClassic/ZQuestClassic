@@ -185,10 +185,7 @@ namespace ZScript
         
 			if(lineno==0)
 			{
-				char temp[200];
-				sprintf(temp,"Internal error: couldn't find function label %d", host.getID());
-				box_out(temp);
-				box_eol();
+				zconsole_error("Internal error: couldn't find function label %d", host.getID());
 			}
         
 			host.setLineNo(lineno);

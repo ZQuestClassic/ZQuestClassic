@@ -4535,7 +4535,9 @@ bool weapon::animate(int32_t index)
 			
 			if(id==ewSword && get_bit(quest_rules,qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_bit(quest_rules,qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
 			{
-				int32_t checkx=0, checky=0, check_x_ofs=0, check_y_ofs=0;
+				zfix checkx=0, checky=0;
+				int32_t check_x_ofs=0, check_y_ofs=0;
+				
 				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
 				{
 					checkx = (x+hxofs+(hxsz*0.5));
@@ -4569,7 +4571,7 @@ bool weapon::animate(int32_t index)
 					}
 				}
 				
-				if(ignorecombo==(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
+				if(ignorecombo==((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
 					break;
 					
 				int32_t posx, posy;
@@ -4594,7 +4596,7 @@ bool weapon::animate(int32_t index)
 						flip ^= 2;
 						
 					ignoreHero=false;
-					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 					y=(int32_t)(posy&0xF0)+check_y_ofs;
 					x=(int32_t)(posx&0xF0)+check_x_ofs;
 				}
@@ -4630,7 +4632,7 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					ignoreHero=false;
-					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 					y=(int32_t)(posy&0xF0)+check_y_ofs;
 					x=(int32_t)(posx&0xF0)+check_x_ofs;
 				}
@@ -4669,7 +4671,7 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					ignoreHero=false;
-					ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 					y=(int32_t)(posy&0xF0)+check_y_ofs;
 					x=(int32_t)(posx&0xF0)+check_x_ofs;
 				}
@@ -4725,7 +4727,7 @@ bool weapon::animate(int32_t index)
 							w->id=wRefBeam;
 							w->parentid=parentid;
 							w->parentitem=parentitem;
-							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+							w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 							w->hyofs = w->hxofs = 0;
 							//also set up the magic's correct animation -DD
 							w->flip=0;
@@ -4790,7 +4792,7 @@ bool weapon::animate(int32_t index)
 						w->parentid=parentid;
 						w->parentitem=parentitem;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+						w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 						//also set up the magic's correct animation -DD
 						w->flip=0;
 						if ( do_animation ) 
@@ -6434,7 +6436,8 @@ bool weapon::animate(int32_t index)
 			
 			
 			//mirrors: //the latter instance should suffice
-			int32_t checkx=0, checky=0, check_x_ofs=0, check_y_ofs=0;
+			zfix checkx=0, checky=0;
+			int32_t check_x_ofs=0, check_y_ofs=0;
 			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
 			{
 				checkx = (x+hxofs+(hxsz*0.5));
@@ -6468,7 +6471,7 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if(ignorecombo!=(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
+			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
 			{
 				if(hitcombo(checkx, checky, cMIRROR))
 				{
@@ -6498,9 +6501,9 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(checky&0xF0)+check_y_ofs;
-					w->x=(checkx&0xF0)+check_x_ofs;
+					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORSLASH))
@@ -6548,9 +6551,9 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(checky&0xF0)+check_y_ofs;
-					w->x=(checkx&0xF0)+check_x_ofs;
+					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
@@ -6601,16 +6604,16 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(checky&0xF0)+check_y_ofs;
-					w->x=(checkx&0xF0)+check_x_ofs;
+					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMAGICPRISM) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(checky&0xF0)+check_y_ofs;
-					newx=(checkx&0xF0)+check_x_ofs;
+					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6639,7 +6642,7 @@ bool weapon::animate(int32_t index)
 							w->flip = 0;
 							w->ignoreHero = false;
 							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+							w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 							if ( do_animation ) 
 							{
 								//also set up the magic's correct animation -DD
@@ -6676,8 +6679,8 @@ bool weapon::animate(int32_t index)
 				if(hitcombo(checkx, checky, cMAGICPRISM4) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(checky&0xF0)+check_y_ofs;
-					newx=(checkx&0xF0)+check_x_ofs;
+					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6704,7 +6707,7 @@ bool weapon::animate(int32_t index)
 						w->flip = 0;
 						w->ignoreHero = false;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+						w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 						
 						if ( do_animation ) 
 						{
@@ -6785,7 +6788,9 @@ bool weapon::animate(int32_t index)
 			
 			
 		mirrors:
-			int32_t checkx=0, checky=0, check_x_ofs=0, check_y_ofs=0;
+			zfix checkx=0, checky=0;
+			int32_t check_x_ofs=0, check_y_ofs=0;
+			
 			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTRE))
 			{
 				checkx = (x+hxofs+(hxsz*0.5));
@@ -6818,7 +6823,8 @@ bool weapon::animate(int32_t index)
 						break;
 				}
 			}
-			if(ignorecombo!=(((int32_t)checky&0xF0)+((int32_t)checkx>>4)))
+			
+			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
 			{
 				if(hitcombo(checkx, checky, cMIRROR))
 				{
@@ -6850,8 +6856,8 @@ bool weapon::animate(int32_t index)
 					
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(checky&0xF0)+check_y_ofs;
-					w->x=(checkx&0xF0)+check_x_ofs;
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORSLASH))
@@ -6900,8 +6906,8 @@ bool weapon::animate(int32_t index)
 					}
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(checky&0xF0)+check_y_ofs;
-					w->x=(checkx&0xF0)+check_x_ofs;
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
@@ -6953,15 +6959,15 @@ bool weapon::animate(int32_t index)
 					
 					w->ignoreHero=false;
 					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(checky&0xF0)+check_y_ofs;
-					w->x=(checkx&0xF0)+check_x_ofs;
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMAGICPRISM) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(checky&0xF0)+check_y_ofs;
-					newx=(checkx&0xF0)+check_x_ofs;
+					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -6990,7 +6996,7 @@ bool weapon::animate(int32_t index)
 							w->flip = 0;
 							w->ignoreHero = false;
 							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+							w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 							if ( do_animation ) 
 							{
 								//also set up the magic's correct animation -DD
@@ -7027,8 +7033,8 @@ bool weapon::animate(int32_t index)
 				if(hitcombo(checkx, checky, cMAGICPRISM4) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(checky&0xF0)+check_y_ofs;
-					newx=(checkx&0xF0)+check_x_ofs;
+					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -7055,7 +7061,7 @@ bool weapon::animate(int32_t index)
 						w->flip = 0;
 						w->ignoreHero = false;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+						w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 						
 						if ( do_animation ) 
 						{

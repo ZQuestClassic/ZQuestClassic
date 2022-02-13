@@ -17,7 +17,7 @@ public:
 		ZC, ZQ, EXIT
 	};
 
-	LauncherDialog::LauncherDialog();
+	LauncherDialog();
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);

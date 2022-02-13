@@ -1,6 +1,10 @@
 #ifndef ZC_DIALOG_COMMON_H
 #define ZC_DIALOG_COMMON_H
 
+#ifndef _WIN32
+#include <memory>
+#endif
+
 #include <gui/list_data.h>
 #include "zsys.h"
 

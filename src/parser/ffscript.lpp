@@ -154,13 +154,7 @@ subscreendata	TOKEN( SUBSCREENDATA );
 particlesprite	TOKEN( PARTICLE );
 decorationsprite	TOKEN( DECORATION );
 "try"	{
-		char temp[512];
-		//char temp2[512];
-		sprintf(temp, "The 'try' keyword is reserved and may not be used as an identifier.");
-		//sprintf(temp2, "Please upgrade to ZQuest 2.55 (or above) to use it.");
-		box_eol();box_out(temp); 
-		//box_eol(); box_out(temp2);box_eol();
-		box_eol();
+		zconsole_error("%s","The 'try' keyword is reserved and may not be used as an identifier.");
 		return 0;
 	}
 

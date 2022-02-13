@@ -1,6 +1,7 @@
 #ifndef ZC_CONSOLE_LOGGER_H
 #define ZC_CONSOLE_LOGGER_H
 
+#include "zdefs.h"
 #include "process_managment.h"
 
 #if !defined(AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_)
@@ -248,6 +249,8 @@ public:
 	CConsoleLogger();
 	virtual ~CConsoleLogger();
 	
+	bool valid();
+	
 	// create a logger: starts a pipe+create the child process
 	int32_t Create(const char *lpszWindowTitle=NULL,
 				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
@@ -397,10 +400,14 @@ public:
 
 
 	word	GetCurrentColor(void)
-	{  }
+	{
+        return 0;    
+    }
 	
 	void	SetCurrentColor(word dwColor)
-	{ }
+	{
+            
+    }
 	
 
 protected:
