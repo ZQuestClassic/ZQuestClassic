@@ -33203,49 +33203,6 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 
 int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 
-void zprint(const char * const format,...)
-{
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-    {
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsprintf(buf, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-	#ifdef _WIN32
-	if ( console_is_open )
-	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-	#endif
-	
-    }
-}
-
-//Always prints
-void zprint2(const char * const format,...)
-{
-    //if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-    {
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsprintf(buf, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-	#ifdef _WIN32
-	if ( console_is_open )
-	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-	#endif
-	
-    }
-}
-
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 

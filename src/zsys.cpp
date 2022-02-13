@@ -402,6 +402,50 @@ void Z_title(const char *format,...)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s\n", buf);
 }
 
+#if defined(IS_ZQUEST) || defined(IS_PLAYER)
+extern byte quest_rules[QUESTRULES_SIZE];
+#endif
+void zprint(const char * const format,...)
+{
+	#if defined(IS_ZQUEST) || defined(IS_PLAYER)
+	if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+	#endif
+	{
+		char buf[2048];
+		
+		va_list ap;
+		va_start(ap, format);
+		vsprintf(buf, format, ap);
+		va_end(ap);
+		al_trace("%s",buf);
+		
+		if(zconsole)
+		{
+			printf("%s",buf);
+		}
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	}
+}
+
+void zprint2(const char * const format,...)
+{
+	char buf[2048];
+	
+	va_list ap;
+	va_start(ap, format);
+	vsprintf(buf, format, ap);
+	va_end(ap);
+	al_trace("%s",buf);
+	
+	if(zconsole)
+	{
+		printf("%s",buf);
+	}
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+}
+
 int32_t anim_3_4(int32_t clk, int32_t speed)
 {
     clk /= speed;

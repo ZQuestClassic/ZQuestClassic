@@ -1252,53 +1252,6 @@ void Z_scripterrlog(const char * const format,...)
     }
 }
 
-void zprint(const char * const format,...)
-{
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-    {
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsprintf(buf, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-        if(zconsole)
-		{
-            printf("%s",buf);
-		}
-		if ( zscript_debugger ) 
-		{
-			zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-		}
-    }
-}
-
-//Always prints
-void zprint2(const char * const format,...)
-{
-	char buf[2048];
-	
-	va_list ap;
-	va_start(ap, format);
-	vsprintf(buf, format, ap);
-	va_end(ap);
-	al_trace("%s",buf);
-	
-	if(zconsole)
-	{
-		printf("%s",buf);
-	}
-	if ( zscript_debugger ) 
-	{
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-	}
-}
-
-
 bool blockmoving;
 #include "sprite.h"
 movingblock mblock2;                                        //mblock[4]?

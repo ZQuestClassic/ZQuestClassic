@@ -64,6 +64,8 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 void Z_error(const char *format,...);
 void Z_message(const char *format,...);
 void Z_title(const char *format,...);
+void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
 
 int32_t anim_3_4(int32_t clk, int32_t speed);
 
