@@ -101,9 +101,16 @@ makefile.inc
 /allegro/CMakeCache.txt
 /allegro/CMakeFiles/
 /allegro/Makefile
+/allegro/**/Makefile
 /allegro/cmake_install.cmake
 CmakeCache.*
 cmake_install.cmake
+allegro/addons/jpgalleg/include/mmx.h
+allegro/allegro-config
+allegro/include/allegro/platform/alunixac.h
+allegro/lib/
+allegro/tools/plugins.h
+allegro/tools/plugins.tmp
 
 # Bison
 /src/parser/y.output
@@ -112,3 +119,4 @@ cmake_install.cmake
 output/_auto/buildpack_log.txt
 output/_auto/buildpack
 output/_auto/*.zip
+output/_auto/*.tar.gz
