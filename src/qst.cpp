@@ -3433,6 +3433,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(compatrule_version < 21)
 	{
 		set_bit(quest_rules,qr_LEEVERS_DONT_OBEY_STUN,1);
+		set_bit(quest_rules,qr_GANON_CANT_SPAWN_ON_CONTINUE,1);
 	}
 	
 	//always set

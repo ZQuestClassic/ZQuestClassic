@@ -725,6 +725,8 @@ static const GUI::ListData compatRulesList
 	{ "Leever's Still Submerge If Stunned", qr_LEEVERS_DONT_OBEY_STUN,
 		"If enabled, Leevers will still submerge if they are stunned. If disabled, they will"
 		" not submerge while stunned, but they will unsubmerge if they are currently submerged."},
+	{ "Ganon-Type Rooms Don't Work On Continuing", qr_GANON_CANT_SPAWN_ON_CONTINUE,
+		"If enabled, continuing/starting the quest will not trigger Ganon Rooms."},
 };
 
 static const GUI::ListData enemiesRulesList

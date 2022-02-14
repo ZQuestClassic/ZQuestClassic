@@ -26027,11 +26027,12 @@ void HeroClass::checkitems(int32_t index)
 	{
 		if(itemsbuf[id2].misc2>0) //Small TF Piece
 		{
-				getTriforce(id2);
+			getTriforce(id2);
 		}
 		else
 		{
-				getBigTri(id2);
+			if (ptr->linked_parent == eeGANON) game->lvlitems[dlevel]|=liBOSS;
+			getBigTri(id2);
 		}
 	}
 }

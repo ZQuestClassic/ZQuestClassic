@@ -388,7 +388,6 @@ private:
 	int32_t  EwpnHit();
 	int32_t  LwpnHit();
 	void heroDeathAnimation();
-	void ganon_intro();
 	void saved_Zelda();
    
 	void check_conveyor();
@@ -400,7 +399,7 @@ private:
 	void PhantomsCleanup();
 	
 public:
-
+	void ganon_intro();
 	void checkitems(int32_t index = -1);
 	int32_t DrunkClock();
 	void setDrunkClock(int32_t newdrunkclk);

@@ -1789,8 +1789,8 @@ void init_dmap()
 int32_t init_game()
 {
 	//port250QuestRules();	
-    zc_srand(time(0));
-    //introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+	zc_srand(time(0));
+	//introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.kb_typing_mode = false;
 	
 	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
@@ -1800,183 +1800,183 @@ int32_t init_game()
 	draw_screen_clip_rect_y2=223;	
 	
 	//Some initialising globals
-    didpit=false;
-    Hero.unfreeze();
-    Hero.reset_hookshot();
-    Hero.reset_ladder();
-    linkedmsgclk=0;
-    blockmoving=false;
-    add_asparkle=0;
-    add_bsparkle=0;
-    add_df1asparkle=false;
-    add_df1bsparkle=false;
-    add_nl1asparkle=false;
-    add_nl1bsparkle=false;
-    add_nl2asparkle=false;
-    add_nl2bsparkle=false;
-    gofast=false;
-    FFCore.init();
-    FFCore.user_bitmaps_init();
-    FFCore.user_files_init();
-    FFCore.user_dirs_init();
-    cheat=0;
-    wavy=quakeclk=0;
-    show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
-    show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
-    cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
-    //al_trace("Clearing old RenderTarget\n");
-    if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
-    //zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
-    
-    
-    for(int32_t x = 0; x < MAXITEMS; x++)
-    {
-        lens_hint_item[x][0]=0;
-        lens_hint_item[x][1]=0;
-    }
-    
-    for(int32_t x = 0; x < MAXWPNS; x++)
-    {
-        lens_hint_weapon[x][0]=0;
-        lens_hint_weapon[x][1]=0;
-    }
-    
-    /* Disabling to see if this is causing virus scanner redflags. -Z
+	didpit=false;
+	Hero.unfreeze();
+	Hero.reset_hookshot();
+	Hero.reset_ladder();
+	linkedmsgclk=0;
+	blockmoving=false;
+	add_asparkle=0;
+	add_bsparkle=0;
+	add_df1asparkle=false;
+	add_df1bsparkle=false;
+	add_nl1asparkle=false;
+	add_nl1bsparkle=false;
+	add_nl2asparkle=false;
+	add_nl2bsparkle=false;
+	gofast=false;
+	FFCore.init();
+	FFCore.user_bitmaps_init();
+	FFCore.user_files_init();
+	FFCore.user_dirs_init();
+	cheat=0;
+	wavy=quakeclk=0;
+	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
+	show_layer_over=show_layer_push=show_sprites=show_ffcs=true;
+	cheat_superman=do_cheat_light=do_cheat_goto=show_walkflags=show_effectflags=show_ff_scripts=show_hitboxes=false;
+	//al_trace("Clearing old RenderTarget\n");
+	if ( zscriptDrawingRenderTarget ) zscriptDrawingRenderTarget->SetCurrentRenderTarget(-1); //clear the last set Rendertarget between games
+	//zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
+	
+	
+	for(int32_t x = 0; x < MAXITEMS; x++)
+	{
+		lens_hint_item[x][0]=0;
+		lens_hint_item[x][1]=0;
+	}
+	
+	for(int32_t x = 0; x < MAXWPNS; x++)
+	{
+		lens_hint_weapon[x][0]=0;
+		lens_hint_weapon[x][1]=0;
+	}
+	
+	/* Disabling to see if this is causing virus scanner redflags. -Z
 	//Confuse the cheaters by moving the game data to a random location
-    if(game != NULL)
-        delete game;
-        
-    char *dummy = (char *) zc_malloc((zc_oldrand()%(RAND_MAX/2))+32);
-    game = new gamedata;
-    game->Clear();
-    
-    zc_free(dummy);
-    */
+	if(game != NULL)
+		delete game;
+		
+	char *dummy = (char *) zc_malloc((zc_oldrand()%(RAND_MAX/2))+32);
+	game = new gamedata;
+	game->Clear();
+	
+	zc_free(dummy);
+	*/
 	//Copy saved data to RAM data (but not global arrays)
-    game->Copy(saves[currgame]);
-    flushItemCache();
-    ResetSaveScreenSettings();
-    
+	game->Copy(saves[currgame]);
+	flushItemCache();
+	ResetSaveScreenSettings();
+	
 	//ResetSaveScreenSettings();
-    
+	
 	//Load the quest
-    //setPackfilePassword(datapwd);
-    int32_t ret = load_quest(game);
-    
-    if(ret != qe_OK)
-    {
-        Quit = qERROR;
-        //setPackfilePassword(NULL);
-        return 1;
-    }
-    
-    ResetSaveScreenSettings();
-    
-    //setPackfilePassword(NULL);
-    
-    char keyfilename[2048]; //master key .key
-    char keyfilename2[2048]; //zquest key .zpwd
-    char keyfilename3[2048]; //zc cheats only key, .zcheat
-    replace_extension(keyfilename, qstpath, "key", 2047);
-    replace_extension(keyfilename2, qstpath, "zpwd", 2047);
-    replace_extension(keyfilename3, qstpath, "zcheat", 2047);
-    bool gotfromkey=false;
-    bool gotfrompwdfile=false;
-    bool gotfromcheatfile=false;
-    
-    if(exists(keyfilename))
-    {
-	    al_trace("Found a Quest Master Key, filename: %s\n", keyfilename);
-        char password[32], pwd[32];
-        PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
-        char msg[80];
-        memset(msg,0,80);
-        pfread(msg, 80, fp,true);
-        
-        if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-        {
+	//setPackfilePassword(datapwd);
+	int32_t ret = load_quest(game);
+	
+	if(ret != qe_OK)
+	{
+		Quit = qERROR;
+		//setPackfilePassword(NULL);
+		return 1;
+	}
+	
+	ResetSaveScreenSettings();
+	
+	//setPackfilePassword(NULL);
+	
+	char keyfilename[2048]; //master key .key
+	char keyfilename2[2048]; //zquest key .zpwd
+	char keyfilename3[2048]; //zc cheats only key, .zcheat
+	replace_extension(keyfilename, qstpath, "key", 2047);
+	replace_extension(keyfilename2, qstpath, "zpwd", 2047);
+	replace_extension(keyfilename3, qstpath, "zcheat", 2047);
+	bool gotfromkey=false;
+	bool gotfrompwdfile=false;
+	bool gotfromcheatfile=false;
+	
+	if(exists(keyfilename))
+	{
+		al_trace("Found a Quest Master Key, filename: %s\n", keyfilename);
+		char password[32], pwd[32];
+		PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
+		char msg[80];
+		memset(msg,0,80);
+		pfread(msg, 80, fp,true);
+		
+		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
+		{
 		al_trace("Found Quest Master Key\n");
-            int16_t ver;
-            byte  bld;
-            p_igetw(&ver,fp,true);
-            p_getc(&bld,fp,true);
-            memset(password,0,32);
-            pfread(password, 30, fp,true);
-            /*
-            get-questpwd(&QHeader, pwd);
-            if (strcmp(pwd,password)==0)
-            {
-            	gotfromkey=true;
-            }
-            */
-            gotfromkey=check_questpwd(&QHeader, password);
-            memset(password,0,32);
-            memset(pwd,0,32);
-        }
-        
-        pack_fclose(fp);
+			int16_t ver;
+			byte  bld;
+			p_igetw(&ver,fp,true);
+			p_getc(&bld,fp,true);
+			memset(password,0,32);
+			pfread(password, 30, fp,true);
+			/*
+			get-questpwd(&QHeader, pwd);
+			if (strcmp(pwd,password)==0)
+			{
+				gotfromkey=true;
+			}
+			*/
+			gotfromkey=check_questpwd(&QHeader, password);
+			memset(password,0,32);
+			memset(pwd,0,32);
+		}
+		
+		pack_fclose(fp);
 	goto skip_keychecks;
-    }
-    
-    if(exists(keyfilename2)) //zquest key...superfluous?
-    {
-	    al_trace("Found a ZQuest Password Key, filename: %s\n", keyfilename2);
-        char password[32], pwd[32];
-        PACKFILE *fp = pack_fopen_password(keyfilename2, F_READ,"");
-        char msg[80];
-        memset(msg,0,80);
-        pfread(msg, 80, fp,true);
-        
-        if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-        {
-            int16_t ver;
-            byte  bld;
-            p_igetw(&ver,fp,true);
-            p_getc(&bld,fp,true);
-            memset(password,0,32);
-            pfread(password, 30, fp,true);
-            /*
-            get-questpwd(&QHeader, pwd);
-            if (strcmp(pwd,password)==0)
-            {
-            	gotfromkey=true;
-            }
-            */
-            gotfrompwdfile=check_questpwd(&QHeader, password);
-            memset(password,0,32);
-            memset(pwd,0,32);
-        }
-        
-        pack_fclose(fp);
-    }
-    
-    if(exists(keyfilename3)) //zc cheat key
-    {
-	    al_trace("Found a ZC Cheat Key, filename: %s\n", keyfilename3);
-	    
-        char password[32], pwd[32];
-        PACKFILE *fp = pack_fopen_password(keyfilename3, F_READ,"");
-        char msg[80];
-        memset(msg,0,80);
-        pfread(msg, 80, fp,true);
-        
-        if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-        {
+	}
+	
+	if(exists(keyfilename2)) //zquest key...superfluous?
+	{
+		al_trace("Found a ZQuest Password Key, filename: %s\n", keyfilename2);
+		char password[32], pwd[32];
+		PACKFILE *fp = pack_fopen_password(keyfilename2, F_READ,"");
+		char msg[80];
+		memset(msg,0,80);
+		pfread(msg, 80, fp,true);
+		
+		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
+		{
+			int16_t ver;
+			byte  bld;
+			p_igetw(&ver,fp,true);
+			p_getc(&bld,fp,true);
+			memset(password,0,32);
+			pfread(password, 30, fp,true);
+			/*
+			get-questpwd(&QHeader, pwd);
+			if (strcmp(pwd,password)==0)
+			{
+				gotfromkey=true;
+			}
+			*/
+			gotfrompwdfile=check_questpwd(&QHeader, password);
+			memset(password,0,32);
+			memset(pwd,0,32);
+		}
+		
+		pack_fclose(fp);
+	}
+	
+	if(exists(keyfilename3)) //zc cheat key
+	{
+		al_trace("Found a ZC Cheat Key, filename: %s\n", keyfilename3);
+		
+		char password[32], pwd[32];
+		PACKFILE *fp = pack_fopen_password(keyfilename3, F_READ,"");
+		char msg[80];
+		memset(msg,0,80);
+		pfread(msg, 80, fp,true);
+		
+		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
+		{
 		//al_trace("checking .zcheat file header %s","\n");
-            int16_t ver;
-            byte  bld;
-            p_igetw(&ver,fp,true);
-            p_getc(&bld,fp,true);
+			int16_t ver;
+			byte  bld;
+			p_igetw(&ver,fp,true);
+			p_getc(&bld,fp,true);
 		//al_trace("about to read password\n");
-            memset(password,0,32);
+			memset(password,0,32);
 		pfread(password, 30, fp,true);
-            //pfread(password, 30, fp,true);
+			//pfread(password, 30, fp,true);
 		
 		//al_trace("making space for hash\n");
 		char unhashed_pw[32];
 		memset(unhashed_pw,0,32);
 		
-            
+			
 		
 		char hashmap = 'Z';
 		hashmap += 'Q';
@@ -1995,33 +1995,33 @@ int32_t init_game()
 		
 		
 		
-            
-            //get-questpwd(&QHeader, pwd);
-            //if (strcmp(pwd,password)==0)
-            //{
-            //	gotfromkey=true;
-            //}
-            
-           // gotfromcheatfile=check_questpwd(&QHeader, unhashed_pw);
-            memset(password,0,32);
-            memset(unhashed_pw,0,32);
-            memset(pwd,0,32);
-	    cheat=4;
-        }
-        
-        pack_fclose(fp);
-    }
-    else goto skip_keycheats;
-    
-    skip_keychecks:
-    
-    if(gotfromkey)
-    {
-        cheat=4;
-    }
-    
-    skip_keycheats:
-    //Calculate the quest's script-file-storage path -V
+			
+			//get-questpwd(&QHeader, pwd);
+			//if (strcmp(pwd,password)==0)
+			//{
+			//	gotfromkey=true;
+			//}
+			
+		   // gotfromcheatfile=check_questpwd(&QHeader, unhashed_pw);
+			memset(password,0,32);
+			memset(unhashed_pw,0,32);
+			memset(pwd,0,32);
+		cheat=4;
+		}
+		
+		pack_fclose(fp);
+	}
+	else goto skip_keycheats;
+	
+	skip_keychecks:
+	
+	if(gotfromkey)
+	{
+		cheat=4;
+	}
+	
+	skip_keycheats:
+	//Calculate the quest's script-file-storage path -V
 	{
 		memset(qst_files_path, sizeof(qst_files_path), 0);
 		string str(qstpath);
@@ -2038,117 +2038,117 @@ int32_t init_game()
 	if(zqtesting_mode)
 		cheat = 4;
 	
-    bool firstplay = (game->get_hasplayed() == 0);
+	bool firstplay = (game->get_hasplayed() == 0);
 	
-    BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
-    //setupherotiles(zinit.heroAnimationStyle);
-    
-    COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
-                 (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
-                 (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
-                 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0) |
-                 (get_bit(quest_rules,qr_FADEBLACKWIPE)!=0 ? 16 : 0);
-    identifyCFEnemies();
-                 
-    //  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
-    
-    //  homescr = currscr = DMaps[0].cont;
-    //  currdmap = warpscr = worldscr=0;
-    if(firstplay)
-    {
+	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
+	//setupherotiles(zinit.heroAnimationStyle);
+	
+	COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
+				 (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
+				 (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
+				 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0) |
+				 (get_bit(quest_rules,qr_FADEBLACKWIPE)!=0 ? 16 : 0);
+	identifyCFEnemies();
+				 
+	//  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
+	
+	//  homescr = currscr = DMaps[0].cont;
+	//  currdmap = warpscr = worldscr=0;
+	if(firstplay)
+	{
 		if(!zqtesting_mode)
 			game->set_continue_dmap(zinit.start_dmap);
-        resetItems(game,&zinit,true);
+		resetItems(game,&zinit,true);
 		if ( FFCore.getQuestHeaderInfo(vZelda) < 0x190 )
 		{
 			game->set_maxbombs(8);
 			//al_trace("Starting bombs set to %d for a quest made in ZC %x\n", game->get_maxbombs(), (unsigned)FFCore.getQuestHeaderInfo(vZelda));
 		}
-    }
-    
-    previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
-    init_dmap();
-    
-    if(game->get_continue_scrn() >= 0x80)
-    {
-        //if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
-        if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
-        {
-            homescr = currscr = DMaps[currdmap].cont;
-        }
-        else
-        {
-            homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-        }
-    }
-    else
-    {
-        homescr = currscr = game->get_continue_scrn();
-    }
-    
-    lastentrance = currscr;
-    game->set_continue_scrn(lastentrance);
-    lastentrance_dmap = currdmap;
-    currmap = DMaps[currdmap].map;
-    dlevel = DMaps[currdmap].level;
-    sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
-    fadeclk=-1;
-    
-    if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-    {
-        game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;              // mark as visited
-    }
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        visited[i]=-1;
-    }
-    
-    game->lvlitems[9] &= ~liBOSS;
-    
-    ALLOFF();
-    whistleclk=-1;
-    clockclk=0;
-    currcset=DMaps[currdmap].color;
-    darkroom=naturaldark=false;
-    
-    tmpscr[0].zero_memory();
-    tmpscr[1].zero_memory();
-    //clear initialise dmap script 
-    dmapscriptInitialised = 0;
-    //Script-related nonsense
-    script_drawing_commands.Clear();
-    
-    //CLear the scripted Player sprites. 
-    script_hero_sprite = 0; 
-    script_hero_flip = -1; 
-    script_hero_cset = -1; 
-    
-    initZScriptArrayRAM(firstplay);
-    initZScriptGlobalRAM();
-    FFCore.initZScriptHeroScripts();
-    FFCore.initZScriptDMapScripts();
+	}
+	
+	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
+	init_dmap();
+	
+	if(game->get_continue_scrn() >= 0x80)
+	{
+		//if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
+		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
+		{
+			homescr = currscr = DMaps[currdmap].cont;
+		}
+		else
+		{
+			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+		}
+	}
+	else
+	{
+		homescr = currscr = game->get_continue_scrn();
+	}
+	
+	lastentrance = currscr;
+	game->set_continue_scrn(lastentrance);
+	lastentrance_dmap = currdmap;
+	currmap = DMaps[currdmap].map;
+	dlevel = DMaps[currdmap].level;
+	sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
+	fadeclk=-1;
+	
+	if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
+	{
+		game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;			  // mark as visited
+	}
+	
+	for(int32_t i=0; i<6; i++)
+	{
+		visited[i]=-1;
+	}
+	
+	game->lvlitems[9] &= ~liBOSS;
+	
+	ALLOFF();
+	whistleclk=-1;
+	clockclk=0;
+	currcset=DMaps[currdmap].color;
+	darkroom=naturaldark=false;
+	
+	tmpscr[0].zero_memory();
+	tmpscr[1].zero_memory();
+	//clear initialise dmap script 
+	dmapscriptInitialised = 0;
+	//Script-related nonsense
+	script_drawing_commands.Clear();
+	
+	//CLear the scripted Player sprites. 
+	script_hero_sprite = 0; 
+	script_hero_flip = -1; 
+	script_hero_cset = -1; 
+	
+	initZScriptArrayRAM(firstplay);
+	initZScriptGlobalRAM();
+	FFCore.initZScriptHeroScripts();
+	FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
-    FFCore.initZScriptItemScripts();
-    
-    
-    //Run the init script or the oncontinue script with the highest priority.
-    //GLobal Script Init ~Init
+	FFCore.initZScriptItemScripts();
+	
+	
+	//Run the init script or the oncontinue script with the highest priority.
+	//GLobal Script Init ~Init
 /*
-    if(firstplay)
-    {
-        memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-    }
-    else
-    {
-	    //Global script OnContinue
-        ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-    }
+	if(firstplay)
+	{
+		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+	}
+	else
+	{
+		//Global script OnContinue
+		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+	}
 */
-    global_wait=0;
-    
-    //show quest metadata when loading it
+	global_wait=0;
+	
+	//show quest metadata when loading it
 	{
 		
 		zprint2("\n");
@@ -2274,20 +2274,20 @@ int32_t init_game()
 		if ( QHeader.new_version_id_date_day ) zprint2("\nEditor Built at date and time: %d-%d-%d at @ %s %s\n\n", QHeader.new_version_id_date_day, QHeader.new_version_id_date_month, QHeader.new_version_id_date_year, QHeader.build_timestamp, QHeader.build_timezone);
 		//al_trace("(Autogenerated) Editor Built at date and time: %s @ %s\n\n", QHeader.build_datestamp, );
 	}
-    
-    FFCore.init(); ///Initialise new ffscript engine core. 
-    if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+	
+	FFCore.init(); ///Initialise new ffscript engine core. 
+	if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
-    //loadscr(0,currscr,up);
-    loadscr(0,currdmap,currscr,-1,false);
-    putscr(scrollbuf,0,0,&tmpscr[0]);
-    putscrdoors(scrollbuf,0,0,&tmpscr[0]);
-    
-    //preloaded freeform combos
-    //ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
+	//loadscr(0,currscr,up);
+	loadscr(0,currdmap,currscr,-1,false);
+	putscr(scrollbuf,0,0,&tmpscr[0]);
+	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	
+	//preloaded freeform combos
+	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
 	Hero.init();
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
@@ -2318,39 +2318,39 @@ int32_t init_game()
 						//are properly set by the engine.
 	}
 	Hero.resetflags(true); //This should probably occur after running Hero's init script. 
-    
-    
-    copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
-    loadfullpal();
-    ringcolor(false);
-    loadlvlpal(DMaps[currdmap].color);
-    lighting(false,true);
-    wavy=quakeclk=0;
-    
-    if(firstplay)
-    {
-        game->set_life(zinit.start_heart*game->get_hp_per_heart());
-    }
-    else
-    {
-        if(game->get_cont_percent())
-        {
-            if(game->get_maxlife()%game->get_hp_per_heart()==0)
-                game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
-            else
-                game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
-        }
-        else
-        {
-            game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
-        }
-    }
-    
-    if(firstplay)
-        game->set_hasplayed(1);
-    
-    if(firstplay)
-    {
+	
+	
+	copy_pal((RGB*)data[PAL_GUI].dat,RAMpal);
+	loadfullpal();
+	ringcolor(false);
+	loadlvlpal(DMaps[currdmap].color);
+	lighting(false,true);
+	wavy=quakeclk=0;
+	
+	if(firstplay)
+	{
+		game->set_life(zinit.start_heart*game->get_hp_per_heart());
+	}
+	else
+	{
+		if(game->get_cont_percent())
+		{
+			if(game->get_maxlife()%game->get_hp_per_heart()==0)
+				game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+			else
+				game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
+		}
+		else
+		{
+			game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+		}
+	}
+	
+	if(firstplay)
+		game->set_hasplayed(1);
+	
+	if(firstplay)
+	{
 		game->awpn=-1;
 		game->bwpn=-1;
 		game->ywpn=-1;
@@ -2358,18 +2358,18 @@ int32_t init_game()
 		game->forced_awpn = -1; 
 		game->forced_bwpn = -1;  
 		game->forced_xwpn = -1; 
-		game->forced_ywpn = -1;    
-    }
-        
-    update_subscreens();
-    
-    load_Sitems(&QMisc);
-    
+		game->forced_ywpn = -1;	
+	}
+		
+	update_subscreens();
+	
+	load_Sitems(&QMisc);
+	
 	//load the previous weapons -DD	
-    
-    bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
-    int32_t apos = 0, bpos = 0, xpos = 0, ypos = 0;
-    
+	
+	bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
+	int32_t apos = 0, bpos = 0, xpos = 0, ypos = 0;
+	
 	//Setup button items
 	{
 		bool use_x = get_bit(quest_rules, qr_SET_XBUTTON_ITEMS), use_y = get_bit(quest_rules, qr_SET_YBUTTON_ITEMS);
@@ -2472,27 +2472,27 @@ int32_t init_game()
 
 			reset_subscr_items();
 		}
-    }
-    
-    
-    show_subscreen_dmap_dots=true;
-    show_subscreen_items=true;
-    show_subscreen_numbers=true;
-    show_subscreen_life=true;
-    
-    Playing=true;
-    
-    map_bkgsfx(true);
-    
-    
-    
-    //if(firstplay)
-    //{
-    //    memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-    //    ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
+	}
+	
+	
+	show_subscreen_dmap_dots=true;
+	show_subscreen_items=true;
+	show_subscreen_numbers=true;
+	show_subscreen_life=true;
+	
+	Playing=true;
+	
+	map_bkgsfx(true);
+	
+	
+	
+	//if(firstplay)
+	//{
+	//	memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+	//	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 	//ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT);
-    //}
-    //else
+	//}
+	//else
 	//if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
 	//{
 	//	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
@@ -2502,115 +2502,126 @@ int32_t init_game()
 	FFCore.runOnLaunchEngine();
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
 	
-    
-    if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
-    openscreen();
-    show_subscreen_numbers=true;
-    show_subscreen_life=true;
-    dointro();
-    loadguys();
-    
-    activated_timed_warp=false;
-    newscr_clk = frame;
-    
-    if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
-    {
-        Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
-    }
-    
-    if(!Quit)
-        playLevelMusic();
-     
-    //2.53 timing
-    if(get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
-    {
-	    if(firstplay)
-	    {
+	
+	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+	openscreen();
+	show_subscreen_numbers=true;
+	show_subscreen_life=true;
+	dointro();
+		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	{
+		loadguys();
+	}
+
+	
+	activated_timed_warp=false;
+	newscr_clk = frame;
+	
+	if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
+	{
+		Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
+	}
+	
+	if(!Quit)
+	{
+		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		{
+			Hero.ganon_intro();
+		}
+		else playLevelMusic();
+	}
+
+	 
+	//2.53 timing
+	if(get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+	{
+		if(firstplay)
+		{
 			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
 			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
-	    }
-	    else
-	    {
+		}
+		else
+		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
-	    }    
-    }
-    
-    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-    FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-    FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-    FFCore.initZScriptActiveSubscreenScript();
-    ffscript_engine(true);  //Here is a much safer place...
-    
-    return 0;
+		}	
+	}
+	
+	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+	FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
+	FFCore.initZScriptActiveSubscreenScript();
+	ffscript_engine(true);  //Here is a much safer place...
+	
+	return 0;
 }
 
 int32_t cont_game()
 {
-    //  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
+	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.init();
-    didpit=false;
-    Hero.unfreeze();
-    Hero.reset_hookshot();
-    Hero.reset_ladder();
-    linkedmsgclk=0;
-    blockmoving=0;
-    add_asparkle=0;
-    add_bsparkle=0;
-    add_df1asparkle=false;
-    add_df1bsparkle=false;
-    add_nl1asparkle=false;
-    add_nl1bsparkle=false;
-    add_nl2asparkle=false;
-    add_nl2bsparkle=false;
-    /*
-      if(DMaps[currdmap].cont >= 0x80)
-      {
-      homescr = currscr = DMaps[0].cont;
-      currdmap = warpscr = worldscr=0;
-      currmap = DMaps[0].map;
-      dlevel = DMaps[0].level;
-      }
-      */
-    currdmap = lastentrance_dmap;
-    homescr = currscr = lastentrance;
-    currmap = DMaps[currdmap].map;
-    dlevel = DMaps[currdmap].level;
-    init_dmap();
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        visited[i]=-1;
-    }
-    
-    if(dlevel==0)
-    {
-        game->lvlitems[9]&=~liBOSS;
-    }
-    
-    ALLOFF();
-    whistleclk=-1;
-    currcset=DMaps[currdmap].color;
-    darkroom=naturaldark=false;
-    tmpscr[0].zero_memory();
-    tmpscr[1].zero_memory();
-    
+	didpit=false;
+	Hero.unfreeze();
+	Hero.reset_hookshot();
+	Hero.reset_ladder();
+	linkedmsgclk=0;
+	blockmoving=0;
+	add_asparkle=0;
+	add_bsparkle=0;
+	add_df1asparkle=false;
+	add_df1bsparkle=false;
+	add_nl1asparkle=false;
+	add_nl1bsparkle=false;
+	add_nl2asparkle=false;
+	add_nl2bsparkle=false;
+	/*
+	  if(DMaps[currdmap].cont >= 0x80)
+	  {
+	  homescr = currscr = DMaps[0].cont;
+	  currdmap = warpscr = worldscr=0;
+	  currmap = DMaps[0].map;
+	  dlevel = DMaps[0].level;
+	  }
+	  */
+	currdmap = lastentrance_dmap;
+	homescr = currscr = lastentrance;
+	currmap = DMaps[currdmap].map;
+	dlevel = DMaps[currdmap].level;
+	init_dmap();
+	
+	for(int32_t i=0; i<6; i++)
+	{
+		visited[i]=-1;
+	}
+	
+	if(dlevel==0)
+	{
+		game->lvlitems[9]&=~liBOSS;
+	}
+	
+	ALLOFF();
+	whistleclk=-1;
+	currcset=DMaps[currdmap].color;
+	darkroom=naturaldark=false;
+	tmpscr[0].zero_memory();
+	tmpscr[1].zero_memory();
+	
 //loadscr(0,currscr,up);
-    loadscr(0,currdmap,currscr,-1,false);
-    putscr(scrollbuf,0,0,&tmpscr[0]);
-    putscrdoors(scrollbuf,0,0,&tmpscr[0]);
-    script_drawing_commands.Clear();
-    
-    //preloaded freeform combos
-    ffscript_engine(true);
-    
-    loadfullpal();
-    ringcolor(false);
-    loadlvlpal(DMaps[currdmap].color);
-    lighting(false,true);
-    Hero.init();
+	loadscr(0,currdmap,currscr,-1,false);
+	putscr(scrollbuf,0,0,&tmpscr[0]);
+	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	script_drawing_commands.Clear();
+	
+	//preloaded freeform combos
+	ffscript_engine(true);
+	
+	loadfullpal();
+	ringcolor(false);
+	loadlvlpal(DMaps[currdmap].color);
+	lighting(false,true);
+	Hero.init();
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
@@ -2620,110 +2631,118 @@ int32_t cont_game()
 		}
 	}
 	
-    wavy=quakeclk=0;
-    
-    //if(get_bit(zinit.misc,idM_CONTPERCENT))
-    if(game->get_cont_percent())
-    {
-        if(game->get_maxlife()%game->get_hp_per_heart()==0)
-            game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
-        else
-            game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
-    }
-    else
-    {
-        game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
-    }
-        
-    /*
-      else
-      game->life=3*game->get_hp_per_heart();
-      */
-    
-    //  for(int32_t i=0; i<128; i++)
-    //    key[i]=0;
-    
+	wavy=quakeclk=0;
+	
+	//if(get_bit(zinit.misc,idM_CONTPERCENT))
+	if(game->get_cont_percent())
+	{
+		if(game->get_maxlife()%game->get_hp_per_heart()==0)
+			game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+		else
+			game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
+	}
+	else
+	{
+		game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+	}
+		
+	/*
+	  else
+	  game->life=3*game->get_hp_per_heart();
+	  */
+	
+	//  for(int32_t i=0; i<128; i++)
+	//	key[i]=0;
+	
 	//Run onContGame script -V
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
 	
-    initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
-    FFCore.initZScriptHeroScripts();
-    FFCore.initZScriptDMapScripts();
-    FFCore.initZScriptActiveSubscreenScript();
-    FFCore.initZScriptItemScripts();
+	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
+	FFCore.initZScriptHeroScripts();
+	FFCore.initZScriptDMapScripts();
+	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptItemScripts();
 	
-    update_subscreens();
-    Playing=true;
-    map_bkgsfx(true);
-    openscreen();
-    show_subscreen_numbers=true;
-    show_subscreen_life=true;
-    dointro();
-    loadguys();
-    
-    if(!Quit)
-    {
-        //play_DmapMusic();
-        playLevelMusic();
-        
-        if(isdungeon())
-            Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
-            
-        newscr_clk=frame;
-        activated_timed_warp=false;
-    }
-    
-    return 0;
+	update_subscreens();
+	Playing=true;
+	map_bkgsfx(true);
+	openscreen();
+	show_subscreen_numbers=true;
+	show_subscreen_life=true;
+	dointro();
+	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	{
+		loadguys();
+	}
+
+	
+	if(!Quit)
+	{
+		//play_DmapMusic();
+		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		
+		if(isdungeon())
+			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+			
+		newscr_clk=frame;
+		activated_timed_warp=false;
+		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		{
+			Hero.ganon_intro();
+		}
+	}
+	
+	return 0;
 }
 
 void restart_level()
 {
-    blackscr(16,true);
-    map_bkgsfx(false);
-    
-    if(dlevel)
-    {
-        currdmap = lastentrance_dmap;
-        homescr = currscr = lastentrance;
-        init_dmap();
-    }
-    else
-    {
-        if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
-        {
-            homescr = currscr = DMaps[currdmap].cont;
-        }
-        else
-        {
-            homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-        }
-    }
-    
-    currmap = DMaps[currdmap].map;
-    dlevel = DMaps[currdmap].level;
-    
-    for(int32_t i=0; i<6; i++)
-        visited[i]=-1;
-        
-    ALLOFF();
-    whistleclk=-1;
-    darkroom=naturaldark=false;
-    tmpscr[0].zero_memory();
-    tmpscr[1].zero_memory();
-    
-    loadscr(0,currdmap,currscr,-1,false);
-    putscr(scrollbuf,0,0,&tmpscr[0]);
-    putscrdoors(scrollbuf,0,0,&tmpscr[0]);
-    //preloaded freeform combos
-    ffscript_engine(true);
-    
-    loadfullpal();
-    ringcolor(false);
-    loadlvlpal(DMaps[currdmap].color);
-    lighting(false,true);
-    Hero.init();
+	blackscr(16,true);
+	map_bkgsfx(false);
+	
+	if(dlevel)
+	{
+		currdmap = lastentrance_dmap;
+		homescr = currscr = lastentrance;
+		init_dmap();
+	}
+	else
+	{
+		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
+		{
+			homescr = currscr = DMaps[currdmap].cont;
+		}
+		else
+		{
+			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+		}
+	}
+	
+	currmap = DMaps[currdmap].map;
+	dlevel = DMaps[currdmap].level;
+	
+	for(int32_t i=0; i<6; i++)
+		visited[i]=-1;
+		
+	ALLOFF();
+	whistleclk=-1;
+	darkroom=naturaldark=false;
+	tmpscr[0].zero_memory();
+	tmpscr[1].zero_memory();
+	
+	loadscr(0,currdmap,currscr,-1,false);
+	putscr(scrollbuf,0,0,&tmpscr[0]);
+	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	//preloaded freeform combos
+	ffscript_engine(true);
+	
+	loadfullpal();
+	ringcolor(false);
+	loadlvlpal(DMaps[currdmap].color);
+	lighting(false,true);
+	Hero.init();
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
@@ -2733,26 +2752,33 @@ void restart_level()
 		}
 	}
 	
-    currcset=DMaps[currdmap].color;
-    openscreen();
-    map_bkgsfx(true);
-    Hero.set_respawn_point();
+	currcset=DMaps[currdmap].color;
+	openscreen();
+	map_bkgsfx(true);
+	Hero.set_respawn_point();
 	Hero.trySideviewLadder();
-    show_subscreen_numbers=true;
-    show_subscreen_life=true;
-    loadguys();
-    
-    if(!Quit)
-    {
-        //play_DmapMusic();
-        playLevelMusic();
-        
-        if(isdungeon())
-            Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
-            
-        newscr_clk=frame;
-        activated_timed_warp=false;
-    }
+	show_subscreen_numbers=true;
+	show_subscreen_life=true;
+	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	{
+		loadguys();
+	}
+	
+	if(!Quit)
+	{
+		//play_DmapMusic();
+		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		
+		if(isdungeon())
+			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+			
+		newscr_clk=frame;
+		activated_timed_warp=false;
+		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		{
+			Hero.ganon_intro();
+		}
+	}
 }
 
 

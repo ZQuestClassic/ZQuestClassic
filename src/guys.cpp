@@ -15902,31 +15902,29 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		if(clk>=80)
 		{
 			misc=5;
-			
-			if(getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) && !(tmpscr->flags9&fBELOWRETURN))
-			{
-				game->lvlitems[dlevel]|=liBOSS;
-				//play_DmapMusic();
-				playLevelMusic();
-				return true;
-			}
+
+			//game->lvlitems[dlevel]|=liBOSS;
 			
 			sfx(WAV_CLEARED);
-		//Add the big TF over the ashes!
-		for(word q = 0; q < items.Count(); q++)
-		{
-			item *ashes = (item*)items.spr(q);
-			if ( ashes->linked_parent == eeGANON )
+			//Add the big TF over the ashes!
+			for(word q = 0; q < items.Count(); q++)
 			{
-				//Z_scripterrlog("Found correct dustpile!\n");
-				items.add(new item(ashes->x,ashes->y,(zfix)0,iBigTri,ipBIGTRI,0));
+				item *ashes = (item*)items.spr(q);
+				if ( ashes->linked_parent == eeGANON && (ashes->pickup&ipDUMMY))
+				{
+					//Z_scripterrlog("Found correct dustpile!\n");
+					items.add(new item(ashes->x,ashes->y,(zfix)0,iBigTri,ipBIGTRI,0));
+					item *bigtriforce = NULL;
+					bigtriforce = (item *)items.spr(items.Count() - 1);
+					bigtriforce->linked_parent = eeGANON;
+				}
 			}
-		}
-		setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
-		//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
+			//setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+			//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
 		}
 		
 		break;
+		case 5: return true;
 	}
 	
 	return enemy::animate(index);
@@ -16094,6 +16092,8 @@ void getBigTri(int32_t id2)
 	{
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
+	
+	setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
 	
 	draw_screen(tmpscr);
 	
