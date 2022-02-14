@@ -54,7 +54,7 @@ struct WidgetSet
 	std::shared_ptr<T>& operator[](int32_t offset)
 	{
 		//Assert: No '[]' on an empty WidgetSet
-		if(!head) Z_error("WidgetSet error: [] on empty WidgetSet! Crashing...\n");
+		if(!head) Z_error_fatal("WidgetSet error: [] on empty WidgetSet! Crashing...\n");
 		ASSERT(head); //otherwise have no 'std::shared_ptr<T>&' to return...
 		if(head==tail) return head->widg;
 		//[-1] accesses the tail, further negatives go backwards.

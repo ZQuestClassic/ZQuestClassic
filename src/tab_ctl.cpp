@@ -29,6 +29,7 @@
 #define ALLEGRO_NO_COMPATIBILITY
 #include "allegro_wrapper.h"
 #include "tab_ctl.h"
+#include "jwin.h"
 #include "zc_malloc.h"
 
 extern volatile int32_t myvsync;
@@ -443,7 +444,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
             
             panel_dialog=(DIALOG *)d->dp3;
             rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), d->bg); //tab area
-            fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+            fg = (d->flags & D_DISABLED) ? jwin_pal[jcDISABLED_FG] : d->fg;
             rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, d->bg); //panel
             //left, right, and bottom borders of the tab control
             _allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-1, fg);

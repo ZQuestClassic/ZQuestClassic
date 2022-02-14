@@ -2637,7 +2637,7 @@ void do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 		
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
-		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
 		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
@@ -6379,7 +6379,7 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		// ZScript-side constant values:
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
-		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
 		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
@@ -6692,7 +6692,7 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 		// ZScript-side constant values:
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
-		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
 		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error
@@ -8084,7 +8084,7 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 		// ZScript-side constant values:
 		const int32_t BITDX_NORMAL = 0;
 		const int32_t BITDX_TRANS = 1; //Translucent
-		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+		const int32_t BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
 		const int32_t BITDX_HFLIP = 4; //Horizontal Flip
 		const int32_t BITDX_VFLIP = 8; //Vertical Flip.
 		//Note:	Some modes cannot be combined. if a combination is not supported, an error

@@ -433,7 +433,7 @@ void clear_tile(tiledata *buf, word tile)
   buf[tile].data=(byte *)zc_malloc(tilesize(buf[tile].format));
   if (buf[tile].data==NULL)
   {
-    Z_error("Unable to initialize tile #%d.\n", tile);
+    Z_error_fatal("Unable to initialize tile #%d.\n", tile);
     exit(1);
   }
   memset(buf[tile].data,0,tilesize(buf[tile].format));
@@ -454,7 +454,7 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
     if(buf[t].data==NULL)
     {
         quit_game();
-        Z_error("Unable to initialize tile #%d.\n", t);
+        Z_error_fatal("Unable to initialize tile #%d.\n", t);
     }
     
     for(int32_t i=0; i<tilesize(buf[t].format); i++)

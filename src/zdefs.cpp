@@ -105,11 +105,15 @@ void load_themefile(char const* fpath, PALETTE pal)
 	jwin_pal[jcCURSOROUTLINE] = dvc(zc_get_config("Theme","jccursoroutline",2));
 	jwin_pal[jcCURSORLIGHT] = dvc(zc_get_config("Theme","jccursorlight",3));
 	jwin_pal[jcCURSORDARK] = dvc(zc_get_config("Theme","jccursordark",5));
+	jwin_pal[jcALT_TEXTFG] = dvc(zc_get_config("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcMEDDARK])));
+	jwin_pal[jcALT_TEXTBG] = dvc(zc_get_config("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcTEXTFG])));
+	jwin_pal[jcDISABLED_FG] = dvc(zc_get_config("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcMEDDARK])));
+	jwin_pal[jcDISABLED_BG] = dvc(zc_get_config("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcBOX])));
+	
 	pop_config_state();
 	
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
     jwin_set_colors(jwin_pal);
 	update_hw_pal = true;
 }
@@ -147,6 +151,10 @@ void save_themefile(char const* fpath, PALETTE pal)
 	zc_set_config("Theme","jccursoroutline",r_dvc(jwin_pal[jcCURSOROUTLINE]));
 	zc_set_config("Theme","jccursorlight",r_dvc(jwin_pal[jcCURSORLIGHT]));
 	zc_set_config("Theme","jccursordark",r_dvc(jwin_pal[jcCURSORDARK]));
+	zc_set_config("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcALT_TEXTFG]));
+	zc_set_config("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcALT_TEXTBG]));
+	zc_set_config("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcDISABLED_FG]));
+	zc_set_config("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcDISABLED_BG]));
 	pop_config_state();
 }
 
@@ -193,6 +201,7 @@ void load_colorset(int32_t colorset)
 }
 void load_colorset(int32_t colorset, PALETTE pal)
 {
+	bool udef = false;
 	switch(colorset)
 	{
 		case 1:  //Windows 98
@@ -231,10 +240,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(8);
 			jwin_pal[jcSELFG]  =dvc(6);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
@@ -275,10 +280,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(9);
 			jwin_pal[jcSELFG]  =dvc(7);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
@@ -318,10 +319,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(8);
 			jwin_pal[jcSELFG]  =dvc(6);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
@@ -362,10 +359,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(9);
 			jwin_pal[jcSELFG]  =dvc(7);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
@@ -405,10 +398,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(7);
 			jwin_pal[jcSELBG]  =dvc(8);
 			jwin_pal[jcSELFG]  =dvc(6);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
@@ -442,15 +431,12 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(8);
 			jwin_pal[jcSELFG]  =dvc(6);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
 		case 99:  //User Defined
 		{
+			udef = true;
 			load_udef_colorset(STANDARD_CFG, pal);
 			strcpy(themefile, tmp_themefile);
 		}
@@ -499,10 +485,6 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(8);
 			jwin_pal[jcSELFG]  =dvc(6);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 		
@@ -542,17 +524,24 @@ void load_colorset(int32_t colorset, PALETTE pal)
 			jwin_pal[jcTEXTFG] =dvc(1);
 			jwin_pal[jcSELBG]  =dvc(8);
 			jwin_pal[jcSELFG]  =dvc(6);
-			jwin_pal[jcCURSORMISC] = dvc(1);
-			jwin_pal[jcCURSOROUTLINE] = dvc(2);
-			jwin_pal[jcCURSORLIGHT] = dvc(3);
-			jwin_pal[jcCURSORDARK] = dvc(5);
 		}
 		break;
 	}
 	
+	if(!udef) //Auto-fill the indexes that aren't used in old styles
+	{
+		jwin_pal[jcCURSORMISC] = dvc(1);
+		jwin_pal[jcCURSOROUTLINE] = dvc(2);
+		jwin_pal[jcCURSORLIGHT] = dvc(3);
+		jwin_pal[jcCURSORDARK] = dvc(5);
+		jwin_pal[jcALT_TEXTFG] = jwin_pal[jcMEDDARK];
+		jwin_pal[jcALT_TEXTBG] = jwin_pal[jcTEXTFG];
+		jwin_pal[jcDISABLED_FG] = jwin_pal[jcMEDDARK];
+		jwin_pal[jcDISABLED_BG] = jwin_pal[jcBOX];
+	}
+	
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
     
     jwin_set_colors(jwin_pal);
 }

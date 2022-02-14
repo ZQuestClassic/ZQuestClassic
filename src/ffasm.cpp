@@ -1019,6 +1019,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "NPCCANMOVEDIR",           0,   0,   0,   0},
 	{ "NPCCANMOVEANGLE",           0,   0,   0,   0},
 	{ "NPCCANMOVEXY",           0,   0,   0,   0},
+	{ "SELECTXWPNR",         1,   0,   0,   0},
+	{ "SELECTYWPNR",         1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

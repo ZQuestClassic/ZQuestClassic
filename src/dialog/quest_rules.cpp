@@ -1222,7 +1222,7 @@ static const GUI::ListData weaponsRulesList
 		" angles perpendicular to the angle of the original weapon. If disabled, they will reflect"
 		" at regular directions instead of at angles."
 		" \nNote that this behavior is broken and undefined if ''Prisms Reflect Angular Weapons' Uses Broken Logic' is checked."},
-	{ "Mirrors Use Weapon Centre for Collision", qr_MIRRORS_USE_WEAPON_CENTRE,
+	{ "Mirrors Use Weapon Center for Collision", qr_MIRRORS_USE_WEAPON_CENTER,
 		"If enabled, mirror/prism combos activate when the center of a weapon hits them,"
 		" instead of when the edge hits them." },
 	{ "Weapons Cannot Stunlock Enemies", qr_NO_STUNLOCK,

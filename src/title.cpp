@@ -3837,9 +3837,10 @@ int32_t custom_game(int32_t file)
 	if(is_large)
 		large_dialog(gamemode_dlg);
    
-		
+	bool customized = false;
 	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
 	{
+		customized = true;
 		scare_mouse();
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
 		unscare_mouse();
@@ -3880,6 +3881,7 @@ int32_t custom_game(int32_t file)
 		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 		unscare_mouse();
 	}
+	if(!customized) strcpy(qstpath, relpath);
 	
 	show_mouse(NULL);
 	game_pal();

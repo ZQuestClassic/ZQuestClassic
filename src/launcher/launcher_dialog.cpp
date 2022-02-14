@@ -617,7 +617,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Static effect for invalid data","zquest.cfg","zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
 						CONFIG_CHECKBOX_I("Warn on Init Script Change","zquest.cfg","zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers","zquest.cfg","CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
-						CONFIG_CHECKBOX_I("Text Readability","zquest.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
+						CONFIG_CHECKBOX_I("Text Readability","zquest.cfg","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
+						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts","zquest.cfg","zquest","dis_lpal_shortcut",0,"If enabled, keyboard shortcuts that change the screen's palette are disabled.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", "zquest.cfg","zquest","cursor_scale_small",1.0,1.0,5.0, 4),

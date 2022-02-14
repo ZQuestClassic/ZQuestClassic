@@ -3441,14 +3441,14 @@ bool enemy::animate(int32_t index)
 	}
 	if(!isSideViewGravity() && (moveflags & FLAG_CAN_PITFALL))
 	{
-		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
+		if(can_pitfall() && ((z <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 		{
 			fallCombo = check_pits();
 		}
 	}
 	if(!isSideViewGravity() && (moveflags & FLAG_CAN_WATERDROWN))
 	{
-		if(can_pitfall() && ((z <= 0 && !isflier(id)) || stunclk) && !superman)
+		if(can_pitfall() && ((z <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 		{
 			drownCombo = check_water();
 		}
@@ -13715,6 +13715,7 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	dir=(zc_oldrand()&7)+8;
 	step=0;
 	movestatus=1;
+	if (dmisc1 == 2) movestatus=2;
 	c=0;
 	SIZEflags = d->SIZEflags;
 	if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
@@ -13762,7 +13763,7 @@ bool eKeese::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	if(dmisc1) //Walk style. 0 is keese, 1 is bat.
+	if(dmisc1 == 1) //Walk style. 0 is keese, 1 is bat.
 	{
 		floater_walk(rate,hrate,dstep/100,(zfix)0,10,dmisc16,dmisc17);
 	}
@@ -17761,12 +17762,48 @@ bool esGleeok::animate(int32_t index)
 
 int32_t esGleeok::takehit(weapon *w)
 {
-	int32_t ret = enemy::takehit(w);
-	
-	if(ret==-1)
-		return 2; // force it to wait a frame before checking sword attacks again
+	if ((editorflags & ENEMY_FLAG7) && misc == 1)
+	{
+		int32_t wpnId = w->id;
 		
-	return ret;
+		if(dying)
+			return 0;
+			
+		switch(wpnId)
+		{
+			case wLitBomb:
+			case wLitSBomb:
+			case wBait:
+			case wWhistle:
+			case wFire:
+			case wWind:
+			case wSSparkle:
+			case wFSparkle:
+			case wPhantom:
+				return 0;
+				
+			case wHookshot:
+			case wBrang:
+			case wBeam:
+			case wArrow:
+			case wMagic:
+				sfx(WAV_CHINK,pan(int32_t(x)));
+				break;
+			default:
+				break;
+		}
+		
+		return 1;
+	}
+	else
+	{
+		int32_t ret = enemy::takehit(w);
+		
+		if(ret==-1)
+			return 2; // force it to wait a frame before checking sword attacks again
+			
+		return ret;
+	}
 }
 
 void esGleeok::draw(BITMAP *dest)

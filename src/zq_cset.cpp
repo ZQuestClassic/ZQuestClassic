@@ -741,7 +741,6 @@ bool grab_dataset(int32_t dataset)
     jwin_pal[jcSELFG]  =imagepal_table.data[0][jwin_pal[jcSELFG]];
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
     jwin_set_colors(jwin_pal);
     
     get_bw(picpal,pblack,pwhite);
@@ -937,7 +936,6 @@ bool grab_dataset(int32_t dataset)
     
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
-    gui_mg_color=jwin_pal[jcMEDDARK];
     jwin_set_colors(jwin_pal);
     
     rgb_map = &zq_rgb_table;
@@ -1083,7 +1081,7 @@ void draw_cset_proc(DIALOG *d)
     int32_t drc;
     
     if((d->flags & D_GOTFOCUS))
-        drc = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+        drc = (d->flags & D_DISABLED) ? jwin_pal[jcDISABLED_FG] : d->fg;
     else
         drc = d->bg;
         
@@ -1559,7 +1557,6 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     saved=false; //It's just easier this way :)
     //  gui_fg_color = vc(14);
     //  gui_bg_color = vc(1);
-    //  gui_mg_color = vc(9);
     
     comeback();
     destroy_bitmap(bmp);

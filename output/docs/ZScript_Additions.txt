@@ -5091,6 +5091,14 @@ int SetItemSlot(int itm_id, int button, int force);
  * This allows you to set Link's button items without binary operation with options for forcing them.
  * Use the constants ITM_REQUIRE_* and ITM_SLOT_* from <std> when passing values into this function. 
 
+void SelectAWeapon(int dir);
+void SelectBWeapon(int dir);
+void SelectXWeapon(int dir);
+void SelectYWeapon(int dir);
+	* Changes the A/B/X/Y button item (respectively), in the same manner the engine subscreen cursor
+	* moves. DIR_RIGHT/DIR_LEFT are equivalent to how quickswap cycles.
+	* A/X/Y versions do nothing if the QR allowing items to be set for that button is not enabled.
+
 bool Diagonal;	
  * This corresponds to whether 'Diagonal Movement' is enabled, or not. 
 

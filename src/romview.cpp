@@ -981,7 +981,7 @@ int32_t onROMTypes()
     char buf[EXTLEN];
     strcpy(buf, rom_ext);
     
-    centre_dialog(types_dlg);
+    center_dialog(types_dlg);
     
     types_dlg[0].dp2 = lfont;
     types_dlg[2].dp = buf;
@@ -1638,7 +1638,6 @@ void setup_colors()
     get_bw(pal[currpal]);
     gui_bg_color = black;
     gui_fg_color = white;
-    gui_mg_color = ltgray;
     set_dialog_color(main_dlg, gui_fg_color, gui_bg_color);
     
     jwin_colors[jcSELFG] =
@@ -1895,13 +1894,13 @@ int32_t main(int32_t argc, char **argv)
     
     if((fontsdata=load_datafile("fonts.dat"))==NULL)
     {
-        Z_error("failed");
+        Z_error_fatal("failed");
     }
     
     if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,23))
     {
         unload_datafile(fontsdata);
-        Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+        Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
     }
     
     Z_message("OK\n");

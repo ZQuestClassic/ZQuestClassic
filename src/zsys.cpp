@@ -312,6 +312,24 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
 }
 
 
+void Z_error_fatal(const char *format,...)
+{
+    char buf[256];
+    
+    va_list ap;
+    va_start(ap, format);
+    vsprintf(buf, format, ap);
+    va_end(ap);
+    
+#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+    printf("%s",buf);
+#endif
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+	al_trace("%s",buf);
+    exit(1);
+}
+
 void Z_error(const char *format,...)
 {
     char buf[256];
@@ -324,11 +342,9 @@ void Z_error(const char *format,...)
 #if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
-    if(zscript_coloured_console.valid())
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
-    exit(1);
 }
 
 void Z_message(const char *format,...)
@@ -344,9 +360,8 @@ void Z_message(const char *format,...)
     printf("%s",buf);
 #endif
     al_trace("%s",buf);
-    if(zscript_coloured_console.valid())
-		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+    zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
     if(zconsole)
         printf("%s",buf);
 }
@@ -400,6 +415,50 @@ void Z_title(const char *format,...)
     if(zscript_coloured_console.valid())
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s\n", buf);
+}
+
+#if defined(IS_ZQUEST) || defined(IS_PLAYER)
+extern byte quest_rules[QUESTRULES_SIZE];
+#endif
+void zprint(const char * const format,...)
+{
+	#if defined(IS_ZQUEST) || defined(IS_PLAYER)
+	if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+	#endif
+	{
+		char buf[2048];
+		
+		va_list ap;
+		va_start(ap, format);
+		vsprintf(buf, format, ap);
+		va_end(ap);
+		al_trace("%s",buf);
+		
+		if(zconsole)
+		{
+			printf("%s",buf);
+		}
+		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
+	}
+}
+
+void zprint2(const char * const format,...)
+{
+	char buf[2048];
+	
+	va_list ap;
+	va_start(ap, format);
+	vsprintf(buf, format, ap);
+	va_end(ap);
+	al_trace("%s",buf);
+	
+	if(zconsole)
+	{
+		printf("%s",buf);
+	}
+	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
+		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 }
 
 int32_t anim_3_4(int32_t clk, int32_t speed)
@@ -1353,7 +1412,7 @@ void textout_shadow_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int
     textout_ex(bmp, f, s, x, y+1, shadow, -1);
 }
 
-void textout_shadow_centre_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
+void textout_shadow_center_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
@@ -1377,7 +1436,7 @@ void textout_shadow_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, i
     textout_ex(bmp, f, s, x-1, y, shadow, -1);
 }
 
-void textout_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
+void textout_shadow_center_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_u_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
@@ -1404,7 +1463,7 @@ void textout_shadow_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, i
     textout_ex(bmp, f, s, x, y-1, shadow, -1);
 }
 
-void textout_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
+void textout_shadow_center_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_o_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
@@ -1427,7 +1486,7 @@ void textout_shadow_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x
     textout_ex(bmp, f, s, x, y-1, shadow, -1);
 }
 
-void textout_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
+void textout_shadow_center_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_plus_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
@@ -1450,7 +1509,7 @@ void textout_shadow_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, i
     textout_ex(bmp, f, s, x-1, y-1, shadow, -1);
 }
 
-void textout_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
+void textout_shadow_center_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t shadow, int32_t bg)
 {
     textout_shadow_x_ex(bmp, f, s, x-(text_length(f, s)/2), y, shadow, bg);
 }
@@ -1466,7 +1525,7 @@ void textout_shadowed_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, i
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
+void textout_shadowed_center_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
@@ -1482,7 +1541,7 @@ void textout_shadowed_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x,
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
+void textout_shadowed_center_u_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_u_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
@@ -1498,7 +1557,7 @@ void textout_shadowed_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x,
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
+void textout_shadowed_center_o_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_o_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
@@ -1514,7 +1573,7 @@ void textout_shadowed_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
+void textout_shadowed_center_plus_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_plus_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
@@ -1530,7 +1589,7 @@ void textout_shadowed_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x,
     textout_ex(bmp, f, s, x, y, color, -1);
 }
 
-void textout_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
+void textout_shadowed_center_x_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg)
 {
     textout_shadowed_x_ex(bmp, f, s, x-(text_length(f, s)/2), y, color, shadow, bg);
 }
@@ -1555,7 +1614,7 @@ void textprintf_shadow_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int3
     textout_shadow_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadow_center_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1601,7 +1660,7 @@ void textprintf_shadow_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     textout_shadow_u_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadow_center_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1647,7 +1706,7 @@ void textprintf_shadow_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     textout_shadow_o_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadow_center_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1698,7 +1757,7 @@ void textprintf_shadow_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y,
     textout_shadow_plus_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadow_center_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1743,7 +1802,7 @@ void textprintf_shadow_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     textout_shadow_x_ex(bmp, f, buf, x, y, shadow, bg);
 }
 
-void textprintf_shadow_centre_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadow_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1802,7 +1861,7 @@ void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, in
     textout_shadowed_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadowed_center_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1847,7 +1906,7 @@ void textprintf_shadowed_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
     textout_shadowed_u_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadowed_center_u_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1892,7 +1951,7 @@ void textprintf_shadowed_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
     textout_shadowed_o_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadowed_center_o_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1937,7 +1996,7 @@ void textprintf_shadowed_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t 
     textout_shadowed_plus_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadowed_center_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;
@@ -1983,7 +2042,7 @@ void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
     textout_shadowed_x_ex(bmp, f, buf, x, y, color, shadow, bg);
 }
 
-void textprintf_shadowed_centre_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
+void textprintf_shadowed_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
     va_list ap;

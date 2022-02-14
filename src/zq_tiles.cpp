@@ -386,7 +386,7 @@ void go_tiles()
 		
 		if(newundotilebuf[i].data==NULL)
 		{
-			Z_error("Unable to initialize undo tile #%ld.\n", i);
+			Z_error_fatal("Unable to initialize undo tile #%ld.\n", i);
 			exit(1);
 		}
 		
@@ -419,7 +419,7 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 			
 			if(newundotilebuf[t].data==NULL)
 			{
-				Z_error("Unable to initialize undo tile #%ld.\n", t);
+				Z_error_fatal("Unable to initialize undo tile #%ld.\n", t);
 				exit(1);
 			}
 			
@@ -443,7 +443,7 @@ void comeback_tiles()
 		
 		if(newtilebuf[i].data==NULL)
 		{
-			Z_error("Unable to initialize tile #%ld.\n", i);
+			Z_error_fatal("Unable to initialize tile #%ld.\n", i);
 			exit(1);
 		}
 		
@@ -708,7 +708,7 @@ void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,cons
 	if(flags&D_DISABLED)
 	{
 		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
-		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcMEDDARK],-1);
+		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcDISABLED_FG],-1);
 	}
 	else
 		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
@@ -4045,7 +4045,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			
 			if(dest[currtile].data==NULL)
 			{
-				Z_error("Unable to initialize tile #%d.\n", currtile);
+				Z_error_fatal("Unable to initialize tile #%d.\n", currtile);
 			}
 			
 			if(canadd==true)
@@ -4833,7 +4833,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				jwin_pal[jcSELFG]  =imagepal_table.data[0][jwin_pal[jcSELFG]];
 				gui_bg_color=jwin_pal[jcBOX];
 				gui_fg_color=jwin_pal[jcBOXFG];
-				gui_mg_color=jwin_pal[jcMEDDARK];
 				jwin_set_colors(jwin_pal);
 			}
 			else
@@ -4844,7 +4843,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 				memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
 				gui_bg_color=jwin_pal[jcBOX];
 				gui_fg_color=jwin_pal[jcBOXFG];
-				gui_mg_color=jwin_pal[jcMEDDARK];
 				jwin_set_colors(jwin_pal);
 			}
 			
@@ -4893,7 +4891,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 	memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
 	gui_bg_color=jwin_pal[jcBOX];
 	gui_fg_color=jwin_pal[jcBOXFG];
-	gui_mg_color=jwin_pal[jcMEDDARK];
 	jwin_set_colors(jwin_pal);
 	
 	
@@ -4921,7 +4918,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				
 				if(newtilebuf[temptile].data==NULL)
 				{
-					Z_error("Unable to initialize tile #%d.\n", temptile);
+					Z_error_fatal("Unable to initialize tile #%d.\n", temptile);
 					break;
 				}
 				
@@ -5276,7 +5273,7 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
   buf[t].data=(byte *)zc_malloc(tilesize(buf[t].format));
   if (buf[t].data==NULL)
   {
-	Z_error("Unable to initialize tile #%d.\n", t);
+	Z_error_fatal("Unable to initialize tile #%d.\n", t);
   }
   for(int32_t i=0; i<tilesize(buf[t].format); i++)
   {

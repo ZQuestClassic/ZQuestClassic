@@ -97,7 +97,7 @@ int32_t main(int32_t argc, char* argv[])
 		|| install_keyboard() < 0
 		|| install_mouse() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
 	
@@ -109,14 +109,14 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
 	{
-		Z_error("couldn't allocate timer\n");
+		Z_error_fatal("couldn't allocate timer\n");
 		QUIT_LAUNCHER();
 	}
 	LOCK_VARIABLE(myvsync);
 	LOCK_FUNCTION(myvsync_callback);
 	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(60)))
 	{
-		Z_error("couldn't allocate timer\n");
+		Z_error_fatal("couldn't allocate timer\n");
 		QUIT_LAUNCHER();
 	}
 	
@@ -142,14 +142,14 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("....Fonts.Dat..."); //{
 	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
 	{
-		Z_error("failed: load error\n");
+		Z_error_fatal("failed: load error\n");
 		QUIT_LAUNCHER();
 	}
 	char fontsdat_sig[52]={0};
 	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
-		Z_error("failed: version error\n");
+		Z_error_fatal("failed: version error\n");
 		QUIT_LAUNCHER();
 	}
 	initFonts();
@@ -165,7 +165,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(videofail)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
 	
@@ -179,7 +179,7 @@ int32_t main(int32_t argc, char* argv[])
 	
 	if(!(tmp_scr && mouse_bmp && screen))
 	{
-		Z_error("failed\n");
+		Z_error_fatal("failed\n");
 		QUIT_LAUNCHER();
 	}
 	Z_message("OK\n");

@@ -860,8 +860,8 @@ int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if(d->flags & D_DISABLED)
 			{
-				gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
-				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 0);
+				gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcDISABLED_BG]], 0);
+				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 0);
 			}
 			else
 			{
@@ -900,8 +900,8 @@ int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 1);
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 1);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcDISABLED_BG]], 1);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 1);
         }
         else
         {
@@ -939,8 +939,8 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 2);
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcMEDDARK]], -1, 2);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcDISABLED_BG]], 2);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 2);
         }
         else
         {
@@ -1016,7 +1016,7 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
     else
     {
         gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
-        gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, palette_color[scheme[jcMEDDARK]], -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
     }
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
@@ -1357,9 +1357,22 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             font = (FONT*)d->dp2;
         }
-        
-        fg = (d->flags & D_DISABLED) || (d->flags & D_READONLY) ? scheme[jcMEDDARK] : scheme[jcTEXTFG];
-        bg = (d->flags&D_READONLY)?scheme[jcTEXTFG]:((d->flags & D_DISABLED) ? scheme[jcBOX] : scheme[jcTEXTBG]);
+        if(d->flags & D_DISABLED)
+		{
+			fg = scheme[jcDISABLED_FG];
+			bg = scheme[jcDISABLED_BG];
+		}
+		else if(d->flags & D_READONLY)
+		{
+			fg = scheme[jcALT_TEXTFG];
+			bg = scheme[jcALT_TEXTBG];
+		}
+		else
+		{
+			fg = scheme[jcTEXTFG];
+			bg = scheme[jcTEXTBG];
+		}
+		
         x = 3;
         y = (d->h - text_height(font)) / 2 + d->y;
         
@@ -2564,8 +2577,8 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	bar = (listsize > height);
 	w = (bar ? d->w-21 : d->w-5);
 	rectfill(screen, d->x,  d->y, d->x+d->w-1, d->y+d->h+9, scheme[jcBOX]);
-	fg_color = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : (d->fg ? d->fg : scheme[jcTEXTFG]);
-	bg_color = (d->flags & D_DISABLED) ? scheme[jcBOX] : (d->bg ? d->bg : scheme[jcTEXTBG]);
+	fg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : (d->fg ? d->fg : scheme[jcTEXTFG]);
+	bg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_BG] : (d->bg ? d->bg : scheme[jcTEXTBG]);
 	
 	rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
 	_allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
@@ -2598,7 +2611,7 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	        }
 	        else if((sel) && (sel[d->d2+i]))
 	        {
-	            fg = scheme[jcMEDDARK];
+	            fg = scheme[jcDISABLED_FG];
 	            bg = scheme[jcSELBG];
 	        }
 	        else
@@ -2655,8 +2668,8 @@ void _jwin_draw_listbox(DIALOG *d)
     height = (d->h-3) / text_height(*data->font);
     bar = (listsize > height);
     w = (bar ? d->w-21 : d->w-5);
-    fg_color = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : (d->fg ? d->fg : scheme[jcTEXTFG]);
-    bg_color = (d->flags & D_DISABLED) ? scheme[jcBOX] : (d->bg ? d->bg : scheme[jcTEXTBG]);
+    fg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : (d->fg ? d->fg : scheme[jcTEXTFG]);
+    bg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_BG] : (d->bg ? d->bg : scheme[jcTEXTBG]);
     
     rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
     _allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
@@ -3269,8 +3282,8 @@ void _jwin_draw_textbox(char *thetext, int32_t *listsize, int32_t draw, int32_t 
     /* choose the text color */
     if(disabled)
     {
-        fg = scheme[jcMEDDARK];
-        bg = scheme[jcBOX];
+        fg = scheme[jcDISABLED_FG];
+        bg = scheme[jcDISABLED_BG];
     }
     
     /* do some drawing setup */
@@ -3449,7 +3462,7 @@ void _jwin_draw_textbox(char *thetext, int32_t *listsize, int32_t draw, int32_t 
 
 /* jwin_textbox_proc:
   *  A text box object. The dp field points to a char * which is the text
-  *  to be displayed in the text box. If the text is int32_t, there will be
+  *  to be displayed in the text box. If the text is long, there will be
   *  a vertical scrollbar on the right hand side of the object which can
   *  be used to scroll through the text. The default is to print the text
   *  with word wrapping, but if the D_SELECTED flag is set, the text will
@@ -3462,7 +3475,7 @@ int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c)
     int32_t height, bar, ret = D_O_K;
     int32_t start, top, bottom,l;
     int32_t used, delta;
-    //   int32_t fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+    //   int32_t fg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
     
     FONT *oldfont=NULL;
     
@@ -3685,8 +3698,8 @@ int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c)
     switch(msg)
     {
     case MSG_DRAW:
-        //      sfg = (d->flags & D_DISABLED) ? gui_mg_color : scheme[jcBOXFG];
-        sfg = (d->flags & D_DISABLED) ? scheme[jcMEDDARK] : scheme[jcBOXFG];
+        //      sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : scheme[jcBOXFG];
+        sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : scheme[jcBOXFG];
         
         if(vert)
         {
@@ -4753,7 +4766,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		
 		case MSG_DRAW:
 		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcBOX] : d->d1);
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcDISABLED_BG] : d->d1);
 			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
 			break;
 		}
@@ -5041,7 +5054,7 @@ int32_t d_autotext_proc(int32_t msg, DIALOG *d, int32_t c)
 		
 		case MSG_DRAW:
 		{
-			int32_t fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+			int32_t fg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
 			int32_t linecount = d->d2;
 			
 			int32_t yinc = text_height(font)+d->d1;
@@ -5561,8 +5574,8 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 if(d->flags & D_DISABLED)
                 {
-                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-                    tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                    tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
                     bx=tl+text_height(font)/2;
                 }
                 else
@@ -5588,8 +5601,8 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 if(d->flags & D_DISABLED)
                 {
-                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-                    tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                    tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
                 }
                 else
                 {
@@ -5647,8 +5660,8 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
 						bx=tl+text_height(font)/2;
 					}
 					else
@@ -5674,8 +5687,8 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
 					}
 					else
 					{
@@ -5743,8 +5756,8 @@ int32_t jwin_radio_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             if(d->flags & D_DISABLED)
             {
-                gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-                tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcMEDDARK], -1, 0);
+                gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
             }
             else
             {
@@ -5782,7 +5795,7 @@ int32_t jwin_radio_proc(int32_t msg, DIALOG *d, int32_t c)
             arc(screen, center, d->y+r, itofix(32), itofix(160), r, vc(0));
             circlefill(screen, center, d->y+r, r-1, scheme[jcTEXTBG]);
             arc(screen, center, d->y+r, itofix(32), itofix(160), r-1, vc(0));
-            circlefill(screen, center, d->y+r, r-2, (d->flags & D_DISABLED)?scheme[jcBOX]:scheme[jcTEXTBG]);
+            circlefill(screen, center, d->y+r, r-2, (d->flags & D_DISABLED)?scheme[jcDISABLED_BG]:scheme[jcTEXTBG]);
             
             if(d->flags & D_SELECTED)
             {
@@ -7113,7 +7126,7 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
     {
     
     case MSG_DRAW:
-        sfg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+        sfg = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
         
         if(vert)
         {
@@ -7357,12 +7370,12 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
 			{
 				g = 1;
 				state1 = d->bg;
-				state2 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+				state2 = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
 			}
 			else
 			{
 				g = 0;
-				state1 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+				state1 = (d->flags & D_DISABLED) ? scheme[jcDISABLED_FG] : d->fg;
 				state2 = d->bg;
 			}
 			

@@ -47,6 +47,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_COMPILE_ERR] = zc_get_config("Compiler", "compile_error_sample", 28);
 	opts[OPT_COMPILE_DONE] = zc_get_config("Compiler", "compile_finish_sample", 34);
 	opts[OPT_COMPILE_VOL] = zc_get_config("Compiler", "compile_audio_volume", 100);
+	opts[OPT_DISABLE_LPAL_SHORTCUT] = DisableLPalShortcuts;
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -84,12 +85,14 @@ void OptionsDialog::saveOptions()
 	SnapshotFormat = opts[OPT_SNAPFORMAT];
 	KeyboardRepeatDelay = opts[OPT_KBREPDEL];
 	KeyboardRepeatRate = opts[OPT_KBREPRATE];
+	KeyboardRepeatRate = opts[OPT_KBREPRATE];
 	zc_set_config("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
 	zc_set_config("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
 	zc_set_config("Compiler", "compile_success_sample", opts[OPT_COMPILE_OK]);
 	zc_set_config("Compiler", "compile_error_sample", opts[OPT_COMPILE_ERR]);
 	zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
 	zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
+	DisableLPalShortcuts = opts[OPT_DISABLE_LPAL_SHORTCUT];
 	load_mice(); //Reset cursor scale
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 }
@@ -263,7 +266,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
 					OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
 					OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
-					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update")
+					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
+					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),

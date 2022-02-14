@@ -24,20 +24,20 @@
 	pt = posix_openpt(O_RDWR);
 	if (pt == -1)
 	{
-		Z_error("Could not open pseudo terminal; error number: %d.\n", errno);
+		Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
 		use_debug_console = 0; goto no_lx_console;
 	}
 	ptname = ptsname(pt);
 	if (!ptname)
 	{
-		Z_error("Could not get pseudo terminal device name.\n");
+		Z_error_fatal("Could not get pseudo terminal device name.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
 
 	if (unlockpt(pt) == -1)
 	{
-		Z_error("Could not get pseudo terminal device name.\n");
+		Z_error_fatal("Could not get pseudo terminal device name.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
@@ -57,13 +57,13 @@
 
 	if (dup2(pt, 1) <0)
 	{
-		Z_error("Could not redirect standard output.\n");
+		Z_error_fatal("Could not redirect standard output.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
 	if (dup2(pt, 2) <0)
 	{
-		Z_error("Could not redirect standard error output.\n");
+		Z_error_fatal("Could not redirect standard error output.\n");
 		close(pt);
 		use_debug_console = 0; goto no_lx_console;
 	}
@@ -71,7 +71,7 @@
     
     no_lx_console:
     {
-	    //Z_error("Could not open Linux console.\n");
+	    //Z_error_fatal("Could not open Linux console.\n");
     }
     
     

@@ -12471,12 +12471,12 @@ void HeroClass::movehero()
 					{
 						do
 						{
-							info = walkflag(x,(zfix)vbound((bigHitbox?0:8)+(y-hero_newstep), 0, 175),2,up);
+							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
 							
 							if(x.getFloor() & 7)
-								info = info || walkflag(x+15,(zfix)vbound((bigHitbox?0:8)+(y-hero_newstep), 0, 175),1,up);
+								info = info || walkflag(x+16,(bigHitbox?0:8)+(y-hero_newstep),1,up);
 							else if(blockmoving)
-								info = info || walkflagMBlock(x+15, (zfix)vbound((bigHitbox?0:8)+(y-hero_newstep), 0, 175));
+								info = info || walkflagMBlock(x+16, (bigHitbox?0:8)+(y-hero_newstep));
 								
 							execute(info);
 							
@@ -12512,7 +12512,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = (walkflag((zfix)vbound(x-hero_newstep_diag, 0, 255),y+(bigHitbox?0:8),1,left)||walkflag((zfix)vbound(x-hero_newstep_diag, 0, 255),y+15,1,left));
+								info = (walkflag(x-hero_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep_diag,y+15,1,left));
 									
 								execute(info);
 								
@@ -12535,7 +12535,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x-hero_newstep_diag, 0, 255),(zfix)vbound((bigHitbox?0:8)+(y-hero_newstep), 0, 175),1,left);
+										info = walkflag(x-hero_newstep_diag,(bigHitbox?0:8)+(y-hero_newstep),1,left);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12565,7 +12565,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = (walkflag((zfix)vbound(x+15+hero_newstep_diag, 0, 255),y+(bigHitbox?0:8),1,right)||walkflag((zfix)vbound(x+15+hero_newstep_diag, 0, 255),y+15,1,right));
+								info = (walkflag(x+15+hero_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep_diag,y+15,1,right));
 									
 								execute(info);
 								
@@ -12588,7 +12588,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x+15+hero_newstep_diag, 0, 255),(zfix)vbound((bigHitbox?0:8)+(y-hero_newstep), 0, 175),1,right);
+										info = walkflag(x+15+hero_newstep_diag,(bigHitbox?0:8)+(y-hero_newstep),1,right);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12697,12 +12697,12 @@ void HeroClass::movehero()
 					{
 						do
 						{
-							info = walkflag(x,(zfix)vbound(15+(y+hero_newstep), 0, 175),2,down);
+							info = walkflag(x,15+(y+hero_newstep),2,down);
 							
 							if(x.getFloor() & 7)
-								info = info || walkflag(x+15,(zfix)vbound(15+(y+hero_newstep), 0, 175),1,down);
+								info = info || walkflag(x+16,15+(y+hero_newstep),1,down);
 							else if(blockmoving)
-								info = info || walkflagMBlock(x+15, (zfix)vbound(15+(y+hero_newstep), 0, 175));
+								info = info || walkflagMBlock(x+16, 15+(y+hero_newstep));
 								
 							execute(info);
 							
@@ -12738,7 +12738,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = (walkflag((zfix)vbound(x-hero_newstep_diag, 0, 255),y+(bigHitbox?0:8),1,left)||walkflag((zfix)vbound(x-hero_newstep_diag, 0, 255),y+15,1,left));
+								info = (walkflag(x-hero_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep_diag,y+15,1,left));
 									
 								execute(info);
 								
@@ -12761,7 +12761,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x-hero_newstep_diag, 0, 255),(zfix)vbound(15+(y+hero_newstep), 0, 175),1,left);
+										info = walkflag(x-hero_newstep_diag,15+(y+hero_newstep),1,left);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12791,7 +12791,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = (walkflag((zfix)vbound(x+15+hero_newstep_diag, 0, 255),y+(bigHitbox?0:8),1,right)||walkflag((zfix)vbound(x+15+hero_newstep_diag, 0, 255),y+15,1,right));
+								info = (walkflag(x+15+hero_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep_diag,y+15,1,right));
 									
 								execute(info);
 								
@@ -12814,7 +12814,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x+15+hero_newstep_diag, 0, 255),(zfix)vbound(15+(y+hero_newstep), 0, 175),1,right);
+										info = walkflag(x+15+hero_newstep_diag,15+(y+hero_newstep),1,right);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -12910,10 +12910,10 @@ void HeroClass::movehero()
 					
 					do
 					{
-						info = walkflag((zfix)vbound(x-hero_newstep, 0, 255),y+(bigHitbox?0:8),1,left)||walkflag((zfix)vbound(x-hero_newstep, 0, 255),y+8,1,left);
+						info = walkflag(x-hero_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep,y+8,1,left);
 						
 						if(y.getFloor() & 7)
-							info = info || walkflag((zfix)vbound(x-hero_newstep, 0, 255),y+15,1,left);
+							info = info || walkflag(x-hero_newstep,y+16,1,left);
 							
 						execute(info);
 						
@@ -12948,7 +12948,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,(zfix)vbound(y+(bigHitbox?0:8)-hero_newstep_diag, 0, 175),2,up)||walkflag(x+15,(zfix)vbound(y+(bigHitbox?0:8)-hero_newstep_diag, 0, 175),1,up);
+								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 									
 								execute(info);
 								
@@ -12971,7 +12971,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x-hero_newstep, 0, 255),(zfix)vbound(y+(bigHitbox?0:8)-hero_newstep_diag, 0, 175),1,up);
+										info = walkflag(x-hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13001,7 +13001,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,(zfix)vbound(y+15+hero_newstep_diag, 0, 175),2,down)||walkflag(x+15,(zfix)vbound(y+15+hero_newstep_diag, 0, 175),1,down);
+								info = walkflag(x,y+15+hero_newstep_diag,2,down)||walkflag(x+15,y+15+hero_newstep_diag,1,down);
 								
 								execute(info);
 								
@@ -13024,7 +13024,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x-hero_newstep, 0, 255),(zfix)vbound(y+15+hero_newstep_diag, 0, 175),1,down);
+										info = walkflag(x-hero_newstep,y+15+hero_newstep_diag,1,down);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13127,10 +13127,10 @@ void HeroClass::movehero()
 					
 					do
 					{
-						info = walkflag((zfix)vbound(x+15+hero_newstep, 0, 255),y+(bigHitbox?0:8),1,right)||walkflag((zfix)vbound(x+15+hero_newstep, 0, 255),y+8,1,right);;
+						info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep,y+8,1,right);;
 						
 						if(y.getFloor() & 7)
-							info = info || walkflag((zfix)vbound(x+15+hero_newstep, 0, 255),y+15,1,right);
+							info = info || walkflag(x+15+hero_newstep,y+16,1,right);
 							
 						execute(info);
 						
@@ -13165,7 +13165,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,(zfix)vbound(y+(bigHitbox?0:8)-hero_newstep_diag, 0, 175),2,up)||walkflag(x+15,(zfix)vbound(y+(bigHitbox?0:8)-hero_newstep_diag, 0, 175),1,up);
+								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 								
 								execute(info);
 								
@@ -13188,7 +13188,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x+15+hero_newstep, 0, 255),(zfix)vbound(y+(bigHitbox?0:8)-hero_newstep_diag, 0, 175),1,up);
+										info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -13218,7 +13218,7 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,(zfix)vbound(y+15+hero_newstep_diag, 0, 175),2,down)||walkflag(x+15,(zfix)vbound(y+15+hero_newstep_diag, 0, 175),1,down);
+								info = walkflag(x,y+15+hero_newstep_diag,2,down)||walkflag(x+15,y+15+hero_newstep_diag,1,down);
 									
 								execute(info);
 								
@@ -13241,7 +13241,7 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag((zfix)vbound(x+15+hero_newstep, 0, 255),(zfix)vbound(y+15+hero_newstep_diag, 0, 175),1,down);
+										info = walkflag(x+15+hero_newstep,y+15+hero_newstep_diag,1,down);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -15646,6 +15646,9 @@ HeroClass::WalkflagInfo HeroClass::walkflag(zfix fx,zfix fy,int32_t cnt,byte d2)
 HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d2)
 {
     WalkflagInfo ret;
+    
+    wx = vbound(wx, 0, 255);
+    wy = vbound(wy, 0, 175);
     
     if(toogam)
     {

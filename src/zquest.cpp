@@ -452,7 +452,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int32_t  Flags=0,Flag=1,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 bool Vsync = false, ShowFPS = false;
@@ -1524,7 +1524,6 @@ int32_t onFullScreen()
 	    gui_mouse_focus=0;
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
-	    gui_mg_color=jwin_pal[jcMEDDARK];
 	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	    //zqwin_set_scale(zq_scale);
 	    set_palette(RAMpal);
@@ -3569,7 +3568,7 @@ int32_t on0()
 		CurrentLayer = 0;
 		refresh(rALL);
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(0);
 		refresh(rSCRMAP);
@@ -3591,7 +3590,7 @@ int32_t on1()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(1);
 		refresh(rSCRMAP);
@@ -3613,7 +3612,7 @@ int32_t on2()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(2);
 		refresh(rSCRMAP);
@@ -3635,7 +3634,7 @@ int32_t on3()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(3);
 		refresh(rSCRMAP);
@@ -3657,7 +3656,7 @@ int32_t on4()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(4);
 		refresh(rSCRMAP);
@@ -3679,7 +3678,7 @@ int32_t on5()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(5);
 		refresh(rSCRMAP);
@@ -3699,7 +3698,7 @@ int32_t on6()
 			refresh(rALL);
 		}
 	}
-	else
+	else if(!DisableLPalShortcuts)
 	{
 		Map.setcolor(6);
 		refresh(rSCRMAP);
@@ -3708,66 +3707,93 @@ int32_t on6()
 }
 int32_t on7()
 {
-    saved=false;
-    Map.setcolor(7);
-    refresh(rSCRMAP);
-    return D_O_K;
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(7);
+		refresh(rSCRMAP);
+    }
+	return D_O_K;
 }
 int32_t on8()
 {
-    saved=false;
-    Map.setcolor(8);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(8);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on9()
 {
-    saved=false;
-    Map.setcolor(9);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(9);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 
 int32_t on10()
 {
-    saved=false;
-    Map.setcolor(10);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(10);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on11()
 {
-    saved=false;
-    Map.setcolor(11);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(11);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on12()
 {
-    saved=false;
-    Map.setcolor(12);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(12);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on13()
 {
-    saved=false;
-    Map.setcolor(13);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(13);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on14()
 {
-    saved=false;
-    Map.setcolor(14);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(14);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 int32_t on15()
 {
-    saved=false;
-    Map.setcolor(15);
-    refresh(rSCRMAP);
+	if(!DisableLPalShortcuts)
+    {
+		saved=false;
+		Map.setcolor(15);
+		refresh(rSCRMAP);
+    }
     return D_O_K;
 }
 
@@ -13928,6 +13954,7 @@ int32_t onScreenPalette()
 
 int32_t onDecScrPal()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse();
     int32_t c=Map.getcolor();
     c+=511;
@@ -13940,6 +13967,7 @@ int32_t onDecScrPal()
 
 int32_t onIncScrPal()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse();
     int32_t c=Map.getcolor();
     c+=1;
@@ -13962,6 +13990,7 @@ int32_t PalWrap(int32_t kX, int32_t const kLowerBound, int32_t const kUpperBound
 
 int32_t onDecScrPal16()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse(); 
     int32_t c=Map.getcolor();
       
@@ -13975,6 +14004,7 @@ int32_t onDecScrPal16()
 
 int32_t onIncScrPal16()
 {
+	if(DisableLPalShortcuts) return D_O_K;
     restore_mouse();
     int32_t c=Map.getcolor();
       	    
@@ -27300,7 +27330,7 @@ int32_t onImportZASM()
 	return D_O_K;
 }
 
-void centre_zscript_dialogs()
+void center_zscript_dialogs()
 {
     jwin_center_dialog(zscript_parser_dlg);
     jwin_center_dialog(exportzasm_dlg);
@@ -29208,7 +29238,7 @@ int32_t main(int32_t argc,char **argv)
 	);
 		*/
 
-		Z_error("Error");
+		Z_error_fatal("Error");
 		quit_game();
 	}
 	
@@ -29219,7 +29249,7 @@ int32_t main(int32_t argc,char **argv)
 	enhancedMusic = (emusic*)zc_malloc(sizeof(emusic)*MAXMUSIC);
 	if(!enhancedMusic)
 	{
-	  Z_error("Error");
+	  Z_error_fatal("Error");
 	}
 	Z_message("OK\n");									  // Allocating Enhanced Music buffer...
 	*/
@@ -29234,7 +29264,7 @@ int32_t main(int32_t argc,char **argv)
 	);*/
 		
 
-		Z_error("Error");
+		Z_error_fatal("Error");
 		quit_game();
 	}
 	
@@ -29252,7 +29282,7 @@ int32_t main(int32_t argc,char **argv)
 		"No memory for combo undo buffer!"
 	);*/
 
-		Z_error("Error: no memory for combo undo buffer!");
+		Z_error_fatal("Error: no memory for combo undo buffer!");
 		quit_game();
 	}
 	
@@ -29263,7 +29293,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if((newundotilebuf=(tiledata*)zc_malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
 	{
-		Z_error("Error: no memory for tile undo buffer!");
+		Z_error_fatal("Error: no memory for tile undo buffer!");
 		quit_game();
 	}
 	
@@ -29299,7 +29329,7 @@ int32_t main(int32_t argc,char **argv)
 	);
 		*/
 
-		Z_error("Error: no memory for file paths!");
+		Z_error_fatal("Error: no memory for file paths!");
 		quit_game();
 	}
 	
@@ -29323,19 +29353,19 @@ int32_t main(int32_t argc,char **argv)
 		initConsole();
 	if(install_timer() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_keyboard() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
 	if(install_mouse() < 0)
 	{
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 	}
 	
@@ -29348,7 +29378,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
 	{
-		Z_error("couldn't allocate timer");
+		Z_error_fatal("couldn't allocate timer");
 		quit_game();
 	}
 	
@@ -29386,7 +29416,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load fonts datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
@@ -29397,7 +29427,7 @@ int32_t main(int32_t argc,char **argv)
 	(
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-		Z_error("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
+		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
 	);
 
 		quit_game();
@@ -29417,7 +29447,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load ZQ Creator datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
@@ -29446,7 +29476,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load quest datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed");
+		Z_error_fatal("failed");
 		quit_game();
 	}
 	
@@ -29459,7 +29489,7 @@ int32_t main(int32_t argc,char **argv)
 		if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
 		{
 			pack_fclose(f);
-			Z_error("failed");
+			Z_error_fatal("failed");
 			quit_game();
 		}
 	}
@@ -29474,7 +29504,7 @@ int32_t main(int32_t argc,char **argv)
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);	
 	
-		Z_error("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
+		Z_error_fatal("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
 	);
 
 		quit_game();
@@ -29500,7 +29530,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to load SFX datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 	);
 
-		Z_error("failed %s", allegro_error);
+		Z_error_fatal("failed %s", allegro_error);
 		quit_game();
 	}
 	
@@ -29512,7 +29542,7 @@ int32_t main(int32_t argc,char **argv)
 		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of sfx.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 		quit_game();
-		Z_error("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
+		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
 	);
 
 		quit_game();
@@ -29549,7 +29579,7 @@ int32_t main(int32_t argc,char **argv)
 	helpsize = file_size_ex_password("zquest.txt","");
 	if(helpsize==0)
 	{
-		Z_error("Error: zquest.txt not found.");
+		Z_error_fatal("Error: zquest.txt not found.");
 		quit_game();
 	}
 	}
@@ -29566,7 +29596,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating help buffer.");
+		Z_error_fatal("Error allocating help buffer.");
 		quit_game();
 	}
 	
@@ -29586,7 +29616,7 @@ int32_t main(int32_t argc,char **argv)
 			"Failed to read zquest.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading zquest.txt.");
+		Z_error_fatal("Error loading zquest.txt.");
 		quit_game();
 	}
 	}
@@ -29622,7 +29652,7 @@ int32_t main(int32_t argc,char **argv)
 			"shield_block_flags.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error: shield_block_flags.txt not found.");
+		Z_error_fatal("Error: shield_block_flags.txt not found.");
 		quit_game();
 	}
 	}
@@ -29639,7 +29669,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating shieldblockhelp buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating shieldblockhelp buffer.");
+		Z_error_fatal("Error allocating shieldblockhelp buffer.");
 		quit_game();
 	}
 	
@@ -29658,7 +29688,7 @@ int32_t main(int32_t argc,char **argv)
 			"Failed loading shield_block_flags.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading shield_block_flags.txt.");
+		Z_error_fatal("Error loading shield_block_flags.txt.");
 		quit_game();
 	}
 	}
@@ -29694,7 +29724,7 @@ int32_t main(int32_t argc,char **argv)
 			"zscript.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error: zscript.txt not found.");
+		Z_error_fatal("Error: zscript.txt not found.");
 		quit_game();
 	}
 	}
@@ -29711,7 +29741,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating ZScript Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating ZScript Help buffer.");
+		Z_error_fatal("Error allocating ZScript Help buffer.");
 		quit_game();
 	}
 	
@@ -29730,7 +29760,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading zscript.txt.");
+		Z_error_fatal("Error loading zscript.txt.");
 		quit_game();
 	}
 	}
@@ -29766,7 +29796,7 @@ int32_t main(int32_t argc,char **argv)
 			"zstrings.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error: zstrings.txt not found.");
+		Z_error_fatal("Error: zstrings.txt not found.");
 		quit_game();
 	}
 	}
@@ -29783,7 +29813,7 @@ int32_t main(int32_t argc,char **argv)
 		"Failed allocating zstrings Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
 	);
 
-		Z_error("Error allocating zstrings Help buffer.");
+		Z_error_fatal("Error allocating zstrings Help buffer.");
 		quit_game();
 	}
 	
@@ -29802,7 +29832,7 @@ int32_t main(int32_t argc,char **argv)
 			"Failed loading zstrings.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
 		);
 
-		Z_error("Error loading zstrings.txt.");
+		Z_error_fatal("Error loading zstrings.txt.");
 		quit_game();
 	}
 	}
@@ -29847,6 +29877,7 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
+	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
@@ -29914,7 +29945,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(RequestedFPS)))
 	{
-		Z_error("couldn't allocate timer");
+		Z_error_fatal("couldn't allocate timer");
 		quit_game();
 	}
 	
@@ -30457,7 +30488,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 		}
 		
@@ -30473,7 +30504,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 		}
 		
@@ -30488,7 +30519,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 		quit_game();
 		}
 		
@@ -30511,7 +30542,7 @@ int32_t main(int32_t argc,char **argv)
 		);
 			*/
 
-		Z_error("couldn't allocate timer");
+		Z_error_fatal("couldn't allocate timer");
 		quit_game();
 		}
 		
@@ -30526,7 +30557,7 @@ int32_t main(int32_t argc,char **argv)
 			
 			
 		//}
-		//Z_error("Vid");
+		//Z_error_fatal("Vid");
 		
 			//The console requires the allegro process to exist, vefore it can lwaunch. 
 		//Let's hope that this doesn't create a magical memory leak, or thread issues.
@@ -30541,7 +30572,7 @@ int32_t main(int32_t argc,char **argv)
 						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease .\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
 
 
-		Z_error(allegro_error);
+		Z_error_fatal(allegro_error);
 	//quit_game here crashes if we call console code
 	//I think that there is no process by the time that the console tries to attach itself?
 	}
@@ -30593,7 +30624,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
 	{
-		Z_error("Failed to create system bitmaps!\n");
+		Z_error_fatal("Failed to create system bitmaps!\n");
 		allegro_exit();
 		quit_game();
 		return 1;
@@ -31549,7 +31580,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(warp_dlg);
     jwin_center_dialog(warpring_dlg);
     jwin_center_dialog(wlist_dlg);
-    centre_zscript_dialogs();
+    center_zscript_dialogs();
 }
 
 
@@ -33202,49 +33233,6 @@ int32_t getpitfall(int32_t x, int32_t y){return 0;}
 int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck){return 0;}
 
 int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
-
-void zprint(const char * const format,...)
-{
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-    {
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsprintf(buf, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-	#ifdef _WIN32
-	if ( console_is_open )
-	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-	#endif
-	
-    }
-}
-
-//Always prints
-void zprint2(const char * const format,...)
-{
-    //if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-    {
-        char buf[2048];
-        
-        va_list ap;
-        va_start(ap, format);
-        vsprintf(buf, format, ap);
-        va_end(ap);
-        al_trace("%s",buf);
-        
-	#ifdef _WIN32
-	if ( console_is_open )
-	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
-	#endif
-	
-    }
-}
 
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}

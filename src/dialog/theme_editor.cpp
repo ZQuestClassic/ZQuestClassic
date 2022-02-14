@@ -145,17 +145,21 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 					JC_ROW(jcBOXFG, ""),
 					JC_ROW(jcTITLEL, "The left color used in titlebars"),
 					JC_ROW(jcTITLER, "The right color used in titlebars"),
-					JC_ROW(jcTITLEFG, "The titlebar text color")
+					JC_ROW(jcTITLEFG, "The titlebar text color"),
+					JC_ROW(jcTEXTBG, "The text bg color"),
+					JC_ROW(jcTEXTFG, "The main text color")
 				),
 				Rows<3>(
-					JC_ROW(jcTEXTBG, "The text bg color"),
-					JC_ROW(jcTEXTFG, "The main text color"),
 					JC_ROW(jcSELBG, "The 'selected' background color"),
 					JC_ROW(jcSELFG, "The 'selected' text color"),
 					JC_ROW(jcCURSORMISC, ""),
 					JC_ROW(jcCURSOROUTLINE, "The outline of the cursor"),
 					JC_ROW(jcCURSORLIGHT, ""),
-					JC_ROW(jcCURSORDARK, "")
+					JC_ROW(jcCURSORDARK, ""),
+					JC_ROW(jcALT_TEXTFG, "Used as an alternate text color, ex. for read-only textfields"),
+					JC_ROW(jcALT_TEXTBG, "Used as an alternate text bg color, ex. for read-only textfields"),
+					JC_ROW(jcDISABLED_FG, "Used as a foreground color for disabled objects."),
+					JC_ROW(jcDISABLED_BG, "Used as a background color for disabled objects.")
 				)
 			),
 			Row(padding = 0_px,

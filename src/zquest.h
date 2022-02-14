@@ -140,7 +140,7 @@ extern bool combo_cols;
 extern int32_t alignment_arrow_timer;
 extern int32_t  Flip,Combo,CSet,First[3];
 extern int32_t  Flags,Flag,menutype;
-extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged;
+extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
@@ -1193,7 +1193,7 @@ extern sprite_list Sitems;
 int32_t main(int32_t argc,char **argv);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
 void center_zquest_dialogs();
-void centre_zscript_dialogs();
+void center_zscript_dialogs();
 void animate_coords();
 void do_animations();
 int32_t onZQVidMode();
