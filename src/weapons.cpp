@@ -1976,7 +1976,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hzsz=8;
 	do_animation = 1;
 	ref_o_tile = 0;
-	useweapon = usedefence = 0;
+	useweapon = usedefence = useweapondummy = usedefencedummy = 0;
 	weaprange = weapduration = 0;
 	script_wrote_otile = 0;
 	linked_parent = Linked_Parent;
@@ -1989,6 +1989,13 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		weaponscript = itemsbuf[Parentitem].weaponscript;
 		useweapon = itemsbuf[Parentitem].useweapon;
 		usedefence = itemsbuf[Parentitem].usedefence;
+		if (id == wLitBomb || id == wLitSBomb) 
+		{
+			useweapondummy = useweapon;
+			useweapon = 0;
+			usedefencedummy = usedefence;
+			usedefence = 0;
+		}
 		quantity_iterator = type; //wCByrna uses this for positioning.
 		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
 			//Note: eweapons use this for boss weapon block flags
@@ -5039,7 +5046,8 @@ bool weapon::animate(int32_t index)
 					hxofs=hyofs=-8;
 					hxsz=hysz=32;
 				}
-				
+				usedefence = usedefencedummy;
+				useweapon = useweapondummy;
 				hzsz=16;
 			}
 			

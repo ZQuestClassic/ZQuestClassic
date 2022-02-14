@@ -21247,7 +21247,12 @@ void side_load_enemies()
 		if(sle_cnt > 0)
 		{
 			if(addenemy(sle_x,sle_y,tmpscr->enemy[--sle_cnt],0))
-				guys.spr(enemy_slot)->dir = dir;
+			{
+				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
+				{
+					guys.spr(enemy_slot)->dir = dir;
+				}
+			}
 		}
 	}
 	
