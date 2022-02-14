@@ -11282,11 +11282,14 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 			
-			
-			Bwpn = value/10000;
-			game->bwpn = value/10000;
-			game->forced_bwpn = value/10000;
-			game->items_off[value/10000] = 0;
+			if (Bwpn != (value/10000))
+			{
+				Bwpn = value/10000;
+				int32_t wpndummy = BWeapon_to_Pos(Bwpn);
+				if (wpndummy >= 0) game->bwpn = wpndummy;
+				game->forced_bwpn = value/10000;
+				game->items_off[value/10000] = 0;
+			}
 			//directItemB = directItem;
 			break;
 		}
@@ -11305,11 +11308,14 @@ void set_register(const int32_t arg, const int32_t value)
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			
-			Awpn = value/10000;
-			game->awpn = value/10000;
-			game->items_off[value/10000] = 0;
-			game->forced_awpn = value/10000;
+			if (Awpn != (value/10000))
+			{
+				Awpn = value/10000;
+				int32_t wpndummy = BWeapon_to_Pos(Awpn);
+				if (wpndummy >= 0) game->awpn = wpndummy;
+				game->items_off[value/10000] = 0;
+				game->forced_awpn = value/10000;
+			}
 			//directItemB = directItem;
 			break;
 		}
@@ -11327,11 +11333,14 @@ void set_register(const int32_t arg, const int32_t value)
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			
-			Xwpn = value/10000;
-			game->xwpn = value/10000;
-			game->items_off[value/10000] = 0;
-			game->forced_xwpn = value/10000;
+			if (Xwpn != (value/10000))
+			{
+				Xwpn = value/10000;
+				int32_t wpndummy = BWeapon_to_Pos(Xwpn);
+				if (wpndummy >= 0) game->xwpn = wpndummy;
+				game->items_off[value/10000] = 0;
+				game->forced_xwpn = value/10000;
+			}
 			//directItemB = directItem;
 			break;
 		}
@@ -11348,11 +11357,14 @@ void set_register(const int32_t arg, const int32_t value)
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
-			
-			Ywpn = value/10000;
-			game->ywpn = value/10000;
-			game->items_off[value/10000] = 0;
-			game->forced_ywpn = value/10000;
+			if (Ywpn != (value/10000))
+			{
+				Ywpn = value/10000;
+				int32_t wpndummy = BWeapon_to_Pos(Ywpn);
+				if (wpndummy >= 0) game->ywpn = wpndummy;
+				game->items_off[value/10000] = 0;
+				game->forced_ywpn = value/10000;
+			}
 			//directItemB = directItem;
 			break;
 		}

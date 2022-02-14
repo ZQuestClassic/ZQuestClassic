@@ -24525,7 +24525,7 @@ int32_t Bweapon(int32_t pos)
     
     int32_t p=-1;
     
-    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
+    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL && i < MAXSUBSCREENITEMS; ++i)
     {
         if(current_subscreen_active->objects[i].type==ssoCURRENTITEM && current_subscreen_active->objects[i].d3==pos)
         {
@@ -24704,6 +24704,18 @@ int32_t Bweapon(int32_t pos)
     }
     
     return 0;
+}
+
+int32_t BWeapon_to_Pos(int32_t bweapon)
+{
+	for (int32_t i = 0; i < MAXSUBSCREENITEMS; ++i)
+	{
+		if (Bweapon(i) == bweapon)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 void stopCaneOfByrna()

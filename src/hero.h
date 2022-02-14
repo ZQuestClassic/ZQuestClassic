@@ -571,6 +571,7 @@ bool checkbunny(int32_t itemid);
 bool checkmagiccost(int32_t itemid);
 void paymagiccost(int32_t itemid, bool ignoreTimer = false);
 int32_t Bweapon(int32_t pos);
+int32_t BWeapon_to_Pos(int32_t bweapon);
 void stopCaneOfByrna();
 //void selectWpn(int32_t xstep, int32_t ystep, bool b);
 const int32_t SEL_UP = 0;
