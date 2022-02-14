@@ -3434,6 +3434,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_LEEVERS_DONT_OBEY_STUN,1);
 		set_bit(quest_rules,qr_GANON_CANT_SPAWN_ON_CONTINUE,1);
+		set_bit(quest_rules,qr_WIZZROBES_DONT_OBEY_STUN,1);
 	}
 	
 	//always set

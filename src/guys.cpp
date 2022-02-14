@@ -13917,78 +13917,78 @@ bool eWizzrobe::animate(int32_t index)
 	}
 	else // Teleporting
 	{
-		if(watch)
+		if(watch || (!get_bit(quest_rules, qr_WIZZROBES_DONT_OBEY_STUN) && stunclk))
 		{
 			fading=0;
 			hxofs=0;
 		}
 		else switch(clk)
-			{
+		{
 			case 0:
 				if(!dmisc2)
 				{
-			// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
-			// but should not appear on dungeon walls.	
+					// Wizzrobe Misc4 controls whether wizzrobes can teleport on top of solid combos,
+					// but should not appear on dungeon walls.	
 					if ( FFCore.getQuestHeaderInfo(vZelda) <= 0x190 ) place_on_axis(true, false); //1.84, and probably 1.90 wizzrobes should NEVER appear in dungeon walls.-Z (1.84 confirmed, 15th January, 2019 by Chris Miller).
 					else if (editorflags&ENEMY_FLAG5) 
-			{
-				//2.10 Windrobe
-				//randomise location and face Hero
-			int32_t t=0;
-			bool placed=false;
-					
-			while(!placed && t<160)
-			{
-				if(isdungeon())
-				{
-					x=((zc_oldrand()%12)+2)*16;
-					y=((zc_oldrand()%7)+2)*16;
-				}
-				else
-				{
-					x=((zc_oldrand()%14)+1)*16;
-					y=((zc_oldrand()%9)+1)*16;
-				}
-						
-				if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
-				{
-					placed=true;
-				}
-						
-				++t;
-			}
-					
-			if(abs(x-Hero.getX())<abs(y-Hero.getY()))
-			{
-				if(y<Hero.getY())
-				{
-					dir=down;
-				}
-				else
-				{
-					dir=up;
-				}
-			}
-			else
-			{
-				if(x<Hero.getX())
-				{
-					dir=right;
-				}
-				else
-				{
-					dir=left;
-				}
-			}
-					
-			if(!placed)                                       // can't place him, he's gone
-				return true;
-				
-				
-			//wizzrobe_attack(); //COmplaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
-			//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
-			}
-			else place_on_axis(true, dmisc4!=0);
+					{
+						//2.10 Windrobe
+						//randomise location and face Hero
+						int32_t t=0;
+						bool placed=false;
+								
+						while(!placed && t<160)
+						{
+							if(isdungeon())
+							{
+								x=((zc_oldrand()%12)+2)*16;
+								y=((zc_oldrand()%7)+2)*16;
+							}
+							else
+							{
+								x=((zc_oldrand()%14)+1)*16;
+								y=((zc_oldrand()%9)+1)*16;
+							}
+									
+							if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
+							{
+								placed=true;
+							}
+									
+							++t;
+						}
+								
+						if(abs(x-Hero.getX())<abs(y-Hero.getY()))
+						{
+							if(y<Hero.getY())
+							{
+								dir=down;
+							}
+							else
+							{
+								dir=up;
+							}
+						}
+						else
+						{
+							if(x<Hero.getX())
+							{
+								dir=right;
+							}
+							else
+							{
+								dir=left;
+							}
+						}
+								
+						if(!placed)                                       // can't place him, he's gone
+							return true;
+							
+							
+						//wizzrobe_attack(); //Complaint about 2.10 Windrobes not behaving as they did in 2.10. Let's try it this way. -Z
+						//wizzrobe_attack_for_real(); //doing this makes them fire twice. The rest is correct.
+					}
+					else place_on_axis(true, dmisc4!=0);
 				}
 				else
 				{
@@ -14081,7 +14081,7 @@ bool eWizzrobe::animate(int32_t index)
 					clk=-1;
 					
 				break;
-			}
+		}
 	}
 	
 	return enemy::animate(index);

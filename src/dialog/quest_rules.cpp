@@ -725,6 +725,9 @@ static const GUI::ListData compatRulesList
 	{ "Leever's Still Submerge If Stunned", qr_LEEVERS_DONT_OBEY_STUN,
 		"If enabled, Leevers will still submerge if they are stunned. If disabled, they will"
 		" not submerge while stunned, but they will unsubmerge if they are currently submerged."},
+	{ "Wizzrobes Still Teleport If Stunned", qr_WIZZROBES_DONT_OBEY_STUN,
+		"If enabled, Wizzrobes will still teleport if they are stunned. If disabled, they will"
+		" not teleport while stunned, and will 'unteleport' if they are in the middle of teleporting."},
 	{ "Ganon-Type Rooms Don't Work On Continuing", qr_GANON_CANT_SPAWN_ON_CONTINUE,
 		"If enabled, continuing/starting the quest will not trigger Ganon Rooms."},
 };
