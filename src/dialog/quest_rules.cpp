@@ -721,7 +721,10 @@ static const GUI::ListData compatRulesList
 		" \nIf disabled, they will use the same position as their item drop position, and will carry the item into the Z axis." },
 	{ "Custom Weapon / Ice Rod Bugged Cost", qr_CUSTOMWEAPON_IGNORE_COST,
 		"Custom Weapon and Ice Rod itemclasses will not charge the use cost set"
-		" in the item editor if this is enabled." }
+		" in the item editor if this is enabled." },
+	{ "Leever's Still Submerge If Stunned", qr_LEEVERS_DONT_OBEY_STUN,
+		"If enabled, Leevers will still submerge if they are stunned. If disabled, they will"
+		" not submerge while stunned, but they will unsubmerge if they are currently submerged."},
 };
 
 static const GUI::ListData enemiesRulesList
@@ -819,6 +822,9 @@ static const GUI::ListData enemiesRulesList
 	{ "Enemy Drops use Hitbox for Position", qr_ENEMY_DROPS_USE_HITOFFSETS,
 		"If enabled, enemies will drop their dropset item at the center of their hitbox."
 		" \nIf disabled, they will drop their item at the center of their tile."},
+	{ "Quake Hammer Stuns Leevers", qr_QUAKE_STUNS_LEEVERS,
+		"If enabled, Quake Hammer can stun Leevers. This barely does anything if 'Leever's Still"
+		" Submerge If Stunned' is enabled."},
 		
 	//Maybe we should keep this one last always? -Deedee 
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,

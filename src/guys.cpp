@@ -3760,7 +3760,7 @@ void enemy::move(zfix s)
 	}
 	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
 	}*/
-	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id)) || !(moveflags & FLAG_OBEYS_GRAV))
+	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id) || !(moveflags & FLAG_OBEYS_GRAV)))
 	{
 		sprite::move(s);
 	}
@@ -10861,6 +10861,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		misc=-1;    //Line of Sight leevers
 		clk-=16;
 	}
+	clk3 = 0;
 	//nets+1460;
 	temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
 	submerged = 0;
@@ -10918,7 +10919,7 @@ bool eLeever::animate(int32_t index)
 			{
 			case -1:  //submerged
 			{
-		
+				if (!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk)) misc = 0;
 				if((dmisc1==2)&&(zc_oldrand()&255))
 				{
 					break;
@@ -10937,13 +10938,24 @@ bool eLeever::animate(int32_t index)
 				if(active<((dmisc1==2)?1:2))
 				{
 					misc=0; //activate this one
+					clk3=1; //This needs to be set so that it knows that it's being emerged of it's own will and not because it got stunned.
 				}
 			}
 			break;
 			
 			case 0:
 			{
-		
+				
+				if (!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk))
+				{
+					misc=1;
+					clk2=0;
+				}
+				else if (clk3<=0)
+				{
+					misc = -1;
+					break;
+				}
 				int32_t s=0;
 				
 				for(int32_t i=0; i<guys.Count(); i++)
@@ -10977,20 +10989,20 @@ bool eLeever::animate(int32_t index)
 			
 			case 1:
 		
-				if(++clk2>16) misc=2;
+				if(++clk2>16||(!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk) && clk2>8)) misc=2;
 				
 				break;
 				
 			case 2:
 		
-				if(++clk2>24) misc=3;
+				if(++clk2>24||(!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk) && clk2>12)) misc=3;
 				
 				break;
 				
 //        case 3: if(stunclk) break; if(scored) dir^=1; if(!canmove(dir,false)) misc=4; else move((zfix)(d->step/100.0)); break;
 			case 3:
 		
-				if(stunclk || frozenclock) break;
+				if(stunclk || frozenclock || watch) break;
 				
 				if(scored) dir^=1;
 				
@@ -11000,8 +11012,8 @@ bool eLeever::animate(int32_t index)
 				break;
 				
 			case 4:
-		
-				if(--clk2==16)
+				if (!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk)) misc = 2;
+				if(--clk2<=16)
 				{
 					misc=5;
 					clk=8;
@@ -11010,8 +11022,8 @@ bool eLeever::animate(int32_t index)
 				break;
 				
 			case 5:
-		
-				if(--clk2==0)  misc=((dmisc1==2)?-1:0);
+				if (!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk)) misc = 1;
+				if(--clk2<=0)  misc=((dmisc1==2)?-1:0);
 				
 				break;
 			}                                                       // switch(misc)
@@ -11022,7 +11034,12 @@ bool eLeever::animate(int32_t index)
 //      step=d->misc3/100.0;
 	   
 			step=zslongToFix(dmisc3*100);
-			++clk2;
+			if (get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) || (!watch && !stunclk)) ++clk2;
+			else if (!get_bit(quest_rules, qr_LEEVERS_DONT_OBEY_STUN) && (watch || stunclk)) 
+			{
+				if (clk2 < 48) clk2+=2;
+				if (clk2 >= 300) clk2-=2;
+			}
 			
 			if(clk2<32)    misc=1;
 			else if(clk2<48)    misc=2;
