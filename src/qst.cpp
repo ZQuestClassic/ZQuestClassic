@@ -9995,332 +9995,332 @@ void setSprite(int32_t* arr, int32_t tile, int32_t flip, int32_t ext)
 //Used to read the player sprites as int32_t, not word. 
 int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites, bool keepdata)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    cv_herosprites=cv_herosprites;
-    
-    if(keepdata)
-    {
-        zinit.hero_swim_speed=67; //default
-        setupherotiles(zinit.heroAnimationStyle);
-        setupherodefenses();
-	setupherooffsets();
-    }
-    
-    int32_t tile, tile2;
-    byte flip, extend, dummy_byte;
-    
-    if(v_herosprites>=0)
-    {
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!p_igetl(&tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&extend,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                setSprite(walkspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-            }
-        }
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!p_igetl(&tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&extend,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                setSprite(stabspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-            }
-        }
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!p_igetl(&tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&extend,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                setSprite(slashspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-            }
-        }
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!p_igetl(&tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&extend,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                setSprite(floatspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-            }
-        }
-        
-        if(v_herosprites>1)
-        {
-            for(int32_t i=0; i<4; i++)
-            {
-                if(!p_igetl(&tile,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&flip,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&extend,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(keepdata)
-                {
-                    setSprite(swimspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-                }
-            }
-        }
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!p_igetl(&tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&extend,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                setSprite(divespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-            }
-        }
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!p_igetl(&tile,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&extend,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                setSprite(poundspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-            }
-        }
-        
-        if(!p_igetl(&tile,f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        flip=0;
-        
-        if(v_herosprites>0)
-        {
-            if(!p_getc(&flip,f,keepdata))
-            {
-                return qe_invalid;
-            }
-        }
-        
-        if(!p_getc(&extend,f,keepdata))
-        {
-            return qe_invalid;
-        }
-        
-        if(keepdata)
-        {
-            setSprite(castingspr, int32_t(tile), int32_t(flip), int32_t(extend));
-        }
-        
-        if(v_herosprites>0)
-        {
-	    int32_t num_holdsprs = (v_herosprites > 6 ? 3 : 2);
-            for(int32_t i=0; i<2; i++)
-            {
-                for(int32_t j=0; j<num_holdsprs; j++)
-                {
-                    if(!p_igetl(&tile,f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&flip,f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(!p_getc(&extend,f,keepdata))
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    if(keepdata)
-                    {
-                        setSprite(holdspr[i][j], int32_t(tile), int32_t(flip), int32_t(extend));
-                    }
-                }
-            }
-        }
-        else
-        {
-            for(int32_t i=0; i<2; i++)
-            {
-                if(!p_igetl(&tile,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_igetl(&tile2,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&extend,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(keepdata)
-                {
-                    setSprite(holdspr[i][spr_hold1], int32_t(tile), int32_t(flip), int32_t(extend));
-                    setSprite(holdspr[i][spr_hold2], int32_t(tile2), int32_t(flip), int32_t(extend));
-                }
-            }
-        }
-        
-        if(v_herosprites>2)
-        {
-            for(int32_t i=0; i<4; i++)
-            {
-                if(!p_igetl(&tile,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&flip,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&extend,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(keepdata)
-                {
-                    setSprite(jumpspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-                }
-            }
-        }
-        
-        if(v_herosprites>3)
-        {
-            for(int32_t i=0; i<4; i++)
-            {
-                if(!p_igetl(&tile,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&flip,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(!p_getc(&extend,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-                
-                if(keepdata)
-                {
-                    setSprite(chargespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-                }
-            }
-        }
-        
-        if(v_herosprites>4)
-        {
-            if(!p_getc(&dummy_byte,f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(keepdata)
-            {
-                zinit.hero_swim_speed=(byte)dummy_byte;
-            }
-        }
+	//these are here to bypass compiler warnings about unused arguments
+	cv_herosprites=cv_herosprites;
+	
+	if(keepdata)
+	{
+		zinit.hero_swim_speed=67; //default
+		setupherotiles(zinit.heroAnimationStyle);
+		setupherodefenses();
+		setupherooffsets();
+	}
+	
+	int32_t tile, tile2;
+	byte flip, extend, dummy_byte;
+	
+	if(v_herosprites>=0)
+	{
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&extend,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				setSprite(walkspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+		}
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&extend,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				setSprite(stabspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+		}
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&extend,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				setSprite(slashspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+		}
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&extend,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				setSprite(floatspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+		}
+		
+		if(v_herosprites>1)
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&flip,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&extend,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(keepdata)
+				{
+					setSprite(swimspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&extend,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				setSprite(divespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+		}
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_getc(&extend,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				setSprite(poundspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+		}
+		
+		if(!p_igetl(&tile,f,keepdata))
+		{
+			return qe_invalid;
+		}
+		
+		flip=0;
+		
+		if(v_herosprites>0)
+		{
+			if(!p_getc(&flip,f,keepdata))
+			{
+				return qe_invalid;
+			}
+		}
+		
+		if(!p_getc(&extend,f,keepdata))
+		{
+			return qe_invalid;
+		}
+		
+		if(keepdata)
+		{
+			setSprite(castingspr, int32_t(tile), int32_t(flip), int32_t(extend));
+		}
+		
+		if(v_herosprites>0)
+		{
+			int32_t num_holdsprs = (v_herosprites > 6 ? 3 : 2);
+			for(int32_t i=0; i<2; i++)
+			{
+				for(int32_t j=0; j<num_holdsprs; j++)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&flip,f,keepdata))
+					{
+						return qe_invalid;
+					}
+					
+					if(!p_getc(&extend,f,keepdata))
+					{
+						return qe_invalid;
+					}
+					
+					if(keepdata)
+					{
+						setSprite(holdspr[i][j], int32_t(tile), int32_t(flip), int32_t(extend));
+					}
+				}
+			}
+		}
+		else
+		{
+			for(int32_t i=0; i<2; i++)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_igetl(&tile2,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&extend,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(keepdata)
+				{
+					setSprite(holdspr[i][spr_hold1], int32_t(tile), int32_t(flip), int32_t(extend));
+					setSprite(holdspr[i][spr_hold2], int32_t(tile2), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		
+		if(v_herosprites>2)
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&flip,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&extend,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(keepdata)
+				{
+					setSprite(jumpspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		
+		if(v_herosprites>3)
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&flip,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(!p_getc(&extend,f,keepdata))
+				{
+					return qe_invalid;
+				}
+				
+				if(keepdata)
+				{
+					setSprite(chargespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		
+		if(v_herosprites>4)
+		{
+			if(!p_getc(&dummy_byte,f,keepdata))
+			{
+				return qe_invalid;
+			}
+			
+			if(keepdata)
+			{
+				zinit.hero_swim_speed=(byte)dummy_byte;
+			}
+		}
 		
 		if(v_herosprites>6)
 		{
@@ -10727,183 +10727,6 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 					setSprite(medallionsprs[q], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
-			if (v_herosprites > 8)
-			{
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sideswimspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-			}
-			if (v_herosprites > 9)
-			{
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sideswimslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sideswimstabspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sideswimpoundspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-			}
-			if (v_herosprites > 9)
-			{
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sideswimchargespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-			}
-			if (v_herosprites > 10)
-			{
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					int32_t hmr;
-					if(!p_igetl(&hmr,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						hammeroffsets[q] = hmr;
-					}
-				}
-			}
-			else for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
-			if (v_herosprites > 11)
-			{
-				for(int32_t q = 0; q < 3; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sideswimholdspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-			}
-			if (v_herosprites > 12)
-			{
-				if(!p_igetl(&tile,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&flip,f,keepdata))
-					return qe_invalid;
-				
-				if(!p_getc(&extend,f,keepdata))
-					return qe_invalid;
-				if (keepdata)
-				{
-					setSprite(sideswimcastingspr, int32_t(tile), int32_t(flip), int32_t(extend));
-				}
-				
-			}
-			if (v_herosprites > 13)
-			{
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(sidedrowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-			}
-			if (v_herosprites > 14)
-			{
-				for(int32_t q = 0; q < 4; ++q)
-				{
-					if(!p_igetl(&tile,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&flip,f,keepdata))
-						return qe_invalid;
-					
-					if(!p_getc(&extend,f,keepdata))
-						return qe_invalid;
-					
-					if(keepdata)
-					{
-						setSprite(revslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
-				}
-			}
 		}
 		else if(keepdata)
 		{
@@ -10939,43 +10762,245 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 					drowning_lavaspr[q][p] = divespr[q][p];
 				}
 			}
+		}
+		if (v_herosprites > 8)
+		{
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sideswimspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		else if (keepdata)
+		{
 			memset(sideswimspr, 0, sizeof(sideswimspr));
+		}
+		if (v_herosprites > 9)
+		{
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sideswimslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sideswimstabspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sideswimpoundspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sideswimchargespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		else if (keepdata)
+		{
 			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
 			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
 			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
-			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
-			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
-			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
-			memset(revslashspr, 0, sizeof(revslashspr));
+		}
+		if (v_herosprites > 10)
+		{
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				int32_t hmr;
+				if(!p_igetl(&hmr,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					hammeroffsets[q] = hmr;
+				}
+			}
+		}
+		else if (keepdata) 
+		{
 			for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
-        if (v_herosprites > 7)
-        {
-            int32_t num_defense = wMax;
-            byte def = 0;
+		if (v_herosprites > 11)
+		{
+			for(int32_t q = 0; q < 3; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sideswimholdspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		else if (keepdata)
+		{
+			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
+		}
+		if (v_herosprites > 12)
+		{
+			if(!p_igetl(&tile,f,keepdata))
+				return qe_invalid;
+			
+			if(!p_getc(&flip,f,keepdata))
+				return qe_invalid;
+			
+			if(!p_getc(&extend,f,keepdata))
+				return qe_invalid;
+			if (keepdata)
+			{
+				setSprite(sideswimcastingspr, int32_t(tile), int32_t(flip), int32_t(extend));
+			}
+			
+		}
+		else if (keepdata)
+		{
+			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
+		}
+		if (v_herosprites > 13)
+		{
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(sidedrowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		else if (keepdata)
+		{
+			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
+		}
+		if (v_herosprites > 14)
+		{
+			for(int32_t q = 0; q < 4; ++q)
+			{
+				if(!p_igetl(&tile,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&flip,f,keepdata))
+					return qe_invalid;
+				
+				if(!p_getc(&extend,f,keepdata))
+					return qe_invalid;
+				
+				if(keepdata)
+				{
+					setSprite(revslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				}
+			}
+		}
+		else if (keepdata)
+		{
+			memset(revslashspr, 0, sizeof(revslashspr));
+		}
+		if (v_herosprites > 7)
+		{
+			int32_t num_defense = wMax;
+			byte def = 0;
 
-            //Set num_defense accordingly if changes to enum require version upgrade - Jman
-            /*if(v_herosprites > [x])
-            * {
-            *     num_defense = 146 //value of wMax on version 8
-            * }
-            */
+			//Set num_defense accordingly if changes to enum require version upgrade - Jman
+			/*if(v_herosprites > [x])
+			* {
+			*	 num_defense = 146 //value of wMax on version 8
+			* }
+			*/
 
-            for (int32_t q = 0; q < num_defense; q++)
-            {
-                if (!p_getc(&def, f, keepdata))
-                    return qe_invalid;
+			for (int32_t q = 0; q < num_defense; q++)
+			{
+				if (!p_getc(&def, f, keepdata))
+					return qe_invalid;
 
-                if (keepdata)
-                {
-                    hero_defence[q] = def;
-                }
-            }
-        }
-    }
-    
-    return 0;
+				if (keepdata)
+				{
+					hero_defence[q] = def;
+				}
+			}
+		}
+		else if (keepdata)
+		{
+			int32_t num_defense = wMax;
+			for (int32_t q = 0; q < num_defense; q++)
+			{
+				hero_defence[q] = 0;
+			}
+		}
+	}
+	
+	return 0;
 }
 
 
