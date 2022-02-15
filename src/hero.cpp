@@ -2065,7 +2065,7 @@ attack:
 					if (attackclk >= 13) tile += (extend==2?2:1);
 				}
 				
-				if(attack==wBugNet && attackclk < 9 || ((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
+				if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
 				{
 					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
 					if (FIXED_Z3_ANIMATION)
@@ -2073,6 +2073,19 @@ attack:
 						if (attackclk >= 7) tile += (extend==2?2:1);
 						if (attackclk >= 11) tile += (extend==2?2:1);
 						if (attackclk >= 14) tile += (extend==2?2:1);
+					}
+				}
+				if (attack==wBugNet && game->get_canslash())
+				{
+					if ((dir == right && (itemsbuf[itemid].flags&ITEM_FLAG2)) || (dir != right && !(itemsbuf[itemid].flags&ITEM_FLAG2)))
+					{
+						if (attackclk < 9) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
+						if (attackclk > 15) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
+					}
+					else
+					{
+						if (attackclk < 9) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
+						if (attackclk > 15) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
 					}
 				}
 				
