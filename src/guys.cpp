@@ -20984,6 +20984,7 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 		// Awaken spinning tile
 		awaken_spinning_tile(s,pos);
 	}
+	/* Shouldn't be needed anymore?
 	int32_t lyr = -1;
 	if(s == tmpscr) lyr = 0;
 	else for(size_t q = 0; q < 6; ++q)
@@ -20997,7 +20998,7 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 	if(lyr > -1)
 	{
 		FFCore.reset_combo_script(lyr, pos);
-	}
+	} */
 }
 
 void awaken_spinning_tile(mapscr *s, int32_t pos)

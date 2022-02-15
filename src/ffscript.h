@@ -675,8 +675,7 @@ int32_t LongDistance(double x1, double y1, double x2, double y2);
 int32_t LongDistance(double x1, double y1, double x2, double y2, int32_t scale);
 void do_distance();
 
-int32_t combo_script_engine(const bool preload);
-int32_t combo_script_engine_waitdraw(const bool preload);
+int32_t combo_script_engine(const bool preload, const bool waitdraw = false);
 
 void do_strstr();
 void do_strcat();
