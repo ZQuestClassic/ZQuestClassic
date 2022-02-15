@@ -2782,8 +2782,8 @@ static EnemyNameInfo enameinf[]=
 		(char *)"BFlags[7]:",(char *)"BFlags[8]:",(char *)"BFlags[9]:",(char *)"BFlags[10]:",(char *)"Toggle Move Offscreen",(char *)"Fast Drawing",
 		(char *)"Ignore Sideview Ladders/Platforms",(char *)"Move Off-Grid (WIP)",(char *)"Render Cloaked Instead of VISIBLE" },
 	{ 	NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,(char*)"Misc Attr. 11:",(char*)"Misc Attr. 12:",
-		(char *)"This Item Dispels Invisibility:",(char *)"Misc Attr. 14:",(char *)"Misc Attr. 15:",(char *)"Halt Duration",
-		(char *)"Acceleration Factor",(char *)"Misc Attr. 18:",(char *)"Misc Attr. 19:",(char *)"Misc Attr. 20:",
+		(char *)"This Item Dispels Invisibility:",(char *)"Landing Chance (1/N):",(char *)"Landing Cooldown:",(char *)"Halt Duration",
+		(char *)"Acceleration Frame Interval:",(char *)"Acceleration Step Modifier:",(char *)"Spawn Step:",(char *)"Tribble Timer:",
 		(char *)"Misc Attr. 21:",(char *)"Misc Attr. 22:",(char *)"Misc Attr. 23:",(char *)"Misc Attr. 24:",
 		(char *)"Misc Attr. 25:",(char *)"Misc Attr. 26:",(char *)"Misc Attr. 27:",(char *)"Misc Attr. 28:",
 		(char *)"Misc Attr. 29:",(char *)"Misc Attr. 30:",(char *)"Misc Attr. 31:",(char *)"Misc Attr. 32:",
@@ -6792,6 +6792,32 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
 				
 				break;
 				
+			case ls_revslash:
+				if(p[lt_clock]<6)
+				{
+					herotile(&p[lt_tile], &p[lt_flip], ls_revslash, d->d1, zinit.heroAnimationStyle);
+				}
+				else if(p[lt_clock]<12)
+				{
+					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+				}
+				else if(p[lt_clock]<13)
+				{
+					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+				}
+				else
+				{
+					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+					
+					if(p[lt_clock]>=16)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
 			case ls_stab:
 				if(p[lt_clock]<12)
 				{
@@ -7150,6 +7176,32 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
 				
 				break;
 				
+			case ls_revslash:
+				if(p[lt_clock]<6)
+				{
+					herotile(&p[lt_tile], &p[lt_flip], ls_revslash, d->d1, zinit.heroAnimationStyle);
+				}
+				else if(p[lt_clock]<12)
+				{
+					herotile(&p[lt_tile], &p[lt_flip], ls_stab, d->d1, zinit.heroAnimationStyle);
+				}
+				else if(p[lt_clock]<13)
+				{
+					herotile(&p[lt_tile], &p[lt_flip], ls_walk, d->d1, zinit.heroAnimationStyle);
+				}
+				else
+				{
+					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+					p[lt_extend]==2?p[lt_tile]+=2:p[lt_tile]++;                  //tile++
+					
+					if(p[lt_clock]>=16)
+					{
+						p[lt_clock]=-1;
+					}
+				};
+				
+				break;
+				
 			case ls_stab:
 				if(p[lt_clock]<12)
 				{
@@ -7470,6 +7522,24 @@ int32_t d_ltile_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
 				{
 					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_slash, d->d1, zinit.heroAnimationStyle);
+					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
+					
+					if(p[lt_clock]>=47)
+					{
+						p[lt_clock]=-1;
+					}
+				}
+				else
+				{
+					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_walk, d->d1, zinit.heroAnimationStyle);
+				}
+				
+				break;
+				
+			case ls_revslash:
+				if(p[lt_clock]>23) //24 frames, advances by one every 4 frames, 6 tiles total
+				{
+					herotile(&p[lt_tile], &p[lt_flip], &p[lt_extend], ls_revslash, d->d1, zinit.heroAnimationStyle);
 					p[lt_tile]+=(((p[lt_clock]>>2)%6)*(p[lt_extend]==2?2:1));
 					
 					if(p[lt_clock]>=47)
@@ -7834,11 +7904,18 @@ static int32_t herotile_land_charge_list[] =
 	85, 86, 87, 88, 89, 90, 91, 92, -1
 };
 
+static int32_t herotile_land_revslash_list[] =
+{
+	// dialog control number
+	252, 253, 254, 255, 256, 257, 258, 259, -1
+};
+
 static TABPANEL herotile_land_tabs[] =
 {
 	// (text)
 	{ (char *)"Walk",          D_SELECTED,  herotile_land_walk_list, 0, NULL },
 	{ (char *)"Slash",         0,           herotile_land_slash_list, 0, NULL },
+	{ (char *)"Slash 2",       0,           herotile_land_revslash_list, 0, NULL },
 	{ (char *)"Stab",          0,           herotile_land_stab_list, 0, NULL },
 	{ (char *)"Pound",         0,           herotile_land_pound_list, 0, NULL },
 	{ (char *)"Jump",          0,           herotile_land_jump_list, 0, NULL },
@@ -8394,6 +8471,17 @@ static DIALOG herotile_dlg[] =
 	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_sideswimcast,         NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_sidewaterhold2,   NULL,                            NULL,   NULL                   },
 	{  d_ltile_proc,                        104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_sidedrown,   NULL,                            NULL,   NULL                   },
+	// 251 (revslash sprite titles)
+	{  jwin_rtext_proc,                     33,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Up",                   NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,     88,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Down",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                     33,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Left",                 NULL,   NULL                   },
+	{  jwin_rtext_proc,                    101,    126,     32,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          0,          0, (void *) "Right",                NULL,   NULL                   },
+	// 255 (revslash sprites)
+	{  d_ltile_proc,                        36,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          up,         ls_revslash,         NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,     74,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          down,       ls_revslash,         NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                        36,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          left,       ls_revslash,         NULL,                            NULL,   NULL                   },
+	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_revslash,         NULL,                            NULL,   NULL                   },
+	
 	{  NULL,                                 0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   }    
 
 };
@@ -8424,6 +8512,7 @@ int32_t onCustomHero()
 	int32_t oldWalkSpr[4][3];
 	int32_t oldStabSpr[4][3];
 	int32_t oldSlashSpr[4][3];
+	int32_t oldRevSlashSpr[4][3];
 	int32_t oldFloatSpr[4][3];
 	int32_t oldSwimSpr[4][3];
 	int32_t oldDiveSpr[4][3];
@@ -8458,6 +8547,7 @@ int32_t onCustomHero()
 	memcpy(oldWalkSpr, walkspr, 4*3*sizeof(int32_t));
 	memcpy(oldStabSpr, stabspr, 4*3*sizeof(int32_t));
 	memcpy(oldSlashSpr, slashspr, 4*3*sizeof(int32_t));
+	memcpy(oldRevSlashSpr, revslashspr, 4*3*sizeof(int32_t));
 	memcpy(oldFloatSpr, floatspr, 4*3*sizeof(int32_t));
 	memcpy(oldSwimSpr, swimspr, 4*3*sizeof(int32_t));
 	memcpy(oldDiveSpr, divespr, 4*3*sizeof(int32_t));
@@ -8556,6 +8646,7 @@ int32_t onCustomHero()
 			memcpy(walkspr, oldWalkSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(stabspr, oldStabSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(slashspr, oldSlashSpr, 4 * 3 * sizeof(int32_t));
+			memcpy(revslashspr, oldRevSlashSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(floatspr, oldFloatSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(swimspr, oldSwimSpr, 4 * 3 * sizeof(int32_t));
 			memcpy(divespr, oldDiveSpr, 4 * 3 * sizeof(int32_t));

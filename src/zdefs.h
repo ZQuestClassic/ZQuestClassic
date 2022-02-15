@@ -260,7 +260,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_CHEATS           1
 #define V_SAVEGAME        23 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
-#define V_HEROSPRITES      14
+#define V_HEROSPRITES      15
 #define V_SUBSCREEN        6
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         19

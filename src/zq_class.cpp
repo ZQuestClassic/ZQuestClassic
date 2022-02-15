@@ -11579,6 +11579,24 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 			if(!p_putc((byte)sidedrowningspr[q][spr_extend],f))
 				new_return(22);
 		}
+		
+		for(int32_t i=0; i<4; i++)
+		{
+			if(!p_iputl(revslashspr[i][spr_tile],f))
+			{
+				new_return(23);
+			}
+		    
+			if(!p_putc((byte)revslashspr[i][spr_flip],f))
+			{
+				new_return(23);
+			}
+		    
+			if(!p_putc((byte)revslashspr[i][spr_extend],f))
+			{
+				new_return(23);
+			}
+		}
         
 		
         for (int32_t q = 0; q < wMax; q++) // Player defense values

@@ -584,7 +584,7 @@ class eKeese : public enemy
 {
 public:
 	int32_t ox, oy, c;
-	int32_t clk4;
+	int32_t clk4, clk5;
 	eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);

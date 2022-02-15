@@ -39535,6 +39535,7 @@ int32_t FFScript::getHeroOTile(int32_t index1, int32_t index2)
 		case LSprwalkspr: the_ret = walkspr[dir][0]; break;
 			case LSprstabspr: the_ret = stabspr[dir][0]; break;
 			case LSprslashspr: the_ret = slashspr[dir][0]; break;
+			case LSprrevslashspr: the_ret = revslashspr[dir][0]; break;
 			case LSprfloatspr: the_ret = floatspr[dir][0]; break;
 			case LSprswimspr: the_ret = swimspr[dir][0]; break;
 			case LSprdivespr: the_ret = divespr[dir][0]; break;

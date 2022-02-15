@@ -20,7 +20,7 @@ enum
     ls_swim, ls_jump, ls_charge, ls_drown, ls_falling, ls_lavadrown, 
     ls_sideswim, ls_sideswimslash, ls_sideswimstab, ls_sideswimpound, 
     ls_sideswimcharge, ls_sidewaterhold1, ls_sidewaterhold2, 
-    ls_sideswimcast, ls_sidedrown, ls_max
+    ls_sideswimcast, ls_sidedrown, ls_revslash, ls_max
 };
 enum {spr_tile, spr_flip, spr_extend};
 //enum {cst_tile, cst_extend};
@@ -40,6 +40,7 @@ extern int32_t old_floatspr, old_slashspr, herospr;
 extern int32_t walkspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t stabspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t slashspr[4][3];                                  //dir,                           tile/flip/extend
+extern int32_t revslashspr[4][3];                             //dir,                     tile/flip/extend
 extern int32_t floatspr[4][3];                                  //dir,                           tile/flip/extend
 extern int32_t swimspr[4][3];                                   //dir,                           tile/flip/extend
 extern int32_t divespr[4][3];                                   //dir,                           tile/flip/extend

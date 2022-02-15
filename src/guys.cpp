@@ -8148,15 +8148,35 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t 
 		break;
 		
 	case 1:                                                 // speeding up
-		if(clk2<g*s)
+		if (s >= 0)
 		{
-			if(!((clk2-1)%g))
-				step+=ss;
+			if(clk2<g*s)
+			{
+				if(!((clk2-1)%g))
+					step+=ss;
+			}
+			else
+			{
+				movestatus=2;
+				clk2=0;
+			}
 		}
 		else
 		{
-			movestatus=2;
-			clk2=0;
+			if(step < ms)
+			{
+				if(!((clk2-1)%g))
+				{
+					step+=ss;
+					if (step >= ms) step = ms;
+				}
+			}
+			else
+			{
+				step = ms;
+				movestatus=2;
+				clk2=0;
+			}
 		}
 		
 		break;
@@ -8164,9 +8184,10 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t 
 	case 2:                                                 // normal
 		step=ms;
 		
-		if(clk2>48 && !(zc_oldrand()%768))
+		if(clk2>(dmisc15>0?dmisc15:48) && !(zc_oldrand()%(dmisc14>0?dmisc14:768)))
 		{
-			step=ss*s;
+			if (s >= 0) step=ss*s;
+			else step=ms;
 			movestatus=3;
 			clk2=0;
 		}
@@ -8174,10 +8195,53 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t 
 		break;
 		
 	case 3:                                                 // slowing down
-		if(clk2<=g*s)
+		if (s >= 0)
 		{
-			{ //don't slow down over pits
+			if(clk2<=g*s)
+			{
+				{ //don't slow down over pits
+					
+					if(over_pit) 
+					{
+						if(dmisc1)
+						{
+							step=ms;
+						}
+					}
+					else //can slow down
+					{
+						if(!(clk2%g) && !dmisc1)
+							step-=ss;
+					}
+				}
 				
+				
+			}
+			else
+			{
+				//if((moveflags&FLAG_CAN_PITFALL)) //don't check pits if the enemy ignores them
+				//this doesn't help keese, as they have a z of 0. 
+				//they always nee to run this check.
+				{
+					if(over_pit &&!dmisc1) 
+					{
+						--clk2; //if over a pit, don't land, and revert clock change
+					}
+					else //can land safely
+					{
+						movestatus=0;
+						if(dmisc1&&!over_pit)
+							step=0;
+						clk2=0;
+					}
+				}
+				
+			}
+		}
+		else
+		{
+			if(step > 0)
+			{
 				if(over_pit) 
 				{
 					if(dmisc1)
@@ -8187,32 +8251,26 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t 
 				}
 				else //can slow down
 				{
-					if(!(clk2%g) && !dmisc1)
+					if(!(clk2%g))
 						step-=ss;
 				}
 			}
-			
-			
-		}
-		else
-		{
-			//if((moveflags&FLAG_CAN_PITFALL)) //don't check pits if the enemy ignores them
-			//this doesn't help keese, as they have a z of 0. 
-			//they always nee to run this check.
+			else
 			{
-				if(over_pit &&!dmisc1) 
+				//if((moveflags&FLAG_CAN_PITFALL)) //don't check pits if the enemy ignores them
+				//this doesn't help keese, as they have a z of 0. 
+				//they always nee to run this check.
+				if(over_pit) 
 				{
-					--clk2; //if over a pit, don't land, and revert clock change
+					step+=ss; //if over a pit, don't land, and revert clock change
 				}
 				else //can land safely
 				{
 					movestatus=0;
-					if(dmisc1&&!over_pit)
-						step=0;
+					step=0;
 					clk2=0;
 				}
 			}
-			
 		}
 		
 		break;
@@ -13732,6 +13790,11 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	dir=(zc_oldrand()&7)+8;
 	step=0;
 	movestatus=1;
+	if (dmisc1 != 1 && dmisc19 > 0) 
+	{
+		step = dmisc19/100.0;
+		movestatus = 1;
+	}
 	if (dmisc1 == 2) movestatus=2;
 	c=0;
 	SIZEflags = d->SIZEflags;
@@ -13786,12 +13849,13 @@ bool eKeese::animate(int32_t index)
 	}
 	else
 	{
-		floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
+		if (dmisc18) floater_walk(rate,hrate,dstep/100,dmisc18/100.0,-1,dmisc16,dmisc17);
+		else floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
 	}
 	
 	if(dmisc2 == e2tKEESETRIB)
 	{
-		if(++clk4==256)
+		if(++clk4==(dmisc20>0?dmisc20:256))
 		{
 			if(!m_walkflag(x,y,0, dir))
 			{

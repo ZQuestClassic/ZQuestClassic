@@ -77,7 +77,7 @@ enum herospritetype
 	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlavadrownspr, 
 	LSprsideswimspr, LSprsideswimslashspr, LSprsideswimstabspr, 
 	LSprsideswimpoundspr, LSprsideswimchargespr, LSprholdsprSw1, 
-	LSprholdsprSw2, LSprsideswimcastingspr, LSprsidedrownspr, LSprlast
+	LSprholdsprSw2, LSprsideswimcastingspr, LSprsidedrownspr, LSprrevslashspr, LSprlast
 };
 
 enum zasmBreak

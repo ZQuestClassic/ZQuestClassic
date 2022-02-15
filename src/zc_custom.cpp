@@ -33,6 +33,7 @@ int32_t old_floatspr, old_slashspr, herospr;
 int32_t walkspr[4][3];                                   //dir,                           tile/flip/extend
 int32_t stabspr[4][3];                                   //dir,                           tile/flip/extend
 int32_t slashspr[4][3];                                  //dir,                           tile/flip/extend
+int32_t revslashspr[4][3];                                  //dir,                           tile/flip/extend
 int32_t floatspr[4][3];                                  //dir,                           tile/flip/extend
 int32_t swimspr[4][3];                                   //dir,                           tile/flip/extend
 int32_t divespr[4][3];                                   //dir,                           tile/flip/extend
@@ -108,6 +109,10 @@ void herotile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int3
 		
 	case ls_slash:
 		*extend=slashspr[dir][spr_extend];
+		break;
+		
+	case ls_revslash:
+		*extend=revslashspr[dir][spr_extend];
 		break;
 		
 	case ls_walk:
@@ -241,6 +246,12 @@ void setherotile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int3
 		slashspr[dir][spr_tile] = tile;
 		slashspr[dir][spr_flip] = flip;
 		slashspr[dir][spr_extend] = extend;
+		break;
+	
+	case ls_revslash:
+		revslashspr[dir][spr_tile] = tile;
+		revslashspr[dir][spr_flip] = flip;
+		revslashspr[dir][spr_extend] = extend;
 		break;
 		
 	case ls_walk:
@@ -395,6 +406,10 @@ void herotile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 		*tile=slashspr[dir][spr_tile];
 		break;
 		
+		case ls_revslash:
+		*tile=revslashspr[dir][spr_tile];
+		break;
+		
 		case ls_walk:
 		*tile=walkspr[dir][spr_tile];
 		break;
@@ -507,6 +522,10 @@ void herotile(int32_t *tile, int32_t *flip, int32_t state, int32_t dir, int32_t)
 		
 		case ls_slash:
 		*flip=slashspr[dir][spr_flip];
+		break;
+		
+		case ls_revslash:
+		*flip=revslashspr[dir][spr_flip];
 		break;
 		
 		case ls_walk:

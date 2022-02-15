@@ -10885,6 +10885,25 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 					}
 				}
 			}
+			if (v_herosprites > 14)
+			{
+				for(int32_t q = 0; q < 4; ++q)
+				{
+					if(!p_igetl(&tile,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&flip,f,keepdata))
+						return qe_invalid;
+					
+					if(!p_getc(&extend,f,keepdata))
+						return qe_invalid;
+					
+					if(keepdata)
+					{
+						setSprite(revslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+					}
+				}
+			}
 		}
 		else if(keepdata)
 		{
@@ -10928,6 +10947,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
 			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
 			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
+			memset(revslashspr, 0, sizeof(revslashspr));
 			for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
         if (v_herosprites > 7)
