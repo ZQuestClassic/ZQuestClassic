@@ -3711,7 +3711,7 @@ void game_loop()
 		
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-		FFCore.combo_script_engine_waitdraw(false);    
+		FFCore.combo_script_engine(false, true);    
 		}
 		
 		//Waitdraw for item scripts. 

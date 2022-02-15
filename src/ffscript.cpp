@@ -93,6 +93,7 @@ zc_randgen script_rnggens[MAX_USER_RNGS];
 FONT *get_zc_font(int32_t index);
 
 int32_t combopos_modified = -1;
+static word combo_id_cache[7*176] = {0};
 
 const char scripttypenames[15][40]=
 {
@@ -586,10 +587,9 @@ refInfo itemactiveScriptData[256];
 
 //Combo Scripts
 refInfo comboScriptData[176*7];
-word combo_doscript[176*7] = {0}; //one bit per layer
+word combo_doscript[176*7] = {0};
 byte combo_waitdraw[176] = {0}; //one bit per layer
 byte combo_initialised[176*7] = {0}; //one bit per layer
-int32_t comboscript_combo_ids[176*7] = {0};
 int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
 
 //The stacks
@@ -23431,7 +23431,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	
 	script_counter = 0;
 #endif
-	uint32_t this_combo_id = 0;
 	switch(type)
 	{
 		//Z_scripterrlog("The script type is: %d\n", type);
@@ -23698,8 +23697,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			stack = &(combo_stack[i]);
 			int32_t pos = ((i%176));
 			int32_t lyr = i/176;
-			int32_t id = comboscript_combo_ids[i]; 
-			this_combo_id = FFCore.tempScreens[lyr]->data[pos];
+			int32_t id = FFCore.tempScreens[lyr]->data[pos];
 			if(!(combo_initialised[pos] & (1<<lyr)))
 			{
 				memset(ri->d, 0, 8 * sizeof(int32_t));
@@ -39731,12 +39729,10 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 void FFScript::init_combo_doscript()
 {
+	memset(combo_id_cache, -1, sizeof(combo_id_cache));
 	clear_combo_refinfo();
 	clear_combo_initialised();
-	for(int32_t q = 0; q < 7*176; ++q )
-	{
-		combo_doscript[q] = 1;
-	}
+	memset(combo_doscript, 1, sizeof(combo_doscript));
 }
 void FFScript::clear_combo_refinfo()
 {
@@ -39769,6 +39765,7 @@ void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
 	if(lyr < 0) return;
 	uint32_t ind = pos+(176*lyr);
 	if(ind >= 176*7) return;
+	combo_id_cache[ind] = -1;
 	combopos_modified = ind;
 	combo_doscript[ind] = 1;
 	combo_initialised[pos] &= ~(1<<lyr);
@@ -39849,7 +39846,6 @@ void FFScript::ClearComboScripts()
 		{
 			if ( get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+l) )
 			{
-				comboscript_combo_ids[c+(176*l)] = 0;
 				comboScriptData[c+(176*l)].Clear();
 				for ( int32_t r = 0; r < MAX_SCRIPT_REGISTERS; ++r )
 				{
@@ -39860,84 +39856,43 @@ void FFScript::ClearComboScripts()
 	}
 }
 
-int32_t FFScript::combo_script_engine_waitdraw(const bool preload)
+int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 {
-	
 	///non-scripted effects
-	
 	for ( int32_t q = 0; q < 7; ++q )
 	{
+		if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q))
+			continue;
 		for ( int32_t c = 0; c < 176; ++c )
 		{
-			int32_t ls = (q ? tmpscr->layerscreen[q-1] : 0);
-			int32_t lm = (q ? tmpscr->layermap[q-1] : 0);
-			if(q && !lm) continue; //No layer for this screen
+			// int32_t ls = (q ? tmpscr->layerscreen[q-1] : 0);
+			// int32_t lm = (q ? tmpscr->layermap[q-1] : 0);
+			// if(q && !lm) continue; //No layer for this screen
+			int32_t idval = c+(176*q);
 			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
-			int32_t cid = m->data[c];
+			word cid = m->data[c];
 			int32_t type = combobuf[cid].type;
+			if(combo_id_cache[idval] < 0)
+				combo_id_cache[idval] = cid;
+			else if(combo_id_cache[idval] != cid)
+			{
+				reset_combo_script(q,c);
+				combo_id_cache[idval] = cid;
+			}
 			
-			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
 			if ( combobuf[cid].script )
 			{
-				if ( (combo_doscript[c+(176*q)]) )
+				if ( (combo_doscript[idval]) )
 				{
-					if(!(combo_waitdraw[c] & (1<<q))) continue; //waitfraw not set
-					comboscript_combo_ids[c+(176*q)] = cid;
-					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c+176*q);
-					combo_waitdraw[c] |= ~(1<<q);
+					if(waitdraw && !(combo_waitdraw[c] & (1<<q))) continue; //waitdraw not set
+					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[cid].script, idval);
+					if(waitdraw) combo_waitdraw[c] &= ~(1<<q);
 				}
 			}
 		}
 	}
-
-	
 	return 1;
 }
-
-int32_t FFScript::combo_script_engine(const bool preload)
-{
-	
-	///non-scripted effects
-	
-	for ( int32_t q = 0; q < 7; ++q )
-	{
-		for ( int32_t c = 0; c < 176; ++c )
-		{
-			int32_t ls = (q ? tmpscr->layerscreen[q-1] : 0);
-			int32_t lm = (q ? tmpscr->layermap[q-1] : 0);
-			if(q && !lm) continue; //No layer for this screen
-			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
-			int32_t cid = m->data[c];
-			int32_t type = combobuf[cid].type;
-			// if ( type == cTRIGGERGENERIC )
-			// {
-				// //run local trigger effects
-				// if ( combobuf[cid].usrflags&cflag13 ) //spawn an item on room entry
-				// {
-					// //need a way to set a bit as to not do this again, similar to screengrid
-				// }
-				// if ( combobuf[cid].usrflags&cflag14 ) //spawn an item on room entry
-				// {
-					// //need a way to set a bit as to not do this again, similar to screengrid
-				// }
-			// }
-			
-			if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q)) { continue;}
-			if ( combobuf[cid].script )
-			{
-				if ( (combo_doscript[c+(176*q)]) )
-				{
-					comboscript_combo_ids[c+(176*q)] = cid;
-					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[m->data[c]].script, c+176*q);
-				}
-			}
-		}
-	}
-
-	
-	return 1;
-}
-
 
 //Config for file->
 
