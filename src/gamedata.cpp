@@ -590,17 +590,20 @@ void gamedata::change_wlevel(int16_t l)
 
 byte gamedata::get_cheat()
 {
-    return _cheat;
+    return _cheat&(~DIDCHEAT_BIT);
 }
 void gamedata::set_cheat(byte c)
 {
-    _cheat=c;
+	_cheat = (_cheat&DIDCHEAT_BIT) | vbound(c,0,4);
     return;
 }
-void gamedata::change_cheat(int16_t c)
+void gamedata::did_cheat(bool set)
 {
-    _cheat+=c;
-    return;
+	SETFLAG(_cheat, DIDCHEAT_BIT, set);
+}
+bool gamedata::did_cheat()
+{
+	return (_cheat&DIDCHEAT_BIT)!=0;
 }
 
 byte gamedata::get_hasplayed()

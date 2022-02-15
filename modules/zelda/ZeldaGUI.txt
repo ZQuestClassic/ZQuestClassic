@@ -50,6 +50,7 @@ src/gui/seltile_swatch.cpp
 src/gui/tileanim_frame.cpp
 
 src/dialog/init_data.cpp
+src/dialog/cheat_dialog.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
 

@@ -224,7 +224,6 @@ void ending()
 	//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 	//	FFCore.Waitframe();
 	//}while(player_doscript);
-	game->set_cheat(game->get_cheat() | ((cheat>1)?1:0));
 	
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
@@ -529,7 +528,7 @@ void ending()
 								  "%-8s -%3d", game->get_name(), game->get_deaths());
 				else if(y==timeYPos)
 				{
-					if(game->get_timevalid() && !game->get_cheat())
+					if(game->get_timevalid() && !game->did_cheat())
 						textout_centre_ex(scrollbuf, zfont, time_str_med(game->get_time()), 128, 224, blue, 0);
 				}
 			}
@@ -681,8 +680,6 @@ void ending_scripted()
 	kill_sfx();
 	//sfx(WAV_ZELDA);
 	Quit=0;
-    
-	game->set_cheat(game->get_cheat() | ((cheat>1)?1:0));
     
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;

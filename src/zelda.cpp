@@ -565,6 +565,7 @@ bool toogam=false;
 bool ignoreSideview=false;
 
 int32_t cheat = (DEVLEVEL > 1) ? 4 : 0;                         // 0 = none; 1,2,3,4 = cheat level
+int32_t maxcheat = (DEVLEVEL > 1) ? 4 : 0;
 
 int32_t mouse_down=0;                                             // used to hold the last reading of 'gui_mouse_b()' status
 int32_t idle_count=0, active_count=0;
@@ -1872,6 +1873,8 @@ int32_t init_game()
 	
 	ResetSaveScreenSettings();
 	
+	maxcheat = game->get_cheat();
+	
 	//setPackfilePassword(NULL);
 	
 	char keyfilename[2048]; //master key .key
@@ -1895,7 +1898,7 @@ int32_t init_game()
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
-		al_trace("Found Quest Master Key\n");
+			al_trace("Found Quest Master Key\n");
 			int16_t ver;
 			byte  bld;
 			p_igetw(&ver,fp,true);
@@ -2006,7 +2009,8 @@ int32_t init_game()
 			memset(password,0,32);
 			memset(unhashed_pw,0,32);
 			memset(pwd,0,32);
-		cheat=4;
+			cheat = 4;
+			maxcheat = 4;
 		}
 		
 		pack_fclose(fp);
@@ -2017,7 +2021,8 @@ int32_t init_game()
 	
 	if(gotfromkey)
 	{
-		cheat=4;
+		cheat = 4;
+		maxcheat = 4;
 	}
 	
 	skip_keycheats:
@@ -2036,8 +2041,10 @@ int32_t init_game()
 	}
 	
 	if(zqtesting_mode)
+	{
 		cheat = 4;
-	
+		maxcheat = 4;
+	}
 	bool firstplay = (game->get_hasplayed() == 0);
 	
 	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;

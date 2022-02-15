@@ -37,7 +37,7 @@ void put_active_subscr(miscQdata *misc, int32_t y, int32_t pos)
 {
     //Don't call Sitems.animate() - that gets called somewhere else, somehow. -L
     animate_selectors();
-    bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
+    bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
     show_custom_subscreen(framebuf, misc, current_subscreen_active, 0, 6-y, showtime, pos);
 }
 
@@ -58,7 +58,7 @@ void dosubscr(miscQdata *misc)
     }
     
     int32_t miny;
-    bool showtime = game->get_timevalid() && !game->get_cheat() && get_bit(quest_rules,qr_TIME);
+    bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
     load_Sitems(misc);
     
     pause_sfx(WAV_BRANG);

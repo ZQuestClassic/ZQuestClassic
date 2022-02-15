@@ -258,7 +258,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        23 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        24 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        6
@@ -4163,6 +4163,7 @@ enum
 	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
+#define DIDCHEAT_BIT 0x80
 struct gamedata
 {
 	//private:
@@ -4328,7 +4329,8 @@ struct gamedata
 	
 	byte get_cheat();
 	void set_cheat(byte c);
-	void change_cheat(int16_t c);
+	void did_cheat(bool set);
+	bool did_cheat();
 	
 	byte get_hasplayed();
 	void set_hasplayed(byte p);
