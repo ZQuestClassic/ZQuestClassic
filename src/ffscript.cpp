@@ -14519,6 +14519,7 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case GAMEMAXCHEAT:
 			maxcheat=vbound(value/10000,0,4);
+			game->set_cheat(maxcheat);
 			if(cheat > maxcheat) cheat = maxcheat;
 			break;
 			

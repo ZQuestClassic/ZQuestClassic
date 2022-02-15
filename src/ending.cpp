@@ -224,7 +224,6 @@ void ending()
 	//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 	//	FFCore.Waitframe();
 	//}while(player_doscript);
-	game->set_cheat(maxcheat);
 	
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
