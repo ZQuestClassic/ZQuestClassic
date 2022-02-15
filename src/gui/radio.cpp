@@ -30,9 +30,13 @@ void Radio::setChecked(bool value)
 	if(alDialog)
 	{
 		if(checked)
-			alDialog->flags |= D_SELECTED;
-		else
+		{
+			alDialog.message(MSG_CLICK,0);
+		}
+		else //May not work correctly?
+		{
 			alDialog->flags &= ~D_SELECTED;
+		}
 	}
 }
 
@@ -77,7 +81,7 @@ void Radio::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_radiofont_proc,
+		newGUIProc<jwin_radiofont_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),

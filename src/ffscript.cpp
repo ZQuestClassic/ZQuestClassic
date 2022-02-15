@@ -6097,7 +6097,11 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case GAMECHEAT:
-			ret=game->get_cheat()*10000;
+			ret=cheat*10000;
+			break;
+			
+		case GAMEMAXCHEAT:
+			ret=maxcheat*10000;
 			break;
 			
 		case GAMETIME:
@@ -14508,8 +14512,14 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 			
 		case GAMECHEAT:
-			game->set_cheat(value/10000);
-			cheat=(value/10000);
+			cheat=vbound(value/10000,0,4);
+			if(maxcheat < cheat) maxcheat = cheat;
+			if(cheat) game->did_cheat(true);
+			break;
+		
+		case GAMEMAXCHEAT:
+			maxcheat=vbound(value/10000,0,4);
+			if(cheat > maxcheat) cheat = maxcheat;
 			break;
 			
 		case GAMETIME:
@@ -34847,6 +34857,7 @@ script_variable ZASMVars[]=
 	{ "EWSWHOOKED",  EWSWHOOKED,  0, 0 },
 	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
 	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
+	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

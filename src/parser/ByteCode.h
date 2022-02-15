@@ -1337,8 +1337,9 @@
 #define EWSWHOOKED              1254
 #define ITMSWHOOKED             1255
 #define DEBUGTESTING            1256
+#define GAMEMAXCHEAT            1257
 
-#define LAST_BYTECODE           1257
+#define LAST_BYTECODE           1258
 
 //} END OF BYTECODE
 

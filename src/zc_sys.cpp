@@ -7841,51 +7841,13 @@ int32_t onQstPath()
     return D_O_K;
 }
 
-static DIALOG cheat_dlg[] =
-{
-    /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp) */
-    { jwin_win_proc,       72,   72,   176,  96,   0,       0,       0,       D_EXIT,    0,        0, (void *) "Enter cheat code", NULL,  NULL },
-    { jwin_edit_proc,      88,   104,  144,  16,   0,       0,       0,       0,         40,       0,       NULL, NULL,  NULL },
-    { jwin_button_proc,    130,  136,  61,   21,   0,       0,       13,      D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
+#include "dialog/cheat_dialog.h"
 int32_t onCheat()
 {
-    if(!zcheats.flags && !get_debug() && DEVLEVEL < 2)
-        return D_O_K;
-        
-    str_a[0]=0;
-    cheat_dlg[0].dp2=lfont;
-    cheat_dlg[1].dp=str_a;
-    
-    if(is_large)
-        large_dialog(cheat_dlg);
-        
-    int32_t ret=zc_popup_dialog(cheat_dlg,1);
-    
-    if((ret==2) && strlen(str_a))
-    {
-        char str[80];
-        
-        for(int32_t i=0; i<4; i++)
-        {
-            if(!strcmp(str_a, zcheats.codes[i]))
-            {
-                cheat   = i + 1;
-                game->set_cheat(game->get_cheat() | cheat);
-                sprintf(str, "Cheat level %d enabled", i+1);
-                jwin_alert("Cheats enabled",NULL,str,NULL,"OK",NULL,13,27,lfont);
-                goto done;
-            }
-        }
-        
-        jwin_alert("ZQuest",NULL,"Invalid cheat code",NULL,"OK",NULL,13,27,lfont);
-    }
-    
-done:
-    return D_O_K;
+	call_setcheat_dialog();
+	game->set_cheat(maxcheat);
+	if(cheat) game->did_cheat(true);
+	return D_O_K;
 }
 
 int32_t onCheatRupies()
@@ -8136,7 +8098,7 @@ static MENU show_menu[] =
 
 static MENU cheat_menu[] =
 {
-    { (char *)"&Enter code...",              onCheat,                 NULL,                      0, NULL },
+    { (char *)"S&et Cheat",                  onCheat,                 NULL,                      0, NULL },
     { (char *)"",                            NULL,                    NULL,                      0, NULL },
     { (char *)"Re&fill",                     NULL,                    refill_menu,               0, NULL },
     { (char *)"",                            NULL,                    NULL,                      0, NULL },
@@ -8990,7 +8952,6 @@ void fix_dialogs()
     
     jwin_center_dialog(about_dlg);
     jwin_center_dialog(gamepad_dlg);
-    jwin_center_dialog(cheat_dlg);
     jwin_center_dialog(credits_dlg);
     jwin_center_dialog(gamemode_dlg);
     jwin_center_dialog(getnum_dlg);

@@ -475,6 +475,7 @@ extern bool toogam;
 extern bool ignoreSideview;
 
 extern int32_t cheat;                                           // 0 = none; 1,2,3,4 = cheat level
+extern int32_t maxcheat;
 
 extern int32_t  mouse_down;                                     // used to hold the last reading of 'gui_mouse_b()' status
 extern int32_t idle_count, active_count;

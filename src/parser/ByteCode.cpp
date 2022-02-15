@@ -484,6 +484,8 @@ string ZScript::VarToString(int32_t ID)
 		
 	case GAMECHEAT:
 		return "GAMECHEAT";
+	case GAMEMAXCHEAT:
+		return "GAMEMAXCHEAT";
 	
 	case ZELDAVERSION:
 	return "ZELDAVERSION";

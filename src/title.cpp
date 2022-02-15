@@ -1436,7 +1436,9 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			return 17;
 		}
 		
-		savedata[i].set_cheat(tempbyte);
+		if (section_version < 24) tempbyte = (tempbyte ? DIDCHEAT_BIT : 0);
+		savedata[i]._cheat = tempbyte;
+		
 		char temp;
 		
 		for(int32_t j=0; j<256; j++) // why not MAXITEMS ?
@@ -2373,7 +2375,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 			return 13;
 		}
 		
-		if(!p_putc(savedata[i].get_cheat(),f))
+		if(!p_putc(savedata[i]._cheat,f))
 		{
 			return 17;
 		}
@@ -3944,7 +3946,7 @@ static int32_t game_details(int32_t file)
 	else
 		textout_ex(framebuf,zfont,time_str_med(saves[file].get_time()),120,120,1,0);
 		
-	if(saves[file].get_cheat())
+	if(saves[file].did_cheat())
 		textout_ex(framebuf,zfont,"Used Cheats",120,128,1,0);
 		
 	textout_ex(framebuf,zfont,"START: PLAY GAME",56,152,1,0);
@@ -4469,9 +4471,8 @@ void game_over(int32_t type)
 		{
 			//run save scripts
 			FFCore.runOnSaveEngine();
-		setMonochrome(false); //Clear monochrome before drawing the file select.
-		doClearTint();
-			game->set_cheat(game->get_cheat() | cheat);
+			setMonochrome(false); //Clear monochrome before drawing the file select.
+			doClearTint();
 			
 			saves[currgame]=*game;
 			
@@ -4505,8 +4506,6 @@ void save_game(bool savepoint)
 		lastentrance_dmap = currdmap;
 		lastentrance = game->get_continue_scrn();
 	}
-	
-	game->set_cheat(game->get_cheat() | cheat);
 	
 	saves[currgame]=*game;
 	
@@ -4651,8 +4650,6 @@ bool save_game(bool savepoint, int32_t type)
 					lastentrance_dmap = currdmap;
 					lastentrance = game->get_continue_scrn();
 				}
-				
-				game->set_cheat(game->get_cheat() | cheat);
 				
 				saves[currgame]=*game;
 				
