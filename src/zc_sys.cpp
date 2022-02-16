@@ -5615,6 +5615,8 @@ void kb_getkey(DIALOG *d)
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
+	update_hw_screen();
+	
     clear_keybuf();
     int32_t k = next_press_key();
     clear_keybuf();
@@ -5642,6 +5644,8 @@ void kb_clearjoystick(DIALOG *d)
     textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
+    
+	update_hw_screen();
     
     clear_keybuf();
     int32_t k = next_press_key();
@@ -5671,6 +5675,8 @@ void kb_clearkey(DIALOG *d)
     textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
+    
+	update_hw_screen();
     
     clear_keybuf();
     int32_t k = next_press_key();
@@ -5755,6 +5761,8 @@ void j_getbtn(DIALOG *d)
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     textout_centre_ex(screen, font, "SPACE to disable", resx/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
+    
+	update_hw_screen();
     
     int32_t b = next_press_btn();
     

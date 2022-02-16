@@ -3333,16 +3333,17 @@ struct zquestheader
 		else if(new_version_id_alpha) return 0;
 		return -1;
 	}
-	std::string getAlphaStr(bool ignoreNightly = false)
+	char const* getAlphaStr(bool ignoreNightly = false)
 	{
-		char buf[20] = "%s";
-		if(!ignoreNightly && new_version_is_nightly) strcpy(buf, "Nightly (%s)");
-		if(new_version_id_release) sprintf(buf, buf, "Release");
-		else if(new_version_id_gamma) sprintf(buf, buf, "Gamma");
-		else if(new_version_id_beta) sprintf(buf, buf, "Beta");
-		else if(new_version_id_alpha) sprintf(buf, buf, "Alpha");
-		else sprintf(buf, buf, "Unknown");
-		return std::string(buf);
+		static char buf[40] = "";
+		char format[20] = "%s";
+		if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
+		if(new_version_id_release) sprintf(buf, format, "Release");
+		else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
+		else if(new_version_id_beta) sprintf(buf, format, "Beta");
+		else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
+		else sprintf(buf, format, "Unknown");
+		return buf;
 	}
 	int32_t getAlphaVer()
 	{
@@ -3352,18 +3353,18 @@ struct zquestheader
 		else if(new_version_id_alpha) return new_version_id_alpha;
 		return 0;
 	}
-	std::string getAlphaVerStr()
+	char const* getAlphaVerStr()
 	{
-		char buf[40] = "";
+		static char buf[40] = "";
 		if(new_version_is_nightly)
 		{
-			sprintf(buf, "Nightly (%s %d)", getAlphaStr(true).c_str(), getAlphaVer());
+			sprintf(buf, "Nightly (%s %d)", getAlphaStr(true), getAlphaVer());
 		}
 		else
 		{
-			sprintf(buf, "%s %d", getAlphaStr(true).c_str(), getAlphaVer());
+			sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
 		}
-		return std::string(buf);
+		return buf;
 	}
 	std::string getVerStr()
 	{

@@ -2194,7 +2194,7 @@ int32_t init_game()
 			{
 				case 0x255:
 				{
-					zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", QHeader.getAlphaStr().c_str(), QHeader.getAlphaVer());	
+					zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", QHeader.getAlphaStr(), QHeader.getAlphaVer());	
 					break;
 				}
 				case 0x254:
@@ -2284,7 +2284,7 @@ int32_t init_game()
 				
 			}
 		}
-		if(QHeader.getAlphaVer()) zprint2("%s %d\n", QHeader.getAlphaStr(), QHeader.getAlphaVer());
+		if(QHeader.getAlphaVer()) zprint2("%s\n", QHeader.getAlphaVerStr());
 		if ( QHeader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", QHeader.made_in_module_name);
 		if ( QHeader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s, (ID: %d)\n", QHeader.new_version_devsig, QHeader.developerid);
 		if ( QHeader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", QHeader.new_version_compilername, QHeader.compilerid);
