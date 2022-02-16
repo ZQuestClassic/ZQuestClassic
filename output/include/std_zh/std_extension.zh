@@ -10,7 +10,7 @@
 //Credit to Alucard648 for providing a fixed version
 int AdjacentCombo(int cmb, int dir)
 {
-	if (dir < 0 || dir > 15) return false;
+	if (dir < 0 || dir > 15) return -1;
 	dir = DirNormal(dir);
 	int combooffsets[12]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11, 0, 0, 0, 0};
 	if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
@@ -29,7 +29,7 @@ int AdjacentCombo(int cmb, int dir)
 //Credit to Alucard648 for providing a fixed version
 int AdjacentCombo(int cmb, int dir, int dist)
 {
-	if (dir < 0 || dir > 15) return false;
+	if (dir < 0 || dir > 15) return -1;
 	dir = DirNormal(dir);
 	int combooffsets[12]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
 	if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
