@@ -1059,9 +1059,9 @@ int32_t onSnapshot()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
     while(num<99999 && exists(buf));
@@ -1083,10 +1083,10 @@ int32_t onMapscrSnapshot()
 
 	char buf[200];
 	int32_t num=0;
-
+	
 	do
 	{
-		sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+		sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
 
@@ -1099,7 +1099,7 @@ int32_t onMapscrSnapshot()
 	clear_to_color(panorama,vc(0));
 
 	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
-
+	
 	save_bitmap(buf,panorama,usepal);
 	destroy_bitmap(panorama);
 

@@ -43,6 +43,8 @@ double vbound(double val, double low, double high);
 std::string dayextension(int32_t dy);
 bool fileexists(const char *filename);
 
+char const* get_snap_str();
+
 //#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif

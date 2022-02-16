@@ -269,6 +269,8 @@ bool isSideViewHero(int32_t t = 0);
 //Script Clearing
 void initZScriptGlobalScript(int32_t ID);
 
+void update_hw_screen();
+
 /**********************************/
 /******** Global Variables ********/
 /**********************************/
@@ -289,7 +291,10 @@ extern signed char pause_in_background_menu_init;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *temp_buf2, *prim_bmp, *script_menu_buf, *f6_menu_buf;
+extern BITMAP   *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
+                *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf,
+				*msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3], *temp_buf, *temp_buf2, *prim_bmp,
+				*script_menu_buf, *f6_menu_buf, *hw_screen, *scrtmp;
 extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *lightbeam_bmp;

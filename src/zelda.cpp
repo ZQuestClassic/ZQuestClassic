@@ -275,7 +275,10 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf, *f6_menu_buf;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
+           *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
+		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
+		   *script_menu_buf, *f6_menu_buf, *hw_screen, *scrtmp;
 BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
@@ -597,9 +600,27 @@ volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
 bool update_hw_pal = false;
+PALETTE* hw_palette = NULL;
 void update_hw_screen()
 {
+	//if(!hw_screen) return;
+	if((!is_sys_pal && !Throttlefps) || myvsync)
+	{
+		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+		if(update_hw_pal && hw_palette)
+		{
+			set_palette(*hw_palette);
+			update_hw_pal = false;
+		}
+		myvsync=0;
+	}
 }
+
+void myvsync_callback()
+{
+    ++myvsync;
+}
+END_OF_FUNCTION(myvsync_callback)
 
 /*
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
@@ -4740,8 +4761,17 @@ int32_t main(int32_t argc, char* argv[])
 	LOCK_FUNCTION(update_script_counter);
 	install_int_ex(update_script_counter, 1);
 #endif
+	LOCK_VARIABLE(myvsync);
+	LOCK_FUNCTION(myvsync_callback);
 	
-	if(!Z_init_timers())
+	bool timerfail = false;
+	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(60)))
+		timerfail = true;
+	
+	if(!timerfail && !Z_init_timers())
+		timerfail = true;
+	
+	if(timerfail)
 	{
 		Z_error_fatal("Couldn't Allocate Timers");
 		quit_game();
@@ -5304,10 +5334,13 @@ int32_t main(int32_t argc, char* argv[])
 	
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
-	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);zq_screen_w = resx;
+	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
+	zq_screen_w = resx;
 	zq_screen_h = resy;
 	
-	real_screen = screen;
+	hw_screen = screen;
+	hw_palette = &RAMpal;
+	screen = create_bitmap_ex(8, resx, resy);
 	
 	if(Triplebuffer.GFX_can_triple_buffer())
 	{

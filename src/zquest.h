@@ -1160,9 +1160,7 @@ extern volatile int32_t myvsync;
 void myvsync_callback();
 void fps_callback();
 
-#ifdef IS_ZQUEST
 extern BITMAP *hw_screen;
-#endif
 extern bool update_hw_pal;
 void update_hw_screen();
 

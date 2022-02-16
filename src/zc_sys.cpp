@@ -86,6 +86,9 @@ char modulepath[2048];
 byte epilepsyFlashReduction;
 signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
+bool is_sys_pal = false;
+extern PALETTE* hw_palette;
+extern bool update_hw_pal;
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -3774,7 +3777,8 @@ void updatescr(bool allowwavy)
         refreshpal=false;
         RAMpal[253] = _RGB(0,0,0);
         RAMpal[254] = _RGB(63,63,63);
-        set_palette_range(RAMpal,0,255,false);
+		hw_palette = &RAMpal;
+		update_hw_pal = true;
         
         create_rgb_table(&rgb_table, RAMpal, NULL);
         create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
@@ -3914,7 +3918,7 @@ void updatescr(bool allowwavy)
         if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
-    if(ShowFPS &&(frame&1))
+    if(ShowFPS)// &&(frame&1))
         show_fps(target);
         
     if(Paused)
@@ -3938,6 +3942,8 @@ void updatescr(bool allowwavy)
     //if(panorama!=NULL) destroy_bitmap(panorama);
     
     ++framecnt;
+	
+	update_hw_screen();
 }
 
 //----------------------------------------------------------------
@@ -3949,13 +3955,12 @@ int32_t onGUISnapshot()
     char buf[200];
     int32_t num=0;
     bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
-    
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
     while(num<99999 && exists(buf));
@@ -4018,7 +4023,7 @@ int32_t onNonGUISnapshot()
     
     do
     {
-        sprintf(buf, "zc_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
     }
     while(num<99999 && exists(buf));
     
@@ -4098,9 +4103,9 @@ int32_t onSaveMapPic()
 	do
 	{
 #ifdef ALLEGRO_MACOSX
-		sprintf(buf, "../../../zc_screen%05d.png", ++num);
+		sprintf(buf, "../../../%szc_screen%05d.png", get_snap_str(), ++num);
 #else
-		sprintf(buf, "zc_screen%05d.png", ++num);
+		sprintf(buf, "%szc_screen%05d.png", get_snap_str(), ++num);
 #endif
 	}
 	while(num<99999 && exists(buf));
@@ -4370,6 +4375,7 @@ void f_Quit(int32_t type)
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);
+		update_hw_screen();
     }
     else
     {
@@ -5057,7 +5063,7 @@ void wavyout(bool showhero)
     clear_to_color(wavebuf,0);
     blit(framebuf,wavebuf,0,0,16,0,256,224);
     
-    PALETTE wavepal;
+    static PALETTE wavepal;
     
     int32_t ofs;
     int32_t amplitude=8;
@@ -5078,11 +5084,13 @@ void wavyout(bool showhero)
         
         if(palpos>=0)
         {
-            set_palette(wavepal);
+			hw_palette = &wavepal;
+			update_hw_pal = true;
         }
         else
         {
-            set_palette(RAMpal);
+			hw_palette = &RAMpal;
+			update_hw_pal = true;
         }
         
         for(int32_t j=0; j+playing_field_offset<224; j++)
@@ -5120,7 +5128,7 @@ void wavyin()
     clear_to_color(wavebuf,0);
     blit(framebuf,wavebuf,0,0,16,0,256,224);
     
-    PALETTE wavepal;
+    static PALETTE wavepal;
     
     //Breaks dark rooms.
     //In any case I don't think we need this, since palette is already loaded in doWarp() (famous last words...) -DD
@@ -5148,11 +5156,13 @@ void wavyin()
         
         if(palpos>=0)
         {
-            set_palette(wavepal);
+			hw_palette = &wavepal;
+			update_hw_pal = true;
         }
         else
         {
-            set_palette(RAMpal);
+			hw_palette = &RAMpal;
+			update_hw_pal = true;
         }
         
         for(int32_t j=0; j+playing_field_offset<224; j++)
@@ -8358,330 +8368,333 @@ void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,i
     fade_interpolate(src,tmp,dest,pos,from,to);
 }
 
-
 void system_pal()
 {
-    PALETTE pal;
-    copy_pal((RGB*)data[PAL_GUI].dat, pal);
-    
-    // set up the grayscale palette
-    for(int32_t i=128; i<192; i++)
-    {
-        pal[i].r = i-128;
-        pal[i].g = i-128;
-        pal[i].b = i-128;
-    }
-    load_colorset(gui_colorset, pal);
-    
-    color_layer(pal, pal, 24,16,16, 28, 128,191);
-    
-    for(int32_t i=0; i<256; i+=2)
-    {
-        int32_t v = (i>>3)+2;
-        int32_t c = (i>>3)+192;
-        pal[c] = _RGB(v,v,v+(v>>1));
-        /*
-          if(i<240)
-          {
-          _allegro_hline(tmp_scr,0,i,319,c);
-          _allegro_hline(tmp_scr,0,i+1,319,c);
-          }
-          */
-    }
-    
-    // draw the vertical screen gradient
-    for(int32_t i=0; i<240; ++i)
-    {
-        _allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
-    }
-    
-    /*
-      palrstart= 10*63/255; palrend=166*63/255;
-      palgstart= 36*63/255; palgend=202*63/255;
-      palbstart=106*63/255; palbend=240*63/255;
-      paldivs=32;
-      for(int32_t i=0; i<paldivs; i++)
-      {
-      pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    BITMAP *panorama = create_bitmap_ex(8,256,224);
-    int32_t ts_height, ts_start;
-    
-    if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
-    {
-        clear_to_color(panorama,0);
-        blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
-        ts_height=224-passive_subscreen_height;
-        ts_start=28;
-    }
-    else
-    {
-        blit(framebuf,panorama,0,0,0,0,256,224);
-        ts_height=224;
-        ts_start=0;
-    }
-    
-    // gray scale the current frame
-    for(int32_t y=0; y<ts_height; y++)
-    {
-        for(int32_t x=0; x<256; x++)
-        {
-            int32_t c = panorama->line[y+ts_start][x];
-            int32_t gray = zc_min((RAMpal[c].r*42 + RAMpal[c].g*75 + RAMpal[c].b*14) >> 7, 63);
-            tmp_scr->line[y+8+ts_start][x+32] = gray+128;
-        }
-    }
-    
-    destroy_bitmap(panorama);
-    
-    // save the fps_undo section
-    blit(tmp_scr,fps_undo,40,216,0,0,64,16);
-    
-    // display everything
-    vsync();
-    set_palette_range(pal,0,255,false);
-    
-    if(sbig)
-        stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
-    else
-        blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-        
-    if(ShowFPS)
-        show_fps(screen);
-        
-    if(Paused)
-        show_paused(screen);
-        
-    //  sys_pal = pal;
-    memcpy(sys_pal,pal,sizeof(pal));
+	is_sys_pal = true;
+	static PALETTE pal;
+	copy_pal((RGB*)data[PAL_GUI].dat, pal);
+	
+	// set up the grayscale palette
+	for(int32_t i=128; i<192; i++)
+	{
+		pal[i].r = i-128;
+		pal[i].g = i-128;
+		pal[i].b = i-128;
+	}
+	load_colorset(gui_colorset, pal);
+	
+	color_layer(pal, pal, 24,16,16, 28, 128,191);
+	
+	for(int32_t i=0; i<256; i+=2)
+	{
+		int32_t v = (i>>3)+2;
+		int32_t c = (i>>3)+192;
+		pal[c] = _RGB(v,v,v+(v>>1));
+		/*
+		  if(i<240)
+		  {
+		  _allegro_hline(tmp_scr,0,i,319,c);
+		  _allegro_hline(tmp_scr,0,i+1,319,c);
+		  }
+		  */
+	}
+	
+	// draw the vertical screen gradient
+	for(int32_t i=0; i<240; ++i)
+	{
+		_allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
+	}
+	
+	/*
+	  palrstart= 10*63/255; palrend=166*63/255;
+	  palgstart= 36*63/255; palgend=202*63/255;
+	  palbstart=106*63/255; palbend=240*63/255;
+	  paldivs=32;
+	  for(int32_t i=0; i<paldivs; i++)
+	  {
+	  pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+	  pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+	  pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+	  }
+	  */
+	BITMAP *panorama = create_bitmap_ex(8,256,224);
+	int32_t ts_height, ts_start;
+	
+	if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
+	{
+		clear_to_color(panorama,0);
+		blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
+		ts_height=224-passive_subscreen_height;
+		ts_start=28;
+	}
+	else
+	{
+		blit(framebuf,panorama,0,0,0,0,256,224);
+		ts_height=224;
+		ts_start=0;
+	}
+	
+	// gray scale the current frame
+	for(int32_t y=0; y<ts_height; y++)
+	{
+		for(int32_t x=0; x<256; x++)
+		{
+			int32_t c = panorama->line[y+ts_start][x];
+			int32_t gray = zc_min((RAMpal[c].r*42 + RAMpal[c].g*75 + RAMpal[c].b*14) >> 7, 63);
+			tmp_scr->line[y+8+ts_start][x+32] = gray+128;
+		}
+	}
+	
+	destroy_bitmap(panorama);
+	
+	// save the fps_undo section
+	blit(tmp_scr,fps_undo,40,216,0,0,64,16);
+	
+	// display everything
+	vsync();
+	hw_palette = &pal;
+	update_hw_pal = true;
+	
+	if(sbig)
+		stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
+	else
+		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
+		
+	if(ShowFPS)
+		show_fps(screen);
+		
+	if(Paused)
+		show_paused(screen);
+		
+	//  sys_pal = pal;
+	memcpy(sys_pal,pal,sizeof(pal));
 }
-
 
 void system_pal2()
 {
-    PALETTE RAMpal2;
-    copy_pal((RGB*)data[PAL_GUI].dat, RAMpal2);
-    
-    /* Windows 2000 colors
-      RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-      RAMpal2[dvc(2)] = _RGB( 66*63/255,  65*63/255,  66*63/255);
-      RAMpal2[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
-      RAMpal2[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-      RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-      RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-      RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-      RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-    
-      byte palrstart= 10*63/255, palrend=166*63/255,
-      palgstart= 36*63/255, palgend=202*63/255,
-      palbstart=106*63/255, palbend=240*63/255,
-      paldivs=7;
-      for(int32_t i=0; i<paldivs; i++)
-      {
-      RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    
-    /* Windows 98 colors
-      RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-      RAMpal2[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-      RAMpal2[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-      RAMpal2[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-      RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-      RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-      RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-      RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-    
-      byte palrstart=  0*63/255, palrend=166*63/255,
-      palgstart=  0*63/255, palgend=202*63/255,
-      palbstart=128*63/255, palbend=240*63/255,
-      paldivs=7;
-      for(int32_t i=0; i<paldivs; i++)
-      {
-      RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    
-    /* Windows 99 colors
-      RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-      RAMpal2[dvc(2)] = _RGB( 64*63/255,  64*63/255,  64*63/255);
-      RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-      RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-      RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-      RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-      RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-      RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-      RAMpal2[dvc(9)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-    
-      byte palrstart=  0*63/255, palrend=166*63/255,
-      palgstart=  0*63/255, palgend=202*63/255,
-    
-      palbstart=128*63/255, palbend=240*63/255,
-      paldivs=6;
-      for(int32_t i=0; i<paldivs; i++)
-      {
-      RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    
-    
-    
-    RAMpal2[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-    RAMpal2[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-    RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-    RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-    RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-    RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-    RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-    RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-    RAMpal2[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-    
-    byte palrstart=  0*63/255, palrend=166*63/255,
-         palgstart=  0*63/255, palgend=202*63/255,
-         palbstart=128*63/255, palbend=240*63/255,
-         paldivs=6;
-         
-    for(int32_t i=0; i<paldivs; i++)
-    {
-        RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-        RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-        RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-    }
-    
-    gui_bg_color=jwin_pal[jcBOX];
-    gui_fg_color=jwin_pal[jcBOXFG];
-    
-    jwin_set_colors(jwin_pal);
-    
-    
-    // set up the new palette
-    for(int32_t i=128; i<192; i++)
-    {
-        RAMpal2[i].r = i-128;
-        RAMpal2[i].g = i-128;
-        RAMpal2[i].b = i-128;
-    }
-    
-    /*
-      for(int32_t i=0; i<64; i++)
-      {
-      RAMpal2[128+i] = _RGB(i,i,i)1));
-      }
-      */
-    
-    /*
-    
-      pal[vc(1)]  = _RGB(0x00,0x00,0x14);
-      pal[vc(4)]  = _RGB(0x36,0x36,0x36);
-      pal[vc(6)]  = _RGB(0x10,0x10,0x10);
-      pal[vc(7)]  = _RGB(0x20,0x20,0x20);
-      pal[vc(9)]  = _RGB(0x20,0x20,0x24);
-      pal[vc(11)] = _RGB(0x30,0x30,0x30);
-      pal[vc(14)] = _RGB(0x3F,0x38,0x28);
-    
-      gui_fg_color=vc(14);
-      gui_bg_color=vc(1);
-    
-      jwin_set_colors(jwin_pal);
-      */
-    
-    //  color_layer(RAMpal2, RAMpal2, 24,16,16, 28, 128,191);
-    
-    // set up the colors for the vertical screen gradient
-    for(int32_t i=0; i<256; i+=2)
-    {
-        int32_t v = (i>>3)+2;
-        int32_t c = (i>>3)+192;
-        RAMpal2[c] = _RGB(v,v,v+(v>>1));
-        
-        /*
-          if(i<240)
-          {
-          _allegro_hline(tmp_scr,0,i,319,c);
-          _allegro_hline(tmp_scr,0,i+1,319,c);
-          }
-          */
-    }
-    
-    set_palette(RAMpal2);
-    
-    for(int32_t i=0; i<240; ++i)
-    {
-        _allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
-    }
-    
-    /*
-      byte palrstart= 10*63/255, palrend=166*63/255,
-      palgstart= 36*63/255, palgend=202*63/255,
-      palbstart=106*63/255, palbend=240*63/255,
-      paldivs=32;
-      for(int32_t i=0; i<paldivs; i++)
-      {
-      pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-      pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-      pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-      }
-      */
-    BITMAP *panorama = create_bitmap_ex(8,256,224);
-    int32_t ts_height, ts_start;
-    
-    if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
-    {
-        clear_to_color(panorama,0);
-        blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
-        ts_height=224-passive_subscreen_height;
-        ts_start=28;
-    }
-    else
-    {
-        blit(framebuf,panorama,0,0,0,0,256,224);
-        ts_height=224;
-        ts_start=0;
-    }
-    
-    // gray scale the current frame
-    for(int32_t y=0; y<ts_height; y++)
-    {
-        for(int32_t x=0; x<256; x++)
-        {
-            int32_t c = panorama->line[y+ts_start][x];
-            int32_t gray = zc_min((RAMpal2[c].r*42 + RAMpal2[c].g*75 + RAMpal2[c].b*14) >> 7, 63);
-            tmp_scr->line[y+8+ts_start][x+32] = gray+128;
-        }
-    }
-    
-    destroy_bitmap(panorama);
-    
-    // save the fps_undo section
-    blit(tmp_scr,fps_undo,40,216,0,0,64,16);
-    
-    // display everything
-    vsync();
-    set_palette_range(RAMpal2,0,255,false);
-    
-    if(sbig)
-        //stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
-        stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
-    else
-        blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-        
-    if(ShowFPS)
-        show_fps(screen);
-        
-    if(Paused)
-        show_paused(screen);
-        
-    //  sys_pal = pal;
-    memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
+	is_sys_pal = true;
+	static PALETTE RAMpal2;
+	copy_pal((RGB*)data[PAL_GUI].dat, RAMpal2);
+	
+	/* Windows 2000 colors
+	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
+	  RAMpal2[dvc(2)] = _RGB( 66*63/255,  65*63/255,  66*63/255);
+	  RAMpal2[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
+	  RAMpal2[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
+	  RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+	  RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+	  RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+	  RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
+	
+	  byte palrstart= 10*63/255, palrend=166*63/255,
+	  palgstart= 36*63/255, palgend=202*63/255,
+	  palbstart=106*63/255, palbend=240*63/255,
+	  paldivs=7;
+	  for(int32_t i=0; i<paldivs; i++)
+	  {
+	  RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+	  RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+	  RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+	  }
+	  */
+	
+	/* Windows 98 colors
+	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
+	  RAMpal2[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
+	  RAMpal2[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
+	  RAMpal2[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
+	  RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+	  RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+	  RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+	  RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
+	
+	  byte palrstart=  0*63/255, palrend=166*63/255,
+	  palgstart=  0*63/255, palgend=202*63/255,
+	  palbstart=128*63/255, palbend=240*63/255,
+	  paldivs=7;
+	  for(int32_t i=0; i<paldivs; i++)
+	  {
+	  RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+	  RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+	  RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+	  }
+	  */
+	
+	/* Windows 99 colors
+	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
+	  RAMpal2[dvc(2)] = _RGB( 64*63/255,  64*63/255,  64*63/255);
+	  RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
+	  RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
+	  RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
+	  RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+	  RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+	  RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+	  RAMpal2[dvc(9)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
+	
+	  byte palrstart=  0*63/255, palrend=166*63/255,
+	  palgstart=  0*63/255, palgend=202*63/255,
+	
+	  palbstart=128*63/255, palbend=240*63/255,
+	  paldivs=6;
+	  for(int32_t i=0; i<paldivs; i++)
+	  {
+	  RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+	  RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+	  RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+	  }
+	  */
+	
+	
+	
+	RAMpal2[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
+	RAMpal2[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
+	RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
+	RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
+	RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
+	RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
+	RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
+	RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+	RAMpal2[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+	
+	byte palrstart=  0*63/255, palrend=166*63/255,
+		 palgstart=  0*63/255, palgend=202*63/255,
+		 palbstart=128*63/255, palbend=240*63/255,
+		 paldivs=6;
+		 
+	for(int32_t i=0; i<paldivs; i++)
+	{
+		RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+		RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+		RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+	}
+	
+	gui_bg_color=jwin_pal[jcBOX];
+	gui_fg_color=jwin_pal[jcBOXFG];
+	
+	jwin_set_colors(jwin_pal);
+	
+	
+	// set up the new palette
+	for(int32_t i=128; i<192; i++)
+	{
+		RAMpal2[i].r = i-128;
+		RAMpal2[i].g = i-128;
+		RAMpal2[i].b = i-128;
+	}
+	
+	/*
+	  for(int32_t i=0; i<64; i++)
+	  {
+	  RAMpal2[128+i] = _RGB(i,i,i)1));
+	  }
+	  */
+	
+	/*
+	
+	  pal[vc(1)]  = _RGB(0x00,0x00,0x14);
+	  pal[vc(4)]  = _RGB(0x36,0x36,0x36);
+	  pal[vc(6)]  = _RGB(0x10,0x10,0x10);
+	  pal[vc(7)]  = _RGB(0x20,0x20,0x20);
+	  pal[vc(9)]  = _RGB(0x20,0x20,0x24);
+	  pal[vc(11)] = _RGB(0x30,0x30,0x30);
+	  pal[vc(14)] = _RGB(0x3F,0x38,0x28);
+	
+	  gui_fg_color=vc(14);
+	  gui_bg_color=vc(1);
+	
+	  jwin_set_colors(jwin_pal);
+	  */
+	
+	//  color_layer(RAMpal2, RAMpal2, 24,16,16, 28, 128,191);
+	
+	// set up the colors for the vertical screen gradient
+	for(int32_t i=0; i<256; i+=2)
+	{
+		int32_t v = (i>>3)+2;
+		int32_t c = (i>>3)+192;
+		RAMpal2[c] = _RGB(v,v,v+(v>>1));
+		
+		/*
+		  if(i<240)
+		  {
+		  _allegro_hline(tmp_scr,0,i,319,c);
+		  _allegro_hline(tmp_scr,0,i+1,319,c);
+		  }
+		  */
+	}
+	
+	// hw_palette = &RAMpal;
+	// update_hw_pal = true;
+	
+	for(int32_t i=0; i<240; ++i)
+	{
+		_allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
+	}
+	
+	/*
+	  byte palrstart= 10*63/255, palrend=166*63/255,
+	  palgstart= 36*63/255, palgend=202*63/255,
+	  palbstart=106*63/255, palbend=240*63/255,
+	  paldivs=32;
+	  for(int32_t i=0; i<paldivs; i++)
+	  {
+	  pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
+	  pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
+	  pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
+	  }
+	  */
+	BITMAP *panorama = create_bitmap_ex(8,256,224);
+	int32_t ts_height, ts_start;
+	
+	if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
+	{
+		clear_to_color(panorama,0);
+		blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
+		ts_height=224-passive_subscreen_height;
+		ts_start=28;
+	}
+	else
+	{
+		blit(framebuf,panorama,0,0,0,0,256,224);
+		ts_height=224;
+		ts_start=0;
+	}
+	
+	// gray scale the current frame
+	for(int32_t y=0; y<ts_height; y++)
+	{
+		for(int32_t x=0; x<256; x++)
+		{
+			int32_t c = panorama->line[y+ts_start][x];
+			int32_t gray = zc_min((RAMpal2[c].r*42 + RAMpal2[c].g*75 + RAMpal2[c].b*14) >> 7, 63);
+			tmp_scr->line[y+8+ts_start][x+32] = gray+128;
+		}
+	}
+	
+	destroy_bitmap(panorama);
+	
+	// save the fps_undo section
+	blit(tmp_scr,fps_undo,40,216,0,0,64,16);
+	
+	// display everything
+	vsync();
+	hw_palette = &RAMpal2;
+	update_hw_pal = true;
+	
+	if(sbig)
+		//stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
+		stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
+	else
+		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
+		
+	if(ShowFPS)
+		show_fps(screen);
+		
+	if(Paused)
+		show_paused(screen);
+		
+	//  sys_pal = pal;
+	memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
 }
 
 #ifdef _WIN32
@@ -8726,8 +8739,10 @@ void switch_in_callback()
 
 void game_pal()
 {
+	is_sys_pal = false;
     clear_to_color(screen,BLACK);
-    set_palette_range(RAMpal,0,255,false);
+	hw_palette = &RAMpal;
+	update_hw_pal = true;
 }
 
 static char bar_str[] = "";
@@ -8816,51 +8831,42 @@ void System()
         settings_menu[8].flags = NESquit?D_SELECTED:0;
         settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
         settings_menu[10].flags = volkeys?D_SELECTED:0;
-	//Epilepsy Prevention
-	settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		//Epilepsy Prevention
+		settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
         
         name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
         name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
         name_entry_mode_menu[2].flags = (NameEntryMode==2)?D_SELECTED:0;
 	
-	misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
-	misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
+		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
+		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
         
-        /*
-          if(!Playing || (!zcheats.flags && !debug))
-          {
-          cheat_menu[0].flags = D_DISABLED;
-          cheat_menu[1].text  = NULL;
-          }
-          else */
-        {
-            cheat_menu[0].flags = 0;
-            refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
-            cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
-            cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
-            cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
-            cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
-            cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
-            cheat_menu[11].flags = toogam ? D_SELECTED : 0;
-            cheat_menu[12].flags = ignoreSideview ? D_SELECTED : 0;
-            cheat_menu[13].flags = gofast ? D_SELECTED : 0;
-            
-            show_menu[0].flags = show_layer_0 ? D_SELECTED : 0;
-            show_menu[1].flags = show_layer_1 ? D_SELECTED : 0;
-            show_menu[2].flags = show_layer_2 ? D_SELECTED : 0;
-            show_menu[3].flags = show_layer_3 ? D_SELECTED : 0;
-            show_menu[4].flags = show_layer_4 ? D_SELECTED : 0;
-            show_menu[5].flags = show_layer_5 ? D_SELECTED : 0;
-            show_menu[6].flags = show_layer_6 ? D_SELECTED : 0;
-            show_menu[7].flags = show_layer_over ? D_SELECTED : 0;
-            show_menu[8].flags = show_layer_push ? D_SELECTED : 0;
-            show_menu[9].flags = show_sprites ? D_SELECTED : 0;
-            show_menu[10].flags = show_ffcs ? D_SELECTED : 0;
-            show_menu[12].flags = show_walkflags ? D_SELECTED : 0;
-            show_menu[13].flags = show_ff_scripts ? D_SELECTED : 0;
-            show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
+		cheat_menu[0].flags = 0;
+		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
+		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
+		cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
+		cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
+		cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
+		cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
+		cheat_menu[11].flags = toogam ? D_SELECTED : 0;
+		cheat_menu[12].flags = ignoreSideview ? D_SELECTED : 0;
+		cheat_menu[13].flags = gofast ? D_SELECTED : 0;
+		
+		show_menu[0].flags = show_layer_0 ? D_SELECTED : 0;
+		show_menu[1].flags = show_layer_1 ? D_SELECTED : 0;
+		show_menu[2].flags = show_layer_2 ? D_SELECTED : 0;
+		show_menu[3].flags = show_layer_3 ? D_SELECTED : 0;
+		show_menu[4].flags = show_layer_4 ? D_SELECTED : 0;
+		show_menu[5].flags = show_layer_5 ? D_SELECTED : 0;
+		show_menu[6].flags = show_layer_6 ? D_SELECTED : 0;
+		show_menu[7].flags = show_layer_over ? D_SELECTED : 0;
+		show_menu[8].flags = show_layer_push ? D_SELECTED : 0;
+		show_menu[9].flags = show_sprites ? D_SELECTED : 0;
+		show_menu[10].flags = show_ffcs ? D_SELECTED : 0;
+		show_menu[12].flags = show_walkflags ? D_SELECTED : 0;
+		show_menu[13].flags = show_ff_scripts ? D_SELECTED : 0;
+		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
 	    show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
-        }
         
         settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
         settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
@@ -8893,7 +8899,7 @@ void System()
                 broadcast_dialog_message(MSG_DRAW, 0);
             }
         }
-        
+        update_hw_screen();
     }
     while(update_dialog(p));
     
@@ -8907,6 +8913,7 @@ void System()
         kill_sfx();
         music_stop();
         clear_to_color(screen,BLACK);
+		update_hw_screen();
     }
     else
     {

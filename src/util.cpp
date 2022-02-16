@@ -407,7 +407,7 @@ namespace util
 	    return isalpha((char)c);
 	}
 }
-
+using namespace util;
 int32_t vbound(int32_t val, int32_t low, int32_t high)
 {
 	ASSERT(low <= high);
@@ -465,6 +465,17 @@ bool fileexists(const char *filename)
 	return false;
 }
 
-
+char const* get_snap_str()
+{
+	static char snap[16] = "snapshots/";
+	static char nil[1] = {0};
+	if(snap[9]==WRONG_PATH_SLASH) snap[9] = PATH_SLASH;
+	if(checkPath("snapshots",true))
+		return snap;
+	do_mkdir("snapshots",PATH_MODE);
+	if(checkPath("snapshots",true))
+		return snap;
+	return nil;
+}
 
 

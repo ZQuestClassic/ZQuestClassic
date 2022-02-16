@@ -4969,14 +4969,6 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
             }
             
             blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            //else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
             redraw=false;
         }
         
@@ -8196,14 +8188,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
         
         do_animations();
         refresh(rALL | rNOCURSOR);
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        // else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
     }
     
 finished:
@@ -8366,14 +8350,6 @@ void doflags()
         
         do_animations();
         refresh(rALL | rNOCURSOR);
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        // else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-        }
     }
     
 finished:
@@ -9959,14 +9935,6 @@ void domouse()
 					
 					do_animations();
 					refresh(rALL | rFAVORITES);
-					//if(zqwin_scale > 1)
-					{
-						//stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-					}
-					//else
-					{
-						//blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-					}
 				}
 				
 				ComboBrush=tempcb;
@@ -10000,14 +9968,6 @@ void domouse()
 					
 					do_animations();
 					refresh(rALL | rFAVORITES);
-					//if(zqwin_scale > 1)
-					{
-						//stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-					}
-					//else
-					{
-						//blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-					}
 				}
 				
 				ComboBrush=tempcb;
@@ -11148,14 +11108,6 @@ int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
                 scare_mouse();
                 d_sel_scombo_proc(MSG_DRAW,d,0);
                 unscare_mouse();
-                //if(zqwin_scale > 1)
-                {
-                    //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                //else
-                {
-                    //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
             }
         }
         
@@ -17435,14 +17387,6 @@ void edit_tune(int32_t i)
             //      text_mode(vc(1));
             textprintf_ex(screen,is_large? lfont_l : font,editmidi_dlg[0].x+int32_t(193*(is_large?1.5:1)),editmidi_dlg[0].y+int32_t(58*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
             unscare_mouse();
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            // else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
         }
         
         ret = shutdown_dialog(p);
@@ -17951,14 +17895,6 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
                 sprintf((char *)td[d->d1+1].dp, "%02X", y+x);
                 object_message(&td[d->d1+1], MSG_DRAW, 0);
                 unscare_mouse();
-                //if(zqwin_scale > 1)
-                {
-                    //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                //else
-                {
-                    //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
             }
         }
     }
@@ -21181,15 +21117,6 @@ bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
                 unscare_mouse();
                 over=false;
             }
-        }
-        
-        //if(zqwin_scale > 1)
-        {
-            //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-        }
-        //else
-        {
-            //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
         }
     }
     
@@ -30594,10 +30521,8 @@ int32_t main(int32_t argc,char **argv)
 	{
 		int32_t t_time_v = FFCore.getTime(q);
 	}
-	scrtmp = screen;
-	hw_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-	screen = hw_screen;
-	hw_screen = scrtmp;
+	hw_screen = screen;
+	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	scrtmp = screen;
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
@@ -33250,9 +33175,11 @@ void update_hw_screen()
 		{
 			blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 		}
-		if(update_hw_pal) set_palette(RAMpal);
-		update_hw_pal=false;
-		
+		if(update_hw_pal)
+		{
+			set_palette(RAMpal);
+			update_hw_pal=false;
+		}
 		myvsync=0;
 	}
 }
