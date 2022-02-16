@@ -2761,6 +2761,16 @@ __________      .__        __                    _____                ___.
 //  Game  //
 //////////// Game
 
+int Cheat;
+ * The current cheat level activated (0-4)
+ * Writing this >0 will enable cheats, even if normally disabled in the quest.
+ * Writing this > MaxCheat will automatically raise MaxCheat to match.
+
+int MaxCheat;
+ * The current cheat level unlocked in the cheat dialog (0-4)
+ * Writing this >0 will enable cheats, even if normally disabled in the quest.
+ * Writing this < Cheat will automatically lower Cheat to match.
+
 int MiscSprites[MISCSPR_MAX];
  * The quest's misc sprites. Use the 'MISCSPR_' constants to access this array.
 
