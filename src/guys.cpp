@@ -17103,7 +17103,7 @@ int32_t eManhandla::takehit(weapon *w)
 		break;
 		
 	default:
-		if (get_bit(quest_rule, qr_MANHANDLA_BLOCK_SFX)) sfx(WAV_EHIT,pan(int32_t(x)));
+		if (get_bit(quest_rules, qr_MANHANDLA_BLOCK_SFX)) sfx(WAV_EHIT,pan(int32_t(x)));
 		else sfx(WAV_CHINK,pan(int32_t(x)));
 		
 	}
