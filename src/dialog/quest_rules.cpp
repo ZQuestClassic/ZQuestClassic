@@ -730,6 +730,8 @@ static const GUI::ListData compatRulesList
 		" not teleport while stunned, and will 'unteleport' if they are in the middle of teleporting."},
 	{ "Ganon-Type Rooms Don't Work On Continuing", qr_GANON_CANT_SPAWN_ON_CONTINUE,
 		"If enabled, continuing/starting the quest will not trigger Ganon Rooms."},
+	{ "Old Bug Net Animation", qr_OLD_BUG_NET,
+		"If enabled, the player won't use slashing tiles while using the Bug Net."},
 };
 
 static const GUI::ListData enemiesRulesList

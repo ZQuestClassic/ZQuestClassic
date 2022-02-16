@@ -2075,7 +2075,7 @@ attack:
 						if (attackclk >= 14) tile += (extend==2?2:1);
 					}
 				}
-				if (attack==wBugNet && game->get_canslash())
+				if (attack==wBugNet && !get_bit(quest_rules, qr_OLD_BUG_NET))
 				{
 					if ((dir == right && (itemsbuf[itemid].flags&ITEM_FLAG2)) || (dir != right && !(itemsbuf[itemid].flags&ITEM_FLAG2)))
 					{
