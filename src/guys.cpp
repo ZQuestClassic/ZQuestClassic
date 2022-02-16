@@ -17088,6 +17088,9 @@ int32_t eManhandla::takehit(weapon *w)
 	{
 	case wBomb:
 	case wSBomb:
+	case wSword:
+	case wHammer:
+	case wWand:
 		if (get_bit(quest_rules, qr_MANHANDLA_BLOCK_SFX)) sfx(WAV_EHIT,pan(int32_t(x)));
 		
 	case wLitBomb:
