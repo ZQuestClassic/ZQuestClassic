@@ -1,7 +1,60 @@
 // 2.55 Change Log
-// Updated 10th Feb, 2022
+// Updated 15th Feb, 2022
 
-//Since A102
+//Since A103
+
+//A103
+
+Massively optimize ZC's draws to the screen. To give you an idea how massive this was,
+	my uncapped FPS in a 'File->New' quest went from ~500 to ~2500. This also simultaneously
+	fixes dialog flickering in ZC.
+Screenshots now save into 'ZC Folder/snapshots/' instead of 'ZC Folder/'
+	( EmilyV, Feb 15th, 2022 )
+
+Reverse slash sprites
+Bug net slash sprites
+New Keese enemy options
+Fix manhandla blocking sfx
+	( Deedee, Feb 15th, 2022 )
+
+New cheat handling; now, entering a cheat code 'unlocks' that level of cheat (permanently for the save file).
+	In the cheat menu, you can select any 'unlocked' level of cheat (default 0, resets each load).
+Fix combo scripts for real
+	( EmilyV, Feb 15th, 2022 )
+
+Fixed bomb useweapon issue
+Fixed tektite sideload issue.
+Fixed Red Leevers ignoring clocks.
+Added new stun/clock behavior to Leevers that makes them come out but not go back in when a clock is active or they're stunned (compat ruled)
+Added new QR that lets Leevers be stunned by Quake Hammer.
+Fixed Ganon spawning-related issues.
+using ItemX/ItemY/ItemA/ItemB no longer sets the subscreen cursor to 
+Fixed wizzrobes not obeying stun.invalid locations.
+	( Deedee, Feb 14th, 2022 )
+
+Fixed enemy stun pit bug.
+Gleeok heads now have option to block projectiles
+Added already accelerated keese option
+Fixed weird graphical sword beam bug
+	( Deedee, Feb 13th, 2022 )
+
+Expand theme options
+Fix module quest issues
+Add setting to disable palette shortcuts (0-9)
+Add 'SelectXWeapon()'/'SelectYWeapon()' to zscript
+	( EmilyV, Feb 13th, 2022 )
+
+Game icon updates on win game properly
+Fix random shopkeeper spawning
+Fix weird weapon mirror behavior
+Fix cancel warp hopping bug
+Change bug net timing (still WIP)
+	( Deedee, Feb 12th, 2022 )
+
+Fix error with swapbutton-style fields converting from LH mode to D mode
+Add font readability option
+Fix external parser issues
+	( EmilyV, Feb 12th, 2022 )
 
 Fix module-related issues
 	( EmilyV, Feb 10th, 2022 )

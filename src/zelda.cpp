@@ -275,7 +275,10 @@ bool triplebuffer_not_available=false;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *pricesdisplaybuf, *tb_page[3], *real_screen, *temp_buf, *prim_bmp, *script_menu_buf, *f6_menu_buf;
+BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
+           *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
+		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
+		   *script_menu_buf, *f6_menu_buf, *hw_screen, *scrtmp;
 BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
@@ -597,9 +600,27 @@ volatile int32_t framecnt=0;
 volatile int32_t myvsync=0;
 
 bool update_hw_pal = false;
+PALETTE* hw_palette = NULL;
 void update_hw_screen()
 {
+	//if(!hw_screen) return;
+	if((!is_sys_pal && !Throttlefps) || myvsync)
+	{
+		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
+		if(update_hw_pal && hw_palette)
+		{
+			set_palette(*hw_palette);
+			update_hw_pal = false;
+		}
+		myvsync=0;
+	}
 }
+
+void myvsync_callback()
+{
+    ++myvsync;
+}
+END_OF_FUNCTION(myvsync_callback)
 
 /*
 enum { 	SAVESC_BACKGROUND, 		SAVESC_TEXT, 			SAVESC_USETILE, 	
@@ -2173,7 +2194,7 @@ int32_t init_game()
 			{
 				case 0x255:
 				{
-					zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", QHeader.getAlphaStr().c_str(), QHeader.getAlphaVer());	
+					zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", QHeader.getAlphaStr(), QHeader.getAlphaVer());	
 					break;
 				}
 				case 0x254:
@@ -2263,16 +2284,7 @@ int32_t init_game()
 				
 			}
 		}
-		if ( QHeader.new_version_id_alpha ) { zprint2("Alpha %d\n", QHeader.new_version_id_alpha); }
-		else if ( QHeader.new_version_id_beta ) { zprint2("Beta %d\n", QHeader.new_version_id_beta); }
-		else if ( QHeader.new_version_id_gamma ) { zprint2("Gamma %d\n", QHeader.new_version_id_gamma); }
-		else if ( QHeader.new_version_id_release ) { zprint2("Release %d\n\n", QHeader.new_version_id_release); }
-		else
-		{
-			//no specific mnetadata - Can wededuce it?
-			
-			
-		}
+		if(QHeader.getAlphaVer()) zprint2("%s\n", QHeader.getAlphaVerStr());
 		if ( QHeader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", QHeader.made_in_module_name);
 		if ( QHeader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s, (ID: %d)\n", QHeader.new_version_devsig, QHeader.developerid);
 		if ( QHeader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", QHeader.new_version_compilername, QHeader.compilerid);
@@ -4475,22 +4487,7 @@ int32_t main(int32_t argc, char* argv[])
 	sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
 	
 
-	if ( V_ZC_ALPHA )
-	{
-		Z_title("%s, v.%s Alpha %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_ALPHA);
-	}
-	else if ( V_ZC_BETA )
-	{
-		Z_title("%s, v.%s Beta %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_BETA);
-	}
-	else if ( V_ZC_GAMMA )
-	{
-		Z_title("%s, v.%s Gamma %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_GAMMA);
-	}
-	else /*( V_ZC_RELEASE )*/
-	{
-		Z_title("%s, v.%s Release %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_RELEASE);
-	}
+	Z_title("%s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
 	
 	if(used_switch(argc, argv, "-standalone"))
 	{
@@ -4740,8 +4737,17 @@ int32_t main(int32_t argc, char* argv[])
 	LOCK_FUNCTION(update_script_counter);
 	install_int_ex(update_script_counter, 1);
 #endif
+	LOCK_VARIABLE(myvsync);
+	LOCK_FUNCTION(myvsync_callback);
 	
-	if(!Z_init_timers())
+	bool timerfail = false;
+	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(60)))
+		timerfail = true;
+	
+	if(!timerfail && !Z_init_timers())
+		timerfail = true;
+	
+	if(timerfail)
 	{
 		Z_error_fatal("Couldn't Allocate Timers");
 		quit_game();
@@ -5304,10 +5310,13 @@ int32_t main(int32_t argc, char* argv[])
 	
 	sbig = (screen_scale > 1);
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
-	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);zq_screen_w = resx;
+	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
+	zq_screen_w = resx;
 	zq_screen_h = resy;
 	
-	real_screen = screen;
+	hw_screen = screen;
+	hw_palette = &RAMpal;
+	screen = create_bitmap_ex(8, resx, resy);
 	
 	if(Triplebuffer.GFX_can_triple_buffer())
 	{

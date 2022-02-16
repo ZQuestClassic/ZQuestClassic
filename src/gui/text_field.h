@@ -107,7 +107,8 @@ private:
 	int32_t onEnterMsg, onValueChangedMsg;
 	bool valSet;
 	std::function<void(type,std::string_view,int32_t)> onValChanged;
-
+	
+	void applyReadableFont();
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;

@@ -8,10 +8,7 @@ extern bool saved;
 void call_header_dlg()
 {
 	char alphastr[64] = {0};
-	if ( header.new_version_id_alpha ) { sprintf(alphastr, " (Alpha %d)", header.new_version_id_alpha); }
-	else if ( header.new_version_id_beta ) { sprintf(alphastr, " (Beta %d)", header.new_version_id_beta); }
-	else if ( header.new_version_id_gamma ) { sprintf(alphastr, " (Gamma %d)", header.new_version_id_gamma); }
-	else if ( header.new_version_id_release ) { sprintf(alphastr, " (Release %d)", header.new_version_id_release); }
+	sprintf(alphastr, " %s", header.getAlphaVerStr());
 	char zver_str[256];
 	sprintf(zver_str,"%d.%02X (Build %d)%s",header.zelda_version>>8,header.zelda_version&0xFF,header.build,alphastr);
 	std::string startvals[5] = { std::string(header.version), std::string(header.minver), std::string(header.title), std::string(header.author), std::to_string(header.quest_number) };

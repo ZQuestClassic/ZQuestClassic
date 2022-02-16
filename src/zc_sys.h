@@ -16,6 +16,7 @@
 #include "jwinfsel.h"
 extern MENU the_player_menu[];
 extern MENU the_player_menu2[];
+extern bool is_sys_pal;
 
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);

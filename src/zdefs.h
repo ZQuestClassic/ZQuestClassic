@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
-#define V_HEADER           6
+#define V_HEADER           7
 #define V_RULES           17
 #define V_STRINGS          8
 #define V_MISC            15
@@ -3300,6 +3300,7 @@ struct zquestheader
     int32_t new_version_id_beta;
     int32_t new_version_id_gamma;
     int32_t new_version_id_release;
+	bool new_version_is_nightly;
     word new_version_id_date_year;
     byte new_version_id_date_month;
     byte new_version_id_date_day;
@@ -3321,7 +3322,7 @@ struct zquestheader
     char build_timezone[6];
     //made in module_name
     
-    //602
+    //603
 	bool external_zinfo;
 	
 	byte getAlphaState()
@@ -3329,21 +3330,41 @@ struct zquestheader
 		if(new_version_id_release) return 3;
 		else if(new_version_id_gamma) return 2;
 		else if(new_version_id_beta) return 1;
-		return 0;
+		else if(new_version_id_alpha) return 0;
+		return -1;
 	}
-	std::string getAlphaStr()
+	char const* getAlphaStr(bool ignoreNightly = false)
 	{
-		if(new_version_id_release) return "Release";
-		else if(new_version_id_gamma) return "Gamma";
-		else if(new_version_id_beta) return "Beta";
-		return "Alpha";
+		static char buf[40] = "";
+		char format[20] = "%s";
+		if(!ignoreNightly && new_version_is_nightly) strcpy(format, "Nightly (%s)");
+		if(new_version_id_release) sprintf(buf, format, "Release");
+		else if(new_version_id_gamma) sprintf(buf, format, "Gamma");
+		else if(new_version_id_beta) sprintf(buf, format, "Beta");
+		else if(new_version_id_alpha) sprintf(buf, format, "Alpha");
+		else sprintf(buf, format, "Unknown");
+		return buf;
 	}
 	int32_t getAlphaVer()
 	{
 		if(new_version_id_release) return new_version_id_release;
 		else if(new_version_id_gamma) return new_version_id_gamma;
 		else if(new_version_id_beta) return new_version_id_beta;
-		return new_version_id_alpha;
+		else if(new_version_id_alpha) return new_version_id_alpha;
+		return 0;
+	}
+	char const* getAlphaVerStr()
+	{
+		static char buf[40] = "";
+		if(new_version_is_nightly)
+		{
+			sprintf(buf, "Nightly (%s %d)", getAlphaStr(true), getAlphaVer());
+		}
+		else
+		{
+			sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
+		}
+		return buf;
 	}
 	std::string getVerStr()
 	{

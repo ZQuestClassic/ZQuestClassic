@@ -1059,9 +1059,9 @@ int32_t onSnapshot()
     do
     {
 #ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "../../../%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
     }
     while(num<99999 && exists(buf));
@@ -1083,10 +1083,10 @@ int32_t onMapscrSnapshot()
 
 	char buf[200];
 	int32_t num=0;
-
+	
 	do
 	{
-		sprintf(buf, "zquest_screen%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+		sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
 
@@ -1099,7 +1099,7 @@ int32_t onMapscrSnapshot()
 	clear_to_color(panorama,vc(0));
 
 	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
-
+	
 	save_bitmap(buf,panorama,usepal);
 	destroy_bitmap(panorama);
 
@@ -1226,34 +1226,10 @@ int32_t onAbout()
 		std::ostringstream oss;
 		sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
 		oss << buf1 << '\n';
-		if ( V_ZC_ALPHA )
-		{
-			sprintf(buf1,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
-			oss << buf1 << '\n';
-			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
-		else if ( V_ZC_BETA )
-		{
-			sprintf(buf1,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
-			oss << buf1 << '\n';
-			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
-		else if ( V_ZC_GAMMA )
-		{
-			sprintf(buf1,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
-			oss << buf1 << '\n';
-			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
-		else
-		{
-		    sprintf(buf1,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
-			oss << buf1 << '\n';
-		    sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
+		sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+		oss << buf1 << '\n';
+		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+		oss << buf1 << '\n';
 		sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 		oss << buf1 << '\n';
 		
