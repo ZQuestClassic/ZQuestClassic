@@ -278,16 +278,19 @@ void TextField::setFixedPlaces(size_t places)
 	else fixedPlaces = places;
 }
 
-void TextField::updateReadOnly(bool ro)
+void TextField::applyReadableFont()
 {
 	if(GUI_DEF_FONT == GUI_READABLE_FONT) return;
-	if(ro && widgFont == GUI_DEF_FONT)
+	
+	bool use_readable = getReadOnly() || getDisabled();
+	
+	if(use_readable && widgFont == GUI_DEF_FONT)
 	{
-		widgFont = GUI_READABLE_FONT;
+		applyFont(GUI_READABLE_FONT);
 	}
-	else if(!ro && widgFont == GUI_READABLE_FONT)
+	else if(!use_readable && widgFont == GUI_READABLE_FONT)
 	{
-		widgFont = GUI_DEF_FONT;
+		applyFont(GUI_DEF_FONT);
 	}
 	if (valSet)
 	{
@@ -295,6 +298,10 @@ void TextField::updateReadOnly(bool ro)
 		if(getWidth() < nsz)
 			setPreferredWidth(nsz);
 	}
+}
+void TextField::updateReadOnly(bool ro)
+{
+	applyReadableFont();
 }
 void TextField::realize(DialogRunner& runner)
 {
@@ -396,6 +403,7 @@ void TextField::applyDisabled(bool dis)
 	Widget::applyVisibility(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 	if(swapBtnDialog) swapBtnDialog.applyDisabled(dis);
+	applyReadableFont();
 }
 
 void TextField::applyFont(FONT* newFont)
