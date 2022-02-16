@@ -17103,7 +17103,8 @@ int32_t eManhandla::takehit(weapon *w)
 		break;
 		
 	default:
-		sfx(WAV_EHIT,pan(int32_t(x)));
+		if (get_bit(quest_rule, qr_MANHANDLA_BLOCK_SFX)) sfx(WAV_EHIT,pan(int32_t(x)));
+		else sfx(WAV_CHINK,pan(int32_t(x)));
 		
 	}
 	
@@ -17868,6 +17869,8 @@ int32_t esGleeok::takehit(weapon *w)
 			case wBeam:
 			case wArrow:
 			case wMagic:
+			case wBomb:
+			case wSBomb:
 				sfx(WAV_CHINK,pan(int32_t(x)));
 				break;
 			default:

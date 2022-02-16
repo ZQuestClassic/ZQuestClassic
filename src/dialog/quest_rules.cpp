@@ -732,6 +732,9 @@ static const GUI::ListData compatRulesList
 		"If enabled, continuing/starting the quest will not trigger Ganon Rooms."},
 	{ "Old Bug Net Animation", qr_OLD_BUG_NET,
 		"If enabled, the player won't use slashing tiles while using the Bug Net."},
+	{ "Manhandla Uses Hit Sound For Center Body", qr_MANHANDLA_BLOCK_SFX,
+		"If enabled, Manhandla will play the hit sound when hitting the center body"
+		" instead of the block sound."},
 };
 
 static const GUI::ListData enemiesRulesList
