@@ -1226,34 +1226,10 @@ int32_t onAbout()
 		std::ostringstream oss;
 		sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
 		oss << buf1 << '\n';
-		if ( V_ZC_ALPHA )
-		{
-			sprintf(buf1,"Alpha %d, Build: %d",V_ZC_ALPHA, VERSION_BUILD);
-			oss << buf1 << '\n';
-			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
-		else if ( V_ZC_BETA )
-		{
-			sprintf(buf1,"Beta %d, Build: %d",V_ZC_BETA, VERSION_BUILD);
-			oss << buf1 << '\n';
-			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
-		else if ( V_ZC_GAMMA )
-		{
-			sprintf(buf1,"Gamma %d, Build: %d",V_ZC_GAMMA, VERSION_BUILD);
-			oss << buf1 << '\n';
-			sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
-		else
-		{
-		    sprintf(buf1,"Release %d, Build: %d",V_ZC_RELEASE, VERSION_BUILD);
-			oss << buf1 << '\n';
-		    sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-			oss << buf1 << '\n';
-		}
+		sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+		oss << buf1 << '\n';
+		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+		oss << buf1 << '\n';
 		sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 		oss << buf1 << '\n';
 		

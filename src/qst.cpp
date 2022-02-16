@@ -2592,6 +2592,14 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			read_zinfo = true;
 		}
 		
+		if(version >= 7)
+		{
+			if(!p_getc(&(tempheader.new_version_is_nightly),f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else tempheader.new_version_is_nightly = false;
 		if(printmetadata || __isZQuest)
 		{
 			
@@ -2698,16 +2706,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 					*/
 				}
 			}
-			if ( tempheader.new_version_id_alpha ) { zprint2("Alpha %d\n", tempheader.new_version_id_alpha); }
-			else if ( tempheader.new_version_id_beta ) { zprint2("Beta %d\n", tempheader.new_version_id_beta); }
-			else if ( tempheader.new_version_id_gamma ) { zprint2("Gamma %d\n", tempheader.new_version_id_gamma); }
-			else if ( tempheader.new_version_id_release ) { zprint2("Release %d\n\n", tempheader.new_version_id_release); }
-			else
-			{
-				//no specific mnetadata - Can wededuce it?
-				
-				
-			}
+			if(tempheader.getAlphaVer()) zprint2("%s %d\n", tempheader.getAlphaStr(), tempheader.getAlphaVer());
 			if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
 			if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
 			if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);

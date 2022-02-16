@@ -29094,22 +29094,7 @@ int32_t main(int32_t argc,char **argv)
 	//::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
-	if ( V_ZC_ALPHA )
-	{
-		Z_title("%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA);
-	}
-	else if ( V_ZC_BETA )
-	{
-		Z_title("%s, v.%s Beta %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_BETA);
-	}
-	else if ( V_ZC_GAMMA )
-	{
-		Z_title("%s, v.%s Gamma %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_GAMMA);
-	}
-	else /*( V_ZC_RELEASE )*/
-	{
-		Z_title("%s, v.%s Release %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_RELEASE);
-	}
+	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
 	
 	scrtmp = NULL;
 	

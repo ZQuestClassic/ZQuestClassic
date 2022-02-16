@@ -7064,6 +7064,11 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(48);
 		}
+		
+		if(!p_putc(ZC_IS_NIGHTLY ? 1 : 0, f))
+		{
+			new_return(49);
+		}
 	
         if(writecycle==0)
         {

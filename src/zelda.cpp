@@ -2284,16 +2284,7 @@ int32_t init_game()
 				
 			}
 		}
-		if ( QHeader.new_version_id_alpha ) { zprint2("Alpha %d\n", QHeader.new_version_id_alpha); }
-		else if ( QHeader.new_version_id_beta ) { zprint2("Beta %d\n", QHeader.new_version_id_beta); }
-		else if ( QHeader.new_version_id_gamma ) { zprint2("Gamma %d\n", QHeader.new_version_id_gamma); }
-		else if ( QHeader.new_version_id_release ) { zprint2("Release %d\n\n", QHeader.new_version_id_release); }
-		else
-		{
-			//no specific mnetadata - Can wededuce it?
-			
-			
-		}
+		if(QHeader.getAlphaVer()) zprint2("%s %d\n", QHeader.getAlphaStr(), QHeader.getAlphaVer());
 		if ( QHeader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", QHeader.made_in_module_name);
 		if ( QHeader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s, (ID: %d)\n", QHeader.new_version_devsig, QHeader.developerid);
 		if ( QHeader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", QHeader.new_version_compilername, QHeader.compilerid);
@@ -4496,22 +4487,7 @@ int32_t main(int32_t argc, char* argv[])
 	sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
 	
 
-	if ( V_ZC_ALPHA )
-	{
-		Z_title("%s, v.%s Alpha %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_ALPHA);
-	}
-	else if ( V_ZC_BETA )
-	{
-		Z_title("%s, v.%s Beta %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_BETA);
-	}
-	else if ( V_ZC_GAMMA )
-	{
-		Z_title("%s, v.%s Gamma %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_GAMMA);
-	}
-	else /*( V_ZC_RELEASE )*/
-	{
-		Z_title("%s, v.%s Release %d",ZC_PLAYER_NAME, ZC_PLAYER_V, V_ZC_RELEASE);
-	}
+	Z_title("%s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
 	
 	if(used_switch(argc, argv, "-standalone"))
 	{
