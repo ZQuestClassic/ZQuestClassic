@@ -328,6 +328,10 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZITEM -1
 #define V_ZWPNSPR -1
 
+
+void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
+
 extern int32_t curr_tb_page;
 extern bool triplebuffer_not_available;
 extern int32_t original_playing_field_offset;
@@ -3409,8 +3413,8 @@ struct zquestheader
 		if(new_version_id_date_day < BUILDTM_DAY)
 			return -1;
 		#define BUILDTIME_FUZZ 10
-		word time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
-		word btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
+		int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
+		int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
 		if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
 			return 1;
 		if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
@@ -5361,9 +5365,6 @@ void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
 
 #include "process_managment.h"
-
-void zprint(const char * const format,...);
-void zprint2(const char * const format,...);
 
 #endif                                                      //_ZDEFS_H_
 
