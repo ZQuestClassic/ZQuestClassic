@@ -2738,6 +2738,14 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + i) * 3;
 		else if(cs==9)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + 3 + pdFULL) + i) * 3;
+		else if(cs==1&&get_bit(quest_rules, qr_CSET1_LEVEL))
+			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS) + i) * 3;
+		else if(cs==5&&get_bit(quest_rules, qr_CSET5_LEVEL))
+			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 1) + i) * 3;
+		else if(cs==7&&get_bit(quest_rules, qr_CSET7_LEVEL))
+			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 2) + i) * 3;
+		else if(cs==8&&get_bit(quest_rules, qr_CSET8_LEVEL))
+			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + i) * 3;
 		else
 			rgbByte = colordata + (CSET(cs)+i)*3;
 			
