@@ -557,12 +557,7 @@ int32_t max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
 int32_t ScrollingData[SZ_SCROLLDATA];
-int32_t getQRBit(int32_t rule);	
-void setRule(int32_t rule, bool s);
-bool getRule(int32_t rule_bit);
-void setFFRules();
-void setHeroTile(int32_t t);
-int32_t getHeroTile();
+int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);
 int32_t getHeroAction();
 void Play_Level_Music();
@@ -799,8 +794,6 @@ int32_t coreflags;
 int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
 
-byte FF_rules[FFRULES_SIZE]; //For Migration of Quest Rules, and Scritp Engine Rules
-int32_t FF_hero_tile;	//Overrides for the tile used when blitting Limk to the bitmap; and a var to hold a script-set action/
 byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
 bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
@@ -826,16 +819,6 @@ byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 
 #define NUM_USER_MIDI_OVERRIDES 6
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
- 
-int16_t passive_subscreen_offsets[2];
-byte active_subscreen_scrollspeed_adjustment;
-
-int32_t FF_gravity;
-word FF_terminalv;
-byte FF_msg_speed;
-byte FF_transition_type; // Can't edit, yet.
-byte FF_jump_hero_layer_threshold; // Hero is drawn above layer 3 if z > this.
-byte FF_hero_swim_speed;
 
 byte zasm_break_mode;
 

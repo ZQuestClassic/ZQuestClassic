@@ -32789,9 +32789,8 @@ void FFScript::init()
 	
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
-	setFFRules(); //copy the quest rules over. 
 	int32_t usr_midi_volume = usr_digi_volume = usr_sfx_volume = usr_music_volume = usr_panstyle = 0;
-	FF_hero_tile = 0; FF_hero_action = 0;
+	FF_hero_action = 0;
 	enemy_removal_point[spriteremovalY1] = -32767;
 	enemy_removal_point[spriteremovalY2] = 32767;
 	enemy_removal_point[spriteremovalX1] = -32767;
@@ -32900,53 +32899,9 @@ void FFScript::initIncludePaths()
 	}
 }
 
-void FFScript::setFFRules()
-{
-	for ( int32_t q = 0; q < QUESTRULES_SIZE; q++ )
-	{
-		FF_rules[q] = getQRBit(q);
-	}
-	for ( int32_t q = QUESTRULES_SIZE; q < QUESTRULES_SIZE+EXTRARULES_SIZE; q++ ) 
-	{
-		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
-	}
-	for ( int32_t q = QUESTRULES_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
-	{
-		FF_rules[q] = 0; //wipe the rest.
-	}
-	for ( int32_t q = 0; q < 2; q++ )
-	{
-		passive_subscreen_offsets[q] = 0;
-	}
-	active_subscreen_scrollspeed_adjustment = 0;
-	//zinit.terminalv
-	FF_gravity = zinit.gravity;
-	FF_terminalv = zinit.terminalv;
-	FF_msg_speed = zinit.msg_speed;
-	FF_transition_type = zinit.transition_type; // Can't edit, yet.
-	FF_jump_hero_layer_threshold = zinit.jump_hero_layer_threshold; // Player is drawn above layer 3 if z > this.
-	FF_hero_swim_speed = zinit.hero_swim_speed;
-}
-
-
-void FFScript::setRule(int32_t rule, bool s)
-{
-	FF_rules[rule] = ( s ? 1 : 0 );
-}
-
-bool FFScript::getRule(int32_t rule)
-{
-	return ( FF_rules[rule] != 0 );
-}
-
 int32_t FFScript::getQRBit(int32_t rule)
 {
 	return ( get_bit(quest_rules,rule) ? 1 : 0 );
-}
-
-void FFScript::setHeroTile(int32_t t)
-{
-	FF_hero_tile = vbound(t, 0, NEWMAXTILES);
 }
 
 int32_t FFScript::getTime(int32_t type)

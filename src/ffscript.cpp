@@ -522,8 +522,6 @@ PALETTE tempblackpal; //Used for storing the palette while fading to black
 
 FFScript ffengine;
 
-byte FF_rules[512]; //For Migration of Quest Rules, and Scritp Engine Rules
-int32_t FF_hero_tile;	//Overrides for the tile used when blitting Hero to the bitmap; and a var to hold a script-set action/
 byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
 	
 int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 
@@ -29517,36 +29515,6 @@ void FFScript::do_typedpointer_typecast(const bool v)
 	 set_register(sarg1, ptr);
 }
 
-
-void FFScript::setFFRules()
-{
-	for ( int32_t q = 0; q < QUESTRULES_NEW_SIZE; q++ )
-	{
-		FF_rules[q] = getQRBit(q);
-	}
-	for ( int32_t q = QUESTRULES_NEW_SIZE; q < QUESTRULES_NEW_SIZE+EXTRARULES_SIZE; q++ ) 
-	{
-		FF_rules[q] = extra_rules[q-QUESTRULES_SIZE];
-	}
-	for ( int32_t q = QUESTRULES_NEW_SIZE+EXTRARULES_SIZE; q < FFRULES_SIZE; q++ )
-	{
-		FF_rules[q] = 0; //wipe the rest.
-	}
-	for ( int32_t q = 0; q < 2; q++ )
-	{
-		passive_subscreen_offsets[q] = 0;
-	}
-	active_subscreen_scrollspeed_adjustment = 0;
-	//zinit.terminalv
-	FF_gravity = zinit.gravity2;
-	FF_terminalv = zinit.terminalv;
-	FF_msg_speed = zinit.msg_speed;
-	FF_transition_type = zinit.transition_type; // Can't edit, yet.
-	FF_jump_hero_layer_threshold = zinit.jump_hero_layer_threshold; // Player is drawn above layer 3 if z > this.
-	FF_hero_swim_speed = zinit.hero_swim_speed;
-	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-}
-
 void FFScript::SetItemMessagePlayed(int32_t itm)
 {
 	game->item_messages_played[itm] = 1;
@@ -29556,34 +29524,14 @@ bool FFScript::GetItemMessagePlayed(int32_t itm)
 	return ((game->item_messages_played[itm] ) ? true : false);
 }
 
-void FFScript::setRule(int32_t rule, bool s)
-{
-	FF_rules[rule] = ( s ? 1 : 0 );
-}
-
-bool FFScript::getRule(int32_t rule)
-{
-	return ( FF_rules[rule] != 0 );
-}
-
 int32_t FFScript::getQRBit(int32_t rule)
 {
 	return ( get_bit(quest_rules,rule) ? 1 : 0 );
 }
 
-void FFScript::setHeroTile(int32_t t)
-{
-	FF_hero_tile = vbound(t, 0, NEWMAXTILES);
-}
-
 void FFScript::setHeroAction(int32_t a)
 {
 	FF_hero_action = vbound(a, 0, 255);
-}
-
-int32_t FFScript::getHeroTile()
-{
-	return FF_hero_tile;
 }
 
 int32_t FFScript::getHeroAction()
@@ -29627,13 +29575,13 @@ void FFScript::init()
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
-	setFFRules(); //copy the quest rules over. 
+	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 	int32_t usr_midi_volume = midi_volume;
 	usr_digi_volume = digi_volume;
 	usr_sfx_volume = sfx_volume;
 	usr_music_volume = emusic_volume;
 	usr_panstyle = pan_style;
-	FF_hero_tile = 0; FF_hero_action = 0;
+	FF_hero_action = 0;
 	enemy_removal_point[spriteremovalY1] = -32767;
 	enemy_removal_point[spriteremovalY2] = 32767;
 	enemy_removal_point[spriteremovalX1] = -32767;
@@ -29754,26 +29702,6 @@ void FFScript::do_fx_wavy(const bool v)
 	if ( out ) { FFScript::do_wavyout(); } 
 	else FFScript::do_wavyin();
 }
-/*
-void FFScript::init()
-{
-	for ( int32_t q = 0; q < FFRULES_SIZE; q++ ) FF_rules[q] = 0;
-	FF_hero_tile = 0;
-	FF_hero_action = 0;
-	for ( int32_t q = 0; q < 4; q++ ) 
-	{
-		FF_screenbounds[q] = 0;
-		FF_screen_dimensions[q] = 0;
-		FF_subscreen_dimensions[q] = 0;
-		FF_eweapon_removal_bounds[q] = 0;
-		FF_lweapon_removal_bounds[q] = 0;
-		
-	}
-	for ( int32_t q = 0; q < FFSCRIPTCLASS_CLOCKS; q++ ) FF_clocks[q] = 0;
-	for ( int32_t q = 0; q < SCRIPT_DRAWING_RULES; q++ ) ScriptDrawingRules[q] = 0;
-	for ( int32_t q = 0; q < NUM_USER_MIDI_OVERRIDES; q++ ) FF_UserMidis[q] = 0;
-}
-*/
 
 int32_t FFScript::getQuestHeaderInfo(int32_t type)
 {

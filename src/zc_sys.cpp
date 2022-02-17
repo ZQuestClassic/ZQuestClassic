@@ -9572,14 +9572,14 @@ bool joybtn(int32_t b)
 
 int32_t next_press_key()
 {
-    char k[128];
+    char k[127];
     
-    for(int32_t i=0; i<128; i++)
+    for(int32_t i=0; i<127; i++)
         k[i]=key[i];
         
     for(;;)
     {
-        for(int32_t i=0; i<128; i++)
+        for(int32_t i=0; i<127; i++)
             if(key[i]!=k[i])
                 return i;
     }
@@ -10290,7 +10290,7 @@ bool zc_getrawkey(int32_t k, bool ignoreDisable)
 
 void update_keys()
 {
-	for(int32_t q = 0; q < 128; ++q)
+	for(int32_t q = 0; q < 127; ++q)
 	{
 		KeyPress[q] = key[q] && !key_truestate[q];
 		KeyInput[q] = key[q];

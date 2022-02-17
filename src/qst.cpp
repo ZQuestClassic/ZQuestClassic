@@ -19994,7 +19994,6 @@ void port250QuestRules(){
 	
 	portCandleRules(); //Candle
 	portBombRules();
-	//FFScript::setFFRules();
 
 }
 
