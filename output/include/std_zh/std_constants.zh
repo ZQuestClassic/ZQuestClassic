@@ -524,29 +524,31 @@ const int MB_RIGHTCLICK			= 0x2;
 const int MB_MIDDLECLICK		= 0x4; //Keep in in mind that not all mice/touchpads have a middle mouse button
 
 //Controller buttons
-const int CB_UP		= 0;
-const int CB_DOWN	= 1;
-const int CB_LEFT	= 2;
-const int CB_RIGHT	= 3;
-const int CB_A 		= 4;
-const int CB_B		= 5;
-const int CB_START	= 6;
-const int CB_L		= 7;
-const int CB_R		= 8;
-const int CB_MAP	= 9;
-const int CB_EX1	= 10;
-const int CB_EX2	= 11;
-const int CB_EX3	= 12;
-const int CB_EX4	= 13;
-const int CB_STICKUP	= 14;
-const int CB_STICKDOWN	= 15;
-const int CB_STICKLEFT	= 16;
-const int CB_STICKRIGHT	= 17;
-const int CB_AXIS_UP	= 14;
-const int CB_AXIS_DOWN	= 15;
-const int CB_AXIS_LEFT	= 16;
-const int CB_AXIS_RIGHT	= 17;
-const int CB_MAX	= 18;
+const int CB_UP         = 0;
+const int CB_DOWN       = 1;
+const int CB_LEFT       = 2;
+const int CB_RIGHT      = 3;
+const int CB_A          = 4;
+const int CB_B          = 5;
+const int CB_START      = 6;
+const int CB_L          = 7;
+const int CB_R          = 8;
+const int CB_MAP        = 9;
+const int CB_EX1        = 10;
+const int CB_X          = 10;
+const int CB_EX2        = 11;
+const int CB_Y          = 11;
+const int CB_EX3        = 12;
+const int CB_EX4        = 13;
+const int CB_STICKUP    = 14;
+const int CB_STICKDOWN  = 15;
+const int CB_STICKLEFT  = 16;
+const int CB_STICKRIGHT = 17;
+const int CB_AXIS_UP    = 14;
+const int CB_AXIS_DOWN  = 15;
+const int CB_AXIS_LEFT  = 16;
+const int CB_AXIS_RIGHT = 17;
+const int CB_MAX        = 18;
 
 
 

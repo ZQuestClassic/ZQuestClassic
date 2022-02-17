@@ -5,6 +5,7 @@
 #include "key.h"
 #include <initializer_list>
 #include <vector>
+#include <map>
 
 struct DIALOG;
 
@@ -22,9 +23,9 @@ public:
 	template<typename T>
 	inline RequireMessage<T> onKey(ShortcutKey k, T message)
 	{
-		shortcuts.emplace_back(KeyboardShortcut {
+		shortcuts[k.get()] = KeyboardShortcut {
 			k.get(), static_cast<int32_t>(message)
-		});
+		};
 	}
 	
 	/* Convenience method to add a shortcut for Enter, since that's
@@ -33,9 +34,9 @@ public:
 	template<typename T>
 	inline RequireMessage<T> onEnter(T message)
 	{
-		shortcuts.emplace_back(KeyboardShortcut {
+		shortcuts[Key::Enter.get()] = KeyboardShortcut {
 			Key::Enter.get(), static_cast<int32_t>(message)
-		});
+		};
 	}
 	
 	/* Add a bunch of shortcuts at once. These will be added
@@ -52,7 +53,7 @@ protected:
 	
 	std::string helptext; //If the first char isn't null, displays on pressing F1
 private:
-	std::vector<KeyboardShortcut> shortcuts;
+	std::map<uint16_t, KeyboardShortcut> shortcuts;
 	
 	static int32_t proc(int32_t msg, DIALOG* d, int32_t c);
 	static int32_t helpproc(int32_t msg, DIALOG* d, int32_t c);

@@ -328,6 +328,10 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZITEM -1
 #define V_ZWPNSPR -1
 
+
+void zprint(const char * const format,...);
+void zprint2(const char * const format,...);
+
 extern int32_t curr_tb_page;
 extern bool triplebuffer_not_available;
 extern int32_t original_playing_field_offset;
@@ -3325,7 +3329,12 @@ struct zquestheader
     //603
 	bool external_zinfo;
 	
-	byte getAlphaState()
+	
+	bool is_legacy() const
+	{
+		return new_version_id_main < 2 || (new_version_id_main == 2 && new_version_id_second < 55);
+	}
+	int8_t getAlphaState() const
 	{
 		if(new_version_id_release) return 3;
 		else if(new_version_id_gamma) return 2;
@@ -3333,7 +3342,7 @@ struct zquestheader
 		else if(new_version_id_alpha) return 0;
 		return -1;
 	}
-	char const* getAlphaStr(bool ignoreNightly = false)
+	char const* getAlphaStr(bool ignoreNightly = false) const
 	{
 		static char buf[40] = "";
 		char format[20] = "%s";
@@ -3345,7 +3354,7 @@ struct zquestheader
 		else sprintf(buf, format, "Unknown");
 		return buf;
 	}
-	int32_t getAlphaVer()
+	int32_t getAlphaVer() const
 	{
 		if(new_version_id_release) return new_version_id_release;
 		else if(new_version_id_gamma) return new_version_id_gamma;
@@ -3353,29 +3362,43 @@ struct zquestheader
 		else if(new_version_id_alpha) return new_version_id_alpha;
 		return 0;
 	}
-	char const* getAlphaVerStr()
+	char const* getAlphaVerStr() const
 	{
 		static char buf[40] = "";
 		if(new_version_is_nightly)
 		{
-			sprintf(buf, "Nightly (%s %d)", getAlphaStr(true), getAlphaVer());
+			if(getAlphaVer() < 0)
+				sprintf(buf, "Nightly (%s ??)", getAlphaStr(true));
+			else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
 		}
 		else
 		{
-			sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
+			if(getAlphaVer() < 0)
+				sprintf(buf, "%s ??", getAlphaStr(true));
+			else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
 		}
 		return buf;
 	}
-	std::string getVerStr()
+	char const* getVerStr() const
 	{
-		return std::to_string(new_version_id_main) + "."
-			+ std::to_string(new_version_id_second) + "."
-			+ std::to_string(new_version_id_third) + "."
-			+ std::to_string(new_version_id_fourth) + " "
-			+ getAlphaStr() + " "
-			+ std::to_string(getAlphaVer());
+		static char buf[80] = "";
+		if(is_legacy())
+		{
+			sprintf(buf, "Legacy %d.%d.%d", new_version_id_main, new_version_id_second, new_version_id_third);
+			if(getAlphaVer())
+			{
+				strcat(buf, " ");
+				strcat(buf, getAlphaVerStr());
+			}
+		}
+		else if(new_version_id_fourth > 0)
+			sprintf(buf, "%d.%d.%d.%d %s", new_version_id_main, new_version_id_second,
+				new_version_id_third, new_version_id_fourth, getAlphaVerStr());
+		else sprintf(buf, "%d.%d.%d %s", new_version_id_main, new_version_id_second,
+				new_version_id_third, getAlphaVerStr());
+		return buf;
 	}
-	int32_t compareDate()
+	int32_t compareDate() const
 	{
 		if(new_version_id_date_year > BUILDTM_YEAR)
 			return 1;
@@ -3390,15 +3413,15 @@ struct zquestheader
 		if(new_version_id_date_day < BUILDTM_DAY)
 			return -1;
 		#define BUILDTIME_FUZZ 10
-		word time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
-		word btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
+		int32_t time_minutes = (new_version_id_date_hour*60)+new_version_id_date_minute;
+		int32_t btm_minutes = (BUILDTM_HOUR*60)+BUILDTM_MINUTE;
 		if(time_minutes > btm_minutes+BUILDTIME_FUZZ)
 			return 1;
 		if(time_minutes < btm_minutes-BUILDTIME_FUZZ)
 			return -1;
 		return 0;
 	}
-	int32_t compareVer()
+	int32_t compareVer() const
 	{
 		if(new_version_id_main > V_ZC_FIRST)
 			return 1;
@@ -3452,10 +3475,14 @@ enum { msLINKED };
 #define MSGC_SHDTYPE          27    // 1 arg  (type)
 #define MSGC_DRAWTILE         28    // 5 args (tile, cset, wid, hei, flip)
 //29
-#define MSGC_GOTOIFYN         30    // not implemented
+//30
 //31
 //32-126 are ascii chars, unusable
-//127+
+#define MSGC_SETUPMENU        127    // 5 args (tile, cset, wid, hei, flip)
+#define MSGC_MENUCHOICE       128    // 5 args (pos, upos, dpos, lpos, rpos)
+#define MSGC_RUNMENU          129    // 0 args
+#define MSGC_GOTOMENUCHOICE   130    // 2 args (pos, newstring)
+//131+
 
 enum
 {

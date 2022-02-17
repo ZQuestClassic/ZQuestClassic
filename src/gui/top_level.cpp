@@ -17,7 +17,7 @@ int32_t TopLevelWidget::proc(int32_t msg, DIALOG* d, int32_t c)
 		uint16_t actual = (key_shifts&0x07)|(c&0xFF00);
 		if(actual == d->d1)
 			// Abusing the mechanism here slightly...
-			GUI_EVENT(d, (guiEvent)d->d2);
+			GUI_EVENT(d, (guiEvent)(-(d->d1+1)));
 	}
 	return D_O_K;
 }
@@ -42,13 +42,9 @@ int32_t TopLevelWidget::helpproc(int32_t msg, DIALOG* d, int32_t c)
 void TopLevelWidget::addShortcuts(
 	std::initializer_list<KeyboardShortcut>&& scList)
 {
-	if(shortcuts.empty())
-		shortcuts = std::move(scList);
-	else
+	for(auto& sc: scList)
 	{
-		shortcuts.reserve(scList.size());
-		for(auto& sc: scList)
-			shortcuts.push_back(sc);
+		shortcuts[sc.key] = sc;
 	}
 }
 
@@ -57,7 +53,7 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 	// d2 is the index into shortcuts, which will be used as the event
 	// when onEvent is called. But that could conflict with a guiEvent
 	// handled by a subclass, so we'll make it negative.
-	for(size_t i = 0; i < shortcuts.size(); ++i)
+	for(auto it = shortcuts.begin(); it != shortcuts.end(); ++it)
 	{
 		runner.push(shared_from_this(), DIALOG {
 			proc,
@@ -65,27 +61,30 @@ void TopLevelWidget::realizeKeys(DialogRunner& runner)
 			0, 0, // fg, bg
 			0, // key - MSG_CHAR ignores shift, so we're using MSG_XCHAR
 			D_NEW_GUI, // flags
-			shortcuts[i].key, -int32_t(i+1), // d1, d2
+			it->second.key, 0, // d1, d2
 			this, nullptr, nullptr // dp, dp2, dp3
 		});
 	}
-	//Helptext handler
-	runner.push(shared_from_this(), DIALOG {
-		helpproc,
-		0, 0, 0, 0, // x, y, w, h
-		0, 0, // fg, bg
-		0, // key
-		D_NEW_GUI, // flags
-		0, 0, // d1, d2
-		&helptext, nullptr, nullptr // dp, dp2, dp3
-	});
+	//Helptext handler, if no F1 shortcut is found
+	if(shortcuts.find(Key::F1.get()) == shortcuts.end())
+	{
+		runner.push(shared_from_this(), DIALOG {
+			helpproc,
+			0, 0, 0, 0, // x, y, w, h
+			0, 0, // fg, bg
+			0, // key
+			D_NEW_GUI, // flags
+			0, 0, // d1, d2
+			&helptext, nullptr, nullptr // dp, dp2, dp3
+		});
+	}
 }
 
 int32_t TopLevelWidget::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	if(event<0)
 	{
-		sendMessage(shortcuts.at(-event-1).message, MessageArg::none);
+		sendMessage(shortcuts[uint16_t(-event-1)].message, MessageArg::none);
 		return D_USED_CHAR;
 	}
 
