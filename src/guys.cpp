@@ -22150,7 +22150,7 @@ enum
 	MNU_CURSOR_TILE, MNU_CURSOR_CSET,
 	MNU_CURSOR_WID, MNU_CURSOR_HEI, MNU_CURSOR_FLIP,
 	
-	MNU_CHOSEN,
+	MNU_CHOSEN, MNU_TIMER, MNU_CAN_CONFIRM,
 	
 	MNU_DATA_MAX
 };
@@ -22168,9 +22168,13 @@ struct menu_choice
 };
 static int32_t msg_menu_data[MNU_DATA_MAX];
 static bool do_run_menu = false;
+static bool do_end_str = false;
+static bool wait_advance = false;
 static std::map<int32_t, menu_choice> menu_options;
 void clr_msg_data()
 {
+	do_end_str = false;
+	wait_advance = false;
 	do_run_menu = false;
 	menu_options.clear();
 	memset(msg_menu_data, 0, sizeof(msg_menu_data));
@@ -22180,10 +22184,84 @@ static bool doing_name_insert = false;
 static char namebuf[9] = {0};
 static char* nameptr = NULL;
 static int32_t ssc_tile_hei = -1, ssc_tile_hei_buf = -1;
+bool runMenuCursor()
+{
+	clear_bitmap(msg_menu_bmp_buf);
+	if(!menu_options.size())
+	{
+		msg_menu_data[MNU_CHOSEN] = 0;
+		return true; //end menu
+	}
+	int32_t pos = msg_menu_data[MNU_CHOSEN];
+	//If the cursor is at an invalid pos, find the first pos >= 0...
+	if(menu_options.find(pos) == menu_options.end())
+	{
+		pos = 0;
+		while(menu_options.find(pos) == menu_options.end())
+			++pos;
+	}
+	menu_choice* ch = &menu_options[pos];
+	
+	bool pressed = true;
+	if(rUp()) pos = ch->upos;
+	else if(rDown()) pos = ch->dpos;
+	else if(rLeft()) pos = ch->lpos;
+	else if(rRight()) pos = ch->rpos;
+	else pressed = false;
+	
+	if(pressed)
+		msg_menu_data[MNU_TIMER] = 1;
+	
+	bool hold_input = !((msg_menu_data[MNU_TIMER]++) % 5);
+	bool held = false;
+	if(hold_input)
+	{
+		held = true;
+		if(Up()) pos = ch->upos;
+		else if(Down()) pos = ch->dpos;
+		else if(Left()) pos = ch->lpos;
+		else if(Right()) pos = ch->rpos;
+		else held = false;
+	}
+	//If the cursor is at an invalid pos, find the first pos >= 0...
+	if(menu_options.find(pos) == menu_options.end())
+	{
+		pos = 0;
+		while(menu_options.find(pos) == menu_options.end())
+			++pos;
+	}
+	if((pressed || held) && pos != msg_menu_data[MNU_CHOSEN])
+		sfx(MsgStrings[msgstr].sfx);
+	
+	ch = &menu_options[pos];
+	overtileblock16(msg_menu_bmp_buf, msg_menu_data[MNU_CURSOR_TILE],
+		ch->x, ch->y, (int32_t)ceil(msg_menu_data[MNU_CURSOR_WID]/16.0),
+		(int32_t)ceil(msg_menu_data[MNU_CURSOR_HEI]/16.0),
+		msg_menu_data[MNU_CURSOR_CSET], msg_menu_data[MNU_CURSOR_FLIP]);
+	
+	msg_menu_data[MNU_CHOSEN] = pos;
+	
+	if(!msg_menu_data[MNU_CAN_CONFIRM]) //Prevent instantly accepting when holding A
+	{
+		rAbtn(); //Eat
+		if(!cAbtn()) msg_menu_data[MNU_CAN_CONFIRM] = 1;
+	}
+	
+	bool ret = (pressed || held) ? false : rAbtn();
+	//Eat inputs
+	rUp(); rDown(); rLeft(); rRight(); rAbtn();
+	
+	if(ret)
+		menu_options.clear();
+	
+	return ret;
+	//false if pos changed this frame; no confirming while moving the cursor!
+}
+
 bool parsemsgcode()
 {
 	if(msgptr>=MSGSIZE-2) return false;
-	switch(MsgStrings[msgstr].s[msgptr]-1)
+	switch(byte(MsgStrings[msgstr].s[msgptr]-1))
 	{
 		case MSGC_NEWLINE:
 		{
@@ -22498,12 +22576,13 @@ bool parsemsgcode()
 			}
 			
 			int32_t pos = grab_next_argument();
+			int32_t upos = grab_next_argument();
+			int32_t dpos = grab_next_argument();
+			int32_t lpos = grab_next_argument();
+			int32_t rpos = grab_next_argument();
 			menu_options[pos] = menu_choice(cursor_x, cursor_y, pos,
-				grab_next_argument(), grab_next_argument(),
-				grab_next_argument(), grab_next_argument());
+				upos, dpos, lpos, rpos);
 			
-			
-			//overtileblock16(msg_txt_bmp_buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
 			ssc_tile_hei_buf = zc_max(ssc_tile_hei_buf, msg_menu_data[MNU_CURSOR_HEI]);
 			cursor_x += MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID];
 			return true;
@@ -22512,6 +22591,7 @@ bool parsemsgcode()
 		case MSGC_RUNMENU:
 		{
 			msg_menu_data[MNU_CHOSEN] = 0;
+			msg_menu_data[MNU_CAN_CONFIRM] = 0;
 			if(menu_options.size() < 1)
 				return true;
 			do_run_menu = true;
@@ -22524,6 +22604,18 @@ bool parsemsgcode()
 			if(msg_menu_data[MNU_CHOSEN] == choice)
 				goto switched;
 			(void)grab_next_argument();
+			return true;
+		}
+		
+		case MSGC_ENDSTRING:
+		{
+			do_end_str = true;
+			return true;
+		}
+		case MSGC_WAIT_ADVANCE:
+		{
+			wait_advance = true;
+			linkedmsgclk = 51;
 			return true;
 		}
 		
@@ -22599,27 +22691,36 @@ void putmsg()
 	{
 		if(linkedmsgclk==1)
 		{
-			if(cAbtn()||cBbtn())
+			if(do_end_str||cAbtn()||cBbtn())
 			{
-				msgstr=MsgStrings[msgstr].nextstring;
-				if(!msgstr && enqueued_str)
+				do_end_str = false;
+				if(wait_advance)
 				{
-					msgstr = enqueued_str;
-					enqueued_str = 0;
+					wait_advance = false;
+					linkedmsgclk = 0;
 				}
-				if(!msgstr)
+				else
 				{
-					msgfont=zfont;
-					
-					if(tmpscr->room!=rGRUMBLE)
-						blockpath=false;
+					msgstr=MsgStrings[msgstr].nextstring;
+					if(!msgstr && enqueued_str)
+					{
+						msgstr = enqueued_str;
+						enqueued_str = 0;
+					}
+					if(!msgstr)
+					{
+						msgfont=zfont;
 						
-					dismissmsg();
-					goto disappear;
+						if(tmpscr->room!=rGRUMBLE)
+							blockpath=false;
+							
+						dismissmsg();
+						goto disappear;
+					}
+					
+					donewmsg(msgstr);
+					putprices(false);
 				}
-				
-				donewmsg(msgstr);
-				putprices(false);
 			}
 		}
 		else
@@ -22627,6 +22728,7 @@ void putmsg()
 			--linkedmsgclk;
 		}
 	}
+	if(wait_advance) return; //Waiting for buttonpress
 	
 	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down])))
 	{
@@ -22650,7 +22752,7 @@ void putmsg()
 		{
 			if(msgspeed && !(cBbtn() && get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
 				goto breakout; // break out if message speed was changed to non-zero
-			else if(!doing_name_insert && !parsemsgcode())
+			else if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 			{
 				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
 					break;
@@ -22671,9 +22773,6 @@ void putmsg()
 						cursor_y += thei + MsgStrings[msgstr].vspace;
 						cursor_x=oldmargin ? 0 : msg_margins[left];
 					}
-					
-					/*textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
-								  "%c",MsgStrings[msgstr].s[msgptr]);*/
 					
 					char buf[2] = {0};
 					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
@@ -22698,8 +22797,6 @@ void putmsg()
 					}
 					
 					sfx(MsgStrings[msgstr].sfx);
-					/*textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
-								  "%c",MsgStrings[msgstr].s[msgptr]);*/
 					
 					char buf[2] = {0};
 					sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
@@ -22714,59 +22811,61 @@ void putmsg()
 			}
 			if(do_run_menu)
 			{
-				//!TODO Run menu
-				break;
+				if(runMenuCursor())
+				{
+					do_run_menu = false;
+				}
+				else break;
 			}
 			if(doing_name_insert)
 			{
-				if(!*nameptr)
+				if(*nameptr)
 				{
-					doing_name_insert = false;
-					++msgptr;
-					continue; //back to next normal character
+					if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+						break;
+					
+					char s3[9] = {0};
+					
+					if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
+					{
+						strcpy(s3, nameptr);
+					}
+					else
+					{
+						s3[0] = *nameptr;
+						s3[1] = 0;
+					}
+					
+					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
+					
+					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
+					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
+							? true : strcmp(s3," ")!=0))
+					{
+						int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
+						ssc_tile_hei = ssc_tile_hei_buf;
+						ssc_tile_hei_buf = -1;
+						cursor_y += thei + MsgStrings[msgstr].vspace;
+						cursor_x=oldmargin ? 0 : msg_margins[left];
+					}
+					
+					sfx(MsgStrings[msgstr].sfx);
+					
+					char buf[2] = {0};
+					sprintf(buf,"%c",*nameptr);
+					
+					textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
+					
+					cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
+					cursor_x += MsgStrings[msgstr].hspace;
+					++nameptr;
+					continue; //don't advance the msgptr, as the next char in it was not processed!
 				}
-				if(cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
-					break;
-				
-				char s3[9] = {0};
-				
-				if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
-				{
-					strcpy(s3, nameptr);
-				}
-				else
-				{
-					s3[0] = *nameptr;
-					s3[1] = 0;
-				}
-				
-				tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-				
-				if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
-				   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
-						? true : strcmp(s3," ")!=0))
-				{
-					int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
-					ssc_tile_hei = ssc_tile_hei_buf;
-					ssc_tile_hei_buf = -1;
-					cursor_y += thei + MsgStrings[msgstr].vspace;
-					cursor_x=oldmargin ? 0 : msg_margins[left];
-				}
-				
-				sfx(MsgStrings[msgstr].sfx);
-				
-				char buf[2] = {0};
-				sprintf(buf,"%c",*nameptr);
-				
-				textout_styled_aligned_ex(msg_txt_bmp_buf,msgfont,buf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msg_shdtype,sstaLEFT,msgcolour,msg_shdcol,-1);
-				
-				cursor_x += msgfont->vtable->char_length(msgfont, *nameptr);
-				cursor_x += MsgStrings[msgstr].hspace;
-				++nameptr;
-				continue; //don't advance the msgptr, as the next char in it was not processed!
+				else doing_name_insert = false;
 			}
 			++msgptr;
-			
+			if(wait_advance)
+				return;
 			if(atend(MsgStrings[msgstr].s+msgptr))
 			{
 				if(MsgStrings[msgstr].nextstring)
@@ -22834,7 +22933,7 @@ reparsesinglechar:
 	// Continue printing the string!
 	if(!atend(MsgStrings[msgstr].s+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
 	{
-		if(!doing_name_insert && !parsemsgcode())
+		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 		{
 			wrapmsgstr(s3);
 			
@@ -22853,8 +22952,6 @@ reparsesinglechar:
 			}
 			
 			sfx(MsgStrings[msgstr].sfx);
-			/*textprintf_ex(msg_txt_bmp_buf,msgfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,
-						  "%c",MsgStrings[msgstr].s[msgptr]);*/
 			
 			char buf[2] = {0};
 			sprintf(buf,"%c",MsgStrings[msgstr].s[msgptr]);
@@ -22865,20 +22962,22 @@ reparsesinglechar:
 			cursor_x += MsgStrings[msgstr].hspace;
 			msgpos++;
 		}
-		if(do_run_menu)
+		if(wait_advance)
 		{
-			//!TODO Run menu
+			++msgptr;
 			return;
 		}
-		if(doing_name_insert)
+		else if(do_run_menu)
 		{
-			if(!*nameptr)
+			if(runMenuCursor())
 			{
-				doing_name_insert = false;
+				do_run_menu = false;
 				++msgptr;
-				goto reparsesinglechar; //
+				goto reparsesinglechar;
 			}
-			
+		}
+		else if(doing_name_insert && *nameptr)
+		{
 			char s3[9] = {0};
 			
 			if(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP)
@@ -22917,6 +23016,7 @@ reparsesinglechar:
 		}
 		else
 		{
+			doing_name_insert = false;
 			msgptr++;
 			
 			if(atend(MsgStrings[msgstr].s+msgptr))
@@ -22969,10 +23069,10 @@ reparsesinglechar:
 	}
 	
 	// Done printing the string
-	if(!doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
+	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
 	{
-		while(parsemsgcode()) // Finish remaining control codes
-			;
+		if(!do_end_str)
+			while(parsemsgcode()); // Finish remaining control codes
 			
 		// Go to next string, or make it disappear by going to string 0.
 		if(MsgStrings[msgstr].nextstring!=0 || get_bit(quest_rules,qr_MSGDISAPPEAR) || enqueued_str)

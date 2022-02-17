@@ -1041,24 +1041,24 @@ void editmsg(int32_t index, int32_t addAfter)
 			ret = -1;
 			// Show string help
 			editmsg_help_dlg[0].dp2= lfont;
-		FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
-		if (!stringshelpfile )
-		{
-		stringshelpfile = fopen("zstrings.txt", "r");
-		if ( stringshelpfile )
-		{
-			editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
-		}
-		else
-		{
-			Z_error_fatal("File Missing: zstrings.txt.");
-		}
-		}
-		else
-		{
-		editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
+			FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
+			if (!stringshelpfile )
+			{
+				stringshelpfile = fopen("zstrings.txt", "r");
+				if ( stringshelpfile )
+				{
+					editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
+				}
+				else
+				{
+					Z_error_fatal("File Missing: zstrings.txt.");
+				}
 			}
-		editmsg_help_dlg[2].bg = vc(15);
+			else
+			{
+				editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
+			}
+			editmsg_help_dlg[2].bg = vc(15);
 			((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
 		}
 	}
@@ -1277,7 +1277,7 @@ char *parse_msg_str(char *s)
 			{
 				i++;
 				msgcc*=10; // Move the current number one decimal place right.
-				msgcc+=(*(s+i)-'0');
+				msgcc+=byte(*(s+i)-'0');
 				
 				// A hack to allow multi-byte numbers.
 				if(msgcc >= 254)
@@ -1297,7 +1297,7 @@ char *parse_msg_str(char *s)
 		}
 		else
 		{
-			smsg[msgptr] = (*(s+i) >= 32 && *(s+i) <=126) ? *(s+i) : ' ';
+			smsg[msgptr] = byte((*(s+i) >= 32 && *(s+i) <=126) ? *(s+i) : ' ');
 		}
 	}
 	
@@ -1385,13 +1385,18 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 		bool space=true;
 		int32_t tlength=0;
 		
+		int32_t _menu_tl = 0;
+		int32_t _menu_cs = 0;
+		int32_t _menu_t_wid = 0;
+		int32_t _menu_t_hei = 0;
+		int32_t _menu_fl = 0;
 		for(; ;)
 		{
 			i=0;
 			
 			while((*(s2+i)) && !done)
 			{
-				char s3[145]; // Stores a complete word
+				byte s3[145]; // Stores a complete word
 				int32_t j;
 				int32_t s3length = 1;
 				int32_t hjump=0;
@@ -1451,11 +1456,11 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 					i++;
 				}
 				
-				tlength = text_length(workfont, s3);
+				tlength = text_length(workfont, (char*)s3);
 				
 				if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
 				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
-						? 1 : strcmp(s3," ")!=0))
+						? 1 : strcmp((char*)s3," ")!=0))
 				{
 					int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 					ssc_tile_hei = -1;
@@ -1469,7 +1474,7 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 				// Interpret the control codes which affect text display (currently just MSGC_COLOR). -L
 				for(int32_t k=0; k < s3length && !done; k++)
 				{
-					switch(s3[k]-1)
+					switch(byte(s3[k]-1))
 					{
 						case MSGC_NEWLINE:
 						{
@@ -1563,6 +1568,38 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 							if(t_hei > ssc_tile_hei)
 								ssc_tile_hei = t_hei;
 							cursor_x += hspace + t_wid;
+							break;
+						}
+						
+						case MSGC_SETUPMENU:
+						{
+							_menu_tl = grab_next_argument(s2, &i);
+							_menu_cs = grab_next_argument(s2, &i);
+							_menu_t_wid = grab_next_argument(s2, &i);
+							_menu_t_hei = grab_next_argument(s2, &i);
+							_menu_fl = grab_next_argument(s2, &i);
+							break;
+						}
+						case MSGC_MENUCHOICE:
+						{
+							if(cursor_x+hspace + _menu_t_wid > w-msg_margins[right])
+							{
+								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
+								ssc_tile_hei = -1;
+								cursor_y += thei + vspace;
+								if(cursor_y >= (h - msg_margins[down])) break;
+								cursor_x=msg_margins[left];
+							}
+							
+							overtileblock16(buf, _menu_tl, cursor_x, cursor_y, (int32_t)ceil(_menu_t_wid/16.0), (int32_t)ceil(_menu_t_hei/16.0), _menu_cs, _menu_fl);
+							if(_menu_t_hei > ssc_tile_hei)
+								ssc_tile_hei = _menu_t_hei;
+							cursor_x += hspace + _menu_t_wid;
+							(void)grab_next_argument(s2, &i);
+							(void)grab_next_argument(s2, &i);
+							(void)grab_next_argument(s2, &i);
+							(void)grab_next_argument(s2, &i);
+							(void)grab_next_argument(s2, &i);
 							break;
 						}
 						
@@ -1694,7 +1731,7 @@ void encode_msg_str(int32_t index)
 		else
 		{
 			// ASCII character as control code
-			if(nextChar>=32)
+			if(nextChar>=32 && nextChar <= 126)
 			{
 				sprintf(sccBuf, "\\%d", nextChar-1);
 				strPos++;
@@ -1829,6 +1866,8 @@ int32_t msg_code_operands(int32_t cc)
 		case MSGC_CHANGEPORTRAIT:
 		case MSGC_GOTOIFCREEND:
 		case MSGC_DRAWTILE:
+		case MSGC_SETUPMENU:
+		case MSGC_MENUCHOICE:
 			return 5;
 		
 		case MSGC_SETSCREEND:
@@ -1851,10 +1890,14 @@ int32_t msg_code_operands(int32_t cc)
 		case MSGC_GOTOIFTRI:
 		case MSGC_GOTOIFTRICOUNT:
 		case MSGC_GOTOIFRAND:
+		case MSGC_GOTOMENUCHOICE:
 			return 2;
 			
 		case MSGC_NEWLINE:
 		case MSGC_NAME:
+		case MSGC_RUNMENU:
+		case MSGC_ENDSTRING:
+		case MSGC_WAIT_ADVANCE:
 			return 0;
 	}
 	

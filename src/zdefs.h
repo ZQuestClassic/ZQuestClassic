@@ -3474,15 +3474,16 @@ enum { msLINKED };
 #define MSGC_SHDCOLOR         26    // 2 args (cset,swatch)
 #define MSGC_SHDTYPE          27    // 1 arg  (type)
 #define MSGC_DRAWTILE         28    // 5 args (tile, cset, wid, hei, flip)
-//29
-//30
+#define MSGC_ENDSTRING        29    // 0 args
+#define MSGC_WAIT_ADVANCE     30    // 0 args
 //31
-//32-126 are ascii chars, unusable
-#define MSGC_SETUPMENU        127    // 5 args (tile, cset, wid, hei, flip)
-#define MSGC_MENUCHOICE       128    // 5 args (pos, upos, dpos, lpos, rpos)
-#define MSGC_RUNMENU          129    // 0 args
-#define MSGC_GOTOMENUCHOICE   130    // 2 args (pos, newstring)
-//131+
+//32
+//33-127 are ascii chars, unusable
+#define MSGC_SETUPMENU        128    // 5 args (tile, cset, wid, hei, flip)
+#define MSGC_MENUCHOICE       129    // 5 args (pos, upos, dpos, lpos, rpos)
+#define MSGC_RUNMENU          130    // 0 args
+#define MSGC_GOTOMENUCHOICE   131    // 2 args (pos, newstring)
+//132+
 
 enum
 {

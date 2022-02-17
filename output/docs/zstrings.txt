@@ -39,6 +39,23 @@ If 0, text appears instantaneously. Argument 1 is the speed.
 \24\??? - Change the portrait displaying with this message box [UNIMPLEMENTED]
 
 +-----------------------------+
+| MENU CODES                  |
++-----------------------------+
+
+\128\tile\cset\width\height\flip - Sets the menu cursor, args same as '\28' above
+
+\129\pos\up_pos\down_pos\left_pos\right_pos - Creates a menu cursor position.
+               'pos' is the index of this position, while the 4 directional values are
+			   the position that will be moved to when that direction is pressed. If a
+			   directional pos is the same as 'pos', that direction will be disabled.
+
+\130 - Start running menu. If no '\129' codes have been run, the menu instantly exits
+       with the '0' pos selected.
+
+\131\pos\newstring - Goto if menu selection. Switches to the new string if 'pos' is the
+                     selected menu position.
+
++-----------------------------+
 | SWITCH CODES                |
 +-----------------------------+
 
@@ -67,7 +84,8 @@ another string. Argument 1 is the level, and argument 2 is the string to switch 
 \9\quantity\newstring - Goto If Triforce Count. If Link has acquired a certain number of Triforce pieces, then ZC switches 
 to another string. Argument 1 is the quantity, and argument 2 is the string to switch to.
 
-\30\??? - Goto If Y/N; [UNIMPLEMENTED]
+\131\pos\newstring - Goto if menu selection. Switches to the new string if 'pos' is the selected
+                     menu position.
 
 +-----------------------------+
 | COUNTER UP/DOWN CODES       |
@@ -110,6 +128,12 @@ If x is negative, y is used for the warp return point (0 to 3; 5 for pit warp).
 	If sound arg is a valid sound effect, then ZC will play that sound during the transition.
 
 \19\dmap\screen\register\value - Sets Screen->D[reg] for dmap, screen, to value.
+
+\29 - Immediately exits the current string. If there is a 'next string', it will begin immediately.
+      The prompt to press 'A' to continue will be skipped.
+
+\30 - Pauses the string and prompts the player to press A to continue
+      (as normally occurs at the end of a string)
 
 +-----------------------------+
 | AUDIO EFFECT CODES          |

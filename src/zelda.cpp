@@ -324,7 +324,7 @@ byte msg_margins[4] = {0};
 int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
-BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL;
+BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL, *msg_menu_bmp_buf = NULL;
 BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL,
          *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
@@ -1021,11 +1021,12 @@ void clearmsgnext(int32_t str)
 	MsgStrings[str].nextstring = 0;
 }
 
+void clr_msg_data();
 void donewmsg(int32_t str)
 {
 	if(msg_onscreen || msg_active)
-			dismissmsg();
-	
+		dismissmsg();
+	clr_msg_data();
     //al_trace("donewmsg %d\n",str);
     
         
@@ -1051,6 +1052,7 @@ void donewmsg(int32_t str)
     clear_bitmap(msg_txt_display_buf);
     set_clip_state(msg_txt_display_buf, 1);
     clear_bitmap(msg_txt_bmp_buf);
+    clear_bitmap(msg_menu_bmp_buf);
     clear_bitmap(msg_bg_bmp_buf);
     clear_bitmap(msg_portrait_bmp_buf);
     msgclk=msgpos=msgptr=0;
@@ -1079,7 +1081,6 @@ void donewmsg(int32_t str)
     cursor_y=msg_margins[up];
 }
 
-void clr_msg_data();
 // Called to make a message disappear
 void dismissmsg()
 {
@@ -3700,10 +3701,12 @@ void game_loop()
 					if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
 					{
 						blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+						masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
 					}
 					else
 					{
 						blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+						masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
 					}
 					set_clip_state(msg_portrait_display_buf, 0);
 					blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
@@ -4726,6 +4729,7 @@ int32_t main(int32_t argc, char* argv[])
 	msg_txt_display_buf = create_bitmap_ex(8,256, 176);
 	msg_bg_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
 	msg_txt_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
+	msg_menu_bmp_buf = create_bitmap_ex(8, 512+16, 512+16);
 	msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
 	msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
 	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
@@ -5670,6 +5674,7 @@ void quit_game()
 	set_clip_state(msg_portrait_display_buf, 1);
 	destroy_bitmap(msg_portrait_display_buf);
 	destroy_bitmap(msg_txt_bmp_buf);
+	destroy_bitmap(msg_menu_bmp_buf);
 	destroy_bitmap(msg_bg_bmp_buf);
 	destroy_bitmap(msg_portrait_bmp_buf);
 	set_clip_state(pricesdisplaybuf, 1);
