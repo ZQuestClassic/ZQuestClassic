@@ -22145,6 +22145,37 @@ word grab_next_argument()
 	return ret;
 }
 
+enum
+{
+	MNU_CURSOR_TILE, MNU_CURSOR_CSET,
+	MNU_CURSOR_WID, MNU_CURSOR_HEI, MNU_CURSOR_FLIP,
+	
+	MNU_CHOSEN,
+	
+	MNU_DATA_MAX
+};
+struct menu_choice
+{
+	int32_t x, y;
+	int32_t pos;
+	int32_t upos, dpos, lpos, rpos;
+	menu_choice() : x(0), y(0), pos(0), upos(0), dpos(0), lpos(0), rpos(0)
+	{}
+	menu_choice(int32_t x, int32_t y, int32_t pos, int32_t upos,
+		int32_t dpos, int32_t lpos, int32_t rpos)
+		: x(x), y(y), pos(pos), upos(upos), dpos(dpos), lpos(lpos), rpos(rpos)
+	{}
+};
+static int32_t msg_menu_data[MNU_DATA_MAX];
+static bool do_run_menu = false;
+static std::map<int32_t, menu_choice> menu_options;
+void clr_msg_data()
+{
+	do_run_menu = false;
+	menu_options.clear();
+	memset(msg_menu_data, 0, sizeof(msg_menu_data));
+}
+
 static bool doing_name_insert = false;
 static char namebuf[9] = {0};
 static char* nameptr = NULL;
@@ -22444,82 +22475,58 @@ bool parsemsgcode()
 			return true;
 		}
 		
-		/*case MSGC_GOTOIFYN:
+		case MSGC_SETUPMENU:
 		{
-			bool done=false;
-			int32_t pos = 0;
-			set_clip_state(msg_txt_display_buf, 0);
-			
-			do // Copied from title.cpp...
-			{
-				int32_t f=-1;
-				bool done2=false;
-				// TODO: Lower Y value limit
-				textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,msgcolour,-1);
-				textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,msgcolour,-1);
-				
-				do
-				{
-					load_control_state();
-					
-					if(f==-1)
-					{
-						if(rUp())
-						{
-							sfx(WAV_CHINK);
-							pos=0;
-						}
-						
-						if(rDown())
-						{
-							sfx(WAV_CHINK);
-							pos=1;
-						}
-						
-						if(rSbtn()) ++f;
-					}
-					
-					if(f>=0)
-					{
-						if(++f == 65)
-							done2=true;
-							
-						if(!(f&3))
-						{
-							int32_t c = (f&4) ? msgcolour : QMisc.colors.caption;
-							
-							switch(pos)
-							{
-							case 0:
-								textout_ex(msg_txt_display_buf, msgfont,"YES",112,MsgStrings[msgstr].y+36,c,-1);
-								break;
-								
-							case 1:
-								textout_ex(msg_txt_display_buf, msgfont,"NO",112,MsgStrings[msgstr].y+48,c,-1);
-								break;
-							}
-						}
-					}
-					
-					rectfill(msg_txt_display_buf,96,MsgStrings[msgstr].y+36,136,MsgStrings[msgstr].y+60,0);
-					overtile8(msg_txt_display_buf,2,96,(pos*16)+MsgStrings[msgstr].y+36,1,0);
-					advanceframe(true);
-				}
-				while(!Quit && !done2);
-				
-				clear_bitmap(msg_txt_display_buf);
-				done=true;
-			}
-			while(!Quit && !done);
-			
-			if(pos==0)
-				goto switched;
-				
-			++msgptr;
+			msg_menu_data[MNU_CURSOR_TILE] = grab_next_argument();
+			msg_menu_data[MNU_CURSOR_CSET] = grab_next_argument();
+			msg_menu_data[MNU_CURSOR_WID] = grab_next_argument();
+			msg_menu_data[MNU_CURSOR_HEI] = grab_next_argument();
+			msg_menu_data[MNU_CURSOR_FLIP] = grab_next_argument();
 			return true;
 		}
-		*/
-	
+		
+		case MSGC_MENUCHOICE:
+		{
+			if(cursor_x+MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID] > msg_w-msg_margins[right])
+			{
+				int32_t thei = zc_max(ssc_tile_hei, text_height(msgfont));
+				ssc_tile_hei = ssc_tile_hei_buf;
+				ssc_tile_hei_buf = -1;
+				cursor_y += thei + MsgStrings[msgstr].vspace;
+				// if(cursor_y >= (msg_h - msg_margins[down])) break;
+				cursor_x=msg_margins[left];
+			}
+			
+			int32_t pos = grab_next_argument();
+			menu_options[pos] = menu_choice(cursor_x, cursor_y, pos,
+				grab_next_argument(), grab_next_argument(),
+				grab_next_argument(), grab_next_argument());
+			
+			
+			//overtileblock16(msg_txt_bmp_buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
+			ssc_tile_hei_buf = zc_max(ssc_tile_hei_buf, msg_menu_data[MNU_CURSOR_HEI]);
+			cursor_x += MsgStrings[msgstr].hspace + msg_menu_data[MNU_CURSOR_WID];
+			return true;
+		}
+		
+		case MSGC_RUNMENU:
+		{
+			msg_menu_data[MNU_CHOSEN] = 0;
+			if(menu_options.size() < 1)
+				return true;
+			do_run_menu = true;
+			return true;
+		}
+		
+		case MSGC_GOTOMENUCHOICE:
+		{
+			int32_t choice = grab_next_argument();
+			if(msg_menu_data[MNU_CHOSEN] == choice)
+				goto switched;
+			(void)grab_next_argument();
+			return true;
+		}
+		
 switched:
 		int32_t lev = (int32_t)(grab_next_argument());
 		donewmsg(lev);
@@ -22621,7 +22628,7 @@ void putmsg()
 		}
 	}
 	
-	if(!msgstr || msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]))
+	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down])))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -22704,6 +22711,11 @@ void putmsg()
 				}
 				
 				msgpos++;
+			}
+			if(do_run_menu)
+			{
+				//!TODO Run menu
+				break;
 			}
 			if(doing_name_insert)
 			{
@@ -22853,6 +22865,11 @@ reparsesinglechar:
 			cursor_x += MsgStrings[msgstr].hspace;
 			msgpos++;
 		}
+		if(do_run_menu)
+		{
+			//!TODO Run menu
+			return;
+		}
 		if(doing_name_insert)
 		{
 			if(!*nameptr)
@@ -22952,7 +22969,7 @@ reparsesinglechar:
 	}
 	
 	// Done printing the string
-	if(!doing_name_insert && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
+	if(!doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
 	{
 		while(parsemsgcode()) // Finish remaining control codes
 			;

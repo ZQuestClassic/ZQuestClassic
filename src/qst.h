@@ -200,7 +200,7 @@ void portCandleRules();
 void portBombRules();
 
 int32_t loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata = 1, bool report = true);
+              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
 
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
@@ -224,6 +224,7 @@ void initMsgStr(MsgStr *str);
 void init_msgstrings(int32_t start, int32_t end);
 
 int32_t copyquest(PACKFILE *f);
+void print_quest_metadata(zquestheader const& tempheader, char const* path = NULL, byte qst_num = 0);
 int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata = 0);
 int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata);
 int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata);

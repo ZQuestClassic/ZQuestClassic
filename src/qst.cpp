@@ -54,6 +54,8 @@ extern particle_list particles;
 int32_t temp_ffscript_version = 0;
 static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
+static char const* loading_qst_name = NULL;
+static byte loading_qst_num = 0;
 
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
@@ -1995,6 +1997,131 @@ bool check_questpwd(zquestheader *Header, char *pwd)
     
 }
 
+void print_quest_metadata(zquestheader const& tempheader, char const* path, byte qst_num)
+{
+	zprint2("\n");
+	zprint2("[ZQUEST CREATOR METADATA]\n");
+	if(qst_num < moduledata.max_quest_files)
+		zprint2("Loading module quest %d\n", qst_num+1);
+	if(path) zprint2("Loading '%s'\n", path);
+	if ( tempheader.new_version_id_main > 0 )
+	{
+		if(tempheader.new_version_id_fourth > 0)
+			zprint2("Last saved in ZQuest Version %d.%d.%d.%d ",
+				tempheader.new_version_id_main,tempheader.new_version_id_second,
+				tempheader.new_version_id_third,tempheader.new_version_id_fourth);
+		else zprint2("Last saved in ZQuest Version: %d.%d.%d ",
+				tempheader.new_version_id_main,tempheader.new_version_id_second,
+				tempheader.new_version_id_third);
+	}
+	else
+	{
+		switch ( tempheader.zelda_version )
+		{
+			case 0x255:
+			{
+				zprint2("Last saved in ZQuest Version: 2.55.0, %s: %d", tempheader.getAlphaStr(), tempheader.getAlphaVer());
+				break;
+			}
+			case 0x254:
+			{
+				zprint2("Last saved in ZQuest Version: 2.54.0, Alpha Build ID: %d", tempheader.build);
+				break;
+			}
+			case 0x250:
+			{
+				switch(tempheader.build)
+				{
+					case 19:
+						zprint2("Last saved in ZQuest Version: 2.50.0, Gamma 1"); break;
+					case 20:
+						zprint2("Last saved in ZQuest Version: 2.50.0, Gamma 2"); break;
+					case 21:
+						zprint2("Last saved in ZQuest Version: 2.50.0, Gamma 3"); break;
+					case 22:
+						zprint2("Last saved in ZQuest Version: 2.50.0, Gamma 4"); break;
+					case 23:
+						zprint2("Last saved in ZQuest Version: 2.50.0, Gamma 5"); break;
+					case 24:
+						zprint2("Last saved in ZQuest Version: 2.50.0, Release"); break;
+					case 25:
+						zprint2("Last saved in ZQuest Version: 2.50.1, Gamma 1"); break;
+					case 26:
+						zprint2("Last saved in ZQuest Version: 2.50.1, Gamma 2"); break;
+					case 27: 
+						zprint2("Last saved in ZQuest Version: 2.50.1, Gamma 3"); break;
+					case 28:
+						zprint2("Last saved in ZQuest Version: 2.50.1, Release"); break;
+					case 29:
+						zprint2("Last saved in ZQuest Version: 2.50.2, Release"); break;
+					case 30:
+						zprint2("Last saved in ZQuest Version: 2.50.3, Gamma 1"); break;
+					case 31:
+						zprint2("Last saved in ZQuest Version: 2.53.0, Prior to Gamma 3"); break;
+					case 32:
+						zprint2("Last saved in ZQuest Version: 2.53.0"); break;
+					case 33:
+						zprint2("Last saved in ZQuest Version: 2.53.1"); break;
+					default:
+						zprint2("Last saved in ZQuest Version: %x, Build %d", tempheader.zelda_version,tempheader.build); break;
+		
+				}
+				break;
+			}
+			
+			case 0x211:
+			{
+				zprint2("Last saved in ZQuest Version: 2.11, Beta %d", tempheader.build); break;
+			}
+			case 0x210:
+			{
+				zprint2("Last saved in ZQuest Version: 2.10.x"); 
+				if ( tempheader.build ) zprint2("Beta/Build %d\n", tempheader.build); 
+				break;
+			}
+			/* These versions cannot be handled here; they will be incorrect at this time. -Z
+			case 0x193:
+			{
+				zprint2("Last saved in ZQuest Version: 1.93, Beta %d\n", tempheader.build); break;
+			}
+			case 0x192:
+			{
+				zprint2("Last saved in ZQuest Version: 1.92, Beta %d\n", tempheader.build); break;
+			}
+			case 0x190:
+			{
+				zprint2("Last saved in ZQuest Version: 1.90, Beta/Build %d\n", tempheader.build); break;
+			}
+			case 0x184:
+			{
+				zprint2("Last saved in ZQuest Version: 1.84, Beta/Build %d\n", tempheader.build); break;
+			}
+			case 0x183:
+			{
+				zprint2("Last saved in ZQuest Version: 1.83, Beta/Build %d\n", tempheader.build); break;
+			}
+			case 0x180:
+			{
+				zprint2("Last saved in ZQuest Version: 1.80, Beta/Build %d\n", tempheader.build); break;
+			}
+			default:
+			{
+				zprint2("Last saved in ZQuest Version: %x, Beta %d\n", tempheader.zelda_version,tempheader.build); break;
+			}
+			*/
+		}
+	}
+	if(!tempheader.is_legacy() && tempheader.getAlphaVer())
+		zprint2("%s\n", tempheader.getAlphaVerStr());
+	else zprint2("\n");
+	if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
+	if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
+	if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
+	if ( tempheader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
+	if ( tempheader.product_name[0] ) zprint2("Project ID: %s\n", tempheader.product_name);
+	if ( tempheader.new_version_id_date_day ) zprint2("Editor Built at date and time: %d-%d-%d at @ %s %s\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.build_timestamp, tempheader.build_timezone);
+	zprint2("\n");
+}
 
 int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata)
 {
@@ -2599,121 +2726,120 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				return qe_invalid;
 			}
 		}
-		else tempheader.new_version_is_nightly = false;
-		if(printmetadata || __isZQuest)
+		else
 		{
-			
-			zprint2("\n");
-			zprint2("[ZQUEST CREATOR METADATA]\n");
-			if ( tempheader.new_version_id_main > 0 )
+			tempheader.new_version_is_nightly = false;
+			if(tempheader.zelda_version < 0x255)
 			{
-				zprint2("Last saved in ZC Editor Version: (%d,%d,%d,%d) ", tempheader.new_version_id_main,tempheader.new_version_id_second,tempheader.new_version_id_third,tempheader.new_version_id_fourth);
-			}
-			else
-			{
-				switch ( tempheader.zelda_version )
+				switch(tempheader.zelda_version)
 				{
-					case 0x255:
-					{
-						zprint2("Last saved in ZC Editor Version: 2.55.0, %s: %d\n", tempheader.getAlphaStr(), tempheader.getAlphaVer());
-						break;
-					}
 					case 0x254:
-					{
-						zprint2("Last saved in ZC Editor Version: 2.54.0, Alpha Build ID: %d\n", tempheader.build);
+						tempheader.new_version_id_main = 2;
+						tempheader.new_version_id_second = 54;
 						break;
-					}
 					case 0x250:
-					{
 						switch(tempheader.build)
 						{
 							case 19:
-								zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 1\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_gamma = 1;
+								break;
 							case 20:
-								zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 2\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_gamma = 2;
+								break;
 							case 21:
-								zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 3\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_gamma = 3;
+								break;
 							case 22:
-								zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 4\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_gamma = 4;
+								break;
 							case 23:
-								zprint2("Last saved in ZC Editor Version: 2.50.0, Gamma 5\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_gamma = 5;
+								break;
 							case 24:
-								zprint2("Last saved in ZC Editor Version: 2.50.0, Release\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_release = -1;
+								break;
 							case 25:
-								zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 1\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_third = 1;
+								tempheader.new_version_id_gamma = 1;
+								break;
 							case 26:
-								zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 2\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_third = 1;
+								tempheader.new_version_id_gamma = 2;
+								break;
 							case 27: 
-								zprint2("Last saved in ZC Editor Version: 2.50.1, Gamma 3\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_third = 1;
+								tempheader.new_version_id_gamma = 3;
+								break;
 							case 28:
-								zprint2("Last saved in ZC Editor Version: 2.50.1, Release\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_third = 1;
+								tempheader.new_version_id_release = -1;
+								break;
 							case 29:
-								zprint2("Last saved in ZC Editor Version: 2.50.2, Release\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_third = 2;
+								tempheader.new_version_id_release = -1;
+								break;
 							case 30:
-								zprint2("Last saved in ZC Editor Version: 2.50.3, Gamma 1\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 50;
+								tempheader.new_version_id_third = 3;
+								tempheader.new_version_id_gamma = 1;
+								break;
 							case 31:
-								zprint2("Last saved in ZC Editor Version: 2.53.0, Prior to Gamma 3\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 53;
+								tempheader.new_version_id_gamma = -1;
+								break;
 							case 32:
-								zprint2("Last saved in ZC Editor Version: 2.53.0\n"); break;
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 53;
+								tempheader.new_version_id_release = -1;
+								break;
 							case 33:
-								zprint2("Last saved in ZC Editor Version: 2.53.1\n"); break;
-							default:
-								zprint2("Last saved in ZC Editor Version: %x, Build %d\n", tempheader.zelda_version,tempheader.build); break;
-				
+								tempheader.new_version_id_main = 2;
+								tempheader.new_version_id_second = 53;
+								tempheader.new_version_id_third = 1;
+								break;
 						}
 						break;
-					}
 					
 					case 0x211:
-					{
-						zprint2("Last saved in ZC Editor Version: 2.11, Beta %d\n", tempheader.build); break;
-					}
-					case 0x210:
-					{
-						zprint2("Last saved in ZC Editor Version: 2.10.x\n"); 
-						if ( tempheader.build ) zprint2("Beta/Build %d\n", tempheader.build); 
+						tempheader.new_version_id_main = 2;
+						tempheader.new_version_id_second = 11;
+						tempheader.new_version_id_beta = tempheader.build;
 						break;
-					}
-					/* These versions cannot be handled here; they will be incorrect at this time. -Z
-					case 0x193:
-					{
-						zprint2("Last saved in ZC Editor Version: 1.93, Beta %d\n", tempheader.build); break;
-					}
-					case 0x192:
-					{
-						zprint2("Last saved in ZC Editor Version: 1.92, Beta %d\n", tempheader.build); break;
-					}
-					case 0x190:
-					{
-						zprint2("Last saved in ZC Editor Version: 1.90, Beta/Build %d\n", tempheader.build); break;
-					}
-					case 0x184:
-					{
-						zprint2("Last saved in ZC Editor Version: 1.84, Beta/Build %d\n", tempheader.build); break;
-					}
-					case 0x183:
-					{
-						zprint2("Last saved in ZC Editor Version: 1.83, Beta/Build %d\n", tempheader.build); break;
-					}
-					case 0x180:
-					{
-						zprint2("Last saved in ZC Editor Version: 1.80, Beta/Build %d\n", tempheader.build); break;
-					}
-					default:
-					{
-						zprint2("Last saved in ZC Editor Version: %x, Beta %d\n", tempheader.zelda_version,tempheader.build); break;
-					}
-					*/
+					case 0x210:
+						tempheader.new_version_id_main = 2;
+						tempheader.new_version_id_second = 10;
+						tempheader.new_version_id_beta = tempheader.build;
+						break;
 				}
 			}
-			if(tempheader.getAlphaVer()) zprint2("%s\n", tempheader.getAlphaVerStr());
-			if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
-			if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
-			if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
-			if ( tempheader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
-			if ( tempheader.product_name[0] ) zprint2("Project ID: %s\n", tempheader.product_name);
-			if ( tempheader.new_version_id_date_day ) zprint2("\nEditor Built at date and time: %d-%d-%d at @ %s %s\n\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.build_timestamp, tempheader.build_timezone);
-			//al_trace("(Autogenerated) Editor Built at date and time: %s @ %s\n\n", tempheader.build_datestamp, );
+		}
+		if(printmetadata || __isZQuest)
+		{
+			print_quest_metadata(tempheader, loading_qst_name, loading_qst_num);
 		}
 	}
 	
@@ -2728,7 +2854,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			AlertDialog("Quest saved in newer version",
 				"This quest was last saved in a newer version of ZQuest."
 				" Attempting to load this quest may not work correctly; to"
-				" avoid issues, try loading this quest in at least '" + tempheader.getVerStr() + "'"
+				" avoid issues, try loading this quest in at least '" + std::string(tempheader.getVerStr()) + "'"
 				"\n\nWould you like to continue loading anyway? (Not recommended)",
 				[&](bool ret)
 				{
@@ -20027,9 +20153,9 @@ void portBombRules()
 	
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata, bool report)
+//Internal function for loadquest wrapper
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
 {
-	loadquest_report = report;
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
@@ -20165,7 +20291,6 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
     checkstatus(ret);
     box_out("okay.");
     box_eol();
-    al_trace("Made in ZQuest %x Beta %d\n",tempheader.zelda_version, tempheader.build);
     
 	if(read_zinfo)
 	{
@@ -21046,5 +21171,16 @@ invalid:
     
 }
 
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
+{
+	loading_qst_name = filename;
+	loading_qst_num = qst_num;
+	loadquest_report = report;
+	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, compressed, encrypted, keepall, skip_flags,printmetadata);
+	loading_qst_name = NULL;
+	loadquest_report = false;
+	loading_qst_num = 0;
+	return ret;
+}
 /*** end of qst.cc ***/
 

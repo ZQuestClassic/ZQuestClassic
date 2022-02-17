@@ -4374,12 +4374,13 @@ void f_Quit(int32_t type)
     {
         kill_sfx();
         music_stop();
+		game_pal();
         clear_to_color(screen,BLACK);
 		update_hw_screen();
     }
     else
     {
-        game_pal();
+		game_pal();
         music_resume();
         resume_all_sfx();
     }
