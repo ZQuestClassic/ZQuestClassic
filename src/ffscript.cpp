@@ -6308,7 +6308,7 @@ int32_t get_register(const int32_t arg)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						ret = zinit.gravity2 * 10000;
+						ret = zinit.gravity2;
 						break;
 					case 1: //Terminal Velocity
 						ret = zinit.terminalv * 100;
@@ -14721,7 +14721,7 @@ void set_register(const int32_t arg, const int32_t value)
 				switch(indx)
 				{
 					case 0: //Gravity Strength
-						zinit.gravity2 = value / 10000;
+						zinit.gravity2 = value;
 						break;
 					case 1: //Terminal Velocity
 						zinit.terminalv = value / 100;
