@@ -2735,9 +2735,9 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 		
 		// This seems to be right...
 		if(cs==2 || cs==3 || cs==4)
-			rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + cs) + i) * 3;
+			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + i) * 3;
 		else if(cs==9)
-			rgbByte = colordata + (CSET((Map.CurrScr()->color+1) * pdLEVEL + 5) + i) * 3;
+			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + 3 + pdFULL) + i) * 3;
 		else
 			rgbByte = colordata + (CSET(cs)+i)*3;
 			
