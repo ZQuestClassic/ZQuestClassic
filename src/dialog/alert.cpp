@@ -27,6 +27,7 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	using namespace GUI::Key;
 
 	return Window(
 		title = std::move(dlgTitle),
@@ -65,6 +66,6 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 
 bool AlertDialog::handleMessage(const GUI::DialogMessage<int32_t>& msg)
 {
-	onEnd((message)msg.message==message::OK);
+	onEnd(((message)msg.message)==message::OK);
 	return true;
 }

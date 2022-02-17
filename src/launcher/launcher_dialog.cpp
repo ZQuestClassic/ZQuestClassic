@@ -499,9 +499,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 		onClose = message::EXIT,
 		use_vsync = true,
 		onTick = [&](){return launcher_on_tick();},
-		shortcuts={
-			Esc=message::EXIT
-		},
 		Column(
 			TabPanel(
 				focused = true,

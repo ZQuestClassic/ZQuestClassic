@@ -192,12 +192,12 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 
 	return Window(
 		title = "Room Type",
+		onEnter = message::OK,
 		onClose = message::CANCEL,
 		shortcuts = {
-			Enter = message::OK,
 			F1 = message::ROOM_INFO
 		},
-
+		info = "FooBar",
 		Column(
 			Columns<4>(
 				Label(text = "Room type:", hAlign=1.0),

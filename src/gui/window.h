@@ -33,6 +33,7 @@ public:
 	RequireMessage<T> onClose(T m)
 	{
 		closeMessage = static_cast<int32_t>(m);
+		onKey(Key::Esc, m);
 	}
 	
 	void setOnTick(std::function<int32_t()> newOnTick);
