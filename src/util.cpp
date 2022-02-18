@@ -465,6 +465,13 @@ bool fileexists(const char *filename)
 	return false;
 }
 
+int32_t compare(int32_t a, int32_t b)
+{
+	if(a > b) return 1;
+	if(a < b) return -1;
+	return 0;
+}
+
 char const* get_snap_str()
 {
 	static char snap[16] = "snapshots/";

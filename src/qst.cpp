@@ -2844,9 +2844,12 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	}
 	
 	//{ Version Warning
-	if(tempheader.compareVer() > 0
-		|| tempheader.getAlphaState() > ALPHA_STATE
-		|| tempheader.getAlphaVer() > ALPHA_VER)
+	int32_t vercmp = tempheader.compareVer();
+	int32_t astatecmp = compare(int32_t(tempheader.getAlphaState()), ALPHA_STATE);
+	int32_t avercmp = compare(tempheader.getAlphaVer(), ALPHA_VER);
+	if(vercmp > 1 || (!vercmp &&
+		(astatecmp > 1 || (!astatecmp &&
+			avercmp > 1))))
 	{
 		bool r = true;
 		if(loadquest_report)
