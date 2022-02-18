@@ -457,6 +457,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				_SET(misc[q], "Item " + std::to_string(q+1) + ":", "If > -1, an item ID in the progressive order.");
 			break;
 		}
+		case itype_note:
+		{
+			_SET(misc[0], "String:", "The string to display when this item is used.");
+			break;
+		}
 		case itype_boots:
 		{
 			_SET(power, "Protection Power:", "Protects against damage combos that deal up to 16*power points of damage.");

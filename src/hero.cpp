@@ -9383,6 +9383,24 @@ bool HeroClass::startwpn(int32_t itemid)
 			break;
 		}
 		
+		case itype_note:
+		{
+			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			if(!msg_active && itm.misc1 > 0 && itm.misc1 < MAXMSGS)
+			{
+				donewmsg(itm.misc1);
+				paymagiccost(itemid);
+			}
+			dowpn = -1;
+			ret = false;
+			break;
+		}
+		
 		case itype_mirror:
 			doMirror(itemid);
 			if(Quit)

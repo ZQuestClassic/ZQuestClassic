@@ -114,7 +114,9 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"The Sword, Wand and Hammer deal more damage. The multiplier applies before the bonus damage.", //Atkring
 	"Emanates light passively from the player in dark rooms.", //Lantern
 	"Prevents the player from becoming a Bunny on certain dmaps.", //Pearls
-	"Can be filled with bottle contents, and trigger their effects", //Bottle
+	"Can be filled with bottle contents, and trigger their effects.\n"
+		"The drawn tile of the bottle's animation is offset by it's AFrames (min 1)"
+		" times the value of its' contents (empty = 0, so no offset).", //Bottle
 	"Fills the first empty bottle you have with a particular content", //Bottlefill
 	//270
 	"Can be swung, does not collide with enemies. Can catch fairies to put in bottles.", //Bugnet
@@ -130,7 +132,9 @@ const char *itemclass_help_string_defaults[itype_max] =
 		" the max of a counter, but won't be able to due to the 'But Not Above...'"
 		" field, it is considered 'owned', in addition to any 'Equipment Item'"
 		" that has been collected.\nHeart pieces check the counter max increase"
-		" of the heart container they grant."
+		" of the heart container they grant.", //Progressive
+	"When used, displays a string onscreen. Especially useful when combined"
+		" with string control codes." //Note
 };
 #else
 #endif
@@ -178,7 +182,7 @@ const char default_itype_strings[itype_max][255] =
 	"Custom Weapon 01", "Custom Weapon 02", "Custom Weapon 03", "Custom Weapon 04", "Custom Weapon 05",
 	"Custom Weapon 06", "Custom Weapon 07", "Custom Weapon 08", "Custom Weapon 09", "Custom Weapon 10",
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
-	"SwitchHooks", "Item Bundle", "Progressive Item"
+	"SwitchHooks", "Item Bundle", "Progressive Item", "Note"
 };
 
 zinfo ZI;
