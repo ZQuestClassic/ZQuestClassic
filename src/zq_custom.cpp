@@ -37,6 +37,7 @@
 #include "dialog/itemeditor.h"
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"
+#include "dialog/info.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -414,11 +415,11 @@ extern DIALOG ilist_dlg[];
 static int32_t copiedItem;
 static MENU ilist_rclick_menu[] =
 {
-	{ (char *)"Copy",  NULL, NULL, 0, NULL },
-	{ (char *)"Paste", NULL, NULL, 0, NULL },
-	{ (char *)"Save", NULL, NULL, 0, NULL },
-	{ (char *)"Load", NULL, NULL, 0, NULL },
-	{ NULL,            NULL, NULL, 0, NULL }
+	{ "&Copy",    NULL, NULL, 0, NULL },
+	{ "Paste &v", NULL, NULL, 0, NULL },
+	{ "&Save",    NULL, NULL, 0, NULL },
+	{ "&Load",    NULL, NULL, 0, NULL },
+	{ NULL,       NULL, NULL, 0, NULL }
 };
 
 int32_t readoneitem(PACKFILE *f, int32_t index)
@@ -1399,6 +1400,64 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		return 1;
 }
 
+void paste_item(int32_t index)
+{
+	if(index < 0) index = ilist_dlg[2].d1;
+	if(bii[index].i<0) //(none)
+		return;
+	if(copiedItem<0) //Nothing copied
+		return;
+	itemsbuf[bii[index].i]=itemsbuf[copiedItem];
+	ilist_dlg[2].flags|=D_DIRTY;
+	saved=false;
+}
+void copy_item(int32_t index)
+{
+	if(index < 0) index = ilist_dlg[2].d1;
+	if(bii[index].i<0) //(none)
+		return;
+	copiedItem=bii[index].i;
+}
+void save_item(int32_t index)
+{
+	if(index < 0) index = ilist_dlg[2].d1;
+	if(bii[index].i<0) //(none)
+		return;
+	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
+		return;
+	int32_t iid = bii[index].i;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	if (!writeoneitem(f,iid))
+	{
+		Z_error("Could not write to .zitem packfile %s\n", temppath);
+		InfoDialog("ZItem Error", "Could not save the specified item.").show();
+	}
+	pack_fclose(f);
+}
+void load_item(int32_t index)
+{
+	if(index < 0) index = ilist_dlg[2].d1;
+	if(bii[index].i<0) //(none)
+		return;
+	if(!getname("Load Item(.zitem)", "zitem", NULL,datapath,false))
+		return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readoneitem(f,index))
+	{
+		Z_error("Could not read from .zitem packfile %s\n", temppath);
+		InfoDialog("ZItem Error", "Could not load the specified item.").show();
+	}
+	
+	pack_fclose(f);
+	ilist_dlg[2].flags|=D_DIRTY;
+	saved=false;
+}
+
+
 void ilist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
 	if(bii[index].i<0) // Clicked (none)?
@@ -1412,52 +1471,13 @@ void ilist_rclick_func(int32_t index, int32_t x, int32_t y)
 	int32_t ret=popup_menu(ilist_rclick_menu, x, y);
 	
 	if(ret==0) // copy
-		copiedItem=bii[index].i;
+		copy_item(index);
 	else if(ret==1) // paste
-	{
-		itemsbuf[bii[index].i]=itemsbuf[copiedItem];
-		ilist_dlg[2].flags|=D_DIRTY;
-		saved=false;
-	}
+		paste_item(index);
 	else if(ret==2) // save
-	{
-	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
-				return;
-	int32_t iid = bii[index].i; //the item id is not the sajme as the editor index
-	//the editor index is the position in the current LIST. -Z
-	
-	//al_trace("Saving item index: %d\n",index);
-	//al_trace("Saving item id: %d\n",iid);
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	/*if (!writeoneitem(f,iid))
-	{
-		al_trace("Could not write to .zitem packfile %s\n", temppath);
-	}
-	*/
-	writeoneitem(f,iid);
-	pack_fclose(f);
-	 
-		
-	}
+		save_item(index);
 	else if(ret==3) // load
-	{
-	if(!getname("Load Item(.zitem)", "zitem", NULL,datapath,false))
-				return;
-	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-	if(!f) return;
-	
-	if (!readoneitem(f,index))
-	{
-		al_trace("Could not read from .zitem packfile %s\n", temppath);
-		jwin_alert("ZITEM File: Error","Could not load the specified item.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-	}
-	
-	pack_fclose(f);
-		//itemsbuf[bii[index].i]=itemsbuf[copiedItem];
-		ilist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
-		saved=false;
-	}
+		load_item(index);
 }
 
 int32_t onCustomItems()
@@ -5397,11 +5417,11 @@ extern DIALOG elist_dlg[];
 static int32_t copiedGuy;
 static MENU elist_rclick_menu[] =
 {
-	{ (char *)"Copy",  NULL, NULL, 0, NULL },
-	{ (char *)"Paste", NULL, NULL, 0, NULL },
-	{ (char *)"Save", NULL, NULL, 0, NULL },
-	{ (char *)"Load", NULL, NULL, 0, NULL },
-	{ NULL,            NULL, NULL, 0, NULL }
+	{ "&Copy",    NULL, NULL, 0, NULL },
+	{ "Paste &v", NULL, NULL, 0, NULL },
+	{ "&Save",    NULL, NULL, 0, NULL },
+	{ "&Load",    NULL, NULL, 0, NULL },
+	{ NULL,       NULL, NULL, 0, NULL }
 };
 
 int32_t readonenpc(PACKFILE *f, int32_t index)
@@ -6439,6 +6459,63 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 
 
 
+void paste_enemy(int32_t index)
+{
+	if(index < 0) index = elist_dlg[2].d1;
+	if(index==0)
+		return;
+	if(copiedGuy<0) //Nothing copied
+		return;
+	guysbuf[bie[index].i]=guysbuf[copiedGuy];
+	elist_dlg[2].flags|=D_DIRTY;
+	saved=false;
+}
+void copy_enemy(int32_t index)
+{
+	if(index < 0) index = elist_dlg[2].d1;
+	if(index==0)
+		return;
+	copiedGuy=bie[index].i;
+}
+void save_enemy(int32_t index)
+{
+	if(index < 0) index = elist_dlg[2].d1;
+	if(index==0)
+		return;
+	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+		return;
+	int32_t iid = bie[index].i;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+	if(!f) return;
+	if (!writeonenpc(f,iid))
+	{
+		Z_error("Could not write to .znpc packfile %s\n", temppath);
+		InfoDialog("ZNPC Error", "Could not save the specified enemy.").show();
+	}
+	pack_fclose(f);
+}
+void load_enemy(int32_t index)
+{
+	if(index < 0) index = elist_dlg[2].d1;
+	if(index==0)
+		return;
+	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+		return;
+	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+	if(!f) return;
+	
+	if (!readonenpc(f,index))
+	{
+		al_trace("Could not read from .znpc packfile %s\n", temppath);
+		InfoDialog("ZNPC Error", "Could not load the specified enemy.").show();
+	}
+	
+	pack_fclose(f);
+	elist_dlg[2].flags|=D_DIRTY;
+	saved=false;
+}
+
 
 void elist_rclick_func(int32_t index, int32_t x, int32_t y)
 {
@@ -6453,52 +6530,13 @@ void elist_rclick_func(int32_t index, int32_t x, int32_t y)
 	int32_t ret=popup_menu(elist_rclick_menu, x, y);
 	
 	if(ret==0) // copy
-		copiedGuy=bie[index].i;
+		copy_enemy(index);
 	else if(ret==1) // paste
-	{
-		guysbuf[bie[index].i]=guysbuf[copiedGuy];
-		elist_dlg[2].flags|=D_DIRTY;
-		saved=false;
-	}
+		paste_enemy(index);
 	else if(ret==2) // save
-	{
-		if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
-			return;
-		int32_t iid = bie[index].i; //the item id is not the sajme as the editor index
-		//the editor index is the position in the current LIST. -Z
-		
-		//al_trace("Saving item index: %d\n",index);
-		//al_trace("Saving item id: %d\n",iid);
-		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-		if(!f) return;
-		/*if (!writeoneitem(f,iid))
-		{
-			al_trace("Could not write to .znpc packfile %s\n", temppath);
-		}
-		*/
-		writeonenpc(f,iid);
-		pack_fclose(f);
-		
-		
-	}
+		save_enemy(index);
 	else if(ret==3) // load
-	{
-		if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
-			return;
-		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-		if(!f) return;
-		
-		if (!readonenpc(f,index))
-		{
-			al_trace("Could not read from .znpc packfile %s\n", temppath);
-			jwin_alert("ZNPC File: Error","Could not load the specified npc.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-		
-		pack_fclose(f);
-		//itemsbuf[bie[index].i]=itemsbuf[copiedItem];
-		elist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
-		saved=false;
-	}
+		load_enemy(index);
 }
 
 int32_t onCustomEnemies()

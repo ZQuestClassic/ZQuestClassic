@@ -1,7 +1,23 @@
 // 2.55 Change Log
-// Updated 15th Feb, 2022
+// Updated 17th Feb, 2022
 
 //Since A103
+
+-Feb 17th nightly
+
+Fixed GUI issues with setting controls
+Fix 'Esc' not acting as 'Cancel' properly in some dialogs
+Fix 'Game->Gravity[GR_STRENGTH]' returning extremely high values
+Add new SCCs:
+	Menu SCCs allow creating a multiple-choice menu the player can select from
+	'\29' allows exiting the current string (going to the next string, if any is set,
+		without waiting for the player to press a button to advance)
+	'\30' pauses the string, as normally happens between strings, waiting for player input.
+	( EmilyV, Feb 17th, 2022 )
+
+Fix tile grabbing palette issues
+Fix palette editor dialog in small mode
+	( Deedee, Feb 17th, 2022 )
 
 //A103
 

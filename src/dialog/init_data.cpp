@@ -217,7 +217,33 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		}
 		icswitcher->add(grid);
 	}
-	icswitcher->switchTo(switchids[list_items.getValue(0)]);
+	
+	std::shared_ptr<GUI::Widget> ilist_panel;
+	if(switchids.size())
+	{
+		icswitcher->switchTo(switchids[list_items.getValue(0)]);
+		ilist_panel = Row(
+			List(minheight = sized(160_px,300_px),
+				data = list_items, isABC = true,
+				focused = true,
+				selectedIndex = 0,
+				onSelectFunc = [&](int32_t val)
+				{
+					icswitcher->switchTo(switchids[val]);
+					broadcast_dialog_message(MSG_DRAW, 0);
+				}
+			),
+			Frame(fitParent = true,
+				icswitcher
+			)
+		);
+	}
+	else
+	{
+		icswitcher->add(DummyWidget());
+		icswitcher->switchTo(0);
+		ilist_panel = Label(text = "No 'Equipment Item's to display!");
+	}
 	if(!is_large) //Just return an entirely different dialog...
 	{
 		return Window(
@@ -229,21 +255,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				padding = sized(0_px, 2_spx),
 				TabPanel(
 					padding = sized(0_px, 2_spx),
-					TabRef(name = "Equipment", Row(
-						List(minheight = 160_px,
-							data = list_items, isABC = true,
-							focused = true,
-							selectedIndex = 0,
-							onSelectFunc = [&](int32_t val)
-							{
-								icswitcher->switchTo(switchids[val]);
-								broadcast_dialog_message(MSG_DRAW, 0);
-							}
-						),
-						Frame(fitParent = true,
-							icswitcher
-						)
-					)),
+					TabRef(name = "Equipment", ilist_panel),
 					TabRef(name = "Counters", TabPanel(
 						TabRef(name = "Engine", Rows<2>(
 							Rows<2>(
@@ -538,21 +550,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			padding = sized(0_px, 2_spx),
 			TabPanel(
 				padding = sized(0_px, 2_spx),
-				TabRef(name = "Equipment", Row(
-					List(minheight = 300_px,
-						data = list_items, isABC = true,
-						focused = true,
-						selectedIndex = 0,
-						onSelectFunc = [&](int32_t val)
-						{
-							icswitcher->switchTo(switchids[val]);
-							broadcast_dialog_message(MSG_DRAW, 0);
-						}
-					),
-					Frame(fitParent = true,
-						icswitcher
-					)
-				)),
+				TabRef(name = "Equipment", ilist_panel),
 				TabRef(name = "Counters", TabPanel(
 					TabRef(name = "Engine", Rows<2>(hAlign = 0.0, vAlign = 0.0,
 						Rows<2>(

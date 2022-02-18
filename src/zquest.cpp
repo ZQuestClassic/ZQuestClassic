@@ -11906,6 +11906,10 @@ static DIALOG list_dlg[] =
 };
 
 void ilist_rclick_func(int32_t index, int32_t x, int32_t y);
+void paste_item(int32_t index = -1);
+void copy_item(int32_t index = -1);
+void save_item(int32_t index = -1);
+void load_item(int32_t index = -1);
 DIALOG ilist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -11921,11 +11925,11 @@ DIALOG ilist_dlg[] =
 static DIALOG wlist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_win_proc,     60-12,   40,   200+24+24,  156,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { d_wlist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
+    { jwin_button_proc,     90,   171,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
+    { jwin_button_proc,     170,  171,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
@@ -12328,72 +12332,85 @@ static byte spritecopied = 0;
 char temp_weapon_string[64] = {0};
 static MENU wpnsprite_rclick_menu[] =
 {
-    { (char *)"Copy",  NULL, NULL, 0, NULL },
-    { (char *)"Paste", NULL, NULL, 0, NULL },
-    { (char *)"Save", NULL, NULL, 0, NULL },
-    { (char *)"Load", NULL, NULL, 0, NULL },
-    { NULL,            NULL, NULL, 0, NULL }
+    { "&Copy",    NULL, NULL, 0, NULL },
+    { "Paste &v", NULL, NULL, 0, NULL },
+    { "&Save",    NULL, NULL, 0, NULL },
+    { "&Load",    NULL, NULL, 0, NULL },
+    { NULL,       NULL, NULL, 0, NULL }
 };
 
-void wpnsprite_rclick_func(int32_t index, int32_t x, int32_t y)
+void paste_wsprite(int32_t index = -1)
 {
-    if(((unsigned)index)>255)
-        return;
-    int32_t ret=popup_menu(wpnsprite_rclick_menu, x, y);
-    if(ret==0) // copy
-    {
-	//::memcpy(&copiedSprite, &biw[biw[index].i], sizeof(wpndata));
+	if(index < 0) index = wlist_dlg[2].d1;
+	if(unsigned(index)>255)
+		return;
+	if(!spritecopied)
+		return;
+	::memcpy( &(wpnsbuf[biw[index].i]),&copiedSprite, sizeof(wpndata));
+	::memcpy(weapon_string[biw[index].i], temp_weapon_string, 64);
+	wlist_dlg[2].flags|=D_DIRTY;
+	saved=false;
+}
+void copy_wsprite(int32_t index = -1)
+{
+	if(index < 0) index = wlist_dlg[2].d1;
+	if(unsigned(index)>255)
+		return;
 	::memcpy(&copiedSprite, &(wpnsbuf[biw[index].i]), sizeof(wpndata));
 	memset(temp_weapon_string,0,64);
 	::memcpy(temp_weapon_string, weapon_string[biw[index].i], 64);
-	al_trace("biw[index].i is: %d\n", biw[index].i);
-	al_trace("biw[index] is: %d\n", biw[index]);
 	spritecopied = 1;
-    }
-    else if(ret==1) // paste
-    {
-	::memcpy( &(wpnsbuf[biw[index].i]),&copiedSprite, sizeof(wpndata));
-	::memcpy(weapon_string[biw[index].i], temp_weapon_string, 64);
-	//build_biw_list(); //Doing this resorts the list too soon
-	//::memcpy(&biw[index], &copiedSprite, sizeof(wpndata));
-        wlist_dlg[2].flags|=D_DIRTY;
-        saved=false;
-    }
-    else if(ret==2) // save
-    {
+}
+void save_wsprite(int32_t index = -1)
+{
+	if(index < 0) index = wlist_dlg[2].d1;
+	if(unsigned(index)>255)
+		return;
 	if(!getname("Save ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
-                return;
+		return;
 	
 	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 	if(!f) return;
-	/*if (!writeoneitem(f,iid))
+	if (!writeoneweapon(f,index))
 	{
-		al_trace("Could not write to .znpc packfile %s\n", temppath);
+		Z_error("Could not write to .zwpnspr packfile %s\n", temppath);
+		InfoDialog("ZWpnSpr Error", "Could not save the specified sprite.").show();
 	}
-	*/
-	writeoneweapon(f,index);
 	pack_fclose(f);
-     
-        
-    }
-    else if(ret==3) // load
-    {
+}
+void load_wsprite(int32_t index = -1)
+{
+	if(index < 0) index = wlist_dlg[2].d1;
+	if(unsigned(index)>255)
+		return;
 	if(!getname("Load ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
-                return;
+		return;
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;
 	
 	if (!readoneweapon(f,index))
 	{
-		al_trace("Could not read from .zwpnspr packfile %s\n", temppath);
-		jwin_alert("ZWPNSPR File: Error","Could not load the specified weapon sprite.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		Z_error("Could not read from .zwpnspr packfile %s\n", temppath);
+		InfoDialog("ZWpnSpr Error", "Could not load the specified sprite.").show();
 	}
 	
 	pack_fclose(f);
-        //itemsbuf[bie[index].i]=itemsbuf[copiedItem];
-        wlist_dlg[2].flags|=D_DIRTY; //Causes the dialogie list to refresh, updating the item name.
-        saved=false;
-    }
+	wlist_dlg[2].flags|=D_DIRTY;
+	saved=false;
+}
+void wpnsprite_rclick_func(int32_t index, int32_t x, int32_t y)
+{
+	if(((unsigned)index)>255)
+		return;
+	int32_t ret=popup_menu(wpnsprite_rclick_menu, x, y);
+	if(ret==0) // copy
+		copy_wsprite(index);
+	else if(ret==1) // paste
+		paste_wsprite(index);
+	else if(ret==2) // save
+		save_wsprite(index);
+	else if(ret==3) // load
+		load_wsprite(index);
 }
 
 
@@ -14055,163 +14072,211 @@ int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int32_t ret = jwin_abclist_proc(msg,d,c);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        scare_mouse();
-        
-        int32_t tile = 0;
-        int32_t cset = 0;
-        
-        if(bii[d->d1].i >-1)
-        {
-            tile= itemsbuf[bii[d->d1].i].tile;
-            cset= itemsbuf[bii[d->d1].i].csets&15;
-        }
-        
-        int32_t x = d->x + d->w + 4;
-        int32_t y = d->y;
-        int32_t w = 16;
-        int32_t h = 16;
-        
-        if(is_large)
-        {
-            w = 32;
-            h = 32;
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile,0,0,cset,0);
-                
-            stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-            destroy_bitmap(buf);
-            jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-            blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-            destroy_bitmap(bigbmp);
-        }
-        //Item editor power display in Select Item dialogue. 
-        if(bii[d->d1].i>=0)
-        {
-            textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
-            
-            textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-            textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
-            textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
-           // textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
-            textprintf_ex(screen,spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet:    ");
-            textprintf_ex(screen,spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:    ");
-            textprintf_ex(screen,spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Act:    ");
-            textprintf_ex(screen,spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pkp:    ");
-            textprintf_ex(screen,spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Spr:    ");
-            textprintf_ex(screen,spfont,x,y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Wpn:    ");
-		char itempower[10]; char itemlvl[10]; char itmtile[16]; char itmcset[10]; char itmfam[10];
-		char ascript[10];
-		char pscript[10];
-		char sscript[10];
-		char wscript[10];
-		sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(itemlvl, "%03d", itemsbuf[bii[d->d1].i].fam_type); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(itmtile, "%03d", itemsbuf[bii[d->d1].i].tile); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(itmcset, "%03d", itemsbuf[bii[d->d1].i].csets); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(itmfam, "%03d", itemsbuf[bii[d->d1].i].family); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(ascript, "%03d", itemsbuf[bii[d->d1].i].script); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(pscript, "%03d", itemsbuf[bii[d->d1].i].collect_script); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(sscript, "%03d", itemsbuf[bii[d->d1].i].sprite_script); //Give leading zeros so that we don't have graphical corruption in the display. 
-		sprintf(wscript, "%03d", itemsbuf[bii[d->d1].i].weaponscript); //Give leading zeros so that we don't have graphical corruption in the display. 
-            //textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
-	     textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"T: %d  ",itemsbuf[bii[d->d1].i].tile);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
-	    //textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"LV: %d  ",itemsbuf[bii[d->d1].i].family_type);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
-	    //textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"F: %d  ",itemsbuf[bii[d->d1].i].family);
-           
-	    //textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
-	    //Scripts
-	    textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
-            textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
-        }
-        
-        // Might be a bit confusing for new users
-        /*textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Cost:   ");
-        textprintf_ex(screen,is_large?font:spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
-        
-        unscare_mouse();
-    }
-    
-    return ret;
+	if(msg == MSG_XCHAR)
+	{
+		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
+		{
+			int32_t ret = D_USED_CHAR;
+			switch(c>>8)
+			{
+				case KEY_V:
+					paste_item();
+					break;
+				case KEY_C:
+					copy_item();
+					break;
+				case KEY_S:
+					save_item();
+					break;
+				case KEY_L:
+					load_item();
+					break;
+				default: ret = 0;
+			}
+			if(ret) return ret;
+		}
+	}
+	int32_t ret = jwin_abclist_proc(msg,d,c);
+	
+	switch(msg)
+	{
+		case MSG_DRAW:
+		case MSG_CHAR:
+		case MSG_CLICK:
+			scare_mouse();
+			
+			int32_t tile = 0;
+			int32_t cset = 0;
+			
+			if(bii[d->d1].i >-1)
+			{
+				tile= itemsbuf[bii[d->d1].i].tile;
+				cset= itemsbuf[bii[d->d1].i].csets&15;
+			}
+			
+			int32_t x = d->x + d->w + 4;
+			int32_t y = d->y;
+			int32_t w = 16;
+			int32_t h = 16;
+			
+			if(is_large)
+			{
+				w = 32;
+				h = 32;
+			}
+			
+			BITMAP *buf = create_bitmap_ex(8,16,16);
+			BITMAP *bigbmp = create_bitmap_ex(8,w,h);
+			
+			if(buf && bigbmp)
+			{
+				clear_bitmap(buf);
+				
+				if(tile)
+					overtile16(buf, tile,0,0,cset,0);
+					
+				stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
+				destroy_bitmap(buf);
+				jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
+				blit(bigbmp,screen,0,0,x+2,y+2,w,h);
+				destroy_bitmap(bigbmp);
+			}
+			//Item editor power display in Select Item dialogue. 
+			if(bii[d->d1].i>=0)
+			{
+				textprintf_ex(screen,spfont,x,y+20*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
+				
+				textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
+				textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
+				textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
+				// textprintf_ex(screen,spfont,x,y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
+				textprintf_ex(screen,spfont,x,y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet:    ");
+				textprintf_ex(screen,spfont,x,y+56*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:    ");
+				textprintf_ex(screen,spfont,x,y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Act:    ");
+				textprintf_ex(screen,spfont,x,y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pkp:    ");
+				textprintf_ex(screen,spfont,x,y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Spr:    ");
+				textprintf_ex(screen,spfont,x,y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Wpn:    ");
+				char itempower[10]; char itemlvl[10]; char itmtile[16]; char itmcset[10]; char itmfam[10];
+				char ascript[10];
+				char pscript[10];
+				char sscript[10];
+				char wscript[10];
+				sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(itemlvl, "%03d", itemsbuf[bii[d->d1].i].fam_type); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(itmtile, "%03d", itemsbuf[bii[d->d1].i].tile); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(itmcset, "%03d", itemsbuf[bii[d->d1].i].csets); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(itmfam, "%03d", itemsbuf[bii[d->d1].i].family); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(ascript, "%03d", itemsbuf[bii[d->d1].i].script); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(pscript, "%03d", itemsbuf[bii[d->d1].i].collect_script); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(sscript, "%03d", itemsbuf[bii[d->d1].i].sprite_script); //Give leading zeros so that we don't have graphical corruption in the display. 
+				sprintf(wscript, "%03d", itemsbuf[bii[d->d1].i].weaponscript); //Give leading zeros so that we don't have graphical corruption in the display. 
+				//textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+				textprintf_ex(screen,spfont,x,y+26*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"T: %d  ",itemsbuf[bii[d->d1].i].tile);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
+				//textprintf_ex(screen,spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"LV: %d  ",itemsbuf[bii[d->d1].i].family_type);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
+				//textprintf_ex(screen,spfont,x,y+38*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"F: %d  ",itemsbuf[bii[d->d1].i].family);
+				
+				//textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+44*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+50*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
+				//Scripts
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+62*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+68*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+74*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
+				textprintf_ex(screen,spfont,x+int32_t(16*(is_large?1.5:1)),y+80*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
+			}
+			
+			// Might be a bit confusing for new users
+			/*textprintf_ex(screen,is_large?font:spfont,x,y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Cost:   ");
+			textprintf_ex(screen,is_large?font:spfont,x+int32_t(16*(is_large?1.5:1)),y+32*(is_large?2:1),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
+			
+			unscare_mouse();
+	}
+	
+	return ret;
 }
 
 int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int32_t ret = jwin_abclist_proc(msg,d,c);
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-    case MSG_CHAR:
-    case MSG_CLICK:
-        scare_mouse();
-        
-        int32_t tile = 0;
-        int32_t cset = 0;
-        tile= wpnsbuf[biw[d->d1].i].newtile;
-        cset= wpnsbuf[biw[d->d1].i].csets&15;
-        int32_t x = d->x + d->w + 4;
-        int32_t y = d->y;
-        int32_t w = 16;
-        int32_t h = 16;
-        float temp_scale = 1;
-        
-        if(is_large)
-        {
-            w = 32;
-            h = 32;
+	if(msg == MSG_XCHAR)
+	{
+		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
+		{
+			int32_t ret = D_USED_CHAR;
+			switch(c>>8)
+			{
+				case KEY_V:
+					paste_wsprite();
+					break;
+				case KEY_C:
+					copy_wsprite();
+					break;
+				case KEY_S:
+					save_wsprite();
+					break;
+				case KEY_L:
+					load_wsprite();
+					break;
+				default: ret = 0;
+			}
+			if(ret) return ret;
+		}
+	}
+	int32_t ret = jwin_abclist_proc(msg,d,c);
+	
+	switch(msg)
+	{
+	case MSG_DRAW:
+	case MSG_CHAR:
+	case MSG_CLICK:
+		scare_mouse();
+		
+		int32_t tile = 0;
+		int32_t cset = 0;
+		tile= wpnsbuf[biw[d->d1].i].newtile;
+		cset= wpnsbuf[biw[d->d1].i].csets&15;
+		int32_t x = d->x + d->w + 4;
+		int32_t y = d->y;
+		int32_t w = 16;
+		int32_t h = 16;
+		float temp_scale = 1;
+		
+		if(is_large)
+		{
+			w = 32;
+			h = 32;
 		temp_scale = 2; // Scale up by 1.5
-        }
-        
-        BITMAP *buf = create_bitmap_ex(8,16,16);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile,0,0,cset,0);
-                
-            stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-            destroy_bitmap(buf);
-            jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-            blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-            destroy_bitmap(bigbmp);
-        }
+		}
+		
+		BITMAP *buf = create_bitmap_ex(8,16,16);
+		BITMAP *bigbmp = create_bitmap_ex(8,w,h);
+		
+		if(buf && bigbmp)
+		{
+			clear_bitmap(buf);
+			
+			if(tile)
+				overtile16(buf, tile,0,0,cset,0);
+				
+			stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
+			destroy_bitmap(buf);
+			jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
+			blit(bigbmp,screen,0,0,x+2,y+2,w,h);
+			destroy_bitmap(bigbmp);
+		}
 	
 	//Display the sprite ID. 
 	if (biw[d->d1].i >= 0)
 	{
 		textprintf_ex(screen, is_large ? font : spfont, x, y + (20 * temp_scale), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
 	}
-        
-        unscare_mouse();
-    }
-    
-    return ret;
+		
+		unscare_mouse();
+	}
+	
+	return ret;
 }
 
 
@@ -20483,6 +20548,10 @@ const char *guylist(int32_t index, int32_t *list_size)
 }
 
 void elist_rclick_func(int32_t index, int32_t x, int32_t y);
+void paste_enemy(int32_t index = -1);
+void copy_enemy(int32_t index = -1);
+void save_enemy(int32_t index = -1);
+void load_enemy(int32_t index = -1);
 DIALOG elist_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -20591,11 +20660,36 @@ static ListData enemy_dlg_list(enemy_viewer, &font);
 
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
 {
+	bool is_screen_select = d->dp == &enemy_dlg_list;
     int32_t ret;
+	
+	if(!is_screen_select && msg == MSG_XCHAR)
+	{
+		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
+		{
+			int32_t ret = D_USED_CHAR;
+			switch(c>>8)
+			{
+				case KEY_V:
+					paste_enemy();
+					break;
+				case KEY_C:
+					copy_enemy();
+					break;
+				case KEY_S:
+					save_enemy();
+					break;
+				case KEY_L:
+					load_enemy();
+					break;
+				default: ret = 0;
+			}
+			if(ret) return ret;
+		}
+	}
     
-    /* copy/paste enemy dialog bug. -Don't change this unless you test it first! -Gleeok */
     if(use_abc_list)
-        ret= jwin_abclist_proc(msg,d,c); // This one's better for the full list
+        ret= jwin_abclist_proc(msg,d,c);
     else
         ret= jwin_list_proc(msg,d,c);
         
