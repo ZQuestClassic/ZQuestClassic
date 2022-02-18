@@ -13,6 +13,23 @@ extern dmap *DMaps;
 static int32_t test_start_dmap = 0, test_start_screen = 0;
 static process_killer test_killer;
 
+static bool do_save()
+{
+	onSave();
+	return true;
+}
+static bool do_save_as()
+{
+	onSaveAs();
+	return true;
+}
+static bool skip = false;
+static bool do_skip()
+{
+	skip = true;
+	return true;
+}
+
 void call_testqst_dialog()
 {
 	if(!first_save) //Require quest file is saved (i.e. not 'Untitled' fresh from File->New)
@@ -23,13 +40,17 @@ void call_testqst_dialog()
 	}
 	if(!saved) //Warn on unsaved changes
 	{
+		skip = false;
 		AlertFuncDialog("Save",
 			"Unsaved changes will not be tested!",
 			3, 0, //3 buttons, where buttons[0] is focused
-			"Save", onSave,
-			"Save As", onSaveAs,
-			"Test", NULL
+			"Save", do_save,
+			"Save As", do_save_as,
+			"Test", do_skip
 		).show();
+		
+		if(!(skip || saved))
+			return;
 	}
 	test_start_dmap = -1;
 	test_start_screen = Map.getCurrScr();
