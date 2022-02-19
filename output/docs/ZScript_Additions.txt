@@ -7113,7 +7113,7 @@ void WriteTile( int layer, int x, int y, int tile, bool is8bit, bool mask);
  *     TO the tile page, overwriting the tile 'tile', either 4 or 8 bit.
  * If 'mask' is true, overlays instead of overwrites
 
-void MaskDraw( int layer, bitmap mask, int color )
+void MaskedDraw( int layer, bitmap mask, int color )
  * Draws 'color' to the bitmap, on any pixels that are non-color-0 on the mask.
 
 void Dither( int layer, bitmap mask, int color, int ditherType, int ditherArg )
