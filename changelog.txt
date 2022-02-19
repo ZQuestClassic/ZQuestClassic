@@ -3,6 +3,14 @@
 
 //Since A103
 
+Fix version warning popup on old quests
+Fix: Subscreen 'Current Item Name' now respects bottle contents.
+	( EmilyV, Feb 18th, 2022 )
+
+Fix test mode prompt not closing on save
+Add 'Note' itemclass; when used, displays a specified message string.
+	( EmilyV, Feb 17th, 2022 )
+
 -Feb 17th nightly
 
 Fixed GUI issues with setting controls
