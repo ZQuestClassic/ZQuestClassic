@@ -260,6 +260,7 @@ public:
     byte undercset;
 	byte blockLayer;
 	zfix step;
+	bool force_many;
     
     movingblock();
 	void clear();

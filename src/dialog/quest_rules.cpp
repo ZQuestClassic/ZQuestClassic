@@ -286,6 +286,11 @@ static const GUI::ListData comboRulesList
 		" function. Note that the push order goes from top to bottom."},
 	{ "Block holes & triggers only trigger on same layer as block", qr_BLOCKHOLE_SAME_ONLY, 
 		"If enabled, pushblocks will only trigger block holes and block triggers on the same layer."},
+	{ "Block Triggers improved locking", qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
+		"Block triggers will not lock blocks in place as they normally do. Blocks"
+		" on the same layer as the trigger will lock normally, but blocks on other layers"
+		" will not lock until all triggers are covered (thus triggering secrets). At this"
+		" time, ALL blocks on triggers will click into place."},
 	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION, 
 		"Internally changes how Combo Animation is handled. Required"
 		" for combodata->OriginalTile."},

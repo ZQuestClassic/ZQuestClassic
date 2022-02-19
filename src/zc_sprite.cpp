@@ -113,7 +113,7 @@ void sprite::check_conveyor()
 
 void movingblock::clear()
 {
-	trigger = false;
+	trigger = bhole = force_many = false;
 	endx=x=endy=y=0;
 	dir=-1;
 	oldflag=0;
@@ -161,6 +161,34 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
     blockmoving=true;
+}
+
+bool is_push_flag(int32_t flag)
+{
+	switch(flag)
+	{
+		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+			return true;
+	}
+	return false;
+}
+
+bool is_push(mapscr* m, int32_t pos)
+{
+	if(is_push_flag(m->sflag[pos]))
+		return true;
+	newcombo const& cmb = combobuf[m->data[pos]];
+	if(is_push_flag(cmb.flag))
+		return true;
+	if(cmb.type == cSWITCHHOOK && (cmb.usrflags&cflag7))
+		return true; //Counts as 'pushblock' flag
+	return false;
 }
 
 bool movingblock::animate(int32_t)
@@ -214,6 +242,9 @@ bool movingblock::animate(int32_t)
 		int32_t f1 = m->sflag[combopos];
 		int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+		bool no_trig_replace = get_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
+		bool trig_hole_same_only = get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY);
+		bool trig_is_layer = false;
 		if(!fallclk && !drownclk)
 		{
 			m->data[combopos]=bcombo;
@@ -226,25 +257,30 @@ bool movingblock::animate(int32_t)
 			{
 				trigger = true;
 			}
-			else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+			else if(!trig_hole_same_only)
 			{
-				for(auto q = 0; q <= maxLayer; ++q)
+				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
-					if(q==blockLayer) continue;
-					if(FFCore.tempScreens[q]->sflag[combopos] == mfBLOCKTRIGGER
-						|| MAPCOMBOFLAG2(q-1,x,y) == mfBLOCKTRIGGER)
+					if(lyr==blockLayer) continue;
+					if(FFCore.tempScreens[lyr]->sflag[combopos] == mfBLOCKTRIGGER
+						|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 					{
 						trigger = true;
-						mapscr* m2 = FFCore.tempScreens[q];
-						m2->data[combopos] = m2->undercombo;
-						m2->cset[combopos] = m2->undercset;
-						m2->sflag[combopos] = 0;
+						trig_is_layer = true;
+						if(!no_trig_replace)
+						{
+							mapscr* m2 = FFCore.tempScreens[lyr];
+							m2->data[combopos] = m2->undercombo;
+							m2->cset[combopos] = m2->undercset;
+							m2->sflag[combopos] = 0;
+						}
 					}
 				}
 			}
 			if(trigger)
 			{
-				m->sflag[combopos]=mfPUSHED;
+				if(!(no_trig_replace && trig_is_layer))
+					m->sflag[combopos]=mfPUSHED;
 			}
 		}
 		
@@ -253,17 +289,17 @@ bool movingblock::animate(int32_t)
 			m->data[combopos]+=1;
 			bhole=true;
 		}
-		else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+		else if(!trig_hole_same_only)
 		{
-			for(auto q = 0; q <= maxLayer; ++q)
+			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
-				if(q==blockLayer) continue;
-				if((FFCore.tempScreens[q]->sflag[combopos]==mfBLOCKHOLE)
-					|| MAPCOMBOFLAG2(q-1,x,y)==mfBLOCKHOLE)
+				if(lyr==blockLayer) continue;
+				if((FFCore.tempScreens[lyr]->sflag[combopos]==mfBLOCKHOLE)
+					|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				{
 					m->data[combopos]+=1;
-					if(q != blockLayer)
-						FFCore.tempScreens[q]->data[combopos]+=1;
+					if(lyr != blockLayer)
+						FFCore.tempScreens[lyr]->data[combopos]+=1;
 					bhole=true;
 					break;
 				}
@@ -283,7 +319,7 @@ bool movingblock::animate(int32_t)
 		{
 			f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			
-			if(!((f2==mfPUSHUDINS && dir<=down) ||
+			if(!(force_many || (f2==mfPUSHUDINS && dir<=down) ||
 					(f2==mfPUSHLRINS && dir>=left) ||
 					(f2==mfPUSHUINS && dir==up) ||
 					(f2==mfPUSHDINS && dir==down) ||
@@ -296,22 +332,37 @@ bool movingblock::animate(int32_t)
 		}
 		if(fallclk||drownclk) return false;
 		
-		if(oldflag>=mfPUSHUDINS&&oldflag&&!trigger&&!bhole)
-		{
-			m->sflag[combopos]=oldflag;
-		}
-		
 		bool didtrigger = trigger;
-		for(auto q = 0; q <= maxLayer; ++q)
+		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 		{
-			for(int32_t i=0; i<176; i++)
+			mapscr* tmp = FFCore.tempScreens[lyr];
+			for(int32_t pos=0; pos<176; pos++)
 			{
-				if(FFCore.tempScreens[q]->sflag[i]==mfBLOCKTRIGGER
-					|| combobuf[FFCore.tempScreens[q]->data[i]].flag==mfBLOCKTRIGGER)
+				if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
+					continue;
+				if(tmp->sflag[pos]==mfBLOCKTRIGGER
+					|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
 				{
-					didtrigger=false;
+					bool found = false;
+					if(no_trig_replace)
+						for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
+						{
+							if(is_push(FFCore.tempScreens[lyr2], pos))
+							{
+								found = true;
+								break;
+							}
+						}
+					if(!found)
+						didtrigger=false;
 				}
 			}
+		}
+		
+		if(oldflag>=mfPUSHUDINS && !(trigger && !(no_trig_replace && trig_is_layer))
+			&& !bhole)
+		{
+			m->sflag[combopos]=oldflag;
 		}
 		
 		//triggers a secret
@@ -332,8 +383,37 @@ bool movingblock::animate(int32_t)
 			(f2==mfPUSHL && dir==left) ||
 			(f2==mfPUSHR && dir==right)) ||
 		   didtrigger)
-		//if(oldflag<mfPUSHUDNS||didtrigger)
 		{
+			if(didtrigger && no_trig_replace)
+			{
+				//Lock in place all blocks on triggers,
+				// and replace triggers with undercombo.
+				// 'no_trig_replace' delays this to now, instead of
+				// happening as each combo is placed.
+				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
+				{
+					mapscr* tmp = FFCore.tempScreens[lyr];
+					for(int32_t pos=0; pos<176; pos++)
+					{
+						if(tmp->sflag[pos]==mfBLOCKTRIGGER
+							|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
+						{
+							for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
+							{
+								if(lyr2 == lyr) continue;
+								if(is_push(FFCore.tempScreens[lyr2], pos))
+								{
+									FFCore.tempScreens[lyr2]->sflag[pos] = mfPUSHED;
+								}
+							}
+							tmp->data[pos] = tmp->undercombo;
+							tmp->cset[pos] = tmp->undercset;
+							tmp->sflag[pos] = 0;
+						}
+					}
+				}
+			}
+			
 			if(hiddenstair(0,true))
 			{
 				sfx(tmpscr->secretsfx);

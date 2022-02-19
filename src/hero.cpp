@@ -7485,8 +7485,13 @@ bool HeroClass::animate(int32_t)
 													if(mtemp.dir < 0)
 														mtemp.dir = getPushDir(cmb.flag);
 													mtemp.clk = 1;
+													if(isFakePush)
+														mtemp.force_many = true;
 													mtemp.animate(0);
-													if(mtemp.bhole || mtemp.trigger)
+													if((mtemp.bhole || mtemp.trigger)
+														&& (fl == mfBLOCKTRIGGER || fl == mfBLOCKHOLE
+															|| comb2.flag == mfBLOCKTRIGGER
+															|| comb2.flag == mfBLOCKHOLE))
 													{
 														scr->data[targpos] = scr->undercombo;
 														scr->cset[targpos] = scr->undercset;
@@ -7494,8 +7499,6 @@ bool HeroClass::animate(int32_t)
 													}
 													else
 													{
-														if(isFakePush && scr->sflag[plpos] == mfPUSHED)
-															scr->sflag[plpos] = srcfl;
 														scr->data[targpos] =  c;
 														scr->cset[targpos] =  cs;
 														if(cmb.usrflags&cflag2)

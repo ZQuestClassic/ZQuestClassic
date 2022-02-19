@@ -3,6 +3,12 @@
 
 //Since A103
 
+New QR: 'Block Triggers improved locking'
+	Block triggers will not lock blocks in place as they normally do. Blocks on the
+	same layer as the trigger will lock normally, but blocks on other layers will not
+	lock until all triggers are covered (thus triggering secrets). At this time,
+	ALL blocks on triggers will click into place.
+	This QR is enabled in the 'Modern' ruleset.
 Add "Counts as 'pushblock'" flag to 'SwitchHook Block' combos.
 	The block will trigger block triggers / block holes when swapped.
 Fix version warning popup on old quests
