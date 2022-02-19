@@ -3579,8 +3579,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 void init_msgstr(MsgStr *str)
 {
-    memset(str->s, 0, MSGSIZE+1);
-    str->nextstring=0;
+	str->s = "";
+	str->nextstring=0;
     str->tile=0;
     str->cset=0;
     str->trans=false;
@@ -3621,21 +3621,20 @@ void init_msgstrings(int32_t start, int32_t end)
     
     if(start==0)
     {
-        strcpy(MsgStrings[0].s,"(None)");
+		MsgStrings[0].s = "(None)";
         MsgStrings[0].listpos = 0;
     }
 }
 
 int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 {
-
 	MsgStr tempMsgString;
 	init_msgstr(&tempMsgString);
 	
 	word temp_msg_count=0;
 	word temp_expansion[16];
 	memset(temp_expansion, 0, 16*sizeof(word));
-	
+	char buf[8193] = {0};
 	if(Header->zelda_version < 0x193)
 	{
 		byte tempbyte;
@@ -3689,13 +3688,13 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			init_msgstr(&tempMsgString);
 			
-			if(!pfread(&tempMsgString.s,73,f,true))
+			if(!pfread(buf,73,f,true))
 			{
 				return qe_invalid;
 			}
 			
-			for(int32_t i=72; i<=MSGSIZE; i++)
-				tempMsgString.s[i]='\0';
+			buf[74] = '\0';
+			tempMsgString.s = buf;
 				
 			if(!p_getc(&tempbyte,f,true))
 			{
@@ -3729,12 +3728,10 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 				}
 			}
-			//tempMsgString.w=(25*8);
-			//tempMsgString.h=(4*8);
 			
 			if(keepdata==true)
 			{
-				memcpy(&MsgStrings[x], &tempMsgString, sizeof(tempMsgString));
+				MsgStrings[x] = tempMsgString;
 			}
 		}
 	}
@@ -3784,19 +3781,25 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//reset the message strings
 		if(keepdata)
 		{
-		if(s_version < 7) set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
-		init_msgstrings(0,msg_strings_size);
+			if(s_version < 7)
+				set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
+			init_msgstrings(0,msg_strings_size);
 		}
-	
-	//zprint2("String version: (%d)", s_version);
 		
 		int32_t string_length=(s_version<2)?73:145;
 		
 		for(int32_t i=0; i<temp_msg_count; i++)
 		{
 			init_msgstr(&tempMsgString);
+			if(s_version > 8)
+			{
+				if(!p_igetl(&string_length,f,true))
+				{
+					return qe_invalid;
+				}
+			}
 			
-			if(!pfread(&tempMsgString.s,string_length,f,true))
+			if(!pfread(buf,string_length,f,true))
 			{
 				return qe_invalid;
 			}
@@ -3808,12 +3811,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			if(s_version<2)
 			{
-		//tempMsgString.w=(25*8);
-				//tempMsgString.h=(4*8);
-				for(int32_t j=72; j<MSGSIZE; j++)
-				{
-					tempMsgString.s[j]='\0';
-				}
+				buf[72] = '\0';
+				tempMsgString.s = buf;
 			}
 			else
 			{
@@ -3821,29 +3820,30 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				// Discard these.
 				if(s_version<3)
 				{
-					for(int32_t j=MSGSIZE-4; j<MSGSIZE; j++)
+					for(int32_t j=140; j<144; j++)
 					{
-						tempMsgString.s[j]='\0';
+						buf[j] = '\0';
+					}
+				}
+				if(string_length > 8193) string_length = 8193;
+				buf[string_length-1]='\0'; //Force-terminate
+				tempMsgString.s = buf;
+				
+				if ( s_version >= 6 )
+				{
+					if(!p_igetl(&tempMsgString.tile,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					if(!p_igetw(&tempMsgString.tile,f,true))
+					{
+						return qe_invalid;
 					}
 				}
 				
-				tempMsgString.s[MSGSIZE]='\0';
-				
-		if ( s_version >= 6 )
-		{
-			if(!p_igetl(&tempMsgString.tile,f,true))
-			{
-				return qe_invalid;
-			}
-		}
-		else
-		{
-			if(!p_igetw(&tempMsgString.tile,f,true))
-			{
-				return qe_invalid;
-			}
-		}
-			
 				if(!p_getc(&tempMsgString.cset,f,true))
 				{
 					return qe_invalid;
@@ -3978,7 +3978,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			if(keepdata==true)
 			{
-				memcpy(&MsgStrings[i], &tempMsgString, sizeof(tempMsgString));
+				MsgStrings[i] = tempMsgString;
+				MsgStrings[i].s = tempMsgString.s;
 			}
 		}
 	}

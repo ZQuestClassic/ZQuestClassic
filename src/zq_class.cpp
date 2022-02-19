@@ -62,7 +62,7 @@ using std::pair;
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
 //const char zqsheader[30]="Zelda Classic String Table\n\x01";
-extern char msgbuf[MSGSIZE*3];
+extern char msgbuf[MSG_NEW_SIZE*8];
 
 extern string zScript;
 
@@ -9995,10 +9995,20 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
         
         for(int32_t i=0; i<msg_count; i++)
         {
-            if(!pfwrite(MsgStrings[i].s,sizeof(MsgStrings[i].s),f))
+			int32_t sz = MsgStrings[i].s.size()+1;
+			if(sz > 8193) sz = 8193;
+			if(!p_iputl(sz, f))
+			{
+				return qe_invalid;
+			}
+			
+            char const* tmpstr = MsgStrings[i].s.c_str();
+			if(!pfwrite((void*)tmpstr,zc_min(strlen(tmpstr),8192),f))
             {
                 return qe_invalid;
             }
+			if(!p_putc(0, f)) //null terminator
+				return qe_invalid;
             
             if(!p_iputw(MsgStrings[i].nextstring,f))
             {

@@ -23,7 +23,7 @@ int32_t strlist_del();
 int32_t addtomsglist(int32_t index);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
-char *parse_msg_str(char *s);
+std::string parse_msg_str(std::string const& s);
 int32_t msg_code_operands(int32_t cc);
 int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_msg_edit_proc(int32_t msg,DIALOG *d,int32_t c);
@@ -40,7 +40,7 @@ int32_t msg_x = 0;
 int32_t msg_y = 0;
 int32_t msgtile = 0;
 int32_t msgcset = 0;
-char msgbuf[MSGSIZE*3];
+char msgbuf[MSG_NEW_SIZE*8];
 
 int32_t bistringcat[256]; // A dropdown menu containing all strings which begin with '--', which serves as a quick shortcut to large string blocks.
 int32_t bistringcat_cnt=-1;
@@ -108,7 +108,7 @@ DIALOG editmsg_dlg[] =
 	{ jwin_win_proc, 44,   0,   296,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
 	{ jwin_tab_proc,    50,     24,   284,  164,  jwin_pal[jcBOXFG], jwin_pal[jcBOX],  0,  0,    0,    0, (void *) editmsg_tabs,  NULL, (void *)editmsg_dlg  },
 	{ jwin_frame_proc,        53,  89-9,   278,  54,   vc(14),  vc(1),  0,       0,          FR_DEEP,             0,       NULL, NULL, NULL },
-	{ d_msg_edit_proc,       61,   48,   240,  16,    vc(12),  vc(1),  0,       0,          MSGSIZE*3,            0,       NULL, NULL, NULL },
+	{ d_msg_edit_proc,       61,   48,   240,  16,    vc(12),  vc(1),  0,       0,          MSG_NEW_SIZE*8,            0,       NULL, NULL, NULL },
 	{ jwin_text_proc,       52,   158,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Next string:", NULL, NULL },
 	// 5
 	{ jwin_droplist_proc,      110,  154,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
@@ -314,10 +314,28 @@ char *strip_extra_spaces(char *string)
 	return string;
 }
 
+void strip_extra_spaces(std::string &string)
+{
+	string = string.substr(string.find_first_not_of(' '), string.find_last_not_of(' '));
+}
+
+
 char *MsgString(int32_t index, bool show_number, bool pad_number)
 {
-	bound(index,0,msg_strings_size-1);
 	static char u[80];
+	bound(index,0,msg_strings_size-1);
+	memset(u, 0, sizeof(u));
+	if(index == 0)
+	{
+		strcpy(u, "  0: (None)");
+		return u;
+	}
+	else if(index == msg_count-1)
+	{
+		sprintf(u, "%3d: <New String>", index);
+		return u;
+	}
+	
 	auto ind = strlist_numerical_sort ? index-1 : MsgStrings[index].listpos-1;
 	bool indent = is_large && index>0 && MsgStrings[addtomsglist(ind)].nextstring==index;
 	sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
@@ -325,8 +343,8 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	
 	char *t = new char[71];
 	memset(t, 0, 71);
-	int32_t i=0;
-	int32_t length=strlen(MsgStrings[index].s);
+	uint32_t i=0;
+	uint32_t length = MsgStrings[index].s.size();
 	//return s;
 	
 	//remove preceding spaces;
@@ -337,7 +355,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
 			{
 				i++;
-				
+				if(i>=length) break; //sanity!
 				if((byte)(MsgStrings[index].s[i])==255)
 					i+=2;
 			}
@@ -346,7 +364,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	
 	int32_t msgptr=0;
 	
-	for(; msgptr<70 && i<MSGSIZE; i++)
+	for(; msgptr<70 && i<MsgStrings[index].s.size(); i++)
 	{
 		if(i<length && MsgStrings[index].s[i]>=32 && MsgStrings[index].s[i]<=126)
 		{
@@ -357,7 +375,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 			for(int32_t numops=msg_code_operands(MsgStrings[index].s[i]-1); numops>0; numops--)
 			{
 				i++;
-				
+				if(i>=length) break; //sanity!
 				if((byte)(MsgStrings[index].s[i])==255)
 					i+=2;
 			}
@@ -368,20 +386,19 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 		t[msgptr]=0;
 		
 	strip_extra_spaces(t);
-	
 	if(show_number)
 		strcat(s, t);
 	else
 		strcpy(s, t);
-		
+	
 	delete[] t;
 	return s;
 }
 
 const char *msgslistImpl(int32_t index, int32_t *list_size, bool numbered)
 {
-	static char buf[80];
-	memset(buf, 0, 80);
+	static std::string buf;
+	buf = "";
 	
 	if(index>=0)
 	{
@@ -402,8 +419,8 @@ const char *msgslistImpl(int32_t index, int32_t *list_size, bool numbered)
 			pos = addtomsglist(index);
 		}
 		
-		memcpy(buf,MsgString(pos, numbered, numbered),80);
-		return buf;
+		buf = MsgString(pos, numbered, numbered);
+		return buf.c_str();
 	}
 	
 	*list_size=msg_count;
@@ -620,7 +637,7 @@ int32_t onStrings()
 			
 			init_msgstr(&(MsgStrings[msg_count]));
 			MsgStrings[msg_count].listpos = msg_count;
-			strcpy(MsgStrings[msg_count++].s,"<New String>");
+			MsgStrings[msg_count++].s = "<New String>";
 		}
 		
 		strlist_dlg[7].dp=msgmore_xstring;
@@ -792,25 +809,26 @@ int32_t onStrings()
 				break;
 				
 			case 5: // Delete
-				char buf[73], shortbuf[73];
-				memset(buf, 0, 73);
+			{
+				std::string buf;
+				char shortbuf[73];
 				memset(shortbuf, 0, 73);
-				strncpy(buf,MsgString(index, true, false),72);
+				buf = MsgString(index, true, false);
 				strip_extra_spaces(buf);
-				shorten_string(shortbuf, buf, font, 72, 288);
-				
-				if(jwin_alert("Confirm Clear","Clear this message string?"," ",shortbuf,"Yes","No",'y',27,lfont)==1)
+				shorten_string(shortbuf, buf.c_str(), font, 72, 288);
+
+				if (jwin_alert("Confirm Clear", "Clear this message string?", " ", shortbuf, "Yes", "No", 'y', 27, lfont) == 1)
 				{
-					saved=false;
-					word pos=MsgStrings[index].listpos;
+					saved = false;
+					word pos = MsgStrings[index].listpos;
 					memset((void*)(&MsgStrings[index]), 0, sizeof(MsgStr));
-					MsgStrings[index].x=24;
-					MsgStrings[index].y=32;
-					MsgStrings[index].w=24*8;
-					MsgStrings[index].h=3*8;
-					MsgStrings[index].listpos=pos; // Since the stuff below isn't being run, do this instead
-					
-					
+					MsgStrings[index].x = 24;
+					MsgStrings[index].y = 32;
+					MsgStrings[index].w = 24 * 8;
+					MsgStrings[index].h = 3 * 8;
+					MsgStrings[index].listpos = pos; // Since the stuff below isn't being run, do this instead
+
+
 					/*// Go through strings with higher listpos and decrement listpos
 					for(int32_t j=MsgStrings[index].listpos; j<msg_count; j++)
 					{
@@ -824,7 +842,7 @@ int32_t onStrings()
 					reset_msgstr(msg_strings_size-1);
 					--msg_count;
 					int32_t sc = vbound(map_count,0,Map.getMapCount())*MAPSCRS;
-					
+
 					for(int32_t s=0; s<sc; s++)                           //room strings
 					{
 						fix_string(TheMaps[s].str, index);
@@ -838,13 +856,13 @@ int32_t onStrings()
 					}
 					fix_string(misc.endstring, index);              //ending string */
 					// Fix the quick-category menu
-					strlist_dlg[17].d1=0;
+					strlist_dlg[17].d1 = 0;
 					build_bistringcat_list();
-					
+
 					refresh(rMENU);
 				}
-				
-				break;
+			}
+			break;
 				
 			case 19: // copy
 				if(index==msg_count-1)
@@ -1067,10 +1085,10 @@ void editmsg(int32_t index, int32_t addAfter)
 	if(ret==6)
 	{
 		saved=false;
-		char *tempstr_ = parse_msg_str(msgbuf);
-		sprintf(MsgStrings[index].s, "%s", tempstr_);
-		delete [] tempstr_;
-		
+		std::string bf = msgbuf;
+		zprint2("Saving '%s'\n", bf.c_str());
+		MsgStrings[index].s = parse_msg_str(bf);
+		zprint2("Saved as '%s'\n", MsgStrings[index].s.c_str());
 		MsgStrings[index].nextstring = addtomsglist(editmsg_dlg[5].d1);
 		MsgStrings[index].font = editmsg_dlg[18].d1;
 		MsgStrings[index].trans = editmsg_dlg[9].flags != 0;
@@ -1254,30 +1272,31 @@ void strip_trailing_spaces(char *str)
 		}
 	}
 }
+void strip_trailing_spaces(std::string& str)
+{
+	str = str.substr(0, str.find_last_not_of(' ')+1);
+}
 
 //Not really the right usage of "parse"...
-char *parse_msg_str(char *s)
+std::string parse_msg_str(std::string const& s)
 {
-	//if(smsg!=NULL) delete [] smsg;
-	char *smsg = new char[MSGSIZE+1];
-	memset(smsg, 0, MSGSIZE+1);
-	int32_t msgptr=0;
+	std::string smsg;
 	
-	for(int32_t i=0; msgptr<MSGSIZE; msgptr++, i++) // But what about int32_t CCs?
+	for(uint32_t i=0; i<s.size() && smsg.size()<MSG_NEW_SIZE; i++)
 	{
 		// Is it a backslash-escaped number?
-		if(*(s+i)=='\\' && i+4<MSGSIZE*3)
+		if(s[i]=='\\')
 		{
 			int32_t msgcc = 0;
 			byte twofiftyfives = 0;
 			byte digits = 0;
 			
 			// Read the entire number
-			while(i+1<MSGSIZE*3 && *(s+i+1)>='0' && *(s+i+1)<='9' && ++digits <= 5)
+			while(i+1<s.size() && s[i+1]>='0' && s[i+1]<='9' && ++digits <= 5)
 			{
 				i++;
 				msgcc*=10; // Move the current number one decimal place right.
-				msgcc+=byte(*(s+i)-'0');
+				msgcc+=byte(s[i]-'0');
 				
 				// A hack to allow multi-byte numbers.
 				if(msgcc >= 254)
@@ -1285,29 +1304,28 @@ char *parse_msg_str(char *s)
 					twofiftyfives = (msgcc/254)<<0;
 				}
 				
-				smsg[msgptr] = (uint8_t)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
+				smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
 			}
 			
 			// A hack to allow multi-byte numbers, continued
-			if(twofiftyfives > 0 && i+2<MSGSIZE*3)
+			if(twofiftyfives > 0)
 			{
-				smsg[++msgptr] = (uint8_t)0xff;
-				smsg[++msgptr] = twofiftyfives;
+				smsg += (char)0xff;
+				smsg += (char)twofiftyfives;
 			}
 		}
 		else
 		{
-			smsg[msgptr] = byte((*(s+i) >= 32 && *(s+i) <=126) ? *(s+i) : ' ');
+			smsg += (char)((s[i] >= 32 && s[i] <=126) ? s[i] : ' ');
 		}
 	}
 	
-	smsg[msgptr] = '\0';
 	return smsg;
 }
 
 //Make sure this is synchronised with parsemsgcode in guys.cpp!
 static int32_t ssc_tile_hei = -1;
-word grab_next_argument(char* s2, int32_t* i)
+word grab_next_argument(std::string const& s2, uint32_t* i)
 {
 	byte val=s2[(*i)++]-1;
 	word ret=val;
@@ -1349,14 +1367,14 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 	int32_t cursor_x = msg_margins[left];
 	int32_t cursor_y = msg_margins[up];
 	
-	int32_t i=0;
+	uint32_t i=0;
 	int32_t msgcolour=misc.colors.msgtext;
 	int32_t shdtype=editmsg_dlg[54].d1;
 	int32_t shdcolor=editmsg_dlg[57].d1;
 	
 	FONT *workfont = getfont(fonta);
 	
-	char *s2 = parse_msg_str(s);
+	std::string s2 = parse_msg_str(s);
 	strip_trailing_spaces(s2);
 	
 	BITMAP *buf = create_bitmap_ex(8,zc_max(w+16,256+16),zc_max(h+16,32+16));
@@ -1394,9 +1412,9 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 		{
 			i=0;
 			
-			while((*(s2+i)) && !done)
+			while(i < s2.size() && !done)
 			{
-				byte s3[145]; // Stores a complete word
+				std::string s3; // Stores a complete word
 				int32_t j;
 				int32_t s3length = 1;
 				int32_t hjump=0;
@@ -1406,10 +1424,9 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 					if(space)
 					{
 						// Control codes and spaces are like one-character words
-						if((*(s2+i)) == ' ' || (*(s2+i)) < 32 || (*(s2+i)) > 126)
+						if((s2[i]) == ' ' || (s2[i]) < 32 || (s2[i]) > 126)
 						{
-							s3[0] = (*(s2+i));
-							s3[1] = 0;
+							s3 = s2[i];
 							hjump = hspace;
 							i++;
 						}
@@ -1419,9 +1436,9 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 					if(!space)
 					{
 						// Complete words finish at spaces or control codes.
-						for(j=i; (*(s2+j)) != ' ' && (*(s2+j)) >= 32 && (*(s2+j)) <= 126 && (*(s2+j)); j++)
+						for(j=i; (s2[j]) != ' ' && (s2[j]) >= 32 && (s2[j]) <= 126 && (s2[j]); j++)
 						{
-							s3[j-i] = (*(s2+j));
+							s3 += s2[j];
 							hjump += hspace;
 							
 							if(s3[j-i]-1 == MSGC_NEWLINE)
@@ -1432,8 +1449,6 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 						}
 						
 						space = true;
-						s3[j-i] = 0;
-						s3length = j-i;
 						i=j;
 					}
 				}
@@ -1448,19 +1463,18 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 					s3[j-i]
 					s3[j-i+1] = 0;
 					i=j;*/
-					s3[0] = (*(s2+i));
+					s3 = s2[i];
 					
 					if(s3[0] >= 32 && s3[0] <= 126) hjump = hspace;
 					
-					s3[1] = 0;
 					i++;
 				}
 				
-				tlength = text_length(workfont, (char*)s3);
+				tlength = text_length(workfont, s3.c_str());
 				
 				if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
 				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
-						? 1 : strcmp((char*)s3," ")!=0))
+						? 1 : (s3 != " ")))
 				{
 					int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
 					ssc_tile_hei = -1;
@@ -1472,7 +1486,7 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 				
 				// Evaluate what control code the character is, and skip over the CC's arguments by incrementing i (NOT k).
 				// Interpret the control codes which affect text display (currently just MSGC_COLOR). -L
-				for(int32_t k=0; k < s3length && !done; k++)
+				for(uint32_t k=0; k < s3.size() && !done; k++)
 				{
 					switch(byte(s3[k]-1))
 					{
@@ -1640,10 +1654,7 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 				hspace = MsgStrings[nextstring].hspace;
 				vspace = MsgStrings[nextstring].vspace;
 				
-				if(s2!=NULL) delete [] s2;
-				
-				s2 = new char[MSGSIZE+1];
-				strcpy(s2, MsgStrings[nextstring].s);
+				s2 = MsgStrings[nextstring].s;
 				strip_trailing_spaces(s2);
 				
 				// Prevent an infinite loop...
@@ -1661,8 +1672,6 @@ void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t 
 		stretch_blit(buf,screen,start_x,start_y,256+16,32+16,x,y,(256+16)*(is_large?2:1),(32+16)*(is_large?2:1));
 		destroy_bitmap(buf);
 	}
-	
-	if(s2!=NULL) delete [] s2;
 }
 
 int32_t mprvfont=0;
@@ -1695,13 +1704,14 @@ static inline bool isSCC(char character, bool lastWasSCC)
 // Load a stored string into msgbuf for editing.
 void encode_msg_str(int32_t index)
 {
-	memset(msgbuf, 0, MSGSIZE*3);
+	memset(msgbuf, 0, sizeof(msgbuf));
 	
 	// Adding a new string?
 	if(index==msg_count)
 		return;
 		
-	char *str=MsgStrings[index].s;
+	char const* str=MsgStrings[index].s.c_str();
+	int len = strlen(str);
 	int32_t strPos=0;
 	int32_t msgbufPos=0;
 	byte nextChar;
@@ -1711,7 +1721,7 @@ void encode_msg_str(int32_t index)
 	int32_t sccNumArgs;
 	bool lastWasSCC=false;
 	
-	while(msgbufPos<MSGSIZE*3 && strPos<MSGSIZE+1)
+	while(msgbufPos<MSG_NEW_SIZE*8 && strPos<MSG_NEW_SIZE+1)
 	{
 		nextChar=str[strPos];
 		
@@ -1749,7 +1759,7 @@ void encode_msg_str(int32_t index)
 				{
 					// If strPos hasn't gone past the end of the string,
 					// just drop the control code.
-					if(strPos>MSGSIZE)
+					if(strPos>=len)
 						return;
 						
 					// If the argument is 253 or less, it's stored in one byte
@@ -1760,7 +1770,7 @@ void encode_msg_str(int32_t index)
 					
 					// If there are at least two more bytes to read, they may
 					// be part of the same argument.
-					if(strPos<=MSGSIZE-2)
+					if(strPos<=len-2)
 					{
 						// If the next byte is 255, add the byte after that
 						// times 254 to the argument.
@@ -1828,12 +1838,7 @@ void rebuild_string_list()
 void reset_msgstr(int32_t index)
 {
 	bound(index,0,msg_strings_size-1);
-	/*
-	  char *s=MsgStrings[index].s;
-	  for(int32_t i=0; i<76; i++)
-	  *(s++)=0;
-	  */
-	memset(MsgStrings[index].s, 0, MSGSIZE+1);
+	MsgStrings[index].s = "";
 	MsgStrings[index].nextstring=0;
 	//memset(MsgStrings[index].expansion, 0, 32);
 }
@@ -1917,7 +1922,7 @@ void build_bistringcat_list()
 	{
 		int32_t m =  addtomsglist(i);
 		
-		if(MsgStrings[m].s[0]=='-' && MsgStrings[m].s[1]=='-')
+		if(MsgStrings[m].s.size() > 1 && MsgStrings[m].s[0]=='-' && MsgStrings[m].s[1]=='-')
 		{
 			bistringcat[bistringcat_cnt]=m;
 			++bistringcat_cnt;

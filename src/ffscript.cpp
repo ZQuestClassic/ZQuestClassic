@@ -19585,15 +19585,9 @@ int32_t do_msgwidth(int32_t msg, char const* str)
 	{
 		return -1;
 	}
-	char *cstr = new char[MSGSIZE+1];
-	strcpy(cstr,MsgStrings[msg].s);
-	for(int32_t q = MSGSIZE; q >= 0; --q) //trim trailing spaces
-	{
-		if(cstr[q]==' ')cstr[q]=0;
-		else if(cstr[q]!=0) break;
-	}
-	int32_t v = text_length(get_zc_font(MsgStrings[msg].font), cstr);
-	delete[] cstr;
+	
+	int32_t v = text_length(get_zc_font(MsgStrings[msg].font),
+		MsgStrings[msg].s.substr(0,MsgStrings[msg].s.find_last_not_of(' ')+1).c_str());
 	return v;
 }
 
@@ -21042,11 +21036,7 @@ void FFScript::do_messagedata_setstring(const bool v)
 	if(BC::checkMessage(ID, "messagesata->Set()") != SH::_NoError)
 		return;
 	
-	string filename_str;
-		
-	ArrayH::getString(arrayptr, filename_str, 73);
-	strncpy(MsgStrings[ID].s, filename_str.c_str(), 72);
-	MsgStrings[ID].s[72]='\0';
+	ArrayH::getString(arrayptr, MsgStrings[ID].s, MSG_NEW_SIZE);
 }
 void FFScript::do_messagedata_getstring(const bool v)
 {
@@ -21056,7 +21046,7 @@ void FFScript::do_messagedata_getstring(const bool v)
 	if(BC::checkMessage(ID, "messagedata->Get()") != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(MsgStrings[ID].s)) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'messagedata->Get()' not large enough\n");
 }
 
@@ -23054,7 +23044,7 @@ void do_getmessage(const bool v)
 	if(BC::checkMessage(ID, "Game->GetMessage") != SH::_NoError)
 		return;
 		
-	if(ArrayH::setArray(arrayptr, string(MsgStrings[ID].s)) == SH::_Overflow)
+	if(ArrayH::setArray(arrayptr, MsgStrings[ID].s) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'Game->GetMessage' not large enough\n");
 }
 
@@ -23068,11 +23058,7 @@ void do_setmessage(const bool v)
 	if(BC::checkMessage(ID, "Game->SetMessage") != SH::_NoError)
 		return;
 	
-	string filename_str;
-	
-	ArrayH::getString(arrayptr, filename_str, 73);
-	strncpy(MsgStrings[ID].s, filename_str.c_str(), 72);
-	MsgStrings[ID].s[72]='\0';
+	ArrayH::getString(arrayptr, MsgStrings[ID].s, MSG_NEW_SIZE);
 }
 
 

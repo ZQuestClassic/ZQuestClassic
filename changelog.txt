@@ -3,6 +3,11 @@
 
 //Since A103
 
+Changed the max length of 'Strings' from '144' to '8192'.
+	Strings no longer start filled with spaces, and unused space does not
+	take up quest file size.
+	( EmilyV, Feb 19th, 2022 )
+
 Slight GUI tweaks for QR dialog
 New QR: 'Block Triggers improved locking'
 	Block triggers will not lock blocks in place as they normally do. Blocks on the

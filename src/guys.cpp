@@ -22260,7 +22260,7 @@ bool runMenuCursor()
 
 bool parsemsgcode()
 {
-	if(msgptr>=MSGSIZE-2) return false;
+	if(msgptr>=MsgStrings[msgstr].s.size()-2) return false;
 	switch(byte(MsgStrings[msgstr].s[msgptr]-1))
 	{
 		case MSGC_NEWLINE:
@@ -22672,7 +22672,7 @@ void wrapmsgstr(char *s3)
 
 // Returns true if the pointer is at a string's
 // null terminator or a trailing space
-bool atend(char *str)
+bool atend(char const* str)
 {
 	int32_t i=0;
 	
@@ -22730,7 +22730,7 @@ void putmsg()
 	}
 	if(wait_advance) return; //Waiting for buttonpress
 	
-	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down])))
+	if(!do_run_menu && (!msgstr || msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down])))
 	{
 		if(!msgstr)
 			msgorig=0;
@@ -22748,7 +22748,7 @@ void putmsg()
 	if(((cBbtn())&&(get_bit(quest_rules,qr_ALLOWMSGBYPASS))) || msgspeed==0)
 	{
 		//finish writing out the string
-		while(msgptr<MSGSIZE && !atend(MsgStrings[msgstr].s+msgptr))
+		while(msgptr<MsgStrings[msgstr].s.size() && !atend(MsgStrings[msgstr].s.c_str()+msgptr))
 		{
 			if(msgspeed && !(cBbtn() && get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
 				goto breakout; // break out if message speed was changed to non-zero
@@ -22866,7 +22866,7 @@ void putmsg()
 			++msgptr;
 			if(wait_advance)
 				return;
-			if(atend(MsgStrings[msgstr].s+msgptr))
+			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
 			{
 				if(MsgStrings[msgstr].nextstring)
 				{
@@ -22914,7 +22914,7 @@ breakout:
 			++msgpos;
 			
 			// The "Continue From Previous" feature
-			if(atend(MsgStrings[msgstr].s+msgptr))
+			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
 			{
 				if(MsgStrings[msgstr].nextstring)
 				{
@@ -22931,7 +22931,7 @@ breakout:
 	
 reparsesinglechar:
 	// Continue printing the string!
-	if(!atend(MsgStrings[msgstr].s+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
+	if(!atend(MsgStrings[msgstr].s.c_str()+msgptr) && cursor_y < msg_h-(oldmargin?0:msg_margins[down]))
 	{
 		if(!do_run_menu && !doing_name_insert && !parsemsgcode())
 		{
@@ -23019,7 +23019,7 @@ reparsesinglechar:
 			doing_name_insert = false;
 			msgptr++;
 			
-			if(atend(MsgStrings[msgstr].s+msgptr))
+			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
 			{
 				if(MsgStrings[msgstr].nextstring)
 				{
@@ -23032,7 +23032,10 @@ reparsesinglechar:
 				}
 			}
 			
-			if((MsgStrings[msgstr].s[msgptr]==' ') && (MsgStrings[msgstr].s[msgptr+1]==' '))
+			if(MsgStrings[msgstr].s.size() > unsigned(msgptr+1)
+				&& (MsgStrings[msgstr].s[msgptr]==' ')
+				&& (MsgStrings[msgstr].s[msgptr+1]==' '))
+			{
 				while(MsgStrings[msgstr].s[msgptr]==' ')
 				{
 					tlength = msgfont->vtable->char_length(msgfont, MsgStrings[msgstr].s[msgptr]) + MsgStrings[msgstr].hspace;
@@ -23052,7 +23055,7 @@ reparsesinglechar:
 					++msgpos;
 					++msgptr;
 					
-					if(atend(MsgStrings[msgstr].s+msgptr))
+					if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
 					{
 						if(MsgStrings[msgstr].nextstring)
 						{
@@ -23065,11 +23068,12 @@ reparsesinglechar:
 						}
 					}
 				}
+			}
 		}
 	}
 	
 	// Done printing the string
-	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MSGSIZE || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s+msgptr)) && !linkedmsgclk)
+	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
 	{
 		if(!do_end_str)
 			while(parsemsgcode()); // Finish remaining control codes

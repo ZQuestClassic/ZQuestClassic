@@ -241,7 +241,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           7
 #define V_RULES           17
-#define V_STRINGS          8
+#define V_STRINGS          9
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS           21
@@ -3400,6 +3400,10 @@ struct zquestheader
 	}
 	int32_t compareDate() const
 	{
+		zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
+			new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
+			new_version_id_date_hour, new_version_id_date_minute,
+			BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
 		if(new_version_id_date_year > BUILDTM_YEAR)
 			return 1;
 		if(new_version_id_date_year < BUILDTM_YEAR)
@@ -3564,6 +3568,7 @@ enum
 };
 
 #define MSGSIZE 144
+#define MSG_NEW_SIZE 8192
 
 #define STRINGFLAG_WRAP			0x01
 #define STRINGFLAG_CONT			0x02
@@ -3575,7 +3580,7 @@ enum
 
 struct MsgStr
 {
-	char s[MSGSIZE+1];
+	std::string s;
 	word nextstring;
 	int32_t tile;
 	byte cset;
@@ -3611,7 +3616,8 @@ struct MsgStr
 	// Copy text data - just s and nextstring
 	void copyText(MsgStr& other)
 	{
-		strncpy(s, other.s, MSGSIZE+1);
+		s = other.s;
+		s.shrink_to_fit();
 		nextstring=other.nextstring;
 	}
 	

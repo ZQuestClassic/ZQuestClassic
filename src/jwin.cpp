@@ -387,7 +387,7 @@ int32_t mix_value(int32_t c1,int32_t c2,int32_t pos,int32_t max)
   }
   */
 
-char *shorten_string(char *dest, char *src, FONT *usefont, int32_t maxchars, int32_t maxwidth)
+char *shorten_string(char *dest, char const* src, FONT *usefont, int32_t maxchars, int32_t maxwidth)
 {
     strncpy(dest,src,maxchars);
     dest[maxchars-1]='\0';

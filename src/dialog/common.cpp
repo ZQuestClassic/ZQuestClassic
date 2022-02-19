@@ -42,7 +42,7 @@ GUI::ListData getStringListData()
 		{
 			return boost::str(boost::format("%1%: %2%")
 				% msgMap[index]
-				% MsgStrings[msgMap[index]].s);
+				% MsgStrings[msgMap[index]].s.c_str());
 		},
 		[&msgMap](size_t index)
 		{

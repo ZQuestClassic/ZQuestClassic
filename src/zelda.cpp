@@ -309,7 +309,7 @@ bool ewind_restart=false;
 
 word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msgpos = 0,	// screen position of the next character.
-         msgptr = 0,	// position within the string of the next character. <MSGSIZE.
+         msgptr = 0,	// position within the string of the next character.
          msgcolour = 0,	// colour to use for the displayed text.
          msgspeed = 0,	// delay between each character (5 = default).
          msg_w = 0,

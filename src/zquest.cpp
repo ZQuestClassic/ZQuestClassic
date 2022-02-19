@@ -5574,9 +5574,9 @@ void drawpanel(int32_t pnl)
         case m_guy:
         {
             set_clip_rect(menu1,panel[3].x,panel[3].y,panel[3].x+panel[3].w-5,panel[3].y+46);
-            char buf[MSGSIZE+1], shortbuf[MSGSIZE+1];
+            char buf[145], shortbuf[145];
             strncpy(buf,MsgString(scr->str, true, false),72);
-            buf[MSGSIZE] = '\0';
+            buf[144] = '\0';
             
             if((scr->str)==0)
             {
