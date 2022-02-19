@@ -31,8 +31,8 @@ void QRPanel::loadList(GUI::ListData qrlist)
 	assert(init_qrs);
 	size_t q = 0;
 	int32_t tabnum = 1;
-	if(qrlist.size() <= qrCount+2) //If it can fit without a tabpanel, allow it to
-		qrCount+=2;
+	if(qrlist.size() <= qrCount+1) //If it can fit without a tabpanel, allow it to
+		++qrCount;
 	while(q < qrlist.size())
 	{
 		std::shared_ptr<Grid> content = Grid::rows(2);
@@ -64,7 +64,8 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			}
 			cbox->setHAlign(0.0);
 			ibtn->setHAlign(1.0);
-			cbox->setPadding(0_px);
+			cbox->setRightPadding(0_px);
+			cbox->setVPadding(2_px);
 			ibtn->setPadding(0_px);
 			ibtn->overrideWidth(2_em);
 			ibtn->setForceFitHei(true); //fit the height of the cbox

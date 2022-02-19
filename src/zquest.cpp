@@ -1016,7 +1016,7 @@ int32_t onTestQst()
 
 int32_t onRulesDlg()
 {
-	call_qr_dialog((is_large?20:13), set_rules);
+	call_qr_dialog((is_large?21:12), set_rules);
 	return D_O_K;
 }
 
