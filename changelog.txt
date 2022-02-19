@@ -3,6 +3,8 @@
 
 //Since A103
 
+Add "Counts as 'pushblock'" flag to 'SwitchHook Block' combos.
+	The block will trigger block triggers / block holes when swapped.
 Fix version warning popup on old quests
 Fix: Subscreen 'Current Item Name' now respects bottle contents.
 	( EmilyV, Feb 18th, 2022 )

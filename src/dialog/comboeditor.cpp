@@ -1378,6 +1378,10 @@ void ComboEditorDialog::loadComboType()
 			h_flag[2] = "The combo will 'break' upon swapping, displaying a break sprite and potentially"
 				" dropping an item. Instead of swapping with the combo under the player,"
 				" it will be replaced by the screen's Undercombo.";
+			l_flag[6] = "Counts as 'pushblock'";
+			h_flag[6] = "This combo counts as a 'pushblock' for purposes of switching it onto"
+				" block triggers/holes, though this does not allow it to be pushed"
+				" (unless a push flag is placed on it).";
 			l_attribyte[0] = "Hook Level:";
 			h_attribyte[0] = "The minimum level of SwitchHook that can swap this combo";
 			if(FL(cflag3)) //break info

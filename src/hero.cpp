@@ -7414,8 +7414,14 @@ bool HeroClass::animate(int32_t)
 											newcombo const& comb2 = combobuf[scr->data[plpos]];
 											int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
 											//{Check push status
-											bool isPush = false;
-											switch(srcfl)
+											bool isFakePush = false;
+											if(cmb.type == cSWITCHHOOK)
+											{
+												if(cmb.usrflags&cflag7) //counts as 'pushblock'
+													isFakePush = true;
+											}
+											bool isPush = isFakePush;
+											if(!isPush) switch(srcfl)
 											{
 												case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
 												case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
@@ -7488,6 +7494,8 @@ bool HeroClass::animate(int32_t)
 													}
 													else
 													{
+														if(isFakePush && scr->sflag[plpos] == mfPUSHED)
+															scr->sflag[plpos] = srcfl;
 														scr->data[targpos] =  c;
 														scr->cset[targpos] =  cs;
 														if(cmb.usrflags&cflag2)
@@ -9053,6 +9061,7 @@ void HeroClass::doSwitchHook(byte style)
 			newcombo const& comb2 = combobuf[FFCore.tempScreens[q]->data[plpos]];
 			int32_t fl1 = FFCore.tempScreens[q]->sflag[hooked_combopos],
 				fl2 = FFCore.tempScreens[q]->sflag[plpos];
+			bool isPush = false;
 			if(isSwitchHookable(cmb))
 			{
 				if(cmb.type == cSWITCHHOOK)
@@ -9077,7 +9086,11 @@ void HeroClass::doSwitchHook(byte style)
 						}
 					}
 					else
+					{
 						hooked_layerbits |= 1<<(q+8); //Swapping BACK
+						if(cmb.usrflags&cflag7) //counts as 'pushblock'
+							isPush = true;
+					}
 				}
 				else if(isCuttableType(cmb.type))
 				{
@@ -9112,8 +9125,7 @@ void HeroClass::doSwitchHook(byte style)
 					hooked_layerbits &= ~(0x101<<q); //Can't swap at all, locked in place
 					continue;
 				}
-				bool isPush = false;
-				switch(fl1)
+				if(!isPush) switch(fl1)
 				{
 					case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
 					case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
