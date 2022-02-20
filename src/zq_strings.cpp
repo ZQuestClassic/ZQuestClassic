@@ -108,7 +108,7 @@ DIALOG editmsg_dlg[] =
 	{ jwin_win_proc, 44,   0,   296,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
 	{ jwin_tab_proc,    50,     24,   284,  164,  jwin_pal[jcBOXFG], jwin_pal[jcBOX],  0,  0,    0,    0, (void *) editmsg_tabs,  NULL, (void *)editmsg_dlg  },
 	{ jwin_frame_proc,        53,  89-9,   278,  54,   vc(14),  vc(1),  0,       0,          FR_DEEP,             0,       NULL, NULL, NULL },
-	{ d_msg_edit_proc,       61,   48,   240,  16,    vc(12),  vc(1),  0,       0,          MSG_NEW_SIZE*8,            0,       NULL, NULL, NULL },
+	{ d_msg_edit_proc,       61,   38,   240,  32,    vc(12),  vc(1),  0,       0,          MSG_NEW_SIZE*8,            0,       NULL, NULL, NULL },
 	{ jwin_text_proc,       52,   158,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Next string:", NULL, NULL },
 	// 5
 	{ jwin_droplist_proc,      110,  154,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
@@ -1029,14 +1029,18 @@ void editmsg(int32_t index, int32_t addAfter)
 		if(editmsg_dlg[0].d1<2)
 		{
 			editmsg_dlg[0].d1 = 2;
-			editmsg_dlg[3].h = 24;
+			editmsg_dlg[3].h = 48;//24;
 			editmsg_dlg[2].x+=3;
 			editmsg_dlg[2].y+=3;
 			editmsg_dlg[2].w-=3;
 			editmsg_dlg[2].h-=3;
 		}
 	}
-	
+	else
+	{
+		editmsg_dlg[3].h = 16;
+		editmsg_dlg[3].y += 10;
+	}
 	if(addAfter<=0) // Not <0 - wouldn't want to set message 0's next string
 		editmsg_dlg[32].proc=d_dummy_proc;
 	
@@ -2066,7 +2070,7 @@ int32_t d_msg_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 	else if(msg==MSG_START)
 	{
 		//hack to counteract jwin_edit_proc's automatic setting of the cursor to the far right
-		d->d2=0;
+		//d->d2=0;
 	}
 	
 	return ret;
