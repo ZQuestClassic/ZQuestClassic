@@ -919,11 +919,11 @@ void ComboEditorDialog::loadComboType()
 			l_flag[8] = "Can't use from top";
 			h_flag[8] = "Cannot be activated standing to the top side if checked";
 			l_flag[9] = "Can't use from bottom";
-			h_flag[8] = "Cannot be activated standing to the bottom side if checked";
+			h_flag[9] = "Cannot be activated standing to the bottom side if checked";
 			l_flag[10] = "Can't use from left";
-			h_flag[8] = "Cannot be activated standing to the left side if checked";
+			h_flag[10] = "Cannot be activated standing to the left side if checked";
 			l_flag[11] = "Can't use from right";
-			h_flag[8] = "Cannot be activated standing to the right side if checked";
+			h_flag[11] = "Cannot be activated standing to the right side if checked";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the chest will trigger it.";
@@ -934,11 +934,11 @@ void ComboEditorDialog::loadComboType()
 			l_flag[8] = "Can't use from top";
 			h_flag[8] = "Cannot be activated standing to the top side if checked";
 			l_flag[9] = "Can't use from bottom";
-			h_flag[8] = "Cannot be activated standing to the bottom side if checked";
+			h_flag[9] = "Cannot be activated standing to the bottom side if checked";
 			l_flag[10] = "Can't use from left";
-			h_flag[8] = "Cannot be activated standing to the left side if checked";
+			h_flag[10] = "Cannot be activated standing to the left side if checked";
 			l_flag[11] = "Can't use from right";
-			h_flag[8] = "Cannot be activated standing to the right side if checked";
+			h_flag[11] = "Cannot be activated standing to the right side if checked";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the signpost will trigger it.";
