@@ -6857,17 +6857,44 @@ bool HeroClass::animate(int32_t)
 	
 	if(z<=8)
 	{
-		bool g1 = isGrassType(COMBOTYPE(x,y+15)), g2 = isGrassType(COMBOTYPE(x+15,y+15));
-		if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
+		if (get_bit(quest_rules, qr_GRASS_SENSITIVE))
 		{
-			g1 = g1 || isGrassType(COMBOTYPEL(1,x,y+15)) || isGrassType(COMBOTYPEL(2,x,y+15));
-			g2 = g2 || isGrassType(COMBOTYPEL(1,x+15,y+15)) || isGrassType(COMBOTYPEL(2,x+15,y+15));
-		}
-		if(g1 && g2)
-		{
-			if(decorations.idCount(dTALLGRASS)==0)
+			bool g1 = isGrassType(COMBOTYPE(x+4,y+15)), g2 = isGrassType(COMBOTYPE(x+11,y+15)), g3 = isGrassType(COMBOTYPE(x+4,y+9)), g4 = isGrassType(COMBOTYPE(x+11,y+9));
+			if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
 			{
-				decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+				g1 = g1 || isGrassType(COMBOTYPEL(1,x+4,y+15)) || isGrassType(COMBOTYPEL(2,x+4,y+15));
+				g2 = g2 || isGrassType(COMBOTYPEL(1,x+11,y+15)) || isGrassType(COMBOTYPEL(2,x+11,y+15));
+				g3 = g3 || isGrassType(COMBOTYPEL(1,x+4,y+9)) || isGrassType(COMBOTYPEL(2,x+4,y+9));
+				g4 = g4 || isGrassType(COMBOTYPEL(1,x+11,y+9)) || isGrassType(COMBOTYPEL(2,x+11,y+9));
+			}
+			if(g1 && g2 && g3 && g4)
+			{
+				if(decorations.idCount(dTALLGRASS)==0)
+				{
+					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+				}
+				int32_t thesfx = combobuf[MAPCOMBO(x+8,y+12)].attribytes[3];
+				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
+					sfx(thesfx,pan((int32_t)x));
+			}
+		}
+		else
+		{
+			bool g1 = isGrassType(COMBOTYPE(x,y+15)), g2 = isGrassType(COMBOTYPE(x+15,y+15));
+			if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
+			{
+				g1 = g1 || isGrassType(COMBOTYPEL(1,x,y+15)) || isGrassType(COMBOTYPEL(2,x,y+15));
+				g2 = g2 || isGrassType(COMBOTYPEL(1,x+15,y+15)) || isGrassType(COMBOTYPEL(2,x+15,y+15));
+			}
+			if(g1 && g2)
+			{
+				if(decorations.idCount(dTALLGRASS)==0)
+				{
+					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+				}
+				int32_t thesfx = combobuf[MAPCOMBO(x+8,y+15)].attribytes[3];
+				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
+					sfx(thesfx,pan((int32_t)x));
 			}
 		}
 	}
@@ -6914,6 +6941,9 @@ bool HeroClass::animate(int32_t)
 					else damageovertimeclk = -1;
 				}
 				else damageovertimeclk = -1;
+				int32_t thesfx = combobuf[watercheck].attribytes[0];
+				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
+					sfx(thesfx,pan((int32_t)x));
 			}
 		}
 	}
@@ -6948,6 +6978,9 @@ bool HeroClass::animate(int32_t)
 				else damageovertimeclk = -1;
 			}
 			else damageovertimeclk = -1;
+			int32_t thesfx = combobuf[watercheck].attribytes[0];
+			if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
+				sfx(thesfx,pan((int32_t)x));
 		}
 	}
 	
@@ -20259,20 +20292,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 				tmpscr->data[stepnext]++;
 			}
 		}
-	}
-	else if(type==cTALLGRASS||type==cTALLGRASSTOUCHY||type==cTALLGRASSNEXT)
-	{ 
-	//We probably only want to do this when the player is moving.
-	int32_t thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[2];
-	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-		sfx(thesfx,pan((int32_t)x));
-	}
-	else if(type==cSHALLOWWATER)
-	{ 
-	//We probably only want to do this when the player is moving.
-	int32_t thesfx = combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0];
-	if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-		sfx(thesfx,pan((int32_t)x));
 	}
 	else stepnext = -1;
 	

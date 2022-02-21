@@ -336,6 +336,11 @@ static const GUI::ListData comboRulesList
 		" used to check if the Player should swim/drown. If disabled,"
 		" you can get situations where you're swimming but the shallow"
 		" water graphic displays."},
+	{ "New Tall Grass Detection", qr_GRASS_SENSITIVE, 
+		"When enabled, Tall Grass will use the same collision"
+		" used to check if the Player should swim/drown. If disabled,"
+		" you can get situations where you're swimming but the tall"
+		" grass graphic displays."},
 	{ "Better Sideview Damage Combo Detection", qr_LESS_AWFUL_SIDESPIKES, 
 		"When enabled, damage combos in sideview will only do their"
 		" check if the Player is standing on solid ground and is"

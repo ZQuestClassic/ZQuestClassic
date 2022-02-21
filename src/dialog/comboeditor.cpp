@@ -719,8 +719,10 @@ void ComboEditorDialog::loadComboType()
 			}
 			l_flag[1] = "Set Dropset";
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			l_flag[2] = "Custom SFX";
+			l_flag[2] = "Custom Slash SFX";
 			h_flag[2] = "Specify a custom slash SFX";
+			l_attribyte[3] = "Walking Sound:";
+			h_attribyte[3] = "The SFX to play when the player walks through this combo. If 0, no sound is played.";
 			if(FL(cflag2))
 			{
 				l_flag[10] = "Specific Item";
@@ -972,6 +974,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
 			l_flag[2] = "Custom SFX";
 			h_flag[2] = "Specify a custom slash SFX";
+			l_attribyte[3] = "Walking Sound:";
+			h_attribyte[3] = "The SFX to play when the player walks through this combo. If 0, no sound is played.";
 			if(FL(cflag2))
 			{
 				l_flag[10] = "Specific Item";
