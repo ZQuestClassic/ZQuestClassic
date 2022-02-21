@@ -1266,6 +1266,335 @@ d->dp = (char*)"255";
 elseif (x < 0 ) d->dp = (char*)"0";
 */
 
+int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	if(d->flags & D_HIDDEN)
+	{
+		switch(msg)
+		{
+			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
+				return D_O_K;
+		}
+	}
+	if(d->h < 2+((text_height(d->dp2 ? (FONT*)d->dp2 : font)+2)*2))
+		return jwin_edit_proc(msg, d, c);
+	static char nullbuf[2];
+	sprintf(nullbuf, " ");
+	int32_t f, l, p, w, x, y, fg, bg;
+	int32_t lastSpace = -1;
+	char *s;
+	char buf[2] = {0,0};
+	
+	if(d->dp==NULL)
+	{
+		d->dp=(void *)nullbuf;
+	}
+	
+	s = (char*)d->dp;
+	l = (int32_t)strlen(s);
+	
+    if (d->d2 > l)
+        d->d2 = l;
+    else if (d->d2 < 0)
+        d->d2 = 0;
+	FONT *oldfont = font;
+	if(d->dp2)
+		font = (FONT*)d->dp2;
+	
+	auto* char_length = font->vtable->char_length;
+	std::vector<size_t> lines;
+	x = 0;
+	
+	y = d->y + 2;
+	size_t ind = 0;
+	int32_t yinc = text_height(font)+2;
+	int32_t maxy = y;
+	size_t maxlines = 1;
+	while(maxy+yinc < d->y+d->h-3)
+	{
+		maxy += yinc;
+		++maxlines;
+	}
+	size_t half_width = (maxlines-1)/2;
+	size_t line_scroll = 0;
+    size_t focused_line = size_t(-1);
+	switch(msg)
+	{
+		//Only these messages need these calculations, so save processing.
+		case MSG_DRAW:
+		case MSG_CLICK:
+		case MSG_CHAR:
+		{
+			for(auto q = 0; q <= l; ++q)
+			{
+				char c = s[q] ? s[q] : ' ';
+				x += char_length(font, c);
+				if(x > d->w - 6)
+				{
+					// Line's too long, break
+					if(lastSpace >= 0)
+					{
+						q = lastSpace+1;
+						lines.push_back(q);
+						lastSpace = -1;
+					}
+					else
+					{
+						lines.push_back(q);
+					}
+					x = 0;
+					--q; //counteract increment
+				}
+				else if(c == ' ')
+					lastSpace = q;
+			}
+			if(lines.back() != l+1)
+				lines.push_back(l+1);
+			for(size_t line = 0; line < lines.size(); ++line)
+			{
+				if(size_t(d->d2) < lines[line]) //should ALWAYS execute once
+				{
+					focused_line = line;
+					break;
+				}
+			}
+            if (focused_line >= lines.size())
+                focused_line = lines.size() - 1;
+			if(maxlines >= lines.size() || focused_line <= half_width)
+				line_scroll = 0;
+			else if(lines.size()-maxlines+half_width < focused_line)
+				line_scroll = lines.size()-maxlines+half_width-1;
+			else
+				line_scroll = focused_line - half_width;
+		}
+	}
+	font = oldfont; //in case of early return, need to reset here
+	switch(msg)
+	{
+		case MSG_START:
+			d->d2 = (int32_t)strlen((char*)d->dp);
+			break;
+			
+		case MSG_DRAW:
+		{
+			if(d->dp2)
+				font = (FONT*)d->dp2;
+			if(d->flags & D_DISABLED)
+			{
+				fg = scheme[jcDISABLED_FG];
+				bg = scheme[jcDISABLED_BG];
+			}
+			else if(d->flags & D_READONLY)
+			{
+				fg = scheme[jcALT_TEXTFG];
+				bg = scheme[jcALT_TEXTBG];
+			}
+			else
+			{
+				fg = scheme[jcTEXTFG];
+				bg = scheme[jcTEXTBG];
+			}
+			
+			//Fill the BG
+			rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, bg);
+			
+			//Now the text
+			for(size_t line = line_scroll; s[ind] && line < (line_scroll+maxlines); ++line, y+=yinc)
+			{
+				x = 3;
+				for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+				{
+					char c = s[ind] ? s[ind] : ' ';
+					w = char_length(font, c);
+					f = ((ind == d->d2) && (d->flags & D_GOTFOCUS));
+					buf[0] = c;
+					textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
+					x += w;
+				}
+			}
+				
+			jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
+			font = oldfont;
+			break;
+		}
+			
+		case MSG_CLICK:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			if(d->dp2)
+				font = (FONT*)d->dp2;
+			
+			bool found = false;
+			for(size_t line = line_scroll; line < lines.size() && line < (line_scroll + maxlines); ++line, y+=yinc)
+			{
+				if(gui_mouse_y() >= y+yinc)
+					continue;
+				x = d->x+3;
+				for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+				{
+					if(x >= gui_mouse_x())
+					{
+						d->d2 = ind;
+						found = true;
+						break;
+					}
+					x += char_length(font, s[ind]);
+				}
+				break;
+			}
+			if(!found)
+				d->d2 = l;
+			
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			font = oldfont;
+			break;
+		}
+		
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+		case MSG_KEY:
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			return D_WANTFOCUS;
+			
+		case MSG_CHAR:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			char c2 = c>>8;
+			if(c2 == KEY_LEFT)
+			{
+				if(d->d2 > 0) d->d2--;
+			}
+			else if(c2 == KEY_RIGHT)
+			{
+				if(d->d2 < l) d->d2++;
+			}
+			else if(c2 == KEY_UP || c2 == KEY_DOWN)
+			{
+				size_t line = focused_line + (c2 == KEY_UP ? -1 : 1);
+				if(!focused_line && c2 == KEY_UP)
+					d->d2 = 0;
+				else if(line >= lines.size())
+					d->d2 = l;
+				else
+				{
+					if(d->dp2)
+						font = (FONT*)d->dp2;
+                    x = d->x + 3;
+					for(ind = focused_line ? lines[focused_line-1] : 0; ind < lines[focused_line]; ++ind)
+					{
+						w = char_length(font, s[ind]);
+						if(ind < size_t(d->d2))
+							x += w;
+						else
+						{
+							x += w / 2;
+							break;
+						}
+					}
+					
+					int32_t tx = d->x+3;
+					bool done = false;
+					for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+					{
+						tx += char_length(font, s[ind] ? s[ind] : ' ');
+						if(tx < x)
+							continue;
+						d->d2 = ind;
+						done = true;
+						break;
+					}
+					font = oldfont;
+					if(!done)
+					{
+						d->d2 = (c2 == KEY_UP) ? 0 : lines[line]-1;
+					}
+				}
+			}
+			else if(c2 == KEY_HOME)
+			{
+				d->d2 = 0;
+			}
+			else if(c2 == KEY_END)
+			{
+				d->d2 = l;
+			}
+			else if(c2 == KEY_DEL)
+			{
+				if(d->d2 < l)
+				{
+					for(p=d->d2; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(c2 == KEY_BACKSPACE)
+			{
+				if(d->d2 > 0)
+				{
+					d->d2--;
+					
+					for(p=d->d2; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(c2 == KEY_ENTER)
+			{
+				GUI_EVENT(d, geENTER);
+				if(d->flags & D_EXIT)
+				{
+					scare_mouse();
+					object_message(d, MSG_DRAW, 0);
+					unscare_mouse();
+					return D_CLOSE;
+				}
+				else
+					return D_O_K;
+			}
+			else if(c2 == KEY_TAB)
+			{
+				return D_O_K;
+			}
+			else if(!(d->flags & D_READONLY))
+			{
+				c &= 0xFF;
+				
+				if((c >= 32) && (c <= 255))
+				{
+					if(l < d->d1)
+					{
+						while(l >= d->d2)
+						{
+							s[l+1] = s[l];
+							l--;
+						}
+						
+						s[d->d2] = c;
+						d->d2++;
+
+						GUI_EVENT(d, geCHANGE_VALUE);
+					}
+				}
+				else
+					return D_O_K;
+			}
+			
+			/* if we changed something, better redraw... */
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			return D_USED_CHAR;
+		}
+	}
+	
+	return D_O_K;
+}
+
 /* jwin_edit_proc:
   *  An editable text object (the dp field points to the string). When it
   *  has the input focus (obtained by clicking on it with the mouse), text
@@ -1283,12 +1612,14 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				return D_O_K;
 		}
 	}
+	if(d->h >= 2+((text_height(d->dp2 ? (FONT*)d->dp2 : font)+2)*2))
+		return jwin_vedit_proc(msg, d, c);
     int32_t f, l, p, w, x, y, fg, bg;
     int32_t b;
     int32_t scroll;
     char *s;
     char buf[2];
-    char nullbuf[2];
+    static char nullbuf[2];
     sprintf(nullbuf, " ");
     
     if(d->dp==NULL)
