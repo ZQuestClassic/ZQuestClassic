@@ -4894,9 +4894,9 @@ int32_t mapMaker(BITMAP * _map, PALETTE _mappal)
     do
     {
 #ifdef ALLEGRO_MACOSX
-        snprintf(buf, 200, "../../../zquest_map%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        snprintf(buf, 200, "../../../%szquest_map%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #else
-        snprintf(buf, 200, "zquest_map%05d.%s", ++num, snapshotformat_str[SnapshotFormat][1]);
+        snprintf(buf, 200, "%szquest_map%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 #endif
         buf[199]='\0';
     }
