@@ -10,6 +10,7 @@ extern char *sfx_string[];
 
 #ifdef IS_ZQUEST
 extern miscQdata misc;
+extern const char *enetype_string[eeMAX];
 #define QMisc misc
 #else
 extern miscQdata QMisc;
@@ -121,6 +122,56 @@ ListData ListData::itemclass(bool numbered)
 	}
 	return ls;
 }
+#ifdef IS_ZQUEST
+ListData ListData::enemyclass(bool numbered)
+{
+	map<string, int32_t> types;
+	set<string> typenames;
+	
+	for(int32_t i=0; i<eeMAX; i++)
+	{
+		if (moduledata.enem_type_names[i][0]!=NULL)
+		{
+			if(moduledata.enem_type_names[i][0]=='-') continue;
+			
+			char const* module_str = moduledata.enem_type_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+		else //not set in the module file, so use the default
+		{
+			if(enetype_string[i][0]=='-') continue;
+			if(enetype_string[i][0]==NULL) continue;
+			
+			char const* module_str = enetype_string[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+	}
+	
+	ListData ls;
+	
+	for(auto it = typenames.begin(); it != typenames.end(); ++it)
+	{
+		ls.add(*it, types[*it]);
+	}
+	return ls;
+}
+#endif
 
 ListData ListData::combotype(bool numbered)
 {
@@ -131,13 +182,13 @@ ListData ListData::combotype(bool numbered)
 	{
 		if(moduledata.combo_type_names[i][0] == '-')
 			continue; //Hidden
-        if(moduledata.combo_type_names[i][0])
+		if(moduledata.combo_type_names[i][0])
 		{
-            char const* module_str = moduledata.combo_type_names[i];
-            char* name = new char[strlen(module_str) + 7];
-            if(numbered)
+			char const* module_str = moduledata.combo_type_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
 				sprintf(name, "%s (%03d)", module_str, i);
-            else strcpy(name, module_str);
+			else strcpy(name, module_str);
 			string sname(name);
 			
 			types[sname] = i;

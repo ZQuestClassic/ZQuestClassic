@@ -35,6 +35,7 @@
 #include "zc_malloc.h"
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
+#include "dialog/enemy_editor.h"
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"
 #include "dialog/info.h"
@@ -4681,6 +4682,11 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 
 void edit_enemydata(int32_t index)
 {
+	if(bief_cnt==-1)
+	{
+		build_bief_list();
+	}
+	call_enemy_editor(index);
 	//guysbuf[index].script = 1;
 	char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
 		 frt[8], efr[8], bsp[8];

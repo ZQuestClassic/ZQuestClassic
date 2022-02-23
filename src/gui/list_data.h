@@ -118,6 +118,7 @@ public:
 	
 #ifndef IS_LAUNCHER
 	static ListData itemclass(bool numbered = false);
+	static ListData enemyclass(bool numbered = false);
 	static ListData combotype(bool numbered = false);
 	static ListData mapflag(bool numbered = false);
 	static ListData counters();
