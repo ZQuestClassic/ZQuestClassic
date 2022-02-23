@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [2.55]
+    branches: [2.55-master]
   pull_request: # run on all PRs, not just PRs to a particular branch
 
 jobs:
@@ -24,5 +24,5 @@ jobs:
 
     - run: cp src/metadata/*.h.sig src/metadata/sigs/
     - run: cmake . -A win32
-    - run: cmake --build . --config Debug --verbose --target zquest
-    - run: cmake --build . --config Debug --verbose --target zelda
+    - run: cmake --build . --config Release --verbose --target zquest
+    - run: cmake --build . --config Release --verbose --target zelda
