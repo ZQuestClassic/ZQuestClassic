@@ -291,9 +291,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						{
 							for(int32_t numops=msg_code_operands(s3[k]-1); numops>0; numops--)
 							{
-								i++;
-								
-								if((byte)s2[i]==255)
+								if(++i < s2.size() && (byte)s2[i]==255)
 									i+=2;
 							}
 						}

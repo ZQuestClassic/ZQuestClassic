@@ -4,6 +4,7 @@
 //Since A103
 
 New string editor dialog
+Add QR allowing 'Goto' SCCs to work smarter with the 'Is cont. of prev. string' flag
 	( EmilyV, Feb 25th, 2022 )
 
 Changed the max length of 'Strings' from '144' to '8192'.
