@@ -3,9 +3,15 @@
 
 //Since A103
 
+-Feb 25th nightly
+
 New string editor dialog
 Add QR allowing 'Goto' SCCs to work smarter with the 'Is cont. of prev. string' flag
 	( EmilyV, Feb 25th, 2022 )
+
+Changed Tall Grass and Shallow Water walking sounds to use proper
+	combo collision, new QR for Tall Grass Collision.
+	( Deedee, Feb 20th, 2022 )
 
 Changed the max length of 'Strings' from '144' to '8192'.
 	Strings no longer start filled with spaces, and unused space does not
