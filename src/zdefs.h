@@ -1074,6 +1074,12 @@ enum
 	//42
 	qr_MANHANDLA_BLOCK_SFX, qr_GRASS_SENSITIVE,
 	
+	//50
+	
+	//60
+	
+	//70
+	
 	//ZScript Parser //room for 20 of these
 	//80
 	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
