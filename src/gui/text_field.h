@@ -93,6 +93,8 @@ public:
 	
 	void setFixedPlaces(size_t places);
 	void setSwapType(int32_t newtype);
+	
+	size_t get_str_pos();
 private:
 	std::unique_ptr<char[]> buffer;
 	int32_t startVal;

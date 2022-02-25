@@ -20,7 +20,7 @@
 static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);
 int32_t strlist_del();
-int32_t addtomsglist(int32_t index);
+int32_t addtomsglist(int32_t index, bool allow_numerical_sort = false);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
 std::string parse_msg_str(std::string const& s);
@@ -33,14 +33,14 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
 std::map<int32_t, int32_t> msglistcache;
 
-static ListData strlist_dlg_list(msgslist, &font);
+static ListData strlist_dlg_list(msgslist3, &font);
 static ListData stringcat_dlg_list(stringcatlist, &font);
 MsgStr *curmsgstr = NULL;
 int32_t msg_x = 0;
 int32_t msg_y = 0;
 int32_t msgtile = 0;
 int32_t msgcset = 0;
-char msgbuf[MSG_NEW_SIZE*8];
+char msgbuf[MSGBUF_SIZE];
 
 int32_t bistringcat[256]; // A dropdown menu containing all strings which begin with '--', which serves as a quick shortcut to large string blocks.
 int32_t bistringcat_cnt=-1;
@@ -108,7 +108,7 @@ DIALOG editmsg_dlg[] =
 	{ jwin_win_proc, 44,   0,   296,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
 	{ jwin_tab_proc,    50,     24,   284,  164,  jwin_pal[jcBOXFG], jwin_pal[jcBOX],  0,  0,    0,    0, (void *) editmsg_tabs,  NULL, (void *)editmsg_dlg  },
 	{ jwin_frame_proc,        53,  89-9,   278,  54,   vc(14),  vc(1),  0,       0,          FR_DEEP,             0,       NULL, NULL, NULL },
-	{ d_msg_edit_proc,       61,   38,   240,  32,    vc(12),  vc(1),  0,       0,          MSG_NEW_SIZE*8,            0,       NULL, NULL, NULL },
+	{ d_msg_edit_proc,       61,   38,   240,  32,    vc(12),  vc(1),  0,       0,          MSGBUF_SIZE,            0,       NULL, NULL, NULL },
 	{ jwin_text_proc,       52,   158,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Next string:", NULL, NULL },
 	// 5
 	{ jwin_droplist_proc,      110,  154,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
@@ -330,7 +330,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 		strcpy(u, "  0: (None)");
 		return u;
 	}
-	else if(index == msg_count-1)
+	else if(index == msg_count)
 	{
 		sprintf(u, "%3d: <New String>", index);
 		return u;
@@ -395,7 +395,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	return s;
 }
 
-const char *msgslistImpl(int32_t index, int32_t *list_size, bool numbered)
+const char *msgslistImpl(int32_t index, int32_t *list_size, bool numbered, bool allow_num_sort = true)
 {
 	static std::string buf;
 	buf = "";
@@ -416,7 +416,7 @@ const char *msgslistImpl(int32_t index, int32_t *list_size, bool numbered)
 			pos = res->second;
 		else
 		{
-			pos = addtomsglist(index);
+			pos = addtomsglist(index, allow_num_sort);
 		}
 		
 		buf = MsgString(pos, numbered, numbered);
@@ -436,6 +436,18 @@ const char *msgslist(int32_t index, int32_t *list_size)
 const char *msgslist2(int32_t index, int32_t *list_size)
 {
 	return msgslistImpl(index, list_size, false);
+}
+
+//same as msgslist, but allows numerical indexing if checked
+const char *msgslist3(int32_t index, int32_t *list_size)
+{
+	if(index > -1 && index >= msg_count - 1)
+	{
+		static char b[80] = {0};
+		sprintf(b, "%3d: <New String>", msg_count-1);
+		return b;
+	}
+	return msgslistImpl(index, list_size, true, true);
 }
 
 FONT* getfont(int32_t fonta)
@@ -587,6 +599,7 @@ int32_t strlist_del()
 	return D_O_K;
 }
 
+void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter);
 int32_t onStrings()
 {
 	if(is_large && !strlist_dlg[0].d1)
@@ -603,7 +616,8 @@ int32_t onStrings()
 	sprintf(msgmore_xstring, "%d", zinit.msg_more_x);
 	sprintf(msgmore_ystring, "%d", zinit.msg_more_y);
 	sprintf(msgspeed_string, "%d", zinit.msg_speed);
-	sprintf(template_string, "%d", 0);
+	static int32_t tid = 0;
+	sprintf(template_string, "%d", tid);
 	
 	char tempbuf[50];
 	sprintf(tempbuf, "0");
@@ -646,7 +660,11 @@ int32_t onStrings()
 		strlist_dlg[22].dp=template_string;
 		
 		int32_t ret=zc_popup_dialog(strlist_dlg,2);
-		index=msglistcache[strlist_dlg[2].d1];
+		int32_t pos = strlist_dlg[2].d1;
+		auto res = msglistcache.find(pos);
+		if(res == msglistcache.end())
+			(void)addtomsglist(pos);
+		index=msglistcache[pos];
 		
 		bool doedit=false;
 		int32_t addAfter = -1;
@@ -904,7 +922,10 @@ int32_t onStrings()
 		if(index>0 && doedit)
 		{
 			int32_t lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
-			editmsg(index, addAfter);
+			int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
+			
+			//editmsg(index, addAfter);
+			call_stringedit_dialog(size_t(index), templateID, addAfter);
 			
 			if(MsgStrings[index].listpos!=msg_count) // Created new string
 			{
@@ -926,20 +947,22 @@ int32_t onStrings()
 			refresh(rMENU);
 		}
 	}
-	
+	tid = atoi(static_cast<char*>(strlist_dlg[22].dp));
+	if(tid < 0 || tid >= msg_count)
+		tid = 0;
 	//if(smsg!=NULL) delete [] smsg;
 	return D_O_K;
 }
 
+char namebuf[9] = "[NAME]";
 void editmsg(int32_t index, int32_t addAfter)
 {
 	char setitle[80];
-	static char namebuf[9] = "[NAME]";
 	sprintf(setitle, "String Editor (%d)", index);
 	
 	encode_msg_str(index);
 	
-	if(index==msg_count) // Adding a new message
+	if(index==msg_count-1) // Adding a new message
 	{
 		int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
 		if(templateID>0 && templateID<msg_count)
@@ -1090,9 +1113,7 @@ void editmsg(int32_t index, int32_t addAfter)
 	{
 		saved=false;
 		std::string bf = msgbuf;
-		zprint2("Saving '%s'\n", bf.c_str());
 		MsgStrings[index].s = parse_msg_str(bf);
-		zprint2("Saved as '%s'\n", MsgStrings[index].s.c_str());
 		MsgStrings[index].nextstring = addtomsglist(editmsg_dlg[5].d1);
 		MsgStrings[index].font = editmsg_dlg[18].d1;
 		MsgStrings[index].trans = editmsg_dlg[9].flags != 0;
@@ -1150,7 +1171,7 @@ void editmsg(int32_t index, int32_t addAfter)
 }
 
 // Returns the actual string of a given listpos
-int32_t addtomsglist(int32_t index)
+int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 {
 	if(index==0)
 		return 0; // '(None)' is always at the top
@@ -1160,7 +1181,7 @@ int32_t addtomsglist(int32_t index)
 		
 	int32_t pos = 0;
 	
-	if(strlist_numerical_sort)
+	if(allow_numerical_sort && strlist_numerical_sort)
 	{
 		msglistcache[index] = pos = index;
 	}
@@ -1331,9 +1352,13 @@ std::string parse_msg_str(std::string const& s)
 static int32_t ssc_tile_hei = -1;
 word grab_next_argument(std::string const& s2, uint32_t* i)
 {
+	if(s2.size() <= *i)
+		return 0;
 	byte val=s2[(*i)++]-1;
 	word ret=val;
 	
+	if(s2.size() <= (*i)+1)
+		return ret;
 	// If an argument is succeeded by 255, then it's a three-byte argument -
 	// between 254 and 65535 (or whatever the maximum actually is)
 	if((uint8_t)(s2[(*i)]) == 255)
@@ -1347,7 +1372,7 @@ word grab_next_argument(std::string const& s2, uint32_t* i)
 	return ret;
 }
 
-void put_msg_str(char *s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t start_x, int32_t start_y)
+void put_msg_str(char const* s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t start_x, int32_t start_y)
 {
 	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	ssc_tile_hei = -1;
@@ -1706,15 +1731,10 @@ static inline bool isSCC(char character, bool lastWasSCC)
 }
 
 // Load a stored string into msgbuf for editing.
-void encode_msg_str(int32_t index)
+char* encode_msg_str(std::string const& message)
 {
 	memset(msgbuf, 0, sizeof(msgbuf));
-	
-	// Adding a new string?
-	if(index==msg_count)
-		return;
-		
-	char const* str=MsgStrings[index].s.c_str();
+	char const* str = message.c_str();
 	int len = strlen(str);
 	int32_t strPos=0;
 	int32_t msgbufPos=0;
@@ -1725,12 +1745,12 @@ void encode_msg_str(int32_t index)
 	int32_t sccNumArgs;
 	bool lastWasSCC=false;
 	
-	while(msgbufPos<MSG_NEW_SIZE*8 && strPos<MSG_NEW_SIZE+1)
+	while(msgbufPos<MSGBUF_SIZE && strPos<MSG_NEW_SIZE+1)
 	{
 		nextChar=str[strPos];
 		
 		if(nextChar=='\0')
-			return;
+			return msgbuf;
 			
 		// Most regular text characters get put directly into msgbuf
 		if(!isSCC(nextChar, lastWasSCC))
@@ -1764,7 +1784,7 @@ void encode_msg_str(int32_t index)
 					// If strPos hasn't gone past the end of the string,
 					// just drop the control code.
 					if(strPos>=len)
-						return;
+						return msgbuf;
 						
 					// If the argument is 253 or less, it's stored in one byte
 					// with one added so that it's not null.
@@ -1802,6 +1822,16 @@ void encode_msg_str(int32_t index)
 			lastWasSCC=true;
 		}
 	}
+	return msgbuf;
+}
+char* encode_msg_str(int32_t index)
+{
+	if(index==msg_count) //New string?
+	{
+		memset(msgbuf, 0, sizeof(msgbuf));
+		return msgbuf;
+	}
+	return encode_msg_str(MsgStrings[index].s.c_str());
 }
 
 // Fix the strings if they were broken
@@ -1954,11 +1984,9 @@ const char *stringcatlist(int32_t index, int32_t *list_size)
 
 extern int32_t zqwin_scale;
 
-
-int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t)
 {
-	c=c;
-	char *s=(char*)(d->dp);
+	char const* s = (char*)(d->dp);
 	int32_t w = vbound((int32_t)strtol((char *)editmsg_dlg[19].dp, (char **) NULL, 10),8,512);
 	int32_t h = vbound((int32_t)strtol((char *)editmsg_dlg[21].dp, (char **) NULL, 10),8,512);
 	
@@ -1993,21 +2021,6 @@ int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 	case MSG_CLICK:
 	{
-		/*{
-		int32_t pos = (((gui_mouse_x())-(d->x+8))>>3)+(((gui_mouse_y())-(d->y+16))>>3)*24;
-		int32_t i = 0;
-		while (pos>0 && i<(int32_t)strlen(msgbuf)) {
-			while (msgbuf[i] == '\\') {
-				do {
-					i++;
-				}
-				while(i<(int32_t)strlen(msgbuf) && msgbuf[i] >= '0' && msgbuf[i] <= '9');
-			}
-			pos--;
-			i++;
-		}
-		editmsg_dlg[3].d2 = i;
-		(void)jwin_edit_proc(MSG_DRAW,&editmsg_dlg[3],c);*/
 		int32_t ox = gui_mouse_x();
 		int32_t oy = gui_mouse_y();
 		int32_t cmx = msg_x;

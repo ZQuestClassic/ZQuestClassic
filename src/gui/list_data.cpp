@@ -7,8 +7,9 @@
 extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
-
 #ifdef IS_ZQUEST
+extern const char *msgfont_str[font_max];
+extern const char *shadowstyle_str[sstsMAX];
 extern miscQdata misc;
 #define QMisc misc
 #else
@@ -304,7 +305,6 @@ ListData ListData::sfxnames(bool numbered)
 	return ls;
 }
 
-
 static void load_scriptnames(set<string> &names, map<string, int32_t> &vals,
 	map<int32_t, script_slot_data> scrmap, int32_t count)
 {
@@ -382,6 +382,28 @@ ListData ListData::combodata_script()
 	ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
+	return ls;
+}
+#endif
+#if IS_ZQUEST
+ListData ListData::fonts()
+{
+	ListData ls;
+	for(auto q = 0; q < font_max; ++q)
+	{
+		ls.add(msgfont_str[q], q);
+	}
+	return ls;
+}
+ListData ListData::shadowtypes()
+{
+	ListData ls;
+	
+	for(int32_t q = 0; q < sstsMAX; ++q)
+	{
+		ls.add(shadowstyle_str[q], q);
+	}
+	
 	return ls;
 }
 #endif

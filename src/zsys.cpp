@@ -445,13 +445,13 @@ void zprint(const char * const format,...)
 
 void zprint2(const char * const format,...)
 {
-	char buf[2048];
+	char buf[8192];
 	
 	va_list ap;
 	va_start(ap, format);
 	vsprintf(buf, format, ap);
 	va_end(ap);
-	al_trace("%s",buf);
+	safe_al_trace(buf);
 	
 	if(zconsole)
 	{

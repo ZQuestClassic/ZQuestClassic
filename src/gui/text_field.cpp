@@ -123,7 +123,12 @@ void TextField::setVal(int32_t val)
 std::string_view TextField::getText()
 {
 	if(maxLength > 0)
-		return std::string_view(buffer.get(), maxLength+1);
+	{
+		size_t max = strlen(buffer.get());
+		if(max > maxLength+1)
+			max = maxLength+1;
+		return std::string_view(buffer.get(), max);
+	}
 	else
 		return std::string_view("", 1);
 }
@@ -453,7 +458,7 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	{
 		if(tfType == type::TEXT)
 		{
-			sendMessage(message, std::string_view(buffer.get()));
+			sendMessage(message, getText());
 		}
 		else
 		{
@@ -469,6 +474,14 @@ int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	}
 
 	return -1;
+}
+
+size_t TextField::get_str_pos()
+{
+	size_t len = strlen((char const*)alDialog->dp);
+	if(unsigned(alDialog->d2) > len)
+		return len;
+	return alDialog->d2;
 }
 
 }

@@ -3569,6 +3569,7 @@ enum
 
 #define MSGSIZE 144
 #define MSG_NEW_SIZE 8192
+#define MSGBUF_SIZE (MSG_NEW_SIZE*8)
 
 #define STRINGFLAG_WRAP			0x01
 #define STRINGFLAG_CONT			0x02

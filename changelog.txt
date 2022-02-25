@@ -1,7 +1,10 @@
 // 2.55 Change Log
-// Updated 18th Feb, 2022
+// Updated 25th Feb, 2022
 
 //Since A103
+
+New string editor dialog
+	( EmilyV, Feb 25th, 2022 )
 
 Changed the max length of 'Strings' from '144' to '8192'.
 	Strings no longer start filled with spaces, and unused space does not

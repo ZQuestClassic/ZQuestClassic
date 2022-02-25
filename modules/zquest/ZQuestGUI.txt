@@ -51,6 +51,7 @@ src/gui/tileanim_frame.cpp
 src/gui/palette_frame.cpp
 src/gui/cornerselect.cpp
 src/gui/ddpanel.cpp
+src/gui/msgstr_preview.cpp
 
 src/dialog/paledit.cpp
 src/dialog/set_password.cpp
@@ -78,6 +79,7 @@ src/dialog/palconvert.cpp
 src/dialog/zinfodlg.cpp
 src/dialog/ffc_editor.cpp
 src/dialog/test_quest_dlg.cpp
+src/dialog/string_editor.cpp
 
 ## End of ZQuest GUI module
 )
