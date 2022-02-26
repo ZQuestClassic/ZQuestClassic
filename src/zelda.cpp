@@ -5389,13 +5389,11 @@ int32_t main(int32_t argc, char* argv[])
 		ignoreSideview=false;
 		if(zqtesting_mode)
 		{
-			if(Quit==qCONT)
+			int32_t q = Quit;
+			Quit = 0;
+			if(q==qCONT)
 				cont_game();
-			else
-			{
-				Quit = 0;
-				init_game();
-			}
+			else init_game();
 			Quit = 0;
 		}
 		else titlescreen(load_save);
