@@ -1328,10 +1328,9 @@ std::string parse_msg_str(std::string const& s)
 				{
 					twofiftyfives = (msgcc/254)<<0;
 				}
-				
-				smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
 			}
-			
+			smsg += (char)((msgcc % 254) + 1); // As 0 is null, we must store codes 1 higher than their actual value...
+
 			// A hack to allow multi-byte numbers, continued
 			if(twofiftyfives > 0)
 			{

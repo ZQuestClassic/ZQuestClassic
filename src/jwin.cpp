@@ -49,7 +49,7 @@ using namespace util;
 //#ifdef _ZQUEST_SCALE_
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
-void update_hw_screen();
+void update_hw_screen(bool force);
 //#endif
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;

@@ -33197,9 +33197,9 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
 bool update_hw_pal = false;
-void update_hw_screen()
+void update_hw_screen(bool force)
 {
-	if(myvsync)
+	if(force || myvsync)
 	{
 		if(zqwin_scale > 1)
 		{

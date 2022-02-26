@@ -5616,7 +5616,7 @@ void kb_getkey(DIALOG *d)
     textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
     unscare_mouse();
     
-	update_hw_screen();
+	update_hw_screen(true);
 	
     clear_keybuf();
     int32_t k = next_press_key();

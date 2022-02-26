@@ -5380,5 +5380,7 @@ void load_colorset(int32_t colorset);
 
 #include "process_managment.h"
 
+void update_hw_screen(bool force = false);
+
 #endif                                                      //_ZDEFS_H_
 

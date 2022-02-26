@@ -42,7 +42,7 @@ using std::getline;
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
 extern bool update_hw_pal;
-void update_hw_screen();
+void update_hw_screen(bool force);
 
 CConsoleLoggerEx zscript_coloured_console;
 extern bool is_zquest();
