@@ -10,7 +10,6 @@ extern char *sfx_string[];
 #ifdef IS_ZQUEST
 extern const char *msgfont_str[font_max];
 extern const char *shadowstyle_str[sstsMAX];
-extern miscQdata misc;
 extern const char *enetype_string[eeMAX];
 extern int32_t enemy_weapon_types[];
 extern int32_t enemy_script_weapon_types[];
@@ -18,6 +17,7 @@ extern const char *eweapon_string[wMax-wEnemyWeapons];
 extern const char *script_eweapon_string[10];
 extern const char *eneanim_string[aMAX];
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
+extern miscQdata misc;
 #define QMisc misc
 #else
 extern miscQdata QMisc;
