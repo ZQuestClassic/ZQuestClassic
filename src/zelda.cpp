@@ -601,10 +601,10 @@ volatile int32_t myvsync=0;
 
 bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
-void update_hw_screen()
+void update_hw_screen(bool force)
 {
 	//if(!hw_screen) return;
-	if((!is_sys_pal && !Throttlefps) || myvsync)
+	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
 		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 		if(update_hw_pal && hw_palette)
@@ -5389,13 +5389,11 @@ int32_t main(int32_t argc, char* argv[])
 		ignoreSideview=false;
 		if(zqtesting_mode)
 		{
-			if(Quit==qCONT)
+			int32_t q = Quit;
+			Quit = 0;
+			if(q==qCONT)
 				cont_game();
-			else
-			{
-				Quit = 0;
-				init_game();
-			}
+			else init_game();
 			Quit = 0;
 		}
 		else titlescreen(load_save);

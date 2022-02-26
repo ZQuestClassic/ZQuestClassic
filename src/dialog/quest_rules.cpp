@@ -940,21 +940,6 @@ static const GUI::ListData miscRulesList
 	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
 		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
 		" Y/Ex2 button has no usage outside of scripting."},
-	{ "More Sound Effects", qr_MORESOUNDS,
-		"If enabled, more things use unique sounds. Summoning enemies use the Summon"
-		" SFX instead of the Fire SFX, Fireballs and Rock Weapons have firing sounds,"
-		" Traps make a sound when richocheting, Hammer makes a splash sound when pounding"
-		" water, bushes/flowers/tall grass make a sound when cut, Hammer posts make"
-		" a sound when pounded, the Lens of Truth play a sound when both used and unused,"
-		" Push Blocks make a sound when pushed, Whistle Whirlwinds make a continuous sound when"
-		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Goddess Spells"
-		" (Nayru's Love, Farore's Wind, and Din's Fire) all use sound effects for everything they do."},
-	{ "Fast Heart Refill", qr_FASTFILL,
-		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
-		" If disabled, they will restore half a heart every 22 frames."},
-	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
-		"If enabled, the Life Meter subscreen item will display quarter hearts if the Player"
-		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
 	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG,
 		"If enabled, holding the A button will prevent any message delay from occuring, displaying"
 		" 60 characters per second."},
@@ -972,6 +957,25 @@ static const GUI::ListData miscRulesList
 		" Note that while picking up an item removes the string, it may not remove the Guy Barrier"
 		" depending on whether or not 'Items Disappear During Hold-Up' is checked and depending on"
 		" whether or not picking up an item is what solves the Guy Room."},
+	{ "Goto SCCs respect 'continuation' flag", qr_SCC_GOTO_RESPECTS_CONTFLAG,
+		"If enabled, a 'Goto' type String Control Code that switches to a string with the"
+		" 'Is continuation of previous string' flag set will respect this, displaying"
+		" the text from that string in the SAME message box, rather than a fresh one."},
+	{ "More Sound Effects", qr_MORESOUNDS,
+		"If enabled, more things use unique sounds. Summoning enemies use the Summon"
+		" SFX instead of the Fire SFX, Fireballs and Rock Weapons have firing sounds,"
+		" Traps make a sound when richocheting, Hammer makes a splash sound when pounding"
+		" water, bushes/flowers/tall grass make a sound when cut, Hammer posts make"
+		" a sound when pounded, the Lens of Truth play a sound when both used and unused,"
+		" Push Blocks make a sound when pushed, Whistle Whirlwinds make a continuous sound when"
+		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Goddess Spells"
+		" (Nayru's Love, Farore's Wind, and Din's Fire) all use sound effects for everything they do."},
+	{ "Fast Heart Refill", qr_FASTFILL,
+		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
+		" If disabled, they will restore half a heart every 22 frames."},
+	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
+		"If enabled, the Life Meter subscreen item will display quarter hearts if the Player"
+		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
 	{ "Show Time On Subscreen", qr_TIME,
 		"If enabled, current Game Time can be shown on the subscreen. This displays how long you've"
 		" been playing on that save file. Note that having cheats turned on will prevent the Game Time"

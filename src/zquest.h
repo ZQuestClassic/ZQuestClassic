@@ -1162,7 +1162,7 @@ void fps_callback();
 
 extern BITMAP *hw_screen;
 extern bool update_hw_pal;
-void update_hw_screen();
+void update_hw_screen(bool force);
 
 /********************/
 /******  MAIN  ******/

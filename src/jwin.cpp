@@ -49,7 +49,7 @@ using namespace util;
 //#ifdef _ZQUEST_SCALE_
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
-void update_hw_screen();
+void update_hw_screen(bool force);
 //#endif
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
@@ -1348,7 +1348,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				else if(c == ' ')
 					lastSpace = q;
 			}
-			if(lines.back() != l+1)
+			if(lines.empty() || lines.back() != l+1)
 				lines.push_back(l+1);
 			for(size_t line = 0; line < lines.size(); ++line)
 			{
@@ -1399,7 +1399,9 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, bg);
 			
 			//Now the text
-			for(size_t line = line_scroll; s[ind] && line < (line_scroll+maxlines); ++line, y+=yinc)
+			size_t m = zc_min(line_scroll + maxlines, lines.size());
+			jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
+			for(size_t line = line_scroll; line < m; ++line, y+=yinc)
 			{
 				x = 3;
 				for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
@@ -1413,7 +1415,6 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 			}
 				
-			jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
 			font = oldfont;
 			break;
 		}
@@ -5073,10 +5074,10 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 
 static DIALOG selcolor_dlg[] =
 {
-	{ jwin_win_proc,       0,    0,  300,  59+16*8,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
-	{ jwin_button_proc,   75,  36+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
-	{ jwin_button_proc,  164,  36+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
-	{ jwin_selcolor_proc, 150-64,   30,   16*8,   16*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
+	{ jwin_win_proc,       0,    0,  306,  63+16*8,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
+	{ jwin_button_proc,   75,  40+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
+	{ jwin_button_proc,  164,  40+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
+	{ jwin_selcolor_proc, 156-64,   34,   16*8,   16*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
 	
 	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
 };
@@ -5097,8 +5098,32 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		
 		case MSG_DRAW:
 		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, (d->flags&D_DISABLED) ? jwin_pal[jcDISABLED_BG] : d->d1);
-			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
+			if(!d->d1 || (d->flags&D_DISABLED))
+			{
+				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1,
+					(d->flags&D_DISABLED) ? scheme[jcDISABLED_BG] : vc(0));
+				line(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, vc(15));
+				line(screen, d->x, d->y+d->h-1, d->x+d->w-1, d->y, vc(15));
+				jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_DEEP);
+			}
+			else
+			{
+				int32_t c;
+				switch(d->d1) //special cases
+				{
+					case BLACK:
+						c = vc(0);
+						break;
+					case WHITE:
+						c = vc(15);
+						break;
+					default:
+						c = d->d1;
+						break;
+				}
+				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, c);
+				jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
+			}
 			break;
 		}
 		
@@ -5106,8 +5131,8 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(d->flags&(D_READONLY|D_DISABLED)) break;
 			selcolor_dlg[0].dp2 = lfont;
-			selcolor_dlg[3].bg = jwin_pal[jcBOXFG];
-			selcolor_dlg[3].fg = jwin_pal[jcBOX];
+			selcolor_dlg[3].bg = scheme[jcBOXFG];
+			selcolor_dlg[3].fg = scheme[jcBOX];
 			selcolor_dlg[3].d1 = d->d1;
 			selcolor_dlg[3].d2 = d->d2;
 			if(is_large)
@@ -5125,6 +5150,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			foopal[WHITE] = _RGB(63,63,63);
 			set_palette(foopal);
 			
+			jwin_center_dialog(selcolor_dlg);
 			int32_t val = popup_zqdialog(selcolor_dlg, 3);
 			
 			set_palette(oldpal);

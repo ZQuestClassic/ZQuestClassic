@@ -1049,7 +1049,7 @@ enum
 	qr_ANONE_NOANIM, qr_BLOCKHOLE_SAME_ONLY, qr_SWITCHOBJ_RUN_SCRIPT, qr_ITEMCOMBINE_NEW_PSTR,
 	qr_ITEMCOMBINE_CONTINUOUS, qr_SCC_ITEM_COMBINES_ITEMS, qr_SCROLLING_KILLS_CHARGE, qr_CUSTOMWEAPON_IGNORE_COST,
 	//34
-	qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
+	qr_BLOCKS_DONT_LOCK_OTHER_LAYERS, qr_SCC_GOTO_RESPECTS_CONTFLAG,
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
 	qr_OLD_210_WATER, qr_8WAY_SHOT_SFX, qr_COPIED_SWIM_SPRITES, qr_WRONG_BRANG_TRAIL_DIR,
@@ -1073,6 +1073,12 @@ enum
 	qr_QUAKE_STUNS_LEEVERS, qr_GANON_CANT_SPAWN_ON_CONTINUE, qr_WIZZROBES_DONT_OBEY_STUN, qr_OLD_BUG_NET,
 	//42
 	qr_MANHANDLA_BLOCK_SFX, qr_GRASS_SENSITIVE,
+	
+	//50
+	
+	//60
+	
+	//70
 	
 	//ZScript Parser //room for 20 of these
 	//80
@@ -3569,6 +3575,7 @@ enum
 
 #define MSGSIZE 144
 #define MSG_NEW_SIZE 8192
+#define MSGBUF_SIZE (MSG_NEW_SIZE*8)
 
 #define STRINGFLAG_WRAP			0x01
 #define STRINGFLAG_CONT			0x02
@@ -5372,6 +5379,8 @@ void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
 
 #include "process_managment.h"
+
+void update_hw_screen(bool force = false);
 
 #endif                                                      //_ZDEFS_H_
 

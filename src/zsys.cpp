@@ -42,7 +42,7 @@ using std::getline;
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
 extern bool update_hw_pal;
-void update_hw_screen();
+void update_hw_screen(bool force);
 
 CConsoleLoggerEx zscript_coloured_console;
 extern bool is_zquest();
@@ -445,13 +445,13 @@ void zprint(const char * const format,...)
 
 void zprint2(const char * const format,...)
 {
-	char buf[2048];
+	char buf[8192];
 	
 	va_list ap;
 	va_start(ap, format);
 	vsprintf(buf, format, ap);
 	va_end(ap);
-	al_trace("%s",buf);
+	safe_al_trace(buf);
 	
 	if(zconsole)
 	{

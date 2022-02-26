@@ -269,7 +269,7 @@ bool isSideViewHero(int32_t t = 0);
 //Script Clearing
 void initZScriptGlobalScript(int32_t ID);
 
-void update_hw_screen();
+void update_hw_screen(bool force);
 
 /**********************************/
 /******** Global Variables ********/

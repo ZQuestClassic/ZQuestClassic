@@ -22621,7 +22621,14 @@ bool parsemsgcode()
 		
 switched:
 		int32_t lev = (int32_t)(grab_next_argument());
-		donewmsg(lev);
+		if(lev && get_bit(quest_rules, qr_SCC_GOTO_RESPECTS_CONTFLAG)
+			&& (MsgStrings[lev].stringflags & STRINGFLAG_CONT))
+		{
+			msgstr=lev;
+			msgpos=msgptr=0;
+			msgfont=setmsgfont();
+		}
+		else donewmsg(lev);
 		msgptr--; // To counteract it being incremented after this routine is called.
 		putprices(false);
 		return true;

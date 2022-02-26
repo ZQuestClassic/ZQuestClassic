@@ -113,6 +113,11 @@ public:
 			else ++it;
 		}
 	}
+	
+	static ListData nullData()
+	{
+		return ListData();
+	}
 	//Static constructors for specific lists
 	static ListData numbers(bool none, int32_t start, uint32_t count);
 	
@@ -137,6 +142,10 @@ public:
 	static ListData ffc_script();
 	static ListData lweapon_script();
 	static ListData combodata_script();
+#endif
+#if IS_ZQUEST
+static ListData fonts();
+static ListData shadowtypes();
 #endif
 	
 	static ListData const& deftypes();

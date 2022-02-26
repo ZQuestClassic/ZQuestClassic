@@ -9,9 +9,10 @@ char *MsgString(int32_t index, bool show_number, bool pad_number);
 const char *msgfontlist(int32_t index, int32_t *list_size);
 const char *msgslist(int32_t index, int32_t *list_size);
 const char *msgslist2(int32_t index, int32_t *list_size);
+const char *msgslist3(int32_t index, int32_t *list_size);
 int32_t msg_at_pos(int32_t pos);
 char *strip_extra_spaces(char *string);
-void encode_msg_str(int32_t index);
+char* encode_msg_str(int32_t index);
 
 extern DIALOG strlist_dlg[];
 extern DIALOG editmsg_dlg[];

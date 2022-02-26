@@ -29,6 +29,7 @@
 #include "tileanim_frame.h"
 #include "palette_frame.h"
 #include "cornerselect.h"
+#include "msgstr_preview.h"
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -204,6 +205,11 @@ inline std::shared_ptr<TileFrame> makeTileFrame()
 inline std::shared_ptr<PaletteFrame> makePaletteFrame()
 {
 	return std::make_shared<PaletteFrame>();
+}
+
+inline std::shared_ptr<MsgPreview> makeMsgPreview()
+{
+	return std::make_shared<MsgPreview>();
 }
 
 // Top-level widgets
@@ -449,6 +455,13 @@ ZCGUI_BUILDER_START(PaletteFrame)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(PaletteFrame, PaletteFrame, makePaletteFrame)
+
+ZCGUI_BUILDER_START(MsgPreview)
+	ZCGUI_ACCEPT_PROP(data, setData, MsgStr const*)
+	ZCGUI_ACCEPT_PROP(index, setIndex, int32_t)
+	ZCGUI_ACCEPT_PROP(text, setText, std::string)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(MsgPreview, MsgPreview, makeMsgPreview)
 
 } // namespace GUI::builder
 

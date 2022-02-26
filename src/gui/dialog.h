@@ -11,7 +11,7 @@
 extern bool is_sys_pal;
 void system_pal();
 void game_pal();
-void update_hw_screen();
+void update_hw_screen(bool force);
 #endif
 
 namespace GUI
