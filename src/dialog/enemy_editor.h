@@ -9,6 +9,7 @@
 #include <gui/window.h>
 #include <gui/list_data.h>
 #include <gui/tileanim_frame.h>
+#include <gui/seltile_swatch.h>
 #include <functional>
 #include <string_view>
 #include <map>
@@ -28,11 +29,18 @@ private:
 	EnemyEditorDialog(guydata const& ref, char const* str, int32_t index);
 	EnemyEditorDialog(int32_t index);
 	void loadEnemyClass();
+	void updateCSet(int32_t cset);
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::TileFrame> animFrame;
+	std::shared_ptr<GUI::SelTileSwatch> oldtile, specialtile, newtile;
+	std::shared_ptr<GUI::Checkbox> palbox;
+	std::shared_ptr<GUI::TextField> paltext;
+	PALETTE oldpal;
 	std::string enemyname;
 	int32_t index;
 	GUI::ListData list_enemies;
+	GUI::ListData list_weapons;
+	GUI::ListData list_anim;
+	GUI::ListData list_itemsets;
 	guydata local_enemyref;
 	friend void call_enemy_editor(int32_t index);
 };

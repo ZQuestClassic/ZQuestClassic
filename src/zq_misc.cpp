@@ -794,6 +794,20 @@ const char *eweapon_string[wMax-wEnemyWeapons] =
     "Fireball (Rising)"
 };
 
+const char *script_eweapon_string[10] =
+{
+    "Script 1",
+    "Script 2",
+    "Script 3",
+    "Script 4",
+    "Script 5",
+    "Script 6",
+    "Script 7",
+    "Script 8",
+    "Script 9",
+    "Script 10"
+};
+
 const char *walkmisc1_string[e1tLAST] =
 {
     "1 Shot", "1 (End-Halt)", "Rapid-Fire", "1 (Fast)", "1 (Slanted)", "3 Shots", "4 Shots", "5 Shots", "3 (Fast)", "Breath", "8 Shots", "Summon", "Summon (Layer)"

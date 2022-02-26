@@ -2107,9 +2107,9 @@ int32_t biew_cnt=-1;
 
 char temp_custom_ew_strings[10][40];
 
-static int32_t enemy_weapon_types[]=
+int32_t enemy_weapon_types[]=
 {
-	128, ewFireball,ewArrow,ewBrang,ewSword,
+	0, ewFireball,ewArrow,ewBrang,ewSword,
 	ewRock,ewMagic,ewBomb,ewSBomb,
 	//137
 	ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,
@@ -2119,7 +2119,7 @@ static int32_t enemy_weapon_types[]=
 	
 };
 
-static int32_t enemy_script_weapon_types[]=
+int32_t enemy_script_weapon_types[]=
 {
 	wScript1, wScript2, wScript3, wScript4,
 	//35
@@ -2149,8 +2149,8 @@ void build_biew_list()
 	for(int32_t i = 0; i < 10; i++)
 	{
 		biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[i];
-	biew[biew_cnt].i = enemy_script_weapon_types[i];
-	++biew_cnt;
+		biew[biew_cnt].i = enemy_script_weapon_types[i];
+		++biew_cnt;
 	}
 	al_trace("biew_cnt is: %d\n", biew_cnt);
 	for ( int32_t i = 0; i < biew_cnt; i++ )

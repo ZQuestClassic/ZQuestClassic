@@ -2,6 +2,9 @@
 #include "info.h"
 #include "alert.h"
 #include "../zsys.h"
+#include "../zquest.h"
+#include "../colors.h"
+#include "../pal.h"
 #include <gui/builder.h>
 
 extern char *guy_string[];
@@ -16,18 +19,51 @@ void call_enemy_editor(int32_t index)
 
 EnemyEditorDialog::EnemyEditorDialog(guydata const& ref, char const* str, int32_t index):
 	local_enemyref(ref), enemyname(str), index(index),
-	list_enemies(GUI::ListData::enemyclass())
-{}
+	list_enemies(GUI::ListData::enemyclass()),
+	list_weapons(GUI::ListData::enemyweapons()),
+	list_anim(GUI::ListData::enemyanim()),
+	list_itemsets(GUI::ListData::itemsets())
+{
+	get_palette(oldpal);
+}
 
 EnemyEditorDialog::EnemyEditorDialog(int32_t index):
 	EnemyEditorDialog(guysbuf[index], guy_string[index], index)
 {}
+
+static size_t enmtabs[4] = {0, 0, 0, 0};
+
+//{ Macros
+
+#define ACTION_FIELD_WID 2_em
+
+#define WH_FIELD(txt, mem) \
+Label(textAlign=2,padding = 0_px,text=txt), \
+TextField( \
+	padding = 0_px, forceFitW = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
+	high = 20, val = local_enemyref.mem, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_enemyref.mem = val; \
+	} \
+)
+
+//}
 
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
+	
+	if (local_enemyref.cset == 14)
+	{
+		if(local_enemyref.bosspal>-1)
+		{
+			loadpalset(csBOSS,pSprite(local_enemyref.bosspal));
+		}
+	}
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Enemy Editor (%d): %s", index, enemyname.c_str());
@@ -41,7 +77,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			onClose = message::CANCEL,
 			Column(
 				Row(
-					Rows<2>(padding = 0_px,
+					Rows<3>(padding = 0_px,
 						Label(text = "Name:"),
 						TextField(
 							fitParent = true,
@@ -55,23 +91,319 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								window->setTitle(buf);
 							}
 						),
+						DummyWidget(),
 						Label(text = "Type:"),
-						Row(
-							height = sized(16_px, 21_px),
-							DropDownList(data = list_enemies,
-								fitParent = true, padding = 0_px,
-								selectedValue = local_enemyref.family,
-								onSelectionChanged = message::ENEMYCLASS
-							),
-							Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
-							{
-								/*InfoDialog(ZI.getEnemyClassName(local_enemyref.family),
-									ZI.getEnemyClassHelp(local_enemyref.family)
-								).show();*/
-							})
-						)
+						DropDownList(data = list_enemies,
+							fitParent = true, padding = 0_px,
+							selectedValue = local_enemyref.family,
+							onSelectionChanged = message::ENEMYCLASS
+						),
+						Button(width = 1.5_em, forceFitH = true, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
+						{
+							/*InfoDialog(ZI.getEnemyClassName(local_enemyref.family),
+								ZI.getEnemyClassHelp(local_enemyref.family)
+							).show();*/
+						})
 					)
 				),
+				TabPanel(
+					ptr = &enmtabs[0],
+					TabRef(name = "Basic", TabPanel(
+						ptr = &enmtabs[1],
+						TabRef(name = "Data", Column(
+							framed = true,
+							Row(
+								Column(
+									Rows<7>(
+										DummyWidget(),
+										DummyWidget(),
+										Label(textAlign=1,text="Old"),
+										DummyWidget(),
+										Label(textAlign=1,text="Spec."),
+										DummyWidget(),
+										Label(textAlign=1,text="New"),
+										Button(text = "?", height = 24_lpx,
+										onPressFunc = [&]()
+										{
+											InfoDialog("Tile info",
+												"The tiles used by the enemy. Which tile is used and when depends on the circumstances.\n"
+												"The 'Old' tile is only used if 'Use New Enemy Tiles' is disabled, mainly used for more NES-styled animation.\n"
+												"The 'New' tile is used if 'Use New Enemy Tiles' is enabled, used for more modern animation.\n"
+												"The 'Spec.' tile is used in special circumstances, such as broken shield tiles for walking enemies, Gleeok neck tiles, etc.").show();
+										}),
+										DummyWidget(),
+										oldtile = SelTileSwatch(
+											tile = local_enemyref.tile,
+											cset = (local_enemyref.cset & 0x0F),
+											showvals = false,
+											padding = 0_px,
+											onSelectFunc = [&](int32_t t, int32_t c)
+											{
+												local_enemyref.tile = t;
+												local_enemyref.cset &= 0xF0;
+												local_enemyref.cset |= c&0x0F;
+												updateCSet(c);
+											}
+										),
+										DummyWidget(),
+										specialtile = SelTileSwatch(
+											tile = local_enemyref.s_tile,
+											cset = (local_enemyref.cset & 0x0F),
+											showvals = false,
+											padding = 0_px,
+											onSelectFunc = [&](int32_t t, int32_t c)
+											{
+												local_enemyref.s_tile = t;
+												local_enemyref.cset &= 0xF0;
+												local_enemyref.cset |= c&0x0F;
+												updateCSet(c);
+											}
+										),
+										DummyWidget(),
+										newtile = SelTileSwatch(
+											tile = local_enemyref.e_tile,
+											cset = (local_enemyref.cset & 0x0F),
+											showvals = false,
+											padding = 0_px,
+											onSelectFunc = [&](int32_t t, int32_t c)
+											{
+												local_enemyref.e_tile = t;
+												local_enemyref.cset &= 0xF0;
+												local_enemyref.cset |= c&0x0F;
+												updateCSet(c);
+											}
+										),
+										Button(forceFitH = true, padding = 0_px, text = "?",
+										onPressFunc = [&]()
+										{
+											InfoDialog("Width and Height",
+												"The width and height of the protected tile block for Old, Special, and New animation, respectively.\n"
+												"The protected tile block will give a warning whenever you attempt to copy over or delete the block.\n"
+												"Max width is 20, max height is 20.").show();
+										}),
+										WH_FIELD("W:", width),
+										WH_FIELD("W:", s_width),
+										WH_FIELD("W:", e_width),
+										DummyWidget(),
+										WH_FIELD("H:", height),
+										WH_FIELD("H:", s_height),
+										WH_FIELD("H:", e_height)
+									)
+								),
+								Column(
+									Rows<4>(
+										Label(text="Health:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											high = 32767,
+											val = local_enemyref.hp,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.hp = val;
+											}
+										),
+										Label(text="Random Rate:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											high = 16,
+											val = local_enemyref.rate,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.rate = val;
+											}
+										),
+										Label(text="Contact Damage:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											high = 32767,
+											val = local_enemyref.dp,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.dp = val;
+											}
+										),
+										Label(text="Halt Rate:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											high = 16,
+											val = local_enemyref.hrate,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.hrate = val;
+											}
+										),
+										Label(text="Weapon Damage:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											high = 32767,
+											val = local_enemyref.wdp,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.wdp = val;
+											}
+										),
+										Label(text="Homing Factor:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -255,
+											high = 255,
+											val = local_enemyref.homing,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.homing = val;
+											}
+										),
+										Label(text="Hunger:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -4,
+											high = 4,
+											val = local_enemyref.grumble,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.grumble = val;
+											}
+										),
+										Label(text="Step:", hAlign = 1.0),
+										TextField(
+											width = 80_lpx,
+											type = GUI::TextField::type::INT_DECIMAL,
+											high = 1000,
+											val = local_enemyref.step,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_enemyref.step = val;
+											}
+										)
+									)
+								)
+							),
+							Row
+							(
+								Rows<2>
+								(
+									Label(text="Weapon:", hAlign = 1.0),
+									DropDownList(
+										fitParent = true,
+										data = list_weapons,
+										selectedValue = local_enemyref.weapon,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_enemyref.weapon = val;
+										}
+									),
+									Label(text="Item Dropset:", hAlign = 1.0),
+									DropDownList(
+										fitParent = true,
+										data = list_itemsets,
+										selectedValue = local_enemyref.item_set,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_enemyref.item_set = val;
+										}
+									),
+									Label(text="Old Animation:", hAlign = 1.0),
+									DropDownList(
+										fitParent = true,
+										disabled = get_bit(quest_rules, qr_NEWENEMYTILES),
+										data = list_anim,
+										selectedValue = local_enemyref.anim,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_enemyref.anim = val;
+										}
+									),
+									Label(text="New Animation:", hAlign = 1.0),
+									DropDownList(
+										fitParent = true,
+										disabled = !get_bit(quest_rules, qr_NEWENEMYTILES),
+										data = list_anim,
+										selectedValue = local_enemyref.e_anim,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_enemyref.e_anim = val;
+										}
+									)
+								),
+								Rows<2>
+								(
+									palbox = Checkbox(
+										text = "Use Boss Pal CSet", hAlign = 0.0,
+										checked = ((local_enemyref.cset & 0x0F) == 14),
+										colSpan = 2,
+										boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+										onToggleFunc = [&](bool state)
+										{
+											if (state)
+											{
+												local_enemyref.cset &= 0xF0;
+												local_enemyref.cset |= 14&0x0F;
+												updateCSet(14);
+												paltext->setDisabled(false);
+											}
+											else
+											{
+												local_enemyref.cset &= 0xF0;
+												local_enemyref.cset |= 8&0x0F;
+												updateCSet(8);
+												paltext->setDisabled(true);
+											}
+										}
+									),
+									Label(text="Boss Palette CSet:", hAlign = 1.0),
+									paltext = TextField(
+										fitParent = true,
+										disabled = (!((local_enemyref.cset & 0x0F) == 14)),
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -1,
+										high = 29,
+										val = local_enemyref.bosspal,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_enemyref.bosspal = val;
+											if(val>-1)
+											{
+												loadpalset(csBOSS,pSprite(val));
+											}
+											else set_palette(oldpal);
+										}
+									),
+									Label(text="Old Frame Rate:", hAlign = 1.0),
+									TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										disabled = get_bit(quest_rules, qr_NEWENEMYTILES),
+										high = 256,
+										val = local_enemyref.frate,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_enemyref.frate = val;
+										}
+									),
+									Label(text="New Frame Rate:", hAlign = 1.0),
+									TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										disabled = (!get_bit(quest_rules, qr_NEWENEMYTILES)),
+										high = 256,
+										val = local_enemyref.e_frate,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_enemyref.e_frate = val;
+										}
+									)
+								)
+							)
+						))
+					))
+				),		
 				Row(
 					vAlign = 1.0,
 					spacing = 2_em,
@@ -108,11 +440,25 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			saved = false;
 			guysbuf[index] = local_enemyref;
 			strcpy(guy_string[index], enemyname.c_str());
+			set_palette(oldpal);
 			return true;
 
 		case message::CANCEL:
 		default:
+			set_palette(oldpal);
 			return true;
+	}
+}
+
+void EnemyEditorDialog::updateCSet(int32_t cset)
+{
+	oldtile->setCSet(cset);
+	specialtile->setCSet(cset);
+	newtile->setCSet(cset);
+	if (cset != 14) 
+	{
+		palbox->setChecked(false);
+		paltext->setDisabled(true);
 	}
 }
 
