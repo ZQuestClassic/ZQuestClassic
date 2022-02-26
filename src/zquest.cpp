@@ -21735,100 +21735,83 @@ int32_t getcurrentcomboalias();
 
 int32_t onOrgComboAliases()
 {
-    char cSrc[8];
-    char cDest[8];
-	strcpy(cSrc,"0");
-	strcpy(cDest,"0");
-    int32_t iSrc = 0;
-    int32_t iDest = 0;
-    
-    //sprintf(cSrc,"0");
-    //sprintf(cDest,"0");
-    orgcomboa_dlg[0].dp2=lfont;
-    orgcomboa_dlg[6].dp= cSrc;
-    orgcomboa_dlg[7].dp= cDest;
-    int32_t ret = 1;
-    if(is_large)
-        large_dialog(orgcomboa_dlg);
-    do
-    {
-	    iSrc = atoi((char*)orgcomboa_dlg[6].dp);
-	    iDest = atoi((char*)orgcomboa_dlg[7].dp);
-	    //al_trace("iSrc is: %d\n",iSrc);
-	    //al_trace("iDest is: %d\n",iDest);
-	    ret = zc_popup_dialog(orgcomboa_dlg,-1);
-	    //al_trace("Initial ret value is %d\n", ret);
-	    
-	    if(ret!=1) return ret;
-	    char src_alias[10];
-	    char dest_alias[10];
-	    //while(ret == 1)
-	    
-		    strcpy(src_alias, (char*) orgcomboa_dlg[6].dp);
-		    strcpy(dest_alias, (char*) orgcomboa_dlg[7].dp);
-		    //al_trace("Source Alias: %s\n", src_alias);
-		    //al_trace("Dest Alias: %s\n", dest_alias);
-		    iSrc = atoi(src_alias);
-		    iDest = atoi(dest_alias);
-		    //iSrc=atoi((char*) orgcomboa_dlg[6].dp);
-		    //iDest=atoi((char*) orgcomboa_dlg[7].dp);
-		    //al_trace("Combo alias src is: %d\n", iSrc);
-		    //al_trace("Combo alias dest is: %d\n", iDest);
-		    //if(iSrc<0 || iSrc > MAXCOMBOALIASES-1)
-		    if((atoi((char*) orgcomboa_dlg[6].dp))<0 || (atoi((char*) orgcomboa_dlg[6].dp)) > MAXCOMBOALIASES-1)
-		    {
+	char cSrc[8];
+	char cDest[8];
+	sprintf(cSrc,"%d", getcurrentcomboalias());
+	strcpy(cDest,cSrc);
+	int32_t iSrc = 0;
+	int32_t iDest = 0;
+	
+	//sprintf(cSrc,"0");
+	//sprintf(cDest,"0");
+	orgcomboa_dlg[0].dp2=lfont;
+	orgcomboa_dlg[6].dp= cSrc;
+	orgcomboa_dlg[7].dp= cDest;
+	int32_t ret = 1;
+	if(is_large)
+		large_dialog(orgcomboa_dlg);
+	do
+	{
+		iSrc = atoi((char*)orgcomboa_dlg[6].dp);
+		iDest = atoi((char*)orgcomboa_dlg[7].dp);
+		ret = zc_popup_dialog(orgcomboa_dlg,-1);
+		
+		if(ret!=1) return ret;
+		
+		if((atoi((char*) orgcomboa_dlg[6].dp))<0 || (atoi((char*) orgcomboa_dlg[6].dp)) > MAXCOMBOALIASES-1)
+		{
 			char buf[100];
 			snprintf(buf, 100, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
 			buf[99]='\0';
 			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			ret = 1;
-		    }
-		    
-		    // 10,11=ins, del
-		    if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
-		    {
-			for(int32_t j=MAXCOMBOALIASES-1; j>(atoi((char*) orgcomboa_dlg[6].dp)); --j)  copyComboAlias(j-1,j);
-			
+		}
+		
+		// 10,11=ins, del
+		if(orgcomboa_dlg[10].flags & D_SELECTED)  //insert
+		{
+			for(int32_t j=MAXCOMBOALIASES-1; j>(atoi((char*) orgcomboa_dlg[6].dp)); --j)
+				copyComboAlias(j-1,j);
 			ret = -1;
-		    }
-		    
-		    if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
-		    {
-			for(int32_t j=(atoi((char*) orgcomboa_dlg[6].dp)); j<MAXCOMBOALIASES-1; ++j)  copyComboAlias(j+1,j);
-			
+		}
+		
+		if(orgcomboa_dlg[11].flags & D_SELECTED)  //delete
+		{
+			for(int32_t j=(atoi((char*) orgcomboa_dlg[6].dp)); j<MAXCOMBOALIASES-1; ++j)
+				copyComboAlias(j+1,j);
 			ret = -1;
-		    }
-		    
-		    if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
-		    {
+		}
+		
+		if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
+		{
 			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
 			ret = 1;
-		    }
-		    
-		    if((atoi((char*) orgcomboa_dlg[7].dp)) < 0 || (atoi((char*) orgcomboa_dlg[7].dp)) > MAXCOMBOALIASES-1)
-		    {
+		}
+		
+		if((atoi((char*) orgcomboa_dlg[7].dp)) < 0 || (atoi((char*) orgcomboa_dlg[7].dp)) > MAXCOMBOALIASES-1)
+		{
 			char buf[100];
 			snprintf(buf, 100, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
 			buf[99]='\0';
 			
 			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			ret = 1;
-		    }
-		    
-		    if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
-		    {
+		}
+		
+		if(orgcomboa_dlg[3].flags & D_SELECTED)  //copy
+		{
 			copyComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
 			ret = -1;
-		    }
-		    
-		    if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
-		    {
+		}
+		
+		if(orgcomboa_dlg[5].flags & D_SELECTED)  //swap
+		{
 			swapComboAlias((atoi((char*) orgcomboa_dlg[6].dp)),(atoi((char*) orgcomboa_dlg[7].dp)));
 			ret = -1;
-		    }
-    }
-    while(ret==1);
-    return ret;
+		}
+	}
+	while(ret==1);
+	return ret;
 }
 
 int32_t onNewComboAlias()
