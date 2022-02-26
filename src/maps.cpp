@@ -5881,22 +5881,24 @@ void ViewMap()
 			if(displayOnMap(x, y))
 			{
 				int32_t s = (y<<4) + x;
+				tmpscr[0].zero_memory();
 				tmpscr[1].zero_memory();
 				loadscr2(1,s,-1);
-				if(tmpscr[1].valid&mVALID)
+				tmpscr[0] = tmpscr[1];
+				if(tmpscr[0].valid&mVALID)
 				{
 					for(int32_t i=0; i<6; i++)
 					{
 						tmpscr2[i].zero_memory();
-						if(tmpscr[1].layermap[i]<=0)
+						if(tmpscr[0].layermap[i]<=0)
 							continue;
 						
-						if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-						   (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+						if((ZCMaps[tmpscr[0].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
+						   (ZCMaps[tmpscr[0].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 						{
 							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 							
-							tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+							tmpscr2[i]=TheMaps[(tmpscr[0].layermap[i]-1)*MAPSCRS+tmpscr[0].layerscreen[i]];
 							
 							tmpscr2[i].data.resize(_mapsSize, 0);
 							tmpscr2[i].sflag.resize(_mapsSize, 0);
@@ -5904,35 +5906,35 @@ void ViewMap()
 						}
 					}
 					
-					if(XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
+					if(XOR((tmpscr)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);
 					
-					if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
+					if(XOR((tmpscr)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, -256, playing_field_offset, 2);
 					
-					putscr(scrollbuf,256,0,tmpscr+1);
-					do_layer(scrollbuf, 0, 1, tmpscr+1, -256, playing_field_offset, 2);
+					putscr(scrollbuf,256,0,tmpscr);
+					do_layer(scrollbuf, 0, 1, tmpscr, -256, playing_field_offset, 2);
 					
-					if(!XOR(((tmpscr+1)->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
+					if(!XOR(((tmpscr)->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);
 					
-					putscrdoors(scrollbuf,256,0,tmpscr+1);
-					do_layer(scrollbuf,-2, 0, tmpscr+1, -256, playing_field_offset, 2);
+					putscrdoors(scrollbuf,256,0,tmpscr);
+					do_layer(scrollbuf,-2, 0, tmpscr, -256, playing_field_offset, 2);
 					if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 					{
-						do_layer(scrollbuf,-2, 1, tmpscr+1, -256, playing_field_offset, 2);
-						do_layer(scrollbuf,-2, 2, tmpscr+1, -256, playing_field_offset, 2);
+						do_layer(scrollbuf,-2, 1, tmpscr, -256, playing_field_offset, 2);
+						do_layer(scrollbuf,-2, 2, tmpscr, -256, playing_field_offset, 2);
 					}
-					do_layer(scrollbuf,-3, 0, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
+					do_layer(scrollbuf,-3, 0, tmpscr, -256, playing_field_offset, 2); // Freeform combos!
 					
-					if(!XOR(((tmpscr+1)->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
+					if(!XOR(((tmpscr)->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, -256, playing_field_offset, 2);
 					
-					do_layer(scrollbuf, 0, 4, tmpscr+1, -256, playing_field_offset, 2);
-					do_layer(scrollbuf,-1, 0, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(scrollbuf, 0, 4, tmpscr, -256, playing_field_offset, 2);
+					do_layer(scrollbuf,-1, 0, tmpscr, -256, playing_field_offset, 2);
 					if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 					{
-						do_layer(scrollbuf,-1, 1, tmpscr+1, -256, playing_field_offset, 2);
-						do_layer(scrollbuf,-1, 2, tmpscr+1, -256, playing_field_offset, 2);
+						do_layer(scrollbuf,-1, 1, tmpscr, -256, playing_field_offset, 2);
+						do_layer(scrollbuf,-1, 2, tmpscr, -256, playing_field_offset, 2);
 					}
-					do_layer(scrollbuf, 0, 5, tmpscr+1, -256, playing_field_offset, 2);
-					do_layer(scrollbuf, 0, 6, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(scrollbuf, 0, 5, tmpscr, -256, playing_field_offset, 2);
+					do_layer(scrollbuf, 0, 6, tmpscr, -256, playing_field_offset, 2);
 				}
 			}
 			
