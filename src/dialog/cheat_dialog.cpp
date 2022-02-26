@@ -36,7 +36,7 @@ std::shared_ptr<GUI::Widget> SetCheatDialog::view()
 		Column(
 			Row(padding = 0_px,
 				Rows<2>(padding = 0_px,
-					field = TextField(maxLength = 40),
+					field = TextField(maxLength = 40, focused = true),
 					Button(text = "Check", onPressFunc = [&]()
 						{
 							std::string code;
@@ -66,6 +66,8 @@ std::shared_ptr<GUI::Widget> SetCheatDialog::view()
 								char buf[80];
 								sprintf(buf, "Cheat level %d unlocked!",found);
 								errlabel->setText(buf);
+								for(auto q = 0; q < 5; ++q)
+									radios[q]->setChecked(q==found);
 							}
 							else
 								errlabel->setText("Invalid code!");

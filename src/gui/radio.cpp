@@ -31,7 +31,7 @@ void Radio::setChecked(bool value)
 	{
 		if(checked)
 		{
-			alDialog.message(MSG_CLICK,0);
+			alDialog.message(MSG_KEY,0);
 		}
 		else //May not work correctly?
 		{
