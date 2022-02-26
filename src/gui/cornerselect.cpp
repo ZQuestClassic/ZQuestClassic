@@ -16,19 +16,30 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 		case MSG_CLICK:
 		{
 			int32_t bw = (d->w-4)/2, bh = (d->h-4)/2;
+			bool shift = (key_shifts & KB_SHIFT_FLAG);
+			bool ctrl = (key_shifts & KB_CTRL_FLAG);
 			while(gui_mouse_b())
 			{
 				/*Do nothing*/
 			}
+			int32_t bit = 0;
 			if(mouse_in_rect(d->x+2,d->y+2,bw,bh))
-				d->d1 ^= 0b0001;
+				bit = 0b0001;
 			else if(mouse_in_rect(d->x+2+bw,d->y+2,bw,bh))
-				d->d1 ^= 0b0010;
+				bit = 0b0010;
 			else if(mouse_in_rect(d->x+2,d->y+2+bh,bw,bh))
-				d->d1 ^= 0b0100;
+				bit = 0b0100;
 			else if(mouse_in_rect(d->x+2+bw,d->y+2+bh,bw,bh))
-				d->d1 ^= 0b1000;
+				bit = 0b1000;
 			else return D_O_K;
+			
+			if(ctrl) //toggle all bits
+				d->d1 ^= 0b1111;
+			else if(shift) //set all bits to opposite of clicked bit
+			{
+				d->d1 = (d->d1&bit) ? 0b0000 : 0b1111;
+			}
+			else d->d1 ^= bit; //toggle one bit
 			GUI_EVENT(d, geCHANGE_SELECTION);
 			return D_REDRAW;
 		}
