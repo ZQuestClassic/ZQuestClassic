@@ -13583,7 +13583,7 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 			{
 				if((TheMaps[i*MAPSCRS+j].data[k]>=copy)&&(TheMaps[i*MAPSCRS+j].data[k]<copy+copycnt))
 				{
-					TheMaps[i*MAPSCRS+j].data[k]=TheMaps[i*MAPSCRS+j].data[k]-copy+tile;
+					TheMaps[i*MAPSCRS+j].data[k] += tile-copy;
 				}
 			}
 			
@@ -13591,20 +13591,20 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 			{
 				if((TheMaps[i*MAPSCRS+j].secretcombo[k]>=copy)&& (TheMaps[i*MAPSCRS+j].secretcombo[k]<copy+copycnt))
 				{
-					TheMaps[i*MAPSCRS+j].secretcombo[k]=TheMaps[i*MAPSCRS+j].secretcombo[k]-copy+tile;
+					TheMaps[i*MAPSCRS+j].secretcombo[k] += tile-copy;
 				}
 			}
 			
 			if((TheMaps[i*MAPSCRS+j].undercombo>=copy)&&(TheMaps[i*MAPSCRS+j].undercombo<copy+copycnt))
 			{
-				TheMaps[i*MAPSCRS+j].undercombo=TheMaps[i*MAPSCRS+j].undercombo-copy+tile;
+				TheMaps[i*MAPSCRS+j].undercombo += tile-copy;
 			}
 			
 			for(int32_t k=0; k<MAXFFCS; k++)
 			{
 				if((TheMaps[i*MAPSCRS+j].ffdata[k] >= copy) && (TheMaps[i*MAPSCRS+j].ffdata[k] < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
 				{
-					TheMaps[i*MAPSCRS+j].ffdata[k] = TheMaps[i*MAPSCRS+j].ffdata[k]-copy+tile;
+					TheMaps[i*MAPSCRS+j].ffdata[k] += tile-copy;
 				}
 			}
 		}
@@ -13618,7 +13618,7 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 			{
 				if((DoorComboSets[i].walkthroughcombo[j]>=copy)&&(DoorComboSets[i].walkthroughcombo[j]<copy+copycnt))
 				{
-					DoorComboSets[i].walkthroughcombo[j]=DoorComboSets[i].walkthroughcombo[j]-copy+tile;
+					DoorComboSets[i].walkthroughcombo[j] += tile-copy;
 				}
 				
 				if(j<3)
@@ -13627,23 +13627,23 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 					{
 						if((DoorComboSets[i].bombdoorcombo_u[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_u[j]<copy+copycnt))
 						{
-							DoorComboSets[i].bombdoorcombo_u[j]=DoorComboSets[i].bombdoorcombo_u[j]-copy+tile;
+							DoorComboSets[i].bombdoorcombo_u[j] += tile-copy;
 						}
 						
 						if((DoorComboSets[i].bombdoorcombo_d[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_d[j]<copy+copycnt))
 						{
-							DoorComboSets[i].bombdoorcombo_d[j]=DoorComboSets[i].bombdoorcombo_d[j]-copy+tile;
+							DoorComboSets[i].bombdoorcombo_d[j] += tile-copy;
 						}
 					}
 					
 					if((DoorComboSets[i].bombdoorcombo_l[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_l[j]<copy+copycnt))
 					{
-						DoorComboSets[i].bombdoorcombo_l[j]=DoorComboSets[i].bombdoorcombo_l[j]-copy+tile;
+						DoorComboSets[i].bombdoorcombo_l[j] += tile-copy;
 					}
 					
 					if((DoorComboSets[i].bombdoorcombo_r[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_r[j]<copy+copycnt))
 					{
-						DoorComboSets[i].bombdoorcombo_r[j]=DoorComboSets[i].bombdoorcombo_r[j]-copy+tile;
+						DoorComboSets[i].bombdoorcombo_r[j] += tile-copy;
 					}
 				}
 			}
@@ -13654,23 +13654,23 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 				{
 					if((DoorComboSets[i].doorcombo_u[j][k]>=copy)&&(DoorComboSets[i].doorcombo_u[j][k]<copy+copycnt))
 					{
-						DoorComboSets[i].doorcombo_u[j][k]=DoorComboSets[i].doorcombo_u[j][k]-copy+tile;
+						DoorComboSets[i].doorcombo_u[j][k] += tile-copy;
 					}
 					
 					if((DoorComboSets[i].doorcombo_d[j][k]>=copy)&&(DoorComboSets[i].doorcombo_d[j][k]<copy+copycnt))
 					{
-						DoorComboSets[i].doorcombo_d[j][k]=DoorComboSets[i].doorcombo_d[j][k]-copy+tile;
+						DoorComboSets[i].doorcombo_d[j][k] += tile-copy;
 					}
 				}
 				
 				if((DoorComboSets[i].doorcombo_l[j][k]>=copy)&&(DoorComboSets[i].doorcombo_l[j][k]<copy+copycnt))
 				{
-					DoorComboSets[i].doorcombo_l[j][k]=DoorComboSets[i].doorcombo_l[j][k]-copy+tile;
+					DoorComboSets[i].doorcombo_l[j][k] += tile-copy;
 				}
 				
 				if((DoorComboSets[i].doorcombo_r[j][k]>=copy)&&(DoorComboSets[i].doorcombo_r[j][k]<copy+copycnt))
 				{
-					DoorComboSets[i].doorcombo_r[j][k]=DoorComboSets[i].doorcombo_r[j][k]-copy+tile;
+					DoorComboSets[i].doorcombo_r[j][k] += tile-copy;
 				}
 			}
 		}
@@ -13682,7 +13682,7 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 		{
 			//since next combo 0 represents "no next combo," do not move it away from 0 -DD
 			if(combobuf[i].nextcombo != 0)
-				combobuf[i].nextcombo=combobuf[i].nextcombo-copy+tile;
+				combobuf[i].nextcombo += tile-copy;
 		}
 	}
 	
@@ -13696,7 +13696,7 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 		
 			if((combo_aliases[i].combos[j]>=copy)&&(combo_aliases[i].combos[j]<copy+copycnt)&&(combo_aliases[i].combos[j]!=0))
 			{
-				combo_aliases[i].combos[j]=combo_aliases[i].combos[j]-copy+tile;
+				combo_aliases[i].combos[j] += tile-copy;
 			}
 		}
 	}
@@ -13704,7 +13704,16 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
 	{
 		if(favorite_combos[i]>=copy && favorite_combos[i]<copy+copycnt)
-			favorite_combos[i]+=(-copy+tile);
+			favorite_combos[i] += tile-copy;
+	}
+	
+	for(auto q = 0; q < 256; ++q)
+	{
+		for(auto p = 0; p < 3; ++p)
+		{
+			if(misc.bottle_shop_types[q].comb[p] >= copy && misc.bottle_shop_types[q].comb[p] < copy+copycnt)
+				misc.bottle_shop_types[q].comb[p] += tile-copy;
+		}
 	}
 	
 	copy=-1;
