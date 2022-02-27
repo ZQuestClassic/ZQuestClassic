@@ -14,6 +14,7 @@ public:
 
 	void setTile(int32_t value);
 	void setCSet(int32_t value);
+	void setFakeCSet14(bool value);
 	void setShowVals(bool showVals);
 
 	int32_t getTile();
@@ -33,7 +34,7 @@ protected:
 	int32_t message;
 private:
 	int32_t tile, cset;
-	bool showsVals;
+	bool showsVals, fakecs14;
 	DialogRef alDialog;
 	std::function<void(int32_t,int32_t)> onSelectFunc;
 	

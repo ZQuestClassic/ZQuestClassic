@@ -4,13 +4,13 @@
 #include "../zsys.h"
 #include "../zquest.h"
 #include "../colors.h"
-#include "../pal.h"
 #include <gui/builder.h>
 
 extern char *guy_string[];
 extern guydata *guysbuf;
 extern zcmodule moduledata;
 extern bool saved;
+extern void load_cset(RGB *pal,int32_t cset_index,int32_t dataset);
 
 void call_enemy_editor(int32_t index)
 {
@@ -56,14 +56,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using namespace GUI::Key;
-	
-	if (local_enemyref.cset == 14)
-	{
-		if(local_enemyref.bosspal>-1)
-		{
-			loadpalset(csBOSS,pSprite(local_enemyref.bosspal));
-		}
-	}
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Enemy Editor (%d): %s", index, enemyname.c_str());
@@ -111,7 +103,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					TabRef(name = "Basic", TabPanel(
 						ptr = &enmtabs[1],
 						TabRef(name = "Data", Column(
-							framed = true,
 							Row(
 								Column(
 									Rows<7>(
@@ -134,46 +125,52 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										DummyWidget(),
 										oldtile = SelTileSwatch(
 											tile = local_enemyref.tile,
-											cset = (local_enemyref.cset & 0x0F),
+											cset = ((local_enemyref.cset & 0x0F) == 14 ? 13 : (local_enemyref.cset & 0x0F)),
+											fakecs14 = true,
 											showvals = false,
 											padding = 0_px,
 											onSelectFunc = [&](int32_t t, int32_t c)
 											{
 												local_enemyref.tile = t;
+												updateCSet(c);
+												c = (c == 13 ? 14 : c);
 												local_enemyref.cset &= 0xF0;
 												local_enemyref.cset |= c&0x0F;
-												updateCSet(c);
 											}
 										),
 										DummyWidget(),
 										specialtile = SelTileSwatch(
 											tile = local_enemyref.s_tile,
-											cset = (local_enemyref.cset & 0x0F),
+											cset = ((local_enemyref.cset & 0x0F) == 14 ? 13 : (local_enemyref.cset & 0x0F)),
+											fakecs14 = true,
 											showvals = false,
 											padding = 0_px,
 											onSelectFunc = [&](int32_t t, int32_t c)
 											{
 												local_enemyref.s_tile = t;
+												updateCSet(c);
+												c = (c == 13 ? 14 : c);
 												local_enemyref.cset &= 0xF0;
 												local_enemyref.cset |= c&0x0F;
-												updateCSet(c);
 											}
 										),
 										DummyWidget(),
 										newtile = SelTileSwatch(
 											tile = local_enemyref.e_tile,
-											cset = (local_enemyref.cset & 0x0F),
+											cset = ((local_enemyref.cset & 0x0F) == 14 ? 13 : (local_enemyref.cset & 0x0F)),
+											fakecs14 = true,
 											showvals = false,
 											padding = 0_px,
 											onSelectFunc = [&](int32_t t, int32_t c)
 											{
 												local_enemyref.e_tile = t;
+												updateCSet(c);
+												c = (c == 13 ? 14 : c);
 												local_enemyref.cset &= 0xF0;
 												local_enemyref.cset |= c&0x0F;
-												updateCSet(c);
 											}
 										),
-										Button(forceFitH = true, padding = 0_px, text = "?",
+										Button(text = "?", rowSpan = 2, height = 24_lpx, topPadding = 10_lpx,
 										onPressFunc = [&]()
 										{
 											InfoDialog("Width and Height",
@@ -184,7 +181,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										WH_FIELD("W:", width),
 										WH_FIELD("W:", s_width),
 										WH_FIELD("W:", e_width),
-										DummyWidget(),
 										WH_FIELD("H:", height),
 										WH_FIELD("H:", s_height),
 										WH_FIELD("H:", e_height)
@@ -194,7 +190,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 									Rows<4>(
 										Label(text="Health:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											high = 32767,
 											val = local_enemyref.hp,
@@ -205,7 +201,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										),
 										Label(text="Random Rate:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											high = 16,
 											val = local_enemyref.rate,
@@ -214,9 +210,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 												local_enemyref.rate = val;
 											}
 										),
-										Label(text="Contact Damage:", hAlign = 1.0),
+										Label(text="Cnt. Damage:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											high = 32767,
 											val = local_enemyref.dp,
@@ -227,7 +223,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										),
 										Label(text="Halt Rate:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											high = 16,
 											val = local_enemyref.hrate,
@@ -236,9 +232,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 												local_enemyref.hrate = val;
 											}
 										),
-										Label(text="Weapon Damage:", hAlign = 1.0),
+										Label(text="Wpn. Damage:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											high = 32767,
 											val = local_enemyref.wdp,
@@ -249,7 +245,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										),
 										Label(text="Homing Factor:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											low = -255,
 											high = 255,
@@ -261,7 +257,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										),
 										Label(text="Hunger:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											low = -4,
 											high = 4,
@@ -271,9 +267,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 												local_enemyref.grumble = val;
 											}
 										),
-										Label(text="Step:", hAlign = 1.0),
+										Label(text="Step Speed:", hAlign = 1.0),
 										TextField(
-											width = 80_lpx,
+											fitParent = true,
 											type = GUI::TextField::type::INT_DECIMAL,
 											high = 1000,
 											val = local_enemyref.step,
@@ -287,9 +283,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							),
 							Row
 							(
-								Rows<2>
+								Columns<4>
 								(
 									Label(text="Weapon:", hAlign = 1.0),
+									Label(text="Item Dropset:", hAlign = 1.0),
+									Label(text="Old Animation:", hAlign = 1.0),
+									Label(text="New Animation:", hAlign = 1.0),
 									DropDownList(
 										fitParent = true,
 										data = list_weapons,
@@ -299,7 +298,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											local_enemyref.weapon = val;
 										}
 									),
-									Label(text="Item Dropset:", hAlign = 1.0),
 									DropDownList(
 										fitParent = true,
 										data = list_itemsets,
@@ -309,7 +307,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											local_enemyref.item_set = val;
 										}
 									),
-									Label(text="Old Animation:", hAlign = 1.0),
 									DropDownList(
 										fitParent = true,
 										disabled = get_bit(quest_rules, qr_NEWENEMYTILES),
@@ -320,7 +317,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											local_enemyref.anim = val;
 										}
 									),
-									Label(text="New Animation:", hAlign = 1.0),
 									DropDownList(
 										fitParent = true,
 										disabled = !get_bit(quest_rules, qr_NEWENEMYTILES),
@@ -330,12 +326,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										{
 											local_enemyref.e_anim = val;
 										}
-									)
-								),
-								Rows<2>
-								(
+									),
 									palbox = Checkbox(
-										text = "Use Boss Pal CSet", hAlign = 0.0,
+										text = "Use Boss Pal CSet", leftPadding = 8_px, hAlign = 0.0,
 										checked = ((local_enemyref.cset & 0x0F) == 14),
 										colSpan = 2,
 										boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
@@ -345,7 +338,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											{
 												local_enemyref.cset &= 0xF0;
 												local_enemyref.cset |= 14&0x0F;
-												updateCSet(14);
+												updateCSet(13);
 												paltext->setDisabled(false);
 											}
 											else
@@ -357,7 +350,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											}
 										}
 									),
-									Label(text="Boss Palette CSet:", hAlign = 1.0),
+									Label(text="Boss Palette CSet:", leftPadding = 8_px, hAlign = 1.0),
+									Label(text="Old Frame Rate:", leftPadding = 8_px, hAlign = 1.0),
+									Label(text="New Frame Rate:", leftPadding = 8_px, hAlign = 1.0),
 									paltext = TextField(
 										fitParent = true,
 										disabled = (!((local_enemyref.cset & 0x0F) == 14)),
@@ -370,12 +365,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											local_enemyref.bosspal = val;
 											if(val>-1)
 											{
-												loadpalset(csBOSS,pSprite(val));
+												load_cset(RAMpal,csBOSS-1,pSprite(val));
+												set_palette(RAMpal);
 											}
-											else set_palette(oldpal);
+											else 
+											{
+												load_cset(RAMpal,csBOSS-1,csBOSS);
+												set_palette(RAMpal);
+											}
 										}
 									),
-									Label(text="Old Frame Rate:", hAlign = 1.0),
 									TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
@@ -387,7 +386,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 											local_enemyref.frate = val;
 										}
 									),
-									Label(text="New Frame Rate:", hAlign = 1.0),
 									TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
@@ -401,7 +399,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 									)
 								)
 							)
-						))
+						)),
+						TabRef(name = "2", DummyWidget())
 					))
 				),		
 				Row(
@@ -421,6 +420,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		);
 	}
 	
+	if (local_enemyref.cset == 14 && local_enemyref.bosspal>-1)
+	{
+		load_cset(RAMpal,csBOSS-1,pSprite(local_enemyref.bosspal));
+		updateCSet(13);
+	}
+	else 
+	{
+		load_cset(RAMpal,csBOSS-1,csBOSS);
+	}
+	set_palette(RAMpal);
 	loadEnemyClass();
 	return window;
 }
@@ -440,12 +449,12 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			saved = false;
 			guysbuf[index] = local_enemyref;
 			strcpy(guy_string[index], enemyname.c_str());
-			set_palette(oldpal);
-			return true;
+			[[fallthrough]];
 
 		case message::CANCEL:
 		default:
-			set_palette(oldpal);
+			memcpy(RAMpal, oldpal, sizeof(oldpal));
+			set_palette(RAMpal);
 			return true;
 	}
 }
@@ -455,7 +464,7 @@ void EnemyEditorDialog::updateCSet(int32_t cset)
 	oldtile->setCSet(cset);
 	specialtile->setCSet(cset);
 	newtile->setCSet(cset);
-	if (cset != 14) 
+	if (cset != 13) 
 	{
 		palbox->setChecked(false);
 		paltext->setDisabled(true);

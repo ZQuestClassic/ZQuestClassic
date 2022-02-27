@@ -6585,6 +6585,7 @@ int32_t onCustomEnemies()
 		index = select_enemy("Select Enemy",index,true,true,foo);
 	}
 	
+	refresh_pal();
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }

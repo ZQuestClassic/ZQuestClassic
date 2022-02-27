@@ -341,19 +341,22 @@ void loadfadepal(int32_t dataset)
 
 void setup_lcolors()
 {
-    for(int32_t i=0; i<16; i++)
-    {
-        RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
-        RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
-    }
+	//!DIMI: This is where it sets Cset 12 and Cset 13 in ZQuest.
+	//Where it sets CSET(12)
+	//Where it sets CSET(13)
+	for(int32_t i=0; i<16; i++)
+	{
+		RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
+		RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
+	}
 
-    set_palette(RAMpal);
+	set_palette(RAMpal);
 }
 
 void refresh_pal()
 {
-    loadlvlpal(Color);
-    setup_lcolors();
+	loadlvlpal(Color);
+	setup_lcolors();
 }
 
 char ns_string[4];
