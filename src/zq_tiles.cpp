@@ -1877,7 +1877,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						shift_tile_colors(tile, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 				}
 				else
-					cs = (cs<12)?((cs>0) ? cs-1:11):11;
+					cs = (cs>0) ? cs-1:11;
 					
 				redraw=true;
 				break;
@@ -4483,7 +4483,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
-				cs = (cs<12)?((cs>0) ? cs-1:11):11;
+				cs = (cs>0)  ? cs-1:11;
 				if(recolor==rc4Bit)
 					calc_cset_reduce_table(imagepal, cs);
 				break;
@@ -5167,16 +5167,12 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	destroy_bitmap(buf);
 }
 
-void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip, bool fakecs14)
+void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip)
 {
 	int32_t yofs=0;
 	BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = is_large + 1;
 	FONT *tfont = pfont;
-	int32_t fakecs = cs;
-	int32_t fakeoldcs = oldcs;
-	if (fakecs == 14 && fakecs14) fakecs = 13;
-	if (fakeoldcs == 14 && fakecs14) fakeoldcs = 13;
 	
 	if(is_large)
 	{
@@ -5196,7 +5192,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	
 	if(copy>=0)
 	{
-		puttile16(buf,copy,0,0,fakecs,flip);
+		puttile16(buf,copy,0,0,cs,flip);
 		stretch_blit(buf,screen2,0,0,16,16,124*mul,216*mul+yofs,16*mul,16*mul);
 	}
 	else
@@ -5221,7 +5217,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	}
 	
 	jwin_draw_frame(screen2,(8*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	puttile16(buf,oldtile,0,0, fakeoldcs, oldflip);
+	puttile16(buf,oldtile,0,0, oldcs, oldflip);
 	stretch_blit(buf,screen2,0,0,16,16,8*mul,216*mul+yofs,16*mul,16*mul);
 	
 	textprintf_right_ex(screen2,tfont,56*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old Tile:");
@@ -5237,7 +5233,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	}
 	
 	jwin_draw_frame(screen2,(148*mul)-2,(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	puttile16(buf,tile,0,0, fakecs,
+	puttile16(buf,tile,0,0, cs,
 			  (oldflip>0 || always_use_flip)?flip:0); // Suppress Flip for this usage
 	stretch_blit(buf,screen2,0,0,16,16,148*mul,216*mul+yofs,16*mul,16*mul);
 	
@@ -14436,7 +14432,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	
 }
 
-int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip, bool display13as14)
+int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
@@ -14490,7 +14486,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	}
 	else
 	{
-		tile_info_1(otile,oflip,(display13as14&&ocs==13)?14:ocs,tile,flip,(display13as14&&cs==13)?14:cs,copy,first/TILES_PER_PAGE, always_use_flip, display13as14);
+		tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
 	}
 	
 	go_tiles();
@@ -14642,7 +14638,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						register_blank_tiles();
 					}
 					else if(edit_cs)
-						cs = (cs<12)?((cs>0) ? cs-1:11):11;
+						cs = (cs>0)  ? cs-1:11;
 						
 					redraw=true;
 					break;
@@ -15658,7 +15654,7 @@ REDRAW:
 		if(type==0)
 			tile_info_0(tile,tile2,cs,copy,copycnt,first/TILES_PER_PAGE,rect_sel);
 		else
-			tile_info_1(otile,oflip,(display13as14&&ocs==13)?14:ocs,tile,flip,(display13as14&&cs==13)?14:cs,copy,first/TILES_PER_PAGE, always_use_flip, display13as14);
+			tile_info_1(otile,oflip,ocs,tile,flip,cs,copy,first/TILES_PER_PAGE, always_use_flip);
 			
 		if(type==2)
 		{
@@ -16270,7 +16266,7 @@ int32_t select_combo_2(int32_t &tile,int32_t &cs)
 				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
-				cs = (cs<12)?((cs>0) ? cs-1:11):11;
+				cs = (cs>0)  ? cs-1:11;
 				redraw=true;
 				break;
 				
@@ -16827,7 +16823,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				}
 				else
 				{
-					cs = (cs<12)?((cs>0) ? cs-1:11):11;
+					cs = (cs>0)  ? cs-1:11;
 					redraw=true;
 				}
 				
@@ -19570,7 +19566,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					register_blank_tiles();
 				}
 				else if(edit_cs)
-					cs = (cs<12)?((cs>0) ? cs-1:11):11;
+					cs = (cs>0)  ? cs-1:11;
 					
 				redraw=true;
 				break;

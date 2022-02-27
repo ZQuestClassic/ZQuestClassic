@@ -3093,7 +3093,7 @@ bool HeroClass::checkstab()
 							if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
 							hidden_entrance(0, true, false, -5);
 						}
-						//!DIMI: I forget why I added this but this is where melee item pickups happen. Maybe I wanted to add bug net poe capturing here?
+						//!DIMI
 						
 						if(dofairy)
 						{

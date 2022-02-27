@@ -96,7 +96,6 @@ extern const char *enetype_string[eeMAX];
 extern const char *eneanim_string[aMAX];
 //extern char *itemset_string[isMAX];
 extern const char *eweapon_string[wMax-wEnemyWeapons];
-extern const char *script_eweapon_string[10];
 extern int32_t gocnt;
 
 int32_t filetype(const char *path);
