@@ -879,7 +879,7 @@ Row(vPadding = 0_px, \
 
 //}
 
-static size_t itmtabs[4] = {0, 0, 0, 0};
+static size_t itmtabs[4] = {0};
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;

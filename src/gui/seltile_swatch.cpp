@@ -24,7 +24,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			int32_t t = d->d1;
 			int32_t cs = d->d2;
 			
-			if(select_tile(t,f,1,cs,true,0,false,(d->fg > 0 ? true : false)))
+			if(select_tile(t,f,1,cs,true))
 			{
 				d->d1 = t;
 				d->d2 = cs;
@@ -93,16 +93,6 @@ void SelTileSwatch::setCSet(int32_t value)
 	if(alDialog)
 	{
 		alDialog->d2 = value;
-		pendDraw();
-	}
-}
-
-void SelTileSwatch::setFakeCSet14(bool value)
-{
-	fakecs14 = value;
-	if(alDialog)
-	{
-		alDialog->fg = value ? 1 : 0;
 		pendDraw();
 	}
 }
