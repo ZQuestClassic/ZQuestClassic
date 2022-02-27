@@ -405,6 +405,7 @@ static void MatchComboTrigger(weapon *w, int32_t bx, int32_t by, newcombo *c/*, 
 		{
 			single16 = true;
 		}
+		[[fallthrough]];
 		case mfSECRETS01:
 		case mfSECRETS02:
 		case mfSECRETS03:
@@ -762,6 +763,7 @@ static void MatchComboTrigger(weapon *w, int32_t bx, int32_t by, newcombo *c/*, 
 		{
 			single16 = true;
 		}
+		[[fallthrough]];
 		case mfSECRETS01:
 		case mfSECRETS02:
 		case mfSECRETS03:
@@ -2081,7 +2083,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			break;
 		}
-		
+		[[fallthrough]];
 		case wLitBomb:
 		case wLitSBomb:
 		case wBait:
@@ -2493,6 +2495,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					//{
 					//	This requires special cases. 	The sword beams need a special size field!!!
 					//}
+						[[fallthrough]];
 					case up:
 						hyofs=2;
 						hysz=12;
@@ -2501,7 +2504,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case left:
 					//case l_down:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2562,7 +2565,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				{
 					case down:
 						flip=2;
-						
+						[[fallthrough]];
 					case up:
 						//hyofs=2;
 						//hysz=12;
@@ -2575,7 +2578,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case left:
 					case l_down:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2730,7 +2733,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							defaultw = itemsbuf[itemid].wpn3;
 							break;
 						}
-					
+						[[fallthrough]];
 					default:
 						step = 0;
 						defaultw = wFIRE;
@@ -2932,7 +2935,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				{
 					case down:
 						flip=2;
-						
+						[[fallthrough]];
 					case up:
 						hyofs = ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
 						//2;
@@ -2942,7 +2945,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -3340,7 +3343,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case l_down:
 					case r_down:
 						flip=2;
-						
+						[[fallthrough]];
 					case l_up:
 					case r_up:
 					case up:
@@ -3348,7 +3351,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -3388,7 +3391,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case l_down:
 					case r_down:
 						flip=2;
-						
+						[[fallthrough]];
 					case up:
 					case r_up:
 					case l_up:
@@ -3396,7 +3399,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -3443,7 +3446,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				misc = -1;
 			}
 		}
-		//fallthrough
+		[[fallthrough]];
 		case ewFireball:
 		{
 			if ( parentid > -1 && !isLWeapon )
@@ -3525,7 +3528,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case l_down:
 					case r_down:
 						flip=2;
-						
+						[[fallthrough]];
 					case r_up:
 					case l_up:
 					case up:
@@ -3535,7 +3538,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -3579,7 +3582,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case l_down:
 					case r_down:
 						flip=2;
-						
+						[[fallthrough]];
 					case up:
 					case r_up:
 					case l_up:
@@ -3587,7 +3590,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -3634,7 +3637,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case l_down:
 					case r_down:
 						flip=2;
-						
+						[[fallthrough]];
 					case up:
 					case r_up:
 					case l_up:
@@ -3642,7 +3645,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1;
-						
+						[[fallthrough]];
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -4451,6 +4454,7 @@ bool weapon::animate(int32_t index)
 			{
 				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
 			}
+			[[fallthrough]];
 		case wWand:
 		case wHammer:
 		case wBugNet:
@@ -4522,6 +4526,7 @@ bool weapon::animate(int32_t index)
 			}		 
 			
 		}
+		[[fallthrough]];
 		case ewSword:
 			if(blocked())
 			{
@@ -4732,7 +4737,7 @@ bool weapon::animate(int32_t index)
 								{
 									case down:
 										w->flip=2;
-										
+										[[fallthrough]];
 									case up:
 										w->tile = w->o_tile;
 										w->hyofs=2;
@@ -4741,7 +4746,7 @@ bool weapon::animate(int32_t index)
 										
 									case left:
 										w->flip=1;
-										
+										[[fallthrough]];
 									case right:
 										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 										w->hxofs=2;
@@ -4796,7 +4801,7 @@ bool weapon::animate(int32_t index)
 							{
 								case down:
 									w->flip=2;
-								
+									[[fallthrough]];
 								case up:
 									w->tile = w->o_tile;
 									w->hyofs=2;
@@ -4805,7 +4810,7 @@ bool weapon::animate(int32_t index)
 								
 								case left:
 									w->flip=1;
-								
+									[[fallthrough]];
 								case right:
 									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 									w->hxofs=2;
@@ -6646,7 +6651,7 @@ bool weapon::animate(int32_t index)
 								{
 									case down:
 										w->flip=2;
-										
+										[[fallthrough]];
 									case up:
 										w->tile = w->o_tile;
 										w->hyofs=2;
@@ -6655,7 +6660,7 @@ bool weapon::animate(int32_t index)
 										
 									case left:
 										w->flip=1;
-										
+										[[fallthrough]];
 									case right:
 										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 										w->hxofs=2;
@@ -6712,7 +6717,7 @@ bool weapon::animate(int32_t index)
 							{
 								case down:
 									w->flip=2;
-								
+									[[fallthrough]];
 								case up:
 									w->tile = w->o_tile;
 									w->hyofs=2;
@@ -6721,7 +6726,7 @@ bool weapon::animate(int32_t index)
 								
 								case left:
 									w->flip=1;
-								
+									[[fallthrough]];
 								case right:
 									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 									w->hxofs=2;
@@ -7000,7 +7005,7 @@ bool weapon::animate(int32_t index)
 								{
 									case down:
 										w->flip=2;
-										
+										[[fallthrough]];
 									case up:
 										w->tile = w->o_tile;
 										w->hyofs=2;
@@ -7009,7 +7014,7 @@ bool weapon::animate(int32_t index)
 										
 									case left:
 										w->flip=1;
-										
+										[[fallthrough]];
 									case right:
 										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 										w->hxofs=2;
@@ -7066,7 +7071,7 @@ bool weapon::animate(int32_t index)
 							{
 								case down:
 									w->flip=2;
-								
+									[[fallthrough]];
 								case up:
 									w->tile = w->o_tile;
 									w->hyofs=2;
@@ -7075,7 +7080,7 @@ bool weapon::animate(int32_t index)
 								
 								case left:
 									w->flip=1;
-								
+									[[fallthrough]];
 								case right:
 									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 									w->hxofs=2;
@@ -7140,7 +7145,7 @@ bool weapon::animate(int32_t index)
 					break;
 			}
 			
-			//fallthrough
+			[[fallthrough]];
 		case wRefFireball:
 		case ewFireball:
 		{
@@ -7612,11 +7617,9 @@ offscreenCheck:
         break;
         
     case wLitBomb:
-        if(!clipped) dead=1;
-        
     case wLitSBomb:
         if(!clipped) dead=1;
-        
+		[[fallthrough]];
     case wWhistle:
     case wBomb:
     case wSBomb:
@@ -7945,7 +7948,7 @@ void weapon::draw(BITMAP *dest)
         if(get_bit(quest_rules,qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
                 Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
             return;
-            
+		[[fallthrough]];
     case wBeam:
     case wRefBeam:
     {
@@ -8193,7 +8196,7 @@ void weapon::draw(BITMAP *dest)
             
             break;
         }
-        
+		[[fallthrough]];
 	case wScript1:
 	case wScript2:
 	case wScript3:
