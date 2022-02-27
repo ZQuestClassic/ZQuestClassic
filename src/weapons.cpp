@@ -2370,7 +2370,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			int32_t speed = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc1,1) : 1;
 			int32_t qty = parentitem>-1 ? zc_max(itemsbuf[parentitem].misc3,1) : 1;
 			//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
-			clk = (int32_t)((((2*quantity_iterator*PI)/qty)
+			clk = (int32_t)((((2*int32_t(quantity_iterator)*PI)/qty) //int32_t(quantity_iterator) is used to avoid compile warnings, but it's not necessary
 						 // Appear on top of the cane's hook
 						 + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);
 			quantity_iterator = 0;
@@ -3235,7 +3235,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(itemid >-1)
 				defaultw = (dir<left) ? itemsbuf[itemid].wpn3 : itemsbuf[itemid].wpn2;
 			else
-				defaultw = (dir<left) ? wHSCHAIN_V : wHSCHAIN_H;
+				defaultw = (dir<left) ? (int32_t)wHSCHAIN_V : (int32_t)wHSCHAIN_H;
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 				
 			step = 0;
@@ -4694,7 +4694,7 @@ bool weapon::animate(int32_t index)
 							//In your next job, don't code while drunk you dumbass. -Deedee
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
-								double newangle = this->angle + DegreesToRadians(90*tdir);
+								double newangle = this->angle + DegreesToRadians(90*double(tdir)); //double(tdir) is used to avoid compile warnings, but it's not necessary
 								w->angle = WrapAngle(newangle);
 								if (AngleReflect)
 								{
@@ -4775,7 +4775,7 @@ bool weapon::animate(int32_t index)
 						w->dir=tdir;
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
-							double newangle = this->angle + DegreesToRadians(90*tdir);
+							double newangle = this->angle + DegreesToRadians(90*double(tdir)); //double(tdir) is used to avoid compile warnings, but it's not necessary
 							w->angle = WrapAngle(newangle);
 							if (AngleReflect)
 							{
@@ -5155,9 +5155,9 @@ bool weapon::animate(int32_t index)
 			}*/
 			if(clk==(misc-2) && step==0)
 			{
-				id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
-						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
-						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
+				id = (id>wEnemyWeapons ? (id==(int32_t)ewLitSBomb||id== (int32_t)ewSBomb ? (int32_t)ewSBomb : (int32_t)ewBomb)
+						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? (int32_t)wSBomb: (int32_t)wBomb)
+						  : (id==(int32_t)wLitSBomb||id==(int32_t)wSBomb ? (int32_t)wSBomb : (int32_t)wBomb));
 				hxofs=2000;
 			}
 			
@@ -6624,7 +6624,7 @@ bool weapon::animate(int32_t index)
 							w->dir=tdir;
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
-								double newangle = this->angle + DegreesToRadians(90*tdir);
+								double newangle = this->angle + DegreesToRadians(90*double(tdir)); //double(tdir) is used to avoid compile warnings, but it's not necessary
 								w->angle = WrapAngle(newangle);
 								if (AngleReflect)
 								{
@@ -6689,7 +6689,7 @@ bool weapon::animate(int32_t index)
 						w->dir=tdir;
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
-							double newangle = this->angle + DegreesToRadians(90*tdir);
+							double newangle = this->angle + DegreesToRadians(90*double(tdir)); //double(tdir) is used to avoid compile warnings, but it's not necessary
 							w->angle = WrapAngle(newangle);
 							if (AngleReflect)
 							{
@@ -6978,7 +6978,7 @@ bool weapon::animate(int32_t index)
 							w->dir=tdir;
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
-								double newangle = this->angle + DegreesToRadians(90*tdir);
+								double newangle = this->angle + DegreesToRadians(90*double(tdir)); //double(tdir) is used to avoid compile warnings, but it's not necessary
 								w->angle = WrapAngle(newangle);
 								if (AngleReflect)
 								{
@@ -7043,7 +7043,7 @@ bool weapon::animate(int32_t index)
 						w->dir=tdir;
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
-							double newangle = this->angle + DegreesToRadians(90*tdir);
+							double newangle = this->angle + DegreesToRadians(90*double(tdir)); //double(tdir) is used to avoid compile warnings, but it's not necessary
 							w->angle = WrapAngle(newangle);
 							if (AngleReflect)
 							{
@@ -8323,7 +8323,7 @@ void weapon::findcombotriggers()
 int32_t weapon::run_script(int32_t mode)
 {
 	if(switch_hooked && !get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
-	if (weaponscript <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
+	if (weaponscript <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? (byte)susptLWEAPONSCRIPTS : (byte)susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
 	alloc_scriptmem();
