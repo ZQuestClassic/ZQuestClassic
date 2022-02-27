@@ -6235,6 +6235,7 @@ void refresh(int32_t flags)
 				{
 					if(((Map.Scr(i)->color)&15)>0)
 					{
+						//!DIMITODO: MINIMAP COLOR STUFF, make these selectable for the user on a per-palette basis using csets 0-11 with more patterns.
 						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
 								 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
 						if(!is_large)
@@ -20710,6 +20711,19 @@ int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
         int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile
                    : guysbuf[id].tile;
         int32_t cset = guysbuf[id].cset;
+	if (cset == 14) 
+	{
+		cset = 13;
+		if (guysbuf[id].bosspal>-1)
+		{
+			load_cset(RAMpal,csBOSS-1,pSprite(guysbuf[id].bosspal));
+		}
+		else 
+		{
+			load_cset(RAMpal,csBOSS-1,csBOSS);
+		}
+		set_palette(RAMpal);
+	}
         int32_t x = d->x + int32_t(195 * (is_large ? 1.5:1));
         int32_t y = d->y + int32_t(2 * (is_large ? 1.5:1));
         int32_t w = 20;
@@ -21081,6 +21095,7 @@ int32_t onEnemies()
     }
     while(ret<10&&ret!=0);
     
+    refresh_pal();
     refresh(rALL);
     return D_O_K;
 }

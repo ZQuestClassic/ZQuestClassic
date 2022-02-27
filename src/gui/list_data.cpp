@@ -7,10 +7,16 @@
 extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
-
 #ifdef IS_ZQUEST
 extern const char *msgfont_str[font_max];
 extern const char *shadowstyle_str[sstsMAX];
+extern const char *enetype_string[eeMAX];
+extern int32_t enemy_weapon_types[];
+extern int32_t enemy_script_weapon_types[];
+extern const char *eweapon_string[wMax-wEnemyWeapons];
+extern const char *script_eweapon_string[10];
+extern const char *eneanim_string[aMAX];
+extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern miscQdata misc;
 #define QMisc misc
 #else
@@ -123,6 +129,241 @@ ListData ListData::itemclass(bool numbered)
 	}
 	return ls;
 }
+#ifdef IS_ZQUEST
+ListData ListData::enemyclass(bool numbered)
+{
+	map<string, int32_t> types;
+	set<string> typenames;
+	
+	for(int32_t i=0; i<eeMAX; i++)
+	{
+		if(enetype_string[i][0]=='-') continue;
+		if(enetype_string[i][0]==NULL) continue;
+		if (moduledata.enem_type_names[i][0]!=NULL)
+		{
+			if(moduledata.enem_type_names[i][0]=='-') continue;
+			
+			char const* module_str = moduledata.enem_type_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+		else //not set in the module file, so use the default
+		{
+			char const* module_str = enetype_string[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+	}
+	
+	ListData ls;
+	
+	for(auto it = typenames.begin(); it != typenames.end(); ++it)
+	{
+		ls.add(*it, types[*it]);
+	}
+	return ls;
+}
+
+ListData ListData::enemyanim(bool numbered)
+{
+	map<string, int32_t> types;
+	set<string> typenames;
+	
+	for(int32_t i=0; i<aMAX; i++)
+	{
+		if(eneanim_string[i][0]=='-') continue;
+		if(eneanim_string[i][0]==NULL) continue;
+		if (moduledata.enem_anim_type_names[i][0]!=NULL)
+		{
+			if(moduledata.enem_anim_type_names[i][0]=='-') continue;
+			
+			char const* module_str = moduledata.enem_anim_type_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+		else //not set in the module file, so use the default
+		{
+			
+			char const* module_str = eneanim_string[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = i;
+			typenames.insert(sname);
+			delete[] name;
+		}
+	}
+	
+	ListData ls;
+	
+	for(auto it = typenames.begin(); it != typenames.end(); ++it)
+	{
+		ls.add(*it, types[*it]);
+	}
+	return ls;
+}
+
+ListData ListData::itemsets(bool numbered)
+{
+	map<string, int32_t> types;
+	set<string> typenames;
+	int32_t count=0;
+	bool found=false;
+	
+	for(count=255; (count>0); --count)
+	{
+		for(int32_t i=0; (i<11); ++i)
+		{
+			if(item_drop_sets[count].chance[i]!=0)
+			{
+				found=true;
+				break;
+			}
+		}
+		
+		if(found)
+		{
+			char const* module_str = item_drop_sets[count].name;
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, count);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = count;
+			typenames.insert(sname);
+			delete[] name;
+			found = false;
+		}
+	}
+	
+	char const* module_str = item_drop_sets[0].name;
+	char* name = new char[strlen(module_str) + 7];
+	if(numbered)
+		sprintf(name, "%s (%03d)", module_str, 0);
+	else strcpy(name, module_str);
+	string sname(name);
+	
+	types[sname] = 0;
+	typenames.insert(sname);
+	delete[] name;
+	
+	ListData ls;
+	
+	for(auto it = typenames.begin(); it != typenames.end(); ++it)
+	{
+		ls.add(*it, types[*it]);
+	}
+	return ls;
+}
+
+ListData ListData::enemyweapons(bool numbered)
+{
+	map<string, int32_t> types;
+	set<string> typenames;
+	
+	for(int32_t i=0; i<wMax-wEnemyWeapons; i++)
+	{
+		if(eweapon_string[i][0]=='-') continue;
+		if(eweapon_string[i][0]==NULL) continue;
+		if (moduledata.enemy_weapon_names[i][0]!=NULL)
+		{
+			if(moduledata.enemy_weapon_names[i][0]=='-') continue;
+			
+			char const* module_str = moduledata.enemy_weapon_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = enemy_weapon_types[i];
+			typenames.insert(sname);
+			delete[] name;
+		}
+		else //not set in the module file, so use the default
+		{
+			
+			char const* module_str = eweapon_string[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = enemy_weapon_types[i];
+			typenames.insert(sname);
+			delete[] name;
+		}
+	}
+	for(int32_t i=0; i<10; i++)
+	{
+		if(script_eweapon_string[i][0]=='-') continue;
+		if(script_eweapon_string[i][0]==NULL) continue;
+		if (moduledata.enemy_scriptweaponweapon_names[i][0]!=NULL)
+		{
+			if(moduledata.enemy_scriptweaponweapon_names[i][0]=='-') continue;
+			
+			char const* module_str = moduledata.enemy_scriptweaponweapon_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = enemy_script_weapon_types[i];
+			typenames.insert(sname);
+			delete[] name;
+		}
+		else //not set in the module file, so use the default
+		{
+			
+			char const* module_str = script_eweapon_string[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
+				sprintf(name, "%s (%03d)", module_str, i);
+			else strcpy(name, module_str);
+			string sname(name);
+			
+			types[sname] = enemy_script_weapon_types[i];
+			typenames.insert(sname);
+			delete[] name;
+		}
+	}
+	
+	ListData ls;
+	
+	for(auto it = typenames.begin(); it != typenames.end(); ++it)
+	{
+		ls.add(*it, types[*it]);
+	}
+	return ls;
+}
+#endif
 
 ListData ListData::combotype(bool numbered)
 {
@@ -133,13 +374,13 @@ ListData ListData::combotype(bool numbered)
 	{
 		if(moduledata.combo_type_names[i][0] == '-')
 			continue; //Hidden
-        if(moduledata.combo_type_names[i][0])
+		if(moduledata.combo_type_names[i][0])
 		{
-            char const* module_str = moduledata.combo_type_names[i];
-            char* name = new char[strlen(module_str) + 7];
-            if(numbered)
+			char const* module_str = moduledata.combo_type_names[i];
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
 				sprintf(name, "%s (%03d)", module_str, i);
-            else strcpy(name, module_str);
+			else strcpy(name, module_str);
 			string sname(name);
 			
 			types[sname] = i;

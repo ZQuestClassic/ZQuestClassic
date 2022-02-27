@@ -35,6 +35,7 @@
 #include "zc_malloc.h"
 #include "ffscript.h"
 #include "dialog/itemeditor.h"
+#include "dialog/enemy_editor.h"
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"
 #include "dialog/info.h"
@@ -2106,9 +2107,9 @@ int32_t biew_cnt=-1;
 
 char temp_custom_ew_strings[10][40];
 
-static int32_t enemy_weapon_types[]=
+int32_t enemy_weapon_types[]=
 {
-	128, ewFireball,ewArrow,ewBrang,ewSword,
+	0, ewFireball,ewArrow,ewBrang,ewSword,
 	ewRock,ewMagic,ewBomb,ewSBomb,
 	//137
 	ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,
@@ -2118,7 +2119,7 @@ static int32_t enemy_weapon_types[]=
 	
 };
 
-static int32_t enemy_script_weapon_types[]=
+int32_t enemy_script_weapon_types[]=
 {
 	wScript1, wScript2, wScript3, wScript4,
 	//35
@@ -2148,8 +2149,8 @@ void build_biew_list()
 	for(int32_t i = 0; i < 10; i++)
 	{
 		biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[i];
-	biew[biew_cnt].i = enemy_script_weapon_types[i];
-	++biew_cnt;
+		biew[biew_cnt].i = enemy_script_weapon_types[i];
+		++biew_cnt;
 	}
 	al_trace("biew_cnt is: %d\n", biew_cnt);
 	for ( int32_t i = 0; i < biew_cnt; i++ )
@@ -4681,6 +4682,11 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 
 void edit_enemydata(int32_t index)
 {
+	if(bief_cnt==-1)
+	{
+		build_bief_list();
+	}
+	call_enemy_editor(index);
 	//guysbuf[index].script = 1;
 	char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
 		 frt[8], efr[8], bsp[8];
@@ -6579,6 +6585,7 @@ int32_t onCustomEnemies()
 		index = select_enemy("Select Enemy",index,true,true,foo);
 	}
 	
+	refresh_pal();
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }

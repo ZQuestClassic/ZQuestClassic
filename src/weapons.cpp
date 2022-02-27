@@ -1695,17 +1695,6 @@ weapon::weapon(weapon const & other):
     maxY(other.maxY),			//int32_t		...
     ref_o_tile(other.ref_o_tile),	//int32_t
 	
-    //! dimi Wand
-    /*
-    //!dimi: These 5 exist both here and in the header file. If you remove these, don't forget to
-    remove them over there as well.
-    */
-    count1(other.count1), 		//int32_t		dimi Wand 
-    count2(other.count2), 		//int32_t		dimi Wand 
-    count3(other.count3), 		//int32_t		dimi Wand
-    count4(other.count4), 		//int32_t		dimi Wand
-    count5(other.count5), 		//int32_t		dimi Wand
-	
     //Weapon Editor -Z
     useweapon(other.useweapon),		//byte		The weapon editor weapon type.
     usedefence(other.usedefence),	//byte		The defence type to evaluate in do_enemy_hit()
@@ -2040,7 +2029,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	flags = 0;
 	collectflags = 0;
 	duplicates = 0;
-	count1 = count2 = count3 = count4 = count5 = 0;
 	temp1 = 0;
 	scriptrange = blastsfx = wpnsprite = magiccosttimer = 0;
 	for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) ffmisc[q] = 0;
