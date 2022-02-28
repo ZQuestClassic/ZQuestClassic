@@ -6526,8 +6526,8 @@ void HeroClass::hithero(int32_t hit2)
     }
     
     enemy_scored(hit2);
-    int32_t dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
-    int32_t dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
+    int32_t dm7 = ((enemy*)guys.spr(hit2))->dmisc[6];
+    int32_t dm8 = ((enemy*)guys.spr(hit2))->dmisc[7];
     
     switch(((enemy*)guys.spr(hit2))->family)
     {
@@ -19023,7 +19023,7 @@ void HeroClass::checktouchblk()
 							id2=i;
 							
 							// This is mostly for backwards-compatability
-							if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+							if(guysbuf[i].family==eeWALK && guysbuf[i].guymisc[8]==e9tARMOS)
 							{
 								eclk=0;
 							}
@@ -19213,7 +19213,7 @@ void HeroClass::checkspecial()
         // if room has traps, guys don't come back
         for(int32_t i=0; i<eMAXGUYS; i++)
         {
-            if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+            if(guysbuf[i].family==eeTRAP&&guysbuf[i].guymisc[1])
                 if(guys.idCount(i) && !getmapflag(mTMPNORET))
                     setmapflag(mTMPNORET);
         }
@@ -20284,7 +20284,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 					}
 					break;
 				
-				//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
+				//x,y,z, wpn, 0, dmisc[3], dir,-1,getUID(),false);
 			}
 			if (!(cmb.usrflags&cflag3) ) //Don't Advance
 			{

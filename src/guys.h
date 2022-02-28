@@ -76,7 +76,7 @@ public:
 	
 	int16_t  rate, hrate, homing, grumble;
 	zfix dstep;
-	int32_t dmisc1, dmisc2, dmisc3, dmisc4, dmisc5, dmisc6, dmisc7, dmisc8, dmisc9, dmisc10, dmisc11, dmisc12, dmisc13, dmisc14, dmisc15;
+	int32_t dmisc[32];
 	int16_t bgsfx, bosspal;
 	byte defense[edefLAST255];
 	byte hitsfx,deadsfx;
@@ -103,9 +103,6 @@ public:
 	bool hashero;
 	
 	int16_t frozenmisc[10];
-	
-	int32_t dmisc16, dmisc17, dmisc18, dmisc19, dmisc20, dmisc21, dmisc22, dmisc23, 
-	dmisc24, dmisc25, dmisc26, dmisc27, dmisc28, dmisc29, dmisc30, dmisc31, dmisc32;
 	int32_t movement[32]; //Reserved for npc movement types and args. 
 	int32_t new_weapon[32]; //Reserved for weapon patterns and args.
 	word npcscript; 

@@ -10691,52 +10691,52 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(32);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc1,f))
+			if(!p_iputl(guysbuf[i].guymisc[0],f))
 			{
 				new_return(33);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc2,f))
+			if(!p_iputl(guysbuf[i].guymisc[1],f))
 			{
 				new_return(34);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc3,f))
+			if(!p_iputl(guysbuf[i].guymisc[2],f))
 			{
 				new_return(35);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc4,f))
+			if(!p_iputl(guysbuf[i].guymisc[3],f))
 			{
 				new_return(36);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc5,f))
+			if(!p_iputl(guysbuf[i].guymisc[4],f))
 			{
 				new_return(37);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc6,f))
+			if(!p_iputl(guysbuf[i].guymisc[5],f))
 			{
 				new_return(38);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc7,f))
+			if(!p_iputl(guysbuf[i].guymisc[6],f))
 			{
 				new_return(39);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc8,f))
+			if(!p_iputl(guysbuf[i].guymisc[7],f))
 			{
 				new_return(40);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc9,f))
+			if(!p_iputl(guysbuf[i].guymisc[8],f))
 			{
 				new_return(41);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc10,f))
+			if(!p_iputl(guysbuf[i].guymisc[9],f))
 			{
 				new_return(42);
 			}
@@ -10782,12 +10782,12 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(48);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc11,f))
+			if(!p_iputl(guysbuf[i].guymisc[10],f))
 			{
 				new_return(49);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc12,f))
+			if(!p_iputl(guysbuf[i].guymisc[11],f))
 			{
 				new_return(50);
 			}
@@ -10876,71 +10876,71 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(68);
 			}
 			//misc 16->31
-			if(!p_iputl(guysbuf[i].misc16,f))
+			if(!p_iputl(guysbuf[i].guymisc[15],f))
 			{
 				new_return(69);
 			}
-			if(!p_iputl(guysbuf[i].misc17,f))
+			if(!p_iputl(guysbuf[i].guymisc[16],f))
 			{
 				new_return(70);
 			}
-			if(!p_iputl(guysbuf[i].misc18,f))
+			if(!p_iputl(guysbuf[i].guymisc[17],f))
 			{
 				new_return(71);
 			}
-			if(!p_iputl(guysbuf[i].misc19,f))
+			if(!p_iputl(guysbuf[i].guymisc[18],f))
 			{
 				new_return(72);
 			}
-			if(!p_iputl(guysbuf[i].misc20,f))
+			if(!p_iputl(guysbuf[i].guymisc[19],f))
 			{
 				new_return(73);
 			}
-			if(!p_iputl(guysbuf[i].misc21,f))
+			if(!p_iputl(guysbuf[i].guymisc[20],f))
 			{
 				new_return(74);
 			}
-			if(!p_iputl(guysbuf[i].misc22,f))
+			if(!p_iputl(guysbuf[i].guymisc[21],f))
 			{
 				new_return(75);
 			}
-			if(!p_iputl(guysbuf[i].misc23,f))
+			if(!p_iputl(guysbuf[i].guymisc[22],f))
 			{
 				new_return(76);
 			}
-			if(!p_iputl(guysbuf[i].misc24,f))
+			if(!p_iputl(guysbuf[i].guymisc[23],f))
 			{
 				new_return(77);
 			}
-			if(!p_iputl(guysbuf[i].misc25,f))
+			if(!p_iputl(guysbuf[i].guymisc[24],f))
 			{
 				new_return(78);
 			}
-			if(!p_iputl(guysbuf[i].misc26,f))
+			if(!p_iputl(guysbuf[i].guymisc[25],f))
 			{
 				new_return(79);
 			}
-			if(!p_iputl(guysbuf[i].misc27,f))
+			if(!p_iputl(guysbuf[i].guymisc[26],f))
 			{
 				new_return(80);
 			}
-			if(!p_iputl(guysbuf[i].misc28,f))
+			if(!p_iputl(guysbuf[i].guymisc[27],f))
 			{
 				new_return(81);
 			}
-			if(!p_iputl(guysbuf[i].misc29,f))
+			if(!p_iputl(guysbuf[i].guymisc[28],f))
 			{
 				new_return(82);
 			}
-			if(!p_iputl(guysbuf[i].misc30,f))
+			if(!p_iputl(guysbuf[i].guymisc[29],f))
 			{
 				new_return(83);
 			}
-			if(!p_iputl(guysbuf[i].misc31,f))
+			if(!p_iputl(guysbuf[i].guymisc[30],f))
 			{
 				new_return(84);
 			}
-			if(!p_iputl(guysbuf[i].misc32,f))
+			if(!p_iputl(guysbuf[i].guymisc[31],f))
 			{
 				new_return(85);
 			}
@@ -10981,15 +10981,15 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(91);
 			}
 			//somehow forgot these in the older builds -Z
-			if(!p_iputl(guysbuf[i].misc13,f))
+			if(!p_iputl(guysbuf[i].guymisc[12],f))
 			{
 				new_return(92);
 			}
-			if(!p_iputl(guysbuf[i].misc14,f))
+			if(!p_iputl(guysbuf[i].guymisc[13],f))
 			{
 				new_return(93);
 			}
-			if(!p_iputl(guysbuf[i].misc15,f))
+			if(!p_iputl(guysbuf[i].guymisc[14],f))
 			{
 				new_return(94);
 			}

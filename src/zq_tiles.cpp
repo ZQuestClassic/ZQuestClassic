@@ -7276,7 +7276,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					else if(enemy.family==eeGLEEOK)
 					{
 						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
+						if(enemy.guymisc[2] ==0)
 							gleeok=1;
 						else
 							gleeok=2;
@@ -8915,7 +8915,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					else if(enemy.family==eeGLEEOK)
 					{
 						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
+						if(enemy.guymisc[2] ==0)
 							gleeok=1;
 						else
 							gleeok=2;
@@ -10555,7 +10555,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					else if(enemy.family==eeGLEEOK)
 					{
 						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
+						if(enemy.guymisc[2] ==0)
 							gleeok=1;
 						else
 							gleeok=2;
@@ -12114,7 +12114,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					else if(enemy.family==eeGLEEOK)
 					{
 						// Not certain this is the right thing to check...
-						if(enemy.misc3==0)
+						if(enemy.guymisc[2] ==0)
 							gleeok=1;
 						else
 							gleeok=2;
@@ -13217,7 +13217,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			else if(enemy.family==eeGLEEOK)
 			{
 				// Not certain this is the right thing to check...
-				if(enemy.misc3==0)
+				if(enemy.guymisc[2] ==0)
 					gleeok=1;
 				else
 					gleeok=2;

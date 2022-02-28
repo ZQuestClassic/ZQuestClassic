@@ -1666,38 +1666,38 @@ public:
 	{
 		switch(a)
 		{
-			case 0: return tempenemy->dmisc1;
-			case 1: return tempenemy->dmisc2;
-			case 2: return tempenemy->dmisc3;
-			case 3: return tempenemy->dmisc4;
-			case 4: return tempenemy->dmisc5;
-			case 5: return tempenemy->dmisc6;
-			case 6: return tempenemy->dmisc7;
-			case 7: return tempenemy->dmisc8;
-			case 8: return tempenemy->dmisc9;
-			case 9: return tempenemy->dmisc10;
-			case 10: return tempenemy->dmisc11;
-			case 11: return tempenemy->dmisc12;
-			case 12: return tempenemy->dmisc13;
-			case 13: return tempenemy->dmisc14;
-			case 14: return tempenemy->dmisc15;
-			case 15: return tempenemy->dmisc16;
-			case 16: return tempenemy->dmisc17;
-			case 17: return tempenemy->dmisc18;
-			case 18: return tempenemy->dmisc19;
-			case 19: return tempenemy->dmisc20;
-			case 20: return tempenemy->dmisc21;
-			case 21: return tempenemy->dmisc22;
-			case 22: return tempenemy->dmisc23;
-			case 23: return tempenemy->dmisc24;
-			case 24: return tempenemy->dmisc25;
-			case 25: return tempenemy->dmisc26;
-			case 26: return tempenemy->dmisc27;
-			case 27: return tempenemy->dmisc28;
-			case 28: return tempenemy->dmisc29;
-			case 29: return tempenemy->dmisc30;
-			case 30: return tempenemy->dmisc31;
-			case 31: return tempenemy->dmisc32;
+			case 0: return tempenemy->dmisc[0];
+			case 1: return tempenemy->dmisc[1];
+			case 2: return tempenemy->dmisc[2];
+			case 3: return tempenemy->dmisc[3];
+			case 4: return tempenemy->dmisc[4];
+			case 5: return tempenemy->dmisc[5];
+			case 6: return tempenemy->dmisc[6];
+			case 7: return tempenemy->dmisc[7];
+			case 8: return tempenemy->dmisc[8];
+			case 9: return tempenemy->dmisc[9];
+			case 10: return tempenemy->dmisc[10];
+			case 11: return tempenemy->dmisc[11];
+			case 12: return tempenemy->dmisc[12];
+			case 13: return tempenemy->dmisc[13];
+			case 14: return tempenemy->dmisc[14];
+			case 15: return tempenemy->dmisc[15];
+			case 16: return tempenemy->dmisc[16];
+			case 17: return tempenemy->dmisc[17];
+			case 18: return tempenemy->dmisc[18];
+			case 19: return tempenemy->dmisc[19];
+			case 20: return tempenemy->dmisc[20];
+			case 21: return tempenemy->dmisc[21];
+			case 22: return tempenemy->dmisc[22];
+			case 23: return tempenemy->dmisc[23];
+			case 24: return tempenemy->dmisc[24];
+			case 25: return tempenemy->dmisc[25];
+			case 26: return tempenemy->dmisc[26];
+			case 27: return tempenemy->dmisc[27];
+			case 28: return tempenemy->dmisc[28];
+			case 29: return tempenemy->dmisc[29];
+			case 30: return tempenemy->dmisc[30];
+			case 31: return tempenemy->dmisc[31];
 		}
 		
 		return 0;
@@ -10010,49 +10010,14 @@ int32_t get_register(const int32_t arg)
 			} 
 			else 
 			{ 
-				switch(indx)
+				if (indx >= 0 && indx < 32) //!DIMI Enemy Attributes
 				{
-					case 0: ret = (guysbuf[ri->npcdataref].misc1 * 10000); break;
-					case 1: ret = (guysbuf[ri->npcdataref].misc2 * 10000); break;
-					case 2: ret = (guysbuf[ri->npcdataref].misc3 * 10000); break;
-					case 3: ret = (guysbuf[ri->npcdataref].misc4 * 10000); break;
-					case 4: ret = (guysbuf[ri->npcdataref].misc5 * 10000); break;
-					case 5: ret = (guysbuf[ri->npcdataref].misc6 * 10000); break;
-					case 6: ret = (guysbuf[ri->npcdataref].misc7 * 10000); break;
-					case 7: ret = (guysbuf[ri->npcdataref].misc8 * 10000); break;
-					case 8: ret = (guysbuf[ri->npcdataref].misc9 * 10000); break;
-					case 9: ret = (guysbuf[ri->npcdataref].misc10 * 10000); break;
-					case 10: ret = (guysbuf[ri->npcdataref].misc11 * 10000); break;
-					case 11: ret = (guysbuf[ri->npcdataref].misc12 * 10000); break;
-					case 12: ret = (guysbuf[ri->npcdataref].misc13 * 10000); break;
-					case 13: ret = (guysbuf[ri->npcdataref].misc14 * 10000); break;
-					case 14: ret = (guysbuf[ri->npcdataref].misc15 * 10000); break;
-					case 15: ret = (guysbuf[ri->npcdataref].misc16 * 10000); break;
-					case 16: ret = (guysbuf[ri->npcdataref].misc17 * 10000); break;
-					case 17: ret = (guysbuf[ri->npcdataref].misc18* 10000); break;
-					case 18: ret = (guysbuf[ri->npcdataref].misc19 * 10000); break;
-					case 19: ret = (guysbuf[ri->npcdataref].misc20 * 10000); break;
-					case 20: ret = (guysbuf[ri->npcdataref].misc21 * 10000); break;
-					case 21: ret = (guysbuf[ri->npcdataref].misc22 * 10000); break;
-					case 22: ret = (guysbuf[ri->npcdataref].misc23 * 10000); break;
-					case 23: ret = (guysbuf[ri->npcdataref].misc24 * 10000); break;
-					case 24: ret = (guysbuf[ri->npcdataref].misc25 * 10000); break;
-					case 25: ret = (guysbuf[ri->npcdataref].misc26 * 10000); break;
-					case 26: ret = (guysbuf[ri->npcdataref].misc27 * 10000); break;
-					case 27: ret = (guysbuf[ri->npcdataref].misc28 * 10000); break;
-					case 28: ret = (guysbuf[ri->npcdataref].misc29 * 10000); break;
-					case 29: ret = (guysbuf[ri->npcdataref].misc30 * 10000); break;
-					case 30: ret = (guysbuf[ri->npcdataref].misc31 * 10000); break;
-					case 31: ret = (guysbuf[ri->npcdataref].misc32 * 10000); break;
-					
-					
-					
-					default: 
-					{
-						Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
-						ret = -10000;
-						break;
-					}
+					ret = (guysbuf[ri->npcdataref].guymisc[indx] * 10000);
+				}	
+				else 
+				{
+					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
+					ret = -10000;
 				}
 					
 			} 
@@ -14251,38 +14216,38 @@ void set_register(const int32_t arg, const int32_t value)
 		
 			switch(a)
 			{
-				case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
-				case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
-				case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
-				case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
-				case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
-				case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
-				case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
-				case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
-				case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
-				case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
-				case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
-				case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
-				case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
-				case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
-				case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
-				case 15: GuyH::getNPC()->dmisc16 = value / 10000; break;
-				case 16: GuyH::getNPC()->dmisc17 = value / 10000; break;
-				case 17: GuyH::getNPC()->dmisc18 = value / 10000; break;
-				case 18: GuyH::getNPC()->dmisc19 = value / 10000; break;
-				case 19: GuyH::getNPC()->dmisc20 = value / 10000; break;
-				case 20: GuyH::getNPC()->dmisc21 = value / 10000; break;
-				case 21: GuyH::getNPC()->dmisc22 = value / 10000; break;
-				case 22: GuyH::getNPC()->dmisc23 = value / 10000; break;
-				case 23: GuyH::getNPC()->dmisc24 = value / 10000; break;
-				case 24: GuyH::getNPC()->dmisc25 = value / 10000; break;
-				case 25: GuyH::getNPC()->dmisc26 = value / 10000; break;
-				case 26: GuyH::getNPC()->dmisc27 = value / 10000; break;
-				case 27: GuyH::getNPC()->dmisc28 = value / 10000; break;
-				case 28: GuyH::getNPC()->dmisc28 = value / 10000; break;
-				case 29: GuyH::getNPC()->dmisc30 = value / 10000; break;
-				case 30: GuyH::getNPC()->dmisc31 = value / 10000; break;
-				case 31: GuyH::getNPC()->dmisc32 = value / 10000; break;
+				case 0: GuyH::getNPC()->dmisc[0] = value / 10000; break;
+				case 1: GuyH::getNPC()->dmisc[1] = value / 10000; break;
+				case 2: GuyH::getNPC()->dmisc[2] = value / 10000; break;
+				case 3: GuyH::getNPC()->dmisc[3] = value / 10000; break;
+				case 4: GuyH::getNPC()->dmisc[4] = value / 10000; break;
+				case 5: GuyH::getNPC()->dmisc[5] = value / 10000; break;
+				case 6: GuyH::getNPC()->dmisc[6] = value / 10000; break;
+				case 7: GuyH::getNPC()->dmisc[7] = value / 10000; break;
+				case 8: GuyH::getNPC()->dmisc[8] = value / 10000; break;
+				case 9: GuyH::getNPC()->dmisc[9] = value / 10000; break;
+				case 10: GuyH::getNPC()->dmisc[10] = value / 10000; break;
+				case 11: GuyH::getNPC()->dmisc[11] = value / 10000; break;
+				case 12: GuyH::getNPC()->dmisc[12] = value / 10000; break;
+				case 13: GuyH::getNPC()->dmisc[13] = value / 10000; break;
+				case 14: GuyH::getNPC()->dmisc[14] = value / 10000; break;
+				case 15: GuyH::getNPC()->dmisc[15] = value / 10000; break;
+				case 16: GuyH::getNPC()->dmisc[16] = value / 10000; break;
+				case 17: GuyH::getNPC()->dmisc[17] = value / 10000; break;
+				case 18: GuyH::getNPC()->dmisc[18] = value / 10000; break;
+				case 19: GuyH::getNPC()->dmisc[19] = value / 10000; break;
+				case 20: GuyH::getNPC()->dmisc[20] = value / 10000; break;
+				case 21: GuyH::getNPC()->dmisc[21] = value / 10000; break;
+				case 22: GuyH::getNPC()->dmisc[22] = value / 10000; break;
+				case 23: GuyH::getNPC()->dmisc[23] = value / 10000; break;
+				case 24: GuyH::getNPC()->dmisc[24] = value / 10000; break;
+				case 25: GuyH::getNPC()->dmisc[25] = value / 10000; break;
+				case 26: GuyH::getNPC()->dmisc[26] = value / 10000; break;
+				case 27: GuyH::getNPC()->dmisc[27] = value / 10000; break;
+				case 28: GuyH::getNPC()->dmisc[28] = value / 10000; break;
+				case 29: GuyH::getNPC()->dmisc[29] = value / 10000; break;
+				case 30: GuyH::getNPC()->dmisc[30] = value / 10000; break;
+				case 31: GuyH::getNPC()->dmisc[31] = value / 10000; break;
 				default: break;
 			}
 			break;
@@ -18394,47 +18359,14 @@ void set_register(const int32_t arg, const int32_t value)
 			} 
 			else 
 			{ 
-				switch(indx)
+				if (indx >= 0 && indx < 32) //!DIMI Enemy Attributes
 				{
-					case 0: guysbuf[ri->npcdataref].misc1 = (value / 10000); break;
-					case 1: guysbuf[ri->npcdataref].misc2 = (value / 10000); break;
-					case 2: guysbuf[ri->npcdataref].misc3 = (value / 10000); break;
-					case 3: guysbuf[ri->npcdataref].misc4 = (value / 10000); break;
-					case 4: guysbuf[ri->npcdataref].misc5 = (value / 10000); break;
-					case 5: guysbuf[ri->npcdataref].misc6 = (value / 10000); break;
-					case 6: guysbuf[ri->npcdataref].misc7 = (value / 10000); break;
-					case 7: guysbuf[ri->npcdataref].misc8 = (value / 10000); break;
-					case 8: guysbuf[ri->npcdataref].misc9 = (value / 10000); break;
-					case 9: guysbuf[ri->npcdataref].misc10 = (value / 10000); break;
-					case 10: guysbuf[ri->npcdataref].misc11 = (value / 10000); break;
-					case 11: guysbuf[ri->npcdataref].misc12 = (value / 10000); break;
-					case 12: guysbuf[ri->npcdataref].misc13 = (value / 10000); break;
-					case 13: guysbuf[ri->npcdataref].misc14 = (value / 10000); break;
-					case 14: guysbuf[ri->npcdataref].misc15 = (value / 10000); break;
+					guysbuf[ri->npcdataref].guymisc[indx] = (value / 10000);
 					
-					case 15: guysbuf[ri->npcdataref].misc16 = value / 10000; break;
-					case 16: guysbuf[ri->npcdataref].misc17 = value / 10000; break;
-					case 17: guysbuf[ri->npcdataref].misc18 = value / 10000; break;
-					case 18: guysbuf[ri->npcdataref].misc19 = value / 10000; break;
-					case 19: guysbuf[ri->npcdataref].misc20 = value / 10000; break;
-					case 20: guysbuf[ri->npcdataref].misc21 = value / 10000; break;
-					case 21: guysbuf[ri->npcdataref].misc22 = value / 10000; break;
-					case 22: guysbuf[ri->npcdataref].misc23 = value / 10000; break;
-					case 23: guysbuf[ri->npcdataref].misc24 = value / 10000; break;
-					case 24: guysbuf[ri->npcdataref].misc25 = value / 10000; break;
-					case 25: guysbuf[ri->npcdataref].misc26 = value / 10000; break;
-					case 26: guysbuf[ri->npcdataref].misc27 = value / 10000; break;
-					case 27: guysbuf[ri->npcdataref].misc28 = value / 10000; break;
-					case 28: guysbuf[ri->npcdataref].misc29 = value / 10000; break;
-					case 29: guysbuf[ri->npcdataref].misc30 = value / 10000; break;
-					case 30: guysbuf[ri->npcdataref].misc31 = value / 10000; break;
-					case 31: guysbuf[ri->npcdataref].misc32 = value / 10000; break;
-					
-						default: 
-					{
-						Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
-						break;
-					}
+				}
+				else
+				{
+					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
 				}
 					
 			} 
@@ -28903,26 +28835,11 @@ void FFScript::getNPCData_misc()
 {
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
-	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 ))
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 31 ))
 		set_register(sarg1, -10000); 
-	switch ( indx )
+	else
 	{
-		case 0: set_register(sarg1, guysbuf[ID].misc1 * 10000); break;
-		case 1: set_register(sarg1, guysbuf[ID].misc2 * 10000); break;
-		case 2: set_register(sarg1, guysbuf[ID].misc3 * 10000); break;
-		case 3: set_register(sarg1, guysbuf[ID].misc4 * 10000); break;
-		case 4: set_register(sarg1, guysbuf[ID].misc5 * 10000); break;
-		case 5: set_register(sarg1, guysbuf[ID].misc6 * 10000); break;
-		case 6: set_register(sarg1, guysbuf[ID].misc7 * 10000); break;
-		case 7: set_register(sarg1, guysbuf[ID].misc8 * 10000); break;
-		case 8: set_register(sarg1, guysbuf[ID].misc9 * 10000); break;
-		case 9: set_register(sarg1, guysbuf[ID].misc10 * 10000); break;
-		case 10: set_register(sarg1, guysbuf[ID].misc11 * 10000); break;
-		case 11: set_register(sarg1, guysbuf[ID].misc12 * 10000); break;
-		case 12: set_register(sarg1, guysbuf[ID].misc13 * 10000); break;
-		case 13: set_register(sarg1, guysbuf[ID].misc14 * 10000); break;
-		case 14: set_register(sarg1, guysbuf[ID].misc15 * 10000); break;
-		default: set_register(sarg1, -10000); break;
+		set_register(sarg1, guysbuf[ID].guymisc[indx] * 10000);
 	}
 }
 
@@ -29057,25 +28974,10 @@ void FFScript::setNPCData_misc(int32_t val)
 {
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
-	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 )) return;
-	switch ( indx )
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 31 )) return;
+	else
 	{
-		case 0: guysbuf[ID].misc1 = val; break;
-		case 1: guysbuf[ID].misc2 = val; break;
-		case 2: guysbuf[ID].misc3 = val; break;
-		case 3: guysbuf[ID].misc4 = val; break;
-		case 4: guysbuf[ID].misc5 = val; break;
-		case 5: guysbuf[ID].misc6 = val; break;
-		case 6: guysbuf[ID].misc7 = val; break;
-		case 7: guysbuf[ID].misc8 = val; break;
-		case 8: guysbuf[ID].misc9 = val; break;
-		case 9: guysbuf[ID].misc10 = val; break;
-		case 10: guysbuf[ID].misc11 = val; break;
-		case 11: guysbuf[ID].misc12 = val; break;
-		case 12: guysbuf[ID].misc13 = val; break;
-		case 13: guysbuf[ID].misc14 = val; break;
-		case 14: guysbuf[ID].misc15 = val; break;
-		default: break;
+		guysbuf[ID].guymisc[indx] = val;
 	}
 	
 };
@@ -36537,52 +36439,52 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",32);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc1,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[0],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",33);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc2,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[1],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",34);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc3,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[2],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",35);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc4,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[3],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",36);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc5,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[4],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",37);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc6,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[5],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",38);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc7,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[6],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",39);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc8,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[7],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",40);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc9,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[8],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",41);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc10,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[9],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",42);
 			}
@@ -36620,12 +36522,12 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",48);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc11,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[10],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",49);
 			}
 			
-			if(!p_igetl(&guysbuf[i].misc12,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[11],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",50);
 			}
@@ -36714,71 +36616,71 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",68);
 			}
 			//misc 16->31
-			if(!p_igetl(&guysbuf[i].misc16,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[15],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",69);
 			}
-			if(!p_igetl(&guysbuf[i].misc17,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[16],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",70);
 			}
-			if(!p_igetl(&guysbuf[i].misc18,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[17],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",71);
 			}
-			if(!p_igetl(&guysbuf[i].misc19,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[18],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",72);
 			}
-			if(!p_igetl(&guysbuf[i].misc20,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[19],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",73);
 			}
-			if(!p_igetl(&guysbuf[i].misc21,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[20],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",74);
 			}
-			if(!p_igetl(&guysbuf[i].misc22,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[21],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",75);
 			}
-			if(!p_igetl(&guysbuf[i].misc23,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[22],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",76);
 			}
-			if(!p_igetl(&guysbuf[i].misc24,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[23],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",77);
 			}
-			if(!p_igetl(&guysbuf[i].misc25,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[24],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",78);
 			}
-			if(!p_igetl(&guysbuf[i].misc26,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[25],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",79);
 			}
-			if(!p_igetl(&guysbuf[i].misc27,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[26],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",80);
 			}
-			if(!p_igetl(&guysbuf[i].misc28,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[27],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",81);
 			}
-			if(!p_igetl(&guysbuf[i].misc29,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[28],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",82);
 			}
-			if(!p_igetl(&guysbuf[i].misc30,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[29],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",83);
 			}
-			if(!p_igetl(&guysbuf[i].misc31,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[30],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",84);
 			}
-			if(!p_igetl(&guysbuf[i].misc32,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[31],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",85);
 			}
@@ -36819,15 +36721,15 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",91);
 			}
 			//somehow forgot these in the older builds -Z
-			if(!p_igetl(&guysbuf[i].misc13,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[12],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",92);
 			}
-			if(!p_igetl(&guysbuf[i].misc14,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[13],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",93);
 			}
-			if(!p_igetl(&guysbuf[i].misc15,f,true))
+			if(!p_igetl(&guysbuf[i].guymisc[14],f,true))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",94);
 			}
@@ -37006,52 +36908,52 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",32);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc1,f))
+		if(!p_iputl(guysbuf[i].guymisc[0],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",33);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc2,f))
+		if(!p_iputl(guysbuf[i].guymisc[1],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",34);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc3,f))
+		if(!p_iputl(guysbuf[i].guymisc[2],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",35);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc4,f))
+		if(!p_iputl(guysbuf[i].guymisc[3],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",36);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc5,f))
+		if(!p_iputl(guysbuf[i].guymisc[4],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",37);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc6,f))
+		if(!p_iputl(guysbuf[i].guymisc[5],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",38);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc7,f))
+		if(!p_iputl(guysbuf[i].guymisc[6],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",39);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc8,f))
+		if(!p_iputl(guysbuf[i].guymisc[7],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",40);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc9,f))
+		if(!p_iputl(guysbuf[i].guymisc[8],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",41);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc10,f))
+		if(!p_iputl(guysbuf[i].guymisc[9],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",42);
 		}
@@ -37089,12 +36991,12 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",48);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc11,f))
+		if(!p_iputl(guysbuf[i].guymisc[10],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",49);
 		}
 		
-		if(!p_iputl(guysbuf[i].misc12,f))
+		if(!p_iputl(guysbuf[i].guymisc[11],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",50);
 		}
@@ -37183,71 +37085,71 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",68);
 		}
 		//misc 16->31
-		if(!p_iputl(guysbuf[i].misc16,f))
+		if(!p_iputl(guysbuf[i].guymisc[15],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",69);
 		}
-		if(!p_iputl(guysbuf[i].misc17,f))
+		if(!p_iputl(guysbuf[i].guymisc[16],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",70);
 		}
-		if(!p_iputl(guysbuf[i].misc18,f))
+		if(!p_iputl(guysbuf[i].guymisc[17],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",71);
 		}
-		if(!p_iputl(guysbuf[i].misc19,f))
+		if(!p_iputl(guysbuf[i].guymisc[18],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",72);
 		}
-		if(!p_iputl(guysbuf[i].misc20,f))
+		if(!p_iputl(guysbuf[i].guymisc[19],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",73);
 		}
-		if(!p_iputl(guysbuf[i].misc21,f))
+		if(!p_iputl(guysbuf[i].guymisc[20],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",74);
 		}
-		if(!p_iputl(guysbuf[i].misc22,f))
+		if(!p_iputl(guysbuf[i].guymisc[21],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",75);
 		}
-		if(!p_iputl(guysbuf[i].misc23,f))
+		if(!p_iputl(guysbuf[i].guymisc[22],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",76);
 		}
-		if(!p_iputl(guysbuf[i].misc24,f))
+		if(!p_iputl(guysbuf[i].guymisc[23],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",77);
 		}
-		if(!p_iputl(guysbuf[i].misc25,f))
+		if(!p_iputl(guysbuf[i].guymisc[24],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",78);
 		}
-		if(!p_iputl(guysbuf[i].misc26,f))
+		if(!p_iputl(guysbuf[i].guymisc[25],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",79);
 		}
-		if(!p_iputl(guysbuf[i].misc27,f))
+		if(!p_iputl(guysbuf[i].guymisc[26],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",80);
 		}
-		if(!p_iputl(guysbuf[i].misc28,f))
+		if(!p_iputl(guysbuf[i].guymisc[27],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",81);
 		}
-		if(!p_iputl(guysbuf[i].misc29,f))
+		if(!p_iputl(guysbuf[i].guymisc[28],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",82);
 		}
-		if(!p_iputl(guysbuf[i].misc30,f))
+		if(!p_iputl(guysbuf[i].guymisc[29],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",83);
 		}
-		if(!p_iputl(guysbuf[i].misc31,f))
+		if(!p_iputl(guysbuf[i].guymisc[30],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",84);
 		}
-		if(!p_iputl(guysbuf[i].misc32,f))
+		if(!p_iputl(guysbuf[i].guymisc[31],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",85);
 		}
@@ -37288,15 +37190,15 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",91);
 		}
 		//somehow forgot these in the older builds -Z
-		if(!p_iputl(guysbuf[i].misc13,f))
+		if(!p_iputl(guysbuf[i].guymisc[12],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",92);
 		}
-		if(!p_iputl(guysbuf[i].misc14,f))
+		if(!p_iputl(guysbuf[i].guymisc[13],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",93);
 		}
-		if(!p_iputl(guysbuf[i].misc15,f))
+		if(!p_iputl(guysbuf[i].guymisc[14],f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",94);
 		}

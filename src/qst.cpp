@@ -9462,7 +9462,7 @@ void init_guys(int32_t guyversion)
     for(int32_t i=0; i<OLDMAXGUYS; i++)
     {
         guysbuf[i] = default_guys[i];
-        guysbuf[i].spr_shadow = (guysbuf[i].family==eeROCK && guysbuf[i].misc10==1) ? iwLargeShadow : iwShadow;
+        guysbuf[i].spr_shadow = (guysbuf[i].family==eeROCK && guysbuf[i].guymisc[9]==1) ? iwLargeShadow : iwShadow;
 	guysbuf[i].spr_death = iwDeath;
 	guysbuf[i].spr_spawn = iwSpawn;
         // Patra fix: 2.10 BSPatras used spDIG. 2.50 Patras use CSet 7.
@@ -9470,7 +9470,7 @@ void init_guys(int32_t guyversion)
         {
             guysbuf[i].bosspal=spDIG;
             guysbuf[i].cset=14;
-            guysbuf[i].misc9=14;
+            guysbuf[i].guymisc[8]=14;
         }
         
         if(guyversion<=3)
@@ -9525,7 +9525,7 @@ void init_guys(int32_t guyversion)
         
         if((i==eGELTRIB || i==eFGELTRIB) && get_bit(deprecated_rules,qr_OLDTRIBBLES_DEP))
         {
-            guysbuf[i].misc3 = (i==eFGELTRIB ? eFZOL : eZOL);
+            guysbuf[i].guymisc[2] = (i==eFGELTRIB ? eFZOL : eZOL);
         }
     }
 }
@@ -13525,8 +13525,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	guysbuf[eWWIZ].editorflags |= ENEMY_FLAG5;
 	guysbuf[eMOLDORM].editorflags |= ENEMY_FLAG6;
 	guysbuf[eMANHAN].editorflags |= ENEMY_FLAG6;
-	guysbuf[eCENT1].misc3 = 1;
-	guysbuf[eCENT2].misc3 = 1;
+	guysbuf[eCENT1].guymisc[2] = 1;
+	guysbuf[eCENT2].guymisc[2] = 1;
     }
     if((Header->zelda_version <= 0x255) || (Header->zelda_version == 0x255 && Header->build < 47) )
     {
@@ -13534,58 +13534,58 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     if(Header->zelda_version <= 0x210)
     {
-        guysbuf[eGLEEOK1F].misc6 = 16;
-        guysbuf[eGLEEOK2F].misc6 = 16;
-        guysbuf[eGLEEOK3F].misc6 = 16;
-        guysbuf[eGLEEOK4F].misc6 = 16;
+        guysbuf[eGLEEOK1F].guymisc[5] = 16;
+        guysbuf[eGLEEOK2F].guymisc[5] = 16;
+        guysbuf[eGLEEOK3F].guymisc[5] = 16;
+        guysbuf[eGLEEOK4F].guymisc[5] = 16;
 	    
-        guysbuf[eWIZ1].misc4 = 1; //only set the enemy that needs backward compat, not all of them.
-        guysbuf[eBATROBE].misc4 = 1;
+        guysbuf[eWIZ1].guymisc[3] = 1; //only set the enemy that needs backward compat, not all of them.
+        guysbuf[eBATROBE].guymisc[3] = 1;
         //guysbuf[eSUMMONER].misc4 = 1;
-        guysbuf[eWWIZ].misc4 = 1;
+        guysbuf[eWWIZ].guymisc[3] = 1;
 	    guysbuf[eDODONGO].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
 	guysbuf[eDODONGOBS].deadsfx = 15; //In 2.10 and earlier, Dodongos used this as their death sound.
     }
     if(Header->zelda_version == 0x190)
     {
 	al_trace("Setting Tribble Properties for Version: %x", Header->zelda_version);
-	guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
-	guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
+	guysbuf[eKEESETRIB].guymisc[2] = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
+	guysbuf[eGELTRIB].guymisc[2] = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     
     // The versions here may not be correct
     // zelda_version>=0x211 handled at guyversion<24
     if(Header->zelda_version <= 0x190)
     {
-        guysbuf[eCENT1].misc3 = 0;
-        guysbuf[eCENT2].misc3 = 0;
-        guysbuf[eMOLDORM].misc2 = 0;
+        guysbuf[eCENT1].guymisc[2] = 0;
+        guysbuf[eCENT2].guymisc[2] = 0;
+        guysbuf[eMOLDORM].guymisc[1] = 0;
 	//guysbuf[eKEESETRIB].misc3 = eVIRE; //1.90 and earlier, keese and gel tribbles grew up into 
 	//guysbuf[eGELTRIB].misc3 = eZOL; //normal vires, and zols -Z (16th January, 2019 )
     }
     else if(Header->zelda_version <= 0x210)
     {
-        guysbuf[eCENT1].misc3 = 1;
-        guysbuf[eCENT2].misc3 = 1;
-        guysbuf[eMOLDORM].misc2 = 0;
+        guysbuf[eCENT1].guymisc[2] = 1;
+        guysbuf[eCENT2].guymisc[2] = 1;
+        guysbuf[eMOLDORM].guymisc[1] = 0;
     }
     
     if ( Header->zelda_version < 0x211 ) //Default rest rates for phantom ghinis, peahats and keese in < 2.50 quests
     {
-	guysbuf[eKEESE1].misc16 = 120;
-	guysbuf[eKEESE2].misc16 = 120;
-	guysbuf[eKEESE3].misc16 = 120;
-	guysbuf[eKEESETRIB].misc16 = 120;
-	guysbuf[eKEESE1].misc17 = 16;
-	guysbuf[eKEESE2].misc17 = 16;
-	guysbuf[eKEESE3].misc17 = 16;
-	guysbuf[eKEESETRIB].misc17 = 16;
+	guysbuf[eKEESE1].guymisc[15] = 120;
+	guysbuf[eKEESE2].guymisc[15] = 120;
+	guysbuf[eKEESE3].guymisc[15] = 120;
+	guysbuf[eKEESETRIB].guymisc[15] = 120;
+	guysbuf[eKEESE1].guymisc[16] = 16;
+	guysbuf[eKEESE2].guymisc[16] = 16;
+	guysbuf[eKEESE3].guymisc[16] = 16;
+	guysbuf[eKEESETRIB].guymisc[16] = 16;
 	    
-	guysbuf[ePEAHAT].misc16 = 80;
-	guysbuf[ePEAHAT].misc17 = 16;
+	guysbuf[ePEAHAT].guymisc[15] = 80;
+	guysbuf[ePEAHAT].guymisc[16] = 16;
 	    
-	guysbuf[eGHINI2].misc16 = 120;
-	guysbuf[eGHINI2].misc17 = 10;	
+	guysbuf[eGHINI2].guymisc[15] = 120;
+	guysbuf[eGHINI2].guymisc[16] = 10;
 	    
     }
     
@@ -13864,52 +13864,52 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(guyversion>=22) // Version 22: Expand misc attributes to 32 bits
             {
-                if(!p_igetl(&(tempguy.misc1),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[0]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc2),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[1]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc3),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[2]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc4),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[3]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc5),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[4]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc6),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[5]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc7),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[6]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc8),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[7]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc9),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[8]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc10),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[9]),f,keepdata))
                 {
                     return qe_invalid;
                 }
@@ -13923,40 +13923,40 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
                 }
                 
-                tempguy.misc1=tempMisc;
+                tempguy.guymisc[0]=tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc2=tempMisc;
+                tempguy.guymisc[1]=tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc3=tempMisc;
+                tempguy.guymisc[2]=tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc4=tempMisc;
+                tempguy.guymisc[3] =tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc5=tempMisc;
+                tempguy.guymisc[4] =tempMisc;
                 
                 if(guyversion < 13)  // April 2009 - a tiny Wizzrobe update
                 {
-                    if(tempguy.family == eeWIZZ && !(tempguy.misc1))
-                        tempguy.misc5 = 74;
+                    if(tempguy.family == eeWIZZ && !(tempguy.guymisc[0]))
+                        tempguy.guymisc[4] = 74;
                 }
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
@@ -13964,35 +13964,35 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
                 }
                 
-                tempguy.misc6=tempMisc;
+                tempguy.guymisc[5] =tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc7=tempMisc;
+                tempguy.guymisc[6] =tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc8=tempMisc;
+                tempguy.guymisc[7] =tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc9=tempMisc;
+                tempguy.guymisc[8] =tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc10=tempMisc;
+                tempguy.guymisc[9] =tempMisc;
             }
             
             if(!p_igetw(&(tempguy.bgsfx),f,keepdata))
@@ -14044,12 +14044,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(guyversion >= 22)
             {
-                if(!p_igetl(&(tempguy.misc11),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[10]),f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc12),f,keepdata))
+                if(!p_igetl(&(tempguy.guymisc[11]),f,keepdata))
                 {
                     return qe_invalid;
                 }
@@ -14063,14 +14063,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     return qe_invalid;
                 }
                 
-                tempguy.misc11=tempMisc;
+                tempguy.guymisc[10] =tempMisc;
                 
                 if(!p_igetw(&tempMisc,f,keepdata))
                 {
                     return qe_invalid;
                 }
                 
-                tempguy.misc12=tempMisc;
+                tempguy.guymisc[11] =tempMisc;
             }
 	    
 	    //If a 2.54 or later quest, use all of the defences. 
@@ -14205,71 +14205,71 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.misc16),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[15]),f,keepdata))
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.misc17),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[16]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc18),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[17]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc19),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[18]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc20),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[19]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc21),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[20]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc22),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[21]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc23),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[22]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc24),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[23]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc25),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[24]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc26),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[25]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc27),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[26]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc28),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[27]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc29),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[28]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc30),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[29]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc31),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[30]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc32),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[31]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
@@ -14318,15 +14318,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    if ( guyversion < 37 ) { tempguy.editorflags = 0; }
 	    if(guyversion >= 38)
 	    {
-		if(!p_igetl(&(tempguy.misc13),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[12]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc14),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[13]),f,keepdata))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc15),f,keepdata))
+		if(!p_igetl(&(tempguy.guymisc[14]),f,keepdata))
 		{
 			return qe_invalid;
 		}  
@@ -14334,9 +14334,9 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    }
 	    if ( guyversion < 38 ) 
 	    { 
-		tempguy.misc13 = 0; 
-		tempguy.misc14 = 0; 
-		tempguy.misc15 = 0; 
+		tempguy.guymisc[12] = 0;
+		tempguy.guymisc[13] = 0;
+		tempguy.guymisc[14] = 0;
 	    }
 	    
 	    if ( guyversion >= 39 )
@@ -14396,23 +14396,23 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			if ( tempguy.family == eeKEESE )
 			{
 
-				if ( !tempguy.misc1 )
+				if ( !tempguy.guymisc[0])
 				{
-					tempguy.misc16 = 120;
-					tempguy.misc17 = 16;
+					tempguy.guymisc[15] = 120;
+					tempguy.guymisc[16] = 16;
 					
 				}
 			}
 			if ( tempguy.family == eePEAHAT )
 			{	
-				tempguy.misc16 = 80;
-				tempguy.misc17 = 16;
+				tempguy.guymisc[15] = 80;
+				tempguy.guymisc[16] = 16;
 			}
 
 			if ( tempguy.family == eeGHINI )
 			{	
-				tempguy.misc16 = 120;
-				tempguy.misc17 = 10;
+				tempguy.guymisc[15] = 120;
+				tempguy.guymisc[16] = 10;
 			}			
 			    
 		    }
@@ -14518,23 +14518,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
 		for ( int32_t q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
-		tempguy.misc16 = 0;
-		tempguy.misc17 = 0;
-		tempguy.misc18 = 0;
-		tempguy.misc19 = 0;
-		tempguy.misc20 = 0;
-		tempguy.misc21 = 0;
-		tempguy.misc22 = 0;
-		tempguy.misc23 = 0;
-		tempguy.misc24 = 0;
-		tempguy.misc25 = 0;
-		tempguy.misc26 = 0;
-		tempguy.misc27 = 0;
-		tempguy.misc28 = 0;
-		tempguy.misc29 = 0;
-		tempguy.misc30 = 0;
-		tempguy.misc31 = 0;
-		tempguy.misc32 = 0;
+		for (int32_t q = 15; q < 32; q++) tempguy.guymisc[q] = 0;
 
 		//old default sounds
 		if ( tempguy.firesfx <= 0 )
@@ -14627,22 +14611,22 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			if ( tempguy.family == eeKEESE )
 			{
 
-				if ( !tempguy.misc1 )
+				if ( !tempguy.guymisc[0])
 				{
-					tempguy.misc16 = 120;
-					tempguy.misc17 = 16;
+					tempguy.guymisc[15] = 120;
+					tempguy.guymisc[16] = 16;
 					
 				}
 			}
 			if ( tempguy.family == eePEAHAT )
 			{	
-				tempguy.misc16 = 80;
-				tempguy.misc17 = 16;
+				tempguy.guymisc[15] = 80;
+				tempguy.guymisc[16] = 16;
 			}
 			if ( tempguy.family == eeGHINI )
 			{	
-				tempguy.misc16 = 120;
-				tempguy.misc17 = 10;
+				tempguy.guymisc[15] = 120;
+				tempguy.guymisc[16] = 10;
 			}			
 			    
 		    
@@ -14655,8 +14639,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 if(i == eMWIZ)
                 {
-                    tempguy.misc2 = 0;
-                    tempguy.misc4 = 1;
+                    tempguy.guymisc[1] = 0;
+                    tempguy.guymisc[3] = 1;
                 }
             }
             
@@ -14665,23 +14649,23 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 if(i == eGLEEOK1 || i == eGLEEOK2 || i == eGLEEOK3 || i == eGLEEOK4 || i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
                 {
                     // Some of these are deliberately different to NewDefault/defdata.cpp, by the way. -L
-                    tempguy.misc5 = 4; //neck length in segments
-                    tempguy.misc6 = 8; //neck offset from first body tile
-                    tempguy.misc7 = 40; //offset for each subsequent neck tile from the first neck tile
-                    tempguy.misc8 = 168; //head offset from first body tile
-                    tempguy.misc9 = 228; //flying head offset from first body tile
+                    tempguy.guymisc[4] = 4; //neck length in segments
+                    tempguy.guymisc[5] = 8; //neck offset from first body tile
+                    tempguy.guymisc[6] = 40; //offset for each subsequent neck tile from the first neck tile
+                    tempguy.guymisc[7] = 168; //head offset from first body tile
+                    tempguy.guymisc[8] = 228; //flying head offset from first body tile
                     
                     if(i == eGLEEOK1F || i == eGLEEOK2F || i == eGLEEOK3F || i == eGLEEOK4F)
                     {
-                        tempguy.misc6 += 10; //neck offset from first body tile
-                        tempguy.misc8 -= 12; //head offset from first body tile
+                        tempguy.guymisc[5] += 10; //neck offset from first body tile
+                        tempguy.guymisc[7] -= 12; //head offset from first body tile
                     }
                 }
             }
             
             if(guyversion < 10) // December 2007 - Dodongo CSet fix
             {
-                if(get_bit(deprecated_rules,46) && tempguy.family==eeDONGO && tempguy.misc1==0)
+                if(get_bit(deprecated_rules,46) && tempguy.family==eeDONGO && tempguy.guymisc[0] ==0)
                     tempguy.bosspal = spDIG;
             }
             
@@ -14713,7 +14697,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     }
                 }
                 
-                if((tempguy.family==eeGHINI)&&(tempguy.misc1))
+                if((tempguy.family==eeGHINI)&&(tempguy.guymisc[0]))
                 {
                     if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
                     {
@@ -14760,7 +14744,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 if(tempguy.family==eePROJECTILE)
                 {
-                    tempguy.misc1 = 0;
+                    tempguy.guymisc[0] = 0;
                 }
             }
             
@@ -14770,7 +14754,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                              || tempguy.family == eeGLEEOK || tempguy.family==eePATRA || tempguy.family == eeGANON || tempguy.family==eeMOLD);
                              
                 tempguy.hitsfx = (boss && tempguy.family != eeMOLD && tempguy.family != eeDONGO && tempguy.family != eeDIG) ? WAV_GASP : 0;
-                tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.misc10 == 0)) ? WAV_GASP : WAV_EDEAD;
+                tempguy.deadsfx = (boss && (tempguy.family != eeDIG || tempguy.guymisc[9] == 0)) ? WAV_GASP : WAV_EDEAD;
                 
                 if(tempguy.family == eeAQUA)
                     for(int32_t j=0; j<edefLAST; j++) tempguy.defense[j] = default_guys[eRAQUAM].defense[j];
@@ -14783,33 +14767,32 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     for(int32_t j=0; j<edefLAST; j++)
                         tempguy.defense[j] = default_guys[eGOHMA1].defense[j];
                         
-                    tempguy.defense[edefARROW] = ((tempguy.misc1==3) ? edCHINKL8 : (tempguy.misc1==2) ? edCHINKL4 : 0);
+                    tempguy.defense[edefARROW] = ((tempguy.guymisc[0] ==3) ? edCHINKL8 : (tempguy.guymisc[0] ==2) ? edCHINKL4 : 0);
                     
-                    if(tempguy.misc1==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
+                    if(tempguy.guymisc[0] ==3 && !tempguy.weapon) tempguy.weapon = ewFlame;
                     
-                    tempguy.misc1--;
+                    tempguy.guymisc[0]--;
                 }
                 else if(tempguy.family == eeGLEEOK)
                 {
                     for(int32_t j=0; j<edefLAST; j++)
                         tempguy.defense[j] = default_guys[eGLEEOK1].defense[j];
                         
-                    if(tempguy.misc3==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
+                    if(tempguy.guymisc[2] ==1 && !tempguy.weapon) tempguy.weapon = ewFlame;
                 }
                 else if(tempguy.family == eeARMOS)
                 {
                     tempguy.family=eeWALK;
                     tempguy.hrate = 0;
-                    tempguy.misc10 = tempguy.misc1;
-                    tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 = tempguy.misc7 = tempguy.misc8 = 0;
-                    tempguy.misc9 = e9tARMOS;
+                    tempguy.guymisc[9] = tempguy.guymisc[0];
+                    tempguy.guymisc[0] = tempguy.guymisc[1] = tempguy.guymisc[2] = tempguy.guymisc[3] = tempguy.guymisc[4] = tempguy.guymisc[5] = tempguy.guymisc[6] = tempguy.guymisc[7] = 0;
+                    tempguy.guymisc[8] = e9tARMOS;
                 }
-                else if(tempguy.family == eeGHINI && !tempguy.misc1)
+                else if(tempguy.family == eeGHINI && !tempguy.guymisc[0])
                 {
                     tempguy.family=eeWALK;
                     tempguy.hrate = 0;
-                    tempguy.misc1 = tempguy.misc2 = tempguy.misc3 = tempguy.misc4 = tempguy.misc5 = tempguy.misc6 =
-                                                        tempguy.misc7 = tempguy.misc8 = tempguy.misc9 = tempguy.misc10 = 0;
+					tempguy.guymisc[0] = tempguy.guymisc[1] = tempguy.guymisc[2] = tempguy.guymisc[3] = tempguy.guymisc[4] = tempguy.guymisc[5] = tempguy.guymisc[6] = tempguy.guymisc[7] = tempguy.guymisc[8] = tempguy.guymisc[9] = 0;
                 }
                 
                 // Spawn animation flags
@@ -14823,20 +14806,20 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 if(tempguy.family == eeTRAP)
                 {
-                    tempguy.misc2 = tempguy.misc10;
+                    tempguy.guymisc[1] = tempguy.guymisc[9];
                     
-                    if(tempguy.misc10>=1)
+                    if(tempguy.guymisc[9] >=1)
                     {
-                        tempguy.misc1++;
+                        tempguy.guymisc[0]++;
                     }
                     
-                    tempguy.misc10 = 0;
+                    tempguy.guymisc[9] = 0;
                 }
                 
                 // Bomb Blast fix
-                if(tempguy.weapon==ewBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
+                if(tempguy.weapon==ewBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.guymisc[1] != e2tBOMBCHU))
                     tempguy.weapon = ewLitBomb;
-                else if(tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.misc2 != e2tBOMBCHU))
+                else if(tempguy.weapon==ewSBomb && tempguy.family!=eeROPE && (tempguy.family!=eeWALK || tempguy.guymisc[1] != e2tBOMBCHU))
                     tempguy.weapon = ewLitSBomb;
             }
             
@@ -14847,14 +14830,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     if(tempguy.family == eeKEESETRIB)
                     {
                         tempguy.family = eeKEESE;
-                        tempguy.misc2 = e2tKEESETRIB;
-                        tempguy.misc1 = 0;
+                        tempguy.guymisc[1] = e2tKEESETRIB;
+                        tempguy.guymisc[0] = 0;
                     }
                     
                     tempguy.rate = 2;
                     tempguy.hrate = 8;
                     tempguy.homing = 0;
-                    tempguy.step= (tempguy.family == eeKEESE && tempguy.misc1 ? 100:62);
+                    tempguy.step= (tempguy.family == eeKEESE && tempguy.guymisc[0] ? 100:62);
                 }
                 else if(tempguy.family == eePEAHAT || tempguy.family==eePATRA)
                 {
@@ -14893,7 +14876,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
                 
                 // Bigdig random rate fix
-                if(tempguy.family==eeDIG && tempguy.misc10==1)
+                if(tempguy.family==eeDIG && tempguy.guymisc[9] ==1)
                 {
                     tempguy.rate = 2;
                 }
@@ -14902,9 +14885,9 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             if(guyversion < 24) // November 2012
             {
                 if(tempguy.family==eeLANM)
-                    tempguy.misc3 = 1;
+                    tempguy.guymisc[2] = 1;
                 else if(tempguy.family==eeMOLD)
-                    tempguy.misc2 = 0;
+                    tempguy.guymisc[1] = 0;
             }
 	    
 	    if(guyversion < 33) //Whistle defence did not exist before this version of 2.54. -Z
@@ -14962,7 +14945,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 						break;
 					//Gravity and falls in pits
 					case eeWALK:
-						if (tempguy.misc9==e9tPOLSVOICE||tempguy.misc9==e9tVIRE)
+						if (tempguy.guymisc[8] ==e9tPOLSVOICE||tempguy.guymisc[8] ==e9tVIRE)
 							break;
 						[[fallthrough]];
 					case eeOTHER:
@@ -15016,14 +14999,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			else
 			{
-				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.misc10==1) ? iwLargeShadow : iwShadow;
+				tempguy.spr_shadow = (tempguy.family==eeROCK && tempguy.guymisc[9] ==1) ? iwLargeShadow : iwShadow;
 				tempguy.spr_death = iwDeath;
 				tempguy.spr_spawn = iwSpawn;
 			}
 			
 			if(guyversion < 46)
 			{
-				if(tempguy.family == eeWALK && tempguy.misc9 == e9tPOLSVOICE)
+				if(tempguy.family == eeWALK && tempguy.guymisc[8] == e9tPOLSVOICE)
 				{
 					tempguy.moveflags |= FLAG_CAN_WATERWALK;
 				}
@@ -15047,11 +15030,11 @@ void update_guy_1(guydata *tempguy) // November 2009
     switch(tempguy->family)
     {
     case 1: //eeWALK
-        switch(tempguy->misc10)
+        switch(tempguy->guymisc[9])
         {
         case 0: //Stalfos
-            if(tempguy->misc1==1)  // Fires four projectiles at once
-                tempguy->misc1=4;
+            if(tempguy->guymisc[0]==1)  // Fires four projectiles at once
+                tempguy->guymisc[0] =4;
                 
             break;
             
@@ -15060,40 +15043,40 @@ void update_guy_1(guydata *tempguy) // November 2009
             break;
         }
         
-        tempguy->misc10 = 0;
+        tempguy->guymisc[9] = 0;
         break;
         
     case 2: //eeSHOOT
         tempguy->family = eeWALK;
         
-        switch(tempguy->misc10)
+        switch(tempguy->guymisc[9])
         {
         case 0: //Octorok
-            if(tempguy->misc1==1||tempguy->misc1==2)
+            if(tempguy->guymisc[0] ==1||tempguy->guymisc[0] ==2)
             {
-                tempguy->misc1=e1tFIREOCTO;
-                tempguy->misc2=e2tFIREOCTO;
+                tempguy->guymisc[0] =e1tFIREOCTO;
+                tempguy->guymisc[1] =e2tFIREOCTO;
             }
-            else tempguy->misc1 = 0;
+            else tempguy->guymisc[0] = 0;
             
-            tempguy->misc6=tempguy->misc4;
-            tempguy->misc4=tempguy->misc3;
-            tempguy->misc3=0;
+            tempguy->guymisc[5] =tempguy->guymisc[3];
+            tempguy->guymisc[3] =tempguy->guymisc[2];
+            tempguy->guymisc[2] =0;
             break;
             
         case 1: // Moblin
-            tempguy->misc1 = 0;
+            tempguy->guymisc[0] = 0;
             break;
             
         case 2: //Lynel
-            tempguy->misc6=tempguy->misc1+1;
-            tempguy->misc1=0;
+            tempguy->guymisc[5] =tempguy->guymisc[0] +1;
+            tempguy->guymisc[0] =0;
             break;
             
         case 3: //Stalfos 2
-            if(tempguy->misc1==1)  // Fires four projectiles at once
-                tempguy->misc1=e1t4SHOTS;
-            else tempguy->misc1 = 0;
+            if(tempguy->guymisc[0] ==1)  // Fires four projectiles at once
+                tempguy->guymisc[0] =e1t4SHOTS;
+            else tempguy->guymisc[0] = 0;
             
             break;
             
@@ -15105,16 +15088,16 @@ darknuts:
             tempguy->defense[edefARROW] = tempguy->defense[edefBYRNA] = tempguy->defense[edefREFROCK] =
                                               tempguy->defense[edefMAGIC] = tempguy->defense[edefSTOMP] = edCHINK;
                                               
-            if(tempguy->misc1==1)
-                tempguy->misc1=2;
-            else if(tempguy->misc1==2)
+            if(tempguy->guymisc[0] ==1)
+                tempguy->guymisc[0] =2;
+            else if(tempguy->guymisc[0] ==2)
             {
-                tempguy->misc4=tempguy->misc3;
-                tempguy->misc3=tempguy->misc2;
-                tempguy->misc2=e2tSPLIT;
-                tempguy->misc1 = 0;
+                tempguy->guymisc[3] =tempguy->guymisc[2];
+                tempguy->guymisc[2] =tempguy->guymisc[1];
+                tempguy->guymisc[1] =e2tSPLIT;
+                tempguy->guymisc[0] = 0;
             }
-            else tempguy->misc1 = 0;
+            else tempguy->guymisc[0] = 0;
             
             tempguy->flags |= inv_front;
             
@@ -15124,7 +15107,7 @@ darknuts:
             break;
         }
         
-        tempguy->misc10 = 0;
+        tempguy->guymisc[9] = 0;
         break;
         
         /*
@@ -15136,25 +15119,25 @@ darknuts:
     case 33: //eeGELTRIB
         if(tempguy->family==33)
         {
-            tempguy->misc4 = 1;
+            tempguy->guymisc[3] = 1;
             
             if(get_bit(deprecated_rules, qr_OLDTRIBBLES_DEP))  //Old Tribbles
-                tempguy->misc3 = tempguy->misc2;
+                tempguy->guymisc[2] = tempguy->guymisc[1];
                 
-            tempguy->misc2 = e2tTRIBBLE;
+            tempguy->guymisc[1] = e2tTRIBBLE;
         }
         else
         {
-            tempguy->misc4 = 0;
-            tempguy->misc3 = 0;
-            tempguy->misc2 = 0;
+            tempguy->guymisc[3] = 0;
+            tempguy->guymisc[2] = 0;
+            tempguy->guymisc[1] = 0;
         }
         
         tempguy->family = eeWALK;
         
-        if(tempguy->misc1)
+        if(tempguy->guymisc[0])
         {
-            tempguy->misc1=1;
+            tempguy->guymisc[0] =1;
             tempguy->weapon = ewFireTrail;
         }
         
@@ -15162,14 +15145,14 @@ darknuts:
         
     case 34: //eeZOLTRIB
     case 12: //eeZOL
-        tempguy->misc4=tempguy->misc3;
-        tempguy->misc3=tempguy->misc2;
+        tempguy->guymisc[3] =tempguy->guymisc[2];
+        tempguy->guymisc[2] =tempguy->guymisc[1];
         tempguy->family = eeWALK;
-        tempguy->misc2=e2tSPLITHIT;
+        tempguy->guymisc[1] =e2tSPLITHIT;
         
-        if(tempguy->misc1)
+        if(tempguy->guymisc[0])
         {
-            tempguy->misc1=1;
+            tempguy->guymisc[0] =1;
             tempguy->weapon = ewFireTrail;
         }
         
@@ -15177,30 +15160,30 @@ darknuts:
         
     case 13: //eeROPE
         tempguy->family = eeWALK;
-        tempguy->misc9 = e9tROPE;
+        tempguy->guymisc[8] = e9tROPE;
         
-        if(tempguy->misc1)
+        if(tempguy->guymisc[0])
         {
-            tempguy->misc4 = tempguy->misc3;
-            tempguy->misc3 = tempguy->misc2;
-            tempguy->misc2 = e2tBOMBCHU;
+            tempguy->guymisc[3] = tempguy->guymisc[2];
+            tempguy->guymisc[2] = tempguy->guymisc[1];
+            tempguy->guymisc[1] = e2tBOMBCHU;
         }
         
-        tempguy->misc1 = 0;
+        tempguy->guymisc[0] = 0;
         break;
         
     case 14: //eeGORIYA
         tempguy->family = eeWALK;
         
-        if(tempguy->misc1!=2) tempguy->misc1 = 0;
+        if(tempguy->guymisc[0] !=2) tempguy->guymisc[0] = 0;
         
         break;
         
     case 17: //eeBUBBLE
         tempguy->family = eeWALK;
-        tempguy->misc8 = tempguy->misc2;
-        tempguy->misc7 = tempguy->misc1 + 1;
-        tempguy->misc1 = tempguy->misc2 = 0;
+        tempguy->guymisc[7] = tempguy->guymisc[1];
+        tempguy->guymisc[6] = tempguy->guymisc[0] + 1;
+        tempguy->guymisc[0] = tempguy->guymisc[1] = 0;
         
         //fallthrogh
     case eeTRAP:
@@ -15211,16 +15194,16 @@ darknuts:
     case 35: //eeVIRETRIB
     case 18: //eeVIRE
         tempguy->family = eeWALK;
-        tempguy->misc4=tempguy->misc3;
-        tempguy->misc3=tempguy->misc2;
-        tempguy->misc2=e2tSPLITHIT;
-        tempguy->misc9=e9tVIRE;
+        tempguy->guymisc[3] =tempguy->guymisc[2];
+        tempguy->guymisc[2] =tempguy->guymisc[1];
+        tempguy->guymisc[1] =e2tSPLITHIT;
+        tempguy->guymisc[8] =e9tVIRE;
         break;
         
     case 19: //eeLIKE
         tempguy->family = eeWALK;
-        tempguy->misc7 = e7tEATITEMS;
-        tempguy->misc8=95;
+        tempguy->guymisc[6] = e7tEATITEMS;
+        tempguy->guymisc[7] =95;
         break;
         
     case 20: //eePOLSV
@@ -15230,7 +15213,7 @@ darknuts:
         tempguy->defense[edefARROW] = ed1HKO;
         tempguy->defense[edefHOOKSHOT] = edSTUNONLY;
         tempguy->family = eeWALK;
-        tempguy->misc9 = e9tPOLSVOICE;
+        tempguy->guymisc[8] = e9tPOLSVOICE;
         tempguy->rate = 4;
         tempguy->homing = 32;
         tempguy->hrate = 10;
@@ -15238,7 +15221,7 @@ darknuts:
         break;
         
     case eeWIZZ:
-        if(tempguy->misc4)
+        if(tempguy->guymisc[3])
         {
             for(int32_t i=0; i < edefLAST; i++)
                 tempguy->defense[i] = (i != edefREFBEAM && i != edefREFMAGIC && i != edefQUAKE) ? edIGNORE : 0;

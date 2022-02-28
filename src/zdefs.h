@@ -2089,7 +2089,7 @@ struct item_drop_object
 #define MAX_NPC_ATRIBUTES 31
 
 
-struct guydata
+struct guydata //IF YOU CHANGE THE ORDER THESE ARE IN, UPDATE 'default_guys' IN defdata.cpp. Yes, the order does matter!
 {
     dword flags;
     dword flags2;
@@ -2109,7 +2109,7 @@ struct guydata
     int16_t  dp, wdp, weapon;
     
     int16_t  rate, hrate, step, homing, grumble, item_set;
-    int32_t   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
+    int32_t  guymisc[32];
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
    // byte scriptdefense[
@@ -2132,8 +2132,6 @@ struct guydata
     //v 34
     int16_t firesfx; //weapon fire (attack) sound
     //expanded ->Attributes[] to size of 32.
-    int32_t misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
-	misc24, misc25, misc26, misc27, misc28, misc29, misc30, misc31, misc32;
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
     int32_t initD[8], initA[2];

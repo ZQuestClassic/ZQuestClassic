@@ -36,6 +36,8 @@ static size_t enmtabs[4] = {0, 0, 0, 0};
 //{ Macros
 
 #define ACTION_FIELD_WID 2_em
+#define ATTR_WID 6_em
+#define ATTR_LAB_WID 12_em
 
 #define WH_FIELD(txt, mem) \
 Label(textAlign=2,padding = 0_px,text=txt), \
@@ -48,6 +50,23 @@ TextField( \
 		local_enemyref.mem = val; \
 	} \
 )
+
+#define ENM_ATTRIBUTE(ind) \
+l_attributes[ind] = Label(minwidth = ATTR_LAB_WID, textAlign = 2), \
+ib_attributes[ind] = Button(forceFitH = true, text = "?", \
+	disabled = true, \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Attribute Info",h_attribute[ind]).show(); \
+	}), \
+TextField( \
+	fitParent = true, minwidth = 8_em, \
+	type = GUI::TextField::type::SWAP_ZSINT, \
+	val = local_enemyref.guymisc[ind], \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_enemyref.guymisc[ind] = val; \
+	})
 
 //}
 
@@ -400,7 +419,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								)
 							)
 						)),
-						TabRef(name = "2", DummyWidget())
+						TabRef(name = "Attributes", DummyWidget()
+						
+						)
 					))
 				),		
 				Row(

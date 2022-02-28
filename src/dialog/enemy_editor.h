@@ -34,6 +34,9 @@ private:
 	std::shared_ptr<GUI::SelTileSwatch> oldtile, specialtile, newtile;
 	std::shared_ptr<GUI::Checkbox> palbox;
 	std::shared_ptr<GUI::TextField> paltext;
+	std::shared_ptr<GUI::Label> l_attributes[32];
+	std::shared_ptr<GUI::Button> ib_attributes[32];
+	std::string h_attribute[32];
 	PALETTE oldpal;
 	std::string enemyname;
 	int32_t index;

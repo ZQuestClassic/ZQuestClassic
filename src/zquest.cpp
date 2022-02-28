@@ -20587,7 +20587,7 @@ int32_t efrontfacingtile(int32_t id)
 	    
     case aNONE: break;
     case aAQUA:
-        if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && guysbuf[id].misc1))
+        if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && guysbuf[id].guymisc[0]))
             break;
             
     case aWALLM:
@@ -20648,7 +20648,7 @@ int32_t efrontfacingtile(int32_t id)
         if(!get_bit(quest_rules,qr_NEWENEMYTILES))
             usetile = (guysbuf[id].s_tile - guysbuf[id].tile)+1;
         else
-            usetile = (guysbuf[id].misc8);
+            usetile = (guysbuf[id].guymisc[7]);
             
         break;
     }
