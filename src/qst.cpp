@@ -9995,7 +9995,7 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
                     holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
                     holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
                     holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
-                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+                    holdspr[i][spr_hold2][spr_flip]=(int32_t)flip;
                     holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
                 }
             }
