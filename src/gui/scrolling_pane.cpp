@@ -139,13 +139,15 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				d->d1=1;
 				d->d2=sp->scrollPos;
 				_handle_jwin_scrollable_scroll_click(d, sp->contentHeight, &sp->scrollPos, nullptr);
+				if (sp->onScrollChanged) 
+					sp->onScrollChanged(sp->scrollPos);
 				d->d1=0;
 			}
 			return D_O_K;
 		}
 
 		case MSG_WHEEL:
-			sp->scroll(-8*c);
+			sp->onScroll(-8*c);
 			return D_REDRAW;
 
 		case MSG_XCHAR:
@@ -154,25 +156,25 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_PGDN:
 				{
 					if(sp->maxScrollPos < d->h*2)
-						sp->scroll(d->h/3);
-					else sp->scroll(d->h);
+						sp->onScroll(d->h/3);
+					else sp->onScroll(d->h);
 					return D_USED_CHAR|D_REDRAW;
 				}
 				case KEY_PGUP:
 				{
 					if(sp->maxScrollPos < d->h*2)
-						sp->scroll(-d->h/3);
-					else sp->scroll(-d->h);
+						sp->onScroll(-d->h/3);
+					else sp->onScroll(-d->h);
 					return D_USED_CHAR|D_REDRAW;
 				}
 				case KEY_HOME:
 				{
-					sp->scroll(-sp->maxScrollPos);
+					sp->onScroll(-sp->maxScrollPos);
 					return D_USED_CHAR|D_REDRAW;
 				}
 				case KEY_END:
 				{
-					sp->scroll(sp->maxScrollPos);
+					sp->onScroll(sp->maxScrollPos);
 					return D_USED_CHAR|D_REDRAW;
 				}
 			}
@@ -187,6 +189,13 @@ ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
 	bgColor=jwin_pal[jcBOX];
 }
 
+void ScrollingPane::onScroll(int32_t amount) noexcept
+{
+	scroll(amount);
+	if (onScrollChanged)
+		onScrollChanged(scrollPos);
+}
+
 void ScrollingPane::scroll(int32_t amount) noexcept
 {
 	if(maxScrollPos < 0) return; //No scrolling
@@ -197,18 +206,32 @@ void ScrollingPane::scroll(int32_t amount) noexcept
 		alDialog[i].y-=amount;
 }
 
+void ScrollingPane::setScrollPos(int32_t pos)
+{
+	int32_t amount = pos-scrollPos;
+	if (alDialog)
+		scroll(amount);
+	else
+		scrollPos = pos;
+}
+
+int32_t ScrollingPane::getScrollPos() const
+{
+	return scrollPos;
+}
+
 bool ScrollingPane::scrollToShowChild(int32_t childPos)
 {
 	DIALOG& pane=*alDialog;
 	DIALOG& child=alDialog[childPos];
 	if(child.y < pane.y)
 	{
-		scroll(child.y-pane.y);
+		onScroll(child.y-pane.y);
 		return true;
 	}
 	else if(child.y+child.h > pane.y+pane.h)
 	{
-		scroll((child.y+child.h)-(pane.y+pane.h));
+		onScroll((child.y+child.h)-(pane.y+pane.h));
 		return true;
 	}
 	else
@@ -266,6 +289,11 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	}
 }
 
+void ScrollingPane::setOnScrollChanged(std::function<void(int32_t)> newOnScrollChanged)
+{
+	onScrollChanged = newOnScrollChanged;
+}
+
 void ScrollingPane::realize(DialogRunner& runner)
 {
 	oldMouseX=gui_mouse_x;
@@ -318,6 +346,12 @@ void ScrollingPane::realize(DialogRunner& runner)
 		0, 0, // d1, d2
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
+	if (scrollPos)
+	{
+		int32_t amount = scrollPos;
+		scrollPos = 0;
+		scroll(amount);
+	}
 }
 
 }

@@ -15,6 +15,7 @@ using std::string;
 using std::to_string;
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0;
+static int32_t combo_scroll = 0;
 
 static bool edited = false, cleared = false;
 bool call_combo_editor(int32_t index)
@@ -1843,7 +1844,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Attribs", ScrollingPane(
+						scrollPos = combo_scroll,
 						fitParent = true,
+						onScrollChangedFunc = [&](int32_t val)
+						{
+							combo_scroll = val;
+						},
 						Rows<6>(
 							Label(text = "Attribytes", colSpan = 3),
 							Label(text = "Attrishorts", colSpan = 3),

@@ -24,6 +24,10 @@ public:
 	{
 		content = std::move(newContent);
 	}
+	
+	void setOnScrollChanged(std::function<void(int32_t)> newOnScrollChanged);
+	int32_t getScrollPos() const;
+	void setScrollPos(int32_t pos);
 
 private:
 	using mousePosFunc=int32_t();
@@ -36,7 +40,9 @@ private:
 	mousePosFunc* oldMouseX;
 	mousePosFunc* oldMouseY;
 
+	std::function<void(int32_t)> onScrollChanged;
 	void scroll(int32_t amount) noexcept;
+	void onScroll(int32_t amount) noexcept;
 	bool scrollToShowChild(int32_t childPos);
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

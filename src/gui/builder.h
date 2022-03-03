@@ -325,6 +325,8 @@ ZCGUI_BUILDER_FUNCTION_TEMPLATE(Grid, Columns, makeColumns, std::size_t)
 
 
 ZCGUI_BUILDER_START(ScrollingPane)
+	ZCGUI_ACCEPT_PROP(scrollPos, setScrollPos, int32_t)
+	ZCGUI_ACCEPT_PROP(onScrollChangedFunc, setOnScrollChanged, std::function<void(int32_t)>)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(ScrollingPane, ScrollingPane, makeScrollingPane)
