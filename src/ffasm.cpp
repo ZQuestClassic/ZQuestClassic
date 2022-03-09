@@ -2295,6 +2295,7 @@ script_variable variable_list[]=
 	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
 	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
+	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

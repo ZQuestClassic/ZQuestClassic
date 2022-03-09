@@ -3,6 +3,25 @@
 
 //Since A103
 
+Add read-only 'Screen->ShowingMessage'
+Fix combo scripts running during messages with 'Messages Freeze All Action'
+	( EmilyV, Mar 8th, 2022 )
+
+Fix typo in player hold sprites, should fix hold sprite issues
+	( connorjclark, Mar 2nd, 2022 )
+
+Polish for combo alias and cheat dialogs
+	( EmilyV, Feb 26th, 2022 )
+
+Fix music not starting properly in test mode
+Fix 'Move' and 'Insert' combos not updating the combos set
+	for bottleshops.
+Hopefully fix control dialog not drawing button prompt
+New feature for corner-select gui objects (e.g. combo solidity):
+	'Shift+Click' - Toggle the corner you clicked, and set all 4 corners to that state
+	'Ctrl+Click' - Toggle all 4 corners
+	( EmilyV, Feb 25th, 2022 )
+
 -Feb 25th nightly
 
 New string editor dialog

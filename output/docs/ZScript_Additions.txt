@@ -3686,6 +3686,15 @@ int InfoString[3];
 ///  Screen  ///
 ////////////////								// Screen
 
+void Message(int message_id);
+ * Triggers the message number 'message_id' from the Strings table to be displayed
+ * on the screen.
+ * If 'message_id' is 0, any message being displayed will be removed.
+
+int ShowingMessage;
+ * READ-ONLY:
+ * The message ID of the currently active message. 0 if no message is displayed.
+
 bool SpawnScreenEnemies();
  * Immediately spawns the 10 screen enemies with the screen pattern.
  * Returns true if successful.

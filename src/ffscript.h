@@ -4369,8 +4369,9 @@ enum ASM_DEFINE
 #define ITMSWHOOKED             0x141D
 #define DEBUGTESTING            0x141E
 #define GAMEMAXCHEAT            0x141F
+#define SHOWNMSG                0x1420
 
-#define NUMVARIABLES         	0x1420
+#define NUMVARIABLES         	0x1421
 
 //} End variables
 

@@ -7359,6 +7359,12 @@ int32_t get_register(const int32_t arg)
 			ret = triggered_screen_secrets ? 10000L : 0L;
 			break;
 		}
+		
+		case SHOWNMSG:
+		{
+			ret = ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
+			break;
+		}
 
 		case SDD:
 		{
@@ -34773,6 +34779,7 @@ script_variable ZASMVars[]=
 	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
 	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
+	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
