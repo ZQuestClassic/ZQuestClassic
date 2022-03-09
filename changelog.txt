@@ -3,6 +3,11 @@
 
 //Since A103
 
+Add 'bool combodata->TrigFlags[96];' for zscript TriggerFlags access
+Add '->Next', '->Prev' trigger flag resolutions
+Add the ability to trigger a combo via button press (similar to signposts/chests)
+	( EmilyV, Mar 9th, 2022 )
+
 Add read-only 'Screen->ShowingMessage'
 Fix combo scripts running during messages with 'Messages Freeze All Action'
 	( EmilyV, Mar 8th, 2022 )

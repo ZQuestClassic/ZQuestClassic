@@ -6774,6 +6774,8 @@ int32_t getPushDir(int32_t flag)
 	return -1;
 }
 
+void do_trigger_combo(int32_t layer, int32_t pos); //weapons.cpp
+
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -8528,29 +8530,7 @@ bool HeroClass::animate(int32_t)
 				newcombo const& cmb = combobuf[cid];
 				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 				{
-					int32_t flag = ( layer ) ? MAPFLAGL(layer, MAPCOMBOX(i),MAPCOMBOY(i)) : MAPFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
-					int32_t flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,MAPCOMBOX(i),MAPCOMBOY(i)): MAPCOMBOFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
-					int32_t ft = cmb.attribytes[3];
-					int32_t scombo=COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i));
-					bool single16 = false;
-					if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
-					{
-						do_generic_combo2(MAPCOMBOX(i),MAPCOMBOY(i), cid, flag, flag2, ft, scombo, single16, layer);
-					}
-					else if( cmb.type == cCSWITCH )
-					{
-						//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-						//if (get_bit(grid,(((bx>>4) + by)))) return;
-						//set_bit(grid,(((bx>>4) + by)),1);
-						do_cswitch_combo2(cmb, layer, COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i)));
-					}
-					if (cmb.triggerflags[1]&combotriggerSECRETS)
-					{
-						//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-						//if (get_bit(grid,(((bx>>4) + by)))) return;
-						//set_bit(grid,(((bx>>4) + by)),1);
-						hidden_entrance(0, true, false, -6);
-					}
+					do_trigger_combo(layer, i);
 				}
 				
 				//AUTO WARP CODE
@@ -17303,7 +17283,7 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true, false, true))
+		if(!getIntBtnInput(intbtn, true, true, false, false))
 			return; //Button not pressed
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
@@ -17363,7 +17343,7 @@ void HeroClass::checkchest(int32_t type)
 	}
 }
 
-void HeroClass::checksigns()
+void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
 	if(toogam || z>0) return;
 	if(msg_active || (msg_onscreen && get_bit(quest_rules, qr_MSGDISAPPEAR)))
@@ -17400,10 +17380,13 @@ void HeroClass::checksigns()
 	}
 	
 	int32_t found = -1;
-	
-	if(combobuf[MAPCOMBO(bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, -1))
+	int32_t found_lyr = 0;
+	bool found_sign = false;
+	int32_t tmp_cid = MAPCOMBO(bx,by);
+	newcombo const* tmp_cmb = &combobuf[tmp_cid];
+	if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
 	{
-		found = MAPCOMBO(bx,by);
+		found = tmp_cid;
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -17420,9 +17403,11 @@ void HeroClass::checksigns()
 			}
 		}
 	}
-	if(combobuf[MAPCOMBO(bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, -1))
+	tmp_cid = MAPCOMBO(bx2,by2);
+	tmp_cmb = &combobuf[tmp_cid];
+	if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
 	{
-		found = MAPCOMBO(bx2,by2);
+		found = tmp_cid;
 		fx = bx2; fy = by2;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -17444,9 +17429,12 @@ void HeroClass::checksigns()
 	{
 		for(int32_t i=0; i<2; i++)
 		{
-			if(combobuf[MAPCOMBO2(i,bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, i))
+			tmp_cid = MAPCOMBO2(i,bx,by);
+			tmp_cmb = &combobuf[tmp_cid];
+			if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
 			{
-				found = MAPCOMBO2(i,bx,by);
+				found = tmp_cid;
+				found_lyr = i+1;
 				fx = bx; fy = by;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
@@ -17460,9 +17448,12 @@ void HeroClass::checksigns()
 					}
 				}
 			}
-			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, i))
+			tmp_cid = MAPCOMBO2(i,bx2,by2);
+			tmp_cmb = &combobuf[tmp_cid];
+			if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
 			{
-				found = MAPCOMBO2(i,bx2,by2);
+				found = tmp_cid;
+				found_lyr = i+1;
 				fx = bx2; fy = by2;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
@@ -17482,6 +17473,32 @@ void HeroClass::checksigns()
 	
 	if(found<0) return;
 	newcombo const& cmb = combobuf[found];
+	if(cmb.type != cSIGNPOST)
+	{
+		switch(dir)
+		{
+			case down:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_TOP))
+					return;
+				break;
+			case up:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_BOTTOM))
+					return;
+				break;
+			case right:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_LEFT))
+					return;
+				break;
+			case left:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_RIGHT))
+					return;
+				break;
+		}
+		if(!getIntBtnInput(cmb.triggerbtn, true, true, false, false))
+			return;
+		do_trigger_combo(found_lyr, COMBOPOS(fx,fy));
+		return;
+	}
 	switch(dir)
 	{
 		case up:
@@ -17505,7 +17522,7 @@ void HeroClass::checksigns()
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true, false, true))
+		if(!getIntBtnInput(intbtn, true, true, false, false))
 			return; //Button not pressed
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough

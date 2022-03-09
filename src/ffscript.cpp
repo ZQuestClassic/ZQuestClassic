@@ -9786,6 +9786,24 @@ int32_t get_register(const int32_t arg)
 		}
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS2:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+			}
+			else if ( indx < 0 || indx >= 96 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].triggerflags[indx/32] & (1<<indx%32)) ? 10000L : 0L;
+			}
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
@@ -18173,6 +18191,23 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS2:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+			}
+			else if ( indx < 0 || indx >= 96 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+			}
+			else
+			{
+				SETFLAG(combobuf[ri->combosref].triggerflags[indx/32],1<<(indx%32),value);
+			}
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 	
 	
@@ -34780,6 +34815,7 @@ script_variable ZASMVars[]=
 	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
+	{ "COMBODTRIGGERFLAGS2",  COMBODTRIGGERFLAGS2,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

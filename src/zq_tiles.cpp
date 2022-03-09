@@ -16643,6 +16643,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			for(int32_t q = 0; q < 3; ++q)
 				combobuf[i].triggerflags[q] = combo.triggerflags[q];
 			combobuf[i].triggerlevel = combo.triggerlevel;
+			combobuf[i].triggerbtn = combo.triggerbtn;
 		}
 		
 		if(advpaste_dlg[15].flags & D_SELECTED)   // script
@@ -18448,7 +18449,14 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite)
 				if(!p_igetl(&temp_combo.triggerlevel,f,true))
 				{
 						return 0;
-				}	
+				}
+				if(section_version >= 22)
+				{
+					if(!p_getc(&temp_combo.triggerbtn,f,true))
+					{
+						return 0;
+					}
+				}
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
@@ -18511,6 +18519,7 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite)
 				if ( combobuf[index+(tilect)].triggerflags[q] ) goto skip_combo_copy;
 			}
 			if ( 	combobuf[index+(tilect)].triggerlevel ) goto skip_combo_copy;
+			if ( 	combobuf[index+(tilect)].triggerbtn ) goto skip_combo_copy;
 			for ( int32_t q = 0; q < 11; q++ )
 			{
 				if ( combobuf[index+(tilect)].label[q] ) goto skip_combo_copy;
@@ -18708,7 +18717,14 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 				if(!p_igetl(&temp_combo.triggerlevel,f,true))
 				{
 						return 0;
-				}	
+				}
+				if(section_version >= 22)
+				{
+					if(!p_getc(&temp_combo.triggerbtn,f,true))
+					{
+						return 0;
+					}
+				}
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
@@ -18777,6 +18793,7 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 					if ( combobuf[start+(tilect)-skip].triggerflags[q] ) goto skip_combo_copy2;
 				}
 				if ( 	combobuf[start+(tilect)-skip].triggerlevel ) goto skip_combo_copy2;
+				if ( 	combobuf[start+(tilect)-skip].triggerbtn ) goto skip_combo_copy2;
 				for ( int32_t q = 0; q < 11; q++ )
 				{
 					if ( combobuf[start+(tilect)-skip].label[q] ) goto skip_combo_copy2;
@@ -18937,7 +18954,11 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 		   
 		if(!p_iputl(combobuf[index+(tilect)].triggerlevel,f))
 		{
-				return 0;
+			return 0;
+		}	
+		if(!p_putc(combobuf[index+(tilect)].triggerbtn,f))
+		{
+			return 0;
 		}	
 		for ( int32_t q = 0; q < 11; q++ ) 
 		{

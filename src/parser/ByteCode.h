@@ -1339,8 +1339,9 @@
 #define DEBUGTESTING            1256
 #define GAMEMAXCHEAT            1257
 #define SHOWNMSG                1258
+#define COMBODTRIGGERFLAGS2     1259
 
-#define LAST_BYTECODE           1259
+#define LAST_BYTECODE           1260
 
 //} END OF BYTECODE
 

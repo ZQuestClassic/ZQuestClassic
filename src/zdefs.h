@@ -244,7 +244,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          9
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           21
+#define V_COMBOS           22
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -1281,43 +1281,49 @@ enum
 
 //Page 1, triggerflags[0]
 
-#define combotriggerSWORD	0x01
-#define combotriggerSWORDBEAM	0x02
-#define combotriggerBRANG	0x04
-#define combotriggerBOMB	0x08
-#define combotriggerSBOMB	0x10
-#define combotriggerLITBOMB	0x20
-#define combotriggerLITSBOMB	0x40
-#define combotriggerARROW	0x80
-#define combotriggerFIRE	0x100
-#define combotriggerWHISTLE	0x200
-#define combotriggerBAIT	0x400
-#define combotriggerWAND	0x800
-#define combotriggerMAGIC	0x1000
-#define combotriggerWIND	0x2000
-#define combotriggerREFMAGIC	0x4000
-#define combotriggerREFFIREBALL	0x8000
-#define combotriggerREFROCK	0x10000
-#define combotriggerHAMMER	0x20000
+#define combotriggerSWORD        0x00000001
+#define combotriggerSWORDBEAM    0x00000002
+#define combotriggerBRANG        0x00000004
+#define combotriggerBOMB         0x00000008
+#define combotriggerSBOMB        0x00000010
+#define combotriggerLITBOMB      0x00000020
+#define combotriggerLITSBOMB     0x00000040
+#define combotriggerARROW        0x00000080
+#define combotriggerFIRE         0x00000100
+#define combotriggerWHISTLE      0x00000200
+#define combotriggerBAIT         0x00000400
+#define combotriggerWAND         0x00000800
+#define combotriggerMAGIC        0x00001000
+#define combotriggerWIND         0x00002000
+#define combotriggerREFMAGIC     0x00004000
+#define combotriggerREFFIREBALL  0x00008000
+#define combotriggerREFROCK      0x00010000
+#define combotriggerHAMMER       0x00020000
+#define combotriggerNEXT         0x00040000
+#define combotriggerPREV         0x00080000
+#define combotriggerBTN_TOP      0x00100000
+#define combotriggerBTN_BOTTOM   0x00200000
+#define combotriggerBTN_LEFT     0x00400000
+#define combotriggerBTN_RIGHT    0x00800000
 
 //Page 2, triggerflags[1]
-#define combotriggerHOOKSHOT	0x01
-#define combotriggerSPARKLE	0x02
-#define combotriggerBYRNA	0x04
-#define combotriggerREFBEAM	0x08
-#define combotriggerSTOMP	0x10
-#define combotriggerSCRIPT01	0x20
-#define combotriggerSCRIPT02	0x40
-#define combotriggerSCRIPT03	0x80
-#define combotriggerSCRIPT04	0x100
-#define combotriggerSCRIPT05	0x200
-#define combotriggerSCRIPT06	0x400
-#define combotriggerSCRIPT07	0x800
-#define combotriggerSCRIPT08	0x1000
-#define combotriggerSCRIPT09	0x2000
-#define combotriggerSCRIPT10	0x4000
-#define combotriggerAUTOMATIC	0x8000
-#define combotriggerSECRETS	0x10000
+#define combotriggerHOOKSHOT     0x00000001
+#define combotriggerSPARKLE      0x00000002
+#define combotriggerBYRNA        0x00000004
+#define combotriggerREFBEAM      0x00000008
+#define combotriggerSTOMP        0x00000010
+#define combotriggerSCRIPT01     0x00000020
+#define combotriggerSCRIPT02     0x00000040
+#define combotriggerSCRIPT03     0x00000080
+#define combotriggerSCRIPT04     0x00000100
+#define combotriggerSCRIPT05     0x00000200
+#define combotriggerSCRIPT06     0x00000400
+#define combotriggerSCRIPT07     0x00000800
+#define combotriggerSCRIPT08     0x00001000
+#define combotriggerSCRIPT09     0x00002000
+#define combotriggerSCRIPT10     0x00004000
+#define combotriggerAUTOMATIC    0x00008000
+#define combotriggerSECRETS	     0x00010000
 
 // weapon types in game engine
 enum
@@ -3138,6 +3144,7 @@ struct newcombo
 	int16_t genflags; //16 bits ; general flags
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
+	byte triggerbtn; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3185,6 +3192,7 @@ struct newcombo
 		for(int32_t q = 0; q < 3; ++q)
 			triggerflags[q] = 0;
 		triggerlevel = 0;
+		triggerbtn = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
 		for(int32_t q = 0; q < 8; ++q)
@@ -3225,6 +3233,7 @@ struct newcombo
 		for(auto q = 0; q < 3; ++q)
 			if(triggerflags[q]) return false;
 		if(triggerlevel) return false;
+		if(triggerbtn) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

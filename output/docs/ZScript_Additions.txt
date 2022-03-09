@@ -6389,11 +6389,9 @@ bool GenFlags[1];
  * The generic flags of the combo
  * Use the 'GENFLAG_' constants from 'std_constants.zh'
 
-int TriggerFlags[3]; 
- * Corresponds to the flags on the 'Triggers' tabs of the Combo Editor
- * 	where the indices and flag values are:
- *	
- *	
+bool TrigFlags[96];
+ * The trigger flags of the combo
+ * Use the 'TRIGFLAG_' constants from 'std_constants.zh'
 
 int TriggerLevel; 
  * Corresponds to the 'Minimum Level' field on the 'Triggers' tab of 

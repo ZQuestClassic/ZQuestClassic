@@ -17196,34 +17196,41 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 						break;				}
 			}
 		}
-		if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
-		{
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
-				{
-				return qe_invalid;
-				}
-			}
-			if(!p_igetl(&temp_combo.triggerlevel,f,true))
-			{
-				return qe_invalid;
-			}
-		}
 		if(section_version>=10) //combo trigger flags
 		{
 			for ( int32_t q = 0; q < 3; q++ )
 			{
 				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 				{
-				return qe_invalid;
+					return qe_invalid;
 				}
 			}
+		}
+		else if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+		{
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		if(section_version >= 9)
+		{
 			if(!p_igetl(&temp_combo.triggerlevel,f,true))
 			{
 				return qe_invalid;
 			}
 		}
+		if(section_version >= 22)
+		{
+			if(!p_getc(&temp_combo.triggerbtn,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
 		if(section_version>=12) //combo label
 		{
 			for ( int32_t q = 0; q < 11; q++ )
