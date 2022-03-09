@@ -15860,7 +15860,7 @@ void editdmap(int32_t index)
                 
                 if(strlen(tmfname)>55)
                 {
-                    jwin_alert("Error","Filename too int32_t","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+                    jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
                     temppath[0]=0;
                 }
                 else

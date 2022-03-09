@@ -2278,11 +2278,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)),
 					TabRef(name = "Triggers", ScrollingPane(
 						Column(
-							margins = DEFAULT_PADDING,
-							Column(framed = true,
+							DummyWidget(),
+							Column(
+								framed = true,
+								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
 								Row(
-									padding = 0_px,
 									Label(text = "Min Level (Applies to all):"),
 									TextField(
 										fitParent = true,
@@ -2294,7 +2295,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										})
 								),
 								Rows<3>(
-									padding = 0_px,
 									TRIGFLAG(0,"Sword"),
 									TRIGFLAG(1,"Sword Beam"),
 									TRIGFLAG(2,"Boomerang"),
@@ -2331,7 +2331,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(46,"C. Weapon 10")
 								)
 							),
-							Row(framed = true,
+							Column(
+								framed = true,
+								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
 								Row(padding = 0_px,
 									Label(text = "Buttons:"),
@@ -2356,7 +2358,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										}
 									)
 								),
-								Rows<4>(padding = 0_px,
+								Rows<2>(
 									TRIGFLAG(20,"Btn: Top"),
 									TRIGFLAG(21,"Btn: Bottom"),
 									TRIGFLAG(22,"Btn: Left"),
@@ -2366,6 +2368,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							Row(
 								framed = true,
+								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
 								TRIGFLAG(48,"Triggers Secrets"),
 								TRIGFLAG(18,"->Next"),

@@ -260,7 +260,10 @@ void ScrollingPane::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
 	{
-		content->arrange(x, y, getWidth(), std::max(getHeight(),content->getTotalHeight()));
+		Size widoffs = 0_px;
+		if(getHeight() < content->getTotalHeight())
+			widoffs = 18_px;
+		content->arrange(x, y, getWidth()-widoffs, std::max(getHeight(),content->getTotalHeight()));
 		contentHeight=content->getTotalHeight();
 		maxScrollPos=contentHeight-getHeight();
 	}
