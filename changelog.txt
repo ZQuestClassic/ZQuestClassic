@@ -1,8 +1,13 @@
 // 2.55 Change Log
-// Updated 25th Feb, 2022
+// Updated 9th Mar, 2022
 
 //Since A103
 
+-Mar 9th Nightly
+
+Fix script-modified temp layers with no associated perm screen not behaving properly.
+	(A previous update made them visible, but failed to make them obey solidity and such)
+Fix string editor using the wrong margins in the preview window
 Add 'bool combodata->TrigFlags[96];' for zscript TriggerFlags access
 Add '->Next', '->Prev' trigger flag resolutions
 Add the ability to trigger a combo via button press (similar to signposts/chests)
