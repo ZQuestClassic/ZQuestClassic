@@ -22646,7 +22646,8 @@ void wrapmsgstr(char *s3)
 	{
 		if(msgspace)
 		{
-			if(MsgStrings[msgstr].s[msgptr] >= 32 && MsgStrings[msgstr].s[msgptr] <= 126)
+			char c = MsgStrings[msgstr].s[msgptr];
+			if(c != ' ' && c >= 32 && c <= 126)
 			{
 				for(int32_t k=0; MsgStrings[msgstr].s[msgptr+k] && MsgStrings[msgstr].s[msgptr+k] != ' '; k++)
 				{
@@ -22658,7 +22659,7 @@ void wrapmsgstr(char *s3)
 			}
 			else
 			{
-				s3[0] = MsgStrings[msgstr].s[msgptr];
+				s3[0] = c;
 				s3[1] = 0;
 			}
 		}
@@ -22791,7 +22792,6 @@ void putmsg()
 				else
 				{
 					tlength = text_length(msgfont, s3) + ((int32_t)strlen(s3)*MsgStrings[msgstr].hspace);
-					
 					if(cursor_x+tlength > (msg_w-(oldmargin ? 0 : msg_margins[right]))
 					   && ((cursor_x > (msg_w-(oldmargin ? 0 : msg_margins[right])) || !(MsgStrings[msgstr].stringflags & STRINGFLAG_WRAP))
 							? true : strcmp(s3," ")!=0))
