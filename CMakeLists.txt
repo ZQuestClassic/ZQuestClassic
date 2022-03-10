@@ -42,7 +42,7 @@ include_directories(./include/dumb)
 include_directories(./include/alogg)
 include_directories(./include/almp3)
 include_directories(./include/gme)
-include_directories(./src)
+# include_directories(./src)
 
 if(MSVC)
   include_directories(./src/msvcCompat)
@@ -169,7 +169,7 @@ elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
 	set(ALLEGROLIB alleg)
-	add_definitions(-DALLEGRO_UNIX)
+	# add_definitions(-DALLEGRO_UNIX)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
 	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
 
@@ -323,3 +323,36 @@ add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHERE
 target_link_libraries(zlauncher ${ALLEGROLIB} ${LAUNCHERLIBSEXTRA})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 
+#############################################################
+# Allegro 5 Example
+#############################################################
+
+include(FetchContent)
+FetchContent_Declare(
+  allegro5
+  GIT_REPOSITORY https://github.com/liballeg/allegro5.git
+  GIT_TAG        5.2.7.0
+)
+FetchContent_GetProperties(allegro5)
+if(NOT allegro5_POPULATED)
+  FetchContent_Populate(allegro5)
+	set(SHARED OFF)
+	set(WANT_TESTS OFF)
+	set(WANT_EXAMPLES OFF)
+	set(WANT_DEMOS OFF)
+  add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.cpp)
+target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
+target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
+target_link_libraries(al5_example LINK_PUBLIC allegro allegro_main allegro_font allegro_primitives)
+
+# These include files are typically copied into the correct places via allegro's install
+# target, but we do it manually.
+file(COPY ${allegro5_SOURCE_DIR}/addons/font/allegro5/allegro_font.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/primitives/allegro5/allegro_primitives.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
