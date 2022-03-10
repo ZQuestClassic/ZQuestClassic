@@ -1,1 +1,0 @@
-#cmakedefine JPGALLEG_MMX

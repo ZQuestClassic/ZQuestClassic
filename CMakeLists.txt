@@ -12,6 +12,8 @@ if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
 
+add_compile_options("-m32")
+
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit
@@ -30,10 +32,57 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
 endfunction(enable_unity_build)
 
 #############################################################
+# Allegro
+#############################################################
+
+include(FetchContent)
+FetchContent_Declare(
+  allegro5
+  GIT_REPOSITORY https://github.com/liballeg/allegro5.git
+  GIT_TAG        5.2.7.0
+)
+FetchContent_GetProperties(allegro5)
+if(NOT allegro5_POPULATED)
+  FetchContent_Populate(allegro5)
+	set(SHARED OFF)
+	set(WANT_TESTS OFF)
+	set(WANT_EXAMPLES OFF)
+	set(WANT_DEMO OFF)
+	set(WANT_DOCS OFF)
+  add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+# These include files are typically copied into the correct places via allegro's install
+# target, but we do it manually.
+file(COPY ${allegro5_SOURCE_DIR}/addons/font/allegro5/allegro_font.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/primitives/allegro5/allegro_primitives.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/allegro_audio.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/image/allegro5/allegro_image.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+
+include_directories(${allegro5_SOURCE_DIR}/include)
+include_directories(${allegro5_BINARY_DIR}/include)
+link_libraries(allegro allegro_main allegro_font allegro_primitives)
+
+set(SHARED OFF)
+add_subdirectory(allegro-legacy)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
+
+#############################################################
 # Header and source file lists
 #############################################################
 
-include_directories(./allegro/include)
 include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
@@ -42,7 +91,7 @@ include_directories(./include/dumb)
 include_directories(./include/alogg)
 include_directories(./include/almp3)
 include_directories(./include/gme)
-# include_directories(./src)
+include_directories(./src)
 
 if(MSVC)
   include_directories(./src/msvcCompat)
@@ -177,11 +226,9 @@ elseif(LINUX)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
-	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
-
 
 #############################################################
 # Sound Library
@@ -327,32 +374,7 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 # Allegro 5 Example
 #############################################################
 
-include(FetchContent)
-FetchContent_Declare(
-  allegro5
-  GIT_REPOSITORY https://github.com/liballeg/allegro5.git
-  GIT_TAG        5.2.7.0
-)
-FetchContent_GetProperties(allegro5)
-if(NOT allegro5_POPULATED)
-  FetchContent_Populate(allegro5)
-	set(SHARED OFF)
-	set(WANT_TESTS OFF)
-	set(WANT_EXAMPLES OFF)
-	set(WANT_DEMOS OFF)
-  add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-
 add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.cpp)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example LINK_PUBLIC allegro allegro_main allegro_font allegro_primitives)
-
-# These include files are typically copied into the correct places via allegro's install
-# target, but we do it manually.
-file(COPY ${allegro5_SOURCE_DIR}/addons/font/allegro5/allegro_font.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
-file(COPY ${allegro5_SOURCE_DIR}/addons/primitives/allegro5/allegro_primitives.h
-	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
-)
