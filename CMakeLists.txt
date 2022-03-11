@@ -41,6 +41,7 @@ endfunction(enable_unity_build)
 add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
 # add_definitions(-DALLEGRO_LEGACY_NO_MAGIC_MAIN)
 # add_definitions(-DALLEGRO_LIB_BUILD)
+add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -70,6 +71,9 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/primitives/allegro5/allegro_primitives.h
 )
 file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/allegro_audio.h
 	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/internal/aintern_audio.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5/internal
 )
 file(COPY ${allegro5_SOURCE_DIR}/addons/image/allegro5/allegro_image.h
 	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5

@@ -128,6 +128,11 @@ set(ALLEGRO_LEGACY_SRC_MIDIA5_UNIX_FILES
         src/a5/midia5/unix/alsa.c
         )
 
+# local edit
+set(ALLEGRO_LEGACY_SRC_MIDIA5_SDL_FILES
+        src/a5/midia5/sdl/sdl_audio.c
+)
+
 set(ALLEGRO_LEGACY_SRC_MIDIA5_MACOS_FILES
         src/a5/midia5/macos/coremidi.m
         )

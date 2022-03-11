@@ -458,7 +458,7 @@ int main(int argc, char **argv)
   if (have_touch_input)
   {
     al_register_event_source(ex.queue, al_get_touch_input_event_source());
-    al_register_event_source(ex.queue, al_get_touch_input_mouse_emulation_event_source());
+    // al_register_event_source(ex.queue, al_get_touch_input_mouse_emulation_event_source());
   }
 
   ex.bg = al_map_rgba_f(1, 1, 0.9, 1);
