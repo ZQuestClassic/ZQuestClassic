@@ -8,6 +8,11 @@ set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# This allows outputs to be run where they are by putting their libaries in
+# the same folder. 
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
@@ -379,7 +384,7 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 # Allegro 5 Example
 #############################################################
 
-add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.cpp)
+add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.c)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example PUBLIC allegro-legacy allegro_main allegro_font allegro_primitives)
