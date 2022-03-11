@@ -12,8 +12,6 @@ if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
 
-add_compile_options("-m32")
-
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit
@@ -44,11 +42,12 @@ FetchContent_Declare(
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
   FetchContent_Populate(allegro5)
-	set(SHARED OFF)
+	set(SHARED ON)
 	set(WANT_TESTS OFF)
 	set(WANT_EXAMPLES OFF)
 	set(WANT_DEMO OFF)
 	set(WANT_DOCS OFF)
+	set(CMAKE_BUILD_TYPE Debug)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
@@ -72,9 +71,11 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
+set(ALLEGRO_LIBS allegro allegro_main allegro_font allegro_primitives)
 link_libraries(allegro allegro_main allegro_font allegro_primitives)
 
 set(SHARED OFF)
+set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(allegro-legacy)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
@@ -185,7 +186,7 @@ if(MSVC)
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
 
 	if(MSVC_VERSION GREATER 1500)
-		add_definitions(-DALLEGRO_HAVE_STDINT_H)
+		add_definitions(-DALLEGRO_LEGACY_HAVE_STDINT_H)
 	endif()
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
@@ -226,6 +227,7 @@ elseif(LINUX)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
+	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
@@ -377,4 +379,4 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.cpp)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
-target_link_libraries(al5_example LINK_PUBLIC allegro allegro_main allegro_font allegro_primitives)
+target_link_libraries(al5_example PUBLIC allegro allegro_main allegro_font allegro_primitives)
