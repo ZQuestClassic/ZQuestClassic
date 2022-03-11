@@ -33,6 +33,10 @@ endfunction(enable_unity_build)
 # Allegro
 #############################################################
 
+add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
+# add_definitions(-DALLEGRO_LEGACY_NO_MAGIC_MAIN)
+# add_definitions(-DALLEGRO_LIB_BUILD)
+
 include(FetchContent)
 FetchContent_Declare(
   allegro5
@@ -71,14 +75,13 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
-set(ALLEGRO_LIBS allegro allegro_main allegro_font allegro_primitives)
-link_libraries(allegro allegro_main allegro_font allegro_primitives)
 
-set(SHARED OFF)
+set(SHARED ON)
 set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(allegro-legacy)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
+# link_libraries(allegro-legacy allegro allegro_main allegro_font allegro_primitives)
 
 #############################################################
 # Header and source file lists
@@ -240,7 +243,7 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_link_libraries(zcsound allegro allegro_audio ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 #############################################################
 # Romview
@@ -379,4 +382,4 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.cpp)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
-target_link_libraries(al5_example PUBLIC allegro allegro_main allegro_font allegro_primitives)
+target_link_libraries(al5_example PUBLIC allegro-legacy allegro_main allegro_font allegro_primitives)

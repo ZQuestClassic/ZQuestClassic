@@ -29,7 +29,8 @@
 extern "C" {
 #endif
 
-AL_LEGACY_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nShow));
+// local edit
+// AL_LEGACY_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nShow));
 
 #ifdef __cplusplus
 }

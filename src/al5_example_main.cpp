@@ -6,6 +6,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 
+#  include <allegro.h>
+
 void abort_example(char const *format, ...)
 {
   va_list args;
@@ -15,7 +17,7 @@ void abort_example(char const *format, ...)
   exit(1);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
   ALLEGRO_EVENT event;
   bool have_touch_input;
@@ -25,6 +27,9 @@ int main(int argc, char *argv[])
   {
     abort_example("Could not init Allegro.\n");
   }
+
+  // just checking that allegro-legacy works
+  packfile_password("lol");
 
   if (!al_init_primitives_addon())
   {
@@ -87,3 +92,4 @@ int main(int argc, char *argv[])
 
   return 0;
 }
+END_OF_MAIN()
