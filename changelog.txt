@@ -3,6 +3,7 @@
 
 //Since A103
 
+Fix 'combodata->GenFlags[]' sizing
 ZC Cheat dialog now checks code on pressing enter
 Better handle invalid itemdata pointers in scripts
 	( EmilyV, Mar 13th, 2022 )

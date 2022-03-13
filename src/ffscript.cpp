@@ -10193,14 +10193,14 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
 				ret = 0;
 			}
-			else if (((unsigned)indx) > 0)
+			else if (((unsigned)indx) > 1)
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
 				ret = 0;
 			}
 			else
 			{
-				ret = (combobuf[ri->combosref].genflags & 1 << indx) ? 10000L : 0L;
+				ret = (combobuf[ri->combosref].genflags & (1 << indx)) ? 10000L : 0L;
 			}
 			break;
 		}
