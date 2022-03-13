@@ -1,7 +1,11 @@
 // 2.55 Change Log
-// Updated 9th Mar, 2022
+// Updated 13th Mar, 2022
 
 //Since A103
+
+ZC Cheat dialog now checks code on pressing enter
+Better handle invalid itemdata pointers in scripts
+	( EmilyV, Mar 13th, 2022 )
 
 -Mar 9th Nightly
 
