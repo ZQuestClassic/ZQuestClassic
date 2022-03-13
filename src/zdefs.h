@@ -2189,16 +2189,17 @@ struct guydata
 class refInfo
 {
 public:
-    //word script; //script number
-    dword pc; //current command offset
-    
-    int32_t d[8]; //d registers
-    int32_t a[2]; //a regsisters (reference to another ffc on screen)
-    word sp : BITS_SP; //stack pointer for current script
-    dword scriptflag; //stores whether various operations were true/false etc.
-    
-    byte ffcref, idata; //current object pointers
-    dword itemref, guyref, lwpn, ewpn;
+	//word script; //script number
+	dword pc; //current command offset
+	
+	int32_t d[8]; //d registers
+	int32_t a[2]; //a regsisters (reference to another ffc on screen)
+	word sp : BITS_SP; //stack pointer for current script
+	dword scriptflag; //stores whether various operations were true/false etc.
+	
+	byte ffcref;
+	int32_t idata;
+	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
 	int32_t mapsref;
 	//to implement
@@ -2207,59 +2208,59 @@ public:
 	dword fileref, subscreenref, comboidref, directoryref, rngref;
 	dword bottletyperef, bottleshopref;
 	int32_t combosref, comboposref;
-    //byte ewpnclass, lwpnclass, guyclass; //Not implemented
-    
-    //byte ewpnclass, lwpnclass, guyclass; //Not implemented
+	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
+	
+	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
-    
-    void Clear()
-    {
-        pc = 0, sp = 0, scriptflag = 0;
-        ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
-	mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
-	    zmsgref = 0, shopsref = 0, untypedref = 0,
+	
+	void Clear()
+	{
+		pc = 0, sp = 0, scriptflag = 0;
+		ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
+		mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
+		zmsgref = 0, shopsref = 0, untypedref = 0,
 		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
 		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0;
 		comboposref = 0;
-        memset(d, 0, 8 * sizeof(int32_t));
-        a[0] = a[1] = 0;
+		memset(d, 0, 8 * sizeof(int32_t));
+		a[0] = a[1] = 0;
 		switchkey = 0;
-    }
-    
-    refInfo()
-    {
-        Clear();
-    }
-    
-    refInfo(const refInfo &copy)
-    {
-        *this = copy;
-    }
-    
-    refInfo &operator = (const refInfo &rhs)
-    {
-        pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
-        ffcref = rhs.ffcref, idata = rhs.idata;
-        itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
-	    
-	    mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
-	    bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
-	    zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
+	}
+	
+	refInfo()
+	{
+		Clear();
+	}
+	
+	refInfo(const refInfo &copy)
+	{
+		*this = copy;
+	}
+	
+	refInfo &operator = (const refInfo &rhs)
+	{
+		pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
+		ffcref = rhs.ffcref, idata = rhs.idata;
+		itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
+		
+		mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
+		bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
+		zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
 		dropsetref = rhs.dropsetref, pondref = rhs.pondref, warpringref = rhs.warpringref, 
 		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
 		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref;
-        memcpy(d, rhs.d, 8 * sizeof(int32_t));
-        memcpy(a, rhs.a, 2 * sizeof(int32_t));
+		memcpy(d, rhs.d, 8 * sizeof(int32_t));
+		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
-        return *this;
-    }
+		return *this;
+	}
 };
 
 
@@ -3383,13 +3384,13 @@ struct zquestheader
 		if(new_version_is_nightly)
 		{
 			if(getAlphaVer() < 0)
-				sprintf(buf, "Nightly (%s ??)", getAlphaStr(true));
+				sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
 			else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
 		}
 		else
 		{
 			if(getAlphaVer() < 0)
-				sprintf(buf, "%s ??", getAlphaStr(true));
+				sprintf(buf, "%s ?\?", getAlphaStr(true));
 			else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
 		}
 		return buf;
