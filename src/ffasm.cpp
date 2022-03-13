@@ -2297,6 +2297,7 @@ script_variable variable_list[]=
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	{"COMBODTRIGGERFLAGS2", COMBODTRIGGERFLAGS2, 0, 0 },
+	{"COMBODTRIGGERBUTTON", COMBODTRIGGERBUTTON, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

@@ -3,6 +3,7 @@
 
 //Since A103
 
+Add script access 'combodata->TriggerButton[]'
 Fix 'combodata->GenFlags[]' sizing
 ZC Cheat dialog now checks code on pressing enter
 Better handle invalid itemdata pointers in scripts

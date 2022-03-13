@@ -6385,13 +6385,17 @@ int Attributes[4];
 bool Flags[16];
  * The 16 user flags of the combo
 
-bool GenFlags[1];
+bool GenFlags[2];
  * The generic flags of the combo
  * Use the 'GENFLAG_' constants from 'std_constants.zh'
 
 bool TrigFlags[96];
  * The trigger flags of the combo
  * Use the 'TRIGFLAG_' constants from 'std_constants.zh'
+
+bool TriggerButton[8];
+ * The trigger button(s) of the combo
+ * Use the 'INTBTN_' constants from 'std_constants.zh'
 
 int TriggerLevel; 
  * Corresponds to the 'Minimum Level' field on the 'Triggers' tab of 

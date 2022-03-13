@@ -10214,13 +10214,31 @@ int32_t get_register(const int32_t arg)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
 			}
-			else if ( indx < 0 || indx >= 96 )
+			else if ( unsigned(indx) >= 96 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
 			}
 			else
 			{
 				ret = (combobuf[ri->combosref].triggerflags[indx/32] & (1<<indx%32)) ? 10000L : 0L;
+			}
+			break;
+		}
+		case COMBODTRIGGERBUTTON:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+			}
+			else if ( unsigned(indx) >= 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].triggerbtn & (1<<indx)) ? 10000L : 0L;
 			}
 			break;
 		}
@@ -18963,13 +18981,30 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
 			}
-			else if ( indx < 0 || indx >= 96 )
+			else if ( unsigned(indx) >= 96 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
 			}
 			else
 			{
 				SETFLAG(combobuf[ri->combosref].triggerflags[indx/32],1<<(indx%32),value);
+			}
+			break;
+		}
+		case COMBODTRIGGERBUTTON:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+			}
+			else if ( unsigned(indx) >= 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+			}
+			else
+			{
+				SETFLAG(combobuf[ri->combosref].triggerbtn,1<<indx,value);
 			}
 			break;
 		}
@@ -35588,7 +35623,7 @@ script_variable ZASMVars[]=
 	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
-	{ "COMBODTRIGGERFLAGS2",  COMBODTRIGGERFLAGS2,  0, 0 },
+	{ "COMBODTRIGGERBUTTON",  COMBODTRIGGERBUTTON,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

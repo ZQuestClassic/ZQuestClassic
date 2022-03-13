@@ -4371,8 +4371,9 @@ enum ASM_DEFINE
 #define GAMEMAXCHEAT            0x141F
 #define SHOWNMSG                0x1420
 #define COMBODTRIGGERFLAGS2     0x1421
+#define COMBODTRIGGERBUTTON     0x1422
 
-#define NUMVARIABLES         	0x1422
+#define NUMVARIABLES         	0x1423
 
 //} End variables
 
