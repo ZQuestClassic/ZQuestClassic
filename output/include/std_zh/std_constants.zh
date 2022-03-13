@@ -2555,7 +2555,8 @@ DEFINE CT_LANTERN            = 169;
 DEFINE CT_SPOTLIGHT          = 170;
 DEFINE CT_GLASS              = 171;
 DEFINE CT_LIGHT_TARGET       = 172;
-DEFINE CT_MAX                = 173;
+DEFINE CT_SWITCHHOOK_BLOCK   = 173;
+DEFINE CT_MAX                = 174;
 
 
 //////////////////
