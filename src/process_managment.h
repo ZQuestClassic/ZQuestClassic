@@ -115,7 +115,8 @@ struct process_manager : public io_manager
 	//}
 	#else
 	//{ Unix
-	FILE* write_handle, read_handle;
+	FILE* write_handle;
+	FILE* read_handle;
 	process_killer pk;
 	
 	bool kill_on_destructor;
@@ -195,7 +196,7 @@ struct child_process_handler : public io_manager
 	{
 		read_handle = stdin;
 		write_handle = stdout;
-		return (out && in);
+		return true;
 	}
 	
 	child_process_handler()

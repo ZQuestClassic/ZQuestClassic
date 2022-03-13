@@ -1,6 +1,21 @@
 #include "process_managment.h"
 #include "util.h"
+#ifndef _WIN32
+	#include <csignal>
+	#include <sys/types.h>
+#endif
 using namespace util;
+
+#define ERR_EXIT(str, pm) \
+	do \
+	{ \
+		if(pm) \
+			delete pm; \
+		char buf[2048] = {0}; \
+		sprintf(buf, "[PROCESS_LAUNCH: '%s' ERROR]: %s\n", relative_path, str); \
+		safe_al_trace(buf); \
+		return NULL; \
+	} while(false)
 
 void process_killer::kill(uint32_t exitcode)
 {
@@ -13,7 +28,7 @@ void process_killer::kill(uint32_t exitcode)
 #else
 	if(pid)
 	{
-		kill(pid,SIGKILL);
+		::kill(pid,SIGKILL);
 		pid = 0;
 	}
 #endif
@@ -37,10 +52,10 @@ process_killer launch_process(char const* relative_path, char const** argv)
 	switch(pid = vfork())
 	{
 		case -1:
-			ERR_EXIT("Failed to fork process");
+			ERR_EXIT("Failed to fork process", (process_manager*)0);
 		case 0: //child
-			execv(path_buf, argv);
-			ERR_EXIT("Failed execv");
+			execv(path_buf, (char *const *)argv);
+			ERR_EXIT("Failed execv", (process_manager*)0);
 	}
 	
 	return process_killer(pid);
@@ -50,29 +65,19 @@ process_killer launch_process(char const* relative_path, char const** argv)
 process_manager* launch_piped_process(char const* relative_path, char const** argv)
 {
 	process_manager* pm = new process_manager();
-	#define ERR_EXIT(str) \
-	do \
-	{ \
-		delete pm; \
-		char buf[2048] = {0}; \
-		sprintf(buf, "[PROCESS_LAUNCH: '%s' ERROR]: %s\n", relative_path, str); \
-		safe_al_trace(buf); \
-		return NULL; \
-	} while(false)
-	
 #ifdef _WIN32
 	SECURITY_ATTRIBUTES saAttr;
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 	saAttr.bInheritHandle = TRUE;
 	saAttr.lpSecurityDescriptor = NULL;
 	if ( !CreatePipe(&(pm->read_handle), &(pm->re_2), &saAttr, 0))
-		ERR_EXIT("Failed to create child output pipe");
+		ERR_EXIT("Failed to create child output pipe", pm);
 	if ( !SetHandleInformation(pm->read_handle, HANDLE_FLAG_INHERIT, 0))
-		ERR_EXIT("Failed to set handle information for child output"); 
+		ERR_EXIT("Failed to set handle information for child output", pm); 
 	if ( !CreatePipe(&(pm->wr_2), &(pm->write_handle), &saAttr, 0))
-		ERR_EXIT("Failed to create child input pipe");
+		ERR_EXIT("Failed to create child input pipe", pm);
 	if ( !SetHandleInformation(pm->write_handle, HANDLE_FLAG_INHERIT, 0))
-		ERR_EXIT("Failed to set handle information for child input"); 
+		ERR_EXIT("Failed to set handle information for child input", pm); 
 	
 	
 	PROCESS_INFORMATION pi;
@@ -107,7 +112,7 @@ process_manager* launch_piped_process(char const* relative_path, char const** ar
 		NULL,          // use parent's current directory 
 		&si, &pi);
 	if(!bSuccess)
-		ERR_EXIT("Failed to create process");
+		ERR_EXIT("Failed to create process", pm);
 	pm->pk.init(pi.hProcess);
 	return pm;
 #else
@@ -120,7 +125,7 @@ process_manager* launch_piped_process(char const* relative_path, char const** ar
 	switch(pid = vfork())
 	{
 		case -1:
-			ERR_EXIT("Failed to fork process");
+			ERR_EXIT("Failed to fork process", pm);
 		case 0: //child
 			dup2(pdes_r[1], fileno(stdout));
 			close(pdes_r[1]);
@@ -128,8 +133,8 @@ process_manager* launch_piped_process(char const* relative_path, char const** ar
 			dup2(pdes_w[0], fileno(stdin));
 			close(pdes_w[0]);
 			close(pdes_w[1]);
-			execv(path_buf, argv);
-			ERR_EXIT("Failed execv");
+			execv(path_buf, (char *const *)argv);
+			ERR_EXIT("Failed execv", pm);
 	}
 	
 	pm->read_handle = (FILE*)(pdes_r[0]);

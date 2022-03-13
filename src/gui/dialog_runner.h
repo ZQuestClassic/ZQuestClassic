@@ -5,7 +5,7 @@
 #include "dialog_ref.h"
 #include "helper.h"
 #include "widget.h"
-#include "../signal.h"
+#include "../signals.h"
 #include <memory>
 #include <type_traits>
 
