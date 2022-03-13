@@ -1,5 +1,5 @@
-#ifndef ZC_SIGNAL_H
-#define ZC_SIGNAL_H
+#ifndef ZC_SIGNALS_H
+#define ZC_SIGNALS_H
 
 #include <functional>
 #include <memory>

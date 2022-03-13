@@ -108,6 +108,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	using GUI::Props::index;
 	
 	char* start_text = encode_msg_str(tmpMsgStr.s);
 	if(is_large)
