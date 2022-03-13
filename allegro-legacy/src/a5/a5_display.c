@@ -19,6 +19,8 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/ainta5.h"
 #include "allegro/platform/ala5.h"
+// local edit
+#include "a5alleg.h"
 
 void all_render_screen(void);
 

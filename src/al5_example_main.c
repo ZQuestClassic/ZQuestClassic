@@ -10,6 +10,7 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro.h>
+#include <a5alleg.h>
 
 void abort_example(char const *format, ...)
 {
@@ -436,6 +437,10 @@ int main(int argc, char **argv)
   {
     abort_example("Error creating display\n");
   }
+
+  // just testing that allegro-legacy symbols are present.
+  all_get_display();
+  packfile_password("lol");
 
   ex.font = al_create_builtin_font();
   if (!ex.font)

@@ -42,6 +42,7 @@ add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
 # add_definitions(-DALLEGRO_LEGACY_NO_MAGIC_MAIN)
 # add_definitions(-DALLEGRO_LIB_BUILD)
 add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
+option(SHARED "" ON)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -52,7 +53,6 @@ FetchContent_Declare(
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
   FetchContent_Populate(allegro5)
-	set(SHARED ON)
 	set(WANT_TESTS OFF)
 	set(WANT_EXAMPLES OFF)
 	set(WANT_DEMO OFF)
@@ -85,7 +85,6 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
 
-set(SHARED ON)
 set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(allegro-legacy)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include)
@@ -186,11 +185,6 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
-				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg44.lib>")
-
-	add_definitions(-DALLEGRO_MSVC)
-
 	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
 
@@ -252,7 +246,7 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound allegro allegro_audio ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_link_libraries(zcsound allegro-legacy ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 #############################################################
 # Romview
@@ -340,7 +334,9 @@ if(Boost_FOUND)
 	add_definitions(-DHAS_BOOST)
     add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
-	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC allegro-legacy allegro_main allegro_font allegro_primitives)
+
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
 		target_compile_definitions(zquest PRIVATE ZC_PCH)
