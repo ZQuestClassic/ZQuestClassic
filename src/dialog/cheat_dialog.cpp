@@ -28,6 +28,7 @@ std::shared_ptr<GUI::Widget> SetCheatDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	using GUI::Props::index;
 
 	return Window(
 		title = "Cheats",
