@@ -384,3 +384,9 @@ add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.c)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegro_primitives)
+
+#############################################################
+# Visual Studio
+#############################################################
+
+set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
