@@ -31,47 +31,13 @@ std::shared_ptr<GUI::Widget> SetCheatDialog::view()
 
 	return Window(
 		title = "Cheats",
-		onEnter = message::OK,
+		onEnter = message::CHECK,
 		onClose = message::CANCEL,
 		Column(
 			Row(padding = 0_px,
 				Rows<2>(padding = 0_px,
 					field = TextField(maxLength = 40, focused = true),
-					Button(text = "Check", onPressFunc = [&]()
-						{
-							std::string code;
-							code.assign(field->getText());
-							if(!code.size())
-							{
-								errlabel->setText("");
-								return;
-							}
-							int32_t found = 0;
-							for(auto q = 0; q < 4; ++q)
-							{
-								if(!strcmp(code.c_str(), zcheats.codes[q]))
-								{
-									if(q+1 > maxcheat) maxcheat = q+1;
-									for(auto r = zc_min(maxcheat,4); r > 0; --r)
-									{
-										radios[r]->setDisabled(false);
-									}
-									found = q+1;
-									break;
-								}
-							}
-							if(found)
-							{
-								field->setText("");
-								char buf[80];
-								sprintf(buf, "Cheat level %d unlocked!",found);
-								errlabel->setText(buf);
-								for(auto q = 0; q < 5; ++q)
-									radios[q]->setChecked(q==found);
-							}
-							else
-								errlabel->setText("Invalid code!");
-						}),
+					Button(text = "Check", onClick = message::CHECK),
 					errlabel = Label(colSpan = 2, textAlign = 1, fitParent = true, text = "")
 				),
 				Column(
@@ -102,20 +68,56 @@ bool SetCheatDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
-	case message::OK:
-		for(auto q = 0; q < 5; ++q)
+		case message::CHECK:
 		{
-			if(radios[q]->getChecked())
+			std::string code;
+			code.assign(field->getText());
+			if(!code.size())
 			{
-				cheat = q;
-				if(cheat > maxcheat) cheat = maxcheat;
-				break;
+				errlabel->setText("");
+				return false;
 			}
+			int32_t found = 0;
+			for(auto q = 0; q < 4; ++q)
+			{
+				if(!strcmp(code.c_str(), zcheats.codes[q]))
+				{
+					if(q+1 > maxcheat) maxcheat = q+1;
+					for(auto r = zc_min(maxcheat,4); r > 0; --r)
+					{
+						radios[r]->setDisabled(false);
+					}
+					found = q+1;
+					break;
+				}
+			}
+			if(found)
+			{
+				field->setText("");
+				char buf[80];
+				sprintf(buf, "Cheat level %d unlocked!",found);
+				errlabel->setText(buf);
+				for(auto q = 0; q < 5; ++q)
+					radios[q]->setChecked(q==found);
+			}
+			else
+				errlabel->setText("Invalid code!");
+			return false;
 		}
-		return true;
+		case message::OK:
+			for(auto q = 0; q < 5; ++q)
+			{
+				if(radios[q]->getChecked())
+				{
+					cheat = q;
+					if(cheat > maxcheat) cheat = maxcheat;
+					break;
+				}
+			}
+			return true;
 
-	case message::CANCEL:
-	default:
-		return true;
+		case message::CANCEL:
+		default:
+			return true;
 	}
 }
