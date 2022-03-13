@@ -39,8 +39,6 @@ endfunction(enable_unity_build)
 #############################################################
 
 add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
-# add_definitions(-DALLEGRO_LEGACY_NO_MAGIC_MAIN)
-# add_definitions(-DALLEGRO_LIB_BUILD)
 add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 option(SHARED "" ON)
 
@@ -62,7 +60,7 @@ if(NOT allegro5_POPULATED)
 endif()
 
 # These include files are typically copied into the correct places via allegro's install
-# target, but we do it manually.
+# target, but we do it manually because we are compiling from source.
 file(COPY ${allegro5_SOURCE_DIR}/addons/font/allegro5/allegro_font.h
 	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
 )
@@ -84,12 +82,13 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
-
 set(CMAKE_BUILD_TYPE Debug)
-add_subdirectory(allegro-legacy)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include)
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-# link_libraries(allegro-legacy allegro allegro_main allegro_font allegro_primitives)
+add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
+
+add_library(allegro_with_legacy INTERFACE)
+target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
+target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_main)
 
 #############################################################
 # Header and source file lists
@@ -225,10 +224,7 @@ if(MSVC)
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
-	set(ALLEGROLIB alleg)
-	# add_definitions(-DALLEGRO_UNIX)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
-	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
 
 	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
@@ -247,7 +243,7 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound allegro-legacy ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_link_libraries(zcsound PUBLIC allegro_with_legacy ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 #############################################################
 # Romview
@@ -295,9 +291,9 @@ add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_S
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
 
 if(WIN32)
-	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 
 
@@ -336,7 +332,6 @@ if(Boost_FOUND)
     add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
 	target_link_libraries(zquest PUBLIC zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
-	target_link_libraries(zquest PUBLIC allegro-legacy allegro_main allegro_font allegro_primitives)
 
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
@@ -361,7 +356,7 @@ endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
-	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript allegro_with_legacy ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -378,7 +373,7 @@ elseif(LINUX)
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
-target_link_libraries(zlauncher ${ALLEGROLIB} ${LAUNCHERLIBSEXTRA})
+target_link_libraries(zlauncher allegro_with_legacy ${LAUNCHERLIBSEXTRA})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 
 #############################################################
@@ -388,4 +383,4 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.c)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
-target_link_libraries(al5_example PUBLIC allegro-legacy allegro_main allegro_font allegro_primitives)
+target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegro_primitives)
