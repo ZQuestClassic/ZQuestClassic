@@ -185,6 +185,7 @@ if(WIN32)
 endif()
 
 if(MSVC)
+	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
 	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
 

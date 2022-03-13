@@ -5471,11 +5471,12 @@ int32_t main(int32_t argc, char* argv[])
 	if(use_win32_proc != FALSE)
 	{
 		Z_message("Config file warning: \"zc_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
-		
-		if(win32data.zcSetCustomCallbackProc(win_get_window()) != 0)
-		{
-			use_win32_proc = FALSE;
-		}
+
+		// TODO: why is `all_get_display` symbol unresolved?
+		// if(win32data.zcSetCustomCallbackProc(al_get_win_window_handle(all_get_display())) != 0)
+		// {
+		// 	use_win32_proc = FALSE;
+		// }
 	}
 	
 #endif
