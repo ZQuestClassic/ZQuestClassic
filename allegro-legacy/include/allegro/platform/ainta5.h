@@ -16,3 +16,4 @@
  */
 
 extern GFX_DRIVER display_allegro_5;
+extern void (*_a5_close_button_proc)(void);

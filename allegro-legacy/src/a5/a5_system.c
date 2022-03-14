@@ -75,9 +75,6 @@ static void a5_sys_set_window_title(AL_CONST char * name)
 
 static int a5_sys_set_close_button_callback(void (*proc)(void))
 {
-   if (!_a5_display)
-      return -1;
-
    _a5_close_button_proc = proc;
 
    return 0;

@@ -137,12 +137,24 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
   {
     goto fail;
   }
+  al_register_event_source(_a5_display_thread_event_queue, al_get_display_event_source(_a5_display));
   al_register_event_source(_a5_display_thread_event_queue, al_get_timer_event_source(_a5_display_thread_timer));
   al_start_timer(_a5_display_thread_timer);
   _a5_display_creation_done = 1;
   while(!al_get_thread_should_stop(_a5_screen_thread))
   {
     al_wait_for_event(_a5_display_thread_event_queue, &event);
+    switch(event.type)
+    {
+      case ALLEGRO_EVENT_DISPLAY_CLOSE:
+      {
+        if(_a5_close_button_proc)
+        {
+          _a5_close_button_proc();
+        }
+        break;
+      }
+    }
     if(al_event_queue_is_empty(_a5_display_thread_event_queue))
     {
       all_render_screen();
@@ -172,6 +184,7 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
     if(_a5_display_thread_event_queue)
     {
       al_destroy_event_queue(_a5_display_thread_event_queue);
+      _a5_display_thread_event_queue = NULL;
     }
     _a5_destroy_screen();
     return NULL;
