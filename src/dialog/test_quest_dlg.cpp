@@ -10,8 +10,16 @@ extern char *filepath;
 extern bool saved, first_save;
 extern dmap *DMaps;
 
-static int32_t test_start_dmap = 0, test_start_screen = 0;
+static int32_t test_start_dmap = 0, test_start_screen = 0, test_ret_sqr = 0;
 static process_killer test_killer;
+
+static const GUI::ListData retsqrlist
+{
+	{ "A", 0 },
+	{ "B", 1 },
+	{ "C", 2 },
+	{ "D", 3 }
+};
 
 static bool do_save()
 {
@@ -104,7 +112,17 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
 						test_start_screen = val;
-					})
+					}),
+				Label(text = "Return Square:"),
+				DropDownList(
+					maxwidth = 10_em,
+					data = retsqrlist,
+					selectedValue = test_ret_sqr,
+					onSelectFunc = [&](int32_t val)
+					{
+						test_ret_sqr = val;
+					}
+				)
 			),
 			Row(
 				vAlign = 1.0,
@@ -135,7 +153,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			test_killer.kill();
 			char buf[2048] = {0};
-			sprintf(buf, "zelda.exe -test \"%s\" %d %d", filepath, test_start_dmap, test_start_screen);
+			sprintf(buf, "zelda.exe -test \"%s\" %d %d %d", filepath, test_start_dmap, test_start_screen, test_ret_sqr);
 			test_killer = launch_process(buf);
 		}
 		return true;
