@@ -9886,7 +9886,7 @@ int32_t get_register(const int32_t arg)
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 					ret = -10000; \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 					ret = -10000; \
@@ -9905,7 +9905,7 @@ int32_t get_register(const int32_t arg)
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 					ret = -10000; \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 					ret = -10000; \
@@ -18685,7 +18685,7 @@ void set_register(const int32_t arg, const int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 				} \
@@ -18702,7 +18702,7 @@ void set_register(const int32_t arg, const int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 				} \
@@ -18719,7 +18719,7 @@ void set_register(const int32_t arg, const int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 				} \
