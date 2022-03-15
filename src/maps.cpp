@@ -468,14 +468,11 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t 
 	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y), secrets);
 }
 
-int32_t MAPCOMBOX(int32_t pos) { return ((pos)%16*16); }
-int32_t MAPCOMBOY(int32_t pos) { return ((pos)&0xF0); }
-
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
 { 
 	if (map < 0 || screen < 0) return 0;
 	
-	if (map == currmap && screen == currscr) return MAPCOMBO2(layer,MAPCOMBOX(pos),MAPCOMBOY(pos));
+	if (map == currmap && screen == currscr) return MAPCOMBO2(layer,COMBOX(pos),COMBOY(pos));
 	
 	if(pos>175 || pos < 0)
 		return 0;
@@ -3274,7 +3271,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 void doTorchCircle(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
 {
 	if(cmb.type != cTORCH) return;
-	doDarkroomCircle(MAPCOMBOX(pos)+8+xoffs, MAPCOMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
+	doDarkroomCircle(COMBOX(pos)+8+xoffs, COMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
 }
 
 void calc_darkroom_combos(bool scrolling)

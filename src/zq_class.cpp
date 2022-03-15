@@ -568,9 +568,12 @@ void zmap::set_prvscr(int32_t map, int32_t scr)
             }
             else
             {
+				prvlayers[i].valid = 0;
                 // memset(prvlayers+i,0,sizeof(mapscr));
             }
         }
+		else
+			prvlayers[i].valid = 0;
     }
     
     prv_map=map;
@@ -582,7 +585,7 @@ int32_t  zmap::getCurrMap()
 }
 bool zmap::isDark()
 {
-    return (screens[currscr].flags&4)!=0;
+    return (screens[currscr].flags&fDARK)!=0;
 }
 void zmap::setCurrMap(int32_t index)
 {
@@ -2594,6 +2597,56 @@ int32_t zmap::MAPCOMBO(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,s
     return screen1->data[combo];
 }
 
+void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
+{
+	mapscr *layers[7];
+	mapscr *basescr;
+	if(prv_mode)
+	{
+		layers[0] = &prvscr;
+		basescr = layers[0];
+		for(auto q = 1; q < 7; ++q)
+		{
+			if(prvlayers[q-1].valid)
+				layers[q] = &(prvlayers[q-1]);
+			else layers[q] = NULL;
+		}
+	}
+	else
+	{
+		layers[0] = AbsoluteScr(currmap, currscr);
+		basescr = layers[0];
+		for(auto q = 1; q < 7; ++q)
+		{
+			int32_t lmap = basescr->layermap[q-1]-1;
+			int32_t lscr = basescr->layerscreen[q-1];
+			if(lmap < 0)
+				layers[q] = NULL;
+			else layers[q] = AbsoluteScr(lmap, lscr);
+		}
+	}
+	for(auto q = 0; q < 7; ++q)
+	{
+		if(!layers[q]) continue;
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[layers[q]->data[pos]];
+			if(cmb.type == cTORCH)
+			{
+				doDarkroomCircle(COMBOX(pos)+8, COMBOY(pos)+8, cmb.attribytes[0], dest, transdest);
+			}
+		}
+	}
+	for(auto q = 0; q < 32; ++q)
+	{
+		newcombo const& cmb = combobuf[basescr->ffdata[q]];
+		if(cmb.type == cTORCH)
+		{
+			doDarkroomCircle((basescr->ffx[q]/10000)+(basescr->ffEffectWidth(q)/2), (basescr->ffy[q]/10000)+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
+		}
+	}
+}
+
 void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr)
 {
     int32_t antiflags=(flags&~cFLAGS)&~cWALK;
@@ -3156,7 +3209,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
     
     int32_t dark = layer->flags&cDARK;
     
-    if(dark && !(flags&cNODARK))
+    if(dark && !(flags&cNODARK)
+		&& !((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM)))
     {
         for(int32_t j=0; j<80; j++)
         {
@@ -6638,61 +6692,60 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     return ret ? 1 : 0;
 }
 
+void set_rules(byte* newrules);
 // wrapper to reinitialize everything on an error
 int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 {
-    char buf[2048];
+	char buf[2048];
 //  if(encrypted)
 //	  setPackfilePassword(datapwd);
-    byte skip_flags[4];
-    
-    for(int32_t i=0; i<4; ++i)
-    {
-        skip_flags[i]=0;
-    }
-    for(int32_t i=0; i<qr_MAX; i++)
-                set_bit(quest_rules,i,0);
-    int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
+	byte skip_flags[4];
+	
+	for(int32_t i=0; i<4; ++i)
+	{
+		skip_flags[i]=0;
+	}
+	for(int32_t i=0; i<qr_MAX; i++)
+				set_bit(quest_rules,i,0);
+	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
 //  setPackfilePassword(NULL);
 
-    if(ret!=qe_OK)
-    {
-        init_quest(NULL);
-    }
-    else
-    {
-        int32_t accessret = quest_access(filename, &header, compressed);
-        
-        if(accessret != 1)
-        {
-            init_quest(NULL);
-            
-            if(accessret == 0)
-                ret=qe_pwd;
-            else
-                ret=qe_cancel;
-        }
-        else
-        {
-            Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
-            refresh(rALL);
-            refresh_pal();
-            
-            if(bmap != NULL)
-            {
-                destroy_bitmap(bmap);
-                bmap=NULL;
-            }
-            
-            sprintf(buf,"ZQuest - [%s]", get_filename(filename));
-//      if (compressed)
-            {
-                set_window_title(buf);
-            }
-        }
-    }
-    
-    return ret;
+	if(ret!=qe_OK)
+	{
+		init_quest(NULL);
+	}
+	else
+	{
+		int32_t accessret = quest_access(filename, &header, compressed);
+		
+		if(accessret != 1)
+		{
+			init_quest(NULL);
+			
+			if(accessret == 0)
+				ret=qe_pwd;
+			else
+				ret=qe_cancel;
+		}
+		else
+		{
+			Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
+			refresh(rALL);
+			refresh_pal();
+			set_rules(quest_rules);
+			
+			if(bmap != NULL)
+			{
+				destroy_bitmap(bmap);
+				bmap=NULL;
+			}
+			
+			sprintf(buf,"ZQuest - [%s]", get_filename(filename));
+			set_window_title(buf);
+		}
+	}
+	
+	return ret;
 }
 
 bool write_midi(MIDI *m,PACKFILE *f)

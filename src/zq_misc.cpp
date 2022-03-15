@@ -1316,40 +1316,51 @@ int32_t onShowCType()
     return D_O_K;
 }
 
+extern MENU view_menu[];
 int32_t onShowDarkness()
 {
-    if(get_bit(quest_rules,qr_FADE))
-    {
-        int32_t last = CSET(5)-1;
+	if(get_bit(quest_rules,qr_NEW_DARKROOM))
+	{
+		Flags ^= cNEWDARK;
+		refresh(rALL);
+	}
+	else
+	{
+		refresh(rALL);
+		update_hw_screen(true);
+		if(get_bit(quest_rules,qr_FADE))
+		{
+			int32_t last = CSET(5)-1;
 
-        if(get_bit(quest_rules,qr_FADECS5))
-            last += 16;
+			if(get_bit(quest_rules,qr_FADECS5))
+				last += 16;
 
-        byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;
+			byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;
 
-        for(int32_t i=0; i<16; i++)
-        {
-            int32_t light = si[0]+si[1]+si[2];
-            si+=3;
-            fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+i,CSET(2)+i);
-        }
+			for(int32_t i=0; i<16; i++)
+			{
+				int32_t light = si[0]+si[1]+si[2];
+				si+=3;
+				fade_interpolate(RAMpal,black_palette,RAMpal,light?32:64,CSET(2)+i,CSET(2)+i);
+			}
 
-        fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-        set_palette(RAMpal);
+			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
+			set_palette(RAMpal);
 
-        readkey();
+			readkey();
 
-        load_cset(RAMpal,5,5);
-        loadlvlpal(Color);
-    }
-    else
-    {
-        loadfadepal(Color*pdLEVEL+poFADE3);
-        readkey();
-        loadlvlpal(Color);
-    }
+			load_cset(RAMpal,5,5);
+			loadlvlpal(Color);
+		}
+		else
+		{
+			loadfadepal(Color*pdLEVEL+poFADE3);
+			readkey();
+			loadlvlpal(Color);
+		}
+	}
 
-    return D_O_K;
+	return D_O_K;
 }
 
 int32_t onM()

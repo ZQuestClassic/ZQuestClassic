@@ -8526,7 +8526,7 @@ bool HeroClass::animate(int32_t)
 			if(!awarp) //Putting stuff in here so it doesn't activate after an autowarp happens.
 			{
 				//AUTOMATIC TRIGGER CODE
-				int32_t cid = ( layer ) ? MAPCOMBOL(layer,MAPCOMBOX(i),MAPCOMBOY(i)) : MAPCOMBO(MAPCOMBOX(i),MAPCOMBOY(i));
+				int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
 				newcombo const& cmb = combobuf[cid];
 				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 				{

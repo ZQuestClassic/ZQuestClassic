@@ -1502,8 +1502,8 @@ void do_trigger_combo(int32_t layer, int32_t pos)
 	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
 	mapscr* tmp = FFCore.tempScreens[layer];
 	int32_t cid = tmp->data[pos];
-	int32_t cx = MAPCOMBOX(pos);
-	int32_t cy = MAPCOMBOY(pos);
+	int32_t cx = COMBOX(pos);
+	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
