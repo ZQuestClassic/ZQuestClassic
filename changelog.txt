@@ -5,6 +5,9 @@
 
 //A104
 
+Fix armos combos being able to spawn multiple armos per combo if entering a
+	holdup animation while pushing against them.
+Fix being able to set HP to 0 hearts in 'Player Data' cheat menu, thus killing yourself
 Add QR so only the highest level passive item script for each class will run.
 Fix the 'Keep Lower Level Items' item editor flag always acting enabled
 	(This flag has been broken for as long as the item editor has existed)

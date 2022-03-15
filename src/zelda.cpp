@@ -3410,10 +3410,16 @@ void game_loop()
 			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
 			
 			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
-			
-			if(guygrid[i]>0)
+		}
+		
+		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
+		{
+			for(int32_t i=0; i<176; i++)
 			{
-				--guygrid[i];
+				if(guygrid[i]>0)
+				{
+					--guygrid[i];
+				}
 			}
 		}
 		#if LOGGAMELOOP > 0

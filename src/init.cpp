@@ -1082,7 +1082,7 @@ extern word item_doscript[256];
 // I don't like this solution one bit, but can't come up with anything better -DD
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
-    game2->set_life(zinit2->start_heart*zinit2->hp_per_heart);
+    game2->set_life(zc_max(1,zinit2->start_heart)*zinit2->hp_per_heart);
     game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
     game2->set_maxbombs(zinit2->max_bombs);
     game2->set_maxcounter(zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio), 6);
