@@ -1,10 +1,14 @@
 // 2.55 Change Log
 // Updated 15th Mar, 2022
 
-//Since A103
+//Since A104
 
+//A104
+
+Add QR so only the highest level passive item script for each class will run.
 Fix the 'Keep Lower Level Items' item editor flag always acting enabled
 	(This flag has been broken for as long as the item editor has existed)
+	Also add QR to make it apply retroactively when collecting lower-level items.
 Fix item pickup strings sometimes not loading the 'read' state properly
 Add 'View->Show Darkness', a menu option for the already-existing
 	'L' shortcut. This option now correctly previews 'New Dark Rooms'.

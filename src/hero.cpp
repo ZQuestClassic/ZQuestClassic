@@ -2813,10 +2813,16 @@ void passiveitem_script(int32_t id, bool doRun = false)
 		ri = &(itemScriptData[id]);
 		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id][q] = 0xFFFF;
 		ri->Clear();
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[id] = 1;
 		itemscriptInitialised[id] = 0;
-		//Z_scripterrlog("hero.cpp starting a passive item script.\n");
+		
+		
+		if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+			&& current_item(itemsbuf[id].family) > itemsbuf[id].fam_type)
+		{
+			item_doscript[id] = 0;
+			return;
+		}
 		if(doRun)
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
 	}
@@ -6462,146 +6468,146 @@ void HeroClass::hithero(int32_t hit2)
 {
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
-    if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
-            (z > (((enemy*)guys.spr(hit2))->z)) ||
-            ((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
-    {
-        paymagiccost(stompid);
-        hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
-        
-        if(itemsbuf[stompid].flags & ITEM_DOWNGRADE)
-            game->set_item(stompid,false);
-            
-        // Stomp Boots script
-        if(itemsbuf[stompid].script != 0 && !item_doscript[stompid])
-        {
-		//clear the item script stack for a new script
-		ri = &(itemScriptData[stompid]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[stompid][q] = 0xFFFF;
-		ri->Clear();
-		//itemScriptData[(stompid & 0xFFF)].Clear();
-		//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(stompid & 0xFFF)][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid & 0xFFF);
-		item_doscript[stompid] = 1;
-		itemscriptInitialised[stompid] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid);
-        }
-        
-        return;
-    }
-    else if(superman || !(scriptcoldet&1) || fallclk)
-        return;
-    else if(NayrusLoveShieldClk<=0)
-    {
-        int32_t ringpow = ringpower(enemy_dp(hit2));
-        game->set_life(zc_max(game->get_life()-ringpow,0));
-	sethitHeroUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
-	    //Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
+	if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
+			(z > (((enemy*)guys.spr(hit2))->z)) ||
+			((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
+	{
+		paymagiccost(stompid);
+		hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
+		
+		if(itemsbuf[stompid].flags & ITEM_DOWNGRADE)
+			game->set_item(stompid,false);
+			
+		// Stomp Boots script
+		if(itemsbuf[stompid].script != 0 && !item_doscript[stompid])
+		{
+			//clear the item script stack for a new script
+			ri = &(itemScriptData[stompid]);
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[stompid][q] = 0xFFFF;
+			ri->Clear();
+			//itemScriptData[(stompid & 0xFFF)].Clear();
+			//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(stompid & 0xFFF)][q] = 0;
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid & 0xFFF);
+			item_doscript[stompid] = 1;
+			itemscriptInitialised[stompid] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid);
+		}
+		
+		return;
+	}
+	else if(superman || !(scriptcoldet&1) || fallclk)
+		return;
+	else if(NayrusLoveShieldClk<=0)
+	{
+		int32_t ringpow = ringpower(enemy_dp(hit2));
+		game->set_life(zc_max(game->get_life()-ringpow,0));
+		sethitHeroUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
+		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Hero->HitBy[NPC] is: %d\n", gethitHeroUID(HIT_BY_NPC));
-	    
-    }
-    
-    hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
-    if (IsSideSwim())
-    {
+		
+	}
+	
+	hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
+	if (IsSideSwim())
+	{
 	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-    }
-    else if(action==swimming || hopclk==0xFF)
-    {
-        action=swimhit; FFCore.setHeroAction(swimhit);
-    }
-    else
-    {
-        action=gothit; FFCore.setHeroAction(gothit);
-    }
-        
-    hclk=48;
-    sfx(getHurtSFX(),pan(x.getInt()));
-    
-    if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-    {
-        spins = charging = attackclk = 0;
-        attack=none;
-        tapping = false;
-    }
-    
-    enemy_scored(hit2);
-    int32_t dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
-    int32_t dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
-    
-    switch(((enemy*)guys.spr(hit2))->family)
-    {
-    case eeWALLM:
-        if(((enemy*)guys.spr(hit2))->hp>0)
-        {
-            GrabHero(hit2);
-            inwallm=true;
-            action=none; FFCore.setHeroAction(none);
-        }
-        
-        break;
-        
-        //case eBUBBLEST:
-        //case eeBUBBLE:
-    case eeWALK:
-    {
-        int32_t itemid = current_item_id(itype_whispring);
-        //I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
-        int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
-        int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
-        
-        switch(dm7)
-        {
-        case e7tTEMPJINX:
-            if(dm8==0 || dm8==2)
-                if(swordclk>=0 && !(sworddivisor==0))
-                    swordclk=150;
-                    
-            if(dm8==1 || dm8==2)
-                if(itemclk>=0 && !(itemdivisor==0))
-                    itemclk=150;
-                    
-            break;
-            
-        case e7tPERMJINX:
-            if(dm8==0 || dm8==2)
-                if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
-                
-            if(dm8==1 || dm8==2)
-                if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
-                
-            break;
-            
-        case e7tUNJINX:
-            if(dm8==0 || dm8==2)
-                swordclk=0;
-                
-            if(dm8==1 || dm8==2)
-                itemclk=0;
-                
-            break;
-            
-        case e7tTAKEMAGIC:
-            game->change_dmagic(-dm8*game->get_magicdrainrate());
-            break;
-            
-        case e7tTAKERUPEES:
-            game->change_drupy(-dm8);
-            break;
-            
-        case e7tDRUNK:
-            drunkclk += dm8;
-            break;
-        }
-        
-        if(dm7 >= e7tEATITEMS)
-        {
-            EatHero(hit2);
-            inlikelike=(dm7 == e7tEATHURT ? 2:1);
-            action=none; FFCore.setHeroAction(none);
-        }
-    }
-    }
+	}
+	else if(action==swimming || hopclk==0xFF)
+	{
+		action=swimhit; FFCore.setHeroAction(swimhit);
+	}
+	else
+	{
+		action=gothit; FFCore.setHeroAction(gothit);
+	}
+		
+	hclk=48;
+	sfx(getHurtSFX(),pan(x.getInt()));
+	
+	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+	{
+		spins = charging = attackclk = 0;
+		attack=none;
+		tapping = false;
+	}
+	
+	enemy_scored(hit2);
+	int32_t dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
+	int32_t dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
+	
+	switch(((enemy*)guys.spr(hit2))->family)
+	{
+	case eeWALLM:
+		if(((enemy*)guys.spr(hit2))->hp>0)
+		{
+			GrabHero(hit2);
+			inwallm=true;
+			action=none; FFCore.setHeroAction(none);
+		}
+		
+		break;
+		
+		//case eBUBBLEST:
+		//case eeBUBBLE:
+	case eeWALK:
+	{
+		int32_t itemid = current_item_id(itype_whispring);
+		//I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
+		int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
+		int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
+		
+		switch(dm7)
+		{
+		case e7tTEMPJINX:
+			if(dm8==0 || dm8==2)
+				if(swordclk>=0 && !(sworddivisor==0))
+					swordclk=150;
+					
+			if(dm8==1 || dm8==2)
+				if(itemclk>=0 && !(itemdivisor==0))
+					itemclk=150;
+					
+			break;
+			
+		case e7tPERMJINX:
+			if(dm8==0 || dm8==2)
+				if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
+				
+			if(dm8==1 || dm8==2)
+				if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
+				
+			break;
+			
+		case e7tUNJINX:
+			if(dm8==0 || dm8==2)
+				swordclk=0;
+				
+			if(dm8==1 || dm8==2)
+				itemclk=0;
+				
+			break;
+			
+		case e7tTAKEMAGIC:
+			game->change_dmagic(-dm8*game->get_magicdrainrate());
+			break;
+			
+		case e7tTAKERUPEES:
+			game->change_drupy(-dm8);
+			break;
+			
+		case e7tDRUNK:
+			drunkclk += dm8;
+			break;
+		}
+		
+		if(dm7 >= e7tEATITEMS)
+		{
+			EatHero(hit2);
+			inlikelike=(dm7 == e7tEATHURT ? 2:1);
+			action=none; FFCore.setHeroAction(none);
+		}
+	}
+	}
 }
 
 void HeroClass::addsparkle(int32_t wpn)
@@ -25328,11 +25334,11 @@ void dospecialmoney(int32_t index)
 
 void getitem(int32_t id, bool nosound, bool doRunPassive)
 {
-    if(id<0)
-    {
-        return;
-    }
-    
+	if(id<0)
+	{
+		return;
+	}
+	
 	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
 	{
 		int32_t nextitem = -1;
@@ -25364,109 +25370,115 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	}
 	
 	itemdata const& idat = itemsbuf[id&0xFF];
-    if(idat.family!=0xFF)
-    {
-        if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
-        {
-            // Fix boomerang sounds.
-            int32_t itemid = current_item_id(idat.family);
-            
-            if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
-                             || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
-                    && sfx_allocated(itemsbuf[itemid].usesound)
-                    && idat.usesound != itemsbuf[itemid].usesound)
-            {
-                stop_sfx(itemsbuf[itemid].usesound);
-                cont_sfx(idat.usesound);
-            }
-            
-            game->set_item(id,true);
-			passiveitem_script(id, doRunPassive);
-            
-            if(!(idat.flags & ITEM_KEEPOLD))
-            {
-                if(!get_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
-                {
-                    removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
-                }
-            }
-            
-            // NES consistency: replace all flying boomerangs with the current boomerang.
-            if(idat.family==itype_brang)
-                for(int32_t i=0; i<Lwpns.Count(); i++)
-                {
-                    weapon *w = ((weapon*)Lwpns.spr(i));
-                    
-                    if(w->id==wBrang)
-                    {
-                        w->LOADGFX(idat.wpn);
-                    }
-                }
-        }
-        
-        if(idat.count!=-1)
-        {
-            if(idat.setmax)
-            {
-                // Bomb bags are a special case; they may be set not to increase super bombs
-                if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
-                {
-                    int32_t max = game->get_maxbombs();
-                    
-                    if(max<idat.max) max=idat.max;
-                    
-                    game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
-                }
-                else
-                {
-                    int32_t max = game->get_maxcounter(idat.count);
-                    
-                    if(max<idat.max) max=idat.max;
-                    
-                    game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
-                }
-            }
-            
-            // Amount is an uint16_t, but the range is -9999 to 16383
-            // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
-            if(idat.amount&0x3FFF)
-            {
-                if(idat.amount&0x8000)
-                    game->set_dcounter(
-                        game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
-                else
-                {
-                    if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
-                        game->set_counter(0, idat.count);
-                    else
-                        // This is too confusing to try and change...
-                        game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
-                }
-            }
-        }
-    }
-    
-    if(idat.playsound&&!nosound)
-    {
-        sfx(idat.playsound);
-    }
-    
-    //add lower-level items
-    if(idat.flags&ITEM_GAINOLD)
-    {
-        for(int32_t i=idat.fam_type-1; i>0; i--)
-        {
-            int32_t potid = getItemID(itemsbuf, idat.family, i);
-            
-            if(potid != -1)
-            {
-                game->set_item(potid, true);
-            }
-        }
-    }
-    
-    switch(idat.family)
-    {
+	if(idat.family!=0xFF)
+	{
+		if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
+		{
+			// Fix boomerang sounds.
+			int32_t itemid = current_item_id(idat.family);
+			
+			if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
+							 || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
+					&& sfx_allocated(itemsbuf[itemid].usesound)
+					&& idat.usesound != itemsbuf[itemid].usesound)
+			{
+				stop_sfx(itemsbuf[itemid].usesound);
+				cont_sfx(idat.usesound);
+			}
+			
+			int32_t curitm = current_item_id(idat.family);
+			if(!get_bit(quest_rules,qr_KEEPOLD_APPLIES_RETROACTIVELY)
+				|| curitm < 0 || (itemsbuf[curitm].fam_type <= idat.fam_type)
+				|| (itemsbuf[curitm].flags & ITEM_KEEPOLD))
+			{
+				game->set_item(id,true);
+				passiveitem_script(id, doRunPassive);
+			}
+			
+			if(!(idat.flags & ITEM_KEEPOLD))
+			{
+				if(!get_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
+				{
+					removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
+				}
+			}
+			
+			// NES consistency: replace all flying boomerangs with the current boomerang.
+			if(idat.family==itype_brang)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
+				{
+					weapon *w = ((weapon*)Lwpns.spr(i));
+					
+					if(w->id==wBrang)
+					{
+						w->LOADGFX(idat.wpn);
+					}
+				}
+		}
+		
+		if(idat.count!=-1)
+		{
+			if(idat.setmax)
+			{
+				// Bomb bags are a special case; they may be set not to increase super bombs
+				if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
+				{
+					int32_t max = game->get_maxbombs();
+					
+					if(max<idat.max) max=idat.max;
+					
+					game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
+				}
+				else
+				{
+					int32_t max = game->get_maxcounter(idat.count);
+					
+					if(max<idat.max) max=idat.max;
+					
+					game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
+				}
+			}
+			
+			// Amount is an uint16_t, but the range is -9999 to 16383
+			// -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
+			if(idat.amount&0x3FFF)
+			{
+				if(idat.amount&0x8000)
+					game->set_dcounter(
+						game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
+				else
+				{
+					if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
+						game->set_counter(0, idat.count);
+					else
+						// This is too confusing to try and change...
+						game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
+				}
+			}
+		}
+	}
+	
+	if(idat.playsound&&!nosound)
+	{
+		sfx(idat.playsound);
+	}
+	
+	//add lower-level items
+	if(idat.flags&ITEM_GAINOLD)
+	{
+		for(int32_t i=idat.fam_type-1; i>0; i--)
+		{
+			int32_t potid = getItemID(itemsbuf, idat.family, i);
+			
+			if(potid != -1)
+			{
+				game->set_item(potid, true);
+			}
+		}
+	}
+	
+	switch(idat.family)
+	{
 		case itype_itmbundle:
 		{
 			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
@@ -25573,11 +25585,11 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		case itype_killem:
 			kill_em_all();
 			break;
-    }
-    
-    update_subscreens();
-    load_Sitems(&QMisc);
-    verifyBothWeapons();
+	}
+	
+	update_subscreens();
+	load_Sitems(&QMisc);
+	verifyBothWeapons();
 }
 
 void takeitem(int32_t id)

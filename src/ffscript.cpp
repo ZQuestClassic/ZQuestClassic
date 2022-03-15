@@ -11374,6 +11374,14 @@ void set_register(const int32_t arg, const int32_t value)
 				{
 					game->forced_awpn = -1;
 				}
+				if ( game->forced_xwpn == itemID ) 
+				{
+					game->forced_xwpn = -1;
+				}
+				if ( game->forced_ywpn == itemID ) 
+				{
+					game->forced_ywpn = -1;
+				}
 			}
 		}
 		break;
@@ -31464,21 +31472,24 @@ bool FFScript::itemScriptEngine()
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		if ( item_doscript[q] < 1 ) continue;
-		#if DEVLEVEL > 0
-		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int32_t mode)
-		{
-			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		}
-		#endif
 		
 		//Passive items
 		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
 		{
 			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-			continue;
-			
+			{
+				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
+					item_doscript[q] = 0;
+				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+				{
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+					itemscriptInitialised[q] = 0;
+					itemScriptsWaitdraw[q] = 0;
+				}
+			}
 		}
 		else
 		{
@@ -31527,7 +31538,7 @@ bool FFScript::itemScriptEngine()
 				itemScriptData[q].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 				itemscriptInitialised[q] = 0;
-				continue;
+				itemScriptsWaitdraw[q] = 0;
 			}
 		}
 	}
@@ -31547,14 +31558,6 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		if ( !itemScriptsWaitdraw[q] ) continue;
 		else itemScriptsWaitdraw[q] = 0;
 		
-		#if DEVLEVEL > 0
-		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int32_t mode)
-		{
-			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		}
-		#endif
-		
 		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
 			After executing RunScript(), item_doscript is set to '1' in hero.cpp.
@@ -31566,10 +31569,22 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			  This allows passive item scripts to function. 
 		*/
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if ((itemsbuf[q].flags&ITEM_PASSIVESCRIPT))
 		{
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-			continue;
+			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			{
+				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
+					item_doscript[q] = 0;
+				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+				{
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+					itemscriptInitialised[q] = 0;
+					itemScriptsWaitdraw[q] = 0;
+				}
+			}
 		}
 		else
 		{
@@ -31601,12 +31616,12 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			{
 				item_doscript[q] = 0;
 			}
-			if(item_doscript[q]==0)  //Item script ended. Clear the data, if any remains.
+			if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
 			{
 				itemScriptData[q].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 				itemscriptInitialised[q] = 0;
-				continue;
+				itemScriptsWaitdraw[q] = 0;
 			}
 		}
 	}
