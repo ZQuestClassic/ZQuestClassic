@@ -31473,10 +31473,10 @@ bool FFScript::itemScriptEngine()
 		#endif
 		
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
 		{
-			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			continue;
 			
 		}

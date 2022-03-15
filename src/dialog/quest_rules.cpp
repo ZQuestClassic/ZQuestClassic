@@ -745,6 +745,8 @@ static const GUI::ListData compatRulesList
 	{ "Manhandla Uses Hit Sound For Center Body", qr_MANHANDLA_BLOCK_SFX,
 		"If enabled, Manhandla will play the hit sound when hitting the center body"
 		" instead of the block sound."},
+	{ "Broken 'Keep Lower Level Items'", qr_BROKEN_KEEPOLD_FLAG,
+		"If enabled, 'Keep Lower Level Items' acts as always checked for all items." }
 };
 
 static const GUI::ListData enemiesRulesList

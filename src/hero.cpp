@@ -2805,7 +2805,7 @@ void collectitem_script(int32_t id)
 		//runningItemScripts[id] = 0;
 	}
 }
-void passiveitem_script(int32_t id)
+void passiveitem_script(int32_t id, bool doRun = false)
 {
 	//Passive item scripts on colelction
 	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
@@ -2817,7 +2817,8 @@ void passiveitem_script(int32_t id)
 		item_doscript[id] = 1;
 		itemscriptInitialised[id] = 0;
 		//Z_scripterrlog("hero.cpp starting a passive item script.\n");
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
+		if(doRun)
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
 	}
 }
 
@@ -3102,9 +3103,8 @@ bool HeroClass::checkstab()
 						else
 						{
 							collectitem_script(ptr->id);
-							passiveitem_script(ptr->id);
 							
-							getitem(ptr->id);
+							getitem(ptr->id, false, true);
 						}
 						items.del(j);
 						
@@ -9495,7 +9495,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				int32_t usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
 				
 				if(usedid != -1)
-					getitem(usedid, true);
+					getitem(usedid, true, true);
 					
 				sfx(tmpscr[currscr<128?0:1].secretsfx);
 				setupscreen();
@@ -25249,7 +25249,7 @@ void dospecialmoney(int32_t index)
         for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
-                getitem(i, true);
+                getitem(i, true, true);
         }
         
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -25326,7 +25326,7 @@ void dospecialmoney(int32_t index)
     }
 }
 
-void getitem(int32_t id, bool nosound)
+void getitem(int32_t id, bool nosound, bool doRunPassive)
 {
     if(id<0)
     {
@@ -25381,10 +25381,11 @@ void getitem(int32_t id, bool nosound)
             }
             
             game->set_item(id,true);
+			passiveitem_script(id, doRunPassive);
             
             if(!(idat.flags & ITEM_KEEPOLD))
             {
-                if(current_item(idat.family)<idat.fam_type)
+                if(!get_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
                 {
                     removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
                 }
@@ -25476,8 +25477,7 @@ void getitem(int32_t id, bool nosound)
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
 				if(pscript)
 					collectitem_script(ids[q]);
-				passiveitem_script(ids[q]);
-				getitem(ids[q], true);
+				getitem(ids[q], true, true);
 			}
 		}
 		break;
@@ -25486,7 +25486,7 @@ void getitem(int32_t id, bool nosound)
 		{
 			int32_t newid = get_progressive_item(idat);
 			if(newid > -1)
-				getitem(newid, nosound);
+				getitem(newid, nosound, true);
 		}
 		break;
 		
@@ -25906,8 +25906,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 			
 		collectitem_script(id2);
-		passiveitem_script(id2);
-		getitem(id2);
+		getitem(id2, false, true);
 	}
 	
 	if(pickup&ipHOLDUP)

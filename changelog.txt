@@ -3,6 +3,9 @@
 
 //Since A103
 
+Fix the 'Keep Lower Level Items' item editor flag always acting enabled
+	(This flag has been broken for as long as the item editor has existed)
+Fix item pickup strings sometimes not loading the 'read' state properly
 Add 'View->Show Darkness', a menu option for the already-existing
 	'L' shortcut. This option now correctly previews 'New Dark Rooms'.
 	( EmilyV, Mar 15th, 2022 )
@@ -118,8 +121,9 @@ Fixed Red Leevers ignoring clocks.
 Added new stun/clock behavior to Leevers that makes them come out but not go back in when a clock is active or they're stunned (compat ruled)
 Added new QR that lets Leevers be stunned by Quake Hammer.
 Fixed Ganon spawning-related issues.
-using ItemX/ItemY/ItemA/ItemB no longer sets the subscreen cursor to 
-Fixed wizzrobes not obeying stun.invalid locations.
+	using ItemX/ItemY/ItemA/ItemB no longer sets the subscreen cursor to
+	invalid locations.
+Fixed wizzrobes not obeying stun.
 	( Deedee, Feb 14th, 2022 )
 
 Fixed enemy stun pit bug.
