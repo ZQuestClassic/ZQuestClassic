@@ -12,12 +12,12 @@
 //alpha id
 #define V_ZC_FOURTH 0
 //build
-#define V_ZC_ALPHA 104
+#define V_ZC_ALPHA 105
 #define V_ZC_BETA 0
 #define V_ZC_GAMMA 0
 #define V_ZC_RELEASE 0
 
-#define ZC_IS_NIGHTLY 0
+#define ZC_IS_NIGHTLY 1
 
 #define STRGZ_2(s) #s
 #define STRGZ(s) STRGZ_2(s)
