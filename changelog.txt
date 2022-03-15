@@ -1,7 +1,14 @@
 // 2.55 Change Log
-// Updated 13th Mar, 2022
+// Updated 15th Mar, 2022
 
 //Since A103
+
+Add 'View->Show Darkness', a menu option for the already-existing
+	'L' shortcut. This option now correctly previews 'New Dark Rooms'.
+	( EmilyV, Mar 15th, 2022 )
+
+Testing mode: Select return square
+	( EmilyV, Mar 14th, 2022 )
 
 Add script access 'combodata->TriggerButton[]'
 Fix 'combodata->GenFlags[]' sizing
