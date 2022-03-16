@@ -1167,8 +1167,8 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 				}
 			}
+			else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		}
-		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		int32_t it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
 		{
@@ -1311,8 +1311,9 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
+			else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+		
 		int32_t it = -1; 
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
