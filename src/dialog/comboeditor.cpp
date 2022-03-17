@@ -1144,7 +1144,7 @@ void ComboEditorDialog::loadComboType()
 				else
 				{
 					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a decoration";
 				}
 			}
 			l_flag[1] = "Drop Item";
@@ -1215,7 +1215,8 @@ void ComboEditorDialog::loadComboType()
 				h_flag[12] = "Skip spawn poof for dropped enemy";
 			}
 			l_flag[5] = "Room Item";
-			h_flag[5] = "Drop the room's Item on trigger";
+			h_flag[5] = "Drop the room's Special Item on trigger"
+				" (room does not need to be 'Special Item' type, the Catchall value will be used)";
 			break;
 		}
 		case cPITFALL:

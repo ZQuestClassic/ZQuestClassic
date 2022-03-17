@@ -1154,7 +1154,9 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			{
 				switch (c[cid].attribytes[0])
 				{
+					case 0:
 					case 1:
+					default:
 						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo), dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
@@ -1163,8 +1165,6 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					case 3:
 						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
 						break;
-					default:
-						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 				}
 			}
 			else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
@@ -1182,18 +1182,14 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
+		
 		//drop special room item
-
-		if ( (c[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			if(tmpscr->hasitem==1)
-				sfx(WAV_CLEARED);
 			items.add(new item((zfix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 				(zfix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
-				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -1298,7 +1294,9 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 			{
 				switch (combobuf[cid].attribytes[0])
 				{
+					case 0:
 					case 1:
+					default:
 						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo), dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
@@ -1307,8 +1305,6 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 					case 3:
 						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
 						break;
-					default:
-						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
 			else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
@@ -1327,18 +1323,14 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
+		
 		//drop special room item
-
-		if ( (combobuf[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			if(tmpscr->hasitem==1)
-				sfx(WAV_CLEARED);
 			items.add(new item((zfix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 				(zfix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
-				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets

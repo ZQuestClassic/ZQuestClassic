@@ -10350,7 +10350,7 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN))
+		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN))
 		{
 			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(tmpscr->secretsfx);
@@ -15878,7 +15878,7 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN));
+	mainguy=(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -15983,7 +15983,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 					bigtriforce->linked_parent = eeGANON;
 				}
 			}
-			//setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+			//setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
 		}
 		
@@ -16157,7 +16157,7 @@ void getBigTri(int32_t id2)
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
 	
-	setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+	setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 	
 	draw_screen(tmpscr);
 	
@@ -20614,9 +20614,9 @@ void loadguys()
 	loaded_guys=true;
 	
 	byte Guy=0;
-	// When in caves/item rooms, use mBELOW and ipONETIME2
+	// When in caves/item rooms, use mSPECIALITEM and ipONETIME2
 	// Else use mITEM and ipONETIME
-	int32_t mf = (currscr>=128) ? mBELOW : mITEM;
+	int32_t mf = (currscr>=128) ? mSPECIALITEM : mITEM;
 	int32_t onetime = (currscr>=128) ? ipONETIME2 : ipONETIME;
 	
 	repaircharge=0;
@@ -20676,26 +20676,26 @@ void loadguys()
 		case rMUPGRADE:
 		case rLEARNSLASH:
 		case rTAKEONE:
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mBELOW)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 			
 		case rREPAIR:
 			if (get_bit(quest_rules, qr_OLD_DOORREPAIR)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mBELOW)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rRP_HC:
 			if (get_bit(quest_rules, qr_OLD_POTION_OR_HC)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mBELOW)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rMONEY:
 			if (get_bit(quest_rules, qr_OLD_SECRETMONEY)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mBELOW)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
@@ -20739,7 +20739,7 @@ void loadguys()
 	loaditem();
 	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
-	// it doesn't appear in a Cave/Item Cellar, and the mBELOW screen state if it does.
+	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
 	if(tmpscr->room==r10RUPIES && !getmapflag(mf))
 	{
 		//setmapflag();
@@ -20774,7 +20774,7 @@ void loaditem()
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr[1].flags9&fBELOWRETURN)) && tmpscr[1].room==rSP_ITEM
+		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr[1].flags9&fBELOWRETURN)) && tmpscr[1].room==rSP_ITEM
 				&& (currscr==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
 		{
 			Item=tmpscr[1].catchall;
@@ -21900,7 +21900,7 @@ void setupscreen()
 		break;
 		
 	case rREPAIR:                                           // door repair
-		setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+		setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		//  }
 		repaircharge=tmpscr[t].catchall;
 		break;
@@ -23116,7 +23116,7 @@ disappear:
 					
 				adjustmagic = false;
 				sfx(WAV_SCALE);
-				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 			
 			if(learnslash)
@@ -23124,7 +23124,7 @@ disappear:
 				game->set_canslash(1);
 				learnslash = false;
 				sfx(WAV_SCALE);
-				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 		}
 	}

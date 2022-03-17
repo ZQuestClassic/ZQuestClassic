@@ -13231,7 +13231,7 @@ int32_t onScrData()
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
 	scrdata_dlg[75].flags = (g&mITEM) ? D_SELECTED : 0;
-	scrdata_dlg[76].flags = (g&mBELOW) ? D_SELECTED : 0;
+	scrdata_dlg[76].flags = (g&mSPECIALITEM) ? D_SELECTED : 0;
 	scrdata_dlg[77].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[78].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[79].flags = (g&mCHEST) ? D_SELECTED : 0;
@@ -13244,7 +13244,7 @@ int32_t onScrData()
 	g = Map.CurrScr()->nocarry;
 	scrdata_dlg[85].flags = (g&mSECRET) ? D_SELECTED : 0;
 	scrdata_dlg[86].flags = (g&mITEM) ? D_SELECTED : 0;
-	scrdata_dlg[87].flags = (g&mBELOW) ? D_SELECTED : 0;
+	scrdata_dlg[87].flags = (g&mSPECIALITEM) ? D_SELECTED : 0;
 	scrdata_dlg[88].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[89].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[90].flags = (g&mCHEST) ? D_SELECTED : 0;
@@ -13361,7 +13361,7 @@ int32_t onScrData()
 		g=0;
 		g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
 		g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
-		g |= scrdata_dlg[76].flags & D_SELECTED ? mBELOW:0;
+		g |= scrdata_dlg[76].flags & D_SELECTED ? mSPECIALITEM:0;
 		g |= scrdata_dlg[77].flags & D_SELECTED ? mLOCKBLOCK:0;
 		g |= scrdata_dlg[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
 		g |= scrdata_dlg[79].flags & D_SELECTED ? mCHEST:0;
@@ -13376,7 +13376,7 @@ int32_t onScrData()
 		g=0;
 		g |= scrdata_dlg[85].flags & D_SELECTED ? mSECRET:0;
 		g |= scrdata_dlg[86].flags & D_SELECTED ? mITEM:0;
-		g |= scrdata_dlg[87].flags & D_SELECTED ? mBELOW:0;
+		g |= scrdata_dlg[87].flags & D_SELECTED ? mSPECIALITEM:0;
 		g |= scrdata_dlg[88].flags & D_SELECTED ? mLOCKBLOCK:0;
 		g |= scrdata_dlg[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
 		g |= scrdata_dlg[90].flags & D_SELECTED ? mCHEST:0;

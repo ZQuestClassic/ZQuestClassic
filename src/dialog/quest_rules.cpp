@@ -413,7 +413,7 @@ static const GUI::ListData compatRulesList
 		" move offscreen. If disabled, they'll be killed when they move"
 		" offscreen."},
 	{ "Old Special Room Screenstate Detection", qr_ITEMPICKUPSETSBELOW, 
-		"If enabled, Guy Rooms are flagged with mITEM instead of mBELOW"
+		"If enabled, Guy Rooms are flagged with mITEM instead of mSPECIALITEM"
 		" if they are outside of a cave screen. This means that they set"
 		" the Screen Item state, and collecting the Screen Item will"
 		" remove the Guy."},

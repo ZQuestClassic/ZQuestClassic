@@ -678,7 +678,7 @@ void eventlog_mapflags()
     // Print them in order of importance.
     eventlog_mapflag_line(&g, mSECRET,13);
     eventlog_mapflag_line(&g, mITEM,4);
-    eventlog_mapflag_line(&g, mBELOW,5);
+    eventlog_mapflag_line(&g, mSPECIALITEM,5);
     eventlog_mapflag_line(&g, mLOCKBLOCK,8);
     eventlog_mapflag_line(&g, mBOSSLOCKBLOCK,9);
     eventlog_mapflag_line(&g, mCHEST,10);
@@ -707,7 +707,7 @@ void setmapflag(int32_t mi2, int32_t flag)
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
                
-    if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
+    if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
     {
         byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
@@ -749,7 +749,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
 {
     if(anyflag)
         game->maps[mi2] &= ~flag;
-    else if(flag==mITEM || flag==mBELOW)
+    else if(flag==mITEM || flag==mSPECIALITEM)
     {
         if(!(tmpscr->flags4&fNOITEMRESET))
             game->maps[mi2] &= ~flag;
@@ -766,7 +766,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
                
-    if(flag==mSECRET||flag==mITEM||flag==mBELOW||flag==mLOCKBLOCK||
+    if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
     {
         byte nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
