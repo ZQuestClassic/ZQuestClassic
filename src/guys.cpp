@@ -12296,7 +12296,7 @@ bool eProjectile::animate(int32_t index)
 		dir=left;
 	}
 	
-	if(++clk3>80)
+	if(!stunclk && ++clk3>80)
 	{
 		if(dmisc1==9) // Breath type
 		{
