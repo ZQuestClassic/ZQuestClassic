@@ -283,7 +283,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 								stringshelpfile = fopen("zstrings.txt", "r");
 								if ( stringshelpfile )
 								{
-									editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
+									editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
 								}
 								else
 								{
@@ -292,8 +292,9 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							}
 							else
 							{
-								editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
+								editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
 							}
+							editmsg_help_dlg[2].fg = vc(0);
 							editmsg_help_dlg[2].bg = vc(15);
 							((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
 						})
