@@ -18041,9 +18041,6 @@ bool ePatra::animate(int32_t index)
 	double basesize = 84;
 	if (dmisc[9]) basesize = 90;
 	double halfsize = basesize / 2;
-	double quartersize = halfsize / 2;
-	double twothirdsize = (basesize / 3)*2;
-	double onethirdsize = (basesize / 3);
 
 	
 	if(clk==0)

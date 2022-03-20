@@ -11368,7 +11368,7 @@ void set_register(const int32_t arg, const int32_t value)
 			//int32_t state   = (ri->d[rINDEX2]/10000);
 			//int32_t extend = (ri->d[rINDEX2]/10000);
 			//int32_t dir = (ri->d[rINDEX]/10000);
-			Z_message("Trying to force-set the A-button item().\n");
+			//Z_message("Trying to force-set the A-button item().\n");
 			Hero.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 		}
 		break;
@@ -11378,7 +11378,7 @@ void set_register(const int32_t arg, const int32_t value)
 			//int32_t state   = (ri->d[rINDEX2]/10000);
 			//int32_t extend = (ri->d[rINDEX2]/10000);
 			//int32_t dir = (ri->d[rINDEX]/10000);
-			Z_message("Trying to force-set the A-button item().\n");
+			//Z_message("Trying to force-set the A-button item().\n");
 			Hero.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 		}
 		break;
@@ -15767,7 +15767,7 @@ void set_register(const int32_t arg, const int32_t value)
 			//set_screenString(&TheMaps[((ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)])-1), value/10000);
 			//or
 			//set_screenString(&TheMaps[((ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)])-+1), value/10000);
-			Z_message("Map ref is: %d\n",((ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)));
+			//Z_message("Map ref is: %d\n",((ri->d[rINDEX2] / 10000) * MAPSCRS + (ri->d[rINDEX]/10000)));
 		}
 		break;
 
@@ -22482,19 +22482,20 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				//This works only in one direction, if Hero had a map, to not having one.
 				//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 			update_subscreens(dmapID);
-				
+			
+			/*			
 			if ( has_item(itype_map, dlevel) ) 
 			{
 				//Blank the map during an intra-dmap scrolling warp. 
 				dlevel = -1; //a hack for the minimap. This works!! -Z
-			}
+			}*/
 				
 			// fix the scrolling direction, if it was a tile or instant warp
 			Hero.sdir = vbound(Hero.dir,0,3);
 			
 			
 			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
-			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
+			//dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
 			
 			Hero.reset_hookshot();
 			
@@ -28656,11 +28657,11 @@ void FFScript::do_triggersecret(const bool v)
 			{		
 				if(iter==1) checkflag=s->sflag[q]; //Placed
 				else checkflag=combobuf[s->data[q]].flag; //Inherent
-				Z_message("checkflag is: %d\n", checkflag);
-				al_trace("checkflag is: %d\n", checkflag);
+				//Z_message("checkflag is: %d\n", checkflag);
+				//al_trace("checkflag is: %d\n", checkflag);
 				
-				Z_message("ID is: %ld\n", ID);
-				al_trace("ID is: %ld\n", ID);
+				//Z_message("ID is: %ld\n", ID);
+				//al_trace("ID is: %ld\n", ID);
 				//cmbx = COMBOX(q);
 				////cmby = COMBOY(q);
 				

@@ -21352,7 +21352,7 @@ int32_t d_comboa_proc(int32_t msg,DIALOG *d,int32_t c)
     switch(msg)
     {
     case MSG_CLICK:
-        Z_message("click (%d, %d) (%d, %d)\n", cx1, cy1, cx, cy);
+        //Z_message("click (%d, %d) (%d, %d)\n", cx1, cy1, cx, cy);
         
         if((cx>combo->width)||(cx1<0))
             return D_O_K;

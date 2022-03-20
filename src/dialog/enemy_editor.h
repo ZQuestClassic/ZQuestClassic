@@ -16,6 +16,31 @@
 
 void call_enemy_editor(int32_t index);
 
+struct EnemyNameInfoGUI
+{
+	int32_t efam;
+	std::string attributes[32];
+	//std::string flag[16];
+	std::string h_attributes[32];
+	//std::string h_flag[16];
+	void clear()
+	{
+		efam = -1;
+		for(size_t q = 0; q < 32; ++q)
+		{
+			attributes[q].clear();
+			h_attributes[q].clear();
+			if(q > 15) continue;
+			//flag[q].clear();
+			//h_flag[q].clear();
+		}
+	}
+};
+
+extern EnemyNameInfoGUI enameinfGUI[];
+extern std::map<int32_t, EnemyNameInfoGUI *> *enamemapGUI;
+std::map<int32_t, EnemyNameInfoGUI *> *getEnemyNameMapGUI();
+
 class EnemyEditorDialog: public GUI::Dialog<EnemyEditorDialog>
 {
 public:
@@ -36,7 +61,7 @@ private:
 	std::shared_ptr<GUI::TextField> paltext;
 	std::shared_ptr<GUI::Label> l_attributes[32];
 	std::shared_ptr<GUI::Button> ib_attributes[32];
-	std::string h_attribute[32];
+	std::string h_attributes[32];
 	PALETTE oldpal;
 	std::string enemyname;
 	int32_t index;

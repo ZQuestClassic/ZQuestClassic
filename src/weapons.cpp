@@ -248,11 +248,11 @@ static void weapon_triggersecret(int32_t pos, int32_t flag)
 			//{		
 				if(iter==1) checkflag=s->sflag[pos]; //Placed
 				else checkflag=combobuf[s->data[pos]].flag; //Inherent
-				Z_message("checkflag is: %d\n", checkflag);
-				al_trace("checkflag is: %d\n", checkflag);
+				//Z_message("checkflag is: %d\n", checkflag);
+				//al_trace("checkflag is: %d\n", checkflag);
 				
-				Z_message("flag is: %d\n", flag);
-				al_trace("flag is: %d\n", flag);
+				//Z_message("flag is: %d\n", flag);
+				//al_trace("flag is: %d\n", flag);
 				//cmbx = COMBOX(pos);
 				////cmby = COMBOY(pos);
 				
@@ -2989,6 +2989,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 			
+			/*
 			Z_message("itemid: %d\n",itemid);
 			Z_message("parentitem: %d\n",parentitem);
 			Z_message("extend: %d\n",extend);
@@ -3001,6 +3002,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			Z_message("HitXOffset: %d\n",hxofs);
 			Z_message("HitYOffset: %d\n",(int32_t)xofs);
 			Z_message("DrawYOffset: %d\n",(int32_t)yofs);
+			*/
 			
 			
 			if(itemid >-1)

@@ -15726,9 +15726,14 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 {
     WalkflagInfo ret;
     
-    wx = vbound(wx, 0, 255);
-    wy = vbound(wy, 0, 175);
+    wx = vbound(wx, -1, 256);
+    wy = vbound(wy, -1, 176);
     
+    if (wx < 0 || wx > 255 || wy < 0 || wy > 175)
+    {
+	    ret.setUnwalkable(false);
+	    return ret;
+    }
     if(toogam)
     {
         ret.setUnwalkable(false);
@@ -21107,11 +21112,12 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 		update_subscreens(wdmap);
 		
+		/*
 		if ( has_item(itype_map, dlevel) ) 
 		{
 			//Blank the map during an intra-dmap scrolling warp. 
 			dlevel = -1; //a hack for the minimap. This works!! -Z
-		}
+		}*/
 		
 		// fix the scrolling direction, if it was a tile or instant warp
 		if(type==0 || type>=3)
@@ -21120,7 +21126,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
-		dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
+		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
 		reset_hookshot();
 		if(reposition_sword_postwarp)
