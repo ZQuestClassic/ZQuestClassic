@@ -244,7 +244,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          9
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           21
+#define V_COMBOS           22
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       21
+#define V_COMPATRULE       22
 #define V_ZINFO            0
 
 //= V_SHOPS is under V_MISC
@@ -612,7 +612,7 @@ extern bool fake_pack_writing;
 #define ipTIMER         256                                 // Disappears after a while
 #define ipBIGTRI        512                                 // Large collision rectangle (used for large triforce)
 #define ipNODRAW        1024                                // Don't draw this (for underwater items)
-#define ipONETIME2      2048                                // Getting this item sets mBELOW
+#define ipONETIME2      2048                                // Getting this item sets mSPECIALITEM
 #define ipSECRETS       4096                                // Trigger Secrets when picked up
 #define ipCANGRAB       8192                                // Always grabbable to hookshot/arrows/brang
 
@@ -1049,7 +1049,8 @@ enum
 	qr_ANONE_NOANIM, qr_BLOCKHOLE_SAME_ONLY, qr_SWITCHOBJ_RUN_SCRIPT, qr_ITEMCOMBINE_NEW_PSTR,
 	qr_ITEMCOMBINE_CONTINUOUS, qr_SCC_ITEM_COMBINES_ITEMS, qr_SCROLLING_KILLS_CHARGE, qr_CUSTOMWEAPON_IGNORE_COST,
 	//34
-	qr_BLOCKS_DONT_LOCK_OTHER_LAYERS, qr_SCC_GOTO_RESPECTS_CONTFLAG,
+	qr_BLOCKS_DONT_LOCK_OTHER_LAYERS, qr_SCC_GOTO_RESPECTS_CONTFLAG, qr_BROKEN_KEEPOLD_FLAG, qr_KEEPOLD_APPLIES_RETROACTIVELY,
+	qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
 	qr_OLD_210_WATER, qr_8WAY_SHOT_SFX, qr_COPIED_SWIM_SPRITES, qr_WRONG_BRANG_TRAIL_DIR,
@@ -1281,43 +1282,49 @@ enum
 
 //Page 1, triggerflags[0]
 
-#define combotriggerSWORD	0x01
-#define combotriggerSWORDBEAM	0x02
-#define combotriggerBRANG	0x04
-#define combotriggerBOMB	0x08
-#define combotriggerSBOMB	0x10
-#define combotriggerLITBOMB	0x20
-#define combotriggerLITSBOMB	0x40
-#define combotriggerARROW	0x80
-#define combotriggerFIRE	0x100
-#define combotriggerWHISTLE	0x200
-#define combotriggerBAIT	0x400
-#define combotriggerWAND	0x800
-#define combotriggerMAGIC	0x1000
-#define combotriggerWIND	0x2000
-#define combotriggerREFMAGIC	0x4000
-#define combotriggerREFFIREBALL	0x8000
-#define combotriggerREFROCK	0x10000
-#define combotriggerHAMMER	0x20000
+#define combotriggerSWORD        0x00000001
+#define combotriggerSWORDBEAM    0x00000002
+#define combotriggerBRANG        0x00000004
+#define combotriggerBOMB         0x00000008
+#define combotriggerSBOMB        0x00000010
+#define combotriggerLITBOMB      0x00000020
+#define combotriggerLITSBOMB     0x00000040
+#define combotriggerARROW        0x00000080
+#define combotriggerFIRE         0x00000100
+#define combotriggerWHISTLE      0x00000200
+#define combotriggerBAIT         0x00000400
+#define combotriggerWAND         0x00000800
+#define combotriggerMAGIC        0x00001000
+#define combotriggerWIND         0x00002000
+#define combotriggerREFMAGIC     0x00004000
+#define combotriggerREFFIREBALL  0x00008000
+#define combotriggerREFROCK      0x00010000
+#define combotriggerHAMMER       0x00020000
+#define combotriggerNEXT         0x00040000
+#define combotriggerPREV         0x00080000
+#define combotriggerBTN_TOP      0x00100000
+#define combotriggerBTN_BOTTOM   0x00200000
+#define combotriggerBTN_LEFT     0x00400000
+#define combotriggerBTN_RIGHT    0x00800000
 
 //Page 2, triggerflags[1]
-#define combotriggerHOOKSHOT	0x01
-#define combotriggerSPARKLE	0x02
-#define combotriggerBYRNA	0x04
-#define combotriggerREFBEAM	0x08
-#define combotriggerSTOMP	0x10
-#define combotriggerSCRIPT01	0x20
-#define combotriggerSCRIPT02	0x40
-#define combotriggerSCRIPT03	0x80
-#define combotriggerSCRIPT04	0x100
-#define combotriggerSCRIPT05	0x200
-#define combotriggerSCRIPT06	0x400
-#define combotriggerSCRIPT07	0x800
-#define combotriggerSCRIPT08	0x1000
-#define combotriggerSCRIPT09	0x2000
-#define combotriggerSCRIPT10	0x4000
-#define combotriggerAUTOMATIC	0x8000
-#define combotriggerSECRETS	0x10000
+#define combotriggerHOOKSHOT     0x00000001
+#define combotriggerSPARKLE      0x00000002
+#define combotriggerBYRNA        0x00000004
+#define combotriggerREFBEAM      0x00000008
+#define combotriggerSTOMP        0x00000010
+#define combotriggerSCRIPT01     0x00000020
+#define combotriggerSCRIPT02     0x00000040
+#define combotriggerSCRIPT03     0x00000080
+#define combotriggerSCRIPT04     0x00000100
+#define combotriggerSCRIPT05     0x00000200
+#define combotriggerSCRIPT06     0x00000400
+#define combotriggerSCRIPT07     0x00000800
+#define combotriggerSCRIPT08     0x00001000
+#define combotriggerSCRIPT09     0x00002000
+#define combotriggerSCRIPT10     0x00004000
+#define combotriggerAUTOMATIC    0x00008000
+#define combotriggerSECRETS	     0x00010000
 
 // weapon types in game engine
 enum
@@ -2181,16 +2188,17 @@ struct guydata //IF YOU CHANGE THE ORDER THESE ARE IN, UPDATE 'default_guys' IN 
 class refInfo
 {
 public:
-    //word script; //script number
-    dword pc; //current command offset
-    
-    int32_t d[8]; //d registers
-    int32_t a[2]; //a regsisters (reference to another ffc on screen)
-    word sp : BITS_SP; //stack pointer for current script
-    dword scriptflag; //stores whether various operations were true/false etc.
-    
-    byte ffcref, idata; //current object pointers
-    dword itemref, guyref, lwpn, ewpn;
+	//word script; //script number
+	dword pc; //current command offset
+	
+	int32_t d[8]; //d registers
+	int32_t a[2]; //a regsisters (reference to another ffc on screen)
+	word sp : BITS_SP; //stack pointer for current script
+	dword scriptflag; //stores whether various operations were true/false etc.
+	
+	byte ffcref;
+	int32_t idata;
+	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
 	int32_t mapsref;
 	//to implement
@@ -2199,59 +2207,59 @@ public:
 	dword fileref, subscreenref, comboidref, directoryref, rngref;
 	dword bottletyperef, bottleshopref;
 	int32_t combosref, comboposref;
-    //byte ewpnclass, lwpnclass, guyclass; //Not implemented
-    
-    //byte ewpnclass, lwpnclass, guyclass; //Not implemented
+	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
+	
+	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
-    
-    void Clear()
-    {
-        pc = 0, sp = 0, scriptflag = 0;
-        ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
-	mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
-	    zmsgref = 0, shopsref = 0, untypedref = 0,
+	
+	void Clear()
+	{
+		pc = 0, sp = 0, scriptflag = 0;
+		ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
+		mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
+		zmsgref = 0, shopsref = 0, untypedref = 0,
 		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
 		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0;
 		comboposref = 0;
-        memset(d, 0, 8 * sizeof(int32_t));
-        a[0] = a[1] = 0;
+		memset(d, 0, 8 * sizeof(int32_t));
+		a[0] = a[1] = 0;
 		switchkey = 0;
-    }
-    
-    refInfo()
-    {
-        Clear();
-    }
-    
-    refInfo(const refInfo &copy)
-    {
-        *this = copy;
-    }
-    
-    refInfo &operator = (const refInfo &rhs)
-    {
-        pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
-        ffcref = rhs.ffcref, idata = rhs.idata;
-        itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
-	    
-	    mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
-	    bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
-	    zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
+	}
+	
+	refInfo()
+	{
+		Clear();
+	}
+	
+	refInfo(const refInfo &copy)
+	{
+		*this = copy;
+	}
+	
+	refInfo &operator = (const refInfo &rhs)
+	{
+		pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
+		ffcref = rhs.ffcref, idata = rhs.idata;
+		itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
+		
+		mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
+		bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
+		zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
 		dropsetref = rhs.dropsetref, pondref = rhs.pondref, warpringref = rhs.warpringref, 
 		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
 		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref;
-        memcpy(d, rhs.d, 8 * sizeof(int32_t));
-        memcpy(a, rhs.a, 2 * sizeof(int32_t));
+		memcpy(d, rhs.d, 8 * sizeof(int32_t));
+		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
-        return *this;
-    }
+		return *this;
+	}
 };
 
 
@@ -3136,6 +3144,7 @@ struct newcombo
 	int16_t genflags; //16 bits ; general flags
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
+	byte triggerbtn; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3183,6 +3192,7 @@ struct newcombo
 		for(int32_t q = 0; q < 3; ++q)
 			triggerflags[q] = 0;
 		triggerlevel = 0;
+		triggerbtn = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
 		for(int32_t q = 0; q < 8; ++q)
@@ -3223,6 +3233,7 @@ struct newcombo
 		for(auto q = 0; q < 3; ++q)
 			if(triggerflags[q]) return false;
 		if(triggerlevel) return false;
+		if(triggerbtn) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
@@ -3372,13 +3383,13 @@ struct zquestheader
 		if(new_version_is_nightly)
 		{
 			if(getAlphaVer() < 0)
-				sprintf(buf, "Nightly (%s ??)", getAlphaStr(true));
+				sprintf(buf, "Nightly (%s ?\?)", getAlphaStr(true));
 			else sprintf(buf, "Nightly (%s %d/%d)", getAlphaStr(true), getAlphaVer()-1, getAlphaVer());
 		}
 		else
 		{
 			if(getAlphaVer() < 0)
-				sprintf(buf, "%s ??", getAlphaStr(true));
+				sprintf(buf, "%s ?\?", getAlphaStr(true));
 			else sprintf(buf, "%s %d", getAlphaStr(true), getAlphaVer());
 		}
 		return buf;

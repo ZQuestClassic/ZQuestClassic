@@ -81,7 +81,7 @@ int32_t select_dropitem(int32_t, int32_t, int32_t)
     return 0;
 }
 
-void getitem(int32_t, bool)
+void getitem(int32_t, bool, bool)
 {
     return;
 }

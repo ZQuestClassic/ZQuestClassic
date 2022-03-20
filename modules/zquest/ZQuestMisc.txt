@@ -15,6 +15,7 @@ src/tiles.cpp
 src/load_gif.cpp
 src/win32.cpp
 src/ffasmexport.cpp
+src/drawing.cpp
 
 
 ## End of ZQuest Misc module

@@ -125,6 +125,9 @@ void gamedata::Copy(const gamedata& g)
         lvlkeys[i] = g.lvlkeys[i];
         lvlswitches[i] = g.lvlswitches[i];
     }
+	
+	for(auto q = 0; q < MAXITEMS; ++q)
+		item_messages_played[q] = g.item_messages_played[q];
     
     _continue_scrn = g._continue_scrn;
     _continue_dmap = g._continue_dmap;

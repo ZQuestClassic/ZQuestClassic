@@ -27,7 +27,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int16_t msg_margins[4];
 	for(int32_t q = 0; q < 4; ++q)
 	{
-		msg_margins[q] = oldmargin ? 0 : str->margins[0];
+		msg_margins[q] = oldmargin ? 0 : str->margins[q];
 	}
 	int32_t cursor_x = msg_margins[left];
 	int32_t cursor_y = msg_margins[up];

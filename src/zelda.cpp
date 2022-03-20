@@ -88,6 +88,10 @@ int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
 bool saved = true;
 bool zqtesting_mode = false;
+static char testingqst_name[512] = {0};
+static uint16_t testingqst_dmap = 0;
+static uint8_t testingqst_screen = 0;
+static uint8_t testingqst_retsqr = 0;
 
 extern CConsoleLoggerEx zscript_coloured_console;
 extern CConsoleLoggerEx coloured_console;
@@ -2197,6 +2201,13 @@ int32_t init_game()
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
 	Hero.init();
+	if(zqtesting_mode
+		&& currscr == testingqst_screen
+		&& currdmap == testingqst_dmap)
+	{
+		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
+		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
@@ -2529,6 +2540,13 @@ int32_t cont_game()
 	loadlvlpal(DMaps[currdmap].color);
 	lighting(false,true);
 	Hero.init();
+	if(zqtesting_mode
+		&& currscr == testingqst_screen
+		&& currdmap == testingqst_dmap)
+	{
+		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
+		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
@@ -3392,10 +3410,16 @@ void game_loop()
 			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
 			
 			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
-			
-			if(guygrid[i]>0)
+		}
+		
+		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
+		{
+			for(int32_t i=0; i<176; i++)
 			{
-				--guygrid[i];
+				if(guygrid[i]>0)
+				{
+					--guygrid[i];
+				}
 			}
 		}
 		#if LOGGAMELOOP > 0
@@ -3434,7 +3458,7 @@ void game_loop()
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
-		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			FFCore.combo_script_engine(false);    
 		}
@@ -3618,7 +3642,7 @@ void game_loop()
 		
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-		FFCore.combo_script_engine(false, true);    
+			FFCore.combo_script_engine(false, true);    
 		}
 		
 		//Waitdraw for item scripts. 
@@ -5267,9 +5291,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	int32_t test_arg = used_switch(argc,argv,"-test");
 	zqtesting_mode = test_arg > 0;
-	static char testingqst_name[512] = {0};
-	static uint16_t testingqst_dmap = 0;
-	static uint8_t testingqst_screen = 0;
 	if(zqtesting_mode)
 	{
 		clearConsole();
@@ -5284,6 +5305,7 @@ int32_t main(int32_t argc, char* argv[])
 		strcpy(testingqst_name, argv[test_arg+1]);
 		int32_t dm = atoi(argv[test_arg+2]);
 		int32_t scr = atoi(argv[test_arg+3]);
+		int32_t retsqr = (test_arg+4 >= argc) ? 0 : atoi(argv[test_arg+4]);
 		if(!fileexists(testingqst_name))
 		{
 			Z_error_fatal( "-test invalid parameter: 'quest_file_path' was '%s',"
@@ -5302,6 +5324,7 @@ int32_t main(int32_t argc, char* argv[])
 				" Must be '0 <= test_screen < 128'\n", scr);
 			error = true;
 		}
+		if(unsigned(retsqr) > 3) retsqr = 0;
 		
 		if(error)
 		{
@@ -5310,6 +5333,7 @@ int32_t main(int32_t argc, char* argv[])
 		}
 		testingqst_dmap = (uint16_t)dm;
 		testingqst_screen = (uint8_t)scr;
+		testingqst_retsqr = (uint8_t)retsqr;
 	}
 	
 	//clearConsole();

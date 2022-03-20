@@ -56,7 +56,7 @@ extern bool dev_timestmp;
 #define mDOOR_RIGHT      0x0008                               //        ''
 
 #define mITEM            0x0010                               // item (main screen)
-#define mBELOW           0x0020                               // special item (underground)
+#define mSPECIALITEM           0x0020                               // special item (underground)
 #define mNEVERRET        0x0040                               // enemy never returns
 #define mTMPNORET        0x0080                               // enemies don't return until you leave the dungeon
 

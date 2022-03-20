@@ -3567,6 +3567,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_MANHANDLA_BLOCK_SFX,1);
 	}
 	
+	if(compatrule_version < 22)
+	{
+		set_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -9995,7 +10000,7 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
                     holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
                     holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
                     holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
-                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+                    holdspr[i][spr_hold2][spr_flip]=(int32_t)flip;
                     holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
                 }
             }
@@ -17179,34 +17184,41 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 						break;				}
 			}
 		}
-		if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
-		{
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
-				{
-				return qe_invalid;
-				}
-			}
-			if(!p_igetl(&temp_combo.triggerlevel,f,true))
-			{
-				return qe_invalid;
-			}
-		}
 		if(section_version>=10) //combo trigger flags
 		{
 			for ( int32_t q = 0; q < 3; q++ )
 			{
 				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 				{
-				return qe_invalid;
+					return qe_invalid;
 				}
 			}
+		}
+		else if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
+		{
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+		if(section_version >= 9)
+		{
 			if(!p_igetl(&temp_combo.triggerlevel,f,true))
 			{
 				return qe_invalid;
 			}
 		}
+		if(section_version >= 22)
+		{
+			if(!p_getc(&temp_combo.triggerbtn,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		
 		if(section_version>=12) //combo label
 		{
 			for ( int32_t q = 0; q < 11; q++ )

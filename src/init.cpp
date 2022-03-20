@@ -60,7 +60,7 @@ extern byte *colordata;
 
 void initPopulate(int32_t &i, DIALOG_PROC proc, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t key, int32_t flags, int32_t d1, int32_t d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
-void getitem(int32_t id, bool nosound);
+void getitem(int32_t id, bool nosound, bool doRunPassive);
 
 static const int32_t endEquipField = 33;
 
@@ -1070,16 +1070,19 @@ const char *familylist(int32_t index, int32_t *list_size)
     
     return biic[listidx2biic[index]].s;
 }
+
+#ifdef IS_PLAYER
+extern word item_doscript[256];
+#endif
 // NOTE: This method has been severely hacked to fix an annoying problem at game start:
 // items (ie the Small Wallet) which modify max counter values need to be processed after
 // the values for those counters specified in init data, as the author expects these items
 // to modify the max counter. BUT the counter value should NOT be updated, ie, starting with
 // the bomb item does not give 8 free bombs at quest start.
 // I don't like this solution one bit, but can't come up with anything better -DD
-
 void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 {
-    game2->set_life(zinit2->start_heart*zinit2->hp_per_heart);
+    game2->set_life(zc_max(1,zinit2->start_heart)*zinit2->hp_per_heart);
     game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
     game2->set_maxbombs(zinit2->max_bombs);
     game2->set_maxcounter(zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio), 6);
@@ -1094,7 +1097,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
             if(!game2->get_item(i))
-                getitem(i,true);
+                getitem(i,true,false);
         }
         else
             game2->set_item_no_flush(i,false);

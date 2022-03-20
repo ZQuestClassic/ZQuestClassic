@@ -1,7 +1,59 @@
 // 2.55 Change Log
-// Updated 25th Feb, 2022
+// Updated 15th Mar, 2022
 
-//Since A103
+//Since A104
+
+//A104
+
+Fix armos combos being able to spawn multiple armos per combo if entering a
+	holdup animation while pushing against them.
+Fix being able to set HP to 0 hearts in 'Player Data' cheat menu, thus killing yourself
+Add QR so only the highest level passive item script for each class will run.
+Fix the 'Keep Lower Level Items' item editor flag always acting enabled
+	(This flag has been broken for as long as the item editor has existed)
+	Also add QR to make it apply retroactively when collecting lower-level items.
+Fix item pickup strings sometimes not loading the 'read' state properly
+Add 'View->Show Darkness', a menu option for the already-existing
+	'L' shortcut. This option now correctly previews 'New Dark Rooms'.
+	( EmilyV, Mar 15th, 2022 )
+
+Testing mode: Select return square
+	( EmilyV, Mar 14th, 2022 )
+
+Add script access 'combodata->TriggerButton[]'
+Fix 'combodata->GenFlags[]' sizing
+ZC Cheat dialog now checks code on pressing enter
+Better handle invalid itemdata pointers in scripts
+	( EmilyV, Mar 13th, 2022 )
+
+-Mar 9th Nightly
+
+Fix script-modified temp layers with no associated perm screen not behaving properly.
+	(A previous update made them visible, but failed to make them obey solidity and such)
+Fix string editor using the wrong margins in the preview window
+Add 'bool combodata->TrigFlags[96];' for zscript TriggerFlags access
+Add '->Next', '->Prev' trigger flag resolutions
+Add the ability to trigger a combo via button press (similar to signposts/chests)
+	( EmilyV, Mar 9th, 2022 )
+
+Add read-only 'Screen->ShowingMessage'
+Fix combo scripts running during messages with 'Messages Freeze All Action'
+	( EmilyV, Mar 8th, 2022 )
+
+Fix typo in player hold sprites, should fix hold sprite issues
+	( connorjclark, Mar 2nd, 2022 )
+
+Polish for combo alias and cheat dialogs
+	( EmilyV, Feb 26th, 2022 )
+
+Fix music not starting properly in test mode
+Fix 'Move' and 'Insert' combos not updating the combos set
+	for bottleshops.
+Hopefully fix control dialog not drawing button prompt
+New feature for corner-select gui objects (e.g. combo solidity):
+	'Shift+Click' - Toggle the corner you clicked, and set all 4 corners to that state
+	'Ctrl+Click' - Toggle all 4 corners
+	( EmilyV, Feb 25th, 2022 )
 
 -Feb 25th nightly
 
@@ -76,8 +128,9 @@ Fixed Red Leevers ignoring clocks.
 Added new stun/clock behavior to Leevers that makes them come out but not go back in when a clock is active or they're stunned (compat ruled)
 Added new QR that lets Leevers be stunned by Quake Hammer.
 Fixed Ganon spawning-related issues.
-using ItemX/ItemY/ItemA/ItemB no longer sets the subscreen cursor to 
-Fixed wizzrobes not obeying stun.invalid locations.
+	using ItemX/ItemY/ItemA/ItemB no longer sets the subscreen cursor to
+	invalid locations.
+Fixed wizzrobes not obeying stun.
 	( Deedee, Feb 14th, 2022 )
 
 Fixed enemy stun pit bug.

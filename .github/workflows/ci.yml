@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [2.55-master]
+  pull_request: # run on all PRs, not just PRs to a particular branch
+
+jobs:
+  compile:
+    runs-on: windows-2019
+
+    steps:
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: win32
+
+    - name: git clone
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install .github/dependencies.config -y
+
+    - run: cp src/metadata/*.h.sig src/metadata/sigs/
+    - run: cmake . -A win32
+    - run: cmake --build . --config Release --verbose --target zquest
+    - run: cmake --build . --config Release --verbose --target zelda

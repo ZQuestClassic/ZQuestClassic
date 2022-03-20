@@ -641,6 +641,14 @@ void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family,
 			{
 				game->forced_awpn = -1;
 			}
+			if ( game->forced_xwpn == i ) 
+			{
+				game->forced_xwpn = -1;
+			}
+			if ( game->forced_ywpn == i ) 
+			{
+				game->forced_ywpn = -1;
+			}
 		}
 	}
 }

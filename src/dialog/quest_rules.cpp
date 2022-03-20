@@ -413,7 +413,7 @@ static const GUI::ListData compatRulesList
 		" move offscreen. If disabled, they'll be killed when they move"
 		" offscreen."},
 	{ "Old Special Room Screenstate Detection", qr_ITEMPICKUPSETSBELOW, 
-		"If enabled, Guy Rooms are flagged with mITEM instead of mBELOW"
+		"If enabled, Guy Rooms are flagged with mITEM instead of mSPECIALITEM"
 		" if they are outside of a cave screen. This means that they set"
 		" the Screen Item state, and collecting the Screen Item will"
 		" remove the Guy."},
@@ -745,6 +745,8 @@ static const GUI::ListData compatRulesList
 	{ "Manhandla Uses Hit Sound For Center Body", qr_MANHANDLA_BLOCK_SFX,
 		"If enabled, Manhandla will play the hit sound when hitting the center body"
 		" instead of the block sound."},
+	{ "Broken 'Keep Lower Level Items'", qr_BROKEN_KEEPOLD_FLAG,
+		"If enabled, 'Keep Lower Level Items' acts as always checked for all items." }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -924,7 +926,15 @@ static const GUI::ListData itemRulesList
 		" For example, running out of bombs will not remove the Bomb item from your inventory,"
 		" and running out of Arrows will not remove the Bow and Arrow from your inventory."
 		" \nOtherwise, if disabled, they will be hidden from your inventory and be unselectable"
-		" if you run out of ammo, until you get more ammo for it."}
+		" if you run out of ammo, until you get more ammo for it."},
+	{ "'Keep Lower Level Items' applies retroactively", qr_KEEPOLD_APPLIES_RETROACTIVELY,
+		"If enabled, then when you have a higher-level item which does not"
+		" have 'Keep Lower Level Items' checked, lower-level items will be"
+		" removed when obtained." },
+	{ "Only highest level item passive script runs", qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,
+		"If you have multiple items of the same itemclass with passive item scripts,"
+		" only the highest-level item's script will run. In case of tie, all tied-highest"
+		" scripts will run." }
 };
 
 static const GUI::ListData miscRulesList

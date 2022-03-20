@@ -4012,170 +4012,446 @@ int32_t get_register(const int32_t arg)
 		
 		
 		case IDATAUSEWPN:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].useweapon)*10000;
 			break;
 		case IDATAUSEDEF:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].usedefence)*10000;
 			break;
 		case IDATAWRANGE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weaprange)*10000;
 			break;
 		case IDATAMAGICTIMER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].magiccosttimer)*10000;
 			break;
 		case IDATAUSEMVT:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
 			ret=(itemsbuf[ri->idata].weap_pattern[a])*10000;
 		}
 		break;
 		
 		case IDATADURATION:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weapduration)*10000;
 			break;
 		
 		case IDATADUPLICATES:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].duplicates)*10000;
 			break;
 		case IDATADRAWLAYER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].drawlayer)*10000;
 			break;
 		case IDATACOLLECTFLAGS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].collectflags)*10000;
 			break;
 		case IDATAWEAPONSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weaponscript)*10000;
 			break;
 		case IDATAMISCD:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,31);
 			ret=(itemsbuf[ri->idata].wpn_misc_d[a])*10000;
 		}
 		break;
 		case IDATAWPNINITD:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
 			ret=(itemsbuf[ri->idata].weap_initiald[a]);
 		}
 		break;
 		case IDATAWEAPHXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_hxofs)*10000;
 			break;
 		case IDATAWEAPHYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_hyofs)*10000;
 			break;
 		case IDATAWEAPHXSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_hxsz)*10000;
 			break;
 		case IDATAWEAPHYSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_hysz)*10000;
 			break;
 		case IDATAWEAPHZSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_hzsz)*10000;
 			break;
 		case IDATAWEAPXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_xofs)*10000;
 			break;
 		case IDATAWEAPYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_yofs)*10000;
 			break;
 		case IDATAHXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].hxofs)*10000;
 			break;
 		case IDATAHYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].hyofs)*10000;
 			break;
 		case IDATAHXSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].hxsz)*10000;
 			break;
 		case IDATAHYSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].hysz)*10000;
 			break;
 		case IDATAHZSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].hzsz)*10000;
 			break;
 		case IDATADXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].xofs)*10000;
 			break;
 		case IDATADYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].yofs)*10000;
 			break;
 		case IDATATILEW:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].tilew)*10000;
 			break;
 		case IDATATILEH:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].tileh)*10000;
 			break;
 		case IDATAPICKUP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].pickup)*10000;
 			break;
 		case IDATAOVERRIDEFL:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].overrideFLAGS)*10000;
 			break;
 
 		case IDATATILEWWEAP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_tilew)*10000;
 			break;
 		case IDATATILEHWEAP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weap_tileh)*10000;
 			break;
 		case IDATAOVERRIDEFLWEAP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].weapoverrideFLAGS)*10000;
 			break;
 		
 		case IDATAFAMILY:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].family)*10000;
 			break;
 			
 		case IDATALEVEL:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].fam_type)*10000;
 			break;
 			
 		case IDATAKEEP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].flags & ITEM_GAMEDATA)?10000:0;
 			break;
 			
 		case IDATAAMOUNT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].amount)*10000;
 			break;
 			
 		case IDATASETMAX:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].setmax)*10000;
 			break;
 			
 		case IDATAMAX:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].max)*10000;
 			break;
 			
 		case IDATACOUNTER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].count)*10000;
 			break;
 			
 		case IDATAUSESOUND:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].usesound)*10000;
 			break;
 			
 		case IDATAUSESOUND2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].usesound2)*10000;
 			break;
 			
 		case IDATAPOWER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].power)*10000;
 			break;
 			
 		//2.54
 		//Get the ID of an item.
 		case IDATAID:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				//Don't error here //Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=ri->idata*10000;
 			break;
 		
 		//Get the script assigned to an item (active)
 		case IDATASCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].script)*10000;
 			break;
 		//Get the ->Attributes[] of an item
 		case IDATAATTRIB:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
 			switch(index)
 			{
@@ -4208,6 +4484,12 @@ int32_t get_register(const int32_t arg)
 		//Get the ->Sprite[] of an item.
 		case IDATASPRITE:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
 			switch(index)
 			{
@@ -4239,45 +4521,111 @@ int32_t get_register(const int32_t arg)
 		}
 		//Hero TIle modifier
 		case IDATALTM:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].ltm)*10000;
 			break;
 		//Pickup script
 		case IDATAPSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].collect_script)*10000;
 			break;
 		//Pickup string
 		case IDATAPSTRING:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].pstring)*10000;
 			break;
 		case IDATAPFLAGS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].pickup_string_flags)*10000;
 			break;
 		//Magic cost
 		case IDATAMAGCOST:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].magic)*10000;
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].cost_counter)*10000;
 			break;
 		//Min Hearts to Pick Up
 		case IDATAMINHEARTS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].pickup_hearts)*10000;
 			break;
 		//Tile used by the item
 		case IDATATILE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].tile)*10000;
 			break;
 		//itemdata->Flash
 		case IDATAMISC:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].misc)*10000;
 			break;
 		//->CSet
 		case IDATACSET:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].csets)*10000;
 			break;
 		//->A.Frames
 		case IDATAFRAMES:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].frames)*10000;
 			break;
 		/*
@@ -4287,27 +4635,63 @@ int32_t get_register(const int32_t arg)
 		*/ 
 		//->A.Speed
 		case IDATAASPEED:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].speed)*10000;
 			break;
 		//->Delay
 		case IDATADELAY:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].delay)*10000;
 			break;
 		// teo of this item upgrades
 		case IDATACOMBINE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
 			break;
 		//Use item, and get the lower level one
 		case IDATADOWNGRADE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
 			break;
 		//Only validate the cost, don't charge it
 		case IDATAVALIDATE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY)?10000:0;
 			break;
 		//->Flags[5]
 		case IDATAFLAGS:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,15);
 			switch(index)
 			{
@@ -4352,30 +4736,66 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 			
-			//->Keep Old
-			case IDATAKEEPOLD:
-				ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+		//->Keep Old
+		case IDATAKEEPOLD:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
 				break;
-			//Use rupees instead of magic
-			case IDATARUPEECOST:
-				ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+			}
+			ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+			break;
+		//Use rupees instead of magic
+		case IDATARUPEECOST:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
 				break;
-			//Can be eaten
-			case IDATAEDIBLE:
-				ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+			}
+			ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+			break;
+		//Can be eaten
+		case IDATAEDIBLE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
 				break;
-			//Not int32_t he editor, could become flags[6], but I'm reserving this one for other item uses. 
-			case IDATAFLAGUNUSED:
-				ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+			}
+			ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+			break;
+		//Not int32_t he editor, could become flags[6], but I'm reserving this one for other item uses. 
+		case IDATAFLAGUNUSED:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
 				break;
-			//Gain lower level items when collected
-			case IDATAGAINLOWER:
-				ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+			}
+			ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+			break;
+		//Gain lower level items when collected
+		case IDATAGAINLOWER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
 				break;
+			}
+			ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+			break;
 		//Unchanged from master
 		case IDATAINITDD:
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
 			
 			if(BC::checkBounds(a, 0, 7, "itemdata->InitD") != SH::_NoError)
 				ret = -10000;
@@ -7359,6 +7779,12 @@ int32_t get_register(const int32_t arg)
 			ret = triggered_screen_secrets ? 10000L : 0L;
 			break;
 		}
+		
+		case SHOWNMSG:
+		{
+			ret = ((msg_active || msg_onscreen) ? msgstr : 0) * 10000L;
+			break;
+		}
 
 		case SDD:
 		{
@@ -9460,7 +9886,7 @@ int32_t get_register(const int32_t arg)
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 					ret = -10000; \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 					ret = -10000; \
@@ -9479,7 +9905,7 @@ int32_t get_register(const int32_t arg)
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 					ret = -10000; \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 					ret = -10000; \
@@ -9767,19 +10193,55 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", "GenFlags[]", (ri->combosref * 10000));
 				ret = 0;
 			}
-			else if (((unsigned)indx) > 0)
+			else if (((unsigned)indx) > 1)
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", "GenFlags[]", indx);
 				ret = 0;
 			}
 			else
 			{
-				ret = (combobuf[ri->combosref].genflags & 1 << indx) ? 10000L : 0L;
+				ret = (combobuf[ri->combosref].genflags & (1 << indx)) ? 10000L : 0L;
 			}
 			break;
 		}
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
 		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS2:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+			}
+			else if ( unsigned(indx) >= 96 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].triggerflags[indx/32] & (1<<indx%32)) ? 10000L : 0L;
+			}
+			break;
+		}
+		case COMBODTRIGGERBUTTON:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+			}
+			else if ( unsigned(indx) >= 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+			}
+			else
+			{
+				ret = (combobuf[ri->combosref].triggerbtn & (1<<indx)) ? 10000L : 0L;
+			}
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
@@ -10876,6 +11338,14 @@ void set_register(const int32_t arg, const int32_t value)
 				if ( game->forced_awpn == itemID ) 
 				{
 					game->forced_awpn = -1;
+				}
+				if ( game->forced_xwpn == itemID ) 
+				{
+					game->forced_xwpn = -1;
+				}
+				if ( game->forced_ywpn == itemID ) 
+				{
+					game->forced_ywpn = -1;
 				}
 			}
 		}
@@ -12406,120 +12876,290 @@ void set_register(const int32_t arg, const int32_t value)
 		//not mine, but let;s guard some of them all the same -Z
 		//item class
 		case IDATAFAMILY:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].family)=vbound(value/10000,0, 254);
 			flushItemCache();
 			break;
 		
 		case IDATAUSEWPN:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].useweapon)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAUSEDEF:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].usedefence)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAWRANGE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weaprange)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAMAGICTIMER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].magiccosttimer)=vbound(value/10000, 0, 214747);
 			break;
 		case IDATADURATION:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weapduration)=vbound(value/10000, 0, 255);
 			break;
 		 
 		case IDATADUPLICATES:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].duplicates)=vbound(value/10000, 0, 255);
 			break;
 		case IDATADRAWLAYER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].drawlayer)=vbound(value/10000, 0, 7);
 			break;
 		case IDATACOLLECTFLAGS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			//int32_t a = ri->d[rINDEX] / 10000;
 			(itemsbuf[ri->idata].collectflags)=vbound(value/10000, 0, 214747);
 			break;
 		case IDATAWEAPONSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weaponscript)=vbound(value/10000, 0, 255);
 			break;
 		case IDATAMISCD:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,31);
 			(itemsbuf[ri->idata].wpn_misc_d[a])=(value/10000);
 		}
 		break;
 		case IDATAWPNINITD:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,7);
 			(itemsbuf[ri->idata].weap_initiald[a])=(value);
 		}
 		break;
 		case IDATAWEAPHXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_hxofs)=(value/10000);
 			break;
 		case IDATAWEAPHYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_hyofs)=(value/10000);
 			break;
 		case IDATAWEAPHXSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_hxsz)=(value/10000);
 			break;
 		case IDATAWEAPHYSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_hysz)=(value/10000);
 			break;
 		case IDATAWEAPHZSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_hzsz)=(value/10000);
 			break;
 		case IDATAWEAPXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_xofs)=(value/10000);
 			break;
 		case IDATAWEAPYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_yofs)=(value/10000);
 			break;
 
 		
 		case IDATAHXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].hxofs)=(value/10000);
 			break;
 		case IDATAHYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].hyofs)=(value/10000);
 			break;
 		case IDATAHXSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].hxsz)=(value/10000);
 			break;
 		case IDATAHYSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].hysz)=(value/10000);
 			break;
 		case IDATAHZSZ:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].hzsz)=(value/10000);
 			break;
 		case IDATADXOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].xofs)=(value/10000);
 			break;
 		case IDATADYOFS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].yofs)=(value/10000);
 			break;
 		case IDATATILEW:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].tilew)=(value/10000);
 			break;
 		case IDATATILEH:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].tileh)=(value/10000);
 			break;
 		case IDATAPICKUP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].pickup)=(value/10000);
 			break;
 		case IDATAOVERRIDEFL:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].overrideFLAGS)=(value/10000);
 			break;
 
 		case IDATATILEWWEAP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_tilew)=(value/10000);
 			break;
 		case IDATATILEHWEAP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weap_tileh)=(value/10000);
 			break;
 		case IDATAOVERRIDEFLWEAP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].weapoverrideFLAGS)=(value/10000);
 			break;
 		
 		case IDATAUSEMVT:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			int32_t a = vbound((ri->d[rINDEX] / 10000),0,(ITEM_MOVEMENT_PATTERNS-1));
 			(itemsbuf[ri->idata].weap_pattern[a])=vbound(value/10000, 0, 255);
 			break;
@@ -12528,39 +13168,84 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		//item level
 		case IDATALEVEL:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
 			flushItemCache();
 			break;
 			//bool keep
 		case IDATAKEEP:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
 			break;
 			//Need the legal range -Z
 		case IDATAAMOUNT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].amount)=value/10000;
 			break;
 			
 		case IDATASETMAX:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].setmax)=value/10000;
 			break;
 			
 		case IDATAMAX:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].max)=value/10000;
 			break;
 			
 		case IDATAPOWER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].power)=value/10000;
 			break;
 			
 		case IDATACOUNTER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
 			break;
 			
 		case IDATAUSESOUND:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].usesound)=vbound(value/10000, 0, 255);
 			break;
 			
 		case IDATAUSESOUND2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].usesound2)=vbound(value/10000, 0, 255);
 			break;
 		
@@ -12568,20 +13253,40 @@ void set_register(const int32_t arg, const int32_t value)
 		//My additions begin here. -Z
 		//Stack item to gain next level
 		case IDATACOMBINE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_COMBINE: (itemsbuf[ri->idata].flags)&= ~ITEM_COMBINE;
 			break;
 		//using a level of an item downgrades to a lower one
 		case IDATADOWNGRADE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_DOWNGRADE: (itemsbuf[ri->idata].flags)&= ~ITEM_DOWNGRADE;
 			break;
 		  //Only validate the cost, don't charge it
 		case IDATAVALIDATE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_VALIDATEONLY: (itemsbuf[ri->idata].flags)&= ~ITEM_VALIDATEONLY;
 			break;
 
 		//Flags[5]
 		case IDATAFLAGS:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,15);
 			switch(index)
 			{
@@ -12643,26 +13348,56 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		//Keep Old in editor
 		case IDATAKEEPOLD:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_KEEPOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_KEEPOLD;
 			break;
 		//Ruppes for magic
 		case IDATARUPEECOST:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_RUPEE_MAGIC : (itemsbuf[ri->idata].flags)&= ~ITEM_RUPEE_MAGIC;
 			break;
 		//can be eaten
 		case IDATAEDIBLE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_EDIBLE : (itemsbuf[ri->idata].flags)&= ~ITEM_EDIBLE;
 			break;
 		//Reserving this for item editor stuff. 
 		case IDATAFLAGUNUSED:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_UNUSED : (itemsbuf[ri->idata].flags)&= ~ITEM_UNUSED;
 			break;
 		//gain lower level items
 		case IDATAGAINLOWER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_GAINOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_GAINOLD;
 			break;
 		//Set the action script
 		case IDATASCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
 			itemsbuf[ri->idata].script=vbound(value/10000,0,255);
 			break;
@@ -12678,6 +13413,11 @@ void set_register(const int32_t arg, const int32_t value)
 			break;*/
 		//Attributes[10]
 		case IDATAATTRIB: {
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
 			switch(index)
 			{
@@ -12712,6 +13452,11 @@ void set_register(const int32_t arg, const int32_t value)
 		//SpriteSprites[10]
 		case IDATASPRITE:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			int32_t index = vbound(ri->d[rINDEX]/10000,0,9);
 			switch(index)
 			{
@@ -12745,11 +13490,21 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		//Hero tile modifier. 
 		case IDATALTM:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].ltm=value/10000;
 			break;
 		//Pickup script
 		case IDATAPSCRIPT:
 		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			//Need to get collect script ref, not standard idata ref!
 			const int32_t new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
 			FFScript::deallocateAllArrays(SCRIPT_ITEM,new_ref);
@@ -12758,33 +13513,73 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		//pickup string
 		case IDATAPSTRING:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].pstring=vbound(value/10000, 1, 255);
 			break;
 		case IDATAPFLAGS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].pickup_string_flags=vbound(value/10000, 0, 214748);
 			break;
 		//magic cost
 		case IDATAMAGCOST:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].magic=value/10000;
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].cost_counter=(vbound(value/10000,-1,32));
 			break;
 		//min hearts to pick up
 		case IDATAMINHEARTS:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].pickup_hearts=vbound(value/10000, 0, 214748);
 			break;
 		//item tile
 		case IDATATILE:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].tile=vbound(value/10000, 0, 65519);
 			break;
 		//flash
 		case IDATAMISC:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].misc=value/10000;
 			break;
 		//cset
 		case IDATACSET:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].csets=vbound(value/10000,0,13);
 			break;
 		/*
@@ -12794,14 +13589,29 @@ void set_register(const int32_t arg, const int32_t value)
 		*/
 		//A.Frames
 		case IDATAFRAMES:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			(itemsbuf[ri->idata].frames)=vbound(value/10000, 0, 214748);
 			break;
 		//A.speed
 		case IDATAASPEED:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].speed=vbound(value/10000, 0, 214748);
 			break;
 		//Anim delay
 		case IDATADELAY:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			itemsbuf[ri->idata].delay=vbound(value/10000, 0, 214748);
 			break;
 		 
@@ -12809,6 +13619,11 @@ void set_register(const int32_t arg, const int32_t value)
 		case IDATAINITDD:
 		{
 			int32_t a = ri->d[rINDEX] / 10000;
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
 			
 			if(BC::checkBounds(a, 0, 7, "itemdata->InitD") == SH::_NoError)
 				itemsbuf[ri->idata].initiald[a] = value;
@@ -17843,7 +18658,7 @@ void set_register(const int32_t arg, const int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 				} \
@@ -17860,7 +18675,7 @@ void set_register(const int32_t arg, const int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 				} \
@@ -17877,7 +18692,7 @@ void set_register(const int32_t arg, const int32_t value)
 				{ \
 					Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), str); \
 				} \
-				else if ( indx < 0 || indx > indexbound ) \
+				else if ( indx < 0 || indx >= indexbound ) \
 				{ \
 					Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, str); \
 				} \
@@ -18132,6 +18947,40 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
 		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS2:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
+			}
+			else if ( unsigned(indx) >= 96 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
+			}
+			else
+			{
+				SETFLAG(combobuf[ri->combosref].triggerflags[indx/32],1<<(indx%32),value);
+			}
+			break;
+		}
+		case COMBODTRIGGERBUTTON:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerButton[]");
+			}
+			else if ( unsigned(indx) >= 8 )
+			{
+				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TriggerButton[]");
+			}
+			else
+			{
+				SETFLAG(combobuf[ri->combosref].triggerbtn,1<<indx,value);
+			}
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 	
 	
@@ -20674,8 +21523,10 @@ void do_loaditemdata(const bool v)
 	
 	//I *think* this is the right check ~Joe
 	if(BC::checkItemID(ID, "Game->LoadItemData") != SH::_NoError)
+	{
+		ri->idata = -1; //new null value
 		return;
-		
+	}
 	ri->idata = ID;
 	//Z_eventlog("Script loaded itemdata with ID = %ld\n", ri->idata);
 }
@@ -23081,6 +23932,11 @@ void do_setdmapintro(const bool v)
 void do_getitemname()
 {
 	int32_t arrayptr = get_register(sarg1) / 10000;
+	if(unsigned(ri->idata) >= MAXITEMS)
+	{
+		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		return;
+	}
 	
 	if(ArrayH::setArray(arrayptr, item_string[ri->idata]) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
@@ -26049,6 +26905,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case RUNITEMSCRIPT:
 			{
 				int32_t itemid = ri->idata;
+				if(unsigned(itemid) > MAXITEMS) break;
 				int32_t mode = get_register(sarg1) / 10000;
 				zprint("Trying to run the script on item: %d\n",itemid);
 				zprint("The script ID is: %d\n",itemsbuf[itemid].script);
@@ -30518,21 +31375,24 @@ bool FFScript::itemScriptEngine()
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
 		if ( item_doscript[q] < 1 ) continue;
-		#if DEVLEVEL > 0
-		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int32_t mode)
-		{
-			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		}
-		#endif
 		
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
 		{
-			//zprint("ItemScriptEngine() reached a point to call RunScript for item id: %d\n",q);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-			continue;
-			
+			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			{
+				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
+					item_doscript[q] = 0;
+				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+				{
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+					itemscriptInitialised[q] = 0;
+					itemScriptsWaitdraw[q] = 0;
+				}
+			}
 		}
 		else
 		{
@@ -30581,7 +31441,7 @@ bool FFScript::itemScriptEngine()
 				itemScriptData[q].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 				itemscriptInitialised[q] = 0;
-				continue;
+				itemScriptsWaitdraw[q] = 0;
 			}
 		}
 	}
@@ -30601,14 +31461,6 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		if ( !itemScriptsWaitdraw[q] ) continue;
 		else itemScriptsWaitdraw[q] = 0;
 		
-		#if DEVLEVEL > 0
-		if ( runningItemScripts[q] == 3 ) //forced to run perpetually by itemdata->RunScript(int32_t mode)
-		{
-			zprint("The item script is still running because it was forced by %s\n","itemdata->RunScript(true)");
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-		}
-		#endif
-		
 		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
 			After executing RunScript(), item_doscript is set to '1' in hero.cpp.
@@ -30620,10 +31472,22 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			  This allows passive item scripts to function. 
 		*/
 		//Passive items
-		if ( ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) )
+		if ((itemsbuf[q].flags&ITEM_PASSIVESCRIPT))
 		{
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-			continue;
+			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			{
+				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
+					item_doscript[q] = 0;
+				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+				{
+					itemScriptData[q].Clear();
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
+					itemscriptInitialised[q] = 0;
+					itemScriptsWaitdraw[q] = 0;
+				}
+			}
 		}
 		else
 		{
@@ -30655,12 +31519,12 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			{
 				item_doscript[q] = 0;
 			}
-			if(item_doscript[q]==0)  //Item script ended. Clear the data, if any remains.
+			if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
 			{
 				itemScriptData[q].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
 				itemscriptInitialised[q] = 0;
-				continue;
+				itemScriptsWaitdraw[q] = 0;
 			}
 		}
 	}
@@ -34676,6 +35540,8 @@ script_variable ZASMVars[]=
 	{ "ITMSWHOOKED",  ITMSWHOOKED,  0, 0 },
 	{ "DEBUGTESTING",  DEBUGTESTING,  0, 0 },
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
+	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
+	{ "COMBODTRIGGERBUTTON",  COMBODTRIGGERBUTTON,  0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

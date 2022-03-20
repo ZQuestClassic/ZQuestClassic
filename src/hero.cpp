@@ -2805,7 +2805,7 @@ void collectitem_script(int32_t id)
 		//runningItemScripts[id] = 0;
 	}
 }
-void passiveitem_script(int32_t id)
+void passiveitem_script(int32_t id, bool doRun = false)
 {
 	//Passive item scripts on colelction
 	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
@@ -2813,11 +2813,18 @@ void passiveitem_script(int32_t id)
 		ri = &(itemScriptData[id]);
 		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id][q] = 0xFFFF;
 		ri->Clear();
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
 		item_doscript[id] = 1;
 		itemscriptInitialised[id] = 0;
-		//Z_scripterrlog("hero.cpp starting a passive item script.\n");
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
+		
+		
+		if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+			&& current_item(itemsbuf[id].family) > itemsbuf[id].fam_type)
+		{
+			item_doscript[id] = 0;
+			return;
+		}
+		if(doRun)
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
 	}
 }
 
@@ -3085,8 +3092,8 @@ bool HeroClass::checkstab()
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(mITEM);
-						else if(pickup&ipONETIME2) // set mBELOW flag for other one-time-only items
-							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
+							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
@@ -3102,9 +3109,8 @@ bool HeroClass::checkstab()
 						else
 						{
 							collectitem_script(ptr->id);
-							passiveitem_script(ptr->id);
 							
-							getitem(ptr->id);
+							getitem(ptr->id, false, true);
 						}
 						items.del(j);
 						
@@ -3409,7 +3415,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
 		FFCore.tempScreens[layer]->sflag[i] = 0;
 	}
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmpscr->secretsfx);
@@ -3642,7 +3648,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
     {
         if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -3949,7 +3955,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
                 FFCore.tempScreens[layer]->cset[i] = tmpscr->undercset;
                 FFCore.tempScreens[layer]->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4208,7 +4214,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4552,7 +4558,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
             
         set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -4748,7 +4754,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -5035,7 +5041,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
             
         set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -5260,7 +5266,7 @@ void HeroClass::check_pound_block(weapon *w)
             
         set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(tmpscr->secretsfx);
@@ -6462,48 +6468,48 @@ void HeroClass::hithero(int32_t hit2)
 {
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
-    if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
-            (z > (((enemy*)guys.spr(hit2))->z)) ||
-            ((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
-    {
-        paymagiccost(stompid);
-        hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
-        
-        if(itemsbuf[stompid].flags & ITEM_DOWNGRADE)
-            game->set_item(stompid,false);
-            
-        // Stomp Boots script
-        if(itemsbuf[stompid].script != 0 && !item_doscript[stompid])
-        {
-		//clear the item script stack for a new script
-		ri = &(itemScriptData[stompid]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[stompid][q] = 0xFFFF;
-		ri->Clear();
-		//itemScriptData[(stompid & 0xFFF)].Clear();
-		//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(stompid & 0xFFF)][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid & 0xFFF);
-		item_doscript[stompid] = 1;
-		itemscriptInitialised[stompid] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid);
-        }
-        
-        return;
-    }
-    else if(superman || !(scriptcoldet&1) || fallclk)
-        return;
-    else if(NayrusLoveShieldClk<=0)
-    {
-        int32_t ringpow = ringpower(enemy_dp(hit2));
-        game->set_life(zc_max(game->get_life()-ringpow,0));
-	sethitHeroUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
-	    //Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
+	if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
+			(z > (((enemy*)guys.spr(hit2))->z)) ||
+			((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
+	{
+		paymagiccost(stompid);
+		hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
+		
+		if(itemsbuf[stompid].flags & ITEM_DOWNGRADE)
+			game->set_item(stompid,false);
+			
+		// Stomp Boots script
+		if(itemsbuf[stompid].script != 0 && !item_doscript[stompid])
+		{
+			//clear the item script stack for a new script
+			ri = &(itemScriptData[stompid]);
+			for ( int32_t q = 0; q < 1024; q++ ) item_stack[stompid][q] = 0xFFFF;
+			ri->Clear();
+			//itemScriptData[(stompid & 0xFFF)].Clear();
+			//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(stompid & 0xFFF)][q] = 0;
+			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid & 0xFFF);
+			item_doscript[stompid] = 1;
+			itemscriptInitialised[stompid] = 0;
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid);
+		}
+		
+		return;
+	}
+	else if(superman || !(scriptcoldet&1) || fallclk)
+		return;
+	else if(NayrusLoveShieldClk<=0)
+	{
+		int32_t ringpow = ringpower(enemy_dp(hit2));
+		game->set_life(zc_max(game->get_life()-ringpow,0));
+		sethitHeroUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
+		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Hero->HitBy[NPC] is: %d\n", gethitHeroUID(HIT_BY_NPC));
-	    
-    }
-    
-    hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
-    if (IsSideSwim())
-    {
+		
+	}
+	
+	hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
+	if (IsSideSwim())
+	{
 	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
     }
     else if(action==swimming || hopclk==0xFF)
@@ -6773,6 +6779,8 @@ int32_t getPushDir(int32_t flag)
 	}
 	return -1;
 }
+
+void do_trigger_combo(int32_t layer, int32_t pos); //weapons.cpp
 
 // returns true when game over
 bool HeroClass::animate(int32_t)
@@ -8524,33 +8532,11 @@ bool HeroClass::animate(int32_t)
 			if(!awarp) //Putting stuff in here so it doesn't activate after an autowarp happens.
 			{
 				//AUTOMATIC TRIGGER CODE
-				int32_t cid = ( layer ) ? MAPCOMBOL(layer,MAPCOMBOX(i),MAPCOMBOY(i)) : MAPCOMBO(MAPCOMBOX(i),MAPCOMBOY(i));
+				int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
 				newcombo const& cmb = combobuf[cid];
 				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 				{
-					int32_t flag = ( layer ) ? MAPFLAGL(layer, MAPCOMBOX(i),MAPCOMBOY(i)) : MAPFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
-					int32_t flag2 = ( layer ) ? MAPCOMBOFLAGL(layer,MAPCOMBOX(i),MAPCOMBOY(i)): MAPCOMBOFLAG(MAPCOMBOX(i),MAPCOMBOY(i));
-					int32_t ft = cmb.attribytes[3];
-					int32_t scombo=COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i));
-					bool single16 = false;
-					if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
-					{
-						do_generic_combo2(MAPCOMBOX(i),MAPCOMBOY(i), cid, flag, flag2, ft, scombo, single16, layer);
-					}
-					else if( cmb.type == cCSWITCH )
-					{
-						//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-						//if (get_bit(grid,(((bx>>4) + by)))) return;
-						//set_bit(grid,(((bx>>4) + by)),1);
-						do_cswitch_combo2(cmb, layer, COMBOPOS(MAPCOMBOX(i),MAPCOMBOY(i)));
-					}
-					if (cmb.triggerflags[1]&combotriggerSECRETS)
-					{
-						//byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-						//if (get_bit(grid,(((bx>>4) + by)))) return;
-						//set_bit(grid,(((bx>>4) + by)),1);
-						hidden_entrance(0, true, false, -6);
-					}
+					do_trigger_combo(layer, i);
 				}
 				
 				//AUTO WARP CODE
@@ -9515,7 +9501,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				int32_t usedid = getItemID(itemsbuf, itype_letter,i_letter+1);
 				
 				if(usedid != -1)
-					getitem(usedid, true);
+					getitem(usedid, true, true);
 					
 				sfx(tmpscr[currscr<128?0:1].secretsfx);
 				setupscreen();
@@ -9962,7 +9948,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			paymagiccost(itemid);
 			sfx(itm.usesound,pan(wx));
 			
-			if(tmpscr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+			if(tmpscr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				items.add(new item((zfix)wx,(zfix)wy,(zfix)0,iBait,ipDUMMY+ipFADE,0));
 				fadeclk=66;
@@ -9970,7 +9956,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
 				//    putscr(scrollbuf,0,0,tmpscr);
-				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 				removeItemsOfFamily(game,itemsbuf,itype_bait);
 				verifyBothWeapons();
 				sfx(tmpscr->secretsfx);
@@ -17157,7 +17143,7 @@ void HeroClass::oldcheckchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW))
+	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
 	{
 		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
@@ -17308,7 +17294,7 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true, false, true))
+		if(!getIntBtnInput(intbtn, true, true, false, false))
 			return; //Button not pressed
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
@@ -17362,13 +17348,13 @@ void HeroClass::checkchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW))
+	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
 	{
 		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
 }
 
-void HeroClass::checksigns()
+void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
 	if(toogam || z>0) return;
 	if(msg_active || (msg_onscreen && get_bit(quest_rules, qr_MSGDISAPPEAR)))
@@ -17405,10 +17391,13 @@ void HeroClass::checksigns()
 	}
 	
 	int32_t found = -1;
-	
-	if(combobuf[MAPCOMBO(bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, -1))
+	int32_t found_lyr = 0;
+	bool found_sign = false;
+	int32_t tmp_cid = MAPCOMBO(bx,by);
+	newcombo const* tmp_cmb = &combobuf[tmp_cid];
+	if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
 	{
-		found = MAPCOMBO(bx,by);
+		found = tmp_cid;
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -17425,9 +17414,11 @@ void HeroClass::checksigns()
 			}
 		}
 	}
-	if(combobuf[MAPCOMBO(bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, -1))
+	tmp_cid = MAPCOMBO(bx2,by2);
+	tmp_cmb = &combobuf[tmp_cid];
+	if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
 	{
-		found = MAPCOMBO(bx2,by2);
+		found = tmp_cid;
 		fx = bx2; fy = by2;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -17449,9 +17440,12 @@ void HeroClass::checksigns()
 	{
 		for(int32_t i=0; i<2; i++)
 		{
-			if(combobuf[MAPCOMBO2(i,bx,by)].type==cSIGNPOST && _effectflag(bx,by,1, i))
+			tmp_cid = MAPCOMBO2(i,bx,by);
+			tmp_cmb = &combobuf[tmp_cid];
+			if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
 			{
-				found = MAPCOMBO2(i,bx,by);
+				found = tmp_cid;
+				found_lyr = i+1;
 				fx = bx; fy = by;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
@@ -17465,9 +17459,12 @@ void HeroClass::checksigns()
 					}
 				}
 			}
-			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==cSIGNPOST && _effectflag(bx2,by2,1, i))
+			tmp_cid = MAPCOMBO2(i,bx2,by2);
+			tmp_cmb = &combobuf[tmp_cid];
+			if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
 			{
-				found = MAPCOMBO2(i,bx2,by2);
+				found = tmp_cid;
+				found_lyr = i+1;
 				fx = bx2; fy = by2;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
@@ -17487,6 +17484,32 @@ void HeroClass::checksigns()
 	
 	if(found<0) return;
 	newcombo const& cmb = combobuf[found];
+	if(cmb.type != cSIGNPOST)
+	{
+		switch(dir)
+		{
+			case down:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_TOP))
+					return;
+				break;
+			case up:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_BOTTOM))
+					return;
+				break;
+			case right:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_LEFT))
+					return;
+				break;
+			case left:
+				if(!(cmb.triggerflags[0] & combotriggerBTN_RIGHT))
+					return;
+				break;
+		}
+		if(!getIntBtnInput(cmb.triggerbtn, true, true, false, false))
+			return;
+		do_trigger_combo(found_lyr, COMBOPOS(fx,fy));
+		return;
+	}
 	switch(dir)
 	{
 		case up:
@@ -17510,7 +17533,7 @@ void HeroClass::checksigns()
 	
 	if(intbtn) //
 	{
-		if(!getIntBtnInput(intbtn, true, true, false, true))
+		if(!getIntBtnInput(intbtn, true, true, false, false))
 			return; //Button not pressed
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
@@ -20311,7 +20334,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -20345,7 +20368,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		switch(flag2)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -20379,7 +20402,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		switch(flag3)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW) || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, tmpscr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -20517,7 +20540,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		
 		if(!(tmpscr->noreset&mITEM)) unsetmapflag(mITEM);
 		
-		if(!(tmpscr->noreset&mBELOW)) unsetmapflag(mBELOW);
+		if(!(tmpscr->noreset&mSPECIALITEM)) unsetmapflag(mSPECIALITEM);
 		
 		if(!(tmpscr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
 		
@@ -25184,7 +25207,7 @@ void dospecialmoney(int32_t index)
 	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
-        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         break;
     }
         
@@ -25224,7 +25247,7 @@ void dospecialmoney(int32_t index)
 		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 		game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
-        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
         {
@@ -25238,7 +25261,7 @@ void dospecialmoney(int32_t index)
         for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(itemsbuf[i].family == itype_bomb && itemsbuf[i].fam_type == 1)
-                getitem(i, true);
+                getitem(i, true, true);
         }
         
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -25271,7 +25294,7 @@ void dospecialmoney(int32_t index)
 	game->set_drupy(game->get_drupy()-total);
 
 	//game->set_drupy(game->get_drupy()+price);
-        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -25303,7 +25326,7 @@ void dospecialmoney(int32_t index)
             game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
-        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+        setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
         ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
@@ -25315,13 +25338,13 @@ void dospecialmoney(int32_t index)
     }
 }
 
-void getitem(int32_t id, bool nosound)
+void getitem(int32_t id, bool nosound, bool doRunPassive)
 {
-    if(id<0)
-    {
-        return;
-    }
-    
+	if(id<0)
+	{
+		return;
+	}
+	
 	if(get_bit(quest_rules,qr_SCC_ITEM_COMBINES_ITEMS))
 	{
 		int32_t nextitem = -1;
@@ -25353,108 +25376,115 @@ void getitem(int32_t id, bool nosound)
 	}
 	
 	itemdata const& idat = itemsbuf[id&0xFF];
-    if(idat.family!=0xFF)
-    {
-        if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
-        {
-            // Fix boomerang sounds.
-            int32_t itemid = current_item_id(idat.family);
-            
-            if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
-                             || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
-                    && sfx_allocated(itemsbuf[itemid].usesound)
-                    && idat.usesound != itemsbuf[itemid].usesound)
-            {
-                stop_sfx(itemsbuf[itemid].usesound);
-                cont_sfx(idat.usesound);
-            }
-            
-            game->set_item(id,true);
-            
-            if(!(idat.flags & ITEM_KEEPOLD))
-            {
-                if(current_item(idat.family)<idat.fam_type)
-                {
-                    removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
-                }
-            }
-            
-            // NES consistency: replace all flying boomerangs with the current boomerang.
-            if(idat.family==itype_brang)
-                for(int32_t i=0; i<Lwpns.Count(); i++)
-                {
-                    weapon *w = ((weapon*)Lwpns.spr(i));
-                    
-                    if(w->id==wBrang)
-                    {
-                        w->LOADGFX(idat.wpn);
-                    }
-                }
-        }
-        
-        if(idat.count!=-1)
-        {
-            if(idat.setmax)
-            {
-                // Bomb bags are a special case; they may be set not to increase super bombs
-                if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
-                {
-                    int32_t max = game->get_maxbombs();
-                    
-                    if(max<idat.max) max=idat.max;
-                    
-                    game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
-                }
-                else
-                {
-                    int32_t max = game->get_maxcounter(idat.count);
-                    
-                    if(max<idat.max) max=idat.max;
-                    
-                    game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
-                }
-            }
-            
-            // Amount is an uint16_t, but the range is -9999 to 16383
-            // -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
-            if(idat.amount&0x3FFF)
-            {
-                if(idat.amount&0x8000)
-                    game->set_dcounter(
-                        game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
-                else
-                {
-                    if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
-                        game->set_counter(0, idat.count);
-                    else
-                        // This is too confusing to try and change...
-                        game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
-                }
-            }
-        }
-    }
-    
-    if(idat.playsound&&!nosound)
-    {
-        sfx(idat.playsound);
-    }
-    
-    //add lower-level items
-    if(idat.flags&ITEM_GAINOLD)
-    {
-        for(int32_t i=idat.fam_type-1; i>0; i--)
-        {
-            int32_t potid = getItemID(itemsbuf, idat.family, i);
-            
-            if(potid != -1)
-            {
-                game->set_item(potid, true);
-            }
-        }
-    }
-    
-    switch(idat.family)
-    {
+	if(idat.family!=0xFF)
+	{
+		if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
+		{
+			// Fix boomerang sounds.
+			int32_t itemid = current_item_id(idat.family);
+			
+			if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
+							 || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
+					&& sfx_allocated(itemsbuf[itemid].usesound)
+					&& idat.usesound != itemsbuf[itemid].usesound)
+			{
+				stop_sfx(itemsbuf[itemid].usesound);
+				cont_sfx(idat.usesound);
+			}
+			
+			int32_t curitm = current_item_id(idat.family);
+			if(!get_bit(quest_rules,qr_KEEPOLD_APPLIES_RETROACTIVELY)
+				|| curitm < 0 || (itemsbuf[curitm].fam_type <= idat.fam_type)
+				|| (itemsbuf[curitm].flags & ITEM_KEEPOLD))
+			{
+				game->set_item(id,true);
+				passiveitem_script(id, doRunPassive);
+			}
+			
+			if(!(idat.flags & ITEM_KEEPOLD))
+			{
+				if(!get_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
+				{
+					removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
+				}
+			}
+			
+			// NES consistency: replace all flying boomerangs with the current boomerang.
+			if(idat.family==itype_brang)
+				for(int32_t i=0; i<Lwpns.Count(); i++)
+				{
+					weapon *w = ((weapon*)Lwpns.spr(i));
+					
+					if(w->id==wBrang)
+					{
+						w->LOADGFX(idat.wpn);
+					}
+				}
+		}
+		
+		if(idat.count!=-1)
+		{
+			if(idat.setmax)
+			{
+				// Bomb bags are a special case; they may be set not to increase super bombs
+				if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
+				{
+					int32_t max = game->get_maxbombs();
+					
+					if(max<idat.max) max=idat.max;
+					
+					game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
+				}
+				else
+				{
+					int32_t max = game->get_maxcounter(idat.count);
+					
+					if(max<idat.max) max=idat.max;
+					
+					game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
+				}
+			}
+			
+			// Amount is an uint16_t, but the range is -9999 to 16383
+			// -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
+			if(idat.amount&0x3FFF)
+			{
+				if(idat.amount&0x8000)
+					game->set_dcounter(
+						game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
+				else
+				{
+					if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
+						game->set_counter(0, idat.count);
+					else
+						// This is too confusing to try and change...
+						game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
+				}
+			}
+		}
+	}
+	
+	if(idat.playsound&&!nosound)
+	{
+		sfx(idat.playsound);
+	}
+	
+	//add lower-level items
+	if(idat.flags&ITEM_GAINOLD)
+	{
+		for(int32_t i=idat.fam_type-1; i>0; i--)
+		{
+			int32_t potid = getItemID(itemsbuf, idat.family, i);
+			
+			if(potid != -1)
+			{
+				game->set_item(potid, true);
+			}
+		}
+	}
+	
+	switch(idat.family)
+	{
 		case itype_itmbundle:
 		{
 			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
@@ -25465,8 +25495,7 @@ void getitem(int32_t id, bool nosound)
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
 				if(pscript)
 					collectitem_script(ids[q]);
-				passiveitem_script(ids[q]);
-				getitem(ids[q], true);
+				getitem(ids[q], true, true);
 			}
 		}
 		break;
@@ -25475,7 +25504,7 @@ void getitem(int32_t id, bool nosound)
 		{
 			int32_t newid = get_progressive_item(idat);
 			if(newid > -1)
-				getitem(newid, nosound);
+				getitem(newid, nosound, true);
 		}
 		break;
 		
@@ -25562,11 +25591,11 @@ void getitem(int32_t id, bool nosound)
 		case itype_killem:
 			kill_em_all();
 			break;
-    }
-    
-    update_subscreens();
-    load_Sitems(&QMisc);
-    verifyBothWeapons();
+	}
+	
+	update_subscreens();
+	load_Sitems(&QMisc);
+	verifyBothWeapons();
 }
 
 void takeitem(int32_t id)
@@ -25865,8 +25894,8 @@ void HeroClass::checkitems(int32_t index)
 			//Okay so having old source files is a godsend. You wanna know why?
 			//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
 			//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
-			//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mBELOW if in a cave.
-			//However, now the check just always defaults to mBELOW, which causes this bug.
+			//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mSPECIALITEM if in a cave.
+			//However, now the check just always defaults to mSPECIALITEM, which causes this bug.
 			//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
 			
 			/*
@@ -25880,13 +25909,13 @@ void HeroClass::checkitems(int32_t index)
 				// Most older quests need one-time-pickups to not remove special items, etc.
 				if(tmpscr->room==rGRUMBLE)
 				{
-					setmapflag(mBELOW);
+					setmapflag(mSPECIALITEM);
 				}
 			}
 			*/
 		}
-		else if(pickup&ipONETIME2)                                // set mBELOW flag for other one-time-only items
-			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mBELOW);
+		else if(pickup&ipONETIME2)                                // set mSPECIALITEM flag for other one-time-only items
+			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
@@ -25895,8 +25924,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 			
 		collectitem_script(id2);
-		passiveitem_script(id2);
-		getitem(id2);
+		getitem(id2, false, true);
 	}
 	
 	if(pickup&ipHOLDUP)

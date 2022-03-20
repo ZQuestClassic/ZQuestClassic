@@ -596,7 +596,7 @@ void verifyXWpn();
 void verifyYWpn();
 bool canget(int32_t id);
 void dospecialmoney(int32_t index);
-void getitem(int32_t id, bool nosound=false);
+void getitem(int32_t id, bool nosound=false, bool doRunPassive=false);
 void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);

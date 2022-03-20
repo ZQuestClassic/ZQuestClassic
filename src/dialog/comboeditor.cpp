@@ -1145,7 +1145,7 @@ void ComboEditorDialog::loadComboType()
 				else
 				{
 					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
+					h_attribyte[0] = "Sprite Data sprite ID to display as a decoration";
 				}
 			}
 			l_flag[1] = "Drop Item";
@@ -1216,7 +1216,8 @@ void ComboEditorDialog::loadComboType()
 				h_flag[12] = "Skip spawn poof for dropped enemy";
 			}
 			l_flag[5] = "Room Item";
-			h_flag[5] = "Drop the room's Item on trigger";
+			h_flag[5] = "Drop the room's Special Item on trigger"
+				" (room does not need to be 'Special Item' type, the Catchall value will be used)";
 			break;
 		}
 		case cPITFALL:
@@ -1876,63 +1877,97 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 3)
 						)
 					)),
-					TabRef(name = "Triggers", Column(//ScrollingPane(
+					TabRef(name = "Triggers", Row(
 						Column(
 							padding = 0_px,
-							Row(
-								padding = 0_px,
-								Label(text = "Min Level (Applies to all):"),
+							Column(framed = true,
+								Row(
+									padding = 0_px,
+									Label(text = "Min Level (Applies to all):"),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 214748, val = local_comboref.triggerlevel,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggerlevel = val;
+										})
+								),
+								Rows<4>(
+									TRIGFLAG(0,"Sword"),
+									TRIGFLAG(1,"Sword Beam"),
+									TRIGFLAG(2,"Boomerang"),
+									TRIGFLAG(3,"Bomb"),
+									TRIGFLAG(4,"Super Bomb"),
+									TRIGFLAG(5,"Lit Bomb"),
+									TRIGFLAG(6,"Lit Super Bomb"),
+									TRIGFLAG(7,"Arrow"),
+									TRIGFLAG(8,"Fire"),
+									TRIGFLAG(9,"Whistle"),
+									TRIGFLAG(10,"Bait"),
+									TRIGFLAG(11,"Wand"),
+									TRIGFLAG(12,"Magic"),
+									TRIGFLAG(13,"Wind"),
+									TRIGFLAG(14,"Refl. Magic"),
+									TRIGFLAG(15,"Refl. Fireball"),
+									TRIGFLAG(16,"Refl. Rock"),
+									TRIGFLAG(17,"Hammer"),
+									TRIGFLAG(32,"Hookshot"),
+									TRIGFLAG(33,"Sparkle"),
+									TRIGFLAG(34,"Byrna"),
+									TRIGFLAG(35,"Refl. Beam"),
+									TRIGFLAG(36,"Stomp"),
+									DummyWidget(),
+									TRIGFLAG(37,"Custom Weapon 1"),
+									TRIGFLAG(38,"Custom Weapon 2"),
+									TRIGFLAG(39,"Custom Weapon 3"),
+									TRIGFLAG(40,"Custom Weapon 4"),
+									TRIGFLAG(41,"Custom Weapon 5"),
+									TRIGFLAG(42,"Custom Weapon 6"),
+									TRIGFLAG(43,"Custom Weapon 7"),
+									TRIGFLAG(44,"Custom Weapon 8"),
+									TRIGFLAG(45,"Custom Weapon 9"),
+									TRIGFLAG(46,"Custom Weapon 10")
+								)
+							),
+							Rows<4>(
+								framed = true,
+								TRIGFLAG(48,"Triggers Secrets"),
+								TRIGFLAG(18,"->Next"),
+								TRIGFLAG(19,"->Prev")
+							)
+						),
+						Column(framed = true,
+							Row(padding = 0_px,
+								Label(text = "Buttons:"),
 								TextField(
 									fitParent = true,
 									vPadding = 0_px,
 									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 214748, val = local_comboref.triggerlevel,
+									low = 0, high = 255, val = local_comboref.triggerbtn,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
-										local_comboref.triggerlevel = val;
-									})
+										local_comboref.triggerbtn = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
+											"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+											"Buttons used while standing against the combo from a direction"
+											" with the 'Btn: [dir]' flag checked for that side"
+											" will trigger the combo.").show();
+									}
+								)
 							),
-							Rows<4>(
-								framed = true,
-								TRIGFLAG(0,"Sword"),
-								TRIGFLAG(1,"Sword Beam"),
-								TRIGFLAG(2,"Boomerang"),
-								TRIGFLAG(3,"Bomb"),
-								TRIGFLAG(4,"Super Bomb"),
-								TRIGFLAG(5,"Lit Bomb"),
-								TRIGFLAG(6,"Lit Super Bomb"),
-								TRIGFLAG(7,"Arrow"),
-								TRIGFLAG(8,"Fire"),
-								TRIGFLAG(9,"Whistle"),
-								TRIGFLAG(10,"Bait"),
-								TRIGFLAG(11,"Wand"),
-								TRIGFLAG(12,"Magic"),
-								TRIGFLAG(13,"Wind"),
-								TRIGFLAG(14,"Refl. Magic"),
-								TRIGFLAG(15,"Refl. Fireball"),
-								TRIGFLAG(16,"Refl. Rock"),
-								TRIGFLAG(17,"Hammer"),
-								TRIGFLAG(32,"Hookshot"),
-								TRIGFLAG(33,"Sparkle"),
-								TRIGFLAG(34,"Byrna"),
-								TRIGFLAG(35,"Refl. Beam"),
-								TRIGFLAG(36,"Stomp"),
-								DummyWidget(),
-								TRIGFLAG(37,"Custom Weapon 1"),
-								TRIGFLAG(38,"Custom Weapon 2"),
-								TRIGFLAG(39,"Custom Weapon 3"),
-								TRIGFLAG(40,"Custom Weapon 4"),
-								TRIGFLAG(41,"Custom Weapon 5"),
-								TRIGFLAG(42,"Custom Weapon 6"),
-								TRIGFLAG(43,"Custom Weapon 7"),
-								TRIGFLAG(44,"Custom Weapon 8"),
-								TRIGFLAG(45,"Custom Weapon 9"),
-								TRIGFLAG(46,"Custom Weapon 10")
-							),
-							Rows<4>(
-								framed = true,
-								TRIGFLAG(47,"Always Triggered"),
-								TRIGFLAG(48,"Triggers Secrets")
+							Column(
+								TRIGFLAG(20,"Btn: Top"),
+								TRIGFLAG(21,"Btn: Bottom"),
+								TRIGFLAG(22,"Btn: Left"),
+								TRIGFLAG(23,"Btn: Right"),
+								TRIGFLAG(47,"Always Triggered")
 							)
 						)
 					)),
@@ -2250,61 +2285,101 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)),
 					TabRef(name = "Triggers", ScrollingPane(
 						Column(
-							margins = DEFAULT_PADDING,
+							DummyWidget(),
+							Column(
+								framed = true,
+								margins = DEFAULT_PADDING,
+								padding = DEFAULT_PADDING+2_px,
+								Row(
+									Label(text = "Min Level (Applies to all):"),
+									TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 214748, val = local_comboref.triggerlevel,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggerlevel = val;
+										})
+								),
+								Rows<3>(
+									TRIGFLAG(0,"Sword"),
+									TRIGFLAG(1,"Sword Beam"),
+									TRIGFLAG(2,"Boomerang"),
+									TRIGFLAG(3,"Bomb"),
+									TRIGFLAG(4,"Super Bomb"),
+									TRIGFLAG(5,"Lit Bomb"),
+									TRIGFLAG(6,"Lit Super Bomb"),
+									TRIGFLAG(7,"Arrow"),
+									TRIGFLAG(8,"Fire"),
+									TRIGFLAG(9,"Whistle"),
+									TRIGFLAG(10,"Bait"),
+									TRIGFLAG(11,"Wand"),
+									TRIGFLAG(12,"Magic"),
+									TRIGFLAG(13,"Wind"),
+									TRIGFLAG(14,"Refl. Magic"),
+									TRIGFLAG(15,"Refl. Fireball"),
+									TRIGFLAG(16,"Refl. Rock"),
+									TRIGFLAG(17,"Hammer"),
+									TRIGFLAG(32,"Hookshot"),
+									TRIGFLAG(33,"Sparkle"),
+									TRIGFLAG(34,"Byrna"),
+									TRIGFLAG(35,"Refl. Beam"),
+									TRIGFLAG(36,"Stomp"),
+									DummyWidget(),
+									TRIGFLAG(37,"C. Weapon 1"),
+									TRIGFLAG(38,"C. Weapon 2"),
+									TRIGFLAG(39,"C. Weapon 3"),
+									TRIGFLAG(40,"C. Weapon 4"),
+									TRIGFLAG(41,"C. Weapon 5"),
+									TRIGFLAG(42,"C. Weapon 6"),
+									TRIGFLAG(43,"C. Weapon 7"),
+									TRIGFLAG(44,"C. Weapon 8"),
+									TRIGFLAG(45,"C. Weapon 9"),
+									TRIGFLAG(46,"C. Weapon 10")
+								)
+							),
+							Column(
+								framed = true,
+								margins = DEFAULT_PADDING,
+								padding = DEFAULT_PADDING+2_px,
+								Row(padding = 0_px,
+									Label(text = "Buttons:"),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.triggerbtn,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggerbtn = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
+												"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+												"Buttons used while standing against the combo from a direction"
+												" with the 'Btn: [dir]' flag checked for that side"
+												" will trigger the combo.").show();
+										}
+									)
+								),
+								Rows<2>(
+									TRIGFLAG(20,"Btn: Top"),
+									TRIGFLAG(21,"Btn: Bottom"),
+									TRIGFLAG(22,"Btn: Left"),
+									TRIGFLAG(23,"Btn: Right"),
+									TRIGFLAG(47,"Always Triggered")
+								)
+							),
 							Row(
-								Label(text = "Min Level (Applies to all):"),
-								TextField(
-									fitParent = true,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 214748, val = local_comboref.triggerlevel,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.triggerlevel = val;
-									})
-							),
-							Rows<3>(
 								framed = true,
+								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
-								TRIGFLAG(0,"Sword"),
-								TRIGFLAG(1,"Sword Beam"),
-								TRIGFLAG(2,"Boomerang"),
-								TRIGFLAG(3,"Bomb"),
-								TRIGFLAG(4,"Super Bomb"),
-								TRIGFLAG(5,"Lit Bomb"),
-								TRIGFLAG(6,"Lit Super Bomb"),
-								TRIGFLAG(7,"Arrow"),
-								TRIGFLAG(8,"Fire"),
-								TRIGFLAG(9,"Whistle"),
-								TRIGFLAG(10,"Bait"),
-								TRIGFLAG(11,"Wand"),
-								TRIGFLAG(12,"Magic"),
-								TRIGFLAG(13,"Wind"),
-								TRIGFLAG(14,"Refl. Magic"),
-								TRIGFLAG(15,"Refl. Fireball"),
-								TRIGFLAG(16,"Refl. Rock"),
-								TRIGFLAG(17,"Hammer"),
-								TRIGFLAG(32,"Hookshot"),
-								TRIGFLAG(33,"Sparkle"),
-								TRIGFLAG(34,"Byrna"),
-								TRIGFLAG(35,"Refl. Beam"),
-								TRIGFLAG(36,"Stomp"),
-								DummyWidget(),
-								TRIGFLAG(37,"C. Weapon 1"),
-								TRIGFLAG(38,"C. Weapon 2"),
-								TRIGFLAG(39,"C. Weapon 3"),
-								TRIGFLAG(40,"C. Weapon 4"),
-								TRIGFLAG(41,"C. Weapon 5"),
-								TRIGFLAG(42,"C. Weapon 6"),
-								TRIGFLAG(43,"C. Weapon 7"),
-								TRIGFLAG(44,"C. Weapon 8"),
-								TRIGFLAG(45,"C. Weapon 9"),
-								TRIGFLAG(46,"C. Weapon 10")
-							),
-							Rows<3>(
-								framed = true,
-								padding = DEFAULT_PADDING+2_px,
-								TRIGFLAG(47,"Always Triggered"),
-								TRIGFLAG(48,"Triggers Secrets")
+								TRIGFLAG(48,"Triggers Secrets"),
+								TRIGFLAG(18,"->Next"),
+								TRIGFLAG(19,"->Prev")
 							)
 						)
 					)),

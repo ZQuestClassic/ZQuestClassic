@@ -135,7 +135,8 @@ public:
 	virtual int32_t run_script(int32_t mode);
 };
 
-void do_cswitch_combo2(newcombo const& cmb, int32_t layer, int32_t cpos);
+void do_trigger_combo(int32_t layer, int32_t pos);
+bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe,
                int32_t parentid);

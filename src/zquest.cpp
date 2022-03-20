@@ -83,19 +83,14 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "ffscript.h"
 #include "EditboxNew.h"
 #include "sfx.h"
-
 #include "zq_custom.h" // custom items and guys
 #include "zq_strings.h"
-
 #include "questReport.h"
-
 #include "ffasmexport.h"
-
 #include <fstream>
-
 #include "module.h"
-
 #include "zscrdata.h"
+#include "drawing.h"
 
 //Windows mmemory tools
 #ifdef _WIN32
@@ -988,24 +983,7 @@ static MENU script_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-void set_rules(byte* newrules)
-{
-	saved = false;
-	memcpy(quest_rules, newrules, QR_SZ);
-	if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
-	{
-		combobuf[0].walk = 0xF0;
-		combobuf[0].type = 0;
-		combobuf[0].flag = 0;
-	}
-	
-	// For 2.50.0 and 2.50.1
-	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
-		set_bit(quest_rules, qr_FASTDNGN, 1);
-	
-	//this is only here until the subscreen style is selectable by itself
-	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
-}
+void set_rules(byte* newrules);
 
 void call_testqst_dialog();
 int32_t onTestQst()
@@ -1165,7 +1143,7 @@ int32_t onLayer2BG()
 	else ViewLayer2BG = 1;
 	return D_O_K;
 }
-static MENU view_menu[] =
+MENU view_menu[] =
 {
     { (char *)"View &Map...",               onViewMap,                 NULL,                     0,            NULL   },
     { (char *)"View &Palette",              onShowPal,                 NULL,                     0,            NULL   },
@@ -1179,10 +1157,31 @@ static MENU view_menu[] =
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
+    { (char *)"Show &Darkness\tL",          onShowDarkness,            NULL,                     0,            NULL   },
     { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
     { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
+
+void set_rules(byte* newrules)
+{
+	saved = false;
+	if(newrules != quest_rules)
+		memcpy(quest_rules, newrules, QR_SZ);
+	if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+	{
+		combobuf[0].walk = 0xF0;
+		combobuf[0].type = 0;
+		combobuf[0].flag = 0;
+	}
+	
+	// For 2.50.0 and 2.50.1
+	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
+		set_bit(quest_rules, qr_FASTDNGN, 1);
+	
+	//this is only here until the subscreen style is selectable by itself
+	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+}
 
 int32_t onSelectFFCombo();
 
@@ -5782,6 +5781,8 @@ bool isFavCmdSelected(int32_t cmd)
 			return ViewLayer2BG;
 		case cmdViewL3BG:
 			return ViewLayer3BG;
+		case cmdShowDark:
+			return (get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 	}
 	return false;
 }
@@ -6024,20 +6025,89 @@ void refresh(int32_t flags)
             }
         }
         
-        if((Map.isDark()) && !(Flags&cNODARK))
+        if(Map.isDark())
         {
-            for(int32_t j=0; j<80*mapscreensize; j++)
-            {
-                for(int32_t i=0; i<(80*mapscreensize)-j; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
-                                 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
-                    }
-                }
-            }
-        }
+			if((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM))
+			{
+				BITMAP* tmpDark = create_bitmap_ex(8,16*16,16*11);
+				BITMAP* tmpDarkTrans = create_bitmap_ex(8,16*16,16*11);
+				BITMAP* tmpbuf = create_bitmap_ex(8,
+					mapscreensize*(256+(showedges?32:0)),
+					mapscreensize*(176+(showedges?32:0)));
+				BITMAP* tmpbuf2 = create_bitmap_ex(8,
+					mapscreensize*(256+(showedges?32:0)),
+					mapscreensize*(176+(showedges?32:0)));
+				int32_t darkCol = zinit.darkcol;
+				switch(darkCol) //special cases
+				{
+					case BLACK:
+						darkCol = vc(0);
+						break;
+					case WHITE:
+						darkCol = vc(15);
+						break;
+				}
+				clear_to_color(tmpDark, darkCol);
+				clear_to_color(tmpDarkTrans, darkCol);
+				clear_bitmap(tmpbuf);
+				clear_bitmap(tmpbuf2);
+				//Handle torch combos
+				color_map = &trans_table2;
+				Map.draw_darkness(tmpDark, tmpDarkTrans);
+				//
+				mapscr* tmp = Map.CurrScr();
+				if(tmp->flags9 & fDARK_DITHER)
+				{
+					ditherblit(tmpDark, tmpDark, 0, zinit.dither_type, zinit.dither_arg);
+					ditherblit(tmpDarkTrans, tmpDarkTrans, 0, zinit.dither_type, zinit.dither_arg);
+				}
+				
+				if(mapscreensize == 1)
+				{
+					blit(tmpDark, tmpbuf, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
+					blit(tmpDarkTrans, tmpbuf2, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
+				}
+				else
+				{
+					stretch_blit(tmpDark, tmpbuf, 0, 0, 16*16, 16*11,
+						(showedges?16:0)*mapscreensize, (showedges?16:0)*mapscreensize,
+						(16*16)*mapscreensize, (16*11)*mapscreensize);
+					stretch_blit(tmpDarkTrans, tmpbuf2, 0, 0, 16*16, 16*11,
+						(showedges?16:0)*mapscreensize, (showedges?16:0)*mapscreensize,
+						(16*16)*mapscreensize, (16*11)*mapscreensize);
+				}
+				
+				if(tmp->flags9 & fDARK_TRANS)
+				{
+					draw_trans_sprite(menu1, tmpbuf, mapscreen_x, mapscreen_y);
+				}
+				else
+				{
+					masked_blit(tmpbuf,menu1,0,0,mapscreen_x,mapscreen_y,tmpbuf->w,tmpbuf->h);
+				}
+				draw_trans_sprite(menu1, tmpbuf2, mapscreen_x, mapscreen_y);
+				color_map = &trans_table;
+				//
+				destroy_bitmap(tmpDark);
+				destroy_bitmap(tmpDarkTrans);
+				destroy_bitmap(tmpbuf);
+				destroy_bitmap(tmpbuf2);
+			}
+			else if(!(Flags&cNODARK))
+			{
+				for(int32_t j=0; j<80*mapscreensize; j++)
+				{
+					for(int32_t i=0; i<(80*mapscreensize)-j; i++)
+					{
+						if(((i^j)&1)==0)
+						{
+							putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
+									 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
+						}
+					}
+				}
+			}
+		}
         
         double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
         double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
@@ -13162,7 +13232,7 @@ int32_t onScrData()
 	word g = Map.CurrScr()->noreset;
 	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
 	scrdata_dlg[75].flags = (g&mITEM) ? D_SELECTED : 0;
-	scrdata_dlg[76].flags = (g&mBELOW) ? D_SELECTED : 0;
+	scrdata_dlg[76].flags = (g&mSPECIALITEM) ? D_SELECTED : 0;
 	scrdata_dlg[77].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[78].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[79].flags = (g&mCHEST) ? D_SELECTED : 0;
@@ -13175,7 +13245,7 @@ int32_t onScrData()
 	g = Map.CurrScr()->nocarry;
 	scrdata_dlg[85].flags = (g&mSECRET) ? D_SELECTED : 0;
 	scrdata_dlg[86].flags = (g&mITEM) ? D_SELECTED : 0;
-	scrdata_dlg[87].flags = (g&mBELOW) ? D_SELECTED : 0;
+	scrdata_dlg[87].flags = (g&mSPECIALITEM) ? D_SELECTED : 0;
 	scrdata_dlg[88].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[89].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
 	scrdata_dlg[90].flags = (g&mCHEST) ? D_SELECTED : 0;
@@ -13292,7 +13362,7 @@ int32_t onScrData()
 		g=0;
 		g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
 		g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
-		g |= scrdata_dlg[76].flags & D_SELECTED ? mBELOW:0;
+		g |= scrdata_dlg[76].flags & D_SELECTED ? mSPECIALITEM:0;
 		g |= scrdata_dlg[77].flags & D_SELECTED ? mLOCKBLOCK:0;
 		g |= scrdata_dlg[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
 		g |= scrdata_dlg[79].flags & D_SELECTED ? mCHEST:0;
@@ -13307,7 +13377,7 @@ int32_t onScrData()
 		g=0;
 		g |= scrdata_dlg[85].flags & D_SELECTED ? mSECRET:0;
 		g |= scrdata_dlg[86].flags & D_SELECTED ? mITEM:0;
-		g |= scrdata_dlg[87].flags & D_SELECTED ? mBELOW:0;
+		g |= scrdata_dlg[87].flags & D_SELECTED ? mSPECIALITEM:0;
 		g |= scrdata_dlg[88].flags & D_SELECTED ? mLOCKBLOCK:0;
 		g |= scrdata_dlg[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
 		g |= scrdata_dlg[90].flags & D_SELECTED ? mCHEST:0;
@@ -15861,7 +15931,7 @@ void editdmap(int32_t index)
                 
                 if(strlen(tmfname)>55)
                 {
-                    jwin_alert("Error","Filename too int32_t","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+                    jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
                     temppath[0]=0;
                 }
                 else
@@ -31056,8 +31126,9 @@ int32_t main(int32_t argc,char **argv)
 		view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
 		view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
 		view_menu[11].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
-		view_menu[12].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
-		view_menu[13].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
+		view_menu[12].flags=(get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
+		view_menu[13].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
+		view_menu[14].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
 		view_menu[10].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
 		view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
 		view_menu[8].flags=(!is_large)?D_DISABLED:(ShowInfo)?D_SELECTED:0; // Show Info
@@ -31788,6 +31859,10 @@ void dopreview()
                 case KEY_P:
                     onP();
                     break;
+				
+				case KEY_L:
+					onShowDarkness();
+					break;
                     
                 case KEY_1:
                     Map.prv_dowarp(0,0);
@@ -33191,7 +33266,24 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 
 int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 
-void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest){}
+void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest)
+{
+	if(!glowRad) return;
+	//
+	int32_t ditherRad = glowRad + (int32_t)(glowRad * (zinit.dither_percent/(double)100.0));
+	int32_t transRad = glowRad + (int32_t)(glowRad * (zinit.transdark_percent/(double)100.0));
+	
+	if(dest)
+	{
+		dithercircfill(dest, cx, cy, ditherRad, 0, zinit.dither_type, zinit.dither_arg);
+		circlefill(dest, cx, cy, zc_max(glowRad,transRad), 0);
+	}
+	if(transdest)
+	{
+		dithercircfill(transdest, cx, cy, ditherRad, 0, zinit.dither_type, zinit.dither_arg);
+		circlefill(transdest, cx, cy, glowRad, 0);
+	}
+}
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
 
 bool update_hw_pal = false;

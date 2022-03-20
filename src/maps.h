@@ -39,8 +39,6 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y);
 int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y);
 int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y);
 int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y);
-int32_t MAPCOMBOX(int32_t pos);
-int32_t MAPCOMBOY(int32_t pos);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t x,int32_t y, bool secrets = false);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t pos, bool secrets = false);
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y);
@@ -61,10 +59,10 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 int32_t getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
 void setmapflag(int32_t mi2, int32_t flag);
-void setmapflag(int32_t flag = 32); // 32 = mBELOW
+void setmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
 void unsetmapflag(int32_t flag = 32);
-bool getmapflag(int32_t flag = 32); // 32 = mBELOW
+bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw);
 void update_combo_cycling();
 bool isSVLadder(int32_t x, int32_t y);

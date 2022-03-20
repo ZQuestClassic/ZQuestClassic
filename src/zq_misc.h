@@ -28,14 +28,15 @@
 #define MAXPATTERNS  7
 #define MAXCUSTOMMIDIS_ZQ  (4+MAXCUSTOMMIDIS)
 
-#define cWALK            1
-#define cFLAGS           2
-#define cDARK            4
-#define cCSET            8
-#define cNODARK         16
-#define cNOITEM         32
-#define cCTYPE          64
-#define cDEBUG         128
+#define cWALK         0x001
+#define cFLAGS        0x002
+#define cDARK         0x004
+#define cCSET         0x008
+#define cNODARK       0x010
+#define cNOITEM       0x020
+#define cCTYPE        0x040
+#define cDEBUG        0x080
+#define cNEWDARK      0x100
 
 #define rMAP             1
 #define rCOMBOS          2

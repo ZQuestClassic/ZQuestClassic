@@ -1338,8 +1338,11 @@
 #define ITMSWHOOKED             1255
 #define DEBUGTESTING            1256
 #define GAMEMAXCHEAT            1257
+#define SHOWNMSG                1258
+#define COMBODTRIGGERFLAGS2     1259
+#define COMBODTRIGGERBUTTON     1260
 
-#define LAST_BYTECODE           1258
+#define LAST_BYTECODE           1261
 
 //} END OF BYTECODE
 

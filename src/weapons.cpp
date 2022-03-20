@@ -1156,7 +1156,9 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			{
 				switch (c[cid].attribytes[0])
 				{
+					case 0:
 					case 1:
+					default:
 						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo), dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
@@ -1165,12 +1167,10 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					case 3:
 						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
 						break;
-					default:
-						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 				}
 			}
+			else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		}
-		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, c[cid].attribytes[0]));
 		int32_t it = -1; 
 		if ( (c[cid].usrflags&cflag2) )
 		{
@@ -1184,18 +1184,14 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
+		
 		//drop special room item
-
-		if ( (c[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			if(tmpscr->hasitem==1)
-				sfx(WAV_CLEARED);
 			items.add(new item((zfix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 				(zfix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
-				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -1300,7 +1296,9 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 			{
 				switch (combobuf[cid].attribytes[0])
 				{
+					case 0:
 					case 1:
+					default:
 						decorations.add(new dBushLeaves((zfix)ComboX(scombo), (zfix)ComboY(scombo), dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
@@ -1309,12 +1307,11 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 					case 3:
 						decorations.add(new dGrassClippings((zfix)ComboX(scombo), (zfix)ComboY(scombo), dGRASSCLIPPINGS, 0, 0));
 						break;
-					default:
-						decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 				}
 			}
+			else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 		}
-		else decorations.add(new comboSprite((zfix)ComboX(scombo), (zfix)ComboY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+		
 		int32_t it = -1; 
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
@@ -1328,18 +1325,14 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		{
 			items.add(new item((zfix)ComboX(scombo), (zfix)ComboY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 		}
+		
 		//drop special room item
-
-		if ( (combobuf[cid].usrflags&cflag6) && tmpscr->hasitem && !getmapflag(mITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			if(tmpscr->hasitem==1)
-				sfx(WAV_CLEARED);
 			items.add(new item((zfix)ComboX(scombo),
-				//(tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
 				(zfix)ComboY(scombo),
-				//(tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 				(zfix)0,
-				tmpscr->item,ipONETIME|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -1428,27 +1421,20 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 	//if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-static void do_cswitch_combo(weapon* w, newcombo const& cmb, int32_t layer, int32_t cpos)
+bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w)
 {
 	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
 	byte pair = cmb.attribytes[0];
-	if(pair > 31) return;
+	if(pair > 31) return false;
 	game->lvlswitches[dlevel] ^= (1 << pair);
 	toggle_switches(1<<pair, false);
-	if(cmb.usrflags&cflag1) killgenwpn(w); //Kill weapon
+	if(w && (cmb.usrflags&cflag1))
+		killgenwpn(w); //Kill weapon
 	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
+	return true;
 }
 
-void do_cswitch_combo2(newcombo const& cmb, int32_t layer, int32_t cpos)
-{
-	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
-	byte pair = cmb.attribytes[0];
-	if(pair > 31) return;
-	game->lvlswitches[dlevel] ^= (1 << pair);
-	toggle_switches(1<<pair, false);
-	if(cmb.attribytes[1]) sfx(cmb.attribytes[1]);
-}
-
+//Checks if a weapon triggers a combo at a given bx/by
 static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
     //find out which combo row/column the coordinates are in
@@ -1464,26 +1450,85 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, i
 	int32_t ft = cmb.attribytes[3];
 	int32_t scombo=COMBOPOS(bx,by);
 	bool single16 = false;
-	if ( cmb.type >= cSCRIPT1 && cmb.type <= cTRIGGERGENERIC )
+	byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+	bool check_bit = get_bit(grid,(((bx>>4) + by)));
+	switch(cmb.type)
 	{
-		do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+		case cTRIGGERGENERIC:
+			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+			break;
+		case cCSWITCH:
+			if (!check_bit)
+			{
+				set_bit(grid,(((bx>>4) + by)),1);
+				do_cswitch_combo(cmb, layer, COMBOPOS(bx,by), w);
+			}
+			break;
 	}
-	else if( cmb.type == cCSWITCH )
+	mapscr* tmp = FFCore.tempScreens[layer];
+	if(!check_bit)
 	{
-		byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-		if (get_bit(grid,(((bx>>4) + by)))) return;
-		set_bit(grid,(((bx>>4) + by)),1);
-		do_cswitch_combo(w, cmb, layer, COMBOPOS(bx,by));
-	}
-	if (cmb.triggerflags[1]&combotriggerSECRETS)
-	{
-		byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-		if (get_bit(grid,(((bx>>4) + by)))) return;
-		set_bit(grid,(((bx>>4) + by)),1);
-		hidden_entrance(0, true, false, -6);
+		if (cmb.triggerflags[1]&combotriggerSECRETS)
+		{
+			set_bit(grid,(((bx>>4) + by)),1);
+			hidden_entrance(0, true, false, -6);
+			if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
+				setmapflag(mSECRET);
+			sfx(tmpscr->secretsfx);
+		}
+		if(cmb.triggerflags[0]&combotriggerNEXT)
+		{
+			set_bit(grid,(((bx>>4) + by)),1);
+			tmp->data[scombo] = cid+1;
+		}
+		else if(cmb.triggerflags[0]&combotriggerPREV)
+		{
+			set_bit(grid,(((bx>>4) + by)),1);
+			tmp->data[scombo] = cid-1;
+		}
 	}
 }
 
+//Forcibly triggers a combo at a given position
+void do_trigger_combo(int32_t layer, int32_t pos)
+{
+	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
+	mapscr* tmp = FFCore.tempScreens[layer];
+	int32_t cid = tmp->data[pos];
+	int32_t cx = COMBOX(pos);
+	int32_t cy = COMBOY(pos);
+	newcombo const& cmb = combobuf[cid];
+	int32_t flag = tmp->sflag[pos];
+	int32_t flag2 = cmb.flag;
+	switch(cmb.type)
+	{
+		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+		case cTRIGGERGENERIC:
+			do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
+			break;
+		case cCSWITCH:
+			do_cswitch_combo(cmb, layer, pos);
+			break;
+	}
+	if (cmb.triggerflags[1]&combotriggerSECRETS)
+	{
+		hidden_entrance(0, true, false, -6);
+		if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
+			setmapflag(mSECRET);
+		sfx(tmpscr->secretsfx);
+	}
+	if(cmb.triggerflags[0]&combotriggerNEXT)
+	{
+		tmp->data[pos] = cid+1;
+	}
+	else if(cmb.triggerflags[0]&combotriggerPREV)
+	{
+		tmp->data[pos] = cid-1;
+	}
+}
 
 /**************************************/
 /***********  Weapon Class  ***********/
