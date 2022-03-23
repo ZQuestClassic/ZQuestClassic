@@ -5164,11 +5164,9 @@ void WarpEx(int ptr[])
 	Link->WarpEx({type,dmap,screen,x,y,effect,sound,flags,forcedir})
 
 	type:
-		Warp types are:
-			wtIWARP: Acts like a tile warp.
-			wtExit: An entrance/exit warp.
-			wtSCROLL: A scrolling warp.
-			wtNONE: A cancel warp. 
+		WT_IWARP: Acts like a tile warp.
+		WT_ENTRANCEEXIT: An entrance/exit warp.
+		WT_SCROLLING: A scrolling warp.
 			
 	dmap:
 		The Destination DMap
@@ -5189,27 +5187,25 @@ void WarpEx(int ptr[])
 
 	effect:
 		Warp Effects are:
-		warpEffectNONE: No visual effect.
-		warpEffectZap: Zap Effects
-		warpEffectWave: Wave Effects
-		warpEffectInstant: Black screen.
-		warpEffectOpen: Calls the opening wipe.
+		WARPEFFECT_NONE: No visual effect.
+		WARPEFFECT_ZAP: Zap Effects
+		WARPEFFECT_WAVE: Wave Effects
+		WARPEFFECT_INSTANT: Black screen.
+		WARPEFFECT_OPENWIPE: Calls the opening wipe.
 
 	sound:
 		You may play a special sound (e.g. Magic Mirror) during the warp.
 
 	flags:
 		Warp Flags are:
-		warpFlagKILLSCRIPTDRAWS: Don't kill script drawing during the warp.
-		warpFlagKILLSOUNDS: Don't kill playing sounds during the warp.
-		warpFlagKILLMUSIC: Don't kill playing music during the warp.
-
-		Their values are:
-		warpFlagKILLSCRIPTDRAWS 0x01
-		warpFlagKILLSOUNDS 0x02
-		warpFlagKILLMUSIC 0x04
-
-		Add them together to calculate a flag.
+		WARP_FLAG_SCRIPTDRAW: Don't kill script drawing during the warp.
+		WARP_FLAG_PLAYSOUNDS: Don't kill playing sounds during the warp.
+		WARP_FLAG_PLAYMUSIC: Don't kill playing music during the warp.
+		WARP_FLAG_SETENTRANCESCREEN:
+		WARP_FLAG_SETENTRANCEDMAP:
+		WARP_FLAG_SETCONTINUESCREEN:
+		WARP_FLAG_SETCONTINUEDMAP:
+		These flags can be OR'd (|) together.
 
 	forcedir:
 		You can either accept the engine's setting for what Link's Dir should be
