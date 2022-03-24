@@ -3572,6 +3572,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG,1);
 	}
 	
+	if(compatrule_version < 23)
+	{
+		set_bit(quest_rules,qr_OLD_HALF_MAGIC,1);
+	}
+	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -11752,6 +11757,22 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
             break;
         }
         
+		if(s_version < 7)
+		{
+			switch(temp_sub->type)
+			{
+				case ssoMAGICGAUGE:
+				{
+					if(!temp_sub->d9)
+						temp_sub->d9 = -1; //-1 now represents 'always'
+					break;
+				}
+				case ssoLIFEGAUGE:
+					temp_sub->d9 = 0; //Unused, doesn't do anything? Clear it...
+					break;
+			}
+		}
+		
         if(keepdata)
         {
             switch(temp_sub->type)
@@ -19887,6 +19908,19 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	else
 	{
 		temp_zinit.switchhookstyle = 1;
+	}
+	
+	if(s_version > 31)
+	{
+		if(!p_getc(&temp_zinit.magicdrainrate,f,true))
+		{
+			return qe_invalid;
+		}
+	}
+	else
+	{
+		temp_zinit.magicdrainrate = (get_bit(temp_zinit.misc,idM_DOUBLEMAGIC) ? 1 : 2);
+		set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
 	}
 	
 	if(keepdata==true)

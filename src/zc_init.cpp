@@ -112,8 +112,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->max_magic = gdata->get_maxmagic();
     zinit2->magic = gdata->get_magic();
     
-    int32_t drain = vbound(2-gdata->get_magicdrainrate(), 0, 1);
-    set_bit(zinit2->misc, idM_DOUBLEMAGIC, drain);
+	zinit2->magicdrainrate = vbound(gdata->get_magicdrainrate(), 0, 255);
+	zprint2("gd: %d, zi: %d\n", gdata->get_magicdrainrate(), zinit2->magicdrainrate);
     set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
     
     zinit2->arrows = gdata->get_arrows();

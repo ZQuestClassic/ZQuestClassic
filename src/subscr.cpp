@@ -2689,14 +2689,11 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
     delay=delay;
     
     // show
-    //   0: always
-    //   1: 1/2 magic
-    //   2: normal magic
-    if(show!=0)
+    //   <0: always
+    //  >=0: when drain rate matches show
+    if(show > -1)
     {
-        if(show==1 && game->get_magicdrainrate()!=1)
-            return;
-        if(show==2 && game->get_magicdrainrate()!=2)
+		if(show != game->get_magicdrainrate())
             return;
     }
     

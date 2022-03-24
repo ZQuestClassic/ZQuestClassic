@@ -50,6 +50,7 @@ void InitDataDialog::setOfs(size_t ofs)
 #define BYTE_FIELD(member) \
 TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 	high = 255, val = local_zinit.member, \
+	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
@@ -58,6 +59,7 @@ TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
 #define WORD_FIELD(member) \
 TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL, \
 	high = 65535, val = local_zinit.member, \
+	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
@@ -78,6 +80,7 @@ Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::INT_DECIMAL, \
 	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
 	width = 4.5_em, \
+	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
@@ -88,6 +91,7 @@ Label(text = name, hAlign = 0.0), \
 TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
 	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member, \
 	width = 4.5_em, places = numPlaces, \
+	fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
@@ -154,6 +158,14 @@ Checkbox( \
 		set_bit(&(local_zinit.triforce),ind,state); \
 	} \
 )
+
+#define INFOBTN(inf) \
+Button(forceFitH = true, text = "?", \
+	disabled = (!inf || !inf[0]), \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",inf).show(); \
+	})
 //}
 
 std::shared_ptr<GUI::Widget> InitDataDialog::view()
@@ -425,19 +437,21 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							),
 							Rows<3>(
 								framed = true, frameText = "Magic",
-								Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
-								Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
-								DummyWidget(),
+								Label(hAlign = 0.0, text = "Start"),
+								Label(hAlign = 1.0, text = "Max"),
+								Row(
+									Label(hAlign = 1.0, text = "Drain Rate"),
+									INFOBTN("Magic costs are multiplied by this amount. Every time you use a"
+										" 'Learn Half Magic' room, this value is halved (rounded down)."
+										"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
+										" >-1, that piece will only show up when it's 'Show' value is equal to"
+										" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
+										" your starting value is high enough, you can allow stacking several"
+										" levels of lowered magic cost)")
+								),
 								WORD_FIELD(magic),
 								WORD_FIELD(max_magic),
-								Checkbox(
-									checked = get_bit(local_zinit.misc,idM_DOUBLEMAGIC),
-									text = "Half Cost",
-									onToggleFunc = [&](bool state)
-									{
-										set_bit(local_zinit.misc,idM_DOUBLEMAGIC,state);
-									}
-								)
+								BYTE_FIELD(magicdrainrate)
 							)
 						),
 						Columns<2>(
@@ -716,19 +730,21 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						),
 						Rows<3>(
 							framed = true, frameText = "Magic",
-							Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
-							Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
-							DummyWidget(),
+							Label(hAlign = 0.0, text = "Start"),
+							Label(hAlign = 1.0, text = "Max"),
+							Row(
+								Label(hAlign = 1.0, text = "Drain Rate"),
+								INFOBTN("Magic costs are multiplied by this amount. Every time you use a"
+									" 'Learn Half Magic' room, this value is halved (rounded down)."
+									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
+									" >-1, that piece will only show up when it's 'Show' value is equal to"
+									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
+									" your starting value is high enough, you can allow stacking several"
+									" levels of lowered magic cost)")
+							),
 							WORD_FIELD(magic),
 							WORD_FIELD(max_magic),
-							Checkbox(
-								checked = get_bit(local_zinit.misc,idM_DOUBLEMAGIC),
-								text = "Half Cost",
-								onToggleFunc = [&](bool state)
-								{
-									set_bit(local_zinit.misc,idM_DOUBLEMAGIC,state);
-								}
-							)
+							BYTE_FIELD(magicdrainrate)
 						)
 					),
 					Columns<2>(

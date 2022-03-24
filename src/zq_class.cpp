@@ -13244,6 +13244,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(91);
 		}
+		if(!p_putc(zinit.magicdrainrate,f))
+		{
+			new_return(92);
+		}
 		if(writecycle==0)
 		{
 			section_size=writesize;

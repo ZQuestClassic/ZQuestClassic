@@ -746,7 +746,10 @@ static const GUI::ListData compatRulesList
 		"If enabled, Manhandla will play the hit sound when hitting the center body"
 		" instead of the block sound."},
 	{ "Broken 'Keep Lower Level Items'", qr_BROKEN_KEEPOLD_FLAG,
-		"If enabled, 'Keep Lower Level Items' acts as always checked for all items." }
+		"If enabled, 'Keep Lower Level Items' acts as always checked for all items." },
+	{ "Old Half Magic", qr_OLD_HALF_MAGIC,
+		"If enabled, half magic rooms always set the multiplier to 1,"
+		" instead of halving its' previous value." }
 };
 
 static const GUI::ListData enemiesRulesList

@@ -448,26 +448,10 @@ const char *wrappinglist(int32_t index, int32_t *list_size)
     return wrapping_str[index];
 }
 
-const char *gaugeshow_str[3] =
-{
-    "Always", "1/2", "Normal"
-};
-
 const char *rows_str[2] =
 {
     "Two", "Three"
 };
-
-const char *gaugeshowlist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = 3;
-        return NULL;
-    }
-    
-    return gaugeshow_str[index];
-}
 
 const char *rowslist(int32_t index, int32_t *list_size)
 {
@@ -1042,7 +1026,6 @@ static DIALOG sso_raw_data_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static ListData gaugeshow_list(gaugeshowlist, &font);
 static ListData rows_list(rowslist, &font);
 static ListData itemclass_list(item_class_list, &font);
 
@@ -1276,11 +1259,11 @@ static DIALOG sso_master_properties_dlg[] =
     // 160
     { jwin_check_proc,        8,  128,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0, (void *) "Mod", NULL, NULL },
     { jwin_check_proc,       46,  128,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0, (void *) "Mod", NULL, NULL },
-    { jwin_text_proc,       166,  109,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0, (void *) "Show:", NULL, NULL },
-    { jwin_droplist_proc,   215,  105,    68,     16,  0,                  0,                0,       0,          0,             0, (void *) &gaugeshow_list, NULL, NULL },
-    { jwin_text_proc,       166,  133,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0, (void *) "Container:", NULL, NULL },
+    { jwin_text_proc,       166,  103,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0, (void *) "Show:", NULL, NULL },
+    { jwin_edit_proc,       215,  105,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       166,  127,    96,      8,  vc(14),             vc(1),            0,       0,          0,             0, (void *) "Container:", NULL, NULL },
     // 165
-    { jwin_edit_proc,       215,  129,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL, NULL, NULL },
+    { jwin_edit_proc,       215,  124,    35,     16,  vc(12),             vc(1),            0,       0,          3,             0,       NULL, NULL, NULL },
     { jwin_check_proc,      166,  147,   128,      9,  vc(14),             vc(1),            0,       0,          1,             0, (void *) "Unique Last", NULL, NULL },
     { jwin_text_proc,       166,   91,    48,      8,  jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Infinite Character:", NULL, NULL },
     { jwin_edit_proc,       253,   87,    58,     16,  0,                  0,                0,       0,          1,             0,       NULL, NULL, NULL },
@@ -3057,6 +3040,7 @@ int32_t sso_properties(subscreen_object *tempsso)
         sprintf(d_str, "%d", tempsso->d8);
         // container
         sprintf(buf, "%d", tempsso->d1);
+        sprintf(buf2, "%d", tempsso->d9);
         
         replacedp(sso_properties_dlg[8],x_str);
         x_stri=8;
@@ -3114,7 +3098,8 @@ int32_t sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[159].flags=((tempsso->d10)&2)?D_SELECTED:0;
         sso_properties_dlg[160].flags=((tempsso->d10)&4)?D_SELECTED:0;
         sso_properties_dlg[161].flags=((tempsso->d10)&8)?D_SELECTED:0;
-        sso_properties_dlg[163].d1=tempsso->d9;
+        replacedp(sso_properties_dlg[163],buf2);
+        buf2i=163;
         replacedp(sso_properties_dlg[165],buf);
         bufi=165;
         sso_properties_dlg[166].flags=((tempsso->d10)&16)?D_SELECTED:0;
@@ -3210,8 +3195,10 @@ int32_t sso_properties(subscreen_object *tempsso)
         sso_properties_dlg[159].flags=((tempsso->d10)&2)?D_SELECTED:0;
         sso_properties_dlg[160].flags=((tempsso->d10)&4)?D_SELECTED:0;
         sso_properties_dlg[161].flags=((tempsso->d10)&8)?D_SELECTED:0;
-        sso_properties_dlg[163].d1=tempsso->d9;
-        replacedp(sso_properties_dlg[165],buf);
+        //sso_properties_dlg[163].d1=tempsso->d9;
+        dummy_dialog_proc(sso_properties_dlg+162);
+        dummy_dialog_proc(sso_properties_dlg+163);
+		replacedp(sso_properties_dlg[165],buf);
         bufi=165;
         sso_properties_dlg[166].flags=((tempsso->d10)&16)?D_SELECTED:0;
     }
@@ -3888,7 +3875,7 @@ int32_t sso_properties(subscreen_object *tempsso)
                          ((sso_properties_dlg[161].flags&D_SELECTED)?8:0)+
                          ((sso_properties_dlg[166].flags&D_SELECTED)?16:0);
                          
-            tempsso->d9=sso_properties_dlg[163].d1;
+            tempsso->d9=atoi((char *)sso_properties_dlg[buf2i].dp);
             tempsso->d1=atoi((char *)sso_properties_dlg[bufi].dp);
         }
         break;
@@ -3922,7 +3909,7 @@ int32_t sso_properties(subscreen_object *tempsso)
                          ((sso_properties_dlg[161].flags&D_SELECTED)?8:0)+
                          ((sso_properties_dlg[166].flags&D_SELECTED)?16:0);
                          
-            tempsso->d9=sso_properties_dlg[163].d1;
+            //tempsso->d9=sso_properties_dlg[163].d1;
             tempsso->d1=atoi((char *)sso_properties_dlg[bufi].dp);
         }
         break;

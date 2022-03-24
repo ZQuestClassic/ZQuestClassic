@@ -1166,7 +1166,8 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     }
     
     game2->set_magic(zc_min(zinit2->magic,zinit2->max_magic));
-    game2->set_magicdrainrate(get_bit(zinit2->misc,idM_DOUBLEMAGIC)?1:2);
+    game2->set_magicdrainrate(zinit2->magicdrainrate);
+	zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
     
     game2->set_arrows(zinit2->arrows);

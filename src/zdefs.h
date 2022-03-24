@@ -254,20 +254,20 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        31
+#define V_INITDATA        32
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        24 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
-#define V_SUBSCREEN        6
+#define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         19
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       22
+#define V_COMPATRULE       23
 #define V_ZINFO            0
 
 //= V_SHOPS is under V_MISC
@@ -1050,7 +1050,7 @@ enum
 	qr_ITEMCOMBINE_CONTINUOUS, qr_SCC_ITEM_COMBINES_ITEMS, qr_SCROLLING_KILLS_CHARGE, qr_CUSTOMWEAPON_IGNORE_COST,
 	//34
 	qr_BLOCKS_DONT_LOCK_OTHER_LAYERS, qr_SCC_GOTO_RESPECTS_CONTFLAG, qr_BROKEN_KEEPOLD_FLAG, qr_KEEPOLD_APPLIES_RETROACTIVELY,
-	qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,
+	qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST, qr_OLD_HALF_MAGIC,
 	//35
 	qr_FIXED_FAIRY_LIMIT = 35*8, qr_FAIRYDIR, qr_ARROWCLIP, qr_CONT_SWORD_TRIGGERS, 
 	qr_OLD_210_WATER, qr_8WAY_SHOT_SFX, qr_COPIED_SWIM_SPRITES, qr_WRONG_BRANG_TRAIL_DIR,
@@ -4626,6 +4626,8 @@ struct zinitdata
 	
 	int32_t bunny_ltm;
 	byte switchhookstyle;
+	
+	byte magicdrainrate;
 };
 
 struct zcmap

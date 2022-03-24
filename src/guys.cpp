@@ -23111,9 +23111,15 @@ disappear:
 			
 			if(adjustmagic)
 			{
-				if(game->get_magicdrainrate())
-					game->set_magicdrainrate(1);
-					
+				if(get_bit(quest_rules,qr_OLD_HALF_MAGIC))
+				{
+					if(game->get_magicdrainrate())
+						game->set_magicdrainrate(1);
+				}
+				else if(game->get_magicdrainrate() > 1)
+				{
+					game->set_magicdrainrate(game->get_magicdrainrate()/2);
+				}
 				adjustmagic = false;
 				sfx(WAV_SCALE);
 				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
