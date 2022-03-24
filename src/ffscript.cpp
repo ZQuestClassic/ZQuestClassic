@@ -465,9 +465,11 @@ byte itemScriptsWaitdraw[256] = {0};
 #include "zelda.h"
 #include "particles.h"
 #include "hero.h"
-//extern int32_t directItem = -1; //Is set if Player is currently using an item directly
-//extern int32_t directItemA = -1;
-//extern int32_t directItemB = -1;
+extern int32_t directItem; //Is set if Player is currently using an item directly
+extern int32_t directItemA;
+extern int32_t directItemB;
+extern int32_t directItemX;
+extern int32_t directItemY;
 
 #include "guys.h"
 //enemy enemyclass;
@@ -11403,13 +11405,13 @@ void set_register(const int32_t arg, const int32_t value)
 			game->awpn = seta;
 			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
-			//directItemA = directItem;
+			directItemA = seta;
 			
 			Bwpn = setb;
 			game->bwpn = setb;
 			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
-			//directItemB = directItem;
+			directItemB = seta;
 			break;
 		}
 		
@@ -11762,7 +11764,7 @@ void set_register(const int32_t arg, const int32_t value)
 				game->forced_bwpn = value/10000;
 				game->items_off[value/10000] = 0;
 			}
-			//directItemB = directItem;
+			directItemB = value/10000;
 			break;
 		}
 		
@@ -11788,7 +11790,7 @@ void set_register(const int32_t arg, const int32_t value)
 				game->items_off[value/10000] = 0;
 				game->forced_awpn = value/10000;
 			}
-			//directItemB = directItem;
+			directItemA = value/10000;
 			break;
 		}
 		
@@ -11813,7 +11815,7 @@ void set_register(const int32_t arg, const int32_t value)
 				game->items_off[value/10000] = 0;
 				game->forced_xwpn = value/10000;
 			}
-			//directItemB = directItem;
+			directItemX = value/10000;
 			break;
 		}
 		case LINKITEMY:
@@ -11837,7 +11839,7 @@ void set_register(const int32_t arg, const int32_t value)
 				game->items_off[value/10000] = 0;
 				game->forced_ywpn = value/10000;
 			}
-			//directItemB = directItem;
+			directItemY = value/10000;
 			break;
 		}
 
