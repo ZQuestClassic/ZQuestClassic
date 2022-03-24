@@ -66,7 +66,8 @@ static char *ff_get_filename(const char * path)
 {
     char * p = (char *)path + strlen(path);
 
-    while((p > path) && (*(p - 1) != '/'))
+    // local edit
+    while((p > path) && (*(p - 1) != OTHER_PATH_SEPARATOR))
     {
         p--;
     }
@@ -84,9 +85,10 @@ static void ff_put_backslash(char * filename, int size)
 {
     int len = strlen(filename);
 
-    if((len > 0) && (len < (size - 1)) && (filename[len - 1] != '/'))
+    // local edit
+    if((len > 0) && (len < (size - 1)) && (filename[len - 1] != OTHER_PATH_SEPARATOR))
     {
-        filename[len] = '/';
+        filename[len] = OTHER_PATH_SEPARATOR;
         filename[len + 1] = 0;
     }
 }
@@ -416,6 +418,15 @@ int al_findnext(struct al_ffblk * info)
         {
             strncat(tempname, al_get_fs_entry_name(entry), strlen(al_get_fs_entry_name(entry)));
         }
+
+        // local edit
+#ifdef ALLEGRO_LEGACY_WINDOWS
+        // The allegro5 file code won't return paths with lowercased drive components,
+        // but allegro4 has forced the pattern's drive to be lowercase (see canonicalize_filename).
+        // To ensure this doesn't fail to match the pattern, simply do the same lowercasing here.
+        tempname[0] = tolower(tempname[0]);
+#endif
+
         if(ff_match(tempname, ff_data->pattern))
         {
             _al_sane_strncpy(filename, ff_data->dirname, FF_MAXPATHLEN);
@@ -425,7 +436,8 @@ int al_findnext(struct al_ffblk * info)
         }
     }
 
-    if(al_get_fs_entry_mode(entry) == ALLEGRO_FILEMODE_ISDIR)
+    // local edit
+    if(al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_ISDIR)
     {
         info->attrib = FA_DIREC;
     }

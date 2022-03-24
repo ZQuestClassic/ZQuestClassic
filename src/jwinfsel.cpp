@@ -1481,7 +1481,7 @@ void FLIST::load(const char* path)
 	
 	FLIST* tmplist = flist;
 	flist = this;
-	
+
 	/* The semantics of the attributes passed to file_select_ex() is
 	  * different from that of for_each_file_ex() in one case: when
 	  * the 'd' attribute is not mentioned in the set of characters,
