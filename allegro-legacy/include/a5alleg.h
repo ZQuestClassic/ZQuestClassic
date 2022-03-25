@@ -34,6 +34,10 @@ AL_LEGACY_FUNC(void, all_set_scale, (int scale));
 AL_LEGACY_FUNC(int, all_get_scale, (void));
 AL_LEGACY_FUNC(void, all_set_fullscreen_flag, (bool fullscreen));
 
+// local edit
+AL_LEGACY_FUNC(void, all_lock_screen, (void));
+AL_LEGACY_FUNC(void, all_unlock_screen, (void));
+
 #ifdef __cplusplus
 }
 #endif

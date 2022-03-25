@@ -45,6 +45,29 @@ static ALLEGRO_TIMER * _a5_display_thread_timer = NULL;
 static ALLEGRO_EVENT_SOURCE _a5_display_thread_event_source;
 static ALLEGRO_EVENT_QUEUE * _a5_display_vsync_event_queue = NULL;
 
+// local edit
+static ALLEGRO_MUTEX *screen_mutex;
+
+// For some reason the bitmap vtable doesn't have an impl. for acquire/release.
+// Perhaps they were purposefully not include in allegro-legacy?
+// This results in invalid memory access when the main thread writes to the screen
+// while the a5 display thread is reading from it.
+// TODO: Figure out how to set the SYSTEM_DRIVER `get_vtable` method (see a5_system.c) to define release/acquire.
+// TODO: Even with this locking, there are some issues with new GUI (old GUI seems to work just fine).
+//    example: Graphics>Palettes>Main (using old GUI) works, but Graphics>Palettes>Levels (new GUI)
+//             is a little bit slow to render (probably too much locking or vsyncing?) and flickers
+//             when holding the mouse down.
+void all_lock_screen(void)
+{
+  al_lock_mutex(screen_mutex);
+}
+
+void all_unlock_screen(void)
+{
+  al_unlock_mutex(screen_mutex);
+}
+// end local edit
+
 static bool _a5_setup_screen(int w, int h)
 {
   ALLEGRO_STATE old_state;
@@ -199,6 +222,8 @@ static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
     BITMAP * bp;
     ALLEGRO_STATE old_state;
     int pixel_format;
+
+    screen_mutex = al_create_mutex_recursive();
 
     bp = create_bitmap(w, h);
     if(bp)
@@ -540,7 +565,9 @@ ALLEGRO_BITMAP * all_get_a5_bitmap(BITMAP * bp)
 
 void all_render_screen(void)
 {
+    all_lock_screen();
     all_render_a5_bitmap(screen, _a5_screen);
+    all_unlock_screen();
 
     // local edit
     if (!_a5_display_fullscreen && _a5_display_scale != 1) {

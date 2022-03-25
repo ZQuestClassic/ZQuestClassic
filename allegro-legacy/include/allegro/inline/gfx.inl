@@ -20,6 +20,7 @@
 #define ALLEGRO_LEGACY_GFX_INL
 
 #include "allegro/debug.h"
+#include "a5alleg.h"
 
 #define ALLEGRO_LEGACY_IMPORT_GFX_ASM
 #include "asm.inl"
@@ -220,13 +221,17 @@ AL_LEGACY_INLINE(void, release_bitmap, (BITMAP *bmp),
 
 AL_LEGACY_INLINE(void, acquire_screen, (void),
 {
-   acquire_bitmap(screen);
+   // local edit
+   // acquire_bitmap(screen);
+   all_lock_screen();
 })
 
 
 AL_LEGACY_INLINE(void, release_screen, (void),
 {
-   release_bitmap(screen);
+   // local edit
+   // release_bitmap(screen);
+   all_unlock_screen();
 })
 
 #endif
