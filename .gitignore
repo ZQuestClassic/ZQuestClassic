@@ -102,10 +102,10 @@ Win32/*
 makefile.inc
 
 # Allegro Files
-_deps/*
+_deps
+*.dir
+allegro-legacy/lib
 allegro-legacy/include/allegro/platform/alplatf.h
-allegro-legacy/allegro-legacy.dir/*
-allegro-legacy/lib/Debug/*
 
 # Generated CMake Files.
 /allegro/CMakeCache.txt
