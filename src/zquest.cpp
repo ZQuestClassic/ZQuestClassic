@@ -24766,6 +24766,7 @@ int32_t onCompileScript()
 			ascomboscripts.clear();
 			ascomboscripts.push_back("<none>");
 			clear_map_states();
+			globalmap[0].updateName("~Init"); //force name to ~Init
 			
 			using namespace ZScript;
 			for (auto it = stypes.begin(); it != stypes.end(); ++it)
