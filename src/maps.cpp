@@ -1880,133 +1880,144 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 						
 						switch(checkflag)
 						{
-						case mfBCANDLE:
-						ft=sBCANDLE;
-						break;
-						
-						case mfRCANDLE:
-						ft=sRCANDLE;
-						break;
-						
-						case mfWANDFIRE:
-						ft=sWANDFIRE;
-						break;
-						
-						case mfDINSFIRE:
-						ft=sDINSFIRE;
-						break;
-						
-						case mfARROW:
-						ft=sARROW;
-						break;
-						
-						case mfSARROW:
-						ft=sSARROW;
-						break;
-						
-						case mfGARROW:
-						ft=sGARROW;
-						break;
-						
-						case mfSBOMB:
-						ft=sSBOMB;
-						break;
-						
-						case mfBOMB:
-						ft=sBOMB;
-						break;
-						
-						case mfBRANG:
-						ft=sBRANG;
-						break;
-						
-						case mfMBRANG:
-						ft=sMBRANG;
-						break;
-						
-						case mfFBRANG:
-						ft=sFBRANG;
-						break;
-						
-						case mfWANDMAGIC:
-						ft=sWANDMAGIC;
-						break;
-						
-						case mfREFMAGIC:
-						ft=sREFMAGIC;
-						break;
-						
-						case mfREFFIREBALL:
-						ft=sREFFIREBALL;
-						break;
-						
-						case mfSWORD:
-						ft=sSWORD;
-						break;
-						
-						case mfWSWORD:
-						ft=sWSWORD;
-						break;
-						
-						case mfMSWORD:
-						ft=sMSWORD;
-						break;
-						
-						case mfXSWORD:
-						ft=sXSWORD;
-						break;
-						
-						case mfSWORDBEAM:
-						ft=sSWORDBEAM;
-						break;
-						
-						case mfWSWORDBEAM:
-						ft=sWSWORDBEAM;
-						break;
-						
-						case mfMSWORDBEAM:
-						ft=sMSWORDBEAM;
-						break;
-						
-						case mfXSWORDBEAM:
-						ft=sXSWORDBEAM;
-						break;
-						
-						case mfHOOKSHOT:
-						ft=sHOOKSHOT;
-						break;
-						
-						case mfWAND:
-						ft=sWAND;
-						break;
-						
-						case mfHAMMER:
-						ft=sHAMMER;
-						break;
-						
-						case mfSTRIKE:
-						ft=sSTRIKE;
-						break;
-						
-						default:
-						putit = false;
-						break;
+							case mfBCANDLE:
+								ft=sBCANDLE;
+								break;
+							
+							case mfRCANDLE:
+								ft=sRCANDLE;
+								break;
+							
+							case mfWANDFIRE:
+								ft=sWANDFIRE;
+								break;
+							
+							case mfDINSFIRE:
+								ft=sDINSFIRE;
+								break;
+							
+							case mfARROW:
+								ft=sARROW;
+								break;
+							
+							case mfSARROW:
+								ft=sSARROW;
+								break;
+							
+							case mfGARROW:
+								ft=sGARROW;
+								break;
+							
+							case mfSBOMB:
+								ft=sSBOMB;
+								break;
+							
+							case mfBOMB:
+								ft=sBOMB;
+								break;
+							
+							case mfBRANG:
+								ft=sBRANG;
+								break;
+							
+							case mfMBRANG:
+								ft=sMBRANG;
+								break;
+							
+							case mfFBRANG:
+								ft=sFBRANG;
+								break;
+							
+							case mfWANDMAGIC:
+								ft=sWANDMAGIC;
+								break;
+							
+							case mfREFMAGIC:
+								ft=sREFMAGIC;
+								break;
+							
+							case mfREFFIREBALL:
+								ft=sREFFIREBALL;
+								break;
+							
+							case mfSWORD:
+								ft=sSWORD;
+								break;
+							
+							case mfWSWORD:
+								ft=sWSWORD;
+								break;
+							
+							case mfMSWORD:
+								ft=sMSWORD;
+								break;
+							
+							case mfXSWORD:
+								ft=sXSWORD;
+								break;
+							
+							case mfSWORDBEAM:
+								ft=sSWORDBEAM;
+								break;
+							
+							case mfWSWORDBEAM:
+								ft=sWSWORDBEAM;
+								break;
+							
+							case mfMSWORDBEAM:
+								ft=sMSWORDBEAM;
+								break;
+							
+							case mfXSWORDBEAM:
+								ft=sXSWORDBEAM;
+								break;
+							
+							case mfHOOKSHOT:
+								ft=sHOOKSHOT;
+								break;
+							
+							case mfWAND:
+								ft=sWAND;
+								break;
+							
+							case mfHAMMER:
+								ft=sHAMMER;
+								break;
+							
+							case mfSTRIKE:
+								ft=sSTRIKE;
+								break;
+							
+							case mfSECRETSNEXT:
+								ft=sSECNEXT;
+								break;
+							
+							default:
+								putit = false;
+								break;
 						}
 						
 						if(putit)  //Change the combos for the secret
 						{
-						// Use misc. secret flag instead if one is present
-						if(msflag!=0)
-							ft=msflag;
+							// Use misc. secret flag instead if one is present
+							if(msflag!=0)
+								ft=msflag;
 							
-						t[j].data[i] = t[j].secretcombo[ft];
-						t[j].cset[i] = t[j].secretcset[ft];
-						newflag2 = t[j].secretflag[ft];
-						int32_t c=t[j].data[i];
-						int32_t cs=t[j].cset[i];
-						
-						if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-							addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+							if(ft==sSECNEXT)
+							{
+								t[j].data[i]++;
+							}
+							else
+							{
+								t[j].data[i] = t[j].secretcombo[ft];
+								t[j].cset[i] = t[j].secretcset[ft];
+							}
+							newflag2 = t[j].secretflag[ft];
+							int32_t c=t[j].data[i];
+							int32_t cs=t[j].cset[i];
+							
+							if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
+								addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
 					
@@ -2032,123 +2043,134 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				//No placed flags yet
 				switch(checkflag)
 				{
-				case mfBCANDLE:
-					ft=sBCANDLE;
-					break;
+					case mfBCANDLE:
+						ft=sBCANDLE;
+						break;
+						
+					case mfRCANDLE:
+						ft=sRCANDLE;
+						break;
+						
+					case mfWANDFIRE:
+						ft=sWANDFIRE;
+						break;
+						
+					case mfDINSFIRE:
+						ft=sDINSFIRE;
+						break;
+						
+					case mfARROW:
+						ft=sARROW;
+						break;
+						
+					case mfSARROW:
+						ft=sSARROW;
+						break;
+						
+					case mfGARROW:
+						ft=sGARROW;
+						break;
+						
+					case mfSBOMB:
+						ft=sSBOMB;
+						break;
+						
+					case mfBOMB:
+						ft=sBOMB;
+						break;
+						
+					case mfBRANG:
+						ft=sBRANG;
+						break;
+						
+					case mfMBRANG:
+						ft=sMBRANG;
+						break;
+						
+					case mfFBRANG:
+						ft=sFBRANG;
+						break;
+						
+					case mfWANDMAGIC:
+						ft=sWANDMAGIC;
+						break;
+						
+					case mfREFMAGIC:
+						ft=sREFMAGIC;
+						break;
+						
+					case mfREFFIREBALL:
+						ft=sREFFIREBALL;
+						break;
+						
+					case mfSWORD:
+						ft=sSWORD;
+						break;
+						
+					case mfWSWORD:
+						ft=sWSWORD;
+						break;
+						
+					case mfMSWORD:
+						ft=sMSWORD;
+						break;
+						
+					case mfXSWORD:
+						ft=sXSWORD;
+						break;
+						
+					case mfSWORDBEAM:
+						ft=sSWORDBEAM;
+						break;
+						
+					case mfWSWORDBEAM:
+						ft=sWSWORDBEAM;
+						break;
+						
+					case mfMSWORDBEAM:
+						ft=sMSWORDBEAM;
+						break;
+						
+					case mfXSWORDBEAM:
+						ft=sXSWORDBEAM;
+						break;
+						
+					case mfHOOKSHOT:
+						ft=sHOOKSHOT;
+						break;
+						
+					case mfWAND:
+						ft=sWAND;
+						break;
+						
+					case mfHAMMER:
+						ft=sHAMMER;
+						break;
+						
+					case mfSTRIKE:
+						ft=sSTRIKE;
+						break;
 					
-				case mfRCANDLE:
-					ft=sRCANDLE;
-					break;
-					
-				case mfWANDFIRE:
-					ft=sWANDFIRE;
-					break;
-					
-				case mfDINSFIRE:
-					ft=sDINSFIRE;
-					break;
-					
-				case mfARROW:
-					ft=sARROW;
-					break;
-					
-				case mfSARROW:
-					ft=sSARROW;
-					break;
-					
-				case mfGARROW:
-					ft=sGARROW;
-					break;
-					
-				case mfSBOMB:
-					ft=sSBOMB;
-					break;
-					
-				case mfBOMB:
-					ft=sBOMB;
-					break;
-					
-				case mfBRANG:
-					ft=sBRANG;
-					break;
-					
-				case mfMBRANG:
-					ft=sMBRANG;
-					break;
-					
-				case mfFBRANG:
-					ft=sFBRANG;
-					break;
-					
-				case mfWANDMAGIC:
-					ft=sWANDMAGIC;
-					break;
-					
-				case mfREFMAGIC:
-					ft=sREFMAGIC;
-					break;
-					
-				case mfREFFIREBALL:
-					ft=sREFFIREBALL;
-					break;
-					
-				case mfSWORD:
-					ft=sSWORD;
-					break;
-					
-				case mfWSWORD:
-					ft=sWSWORD;
-					break;
-					
-				case mfMSWORD:
-					ft=sMSWORD;
-					break;
-					
-				case mfXSWORD:
-					ft=sXSWORD;
-					break;
-					
-				case mfSWORDBEAM:
-					ft=sSWORDBEAM;
-					break;
-					
-				case mfWSWORDBEAM:
-					ft=sWSWORDBEAM;
-					break;
-					
-				case mfMSWORDBEAM:
-					ft=sMSWORDBEAM;
-					break;
-					
-				case mfXSWORDBEAM:
-					ft=sXSWORDBEAM;
-					break;
-					
-				case mfHOOKSHOT:
-					ft=sHOOKSHOT;
-					break;
-					
-				case mfWAND:
-					ft=sWAND;
-					break;
-					
-				case mfHAMMER:
-					ft=sHAMMER;
-					break;
-					
-				case mfSTRIKE:
-					ft=sSTRIKE;
-					break;
-					
-				default:
-					putit = false;
-					break;
+					case mfSECRETSNEXT:
+						ft=sSECNEXT;
+						break;
+						
+					default:
+						putit = false;
+						break;
 				}
 				
 				if(putit)  //Change the ffc's combo
 				{
-					s->ffdata[i] = s->secretcombo[ft];
-					s->ffcset[i] = s->secretcset[ft];
+					if(ft==sSECNEXT)
+					{
+						s->ffdata[i]++;
+					}
+					else
+					{
+						s->ffdata[i] = s->secretcombo[ft];
+						s->ffcset[i] = s->secretcset[ft];
+					}
 				}
 			}
 		}
