@@ -190,7 +190,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
             families[family] = map<int32_t, vector<int32_t> >();
         }
 		int32_t level = zc_max(1, itemsbuf[q].fam_type);
-		auto &levelmap = families[family];
+		
 		if(families[family].find(level) == families[family].end())
 		{
 			families[family][level] = vector<int32_t>();
@@ -209,7 +209,13 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			continue;
 		}
 		switchids[q] = fam_ind++;
-		std::shared_ptr<GUI::Grid> grid = Columns<10>(fitParent = true,hAlign=0.0,vAlign=0.0);
+		std::shared_ptr<GUI::TabPanel> tbpnl = TabPanel();
+		size_t count_in_tab = 0, tabcnt = 0;
+		std::shared_ptr<GUI::Grid> grid;
+		if(is_large)
+			grid = Columns<15>(fitParent = true,hAlign=0.0,vAlign=0.0);
+		else
+			grid = Columns<14>(fitParent = true,hAlign=0.0,vAlign=0.0);
 		for(auto levelit = (*it).second.begin(); levelit != (*it).second.end(); ++levelit)
 		{
 			for(auto itid = (*levelit).second.begin(); itid != (*levelit).second.end(); ++itid)
@@ -225,9 +231,30 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					}
 				);
 				grid->add(cb);
+				if(++count_in_tab >= unsigned(GUI::sized(14*1,15*2)))
+				{
+					count_in_tab = 0;
+					tbpnl->add(
+						TabRef(
+							name = std::to_string(++tabcnt),
+							grid
+						));
+					if(is_large)
+						grid = Columns<15>(fitParent = true,hAlign=0.0,vAlign=0.0);
+					else
+						grid = Columns<14>(fitParent = true,hAlign=0.0,vAlign=0.0);
+				}
 			}
 		}
-		icswitcher->add(grid);
+		if(count_in_tab)
+		{
+			tbpnl->add(
+				TabRef(
+					name = std::to_string(++tabcnt),
+					grid
+				));
+		}
+		icswitcher->add(tbpnl);
 	}
 	
 	std::shared_ptr<GUI::Widget> ilist_panel;
@@ -245,9 +272,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					broadcast_dialog_message(MSG_DRAW, 0);
 				}
 			),
-			Frame(fitParent = true,
-				icswitcher
-			)
+			icswitcher
 		);
 	}
 	else
