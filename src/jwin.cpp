@@ -596,6 +596,7 @@ static void _dotted_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t
     dotted_rect(screen, x1, y1, x2, y2, palette_color[fg], palette_color[bg]);
 }
 
+static bool no_hline = false;
 /* gui_textout_ln:
   *  Wrapper function for drawing text to the screen, which interprets the
   *  & character as an underbar for displaying keyboard shortcuts. Returns
@@ -625,7 +626,7 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
                 c++;
                 break;
             }
-            else if(s[c] == '&')
+            else if(!no_hline && s[c] == '&')
             {
                 if(s[c+1] != '&')
                     hline_pos = len;
@@ -965,6 +966,7 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	int32_t ret = D_O_K;
 	int32_t w = d->w, h = d->h, x = d->x, y = d->y;
+	if(d->d2) no_hline = true;
 	switch(d->d1)
 	{
 		case 0:
@@ -979,6 +981,7 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 			ret = jwin_rtext_proc(msg, d, c);
 			break;
 	}
+	no_hline = false;
 	d->w = w;
 	d->h = h;
 	d->x = x;

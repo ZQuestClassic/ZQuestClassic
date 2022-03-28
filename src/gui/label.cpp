@@ -9,7 +9,8 @@
 namespace GUI
 {
 
-Label::Label(): text(), text_fit(), maxLines(0), contX(0), contY(0), contW(0), contH(0), textAlign(0)
+Label::Label(): text(), text_fit(), maxLines(0), nohline(false),
+	contX(0), contY(0), contW(0), contH(0), textAlign(0)
 {
 	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }
@@ -148,7 +149,7 @@ void Label::realize(DialogRunner& runner)
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
-		textAlign, 0, // d1, d2
+		textAlign, nohline ? 1 : 0, // d1, d2
 		text_fit.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }

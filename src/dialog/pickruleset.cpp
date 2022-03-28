@@ -71,7 +71,7 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 					checked = rulesetModern,
 					data = rulesetsList
 				),
-				this->rulesetInfo = Label(
+				this->rulesetInfo = Label(noHLine = true,
 					fitParent = true,
 					framed = true,
 					maxLines = 4,

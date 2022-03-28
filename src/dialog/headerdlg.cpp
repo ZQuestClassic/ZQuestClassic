@@ -18,9 +18,13 @@ void call_header_dlg()
 			saved = false;
 
 			vals[0].copy(header.version, 9);
+			header.version[vals[0].size()] = 0;
 			vals[1].copy(header.minver, 9);
+			header.minver[vals[1].size()] = 0;
 			vals[2].copy(header.title, 64);
+			header.title[vals[2].size()] = 0;
 			vals[3].copy(header.author, 64);
+			header.author[vals[3].size()] = 0;
 			char tmp[8] = {0};
 			vals[4].copy(tmp, 7);
 			header.quest_number=atoi(tmp);
@@ -49,7 +53,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 			Row(
 				hAlign = 0.5,
 				Label(text = "Quest Made in ZQ Version:", hAlign = 0.0),
-				Label(text = verstr, hAlign = 1.0)
+				Label(noHLine = true, text = verstr, hAlign = 1.0)
 			),
 			Rows<2>(
 				Column(
@@ -103,7 +107,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 						),
 						DummyWidget(),
 						//
-						titleLabel = Label(
+						titleLabel = Label(noHLine = true,
 							colSpan = 3,
 							forceFitW = true,
 							framed = true,
@@ -114,7 +118,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 							textAlign = 1
 						),
 						//
-						authorLabel = Label(
+						authorLabel = Label(noHLine = true,
 							colSpan = 3,
 							forceFitW = true,
 							framed = true,

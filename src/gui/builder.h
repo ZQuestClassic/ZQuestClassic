@@ -292,6 +292,7 @@ ZCGUI_BUILDER_START(Label)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(maxLines, setMaxLines, std::size_t)
 	ZCGUI_ACCEPT_PROP(textAlign, setAlign, int32_t)
+	ZCGUI_ACCEPT_PROP(noHLine, setNoHLine, bool)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 ZCGUI_BUILDER_END()

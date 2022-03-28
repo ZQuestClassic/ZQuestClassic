@@ -38,7 +38,7 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		hPadding = 0_px,
 		Column(
 			hPadding = 0_px, 
-			Label(
+			Label(noHLine = true,
 				hPadding = sized(1_em,2_em),
 				maxLines = 20,
 				maxwidth = sized(320_px-8_px-2_em, 800_px-12_px-4_em)-1_em,

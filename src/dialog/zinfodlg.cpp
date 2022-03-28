@@ -95,7 +95,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							}
 							else fields[1]->setDisabled(false);
 						}),
-					helplbl = Label(
+					helplbl = Label(noHLine = true,
 						colSpan = 3, forceFitW = true,
 						framed = true, height = 6_em,
 						vPadding = 4_spx, textAlign = 1

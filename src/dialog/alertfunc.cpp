@@ -33,7 +33,7 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 		onEnter = message::OK,
 		onClose = message::OK,
 		Column(
-			Label(
+			Label(noHLine = true,
 				maxwidth = sized(
 					GUI::Size::pixels(zq_screen_w)-(2*((2*DEFAULT_PADDING)+1_em)),
 					30_em),

@@ -20,6 +20,11 @@ public:
 	void setMaxLines(size_t newMax);
 	
 	void setAlign(int32_t ta);
+	
+	void setNoHLine(bool noHLine)
+	{
+		nohline = noHLine;
+	}
 
 private:
 	std::string text;
@@ -28,6 +33,7 @@ private:
 	DialogRef alDialog;
 	int32_t contX, contY, contW, contH;
 	int32_t textAlign;
+	bool nohline;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
