@@ -3988,8 +3988,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			if(keepdata==true)
 			{
-				MsgStrings[i] = tempMsgString;
-				MsgStrings[i].s = tempMsgString.s;
+				MsgStrings[i].copyAll(tempMsgString);
 			}
 		}
 	}

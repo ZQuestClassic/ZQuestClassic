@@ -3624,7 +3624,7 @@ struct MsgStr
 	byte shadow_color;
 	
 	// Copy everything except listpos
-	MsgStr& operator=(MsgStr &other)
+	MsgStr& operator=(MsgStr const& other)
 	{
 		copyText(other);
 		copyStyle(other);
@@ -3632,7 +3632,7 @@ struct MsgStr
 	}
 	
 	// Copy text data - just s and nextstring
-	void copyText(MsgStr& other)
+	void copyText(MsgStr const& other)
 	{
 		s = other.s;
 		s.shrink_to_fit();
@@ -3640,7 +3640,7 @@ struct MsgStr
 	}
 	
 	// Copy style data - everything except s, nextstring, and listpos
-	void copyStyle(MsgStr& other)
+	void copyStyle(MsgStr const& other)
 	{
 		tile=other.tile;
 		cset=other.cset;
@@ -3666,6 +3666,13 @@ struct MsgStr
 		portrait_th=other.portrait_th;
 		shadow_type=other.shadow_type;
 		shadow_color=other.shadow_color;
+	}
+	
+	void copyAll(MsgStr const& other)
+	{
+		copyText(other);
+		copyStyle(other);
+		listpos = other.listpos;
 	}
 };
 
