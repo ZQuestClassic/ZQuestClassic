@@ -25370,7 +25370,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	}
 	
 	itemdata const& idat = itemsbuf[id&0xFF];
-	if(idat.family!=0xFF)
+	// if(idat.family!=0xFF) //1.92 compat... that already should be changed to 'itype_misc'? Blehg, hate this! -Em
 	{
 		if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
 		{
