@@ -31601,7 +31601,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editdmap_dlg);
     jwin_center_dialog(editinfo_dlg);
     jwin_center_dialog(editmidi_dlg);
-    jwin_center_dialog(editmsg_dlg);
     jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(elist_dlg);
@@ -32203,6 +32202,7 @@ int32_t save_config_file()
     set_config_string("zquest",last_quest_name,filepath);
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
+	set_config_int("zquest","dis_lpal_shortcut",DisableLPalShortcuts);
     set_config_int("zquest","warn_initscript_changes",WarnOnInitChanged);
     set_config_int("zquest","invalid_static",InvalidStatic);
 //	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
