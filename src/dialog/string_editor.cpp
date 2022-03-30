@@ -19,7 +19,8 @@ char* encode_msg_str(std::string const& message);
 std::string parse_msg_str(std::string const& s);
 void strip_trailing_spaces(char *str);
 void strip_trailing_spaces(std::string& str);
-int32_t addtomsglist(int32_t index, bool allow_numerical_sort = false);
+int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
+int32_t msg_at_pos(int32_t pos);
 const char *msgslist(int32_t index, int32_t *list_size);
 
 void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter)
@@ -165,7 +166,14 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						Rows<2>(
 							DDL(font, list_font),
 							DummyWidget(),
-							nextstr_dd = DDL(nextstring, list_nextstr),
+							nextstr_dd = DropDownList(data = list_nextstr,
+								fitParent = true,
+								selectedValue = MsgStrings[tmpMsgStr.nextstring].listpos,
+								onSelectFunc = [&](int32_t val)
+								{
+									tmpMsgStr.nextstring = addtomsglist(val);
+								}
+							),
 							Button(text = "Next in List",
 								forceFitH = true,
 								onPressFunc = [&]()
@@ -359,7 +367,14 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						Rows<2>(
 							DDL(font, list_font),
 							DummyWidget(),
-							nextstr_dd = DDL(nextstring, list_nextstr),
+							nextstr_dd = DropDownList(data = list_nextstr,
+								fitParent = true,
+								selectedValue = MsgStrings[tmpMsgStr.nextstring].listpos,
+								onSelectFunc = [&](int32_t val)
+								{
+									tmpMsgStr.nextstring = addtomsglist(val);
+								}
+							),
 							Button(text = "Next in List",
 								forceFitH = true,
 								onPressFunc = [&]()
