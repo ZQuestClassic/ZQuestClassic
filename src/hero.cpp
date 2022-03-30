@@ -20351,6 +20351,21 @@ void HeroClass::checkspecial2(int32_t *ls)
 					raftclk=0;
 					sfx(tmpscr->secretsfx);
 				}
+				else if (get_bit(quest_rules, qr_BETTER_RAFT))
+				{
+					for (int32_t i = 0; i < 4; ++i)
+					{
+						if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+						{
+							reset_swordcharge();
+							action=rafting; FFCore.setHeroAction(rafting);
+							raftclk=0;
+							sfx(tmpscr->secretsfx);
+							dir = i;
+							break;
+						}
+					}
+				}
 			}
 			
 			return;
@@ -20385,6 +20400,21 @@ void HeroClass::checkspecial2(int32_t *ls)
 					raftclk=0;
 					sfx(tmpscr->secretsfx);
 				}
+				else if (get_bit(quest_rules, qr_BETTER_RAFT))
+				{
+					for (int32_t i = 0; i < 4; ++i)
+					{
+						if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+						{
+							reset_swordcharge();
+							action=rafting; FFCore.setHeroAction(rafting);
+							raftclk=0;
+							sfx(tmpscr->secretsfx);
+							dir = i;
+							break;
+						}
+					}
+				}
 			}
 			
 			return;
@@ -20418,6 +20448,21 @@ void HeroClass::checkspecial2(int32_t *ls)
 					action=rafting; FFCore.setHeroAction(rafting);
 					raftclk=0;
 					sfx(tmpscr->secretsfx);
+				}
+				else if (get_bit(quest_rules, qr_BETTER_RAFT))
+				{
+					for (int32_t i = 0; i < 4; ++i)
+					{
+						if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+						{
+							reset_swordcharge();
+							action=rafting; FFCore.setHeroAction(rafting);
+							raftclk=0;
+							sfx(tmpscr->secretsfx);
+							dir = i;
+							break;
+						}
+					}
 				}
 			}
 			
