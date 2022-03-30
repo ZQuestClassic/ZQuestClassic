@@ -11241,9 +11241,17 @@ skip:
     case left:
         if(y.getInt()&15)
         {
-            if(y.getInt()&8)
-                y++;
-            else y--;
+		if (get_bit(quest_rules, qr_BETTER_RAFT_2))
+		{
+			if ((y.getInt() % 16) < 4) y--;
+			else y++;
+		}
+		else
+		{
+		    if(y.getInt()&8)
+			y++;
+		    else y--;
+		}
         }
         else x -= step_inc;
         
@@ -11252,9 +11260,17 @@ skip:
     case right:
         if(y.getInt()&15)
         {
-            if(y.getInt()&8)
-                y++;
-            else y--;
+		if (get_bit(quest_rules, qr_BETTER_RAFT_2))
+		{
+			if ((y.getInt() % 16) < 4) y--;
+			else y++;
+		}
+		else
+		{
+		    if(y.getInt()&8)
+			y++;
+		    else y--;
+		}
         }
         else x += step_inc;
         
@@ -20005,6 +20021,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 		stepsecret = -1; 
 	}
 	
+	//Better? Dock collision
+	
 	// Drown if:
 	// * Water (obviously walkable),
 	// * Quest Rule allows it,
@@ -20326,6 +20344,67 @@ void HeroClass::checkspecial2(int32_t *ls)
 			type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
 			!(type==cDIVEWARP && isDiving()))
 	{
+		if (get_bit(quest_rules, qr_BETTER_RAFT_2))
+		{
+			//if (mfRAFT)
+			int32_t rafttypes[2];
+			int32_t raftx1 = tx+6;
+			int32_t raftx2 = tx+9;
+			int32_t rafty = ty+11;
+			int32_t raftflags[3];
+			rafttypes[0]=rafttypes[1]=-1;
+			raftflags[0]=raftflags[1]=raftflags[2]=0;
+			rafttypes[0] = MAPFLAG(raftx1,rafty);
+			rafttypes[1] = MAPFLAG(raftx2,rafty);
+			
+			if(rafttypes[0]==rafttypes[1])
+				raftflags[0] = rafttypes[0];
+				
+				
+			rafttypes[0] = MAPCOMBOFLAG(raftx1,rafty);
+			rafttypes[1] = MAPCOMBOFLAG(raftx2,rafty);
+			
+			if(rafttypes[0]==rafttypes[1])
+				raftflags[1] = rafttypes[0];
+				
+			rafttypes[0] = MAPFFCOMBOFLAG(raftx1,rafty);
+			rafttypes[1] = MAPFFCOMBOFLAG(raftx2,rafty);
+			
+			if(rafttypes[0]==rafttypes[1])
+				raftflags[2] = rafttypes[0];
+			
+			for (int32_t m = 0; m < 3; ++m)
+			{
+				if (raftflags[m] == mfRAFT || raftflags[m] == mfRAFT_BRANCH)
+				{
+					if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && (combo_class_buf[COMBOTYPE(tx+8, ty+11)].dock || combo_class_buf[FFCOMBOTYPE(tx+8, ty+11)].dock))
+					{
+						if((isRaftFlag(nextflag(tx,ty+11,dir,false))||isRaftFlag(nextflag(tx,ty+11,dir,true))))
+						{
+							reset_swordcharge();
+							action=rafting; FFCore.setHeroAction(rafting);
+							raftclk=0;
+							sfx(tmpscr->secretsfx);
+						}
+						else if (get_bit(quest_rules, qr_BETTER_RAFT))
+						{
+							for (int32_t i = 0; i < 4; ++i)
+							{
+								if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+11),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+11),i,true)))
+								{
+									reset_swordcharge();
+									action=rafting; FFCore.setHeroAction(rafting);
+									raftclk=0;
+									sfx(tmpscr->secretsfx);
+									dir = i;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
@@ -20342,27 +20421,30 @@ void HeroClass::checkspecial2(int32_t *ls)
 		case mfRAFT_BRANCH:
 		
 			//		if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
-			if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
+			if (!get_bit(quest_rules, qr_BETTER_RAFT_2))
 			{
-				if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
+				if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
 				{
-					reset_swordcharge();
-					action=rafting; FFCore.setHeroAction(rafting);
-					raftclk=0;
-					sfx(tmpscr->secretsfx);
-				}
-				else if (get_bit(quest_rules, qr_BETTER_RAFT))
-				{
-					for (int32_t i = 0; i < 4; ++i)
+					if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
 					{
-						if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+						reset_swordcharge();
+						action=rafting; FFCore.setHeroAction(rafting);
+						raftclk=0;
+						sfx(tmpscr->secretsfx);
+					}
+					else if (get_bit(quest_rules, qr_BETTER_RAFT))
+					{
+						for (int32_t i = 0; i < 4; ++i)
 						{
-							reset_swordcharge();
-							action=rafting; FFCore.setHeroAction(rafting);
-							raftclk=0;
-							sfx(tmpscr->secretsfx);
-							dir = i;
-							break;
+							if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+							{
+								reset_swordcharge();
+								action=rafting; FFCore.setHeroAction(rafting);
+								raftclk=0;
+								sfx(tmpscr->secretsfx);
+								dir = i;
+								break;
+							}
 						}
 					}
 				}
@@ -20391,27 +20473,30 @@ void HeroClass::checkspecial2(int32_t *ls)
 		case mfRAFT_BRANCH:
 		
 			//		if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
-			if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
+			if (!get_bit(quest_rules, qr_BETTER_RAFT_2))
 			{
-				if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+				if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
 				{
-					reset_swordcharge();
-					action=rafting; FFCore.setHeroAction(rafting);
-					raftclk=0;
-					sfx(tmpscr->secretsfx);
-				}
-				else if (get_bit(quest_rules, qr_BETTER_RAFT))
-				{
-					for (int32_t i = 0; i < 4; ++i)
+					if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
 					{
-						if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+						reset_swordcharge();
+						action=rafting; FFCore.setHeroAction(rafting);
+						raftclk=0;
+						sfx(tmpscr->secretsfx);
+					}
+					else if (get_bit(quest_rules, qr_BETTER_RAFT))
+					{
+						for (int32_t i = 0; i < 4; ++i)
 						{
-							reset_swordcharge();
-							action=rafting; FFCore.setHeroAction(rafting);
-							raftclk=0;
-							sfx(tmpscr->secretsfx);
-							dir = i;
-							break;
+							if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+							{
+								reset_swordcharge();
+								action=rafting; FFCore.setHeroAction(rafting);
+								raftclk=0;
+								sfx(tmpscr->secretsfx);
+								dir = i;
+								break;
+							}
 						}
 					}
 				}
@@ -20440,27 +20525,30 @@ void HeroClass::checkspecial2(int32_t *ls)
 		case mfRAFT_BRANCH:
 		
 			//	  if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
-			if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
+			if (!get_bit(quest_rules, qr_BETTER_RAFT_2))
 			{
-				if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
+				if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
 				{
-					reset_swordcharge();
-					action=rafting; FFCore.setHeroAction(rafting);
-					raftclk=0;
-					sfx(tmpscr->secretsfx);
-				}
-				else if (get_bit(quest_rules, qr_BETTER_RAFT))
-				{
-					for (int32_t i = 0; i < 4; ++i)
+					if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
 					{
-						if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+						reset_swordcharge();
+						action=rafting; FFCore.setHeroAction(rafting);
+						raftclk=0;
+						sfx(tmpscr->secretsfx);
+					}
+					else if (get_bit(quest_rules, qr_BETTER_RAFT))
+					{
+						for (int32_t i = 0; i < 4; ++i)
 						{
-							reset_swordcharge();
-							action=rafting; FFCore.setHeroAction(rafting);
-							raftclk=0;
-							sfx(tmpscr->secretsfx);
-							dir = i;
-							break;
+							if(isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,false))||isRaftFlag(nextflag(GridX(tx+8),GridY(ty+8),i,true)))
+							{
+								reset_swordcharge();
+								action=rafting; FFCore.setHeroAction(rafting);
+								raftclk=0;
+								sfx(tmpscr->secretsfx);
+								dir = i;
+								break;
+							}
 						}
 					}
 				}

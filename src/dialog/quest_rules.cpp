@@ -357,11 +357,14 @@ static const GUI::ListData comboRulesList
 		" been relocated to the respective item flags."},
 	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
 		"Light Beams from Spotlight combos are transparently drawn."},
-	{ "Less Arbitrary Raft", qr_BETTER_RAFT, 
+	{ "Less Arbitrary Dock Combos", qr_BETTER_RAFT, 
 		"If enabled, the player will be able to raft off a dock if there is a raft flag in"
 		" either of the 4 directions from the dock, regardless of direction. If disabled, the"
 		" player can only raft if there is a raft flag in the direction they are facing when they"
-		" step on the dock."}
+		" step on the dock."},
+	{ "More Sensitive Dock Combos", qr_BETTER_RAFT_2, 
+		"If enabled, the collision for dock combos will only check the bottom part of the player's"
+		" hitbox, as opposed to the bottom and top parts of their hitbox."},
 };
 
 static const GUI::ListData compatRulesList
