@@ -133,7 +133,6 @@ void large_dialog(DIALOG *d)
 	large_dialog(d, 1.5f);
 }
 
-extern int32_t d_msg_edit_proc(int32_t,DIALOG*,int32_t);
 void large_dialog(DIALOG *d, float RESIZE_AMT)
 {
 	if(d[0].d1 == 0)
@@ -180,7 +179,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
 			{
 			}
-			else if(d[i].proc == jwin_edit_proc || d[i].proc == d_msg_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)
+			else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)
 			{
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}

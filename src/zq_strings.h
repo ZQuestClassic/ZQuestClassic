@@ -15,7 +15,6 @@ char *strip_extra_spaces(char *string);
 char* encode_msg_str(int32_t index);
 
 extern DIALOG strlist_dlg[];
-extern DIALOG editmsg_dlg[];
 extern DIALOG editmsg_help_dlg[];
 
 extern std::map<int32_t, int32_t> msglistcache;

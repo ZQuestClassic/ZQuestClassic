@@ -20,13 +20,11 @@
 static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);
 int32_t strlist_del();
-int32_t addtomsglist(int32_t index, bool allow_numerical_sort = false);
+int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
 void build_bistringcat_list();
 const char *stringcatlist(int32_t index, int32_t *list_size);
 std::string parse_msg_str(std::string const& s);
 int32_t msg_code_operands(int32_t cc);
-int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_msg_edit_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c);
 void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
@@ -101,84 +99,6 @@ DIALOG strlist_dlg[] =
 };
 
 extern ListData shadowstyle_list;
-DIALOG editmsg_dlg[] =
-{
-
-	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc, 44,   0,   296,  220,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-	{ jwin_tab_proc,    50,     24,   284,  164,  jwin_pal[jcBOXFG], jwin_pal[jcBOX],  0,  0,    0,    0, (void *) editmsg_tabs,  NULL, (void *)editmsg_dlg  },
-	{ jwin_frame_proc,        53,  89-9,   278,  54,   vc(14),  vc(1),  0,       0,          FR_DEEP,             0,       NULL, NULL, NULL },
-	{ d_msg_edit_proc,       61,   38,   240,  32,    vc(12),  vc(1),  0,       0,          MSGBUF_SIZE,            0,       NULL, NULL, NULL },
-	{ jwin_text_proc,       52,   158,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Next string:", NULL, NULL },
-	// 5
-	{ jwin_droplist_proc,      110,  154,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
-	{ jwin_button_proc,     90,   187+6,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,     170,  187+6,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ d_msg_preview_proc,   56,   92-9,   272,  48,   jwin_pal[jcTEXTBG],  jwin_pal[jcTEXTFG],  0,       0,          0,             0,       msgbuf, NULL, NULL },
-	{ jwin_edit_proc,      80,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
-	// 10
-	{ jwin_ctext_proc,     64,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Y:", NULL, NULL },
-	{ jwin_frame_proc,     58,   102,    20,  20,    vc(14),  vc(1),  0,       0,          FR_DEEP,      0,       NULL, NULL, NULL },
-	{ d_msgtile_proc,      60,  104,    16,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      80,  84,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     64,   88,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "SFX:", NULL, NULL },
-	// 15
-	{ jwin_edit_proc,      80,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     64,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "X:", NULL, NULL },
-	{ jwin_text_proc,       52,   140,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "String font:", NULL, NULL },
-	{ jwin_droplist_proc,      110,  136,  158,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          0,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	// 20
-	{ jwin_ctext_proc,     136,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Width:", NULL, NULL },
-	{ jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     136,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Height:", NULL, NULL },
-	{ jwin_edit_proc,      160,  84,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     136,   88,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "H Spacing:", NULL, NULL },
-	// 25
-	{ jwin_edit_proc,      160,  102,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     136,   106,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "V Spacing:", NULL, NULL },
-	{ jwin_check_proc,     56,  126,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Is continuation of previous string", NULL, NULL },
-	{ jwin_check_proc,     56,  136,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Text wraps around bounding box", NULL, NULL },
-	{ jwin_button_proc,    270,   152,  56,  16,      vc(14),  vc(1),   0,       D_EXIT,     0,             0, (void *) "Next in List", NULL, NULL },
-	// 30
-	{ jwin_button_proc,     250,  187+6,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
-	{ d_keyboard_proc,         0,    0,     0,  0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-	{ jwin_check_proc,     52,  176,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Set previous string's \"Next string\" to this", NULL, NULL },
-	{ jwin_check_proc,     56,  146,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Full Tiled Background", NULL, NULL },
-	{ jwin_check_proc,     56,  156,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent BG", NULL, NULL },
-	// 35
-	{ jwin_check_proc,     56,  166,      0,      9,   vc(14),  vc(1),   0,       0,       1,             0, (void *) "Transparent FG", NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ jwin_edit_proc,      232,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     208,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "T. Margin:", NULL, NULL },
-	{ jwin_edit_proc,      232,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	// 40
-	{ jwin_ctext_proc,     208,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "B. Margin:", NULL, NULL },
-	{ jwin_edit_proc,      232,  84,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     208,   88,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "L. Margin:", NULL, NULL },
-	{ jwin_edit_proc,      232,  102,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     208,   106,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "R. Margin:", NULL, NULL },
-	// 45
-	{ jwin_edit_proc,      80,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     64,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Y:", NULL, NULL },
-	{ jwin_edit_proc,      80,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          4,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     64,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "X:", NULL, NULL },
-	{ jwin_edit_proc,      160,  48,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	// 50
-	{ jwin_ctext_proc,     136,   52,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Width:", NULL, NULL },
-	{ jwin_edit_proc,      160,  66,  28+1,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_ctext_proc,     136,   70,   192,  8,    vc(9),   vc(1),   0,       0,          0,             0, (void *) "Tile Height:", NULL, NULL },
-	{ d_cstile_proc,      60,  104,    16,  16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_droplist_proc,    200,   122,   110,     16,  0,                  0,                0,       0,          0,             0, (void *) &shadowstyle_list, NULL, NULL },
-	//55
-	{ jwin_text_proc,        160,   126,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Shadow Type:", NULL, NULL },
-	{ jwin_text_proc,        160,   138,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Shadow Color:", NULL, NULL },
-	{ jwin_color_swatch,     200,   136,    12,     12,  0,                  0,                0,       0,          0,             12, NULL, NULL, NULL },
-	{ d_msg_edit_proc,      119,   66,   32,  16,    vc(12),  vc(1),  0,       0,          8,             0,       NULL, NULL, NULL },
-	{ jwin_text_proc,        61,   68,   110,     16,  0,                  0,                0,       0,          0,             0, (void *)"Player Name Preview:", NULL, NULL },
-	
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
 
 DIALOG editmsg_help_dlg[] =
 {
@@ -336,8 +256,8 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 		return u;
 	}
 	
-	auto ind = strlist_numerical_sort ? index-1 : MsgStrings[index].listpos-1;
-	bool indent = is_large && index>0 && MsgStrings[addtomsglist(ind)].nextstring==index;
+	auto prevIndex = addtomsglist(index)-1;
+	bool indent = is_large && index>0 && MsgStrings[prevIndex].nextstring==MsgStrings[index].listpos;
 	sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
 	char *s=strcat(u,": ");
 	
@@ -902,7 +822,7 @@ int32_t onStrings()
 				
 				break;
 			case 23: // sort
-				strlist_numerical_sort = strlist_dlg[23].flags & D_SELECTED;
+				strlist_numerical_sort = (strlist_dlg[23].flags & D_SELECTED)?true:false;
 				SETFLAG(strlist_dlg[11].flags, D_DISABLED, strlist_numerical_sort);
 				SETFLAG(strlist_dlg[12].flags, D_DISABLED, strlist_numerical_sort);
 				SETFLAG(strlist_dlg[13].flags, D_DISABLED, strlist_numerical_sort);
@@ -924,19 +844,18 @@ int32_t onStrings()
 			int32_t lp = addAfter>=0 ? MsgStrings[addAfter].listpos : -1;
 			int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
 			
-			//editmsg(index, addAfter);
 			call_stringedit_dialog(size_t(index), templateID, addAfter);
 			
 			if(MsgStrings[index].listpos!=msg_count) // Created new string
 			{
 				// Select the new message
 				strlist_dlg[2].d1 = MsgStrings[index].listpos;
-				if((editmsg_dlg[32].flags&D_SELECTED)!=0)
-				{
-					int32_t prev=msg_at_pos(MsgStrings[index].listpos-1);
-					MsgStrings[prev].nextstring=index;
-				}
-				editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
+				// if((editmsg_dlg[32].flags&D_SELECTED)!=0)
+				// {
+					// int32_t prev=msg_at_pos(MsgStrings[index].listpos-1);
+					// MsgStrings[prev].nextstring=index;
+				// }
+				// editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
 			}
 			else if(lp>=0)              // Canceled or edited an existing string
 				strlist_dlg[2].d1 = lp; // Select previously selected message
@@ -955,221 +874,6 @@ int32_t onStrings()
 }
 
 char namebuf[9] = "[NAME]";
-void editmsg(int32_t index, int32_t addAfter)
-{
-	char setitle[80];
-	sprintf(setitle, "String Editor (%d)", index);
-	
-	encode_msg_str(index);
-	
-	if(index==msg_count-1) // Adding a new message
-	{
-		int32_t templateID=atoi(static_cast<char*>(strlist_dlg[22].dp));
-		if(templateID>0 && templateID<msg_count)
-			MsgStrings[index].copyStyle(MsgStrings[templateID]);
-	}
-	
-	msgtile = MsgStrings[index].tile;
-	msgcset = MsgStrings[index].cset;
-	
-	editmsg_dlg[0].dp=setitle;
-	editmsg_dlg[0].dp2=lfont;
-	editmsg_dlg[3].dp=msgbuf;
-//  ListData msgs_list(msgslist, is_large ? &sfont3 : &font);
-//  ListData msgs_list(msgslist, is_large ? &lfont_l : &font);
-	ListData msgs_list(msgslist, &font);
-	ListData msgfont_list(msgfontlist, &font);
-	editmsg_dlg[5].d1 = MsgStrings[MsgStrings[index].nextstring].listpos;
-	editmsg_dlg[5].dp = (void *) &msgs_list;
-	editmsg_dlg[18].d1 = MsgStrings[index].font;
-	editmsg_dlg[18].dp = (void *) &msgfont_list;
-	editmsg_dlg[9].flags = MsgStrings[index].trans ? D_SELECTED : 0;
-	editmsg_dlg[12].d1 = MsgStrings[index].tile;
-	editmsg_dlg[12].fg = MsgStrings[index].cset;
-	editmsg_dlg[53].d1 = MsgStrings[index].portrait_tile;
-	editmsg_dlg[53].d2 = MsgStrings[index].portrait_cset&15;
-	char msg_ybuf[5];
-	char msg_xbuf[5];
-	char msg_wbuf[5];
-	char msg_hbuf[5];
-	char msg_hsbuf[5];
-	char msg_vsbuf[5];
-	char msg_margins_bufs[4][5];
-	char prt_xbuf[5];
-	char prt_ybuf[5];
-	char prt_twbuf[5];
-	char prt_thbuf[5];
-	sprintf(msg_ybuf,"%d",MsgStrings[index].y);
-	sprintf(msg_xbuf,"%d",MsgStrings[index].x);
-	sprintf(msg_wbuf,"%d",MsgStrings[index].w);
-	sprintf(msg_hbuf,"%d",MsgStrings[index].h);
-	sprintf(msg_hsbuf,"%d",MsgStrings[index].hspace);
-	sprintf(msg_vsbuf,"%d",MsgStrings[index].vspace);
-	sprintf(prt_xbuf,"%d",MsgStrings[index].portrait_x);
-	sprintf(prt_ybuf,"%d",MsgStrings[index].portrait_y);
-	sprintf(prt_twbuf,"%d",MsgStrings[index].portrait_tw);
-	sprintf(prt_thbuf,"%d",MsgStrings[index].portrait_th);
-	editmsg_dlg[54].d1 = MsgStrings[index].shadow_type;
-	editmsg_dlg[57].d1 = MsgStrings[index].shadow_color;
-	editmsg_dlg[58].dp = (void*)namebuf;
-	for(int32_t q = 0; q < 4; ++q)
-	{
-		sprintf(msg_margins_bufs[q],"%d",MsgStrings[index].margins[q]);
-	}
-	editmsg_dlg[9].dp = msg_ybuf;
-	editmsg_dlg[15].dp = msg_xbuf;
-	editmsg_dlg[19].dp = msg_wbuf;
-	editmsg_dlg[21].dp = msg_hbuf;
-	editmsg_dlg[23].dp = msg_hsbuf;
-	editmsg_dlg[25].dp = msg_vsbuf;
-	for(int32_t q = 0; q < 4; ++q)
-	{
-		editmsg_dlg[37+(2*q)].dp = msg_margins_bufs[q];
-	}
-	editmsg_dlg[45].dp = prt_ybuf;
-	editmsg_dlg[47].dp = prt_xbuf;
-	editmsg_dlg[49].dp = prt_twbuf;
-	editmsg_dlg[51].dp = prt_thbuf;
-	char msg_sfxbuf[5];
-	sprintf(msg_sfxbuf,"%d",MsgStrings[index].sfx);
-	editmsg_dlg[13].dp = msg_sfxbuf;
-	editmsg_dlg[27].flags=(MsgStrings[index].stringflags&STRINGFLAG_CONT)?D_SELECTED:0;
-	editmsg_dlg[28].flags=(MsgStrings[index].stringflags&STRINGFLAG_WRAP)?D_SELECTED:0;
-	editmsg_dlg[32].flags=0;
-	editmsg_dlg[32].proc=jwin_check_proc;
-	editmsg_dlg[33].flags=(MsgStrings[index].stringflags&STRINGFLAG_FULLTILE)?D_SELECTED:0;
-	editmsg_dlg[34].flags=(MsgStrings[index].stringflags&STRINGFLAG_TRANS_BG)?D_SELECTED:0;
-	editmsg_dlg[35].flags=(MsgStrings[index].stringflags&STRINGFLAG_TRANS_FG)?D_SELECTED:0;
-		
-	msg_x = 0;
-	msg_y = 0;
-	curmsgstr = &MsgStrings[index];
-	
-	if(is_large)
-	{
-		large_dialog(editmsg_dlg,2);
-		
-		if(editmsg_dlg[0].d1<2)
-		{
-			editmsg_dlg[0].d1 = 2;
-			editmsg_dlg[3].h = 48;//24;
-			editmsg_dlg[2].x+=3;
-			editmsg_dlg[2].y+=3;
-			editmsg_dlg[2].w-=3;
-			editmsg_dlg[2].h-=3;
-		}
-	}
-	else
-	{
-		editmsg_dlg[3].h = 16;
-		editmsg_dlg[3].y += 10;
-	}
-	if(addAfter<=0) // Not <0 - wouldn't want to set message 0's next string
-		editmsg_dlg[32].proc=d_dummy_proc;
-	
-	int32_t ret = -1;
-	
-	do
-	{
-		ret = zc_popup_dialog(editmsg_dlg,3);
-		
-		if(ret==29)
-		{
-			ret = -1;
-			
-			if(MsgStrings[index].listpos < msg_count)
-				editmsg_dlg[5].d1 = MsgStrings[index].listpos+1;
-		}
-		
-		if(ret==30)
-		{
-			ret = -1;
-			// Show string help
-			editmsg_help_dlg[0].dp2= lfont;
-			FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
-			if (!stringshelpfile )
-			{
-				stringshelpfile = fopen("zstrings.txt", "r");
-				if ( stringshelpfile )
-				{
-					editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
-				}
-				else
-				{
-					Z_error_fatal("File Missing: zstrings.txt.");
-				}
-			}
-			else
-			{
-				editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),0,vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
-			}
-			editmsg_help_dlg[2].bg = vc(15);
-			((EditboxModel*)editmsg_help_dlg[2].dp)->doHelp(); // This deletes the EditboxModel too.
-		}
-	}
-	while(ret==-1);
-	
-	if(ret==6)
-	{
-		saved=false;
-		std::string bf = msgbuf;
-		MsgStrings[index].s = parse_msg_str(bf);
-		MsgStrings[index].nextstring = addtomsglist(editmsg_dlg[5].d1);
-		MsgStrings[index].font = editmsg_dlg[18].d1;
-		MsgStrings[index].trans = editmsg_dlg[9].flags != 0;
-		MsgStrings[index].tile = editmsg_dlg[12].d1;
-		MsgStrings[index].cset = editmsg_dlg[12].fg;
-		MsgStrings[index].portrait_tile = editmsg_dlg[53].d1;
-		MsgStrings[index].portrait_cset = editmsg_dlg[53].d2;
-		MsgStrings[index].x = vbound((int32_t)strtol(msg_xbuf, (char **)NULL, 10),-512,512);
-		MsgStrings[index].y = vbound((int32_t)strtol(msg_ybuf, (char **)NULL, 10),-512,512);
-		MsgStrings[index].w = vbound((int32_t)strtol(msg_wbuf, (char **)NULL, 10),8,512);
-		MsgStrings[index].h = vbound((int32_t)strtol(msg_hbuf, (char **)NULL, 10),8,512);
-		for(int32_t q = 0; q < 4; ++q)
-		{
-			MsgStrings[index].margins[q] = vbound((byte)strtol(msg_margins_bufs[q], (char **)NULL, 10),0,255);
-		}
-		MsgStrings[index].portrait_x = vbound((int32_t)strtol(prt_xbuf, (char **)NULL, 10),0,255);
-		MsgStrings[index].portrait_y = vbound((int32_t)strtol(prt_ybuf, (char **)NULL, 10),0,255);
-		MsgStrings[index].portrait_tw = vbound((int32_t)strtol(prt_twbuf, (char **)NULL, 10),0,16);
-		MsgStrings[index].portrait_th = vbound((int32_t)strtol(prt_thbuf, (char **)NULL, 10),0,14);
-		MsgStrings[index].shadow_type = editmsg_dlg[54].d1;
-		MsgStrings[index].shadow_color = editmsg_dlg[57].d1;
-		MsgStrings[index].hspace = vbound((int32_t)strtol(msg_hsbuf, (char **)NULL, 10),0,128);
-		MsgStrings[index].vspace = vbound((int32_t)strtol(msg_vsbuf, (char **)NULL, 10),0,128);
-		MsgStrings[index].sfx = (int32_t)strtol(msg_sfxbuf, (char **)NULL, 10);
-		MsgStrings[index].stringflags = editmsg_dlg[27].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_CONT : MsgStrings[index].stringflags & ~STRINGFLAG_CONT;
-		MsgStrings[index].stringflags = editmsg_dlg[28].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_WRAP : MsgStrings[index].stringflags & ~STRINGFLAG_WRAP;
-		MsgStrings[index].stringflags = editmsg_dlg[33].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_FULLTILE : MsgStrings[index].stringflags & ~STRINGFLAG_FULLTILE;
-		MsgStrings[index].stringflags = editmsg_dlg[34].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_TRANS_BG : MsgStrings[index].stringflags & ~STRINGFLAG_TRANS_BG;
-		MsgStrings[index].stringflags = editmsg_dlg[35].flags & D_SELECTED ? MsgStrings[index].stringflags | STRINGFLAG_TRANS_FG : MsgStrings[index].stringflags & ~STRINGFLAG_TRANS_FG;
-		
-		if(index==msg_count)
-		{
-			if(addAfter!=-1)
-			{
-				MsgStrings[index].listpos = MsgStrings[addAfter].listpos+1;
-				
-				// Go through strings with higher listpos and increment listpos
-				for(int32_t j=msg_count-1; j>=MsgStrings[index].listpos; j--)
-				{
-					MsgStrings[addtomsglist(j)].listpos++;
-				}
-				
-				msglistcache.clear();
-			}
-			
-			++msg_count;
-			MsgStrings[msg_count].sfx=18;
-			MsgStrings[msg_count].listpos=msg_count;
-		}
-	}
-	else if(ret==7 && addAfter!=-1)
-	{
-		MsgStrings[index].listpos = msg_count;
-	}
-}
-
 // Returns the actual string of a given listpos
 int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 {
@@ -1180,7 +884,6 @@ int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 		return msg_count; // '<New String>' is always at the bottom
 		
 	int32_t pos = 0;
-	
 	if(allow_numerical_sort && strlist_numerical_sort)
 	{
 		msglistcache[index] = pos = index;
@@ -1207,7 +910,6 @@ int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 			}
 		}
 	}
-	
 	return pos;
 }
 
@@ -1369,337 +1071,6 @@ word grab_next_argument(std::string const& s2, uint32_t* i)
 	}
 	
 	return ret;
-}
-
-void put_msg_str(char const* s,int32_t x,int32_t y,int32_t, int32_t ,int32_t, int32_t start_x, int32_t start_y)
-{
-	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
-	ssc_tile_hei = -1;
-	int32_t w = vbound((int32_t)strtol((char*)editmsg_dlg[19].dp, (char **)NULL, 10),0,512);
-	int32_t h = vbound((int32_t)strtol((char*)editmsg_dlg[21].dp, (char **)NULL, 10),0,512);
-	int32_t fonta = editmsg_dlg[18].d1;
-	int32_t flags = 0;
-	flags |= (int32_t)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
-	flags |= (int32_t)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
-	flags |= (int32_t)editmsg_dlg[33].flags & D_SELECTED ? STRINGFLAG_FULLTILE : 0;
-	flags |= (int32_t)editmsg_dlg[34].flags & D_SELECTED ? STRINGFLAG_TRANS_BG : 0;
-	flags |= (int32_t)editmsg_dlg[35].flags & D_SELECTED ? STRINGFLAG_TRANS_FG : 0;
-	int32_t vspace = vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-	int32_t hspace = vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
-	int32_t nextstring = addtomsglist(editmsg_dlg[5].d1);
-	byte msg_margins[4];
-	for(int32_t q = 0; q < 4; ++q)
-	{
-		msg_margins[q] = oldmargin ? 0 : vbound((int32_t)strtol((char*)editmsg_dlg[37+(2*q)].dp, (char **)NULL, 10),0,255);
-	}
-	int32_t cursor_x = msg_margins[left];
-	int32_t cursor_y = msg_margins[up];
-	
-	uint32_t i=0;
-	int32_t msgcolour=misc.colors.msgtext;
-	int32_t shdtype=editmsg_dlg[54].d1;
-	int32_t shdcolor=editmsg_dlg[57].d1;
-	
-	FONT *workfont = getfont(fonta);
-	
-	std::string s2 = parse_msg_str(s);
-	strip_trailing_spaces(s2);
-	
-	BITMAP *buf = create_bitmap_ex(8,zc_max(w+16,256+16),zc_max(h+16,32+16));
-	clear_bitmap(buf);
-	
-	bool done = false;
-	
-	if(buf)
-	{
-		clear_bitmap(buf);
-		
-		if(msgtile)
-		{
-			if(flags & STRINGFLAG_FULLTILE)
-			{
-				draw_block_flip(buf,0,0,msgtile,msgcset,
-					(int32_t)ceil(w/16.0),(int32_t)ceil(h/16.0),0,false,false);
-			}
-			else
-			{
-				int32_t add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
-				frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
-			}
-		}
-			
-		bool space=true;
-		int32_t tlength=0;
-		
-		int32_t _menu_tl = 0;
-		int32_t _menu_cs = 0;
-		int32_t _menu_t_wid = 0;
-		int32_t _menu_t_hei = 0;
-		int32_t _menu_fl = 0;
-		for(; ;)
-		{
-			i=0;
-			
-			while(i < s2.size() && !done)
-			{
-				std::string s3; // Stores a complete word
-				int32_t j;
-				int32_t s3length = 1;
-				int32_t hjump=0;
-				
-				if(flags & STRINGFLAG_WRAP)
-				{
-					if(space)
-					{
-						// Control codes and spaces are like one-character words
-						if((s2[i]) == ' ' || (s2[i]) < 32 || (s2[i]) > 126)
-						{
-							s3 = s2[i];
-							hjump = hspace;
-							i++;
-						}
-						else space = false;
-					}
-					
-					if(!space)
-					{
-						// Complete words finish at spaces or control codes.
-						for(j=i; (s2[j]) != ' ' && (s2[j]) >= 32 && (s2[j]) <= 126 && (s2[j]); j++)
-						{
-							s3 += s2[j];
-							hjump += hspace;
-							
-							if(s3[j-i]-1 == MSGC_NEWLINE)
-							{
-								j++;
-								break;
-							}
-						}
-						
-						space = true;
-						i=j;
-					}
-				}
-				else
-				{
-					space=false;
-					/*for(j=i; (*(s2+j)) < 32 || (*(s2+j)) > 126 && (*(s2+j)); j++)
-					{
-						s3[j-i] = (*(s2+j));
-						if(s3[j-i]-1 == MSGC_NEWLINE) {j++; break;}
-					}
-					s3[j-i]
-					s3[j-i+1] = 0;
-					i=j;*/
-					s3 = s2[i];
-					
-					if(s3[0] >= 32 && s3[0] <= 126) hjump = hspace;
-					
-					i++;
-				}
-				
-				tlength = text_length(workfont, s3.c_str());
-				
-				if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
-				   && ((cursor_x > (w-msg_margins[right]) || !(flags & STRINGFLAG_WRAP))
-						? 1 : (s3 != " ")))
-				{
-					int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-					ssc_tile_hei = -1;
-					cursor_y += thei + vspace;
-					if(cursor_y >= (h - msg_margins[down])) break;
-					cursor_x=msg_margins[left];
-					//if(space) s3[0]=0;
-				}
-				
-				// Evaluate what control code the character is, and skip over the CC's arguments by incrementing i (NOT k).
-				// Interpret the control codes which affect text display (currently just MSGC_COLOR). -L
-				for(uint32_t k=0; k < s3.size() && !done; k++)
-				{
-					switch(byte(s3[k]-1))
-					{
-						case MSGC_NEWLINE:
-						{
-							if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
-							{
-								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-								ssc_tile_hei = -1;
-								cursor_y += thei + vspace;
-								if(cursor_y >= (h - msg_margins[down])) done = true;
-								cursor_x=msg_margins[left];
-							}
-							
-							//No i++ here - s3 terminates at newlines.
-							break;
-						}
-						
-						case MSGC_COLOUR:
-						{
-							int32_t cset = grab_next_argument(s2, &i);
-							msgcolour = CSET(cset)+grab_next_argument(s2, &i);
-							break;
-						}
-						case MSGC_SHDCOLOR:
-						{
-							int32_t cset = grab_next_argument(s2, &i);
-							shdcolor = CSET(cset)+grab_next_argument(s2, &i);
-							break;
-						}
-						case MSGC_SHDTYPE:
-						{
-							shdtype = grab_next_argument(s2, &i);
-							break;
-						}
-						
-						case MSGC_NAME:
-						{
-							char *namestr = (char*)editmsg_dlg[58].dp;
-							char wrapstr[9] = {0};
-							for(int32_t q = 0; namestr[q]; ++q)
-							{
-								if(flags & STRINGFLAG_WRAP)
-								{
-									strcpy(wrapstr, namestr+q);
-								}
-								else
-								{
-									wrapstr[0] = namestr[q];
-								}
-								
-								tlength = text_length(workfont, wrapstr);
-								
-								if(int32_t(cursor_x+tlength+(hspace*strlen(namestr))) > int32_t(w-msg_margins[right]))
-								{
-									int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-									ssc_tile_hei = -1;
-									cursor_y += thei + vspace;
-									if(cursor_y >= (h - msg_margins[down])) break;
-									cursor_x=msg_margins[left];
-								}
-								
-								char cbuf[2] = {0};
-								
-								sprintf(cbuf,"%c",namestr[q]);
-								
-								textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),shdtype,sstaLEFT,msgcolour,shdcolor,-1);
-								
-								cursor_x += workfont->vtable->char_length(workfont, namestr[q]);
-								cursor_x += hspace;
-							}
-							break;
-						}
-						
-						case MSGC_DRAWTILE:
-						{
-							int32_t tl = grab_next_argument(s2, &i);
-							int32_t cs = grab_next_argument(s2, &i);
-							int32_t t_wid = grab_next_argument(s2, &i);
-							int32_t t_hei = grab_next_argument(s2, &i);
-							int32_t fl = grab_next_argument(s2, &i);
-							
-							if(cursor_x+hspace + t_wid > w-msg_margins[right])
-							{
-								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-								ssc_tile_hei = -1;
-								cursor_y += thei + vspace;
-								if(cursor_y >= (h - msg_margins[down])) break;
-								cursor_x=msg_margins[left];
-							}
-							
-							overtileblock16(buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
-							if(t_hei > ssc_tile_hei)
-								ssc_tile_hei = t_hei;
-							cursor_x += hspace + t_wid;
-							break;
-						}
-						
-						case MSGC_SETUPMENU:
-						{
-							_menu_tl = grab_next_argument(s2, &i);
-							_menu_cs = grab_next_argument(s2, &i);
-							_menu_t_wid = grab_next_argument(s2, &i);
-							_menu_t_hei = grab_next_argument(s2, &i);
-							_menu_fl = grab_next_argument(s2, &i);
-							break;
-						}
-						case MSGC_MENUCHOICE:
-						{
-							if(cursor_x+hspace + _menu_t_wid > w-msg_margins[right])
-							{
-								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-								ssc_tile_hei = -1;
-								cursor_y += thei + vspace;
-								if(cursor_y >= (h - msg_margins[down])) break;
-								cursor_x=msg_margins[left];
-							}
-							
-							overtileblock16(buf, _menu_tl, cursor_x, cursor_y, (int32_t)ceil(_menu_t_wid/16.0), (int32_t)ceil(_menu_t_hei/16.0), _menu_cs, _menu_fl);
-							if(_menu_t_hei > ssc_tile_hei)
-								ssc_tile_hei = _menu_t_hei;
-							cursor_x += hspace + _menu_t_wid;
-							(void)grab_next_argument(s2, &i);
-							(void)grab_next_argument(s2, &i);
-							(void)grab_next_argument(s2, &i);
-							(void)grab_next_argument(s2, &i);
-							(void)grab_next_argument(s2, &i);
-							break;
-						}
-						
-						default:
-							if(s3[k] >= 32 && s3[k] <= 126)
-							{
-								//textprintf_ex(buf,workfont,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),msgcolour,-1,"%c",s3[k]);
-								char cbuf[2] = {0};
-								
-								sprintf(cbuf,"%c",s3[k]);
-								
-								textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x+(oldmargin?8:0),cursor_y+(oldmargin?8:0),shdtype,sstaLEFT,msgcolour,shdcolor,-1);
-								
-								cursor_x += workfont->vtable->char_length(workfont, s3[k]);
-								cursor_x += hspace;
-							}
-							else
-							{
-								for(int32_t numops=msg_code_operands(s3[k]-1); numops>0; numops--)
-								{
-									i++;
-									
-									if((byte)s2[i]==255)
-										i+=2;
-								}
-							}
-							
-							break;
-					}
-				}
-				if(cursor_y >= (h - msg_margins[down])) break;
-			}
-			
-			if(nextstring && MsgStrings[nextstring].stringflags & STRINGFLAG_CONT)
-			{
-				workfont = getfont(MsgStrings[nextstring].font);
-				flags = MsgStrings[nextstring].stringflags;
-				hspace = MsgStrings[nextstring].hspace;
-				vspace = MsgStrings[nextstring].vspace;
-				
-				s2 = MsgStrings[nextstring].s;
-				strip_trailing_spaces(s2);
-				
-				// Prevent an infinite loop...
-				if(MsgStrings[nextstring].nextstring!=nextstring)
-					nextstring = MsgStrings[nextstring].nextstring;
-				else
-					nextstring=0;
-			}
-			else
-			{
-				break;
-			}
-		}
-		
-		stretch_blit(buf,screen,start_x,start_y,256+16,32+16,x,y,(256+16)*(is_large?2:1),(32+16)*(is_large?2:1));
-		destroy_bitmap(buf);
-	}
 }
 
 int32_t mprvfont=0;
@@ -1982,111 +1353,6 @@ const char *stringcatlist(int32_t index, int32_t *list_size)
  //
 
 extern int32_t zqwin_scale;
-
-int32_t d_msg_preview_proc(int32_t msg,DIALOG *d,int32_t)
-{
-	char const* s = (char*)(d->dp);
-	int32_t w = vbound((int32_t)strtol((char *)editmsg_dlg[19].dp, (char **) NULL, 10),8,512);
-	int32_t h = vbound((int32_t)strtol((char *)editmsg_dlg[21].dp, (char **) NULL, 10),8,512);
-	
-	if(msg_x > zc_max(w-256,0)) msg_x = zc_max(w-256,0);
-	
-	if(msg_y > zc_max(h-32,0)) msg_y = zc_max(h-32,0);
-	
-	if(mprvfont != editmsg_dlg[18].d1 ||
-			mprvflags != ((editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0) | (editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0)) ||
-			mprvvspace != vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
-			mprvhspace != vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128) ||
-			mprvnextstring != addtomsglist(editmsg_dlg[5].d1) ||
-			mprvw != vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128) ||
-			mprvh != vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128))
-	{
-	
-		mprvfont = editmsg_dlg[18].d1;
-		mprvflags = 0;
-		mprvflags |= (int32_t)editmsg_dlg[27].flags & D_SELECTED ? STRINGFLAG_CONT : 0;
-		mprvflags |= (int32_t)editmsg_dlg[28].flags & D_SELECTED ? STRINGFLAG_WRAP : 0;
-		mprvvspace = vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-		mprvhspace = vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
-		mprvnextstring = addtomsglist(editmsg_dlg[5].d1);
-		mprvw = vbound((int32_t)strtol((char*)editmsg_dlg[25].dp, (char **)NULL, 10),0,128);
-		mprvh = vbound((int32_t)strtol((char*)editmsg_dlg[23].dp, (char **)NULL, 10),0,128);
-		
-		msg = MSG_DRAW;
-	}
-	
-	
-	switch(msg)
-	{
-	case MSG_CLICK:
-	{
-		int32_t ox = gui_mouse_x();
-		int32_t oy = gui_mouse_y();
-		int32_t cmx = msg_x;
-		int32_t cmy = msg_y;
-		int32_t omx = cmx;
-		int32_t omy = cmy;
-		
-		while(gui_mouse_b())
-		{
-			if(cmx != msg_x || cmy != msg_y)
-			{
-				cmx = msg_x;
-				cmy = msg_y;
-				
-				scare_mouse();
-				object_message(d, MSG_DRAW, 0);
-				unscare_mouse();
-			}
-			
-			msg_x = vbound(omx+(ox-gui_mouse_x()),0,zc_max(0,w-256));
-			msg_y = vbound(omy+(oy-gui_mouse_y()),0,zc_max(0,h-32));
-			
-			broadcast_dialog_message(MSG_IDLE, 0);
-			update_hw_screen();
-		}
-		
-		break;
-	}
-	
-	case MSG_DRAW:
-		if(!(d->flags & D_GOTFOCUS))
-		{
-			d->d2=-1;
-		}
-		
-		rectfill(screen, d->x, d->y, d->x+d->w, d->y+d->h, 0);
-		put_msg_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,msg_x,msg_y);
-		break;
-	}
-	
-	return D_O_K;
-}
-
-int32_t d_msg_edit_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	if(d->flags & D_HIDDEN)
-	{
-		switch(msg)
-		{
-			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
-				return D_O_K;
-		}
-	}
-	int32_t ret = jwin_edit_proc(msg,d,c);
-	
-	if(msg==MSG_CHAR)
-	{
-		(void)d_msg_preview_proc(MSG_DRAW,&editmsg_dlg[8],c);
-	}
-	else if(msg==MSG_START)
-	{
-		//hack to counteract jwin_edit_proc's automatic setting of the cursor to the far right
-		//d->d2=0;
-	}
-	
-	return ret;
-}
 
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c)
 {

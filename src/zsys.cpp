@@ -2234,7 +2234,6 @@ void copy_dialog(DIALOG **to, DIALOG *from)
             case d_misccolors_hexedit_proc:
             case d_misccolors_proc:
             case d_misccolors_tab_proc:
-            case d_msg_edit_proc:
             case d_musiclist_proc:
             case d_nbmenu_proc:
             case d_nilist_proc:
@@ -2360,7 +2359,6 @@ void free_dialog(DIALOG **dlg)
             case d_misccolors_hexedit_proc:
             case d_misccolors_proc:
             case d_misccolors_tab_proc:
-            case d_msg_edit_proc:
             case d_musiclist_proc:
             case d_nbmenu_proc:
             case d_nilist_proc:

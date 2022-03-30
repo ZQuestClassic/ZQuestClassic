@@ -31601,7 +31601,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editdmap_dlg);
     jwin_center_dialog(editinfo_dlg);
     jwin_center_dialog(editmidi_dlg);
-    jwin_center_dialog(editmsg_dlg);
     jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(elist_dlg);
