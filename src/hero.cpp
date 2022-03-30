@@ -6909,7 +6909,7 @@ bool HeroClass::animate(int32_t)
 	
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && !IsSideSwim())
+		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim())
 		{
 			if (iswaterex(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
 			&& iswaterex(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
