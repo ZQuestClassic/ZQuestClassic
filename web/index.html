@@ -8,6 +8,12 @@
       margin: 0;
       background-color: black;
       color: whitesmoke;
+      font-size: 18px;
+      font-family: monospace;
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     a {
@@ -18,14 +24,55 @@
       padding: 5px;
     }
 
-    .about-button {
+    button {
       font-size: 18px;
+      background: none;
+      color: white;
+      border: none;
       cursor: pointer;
-      user-select: none;
+    }
+
+    button.active {
+      color: gold;
+    }
+
+    button:active {
+      transform: translate(1px, 1px);
     }
 
     .about {
       margin: 0 5vw;
+    }
+
+    .quest-list {
+      height: 100vh;
+      overflow-y: scroll;
+      display: flex;
+    }
+
+    .quest-list__entries {
+      flex-shrink: 0;
+      overflow-y: scroll;
+    }
+
+    .quest-list__entry {
+      margin: 5px;
+      font-size: 16px;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .quest-list__entry:hover {
+      background-color: #2a3333;
+    }
+
+    .quest-list__entry.selected {
+      padding-left: 5px;
+      color: gold;
+    }
+
+    .quest-list__current button {
+      font-size: 30px;
     }
 
     .emscripten {
@@ -47,8 +94,10 @@
 
 <body>
   <header>
-    <span class="about-button">?</span>
-    <div class="about" hidden>
+    <button class="panel-button" data-panel=".about">About</button>
+    <button class="panel-button" data-panel=".quest-list">Quest List</button>
+
+    <div class="hidden panel about">
       <p>
         This is an alpha version of Zelda Classic for the browser. You can expect crashes, occasional sound hiccups, and
         other bugs.
@@ -58,15 +107,19 @@
         Currently, this seems to work best in FireFox.
       </p>
       <p>
-        When creating a save file, you will find in the "_quests" directory every quest that has been uploaded to
-        <a target="_blank" href="https://www.purezc.net/index.php?page=quests">purezc.com</a>. There's a lot of quests,
-        so to help locate the file you want you should look at the URL on purezc.com and use the id, which every qst
-        file starts with.
+        Find a quest from the Quest List and hit Play to quicky load it. If a save file already exists, it will load
+        instantly.
+        Otherwise, it will load after you input a save file name.
       </p>
       <p>
         To report issues, contact Connor (discord connorclark#9300) or file an issue on the <a target="_blank"
           href="https://github.com/ArmageddonGames/ZeldaClassic">GitHub</a> issue tracker.
       </p>
+    </div>
+
+    <div class="hidden panel quest-list">
+      <div class="quest-list__entries"></div>
+      <div class="quest-list__current"></div>
     </div>
   </header>
   <div class="emscripten">
@@ -75,8 +128,40 @@
   </div>
 
   <div class="content">
-    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=1></canvas>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
   </div>
+
+  <template class="tmpl-selected-quest">
+    <div><span class="name"></span></div>
+
+    <div>By: <span class="author"></span></div>
+    <div>Genre: <span class="genre"></span></div>
+    <div>ZC Version: <span class="version"></span></div>
+
+    <br>
+
+    <div>
+      <button>Play!</button>
+    </div>
+
+    <br>
+
+    <span class="description"></span>
+
+    <div class="images"></div>
+  </template>
+
+  <script>
+    window.ZC = {
+      pathToUrl: {},
+      createPathFromUrl(url) {
+        const urlSplit = url.split('/');
+        const filename = urlSplit[urlSplit.length - 1];
+        const path = `/_quests/${filename}`;
+        return path;
+      },
+    };
+  </script>
 
   <script type="module">
     // TODO: es6 would be better, but there is an issue:
@@ -144,19 +229,86 @@
       }
       canvas.addEventListener('click', requestPersist);
 
-      const aboutButtonEl = document.querySelector('.about-button');
-      aboutButtonEl.addEventListener('click', () => {
-        const el = document.querySelector('.about');
-        el.hidden = !el.hidden;
-        if (el.hidden) {
-          aboutButtonEl.textContent = '?';
-        } else {
-          aboutButtonEl.textContent = 'X';
-        }
-      });
+      for (const el of [...document.querySelectorAll('.panel-button')]) {
+        el.addEventListener('click', () => {
+          for (const buttonEl of document.querySelectorAll('.panel-button')) {
+            const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
+            if (el === buttonEl) {
+              buttonEl.classList.toggle('active');
+              panelEl.classList.toggle('hidden');
+            } else {
+              buttonEl.classList.remove('active');
+              panelEl.classList.add('hidden');
+            }
+          }
+        });
+      }
+
+      await renderQuestList();
     } catch (err) {
       console.error(err);
       document.querySelector('.content').textContent = err.toString();
+    }
+
+    async function renderQuestList() {
+      const questListEl = document.querySelector('.quest-list');
+      const questListEntriesEl = questListEl.querySelector('.quest-list__entries');
+      const questListCurrentEl = questListEl.querySelector('.quest-list__current');
+      const questListCurrentTemplate = document.querySelector('.tmpl-selected-quest');
+
+      const response = await fetch("https://hoten.cc/quest-maker/play/quest-manifest.json");
+      const quests = await response.json();
+
+      for (const quest of quests) {
+        if (!quest.urls.length) continue;
+
+        const url = quest.urls[0];
+        const path = window.ZC.createPathFromUrl(url);
+        const questParamValue = path.replace('/_quests/', '');
+
+        const el = document.createElement('div');
+        el.classList.add('quest-list__entry');
+        el.setAttribute('data-quest-param', questParamValue);
+        el.setAttribute('data-quest-index', quests.indexOf(quest));
+        el.append(quest.name);
+        questListEntriesEl.append(el);
+      }
+
+      questListEntriesEl.addEventListener('click', (e) => {
+        const entryEl = e.target.closest('.quest-list__entry');
+        if (!entryEl) return;
+
+        const questParamValue = entryEl.getAttribute('data-quest-param');
+        const questIndex = Number(entryEl.getAttribute('data-quest-index'));
+        const quest = quests[questIndex];
+
+        document.querySelector('.quest-list__entry.selected')?.classList.remove('selected');
+        entryEl.classList.add('selected');
+
+        const contentEl = questListCurrentTemplate.content.cloneNode(true);
+        contentEl.querySelector('.name').textContent = quest.name;
+        contentEl.querySelector('.author').textContent = quest.author;
+        contentEl.querySelector('.genre').textContent = quest.genre;
+        contentEl.querySelector('.version').textContent = quest.zcVersion;
+        contentEl.querySelector('.description').textContent = quest.description;
+        const imagesEl = contentEl.querySelector('.images');
+        for (const imgUrl of quest.imageUrls) {
+          const imgEl = document.createElement('img');
+          imgEl.src = 'https://hoten.cc/quest-maker/play/' + imgUrl;
+          imagesEl.append(imgEl);
+        }
+        contentEl.querySelector('button').addEventListener('click', () => {
+          const playQuestUrl = new URL(location.href);
+          playQuestUrl.searchParams.set('quest', questParamValue);
+          console.log(playQuestUrl.toString());
+          window.location.href = playQuestUrl;
+        });
+
+        questListCurrentEl.textContent = '';
+        questListCurrentEl.append(contentEl);
+      });
+
+      document.querySelector('.quest-list__entry').click();
     }
   </script>
   <script async src="./zelda.js"></script>
