@@ -1,7 +1,33 @@
 // 2.55 Change Log
-// Updated 15th Mar, 2022
+// Updated 30th Mar, 2022
 
 //Since A104
+
+-Mar 30th Nightly
+
+2 Dock/Raft based QRs
+Shallow Water no longer displays while rafting
+	( Deedee, Mar 30th, 2022 )
+Fix ZQ Options not being saved
+String editor fixes
+Fix itemclass 255 being unobtainable
+Fix String listpos not being saved
+Fix init data crashing with too many items in an itemclass
+Fix Secrets->Next on Layers
+Fix ~Init Script wrong name
+More Half Magic options
+	( EmilyV, Mar 24th, 2022 )
+
+-Mar 24th Nightly
+
+Fixed ItemA/ItemB/ItemX/ItemY setting not being obeyed with item overrides.
+	( Deedee, Mar 24th, 2022 )
+Fix WarpEX documentation
+Fix String Editor Help Text Colors
+Fix Projectile Shooters not obeying stun values/being able to be stunned
+Fix generic combos Room Item, now uses Special Item.
+Fix generic combos showing decoration sprites when they shouldn't.
+	( EmilyV, Mar 17th, 2022 )
 
 //A104
 
