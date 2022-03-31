@@ -172,8 +172,16 @@
       const statusElement = document.getElementById('status');
       const progressElement = document.getElementById('progress');
 
+      const args = [];
+      const params = new URLSearchParams(location.search);
+      if (params.get('quest') && params.get('dmap') && params.get('screen')) {
+        args.push('-test', '/_quests/' + params.get('quest'), params.get('dmap'), params.get('screen'));
+        if (params.get('retsquare')) args.push(params.get('retsquare'));
+      }
+
       // window.Module = await initModule({
       window.Module = {
+        arguments: args,
         canvas: document.querySelector('canvas'),
         setStatus: function (text) {
           if (!text || text === 'Running...') return;
