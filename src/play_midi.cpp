@@ -11,6 +11,11 @@ Mix_Music *current_mus = NULL;
 bool has_opened_audio;
 #endif
 
+void on_music_finished()
+{
+  midi_pos = 0;
+}
+
 int play_midi_em(MIDI *midi, int32_t loop)
 {
 #ifdef __EMSCRIPTEN__
@@ -32,12 +37,12 @@ int play_midi_em(MIDI *midi, int32_t loop)
 
   if (!has_opened_audio)
   {
-    // if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 0) < 0)
     if (Mix_OpenAudioDevice(22050, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 0, NULL, 0) < 0)
     {
       al_trace("Mix_OpenAudioDevice error: %s\n", Mix_GetError());
       return 1;
     }
+    Mix_HookMusicFinished(on_music_finished);
     has_opened_audio = true;
   }
 
