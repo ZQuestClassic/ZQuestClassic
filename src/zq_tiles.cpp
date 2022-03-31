@@ -229,6 +229,116 @@ byte dungeon_carving_template[96][4]=
 	{ 18, 18, 18, 18 }
 };
 
+struct tile_move_data
+{
+	int32_t copies;
+	int32_t dest_first;
+	int32_t dest_last;
+	int32_t src_first;
+	int32_t src_last;
+	int32_t dest_top;
+	int32_t dest_bottom;
+	int32_t src_top;
+	int32_t src_bottom;
+	int32_t src_left, src_right;
+	int32_t src_width, src_height;
+	int32_t dest_left, dest_right;
+	int32_t dest_width, dest_height;
+	int32_t rows, cols;
+	bool rect, move;
+	
+	tile_move_data()
+	{
+		copies = dest_first = dest_last = src_first = src_last = dest_top =
+			dest_bottom = src_top = src_bottom = src_left = src_right =
+			src_width = src_height = dest_left = dest_right = dest_width =
+			dest_height = rows = cols = 0;
+		rect = move = false;
+	}
+	
+	tile_move_data(tile_move_data const& other)
+	{
+		copy(other);
+	}
+	
+	tile_move_data& operator=(tile_move_data const& other)
+	{
+		copy(other);
+	}
+
+	void copy(tile_move_data const& other)
+	{
+		copies = other.copies;
+		dest_first = other.dest_first;
+		dest_last = other.dest_last;
+		src_first = other.src_first;
+		src_last = other.src_last;
+		dest_top = other.dest_top;
+		dest_bottom = other.dest_bottom;
+		src_top = other.src_top;
+		src_bottom = other.src_bottom;
+		src_left = other.src_left;
+		src_right = other.src_right;
+		src_width = other.src_width;
+		src_height = other.src_height;
+		dest_left = other.dest_left;
+		dest_right = other.dest_right;
+		dest_width = other.dest_width;
+		dest_height = other.dest_height;
+		rows = other.rows;
+		cols = other.cols;
+		rect = other.rect;
+		move = other.move;
+	}
+	
+	void flip()
+	{
+		zc_swap(src_first, dest_first);
+		zc_swap(src_last, dest_last);
+		zc_swap(src_top, dest_top);
+		zc_swap(src_bottom, dest_bottom);
+		zc_swap(src_left, dest_left);
+		zc_swap(src_right, dest_right);
+		zc_swap(src_width, dest_width);
+		zc_swap(src_height, dest_height);
+	}
+};
+bool do_movetile_united(tile_move_data const& tmd);
+static tile_move_data* last_tile_move = NULL;
+
+
+struct combo_move_data
+{
+	int32_t tile, tile2, copy1, copycnt;
+	combo_move_data() : tile(0), tile2(0), copy1(0), copycnt(0){}
+	combo_move_data(combo_move_data const& other)
+	{
+		copy(other);
+	}
+	combo_move_data& operator=(combo_move_data const& other)
+	{
+		copy(other);
+	}
+	void copy(combo_move_data const& other)
+	{
+		tile = other.tile;
+		tile2 = other.tile2;
+		copy1 = other.copy1;
+		copycnt = other.copycnt;
+	}
+	
+	void flip()
+	{
+		int32_t tcnt = tile2-tile+1;
+		int32_t cpy2 = copy1+copycnt-1;
+		zc_swap(tile,copy1);
+		tile2 = cpy2;
+		copycnt = tcnt;
+	}
+};
+void do_movecombo(combo_move_data const& cmd);
+static combo_move_data* last_combo_move = NULL;
+
 /*********************************/
 /*****    Tiles & Combos    ******/
 /*********************************/
@@ -371,8 +481,17 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 
+static bool nogotiles = false;
+static bool nogocombos = false;
+
 void go_tiles()
 {
+	if(nogotiles) return;
+	if(last_tile_move)
+	{
+		delete last_tile_move;
+		last_tile_move = NULL;
+	}
 	for(int32_t i=0; i<NEWMAXTILES; ++i)
 	{
 		newundotilebuf[i].format=newtilebuf[i].format;
@@ -430,6 +549,16 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 
 void comeback_tiles()
 {
+	if(last_tile_move && last_tile_move->move)
+	{
+		last_tile_move->flip();
+		bool t = nogotiles;
+		nogotiles = true;
+		do_movetile_united(*last_tile_move);
+		nogotiles = t;
+		delete last_tile_move;
+		last_tile_move = NULL;
+	}
 	for(dword i=0; i<NEWMAXTILES; ++i)
 	{
 		newtilebuf[i].format=newundotilebuf[i].format;
@@ -462,6 +591,12 @@ void comeback_tiles()
 
 void go_combos()
 {
+	if(nogocombos) return;
+	if(last_combo_move)
+	{
+		delete last_combo_move;
+		last_combo_move = NULL;
+	}
 	newcombo *si = combobuf;
 	newcombo *di = undocombobuf;
 	
@@ -471,6 +606,16 @@ void go_combos()
 
 void comeback_combos()
 {
+	if(last_combo_move)
+	{
+		last_combo_move->flip();
+		bool t = nogocombos;
+		nogocombos = true;
+		do_movecombo(*last_combo_move);
+		nogocombos = t;
+		delete last_combo_move;
+		last_combo_move = NULL;
+	}
 	newcombo *si = undocombobuf;
 	newcombo *di = combobuf;
 	
@@ -9482,188 +9627,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	return true;
 }
 //
-
-
-bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
+bool do_movetile_united(tile_move_data const& tmd)
 {
-	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
-	bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 	bool ignore_frames=false;
-	
-	// if tile>tile2 then swap them
-	if(tile>tile2)
-	{
-		zc_swap(tile, tile2);
-	}
-	
-	// alt=copy from right
-	// shift=copy from bottom
-	
-	int32_t copies=copycnt;
-	int32_t dest_first=tile;
-	int32_t dest_last=tile2;
-	int32_t src_first=copy;
-	int32_t src_last=copy+copies-1;
-	
-	int32_t dest_top=0;
-	int32_t dest_bottom=0;
-	int32_t src_top=0;
-	int32_t src_bottom=0;
-	int32_t src_left=0, src_right=0;
-	int32_t src_width=0, src_height=0;
-	int32_t dest_left=0, dest_right=0;
-	int32_t dest_width=0, dest_height=0;
-	int32_t rows=0, cols=0;
-	
-	if(rect)
-	{
-		dest_top=TILEROW(dest_first);
-		dest_bottom=TILEROW(dest_last);
-		src_top=TILEROW(src_first);
-		src_bottom=TILEROW(src_last);
-		
-		src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
-		src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
-		src_first=(src_top  * TILES_PER_ROW)+src_left;
-		src_last= (src_bottom*TILES_PER_ROW)+src_right;
-		
-		dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
-		dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
-		dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
-		dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-		
-		//if no dest range set, then set one
-		if((dest_first==dest_last)&&(src_first!=src_last))
-		{
-			if(alt)
-			{
-				dest_left=dest_right-(src_right-src_left);
-			}
-			else
-			{
-				dest_right=dest_left+(src_right-src_left);
-			}
-			
-			if(shift)
-			{
-				dest_top=dest_bottom-(src_bottom-src_top);
-			}
-			else
-			{
-				dest_bottom=dest_top+(src_bottom-src_top);
-			}
-			
-			dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
-			dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-		}
-		else
-		{
-			if(dest_right-dest_left<src_right-src_left) //destination is shorter than source
-			{
-				if(alt) //copy from right tile instead of left
-				{
-					src_left=src_right-(dest_right-dest_left);
-				}
-				else //copy from left tile
-				{
-					src_right=src_left+(dest_right-dest_left);
-				}
-			}
-			else if(dest_right-dest_left>src_right-src_left)  //destination is longer than source
-			{
-				if(alt) //copy from right tile instead of left
-				{
-					dest_left=dest_right-(src_right-src_left);
-				}
-				else //copy from left tile
-				{
-					dest_right=dest_left+(src_right-src_left);
-				}
-			}
-			
-			if(dest_bottom-dest_top<src_bottom-src_top) //destination is shorter than source
-			{
-				if(shift) //copy from bottom tile instead of top
-				{
-					src_top=src_bottom-(dest_bottom-dest_top);
-				}
-				else //copy from top tile
-				{
-					src_bottom=src_top+(dest_bottom-dest_top);
-				}
-			}
-			else if(dest_bottom-dest_top>src_bottom-src_top)  //destination is longer than source
-			{
-				if(shift) //copy from bottom tile instead of top
-				{
-					dest_top=dest_bottom-(src_bottom-src_top);
-				}
-				else //copy from top tile
-				{
-					dest_bottom=dest_top+(src_bottom-src_top);
-				}
-			}
-			
-			src_first=(src_top  * TILES_PER_ROW)+src_left;
-			src_last= (src_bottom*TILES_PER_ROW)+src_right;
-			dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
-			dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-		}
-		
-		cols=src_right-src_left+1;
-		rows=src_bottom-src_top+1;
-		
-		dest_width=dest_right-dest_left+1;
-		dest_height=dest_bottom-dest_top+1;
-		src_width=src_right-src_left+1;
-		src_height=src_bottom-src_top+1;
-		
-	}
-	else  //!rect
-	{
-		//if no dest range set, then set one
-		if((dest_first==dest_last)&&(src_first!=src_last))
-		{
-			if(alt)
-			{
-				dest_first=dest_last-(src_last-src_first);
-			}
-			else
-			{
-				dest_last=dest_first+(src_last-src_first);
-			}
-		}
-		else
-		{
-			if(dest_last-dest_first<src_last-src_first) //destination is shorter than source
-			{
-				if(alt) //copy from last tile instead of first
-				{
-					src_first=src_last-(dest_last-dest_first);
-				}
-				else //copy from first tile
-				{
-					src_last=src_first+(dest_last-dest_first);
-				}
-			}
-			else if(dest_last-dest_first>src_last-src_first)  //destination is longer than source
-			{
-				if(alt) //copy from last tile instead of first
-				{
-					dest_first=dest_last-(src_last-src_first);
-				}
-				else //copy from first tile
-				{
-					dest_last=dest_first+(src_last-src_first);
-				}
-			}
-		}
-		
-		copies=dest_last-dest_first+1;
-	}
-	
-	
-	
 	char buf[80], buf2[80], buf3[80], buf4[80];
 	sprintf(buf, " ");
 	sprintf(buf2, " ");
@@ -9671,11 +9637,11 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 	sprintf(buf4, " ");
 	
 	// warn if range extends beyond last tile
-	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
+	sprintf(buf4, "Some tiles will not be %s", tmd.move?"moved.":"copied.");
 	
-	if(dest_last>=NEWMAXTILES)
+	if(tmd.dest_last>=NEWMAXTILES)
 	{
-		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
+		sprintf(buf4, "%s operation cancelled.", tmd.move?"Move":"Copy");
 		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
 		return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
@@ -9716,25 +9682,25 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 		switch(q)
 		{
 		case 0:
-			selection_first=dest_first;
-			selection_last=dest_last;
-			selection_left=dest_left;
-			selection_top=dest_top;
-			selection_width=dest_width;
-			selection_height=dest_height;
+			selection_first=tmd.dest_first;
+			selection_last=tmd.dest_last;
+			selection_left=tmd.dest_left;
+			selection_top=tmd.dest_top;
+			selection_width=tmd.dest_width;
+			selection_height=tmd.dest_height;
 			break;
 			
 		case 1:
-			selection_first=src_first;
-			selection_last=src_last;
-			selection_left=src_left;
-			selection_top=src_top;
-			selection_width=src_width;
-			selection_height=src_height;
+			selection_first=tmd.src_first;
+			selection_last=tmd.src_last;
+			selection_left=tmd.src_left;
+			selection_top=tmd.src_top;
+			selection_width=tmd.src_width;
+			selection_height=tmd.src_height;
 			break;
 		}
 		
-		if(move||q==0)
+		if(tmd.move||q==0)
 		{
 			//check combos
 			if(!done)
@@ -9748,7 +9714,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					move_combo_list[u]=false;
 					
-					if(rect)
+					if(tmd.rect)
 					{
 						i=move_intersection_sr(combobuf[u], selection_left, selection_top, selection_width, selection_height);
 					}
@@ -9789,9 +9755,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following combos");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the move.");
+						sprintf(buf3, "will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -9835,7 +9801,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					move_items_list[u]=false;
 					
-					if(rect)
+					if(tmd.rect)
 					{
 						i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, selection_left, selection_top, selection_width, selection_height);
 					}
@@ -9876,9 +9842,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following items");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the move.");
+						sprintf(buf3, "will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10007,7 +9973,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						break;
 					}
 					
-					if(rect)
+					if(tmd.rect)
 					{
 						i=move_intersection_sr(wpnsbuf[biw[u].i].newtile, wpnsbuf[biw[u].i].newtile+zc_max((ignore_frames?0:wpnsbuf[biw[u].i].frames),1)-1+m, selection_left, selection_top, selection_width, selection_height);
 					}
@@ -10045,7 +10011,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					
 					if((u==3)||(u==9))
 					{
-						if(rect)
+						if(tmd.rect)
 						{
 							i=move_intersection_sr(54, 55, selection_left, selection_top, selection_width, selection_height);
 						}
@@ -10080,9 +10046,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following weapons");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the move.");
+						sprintf(buf3, "will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10126,7 +10092,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					move_hero_sprites_list[u]=false;
 					
-					if(rect)
+					if(tmd.rect)
 					{
 						i=move_intersection_rr(TILECOL(hero_sprite_items[u].tile), TILEROW(hero_sprite_items[u].tile), hero_sprite_items[u].width, hero_sprite_items[u].height, selection_left, selection_top, selection_width, selection_height);
 					}
@@ -10167,9 +10133,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following Player sprites");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the move.");
+						sprintf(buf3, "will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10239,7 +10205,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					move_mapstyles_list[u]=false;
 					
-					if(rect)
+					if(tmd.rect)
 					{
 						i=move_intersection_rr(TILECOL(map_styles_items[u].tile), TILEROW(map_styles_items[u].tile), map_styles_items[u].width, map_styles_items[u].height, selection_left, selection_top, selection_width, selection_height);
 					}
@@ -10280,9 +10246,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following map style");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "items will be partially cleared by the move.");
+						sprintf(buf3, "items will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10329,7 +10295,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					move_game_icons_list[u]=false;
 					
-					if(rect)
+					if(tmd.rect)
 					{
 						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
@@ -10366,7 +10332,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					}
 				}
 				
-				if(rect)
+				if(tmd.rect)
 				{
 					i=move_intersection_sr(41, 41, selection_left, selection_top, selection_width, selection_height);
 				}
@@ -10399,9 +10365,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following quest icons");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the move.");
+						sprintf(buf3, "will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10454,7 +10420,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					{
 						move_dmap_maps_list[t][u]=false;
 						
-						if(rect)
+						if(tmd.rect)
 						{
 							i=move_intersection_rr(TILECOL(dmap_map_items[u].tile), TILEROW(dmap_map_items[u].tile), dmap_map_items[u].width, dmap_map_items[u].height, selection_left, selection_top, selection_width, selection_height);
 						}
@@ -10496,9 +10462,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following dmap-specific");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "subscreen maps will be partially cleared by the move.");
+						sprintf(buf3, "subscreen maps will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10575,7 +10541,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						
 						if(guysbuf[bie[u].i].e_height==0)
 						{
-							if(rect)
+							if(tmd.rect)
 							{
 								i=move_intersection_sr(guysbuf[bie[u].i].e_tile, guysbuf[bie[u].i].e_tile+zc_max(guysbuf[bie[u].i].e_width-1, 0), selection_left, selection_top, selection_width, selection_height);
 							}
@@ -10586,7 +10552,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						}
 						else
 						{
-							if(rect)
+							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
 							}
@@ -10618,7 +10584,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						
 						if(darknut)
 						{
-							if(rect)
+							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+120), TILEROW(guysbuf[bie[u].i].e_tile+120), guysbuf[bie[u].i].e_width, guysbuf[bie[u].i].e_height, selection_left, selection_top, selection_width, selection_height);
 							}
@@ -10649,7 +10615,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						}
 						else if(enemy.family==eeGANON && i==ti_none)
 						{
-							if(rect)
+							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile), TILEROW(guysbuf[bie[u].i].e_tile)+2, 20, 4, selection_left, selection_top, selection_width, selection_height);
 							}
@@ -10682,7 +10648,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						{
 							for(int32_t j=0; j<4 && i==ti_none; ++j)
 							{
-								if(rect)
+								if(tmd.rect)
 								{
 									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)), TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0), 4, 1, selection_left, selection_top, selection_width, selection_height);
 								}
@@ -10697,7 +10663,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 								int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
 								int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
 								
-								if(rect)
+								if(tmd.rect)
 								{
 									i=move_intersection_rr(c, r, 20, 3, selection_left, selection_top, selection_width, selection_height);
 								}
@@ -10708,7 +10674,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 								
 								if(i==ti_none)
 								{
-									if(rect)
+									if(tmd.rect)
 									{
 										i=move_intersection_rr(c, r+3, 16, 6, selection_left, selection_top, selection_width, selection_height);
 									}
@@ -10748,7 +10714,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						}
 						else if(guysbuf[bie[u].i].height==0)
 						{
-							if(rect)
+							if(tmd.rect)
 							{
 								i=move_intersection_sr(guysbuf[bie[u].i].tile, guysbuf[bie[u].i].tile+zc_max(guysbuf[bie[u].i].width-1, 0), selection_left, selection_top, selection_width, selection_height);
 							}
@@ -10759,7 +10725,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						}
 						else
 						{
-							if(rect)
+							if(tmd.rect)
 							{
 								i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].tile), TILEROW(guysbuf[bie[u].i].tile), guysbuf[bie[u].i].width, guysbuf[bie[u].i].height, selection_left, selection_top, selection_width, selection_height);
 							}
@@ -10793,7 +10759,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						{
 							if(guysbuf[bie[u].i].s_height==0)
 							{
-								if(rect)
+								if(tmd.rect)
 								{
 									i=move_intersection_sr(guysbuf[bie[u].i].s_tile, guysbuf[bie[u].i].s_tile+zc_max(guysbuf[bie[u].i].s_width-1, 0), selection_left, selection_top, selection_width, selection_height);
 								}
@@ -10804,7 +10770,7 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 							}
 							else
 							{
-								if(rect)
+								if(tmd.rect)
 								{
 									i=move_intersection_rr(TILECOL(guysbuf[bie[u].i].s_tile), TILEROW(guysbuf[bie[u].i].s_tile), guysbuf[bie[u].i].s_width, guysbuf[bie[u].i].s_height, selection_left, selection_top, selection_width, selection_height);
 								}
@@ -10841,9 +10807,9 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 				{
 					sprintf(buf2, "The tiles used by the following enemies");
 					
-					if(move)
+					if(tmd.move)
 					{
-						sprintf(buf3, "will be partially cleared by the move.");
+						sprintf(buf3, "will be partially cleared by the tmd.move.");
 						sprintf(buf4, "Proceed?");
 					}
 					else
@@ -10877,22 +10843,22 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 	}
 	
 	//
-	// copy tiles and delete if needed (move)
+	// copy tiles and delete if needed (tmd.move)
 	
 	if(!done)
 	{
 		go_tiles();
 		
-		int32_t diff=dest_first-src_first;
+		int32_t diff=tmd.dest_first-tmd.src_first;
 		
-		if(rect)
+		if(tmd.rect)
 		{
-			for(int32_t r=0; r<rows; ++r)
+			for(int32_t r=0; r<tmd.rows; ++r)
 			{
-				for(int32_t c=0; c<cols; ++c)
+				for(int32_t c=0; c<tmd.cols; ++c)
 				{
-					int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
-					int32_t st=(src_first+((r*TILES_PER_ROW)+c));
+					int32_t dt=(tmd.dest_first+((r*TILES_PER_ROW)+c));
+					int32_t st=(tmd.src_first+((r*TILES_PER_ROW)+c));
 					
 					if(dt>=NEWMAXTILES)
 						continue;
@@ -10904,14 +10870,14 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 						newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
 					}
 					
-					if(move)
+					if(tmd.move)
 					{
-						if((st<dest_first||st>dest_first+((rows-1)*TILES_PER_ROW)+(cols-1)))
+						if((st<tmd.dest_first||st>tmd.dest_first+((tmd.rows-1)*TILES_PER_ROW)+(tmd.cols-1)))
 							reset_tile(newtilebuf, st, tf4Bit);
 						else
 						{
-							int32_t destLeft=dest_first%TILES_PER_ROW;
-							int32_t destRight=(dest_first+cols-1)%TILES_PER_ROW;
+							int32_t destLeft=tmd.dest_first%TILES_PER_ROW;
+							int32_t destRight=(tmd.dest_first+tmd.cols-1)%TILES_PER_ROW;
 							if(destLeft<=destRight)
 							{
 								if(st%TILES_PER_ROW<destLeft || st%TILES_PER_ROW>destRight)
@@ -10929,10 +10895,10 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 		}
 		else
 		{
-			for(int32_t c=0; c<copies; ++c)
+			for(int32_t c=0; c<tmd.copies; ++c)
 			{
-				int32_t dt=(dest_first+c);
-				int32_t st=(src_first+c);
+				int32_t dt=(tmd.dest_first+c);
+				int32_t st=(tmd.src_first+c);
 				
 				if(dt>=NEWMAXTILES)
 					continue;
@@ -10944,15 +10910,15 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 					newtilebuf[dt].data[j]=newundotilebuf[st].data[j];
 				}
 				
-				if(move)
+				if(tmd.move)
 				{
-					if(st<dest_first||st>(dest_first+c-1))
+					if(st<tmd.dest_first||st>(tmd.dest_first+c-1))
 						reset_tile(newtilebuf, st, tf4Bit);
 				}
 			}
 		}
 		
-		if(move)
+		if(tmd.move)
 		{
 			for(int32_t u=0; u<MAXCOMBOS; u++)
 			{
@@ -11151,12 +11117,11 @@ bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copyc
 		
 	return true;
 }
-//
 
-bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
+bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
 {
-	
-	bool ignore_frames=false;
+	bool alt=(key[KEY_ALT]||key[KEY_ALTGR]);
+	bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 	
 	// if tile>tile2 then swap them
 	if(tile>tile2)
@@ -11166,59 +11131,228 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	// alt=copy from right
 	// shift=copy from bottom
+	tile_move_data tmd;
 	
-	int32_t copies=copycnt;
-	int32_t dest_first=tile;
-	int32_t dest_last=tile2;
-	int32_t src_first=copy;
-	int32_t src_last=copy+copies-1;
+	tmd.copies=copycnt;
+	tmd.dest_first=tile;
+	tmd.dest_last=tile2;
+	tmd.src_first=copy;
+	tmd.src_last=copy+tmd.copies-1;
+	tmd.rect = rect;
+	tmd.move = move;
 	
-	int32_t dest_top=0;
-	int32_t dest_bottom=0;
-	int32_t src_top=0;
-	int32_t src_bottom=0;
-	int32_t src_left=0, src_right=0;
-	int32_t src_width=0, src_height=0;
-	int32_t dest_left=0, dest_right=0;
-	int32_t dest_width=0, dest_height=0;
-	int32_t rows=0, cols=0;
+	if(rect)
+	{
+		tmd.dest_top=TILEROW(tmd.dest_first);
+		tmd.dest_bottom=TILEROW(tmd.dest_last);
+		tmd.src_top=TILEROW(tmd.src_first);
+		tmd.src_bottom=TILEROW(tmd.src_last);
+		
+		tmd.src_left= zc_min(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
+		tmd.src_right=zc_max(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
+		tmd.src_first=(tmd.src_top  * TILES_PER_ROW)+tmd.src_left;
+		tmd.src_last= (tmd.src_bottom*TILES_PER_ROW)+tmd.src_right;
+		
+		tmd.dest_left= zc_min(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
+		tmd.dest_right=zc_max(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
+		tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
+		tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
+		
+		//if no dest range set, then set one
+		if((tmd.dest_first==tmd.dest_last)&&(tmd.src_first!=tmd.src_last))
+		{
+			if(alt)
+			{
+				tmd.dest_left=tmd.dest_right-(tmd.src_right-tmd.src_left);
+			}
+			else
+			{
+				tmd.dest_right=tmd.dest_left+(tmd.src_right-tmd.src_left);
+			}
+			
+			if(shift)
+			{
+				tmd.dest_top=tmd.dest_bottom-(tmd.src_bottom-tmd.src_top);
+			}
+			else
+			{
+				tmd.dest_bottom=tmd.dest_top+(tmd.src_bottom-tmd.src_top);
+			}
+			
+			tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
+			tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
+		}
+		else
+		{
+			if(tmd.dest_right-tmd.dest_left<tmd.src_right-tmd.src_left) //destination is shorter than source
+			{
+				if(alt) //copy from right tile instead of left
+				{
+					tmd.src_left=tmd.src_right-(tmd.dest_right-tmd.dest_left);
+				}
+				else //copy from left tile
+				{
+					tmd.src_right=tmd.src_left+(tmd.dest_right-tmd.dest_left);
+				}
+			}
+			else if(tmd.dest_right-tmd.dest_left>tmd.src_right-tmd.src_left)  //destination is longer than source
+			{
+				if(alt) //copy from right tile instead of left
+				{
+					tmd.dest_left=tmd.dest_right-(tmd.src_right-tmd.src_left);
+				}
+				else //copy from left tile
+				{
+					tmd.dest_right=tmd.dest_left+(tmd.src_right-tmd.src_left);
+				}
+			}
+			
+			if(tmd.dest_bottom-tmd.dest_top<tmd.src_bottom-tmd.src_top) //destination is shorter than source
+			{
+				if(shift) //copy from bottom tile instead of top
+				{
+					tmd.src_top=tmd.src_bottom-(tmd.dest_bottom-tmd.dest_top);
+				}
+				else //copy from top tile
+				{
+					tmd.src_bottom=tmd.src_top+(tmd.dest_bottom-tmd.dest_top);
+				}
+			}
+			else if(tmd.dest_bottom-tmd.dest_top>tmd.src_bottom-tmd.src_top)  //destination is longer than source
+			{
+				if(shift) //copy from bottom tile instead of top
+				{
+					tmd.dest_top=tmd.dest_bottom-(tmd.src_bottom-tmd.src_top);
+				}
+				else //copy from top tile
+				{
+					tmd.dest_bottom=tmd.dest_top+(tmd.src_bottom-tmd.src_top);
+				}
+			}
+			
+			tmd.src_first=(tmd.src_top  * TILES_PER_ROW)+tmd.src_left;
+			tmd.src_last= (tmd.src_bottom*TILES_PER_ROW)+tmd.src_right;
+			tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
+			tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
+		}
+		
+		tmd.cols=tmd.src_right-tmd.src_left+1;
+		tmd.rows=tmd.src_bottom-tmd.src_top+1;
+		
+		tmd.dest_width=tmd.dest_right-tmd.dest_left+1;
+		tmd.dest_height=tmd.dest_bottom-tmd.dest_top+1;
+		tmd.src_width=tmd.src_right-tmd.src_left+1;
+		tmd.src_height=tmd.src_bottom-tmd.src_top+1;
+		
+	}
+	else  //!rect
+	{
+		//if no dest range set, then set one
+		if((tmd.dest_first==tmd.dest_last)&&(tmd.src_first!=tmd.src_last))
+		{
+			if(alt)
+			{
+				tmd.dest_first=tmd.dest_last-(tmd.src_last-tmd.src_first);
+			}
+			else
+			{
+				tmd.dest_last=tmd.dest_first+(tmd.src_last-tmd.src_first);
+			}
+		}
+		else
+		{
+			if(tmd.dest_last-tmd.dest_first<tmd.src_last-tmd.src_first) //destination is shorter than source
+			{
+				if(alt) //copy from last tile instead of first
+				{
+					tmd.src_first=tmd.src_last-(tmd.dest_last-tmd.dest_first);
+				}
+				else //copy from first tile
+				{
+					tmd.src_last=tmd.src_first+(tmd.dest_last-tmd.dest_first);
+				}
+			}
+			else if(tmd.dest_last-tmd.dest_first>tmd.src_last-tmd.src_first)  //destination is longer than source
+			{
+				if(alt) //copy from last tile instead of first
+				{
+					tmd.dest_first=tmd.dest_last-(tmd.src_last-tmd.src_first);
+				}
+				else //copy from first tile
+				{
+					tmd.dest_last=tmd.dest_first+(tmd.src_last-tmd.src_first);
+				}
+			}
+		}
+		
+		tmd.copies=tmd.dest_last-tmd.dest_first+1;
+	}
+	
+	bool ret = do_movetile_united(tmd);
+	if(ret)
+	{
+		if(last_tile_move)
+			delete last_tile_move;
+		last_tile_move = new tile_move_data(tmd);
+	}
+	return ret;
+}
+
+//
+
+bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect, bool move)
+{
+	bool ignore_frames=false;
+	
+	// if tile>tile2 then swap them
+	if(tile>tile2)
+	{
+		zc_swap(tile, tile2);
+	}
+		
+	tile_move_data tmd;
+	tmd.copies=copycnt;
+	tmd.dest_first=tile;
+	tmd.dest_last=tile2;
+	tmd.src_first=copy;
+	tmd.src_last=copy+tmd.copies-1;
 	
 	
 	
 	if(rect)
 	{
-		dest_top=TILEROW(dest_first);
-		dest_bottom=TILEROW(dest_last);
-		//src_top=TILEROW(src_first);
-		//src_bottom=TILEROW(src_last);
+		tmd.dest_top=TILEROW(tmd.dest_first);
+		tmd.dest_bottom=TILEROW(tmd.dest_last);
+		//tmd.src_top=TILEROW(tmd.src_first);
+		//tmd.src_bottom=TILEROW(tmd.src_last);
 		
-		//src_left= zc_min(TILECOL(src_first),TILECOL(src_last));
-		//src_right=zc_max(TILECOL(src_first),TILECOL(src_last));
-		//src_first=(src_top  * TILES_PER_ROW)+src_left;
-		//src_last= (src_bottom*TILES_PER_ROW)+src_right;
+		//tmd.src_left= zc_min(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
+		//tmd.src_right=zc_max(TILECOL(tmd.src_first),TILECOL(tmd.src_last));
+		//tmd.src_first=(tmd.src_top  * TILES_PER_ROW)+tmd.src_left;
+		//tmd.src_last= (tmd.src_bottom*TILES_PER_ROW)+tmd.src_right;
 		
-		dest_left= zc_min(TILECOL(dest_first),TILECOL(dest_last));
-		dest_right=zc_max(TILECOL(dest_first),TILECOL(dest_last));
-		dest_first=(dest_top  * TILES_PER_ROW)+dest_left;
-		dest_last= (dest_bottom*TILES_PER_ROW)+dest_right;
-		
-		
+		tmd.dest_left= zc_min(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
+		tmd.dest_right=zc_max(TILECOL(tmd.dest_first),TILECOL(tmd.dest_last));
+		tmd.dest_first=(tmd.dest_top  * TILES_PER_ROW)+tmd.dest_left;
+		tmd.dest_last= (tmd.dest_bottom*TILES_PER_ROW)+tmd.dest_right;
 		
 		
-		dest_width=dest_right-dest_left;
-		dest_height=dest_bottom-dest_top;
 		
-	cols=dest_width+1;
-		rows=dest_height+1;
+		
+		tmd.dest_width=tmd.dest_right-tmd.dest_left;
+		tmd.dest_height=tmd.dest_bottom-tmd.dest_top;
+		
+	tmd.cols=tmd.dest_width+1;
+		tmd.rows=tmd.dest_height+1;
 	
-	al_trace("rows: %d\n", rows);
-	al_trace("cols: %d\n", cols);
+	al_trace("tmd.rows: %d\n", tmd.rows);
+	al_trace("tmd.cols: %d\n", tmd.cols);
 
 		
 	}
 	else  //!rect
 	{
-		copies=dest_last-dest_first+1;
+		tmd.copies=tmd.dest_last-tmd.dest_first+1;
 	}
 	
 	
@@ -11232,12 +11366,12 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	// warn if range extends beyond last tile
 	sprintf(buf4, "Some tiles will not be %s", move?"moved.":"copied.");
 	
-	if(dest_last>=NEWMAXTILES)
+	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
 		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
 		return false;
-//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
+		//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
 		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
 		// {
 		//  return false;
@@ -11275,21 +11409,21 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		switch(q)
 		{
 		case 0:
-			selection_first=dest_first;
-			selection_last=dest_last;
-			selection_left=dest_left;
-			selection_top=dest_top;
-			selection_width=dest_width;
-			selection_height=dest_height;
+			selection_first=tmd.dest_first;
+			selection_last=tmd.dest_last;
+			selection_left=tmd.dest_left;
+			selection_top=tmd.dest_top;
+			selection_width=tmd.dest_width;
+			selection_height=tmd.dest_height;
 			break;
 			
 		case 1:
-			selection_first=src_first;
-			selection_last=src_last;
-			selection_left=src_left;
-			selection_top=src_top;
-			selection_width=src_width;
-			selection_height=src_height;
+			selection_first=tmd.src_first;
+			selection_last=tmd.src_last;
+			selection_left=tmd.src_left;
+			selection_top=tmd.src_top;
+			selection_width=tmd.src_width;
+			selection_height=tmd.src_height;
 			break;
 		}
 		
@@ -12442,19 +12576,19 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	{
 		go_tiles();
 		
-		int32_t diff=dest_first-src_first;
+		int32_t diff=tmd.dest_first-tmd.src_first;
 		
 		if(rect)
 		{
 		al_trace("floodfill, rect\n");
-		al_trace("rows: %d\n", rows);
-		al_trace("cols: %d\n", cols);
-			for(int32_t r=0; r<rows; ++r)
+		al_trace("tmd.rows: %d\n", tmd.rows);
+		al_trace("tmd.cols: %d\n", tmd.cols);
+			for(int32_t r=0; r<tmd.rows; ++r)
 			{
-				for(int32_t c=0; c<cols; ++c)
+				for(int32_t c=0; c<tmd.cols; ++c)
 				{
-					int32_t dt=(dest_first+((r*TILES_PER_ROW)+c));
-					//int32_t st=(src_first+((r*TILES_PER_ROW)+c));
+					int32_t dt=(tmd.dest_first+((r*TILES_PER_ROW)+c));
+					//int32_t st=(tmd.src_first+((r*TILES_PER_ROW)+c));
 					
 					if(dt>=NEWMAXTILES)
 						continue;
@@ -12470,10 +12604,10 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 		}
 		else
 		{
-			for(int32_t c=0; c<copies; ++c)
+			for(int32_t c=0; c<tmd.copies; ++c)
 			{
-				int32_t dt=(dest_first+c);
-				int32_t st=(src_first+c);
+				int32_t dt=(tmd.dest_first+c);
+				int32_t st=(tmd.src_first+c);
 				
 				if(dt>=NEWMAXTILES)
 					continue;
@@ -13547,6 +13681,167 @@ void copy_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bo
 	return;
 }
 
+void do_movecombo(combo_move_data const& cmd)
+{
+	reset_combo_animations();
+	reset_combo_animations2();
+	go_combos();
+	
+	for(int32_t t=(cmd.tile<cmd.copy1)?0:(cmd.copycnt-1); (cmd.tile<cmd.copy1)?(t<cmd.copycnt):(t>=0); (cmd.tile<cmd.copy1)?(t++):(t--))
+	{
+		if(cmd.tile+t < MAXCOMBOS)
+		{
+			combobuf[cmd.tile+t]=combobuf[cmd.copy1+t];
+			clear_combo(cmd.copy1+t);
+		}
+	}
+	int32_t diff = cmd.tile - cmd.copy1;
+	for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+	{
+		for(int32_t j=0; j<MAPSCRS; j++)
+		{
+			for(int32_t k=0; k<176; k++)
+			{
+				if((TheMaps[i*MAPSCRS+j].data[k]>=cmd.copy1)&&(TheMaps[i*MAPSCRS+j].data[k]<cmd.copy1+cmd.copycnt))
+				{
+					TheMaps[i*MAPSCRS+j].data[k] += diff;
+				}
+			}
+			
+			for(int32_t k=0; k<128; k++)
+			{
+				if((TheMaps[i*MAPSCRS+j].secretcombo[k]>=cmd.copy1)&& (TheMaps[i*MAPSCRS+j].secretcombo[k]<cmd.copy1+cmd.copycnt))
+				{
+					TheMaps[i*MAPSCRS+j].secretcombo[k] += diff;
+				}
+			}
+			
+			if((TheMaps[i*MAPSCRS+j].undercombo>=cmd.copy1)&&(TheMaps[i*MAPSCRS+j].undercombo<cmd.copy1+cmd.copycnt))
+			{
+				TheMaps[i*MAPSCRS+j].undercombo += diff;
+			}
+			
+			for(int32_t k=0; k<MAXFFCS; k++)
+			{
+				if((TheMaps[i*MAPSCRS+j].ffdata[k] >= cmd.copy1) && (TheMaps[i*MAPSCRS+j].ffdata[k] < cmd.copy1+cmd.copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
+				{
+					TheMaps[i*MAPSCRS+j].ffdata[k] += diff;
+				}
+			}
+		}
+	}
+	
+	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
+	{
+		for(int32_t j=0; j<9; j++)
+		{
+			if(j<4)
+			{
+				if((DoorComboSets[i].walkthroughcombo[j]>=cmd.copy1)&&(DoorComboSets[i].walkthroughcombo[j]<cmd.copy1+cmd.copycnt))
+				{
+					DoorComboSets[i].walkthroughcombo[j] += diff;
+				}
+				
+				if(j<3)
+				{
+					if(j<2)
+					{
+						if((DoorComboSets[i].bombdoorcombo_u[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_u[j]<cmd.copy1+cmd.copycnt))
+						{
+							DoorComboSets[i].bombdoorcombo_u[j] += diff;
+						}
+						
+						if((DoorComboSets[i].bombdoorcombo_d[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_d[j]<cmd.copy1+cmd.copycnt))
+						{
+							DoorComboSets[i].bombdoorcombo_d[j] += diff;
+						}
+					}
+					
+					if((DoorComboSets[i].bombdoorcombo_l[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_l[j]<cmd.copy1+cmd.copycnt))
+					{
+						DoorComboSets[i].bombdoorcombo_l[j] += diff;
+					}
+					
+					if((DoorComboSets[i].bombdoorcombo_r[j]>=cmd.copy1)&&(DoorComboSets[i].bombdoorcombo_r[j]<cmd.copy1+cmd.copycnt))
+					{
+						DoorComboSets[i].bombdoorcombo_r[j] += diff;
+					}
+				}
+			}
+			
+			for(int32_t k=0; k<6; k++)
+			{
+				if(k<4)
+				{
+					if((DoorComboSets[i].doorcombo_u[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_u[j][k]<cmd.copy1+cmd.copycnt))
+					{
+						DoorComboSets[i].doorcombo_u[j][k] += diff;
+					}
+					
+					if((DoorComboSets[i].doorcombo_d[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_d[j][k]<cmd.copy1+cmd.copycnt))
+					{
+						DoorComboSets[i].doorcombo_d[j][k] += diff;
+					}
+				}
+				
+				if((DoorComboSets[i].doorcombo_l[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_l[j][k]<cmd.copy1+cmd.copycnt))
+				{
+					DoorComboSets[i].doorcombo_l[j][k] += diff;
+				}
+				
+				if((DoorComboSets[i].doorcombo_r[j][k]>=cmd.copy1)&&(DoorComboSets[i].doorcombo_r[j][k]<cmd.copy1+cmd.copycnt))
+				{
+					DoorComboSets[i].doorcombo_r[j][k] += diff;
+				}
+			}
+		}
+	}
+	
+	for(int32_t i=0; i<MAXCOMBOS; i++)
+	{
+		if((combobuf[i].nextcombo>=cmd.copy1)&&(combobuf[i].nextcombo<cmd.copy1+cmd.copycnt))
+		{
+			//since next combo 0 represents "no next combo," do not move it away from 0 -DD
+			if(combobuf[i].nextcombo != 0)
+				combobuf[i].nextcombo += diff;
+		}
+	}
+	
+	for(int32_t i=0; i<MAXCOMBOALIASES; i++)
+	{
+		//dimensions are 1 less than you would expect -DD
+		int32_t count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
+		
+		for(int32_t j=0; j<count; j++)
+		{
+		
+			if((combo_aliases[i].combos[j]>=cmd.copy1)&&(combo_aliases[i].combos[j]<cmd.copy1+cmd.copycnt)&&(combo_aliases[i].combos[j]!=0))
+			{
+				combo_aliases[i].combos[j] += diff;
+			}
+		}
+	}
+	
+	for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
+	{
+		if(favorite_combos[i]>=cmd.copy1 && favorite_combos[i]<cmd.copy1+cmd.copycnt)
+			favorite_combos[i] += diff;
+	}
+	
+	for(auto q = 0; q < 256; ++q)
+	{
+		for(auto p = 0; p < 3; ++p)
+		{
+			if(misc.bottle_shop_types[q].comb[p] >= cmd.copy1 && misc.bottle_shop_types[q].comb[p] < cmd.copy1+cmd.copycnt)
+				misc.bottle_shop_types[q].comb[p] += diff;
+		}
+	}
+	
+	setup_combo_animations();
+	setup_combo_animations2();
+	saved=false;
+}
+
 void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 {
 	if(tile2<tile)
@@ -13561,166 +13856,18 @@ void move_combos(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt)
 		return;
 	}
 	
-	//these 2 shouldn't be needed, but just to be safe...
-	reset_combo_animations();
-	reset_combo_animations2();
-	go_combos();
+	combo_move_data cmd;
+	cmd.tile = tile;
+	cmd.tile2 = tile2;
+	cmd.copy1 = copy;
+	cmd.copycnt = copycnt;
 	
-	for(int32_t t=(tile<copy)?0:(copycnt-1); (tile<copy)?(t<copycnt):(t>=0); (tile<copy)?(t++):(t--))
-	{
-		if(tile+t < MAXCOMBOS)
-		{
-			combobuf[tile+t]=combobuf[copy+t];
-			clear_combo(copy+t);
-		}
-	}
-	
-	for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
-	{
-		for(int32_t j=0; j<MAPSCRS; j++)
-		{
-			for(int32_t k=0; k<176; k++)
-			{
-				if((TheMaps[i*MAPSCRS+j].data[k]>=copy)&&(TheMaps[i*MAPSCRS+j].data[k]<copy+copycnt))
-				{
-					TheMaps[i*MAPSCRS+j].data[k] += tile-copy;
-				}
-			}
-			
-			for(int32_t k=0; k<128; k++)
-			{
-				if((TheMaps[i*MAPSCRS+j].secretcombo[k]>=copy)&& (TheMaps[i*MAPSCRS+j].secretcombo[k]<copy+copycnt))
-				{
-					TheMaps[i*MAPSCRS+j].secretcombo[k] += tile-copy;
-				}
-			}
-			
-			if((TheMaps[i*MAPSCRS+j].undercombo>=copy)&&(TheMaps[i*MAPSCRS+j].undercombo<copy+copycnt))
-			{
-				TheMaps[i*MAPSCRS+j].undercombo += tile-copy;
-			}
-			
-			for(int32_t k=0; k<MAXFFCS; k++)
-			{
-				if((TheMaps[i*MAPSCRS+j].ffdata[k] >= copy) && (TheMaps[i*MAPSCRS+j].ffdata[k] < copy+copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
-				{
-					TheMaps[i*MAPSCRS+j].ffdata[k] += tile-copy;
-				}
-			}
-		}
-	}
-	
-	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
-	{
-		for(int32_t j=0; j<9; j++)
-		{
-			if(j<4)
-			{
-				if((DoorComboSets[i].walkthroughcombo[j]>=copy)&&(DoorComboSets[i].walkthroughcombo[j]<copy+copycnt))
-				{
-					DoorComboSets[i].walkthroughcombo[j] += tile-copy;
-				}
-				
-				if(j<3)
-				{
-					if(j<2)
-					{
-						if((DoorComboSets[i].bombdoorcombo_u[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_u[j]<copy+copycnt))
-						{
-							DoorComboSets[i].bombdoorcombo_u[j] += tile-copy;
-						}
-						
-						if((DoorComboSets[i].bombdoorcombo_d[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_d[j]<copy+copycnt))
-						{
-							DoorComboSets[i].bombdoorcombo_d[j] += tile-copy;
-						}
-					}
-					
-					if((DoorComboSets[i].bombdoorcombo_l[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_l[j]<copy+copycnt))
-					{
-						DoorComboSets[i].bombdoorcombo_l[j] += tile-copy;
-					}
-					
-					if((DoorComboSets[i].bombdoorcombo_r[j]>=copy)&&(DoorComboSets[i].bombdoorcombo_r[j]<copy+copycnt))
-					{
-						DoorComboSets[i].bombdoorcombo_r[j] += tile-copy;
-					}
-				}
-			}
-			
-			for(int32_t k=0; k<6; k++)
-			{
-				if(k<4)
-				{
-					if((DoorComboSets[i].doorcombo_u[j][k]>=copy)&&(DoorComboSets[i].doorcombo_u[j][k]<copy+copycnt))
-					{
-						DoorComboSets[i].doorcombo_u[j][k] += tile-copy;
-					}
-					
-					if((DoorComboSets[i].doorcombo_d[j][k]>=copy)&&(DoorComboSets[i].doorcombo_d[j][k]<copy+copycnt))
-					{
-						DoorComboSets[i].doorcombo_d[j][k] += tile-copy;
-					}
-				}
-				
-				if((DoorComboSets[i].doorcombo_l[j][k]>=copy)&&(DoorComboSets[i].doorcombo_l[j][k]<copy+copycnt))
-				{
-					DoorComboSets[i].doorcombo_l[j][k] += tile-copy;
-				}
-				
-				if((DoorComboSets[i].doorcombo_r[j][k]>=copy)&&(DoorComboSets[i].doorcombo_r[j][k]<copy+copycnt))
-				{
-					DoorComboSets[i].doorcombo_r[j][k] += tile-copy;
-				}
-			}
-		}
-	}
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-	{
-		if((combobuf[i].nextcombo>=copy)&&(combobuf[i].nextcombo<copy+copycnt))
-		{
-			//since next combo 0 represents "no next combo," do not move it away from 0 -DD
-			if(combobuf[i].nextcombo != 0)
-				combobuf[i].nextcombo += tile-copy;
-		}
-	}
-	
-	for(int32_t i=0; i<MAXCOMBOALIASES; i++)
-	{
-		//dimensions are 1 less than you would expect -DD
-		int32_t count=(comboa_lmasktotal(combo_aliases[i].layermask)+1)*(combo_aliases[i].width+1)*(combo_aliases[i].height+1);
-		
-		for(int32_t j=0; j<count; j++)
-		{
-		
-			if((combo_aliases[i].combos[j]>=copy)&&(combo_aliases[i].combos[j]<copy+copycnt)&&(combo_aliases[i].combos[j]!=0))
-			{
-				combo_aliases[i].combos[j] += tile-copy;
-			}
-		}
-	}
-	
-	for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
-	{
-		if(favorite_combos[i]>=copy && favorite_combos[i]<copy+copycnt)
-			favorite_combos[i] += tile-copy;
-	}
-	
-	for(auto q = 0; q < 256; ++q)
-	{
-		for(auto p = 0; p < 3; ++p)
-		{
-			if(misc.bottle_shop_types[q].comb[p] >= copy && misc.bottle_shop_types[q].comb[p] < copy+copycnt)
-				misc.bottle_shop_types[q].comb[p] += tile-copy;
-		}
-	}
-	
+	do_movecombo(cmd);
+	if(last_combo_move)
+		delete last_combo_move;
+	last_combo_move = new combo_move_data(cmd);
 	copy=-1;
 	tile2=tile;
-	setup_combo_animations();
-	setup_combo_animations2();
-	saved=false;
 }
 
 void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
