@@ -2345,8 +2345,16 @@ int32_t init_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		if (tmpscr->warpreturnx[testingqst_retsqr] != 0 || tmpscr->warpreturny[testingqst_retsqr] != 0)
+		{
+			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		}
+		else
+		{
+			Hero.setX(16 * 8);
+			Hero.setY(16 * 5);
+		}
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
