@@ -21,6 +21,13 @@ cd -
 
 mkdir -p build_emscripten
 cd build_emscripten
+if [[ "$DEBUG" ]]; then
+  mkdir -p debug
+  cd debug
+else
+  mkdir -p release
+  cd release
+fi
 
 # Wish I knew how to remove this.
 EMCC_CACHE_INCLUDE_DIR=$(dirname $(which emcc))/cache/sysroot/include
@@ -52,8 +59,8 @@ EMCC_FLAGS=(
   -I "$(dirname $(which emcc))/cache/ports/sdl2_mixer/SDL2_mixer-release-2.0.2/timidity"
 )
 LINKER_FLAGS=(
-  --preload-file="../output/_auto/buildpack@/"
-  --preload-file="../freepats@/etc/timidity"
+  --preload-file="../../output/_auto/buildpack@/"
+  --preload-file="../../freepats@/etc/timidity"
   --use-preload-cache
   --shared-memory
   -s ASYNCIFY=1
@@ -101,7 +108,7 @@ fi
 # LINKER_FLAGS+=(-s SAFE_HEAP=1)
 # EMCC_FLAGS+=(--memoryprofiler)
 
-emcmake cmake .. \
+emcmake cmake ../.. \
   -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
   -D ALLEGRO_SDL=ON \
   -D WANT_ALLOW_SSE=OFF \
@@ -130,7 +137,7 @@ cmake --build . -t zelda
 HASH=$(shasum -a 256 zelda.data | awk '{print $1}')
 sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zelda.js
 
-cp ../web/index.html .
+cp ../../web/index.html .
 
 # Now start a local webserver in build_emscripten folder.
 # Note: You will need to install this chrome extension: https://chrome.google.com/webstore/detail/modheader/idgpnmonknjnojddfkpgkljpfnnfcklj?hl=en
