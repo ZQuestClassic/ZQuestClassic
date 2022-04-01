@@ -2627,7 +2627,7 @@ void restart_level()
 	blackscr(16,true);
 	map_bkgsfx(false);
 	
-	if(dlevel)
+	if(dlevel && !get_bit(quest_rules,qr_LEVEL_RESTART_CONT_POINT))
 	{
 		currdmap = lastentrance_dmap;
 		homescr = currscr = lastentrance;

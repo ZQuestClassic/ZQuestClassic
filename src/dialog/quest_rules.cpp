@@ -1096,7 +1096,10 @@ static const GUI::ListData miscRulesList
 		"If enabled, screen 80/81 will play a midi if one is assigned to screen 80/81."},
 	{ "New Darkroom Lanterns Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
 		"When in a dark room with 'New Dark Rooms' enabled, lanterns will light across"
-		" the boundary between screens *during scrolling*." }
+		" the boundary between screens *during scrolling*." },
+	{ "Restarting Level always goes to DMap continue point", qr_LEVEL_RESTART_CONT_POINT,
+		"Effects like Wallmasters and Farore's Wind will go back to the DMap's"
+		" continue point, rather than the last entrance point." }
 };
 
 static const GUI::ListData nesfixesRulesList
