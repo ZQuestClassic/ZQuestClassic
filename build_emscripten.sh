@@ -61,6 +61,7 @@ EMCC_FLAGS=(
 LINKER_FLAGS=(
   --preload-file="../output/_auto/buildpack@/"
   --preload-file="../freepats@/etc/timidity"
+  --use-preload-cache
   --shared-memory
   -s ASYNCIFY=1
   -s FULL_ES2=1
@@ -121,6 +122,10 @@ emcmake cmake .. \
   -D CMAKE_EXECUTABLE_SUFFIX_CXX="$CMAKE_EXECUTABLE_SUFFIX_CXX"
 
 cmake --build . -t zelda
+
+# https://github.com/emscripten-core/emscripten/issues/11952
+HASH=$(shasum -a 256 zelda.data | awk '{print $1}')
+sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zelda.js
 
 cp ../web/index.html .
 
