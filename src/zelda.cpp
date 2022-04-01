@@ -2992,15 +2992,23 @@ void do_magic_casting()
         
         if((magiccastclk++)>=226)
         {
-            //attackclk=0;
-            int32_t nayrutemp=nayruitem;
-            restart_level();
-            nayruitem=nayrutemp;
-            //xofs=0;
-            //action=none;
-            magicitem=-1;
-            magiccastclk=0;
-            if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+			if(itemsbuf[magicitem].flags & ITEM_FLAG1) //Act as F6->Continue
+			{
+				Quit = qCONT;
+				skipcont = 1;
+			}
+			else
+			{
+				//attackclk=0;
+				int32_t nayrutemp=nayruitem;
+				restart_level();
+				nayruitem=nayrutemp;
+				//xofs=0;
+				//action=none;
+				magicitem=-1;
+				magiccastclk=0;
+				if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+			}
         }
     }
     break;
