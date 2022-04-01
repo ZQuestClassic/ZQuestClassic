@@ -851,6 +851,7 @@ void init_doorcombosets();
 
 int32_t onNew();
 int32_t PickRuleset();
+int32_t PickRuleTemplate();
 int32_t onOpen();
 int32_t onOpen2();
 int32_t onRevert();

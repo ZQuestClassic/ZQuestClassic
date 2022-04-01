@@ -25,7 +25,9 @@ int32_t onQuestTemplates();
 int32_t NewQuestFile(int32_t template_slot);
 int32_t onNew();
 void applyRuleset(int32_t ruleset);
+void applyRuleTemplate(int32_t ruleTemplate);
 int32_t PickRuleset();
+int32_t PickRuleTemplate();
 int32_t onSave();
 int32_t onSaveAs();
 int32_t open_quest(char const* path);
@@ -80,6 +82,12 @@ int32_t onImport_Doorset();
 enum
 {
 	rulesetNONE, rulesetNES, rulesetFixedNES, rulesetBSZ, rulesetZ3, rulesetModern, rulesetLast
+};
+
+enum
+{
+	ruletemplateCompat,	ruletemplateZSCompat,
+	sz_ruletemplate
 };
 
 #endif

@@ -802,9 +802,14 @@ void applyRuleset(int32_t newRuleset)
 }
 
 void call_ruleset_dlg();
+void call_ruletemplate_dlg();
 int32_t PickRuleset()
 {
 	call_ruleset_dlg(); return D_O_K;
+}
+int32_t PickRuleTemplate()
+{
+	call_ruletemplate_dlg(); return D_O_K;
 }
 
 int32_t onNew()
@@ -826,8 +831,10 @@ int32_t onNew()
 	set_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
 	alwaysOnRules();
 	if(RulesetDialog > 0)
+	{
 		PickRuleset();
-		
+		PickRuleTemplate();
+	}
 	return D_O_K;
 }
 
@@ -1058,7 +1065,10 @@ int32_t onRevert()
         NewQuestFile(0);
         
         if(RulesetDialog > 0)
+		{
             PickRuleset();
+			PickRuleTemplate();
+		}
     }
     
     onDrawingModeNormal();
