@@ -39,13 +39,6 @@ sed -i -e 's/#define FAKE_RECURSIVE_MUTEX 1//' $(dirname $(which emcc))/cache/po
 # will error on opening a handle to the audio device.
 sed -i -e 's/impl->OnlyHasDefaultOutputDevice = 1/impl->OnlyHasDefaultOutputDevice = 0/' $(dirname $(which emcc))/cache/ports/sdl2/SDL-release-2.0.20/src/audio/emscripten/SDL_emscriptenaudio.c
 
-# The a5 SDL audio system hardcodes a value for # samples that is too high. Until I can upstream a patch to make this
-# configurable, just manually change it here!
-sed -i -e 's/4096/512/' _deps/allegro5-src/addons/audio/sdl_audio.c
-
-# https://github.com/liballeg/allegro5/pull/1322
-sed -i -e 's/(SDL_INIT_EVERYTHING)/(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC)/' _deps/allegro5-src/src/sdl/sdl_system.c
-
 EMCC_FLAGS=(
   -s USE_FREETYPE=1
   -s USE_VORBIS=1
@@ -120,6 +113,16 @@ emcmake cmake .. \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]}" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]}" \
   -D CMAKE_EXECUTABLE_SUFFIX_CXX="$CMAKE_EXECUTABLE_SUFFIX_CXX"
+
+# The a5 SDL audio system hardcodes a value for # samples that is too high. Until I can upstream a patch to make this
+# configurable, just manually change it here!
+sed -i -e 's/4096/512/' _deps/allegro5-src/addons/audio/sdl_audio.c
+
+# https://github.com/liballeg/allegro5/pull/1322
+sed -i -e 's/(SDL_INIT_EVERYTHING)/(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC)/' _deps/allegro5-src/src/sdl/sdl_system.c
+
+# This emscripten-specific timer code actually really messes up the framerate, making it go way too fast.
+sed -i -e 's/ _al_timer_thread_handle_tick/\/\/_al_timer_thread_handle_tick/' _deps/allegro5-src/src/sdl/sdl_system.c
 
 cmake --build . -t zelda
 
