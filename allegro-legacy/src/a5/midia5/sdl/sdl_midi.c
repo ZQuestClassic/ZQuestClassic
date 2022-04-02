@@ -1,5 +1,5 @@
 #include <SDL2/SDL_mixer.h>
-#include <timidity.h>
+// #include <timidity.h>
 
 // entire file is a local edit
 // also, it's not implemented

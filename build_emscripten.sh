@@ -9,6 +9,10 @@ then
   exit 1
 fi
 
+EMCC_VERSION=3.1.8
+emsdk install $EMCC_VERSION
+emsdk activate $EMCC_VERSION
+
 cd output/_auto
 ./buildpack.sh
 rm -f buildpack/{zelda,zquest,zlauncher,zscript}
@@ -30,21 +34,26 @@ else
 fi
 
 # Wish I knew how to remove this.
-EMCC_CACHE_INCLUDE_DIR=$(dirname $(which emcc))/cache/sysroot/include
-EMCC_CACHE_LIB_DIR=$(dirname $(which emcc))/cache/sysroot/lib/wasm32-emscripten
+EMCC_CACHE_DIR="$(dirname $(which emcc))/cache"
+EMCC_CACHE_INCLUDE_DIR="$EMCC_CACHE_DIR/sysroot/include"
+EMCC_CACHE_LIB_DIR="$EMCC_CACHE_DIR/sysroot/lib/wasm32-emscripten"
 
 # temporary workaround until fixed upstream
 # emcc's cache will require you to manually do this (one time) for this to be picked up:
-#    embuilder build sdl2
-#    <run the sed commands below>
-#    rm -rf "$(dirname $(which emcc))/cache/sysroot/lib/wasm32-emscripten"
-#    Now you can run this script as normal.
+#    rm -rf $(dirname $(which emcc))/cache/sysroot/lib/wasm32-emscripten/libSDL2*
+# Now you can run this script as normal.
 # see https://github.com/libsdl-org/SDL/issues/5428
-sed -i -e 's/#define FAKE_RECURSIVE_MUTEX 1//' $(dirname $(which emcc))/cache/ports/sdl2/SDL-release-2.0.20/src/thread/pthread/SDL_sysmutex.c
+if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2" ]
+then
+  embuilder build sdl2
+  rm -rf "$EMCC_CACHE_LIB_DIR"
+fi
+sed -i -e 's/#define FAKE_RECURSIVE_MUTEX 1//' "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/src/thread/pthread/SDL_sysmutex.c"
+
 # SDL's emscripten audio specifies only one default audio output device, but turns out
 # that can be ignored and things will just work. Without this, only SFX will play and MIDIs
 # will error on opening a handle to the audio device.
-sed -i -e 's/impl->OnlyHasDefaultOutputDevice = 1/impl->OnlyHasDefaultOutputDevice = 0/' $(dirname $(which emcc))/cache/ports/sdl2/SDL-release-2.0.20/src/audio/emscripten/SDL_emscriptenaudio.c
+sed -i -e 's/impl->OnlyHasDefaultOutputDevice = 1/impl->OnlyHasDefaultOutputDevice = 0/' "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/src/audio/emscripten/SDL_emscriptenaudio.c"
 
 EMCC_FLAGS=(
   -s USE_FREETYPE=1
@@ -56,7 +65,6 @@ EMCC_FLAGS=(
   -s USE_LIBPNG=1
   -s USE_PTHREADS=1
   -I "$EMCC_CACHE_INCLUDE_DIR/AL"
-  -I "$(dirname $(which emcc))/cache/ports/sdl2_mixer/SDL2_mixer-release-2.0.2/timidity"
 )
 LINKER_FLAGS=(
   --preload-file="../../output/_auto/buildpack@/"
@@ -69,6 +77,9 @@ LINKER_FLAGS=(
   -s LLD_REPORT_UNDEFINED
   -s INITIAL_MEMORY=4229300224
   -s PTHREAD_POOL_SIZE=15
+  # Necessary to avoid a deadlock. Bisected to here:
+  # https://chromium.googlesource.com/external/github.com/emscripten-core/emscripten.git/+log/1a0b77c572ad..c48f73a5c763
+  -s EXIT_RUNTIME=1
   -lidbfs.js
   -lembind
 )
