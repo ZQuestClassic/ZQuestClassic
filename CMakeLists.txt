@@ -133,7 +133,7 @@ include_directories(./src/zc)
 
 if (EMSCRIPTEN)
 	set(ZCSOUNDSOURCES
-		src/zcmusic_fake.cpp
+		src/zcmusic_sdl.cpp
 		src/zcmusicd.cpp
 	)
 else()
@@ -382,7 +382,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(LINUX)
+if(LINUX OR EMSCRIPTEN)
 	# TODO: Build sound deps from source on linux.
 	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
 else()

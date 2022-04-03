@@ -73,7 +73,7 @@ LINKER_FLAGS=(
   --shared-memory
   -s ASYNCIFY=1
   -s FULL_ES2=1
-  -s SDL2_MIXER_FORMATS="['mid']"
+  -s SDL2_MIXER_FORMATS="['mid','ogg','mp3']"
   -s LLD_REPORT_UNDEFINED
   -s INITIAL_MEMORY=4229300224
   -s PTHREAD_POOL_SIZE=15
