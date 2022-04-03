@@ -11,7 +11,7 @@ struct QueryParams
 
 void init_fs_em();
 void sync_fs_em();
-void fetch_quest_em(const char *path);
+void fetch_file_em(const char *path);
 QueryParams get_query_params();
 
 #endif

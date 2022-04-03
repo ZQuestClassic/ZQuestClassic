@@ -8,16 +8,23 @@ EM_ASYNC_JS(void, init_fs_em_, (), {
   const quests = await response.json();
   FS.mkdir('/_quests');
 
+  function writeFakeFile(path, url) {
+    FS.writeFile(path, '');
+    // UHHHH why does this result in an error during linking (acorn parse error) ???
+    // window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;
+    window.ZC.pathToUrl[path] = 'https://hoten.cc/quest-maker/play/' + url;
+  }
+
   for (let i = 0; i < quests.length; i++) {
     const quest = quests[i];
     if (!quest.urls.length) continue;
 
     const url = quest.urls[0];
     const path = window.ZC.createPathFromUrl(url);
-    FS.writeFile(path, '');
-    // UHHHH why does this result in an error during linking (acorn parse error) ???
-    // window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;
-    window.ZC.pathToUrl[path] = 'https://hoten.cc/quest-maker/play/' + url;
+    writeFakeFile(path, url);
+    for (const extraResourceUrl of quest.extraResources || []) {
+      writeFakeFile(window.ZC.createPathFromUrl(extraResourceUrl), extraResourceUrl);
+    }
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
@@ -42,18 +49,20 @@ void sync_fs_em() {
 
 // Quest files don't have real data until we know the user needs it.
 // See init_fs_em
-EM_ASYNC_JS(void, fetch_quest_em_, (const char *path), {
+EM_ASYNC_JS(void, fetch_file_em_, (const char *path), {
   path = UTF8ToString(path);
   if (FS.stat(path).size) return;
 
   const url = window.ZC.pathToUrl[path];
+  if (!url) return;
+
   const response = await fetch(url);
   const data = await response.arrayBuffer();
   const buffer = new Uint8Array(data);
   FS.writeFile(path, buffer);
 });
-void fetch_quest_em(const char *path) {
-  fetch_quest_em_(path);
+void fetch_file_em(const char *path) {
+  fetch_file_em_(path);
 }
 
 EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {

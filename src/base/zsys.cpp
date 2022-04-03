@@ -654,7 +654,7 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
 #ifdef __EMSCRIPTEN__
     if (strncmp("/_quests/", srcfile, strlen("/_quests/")) == 0)
     {
-        fetch_quest_em(srcfile);
+        fetch_file_em(srcfile);
     }
 #endif
     
