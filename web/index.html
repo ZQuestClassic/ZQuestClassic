@@ -137,6 +137,9 @@
     <div>By: <span class="author"></span></div>
     <div>Genre: <span class="genre"></span></div>
     <div>ZC Version: <span class="version"></span></div>
+    <div>
+      <a class="purezc-link" target="_blank">View on PureZC</a>
+    </div>
 
     <br>
 
@@ -299,6 +302,7 @@
         contentEl.querySelector('.genre').textContent = quest.genre;
         contentEl.querySelector('.version').textContent = quest.zcVersion;
         contentEl.querySelector('.description').textContent = quest.description;
+        contentEl.querySelector('.purezc-link').href = quest.projectUrl;
         const imagesEl = contentEl.querySelector('.images');
         for (const imgUrl of quest.imageUrls) {
           const imgEl = document.createElement('img');
