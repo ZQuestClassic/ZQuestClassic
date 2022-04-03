@@ -3270,6 +3270,15 @@ static bool register_name()
 	refreshpal=true;
 	bool done=false;
 	bool cancel=false;
+
+	if (!load_qstpath.empty()) {
+		std::string filename = get_filename(load_qstpath.c_str());
+		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
+		auto len = filename.find(".qst", 0);
+		len = zc_min(len, 8);
+		strcpy(name, filename.substr(0, len).c_str());
+		x = strlen(name);
+	}
 	
 	int32_t letter_grid_x=(NameEntryMode2==2)?34:44;
 	int32_t letter_grid_y=120;
@@ -4194,14 +4203,20 @@ static void select_game(bool skip = false)
 
 		if(!load_qstpath.empty())
 		{
-			register_name();
-			currgame = savecnt - 1;
-			loadlast = currgame + 1;
-			strcpy(qstpath, load_qstpath.c_str());
-			chosecustomquest = true;
-			load_custom_game(currgame);
-			save_savedgames();
-			break;
+			if (register_name())
+			{
+				currgame = savecnt - 1;
+				loadlast = currgame + 1;
+				strcpy(qstpath, load_qstpath.c_str());
+				chosecustomquest = true;
+				load_custom_game(currgame);
+				save_savedgames();
+				break;
+			}
+			else
+			{
+				load_qstpath = "";
+			}
 		}
 		
 		if(popup_choose_quest)
