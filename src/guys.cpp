@@ -19510,7 +19510,7 @@ void killfairy(int32_t misc)
 void killfairynew(item const &itemfairy)
 {
 	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
-	guys.del(fairy->id);
+	if (fairy != NULL) guys.del(fairy->id);
 }
 
 int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk)
