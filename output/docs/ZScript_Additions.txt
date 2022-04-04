@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 100
-Document Revision: 17th Dec, 2021
+Document for: 2.55, Alpha 105
+Document Revision: 3rd April, 2022
 
 
  __           _   _                 
@@ -3408,6 +3408,11 @@ void Free();
  * There is a limit to how many file pointers may be allocated at once.
  * See the 'General Information' at the top of this section for more details.
 
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
+
 bool isAllocated();
  * Returns true if this file pointer is allocated.
  * This does NOT mean it has a file open; the pointer simply has an ID.
@@ -3587,6 +3592,11 @@ void Free();
  * There is a limit to how many directory pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
 
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
+
 
 /************************************************************************************************************/
 
@@ -3625,6 +3635,11 @@ void Free();
  * This will deallocate the randgen pointer, so that the pointer ID may be re-used.
  * There is a limit to how many randgen pointers may be allocated at once,
  *     so be sure to free them when you are no longer using them.
+
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
 
 
 /************************************************************************************************************/
@@ -7043,6 +7058,12 @@ void Free();
  *       This generally occurs at the end of each frame, unless 'Game->Suspend[]'
  *       is used to prevent it.
  * Once the bitmap is freed, any image data on it is deleted.
+
+void Own();
+ * Requires an allocated bitmap.
+ * Grants 'Ownership' of the bitmap to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the bitmap will be automatically freed.
 
 bool isValid();
  * Returns true if the bitmap points to a valid bitmap

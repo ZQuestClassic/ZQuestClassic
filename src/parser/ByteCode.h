@@ -8687,6 +8687,43 @@ namespace ZScript
 		}
 	};
 	
+	class OBitmapOwn : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapOwn();
+		}
+	};
+	class OFileOwn : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OFileOwn();
+		}
+	};
+	class ODirectoryOwn : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODirectoryOwn();
+		}
+	};
+	class ORNGOwn : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORNGOwn();
+		}
+	};
+	
 	class OBitmapWriteTile : public Opcode
 	{
 	public:

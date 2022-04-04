@@ -1021,6 +1021,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "NPCCANMOVEXY",           0,   0,   0,   0},
 	{ "SELECTXWPNR",         1,   0,   0,   0},
 	{ "SELECTYWPNR",         1,   0,   0,   0},
+	{ "BITMAPOWN",         0,   0,   0,   0},
+	{ "FILEOWN",         0,   0,   0,   0},
+	{ "DIRECTORYOWN",         0,   0,   0,   0},
+	{ "RNGOWN",         0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
