@@ -22665,9 +22665,9 @@ bool parsemsgcode()
 			}
 			bool state = bool(grab_next_argument());
 			if(state)
-				setmapflag(mapid(map,scrid),1<<flag);
+				setmapflag(mapind(map,scrid),1<<flag);
 			else
-				unsetmapflag(mapid(map,scrid),1<<flag,true);
+				unsetmapflag(mapind(map,scrid),1<<flag,true);
 			return true;
 		}
 switched:

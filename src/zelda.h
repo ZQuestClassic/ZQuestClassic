@@ -70,6 +70,8 @@ extern bool dev_timestmp;
 #define mVISITED         0x4000                               // only overworld uses this
 #define mLIGHTBEAM       0x8000                               // light beam triggers completed
 
+#define mMAXIND          16
+
 /*********************************/
 /******** Enums & Structs ********/
 /*********************************/

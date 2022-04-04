@@ -747,7 +747,7 @@ void setmapflag(int32_t mi2, int32_t flag)
 
 void unsetmapflag(int32_t flag, bool anyflag)
 {
-    unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag,anyflags);
+    unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag,anyflag);
 }
 
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
