@@ -3808,10 +3808,16 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 				}
 			}
-			
-			if(!pfread(buf,string_length,f,true))
+			if (string_length > 0)
 			{
-				return qe_invalid;
+				if (!pfread(buf, string_length, f, true))
+				{
+					return qe_invalid;
+				}
+			}
+			else
+			{
+				buf[0] = 0;
 			}
 			
 			if(!p_igetw(&tempMsgString.nextstring,f,true))
@@ -3835,8 +3841,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 						buf[j] = '\0';
 					}
 				}
-				if(string_length > 8193) string_length = 8193;
-				buf[string_length-1]='\0'; //Force-terminate
+				if(string_length > 8192) string_length = 8192;
+				buf[string_length]='\0'; //Force-terminate
 				tempMsgString.s = buf;
 				
 				if ( s_version >= 6 )

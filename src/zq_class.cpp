@@ -10052,20 +10052,21 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
         
         for(int32_t i=0; i<msg_count; i++)
         {
-			int32_t sz = MsgStrings[i].s.size()+1;
-			if(sz > 8193) sz = 8193;
+			int32_t sz = MsgStrings[i].s.size();
+			if(sz > 8192) sz = 8192;
 			if(!p_iputl(sz, f))
 			{
 				return qe_invalid;
 			}
 			
             char const* tmpstr = MsgStrings[i].s.c_str();
-			if(!pfwrite((void*)tmpstr,zc_min(strlen(tmpstr),8192),f))
+            if (sz > 0)
             {
-                return qe_invalid;
+                if (!pfwrite((void*)tmpstr,sz, f))
+                {
+                    return qe_invalid;
+                }
             }
-			if(!p_putc(0, f)) //null terminator
-				return qe_invalid;
             
             if(!p_iputw(MsgStrings[i].nextstring,f))
             {
