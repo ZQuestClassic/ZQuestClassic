@@ -335,6 +335,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->misc[0] = "Warp Animation (0-2):";
 			inf->actionsnd[0] = "Wind Sound:";
+			_SET(flag[0], "Continue acts as F6->Continue",
+				"Activates F6->Continue instead of just 'restarting the level'.");
 			break;
 		}
 		case itype_dinsfire: //!TODO Help Text

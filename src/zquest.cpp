@@ -30916,7 +30916,10 @@ int32_t main(int32_t argc,char **argv)
 			init_quest(NULL);
 			
 			if(RulesetDialog)
+			{
 				PickRuleset();
+				PickRuleTemplate();
+			}
 				
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 			filepath[0]=temppath[0]=0;

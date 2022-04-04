@@ -1052,6 +1052,7 @@ int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onHeader();
 
 int32_t PickRuleset();
+int32_t PickRuleTemplate();
 int32_t onCheats();
 int32_t RulesPage_1();
 int32_t RulesPage_2();

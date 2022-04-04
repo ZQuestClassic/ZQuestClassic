@@ -1,5 +1,6 @@
 #include "quest_rules.h"
 #include "pickruleset.h"
+#include "pickruletemplate.h"
 #include "cheat_codes.h"
 #include "headerdlg.h"
 #include "info.h"
@@ -9,6 +10,7 @@
 #include "../zquest.h"
 #include "../zsys.h"
 #include "gui/use_size.h"
+#include "../zq_files.h"
 using GUI::sized;
 
 bool mapcount_will_affect_layers(word newmapcount);
@@ -1096,7 +1098,10 @@ static const GUI::ListData miscRulesList
 		"If enabled, screen 80/81 will play a midi if one is assigned to screen 80/81."},
 	{ "New Darkroom Lanterns Cross Screen Boundary", qr_NEWDARK_SCROLLEDGE,
 		"When in a dark room with 'New Dark Rooms' enabled, lanterns will light across"
-		" the boundary between screens *during scrolling*." }
+		" the boundary between screens *during scrolling*." },
+	{ "Restarting Level always goes to DMap continue point", qr_LEVEL_RESTART_CONT_POINT,
+		"Effects like Wallmasters and Farore's Wind will go back to the DMap's"
+		" continue point, rather than the last entrance point." }
 };
 
 static const GUI::ListData nesfixesRulesList
@@ -1318,6 +1323,53 @@ static const GUI::ListData weaponsRulesList
 };
 
 //}
+void applyRuleTemplate(int32_t ruleTemplate)
+{
+	switch(ruleTemplate)
+	{
+		case ruletemplateCompat:
+		{
+			for(size_t q = 0; q < compatRulesList.size(); ++q)
+			{
+				set_bit(quest_rules, compatRulesList.getValue(q), 0);
+			}
+			break;
+		}
+		case ruletemplateZSCompat:
+		{
+			int32_t zsOnRules[] = {
+				qr_PARSER_SHORT_CIRCUIT, qr_PARSER_TRUE_INT_SIZE,
+				qr_ITEMSCRIPTSKEEPRUNNING, qr_CLEARINITDONSCRIPTCHANGE,
+				qr_COMBOSCRIPTS_LAYER_0, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,
+				qr_FIXDRUNKINPUTS, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE,
+				qr_STEP_IS_FLOAT, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,
+				qr_SPRITEXY_IS_FLOAT, qr_WEAPONS_EXTRA_FRAME, qr_FIXSCRIPTSDURINGSCROLLING,
+				qr_ALWAYS_DEALLOCATE_ARRAYS,
+			};
+			int32_t zsOffRules[] = {
+				qr_PARSER_250DIVISION, qr_PARSER_NO_LOGGING, qr_PARSER_BOOL_TRUE_DECIMAL,
+				qr_PARSER_BINARY_32BIT,
+				qr_OLD_INIT_SCRIPT_TIMING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW,
+				qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS, qr_DISALLOW_SETTING_RAFTING,
+				qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE,
+				qr_BROKENCHARINTDRAWING, qr_NO_OVERWRITING_HOPPING,
+				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
+				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS
+			};
+			for(int32_t qr : zsOnRules)
+			{
+				set_bit(quest_rules, qr, 1);
+			}
+			for(int32_t qr : zsOffRules)
+			{
+				set_bit(quest_rules, qr, 0);
+			}
+			break;
+		}
+		default: return;
+	}
+	saved = false;
+}
 
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
 	setQRs(setQRs), qrs_per_tab(qrs_per_tab)
@@ -1353,6 +1405,10 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 							Button(
 								text = "&Cheats",
 								onClick = message::CHEATS
+							),
+							Button(
+								text = "&Pick Rule Templates",
+								onClick = message::RULETMP
 							)
 						),
 						Row(
@@ -1494,6 +1550,10 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();
+			reload_qr_dlg = true;
+			return true;
+		case message::RULETMP:
+			call_ruletemplate_dlg();
 			reload_qr_dlg = true;
 			return true;
 		case message::CHEATS:
