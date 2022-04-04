@@ -1233,5 +1233,7 @@ extern int32_t midi_strict;
 #define mSECRET          0x2000                               // only overworld and caves use this
 #define mVISITED         0x4000                               // only overworld uses this
 #define mLIGHTBEAM       0x8000                               // light beam triggers completed
+
+#define mMAXIND          16
 #endif
 /* end */

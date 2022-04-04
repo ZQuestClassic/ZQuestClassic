@@ -74,6 +74,11 @@ int32_t COMBOY(int32_t pos)
     return ((pos) & 0xF0);
 }
 
+int32_t mapind(int32_t map, int32_t scr)
+{
+	return (map<<7)+scr;
+}
+
 FONT *get_zc_font(int32_t index);
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -740,9 +745,9 @@ void setmapflag(int32_t mi2, int32_t flag)
     }
 }
 
-void unsetmapflag(int32_t flag)
+void unsetmapflag(int32_t flag, bool anyflag)
 {
-    unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag);
+    unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag,anyflags);
 }
 
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
@@ -754,7 +759,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         if(!(tmpscr->flags4&fNOITEMRESET))
             game->maps[mi2] &= ~flag;
     }
-    else game->maps[(currmap*MAPSCRSNORMAL)+homescr] &= ~flag;
+    else game->maps[mi2] &= ~flag;
     
     byte cscr = mi2&((1<<7)-1);
     byte cmap = (mi2>>7);
@@ -1671,6 +1676,7 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			   single==-5? " by Items->Secret":
 			   single==-6? " by Generic Combo":
 			   single==-7? " by Light Triggers":
+			   single==-8? " by SCC":
 			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;

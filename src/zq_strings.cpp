@@ -1280,6 +1280,7 @@ int32_t msg_code_operands(int32_t cc)
 			return 5;
 		
 		case MSGC_SETSCREEND:
+		case MSGC_SETSCREENSTATER:
 			return 4;
 
 		case MSGC_GOTOIFGLOBAL:
@@ -1300,6 +1301,7 @@ int32_t msg_code_operands(int32_t cc)
 		case MSGC_GOTOIFTRICOUNT:
 		case MSGC_GOTOIFRAND:
 		case MSGC_GOTOMENUCHOICE:
+		case MSGC_SETSCREENSTATE:
 			return 2;
 			
 		case MSGC_NEWLINE:

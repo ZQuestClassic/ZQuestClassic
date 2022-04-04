@@ -16,6 +16,7 @@
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
+int32_t mapind(int32_t map, int32_t scr);
 
 extern bool triggered_screen_secrets;
 
@@ -61,7 +62,7 @@ void eventlog_mapflags();
 void setmapflag(int32_t mi2, int32_t flag);
 void setmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
-void unsetmapflag(int32_t flag = 32);
+void unsetmapflag(int32_t flag = 32,bool anyflag = false);
 bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw);
 void update_combo_cycling();

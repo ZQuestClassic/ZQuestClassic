@@ -22261,7 +22261,8 @@ bool runMenuCursor()
 bool parsemsgcode()
 {
 	if(msgptr>=MsgStrings[msgstr].s.size()-2) return false;
-	switch(byte(MsgStrings[msgstr].s[msgptr]-1))
+	byte c = byte(MsgStrings[msgstr].s[msgptr]-1);
+	switch(c)
 	{
 		case MSGC_NEWLINE:
 		{
@@ -22618,7 +22619,57 @@ bool parsemsgcode()
 			linkedmsgclk = 51;
 			return true;
 		}
-		
+		case MSGC_TRIGSECRETS:
+		{
+			bool perm = (bool)grab_next_argument();
+			hidden_entrance(0, true, false, -8);
+			if(perm)
+				setmapflag(mSECRET);
+			return true;
+		}
+		case MSGC_SETSCREENSTATE:
+		{
+			int32_t flag = int32_t(grab_next_argument());
+			if(unsigned(flag)>=mMAXIND)
+			{
+				Z_error("SCC 133: Flag %d is invalid\n", flag);
+				return true;
+			}
+			bool state = bool(grab_next_argument());
+			if(state)
+				setmapflag(1<<flag);
+			else
+				unsetmapflag(1<<flag,true);
+			return true;
+		}
+		case MSGC_SETSCREENSTATER:
+		{
+			int32_t map = (int32_t)grab_next_argument();
+			int32_t scrid = (int32_t)grab_next_argument();
+			if(map < 1 || map > map_count)
+			{
+				Z_error("SCC 134: Map %d is invalid\n", map);
+				return true;
+			}
+			if(unsigned(scrid)>=0x80)
+			{
+				Z_error("SCC 134: Screen %d is invalid\n", scrid);
+				return true;
+			}
+			
+			int32_t flag = int32_t(grab_next_argument());
+			if(unsigned(flag)>=mMAXIND)
+			{
+				Z_error("SCC 134: Flag %d is invalid\n", flag);
+				return true;
+			}
+			bool state = bool(grab_next_argument());
+			if(state)
+				setmapflag(mapid(map,scrid),1<<flag);
+			else
+				unsetmapflag(mapid(map,scrid),1<<flag,true);
+			return true;
+		}
 switched:
 		int32_t lev = (int32_t)(grab_next_argument());
 		if(lev && get_bit(quest_rules, qr_SCC_GOTO_RESPECTS_CONTFLAG)

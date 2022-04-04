@@ -3505,6 +3505,9 @@ enum { msLINKED };
 #define MSGC_MENUCHOICE       129    // 5 args (pos, upos, dpos, lpos, rpos)
 #define MSGC_RUNMENU          130    // 0 args
 #define MSGC_GOTOMENUCHOICE   131    // 2 args (pos, newstring)
+#define MSGC_TRIGSECRETS      132    // 1 arg (perm)
+#define MSGC_SETSCREENSTATE   133    // 2 args (ind, state)
+#define MSGC_SETSCREENSTATER  134    // 4 args (map, screen, ind, state)
 //132+
 
 enum

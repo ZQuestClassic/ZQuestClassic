@@ -135,6 +135,13 @@ If x is negative, y is used for the warp return point (0 to 3; 5 for pit warp).
 \30 - Pauses the string and prompts the player to press A to continue
       (as normally occurs at the end of a string)
 
+\132\perm - Triggers secrets, which are permanent unless 'perm' is '0'
+
+\133\flag\state - Sets a screen state on the current screen.
+                  See 'std_constants.zh', the 'ST_' constants, for 'flag'
+				  'state' is 1 to turn on, 0 to turn off
+\134\map\screen\flag\state - Same as \133 above, for a remote map/screen
+
 +-----------------------------+
 | AUDIO EFFECT CODES          |
 +-----------------------------+
