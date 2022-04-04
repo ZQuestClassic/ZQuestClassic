@@ -2484,218 +2484,220 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
 void update_freeform_combos()
 {
     ffscript_engine(false);
-    
-    for(int32_t i=0; i<32; i++)
+    if ( !FFCore.system_suspend[susptUPDATEFFC] )
     {
-        // Combo 0?
-        if(tmpscr->ffdata[i]==0)
-            continue;
-            
-        // Changer?
-        if(tmpscr->ffflags[i]&ffCHANGER)
-            continue;
-            
-        // Stationary?
-        if(tmpscr->ffflags[i]&ffSTATIONARY)
-            continue;
-            
-        // Frozen because Hero's holding up an item?
-        if(Hero.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
-            continue;
-            
-        // Check for changers
-        if(tmpscr->fflink[i]==0)
-        {
-            for(int32_t j=0; j<32; j++)
-            {
-                // Combo 0?
-                if(tmpscr->ffdata[j]==0)
-                    continue;
-                    
-                // Not a changer?
-                if(!(tmpscr->ffflags[j]&ffCHANGER))
-                    continue;
-                    
-                // Ignore this changer? (ffposx and ffposy are last changer position)
-                if((tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i]) || tmpscr->ffflags[i]&ffIGNORECHANGER)
-                    continue;
-                    
-                if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
-                        //(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
-			( // At exactly the same position, 
-				(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) 
-				||
-				//or imprecision and close enough
-				( (tmpscr->ffflags[i]&ffIMPRECISIONCHANGER) && ((abs(tmpscr->ffx[i] - tmpscr->ffx[j]) < 10000) && abs(tmpscr->ffy[i] - tmpscr->ffy[j]) < 10000) )
-			)
-		&& //and...
-                        (ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
-                {
-                    if(tmpscr->ffflags[j]&ffCHANGETHIS)
-                    {
-                        tmpscr->ffdata[i] = tmpscr->ffdata[j];
-                        tmpscr->ffcset[i] = tmpscr->ffcset[j];
-                    }
-                    
-                    if(tmpscr->ffflags[j]&ffCHANGENEXT)
-                        tmpscr->ffdata[i]++;
-                        
-                    if(tmpscr->ffflags[j]&ffCHANGEPREV)
-                        tmpscr->ffdata[i]--;
-                        
-                    tmpscr->ffdelay[i]=tmpscr->ffdelay[j];
-                    tmpscr->ffx[i]=tmpscr->ffx[j];
-                    tmpscr->ffy[i]=tmpscr->ffy[j];
-                    tmpscr->ffxdelta[i]=tmpscr->ffxdelta[j];
-                    tmpscr->ffydelta[i]=tmpscr->ffydelta[j];
-                    tmpscr->ffxdelta2[i]=tmpscr->ffxdelta2[j];
-                    tmpscr->ffydelta2[i]=tmpscr->ffydelta2[j];
-                    tmpscr->fflink[i]=tmpscr->fflink[j];
-                    tmpscr->ffwidth[i]=tmpscr->ffwidth[j];
-                    tmpscr->ffheight[i]=tmpscr->ffheight[j];
-                    
-                    if(tmpscr->ffflags[i]&ffCARRYOVER)
-                        tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
-                    else
-                        tmpscr->ffflags[i]=tmpscr->ffflags[j];
-                        
-                    tmpscr->ffflags[i]&=~ffCHANGER;
-                    ffposx[i]=(int16_t)(tmpscr->ffx[j]/10000);
-                    ffposy[i]=(int16_t)(tmpscr->ffy[j]/10000);
-                    
-                    if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
-                        tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
-                        
-                    if((tmpscr->ffflags[j]&ffSWAPNEXT)||(tmpscr->ffflags[j]&ffSWAPPREV))
-                    {
-                        int32_t k=0;
-                        
-                        if(tmpscr->ffflags[j]&ffSWAPNEXT)
-                            k=j<31?j+1:0;
-                            
-                        if(tmpscr->ffflags[j]&ffSWAPPREV)
-                            k=j>0?j-1:31;
-                            
-                        zc_swap(tmpscr->ffdata[j],tmpscr->ffdata[k]);
-                        zc_swap(tmpscr->ffcset[j],tmpscr->ffcset[k]);
-                        zc_swap(tmpscr->ffdelay[j],tmpscr->ffdelay[k]);
-                        zc_swap(tmpscr->ffxdelta[j],tmpscr->ffxdelta[k]);
-                        zc_swap(tmpscr->ffydelta[j],tmpscr->ffydelta[k]);
-                        zc_swap(tmpscr->ffxdelta2[j],tmpscr->ffxdelta2[k]);
-                        zc_swap(tmpscr->ffydelta2[j],tmpscr->ffydelta2[k]);
-                        zc_swap(tmpscr->fflink[j],tmpscr->fflink[k]);
-                        zc_swap(tmpscr->ffwidth[j],tmpscr->ffwidth[k]);
-                        zc_swap(tmpscr->ffheight[j],tmpscr->ffheight[k]);
-                        zc_swap(tmpscr->ffflags[j],tmpscr->ffflags[k]);
-                    }
-                    
-                    break;
-                }
-            }
-        }
-        
-        if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
-        {
-            if(tmpscr->fflink[i]&&(tmpscr->fflink[i]-1)!=i)
-            {
-                ffprvx[i] = tmpscr->ffx[i];
-                ffprvy[i] = tmpscr->ffy[i];
-                tmpscr->ffx[i]+=tmpscr->ffxdelta[tmpscr->fflink[i]-1];
-                tmpscr->ffy[i]+=tmpscr->ffydelta[tmpscr->fflink[i]-1];
-            }
-            else
-            {
-                ffprvx[i] = tmpscr->ffx[i];
-                ffprvy[i] = tmpscr->ffy[i];
-                tmpscr->ffx[i]+=tmpscr->ffxdelta[i];
-                tmpscr->ffy[i]+=tmpscr->ffydelta[i];
-                tmpscr->ffxdelta[i]+=tmpscr->ffxdelta2[i];
-                tmpscr->ffydelta[i]+=tmpscr->ffydelta2[i];
-                
-                if(tmpscr->ffxdelta[i]>1280000) tmpscr->ffxdelta[i]=1280000;
-                
-                if(tmpscr->ffxdelta[i]<-1280000) tmpscr->ffxdelta[i]=-1280000;
-                
-                if(tmpscr->ffydelta[i]>1280000) tmpscr->ffydelta[i]=1280000;
-                
-                if(tmpscr->ffydelta[i]<-1280000) tmpscr->ffydelta[i]=-1280000;
-            }
-        }
-        else
-        {
-            if(!tmpscr->fflink[i] || (tmpscr->fflink[i]-1)==i)
-                tmpscr->ffdelay[i]--;
-        }
-        
-        // Check if the FFC's off the side of the screen
-        
-        // Left
-        if(tmpscr->ffx[i]<-320000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffx[i] = 2880000+(tmpscr->ffx[i]+320000);
-                ffprvy[i] = tmpscr->ffy[i];
-                ffposx[i]=-1000; // Re-enable previous changer
-                ffposy[i]=-1000;
-            }
-            else if(tmpscr->ffx[i]<-640000)
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-        
-        // Right
-        else if(tmpscr->ffx[i]>=2880000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
-                ffprvy[i] = tmpscr->ffy[i];
-                ffposx[i]=-1000;
-                ffposy[i]=-1000;
-            }
-            else
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-        
-        // Top
-        if(tmpscr->ffy[i]<-320000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffy[i] = 2080000+(tmpscr->ffy[i]+320000);
-                ffprvx[i] = tmpscr->ffx[i];
-                ffposx[i]=-1000;
-                ffposy[i]=-1000;
-            }
-            else if(tmpscr->ffy[i]<-640000)
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
-        
-        // Bottom
-        else if(tmpscr->ffy[i]>=2080000)
-        {
-            if(tmpscr->flags6&fWRAPAROUNDFF)
-            {
-                tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
-                ffprvy[i] = tmpscr->ffy[i];
-                ffposx[i]=-1000;
-                ffposy[i]=-1000;
-            }
-            else
-            {
-                tmpscr->ffdata[i]=0;
-                tmpscr->ffflags[i]&=~ffCARRYOVER;
-            }
-        }
+	    for(int32_t i=0; i<32; i++)
+	    {
+		// Combo 0?
+		if(tmpscr->ffdata[i]==0)
+		    continue;
+		    
+		// Changer?
+		if(tmpscr->ffflags[i]&ffCHANGER)
+		    continue;
+		    
+		// Stationary?
+		if(tmpscr->ffflags[i]&ffSTATIONARY)
+		    continue;
+		    
+		// Frozen because Hero's holding up an item?
+		if(Hero.getHoldClk()>0 && (tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0)
+		    continue;
+		    
+		// Check for changers
+		if(tmpscr->fflink[i]==0)
+		{
+		    for(int32_t j=0; j<32; j++)
+		    {
+			// Combo 0?
+			if(tmpscr->ffdata[j]==0)
+			    continue;
+			    
+			// Not a changer?
+			if(!(tmpscr->ffflags[j]&ffCHANGER))
+			    continue;
+			    
+			// Ignore this changer? (ffposx and ffposy are last changer position)
+			if((tmpscr->ffx[j]/10000==ffposx[i]&&tmpscr->ffy[j]/10000==ffposy[i]) || tmpscr->ffflags[i]&ffIGNORECHANGER)
+			    continue;
+			    
+			if((isonline(tmpscr->ffx[i], tmpscr->ffy[i], ffprvx[i],ffprvy[i], tmpscr->ffx[j], tmpscr->ffy[j]) || // Along the line, or...
+				//(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) && // At exactly the same position, and...
+				( // At exactly the same position, 
+					(tmpscr->ffx[i]==tmpscr->ffx[j] && tmpscr->ffy[i]==tmpscr->ffy[j])) 
+					||
+					//or imprecision and close enough
+					( (tmpscr->ffflags[i]&ffIMPRECISIONCHANGER) && ((abs(tmpscr->ffx[i] - tmpscr->ffx[j]) < 10000) && abs(tmpscr->ffy[i] - tmpscr->ffy[j]) < 10000) )
+				)
+			&& //and...
+				(ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
+			{
+			    if(tmpscr->ffflags[j]&ffCHANGETHIS)
+			    {
+				tmpscr->ffdata[i] = tmpscr->ffdata[j];
+				tmpscr->ffcset[i] = tmpscr->ffcset[j];
+			    }
+			    
+			    if(tmpscr->ffflags[j]&ffCHANGENEXT)
+				tmpscr->ffdata[i]++;
+				
+			    if(tmpscr->ffflags[j]&ffCHANGEPREV)
+				tmpscr->ffdata[i]--;
+				
+			    tmpscr->ffdelay[i]=tmpscr->ffdelay[j];
+			    tmpscr->ffx[i]=tmpscr->ffx[j];
+			    tmpscr->ffy[i]=tmpscr->ffy[j];
+			    tmpscr->ffxdelta[i]=tmpscr->ffxdelta[j];
+			    tmpscr->ffydelta[i]=tmpscr->ffydelta[j];
+			    tmpscr->ffxdelta2[i]=tmpscr->ffxdelta2[j];
+			    tmpscr->ffydelta2[i]=tmpscr->ffydelta2[j];
+			    tmpscr->fflink[i]=tmpscr->fflink[j];
+			    tmpscr->ffwidth[i]=tmpscr->ffwidth[j];
+			    tmpscr->ffheight[i]=tmpscr->ffheight[j];
+			    
+			    if(tmpscr->ffflags[i]&ffCARRYOVER)
+				tmpscr->ffflags[i]=tmpscr->ffflags[j]|ffCARRYOVER;
+			    else
+				tmpscr->ffflags[i]=tmpscr->ffflags[j];
+				
+			    tmpscr->ffflags[i]&=~ffCHANGER;
+			    ffposx[i]=(int16_t)(tmpscr->ffx[j]/10000);
+			    ffposy[i]=(int16_t)(tmpscr->ffy[j]/10000);
+			    
+			    if(combobuf[tmpscr->ffdata[j]].flag>15 && combobuf[tmpscr->ffdata[j]].flag<32)
+				tmpscr->ffdata[j]=tmpscr->secretcombo[combobuf[tmpscr->ffdata[j]].flag-16+4];
+				
+			    if((tmpscr->ffflags[j]&ffSWAPNEXT)||(tmpscr->ffflags[j]&ffSWAPPREV))
+			    {
+				int32_t k=0;
+				
+				if(tmpscr->ffflags[j]&ffSWAPNEXT)
+				    k=j<31?j+1:0;
+				    
+				if(tmpscr->ffflags[j]&ffSWAPPREV)
+				    k=j>0?j-1:31;
+				    
+				zc_swap(tmpscr->ffdata[j],tmpscr->ffdata[k]);
+				zc_swap(tmpscr->ffcset[j],tmpscr->ffcset[k]);
+				zc_swap(tmpscr->ffdelay[j],tmpscr->ffdelay[k]);
+				zc_swap(tmpscr->ffxdelta[j],tmpscr->ffxdelta[k]);
+				zc_swap(tmpscr->ffydelta[j],tmpscr->ffydelta[k]);
+				zc_swap(tmpscr->ffxdelta2[j],tmpscr->ffxdelta2[k]);
+				zc_swap(tmpscr->ffydelta2[j],tmpscr->ffydelta2[k]);
+				zc_swap(tmpscr->fflink[j],tmpscr->fflink[k]);
+				zc_swap(tmpscr->ffwidth[j],tmpscr->ffwidth[k]);
+				zc_swap(tmpscr->ffheight[j],tmpscr->ffheight[k]);
+				zc_swap(tmpscr->ffflags[j],tmpscr->ffflags[k]);
+			    }
+			    
+			    break;
+			}
+		    }
+		}
+		
+		if(tmpscr->fflink[i] ? !tmpscr->ffdelay[tmpscr->fflink[i]] : !tmpscr->ffdelay[i])
+		{
+		    if(tmpscr->fflink[i]&&(tmpscr->fflink[i]-1)!=i)
+		    {
+			ffprvx[i] = tmpscr->ffx[i];
+			ffprvy[i] = tmpscr->ffy[i];
+			tmpscr->ffx[i]+=tmpscr->ffxdelta[tmpscr->fflink[i]-1];
+			tmpscr->ffy[i]+=tmpscr->ffydelta[tmpscr->fflink[i]-1];
+		    }
+		    else
+		    {
+			ffprvx[i] = tmpscr->ffx[i];
+			ffprvy[i] = tmpscr->ffy[i];
+			tmpscr->ffx[i]+=tmpscr->ffxdelta[i];
+			tmpscr->ffy[i]+=tmpscr->ffydelta[i];
+			tmpscr->ffxdelta[i]+=tmpscr->ffxdelta2[i];
+			tmpscr->ffydelta[i]+=tmpscr->ffydelta2[i];
+			
+			if(tmpscr->ffxdelta[i]>1280000) tmpscr->ffxdelta[i]=1280000;
+			
+			if(tmpscr->ffxdelta[i]<-1280000) tmpscr->ffxdelta[i]=-1280000;
+			
+			if(tmpscr->ffydelta[i]>1280000) tmpscr->ffydelta[i]=1280000;
+			
+			if(tmpscr->ffydelta[i]<-1280000) tmpscr->ffydelta[i]=-1280000;
+		    }
+		}
+		else
+		{
+		    if(!tmpscr->fflink[i] || (tmpscr->fflink[i]-1)==i)
+			tmpscr->ffdelay[i]--;
+		}
+		
+		// Check if the FFC's off the side of the screen
+		
+		// Left
+		if(tmpscr->ffx[i]<-320000)
+		{
+		    if(tmpscr->flags6&fWRAPAROUNDFF)
+		    {
+			tmpscr->ffx[i] = 2880000+(tmpscr->ffx[i]+320000);
+			ffprvy[i] = tmpscr->ffy[i];
+			ffposx[i]=-1000; // Re-enable previous changer
+			ffposy[i]=-1000;
+		    }
+		    else if(tmpscr->ffx[i]<-640000)
+		    {
+			tmpscr->ffdata[i]=0;
+			tmpscr->ffflags[i]&=~ffCARRYOVER;
+		    }
+		}
+		
+		// Right
+		else if(tmpscr->ffx[i]>=2880000)
+		{
+		    if(tmpscr->flags6&fWRAPAROUNDFF)
+		    {
+			tmpscr->ffx[i] = tmpscr->ffx[i]-2880000-320000;
+			ffprvy[i] = tmpscr->ffy[i];
+			ffposx[i]=-1000;
+			ffposy[i]=-1000;
+		    }
+		    else
+		    {
+			tmpscr->ffdata[i]=0;
+			tmpscr->ffflags[i]&=~ffCARRYOVER;
+		    }
+		}
+		
+		// Top
+		if(tmpscr->ffy[i]<-320000)
+		{
+		    if(tmpscr->flags6&fWRAPAROUNDFF)
+		    {
+			tmpscr->ffy[i] = 2080000+(tmpscr->ffy[i]+320000);
+			ffprvx[i] = tmpscr->ffx[i];
+			ffposx[i]=-1000;
+			ffposy[i]=-1000;
+		    }
+		    else if(tmpscr->ffy[i]<-640000)
+		    {
+			tmpscr->ffdata[i]=0;
+			tmpscr->ffflags[i]&=~ffCARRYOVER;
+		    }
+		}
+		
+		// Bottom
+		else if(tmpscr->ffy[i]>=2080000)
+		{
+		    if(tmpscr->flags6&fWRAPAROUNDFF)
+		    {
+			tmpscr->ffy[i] = tmpscr->ffy[i]-2080000-320000;
+			ffprvy[i] = tmpscr->ffy[i];
+			ffposx[i]=-1000;
+			ffposy[i]=-1000;
+		    }
+		    else
+		    {
+			tmpscr->ffdata[i]=0;
+			tmpscr->ffflags[i]&=~ffCARRYOVER;
+		    }
+		}
+	    }
     }
 }
 

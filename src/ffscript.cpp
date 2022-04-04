@@ -28175,32 +28175,35 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 //This keeps ffc scripts running beyond the first frame. 
 int32_t ffscript_engine(const bool preload)
 {
-	//run screen script, first
-	//zprint("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
-	if(( preload && tmpscr->preloadscript) || !preload )
+	if (!FFCore.system_suspend[susptFFCSCRIPTS])
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		//run screen script, first
+		//zprint("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
+		if(( preload && tmpscr->preloadscript) || !preload )
 		{
-			if ( tmpscr->script > 0 && tmpscr->doscript )
+			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 			{
-				ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+				if ( tmpscr->script > 0 && tmpscr->doscript )
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+				}
+				
 			}
-			
 		}
-	}
-	for(byte i = 0; i < MAXFFCS; i++)
-	{
-		if(tmpscr->ffscript[i] == 0)
-			continue;
-			
-		if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
-			continue;
-			
-		if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
-			continue;
-			
-		ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
-		tmpscr->initialized[i] = true;
+		for(byte i = 0; i < MAXFFCS; i++)
+		{
+			if(tmpscr->ffscript[i] == 0)
+				continue;
+				
+			if(preload && !(tmpscr->ffflags[i]&ffPRELOAD))
+				continue;
+				
+			if((tmpscr->ffflags[i]&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
+				continue;
+				
+			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[i], i);
+			tmpscr->initialized[i] = true;
+		}
 	}
 	
 	

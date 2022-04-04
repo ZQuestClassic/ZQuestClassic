@@ -3438,7 +3438,8 @@ void game_loop()
 		
 		if(!freezeff)
 		{
-			if ( !FFCore.system_suspend[susptUPDATEFFC] ) update_freeform_combos();
+			//if ( !FFCore.system_suspend[susptUPDATEFFC] ) 
+			update_freeform_combos();
 		}
 		
 		// Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
