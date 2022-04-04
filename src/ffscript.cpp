@@ -108,6 +108,8 @@ void user_dir::clear()
 {
 	filepath = "";
 	reserved = false;
+	owned_type = -1;
+	owned_i = 0;
 	if(list)
 	{
 		list->clear();
@@ -2363,6 +2365,22 @@ void deallocateArray(const int32_t ptrval)
 
 void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways)
 {
+	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	{
+		scb.script_created_bitmaps[q].own_clear(scriptType, UID);
+	}
+	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		script_rngs[q].own_clear(scriptType, UID);
+	}
+	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].own_clear(scriptType, UID);
+	}
+	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		script_dirs[q].own_clear(scriptType, UID);
+	}
 	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
@@ -26437,6 +26455,20 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_deallocate_bitmap();
 				break;
 			}
+			
+			case BITMAPOWN:
+			{
+				if(FFCore.isSystemBitref(ri->bitmapref))
+				{
+					break; //Don't attempt to own system bitmaps!
+				}
+				user_bitmap* b = checkBitmap(ri->bitmapref, "Own()", false);
+				if(b)
+				{
+					b->own(type, i);
+				}
+				break;
+			}
 				
 			case COPYTILEVV:
 				do_copytile(true, true);
@@ -27583,6 +27615,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_deallocate_file();
 				break;
 			}
+			case FILEOWN:
+			{
+				user_file* f = checkFile(ri->fileref, "Free()", false);
+				if(f) f->own(type, i);
+				break;
+			}
 			case FILEISALLOCATED:
 			{
 				FFCore.do_file_isallocated();
@@ -27719,6 +27757,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_directory_free();
 				break;
 			}
+			case DIRECTORYOWN:
+			{
+				if(user_dir* dr = checkDir(ri->directoryref, "Own()"))
+				{
+					dr->own(type, i);
+				}
+				break;
+			}
 			
 			case MODULEGETIC:
 			{
@@ -27801,9 +27847,15 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				else ri->d[rEXP1] = -10000;
 				break;
 			case RNGFREE:
-				if(user_rng* r = checkRNG(ri->rngref, "SRand()", true))
+				if(user_rng* r = checkRNG(ri->rngref, "Free()", true))
 				{
-					r->reserved = false;
+					r->clear();
+				}
+				break;
+			case RNGOWN:
+				if(user_rng* r = checkRNG(ri->rngref, "Own()", false))
+				{
+					r->own(type, i);
 				}
 				break;
 			//}
@@ -28816,7 +28868,7 @@ void FFScript::do_directory_get()
 
 void FFScript::do_directory_reload()
 {
-	if(user_dir* dr = checkDir(ri->directoryref, "GetFilename()", true))
+	if(user_dir* dr = checkDir(ri->directoryref, "Reload()", true))
 	{
 		dr->refresh();
 	}
@@ -28824,7 +28876,7 @@ void FFScript::do_directory_reload()
 
 void FFScript::do_directory_free()
 {
-	if(user_dir* dr = checkDir(ri->directoryref, "GetFilename()", true))
+	if(user_dir* dr = checkDir(ri->directoryref, "Free()", true))
 	{
 		dr->clear();
 	}
@@ -30482,6 +30534,7 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_NY] = 0;
 	ScrollingData[SCROLLDATA_OX] = 0;
 	ScrollingData[SCROLLDATA_OY] = 0;
+	user_rng_init();
 }
 
 
@@ -34379,6 +34432,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "NPCCANMOVEXY",           0,   0,   0,   0},
 	{ "SELECTXWPNR",         1,   0,   0,   0},
 	{ "SELECTYWPNR",         1,   0,   0,   0},
+	{ "BITMAPOWN",         0,   0,   0,   0},
+	{ "FILEOWN",         0,   0,   0,   0},
+	{ "DIRECTORYOWN",         0,   0,   0,   0},
+	{ "RNGOWN",         0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

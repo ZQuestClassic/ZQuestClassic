@@ -5146,6 +5146,22 @@ string OBitmapFree::toString()
 {
     return "BITMAPFREE";
 }
+string OBitmapOwn::toString()
+{
+    return "BITMAPOWN";
+}
+string OFileOwn::toString()
+{
+    return "FILEOWN";
+}
+string ODirectoryOwn::toString()
+{
+    return "DIRECTORYOWN";
+}
+string ORNGOwn::toString()
+{
+    return "RNGOWN";
+}
 string OBitmapWriteTile::toString()
 {
     return "BMPWRITETILE";

@@ -267,7 +267,11 @@ struct user_bitmap
 	int32_t depth;
 	byte flags;
 	
-	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0) {}
+	int32_t owned_type, owned_i;
+	
+	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0),
+		owned_type(-1), owned_i(0)
+	{}
 	
 	void destroy()
 	{
@@ -282,6 +286,8 @@ struct user_bitmap
 	{
 		destroy();
 		flags = 0;
+		owned_type = -1;
+		owned_i = 0;
 	}
 	void reserve()
 	{
@@ -299,6 +305,16 @@ struct user_bitmap
 	{
 		if(flags & UBMPFLAG_FREEING)
 			clear();
+	}
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if(owned_type == type && owned_i == i)
+			free();
 	}
 };
 
@@ -363,7 +379,11 @@ struct user_file
 	std::string filepath;
 	bool reserved;
 	
-	user_file() : file(NULL), reserved(false), filepath("") {}
+	int32_t owned_type, owned_i;
+	
+	user_file() : file(NULL), reserved(false), filepath(""),
+		owned_type(-1), owned_i(0)
+	{}
 	
 	void clear()
 	{
@@ -371,6 +391,8 @@ struct user_file
 		file = NULL;
 		reserved = false;
 		filepath = "";
+		owned_type = -1;
+		owned_i = 0;
 	}
 	
 	void close()
@@ -395,6 +417,17 @@ struct user_file
 			filepath = buf;
 		else filepath = "";
 	}
+	
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if(owned_type == type && owned_i == i)
+			clear();
+	}
 };
 
 #define MAX_USER_DIRS 256
@@ -404,7 +437,11 @@ struct user_dir
 	std::string filepath;
 	bool reserved;
 	
-	user_dir() : list(NULL), reserved(false), filepath("") {}
+	int32_t owned_type, owned_i;
+	
+	user_dir() : list(NULL), reserved(false), filepath(""),
+		owned_type(-1), owned_i(0)
+	{}
 	
 	void clear();
 	void setPath(const char* buf);
@@ -422,6 +459,17 @@ struct user_dir
 	{
 		return list->get(index, buf);
 	}
+	
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if(owned_type == type && owned_i == i)
+			clear();
+	}
 };
 
 #define MAX_USER_RNGS 256
@@ -430,6 +478,14 @@ struct user_rng
 	zc_randgen* gen;
 	bool reserved;
 	
+	int32_t owned_type, owned_i;
+	
+	void clear()
+	{
+		reserved = false;
+		owned_type = -1;
+		owned_i = 0;
+	}
 	int32_t rand()
 	{
 		return zc_rand(gen);
@@ -453,8 +509,20 @@ struct user_rng
 		gen = newgen;
 		if(newgen) srand();
 	}
-	user_rng() : gen(NULL), reserved(false)
+	user_rng() : gen(NULL), reserved(false),
+		owned_type(-1), owned_i(0)
 	{}
+	
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if(owned_type == type && owned_i == i)
+			clear();
+	}
 };
 
 //Module System.
@@ -2946,8 +3014,12 @@ enum ASM_DEFINE
 	
 	SELECTXWPNR,
 	SELECTYWPNR,
+	BITMAPOWN,
+	FILEOWN,
+	DIRECTORYOWN,
+	RNGOWN,
 	
-	NUMCOMMANDS           //0x01B2
+	NUMCOMMANDS           //0x01B6
 };
 
 
