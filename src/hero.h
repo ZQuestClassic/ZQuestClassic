@@ -393,7 +393,7 @@ private:
 	void check_conveyor();
 	bool sideviewhammerpound();
 	bool agonyflag(int32_t flag);
-	int32_t ringpower(int32_t dmg);
+	int32_t ringpower(int32_t dmg, bool noPeril = false, bool noRing = false);
 	void addsparkle(int32_t wpn);
 	void addsparkle2(int32_t type1, int32_t type2);
 	void PhantomsCleanup();

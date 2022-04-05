@@ -9065,7 +9065,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			
 			if( s_version < 40)
 			{
-				if(tempitem.family == itype_ring)
+				if(tempitem.family == itype_ring || tempitem.family == itype_perilring)
 				{
 					if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
 					else tempitem.flags &= ~ITEM_FLAG1;

@@ -6406,7 +6406,9 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
 	
-	bool global_ring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
+	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
+	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
 	
 	int32_t itemid = current_item_id(itype_boots);
@@ -6420,7 +6422,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			if (!do_health_check) return true;
 			if(NayrusLoveShieldClk<=0)
 			{
-				int32_t ringpow = ringpower(-hp_modmin);
+				int32_t ringpow = ringpower(-hp_modmin, !global_perilring, !global_defring);
 				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
 			}
 			
@@ -24453,7 +24455,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 
 // How much to reduce Hero's damage, taking into account various rings.
-int32_t HeroClass::ringpower(int32_t dmg)
+int32_t HeroClass::ringpower(int32_t dmg, bool noPeril, bool noRing)
 {
 	if(dmg < 0) return dmg; //Don't reduce healing
 	if ( get_bit(quest_rules,qr_BROKEN_RING_POWER) )
@@ -24463,7 +24465,7 @@ int32_t HeroClass::ringpower(int32_t dmg)
 		int32_t itemid = current_item_id(itype_ring);
 		bool usering = false;
     
-		if(itemid>-1)  // current_item_id checks magic cost for rings
+		if(itemid>-1 && !noRing)  // current_item_id checks magic cost for rings
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -24480,7 +24482,7 @@ int32_t HeroClass::ringpower(int32_t dmg)
 		/* Now for the Peril Ring */
 		itemid = current_item_id(itype_perilring);
     
-		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid) && checkbunny(itemid))
+		if(itemid>-1 && !noPeril && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid) && checkbunny(itemid))
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -24511,7 +24513,7 @@ int32_t HeroClass::ringpower(int32_t dmg)
 		int32_t itemid = current_item_id(itype_ring);
 		bool usering = false;
 		    
-		if(itemid>-1)  // current_item_id checks magic cost for rings
+		if(itemid>-1 && !noRing)  // current_item_id checks magic cost for rings
 		{
 			usering = true;
 			paymagiccost(itemid);
@@ -24532,7 +24534,7 @@ int32_t HeroClass::ringpower(int32_t dmg)
 		/* Now for the Peril Ring */
 		itemid = current_item_id(itype_perilring);
 	    
-		if(itemid>-1 && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid) && checkbunny(itemid))
+		if(itemid>-1 && !noPeril && game->get_life()<=itemsbuf[itemid].misc1*game->get_hp_per_heart() && checkmagiccost(itemid) && checkbunny(itemid))
 		{
 			usering = true;
 			paymagiccost(itemid);

@@ -672,6 +672,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_perilring:
 		{
 			_SET(misc[0], "Maximum Hearts:", "Takes effect when below this number of hearts");
+			inf->flag[0] = "Affects Damage Combos";
 			inf->flag[1] = "Percentage Multiplier";
 			if(FLAG(2))
 				inf->power = "Damage % Mult:";
