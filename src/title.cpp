@@ -3129,7 +3129,7 @@ static bool register_name()
 	int32_t letter_grid_spacing=(NameEntryMode2==2)?12:16;
 	
 	const char *simple_grid="ABCDEFGHIJKLMNOPQRSTUVWXYZ-.,!'&.0123456789 ";
-	const char *complete_grid=" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+	const char *complete_grid=" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ";
 	
 	if(NameEntryMode2>0)
 	{
@@ -3261,7 +3261,11 @@ static bool register_name()
 			}
 			else if(rBbtn())
 			{
-				++x;
+				if(x<8 && name[zc_min(x,7)])
+				{
+					++x;
+					sfx(WAV_CHIME);
+				}
 				
 				if(x>=8)
 				{
