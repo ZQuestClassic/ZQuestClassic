@@ -892,6 +892,7 @@ void movefairy2(zfix x,zfix y,int32_t misc);
 void movefairynew(zfix &x,zfix &y,item const &itemfairy);
 void movefairynew2(zfix x,zfix y,item const &itemfairy);
 void killfairy(int32_t misc);
+int32_t getGuyIndex(const int32_t eid);
 void killfairynew(item const &itemfairy);
 int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk);
 int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk);

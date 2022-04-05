@@ -19507,10 +19507,21 @@ void killfairy(int32_t misc)
 	guys.del(i);
 }
 
+int32_t getGuyIndex(const int32_t eid)
+{
+	for(word i = 0; i < guys.Count(); i++)
+	{
+		if(guys.spr(i)->getUID() == eid)
+			return i;
+	}
+	
+	return -1;
+}
+
 void killfairynew(item const &itemfairy)
 {
 	enemy *fairy = (enemy *) guys.getByUID(itemfairy.fairyUID);
-	if (fairy != NULL) guys.del(fairy->id);
+	if (fairy != NULL) guys.del(getGuyIndex(itemfairy.fairyUID));
 }
 
 int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk)
