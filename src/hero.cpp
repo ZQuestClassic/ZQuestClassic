@@ -1366,6 +1366,7 @@ void HeroClass::init()
     conveyor_flags=0;
     drunkclk=0;
     lstunclock = 0;
+	is_conveyor_stunned=0;
     drawstyle=3;
     ffwarp = false;
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
@@ -8096,6 +8097,7 @@ bool HeroClass::animate(int32_t)
 				{
 					drunkclk=0;
 					lstunclock = 0;
+					is_conveyor_stunned = 0;
 					FFCore.setHeroAction(dying);
 					FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
 					FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
@@ -8669,7 +8671,7 @@ bool HeroClass::animate(int32_t)
 	
 	if(pushing>=24) dtype=dWALK;
 	
-	if(isdungeon() && action!=freeze && action != sideswimfreeze && loaded_guys && !inlikelike && !diveclk && action!=rafting && !lstunclock)
+	if(isdungeon() && action!=freeze && action != sideswimfreeze && loaded_guys && !inlikelike && !diveclk && action!=rafting && !lstunclock && !is_conveyor_stunned)
 	{
 		if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
 		{
@@ -10643,7 +10645,7 @@ bool HeroClass::doattack()
 bool HeroClass::can_attack()
 {
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-    if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze || lstunclock > 0 ||
+    if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze || lstunclock > 0 || is_conveyor_stunned ||
             ((action==attacking||action==sideswimattacking) && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
     {
         return false;
@@ -11677,7 +11679,7 @@ void HeroClass::pitfall()
 
 void HeroClass::movehero()
 {
-	if(lstunclock) return;
+	if(lstunclock || is_conveyor_stunned) return;
 	int32_t xoff=x.getInt()&7;
 	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
@@ -15134,7 +15136,7 @@ LEFTRIGHT_OLDMOVE:
 //solid ffc checking should probably be moved to here.
 void HeroClass::move(int32_t d2, int32_t forceRate)
 {
-    if( inlikelike || lstunclock > 0 )
+    if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
         return;
 	
 	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) && !IsSideSwim())
@@ -15422,7 +15424,7 @@ void HeroClass::moveOld(int32_t d2)
 	//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
     static bool totalskip = false;
     
-    if( inlikelike || lstunclock > 0 )
+    if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
         return;
 	
     int32_t dx=0,dy=0;
@@ -27510,20 +27512,22 @@ void HeroClass::check_conveyor()
 {
 	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||(z>0 && !(tmpscr->flags2&fAIRCOMBOS)))
 	{
+		is_conveyor_stunned = 0;
 		return;
 	}
 	
 	WalkflagInfo info;
 	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
-	int32_t cmb = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
+	int32_t cmbid = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+	newcombo const* cmb = &combobuf[cmbid];
 	++newconveyorclk;
 	if (newconveyorclk < 0) newconveyorclk = 0;
-	if((combobuf[cmb].usrflags&cflag2) || (!(combobuf[cmb].usrflags&cflag2) && conveyclk<=0)) //!DIMITODO: let player be on multiple conveyors at once
+	bool custom_spd = (cmb->usrflags&cflag2);
+	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
 	{
-		is_on_conveyor=false;
-		int32_t ctype;
-		ctype=(combobuf[cmb].type);
+		int32_t ctype=cmb->type;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
 			if(tmpscr2[i].valid!=0)
@@ -27539,27 +27543,32 @@ void HeroClass::check_conveyor()
 			}
 		}
 		if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;
-		if((combobuf[cmb].usrflags&cflag2) && (newconveyorclk % zc_max(combobuf[cmb].attribytes[0], 1))) return;
+		auto rate = custom_spd ? zc_max(cmb->attribytes[0], 1) : 3;
+		if(custom_spd && (newconveyorclk % rate)) return;
+		is_on_conveyor=false;
+		is_conveyor_stunned=0;
 		
 		deltax=combo_class_buf[ctype].conveyor_x_speed;
 		deltay=combo_class_buf[ctype].conveyor_y_speed;
 	
-		if ((deltax!=0 || deltay!=0) && combobuf[cmb].usrflags&cflag2)
+		if ((deltax!=0 || deltay!=0) && custom_spd)
 		{
-			deltax = zslongToFix(combobuf[cmb].attributes[0]);
-			deltay = zslongToFix(combobuf[cmb].attributes[1]);
+			deltax = zslongToFix(cmb->attributes[0]);
+			deltay = zslongToFix(cmb->attributes[1]);
 		}
 		
 		if((deltax==0&&deltay==0)&&(isSideViewHero() && on_sideview_solid(x,y)))
 		{
-			cmb = MAPCOMBO(x+8,y+16);
-			ctype=(combobuf[cmb].type);
+			cmbid = MAPCOMBO(x+8,y+16);
+			cmb = &combobuf[cmbid];
+			custom_spd = cmb->usrflags&cflag2;
+			ctype=(cmb->type);
 			deltax=combo_class_buf[ctype].conveyor_x_speed;
 			deltay=combo_class_buf[ctype].conveyor_y_speed;
-			if ((deltax != 0 || deltay != 0) && combobuf[cmb].usrflags&cflag2)
+			if ((deltax != 0 || deltay != 0) && custom_spd)
 			{
-				deltax = zslongToFix(combobuf[cmb].attributes[0]);
-				deltay = zslongToFix(combobuf[cmb].attributes[1]);
+				deltax = zslongToFix(cmb->attributes[0]);
+				deltay = zslongToFix(cmb->attributes[1]);
 			}
 		}
 		
@@ -27568,186 +27577,395 @@ void HeroClass::check_conveyor()
 			is_on_conveyor=true;
 		}
 		
-		if(deltay<0)
+		bool movedx = false, movedy = false;
+		if(cmb->usrflags&cflag4) //Smart corners
 		{
-			info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
-			execute(info);
-			
-			if(!info.isUnwalkable())
+			if(deltay<0)
 			{
-				zfix step(0);
+				info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
+				execute(info);
 				
-				if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
+				if(!info.isUnwalkable())
 				{
-					while(step<(abs(deltay)*(isSideViewHero()?2:1)))
+					movedy = true;
+					zfix step(0);
+					
+					if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
 					{
-						yoff=int32_t(y-step)&7;
-						
-						if(!yoff) break;
-						
-						step++;
+						while(step<(abs(deltay)*(isSideViewHero()?2:1)))
+						{
+							yoff=int32_t(y-step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y-step;
+					hs_starty-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
 					}
 				}
-				else
-				{
-					step=abs(deltay);
-				}
+			}
+			else if(deltay>0)
+			{
+				info = walkflag(x,y+15+2,2,down);
+				execute(info);
 				
-				y=y-step;
-				hs_starty-=step.getInt();
-				
-				for(int32_t j=0; j<chainlinks.Count(); j++)
+				if(!info.isUnwalkable())
 				{
-					chainlinks.spr(j)->y-=step;
-				}
-				
-				if(Lwpns.idFirst(wHookshot)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
-				}
-				
-				if(Lwpns.idFirst(wHSHandle)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
+					movedy = true;
+					zfix step(0);
+					
+					if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
+					{
+						while(step<abs(deltay))
+						{
+							yoff=int32_t(y+step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y+step;
+					hs_starty+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
+					}
 				}
 			}
-			else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
+			
+			if(deltax<0)
+			{
+				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x-step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x-step;
+					hs_startx-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
+					}
+				}
+			}
+			else if(deltax>0)
+			{
+				info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x+step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x+step;
+					hs_startx+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
+					}
+				}
+			}
+			if(deltax && !movedx)
+				y = COMBOY(pos);
+			if(deltay && !movedy)
+				x = COMBOX(pos);
 		}
-		else if(deltay>0)
+		if(!movedy)
 		{
-			info = walkflag(x,y+15+2,2,down);
-			execute(info);
-			
-			if(!info.isUnwalkable())
+			if(deltay<0)
 			{
-				zfix step(0);
+				info = walkflag(x,y+8-(bigHitbox*8)-2,2,up);
+				execute(info);
 				
-				if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
+				if(!info.isUnwalkable())
 				{
-					while(step<abs(deltay))
+					movedy = true;
+					zfix step(0);
+					
+					if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
 					{
-						yoff=int32_t(y+step)&7;
-						
-						if(!yoff) break;
-						
-						step++;
+						while(step<(abs(deltay)*(isSideViewHero()?2:1)))
+						{
+							yoff=int32_t(y-step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y-step;
+					hs_starty-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y-=step;
 					}
 				}
-				else
-				{
-					step=abs(deltay);
-				}
-				
-				y=y+step;
-				hs_starty+=step.getInt();
-				
-				for(int32_t j=0; j<chainlinks.Count(); j++)
-				{
-					chainlinks.spr(j)->y+=step;
-				}
-				
-				if(Lwpns.idFirst(wHookshot)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
-				}
-				
-				if(Lwpns.idFirst(wHSHandle)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
-				}
+				else checkdamagecombos(x,y+8-(bigHitbox ? 8 : 0)-2);
 			}
-			else checkdamagecombos(x,y+15);
+			else if(deltay>0)
+			{
+				info = walkflag(x,y+15+2,2,down);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedy = true;
+					zfix step(0);
+					
+					if((DrunkRight()||DrunkLeft())&&dir!=left&&dir!=right&&!(diagonalMovement||NO_GRIDLOCK))
+					{
+						while(step<abs(deltay))
+						{
+							yoff=int32_t(y+step)&7;
+							
+							if(!yoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltay);
+					}
+					
+					y=y+step;
+					hs_starty+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->y+=step;
+					}
+				}
+				else checkdamagecombos(x,y+15);
+			}
 		}
-		
-		if(deltax<0)
+		if(!movedx)
 		{
-			info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
-			execute(info);
-			
-			if(!info.isUnwalkable())
+			if(deltax<0)
 			{
-				zfix step(0);
+				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0),1,left);
+				execute(info);
 				
-				if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
+				if(!info.isUnwalkable())
 				{
-					while(step<abs(deltax))
+					movedx = true;
+					zfix step(0);
+					
+					if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
 					{
-						xoff=int32_t(x-step)&7;
-						
-						if(!xoff) break;
-						
-						step++;
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x-step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x-step;
+					hs_startx-=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
 					}
 				}
-				else
-				{
-					step=abs(deltax);
-				}
-				
-				x=x-step;
-				hs_startx-=step.getInt();
-				
-				for(int32_t j=0; j<chainlinks.Count(); j++)
-				{
-					chainlinks.spr(j)->x-=step;
-				}
-				
-				if(Lwpns.idFirst(wHookshot)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHookshot))->x-=step;
-				}
-				
-				if(Lwpns.idFirst(wHSHandle)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHSHandle))->x-=step;
-				}
+				else checkdamagecombos(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
 			}
-			else checkdamagecombos(x-int32_t(lsteps[x.getInt()&7]),y+8-(bigHitbox ? 8 : 0));
+			else if(deltax>0)
+			{
+				info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					movedx = true;
+					zfix step(0);
+					
+					if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
+					{
+						while(step<abs(deltax))
+						{
+							xoff=int32_t(x+step)&7;
+							
+							if(!xoff) break;
+							
+							step++;
+						}
+					}
+					else
+					{
+						step=abs(deltax);
+					}
+					
+					x=x+step;
+					hs_startx+=step.getInt();
+					
+					for(int32_t j=0; j<chainlinks.Count(); j++)
+					{
+						chainlinks.spr(j)->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHookshot)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
+					}
+					
+					if(Lwpns.idFirst(wHSHandle)>-1)
+					{
+						Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
+					}
+				}
+				else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
+			}
 		}
-		else if(deltax>0)
+		if(movedx || movedy)
 		{
-			info = walkflag(x+15+2,y+8-(bigHitbox ? 8 : 0),1,right);
-			execute(info);
-			
-			if(!info.isUnwalkable())
+			if(cmb->usrflags&cflag1)
+				is_conveyor_stunned = rate;
+			if(cmb->usrflags&cflag3)
 			{
-				zfix step(0);
-				
-				if((DrunkUp()||DrunkDown())&&dir!=up&&dir!=down&&!(diagonalMovement||NO_GRIDLOCK))
-				{
-					while(step<abs(deltax))
-					{
-						xoff=int32_t(x+step)&7;
-						
-						if(!xoff) break;
-						
-						step++;
-					}
-				}
-				else
-				{
-					step=abs(deltax);
-				}
-				
-				x=x+step;
-				hs_startx+=step.getInt();
-				
-				for(int32_t j=0; j<chainlinks.Count(); j++)
-				{
-					chainlinks.spr(j)->x+=step;
-				}
-				
-				if(Lwpns.idFirst(wHookshot)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=step;
-				}
-				
-				if(Lwpns.idFirst(wHSHandle)>-1)
-				{
-					Lwpns.spr(Lwpns.idFirst(wHSHandle))->x+=step;
-				}
+				if(abs(deltax) > abs(deltay))
+					dir = (deltax > 0) ? right : left;
+				else dir = (deltay > 0) ? down : up;
 			}
-			else checkdamagecombos(x+15+2,y+8-(bigHitbox ? 8 : 0));
 		}
 	}
 }

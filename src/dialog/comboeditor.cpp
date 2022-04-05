@@ -685,8 +685,14 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
+			l_flag[0] = "Stunned while moving";
+			h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
 			l_flag[1] = "Custom Speed";
 			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[lasttype-cCVUP] + "ward direction.";
+			l_flag[2] = "Force Dir";
+			h_flag[2] = "Forces the Player to face in the conveyor's direction";
+			l_flag[3] = "Smart Corners";
+			h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";
