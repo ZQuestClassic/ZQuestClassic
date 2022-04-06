@@ -6733,6 +6733,7 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
+			saved = true;
 			
 			if(bmap != NULL)
 			{
