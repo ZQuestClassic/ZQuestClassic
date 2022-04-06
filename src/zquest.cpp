@@ -1111,10 +1111,10 @@ int32_t onPitFix();
 static MENU fixtools_menu[] =
 {
     { (char*)"&Color Set Fix",             onCSetFix,                 NULL,                     0,            NULL   },
-    { (char*)"&Water Solidity Fix",        onWaterSolidity,           NULL,                     0,            NULL   },
+    { (char*)"&Liquid Solidity Fix",       onWaterSolidity,           NULL,                     0,            NULL   },
     { (char*)"&Effect Square Fix",         onEffectFix,               NULL,                     0,            NULL   },
     { (char*)"&Level Palette Fix",         onPalFix,                  NULL,                     0,            NULL   },
-    { (char*)"&Pit and Water Damage Fix",         onPitFix,                  NULL,                     0,            NULL   },
+    { (char*)"&Pit and Liquid Damage Fix", onPitFix,                  NULL,                     0,            NULL   },
     {  NULL,                                NULL,                     NULL,                     0,            NULL   }
 };
 

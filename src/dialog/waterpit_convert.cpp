@@ -55,13 +55,13 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 				text = "Please tick the combo types you wish to set the damage of,"
 					" as well as a range of combos to port to and the damage you wish to set."
 			),
-			TYPE_CHECK("Pits", 0),
+			TYPE_CHECK("Pitfall", 0),
 			TYPE_CHECK("Liquid (Non-Lava)", 1),
 			TYPE_CHECK("Liquid (Lava)", 2),
 			DummyWidget(),
 			DummyWidget(),
 			TYPE_CHECK("Includes Non-Zero Damage Combos", 8),
-			TYPE_CHECK("Includes Warp Pits", 9),
+			TYPE_CHECK("Includes Warp Pitfalls", 9),
 			Row(
 				topPadding = 0.5_em,
 				vAlign = 1.0,
