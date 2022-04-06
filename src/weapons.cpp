@@ -5789,7 +5789,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+2,y+7,sw);
 						}
@@ -5808,7 +5808,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+12,y+12,sw);
 						}
@@ -5831,7 +5831,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+6,y+13,sw);
 						}
@@ -5854,7 +5854,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+9,y+13,sw);
 						}
@@ -5886,7 +5886,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+9,y+13,sw);
 							if(hookedpos<0)
@@ -5920,7 +5920,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+6,y+13,sw);
 							if(hookedpos<0)
@@ -5953,7 +5953,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+9,y+13,sw);
 							if(hookedpos<0)
@@ -5986,7 +5986,7 @@ bool weapon::animate(int32_t index)
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 0; hookedpos < 0 && lyr < (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
 							hookedpos = check_hshot(lyr,x+6,y+13,sw);
 							if(hookedpos<0)
