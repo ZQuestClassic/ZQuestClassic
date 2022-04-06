@@ -20538,8 +20538,8 @@ void do_breakshield()
 
 void do_showsavescreen()
 {
-	bool saved = save_game(false, 0);
-	set_register(sarg1, saved ? 10000 : 0);
+	bool didsaved = save_game(false, 0);
+	set_register(sarg1, didsaved ? 10000 : 0);
 }
 
 void do_selectweapon(bool v, int32_t btn)

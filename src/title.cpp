@@ -4544,7 +4544,7 @@ bool save_game(bool savepoint, int32_t type)
 	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
-	bool saved=false;
+	bool didsaved=false;
 	FFCore.kb_typing_mode = false;
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	do
@@ -4671,7 +4671,7 @@ bool save_game(bool savepoint, int32_t type)
 				load_game_icon(saves+currgame,false,currgame);
 				show_saving(screen);
 				save_savedgames();
-				saved=true;
+				didsaved=true;
 				
 				if(type)
 				{
@@ -4775,7 +4775,7 @@ bool save_game(bool savepoint, int32_t type)
 		}
 	}
 	
-	return saved;
+	return didsaved;
 }
 
 

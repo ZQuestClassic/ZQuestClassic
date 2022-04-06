@@ -5793,115 +5793,116 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 
 void HeroClass::checkhit()
 {
-    if(checkhero==true)
-    {
-        if(hclk>0)
-        {
-            --hclk;
-        }
-        
-        if(NayrusLoveShieldClk>0)
-        {
-            --NayrusLoveShieldClk;
-            
-            if(NayrusLoveShieldClk == 0 && nayruitem != -1)
-            {
-                stop_sfx(itemsbuf[nayruitem].usesound);
-                stop_sfx(itemsbuf[nayruitem].usesound+1);
-                nayruitem = -1;
-            }
-            else if(get_bit(quest_rules,qr_MORESOUNDS) && !(NayrusLoveShieldClk&0xF00) && nayruitem != -1)
-            {
-                stop_sfx(itemsbuf[nayruitem].usesound);
-                cont_sfx(itemsbuf[nayruitem].usesound+1);
-            }
-        }
-    }
-    
-    if(hclk<39 && action==gothit)
-    {
-        action=none; FFCore.setHeroAction(none);
-    }
-        
-    if(hclk<39 && (action==swimhit || action == sideswimhit))
-    {
-	SetSwim();
-    }
-        
-    if(hclk>=40 && action==gothit)
-    {
-        if(((ladderx+laddery) && ((hitdir&2)==ladderdir))||(!(ladderx+laddery)))
-        {
-            for(int32_t i=0; i<4; i++)
-            {
-                switch(hitdir)
-                {
-                case up:
-                    if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(x.getInt()&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))    
-		    {
-			    action=none; FFCore.setHeroAction(none);
-		    }
-                    else --y;
-                    
-                    break;
-                    
-                case down:
-                    if(hit_walkflag(x,y+16,2)||(x.getInt()&7?hit_walkflag(x+16,y+16,1):0))   
-		    {
-			    action=none; FFCore.setHeroAction(none);
-		    }
-                    else ++y;
-                    
-                    break;
-                    
-                case left:
-                    if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(y.getInt()&7?hit_walkflag(x-1,y+16,1):0))  
-		    {
-			    action=none; FFCore.setHeroAction(none);
-		    }
-                    else --x;
-                    
-                    break;
-                    
-                case right:
-                    if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(y.getInt()&7?hit_walkflag(x+16,y+16,1):0))
-		    {
-			    action=none; FFCore.setHeroAction(none);
-		    }
-                    else ++x;
-                    
-                    break;
-                }
-            }
-        }
-    }
-    
-    if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || action==lavadrowning || action==sidedrowning || inwallm || isDiving() || (action==hopping && hopclk<255))
-    {
-        return;
-    }
-    
-    for(int32_t i=0; i<Lwpns.Count(); i++)
-    {
-        sprite *s = Lwpns.spr(i);
+	if(checkhero==true)
+	{
+		if(hclk>0)
+		{
+			--hclk;
+		}
+		
+		if(NayrusLoveShieldClk>0)
+		{
+			--NayrusLoveShieldClk;
+			
+			if(NayrusLoveShieldClk == 0 && nayruitem != -1)
+			{
+				stop_sfx(itemsbuf[nayruitem].usesound);
+				stop_sfx(itemsbuf[nayruitem].usesound+1);
+				nayruitem = -1;
+			}
+			else if(get_bit(quest_rules,qr_MORESOUNDS) && !(NayrusLoveShieldClk&0xF00) && nayruitem != -1)
+			{
+				stop_sfx(itemsbuf[nayruitem].usesound);
+				cont_sfx(itemsbuf[nayruitem].usesound+1);
+			}
+		}
+	}
+	
+	if(hclk<39 && action==gothit)
+	{
+		action=none; FFCore.setHeroAction(none);
+	}
+		
+	if(hclk<39 && (action==swimhit || action == sideswimhit))
+	{
+		SetSwim();
+	}
+		
+	if(hclk>=40 && action==gothit)
+	{
+		int val = check_pitslide();
+		if(((ladderx+laddery) && ((hitdir&2)==ladderdir))||(!(ladderx+laddery)))
+		{
+			for(int32_t i=0; i<4; i++)
+			{
+				switch(hitdir)
+				{
+					case up:
+						if(hit_walkflag(x,y+(bigHitbox?-1:7),2)||(x.getInt()&7?hit_walkflag(x+16,y+(bigHitbox?-1:7),1):0))	
+						{
+							action=none; FFCore.setHeroAction(none);
+						}
+						else if (val == -1) --y;
+						
+						break;
+						
+					case down:
+						if(hit_walkflag(x,y+16,2)||(x.getInt()&7?hit_walkflag(x+16,y+16,1):0))   
+						{
+							action=none; FFCore.setHeroAction(none);
+						}
+						else if (val == -1) ++y;
+						
+						break;
+						
+					case left:
+						if(hit_walkflag(x-1,y+(bigHitbox?0:8),1)||hit_walkflag(x-1,y+8,1)||(y.getInt()&7?hit_walkflag(x-1,y+16,1):0))  
+						{
+							action=none; FFCore.setHeroAction(none);
+						}
+						else if (val == -1) --x;
+						
+						break;
+						
+					case right:
+						if(hit_walkflag(x+16,y+(bigHitbox?0:8),1)||hit_walkflag(x+16,y+8,1)||(y.getInt()&7?hit_walkflag(x+16,y+16,1):0))
+						{
+							action=none; FFCore.setHeroAction(none);
+						}
+						else if (val == -1) ++x;
+						
+						break;
+				}
+			}
+		}
+	}
+	
+	if(hclk>0 || inlikelike == 1 || action==inwind || action==drowning || action==lavadrowning || action==sidedrowning || inwallm || isDiving() || (action==hopping && hopclk<255))
+	{
+		return;
+	}
+	
+	for(int32_t i=0; i<Lwpns.Count(); i++)
+	{
+		sprite *s = Lwpns.spr(i);
 	int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
-        //if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
-	    //if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-        if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFHERO2)))
-        {
-            if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
-                        (itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
-            {
-                if(NayrusLoveShieldClk<=0)
-                {
-                    int32_t ringpow = ringpower(lwpn_dp(i));
-                    game->set_life(zc_max(game->get_life()-ringpow,0));
-                }
-                
-                hitdir = s->hitdir(x,y,16,16,dir);
-                
-                if (action != rafting && action != freeze && action != sideswimfreeze)
-                {
+		//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
+		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
+		if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFHERO2)))
+		{
+			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4,z,7,7,1):s->hit(x+7,y+7,z,2,2,1)) : s->hit(this))&&
+						(itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
+			{
+				if(NayrusLoveShieldClk<=0)
+				{
+					int32_t ringpow = ringpower(lwpn_dp(i));
+					game->set_life(zc_max(game->get_life()-ringpow,0));
+				}
+				
+				hitdir = s->hitdir(x,y,16,16,dir);
+				
+				if (action != rafting && action != freeze && action != sideswimfreeze)
+				{
 			if (IsSideSwim())
 			{
 				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
@@ -5914,148 +5915,148 @@ void HeroClass::checkhit()
 			{
 				action=gothit; FFCore.setHeroAction(gothit);
 			}
-                }
-                    
-                if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-                {
-                    spins = charging = attackclk = 0;
-                    attack=none;
-                    tapping = false;
-                }
-                
-                hclk=48;
-                sfx(getHurtSFX(),pan(x.getInt()));
-                return;
-            }
-        }
-        
-        //   check enemy weapons true, 1, -1
-        //
-        if((itemsbuf[itemid].flags & ITEM_FLAG6))
-        {
-            if(s->id==wBrang || (s->id==wHookshot&&!pull_hero))
-            {
-                int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
-                             directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
-                itemid = vbound(itemid, 0, MAXITEMS-1);
-                
-                for(int32_t j=0; j<Ewpns.Count(); j++)
-                {
-                    sprite *t = Ewpns.spr(j);
-                    
-                    if(s->hit(t->x+7,t->y+7,t->z,2,2,1))
-                    {
-                        bool reflect = false;
-                       // sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
-                        switch(t->id)
-                        {
-                        case ewBrang:
-                            if(!(itemsbuf[itemid].misc3 & shBRANG)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shBRANG) != 0);
-                            goto killweapon;
-                            
-                        case ewArrow:
-                            if(!(itemsbuf[itemid].misc3 & shARROW)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shARROW) != 0);
-                            goto killweapon;
-                            
-                        case ewRock:
-                            if(!(itemsbuf[itemid].misc3 & shROCK)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shROCK) != 0);
-                            goto killweapon;
-                            
-                        case ewFireball2:
-                        case ewFireball:
-                        {
-                            int32_t mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
-                            
-                            if(!(itemsbuf[itemid].misc3 & mask)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & mask) != 0);
-                            goto killweapon;
-                        }
-                        
-                        case ewSword:
-                            if(!(itemsbuf[itemid].misc3 & shSWORD)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shSWORD) != 0);
-                            goto killweapon;
-                            
-                        case wRefMagic:
-                        case ewMagic:
-                            if(!(itemsbuf[itemid].misc3 & shMAGIC)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
-                            goto killweapon;
-                            
-                        case wScript1:
-                        case wScript2:
-                        case wScript3:
-                        case wScript4:
-                        case wScript5:
-                        case wScript6:
-                        case wScript7:
-                        case wScript8:
-                        case wScript9:
-                        case wScript10:
-                            if(!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
-                            
-                            reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
-                            goto killweapon;
-                            
-                        case ewLitBomb:
-                        case ewLitSBomb:
+				}
+					
+				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+				{
+					spins = charging = attackclk = 0;
+					attack=none;
+					tapping = false;
+				}
+				
+				hclk=48;
+				sfx(getHurtSFX(),pan(x.getInt()));
+				return;
+			}
+		}
+		
+		//   check enemy weapons true, 1, -1
+		//
+		if((itemsbuf[itemid].flags & ITEM_FLAG6))
+		{
+			if(s->id==wBrang || (s->id==wHookshot&&!pull_hero))
+			{
+				int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
+							 directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
+				itemid = vbound(itemid, 0, MAXITEMS-1);
+				
+				for(int32_t j=0; j<Ewpns.Count(); j++)
+				{
+					sprite *t = Ewpns.spr(j);
+					
+					if(s->hit(t->x+7,t->y+7,t->z,2,2,1))
+					{
+						bool reflect = false;
+					   // sethitHeroUID(HIT_BY_EWEAPON,j); //set that Hero was hit by a specific eweapon index. 
+						switch(t->id)
+						{
+						case ewBrang:
+							if(!(itemsbuf[itemid].misc3 & shBRANG)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & shBRANG) != 0);
+							goto killweapon;
+							
+						case ewArrow:
+							if(!(itemsbuf[itemid].misc3 & shARROW)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & shARROW) != 0);
+							goto killweapon;
+							
+						case ewRock:
+							if(!(itemsbuf[itemid].misc3 & shROCK)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & shROCK) != 0);
+							goto killweapon;
+							
+						case ewFireball2:
+						case ewFireball:
+						{
+							int32_t mask = (((weapon*)t)->type&1 ? shFIREBALL2 : shFIREBALL);
+							
+							if(!(itemsbuf[itemid].misc3 & mask)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & mask) != 0);
+							goto killweapon;
+						}
+						
+						case ewSword:
+							if(!(itemsbuf[itemid].misc3 & shSWORD)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & shSWORD) != 0);
+							goto killweapon;
+							
+						case wRefMagic:
+						case ewMagic:
+							if(!(itemsbuf[itemid].misc3 & shMAGIC)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & shMAGIC) != 0);
+							goto killweapon;
+							
+						case wScript1:
+						case wScript2:
+						case wScript3:
+						case wScript4:
+						case wScript5:
+						case wScript6:
+						case wScript7:
+						case wScript8:
+						case wScript9:
+						case wScript10:
+							if(!(itemsbuf[itemid].misc3 & shSCRIPT)) break;
+							
+							reflect = ((itemsbuf[itemid].misc4 & shSCRIPT) != 0);
+							goto killweapon;
+							
+						case ewLitBomb:
+						case ewLitSBomb:
 killweapon:
-                            ((weapon*)s)->dead=1;
-                            weapon *ew = ((weapon*)t);
-                            int32_t oldid = ew->id;
-                            ew->onhit(true, reflect ? 2 : 1, s->dir);
-                            
-                            /*if (s->dummy_bool[0])
-                            {
-                              add_grenade(s->x,s->y,s->z,0,-1);
-                              s->dummy_bool[0]=false;
-                            }*/
-                            if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
-                            {
-                                Lwpns.add(ew);
-                                Ewpns.remove(ew);
+							((weapon*)s)->dead=1;
+							weapon *ew = ((weapon*)t);
+							int32_t oldid = ew->id;
+							ew->onhit(true, reflect ? 2 : 1, s->dir);
+							
+							/*if (s->dummy_bool[0])
+							{
+							  add_grenade(s->x,s->y,s->z,0,-1);
+							  s->dummy_bool[0]=false;
+							}*/
+							if(ew->id != oldid || (ew->id>=wScript1 && ew->id<=wScript10)) // changed type from ewX to wX... Except for script weapons
+							{
+								Lwpns.add(ew);
+								Ewpns.remove(ew);
 				ew->isLWeapon = true; //Make sure this gets set everywhere!
-                            }
-                            
-                            if(ew->id==wRefMagic)
-                            {
-                                ew->ignoreHero=true;
-                                ew->ignorecombo=-1;
-                            }
-                            
-                            break;
-                        }
-                        
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_bit(quest_rules,qr_OUCHBOMBS)))
-        {
-            //     if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
-            if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1) && !fallclk)
-            {
-                if(NayrusLoveShieldClk<=0)
-                {
-                    int32_t ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
-                    game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
-                }
-                
-                hitdir = s->hitdir(x,y,16,16,dir);
-                
-                if (action != rafting && action != freeze && action != sideswimfreeze)
-                {
+							}
+							
+							if(ew->id==wRefMagic)
+							{
+								ew->ignoreHero=true;
+								ew->ignorecombo=-1;
+							}
+							
+							break;
+						}
+						
+						break;
+					}
+				}
+			}
+		}
+		
+		if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_bit(quest_rules,qr_OUCHBOMBS)))
+		{
+			//	 if(((s->id==wBomb)||(s->id==wSBomb)) && (superman ? s->hit(x+7,y+7,z,2,2,1) : s->hit(this)))
+			if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1) && !fallclk)
+			{
+				if(NayrusLoveShieldClk<=0)
+				{
+					int32_t ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
+					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
+				}
+				
+				hitdir = s->hitdir(x,y,16,16,dir);
+				
+				if (action != rafting && action != freeze && action != sideswimfreeze)
+				{
 			if (IsSideSwim())
 			{
 				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
@@ -6068,153 +6069,153 @@ killweapon:
 			{
 				action=gothit; FFCore.setHeroAction(gothit);
 			}
-                }
-                    
-                if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-                {
-                    spins = charging = attackclk = 0;
-                    attack=none;
-                    tapping = false;
-                }
-                
-                hclk=48;
-                sfx(getHurtSFX(),pan(x.getInt()));
-                return;
-            }
-        }
-        
-        if(hclk==0 && s->id==wWind && s->hit(x+7,y+7,z,2,2,1) && !fairyclk)
-        {
-            reset_hookshot();
-            xofs=1000;
-            action=inwind; FFCore.setHeroAction(inwind);
-            dir=s->dir;
-            spins = charging = attackclk = 0;
-            
-            // In case Hero used two whistles in a row, summoning two whirlwinds,
-            // check which whistle's whirlwind picked him up so the correct
-            // warp ring will be used
-            int32_t whistle=((weapon*)s)->parentitem;
-            
-            if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
-                whistleitem=whistle;
-                
-            return;
-        }
-    }
-    
-    if(action==rafting || action==freeze || action==sideswimfreeze ||
-            action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning || superman || !(scriptcoldet&1) || fallclk)
-        return;
-        
-    int32_t hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
-    
-    
-    
-    if(hit2!=-1)
-    {
-        hithero(hit2);
-        return;
-    }
-    
-    hit2 = LwpnHit();
-    
-    if(hit2!=-1)
-    {
-        if(NayrusLoveShieldClk<=0)
-        {
-            int32_t ringpow = ringpower(lwpn_dp(hit2));
-            game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
+				}
+					
+				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+				{
+					spins = charging = attackclk = 0;
+					attack=none;
+					tapping = false;
+				}
+				
+				hclk=48;
+				sfx(getHurtSFX(),pan(x.getInt()));
+				return;
+			}
+		}
+		
+		if(hclk==0 && s->id==wWind && s->hit(x+7,y+7,z,2,2,1) && !fairyclk)
+		{
+			reset_hookshot();
+			xofs=1000;
+			action=inwind; FFCore.setHeroAction(inwind);
+			dir=s->dir;
+			spins = charging = attackclk = 0;
+			
+			// In case Hero used two whistles in a row, summoning two whirlwinds,
+			// check which whistle's whirlwind picked him up so the correct
+			// warp ring will be used
+			int32_t whistle=((weapon*)s)->parentitem;
+			
+			if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
+				whistleitem=whistle;
+				
+			return;
+		}
+	}
+	
+	if(action==rafting || action==freeze || action==sideswimfreeze ||
+			action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning || superman || !(scriptcoldet&1) || fallclk)
+		return;
+		
+	int32_t hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
+	
+	
+	
+	if(hit2!=-1)
+	{
+		hithero(hit2);
+		return;
+	}
+	
+	hit2 = LwpnHit();
+	
+	if(hit2!=-1)
+	{
+		if(NayrusLoveShieldClk<=0)
+		{
+			int32_t ringpow = ringpower(lwpn_dp(hit2));
+			game->set_life(zc_max(game->get_life()-ringpow,0));
+		sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
 		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Hero->HitBy[LWPN] is: %d\n", gethitHeroUID(HIT_BY_LWEAPON));
-            
-        }
-        
-        hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
-        ((weapon*)Lwpns.spr(hit2))->onhit(false);
-        
-        if (IsSideSwim())
+			
+		}
+		
+		hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
+		((weapon*)Lwpns.spr(hit2))->onhit(false);
+		
+		if (IsSideSwim())
 	{
 		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 	}
-        else if(action==swimming || hopclk==0xFF)
+		else if(action==swimming || hopclk==0xFF)
 	{
-            action=swimhit; FFCore.setHeroAction(swimhit);
+			action=swimhit; FFCore.setHeroAction(swimhit);
 	}
-        else
+		else
 	{
-            action=gothit; FFCore.setHeroAction(gothit);
+			action=gothit; FFCore.setHeroAction(gothit);
 	}
-            
-        hclk=48;
-        
-        if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-        {
-            spins = charging = attackclk = 0;
-            attack=none;
-            tapping = false;
-        }
-        
-        sfx(getHurtSFX(),pan(x.getInt()));
-        return;
-    }
-    
-    //else  { sethitHeroUID(HIT_BY_LWEAPON,(0));  //fails to clear
-    
-    hit2 = EwpnHit();
-    
-    if(hit2!=-1)
-    {
-        if(NayrusLoveShieldClk<=0)
-        {
-            int32_t ringpow = ringpower(ewpn_dp(hit2));
-            game->set_life(zc_max(game->get_life()-ringpow,0));
-	    sethitHeroUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
+			
+		hclk=48;
+		
+		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+		{
+			spins = charging = attackclk = 0;
+			attack=none;
+			tapping = false;
+		}
+		
+		sfx(getHurtSFX(),pan(x.getInt()));
+		return;
+	}
+	
+	//else  { sethitHeroUID(HIT_BY_LWEAPON,(0));  //fails to clear
+	
+	hit2 = EwpnHit();
+	
+	if(hit2!=-1)
+	{
+		if(NayrusLoveShieldClk<=0)
+		{
+			int32_t ringpow = ringpower(ewpn_dp(hit2));
+			game->set_life(zc_max(game->get_life()-ringpow,0));
+		sethitHeroUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
 		//Z_scripterrlog("wweapon hit2 is: %d\n", hit2*10000);
 		//Z_scripterrlog("Hero->HitBy[EWPN] is: %d\n", gethitHeroUID(HIT_BY_EWEAPON));
-        }
-        
-        hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
-        ((weapon*)Ewpns.spr(hit2))->onhit(false);
-        
+		}
+		
+		hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
+		((weapon*)Ewpns.spr(hit2))->onhit(false);
+		
 	if (IsSideSwim())
 	{
 		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
 	}
-        else if(action==swimming || hopclk==0xFF)
+		else if(action==swimming || hopclk==0xFF)
 	{
-            action=swimhit; FFCore.setHeroAction(swimhit);
+			action=swimhit; FFCore.setHeroAction(swimhit);
 	}
-        else
+		else
 	{
-            action=gothit; FFCore.setHeroAction(gothit);
+			action=gothit; FFCore.setHeroAction(gothit);
 	}
-            
-        hclk=48;
-        
-        if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-        {
-            spins = charging = attackclk = 0;
-            attack=none;
-            tapping = false;
-        }
-        
-        sfx(getHurtSFX(),pan(x.getInt()));
-        return;
-    }
-    //else { sethitHeroUID(HIT_BY_EWEAPON,(0)); } //fails to clear
-    
-    // The rest of this method deals with damage combos, which can be jumped over.
-    if(z>0 && !(tmpscr->flags2&fAIRCOMBOS)) return;
-    
-    int32_t dx1 = (int32_t)x+8-(tmpscr->csensitive);
-    int32_t dx2 = (int32_t)x+8+(tmpscr->csensitive-1);
-    int32_t dy1 = (int32_t)y+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
-    int32_t dy2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
-    
-    for(int32_t i=get_bit(quest_rules, qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
-        (void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
+			
+		hclk=48;
+		
+		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+		{
+			spins = charging = attackclk = 0;
+			attack=none;
+			tapping = false;
+		}
+		
+		sfx(getHurtSFX(),pan(x.getInt()));
+		return;
+	}
+	//else { sethitHeroUID(HIT_BY_EWEAPON,(0)); } //fails to clear
+	
+	// The rest of this method deals with damage combos, which can be jumped over.
+	if(z>0 && !(tmpscr->flags2&fAIRCOMBOS)) return;
+	
+	int32_t dx1 = (int32_t)x+8-(tmpscr->csensitive);
+	int32_t dx2 = (int32_t)x+8+(tmpscr->csensitive-1);
+	int32_t dy1 = (int32_t)y+(bigHitbox?8:12)-(bigHitbox?tmpscr->csensitive:(tmpscr->csensitive+1)/2);
+	int32_t dy2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
+	
+	for(int32_t i=get_bit(quest_rules, qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
+		(void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
 }
 
 bool HeroClass::checkdamagecombos(int32_t dx, int32_t dy)
@@ -6912,7 +6913,7 @@ bool HeroClass::animate(int32_t)
 	
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim())
+		if (z == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery))
 		{
 			if (iswaterex(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
 			&& iswaterex(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
