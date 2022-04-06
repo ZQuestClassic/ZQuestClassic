@@ -1106,6 +1106,7 @@ static MENU quest_reports_menu[] =
 };
 
 int32_t onPalFix();
+int32_t onPitFix();
 
 static MENU fixtools_menu[] =
 {
@@ -1113,6 +1114,7 @@ static MENU fixtools_menu[] =
     { (char*)"&Water Solidity Fix",        onWaterSolidity,           NULL,                     0,            NULL   },
     { (char*)"&Effect Square Fix",         onEffectFix,               NULL,                     0,            NULL   },
     { (char*)"&Level Palette Fix",         onPalFix,                  NULL,                     0,            NULL   },
+    { (char*)"&Pit and Water Damage Fix",         onPitFix,                  NULL,                     0,            NULL   },
     {  NULL,                                NULL,                     NULL,                     0,            NULL   }
 };
 
@@ -10990,6 +10992,21 @@ void setColorPalette(int32_t flags, int32_t lowpal, int32_t highpal)
 		{
 			if (!(flags&(1<<c))) continue;
 			copyCSet(q, c, -1, c);
+		}
+	}
+}
+
+void setPitDamage(int32_t flags, int32_t lowcombo, int32_t highcombo, int32_t damage)
+{
+	for(int32_t i=lowcombo; i < highcombo; ++i)
+	{
+		if((combobuf[i].type == cPITFALL && (flags & (1<<0)))
+		|| (combobuf[i].type == cWATER && !(combobuf[i].usrflags & (1<<0)) && (flags & (1<<1)))
+		|| (combobuf[i].type == cWATER && (combobuf[i].usrflags & (1<<0)) && (flags & (1<<2))))
+		{
+			if ((combobuf[i].type != cPITFALL || (flags & (1<<9)) || !(combobuf[i].usrflags & (1<<0)))
+			&& ((flags & (1<<8)) || combobuf[i].attributes[0] == 0))
+				combobuf[i].attributes[0] = damage*10000; 
 		}
 	}
 }
