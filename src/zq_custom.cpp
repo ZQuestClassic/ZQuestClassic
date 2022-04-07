@@ -919,8 +919,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			//read it into an item
 		}
 	}
-	memcpy(&itemsbuf[index], &tempitem, sizeof(itemdata));
-	//strcpy(item_string[index], istring);
 	itemsbuf[bii[index].i] = tempitem;
 	strcpy(item_string[bii[index].i], istring);
 	   

@@ -3324,6 +3324,7 @@ void do_dcounters()
             sfx(sfx_to_use);
     }
 }
+extern bool do_end_str;
 #define F7 46+7
 //bool zasmstacktrace = false;
 void game_loop()
@@ -3678,7 +3679,7 @@ void game_loop()
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
 		#endif
-		if(linkedmsgclk==1)
+		if(linkedmsgclk==1 && !do_end_str)
 		{
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].newtile!=0)\n");

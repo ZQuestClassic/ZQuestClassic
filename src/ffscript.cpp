@@ -31796,9 +31796,11 @@ void FFScript::do_isdeadnpc()
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		//int32_t dead = (int32_t)e->Dead(GuyH::getNPCIndex(ri->guyref));
 		//GuyH::getNPC()->Dead(GuyH::getNPCIndex(ri->guyref));
-		set_register(sarg1, ((GuyH::getNPC()->Dead(GuyH::getNPCIndex(ri->guyref))) ? 10000 : 0));
+		set_register(sarg1,
+			((GuyH::getNPC()->dying && !GuyH::getNPC()->immortal)
+				? 10000 : 0));
 	}
-	else set_register(sarg1, -10000);
+	else set_register(sarg1, 0);
 }
 
 

@@ -22140,12 +22140,14 @@ void setupscreen()
 // Increments msgptr and returns the control code argument pointed at.
 word grab_next_argument()
 {
+	if(msgptr+1>=MsgStrings[msgstr].s.size()) return 0;
 	byte val=MsgStrings[msgstr].s[++msgptr]-1;
 	word ret=val;
 	
 	// If an argument is succeeded by 255, then it's a three-byte argument -
 	// between 254 and 65535 (or whatever the maximum actually is)
-	if((uint8_t)(MsgStrings[msgstr].s[msgptr+1]) == 255)
+	if((msgptr+2<MsgStrings[msgstr].s.size())
+		&& uint8_t(MsgStrings[msgstr].s[msgptr+1]) == 255)
 	{
 		val=MsgStrings[msgstr].s[msgptr+2];
 		word next=val;
@@ -22179,7 +22181,7 @@ struct menu_choice
 };
 static int32_t msg_menu_data[MNU_DATA_MAX];
 static bool do_run_menu = false;
-static bool do_end_str = false;
+bool do_end_str = false;
 static bool wait_advance = false;
 static std::map<int32_t, menu_choice> menu_options;
 void clr_msg_data()
@@ -22271,7 +22273,7 @@ bool runMenuCursor()
 
 bool parsemsgcode()
 {
-	if(msgptr>=MsgStrings[msgstr].s.size()-2) return false;
+	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
 	byte c = byte(MsgStrings[msgstr].s[msgptr]-1);
 	switch(c)
 	{
@@ -22504,7 +22506,7 @@ bool parsemsgcode()
 			int32_t screen =     grab_next_argument();
 			int32_t reg =     grab_next_argument();
 			int32_t val =     grab_next_argument();
-			int32_t nxtstr = grab_next_argument();
+			//int32_t nxtstr = grab_next_argument();
 			if ( FFCore.get_screen_d(screen + dmap, reg) >= val )
 			{
 				goto switched;
@@ -23150,7 +23152,7 @@ reparsesinglechar:
 		// Go to next string, or make it disappear by going to string 0.
 		if(MsgStrings[msgstr].nextstring!=0 || get_bit(quest_rules,qr_MSGDISAPPEAR) || enqueued_str)
 		{
-			linkedmsgclk=51;
+			linkedmsgclk=do_end_str?1:51;
 		}
 		
 		if(MsgStrings[msgstr].nextstring==0)
