@@ -22935,6 +22935,8 @@ void putmsg()
 				else doing_name_insert = false;
 			}
 			++msgptr;
+			if(do_end_str)
+				goto strendcheck;
 			if(wait_advance)
 				return;
 			if(atend(MsgStrings[msgstr].s.c_str()+msgptr))
@@ -23033,6 +23035,8 @@ reparsesinglechar:
 			cursor_x += MsgStrings[msgstr].hspace;
 			msgpos++;
 		}
+		if(do_end_str)
+			goto strendcheck;
 		if(wait_advance)
 		{
 			++msgptr;
@@ -23142,7 +23146,7 @@ reparsesinglechar:
 			}
 		}
 	}
-	
+strendcheck:
 	// Done printing the string
 	if(do_end_str || !doing_name_insert && !do_run_menu && (msgpos>=10000 || msgptr>=MsgStrings[msgstr].s.size() || cursor_y >= msg_h-(oldmargin?0:msg_margins[down]) || atend(MsgStrings[msgstr].s.c_str()+msgptr)) && !linkedmsgclk)
 	{
