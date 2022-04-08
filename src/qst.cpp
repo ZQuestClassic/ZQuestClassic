@@ -1226,8 +1226,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(MsgStr)*msg_strings_size);
     Z_message("Allocating string buffer (%s)... ", byte_conversion2(sizeof(MsgStr)*msg_strings_size,memrequested,-1,-1));
     
-    if((MsgStrings=(MsgStr*)zc_malloc(sizeof(MsgStr)*msg_strings_size))==NULL)
-        return 0;
+	MsgStrings = new MsgStr[msg_strings_size];
         
     //memset(MsgStrings, 0, sizeof(MsgStr)*msg_strings_size);
 	for(auto q = 0; q < msg_strings_size; ++q)
@@ -1383,7 +1382,7 @@ void del_qst_buffers()
     
     if(ZCMaps) zc_free(ZCMaps);
     
-    if(MsgStrings) zc_free(MsgStrings);
+    if(MsgStrings) delete[] MsgStrings;
     
     if(DoorComboSets) zc_free(DoorComboSets);
     
@@ -3685,10 +3684,12 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				Z_message("Reallocating string buffer...\n");
 				
-				if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
-					return qe_nomem;
+				// if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
+					// return qe_nomem;
 					
 				//memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
+				delete[] MsgStrings;
+				MsgStrings = new MsgStr[MAXMSGS];
 				msg_strings_size = MAXMSGS;
 				for(auto q = 0; q < msg_strings_size; ++q)
 				{
@@ -3790,15 +3791,16 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			Z_message("Reallocating string buffer...\n");
 			
-			if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
-				return qe_nomem;
-				
-			//memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
+			// if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
+				// return qe_nomem;
+			delete[] MsgStrings;
+			MsgStrings = new MsgStr[MAXMSGS];
 			msg_strings_size = MAXMSGS;
 			for(auto q = 0; q < msg_strings_size; ++q)
 			{
 				MsgStrings[q].clear();
 			}
+			//memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
 		}
 		
 		//reset the message strings

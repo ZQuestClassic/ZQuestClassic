@@ -563,8 +563,15 @@ int32_t onStrings()
 			if(msg_count >= msg_strings_size)
 			{
 				Z_message("Reallocating string buffer...\n");
-				MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS);
-				memset((void*)(&MsgStrings[msg_strings_size]), 0, sizeof(MsgStr)*(MAXMSGS-msg_strings_size));
+				MsgStr* tmp = MsgStrings;
+				MsgStrings = new MsgStr[MAXMSGS];
+				for(auto q = 0; q < msg_strings_size; ++q)
+					MsgStrings[q] = tmp[q];
+				for(auto q = msg_strings_size; q < MAXMSGS; ++q)
+					MsgStrings[q].clear();
+				delete[] tmp;
+				// MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS);
+				// memset((void*)(&MsgStrings[msg_strings_size]), 0, sizeof(MsgStr)*(MAXMSGS-msg_strings_size));
 				msg_strings_size = MAXMSGS;
 				init_msgstrings(msg_count, msg_strings_size);
 			}
