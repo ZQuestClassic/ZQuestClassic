@@ -6726,7 +6726,8 @@ void HeroClass::PhantomsCleanup()
 //Waitframe handler for refilling operations
 static void do_refill_waitframe()
 {
-	put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+	bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
+	put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,showtime,sspUP);
 	if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 	{
 		script_drawing_commands.Clear();
@@ -24240,8 +24241,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
-		
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
@@ -26951,7 +26952,7 @@ void HeroClass::heroDeathAnimation()
 	put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 	QMisc.colors.hero_dot = tmp_hero_dot;
     */
-    
+    bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
 	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
 				clear_bitmap(subscrbmp);
 				//get rid off all sprites but Hero
@@ -26988,7 +26989,7 @@ void HeroClass::heroDeathAnimation()
 				//scrollbuf is tampered with by draw_screen()
 				//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
 				
-				put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+				put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
 				//Don't forget passive subscreen scripts!
 				if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 				{

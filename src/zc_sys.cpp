@@ -5198,13 +5198,14 @@ void blackscr(int32_t fcnt,bool showsubscr)
     script_drawing_commands.Clear();
     
 	FFCore.warpScriptCheck();
+	bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
     while(fcnt>0)
     {
         clear_bitmap(framebuf);
         
         if(showsubscr)
         {
-            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+            put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,showtime,sspUP);
 			if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS) || (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
 			{
 				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
