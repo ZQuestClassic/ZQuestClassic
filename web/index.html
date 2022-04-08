@@ -8,13 +8,16 @@
   <title>Zelda Classic</title>
   <style>
     body {
-      overscroll-behavior: none;
-      overflow-y: auto;
       margin: 0;
       background-color: black;
       color: whitesmoke;
       font-size: 18px;
       font-family: monospace;
+    }
+
+    body.canvas-focus {
+      overscroll-behavior: none;
+      overflow-y: hidden;
     }
 
     .hidden {
@@ -86,6 +89,10 @@
 
     .quest-list__current button {
       font-size: 30px;
+    }
+
+    .quest-list__current img {
+      max-width: 50%;
     }
 
     .emscripten {
@@ -314,14 +321,6 @@
           }
         };
 
-        const resize = () => {
-          let w = 640;
-          let h = 480;
-          const heightAvail = innerHeight - document.querySelector('header').clientHeight;
-          const canvasScale = Math.min(innerWidth / w, heightAvail / h);
-          canvas.style.width = (Math.floor(w * canvasScale)) + "px";
-          canvas.style.height = (Math.floor(h * canvasScale)) + "px";
-        };
         window.addEventListener('resize', resize);
         resize();
 
@@ -343,14 +342,32 @@
                 panelEl.classList.add('hidden');
               }
             }
+
+            const canvasFocus = !document.querySelector('.panel-button.active');
+            document.body.classList.toggle('canvas-focus', canvasFocus);
+            document.querySelector('.content').classList.toggle('hidden', !canvasFocus);
+            if (canvasFocus) {
+              resize();
+              document.body.scrollIntoView();
+            }
           });
         }
+        document.body.classList.toggle('canvas-focus', true);
 
         await renderQuestList();
       } catch (err) {
         console.error(err);
         document.querySelector('.content').textContent = err.toString();
       }
+    }
+
+    function resize() {
+      let w = 640;
+      let h = 480;
+      const heightAvail = innerHeight - document.querySelector('header').clientHeight;
+      const canvasScale = Math.min(innerWidth / w, heightAvail / h);
+      canvas.style.width = (Math.floor(w * canvasScale)) + "px";
+      canvas.style.height = (Math.floor(h * canvasScale)) + "px";
     }
 
     async function renderQuestList() {
