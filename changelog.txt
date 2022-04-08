@@ -1,7 +1,39 @@
 // 2.55 Change Log
-// Updated 30th Mar, 2022
+// Updated 8th April, 2022
 
-//Since A104
+//A105
+
+Fixed bug where opening a quest wouldn't read certain strings properly
+Fixed some issues with String Control Codes
+Fixed Quest Time subscreen object not appearing on passive subscreen
+
+-April 6th Nightly
+
+Added Fix Tools->Pit and Liquid Damage Fix
+Fixed ZQuest thinking it's been changed and needs to be saved when opening a quest
+Can no longer be knocked back over pits
+Fixed Hookshot Grabs not working on Layer 2 even with the QR enabled
+Fixed Fairies not dying correctly when picked up or despawning
+Fixed Peril Rings not applying to damage combos in certain older quests, added new item flag for Peril Rings for this behavior
+-Deedee
+Add new String Control Codes for triggering secrets and setting screen state
+New conveyor options, smart conveyors that don't get player stuck on corners, conveyors that stun you while they push you, and conveyors that force you to face their direction
+-Emily
+
+-April 4th Nightly
+
+Fixed some Game->Suspend related bugs
+Fixed crash when entering a cave or dying with a fairy onscreen
+Hopefully fixed string-editor related data corruption?
+-Deedee
+
+Fixed RNG not being initialized
+Add Rule Templates
+Flag: Farore's Wind acts as F6->Continue
+Add QR for Wallmasters/Farore's always using continue point
+Better Combo/Tile Undo
+Add Own() for all pointer types with Free() (bitmaps, etc); this will automatically Free() the pointer when the script that Owns that pointer ends.
+-Emily
 
 -Mar 30th Nightly
 
