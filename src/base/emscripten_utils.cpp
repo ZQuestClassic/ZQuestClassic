@@ -52,16 +52,21 @@ void em_sync_fs() {
 // Quest files don't have real data until we know the user needs it.
 // See em_init_fs
 EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
-  path = UTF8ToString(path);
-  if (FS.stat(path).size) return;
+  try {
+    path = UTF8ToString(path);
+    if (FS.stat(path).size) return;
 
-  const url = window.ZC.pathToUrl[path];
-  if (!url) return;
+    const url = window.ZC.pathToUrl[path];
+    if (!url) return;
 
-  const response = await fetch(url);
-  const data = await response.arrayBuffer();
-  const buffer = new Uint8Array(data);
-  FS.writeFile(path, buffer);
+    const response = await fetch(url);
+    const data = await response.arrayBuffer();
+    const buffer = new Uint8Array(data);
+    FS.writeFile(path, buffer);
+  } catch (e) {
+    // Fetch failed (could be offline) or path did not exist.
+    console.error(`error loading ${path}`, e);
+  }
 });
 void em_fetch_file(const char *path) {
   em_fetch_file_(path);
