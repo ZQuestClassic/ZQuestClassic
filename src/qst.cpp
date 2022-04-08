@@ -1229,7 +1229,11 @@ int32_t get_qst_buffers()
     if((MsgStrings=(MsgStr*)zc_malloc(sizeof(MsgStr)*msg_strings_size))==NULL)
         return 0;
         
-    memset(MsgStrings, 0, sizeof(MsgStr)*msg_strings_size);
+    //memset(MsgStrings, 0, sizeof(MsgStr)*msg_strings_size);
+	for(auto q = 0; q < msg_strings_size; ++q)
+	{
+		MsgStrings[q].clear();
+	}
     Z_message("OK\n");                                        // Allocating string buffer...
     
     memrequested+=(sizeof(DoorComboSet)*MAXDOORCOMBOSETS);
@@ -3590,6 +3594,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 void init_msgstr(MsgStr *str)
 {
 	str->s = "";
+	str->s.shrink_to_fit();
 	str->nextstring=0;
     str->tile=0;
     str->cset=0;
@@ -3683,8 +3688,12 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
 					return qe_nomem;
 					
-				memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
+				//memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
 				msg_strings_size = MAXMSGS;
+				for(auto q = 0; q < msg_strings_size; ++q)
+				{
+					MsgStrings[q].clear();
+				}
 			}
 		}
 		
@@ -3784,8 +3793,12 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			if((MsgStrings=(MsgStr*)_al_sane_realloc(MsgStrings,sizeof(MsgStr)*MAXMSGS))==NULL)
 				return qe_nomem;
 				
-			memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
+			//memset(MsgStrings, 0, sizeof(MsgStr)*MAXMSGS);
 			msg_strings_size = MAXMSGS;
+			for(auto q = 0; q < msg_strings_size; ++q)
+			{
+				MsgStrings[q].clear();
+			}
 		}
 		
 		//reset the message strings

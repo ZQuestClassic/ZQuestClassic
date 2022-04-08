@@ -22140,13 +22140,13 @@ void setupscreen()
 // Increments msgptr and returns the control code argument pointed at.
 word grab_next_argument()
 {
-	if(msgptr+1>=MsgStrings[msgstr].s.size()) return 0;
+	if(unsigned(msgptr+1)>=MsgStrings[msgstr].s.size()) return 0;
 	byte val=MsgStrings[msgstr].s[++msgptr]-1;
 	word ret=val;
 	
 	// If an argument is succeeded by 255, then it's a three-byte argument -
 	// between 254 and 65535 (or whatever the maximum actually is)
-	if((msgptr+2<MsgStrings[msgstr].s.size())
+	if((unsigned(msgptr+2)<MsgStrings[msgstr].s.size())
 		&& uint8_t(MsgStrings[msgstr].s[msgptr+1]) == 255)
 	{
 		val=MsgStrings[msgstr].s[msgptr+2];

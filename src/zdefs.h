@@ -3628,56 +3628,13 @@ struct MsgStr
 	byte shadow_color;
 	
 	// Copy everything except listpos
-	MsgStr& operator=(MsgStr const& other)
-	{
-		copyText(other);
-		copyStyle(other);
-		return *this;
-	}
-	
+	MsgStr& operator=(MsgStr const& other);
 	// Copy text data - just s and nextstring
-	void copyText(MsgStr const& other)
-	{
-		s = other.s;
-		s.shrink_to_fit();
-		nextstring=other.nextstring;
-	}
-	
+	void copyText(MsgStr const& other);
 	// Copy style data - everything except s, nextstring, and listpos
-	void copyStyle(MsgStr const& other)
-	{
-		tile=other.tile;
-		cset=other.cset;
-		trans=other.trans;
-		font=other.font;
-		x=other.x;
-		y=other.y;
-		w=other.w;
-		h=other.h;
-		sfx=other.sfx;
-		vspace=other.vspace;
-		hspace=other.hspace;
-		stringflags=other.stringflags;
-		for(int32_t q = 0; q < 4; ++q)
-		{
-			margins[q] = other.margins[q];
-		}
-		portrait_tile=other.portrait_tile;
-		portrait_cset=other.portrait_cset;
-		portrait_x=other.portrait_x;
-		portrait_y=other.portrait_y;
-		portrait_tw=other.portrait_tw;
-		portrait_th=other.portrait_th;
-		shadow_type=other.shadow_type;
-		shadow_color=other.shadow_color;
-	}
-	
-	void copyAll(MsgStr const& other)
-	{
-		copyText(other);
-		copyStyle(other);
-		listpos = other.listpos;
-	}
+	void copyStyle(MsgStr const& other);
+	void copyAll(MsgStr const& other);
+	void clear();
 };
 
 enum {dt_pass=0, dt_lock, dt_shut, dt_boss, dt_olck, dt_osht, dt_obos, dt_wall, dt_bomb, dt_walk, dt_max};
