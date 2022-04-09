@@ -400,10 +400,10 @@
               const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
               if (el === buttonEl) {
                 buttonEl.classList.toggle('active');
-                panelEl.classList.toggle('hidden');
+                if (panelEl) panelEl.classList.toggle('hidden');
               } else {
                 buttonEl.classList.remove('active');
-                panelEl.classList.add('hidden');
+                if (panelEl) panelEl.classList.add('hidden');
               }
             }
 
