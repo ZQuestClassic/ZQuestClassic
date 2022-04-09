@@ -224,11 +224,11 @@ int32_t main(int32_t argc, char **argv)
 	
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
 	
-	cph.write(&res, sizeof(int32_t));
 	if(!res)
 	{
-		write_compile_data(&cph, result->scriptTypes, result->theScripts);
+		write_compile_data(result->scriptTypes, result->theScripts);
 	}
+	cph.write(&res, sizeof(int32_t));
 	
 	if(zscript_had_warn_err)
 		zconsole_warn("Leaving console open; there were errors or warnings during compile!");

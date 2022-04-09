@@ -24724,7 +24724,7 @@ int32_t onCompileScript()
 			
 			if(!code)
 			{
-				read_compile_data(pm, stypes, scripts);
+				read_compile_data(stypes, scripts);
 			}
 			compile_sfx(!code);
 			
