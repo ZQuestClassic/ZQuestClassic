@@ -6,8 +6,7 @@
 
 EM_ASYNC_JS(void, em_init_fs_, (), {
   // Initialize the filesystem with 0-byte files for every quest.
-  const response = await fetch("https://hoten.cc/quest-maker/play/quest-manifest.json");
-  const quests = await response.json();
+  const quests = await ZC.fetch("https://hoten.cc/quest-maker/play/quest-manifest.json");
   FS.mkdir('/_quests');
 
   function writeFakeFile(path, url) {
@@ -59,10 +58,8 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     const url = window.ZC.pathToUrl[path];
     if (!url) return;
 
-    const response = await fetch(url);
-    const data = await response.arrayBuffer();
-    const buffer = new Uint8Array(data);
-    FS.writeFile(path, buffer);
+    const data = await ZC.fetch(url);
+    FS.writeFile(path, data);
   } catch (e) {
     // Fetch failed (could be offline) or path did not exist.
     console.error(`error loading ${path}`, e);
