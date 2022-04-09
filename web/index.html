@@ -37,7 +37,13 @@
     }
 
     header {
+      display: flex;
+      justify-content: space-between;
       padding: 5px;
+    }
+
+    progress {
+      margin-right: 5px;
     }
 
     button {
@@ -97,7 +103,6 @@
 
     .emscripten {
       display: flex;
-      flex-direction: column;
       align-items: center;
     }
 
@@ -157,9 +162,18 @@
 
 <body>
   <header>
-    <button class="panel-button" data-panel=".about">About</button>
-    <button class="panel-button" data-panel=".quest-list">Quest List</button>
+    <div class="panel-buttons">
+      <button class="panel-button" data-panel=".about">About</button>
+      <button class="panel-button" data-panel=".quest-list">Quest List</button>
+    </div>
 
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress"></progress>
+      <div id="status">Downloading...</div>
+    </div>
+  </header>
+
+  <div>
     <div class="hidden panel about">
       <p>
         This is an alpha version of Zelda Classic for the browser. You can expect crashes, occasional sound hiccups, and
@@ -184,10 +198,6 @@
       <div class="quest-list__entries"></div>
       <div class="quest-list__current"></div>
     </div>
-  </header>
-  <div class="emscripten">
-    <progress value="0" max="100" id="progress"></progress>
-    <div id="status">Downloading...</div>
   </div>
 
   <div class="content">
@@ -249,6 +259,47 @@
   </template>
 
   <script>
+    async function fetchWithProgress(url, progressCb) {
+      const response = await fetch(url);
+      const contentLength = Number(response.headers.get('Content-Length')) || 0;
+      const contentType = response.headers.get('Content-Type');
+
+      let data;
+      if (contentLength === 0) {
+        progressCb(null, null, false);
+        data = new Uint8Array(await response.arrayBuffer());
+        progressCb(null, null, true);
+      } else {
+        const reader = response.body.getReader();
+        let received = 0;
+        const chunks = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          chunks.push(value);
+          received += value.length;
+          progressCb(received, contentLength, false);
+        }
+
+        data = new Uint8Array(received);
+        let pos = 0;
+        for (const chunk of chunks) {
+          data.set(chunk, pos);
+          pos += chunk.length;
+        }
+
+        progressCb(received, contentLength, true);
+      }
+
+      if (contentType === 'application/json') {
+        const json = new TextDecoder('utf-8').decode(data);
+        return JSON.parse(json);
+      }
+
+      return data;
+    };
+
     window.ZC = {
       pathToUrl: {},
       createPathFromUrl(url) {
@@ -256,6 +307,17 @@
         const filename = urlSplit[urlSplit.length - 1];
         const path = `/_quests/${filename}`;
         return path;
+      },
+      fetch(url) {
+        return fetchWithProgress(url, (received, total, done) => {
+          if (done) {
+            Module.setStatus('Ready');
+          } else if (received && total) {
+            Module.setStatus(`Fetching file (${received}/${total})`);
+          } else {
+            Module.setStatus('Fetching file');
+          }
+        });
       },
     };
   </script>
@@ -295,6 +357,8 @@
               statusElement.hidden = true;
               return;
             }
+
+            statusElement.hidden = false;
 
             if (text === Module.setStatus.last.text) return;
             const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
