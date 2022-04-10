@@ -15734,8 +15734,14 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 {
     WalkflagInfo ret;
     
-    wx = vbound(wx, 0, 255);
-    wy = vbound(wy, 0, 175);
+    wx = vbound(wx, -1, 256);
+    wy = vbound(wy, -1, 176);
+    
+    if (wx < 0 || wx > 255 || wy < 0 || wy > 175)
+    {
+        ret.setUnwalkable(false);
+        return ret;
+    }
     
     if(toogam)
     {
