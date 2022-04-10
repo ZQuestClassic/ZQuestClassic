@@ -247,8 +247,11 @@ static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
 void zconsole_warn(const char *format,...)
 {
-	int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
-	if(v < 0) return; //Failed to print
+	if (EnableCompileConsole)
+	{
+		int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
+		if(v < 0) return; //Failed to print
+	}
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -274,8 +277,11 @@ void zconsole_warn(const char *format,...)
 }
 void zconsole_error(const char *format,...)
 {
-	int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
-	if(v < 0) return; //Failed to print
+	if (EnableCompileConsole)
+	{
+		int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
+		if(v < 0) return; //Failed to print
+	}
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -301,8 +307,11 @@ void zconsole_error(const char *format,...)
 }
 void zconsole_info(const char *format,...)
 {
-	int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
-	if(v < 0) return; //Failed to print
+	if (EnableCompileConsole)
+	{
+		int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
+		if(v < 0) return; //Failed to print
+	}
 	//{
 	int32_t ret;
 	char tmp[1024];
