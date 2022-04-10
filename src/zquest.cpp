@@ -91,6 +91,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "module.h"
 #include "zscrdata.h"
 #include "drawing.h"
+#include "ConsoleLogger.h"
 
 //Windows mmemory tools
 #ifdef _WIN32
@@ -24516,10 +24517,6 @@ void clear_map_states()
 }
 
 
-void zconsole_warn(const char *format,...){}
-void zconsole_error(const char *format,...){}
-void zconsole_info(const char *format,...){}
-
 void compile_sfx(bool success)
 {
 	if ( success )
@@ -24691,6 +24688,11 @@ int32_t onCompileScript()
 				InfoDialog("Parser","'zscript.exe' was not found!").show();
 				break;
 			}
+			parser_console.kill();
+			parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe");
+			parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+			parser_console.gotoxy(0,0);
+			zconsole_info("External ZScript Parser\n");
 			clock_t start_compile_time = clock();
 			char const* noclose = "-noclose";
 			char const* argv[5] = {"-input", "tmp", "-linked", NULL, NULL};
@@ -24704,6 +24706,31 @@ int32_t onCompileScript()
 			}
 			
 			pm->write(quest_rules, QUESTRULES_NEW_SIZE);
+			int current = 0, last = 0;
+
+			FILE *console=fopen("tmp3", "r");
+			char buf4[512];
+			if (console) 
+			{
+				for(;;) //while (true)
+				{
+					pm->read(&code, sizeof(int32_t));
+					if (code != -9998 && code != -9997 && code != -9996) break;
+					else
+					{
+						fseek(console, 0, SEEK_END);
+						current = ftell(console);
+						if (current != last) {
+							int amount = (current-last);
+							fseek(console, last, SEEK_SET);
+							last = current;
+							int end = fread(&buf4, sizeof(char), amount, console);
+							buf4[end] = 0;
+							ReadConsole(buf4, code);
+						}
+					}
+				}
+			}
 			pm->read(&code, sizeof(int32_t));
 			clock_t end_compile_time = clock();
 			
@@ -24725,6 +24752,7 @@ int32_t onCompileScript()
 			if(!code)
 			{
 				read_compile_data(stypes, scripts);
+				parser_console.kill();
 			}
 			compile_sfx(!code);
 			
@@ -31157,6 +31185,7 @@ int32_t main(int32_t argc,char **argv)
 			}
 		}
 	}
+	parser_console.kill();
 	killConsole();
 #ifndef ALLEGRO_DOS
 	zqwin_set_scale(1);

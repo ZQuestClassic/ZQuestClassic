@@ -2,6 +2,7 @@
 #define ZSCR_DATA_H
 
 #include "zdefs.h"
+#include "ConsoleLogger.h"
 
 using std::map;
 using std::string;
@@ -231,6 +232,93 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 	}
 	*/
 }
+
+#ifndef IS_PARSER
+
+CConsoleLoggerEx parser_console;
+
+static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
+static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
+static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
+
+void zconsole_warn(const char *format,...)
+{
+	int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
+	if(v < 0) return; //Failed to print
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	//}
+	al_trace("%s\n", tmp);
+	parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
+}
+void zconsole_error(const char *format,...)
+{
+	int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
+	if(v < 0) return; //Failed to print
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	//}
+	al_trace("%s\n", tmp);
+	parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
+}
+void zconsole_info(const char *format,...)
+{
+	int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
+	if(v < 0) return; //Failed to print
+	//{
+	int32_t ret;
+	char tmp[1024];
+	
+	va_list argList;
+	va_start(argList, format);
+	#ifdef WIN32
+	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#else
+	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
+	#endif
+	tmp[vbound(ret,0,1023)]=0;
+	
+	va_end(argList);
+	//}
+	al_trace("%s\n", tmp);
+	parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
+}
+
+void ReadConsole(char buf[], int code)
+{
+	//al_trace("%s\n", buf);
+	switch(code)
+	{
+		case -9996: zconsole_warn(buf);
+		case -9997: zconsole_error(buf);
+		default: zconsole_info(buf);
+	}
+}
+#endif //!IS_PARSER
 
 #ifdef IS_PARSER
 #include "parser/Compiler.h"

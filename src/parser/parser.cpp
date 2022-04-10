@@ -14,7 +14,7 @@ byte quest_rules[QUESTRULES_NEW_SIZE];
 
 extern byte monochrome_console;
 
-CConsoleLoggerEx parser_console;
+io_manager* ConsoleWrite;
 
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
@@ -25,6 +25,16 @@ int32_t get_bit(byte const* bitstr,int32_t bit)
 	return ((*bitstr) >> (bit&7))&1;
 }
 
+int32_t used_switch(int32_t argc, char* argv[], const char* s)
+{
+	// assumes a switch won't be in argv[0]
+	for (int32_t i = 1; i < argc; i++)
+		if (stricmp(argv[i], s) == 0)
+			return i;
+
+	return 0;
+}
+
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
@@ -32,8 +42,7 @@ static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 void zconsole_warn(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
-	if(v < 0) return; //Failed to print
+	FILE *console=fopen("tmp3", "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -48,15 +57,15 @@ void zconsole_warn(const char *format,...)
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
+	fprintf(console, "%s", tmp);
+	fclose(console);
+	int errorcode = -9996;
+	ConsoleWrite->write(&errorcode, sizeof(size_t));
 }
 void zconsole_error(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
-	if(v < 0) return; //Failed to print
+	FILE *console=fopen("tmp3", "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -72,13 +81,14 @@ void zconsole_error(const char *format,...)
 	
 	va_end(argList);
 	//}
-	al_trace("%s\n", tmp);
-	parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
+	fprintf(console, "%s", tmp);
+	fclose(console);
+	int errorcode = -9997;
+	ConsoleWrite->write(&errorcode, sizeof(size_t));
 }
 void zconsole_info(const char *format,...)
 {
-	int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
-	if(v < 0) return; //Failed to print
+	FILE *console=fopen("tmp3", "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -94,18 +104,10 @@ void zconsole_info(const char *format,...)
 	
 	va_end(argList);
 	//}
-	al_trace("%s\n", tmp);
-	parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
-}
-
-int32_t used_switch(int32_t argc,char *argv[],const char *s)
-{
-	// assumes a switch won't be in argv[0]
-	for(int32_t i=1; i<argc; i++)
-		if(stricmp(argv[i],s)==0)
-			return i;
-
-	return 0;
+	fprintf(console, "%s", tmp);
+	fclose(console);
+	int errorcode = -9998;
+	ConsoleWrite->write(&errorcode, sizeof(size_t));
 }
 
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
@@ -196,12 +198,8 @@ int32_t main(int32_t argc, char **argv)
 	}
 	
 	child_process_handler cph;
+	ConsoleWrite = &cph;
 	allegro_init();
-	
-	parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe");
-	parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-	parser_console.gotoxy(0,0);
-	zconsole_info("External ZScript Parser\n");
 	
 	int32_t script_path_index = used_switch(argc, argv, "-input");
 	if (!script_path_index)
@@ -209,6 +207,9 @@ int32_t main(int32_t argc, char **argv)
 		zconsole_error("Error: missing required flag: -input");
 		return 1;
 	}
+	
+	FILE *console=fopen("tmp3", "w");
+	fclose(console);
 	
 	std::string script_path = argv[script_path_index + 1];
 
@@ -228,8 +229,10 @@ int32_t main(int32_t argc, char **argv)
 	{
 		write_compile_data(result->scriptTypes, result->theScripts);
 	}
+	int errorcode = -9995;
+	cph.write(&errorcode, sizeof(int32_t));
 	cph.write(&res, sizeof(int32_t));
-	
+	/*
 	if(zscript_had_warn_err)
 		zconsole_warn("Leaving console open; there were errors or warnings during compile!");
 	else if(used_switch(argc, argv, "-noclose"))
@@ -239,7 +242,7 @@ int32_t main(int32_t argc, char **argv)
 	else
 	{
 		parser_console.kill();
-	}
+	}*/
 	allegro_exit();
 	return res;
 }
