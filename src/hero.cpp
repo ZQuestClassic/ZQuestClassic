@@ -20600,7 +20600,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if(zcmusic!=NULL)
 			{
 				if(strcmp(zcmusic->filename, DMaps[tdm].tmusic) != 0 ||
-						zcmusic->track!=DMaps[tdm].tmusictrack)
+						(zcmusic->type==ZCMF_GME && zcmusic->track!=DMaps[tdm].tmusictrack))
 					music_stop();
 			}
 			else if(DMaps[tmpscr->tilewarpdmap[index]].midi != (currmidi-ZC_MIDI_COUNT+4) &&
