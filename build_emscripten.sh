@@ -141,6 +141,10 @@ sed -i -e 's/if (count <= 0)/if (false)/' _deps/allegro5-src/src/sdl/sdl_joystic
 NEEDLE="joysticks = calloc(count, sizeof \* joysticks);"
 sed -i -e "s/$NEEDLE$/joysticks = count > 0 ? calloc(count, sizeof * joysticks) : NULL;/" _deps/allegro5-src/src/sdl/sdl_joystick.c
 
+# Fix allegro's SDL's support for joystick button names.
+NEEDLE='= "button";'
+sed -i -e "s/$NEEDLE$/= SDL_IsGameController(i) ? SDL_GameControllerGetStringForButton(b) : \"button\";/" _deps/allegro5-src/src/sdl/sdl_joystick.c
+
 TARGETS="${@:-zelda zquest}"
 cmake --build . -t $TARGETS
 
