@@ -41,7 +41,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 	char buf[512] = {0};
 	char buf2[512] = {0};
 	
-	FILE *tempfile = fopen("tmp2","r");
+	FILE *tempfile = fopen("tmp2","rb");
 			
 	if(!tempfile)
 	{
@@ -49,38 +49,38 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 		return;
 	}
 	
-	fread(&stypes_sz, 1, sizeof(size_t), tempfile);
+	fread(&stypes_sz, sizeof(size_t), 1, tempfile);
 	for(size_t ind = 0; ind < stypes_sz; ++ind)
 	{
-		fread(&dummy, 1, sizeof(size_t), tempfile);
-		dummy = fread(buf, 1, dummy, tempfile);
+		fread(&dummy, sizeof(size_t), 1, tempfile);
+		dummy = fread(buf, sizeof(char), dummy, tempfile);
 		buf[dummy] = 0;
-		fread(&_id, 1, sizeof(ZScript::ScriptTypeID), tempfile);
+		fread(&_id, sizeof(ZScript::ScriptTypeID), 1, tempfile);
 		stypes[buf] = _id;
 	}
 	
-	fread(&scripts_sz, 1, sizeof(size_t), tempfile);
+	fread(&scripts_sz, sizeof(size_t), 1, tempfile);
 	for(size_t ind = 0; ind < scripts_sz; ++ind)
 	{
-		fread(&dummy, 1, sizeof(size_t), tempfile);
-		dummy = fread(buf, 1, dummy, tempfile);
+		fread(&dummy, sizeof(size_t), 1, tempfile);
+		dummy = fread(buf, sizeof(char), dummy, tempfile);
 		buf[dummy] = 0;
 		
 		disassembled_script_data dsd;
 		
-		fread(&(dsd.first), 1, sizeof(zasm_meta), tempfile);
+		fread(&(dsd.first), sizeof(zasm_meta), 1, tempfile);
 		
-		fread(&(dsd.format), 1, sizeof(byte), tempfile);
+		fread(&(dsd.format), sizeof(byte), 1, tempfile);
 		
 		size_t tmp;
-		fread(&tmp, 1, sizeof(size_t), tempfile);
+		fread(&tmp, sizeof(size_t), 1, tempfile);
 		for(size_t ind2 = 0; ind2 < tmp; ++ind2)
 		{
-			fread(&dummy, 1, sizeof(size_t), tempfile);
-			dummy = fread(buf2, 1, dummy, tempfile);
+			fread(&dummy, sizeof(size_t), 1, tempfile);
+			dummy = fread(buf2, sizeof(char), dummy, tempfile);
 			buf2[dummy] = 0;
 			int32_t lbl;
-			fread(&lbl, 1, sizeof(int32_t), tempfile);
+			fread(&lbl, sizeof(int32_t), 1, tempfile);
 			std::shared_ptr<ZScript::Opcode> oc = std::make_shared<ZScript::ArbitraryOpcode>(string(buf2));
 			oc->setLabel(lbl);
 			dsd.second.push_back(oc);
@@ -136,7 +136,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, disassembled_script_data>& scripts)
 {
 	size_t dummy = stypes.size();
-	FILE *tempfile = fopen("tmp2","w");
+	FILE *tempfile = fopen("tmp2","wb");
 			
 	if(!tempfile)
 	{
@@ -144,33 +144,33 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 		return;
 	}
 	
-	fwrite(&dummy, 1, sizeof(size_t), tempfile);
+	fwrite(&dummy, sizeof(size_t), 1, tempfile);
 	for(auto it = stypes.begin(); it != stypes.end(); ++it)
 	{
 		string const& str = it->first;
 		ZScript::ScriptTypeID v = it->second;
 		dummy = str.size();
-		fwrite(&dummy, 1, sizeof(size_t), tempfile);
-		fwrite((void*)str.c_str(), 1, dummy, tempfile);
-		fwrite(&v, 1, sizeof(ZScript::ScriptTypeID), tempfile);
+		fwrite(&dummy, sizeof(size_t), 1, tempfile);
+		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
+		fwrite(&v, sizeof(ZScript::ScriptTypeID), 1, tempfile);
 	}
 	
 	dummy = scripts.size();
-	fwrite(&dummy, 1, sizeof(size_t), tempfile);
+	fwrite(&dummy, sizeof(size_t), 1, tempfile);
 	for(auto it = scripts.begin(); it != scripts.end(); ++it)
 	{
 		string const& str = it->first;
 		disassembled_script_data& v = it->second;
 		dummy = str.size();
-		fwrite(&dummy, 1, sizeof(size_t), tempfile);
-		fwrite((void*)str.c_str(), 1, dummy, tempfile);
+		fwrite(&dummy, sizeof(size_t), 1, tempfile);
+		fwrite((void*)str.c_str(), sizeof(char), dummy, tempfile);
 		
-		fwrite(&(v.first), 1, sizeof(zasm_meta), tempfile);
+		fwrite(&(v.first), sizeof(zasm_meta), 1, tempfile);
 		
-		fwrite(&(v.format), 1, sizeof(byte), tempfile);
+		fwrite(&(v.format), sizeof(byte), 1, tempfile);
 		
 		dummy = v.second.size();
-		fwrite(&dummy, 1, sizeof(size_t), tempfile);
+		fwrite(&dummy, sizeof(size_t), 1, tempfile);
 		
 		for(auto it = v.second.begin(); it != v.second.end(); ++it)
 		{
@@ -178,10 +178,10 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 			int32_t lbl = (*it)->getLabel();
 			
 			dummy = opstr.size();
-			fwrite(&dummy, 1, sizeof(size_t), tempfile);
-			fwrite((void*)opstr.c_str(), 1, dummy, tempfile);
+			fwrite(&dummy, sizeof(size_t), 1, tempfile);
+			fwrite((void*)opstr.c_str(), sizeof(char), dummy, tempfile);
 			
-			fwrite(&lbl, 1, sizeof(int32_t), tempfile);
+			fwrite(&lbl, sizeof(int32_t), 1, tempfile);
 		}
 	}
 	
@@ -243,6 +243,7 @@ void write_compile_data(map<string, ZScript::ScriptType>& stypes, map<string, di
 	}
 	write_compile_data(sid_types, scripts);
 }
+
 #endif //IS_PARSER
 
 #endif
