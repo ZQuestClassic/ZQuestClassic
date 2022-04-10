@@ -39,15 +39,12 @@ EMCC_CACHE_INCLUDE_DIR="$EMCC_CACHE_DIR/sysroot/include"
 EMCC_CACHE_LIB_DIR="$EMCC_CACHE_DIR/sysroot/lib/wasm32-emscripten"
 
 # temporary workaround until fixed upstream
-# emcc's cache will require you to manually do this (one time) for this to be picked up:
-#    rm -rf $(dirname $(which emcc))/cache/sysroot/lib/wasm32-emscripten/libSDL2*
-# Now you can run this script as normal.
 # see https://github.com/libsdl-org/SDL/issues/5428
 if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2" ]
 then
   embuilder build sdl2
-  rm -rf "$EMCC_CACHE_LIB_DIR"
 fi
+rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2.a "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a
 
 # https://github.com/libsdl-org/SDL/pull/5496
 if ! grep -q SDL_THREAD_PTHREAD_RECURSIVE_MUTEX "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"; then
