@@ -215,8 +215,10 @@ int32_t main(int32_t argc, char **argv)
 	fclose(console);
 	
 	std::string script_path = argv[script_path_index + 1];
+	int32_t syncthing = 0;
 
 	cph.read(quest_rules, QUESTRULES_NEW_SIZE);
+	cph.write(&syncthing, sizeof(int32_t));
 	
 	set_config_file("zscript.cfg");
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
@@ -232,7 +234,7 @@ int32_t main(int32_t argc, char **argv)
 	{
 		write_compile_data(result->scriptTypes, result->theScripts);
 	}
-	int errorcode = -9995;
+	int32_t errorcode = -9995;
 	cph.write(&errorcode, sizeof(int32_t));
 	cph.write(&res, sizeof(int32_t));
 	/*

@@ -24714,6 +24714,8 @@ int32_t onCompileScript()
 			
 			pm->write(quest_rules, QUESTRULES_NEW_SIZE);
 			int current = 0, last = 0;
+			int syncthing = 0;
+			pm->read(&syncthing, sizeof(int32_t));
 
 			FILE *console=fopen("tmp3", "r");
 			char buf4[512];
@@ -24775,7 +24777,7 @@ int32_t onCompileScript()
 				box_eol();
 			}
 			compile_sfx(!code);
-			box_end(true);
+			if (DisableCompileConsole) box_end(true);
 			
 			delete pm;
 			
