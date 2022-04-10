@@ -48,6 +48,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_COMPILE_DONE] = zc_get_config("Compiler", "compile_finish_sample", 34);
 	opts[OPT_COMPILE_VOL] = zc_get_config("Compiler", "compile_audio_volume", 100);
 	opts[OPT_DISABLE_LPAL_SHORTCUT] = DisableLPalShortcuts;
+	opts[OPT_ENABLE_COMPILE_CONSOLE] = EnableCompileConsole;
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -93,6 +94,7 @@ void OptionsDialog::saveOptions()
 	zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
 	zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
 	DisableLPalShortcuts = opts[OPT_DISABLE_LPAL_SHORTCUT];
+	EnableCompileConsole = opts[OPT_ENABLE_COMPILE_CONSOLE];
 	load_mice(); //Reset cursor scale
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 }
@@ -267,7 +269,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
 					OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
 					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
-					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts")
+					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
+					OPT_CHECK(OPT_ENABLE_COMPILE_CONSOLE, "Enable External Compile Window")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),

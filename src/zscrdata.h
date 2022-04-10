@@ -4,6 +4,10 @@
 #include "zdefs.h"
 #include "ConsoleLogger.h"
 
+#ifndef IS_PARSER
+#include "zquest.h"
+#endif //!IS_PARSER
+
 using std::map;
 using std::string;
 using std::vector;
@@ -261,7 +265,12 @@ void zconsole_warn(const char *format,...)
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
-	parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
+	if (EnableCompileConsole) parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
+	else
+	{
+		box_out(tmp);
+		box_eol();
+	}
 }
 void zconsole_error(const char *format,...)
 {
@@ -283,7 +292,12 @@ void zconsole_error(const char *format,...)
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
-	parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
+	if (EnableCompileConsole) parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
+	else
+	{
+		box_out(tmp);
+		box_eol();
+	}
 }
 void zconsole_info(const char *format,...)
 {
@@ -305,7 +319,12 @@ void zconsole_info(const char *format,...)
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
-	parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
+	if (EnableCompileConsole) parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
+	else
+	{
+		box_out(tmp);
+		box_eol();
+	}
 }
 
 void ReadConsole(char buf[], int code)
