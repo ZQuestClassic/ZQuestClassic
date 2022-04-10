@@ -247,7 +247,7 @@ static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
 void zconsole_warn(const char *format,...)
 {
-	if (EnableCompileConsole)
+	if (!DisableCompileConsole)
 	{
 		int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
 		if(v < 0) return; //Failed to print
@@ -268,7 +268,7 @@ void zconsole_warn(const char *format,...)
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
-	if (EnableCompileConsole) parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
+	if (!DisableCompileConsole) parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
 	else
 	{
 		box_out(tmp);
@@ -277,7 +277,7 @@ void zconsole_warn(const char *format,...)
 }
 void zconsole_error(const char *format,...)
 {
-	if (EnableCompileConsole)
+	if (!DisableCompileConsole)
 	{
 		int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
 		if(v < 0) return; //Failed to print
@@ -298,7 +298,7 @@ void zconsole_error(const char *format,...)
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
-	if (EnableCompileConsole) parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
+	if (!DisableCompileConsole) parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
 	else
 	{
 		box_out(tmp);
@@ -307,7 +307,7 @@ void zconsole_error(const char *format,...)
 }
 void zconsole_info(const char *format,...)
 {
-	if (EnableCompileConsole)
+	if (!DisableCompileConsole)
 	{
 		int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
 		if(v < 0) return; //Failed to print
@@ -328,7 +328,7 @@ void zconsole_info(const char *format,...)
 	va_end(argList);
 	//}
 	al_trace("%s\n", tmp);
-	if (EnableCompileConsole) parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
+	if (!DisableCompileConsole) parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
 	else
 	{
 		box_out(tmp);

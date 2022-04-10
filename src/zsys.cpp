@@ -1197,7 +1197,7 @@ void box_out(const char *msg)
         box_log = oldlog;
     }
     
-	update_hw_screen();
+	update_hw_screen(true);
 }
 
 /* calls box_out, and box_eol for newlines */
@@ -1261,7 +1261,7 @@ void box_eol()
         memset(box_log_msg, 0, 480);
     }
     
-	update_hw_screen();
+	update_hw_screen(true);
 }
 
 /* ends output of a progress message */

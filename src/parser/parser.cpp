@@ -61,6 +61,7 @@ void zconsole_warn(const char *format,...)
 	fclose(console);
 	int errorcode = -9996;
 	ConsoleWrite->write(&errorcode, sizeof(size_t));
+	ConsoleWrite->read(&errorcode, sizeof(size_t));
 }
 void zconsole_error(const char *format,...)
 {
@@ -85,6 +86,7 @@ void zconsole_error(const char *format,...)
 	fclose(console);
 	int errorcode = -9997;
 	ConsoleWrite->write(&errorcode, sizeof(size_t));
+	ConsoleWrite->read(&errorcode, sizeof(size_t));
 }
 void zconsole_info(const char *format,...)
 {
@@ -108,6 +110,7 @@ void zconsole_info(const char *format,...)
 	fclose(console);
 	int errorcode = -9998;
 	ConsoleWrite->write(&errorcode, sizeof(size_t));
+	ConsoleWrite->read(&errorcode, sizeof(size_t));
 }
 
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)

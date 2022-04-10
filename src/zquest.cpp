@@ -448,7 +448,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int32_t  Flags=0,Flag=1,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, EnableCompileConsole = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 bool Vsync = false, ShowFPS = false;
@@ -24689,7 +24689,7 @@ int32_t onCompileScript()
 				break;
 			}
 			parser_console.kill();
-			if (EnableCompileConsole) 
+			if (!DisableCompileConsole) 
 			{
 				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe");
 				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
@@ -24698,7 +24698,7 @@ int32_t onCompileScript()
 			}
 			else
 			{
-				box_start(1, "Compile Progress", lfont, sfont,true);
+				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
 			clock_t start_compile_time = clock();
 			char const* noclose = "-noclose";
@@ -24735,6 +24735,7 @@ int32_t onCompileScript()
 							buf4[end] = 0;
 							ReadConsole(buf4, code);
 						}
+						pm->write(&code, sizeof(int32_t));
 					}
 				}
 			}
@@ -24754,33 +24755,41 @@ int32_t onCompileScript()
 				"Compile took %s seconds (%ld cycles)%s",
 				code, code ? "failure" : "success",
 				tmp, end_compile_time - start_compile_time,
-				code ? (EnableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
+				code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
 			
 			if(!code)
 			{
 				read_compile_data(stypes, scripts);
-				if (EnableCompileConsole) 
+				if (!DisableCompileConsole) 
 				{
 					parser_console.kill();
 				}
 			}
-			if (!EnableCompileConsole)
+			else if (DisableCompileConsole)
 			{
-				box_end(true);
+				char buf3[256] = {0};
+				sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),end_compile_time - start_compile_time);
+				box_out(buf3);
+				box_eol();
+				box_out("Compilation failed.");
+				box_eol();
 			}
 			compile_sfx(!code);
+			box_end(true);
 			
 			delete pm;
 			
 			bool cancel = code;
-			if(code)
-				InfoDialog("ZScript Parser", buf).show();
-			else AlertDialog("ZScript Parser", buf,
+			if (!DisableCompileConsole) 
+			{
+				if(code)
+					InfoDialog("ZScript Parser", buf).show();
+				else AlertDialog("ZScript Parser", buf,
 					[&](bool ret)
 					{
 						cancel = !ret;
 					}, "Continue", "Cancel").show();
-			
+			}
 			if ( compile_success_sample > 0 )
 			{
 				if(sfx_voice[compile_success_sample]!=-1)
@@ -29997,7 +30006,7 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(tmusicpath);
 	
 	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",0);
-	EnableCompileConsole        = zc_get_config("zquest","extern_compile_console",0);
+	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
@@ -32267,7 +32276,7 @@ int32_t save_config_file()
     set_config_string("zquest","last_timed_save",last_timed_save);
     set_config_int("zquest","mouse_scroll",MouseScroll);
 	set_config_int("zquest","dis_lpal_shortcut",DisableLPalShortcuts);
-	set_config_int("zquest","extern_compile_console",EnableCompileConsole);
+	set_config_int("zquest","internal_compile_console",DisableCompileConsole);
     set_config_int("zquest","warn_initscript_changes",WarnOnInitChanged);
     set_config_int("zquest","invalid_static",InvalidStatic);
 //	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
