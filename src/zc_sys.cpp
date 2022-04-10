@@ -5846,21 +5846,21 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 				break;
 				
 			case 1:
-				sprintf(str_a,"%03d",Abtn);
-				sprintf(str_b,"%03d",Bbtn);
-				sprintf(str_s,"%03d",Sbtn);
-				sprintf(str_l,"%03d",Lbtn);
-				sprintf(str_r,"%03d",Rbtn);
-				sprintf(str_m,"%03d",Mbtn);
-				sprintf(str_p,"%03d",Pbtn);
-				sprintf(str_ex1,"%03d",Exbtn1);
-				sprintf(str_ex2,"%03d",Exbtn2);
-				sprintf(str_ex3,"%03d",Exbtn3);
-				sprintf(str_ex4,"%03d",Exbtn4);
-				sprintf(str_up,"%03d",DUbtn);
-				sprintf(str_down,"%03d",DDbtn);
-				sprintf(str_left,"%03d",DLbtn);
-				sprintf(str_right,"%03d",DRbtn);
+				sprintf(str_a,"%03d\n%s",Abtn,joybtn_name(Abtn));
+				sprintf(str_b,"%03d\n%s",Bbtn,joybtn_name(Bbtn));
+				sprintf(str_s,"%03d\n%s",Sbtn,joybtn_name(Sbtn));
+				sprintf(str_l,"%03d\n%s",Lbtn,joybtn_name(Lbtn));
+				sprintf(str_r,"%03d\n%s",Rbtn,joybtn_name(Rbtn));
+				sprintf(str_m,"%03d\n%s",Mbtn,joybtn_name(Mbtn));
+				sprintf(str_p,"%03d\n%s",Pbtn,joybtn_name(Pbtn));
+				sprintf(str_ex1,"%03d\n%s",Exbtn1,joybtn_name(Exbtn1));
+				sprintf(str_ex2,"%03d\n%s",Exbtn2,joybtn_name(Exbtn2));
+				sprintf(str_ex3,"%03d\n%s",Exbtn3,joybtn_name(Exbtn3));
+				sprintf(str_ex4,"%03d\n%s",Exbtn4,joybtn_name(Exbtn4));
+				sprintf(str_up,"%03d\n%s",DUbtn,joybtn_name(DUbtn));
+				sprintf(str_down,"%03d\n%s",DDbtn,joybtn_name(DDbtn));
+				sprintf(str_left,"%03d\n%s",DLbtn,joybtn_name(DLbtn));
+				sprintf(str_right,"%03d\n%s",DRbtn,joybtn_name(DRbtn));
 				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
 				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
 				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
@@ -9544,6 +9544,14 @@ bool joybtn(int32_t b)
         return false;
         
     return joy[joystick_index].button[b-1].b !=0;
+}
+
+const char* joybtn_name(int32_t b)
+{
+    if(b == 0)
+        return "";
+
+    return joy[joystick_index].button[b-1].name;
 }
 
 int32_t next_press_key()

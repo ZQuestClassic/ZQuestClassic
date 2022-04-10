@@ -67,6 +67,7 @@ int32_t onCheatArrows();
 int32_t  next_press_key();
 int32_t  next_press_btn();
 bool joybtn(int32_t b);
+const char* joybtn_name(int32_t b);
 bool zc_readkey(int32_t k, bool ignoreDisable = false);
 bool zc_getkey(int32_t k, bool ignoreDisable = false);
 bool zc_readrawkey(int32_t k, bool ignoreDisable = false);
