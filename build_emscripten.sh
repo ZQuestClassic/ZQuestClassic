@@ -48,7 +48,11 @@ then
   embuilder build sdl2
   rm -rf "$EMCC_CACHE_LIB_DIR"
 fi
-sed -i -e 's/#define FAKE_RECURSIVE_MUTEX 1//' "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/src/thread/pthread/SDL_sysmutex.c"
+
+# https://github.com/libsdl-org/SDL/pull/5496
+if ! grep -q SDL_THREAD_PTHREAD_RECURSIVE_MUTEX "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"; then
+  echo "#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1" >> "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"
+fi
 
 # SDL's emscripten audio specifies only one default audio output device, but turns out
 # that can be ignored and things will just work. Without this, only SFX will play and MIDIs
