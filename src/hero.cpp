@@ -21275,11 +21275,11 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 		update_subscreens(wdmap);
 		
-		if ( has_item(itype_map, dlevel) ) 
+		/*if ( has_item(itype_map, dlevel) ) 
 		{
 			//Blank the map during an intra-dmap scrolling warp. 
 			dlevel = -1; //a hack for the minimap. This works!! -Z
-		}
+		}*/
 		
 		// fix the scrolling direction, if it was a tile or instant warp
 		if(type==0 || type>=3)
@@ -21288,7 +21288,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
-		dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
+		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
 		reset_hookshot();
 		if(reposition_sword_postwarp)
