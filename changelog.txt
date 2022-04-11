@@ -1,6 +1,18 @@
 // 2.55 Change Log
 // Updated 8th April, 2022
 
+//A106
+
+Added option to use old (internal) compile window instead of the external console window for compiling (Etc->Options->Use Internal Compiler). Compiling still happens externally to prevent memory issues, but you can have the old feel back.
+Only one compile window can be active at a time now, and they close automatically when you close ZC (no more mountains of failed compile windows you need to manually close)
+Made ZScript compile faster  (less endlag after success)
+Fixed Scroll Warps blanking dungeon map.
+Fixed Tile Warps resetting music if music is changed via script.
+Fixed not being able to scroll screens while on a solid combo.
+-Deedee
+Fixed ZC not launching for some users
+-Emily
+
 //A105
 
 Fixed bug where opening a quest wouldn't read certain strings properly
