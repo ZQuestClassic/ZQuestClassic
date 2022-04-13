@@ -181,9 +181,6 @@
         But for the most part things should work well enough to play any quest that the Windows version can handle.
       </p>
       <p>
-        Currently, this seems to work best in FireFox.
-      </p>
-      <p>
         Find a quest from the Quest List and hit Play to quicky load it. If a save file already exists, it will load
         instantly.
         Otherwise, it will load after you input a save file name.
@@ -252,10 +249,22 @@
     </div>
 
     <br>
-
-    <span class="description"></span>
+    <div class="information"></div>
+    <br>
 
     <div class="images"></div>
+
+    <h3>Description</h3>
+    <div class="description"></div>
+
+    <h3>Story</h3>
+    <div class="story"></div>
+
+    <h3>Tips and Cheats</h3>
+    <div class="tips"></div>
+
+    <h3>Credits</h3>
+    <div class="credits"></div>
   </template>
 
   <script>
@@ -474,8 +483,14 @@
         contentEl.querySelector('.author').textContent = quest.author;
         contentEl.querySelector('.genre').textContent = quest.genre;
         contentEl.querySelector('.version').textContent = quest.zcVersion;
-        contentEl.querySelector('.description').textContent = quest.description;
         contentEl.querySelector('.purezc-link').href = quest.projectUrl;
+
+        contentEl.querySelector('.information').innerHTML = quest.informationHtml;
+        contentEl.querySelector('.description').innerHTML = quest.descriptionHtml;
+        contentEl.querySelector('.story').innerHTML = quest.storyHtml;
+        contentEl.querySelector('.tips').innerHTML = quest.tipsAndCheatsHtml;
+        contentEl.querySelector('.credits').innerHTML = quest.storyHtml;
+
         const imagesEl = contentEl.querySelector('.images');
         for (const imgUrl of quest.imageUrls) {
           const imgEl = document.createElement('img');
