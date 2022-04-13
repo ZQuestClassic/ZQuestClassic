@@ -77,6 +77,15 @@
       overflow-y: scroll;
     }
 
+    .quest-list__sort {
+      display: flex;
+    }
+
+    .quest-list__sort-option {
+      cursor: pointer;
+      margin: 0 10px;
+    }
+
     .quest-list__entry {
       margin: 5px;
       font-size: 16px;
@@ -192,7 +201,14 @@
     </div>
 
     <div class="hidden panel quest-list">
-      <div class="quest-list__entries"></div>
+      <div class="quest-list__entries">
+        <div class="quest-list__sort">
+          Sort by:
+          <div class="quest-list__sort-option">Rating</div>
+          <div class="quest-list__sort-option">Name</div>
+        </div>
+        <div class="quest-list__entries-list"></div>
+      </div>
       <div class="quest-list__current"></div>
     </div>
   </div>
@@ -238,6 +254,7 @@
     <div>By: <span class="author"></span></div>
     <div>Genre: <span class="genre"></span></div>
     <div>ZC Version: <span class="version"></span></div>
+    <div class="_rating">Rating: <span class="rating"></span> (<span class="rating-votes"></span> reviews)</div>
     <div>
       <a class="purezc-link" target="_blank">View on PureZC</a>
     </div>
@@ -445,7 +462,7 @@
 
     async function renderQuestList() {
       const questListEl = document.querySelector('.quest-list');
-      const questListEntriesEl = questListEl.querySelector('.quest-list__entries');
+      const questListEntriesEl = questListEl.querySelector('.quest-list__entries-list');
       const questListCurrentEl = questListEl.querySelector('.quest-list__current');
       const questListCurrentTemplate = document.querySelector('.tmpl-selected-quest');
 
@@ -463,6 +480,7 @@
         el.classList.add('quest-list__entry');
         el.setAttribute('data-quest-param', questParamValue);
         el.setAttribute('data-quest-index', quests.indexOf(quest));
+        el.quest = quest;
         el.append(quest.name);
         questListEntriesEl.append(el);
       }
@@ -484,6 +502,13 @@
         contentEl.querySelector('.genre').textContent = quest.genre;
         contentEl.querySelector('.version').textContent = quest.zcVersion;
         contentEl.querySelector('.purezc-link').href = quest.projectUrl;
+
+        if (quest.rating) {
+          contentEl.querySelector('.rating').textContent = quest.rating.score;
+          contentEl.querySelector('.rating-votes').textContent = quest.rating.distribution.reduce((a, b) => a + b, 0);
+        } else {
+          contentEl.querySelector('._rating').remove();
+        }
 
         contentEl.querySelector('.information').innerHTML = quest.informationHtml;
         contentEl.querySelector('.description').innerHTML = quest.descriptionHtml;
@@ -507,6 +532,29 @@
         questListCurrentEl.textContent = '';
         questListCurrentEl.append(contentEl);
       });
+
+      for (const el of document.querySelectorAll('.quest-list__sort-option')) {
+        el.addEventListener('click', () => {
+          const field = el.textContent;
+
+          let sortBy;
+          if (field === 'Name') {
+            sortBy = (a, b) => {
+              return a.textContent.localeCompare(b.textContent);
+            };
+          } else if (field === 'Rating') {
+            sortBy = (a, b) => {
+              const score_a = a.quest.rating?.score || 0;
+              const score_b = b.quest.rating?.score || 0;
+              return score_b - score_a;
+            };
+          }
+
+          [...questListEntriesEl.children]
+            .sort(sortBy)
+            .forEach(node => questListEntriesEl.appendChild(node));
+        });
+      }
 
       document.querySelector('.quest-list__entry').click();
     }
