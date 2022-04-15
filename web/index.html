@@ -62,6 +62,10 @@
       transform: translate(1px, 1px);
     }
 
+    .button--testmode {
+      color: #36d23f;
+    }
+
     .about {
       margin: 0 5vw;
     }
@@ -172,8 +176,10 @@
 <body>
   <header>
     <div class="panel-buttons">
+      <button class="hidden panel-button button--testmode" data-panel=".testmode">Test Mode Active</button>
       <button class="panel-button" data-panel=".about">About</button>
       <button class="panel-button" data-panel=".quest-list">Quest List</button>
+      <button class="panel-button hidden button--copyurl">Copy URL</button>
     </div>
 
     <div class="emscripten">
@@ -183,9 +189,14 @@
   </header>
 
   <div>
+    <div class="hidden panel testmode">
+      The URL you navigated to has opened Zelda Classic in a test mode. You won't be able to save in this mode.
+      Click <a href="http://hoten.cc/zc/play/">here</a> to exit test mode.
+    </div>
+
     <div class="hidden panel about">
       <p>
-        This is an alpha version of Zelda Classic for the browser. You can expect crashes, occasional sound hiccups, and
+        This is an alpha version of Zelda Classic for the browser. You can expect occasional sound hiccups, and
         other bugs.
         But for the most part things should work well enough to play any quest that the Windows version can handle.
       </p>
@@ -193,6 +204,16 @@
         Find a quest from the Quest List and hit Play to quicky load it. If a save file already exists, it will load
         instantly.
         Otherwise, it will load after you input a save file name.
+      </p>
+      <p>
+        Best enjoyed with a gamepad!
+
+        Controls can be configured in the Settings menu (click to open).
+
+        Default Controls: TODO
+      </p>
+      <p>
+        <a href="https://hoten.cc/zc/play/">Quest Player</a> – <a href="https://hoten.cc/zc/create/">Quest Editor</a>
       </p>
       <p>
         To report issues, contact Connor (discord connorclark#9300) or file an issue on the <a target="_blank"
@@ -363,6 +384,7 @@
         if (params.get('quest') && params.get('dmap') && params.get('screen')) {
           args.push('-test', '/_quests/' + params.get('quest'), params.get('dmap'), params.get('screen'));
           if (params.get('retsquare')) args.push(params.get('retsquare'));
+          document.querySelector('.button--testmode').classList.remove('hidden');
         }
 
         // window.Module = await initModule({
@@ -371,6 +393,7 @@
           canvas: document.querySelector('canvas'),
           onRuntimeInitialized: () => {
             setupTouchControls();
+            setupCopyUrl();
           },
           setStatus: function (text) {
             if (!text || text === 'Running...') return;
@@ -420,7 +443,7 @@
         }
         canvas.addEventListener('click', requestPersist);
 
-        for (const el of [...document.querySelectorAll('.panel-button')]) {
+        for (const el of [...document.querySelectorAll('.panel-button[data-panel]')]) {
           el.addEventListener('click', () => {
             for (const buttonEl of document.querySelectorAll('.panel-button')) {
               const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
@@ -656,6 +679,16 @@
         touchInputsEl.addEventListener('touchcancel', e => touchFn('touchend', e));
         touchInputsEl.addEventListener('contextmenu', e => e.preventDefault());
       }
+    }
+
+    function setupCopyUrl() {
+      const el = document.querySelector('.button--copyurl');
+      el.classList.remove('hidden');
+
+      const copyUrl = Module.cwrap('copy_url', null, []);
+      el.addEventListener('click', () => {
+        copyUrl();
+      });
     }
 
     main();
