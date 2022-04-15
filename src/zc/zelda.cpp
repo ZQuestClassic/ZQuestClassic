@@ -6318,6 +6318,20 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
     }
 }
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+extern "C" void copy_url()
+{
+	EM_ASM({
+		const qstpath = UTF8ToString($0);
+		const url = new URL(location.href);
+		url.searchParams.set('quest', qstpath.replace('/_quests/', ''));
+		url.searchParams.set('dmap', $1);
+		url.searchParams.set('screen', $2);
+		navigator.clipboard.writeText(url.toString());
+	}, qstpath, currdmap, currscr);
+}
+#endif
 
 bool checkCost(int32_t ctr, int32_t amnt)
 {

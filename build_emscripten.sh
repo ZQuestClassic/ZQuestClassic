@@ -38,15 +38,17 @@ EMCC_CACHE_DIR="$(dirname $(which emcc))/cache"
 EMCC_CACHE_INCLUDE_DIR="$EMCC_CACHE_DIR/sysroot/include"
 EMCC_CACHE_LIB_DIR="$EMCC_CACHE_DIR/sysroot/lib/wasm32-emscripten"
 
-# temporary workaround until fixed upstream
-# see https://github.com/libsdl-org/SDL/issues/5428
+# Temporary workarounds until various things are fixed upstream.
+
 if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2" ]
 then
+  # Ensure that the SDL source code has been downloaded.
   embuilder build sdl2
 fi
+# Must manually delete the SDL library to force Emscripten to rebuild it.
 rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2.a "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a
 
-# https://github.com/libsdl-org/SDL/pull/5496
+# See https://github.com/libsdl-org/SDL/pull/5496
 if ! grep -q SDL_THREAD_PTHREAD_RECURSIVE_MUTEX "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"; then
   echo "#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1" >> "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"
 fi
@@ -54,6 +56,7 @@ fi
 # SDL's emscripten audio specifies only one default audio output device, but turns out
 # that can be ignored and things will just work. Without this, only SFX will play and MIDIs
 # will error on opening a handle to the audio device.
+# See https://github.com/libsdl-org/SDL/issues/5485
 sed -i -e 's/impl->OnlyHasDefaultOutputDevice = 1/impl->OnlyHasDefaultOutputDevice = 0/' "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/src/audio/emscripten/SDL_emscriptenaudio.c"
 
 EMCC_FLAGS=(
@@ -70,7 +73,7 @@ EMCC_FLAGS=(
 LINKER_FLAGS=(
   --shell-file="../../web/index.html"
   --shared-memory
-  -s EXPORTED_FUNCTIONS=_main,_create_synthetic_key_event
+  -s EXPORTED_FUNCTIONS=_main,_create_synthetic_key_event,_copy_url
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
@@ -143,6 +146,7 @@ NEEDLE="joysticks = calloc(count, sizeof \* joysticks);"
 sed -i -e "s/$NEEDLE$/joysticks = count > 0 ? calloc(count, sizeof * joysticks) : NULL;/" _deps/allegro5-src/src/sdl/sdl_joystick.c
 
 # Fix allegro's SDL's support for joystick button names.
+# See https://github.com/liballeg/allegro5/pull/1327
 NEEDLE='= "button";'
 sed -i -e "s/$NEEDLE$/= SDL_IsGameController(i) ? SDL_GameControllerGetStringForButton(b) : \"button\";/" _deps/allegro5-src/src/sdl/sdl_joystick.c
 
