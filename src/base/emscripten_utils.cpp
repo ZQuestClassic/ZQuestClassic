@@ -58,7 +58,7 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     const url = window.ZC.pathToUrl[path];
     if (!url) return;
 
-    const data = await ZC.fetch(url);
+    const data = await ZC.fetchAsByteArray(url);
     FS.writeFile(path, data);
   } catch (e) {
     // Fetch failed (could be offline) or path did not exist.

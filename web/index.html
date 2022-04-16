@@ -191,7 +191,7 @@
 
     <div class="emscripten">
       <progress value="0" max="100" id="progress"></progress>
-      <div id="status">Downloading...</div>
+      <div id="status">Initializing...</div>
     </div>
   </header>
 
@@ -316,46 +316,38 @@
   </template>
 
   <script>
-    async function fetchWithProgress(url, progressCb) {
-      const response = await fetch(url);
-      const contentLength = Number(response.headers.get('Content-Length')) || 0;
-      const contentType = response.headers.get('Content-Type');
+    async function fetchWithProgress(url, opts, progressCb) {
+      const response = await fetch(url, opts);
 
-      let data;
-      if (contentLength === 0) {
-        progressCb(null, null, false);
-        data = new Uint8Array(await response.arrayBuffer());
-        progressCb(null, null, true);
-      } else {
-        const reader = response.body.getReader();
-        let received = 0;
-        const chunks = [];
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          chunks.push(value);
-          received += value.length;
-          progressCb(received, contentLength, false);
-        }
-
-        data = new Uint8Array(received);
-        let pos = 0;
-        for (const chunk of chunks) {
-          data.set(chunk, pos);
-          pos += chunk.length;
-        }
-
-        progressCb(received, contentLength, true);
+      let received = 0;
+      let contentLength = Number(response.headers.get('Content-Length')) || 0;
+      if (!Number.isInteger(contentLength) || !Number.isFinite(contentLength) || contentLength <= 0) {
+        contentLength = null;
       }
 
-      if (contentType === 'application/json') {
-        const json = new TextDecoder('utf-8').decode(data);
-        return JSON.parse(json);
-      }
+      return new Response(new ReadableStream({
+        async start(controller) {
+          const reader = response.body.getReader();
+          while (true) {
+            const { done, value } = await reader.read();
 
-      return data;
-    };
+            if (done) {
+              progressCb(received, contentLength, true);
+              break;
+            }
+
+            received += value.byteLength;
+            progressCb(received, contentLength, false);
+            controller.enqueue(value);
+          }
+          controller.close();
+        },
+      }), {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+      });
+    }
 
     window.ZC = {
       pathToUrl: {},
@@ -365,16 +357,31 @@
         const path = `/_quests/${filename}`;
         return path;
       },
-      fetch(url) {
-        return fetchWithProgress(url, (received, total, done) => {
+      async fetch(url, opts) {
+        const formatKB = (bytes) => `${Math.floor(bytes / 1024)} KB`;
+        const response = await fetchWithProgress(url, opts, (received, total, done) => {
           if (done) {
             Module.setStatus('Ready');
           } else if (received && total) {
-            Module.setStatus(`Fetching file (${received}/${total})`);
+            Module.setStatus(`Fetching file (${Math.floor(received / 1024)}/${formatKB(total)})`, received / total);
+          } else if (received) {
+            Module.setStatus(`Fetching file (${formatKB(received)})`);
           } else {
             Module.setStatus('Fetching file');
           }
         });
+
+        const contentType = await response.headers.get('Content-Type');
+        if (contentType === 'application/json') {
+          const json = new TextDecoder('utf-8').decode(await response.arrayBuffer());
+          return JSON.parse(json);
+        }
+
+        return response;
+      },
+      async fetchAsByteArray(url, opts) {
+        const response = await ZC.fetch(url, opts);
+        return new Uint8Array(await response.arrayBuffer());
       },
     };
   </script>
@@ -384,9 +391,9 @@
     // https://github.com/emscripten-core/emscripten/issues/16625
     // import initModule from './zelda.mjs';
 
-    async function main() {
-      const TARGET = '__TARGET__';
+    const TARGET = '__TARGET__';
 
+    async function main() {
       try {
         const statusElement = document.getElementById('status');
         const progressElement = document.getElementById('progress');
@@ -409,12 +416,22 @@
         window.Module = {
           arguments: args,
           canvas: document.querySelector('canvas'),
+          instantiateWasm,
           onRuntimeInitialized: () => {
             setupTouchControls();
             setupCopyUrl();
             if (TARGET === 'zquest') setupOpenTestMode();
           },
-          setStatus: function (text) {
+          setStatus: function (text, percentProgress = null) {
+            // `.data.js` emscripten generated script passes progress like this:
+            //   Downloading data... (x/y)
+            // And there's no way to configure that, so just parse it.
+            if (text.startsWith('Downloading data... (')) {
+              const [, x, y] = text.match(/(\d+)\/(\d+)/);
+              text = `Downloading data... (${Math.floor(x / 1024)}/${Math.floor(y / 1024)} KB)`;
+              percentProgress = x / y;
+            }
+
             if (!text || text === 'Running...') return;
             if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
 
@@ -429,17 +446,16 @@
             statusElement.hidden = false;
 
             if (text === Module.setStatus.last.text) return;
-            const m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
             const now = Date.now();
-            if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+            if (percentProgress && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
             Module.setStatus.last.time = now;
             Module.setStatus.last.text = text;
-            if (m) {
-              text = m[1];
-              progressElement.value = parseInt(m[2]) * 100;
-              progressElement.max = parseInt(m[4]) * 100;
+            if (percentProgress !== null && percentProgress > 0) {
+              progressElement.value = percentProgress;
+              progressElement.max = 1;
               progressElement.hidden = false;
             } else {
+              progressElement.value = null;
               progressElement.max = null;
               progressElement.hidden = true;
             }
@@ -449,7 +465,10 @@
           totalDependencies: 0,
           monitorRunDependencies: function (left) {
             Module.totalDependencies = Math.max(Module.totalDependencies, left);
-            Module.setStatus(left ? 'Preparing... (' + (Module.totalDependencies - left) + '/' + Module.totalDependencies + ')' : '');
+            if (Module.totalDependencies === 1) return;
+
+            const progress = (Module.totalDependencies - left) / (Module.totalDependencies);
+            Module.setStatus(left ? `Preparing... (${Module.totalDependencies - left}/${Module.totalDependencies})` : '', progress);
           }
         };
 
@@ -490,6 +509,43 @@
       } catch (err) {
         console.error(err);
         document.querySelector('.content').textContent = err.toString();
+      }
+    }
+
+    // This is exactly the code from Emscripten's `instantiateWasm` except it uses
+    // ZC.fetch to provide progress updates when downloading the wasm file.
+    function instantiateWasm(info, receiveInstance) {
+      function instantiateArrayBuffer(receiver) {
+        return getBinaryPromise().then(function (binary) {
+          return WebAssembly.instantiate(binary, info);
+        }).then(function (instance) {
+          return instance;
+        }).then(receiver, function (reason) {
+          err("failed to asynchronously prepare wasm: " + reason);
+          if (isFileURI(wasmBinaryFile)) {
+            err("warning: Loading from a file URI (" + wasmBinaryFile + ") is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing");
+          }
+          abort(reason);
+        });
+      }
+
+      function receiveInstantiationResult(result) {
+        receiveInstance(result["instance"], result["module"]);
+      }
+
+      if (!wasmBinary && typeof WebAssembly.instantiateStreaming == "function" && !isDataURI(wasmBinaryFile) && !isFileURI(wasmBinaryFile) && typeof fetch == "function") {
+        return ZC.fetch(wasmBinaryFile, {
+          credentials: "same-origin"
+        }).then(function (response) {
+          var result = WebAssembly.instantiateStreaming(response, info);
+          return result.then(receiveInstantiationResult, function (reason) {
+            err("wasm streaming compile failed: " + reason);
+            err("falling back to ArrayBuffer instantiation");
+            return instantiateArrayBuffer(receiveInstantiationResult);
+          });
+        });
+      } else {
+        return instantiateArrayBuffer(receiveInstantiationResult);
       }
     }
 
