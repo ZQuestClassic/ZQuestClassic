@@ -1,0 +1,107 @@
+diff --git a/timidity/instrum.c b/timidity/instrum.c
+index dedbea0..a345dd6 100644
+--- a/timidity/instrum.c
++++ b/timidity/instrum.c
+@@ -186,7 +186,19 @@ static Instrument *load_instrument(MidiSong *song, char *name, int percussion,
+   if (noluck)
+     {
+       SNDDBG(("Instrument `%s' can't be found.\n", name));
+-      return 0;
++
++      if (song->load_request_count < 128) {
++        for (i=0; i < song->load_request_count; i++) {
++          if (strcmp(song->load_requests[i], name) == 0) {
++            return MAGIC_LOAD_INSTRUMENT; // Already added this instrument, so return
++          }
++        }
++        // Add instrument to load request list
++        song->load_requests[song->load_request_count] = strdup(name);
++        song->load_request_count += 1;
++      }
++
++      return MAGIC_LOAD_INSTRUMENT;
+     }
+       
+   SNDDBG(("Loading instrument %s\n", tmp));
+diff --git a/timidity/timidity.c b/timidity/timidity.c
+index 5cf5c9a..c55766d 100644
+--- a/timidity/timidity.c
++++ b/timidity/timidity.c
+@@ -28,6 +28,10 @@
+ 
+ #include "tables.h"
+ 
++#ifdef __EMSCRIPTEN__
++#include <emscripten/emscripten.h>
++#endif
++
+ ToneBank *master_tonebank[MAXBANK], *master_drumset[MAXBANK];
+ 
+ static char def_instr_name[256] = "";
+@@ -452,6 +456,24 @@ int Timidity_Init()
+   return 0;
+ }
+ 
++#ifdef __EMSCRIPTEN__
++EM_ASYNC_JS(void, em_fetch_instruments, (char** load_requests, int load_request_count), {
++  const instruments = [];
++  for (let i = 0; i < load_request_count; i++) {
++    const strAddress = HEAP32[(load_requests + (i * 4)) >> 2];
++    instruments.push(UTF8ToString(strAddress));
++  }
++
++  const promises = instruments.map(async (url) => {
++    const data = await ZC.fetchAsByteArray(ZC_Constants.freepatsUrl + '/' + url);
++    const path = '/etc/timidity/' + url;
++    ZC.ensureFolderExists(path);
++    FS.writeFile(path, data);
++  });
++  await Promise.all(promises);
++});
++#endif
++
+ MidiSong *Timidity_LoadSong(SDL_RWops *rw, SDL_AudioSpec *audio)
+ {
+   MidiSong *song;
+@@ -567,6 +589,18 @@ MidiSong *Timidity_LoadSong(SDL_RWops *rw, SDL_AudioSpec *audio)
+ 
+   load_missing_instruments(song);
+ 
++#ifdef __EMSCRIPTEN__
++  if (song->load_request_count > 0) {
++    em_fetch_instruments(song->load_requests, song->load_request_count);
++    for (i = 0; i < song->load_request_count; i++) {
++      free(song->load_requests[i]);
++      song->load_requests[i] = NULL;
++    }
++    song->load_request_count = 0;
++    load_missing_instruments(song);
++  }
++#endif
++
+   return(song);
+ }
+ 
+@@ -587,6 +621,9 @@ void Timidity_FreeSong(MidiSong *song)
+   free(song->common_buffer);
+   free(song->resample_buffer);
+   free(song->events);
++  for (i = 0; i < song->load_request_count; i++) {
++    free(song->load_requests[i]);
++  }
+   free(song);
+ }
+ 
+diff --git a/timidity/timidity.h b/timidity/timidity.h
+index 0a9c57d..ac65216 100644
+--- a/timidity/timidity.h
++++ b/timidity/timidity.h
+@@ -142,6 +142,8 @@ typedef struct {
+     Sint32 event_count;
+     Sint32 at;
+     Sint32 groomed_event_count;
++    int load_request_count;
++    char *load_requests[128];
+ } MidiSong;
+ 
+ /* Some of these are not defined in timidity.c but are here for convenience */
