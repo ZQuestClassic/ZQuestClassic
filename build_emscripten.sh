@@ -16,11 +16,18 @@ emsdk activate $EMCC_VERSION
 cd output/_auto
 ./buildpack.sh
 rm -f buildpack/{zelda,zquest,zlauncher,zscript}
-rm -rf buildpack/Addons buildpack/docs/ghost buildpack/docs/tango
-rm -rf buildpack/**/*.rtf buildpack/**/*.pdf
+rm -rf buildpack/Addons buildpack/docs/ghost buildpack/docs/tango buildpack/utilities
+rm -rf buildpack/headers/ghost_zh/3.0/demo buildpack/headers/GUITest.qst
+rm -rf "buildpack/scripts/stdWeapons/example scripts"
+rm buildpack/changelog.txt
+rm buildpack/music/Isabelle_Z2.nsf
 find buildpack -name "*.dll" -type f -delete
 find buildpack -name "*.so" -type f -delete
 find buildpack -name "*.exe" -type f -delete
+find buildpack -name "*.rtf" -type f -delete
+find buildpack -name "*.pdf" -type f -delete
+find buildpack -name "*.so" -type f -delete
+find buildpack -name "*.zip" -type f -delete
 cd -
 
 mkdir -p build_emscripten
