@@ -56,17 +56,6 @@ rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid-mp3-ogg.a
 
 sh ../../patches/apply.sh
 
-# See https://github.com/libsdl-org/SDL/pull/5496
-if ! grep -q SDL_THREAD_PTHREAD_RECURSIVE_MUTEX "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"; then
-  echo "#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1" >> "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"
-fi
-
-# SDL's emscripten audio specifies only one default audio output device, but turns out
-# that can be ignored and things will just work. Without this, only SFX will play and MIDIs
-# will error on opening a handle to the audio device.
-# See https://github.com/libsdl-org/SDL/issues/5485
-sed -i -e 's/impl->OnlyHasDefaultOutputDevice = 1/impl->OnlyHasDefaultOutputDevice = 0/' "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/src/audio/emscripten/SDL_emscriptenaudio.c"
-
 EMCC_FLAGS=(
   -s USE_FREETYPE=1
   -s USE_VORBIS=1
