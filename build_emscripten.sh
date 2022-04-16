@@ -40,13 +40,21 @@ EMCC_CACHE_LIB_DIR="$EMCC_CACHE_DIR/sysroot/lib/wasm32-emscripten"
 
 # Temporary workarounds until various things are fixed upstream.
 
+# Ensure that the SDL source code has been downloaded.
 if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2" ]
 then
-  # Ensure that the SDL source code has been downloaded.
   embuilder build sdl2
 fi
+if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2_mixer" ]
+then
+  embuilder build sdl2_mixer
+fi
+
 # Must manually delete the SDL library to force Emscripten to rebuild it.
 rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2.a "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a
+rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid-mp3-ogg.a
+
+sh ../../patches/apply.sh
 
 # See https://github.com/libsdl-org/SDL/pull/5496
 if ! grep -q SDL_THREAD_PTHREAD_RECURSIVE_MUTEX "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20/include/SDL_config_emscripten.h"; then
@@ -156,7 +164,7 @@ cmake --build . -t $TARGETS
 "$(dirname $(which emcc))"/tools/file_packager.py zc.data \
   --no-node \
   --preload "../../output/_auto/buildpack@/" \
-  --preload "../../freepats@/etc/timidity" \
+  --preload "../../freepats/freepats.cfg@/etc/timidity/freepats.cfg" \
   --use-preload-cache \
   --js-output=zc.data.js
 
@@ -175,6 +183,8 @@ fi
 if [ -f zquest.html ]; then
   sed -i -e 's/__TARGET__/zquest/' zquest.html
 fi
+
+cp -r ../../freepats .
 
 # Now start a local webserver in the build_emscripten folder:
 #   npx statikk --port 8000 --coi

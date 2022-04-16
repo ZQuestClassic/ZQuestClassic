@@ -175,6 +175,7 @@
     window.ZC_Constants = {
       zeldaUrl: 'zelda.html',
       zquestUrl: 'zquest.html',
+      freepatsUrl: 'freepats',
     };
   </script>
 </head>
@@ -382,6 +383,24 @@
       async fetchAsByteArray(url, opts) {
         const response = await ZC.fetch(url, opts);
         return new Uint8Array(await response.arrayBuffer());
+      },
+      mkdirp(folderPath) {
+        const pathParts = folderPath.split('/')
+        let dirPath = '/'
+        for (let i = 0; i < pathParts.length; i++) {
+          const curPart = pathParts[i]
+          try {
+            FS.mkdir(`${dirPath}${curPart}`)
+          } catch (err) { }
+          dirPath += `${curPart}/`
+        }
+      },
+      ensureFolderExists(path) {
+        const folderPath = path
+          .split('/')
+          .slice(0, -1) // remove basename
+          .join('/');
+        ZC.mkdirp(folderPath);
       },
     };
   </script>
