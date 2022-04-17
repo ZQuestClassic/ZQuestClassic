@@ -1,16 +1,18 @@
 diff --git a/SDL_mixer.h b/SDL_mixer.h
-index cbb8ae6..a2846ae 100644
+index 009d8a2..d69b1ea 100644
 --- a/SDL_mixer.h
 +++ b/SDL_mixer.h
-@@ -134,6 +134,7 @@ typedef enum {
-     MUS_MP3,
+@@ -136,7 +136,8 @@ typedef enum {
      MUS_MP3_MAD_UNUSED,
      MUS_FLAC,
-+    MUS_GME,
-     MUS_MODPLUG_UNUSED
+     MUS_MODPLUG_UNUSED,
+-    MUS_OPUS
++    MUS_OPUS,
++    MUS_GME
  } Mix_MusicType;
  
-@@ -599,6 +600,11 @@ extern DECLSPEC void SDLCALL Mix_ResumeMusic(void);
+ /* The internal format for a music chunk interpreted via mikmod */
+@@ -601,6 +602,11 @@ extern DECLSPEC void SDLCALL Mix_ResumeMusic(void);
  extern DECLSPEC void SDLCALL Mix_RewindMusic(void);
  extern DECLSPEC int SDLCALL Mix_PausedMusic(void);
  
@@ -36638,18 +36640,18 @@ index 0000000..d009d0d
 +	}
 +#endif
 diff --git a/music.c b/music.c
-index 1b2dfe4..56e8cfd 100644
+index a09373f..70a5f43 100644
 --- a/music.c
 +++ b/music.c
 @@ -40,6 +40,7 @@
+ #include "music_mpg123.h"
  #include "music_mad.h"
- #include "music_smpeg.h"
  #include "music_flac.h"
 +#include "music_gme.h"
  #include "native_midi/native_midi.h"
  
- 
-@@ -108,6 +109,7 @@ static Mix_MusicInterface *s_music_interfaces[] =
+ /* Check to make sure we are building with a new enough SDL */
+@@ -116,6 +117,7 @@ static Mix_MusicInterface *s_music_interfaces[] =
  #ifdef MUSIC_MID_NATIVE
      &Mix_MusicInterface_NATIVEMIDI,
  #endif
@@ -36657,8 +36659,8 @@ index 1b2dfe4..56e8cfd 100644
  };
  
  int get_num_music_interfaces(void)
-@@ -393,6 +395,32 @@ static Mix_MusicType detect_music_type(SDL_RWops *src)
-         return MUS_WAV;
+@@ -431,6 +433,32 @@ Mix_MusicType detect_music_type_from_magic(const Uint8 *magic)
+         return MUS_MP3;
      }
  
 +    /* GME Specific files */
@@ -36687,10 +36689,10 @@ index 1b2dfe4..56e8cfd 100644
 +    if (SDL_memcmp(magic, "\x1f\x8b", 2) == 0)
 +        return MUS_GME;
 +
-     return detect_music_type_from_magic(magic);
- }
- 
-@@ -867,6 +895,46 @@ int Mix_PausedMusic(void)
+     /* Assume MOD format.
+      *
+      * Apparently there is no way to check if the file is really a MOD,
+@@ -945,6 +973,46 @@ int Mix_PausedMusic(void)
      return (music_active == SDL_FALSE);
  }
  
@@ -36738,13 +36740,13 @@ index 1b2dfe4..56e8cfd 100644
  static SDL_bool music_internal_playing(void)
  {
 diff --git a/music.h b/music.h
-index a9b7923..80b1f65 100644
+index caec82f..c6883db 100644
 --- a/music.h
 +++ b/music.h
 @@ -39,6 +39,7 @@ typedef enum
      MIX_MUSIC_MAD,
-     MIX_MUSIC_SMPEG,
      MIX_MUSIC_FLAC,
+     MIX_MUSIC_OPUS,
 +    MIX_MUSIC_GME,
      MIX_MUSIC_LAST
  } Mix_MusicAPI;
@@ -37519,7 +37521,7 @@ index dedbea0..a345dd6 100644
        
    SNDDBG(("Loading instrument %s\n", tmp));
 diff --git a/timidity/timidity.c b/timidity/timidity.c
-index 5cf5c9a..92dafb7 100644
+index 6251f87..6943755 100644
 --- a/timidity/timidity.c
 +++ b/timidity/timidity.c
 @@ -28,6 +28,10 @@
@@ -37558,7 +37560,7 @@ index 5cf5c9a..92dafb7 100644
  MidiSong *Timidity_LoadSong(SDL_RWops *rw, SDL_AudioSpec *audio)
  {
    MidiSong *song;
-@@ -567,6 +589,18 @@ MidiSong *Timidity_LoadSong(SDL_RWops *rw, SDL_AudioSpec *audio)
+@@ -571,6 +593,18 @@ MidiSong *Timidity_LoadSong(SDL_RWops *rw, SDL_AudioSpec *audio)
  
    load_missing_instruments(song);
  
@@ -37577,7 +37579,7 @@ index 5cf5c9a..92dafb7 100644
    return(song);
  }
  
-@@ -587,6 +621,9 @@ void Timidity_FreeSong(MidiSong *song)
+@@ -591,6 +625,9 @@ void Timidity_FreeSong(MidiSong *song)
    free(song->common_buffer);
    free(song->resample_buffer);
    free(song->events);
