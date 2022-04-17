@@ -121,21 +121,6 @@ emcmake cmake ../.. \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]}" \
   -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
 
-# Ensure that the SDL source code has been downloaded,
-# otherwise the patches can't be applied.
-if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2" ]
-then
-  embuilder build sdl2
-fi
-if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2_mixer" ]
-then
-  embuilder build sdl2_mixer
-fi
-
-# Manually delete libraries from Emscripten cache to force a rebuild.
-rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a
-rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid-mp3-ogg.a
-
 sh ../../patches/apply.sh
 
 TARGETS="${@:-zelda zquest}"
