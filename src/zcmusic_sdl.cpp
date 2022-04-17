@@ -139,12 +139,20 @@ bool zcmusic_play(ZCMUSIC *zcm, int32_t vol)
     return 1;
   }
 
+  // In case it was paused.
+  Mix_ResumeMusic();
   zcm->playing = 1;
+  return 0;
 }
 bool zcmusic_pause(ZCMUSIC *zcm, int32_t pause)
 {
-  Mix_PauseMusic();
-  zcm->playing = -1;
+  if (pause == ZCM_RESUME) {
+    Mix_ResumeMusic();
+    zcm->playing = 0;
+  } else {
+    Mix_PauseMusic();
+    zcm->playing = -1;
+  }
   return true;
 }
 bool zcmusic_stop(ZCMUSIC *zcm)
