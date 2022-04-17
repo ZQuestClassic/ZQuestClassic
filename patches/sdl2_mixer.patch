@@ -51,7 +51,7 @@ index 5cf5c9a..c55766d 100644
 +  }
 +
 +  const promises = instruments.map(async (url) => {
-+    const data = await ZC.fetchAsByteArray(ZC_Constants.freepatsUrl + '/' + url);
++    const data = await ZC.fetchAsByteArray(ZC_Constants.patsUrl + '/' + url);
 +    const path = '/etc/timidity/' + url;
 +    ZC.ensureFolderExists(path);
 +    FS.writeFile(path, data);
