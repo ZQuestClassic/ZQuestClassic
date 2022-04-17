@@ -1,0 +1,757 @@
+        *****************************************************
+        *               ®Pro Patches Lite v1.60¯            *
+        *          by Eero R„s„nen (Email: cseera@uta.fi)   *
+        *****************************************************
+
+
+What's new in version 1.60  04-02-96
+====================================
+
+Adds 7 GS compatible drum banks to Pro Patches Lite. In file "ppatlite.txt"
+there are more info on the GS drum kits.
+The GS drum banks are described here:
+
+1. Bank name     : "Room Drum kit"
+   GS Bank number: 8
+   Files         : pwrdrum\pwrtmhi*.pat, pwrdrum\pwrtmlo*.pat,
+                   pwrdrum\pwrtmmd*.pat
+
+2. Bank name     : "Power Drum kit"
+   GS Bank number: 16
+   Files         : pwrdrum\*.pat
+
+3  Bank name     : "Electronic Drum kit" 
+   GS Bank number: 24
+   Files         : 808drum\*.pat + 909drum\*.pat
+
+4. Bank name     : "808 Drum kit" 
+   GS Bank number: 25
+   Files         : 808drum\*.pat
+
+5. Bank name     : "Jazz Drum kit" 
+   GS Bank number: 32
+   Files         : jazzdrum\*.pat
+
+6. Bank name     : "Brush Drum kit" 
+   GS Bank number: 40
+   Files         : jazzdrum\*.pat + brshdrum\*.pat
+
+7. Bank name     : "Orchestra Drum kit" 
+   GS Bank number: 25
+   Files         : orcdrum\*.pat
+
+Now there is also a proper installation program for Pro Patches Lite.
+Installing is done by just entering command "install" from the PPLT directory.
+
+Couple of bug fixes and new patches:
+
+   honky.pat    \
+   contraba.pat - Fixed envelope.
+   bassoon.pat  /
+   celeste.pat   Added some reverb effect.
+   church.pat    Better looping points.
+   basslead.pat  Made some changes to envelope and vibrato level.
+   steeldrm.pat  Looped version. Sounds better at high pitches.
+   highq.pat     New highq patch.
+   metbell      -A bit louder versions of these patches.
+   sqrclick     /
+   cymbell       A brightened version of the original patch.
+
+
+What's new in version 1.51  03-15-96
+====================================
+
+       New melodic patches
+
+        - Trumpet.pat   Finally a good replacement for trumpet !
+	- Church.pat    Very bright sounding church organ.
+        - Viola.pat   \ I made a pretty good violin patch
+        - Violin.pat  / which replaces both viola and violin.
+                        Only the envelopes are different.
+
+       New percussion patches from Alesis D4 drum machine.
+
+        - Woodblk2.pat, Congahi1.pat, Congahi2.pat, Bongolo.pat
+          Congalo.pat,  Castinet.pat, Vibslap.pat,  Bongohi.pat
+
+
+       Other changes
+
+        - woodblk1.pat   The old woodblock 2 is now woodblock 1.
+        - distgtr.pat  \ 
+        - odguitar.pat  |
+        - acpiano.pat   |
+        - flute.pat     |
+        - altosax.pat   |
+        - barisax.pat   |
+        - sprnosax.pat  |Some changes in the tremolo/vibrato levels and
+        - tenorsax.pat  |envelopes to make the sound more "colourful".
+        - tuba.pat      |
+        - trombone.pat  |
+        - piccolo.pat   |
+        - cello.pat     |
+        - contraba.pat /
+        - bottle.pat     The patch is now looped bi-directionally which
+                         makes it 13 KB smaller.
+    
+
+
+What's new in version 1.50  03-05-96
+====================================
+
+Compared to version 1.45, there are 110(!) changed patches and 22 new patches.
+Mostly the changed ones are patches which I have made brighter sounding or
+ones which now uses the new reverb effect. I don't have specific list of
+those patches. I Also repanned the drums. Now they are panned the same way as
+the original GUS drums. 
+
+Well, here is some info on some other changes.
+
+BRITEPNO     I made this patch about 35 KB smaller ! 
+ACPIANO      New acoustic piano ! Sounds much like the bright piano.             
+             Since almost all midi songs are usings this piano patch,
+             I think it should be as bright sounding as possible.
+CHURCH       New version of a church organ. Has much "smoother" sound than
+             the one in pplt v1.45.
+ACGUITAR     Back to new variation of the pplt v1.40 acoustic guitar.
+             Should sound a bit better.
+CLEANGTR     Smaller and reverbed version of the GUS original clean guitar.
+ALTOSAX      The pplt altosax wasn't so good, so I made a reverved version
+             of the GUS original patch.
+WHISTLE      Reverbed version of the GUS original patch.
+POLYSYN      The original one sounded better than the one in PPLT , so I made
+             a brightened version of the original one.
+FLUTE        Better flute. I changed of the wafeform which sounded pretty bad.
+SYNBASS1     New synth bass 1 sound.
+AGOGOHI      Agogos from PPLT 1.20
+DISTGTR  and
+ODGUITAR     Electric guitars are now brighter and more distorted sounding. 
+AGOGOLO             -"-
+BONGOHI      \
+BONGOLO       \ Patches from "Rickypats" patch set. Greetings to Riccardo.
+HIHATCL        /
+HIHATPD       /
+VIBSLAP      / 
+HIGHQ        A loudened version of pplt v1.20 patch.
+SNARE2       New electric snare. It is loudened and brightened version of
+             a patch from "MaxPats".
+TOMHI1       \
+TOMHI2        \
+TOMLO1         \ Loudened versions of tom drums from pplt v1.20
+TOMLO2         /
+TOMMID1       /
+TOMMID2      /
+
+
+Also the "Game Compability Mode" is obsolete since the full patch set is
+already small enough. Loadpats can now load 80 patches with the full PPLT mode.
+This is mostly due to the small piano patches.
+
+I got rid off the solo piano midi files. I replaced them with other midi
+files, which are: nostalgy.mid, psr510_4.mid, psr510_6.mid and pwrply.mid
+
+
+
+What's new in version 1.45  01-21-96
+====================================
+
+I found a way to make the sound more spacy...something like a primitive
+reverb effect. This technique is based on non-linear fading when
+a note is turned off. It means that when a note is turned off there will
+be short echo of the sound. This echo is much quieter than the note
+before if was turned off and it does only make the sound richer. Mostly,
+one cannot actually hear the "echoes" when more that one instruments are
+playing at once.
+
+Very BIG thanks goes to Peter Stinner who developed "Gustav v1.0" software
+which made this possible.
+
+These patches have been changed using the technique described before:
+
+   accordn,  tenorsax, altosax,  sprnosax, distgtr,  odguitar, ocarina,
+   barisax,  bassoon,  charang,  clarint,  contraba, englhorn, slapbas2,
+   synbass1, synbass2, hitbrass, mutetrum, pergorg,  rockorg,  synbras1,
+   synbras2, trombone, trumpet,  tuba,     whistle2, violin,   woodflut,
+   epiano1,  cello,    calliope, acbass,   pickbass, fngrbass, fretless,
+   clavinet, sqrwave,  jazzgtr,  cleangtr, sawwave,  basslead, recorder,
+   gtrharm,  xylophon, violin,   viola,    epiano2,  homeorg,  reedorg,
+   concrtna, oboe,     piccolo.
+
+...and some other changes
+
+   honky, doo        Had a bad looping.                  
+   stickrim          New stick rim sound. Not so "jazzy", but has a lot
+                     clearer sound.
+   nyguitar          Now has better panning.
+   kick2             New, very good kick drum ! Powerful and clear sound.
+   cymcrsh2          New version of Cymbal Crash 2.
+   acguitar          New and clear sounding Acoustic Guitar (steel).
+   synbass1          Was one octave off tune...;).
+   basslead          New patch. A shinked version of the original GUS patch.
+   marcato           Again, new marcato patch. This time it works.
+   small\acpiano     Minor changes in envelopes of the patch.
+   harp              Loops are moved a bit. Works better with 8-bit mode.
+   ppats.ini         \
+   qpats.ini         / Harpsichord has been moved from qpats.ini to ppats.ini.
+
+
+What's new in version 1.40  12-24-95
+====================================
+
+I noticed that the sampled Kawai XD-5 drums are not bright enough to use with
+GUS. GUS needs brighter sounds, because it has no sound filtering nor
+effects...
+So, I searched for good drum sounds from internet and from my friend's EPS-16+
+disks and found some too !
+For the first time PPLT patch set is actually a bit smaller than the original!
+  
+  - cymcrsh1, cymcrsh2,        First time in PPLT cymbal crashes have looping,
+                               so the sound won't fade away so quickly.
+                               These are made from a patch I found
+                               from the EPS-16+ disks.
+  - hihatcl, hihatop, hihatpd  A good mixture of bright hihat sounds from
+                               PPLT 1.20 and Roland TR-909.
+  - snare2                     A variation of TR-909 snare.
+  - kick1                      Andrew Du's contribution for PPLT v1.40.
+                               Thanks Andrew !
+  - cymride1, cymride2         More samples from EPS-16+.
+  - stickrim                   New version from EPS-16+ jazz drum kit.
+                               Very good !
+  - snare1, claps, cowbell,    I didn't find good replacements for these,
+    maracas, cymchina          so I just edited the old ones brighter.
+
+                    ...and some other changes...
+
+  - chiflead                   New chiff flute. Much better than the original.
+  - honky                      New really bright Honky tonk piano made
+                               from a EPS-16+ "house piano".
+  - jazzgtr                    This patch has now a bit clearer sound.
+  - unicorn                    [deleted !] The original version is still
+                               somewhat better.
+  - slapbas2                   Changed the lower wave to a better one.
+                               Thanks goes to Riccardo Losselli, who provided
+                               the wave.
+  - nyguitar                   New, VERY GOOD nylon guitar made of 870 KB
+                               GUS patch (sologuit.pat).
+  - marcato                    New "String Section 1". Better loops and
+                               brighter sound.
+  - acpiano                    Loops and envelopes and improved.
+  - synbass1                   Tuned to one octave up. Sounds better that way.
+  - altosax                    Some changes in playing ranges of the waves.
+  - Large.bnk                  Again, due to the various changes I had to
+                               rebuild the bank file to catch up with the
+                               sound quality.
+  - Patmenu                    Some changes in files qpats.ini an ppats.ini.
+
+  2980_1.mid, gottoget.mid     Here are two new techno midis to listen.
+  groovin.mid                  This is one of the the best midi song I have
+                               ever heard.
+
+
+What's new in version 1.34  12-14-95
+====================================
+
+Version of Pro Patches Lite is same as version 1.33 plus the
+v1.34 update.
+
+
+  - acguitar        I made even better version of acoustic guitar.
+  - harmonca        The middle wave had clicky loop and it was practically
+                    unloopable, so I deleted it. With two waves the patch
+                    is still good (better ?!).
+  - nyguitar        Better looping.
+  - acpiano         Was a bit off tune. Should be better now.
+  - altosax         The middle wave was too quiet.
+  - rockorg         Was a bit off tune. Should be better now.
+  - gauge.vbx       This file was needed for windows version of Patmenu
+                    to work.
+
+What's new in version 1.33  12-09-95
+====================================
+
+Version of Pro Patches Lite is same as version 1.31 plus the
+v1.33 update.
+
+  - mutetrum.pat    Nice new muted trumpet.
+
+  - large.bnk       Rebuilded version of the 1024 KB bank for MegaEm 3.06b.
+                    All corrupted instruments should be fixed.
+
+  - Patmenu v1.0    More descriptive command choices, which hopefully
+                    makes it easier to choose correct mode for each
+                    purpose.
+     
+
+What was new in version 1.32  12-05-95
+======================================
+
+There were serious bugs in both dos and windows versions of the
+Patmenu program. This version now includes the bug fixes which
+were previously distributed with file 'patmn_09.zip'.
+
+
+What was new in version 1.31  12-02-95
+======================================
+
+   70 of the v1.30 patches are changed and there are 2 new patches.
+   Now there is also Windows version of the Patmenu included ( wpatmenu.exe ).
+
+   - There were several bugs in the v1.30 of PPLT. I fixed all the
+     bug I found. It is useless to list them all here. Mainly the
+     bugs related to bad loops and tunings.
+
+   - Some people have noted about clicky abd poppy drums. I checked them
+     out, but didn't find any problems. However, I made a little fade out
+     into end of each drum to make sure that there aren't any volume ramps
+     at end of the patches.
+
+   - Now the acoustic piano of the MegaEm 3.xx emulation is also changed
+     to 80kB small\acpiano.pat patch, so you don't have to suffer any more
+     from the terrible original GUS piano !!
+
+
+      snare1           - Brighter acoustic snare. Has a good effect to the
+                         overall sound quality.
+
+[new] acguitar         - The patch provided in the v1.30 of PPLT wasn't so
+                         good as the one in v1.20. So I made a smaller version
+                         of the v1.20 patch.
+
+      odguitar         - The patch sounded better without one waveform !
+                         Now it's smaller and better.
+
+[new] nyguitar         - Someone noted that the guitars provided in the
+                         MaxPats patch set were better. Well I tested
+                         them and found that the nylon guitar was indeed
+                         somewhat better. In fact it is a louder version of
+                         the GUS original nylon guitar.
+
+
+What was new in version 1.30 11-12-95
+=====================================
+
+   63 of the v1.20 patches are changed and there are 50 new patches.
+   There are also two new midi files and 1 MB version of the patch set
+   for MegaEm 3.06b included. Again, due to the changes the patch set
+   is now significally smaller. Only 40 KB difference to the original
+   GUS patch set !
+
+
+   (1) New patches:
+
+        27 NEW DRUM PATCHES FROM KAWAI XD5 PROFESSIONAL DRUM MACHINE with
+        the old cymbal rides and TAMBOURINE FROM KURZWEIL K2000.
+
+                                and also...
+        
+        small\acpiano- Smaller Acoustic Piano for games. It is used
+                       automatically with Game Compability mode. May be,
+                       in the future there will be also other smaller versions
+                       of large patches in this directory ... 
+        harmonca     - Not very good, but still MUCH better than the original.
+                       IMHO the original one is the UGLIEST patch of the GUS
+                       midi set !
+        jazzgtr      - New jazz guitar. Waves ripped from a real jazz guitar
+                       riff found in the internet.
+        jungle       - Nice jungle effect from ProPats III.
+        seashore     - New seashore patch from ProPats III.
+        accordn      - At last a proper accordion patch.
+        shakazul     - A new shakuhachi flute ! Well, it may sound funny
+                       in some songs, but it's still VERY GOOD !
+        clarinet     - Brighter and more realistic clarinet.
+        clavinet     - New clavinet. It isn't so aggressive sounding than
+                       the original one.
+        woodflut     - New woodflut. More like the real instrument.
+        sawwave      - The original sound is very good, just a bit weak.
+                       So I made it louder.
+        acguitar     - New, more bright version.
+        
+
+        Also made better versions of these GUS patches:
+         surdo2, castinet, celeste, toms, gtrharm, percorg, synbras1,synbras2,
+         and tubebell
+     
+   (2) Drum patches which I made louder:        
+        surdo1, woodblk1, woodblk2, clave, tamborin,cymcrsh1,cymcrsh2
+
+   (3) Other percussive patches that I made louder:
+        timpani, orchit, syntom, taiko
+
+   (4) Added mode bass to the sound of these patches:
+        bassoon, tuba, pizzcato, church, contraba, cleangtr, distgtr,
+        synbass1, acbass, slapbas1, slapbas2, fretless, mutegtr
+
+   (5) Made these patches louder:
+        vibes, xylophon, hitbrass
+
+   (6) Other changes:
+        cello        - Made it smaller ( 59kB -> 31kB ). Wonder why I didn't
+                       do this earlier...
+        acpiano      - The acoustic piano is now much brighter. It also has
+                       large (about 10 KB) bidirectional loops, which makes
+                       it sound more spacy.
+        bottle       - It had a bad envelope.
+        xylophon     - Made a bit of echo to the sound.
+        odguitar     - Made it louder and more distorted.
+        frenchrn     - corrected looping. Due to this the patch is also a bit
+                       smaller.
+        nyguitar     - Sounds better now.
+
+        All multisampled patches and drums are now panned, which makes midi
+        files sound more stereophonic even if the midi file does not contain
+        any specific information about the instrument panning. 
+
+
+   (8) New midi files in the "miditest" directory:
+        etude.mid    - For demonstrating the new Shakuhachi flute.
+        takeawil.mid - Just for entertainment.
+
+------------------------------------------------------------------------------
+
+
+What was new in version 1.20 09-17-95
+=====================================
+
+   4 of the v1.10 patches are changed and there are 24 new patches.
+   Due to the changes the patch set is now slightly smaller.
+
+
+   (1) Made these GUS patches more or less better. "Better" is the key word
+       here:
+
+       mutetrum,pizzcato,contraba,belltree,revcym,santur,tuba,koto, woodblk,
+       trumpet, clarinet, trombone, bassoon, altosax, sprnosax.
+
+   (2) acpiano  - New acoustic piano. It's a smaller version (120 kB) of a
+                  750 kB "Steinway piano" patch from Yamaha tx16w !
+
+   (3) doo      - Made it smaller ( 79kB -> 46kB ). No quality loss.
+       shakazul - The fixed version also available from file "ppl11fix.arj"
+       startrak,
+       atmosphr - The original patches had clicking loops ! They are now
+                  corrected and I also added some flange effect to the samples
+                  to make them even better.
+       sweeper  - new, flanged, sweeper. It reminds me of those Tangerine
+                  Dream analog synths back 70s'! Well, may be not... ;)
+       agogo    - Smaller version and also has a bit better sound.
+       vibes    - All new version from TB Proteus.      
+       flute    - Lowered the sweep delay of the middle wave.
+       tenorsax - New version (28kB), made from a 738kB Kurzweil patch.                  
+       barisax  - New patch, made from three waves.
+       cleangtr - smaller and better version.
+
+   (4) snare1   - Changed to enhanced version of GUS Acoustic Snare.
+                  The SCC1 version was good, but too soft.
+
+   (5) patmenu -  Fixed a bug in the user interface. If one pressed
+                  "r" wrong line was highlighted.
+
+   (6) Included more midi files. The new midi files are made for solo
+       piano. With them you can test the new Acoustic Piano patch:
+
+       mephisto.mid , wishupon.mid and fantasi1.mid
+
+------------------------------------------------------------------------------
+
+
+What was changed in version 1.10 
+================================
+
+   These changes don't sound to be major ones, but they are...really.
+   46 of the v1.0 patches were changed and there are 3 new patches.
+   Changes are listed here:
+
+
+   (1) These sounds needed to be made quieter:
+          Cabasa, Maracas, Shaker and Basslead
+
+   (2) I Discovered a new way to make a sound louder without making it distorted.
+       I used that technique to these patches:
+                Acbass,Fngrbass,Slapbas1,Slapbas2,Synbass1,Synbass2,Pickbass,
+                Fretless,Bottle, Syntom, Timpani, Mutegtr,Shakazul,
+                A half of the drum kit.
+
+   (3) Other corrections made :
+          Aurora             - the complete version...
+          Halopad,Fantasia,
+          Freshair,Unicorn   - Better looping and envelope.
+          Choir -  Changed choir.pat sound so that the first (lowest)
+                   wave is (also) from original GUS patch because it
+                   differed too much from the other waves in the patch.
+                   Thanks goes to Imre "LaLa" Olajos, Jr. who noted me
+                   about this.
+          
+   (4) New patches:    
+         Synbass2 - Much louder version of the GUS original.
+         Slapbas2 -     "         "          "    
+         Shakazul - Louder and better enveloped version of the GUS original.
+
+   (5) I'am not sure, if the 1.0 version was MegaEm 2.xx compatible,
+       after all. I don't know when the patches got incompatible, but
+       it should work now ! 
+
+   (6) If you already haven't collected a library of xxxxx midi files, there
+       are now included few midi files in the "miditest" directory.
+
+
+------------------------------------------------------------------------------
+
+
+Pro Patches Lite v1.60 GM patches
+=================================
+
+   Here are the GM patches listed in 12 different cathegories.
+   New patches are marked with "[new]" sign. Patches which are
+   just changed are marked with "[chg]" sign. 
+
+   This list just covers the most regular GM mapping that PPLT provides.
+   There are also 7 additional GS drum banks included with PPLT.
+   The GS drum banks uses 87 additional patches. The files used by
+   the drum banks are not included with this list. Also the files
+   in "SMALL\" directory are not included with this list.
+
+
+PATCH NAME/TYPE    NEW SIZE  ORIG.SIZE  DIFFERENCE      NOTES
+================================================================
+
+
+--=Pianos=--
+
+ACPIANO.PAT         98911  -   65259  =   33652
+BRITEPNO.PAT        94891  -   72739  =   22152
+CLAVINET.PAT         4113  -    3443  =     670
+EPIANO1.PAT         19971  -   15005  =    4966
+EPIANO2.PAT         44191  -   44191  =       0
+HONKY.PAT          124985  -  131905  =   -6920         [chg]
+HRPSCHRD.PAT        18133  -    7709  =   10424
+Í===============================================================
+ TOTAL    7        405195  -  340251  =   64944
+
+
+--=Chromatic Percussion=--
+
+CELESTE.PAT         20199  -   20207  =      -8         [chg]
+SANTUR.PAT          43833  -   43833  =       0
+TUBEBELL.PAT        18605  -   18637  =     -32
+VIBES.PAT           21951  -   21597  =     354
+XYLOPHON.PAT         3724  -   19085  =  -15361
+Í===============================================================
+ TOTAL    5        108312  -  123359  =  -15047
+
+
+--=Organs=--
+
+ACCORDN.PAT         19153  -   19623  =    -470
+CHURCH.PAT          23261  -    4609  =   18652         [chg]
+CONCRTNA.PAT        17981  -   17981  =       0
+HARMONCA.PAT        11995  -   15301  =   -3306
+HOMEORG.PAT          2301  -    2301  =       0
+PERCORG.PAT         15435  -   15435  =       0
+REEDORG.PAT          3471  -    3471  =       0
+ROCKORG.PAT         53029  -   60887  =   -7858
+Í===============================================================
+ TOTAL    8        146626  -  139608  =    7018
+
+
+--=Guitars=--
+
+ACGUITAR.PAT        49515  -   52581  =   -3066
+CLEANGTR.PAT        33979  -   46027  =  -12048
+DISTGTR.PAT         57693  -   38249  =   19444
+GTRHARM.PAT          9941  -   10173  =    -232
+JAZZGTR.PAT         21351  -   55923  =  -34572
+MUTEGTR.PAT         33523  -   34577  =   -1054
+NYGUITAR.PAT        36793  -   39211  =   -2418
+ODGUITAR.PAT        44679  -   25845  =   18834
+Í===============================================================
+ TOTAL    8        287474  -  302586  =  -15112
+
+
+--=Basses=--
+
+ACBASS.PAT          10151  -   10829  =    -678
+FNGRBASS.PAT        31293  -   19797  =   11496
+FRETLESS.PAT         9689  -    5605  =    4084
+PICKBASS.PAT        33439  -   33213  =     226
+SLAPBAS1.PAT        27729  -   56133  =  -28404
+SLAPBAS2.PAT        32329  -   41581  =   -9252
+SYNBASS1.PAT         9169  -   12627  =   -3458
+SYNBASS2.PAT         6191  -    6191  =       0
+Í===============================================================
+ TOTAL    8        159990  -  185976  =  -25986
+
+
+--=Strings and Ensemble=--
+
+CELLO.PAT           31589  -   18741  =   12848
+CHOIR.PAT           58859  -   45353  =   13506
+CONTRABA.PAT         9719  -    9723  =      -4         [chg]
+DOO.PAT             45925  -   17333  =   28592
+HARP.PAT            23407  -   23927  =    -520
+MARCATO.PAT        101179  -  122881  =  -21702
+ORCHHIT.PAT         43065  -   28751  =   14314
+PIZZCATO.PAT        39731  -   40173  =    -442
+SYNSTR1.PAT         30543  -   62763  =  -32220
+TIMPANI.PAT         39331  -   14473  =   24858
+VIOLA.PAT           30331  -   56465  =  -26134
+VIOLIN.PAT          30331  -   25061  =    5270
+Í===============================================================
+ TOTAL   12        484010  -  465644  =   18366
+
+
+--=Brass=--
+
+FRENCHRN.PAT        46221  -   28635  =   17586
+HITBRASS.PAT        65621  -   63369  =    2252
+MUTETRUM.PAT         5245  -   19019  =  -13774
+SYNBRAS1.PAT        61703  -   61735  =     -32
+SYNBRAS2.PAT        60609  -   60641  =     -32
+TROMBONE.PAT        26187  -   26187  =       0
+TRUMPET.PAT         15469  -   13621  =    1848
+TUBA.PAT            11741  -   11847  =    -106
+Í===============================================================
+ TOTAL    8        292796  -  285054  =    7742
+
+
+--=Reed and Pipes=--
+
+ALTOSAX.PAT         11711  -   11711  =       0
+BARISAX.PAT         25153  -   21739  =    3414
+BASSOON.PAT         15507  -   16723  =   -1216         [chg]
+BOTTLE.PAT          27537  -   25063  =    2474
+CLARINET.PAT        17575  -   19161  =   -1586
+ENGLHORN.PAT        24851  -   24675  =     176
+FLUTE.PAT           45735  -   12383  =   33352
+OBOE.PAT             9269  -    9269  =       0
+OCARINA.PAT          3537  -    3537  =       0
+PICCOLO.PAT          8945  -    8945  =       0
+RECORDER.PAT         5647  -    5647  =       0
+SHAKAZUL.PAT        59089  -   62589  =   -3500
+SPRNOSAX.PAT        14525  -   14713  =    -188
+TENORSAX.PAT        28535  -   17367  =   11168
+WHISTLE.PAT         12053  -   12053  =       0
+WOODFLUT.PAT        25419  -    4191  =   21228
+Í===============================================================
+ TOTAL   16        335088  -  269766  =   65322
+
+
+--=Synth Lead, Pad and FX=--
+
+ATMOSPHR.PAT        63035  -   63035  =       0
+AURORA.PAT          23741  -   62503  =  -38762
+BASSLEAD.PAT        21587  -   53389  =  -31802         [chg]
+CALLIOPE.PAT        41833  -   46303  =   -4470
+CHARANG.PAT         15477  -   90661  =  -75184
+CHIFLEAD.PAT        60519  -   63381  =   -2862
+FANTASIA.PAT        42359  -   47229  =   -4870
+FRESHAIR.PAT        47445  -   58307  =  -10862
+HALOPAD.PAT         68515  -   60291  =    8224
+POLYSYN.PAT         60759  -   60759  =       0
+SAWWAVE.PAT         54485  -   54485  =       0
+SQRWAVE.PAT         41709  -   30439  =   11270
+STARTRAK.PAT        55085  -   55085  =       0
+SWEEPER.PAT         62745  -   62745  =       0
+Í===============================================================
+ TOTAL   14        659294  -  808612  = -149318
+
+
+--=Ethnic and Percussive=--
+
+AGOGO.PAT           17537  -   27727  =  -10190
+KOTO.PAT            41983  -   42079  =     -96
+STEELDRM.PAT        27387  -   24229  =    3158         [new/chg]
+SYNTOM.PAT          52837  -   61331  =   -8494
+TAIKO.PAT           34135  -   37671  =   -3536
+TOMS.PAT            13445  -   13467  =     -22
+WOODBLK.PAT          8719  -    7685  =    1034
+Í===============================================================
+ TOTAL    7        196043  -  214189  =  -18146
+
+
+--=Sound Effects=--
+
+FX-FRET.PAT          9833  -   27631  =  -17798
+HELICPTR.PAT        32977  -   50327  =  -17350
+JUNGLE.PAT          13136  -   27541  =  -14405
+PISTOL.PAT          31149  -   36595  =   -5446
+REVCYM.PAT          27391  -   27391  =       0
+TELEPHON.PAT         4987  -    9157  =   -4170
+Í===============================================================
+ TOTAL    6        119473  -  178642  =  -59169
+
+
+--=Drums=--
+
+AGOGOHI.PAT          7249  -    7283  =     -34
+AGOGOLO.PAT          7523  -    7283  =     240
+BELLTREE.PAT        64103  -   64103  =       0
+BONGOHI.PAT          8433  -    7233  =    1200
+BONGOLO.PAT          9649  -    9201  =     448
+CABASA.PAT           3399  -   17203  =  -13804
+CASTINET.PAT         9841  -   12349  =   -2508
+CLAPS.PAT           16593  -   11719  =    4874
+CLAVE.PAT            4923  -    5035  =    -112
+CONGAHI1.PAT         5185  -    8753  =   -3568
+CONGAHI2.PAT        10319  -    9713  =     606
+CONGALO.PAT         10257  -    9713  =     544
+COWBELL.PAT          5667  -    6645  =    -978
+CUICA1.PAT          16867  -   18995  =   -2128
+CUICA2.PAT          22721  -   26017  =   -3296
+CYMBELL.PAT         34815  -   34815  =       0         [new]
+CYMCHINA.PAT        44511  -   48545  =   -4034
+CYMCRSH1.PAT        59501  -   63353  =   -3852
+CYMCRSH2.PAT        46599  -   62411  =  -15812
+CYMRIDE1.PAT        43345  -   35655  =    7690
+CYMRIDE2.PAT        16055  -   35655  =  -19600
+CYMSPLSH.PAT        36913  -   63353  =  -26440
+GUIRO1.PAT           4285  -    8561  =   -4276
+GUIRO2.PAT          19061  -   18821  =     240
+HIGHQ.PAT            7217  -    3945  =    3272         [new]
+HIHATCL.PAT         10545  -    9453  =    1092
+HIHATOP.PAT         24017  -   40417  =  -16400
+HIHATPD.PAT          5357  -    3925  =    1432
+JINGLES.PAT         36865  -   34219  =    2646
+KICK1.PAT           16175  -    9411  =    6764
+KICK2.PAT            8097  -   10377  =   -2280
+MARACAS.PAT         10131  -    9433  =     698
+METBELL.PAT           539  -     539  =       0         [new]
+METCLICK.PAT         3723  -     539  =    3184
+SCRATCH1.PAT         8449  -    9091  =    -642
+SCRATCH2.PAT         7913  -    4883  =    3030
+SHAKER.PAT           3629  -    6527  =   -2898
+SLAP.PAT            11889  -   12031  =    -142
+SNARE1.PAT          27495  -   17417  =   10078
+SNARE2.PAT          17425  -    8503  =    8922
+SQRCLICK.PAT          539  -     539  =       0         [new]
+STICKRIM.PAT         5853  -    6005  =    -152
+STICKS.PAT           6497  -    8757  =   -2260
+SURDO1.PAT          18321  -   19527  =   -1206
+SURDO2.PAT          19495  -   19527  =     -32
+TAMBORIN.PAT        15103  -   18219  =   -3116
+TIMBALEH.PAT        16369  -   10839  =    5530
+TIMBALEL.PAT        18443  -   19787  =   -1344
+TOMHI1.PAT          17383  -   13467  =    3916
+TOMHI2.PAT          21107  -   13455  =    7652
+TOMLO1.PAT          24873  -   13455  =   11418
+TOMLO2.PAT          33179  -   19527  =   13652
+TOMMID1.PAT         23929  -   13455  =   10474
+TOMMID2.PAT         29131  -   13455  =   15676
+TRIANGL1.PAT         6215  -    4781  =    1434
+TRIANGL2.PAT        29373  -   31901  =   -2528
+VIBSLAP.PAT         18641  -   19247  =    -606
+WHISTLE1.PAT         4391  -    4315  =      76
+WHISTLE2.PAT         3165  -    2173  =     992
+WOODBLK1.PAT         8831  -    5035  =    3796
+WOODBLK2.PAT         5307  -    7685  =   -2378
+===============================================================
+ TOTAL   61       1033425  - 1038275  =   -4850
+
+---------------------------------------------------------------
+ TOTAL  160       4227726  - 4351962  = -124236
+
+ 
+
+
+
+
+                           ***END OF FILE***

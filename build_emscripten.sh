@@ -143,7 +143,7 @@ cmake --build . -t $TARGETS
 "$(dirname $(which emcc))"/tools/file_packager.py zc.data \
   --no-node \
   --preload "../../output/_auto/buildpack@/" \
-  --preload "../../freepats/freepats.cfg@/etc/timidity/freepats.cfg" \
+  --preload "../../timidity/zc.cfg@/etc/timidity/timidity.cfg" \
   --use-preload-cache \
   --js-output=zc.data.js
 
@@ -177,7 +177,7 @@ if [ -f zquest.html ]; then
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
 fi
 
-cp -r ../../freepats .
+cp -r ../../timidity .
 
 # Now start a local webserver in the build_emscripten folder:
 #   npx statikk --port 8000 --coi

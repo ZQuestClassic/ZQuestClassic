@@ -1,0 +1,383 @@
+
+        *****************************************************
+        *               ฎPro Patches Lite v1.60ฏ            *
+        *          by Eero Rsnen (Email: cseera@uta.fi)   *
+        *****************************************************
+
+
+NOTE: THE NAME OF VERSIONS 1.00 AND v1.10 OF THIS PACKAGE WAS "ProPats Lite".
+      I HAD TO CHANGE IT BECAUSE IT GOT CONFUSED WITH TOM ROSCOE'S
+      "ProPats" PATCH SET. SO, NOW IT IS CALLED "Pro Patches Lite".
+                                                        ====
+
+------------------------------------------------------------------------------
+
+
+What is it ?
+============
+
+   Pro Patches Lite is an another upgrade for GUS patch set.  It has 248
+   replacements for UltraSound patch set. Many of the patches are smaller
+   versions of the large ones also available through the internet
+   (french horn,brass section, pianos, flutes, basses and many more ... ).
+   This one really sounds GOOD !!! Pro Patches Lite also includes handy
+   "patmenu" program to manage custom patch sets ( like in ProPats III
+   package, only a lot better ! ). Different versions for DOS and Windows.
+
+
+   Version 1.60 provides: Adds 7 GS compatible drum kits to PPLT !
+                          Fully automated installation program (install.exe) !
+                          A few new patches and some bug fixes.
+                          
+
+
+   INSTALLATION: READ THE "INSTALLATION" SECTION IN THIS FILE AND PROCEED
+                 WITH THE INSTRUCTIONS.
+
+
+------------------------------------------------------------------------------
+
+
+Some sources for the patches:
+=============================
+
+       ftp: src.doc.ic.ac.uk/pub/packages/ultrasound/sound/patches/files
+            archive.epas.utoronto.ca/pub/pc/ultrasound/submit
+            bach.nevada.edu/k2000/sounds
+            ftp.uwp.edu/pub/music/lists/kurzweil/sounds
+            ...at least these...
+            
+  packages: Pro Patches I, II and III
+            GusPro
+            Maxpats
+            }gm_set
+            GusPerc
+            Roland*.zip files
+            Proteus*.zip files
+
+    synths: Roland SCC-1
+            TB Multisound Proteus 1/XR
+            EPS 16+
+            Kurzweil K2000
+            Yamaha TX16W
+            EMU Emax
+            Kawai XD5 drum machine
+            Roland TR-x0x drum machines
+            Akai XR-10 drum machime           
+            ...Could be also some other...
+
+    All patches are edited by me...
+
+
+------------------------------------------------------------------------------
+
+
+Requirements
+============
+
+        * A GUS/MAX/ACE with 1 MB of memory. Well, it could work also with
+          512 KB. At least with patch cacheing applications.
+        * Your original patches must be in the "midi" directory under your
+          ultrasound directory.
+
+
+------------------------------------------------------------------------------
+
+
+Features
+========
+
+        * 248 better sounding patches. About 80% of the whole patch set.
+          Includes: 100 melodic patches of all cathegories and almost all drum
+                   patches ( 148 ) with 7 additional GS compatible drum banks.
+        * THE SIZE OF THE PATCH SET IS 120 KB SMALLER THAN THE ORIGINAL !!!
+        * Easy-to-use "Patmenu" program for managing the patch set.
+        * Won't overwrite any of the original patches. Makes backups.
+          If there is a reason to use the original patches, it can be done
+          without touching installation disks.        
+        * Mega-Em 2.xx compatible - no warnings at all when loading patches.
+        * Includes a rebuilded 1MB patch set for Mega-Em 3.06b and later..
+          Also has a special mode for building Mega-Em 3.04b patch set.
+          This mode only works with 1024 kB bank.
+        * With "loadpats" from 32 bit AIL drivers, GUS can load 82 patches
+          with Pro Patches Lite.
+          ( With original patches GUS can load 83 patches. Not much more... )
+        * Works with Ultramid's "preload patch set" feature.
+
+
+------------------------------------------------------------------------------
+
+
+What's new ?
+============
+
+   This info is moved to file "whatsnew.txt".
+
+
+------------------------------------------------------------------------------
+
+
+Disclaimer
+==========
+
+   This package is provided AS IS without any warranty, expressed or
+   implied, including but not limited to fitness for a particular use.
+
+
+------------------------------------------------------------------------------
+
+
+Installation
+============
+
+
+   NOTE: DON'T JUST UNCOMPRESS THE FILES UNDER YOUR \ULTRASND\MIDI DIRECTORY !
+         =====
+         IT WON'T WORK !!! YOU MUST READ THESE INSTRUCTIONS !!!
+                               ====
+
+
+   1. Uncompress the pplt_*.a* files to some other directory.
+      Remember this is the directory where the patches really are going
+      to be in ! So DO NOT uncompress the files into some temporary directory.
+
+      For example: md c:\patches
+                   cd c:\patches
+                   arj x -y -v c:\pplt_*.arj
+   
+   2. Make sure you are in the directory you just created.
+
+   3. Type "Install" and press enter. Press key "y" when the program
+      asks whether to continue installation or exit to dos.
+
+   4. Try to play some midi files.
+
+   5. Be amazed.
+
+
+   If you had some problems during the installation process, read
+   the next section.
+
+------------------------------------------------------------------------------
+
+
+Manual Installation
+===================
+
+  ***************************************************************
+  * IN CASE THE FANCY INSTALLATION PROGRAM DON'T WORK FOR YOU ! *
+  ***************************************************************
+
+
+   1. Uncompress the pplt_*.a* files to some directory.
+      For example: md c:\patches
+                   cd c:\patches
+                   arj x -y -v c:\pplt_*.arj
+
+(!)2. Make an environment variable called "propats" to point to the directory
+      you just created. To do this put a line "set propats=<directory>" in
+      your "c:\autoexec.bat" file. It could be the first line in the
+      autoexec.bat file. In this case the autoexec.bat would look like this
+      (the essential line is marked with an arrow) :
+
+   ออออออออออออออออออออออ Autoexec.bat อออออออออออออออออออออออออออออออออ
+      @REM ===== Gravis initialization =====
+       .
+       .
+       .
+      @REM ===== Gravis initialization ends =====
+      @echo off
+ ->   SET PROPATS=C:\PATCHES
+      path C:\windows;C:\dos;c:\bat;....etc...
+      goto %config%                                                     
+       .                                                                
+       .                                                                
+       .
+   อออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออ
+
+   3. Boot your machine to update environment variables.
+
+   4. Go to the directory you recently created and enter a command
+      "PATMENU\PATMENU.EXE S". This should start a process
+      for copying the new patches and backuping the old ones.
+
+   5. Copy the *.pat files from the XXXXdrum directories to your
+      \ultrasnd\midi directory.
+
+
+   That's it...
+
+
+------------------------------------------------------------------------------
+
+
+Using Pro Patches Lite (READ!!)
+===============================
+
+
+   Important Notes
+   --------------
+   
+     - I have nothing to do with any other patch sets available !!!
+       The name of this package is "Pro Patches Lite"  , not "ProPats"
+       nor "Pro Patches". 
+       I must admit that the names are quite alike, but I hope this note and
+       the change in the name corrects the mistake.
+
+     - If you have 512 GUS, you'll have at least problems with MegaEm 2.xx
+       and Games that preload the patch set. I have noticed that many PPLT
+       patches just can't be loaded as 8-bit 22KHz and this is what 512 KB
+       GUS often does !
+
+
+   Patmenu
+   -------
+
+     - You can copy the Patmenu.exe file to some other directory, as long
+       as the .ini files stay in the "patmenu" directory. A good place
+       is some directory in your path.
+
+     - Before playing games you can enter a command "patmenu p". This reduces
+       the size of the patch set. After playing, you must enter
+       command "patmenu s" to use all the Pro Patches Lite patches again.
+       Note that you don't have to do this for every game ! Do it only when
+       you feel that some of the instruments are missing in the game musics.
+       Especially games that have different music in every level need this
+       mode. For example, a batch file for DOOM would look like this:
+       ----------------------------------
+         @echo off
+         c:\patches\patmenu\patmenu p
+         doom.exe
+         c:\patches\patmenu\patmenu s
+       ----------------------------------
+
+     - When started the first time Patmenu creates a directory called "backup"
+       under your \ultrasnd\midi directory. Patmenu uses this directory to
+       backup the original patches which are replaced by PPLT patches.
+       DON'T EVER remove this directory !!!
+
+     - Read the "patmenu.txt" for more information about the Patmenu program.
+
+   Load1024.mid file
+   -----------------
+
+     - If you need to preload midi patches with this file, do it with
+       the "PPLT: Standard Drum Kit".
+
+
+   Ultramid
+   --------
+
+     - How to use Pro Patches Lite with ultramid and "-c" parameter:
+        * Copy "ppatlite.ini" file to your "\ultrasnd\midi" directory
+        * Before loading ultramid enter command "patmenu p".
+        * Enter command "Ultramid -nppatlite.ini -c".
+       If you get error "Error loading patch", try again.
+
+
+   Megaem 3.xx
+   -----------
+
+     - How to use Pro Patches Lite with MegaEm 3.xx :
+
+        *  If you have version 3.06b or later just copy the "large.bnk" file
+           to the same directory with MegaEm. No renaming needed.
+
+        *  If you have version 3.04b or earlier copy the "large.bnk" file
+           from your Pro Patches Lite directory to your Ultrasound
+           directory and rename it to "1024.bnk".
+
+
+     - If you're having problems, when using PPLT bank file with MegaEm 3.xx
+       (i.e. lock ups), try rebuilding the bank file with megaem 3.04b
+       or ealier. Here is the procedure:
+        *  First, delete the old MEGAEM 3 patch set (if exists) in your
+           ultrasound directory ( file 1024.bnk ).
+        *  Second, enter command "patmenu q".
+        *  Then load megaem 3.xx - it should now build a new patch set.
+        *  Enter command "patmenu s" to reinstall all of the Pro Patches Lite
+           patches.
+
+
+   MegaEm 2.xx
+   -----------
+
+     - The original GUS tom drums must have some unknown magic in them,
+       because PPLT toms can't be heard with MegaEm 2.xx emulation.
+       So, use the "MegaEm Compability mode" also with MegaEm 2.xx. That
+       should fix the problem.
+
+
+   GS Drum kits
+   ------------
+
+      - Pro Patches Lite v1.6 and later provides 7 additional GS drum banks.
+
+      - In windows these banks are used automatically if the midi
+        player/sequencer program supports GS bank changes and the midi files
+        uses one of the following drum kits:
+
+        Room kit (8),  Power kit (16), Electronic kit (24), 808 kit (25),
+        Jazz kit (32), Brush kit (40), Orchestral kit (48)
+
+      - If a midi file don't use one of these banks or the midi player
+        program does not care about the drum bank changes you can still
+        change the the drum bank with PatchManager. At least media player
+        in Windows 95 doesn't seem to care about the drum bank changes :( ...
+
+      - If you are going to use GS drum banks in your own compositions, you
+        must remember that PatchManager "lies" the numbers of the GS drum
+        banks one higher than the actually are. For example, the bank number
+        of Power kit is stated to be "17" in PatchManager and a midi file
+        should use bank number "16" to play with the Power drums.
+
+      - In dos, at least Playmidi does not care about the drum bank changes.
+        In dos, you can change the drum bank with Patmenu. With Patmenu you
+        can set one of the GS drum banks to be the standard drum bank. This
+        means you'll hear the GS drum bank everywhere where drums are played.
+        So, you'll have to use the Patmenu again when you want the standard
+        drum bank back...
+        
+
+------------------------------------------------------------------------------
+
+
+Future plans
+============
+
+   -Making the patch set even better.
+
+   -Developing Patmenu.
+
+   -.INI editor included in the Patmenu for Windows.
+
+
+------------------------------------------------------------------------------
+
+
+The end
+=======
+
+   This package is free sofware. It means that you can use the patches for
+   whatever purposes you want to.
+
+   If you have something to ask, comment or suggest my E-mail address
+   is "cseera@uta.fi". I really would like to know your opinion about this
+   patch set.
+
+   Especially, if you have some patches/wavs or whatever sounds,
+   better than ones in PPLT, I would appreciate if you e-mailed them to me
+   or pointed where I can find them. Don't mind about size of the patches,
+   many big patches sound still good when they are squeezed smaller.
+   Especially patches which are used with professional synths are often
+   unnecessarily big and can easily be edited smaller.
+
+   And thanks to everyone who already have done that ! Keep the mail coming.
+
+   If you have only 512kB GUS, this package would make the 1 MB upgrade to
+   be a profitable investement !
+
+
+                        *  * *** HAVE FUN !!! *** *  *
+
+                                    E-)
