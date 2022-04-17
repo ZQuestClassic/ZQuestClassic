@@ -171,8 +171,18 @@ void zcmusic_unload_file(ZCMUSIC *&zcm)
   free(zcm);
   zcm = NULL;
 }
-int32_t zcmusic_get_tracks(ZCMUSIC *zcm) { return 0; }
-int32_t zcmusic_change_track(ZCMUSIC *zcm, int32_t tracknum) { return 0; }
+int32_t zcmusic_get_tracks(ZCMUSIC *zcm) {
+  if (zcm == NULL)
+    return 0;
+
+  int result = Mix_GetNumTracks(zcm->mus);
+  if (result == -1) return 0;
+  return result;
+}
+int32_t zcmusic_change_track(ZCMUSIC *zcm, int32_t tracknum) {
+  Mix_StartTrack(tracknum);
+  return 0;
+}
 int32_t zcmusic_get_curpos(ZCMUSIC *zcm) { return 0; }
 void zcmusic_set_curpos(ZCMUSIC *zcm, int32_t value) {}
 void zcmusic_set_speed(ZCMUSIC *zcm, int32_t value) {}
