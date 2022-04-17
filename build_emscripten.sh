@@ -71,7 +71,8 @@ LINKER_FLAGS=(
   -s FULL_ES2=1
   -s SDL2_MIXER_FORMATS="['mid','ogg','mp3']"
   -s LLD_REPORT_UNDEFINED
-  -s INITIAL_MEMORY=4229300224
+  -s INITIAL_MEMORY=200MB
+  -s ALLOW_MEMORY_GROWTH=1
   -s PTHREAD_POOL_SIZE=15
   # Necessary to avoid a deadlock. Bisected to here:
   # https://chromium.googlesource.com/external/github.com/emscripten-core/emscripten.git/+log/1a0b77c572ad..c48f73a5c763
