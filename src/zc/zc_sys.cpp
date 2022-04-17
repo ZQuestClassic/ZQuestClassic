@@ -814,6 +814,13 @@ void null_quest()
 	char qstdat_string[2048];
 	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
+
+#ifdef __EMSCRIPTEN__
+    // The quest template data file is not included because it's really big and isn't really needed
+    // for the player, except to initialize some graphics. Those same graphics exist in this quest file,
+    // which is much smaller.
+    strcpy(qstdat_string, "modules/classic/title_gfx.dat");
+#endif
 	
 	byte skip_flags[4] = { 0 };
 	
