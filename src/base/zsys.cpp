@@ -652,7 +652,7 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
     int16_t c1 = 0, c2 = 0, check1, check2;
 
 #ifdef __EMSCRIPTEN__
-    if (strncmp("/_quests/", srcfile, strlen("/_quests/")) == 0)
+    if (em_is_lazy_file(srcfile))
     {
         em_fetch_file(srcfile);
     }

@@ -21,6 +21,7 @@ rm -rf buildpack/headers/ghost_zh/3.0/demo buildpack/headers/GUITest.qst
 rm -rf "buildpack/scripts/stdWeapons/example scripts"
 rm buildpack/changelog.txt
 rm buildpack/music/Isabelle_Z2.nsf
+rm buildpack/zc.cfg && mv buildpack/zc_web.cfg buildpack/zc.cfg
 find buildpack -name "*.dll" -type f -delete
 find buildpack -name "*.so" -type f -delete
 find buildpack -name "*.exe" -type f -delete
@@ -28,6 +29,21 @@ find buildpack -name "*.rtf" -type f -delete
 find buildpack -name "*.pdf" -type f -delete
 find buildpack -name "*.so" -type f -delete
 find buildpack -name "*.zip" -type f -delete
+
+LAZY_LOAD=(
+  tilesets/classic.qst
+  modules/classic/classic_1st.qst
+  modules/classic/classic_2nd.qst
+  modules/classic/classic_3rd.qst
+  modules/classic/classic_4th.qst
+  modules/classic/classic_5th.qst
+)
+mkdir -p buildpack_lazy
+for f in ${LAZY_LOAD[@]}; do
+  dir=$(dirname $f)
+  mkdir -p "buildpack_lazy/$dir"
+  mv "buildpack/$f" "buildpack_lazy/$dir"
+done
 
 rm -rf buildpack_zq
 mkdir -p buildpack_zq
@@ -154,16 +170,26 @@ function fix_hash {
 fix_hash zc.data zc.data.js
 fix_hash zq.data zq.data.js
 
+function set_files {
+  R=$(jq --compact-output --null-input '$ARGS.positional' --args "${LAZY_LOAD[@]}")
+  sed -i -e "s|files: \[\]|files: $R|" $1
+}
+
 if [ -f zelda.html ]; then
   sed -i -e 's/__TARGET__/zelda/' zelda.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
+  set_files zelda.html
 fi
 if [ -f zquest.html ]; then
   sed -i -e 's/__TARGET__/zquest/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
+  set_files zquest.html
 fi
 
 cp -r ../../timidity .
+
+rm -rf files
+mv ../../output/_auto/buildpack_lazy files
 
 # Now start a local webserver in the build_emscripten folder:
 #   npx statikk --port 8000 --coi
