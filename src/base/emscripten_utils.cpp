@@ -13,7 +13,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
     FS.writeFile(path, '');
     // UHHHH why does this result in an error during linking (acorn parse error) ???
     // window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;
-    window.ZC.pathToUrl[path] = 'https://hoten.cc/quest-maker/play/' + url;
+    window.ZC.pathToUrl[path] = url;
   }
 
   for (let i = 0; i < quests.length; i++) {
@@ -22,10 +22,15 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
 
     const url = quest.urls[0];
     const path = window.ZC.createPathFromUrl(url);
-    writeFakeFile(path, url);
+    writeFakeFile(path, 'https://hoten.cc/quest-maker/play/' + url);
     for (const extraResourceUrl of quest.extraResources || []) {
-      writeFakeFile(window.ZC.createPathFromUrl(extraResourceUrl), extraResourceUrl);
+      writeFakeFile(window.ZC.createPathFromUrl(extraResourceUrl), 'https://hoten.cc/quest-maker/play/' + extraResourceUrl);
     }
+  }
+
+  for (const file of window.ZC_Constants.files) {
+    ZC.ensureFolderExists(file);
+    writeFakeFile(file, 'files' + file);
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
@@ -67,6 +72,16 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
 });
 void em_fetch_file(const char *path) {
   em_fetch_file_(path);
+}
+
+bool em_is_lazy_file(const char *path) {
+  if (strncmp("/_quests/", path, strlen("/_quests/")) == 0) {
+    return true;
+  }
+
+  return EM_ASM_INT({
+    return ZC_Constants.files.includes(UTF8ToString($0));
+  }, path);
 }
 
 EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {

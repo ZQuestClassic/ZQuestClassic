@@ -12,6 +12,7 @@ struct QueryParams
 void em_init_fs();
 void em_sync_fs();
 void em_fetch_file(const char *path);
+bool em_is_lazy_file(const char *path);
 QueryParams get_query_params();
 void em_mark_initializing_status();
 void em_mark_ready_status();
