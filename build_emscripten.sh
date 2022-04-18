@@ -129,7 +129,7 @@ cmake --build . -t $TARGETS
 "$(dirname $(which emcc))"/tools/file_packager.py zc.data \
   --no-node \
   --preload "../../output/_auto/buildpack@/" \
-  --preload "../../timidity/zc.cfg@/etc/timidity/timidity.cfg" \
+  --preload "../../timidity/zc.cfg@/etc/timidity.cfg" \
   --use-preload-cache \
   --js-output=zc.data.js
 
