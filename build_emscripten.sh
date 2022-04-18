@@ -32,11 +32,6 @@ find buildpack -name "*.zip" -type f -delete
 
 LAZY_LOAD=(
   tilesets/classic.qst
-  modules/classic/classic_1st.qst
-  modules/classic/classic_2nd.qst
-  modules/classic/classic_3rd.qst
-  modules/classic/classic_4th.qst
-  modules/classic/classic_5th.qst
 )
 mkdir -p buildpack_lazy
 for f in ${LAZY_LOAD[@]}; do
