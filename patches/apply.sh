@@ -60,10 +60,10 @@ fi
 
 # Manually delete libraries from Emscripten cache to force a rebuild.
 rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a
-rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid-mp3-ogg.a
+rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid-mod-mp3-ogg.a
 # This would work except you can't clear port variants.
 # https://github.com/emscripten-core/emscripten/issues/16744
-# embuilder clear sdl2-mt sdl2_mixer_mid_mp3_ogg
+# embuilder clear sdl2-mt sdl2_mixer_mid_mod_mp3_ogg
 
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20" "$SCRIPT_DIR/sdl2.patch" $GIT_CLEAN
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-gme" "$SCRIPT_DIR/sdl2_mixer.patch" $GIT_CLEAN
