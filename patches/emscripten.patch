@@ -11,7 +11,7 @@ index cbbb15b..559d14c 100755
      'sdl2_image_png': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["png"]}),
      'sdl2_image_jpg': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["jpg"]}),
 diff --git a/tools/ports/sdl2_mixer.py b/tools/ports/sdl2_mixer.py
-index ea943ff..0c9dbab 100644
+index ea943ff..5754ca9 100644
 --- a/tools/ports/sdl2_mixer.py
 +++ b/tools/ports/sdl2_mixer.py
 @@ -7,8 +7,8 @@ import os
@@ -20,8 +20,8 @@ index ea943ff..0c9dbab 100644
  
 -TAG = 'release-2.0.2'
 -HASH = 'b9d03061d177f20f4e03f3e3553afd7bfe0c05da7b9a774312b389318e747cf9724e0475e9afff6a64ce31bab0217e2afb2619d75556753fbbb6ecafa9775219'
-+TAG = 'release-2.0.4'
-+HASH = '5ba387f997219a1deda868f380bf7ee8bc0842261dd54772ad2d560f5282fcbe7bc130e8d16dccc259eeb8cda993a0f34cd3be103fc38f8c6a68428a10e5db4c'
++TAG = 'gme'
++HASH = 'e3ee23a4f21c46ba7c8609d9a96ad772de377a246592c8ec28f031afd7ff55079a227151d070d92cb2ce59067016fb4556b2732b8af2ee398ebec7ac70b12c9e'
  
  deps = ['sdl2']
  
@@ -48,7 +48,7 @@ index ea943ff..0c9dbab 100644
 +def get(ports, settings, shared):
 +  sdl_build = os.path.join(ports.get_build_dir(), 'sdl2')
 +  assert os.path.exists(sdl_build), 'You must use SDL2 to use SDL2_mixer'
-+  ports.fetch_project('sdl2_mixer', 'https://github.com/libsdl-org/SDL_mixer/archive/' + TAG + '.zip', 'SDL2_mixer-' + TAG, sha512hash=HASH)
++  ports.fetch_project('sdl2_mixer', 'https://github.com/connorjclark/SDL_mixer/archive/refs/tags/' + TAG + '.zip', 'SDL2_mixer-' + TAG, sha512hash=HASH)
 +  libname = get_lib_name(settings)
 +
    def create(final):
@@ -59,7 +59,33 @@ index ea943ff..0c9dbab 100644
      dest_path = os.path.join(ports.get_build_dir(), 'sdl2_mixer')
  
      shutil.rmtree(dest_path, ignore_errors=True)
-@@ -90,7 +95,8 @@ def get(ports, settings, shared):
+@@ -68,10 +73,17 @@ def get(ports, settings, shared):
+         '-DMUSIC_MID_TIMIDITY',
+       ]
+ 
++    flags += [
++      '-DMUSIC_GME',
++    ]
++
+     ports.build_port(
+       dest_path,
+       final,
+-      includes=[],
++      includes=[
++        os.path.join(source_path, 'src'),
++        os.path.join(source_path, 'src/codecs'),
++      ],
+       flags=flags,
+       exclude_files=[
+         'playmus.c',
+@@ -84,13 +96,14 @@ def get(ports, settings, shared):
+     )
+ 
+     # copy header to a location so it can be used as 'SDL2/'
+-    ports.install_headers(source_path, pattern='SDL_*.h', target='SDL2')
++    ports.install_headers(source_path, pattern='include/SDL_*.h', target='SDL2')
+ 
+   return [shared.Cache.get_lib(libname, create, what='port')]
  
  
  def clear(ports, settings, shared):

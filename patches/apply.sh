@@ -51,7 +51,7 @@ then
   embuilder build sdl2
   embuilder clear sdl2
 fi
-if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-release-2.0.4" ]
+if [ ! -d "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-gme" ]
 then
   rm -rf "$EMCC_CACHE_DIR/ports/sdl2_mixer"
   embuilder build sdl2_mixer
@@ -66,7 +66,7 @@ rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid-mp3-ogg.a
 # embuilder clear sdl2-mt sdl2_mixer_mid_mp3_ogg
 
 apply_patch "$EMCC_CACHE_DIR/ports/sdl2/SDL-release-2.0.20" "$SCRIPT_DIR/sdl2.patch" $GIT_CLEAN
-apply_patch "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-release-2.0.4" "$SCRIPT_DIR/sdl2_mixer.patch" $GIT_CLEAN
+apply_patch "$EMCC_CACHE_DIR/ports/sdl2_mixer/SDL_mixer-gme" "$SCRIPT_DIR/sdl2_mixer.patch" $GIT_CLEAN
 apply_patch _deps/allegro5-src "$SCRIPT_DIR/allegro5.patch" $NO_GIT_CLEAN
 
 echo "Done applying patches!"
