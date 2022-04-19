@@ -22759,6 +22759,8 @@ void putmsg()
 	bool oldmargin = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0;
 	if(!msgorig) msgorig=msgstr;
 	
+	if(wait_advance && linkedmsgclk < 1)
+		linkedmsgclk = 1;
 	if(linkedmsgclk>0)
 	{
 		if(linkedmsgclk==1)
@@ -22766,10 +22768,10 @@ void putmsg()
 			if(do_end_str||cAbtn()||cBbtn())
 			{
 				do_end_str = false;
+				linkedmsgclk = 0;
 				if(wait_advance)
 				{
 					wait_advance = false;
-					linkedmsgclk = 0;
 				}
 				else
 				{
