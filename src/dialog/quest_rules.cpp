@@ -159,6 +159,9 @@ static const GUI::ListData comboRulesList
 	{ "Player Drowns in Walkable Water", qr_DROWN,
 		"When the Player steps in water without powerful enough flippers"
 		" to swim in it, they will drown." },
+	{ "Classic Respawn Points", qr_OLD_RESPAWN_POINTS,
+		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
+		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
 	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL, 
 		"Before scrolling the screen, checks the destination screen"
 		" and position to see if it's solid. If so, scrolling is cancelled."
@@ -689,9 +692,6 @@ static const GUI::ListData compatRulesList
 		" Enabling this will recreate this behavior."},
 	{ "Candle use limit is shared", qr_CANDLES_SHARED_LIMIT,
 		"Candle limited uses per screen is shared between candles" },
-	{ "Old Respawn Points", qr_OLD_RESPAWN_POINTS,
-		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
-		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
 	{ "Enemies with 'None' animation don't obey OriginalTile changes", qr_ANONE_NOANIM,
 		"Enemies with the 'None' animation style will not reset their displayed tile to"
 		" their 'OriginalTile' every frame if this is enabled." },
