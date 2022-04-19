@@ -17238,11 +17238,11 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATAEXITDIR: 		SET_MAPDATA_VAR_BYTE(exitdir, "ExitDir"); break;	//b
 		case MAPDATAENEMY: 
 		{ 
-			int32_t indx = (ri->d[rINDEX] / 10000)-1;
+			int32_t indx = (ri->d[rINDEX] / 10000);
 			int32_t enemyid = value/10000;
 			if( ((unsigned)indx) > 9 ) 
 			{ 
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx+1), "Enemy[]");
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), "Enemy[]");
 			} 
 			else if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
