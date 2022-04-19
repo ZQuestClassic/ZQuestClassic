@@ -7587,7 +7587,7 @@ int32_t onTryQuitMenu()
 
 int32_t onTryQuit(bool inMenu)
 {
-	if(Playing)
+	if(Playing && !(GameFlags & GAMEFLAG_NO_F6))
 	{
 		if(get_bit(quest_rules,qr_OLD_F6))
 		{

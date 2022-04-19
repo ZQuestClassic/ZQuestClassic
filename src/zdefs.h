@@ -4754,6 +4754,7 @@ struct zcmodule
 #define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02
 #define GAMEFLAG_F6SCRIPT_ACTIVE    0x04
 #define GAMEFLAG_RESET_GAME_LOOP    0x08
+#define GAMEFLAG_NO_F6              0x10
 
 #define DCLICK_START      0
 #define DCLICK_RELEASE    1

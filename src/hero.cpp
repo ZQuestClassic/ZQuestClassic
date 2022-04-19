@@ -8104,7 +8104,7 @@ bool HeroClass::animate(int32_t)
 					FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
 					FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
 					ALLOFF(true,true);
-					Playing = false; //Disallow F6
+					GameFlags |= GAMEFLAG_NO_F6;
 					if(!debug_enabled)
 					{
 						Paused=false;
@@ -8114,12 +8114,16 @@ bool HeroClass::animate(int32_t)
 						FFCore.runOnDeathEngine();
 						FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH);
 					}
+					Playing = false;
 					heroDeathAnimation();
 					if(get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
+						Playing = true;
 						FFCore.runOnDeathEngine();
 						FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH);
+						Playing = false;
 					}
+					GameFlags &= ~GAMEFLAG_NO_F6;
 					ALLOFF(true,true);
 					return true;
 				}
