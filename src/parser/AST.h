@@ -607,19 +607,25 @@ namespace ZScript
 	class ASTStmtBreak : public ASTStmt
 	{
 	public:
-		ASTStmtBreak(LocationData const& location = LOC_NONE);
+		ASTStmtBreak(ASTNumberLiteral* val = NULL, LocationData const& location = LOC_NONE);
 		ASTStmtBreak* clone() const {return new ASTStmtBreak(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		size_t breakCount;
+		owning_ptr<ASTNumberLiteral> count;
 	};
 
 	class ASTStmtContinue : public ASTStmt
 	{
 	public:
-		ASTStmtContinue(LocationData const& location = LOC_NONE);
+		ASTStmtContinue(ASTNumberLiteral* val = NULL, LocationData const& location = LOC_NONE);
 		ASTStmtContinue* clone() const {return new ASTStmtContinue(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		size_t contCount;
+		owning_ptr<ASTNumberLiteral> count;
 	};
 
 	class ASTStmtEmpty : public ASTStmt

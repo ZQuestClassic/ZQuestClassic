@@ -295,6 +295,46 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 	checkCast(*host.value->getReadType(scope, this), *returnType, &host);
 }
 
+void SemanticAnalyzer::caseStmtBreak(ASTStmtBreak& host, void*)
+{
+    RecursiveVisitor::caseStmtBreak(host);
+    if (breakRecursion(host)) return;
+
+	if(host.count.get())
+	{
+		if(optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
+		{
+			int32_t val = *v;
+			if(val < 0)
+			{
+				handleError(CompileError::BreakBadCount(&host, val));
+				val = 10000;
+			}
+			host.breakCount = size_t(val/10000);
+		}
+	}
+}
+
+void SemanticAnalyzer::caseStmtContinue(ASTStmtContinue &host, void *)
+{
+    RecursiveVisitor::caseStmtContinue(host);
+    if (breakRecursion(host)) return;
+
+	if(host.count.get())
+	{
+		if(optional<int32_t> v = host.count->getCompileTimeValue(this, scope))
+		{
+			int32_t val = *v;
+			if(val < 0)
+			{
+				handleError(CompileError::BreakBadCount(&host, val));
+				val = 10000;
+			}
+			host.contCount = size_t(val/10000);
+		}
+	}
+}
+
 // Declarations
 
 void SemanticAnalyzer::caseDataTypeDef(ASTDataTypeDef& host, void*)

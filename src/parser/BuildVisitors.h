@@ -108,10 +108,10 @@ namespace ZScript
 		std::vector<std::shared_ptr<Opcode>> result;
 		int32_t returnlabelid;
 		int32_t returnRefCount;
-		int32_t continuelabelid;
-		int32_t continueRefCount;
-		int32_t breaklabelid;
-		int32_t breakRefCount;
+		std::vector<int32_t> continuelabelids;
+		std::vector<int32_t> continueRefCounts;
+		std::vector<int32_t> breaklabelids;
+		std::vector<int32_t> breakRefCounts;
 		std::list<int32_t> arrayRefs;
 		// Stack of opcode targets. Only the latest is used.
 		std::vector<std::vector<std::shared_ptr<Opcode>>*> opcodeTargets;

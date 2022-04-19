@@ -28,6 +28,8 @@ namespace ZScript
 		void caseStmtWhile(ASTStmtWhile& host, void* = NULL);
 		void caseStmtReturn(ASTStmtReturn& host, void* = NULL);
 		void caseStmtReturnVal(ASTStmtReturnVal& host, void* = NULL);
+		void caseStmtBreak(ASTStmtBreak &host, void* = NULL);
+		void caseStmtContinue(ASTStmtContinue &host, void* = NULL);
 		// Declarations
 		void caseDataTypeDef(ASTDataTypeDef& host, void* = NULL);
 		void caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void* = NULL);

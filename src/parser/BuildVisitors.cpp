@@ -19,8 +19,8 @@ using std::shared_ptr;
 // BuildOpcodes
 
 BuildOpcodes::BuildOpcodes(Scope* curScope)
-	: returnlabelid(-1), continuelabelid(-1), breaklabelid(-1), 
-	  returnRefCount(0), continueRefCount(0), breakRefCount(0)
+	: returnlabelid(-1), continuelabelids(), breaklabelids(), 
+	  returnRefCount(0), continueRefCounts(), breakRefCounts()
 {
 	opcodeTargets.push_back(&result);
 	scope = curScope;
@@ -363,10 +363,8 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	int32_t default_label = end_label;
 
 	// save and override break label.
-	int32_t old_break_label = breaklabelid;
-	int32_t oldBreakRefCount = breakRefCount;
-	breaklabelid = end_label;
-	breakRefCount = arrayRefs.size();
+    breaklabelids.push_back(end_label);
+	breakRefCounts.push_back(arrayRefs.size());
 
 	// Evaluate the key.
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -482,8 +480,8 @@ void BuildOpcodes::caseStmtSwitch(ASTStmtSwitch &host, void* param)
 	addOpcode2(result, next);
 
 	// Restore break label.
-	breaklabelid = old_break_label;
-	breakRefCount = oldBreakRefCount;
+    breaklabelids.pop_back();
+    breakRefCounts.pop_back();
 }
 
 void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
@@ -495,10 +493,8 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 	int32_t default_label = end_label;
 
 	// save and override break label.
-	int32_t old_break_label = breaklabelid;
-	int32_t oldBreakRefCount = breakRefCount;
-	breaklabelid = end_label;
-	breakRefCount = arrayRefs.size();
+    breaklabelids.push_back(end_label);
+	breakRefCounts.push_back(arrayRefs.size());
 
 	// Evaluate the key.
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -583,8 +579,8 @@ void BuildOpcodes::caseStmtStrSwitch(ASTStmtSwitch &host, void* param)
 	addOpcode2(result, next);
 
 	// Restore break label.
-	breaklabelid = old_break_label;
-	breakRefCount = oldBreakRefCount;
+    breaklabelids.pop_back();
+    breakRefCounts.pop_back();
 }
 
 void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
@@ -631,21 +627,17 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
     //run the loop body
     //save the old break and continue values
 
-    int32_t oldbreak = breaklabelid;
-	int32_t oldBreakRefCount = breakRefCount;
-    breaklabelid = loopend;
-	breakRefCount = arrayRefs.size();
-    int32_t oldcontinue = continuelabelid;
-	int32_t oldContinueRefCount = continueRefCount;
-    continuelabelid = loopincr;
-	continueRefCount = arrayRefs.size();
+    breaklabelids.push_back(loopend);
+	breakRefCounts.push_back(arrayRefs.size());
+    continuelabelids.push_back(loopincr);
+	continueRefCounts.push_back(arrayRefs.size());
 
 	visit(host.body.get(), param);
 
-    breaklabelid = oldbreak;
-    breakRefCount = oldBreakRefCount;
-    continuelabelid = oldcontinue;
-	continueRefCount = oldContinueRefCount;
+    breaklabelids.pop_back();
+    continuelabelids.pop_back();
+    breakRefCounts.pop_back();
+	continueRefCounts.pop_back();
 
     //run the increment
     //nop
@@ -700,21 +692,17 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
 	}
 
-    int32_t oldbreak = breaklabelid;
-	int32_t oldBreakRefCount = breakRefCount;
-    breaklabelid = endlabel;
-	breakRefCount = arrayRefs.size();
-    int32_t oldcontinue = continuelabelid;
-	int32_t oldContinueRefCount = continueRefCount;
-    continuelabelid = startlabel;
-	continueRefCount = arrayRefs.size();
+    breaklabelids.push_back(endlabel);
+	breakRefCounts.push_back(arrayRefs.size());
+    continuelabelids.push_back(startlabel);
+	continueRefCounts.push_back(arrayRefs.size());
 
 	visit(host.body.get(), param);
 
-    breaklabelid = oldbreak;
-	breakRefCount = oldBreakRefCount;
-    continuelabelid = oldcontinue;
-	continueRefCount = oldContinueRefCount;
+    breaklabelids.pop_back();
+    continuelabelids.pop_back();
+    breakRefCounts.pop_back();
+	continueRefCounts.pop_back();
 
     addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
     //nop to end while
@@ -733,21 +721,17 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
     start->setLabel(startlabel);
     addOpcode(start);
 
-    int32_t oldbreak = breaklabelid;
-	int32_t oldBreakRefCount = breakRefCount;
-    breaklabelid = endlabel;
-	breakRefCount = arrayRefs.size();
-    int32_t oldcontinue = continuelabelid;
-	int32_t oldContinueRefCount = continueRefCount;
-    continuelabelid = continuelabel;
-	continueRefCount = arrayRefs.size();
+    breaklabelids.push_back(endlabel);
+	breakRefCounts.push_back(arrayRefs.size());
+    continuelabelids.push_back(continuelabel);
+	continueRefCounts.push_back(arrayRefs.size());
 
 	visit(host.body.get(), param);
 
-    breaklabelid = oldbreak;
-    continuelabelid = oldcontinue;
-    breakRefCount = oldBreakRefCount;
-	continueRefCount = oldContinueRefCount;
+    breaklabelids.pop_back();
+    continuelabelids.pop_back();
+    breakRefCounts.pop_back();
+	continueRefCounts.pop_back();
 
     start = new OSetImmediate(new VarArgument(NUL), new LiteralArgument(0));
     start->setLabel(continuelabel);
@@ -790,26 +774,31 @@ void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 
 void BuildOpcodes::caseStmtBreak(ASTStmtBreak &host, void *)
 {
-    if (breaklabelid == -1)
+	if(!host.breakCount) return;
+    if (breaklabelids.size() < host.breakCount)
     {
-	    handleError(CompileError::BreakBad(&host));
+	    handleError(CompileError::BreakBad(&host,host.breakCount));
         return;
     }
-
-	deallocateRefsUntilCount(breakRefCount);
-    addOpcode(new OGotoImmediate(new LabelArgument(breaklabelid)));
+	int32_t refcount = breakRefCounts.at(breakRefCounts.size()-host.breakCount);
+	int32_t breaklabel = breaklabelids.at(breaklabelids.size()-host.breakCount);
+	deallocateRefsUntilCount(refcount);
+    addOpcode(new OGotoImmediate(new LabelArgument(breaklabel)));
 }
 
 void BuildOpcodes::caseStmtContinue(ASTStmtContinue &host, void *)
 {
-    if (continuelabelid == -1)
+	if(!host.contCount) return;
+    if (continuelabelids.size() < host.contCount)
     {
-	    handleError(CompileError::ContinueBad(&host));
+	    handleError(CompileError::ContinueBad(&host,host.contCount));
         return;
     }
 
-	deallocateRefsUntilCount(continueRefCount);
-    addOpcode(new OGotoImmediate(new LabelArgument(continuelabelid)));
+	int32_t refcount = continueRefCounts.at(continueRefCounts.size()-host.contCount);
+	int32_t contlabel = continuelabelids.at(continuelabelids.size()-host.contCount);
+	deallocateRefsUntilCount(refcount);
+    addOpcode(new OGotoImmediate(new LabelArgument(contlabel)));
 }
 
 void BuildOpcodes::caseStmtEmpty(ASTStmtEmpty &, void *)

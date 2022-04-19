@@ -928,8 +928,18 @@ Statement :
 	| Statement_Do {$$ = $1;}
 	| Statement_Repeat {$$ = $1;}
 	| Statement_Return SEMICOLON {$$ = $1;}
-	| BREAK SEMICOLON {$$ = new ASTStmtBreak(@$);}
-	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(@$);}
+	| BREAK SEMICOLON {$$ = new ASTStmtBreak(NULL, @$);}
+	| BREAK NUMBER SEMICOLON {
+		ASTFloat* val = (ASTFloat*)$2;
+		ASTNumberLiteral* lit = new ASTNumberLiteral(val, @$);
+		$$ = new ASTStmtBreak(lit, @$);
+	}
+	| CONTINUE SEMICOLON {$$ = new ASTStmtContinue(NULL, @$);}
+	| CONTINUE NUMBER SEMICOLON {
+		ASTFloat* val = (ASTFloat*)$2;
+		ASTNumberLiteral* lit = new ASTNumberLiteral(val, @$);
+		$$ = new ASTStmtContinue(lit, @$);
+	}
 	| SEMICOLON {$$ = new ASTStmtEmpty(@$);}
 	| Statement_CompileError SEMICOLON {$$ = $1;}
 	| Statement_Assert SEMICOLON {$$ = $1;}
@@ -949,8 +959,18 @@ Statement_NoSemicolon:
 	| Statement_While {$$ = $1;}
 	| Statement_Do {$$ = $1;}
 	| Statement_Return {$$ = $1;}
-	| BREAK {$$ = new ASTStmtBreak(@$);}
-	| CONTINUE {$$ = new ASTStmtContinue(@$);}
+	| BREAK {$$ = new ASTStmtBreak(NULL,@$);}
+	| BREAK NUMBER {
+		ASTFloat* val = (ASTFloat*)$2;
+		ASTNumberLiteral* lit = new ASTNumberLiteral(val, @$);
+		$$ = new ASTStmtBreak(lit, @$);
+	}
+	| CONTINUE {$$ = new ASTStmtContinue(NULL,@$);}
+	| CONTINUE NUMBER {
+		ASTFloat* val = (ASTFloat*)$2;
+		ASTNumberLiteral* lit = new ASTNumberLiteral(val, @$);
+		$$ = new ASTStmtContinue(lit, @$);
+	}
 	| {$$ = new ASTStmtEmpty(@$);}
 	| Statement_CompileError {$$ = $1;}
 	;

@@ -57,8 +57,8 @@ X(	ArrowNoVar,			T,	A,	E,	STR,	STR,	"There is no variable %s for the pointer (%s
 X(	TooManyRun,			S,	A,	E,	STR,	STR,	"Script %s has more than one %s() function."	     	     				)
 X(	IndexNotInt,			T,	D					       	    	     	   							)
 X(	ScriptBadType,			S,	A,	E,	STR,	VOID,	"Script %s is of an illegal type."							)
-X(	BreakBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"break;\" to do here."						)
-X(	ContinueBad,			G,	A,	E,	VOID,	VOID,	"There is nothing for \"continue;\" to do here."					)
+X(	BreakBad,			G,	A,	E,	INT,	VOID,	"There is nothing for \"break %d;\" to do here."						)
+X(	ContinueBad,			G,	A,	E,	INT,	VOID,	"There is nothing for \"continue %d;\" to do here."					)
 X(	ConstRedef,			S,	D				       	  	      		       	  						)
 X(	LValConst,			C,	A,	E,	STR,	VOID,	"Variable %s is constant and cannot be changed."					)
 X(	BadGlobalInit,			T,	D					     		     	       							)
@@ -111,6 +111,7 @@ X(	AssertFail,				C,	A,	E,	STR,	VOID,	"Assert Failed! %s"				)
 X(	CantOpenImport,			P,	A,	E,	STR,	VOID,	"Could not find included file '%s'. Please check your include paths!"			)
 X(  BadDefaultReturn,       S,  A,  E,  STR,    VOID,   "Function %s cannot have multiple differing default return values."	 					)
 X(	NoScopeFound,				P,	A,	E,	STR,	VOID,	"Scope '%s' was not found."				)
+X(	BreakBadCount,			G,	A,	W,	INT,	VOID,	"Value '%d' is invalid for 'break;'! Breaking '1' instead..."						)
 
 
 #undef STR

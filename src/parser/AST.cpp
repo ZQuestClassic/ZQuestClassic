@@ -632,8 +632,8 @@ void ASTStmtReturnVal::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtBreak
 
-ASTStmtBreak::ASTStmtBreak(LocationData const& location)
-	: ASTStmt(location)
+ASTStmtBreak::ASTStmtBreak(ASTNumberLiteral* val, LocationData const& location)
+	: ASTStmt(location), breakCount(1), count(val)
 {}
 
 void ASTStmtBreak::execute(ASTVisitor& visitor, void* param)
@@ -643,8 +643,8 @@ void ASTStmtBreak::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtContinue
 
-ASTStmtContinue::ASTStmtContinue(LocationData const& location)
-	: ASTStmt(location)
+ASTStmtContinue::ASTStmtContinue(ASTNumberLiteral* val, LocationData const& location)
+	: ASTStmt(location), contCount(1), count(val)
 {}
 
 void ASTStmtContinue::execute(ASTVisitor& visitor, void* param)

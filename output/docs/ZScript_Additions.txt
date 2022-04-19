@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 105
-Document Revision: 3rd April, 2022
+Document for: 2.55, Alpha 107
+Document Revision: 18th April, 2022
 
 
  __           _   _                 
@@ -1195,12 +1195,12 @@ of iterations is known at compile-time.
 			case 1:
 			{
 				DoSomething(); 
-				break
+				break;
 			}
 			case SOME_CONST:
 			{
 				DoSomethingElse();
-				break:
+				break;
 			}
 			case SOME_CONST+(10*2)
 			{
@@ -1211,6 +1211,42 @@ of iterations is known at compile-time.
 			{
 				DoDefault();
 				break;
+			}
+		}
+
+	--end example]
+	
+//////////////////////
+// Break - Continue //
+//////////////////////
+	
+	The 'break;' keyword will exit the current loop or switch statement it is inside.
+	As of 2.55, you can supply a number to break multiple loops at once:
+
+	[example-- 
+
+		for(int a = 0; a < 50; ++a)
+		{
+			for(int b = 0; b < 50; ++b)
+			{
+				if(b == 3)
+					break 2; //breaks out of BOTH loops
+			}
+		}
+
+	--end example]
+	
+	The 'continue;' keyword, rather than exiting a loop, skips back to the top of it.
+	'continue' ignores 'switch' statements, unlike 'break'.
+	
+	[example-- 
+
+		for(int a = 0; a < 50; ++a)
+		{
+			for(int b = 0; b < 50; ++b)
+			{
+				if(b == 3)
+					continue 2; //continues to the top of the 'a' loop
 			}
 		}
 
