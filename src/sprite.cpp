@@ -75,6 +75,7 @@ void sprite::alloc_scriptmem()
 sprite::sprite()
 {
     uid = getNextUID();
+	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
     txsz=1;
     tysz=1;
@@ -258,6 +259,7 @@ spr_spawn_anim_frm(other.spr_spawn_anim_frm)
 
 {
     uid = getNextUID();
+	isspawning = other.isspawning;
     
     for(int32_t i=0; i<10; ++i)
     {
@@ -530,16 +532,18 @@ int32_t sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fa
 		ispitbl = getpitfall(x,y+15);
 		ispitur = getpitfall(x+15,y);
 		ispitbr = getpitfall(x+15,y+15);
-		ispitul_50 = getpitfall(x+8,y+8);
-		ispitbl_50 = getpitfall(x+8,y+7);
-		ispitur_50 = getpitfall(x+7,y+8);
-		ispitbr_50 = getpitfall(x+7,y+7);
+		ispitul_50 = getpitfall(x+7,y+7);
+		ispitbl_50 = getpitfall(x+7,y+8);
+		ispitur_50 = getpitfall(x+8,y+7);
+		ispitbr_50 = getpitfall(x+8,y+8);
 		int32_t dir = -1;
-		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
+		size_t cnt = (ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0);
+		switch(cnt)
 		{
 			case 4:
 			{
 				fallclk = PITFALL_FALL_FRAMES; //Fall
+				has_fallen = true;
 				old_cset = cs;
 				return ispitul_50 ? ispitul_50 : ispitul;
 			}
@@ -690,7 +694,7 @@ int32_t sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fa
 		if(ispitur) return ispitur;
 		if(ispitbl) return ispitbl;
 		if(ispitbr) return ispitbr;
-		fall = old_fall; //sanity check
+		fallclk = old_fall; //sanity check
 	}
 	return 0;
 }
@@ -2031,8 +2035,6 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 	{
 		if(clk>=0)
 		{
-			//zprint2("shadow sx: %d, sy: %d\n", sx, sy);
-			//zprint2("enemy x: %d, y: %d\n", x.getInt(), y.getInt());
 			if(translucent)
 			{
 				overtiletranslucent16(dest,shadowtile,sx,sy,shadowcs,shadowflip,128);
