@@ -1,17 +1,100 @@
 diff --git a/embuilder.py b/embuilder.py
-index cbbb15b..559d14c 100755
+index cbbb15b..de7a5c3 100755
 --- a/embuilder.py
 +++ b/embuilder.py
 @@ -66,6 +66,7 @@ PORT_VARIANTS = {
      'sdl2-mt': ('sdl2', {'USE_PTHREADS': 1}),
      'icu-mt': ('icu', {'USE_PTHREADS': 1}),
      'sdl2_mixer_mp3': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["mp3"]}),
-+    'sdl2_mixer_mid_mp3_ogg': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["mid", "mp3", "ogg"]}),
++    'sdl2_mixer_gme_mid_mp3_ogg': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["gme", "mid", "mp3", "ogg"]}),
      'sdl2_mixer_none': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': []}),
      'sdl2_image_png': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["png"]}),
      'sdl2_image_jpg': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["jpg"]}),
+diff --git a/src/settings.js b/src/settings.js
+index 73ac974..2a2763c 100644
+--- a/src/settings.js
++++ b/src/settings.js
+@@ -1453,6 +1453,10 @@ var USE_COCOS2D = false;
+ // [link]
+ var USE_MODPLUG = false;
+ 
++// 1 = use libgme from emscripten-ports
++// [link]
++var USE_GME = false;
++
+ // Formats to support in SDL2_image. Valid values: bmp, gif, lbm, pcx, png, pnm, tga, xcf, xpm, xv
+ // [link]
+ var SDL2_IMAGE_FORMATS = [];
+diff --git a/tools/ports/gme.py b/tools/ports/gme.py
+new file mode 100644
+index 0000000..bc6c924
+--- /dev/null
++++ b/tools/ports/gme.py
+@@ -0,0 +1,62 @@
++# Copyright 2022 The Emscripten Authors.  All rights reserved.
++# Emscripten is available under two separate licenses, the MIT license and the
++# University of Illinois/NCSA Open Source License.  Both these licenses can be
++# found in the LICENSE file.
++
++import os
++import shutil
++import logging
++
++TAG = '0.6.3'
++HASH = '1d45e1c9702061add6fc6ccabe650806adb2487309518784aa1e510f4b4d913a7452141d89f1df06d5a79004c46d3d233eca8cea9e57722df6c6d8e06d0b9b91'
++
++
++def needed(settings):
++  return settings.USE_GME
++
++
++def get(ports, settings, shared):
++  source_dir = 'mpyne-game-music-emu-e76bdc0cb916'
++  ports.fetch_project('gme', 'https://bitbucket.org/mpyne/game-music-emu/get/' + TAG + '.zip', source_dir, sha512hash=HASH)
++
++  def create(final):
++    logging.info('building port: gme')
++
++    source_path = os.path.join(ports.get_dir(), 'gme', source_dir)
++    dest_path = os.path.join(ports.get_build_dir(), 'gme')
++
++    shutil.rmtree(dest_path, ignore_errors=True)
++    shutil.copytree(source_path, dest_path)
++
++    flags = [
++      '-O2',
++      '-DVGM_YM2612_GENS',
++      '-DBLARGG_BUILD_DLL',
++    ]
++
++    ports.build_port(
++      dest_path,
++      final,
++      includes=[
++        os.path.join(source_path, 'gme'),
++      ],
++      flags=flags,
++      exclude_files=[],
++      exclude_dirs=[]
++    )
++
++    ports.install_headers(source_path, pattern='gme/*.h', target='gme')
++
++  return [shared.Cache.get_lib('gme.a', create, what='port')]
++
++
++def clear(ports, settings, shared):
++  shared.Cache.erase_lib('gme.a')
++
++
++def process_args(ports):
++  return []
++
++
++def show():
++  return 'GME (USE_GME; GPL 2.1 license)'
 diff --git a/tools/ports/sdl2_mixer.py b/tools/ports/sdl2_mixer.py
-index ea943ff..5754ca9 100644
+index ea943ff..c3a134b 100644
 --- a/tools/ports/sdl2_mixer.py
 +++ b/tools/ports/sdl2_mixer.py
 @@ -7,8 +7,8 @@ import os
@@ -20,8 +103,8 @@ index ea943ff..5754ca9 100644
  
 -TAG = 'release-2.0.2'
 -HASH = 'b9d03061d177f20f4e03f3e3553afd7bfe0c05da7b9a774312b389318e747cf9724e0475e9afff6a64ce31bab0217e2afb2619d75556753fbbb6ecafa9775219'
-+TAG = 'gme'
-+HASH = 'e3ee23a4f21c46ba7c8609d9a96ad772de377a246592c8ec28f031afd7ff55079a227151d070d92cb2ce59067016fb4556b2732b8af2ee398ebec7ac70b12c9e'
++TAG = 'gme-2'
++HASH = 'eea871c9dc0e11607293f6ac6fa6c19bbc0c02ec9e2eedda8f12fa0483a63f6f771ca9e0d584bea1855fc3c146377914d22eefe9b64903218c643c781332f23e'
  
  deps = ['sdl2']
  
@@ -59,13 +142,14 @@ index ea943ff..5754ca9 100644
      dest_path = os.path.join(ports.get_build_dir(), 'sdl2_mixer')
  
      shutil.rmtree(dest_path, ignore_errors=True)
-@@ -68,10 +73,17 @@ def get(ports, settings, shared):
+@@ -68,10 +73,18 @@ def get(ports, settings, shared):
          '-DMUSIC_MID_TIMIDITY',
        ]
  
-+    flags += [
-+      '-DMUSIC_GME',
-+    ]
++    if "gme" in settings.SDL2_MIXER_FORMATS:
++      flags += [
++        '-DMUSIC_GME',
++      ]
 +
      ports.build_port(
        dest_path,
@@ -78,7 +162,7 @@ index ea943ff..5754ca9 100644
        flags=flags,
        exclude_files=[
          'playmus.c',
-@@ -84,13 +96,14 @@ def get(ports, settings, shared):
+@@ -84,13 +97,14 @@ def get(ports, settings, shared):
      )
  
      # copy header to a location so it can be used as 'SDL2/'
@@ -95,3 +179,25 @@ index ea943ff..5754ca9 100644
  
  
  def process_dependencies(settings):
+@@ -104,6 +118,9 @@ def process_dependencies(settings):
+   if "mod" in settings.SDL2_MIXER_FORMATS:
+     deps.append('libmodplug')
+     settings.USE_MODPLUG = 1
++  if "gme" in settings.SDL2_MIXER_FORMATS:
++    deps.append('gme')
++    settings.USE_GME = 1
+ 
+ 
+ def process_args(ports):
+diff --git a/tools/settings.py b/tools/settings.py
+index 98159e5..2753d72 100644
+--- a/tools/settings.py
++++ b/tools/settings.py
+@@ -32,6 +32,7 @@ PORTS_SETTINGS = {
+     'USE_COCOS2D',
+     'USE_ICU',
+     'USE_MODPLUG',
++    'USE_GME',
+     'USE_SDL_MIXER',
+     'USE_SDL_IMAGE',
+     'USE_SDL_TTF',
