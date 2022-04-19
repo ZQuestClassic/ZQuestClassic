@@ -42,7 +42,7 @@ public:
 
 	int32_t getInt() const
 	{
-		return val/10000L + zfixvbound((val%10000L)/5000L,-1,1);
+		return val/10000L + zfixvbound((val%10000L)/5000L,0,(val<0 ? -1 : 1));
 	}
 	double getFloat() const
 	{
