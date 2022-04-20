@@ -49,6 +49,21 @@ index 447713ae0..60b647af5 100644
        }
     }
     SDL_JoystickEventState(SDL_ENABLE);
+diff --git a/src/sdl/sdl_mouse.c b/src/sdl/sdl_mouse.c
+index f74b7fc15..46e5a39ce 100644
+--- a/src/sdl/sdl_mouse.c
++++ b/src/sdl/sdl_mouse.c
+@@ -187,8 +187,8 @@ static bool sdl_set_mouse_xy(ALLEGRO_DISPLAY *display, int x, int y)
+ 
+ static bool sdl_set_mouse_axis(int which, int value)
+ {
+-   if (which == 1) mouse->state.z = value;
+-   else if (which == 2) mouse->state.w = value;
++   if (which == 2) mouse->state.z = value;
++   else if (which == 3) mouse->state.w = value;
+    else return false;
+    return true;
+ }
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
 index 3e9967658..2d82b8466 100644
 --- a/src/sdl/sdl_system.c
