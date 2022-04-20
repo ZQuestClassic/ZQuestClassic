@@ -7544,6 +7544,11 @@ bool RunFrozen();
  * Attempts to run the given generic script in frozen mode.
  * Returns true if successful, false otherwise.
 
+bool Running;
+ * Reads as whether or not the script is currently running passively
+ * If written to false, kills the script
+ * If written to true, launches (or restarts) the script
+
 
 
 ________        ___.                       .__                
