@@ -1897,6 +1897,9 @@ int32_t init_game()
 	*/
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
+	game->load_genscript();
+	genscript_timing = SCR_TIMING_START_FRAME;
+	timeExitAllGenscript(GENSCR_ST_RELOAD);
 	flushItemCache();
 	ResetSaveScreenSettings();
 	
@@ -2115,6 +2118,8 @@ int32_t init_game()
 		}
 	}
 	
+	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
 	init_dmap();
 	
@@ -2494,6 +2499,7 @@ int32_t cont_game()
 {
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.init();
+	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	didpit=false;
 	Hero.unfreeze();
 	Hero.reset_hookshot();
@@ -2517,6 +2523,10 @@ int32_t cont_game()
 	  dlevel = DMaps[0].level;
 	  }
 	  */
+	if(currdmap != lastentrance_dmap)
+		timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+	if(dlevel != DMaps[lastentrance_dmap].level)
+		timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	currdmap = lastentrance_dmap;
 	homescr = currscr = lastentrance;
 	currmap = DMaps[currdmap].map;
@@ -2593,7 +2603,6 @@ int32_t cont_game()
 	//  for(int32_t i=0; i<128; i++)
 	//	key[i]=0;
 	
-	//Run onContGame script -V
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONCONTGAME);
@@ -2643,7 +2652,12 @@ void restart_level()
 	
 	if(dlevel && !get_bit(quest_rules,qr_LEVEL_RESTART_CONT_POINT))
 	{
+		if(currdmap != lastentrance_dmap)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		if(dlevel != DMaps[lastentrance_dmap].level)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 		currdmap = lastentrance_dmap;
+		dlevel = DMaps[currdmap].level;
 		homescr = currscr = lastentrance;
 		init_dmap();
 	}

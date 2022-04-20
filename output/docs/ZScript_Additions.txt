@@ -7549,6 +7549,36 @@ bool Running;
  * If written to false, kills the script
  * If written to true, launches (or restarts) the script
 
+bool ExitState[GENSCR_NUMST];
+ * An array of exit states. Each exit state, if true, specifies a condition for the script
+ *     to stop running passively. Use the 'GENSCR_EXIT_' constants from 'std_constants.zh'.
+ * All states default to 'false'
+
+bool ReloadState[GENSCR_NUMST];
+ * An array of reload states. Each reload state, if true, specifies a condition for the script
+ *     to exit and relaunch if running. Use the 'GENSCR_EXIT_' constants from 'std_constants.zh'.
+ * All states default to 'false'
+ * GENSCR_ST_RELOAD: Exits/Reloads upon exiting to the save select screen.
+ * GENSCR_ST_CONTINUE: Exits/Reloads upon 'F6->Continue' or similar.
+ * GENSCR_ST_CHANGE_SCREEN: Exits/Reloads upon loading a new screen
+ * GENSCR_ST_CHANGE_DMAP: Exits/Reloads upon loading a new dmap
+ * GENSCR_ST_CHANGE_LEVEL: Exits/Reloads upon loading a new dmap level
+
+int DataSize;
+ * Represents the size of the 'Data[]' array.
+ * Read/Write, result saves to the save file.
+ * If written larger than current size, 'new' space will be zeroed out.
+ * Default 0, range 0-214748.
+
+untyped Data[DataSize];
+ * An array of variable size, settable in 'DataSize' above.
+ * This data is saved to the save file.
+ * Attempting to access any index '>= DataSize' results in an error.
+
+untyped InitD[8];
+ * Access to the InitD[] for this script slot
+ * This is shared by the passive and frozen modes
+
 
 
 ________        ___.                       .__                

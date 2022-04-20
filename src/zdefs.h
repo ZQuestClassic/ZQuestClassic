@@ -30,6 +30,24 @@
 #define DEVTIMESTAMP false
 #endif
 
+
+#define NUMSCRIPTFFC			512
+#define NUMSCRIPTFFCOLD			256
+#define NUMSCRIPTITEM			256
+#define NUMSCRIPTGUYS			256
+#define NUMSCRIPTWEAPONS		256
+#define NUMSCRIPTGLOBAL			8
+#define NUMSCRIPTGLOBAL255OLD	7
+#define NUMSCRIPTGLOBAL253		4
+#define NUMSCRIPTGLOBALOLD		3
+#define NUMSCRIPTHEROOLD		3
+#define NUMSCRIPTPLAYER			5
+#define NUMSCRIPTSCREEN			256
+#define NUMSCRIPTSDMAP			256
+#define NUMSCRIPTSITEMSPRITE	256
+#define NUMSCRIPTSCOMBODATA		512
+#define NUMSCRIPTSGENERIC       512
+
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
@@ -258,7 +276,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        24 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        25 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
@@ -4285,6 +4303,13 @@ struct gamedata
 	int32_t portalwarpfx;
 	int16_t portalspr;
 	
+	bool gen_doscript[NUMSCRIPTSGENERIC];
+	word gen_exitState[NUMSCRIPTSGENERIC];
+	word gen_reloadState[NUMSCRIPTSGENERIC];
+	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
+	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
+	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
+	
 	// member functions
 	// public:
 	gamedata()
@@ -4297,6 +4322,9 @@ struct gamedata
 	
 	void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
 	void Copy(const gamedata& g);
+	void clear_genscript();
+	void load_genscript();
+	void save_genscript();
 	
 	gamedata &operator = (const gamedata& data)
 	{
@@ -5269,22 +5297,6 @@ int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t fami
 
 extern void flushItemCache();
 extern void removeFromItemCache(int32_t itemid);
-#define NUMSCRIPTFFC			512
-#define NUMSCRIPTFFCOLD			256
-#define NUMSCRIPTITEM			256
-#define NUMSCRIPTGUYS			256
-#define NUMSCRIPTWEAPONS		256
-#define NUMSCRIPTGLOBAL			8
-#define NUMSCRIPTGLOBAL255OLD	7
-#define NUMSCRIPTGLOBAL253		4
-#define NUMSCRIPTGLOBALOLD		3
-#define NUMSCRIPTHEROOLD		3
-#define NUMSCRIPTPLAYER			5
-#define NUMSCRIPTSCREEN			256
-#define NUMSCRIPTSDMAP			256
-#define NUMSCRIPTSITEMSPRITE	256
-#define NUMSCRIPTSCOMBODATA		512
-#define NUMSCRIPTSGENERIC       512
 
 #define GLOBAL_SCRIPT_INIT 			0
 #define GLOBAL_SCRIPT_GAME			1

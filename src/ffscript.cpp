@@ -577,7 +577,7 @@ word curScriptNum;
 
 std::vector<refInfo*> genericActiveData;
 std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
-bool gen_active_doscript = false;
+bool gen_active_doscript = false, gen_active_initialized = false;
 
 //Global script data
 refInfo globalScriptData[NUMSCRIPTGLOBAL];
@@ -643,13 +643,8 @@ refInfo ffcScriptData[32];
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
-void initUserScripts()
+void countGenScripts()
 {
-	genscript_timing = SCR_TIMING_START_FRAME;
-	for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
-	{
-		user_scripts[q].clear();
-	}
 	max_valid_genscript = 0;
 	for(auto q = 1; q < NUMSCRIPTSGENERIC; ++q)
 	{
@@ -657,12 +652,17 @@ void initUserScripts()
 			max_valid_genscript = q;
 	}
 }
+void timeExitAllGenscript(byte exState)
+{
+	for(user_genscript& g : user_scripts)
+		g.timeExit(exState);
+}
 void FFScript::runGenericPassiveEngine(int32_t scrtm)
 {
 	if(!max_valid_genscript) return; //No generic scripts in the quest!
 	if(genscript_timing != scrtm)
 	{
-		zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
+		//zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
 		while(genscript_timing != scrtm)
 			runGenericPassiveEngine(genscript_timing);
 	}
@@ -2573,6 +2573,16 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
 	return NULL;
+}
+
+user_genscript *checkGenericScr(int32_t ref, const char *what)
+{
+	if(ref < 1 || ref >= NUMSCRIPTSGENERIC)
+	{
+		Z_scripterrlog("Invalid gendata pointer access (%ld) for '->%s'\n", ref, what);
+		return NULL;
+	}
+	return &user_scripts[ref];
 }
 
 user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
@@ -11082,10 +11092,83 @@ int32_t get_register(const int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		
 		case GENDATARUNNING:
-			if(ri->genericdataref < 1 || ri->genericdataref >= NUMSCRIPTSGENERIC)
-				ret = 0;
-			else ret = user_scripts[ri->genericdataref].doscript;
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
+			{
+				ret = scr->doscript ? 10000L : 0L;
+			}
 			break;
+		}
+		case GENDATASIZE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "DataSize"))
+			{
+				ret = scr->dataSize()*10000;
+			}
+			break;
+		}
+		case GENDATAEXITSTATE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ExitState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ExitState[]: %d\n", indx);
+					break;
+				}
+				ret = (scr->exitState & (1<<indx)) ? 10000L : 0;
+			}
+			break;
+		}
+		case GENDATARELOADSTATE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ReloadState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					break;
+				}
+				ret = (scr->reloadState & (1<<indx)) ? 10000L : 0;
+			}
+			break;
+		}
+		case GENDATADATA:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= scr->dataSize())
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->Data[]: %d\n", indx);
+					break;
+				}
+				ret = scr->data[indx];
+			}
+			break;
+		}
+		case GENDATAINITD:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "InitD[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->InitD[]: %d\n", indx);
+					break;
+				}
+				ret = scr->initd[indx];
+			}
+			break;
+		}
 		
 		//Most of this is deprecated I believe ~Joe123
 		default:
@@ -19787,12 +19870,79 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFRNG: ri->rngref = value; break;
 		
 		case GENDATARUNNING:
-			if(ri->genericdataref < 1 || ri->genericdataref >= NUMSCRIPTSGENERIC)
-				break;
-			if(value)
-				user_scripts[ri->genericdataref].launch();
-			else user_scripts[ri->genericdataref].quit();
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
+			{
+				if(value)
+					scr->launch();
+				else scr->quit();
+			}
 			break;
+		}
+		case GENDATASIZE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "DataSize"))
+			{
+				scr->dataResize(value/10000);
+			}
+			break;
+		}
+		case GENDATAEXITSTATE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ExitState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					break;
+				}
+				SETFLAG(scr->exitState, (1<<indx), value);
+			}
+			break;
+		}
+		case GENDATARELOADSTATE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ReloadState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					break;
+				}
+				SETFLAG(scr->reloadState, (1<<indx), value);
+			}
+			break;
+		}
+		case GENDATADATA:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= scr->dataSize())
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->Data[]: %d\n", indx);
+					break;
+				}
+				scr->data[indx] = value;
+			}
+			break;
+		}
+		case GENDATAINITD:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "InitD[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->InitD[]: %d\n", indx);
+					break;
+				}
+				scr->initd[indx] = value;
+			}
+			break;
+		}
 		
 		
 		default:
@@ -23306,6 +23456,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			doWarpEffect(warpEffect, true);
 			//zprint("FFCore.warp_player reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
+			if(currdmap != dmapID)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[dmapID].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = dmapID;
 			dlevel = DMaps[currdmap].level;
 			currmap = DMaps[currdmap].map;
@@ -23397,6 +23551,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
+			if(currdmap != dmapID)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[dmapID].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = dmapID;
 			dlevel=DMaps[currdmap].level;
 			currmap=DMaps[currdmap].map;
@@ -23532,6 +23690,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			
 			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			if(currdmap != dmapID)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[dmapID].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
 			
 			Hero.reset_hookshot();
@@ -24564,10 +24726,16 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		
 		case SCRIPT_GENERIC:
 		{
-			ri = &user_scripts[script].ri;
+			user_genscript& scr = user_scripts[script];
+			stack = &scr.stack;
+			ri = &scr.ri;
 			ri->genericdataref = script;
 			curscript = genericscripts[script];
-			stack = &user_scripts[script].stack;
+			if(!scr.initialized)
+			{
+				scr.initialized = true;
+				memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
+			}
 		}
 		break;
 		
@@ -24577,6 +24745,11 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->genericdataref = script;
 			curscript = genericscripts[script];
 			stack = generic_active_stack.back();
+			if(!gen_active_initialized)
+			{
+				gen_active_initialized = true;
+				memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
+			}
 		}
 		break;
 		
@@ -30653,7 +30826,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
-	initUserScripts();
+	countGenScripts();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger )
@@ -31582,8 +31755,10 @@ bool FFScript::runGenericFrozenEngine(const word script)
 	memset(local_stack, 0, sizeof(local_stack));
 	genericActiveData.push_back(&local_ri);
 	generic_active_stack.push_back(&local_stack);
-	int32_t tmp_doscript = gen_active_doscript;
-	gen_active_doscript = 1;
+	bool tmp_init = gen_active_initialized;
+	bool tmp_doscript = gen_active_doscript;
+	gen_active_doscript = true;
+	gen_active_initialized = false;
 	//run script
 	uint32_t fl = GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE;
 	BITMAP* tmpbuf = script_menu_buf;
@@ -31609,6 +31784,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 	}
 	--local_i;
 	gen_active_doscript = tmp_doscript;
+	gen_active_initialized = tmp_init;
 	//clear
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	if(fl)
@@ -35968,6 +36144,11 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERBUTTON",  COMBODTRIGGERBUTTON,  0, 0 },
 	{ "REFGENERICDATA", REFGENERICDATA, 0, 0 },
 	{ "GENDATARUNNING", GENDATARUNNING, 0, 0 },
+	{ "GENDATASIZE", GENDATASIZE, 0, 0 },
+	{ "GENDATAEXITSTATE", GENDATAEXITSTATE, 0, 0 },
+	{ "GENDATADATA", GENDATADATA, 0, 0 },
+	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
+	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
@@ -36754,23 +36935,23 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				#endif  
 			break;
 			case SCRIPT_GENERIC:
-				al_trace("generic script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				al_trace("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"generic script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
 				#else //Unix
 					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("generic script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+					printf("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
 				#endif  
 				break;
 			case SCRIPT_GENERIC_FROZEN:
-				al_trace("generic (frozen) script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
 				#ifdef _WIN32
 				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
-					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"generic (frozen) script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
 				#else //Unix
 					std::cout << "Z_scripterrlog Test\n" << std::endl;
-					printf("generic (frozen) script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+					printf("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
 				#endif  
 				break;
 		}

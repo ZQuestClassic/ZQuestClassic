@@ -20730,7 +20730,11 @@ RaftingStuff:
 		
 		if(code>-1)
 		{
+			if(currdmap != (code>>8))
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			currdmap = code>>8;
+			if(dlevel != DMaps[currdmap].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			dlevel  = DMaps[currdmap].level;
 			currmap = DMaps[currdmap].map;
 			homescr = (code&0xFF) + DMaps[currdmap].xoff;
@@ -21163,6 +21167,10 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		music_stop();
 		kill_sfx();
 		blackscr(30,false);
+		if(currdmap != wdmap)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		if(dlevel != DMaps[wdmap].level)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 		currdmap = wdmap;
 		dlevel=DMaps[currdmap].level;
 		currmap=DMaps[currdmap].map;
@@ -21387,6 +21395,10 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		if(!intradmap)
 		{
+			if(currdmap != wdmap)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[wdmap].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = wdmap;
 			dlevel = DMaps[currdmap].level;
 			homescr = currscr = wscr + DMaps[wdmap].xoff;
@@ -21529,6 +21541,10 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		int32_t c = DMaps[currdmap].color;
+		if(currdmap != wdmap)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		if(dlevel != DMaps[wdmap].level)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 		currdmap = wdmap;
 		dlevel = DMaps[currdmap].level;
 		currmap = DMaps[currdmap].map;
@@ -21693,6 +21709,10 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			int32_t c = DMaps[currdmap].color;
+			if(currdmap != wdmap)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[wdmap].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = wdmap;
 			dlevel = DMaps[currdmap].level;
 			currmap = DMaps[currdmap].map;
@@ -24472,7 +24492,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 	
 	if(destdmap != -1)
+	{
+		if(currdmap != destdmap)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		if(dlevel != DMaps[destdmap].level)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 		currdmap = destdmap;
+		dlevel = DMaps[destdmap].level;
+	}
 		
 	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
 	//change it to swimming - since we have manually moved Hero onto the first tile, the hopping code

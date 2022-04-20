@@ -1343,8 +1343,13 @@
 #define COMBODTRIGGERBUTTON     1260
 #define REFGENERICDATA          1261
 #define GENDATARUNNING          1262
+#define GENDATASIZE             1263
+#define GENDATAEXITSTATE        1264
+#define GENDATADATA             1265
+#define GENDATAINITD            1266
+#define GENDATARELOADSTATE      1267
 
-#define LAST_BYTECODE           1263
+#define LAST_BYTECODE           1268
 
 //} END OF BYTECODE
 

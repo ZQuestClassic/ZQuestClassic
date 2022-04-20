@@ -646,9 +646,28 @@ enum scr_timing
 	//40
 	SCR_NUM_TIMINGS
 };
+enum
+{
+	GENSCR_ST_RELOAD,
+	GENSCR_ST_CONTINUE,
+	GENSCR_ST_CHANGE_SCREEN,
+	GENSCR_ST_CHANGE_DMAP,
+	GENSCR_ST_CHANGE_LEVEL,
+	GENSCR_NUMST
+};
 struct user_genscript
 {
+	//Saved vars
 	bool doscript;
+	std::vector<int32_t> data;
+	word exitState;
+	word reloadState;
+	int32_t initd[8];
+private:
+	size_t _dataSize;
+public:
+	//Temp Vars
+	bool initialized;
 	bool wait_atleast;
 	scr_timing waituntil;
 	refInfo ri;
@@ -658,14 +677,22 @@ struct user_genscript
 	void clear()
 	{
 		doscript = false;
+		initialized = false;
 		wait_atleast = true;
 		waituntil = SCR_TIMING_START_FRAME;
+		exitState = 0;
+		reloadState = 0;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
+		memset(initd, 0, sizeof(initd));
+		_dataSize = 0;
+		data.clear();
+		data.shrink_to_fit();
 	}
 	void launch()
 	{
 		doscript = true;
+		initialized = false;
 		wait_atleast = true;
 		waituntil = SCR_TIMING_START_FRAME;
 		ri.Clear();
@@ -675,9 +702,29 @@ struct user_genscript
 	{
 		doscript = false;
 	}
+	size_t dataSize() const
+	{
+		return _dataSize;
+	}
+	void dataResize(int32_t sz)
+	{
+		sz = vbound(sz, 0, 214748);
+		if(_dataSize == size_t(sz)) return;
+		_dataSize = sz;
+		data.resize(_dataSize, 0);
+	}
+	void timeExit(byte exState)
+	{
+		if(!doscript) return;
+		if(exitState & (1<<exState))
+			quit();
+		else if(reloadState & (1<<exState))
+			launch();
+	}
 };
 extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
 extern int32_t genscript_timing;
+void timeExitAllGenscript(byte exState);
 
 class FFScript
 {
@@ -4519,8 +4566,13 @@ enum ASM_DEFINE
 #define COMBODTRIGGERBUTTON     0x1422
 #define REFGENERICDATA          0x1423
 #define GENDATARUNNING          0x1424
+#define GENDATASIZE             0x1425
+#define GENDATAEXITSTATE        0x1426
+#define GENDATADATA             0x1427
+#define GENDATAINITD            0x1428
+#define GENDATARELOADSTATE      0x1429
 
-#define NUMVARIABLES         	0x1425
+#define NUMVARIABLES         	0x142A
 
 //} End variables
 
