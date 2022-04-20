@@ -198,6 +198,7 @@ public:
 		stepnext,  //location of step->next just triggered (don't recursively trigger it)
 		stepsecret,  //location of step->secrets just triggered (don't recursively trigger it)
 		warpx,warpy, //location of warp just arrived at (don't recursively enter it)
+		raftwarpx,raftwarpy, //location of dock just arrived at (don't recursively restart raft)
 		pushing,  //incremental time spent pushing.
 		jumping,  //incremental time spent airborne.
 		charging, //incremental time spent charging weapon.
