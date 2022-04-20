@@ -1341,8 +1341,9 @@
 #define SHOWNMSG                1258
 #define COMBODTRIGGERFLAGS2     1259
 #define COMBODTRIGGERBUTTON     1260
+#define REFGENERICDATA          1261
 
-#define LAST_BYTECODE           1261
+#define LAST_BYTECODE           1262
 
 //} END OF BYTECODE
 
@@ -3093,6 +3094,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadBShopRegister(a->clone());
+		}
+	};
+
+	class OLoadGenericDataR : public UnaryOpcode
+	{
+	public:
+		OLoadGenericDataR(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadGenericDataR(a->clone());
 		}
 	};
 
@@ -9818,6 +9830,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OModuleGetIC(a->clone(), b->clone());
+		}
+	};
+	class ORunGenericFrozenScript : public UnaryOpcode
+	{
+	public:
+		ORunGenericFrozenScript(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORunGenericFrozenScript(a->clone());
 		}
 	};
 }

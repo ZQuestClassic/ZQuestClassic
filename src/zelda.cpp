@@ -434,6 +434,7 @@ gamedata *game=NULL;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
+script_data *genericscripts[NUMSCRIPTSGENERIC];
 script_data *guyscripts[NUMSCRIPTGUYS];
 script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
@@ -1192,6 +1193,18 @@ void Z_scripterrlog(const char * const format,...)
 				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Global script %u (%s): \n", 
 					curScriptNum+1, globalmap[curScriptNum].scriptname.c_str()); }
+				break;
+			case SCRIPT_GENERIC:
+				al_trace("Generic Script %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): \n", 
+					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
+				break;
+			case SCRIPT_GENERIC_FROZEN:
+				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum+1, genericmap[curScriptNum].scriptname.c_str());
+				if ( zscript_debugger ) {zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): \n", 
+					curScriptNum+1, genericmap[curScriptNum].scriptname.c_str()); }
 				break;
 	
 			case SCRIPT_PLAYER:

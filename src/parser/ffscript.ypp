@@ -158,6 +158,8 @@ extern YYLTYPE noloc;
 %token BOTTLEDATA
 %token BOTTLESHOPDATA
 %token SUBSCREENDATA
+%token GENERIC
+%token GENERICDATA
 %token PARTICLE
 %token DECORATION
 
@@ -548,6 +550,7 @@ DataType : ZCONST DataType {
 	| RANDGEN {$$ = new ASTDataType(DataType::RNG, @$);}
 	| BOTTLEDATA {$$ = new ASTDataType(DataType::BOTTLETYPE, @$);}
 	| BOTTLESHOPDATA {$$ = new ASTDataType(DataType::BOTTLESHOP, @$);}
+	| GENERICDATA {$$ = new ASTDataType(DataType::GENERICDATA, @$);}
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
@@ -819,6 +822,7 @@ Script_Type :
 	| ITEMSPRITE {$$ = new ASTScriptType(ScriptType::itemsprite, @$);}
 	| UNTYPED {$$ = new ASTScriptType(ScriptType::untyped, @$);}
 	| SUBSCREENDATA {$$ = new ASTScriptType(ScriptType::subscreendata, @$);}
+	| GENERIC {$$ = new ASTScriptType(ScriptType::genericscr, @$);}
 	| COMBO {$$ = new ASTScriptType(ScriptType::combodata, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);

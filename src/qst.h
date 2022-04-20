@@ -109,6 +109,7 @@ struct script_slot_data
 
 extern std::map<int32_t, script_slot_data > ffcmap;
 extern std::map<int32_t, script_slot_data > globalmap;
+extern std::map<int32_t, script_slot_data > genericmap;
 extern std::map<int32_t, script_slot_data > itemmap;
 extern std::map<int32_t, script_slot_data > npcmap;
 extern std::map<int32_t, script_slot_data > ewpnmap;

@@ -151,6 +151,8 @@ randgen	TOKEN( RANDGEN );
 bottledata	TOKEN( BOTTLEDATA );
 bottleshopdata	TOKEN( BOTTLESHOPDATA );
 subscreendata	TOKEN( SUBSCREENDATA );
+generic	TOKEN( GENERIC );
+genericdata	TOKEN( GENERICDATA );
 particlesprite	TOKEN( PARTICLE );
 decorationsprite	TOKEN( DECORATION );
 "try"	{

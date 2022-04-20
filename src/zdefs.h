@@ -263,7 +263,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         19
+#define V_FFSCRIPT         20
 #define V_SFX              8
 #define V_FAVORITES        1
 
@@ -2208,7 +2208,7 @@ public:
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
 	dword fileref, subscreenref, comboidref, directoryref, rngref;
-	dword bottletyperef, bottleshopref;
+	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
@@ -2226,7 +2226,7 @@ public:
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
-		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0;
+		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0; genericdataref = 0;
 		comboposref = 0;
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
@@ -2257,7 +2257,7 @@ public:
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
-		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref;
+		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref, genericdataref = rhs.genericdataref;
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
@@ -2706,6 +2706,8 @@ struct mapscr
 #define SCRIPT_PASSIVESUBSCREEN			13
 #define SCRIPT_COMBO					14
 #define SCRIPT_ONMAP					15
+#define SCRIPT_GENERIC                  16
+#define SCRIPT_GENERIC_FROZEN           17
 
 #define ZMETA_AUTOGEN		0x01
 #define ZMETA_DISASSEMBLED	0x02
@@ -5281,6 +5283,7 @@ extern void removeFromItemCache(int32_t itemid);
 #define NUMSCRIPTSDMAP			256
 #define NUMSCRIPTSITEMSPRITE	256
 #define NUMSCRIPTSCOMBODATA		512
+#define NUMSCRIPTSGENERIC       512
 
 #define GLOBAL_SCRIPT_INIT 			0
 #define GLOBAL_SCRIPT_GAME			1

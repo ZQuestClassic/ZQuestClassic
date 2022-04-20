@@ -652,6 +652,7 @@ void runWarpScripts(bool waitdraw);
 void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
+bool runGenericFrozenEngine(const word script);
 bool runActiveSubscreenScriptEngine();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();
@@ -1651,6 +1652,7 @@ static void setHeroBigHitbox(bool v);
 	static void do_loaddropset(const bool v);
 	static void do_loadbottle(const bool v);
 	static void do_loadbottleshop(const bool v);
+	static void do_loadgenericdata(const bool v);
 	static void do_getDMapData_dmapname(const bool v);
 	static void do_setDMapData_dmapname(const bool v);
 	static void do_getDMapData_dmaptitle(const bool v);
@@ -3018,8 +3020,10 @@ enum ASM_DEFINE
 	FILEOWN,
 	DIRECTORYOWN,
 	RNGOWN,
+	LOADGENERICDATA,
+	RUNGENFRZSCR,
 	
-	NUMCOMMANDS           //0x01B6
+	NUMCOMMANDS           //0x01B8
 };
 
 
@@ -4444,8 +4448,9 @@ enum ASM_DEFINE
 #define SHOWNMSG                0x1420
 #define COMBODTRIGGERFLAGS2     0x1421
 #define COMBODTRIGGERBUTTON     0x1422
+#define REFGENERICDATA          0x1423
 
-#define NUMVARIABLES         	0x1423
+#define NUMVARIABLES         	0x1424
 
 //} End variables
 

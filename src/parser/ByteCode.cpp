@@ -2005,6 +2005,8 @@ string ZScript::VarToString(int32_t ID)
 	case NPCDSPAWNSPR: return "NPCDSPAWNSPR";
 	case NPCDDEATHSPR: return "NPCDDEATHSPR";
 	
+	case REFGENERICDATA: return "REFGENERICDATA";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);
@@ -2784,6 +2786,10 @@ string OLoadBottleTypeRegister::toString()
 string OLoadBShopRegister::toString()
 {
     return "LOADBSHOPDATA " + getArgument()->toString();
+}
+string OLoadGenericDataR::toString()
+{
+    return "LOADGENERICDATA " + getArgument()->toString();
 }
 
 string ODMapDataGetNameRegister::toString()
@@ -5709,4 +5715,9 @@ string OModuleGetIC::toString()
 
 
 //////////////////////////////////////////////////////////////////////////////////////
+
+string ORunGenericFrozenScript::toString()
+{
+	return "RUNGENFRZSCR " + getArgument()->toString();
+};
 

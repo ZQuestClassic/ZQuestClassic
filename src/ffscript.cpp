@@ -304,10 +304,11 @@ CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
 
 
-const char script_types[16][16]=
+const char script_types[][16]=
 {
 	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
-	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)"
+	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)",
+	"generic", "generic (FRZ)"
 };
 	
 int32_t FFScript::UpperToLower(std::string *s)
@@ -544,11 +545,41 @@ int32_t sarg1 = 0;
 int32_t sarg2 = 0;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
+int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+
+static std::vector<int32_t> sarg1cache;
+static std::vector<int32_t> sarg2cache;
+static std::vector<refInfo*> ricache;
+static std::vector<script_data*> sdcache;
+static std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> stackcache;
+void push_ri()
+{
+	sarg1cache.push_back(sarg1);
+	sarg2cache.push_back(sarg2);
+	ricache.push_back(ri);
+	sdcache.push_back(curscript);
+	stackcache.push_back(stack);
+}
+void pop_ri()
+{
+	sarg1 = sarg1cache.back(); sarg1cache.pop_back();
+	sarg2 = sarg2cache.back(); sarg2cache.pop_back();
+	ri = ricache.back(); ricache.pop_back();
+	curscript = sdcache.back(); sdcache.pop_back();
+	stack = stackcache.back(); stackcache.pop_back();
+}
+
 
 static int32_t numInstructions; // Used to detect hangs
 static bool scriptCanSave = true;
 byte curScriptType;
 word curScriptNum;
+
+refInfo genericPassiveData[NUMSCRIPTSGENERIC];
+int32_t generic_passive_stack[NUMSCRIPTSGENERIC][MAX_SCRIPT_REGISTERS];
+std::vector<refInfo*> genericActiveData;
+std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
+bool gen_active_doscript = false;
 
 //Global script data
 refInfo globalScriptData[NUMSCRIPTGLOBAL];
@@ -598,7 +629,6 @@ int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 int32_t ffc_stack[32][MAX_SCRIPT_REGISTERS];
 int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
@@ -10966,6 +10996,7 @@ int32_t get_register(const int32_t arg)
 		case REFDROPS: ret = ri->dropsetref; break;
 		case REFBOTTLETYPE: ret = ri->bottletyperef; break;
 		case REFBOTTLESHOP: ret = ri->bottleshopref; break;
+		case REFGENERICDATA: ret = ri->genericdataref; break;
 		case REFPONDS: ret = ri->pondref; break;
 		case REFWARPRINGS: ret = ri->warpringref; break;
 		case REFDOORS: ret = ri->doorsref; break;
@@ -19692,6 +19723,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFDROPS:  ri->dropsetref = value; break;
 		case REFBOTTLETYPE:  ri->bottletyperef = value; break;
 		case REFBOTTLESHOP:  ri->bottleshopref = value; break;
+		case REFGENERICDATA:  ri->genericdataref = value; break;
 		case REFPONDS:  ri->pondref = value; break;
 		case REFWARPRINGS:  ri->warpringref = value; break;
 		case REFDOORS:  ri->doorsref = value; break;
@@ -21753,6 +21785,17 @@ void FFScript::do_loadbottleshop(const bool v)
 		ri->bottleshopref = 0;
 	}
 	else ri->bottleshopref = ID+1;
+}
+void FFScript::do_loadgenericdata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if ( ID < 1 || ID > NUMSCRIPTSGENERIC )
+	{
+		Z_scripterrlog("Invalid GenericData ID passed to Game->LoadGenericData(): %d\n", ID);
+		ri->genericdataref = 0;
+	}
+	else ri->genericdataref = ID;
 }
 
 void FFScript::do_getDMapData_dmapname(const bool v)
@@ -24463,6 +24506,23 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
+		case SCRIPT_GENERIC:
+		{
+			ri = &genericPassiveData[script];
+			curscript = genericscripts[script];
+			stack = &generic_passive_stack[script];
+		}
+		break;
+		
+		case SCRIPT_GENERIC_FROZEN:
+		{
+			ri = genericActiveData.back();
+			ri->genericdataref = script;
+			curscript = genericscripts[script];
+			stack = generic_active_stack.back();
+		}
+		break;
+		
 		case SCRIPT_PLAYER:
 		{
 			ri = &playerScriptData;
@@ -24722,6 +24782,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				scommand = 0xFFFF;
 				break;
 				
+			case NOP: //No Operation. Do nothing. -Em
+				break;
 			case GOTO:
 			{
 				uint8_t invalid = 0;
@@ -27859,9 +27921,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				}
 				break;
 			//}
-			
-			case NOP: //No Operation. Do nothing. -V
+			case LOADGENERICDATA:
+				FFCore.do_loadgenericdata(false); break;
+			case RUNGENFRZSCR:
+			{
+				bool r = FFCore.runGenericFrozenEngine(word(ri->genericdataref));
+				set_register(sarg1, r ? 10000L : 0L);
 				break;
+			}
 			
 			default:
 			{
@@ -27925,6 +27992,21 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			scommand = curscript->zasm[ri->pc].command;
 			sarg1 = curscript->zasm[ri->pc].arg1;
 			sarg2 = curscript->zasm[ri->pc].arg2;
+		}
+		if(scommand == WAITDRAW)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
+					while(scommand == WAITDRAW)
+					{
+						++ri->pc;
+						scommand = curscript->zasm[ri->pc].command;
+						sarg1 = curscript->zasm[ri->pc].arg1;
+						sarg2 = curscript->zasm[ri->pc].arg2;
+					}
+					break;
+			}
 		}
 	}
 	
@@ -28066,7 +28148,18 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				combo_waitdraw[pos] |= (1<<l);
 				break;
 			}
-		
+			
+			case SCRIPT_GENERIC:
+			{
+				
+				break;
+			}
+			
+			case SCRIPT_GENERIC_FROZEN:
+			{
+				//No Waitdraw
+				break;
+			}
 			default:
 				Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
 				break;
@@ -28085,6 +28178,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 		case SCRIPT_GLOBAL:
 			g_doscript &= ~(1<<i);
+			FFScript::deallocateAllArrays(type, i);
+			break;
+		
+		case SCRIPT_GENERIC:
+			break;
+		
+		case SCRIPT_GENERIC_FROZEN:
+			gen_active_doscript = 0;
 			FFScript::deallocateAllArrays(type, i);
 			break;
 		
@@ -31263,10 +31364,7 @@ void FFScript::runF6Engine()
 		if(globalscripts[GLOBAL_SCRIPT_F6]->valid())
 		{
 			//Incase this was called mid-another script, store ref data
-			int32_t tsarg1 = sarg1;
-			int32_t tsarg2 = sarg2;
-			refInfo *tri = ri;
-			script_data *tcurscript = curscript;
+			push_ri();
 			//
 			clear_bitmap(f6_menu_buf);
 			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, 256, 224);
@@ -31307,10 +31405,7 @@ void FFScript::runF6Engine()
 				memcpy(tempblackpal, RAMpal, PAL_SIZE*sizeof(RGB));
 			}
 			//Restore script refinfo
-			sarg1 = tsarg1;
-			sarg2 = tsarg2;
-			ri = tri;
-			curscript = tcurscript;
+			pop_ri();
 			//
 		}
 		if(!Quit)
@@ -31376,6 +31471,60 @@ void FFScript::runOnLaunchEngine()
 	}
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+}
+bool FFScript::runGenericFrozenEngine(const word script)
+{
+	static int32_t local_i = 0;
+	if(script < 1 || script > NUMSCRIPTSGENERIC) return false;
+	if(!genericscripts[script]->valid()) return false; //No script to run
+	//Store script refinfo
+	push_ri();
+	refInfo local_ri;
+	int32_t local_stack[MAX_SCRIPT_REGISTERS];
+	local_ri.Clear();
+	memset(local_stack, 0, sizeof(local_stack));
+	genericActiveData.push_back(&local_ri);
+	generic_active_stack.push_back(&local_stack);
+	int32_t tmp_doscript = gen_active_doscript;
+	gen_active_doscript = 1;
+	//run script
+	uint32_t fl = GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE;
+	BITMAP* tmpbuf = script_menu_buf;
+	if(fl)
+	{
+		script_menu_buf = create_bitmap_ex(8,256,224);
+	}
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	++local_i;
+	while(gen_active_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_GENERIC_FROZEN, script, local_i);
+		//Draw
+		clear_bitmap(framebuf);
+		if( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
+		doScriptMenuDraws();
+		//
+		advanceframe(true);
+	}
+	--local_i;
+	gen_active_doscript = tmp_doscript;
+	//clear
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	if(fl)
+	{
+		GameFlags |= fl;
+		destroy_bitmap(script_menu_buf);
+		script_menu_buf = tmpbuf;
+	}
+	genericActiveData.pop_back();
+	generic_active_stack.pop_back();
+	//Restore script refinfo
+	pop_ri();
+	return true;
 }
 bool FFScript::runActiveSubscreenScriptEngine()
 {
@@ -31500,10 +31649,7 @@ void FFScript::runOnSaveEngine()
 {
 	if(globalscripts[GLOBAL_SCRIPT_ONSAVE]->valid())
 	{
-		int32_t tsarg1 = sarg1;
-		int32_t tsarg2 = sarg2;
-		refInfo *tri = ri;
-		script_data *tcurscript = curscript;
+		push_ri();
 		//Prevent getting here via Quit from causing a forced-script-quit after 1000 commands!
 		int32_t tQuit = Quit;
 		Quit = 0;
@@ -31511,10 +31657,7 @@ void FFScript::runOnSaveEngine()
 		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
 		//
-		sarg1 = tsarg1;
-		sarg2 = tsarg2;
-		ri = tri;
-		curscript = tcurscript;
+		pop_ri();
 		Quit = tQuit;
 	}
 }
@@ -32640,6 +32783,25 @@ void FFScript::do_getcomboscript()
 	}
 	set_register(sarg1, (script_num * 10000));
 }
+
+//!TODO GENERIC
+// void FFScript::do_getgenericscript()
+// {
+	// int32_t arrayptr = get_register(sarg1) / 10000;
+	// string the_string;
+	// int32_t script_num = -1;
+	// FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+	
+	// for(int32_t q = 0; q < NUMSCRIPTSCOMBODATA; q++)
+	// {
+		// if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
+		// {
+			// script_num = q+1;
+			// break;
+		// }
+	// }
+	// set_register(sarg1, (script_num * 10000));
+// }
 
 void FFScript::do_getlweaponscript()
 {
@@ -34438,6 +34600,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEOWN",         0,   0,   0,   0},
 	{ "DIRECTORYOWN",         0,   0,   0,   0},
 	{ "RNGOWN",         0,   0,   0,   0},
+	{ "LOADGENERICDATA",         1,   0,   0,   0},
+	{ "RUNGENFRZSCR",         1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -35703,6 +35867,7 @@ script_variable ZASMVars[]=
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	{ "COMBODTRIGGERBUTTON",  COMBODTRIGGERBUTTON,  0, 0 },
+	{ "REFGENERICDATA", REFGENERICDATA, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
