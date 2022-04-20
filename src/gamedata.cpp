@@ -84,6 +84,8 @@ void gamedata::Clear()
 	
 	memset(bottleSlots, 0, sizeof(bottleSlots));
 	clear_portal();
+	
+	clear_genscript();
     isclearing=false;
 }
 
@@ -184,6 +186,66 @@ void gamedata::Copy(const gamedata& g)
 	portalsfx = g.portalsfx;
 	portalwarpfx = g.portalwarpfx;
 	portalspr = g.portalspr;
+	
+	memcpy(gen_doscript, g.gen_doscript, sizeof(gen_doscript));
+	memcpy(gen_exitState, g.gen_exitState, sizeof(gen_exitState));
+	memcpy(gen_reloadState, g.gen_reloadState, sizeof(gen_reloadState));
+	memcpy(gen_initd, g.gen_initd, sizeof(gen_initd));
+	memcpy(gen_dataSize, g.gen_dataSize, sizeof(gen_dataSize));
+	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		gen_data[q].clear();
+		gen_data[q].resize(g.gen_data[q].size());
+		gen_data[q] = g.gen_data[q];
+	}
+}
+
+void gamedata::clear_genscript()
+{
+	memset(gen_doscript, 0, sizeof(gen_doscript));
+	memset(gen_exitState, 0, sizeof(gen_exitState));
+	memset(gen_reloadState, 0, sizeof(gen_reloadState));
+	memset(gen_initd, 0, sizeof(gen_initd));
+	memset(gen_dataSize, 0, sizeof(gen_dataSize));
+	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		gen_data[q].clear();
+		gen_data[q].resize(0);
+	}
+}
+#ifdef IS_PLAYER
+#include "ffscript.h"
+#endif
+void gamedata::load_genscript()
+{
+	#ifdef IS_PLAYER
+	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		user_genscript& gen = user_scripts[q];
+		gen.clear();
+		gen.doscript = gen_doscript[q];
+		gen.exitState = gen_exitState[q];
+		gen.reloadState = gen_reloadState[q];
+		memcpy(gen.initd, gen_initd[q], sizeof(gen.initd));
+		gen.dataResize(gen_dataSize[q]);
+		gen.data = gen_data[q];
+	}
+	#endif
+}
+void gamedata::save_genscript()
+{
+	#ifdef IS_PLAYER
+	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		user_genscript const& gen = user_scripts[q];
+		gen_doscript[q] = gen.doscript;
+		gen_exitState[q] = gen.exitState;
+		gen_reloadState[q] = gen.reloadState;
+		memcpy(gen_initd[q], gen.initd, sizeof(gen.initd));
+		gen_dataSize[q] = gen.dataSize();
+		gen_data[q] = gen.data;
+	}
+	#endif
 }
 
 char *gamedata::get_name()

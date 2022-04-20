@@ -2046,6 +2046,37 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		else savedata[i].clear_portal();
+		if(section_version >= 25)
+		{
+			word num_scripts;
+			byte dummybyte;
+			if(!p_igetw(&num_scripts, f, true))
+			{
+				return 73;
+			}
+			for(size_t q=0; q<num_scripts; q++)
+			{
+				if(!p_getc(&dummybyte,f, true))
+					return 74;
+				savedata[i].gen_doscript[q] = dummybyte!=0;
+				if(!p_igetw(&(savedata[i].gen_exitState[q]),f, true))
+					return 75;
+				if(!p_igetw(&(savedata[i].gen_reloadState[q]),f, true))
+					return 76;
+				for(size_t ind = 0; ind < 8; ++ind)
+					if(!p_igetl(&(savedata[i].gen_initd[q][ind]),f, true))
+						return 77;
+				int32_t sz;
+				if(!p_igetl(&sz,f, true))
+					return 78;
+				savedata[i].gen_dataSize[q] = sz;
+				savedata[i].gen_data[q].resize(sz, 0);
+				for(auto ind = 0; ind < sz; ++ind)
+					if(!p_igetl(&(savedata[i].gen_data[q][ind]),f, true))
+						return 79;
+			}
+		}
+		else savedata[i].clear_genscript();
 	}
 	
 	
@@ -2617,6 +2648,30 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 70;
 		}
+		
+		if(!p_iputw(NUMSCRIPTSGENERIC,f))
+		{
+			new_return(71);
+		}
+		savedata[i].save_genscript(); //read the values into the save object
+		for(size_t q=0; q<NUMSCRIPTSGENERIC; q++)
+        {
+			if(!p_putc(savedata[i].gen_doscript[q] ? 1 : 0,f))
+				return 72;
+			if(!p_iputw(savedata[i].gen_exitState[q],f))
+				return 73;
+			if(!p_iputw(savedata[i].gen_reloadState[q],f))
+				return 74;
+			for(size_t ind = 0; ind < 8; ++ind)
+				if(!p_iputl(savedata[i].gen_initd[q][ind],f))
+					return 75;
+			int32_t sz = savedata[i].gen_dataSize[q];
+			if(!p_iputl(sz,f))
+				return 76;
+			for(auto ind = 0; ind < sz; ++ind)
+				if(!p_iputl(savedata[i].gen_data[q][ind],f))
+					return 77;
+        }
 	}
 	
 	return 0;

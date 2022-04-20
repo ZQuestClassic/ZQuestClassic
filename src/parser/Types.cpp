@@ -182,6 +182,7 @@ DataTypeClassConst DataType::CDIRECTORY(ZCLASSID_DIRECTORY, "const Directory");
 DataTypeClassConst DataType::CRNG(ZCLASSID_RNG, "const RNG");
 DataTypeClassConst DataType::CBOTTLETYPE(ZCLASSID_BOTTLETYPE, "const bottledata");
 DataTypeClassConst DataType::CBOTTLESHOP(ZCLASSID_BOTTLESHOP, "const bottleshopdata");
+DataTypeClassConst DataType::CGENERICDATA(ZCLASSID_GENERICDATA, "const genericdata");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLASSID_CHEATS, "Cheats", &CCHEATS);
@@ -214,6 +215,7 @@ DataTypeClass DataType::DIRECTORY(ZCLASSID_DIRECTORY, "Directory", &CDIRECTORY);
 DataTypeClass DataType::RNG(ZCLASSID_RNG, "RNG", &CRNG);
 DataTypeClass DataType::BOTTLETYPE(ZCLASSID_BOTTLETYPE, "bottledata", &CBOTTLETYPE);
 DataTypeClass DataType::BOTTLESHOP(ZCLASSID_BOTTLESHOP, "bottleshopdata", &CBOTTLESHOP);
+DataTypeClass DataType::GENERICDATA(ZCLASSID_GENERICDATA, "genericdata", &CGENERICDATA);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -257,6 +259,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_RNG: return &RNG;
 		case ZVARTYPEID_BOTTLETYPE: return &BOTTLETYPE;
 		case ZVARTYPEID_BOTTLESHOP: return &BOTTLESHOP;
+		case ZVARTYPEID_GENERICDATA: return &GENERICDATA;
 		case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
 		case ZVARTYPEID_BITMAP: return &BITMAP;
 		case ZVARTYPEID_TEXT: return &TEXT;
@@ -306,6 +309,7 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLASSID_RNG: return &RNG;
 		case ZCLASSID_BOTTLETYPE: return &BOTTLETYPE;
 		case ZCLASSID_BOTTLESHOP: return &BOTTLESHOP;
+		case ZCLASSID_GENERICDATA: return &GENERICDATA;
 		case ZCLASSID_GRAPHICS: return &GRAPHICS;
 		case ZCLASSID_BITMAP: return &BITMAP;
 		case ZCLASSID_TEXT: return &TEXT;
@@ -659,6 +663,8 @@ namespace // file local
 		{"itemsprite", ZVARTYPEID_ITEM},
 		{"untyped", ZVARTYPEID_VOID},
 		{"combodata", ZVARTYPEID_COMBOS},
+		{"subscreendata", ZVARTYPEID_VOID},
+		{"generic",ZVARTYPEID_GENERICDATA},
 	};
 }
 
@@ -676,6 +682,7 @@ ScriptType const ScriptType::itemsprite(idItemSprite);
 ScriptType const ScriptType::untyped(idUntyped);
 ScriptType const ScriptType::subscreendata(idSubscreenData);
 ScriptType const ScriptType::combodata(idComboData);
+ScriptType const ScriptType::genericscr(idGenericScript);
 
 string const& ScriptType::getName() const
 {

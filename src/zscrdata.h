@@ -16,7 +16,7 @@ namespace ZScript
 {
 	enum ScriptTypeID
 	{
-		scrTypeIdInvalid,
+		scrTypeIdInvalid = ZScript::ScriptType::idInvalid,
 		scrTypeIdStart,
 		scrTypeIdGlobal = scrTypeIdStart,
 		scrTypeIdFfc,
@@ -31,6 +31,7 @@ namespace ZScript
 		scrTypeIdUntyped,
 		scrTypeIdComboData,
 		scrTypeIdSubscreenData,
+		scrTypeIdGeneric,
 		
 		scrTypeIdEnd
 	};

@@ -1025,6 +1025,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "FILEOWN",         0,   0,   0,   0},
 	{ "DIRECTORYOWN",         0,   0,   0,   0},
 	{ "RNGOWN",         0,   0,   0,   0},
+	{ "LOADGENERICDATA",         1,   0,   0,   0},
+	{ "RUNGENFRZSCR",         1,   0,   0,   0},
+	{ "WAITTO",			   2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2302,6 +2305,13 @@ script_variable variable_list[]=
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	{"COMBODTRIGGERFLAGS2", COMBODTRIGGERFLAGS2, 0, 0 },
 	{"COMBODTRIGGERBUTTON", COMBODTRIGGERBUTTON, 0, 0 },
+	{ "REFGENERICDATA", REFGENERICDATA, 0, 0 },
+	{ "GENDATARUNNING", GENDATARUNNING, 0, 0 },
+	{ "GENDATASIZE", GENDATASIZE, 0, 0 },
+	{ "GENDATAEXITSTATE", GENDATAEXITSTATE, 0, 0 },
+	{ "GENDATADATA", GENDATADATA, 0, 0 },
+	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
+	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
@@ -2450,6 +2460,8 @@ string get_script_name(int32_t type)
 			return "ITEMSPRITE";
 		case SCRIPT_COMBO:
 			return "COMBODATA";
+		case SCRIPT_GENERIC: case SCRIPT_GENERIC_FROZEN:
+			return "GENERIC";
 		case SCRIPT_NONE:
 		default:
 			return "UNKNOWN";

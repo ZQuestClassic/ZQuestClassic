@@ -35,6 +35,7 @@
 extern volatile int32_t myvsync;
 extern int32_t zqwin_scale;
 void update_hw_screen(bool force);
+extern bool is_large;
 
 extern bool is_zquest();
 
@@ -246,25 +247,23 @@ bool uses_tab_arrows(TABPANEL *panel, int32_t maxwidth)
 
 int32_t last_visible_tab(TABPANEL *panel, int32_t first_tab, int32_t maxwidth)
 {
-    int32_t i=0;
-    int32_t w=0;
-    
-    if(uses_tab_arrows(panel, maxwidth))
-    {
-        maxwidth-=28;
-    }
-    
-    for(i=first_tab; panel[i].text; ++i)
-    {
-        w+=text_length(font, (char *)panel[i].text)+15;
-        
-        if(w>maxwidth)
-        {
-            return i-1;
-        }
-    }
-    
-    return i-1;
+	int32_t i=0;
+	int32_t w=0;
+	
+	if(uses_tab_arrows(panel, maxwidth))
+	{
+		maxwidth-=28;
+	}
+	
+	for(i=first_tab; panel[i].text; ++i)
+	{
+		w+=text_length(font, (char *)panel[i].text)+15;
+		if(w>maxwidth)
+		{
+			return i-1;
+		}
+	}
+	return i-1;
 }
 
 int32_t displayed_tabs_width(TABPANEL *panel, int32_t first_tab, int32_t maxwidth)

@@ -30,6 +30,24 @@
 #define DEVTIMESTAMP false
 #endif
 
+
+#define NUMSCRIPTFFC			512
+#define NUMSCRIPTFFCOLD			256
+#define NUMSCRIPTITEM			256
+#define NUMSCRIPTGUYS			256
+#define NUMSCRIPTWEAPONS		256
+#define NUMSCRIPTGLOBAL			8
+#define NUMSCRIPTGLOBAL255OLD	7
+#define NUMSCRIPTGLOBAL253		4
+#define NUMSCRIPTGLOBALOLD		3
+#define NUMSCRIPTHEROOLD		3
+#define NUMSCRIPTPLAYER			5
+#define NUMSCRIPTSCREEN			256
+#define NUMSCRIPTSDMAP			256
+#define NUMSCRIPTSITEMSPRITE	256
+#define NUMSCRIPTSCOMBODATA		512
+#define NUMSCRIPTSGENERIC       512
+
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
@@ -258,12 +276,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        24 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        25 //skipped 13->15 for 2.53.1
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         19
+#define V_FFSCRIPT         20
 #define V_SFX              8
 #define V_FAVORITES        1
 
@@ -2209,7 +2227,7 @@ public:
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
 	dword fileref, subscreenref, comboidref, directoryref, rngref;
-	dword bottletyperef, bottleshopref;
+	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
@@ -2227,7 +2245,7 @@ public:
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
-		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0;
+		comboidref = 0; directoryref = 0; rngref = 0; bottletyperef = 0; bottleshopref = 0; genericdataref = 0;
 		comboposref = 0;
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
@@ -2258,7 +2276,7 @@ public:
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
 		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, rngref = rhs.rngref;
-		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref;
+		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref, genericdataref = rhs.genericdataref;
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
@@ -2707,6 +2725,8 @@ struct mapscr
 #define SCRIPT_PASSIVESUBSCREEN			13
 #define SCRIPT_COMBO					14
 #define SCRIPT_ONMAP					15
+#define SCRIPT_GENERIC                  16
+#define SCRIPT_GENERIC_FROZEN           17
 
 #define ZMETA_AUTOGEN		0x01
 #define ZMETA_DISASSEMBLED	0x02
@@ -4283,6 +4303,13 @@ struct gamedata
 	int32_t portalwarpfx;
 	int16_t portalspr;
 	
+	bool gen_doscript[NUMSCRIPTSGENERIC];
+	word gen_exitState[NUMSCRIPTSGENERIC];
+	word gen_reloadState[NUMSCRIPTSGENERIC];
+	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
+	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
+	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
+	
 	// member functions
 	// public:
 	gamedata()
@@ -4295,6 +4322,9 @@ struct gamedata
 	
 	void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
 	void Copy(const gamedata& g);
+	void clear_genscript();
+	void load_genscript();
+	void save_genscript();
 	
 	gamedata &operator = (const gamedata& data)
 	{
@@ -5267,21 +5297,6 @@ int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t fami
 
 extern void flushItemCache();
 extern void removeFromItemCache(int32_t itemid);
-#define NUMSCRIPTFFC			512
-#define NUMSCRIPTFFCOLD			256
-#define NUMSCRIPTITEM			256
-#define NUMSCRIPTGUYS			256
-#define NUMSCRIPTWEAPONS		256
-#define NUMSCRIPTGLOBAL			8
-#define NUMSCRIPTGLOBAL255OLD	7
-#define NUMSCRIPTGLOBAL253		4
-#define NUMSCRIPTGLOBALOLD		3
-#define NUMSCRIPTHEROOLD		3
-#define NUMSCRIPTPLAYER			5
-#define NUMSCRIPTSCREEN			256
-#define NUMSCRIPTSDMAP			256
-#define NUMSCRIPTSITEMSPRITE	256
-#define NUMSCRIPTSCOMBODATA		512
 
 #define GLOBAL_SCRIPT_INIT 			0
 #define GLOBAL_SCRIPT_GAME			1

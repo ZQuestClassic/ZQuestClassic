@@ -123,6 +123,7 @@ namespace ZScript
 		ZVARTYPEID_RNG,
 		ZVARTYPEID_BOTTLETYPE,
 		ZVARTYPEID_BOTTLESHOP,
+		ZVARTYPEID_GENERICDATA,
 		ZVARTYPEID_CLASS_END,
 
 		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
@@ -224,6 +225,8 @@ namespace ZScript
 				return "BOTTLETYPE";
 			case ZVARTYPEID_BOTTLESHOP:
 				return "BOTTLESHOP";
+			case ZVARTYPEID_GENERICDATA:
+				return "GENERICDATA";
 			case ZVARTYPEID_MODULE:
 				return "MODULE";
 			default:
@@ -333,6 +336,8 @@ namespace ZScript
 			return ZVARTYPEID_BOTTLETYPE;
 		else if(name == "BOTTLESHOP")
 			return ZVARTYPEID_BOTTLESHOP;
+		else if(name == "GENERICDATA")
+			return ZVARTYPEID_GENERICDATA;
 		
 		return ZVARTYPEID_VOID;
 	}
@@ -454,6 +459,7 @@ namespace ZScript
 		static DataTypeClassConst CRNG;
 		static DataTypeClassConst CBOTTLETYPE;
 		static DataTypeClassConst CBOTTLESHOP;
+		static DataTypeClassConst CGENERICDATA;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -486,6 +492,7 @@ namespace ZScript
 		static DataTypeClass RNG;
 		static DataTypeClass BOTTLETYPE;
 		static DataTypeClass BOTTLESHOP;
+		static DataTypeClass GENERICDATA;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -684,6 +691,7 @@ namespace ZScript
 			idUntyped,
 			idComboData,
 			idSubscreenData,
+			idGenericScript,
 			
 			idEnd
 		};
@@ -723,6 +731,8 @@ namespace ZScript
 					return SCRIPT_COMBO;
 				case idSubscreenData:
 					return SCRIPT_NONE;
+				case idGenericScript:
+					return SCRIPT_GENERIC;
 			}
 			return SCRIPT_NONE;
 		}
@@ -744,6 +754,7 @@ namespace ZScript
 		static ScriptType const untyped;
 		static ScriptType const subscreendata;
 		static ScriptType const combodata;
+		static ScriptType const genericscr;
 
 		ScriptType(Id id) : id_(id) {}
 

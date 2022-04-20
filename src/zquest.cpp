@@ -224,6 +224,7 @@ vector<string> asdmapscripts;
 vector<string> asscreenscripts;
 vector<string> asitemspritescripts;
 vector<string> ascomboscripts;
+vector<string> asgenericscripts;
 
 vector<string> ZQincludePaths;
 
@@ -344,6 +345,7 @@ script_data *wpnscripts[NUMSCRIPTWEAPONS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
+script_data *genericscripts[NUMSCRIPTSGENERIC];
 script_data *playerscripts[NUMSCRIPTPLAYER];
 script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
@@ -23492,6 +23494,7 @@ static int32_t as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
 static int32_t as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 static int32_t as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
 static int32_t as_comboscript_list[] = { 39, 40, 41, -1}; //combodata scripts TAB
+static int32_t as_genericscript_list[] = { 45, 46, 47, -1}; //generic scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -23507,6 +23510,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"Screen",		 0,         as_screen_list,   0, NULL },
     { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
     { (char *)"Combo",		 0,         as_comboscript_list,   0, NULL },
+    { (char *)"Generic",		 0,         as_genericscript_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -23541,6 +23545,17 @@ const char *assigncombolist(int32_t index, int32_t *list_size)
     }
     
     return comboscriptmap[index].output.c_str();
+}
+
+const char *assigngenericlist(int32_t index, int32_t *list_size)
+{
+    if(index<0)
+    {
+        *list_size = ((int32_t)genericmap.size());
+        return NULL;
+    }
+    
+    return genericmap[index].output.c_str();
 }
 
 const char *assignitemlist(int32_t index, int32_t *list_size)
@@ -23751,6 +23766,17 @@ const char *assigncomboscriptlist(int32_t index, int32_t *list_size)
     return ascomboscripts[index].c_str();
 }
 
+const char *assigngenericscriptlist(int32_t index, int32_t *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int32_t)asgenericscripts.size();
+        return NULL;
+    }
+    
+    return asgenericscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -23778,6 +23804,9 @@ static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
 
 static ListData assigncombo_list(assigncombolist, &font);
 static ListData assigncomboscript_list(assigncomboscriptlist, &font);
+
+static ListData assigngeneric_list(assigngenericlist, &font);
+static ListData assigngenericscript_list(assigngenericscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -23849,6 +23878,11 @@ static DIALOG assignscript_dlg[] =
     { jwin_button_proc,      78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
     { jwin_button_proc,  174+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Script Info",  NULL, NULL },
     { jwin_button_proc,   87+78-24,  158,     48,     16,     vc(14), vc(1),  0, D_EXIT, 0,  0,  (void *) "Clear",  NULL, NULL },
+    //45
+	{ jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigngeneric_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigngenericscript_list, NULL, NULL },
+    //47
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
     
@@ -24835,6 +24869,8 @@ int32_t onCompileScript()
 			asitemspritescripts.push_back("<none>");
 			ascomboscripts.clear();
 			ascomboscripts.push_back("<none>");
+			asgenericscripts.clear();
+			asgenericscripts.push_back("<none>");
 			clear_map_states();
 			globalmap[0].updateName("~Init"); //force name to ~Init
 			
@@ -24873,6 +24909,9 @@ int32_t onCompileScript()
 						break;
 					case scrTypeIdComboData:
 						ascomboscripts.push_back(name);
+						break;
+					case scrTypeIdGeneric:
+						asgenericscripts.push_back(name);
 						break;
 					case scrTypeIdGlobal:
 						if (name != "~Init")
@@ -24984,6 +25023,8 @@ int32_t onSlotAssign()
 	
 	ascomboscripts.clear();
 	ascomboscripts.push_back("<none>");
+	asgenericscripts.clear();
+	asgenericscripts.push_back("<none>");
 	//Declare new script vector
 	map<string, disassembled_script_data> scripts;
 	
@@ -25439,12 +25480,50 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 			}
 		}
 	}
+	for(int32_t i = 0; i < NUMSCRIPTSGENERIC-1; ++i)
+	{
+		if(scripts.find(genericmap[i].scriptname) != scripts.end())
+		{
+			if(scripts[genericmap[i].scriptname].first.script_type != SCRIPT_GENERIC)
+			{
+				while(scripts.find(genericmap[i].scriptname) != scripts.end())
+					inc_script_name(genericmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!genericmap[i].isEmpty())
+		{
+			if(skipDisassembled && genericmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (genericscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				genericmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
+			if(genericscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(genericscripts[i+1]);
+				if((genericscripts[i+1]->meta.flags & ZMETA_IMPORTED))
+				{
+					genericmap[i].format = SCRIPT_FORMAT_ZASM;
+					genericmap[i].update();
+				}
+				else if(fromCompile || (genericscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					genericmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					genericmap[i].update();
+				}
+				data.format = genericmap[i].format;
+				scripts[genericmap[i].scriptname] = data;
+				asgenericscripts.push_back(data.formatName(genericmap[i].scriptname));
+			}
+		}
+	}
 }
 
 enum script_slot_type
 {
 	type_ffc, type_global, type_itemdata, type_npc, type_lweapon, type_eweapon,
-	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, num_types
+	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, type_generic, num_types
 };
 script_slot_type getType(int32_t type)
 {
@@ -25462,6 +25541,8 @@ script_slot_type getType(int32_t type)
 		case SCRIPT_PASSIVESUBSCREEN:
 		case SCRIPT_ONMAP:
 			return type_dmap;
+		case SCRIPT_GENERIC: case SCRIPT_GENERIC_FROZEN:
+			return type_generic;
 		case SCRIPT_SCREEN: return type_screen;
 		case SCRIPT_ITEMSPRITE: return type_itemsprite;
 		case SCRIPT_COMBO: return type_combo;
@@ -25600,6 +25681,16 @@ void clearAllSlots(int32_t type, byte flags = 0)
 				if(checkSkip(comboscriptmap[q].format, flags)) continue;
 				comboscriptmap[q].scriptname = "";
 				comboscriptmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case type_generic:
+		{
+			for(int32_t q = 0; q < NUMSCRIPTSGENERIC-1; ++q)
+			{
+				if(checkSkip(genericmap[q].format, flags)) continue;
+				genericmap[q].scriptname = "";
+				genericmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
 			break;
 		}
@@ -25913,6 +26004,29 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		}
 		comboscriptmap[i].slotname = temp;
 		comboscriptmap[i].update();
+	}
+	for(int32_t i = 0; i < NUMSCRIPTSGENERIC-1; i++)
+	{
+		if(genericmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(genericmap[i].isZASM())
+			{
+				if(genericmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(genericmap[i].scriptname) != scripts.end())
+				genericmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				genericmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		genericmap[i].slotname = temp;
+		genericmap[i].update();
 	}
 	return slotflags;
 }
@@ -26426,6 +26540,50 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						comboscripts[it->first+1] = new script_data();
 					}
 				}
+				for(auto it = genericmap.begin(); it != genericmap.end(); it++)
+				{
+					if(it->second.hasScriptData())
+					{
+						tempfile = fopen("tmp","w");
+						
+						if(!tempfile)
+						{
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							return false;
+						}
+						
+						string meta_str = get_meta(scripts[it->second.scriptname].first);
+						if(output)
+						{
+							al_trace("\n");
+							al_trace("%s",it->second.scriptname.c_str());
+							al_trace("\n");
+							safe_al_trace(meta_str.c_str());
+						}
+						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
+						
+						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
+						{
+							string theline = (*line)->printLine();
+							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
+							
+							if(output)
+							{
+								al_trace("%s",theline.c_str());
+							}
+						}
+						
+						fclose(tempfile);
+						parse_script_file(&genericscripts[it->first+1],"tmp",false);
+						if(it->second.isDisassembled()) genericscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+						else if(it->second.isImportedZASM()) genericscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+					}
+					else if(genericscripts[it->first+1])
+					{
+						delete genericscripts[it->first+1];
+						genericscripts[it->first+1] = new script_data();
+					}
+				}
 				unlink("tmp");
 				clock_t end_assign_time = clock();
 				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
@@ -26458,7 +26616,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				if(tempfile!=NULL) fclose(tempfile);
 				return true;
 			}
-			//Left off here for the day. -Z
+			
 			case 6:
 				//<<, FFC
 			{
@@ -26707,6 +26865,28 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				
 				break;
 			}
+			case 47:
+				//<<, generic script
+			{
+				int32_t lind = assignscript_dlg[45].d1;
+				int32_t rind = assignscript_dlg[46].d1;
+				
+				if(lind < 0 || rind < 0)
+					break;
+				
+				if(asgenericscripts[rind] == "<none>")
+				{
+					genericmap[lind].scriptname = "";
+					genericmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+				}
+				else
+				{
+					genericmap[lind].updateName(asgenericscripts[rind]);
+					genericmap[lind].format = scripts[genericmap[lind].scriptname].format;
+				}
+				
+				break;
+			}
 		
 			case 42:
 				//Script Info, information
@@ -26814,6 +26994,15 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						}
 						break;
 					}
+					case 11: //Generic
+					{
+						int32_t id = assignscript_dlg[45].d1;
+						if(id > -1 && genericmap[id].hasScriptData())
+						{
+							target = &(scripts[genericmap[id].scriptname].first);
+						}
+						break;
+					}
 				}
 				if(target)
 					showScriptInfo(target);
@@ -26904,6 +27093,13 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						target = &(scripts[ascomboscripts[id]].first);
 						break;
 					}
+					case 11: //generic
+					{
+						int32_t id = assignscript_dlg[46].d1;
+						if(id < 0 || asgenericscripts[id] == "<none>" || asgenericscripts[id].at(0) == '-') break;
+						target = &(scripts[asgenericscripts[id]].first);
+						break;
+					}
 				}
 				if(target)
 					showScriptInfo(target);
@@ -26963,6 +27159,9 @@ const char *slottype_list(int32_t index, int32_t *list_size)
 				break;
 			case type_combo:
 				strcpy(slottype_str_buf, "Combo");
+				break;
+			case type_generic:
+				strcpy(slottype_str_buf, "Generic");
 				break;
 		}
         
@@ -27412,6 +27611,10 @@ int32_t onImportZASM()
 					case type_combo:
 						slot = &comboscripts[scriptInd];
 						map = &comboscriptmap[scriptInd];
+						break;
+					case type_generic:
+						slot = &genericscripts[scriptInd];
+						map = &genericmap[scriptInd];
 						break;
 				}
 				//}

@@ -226,6 +226,11 @@ int32_t main(int32_t argc, char **argv)
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
+	// for(auto q = 0; q < 2147483647; ++q)
+	// {
+	// 	if(!(rand()%10))
+	// 		--q;
+	// }
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
 	
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));

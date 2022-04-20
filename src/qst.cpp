@@ -94,6 +94,7 @@ extern char                *byte_conversion2(int32_t number1, int32_t number2, i
 string				             zScript;
 std::map<int32_t, script_slot_data > ffcmap;
 std::map<int32_t, script_slot_data > globalmap;
+std::map<int32_t, script_slot_data > genericmap;
 std::map<int32_t, script_slot_data > itemmap;
 std::map<int32_t, script_slot_data > npcmap;
 std::map<int32_t, script_slot_data > ewpnmap;
@@ -12256,6 +12257,7 @@ extern script_data *wpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
+extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern script_data *playerscripts[NUMSCRIPTPLAYER];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
@@ -12448,33 +12450,33 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data();
 		}
 		
-	if(s_version > 10) //expanded the number of Player scripts to 5. 
+		if(s_version > 10) //expanded the number of Player scripts to 5. 
 		{
-		for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
+			for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+		}
+		else
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
-			
-			if(ret != 0) return qe_invalid;
-		}
-		}
-	else
-	{
-		for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
-		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
-			
-			if(ret != 0) return qe_invalid;
-		}
-		if(playerscripts[3] != NULL)
+			for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+				
+				if(ret != 0) return qe_invalid;
+			}
+			if(playerscripts[3] != NULL)
 				delete playerscripts[3];
-				
-		playerscripts[3] = new script_data();
-		
-		if(playerscripts[4] != NULL)
+					
+			playerscripts[3] = new script_data();
+			
+			if(playerscripts[4] != NULL)
 				delete playerscripts[4];
-				
-		playerscripts[4] = new script_data();
-	}
+					
+			playerscripts[4] = new script_data();
+		}
 		if(s_version > 8 && s_version < 10)
 		{
 			
@@ -12492,16 +12494,15 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			
 		}
-	if(s_version >= 10)
+		if(s_version >= 10)
 		{
-			
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
 				
 				if(ret != 0) return qe_invalid;
 			}
-		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
 				
@@ -12515,26 +12516,38 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			
 		}
-	if(s_version >=12)
-	{
-		for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+		if(s_version >=12)
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
-				
-			if(ret != 0) return qe_invalid;
+			for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
+					
+				if(ret != 0) return qe_invalid;
+			}
 		}
-		
-	}
-	if(s_version >=15)
-	{
-		for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+		if(s_version >=15)
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
-				
-			if(ret != 0) return qe_invalid;
+			for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
+					
+				if(ret != 0) return qe_invalid;
+			}
 		}
-		
-	}
+		if(s_version >19)
+		{
+			word numgenscripts = NUMSCRIPTSGENERIC;
+			if(!p_igetw(&numgenscripts,f,true))
+			{
+				return qe_invalid;
+			}
+			for(int32_t i = 0; i < numgenscripts; i++)
+			{
+				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &genericscripts[i], zmeta_version);
+					
+				if(ret != 0) return qe_invalid;
+			}
+		}
 	
 		/*
 		else //Is this trip really necessary?
@@ -12639,10 +12652,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				delete[] buf;
 			}
 		}
-			//(v9+)
-	//npc scripts
-	if(s_version > 8)
+		//(v9+)
+		if(s_version > 8)
 		{
+			//npc scripts
 			word numnpcbindings;
 			p_igetw(&numnpcbindings, f, true);
 			
@@ -12661,11 +12674,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 					
 				delete[] buf;
 			}
-		}
-	//
-	//lweapon
-	if(s_version > 8)
-		{
+			//lweapon
 			word numlwpnbindings;
 			p_igetw(&numlwpnbindings, f, true);
 			
@@ -12684,10 +12693,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 					
 				delete[] buf;
 			}
-		}
-	//eweapon
-	if(s_version > 8)
-		{
+			//eweapon
 			word numewpnbindings;
 			p_igetw(&numewpnbindings, f, true);
 			
@@ -12706,10 +12712,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 					
 				delete[] buf;
 			}
-		}
-	//hero
-	if(s_version > 8)
-		{
+			//hero
 			word numherobindings;
 			p_igetw(&numherobindings, f, true);
 			
@@ -12728,10 +12731,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 					
 				delete[] buf;
 			}
-		}
-	//dmaps
-	if(s_version > 8)
-		{
+			//dmaps
 			word numdmapbindings;
 			p_igetw(&numdmapbindings, f, true);
 			
@@ -12750,10 +12750,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 					
 				delete[] buf;
 			}
-		}
-		//screen
-	if(s_version > 8)
-		{
+			//screen
 			word numscreenbindings;
 			p_igetw(&numscreenbindings, f, true);
 			
@@ -12773,7 +12770,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				delete[] buf;
 			}
 		}
-	if(s_version > 11)
+		if(s_version > 11)
 		{
 			word numspritebindings;
 			p_igetw(&numspritebindings, f, true);
@@ -12794,7 +12791,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				delete[] buf;
 			}
 		}
-	if(s_version >= 15)
+		if(s_version >= 15)
 		{
 			word numcombobindings;
 			p_igetw(&numcombobindings, f, true);
@@ -12811,6 +12808,27 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				//fix this too
 				if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
 					comboscriptmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
+		if(s_version > 19)
+		{
+			word numgenericbindings;
+			p_igetw(&numgenericbindings, f, true);
+			
+			for(int32_t i=0; i<numgenericbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f, true);
+				p_igetl(&bufsize, f, true);
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f, true);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(keepdata && id <NUMSCRIPTSGENERIC-1)
+					genericmap[id].scriptname = buf;
 					
 				delete[] buf;
 			}
@@ -12890,6 +12908,12 @@ void reset_scripts()
     for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
+    }
+    
+    for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+    {
+        if(genericscripts[i]!=NULL) delete genericscripts[i];
+        genericscripts[i] = new script_data();
     }
     
     for(int32_t i=0; i<NUMSCRIPTFFC; i++)
@@ -20263,82 +20287,83 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     }
     
     
-    if(keepall&&!get_bit(skip_flags, skip_ffscript))
-    {
-        zScript.clear();
-        globalmap.clear();
-        ffcmap.clear();
-        itemmap.clear();
-        //new script types
-        //new script types -- prevent carrying over to a quest that you load after reading them
-        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
-        npcmap.clear();
-        ewpnmap.clear();
-        lwpnmap.clear();
-        playermap.clear();
-        dmapmap.clear();
-        screenmap.clear();
-        itemspritemap.clear();
-        comboscriptmap.clear();
-        
-        for(int32_t i=0; i<NUMSCRIPTFFC-1; i++)
-        {
-            ffcmap[i].clear();
-        }
-        
+	if(keepall&&!get_bit(skip_flags, skip_ffscript))
+	{
+		zScript.clear();
+		globalmap.clear();
+		genericmap.clear();
+		ffcmap.clear();
+		itemmap.clear();
+		npcmap.clear();
+		ewpnmap.clear();
+		lwpnmap.clear();
+		playermap.clear();
+		dmapmap.clear();
+		screenmap.clear();
+		itemspritemap.clear();
+		comboscriptmap.clear();
+		
+		for(int32_t i=0; i<NUMSCRIPTFFC-1; i++)
+		{
+			ffcmap[i].clear();
+		}
+		
 		globalmap[0].slotname = "Slot 1:";
 		globalmap[0].scriptname = "~Init";
 		globalmap[0].update();
-        
-        for(int32_t i=1; i<NUMSCRIPTGLOBAL; i++)
-        {
-            globalmap[i].clear();
-        }
-        
-        //globalmap[3] = pair<string,string>("Slot 4: ~Continue", "~Continue");
-        for(int32_t i=0; i<NUMSCRIPTITEM-1; i++)
-        {
-            itemmap[i].clear();
-        }
-        
-        //new script types -- prevent carrying over to a quest that you load after reading them
-        //e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
-        for(int32_t i=0; i<NUMSCRIPTGUYS-1; i++)
-        {
-            npcmap[i].clear();
-        }
-        for(int32_t i=0; i<NUMSCRIPTWEAPONS-1; i++)
-        {
-            lwpnmap[i].clear();
-        }
-        for(int32_t i=0; i<NUMSCRIPTWEAPONS-1; i++)
-        {
-            ewpnmap[i].clear();
-        }
-        for(int32_t i=0; i<NUMSCRIPTPLAYER-1; i++)
-        {
-            playermap[i].clear();
-        }
-        for(int32_t i=0; i<NUMSCRIPTSDMAP-1; i++)
-        {
-            dmapmap[i].clear();
-        }
-        for(int32_t i=0; i<NUMSCRIPTSCREEN-1; i++)
-        {
-            screenmap[i].clear();
-        }
-	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
-        {
-            itemspritemap[i].clear();
-        }
-	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA-1; i++)
-        {
-            comboscriptmap[i].clear();
-        }
-        
-        reset_scripts();
-    }
-    
+		
+		for(int32_t i=1; i<NUMSCRIPTGLOBAL; i++)
+		{
+			globalmap[i].clear();
+		}
+		
+		for(int32_t i=0; i<NUMSCRIPTITEM-1; i++)
+		{
+			itemmap[i].clear();
+		}
+		
+		//new script types -- prevent carrying over to a quest that you load after reading them
+		//e.g., a quest has an npc script, and you make a blank quest, that now believes that it has an npc script, too!
+		for(int32_t i=0; i<NUMSCRIPTGUYS-1; i++)
+		{
+			npcmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTWEAPONS-1; i++)
+		{
+			lwpnmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTWEAPONS-1; i++)
+		{
+			ewpnmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTPLAYER-1; i++)
+		{
+			playermap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSDMAP-1; i++)
+		{
+			dmapmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSCREEN-1; i++)
+		{
+			screenmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE-1; i++)
+		{
+			itemspritemap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSCOMBODATA-1; i++)
+		{
+			comboscriptmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSGENERIC-1; i++)
+		{
+			genericmap[i].clear();
+		}
+		
+		reset_scripts();
+	}
+	
     zquestheader tempheader;
     memset(&tempheader, 0, sizeof(zquestheader));
     

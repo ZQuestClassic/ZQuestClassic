@@ -961,7 +961,7 @@ float DotProduct( float x1, float y1, float x2, float y2 )
 }
 
 
-//Overload to Screen->DrawString which includes a position to start drawing from in the string
+//Overload to Screen->DrawString which includes a position to begin drawing from in the string
 //Does not check for overflow
 void DrawString(int layer, int x, int y, int font, int color, int background_color, int format, int opacity,
 				char32 ptr, int start)
@@ -4415,5 +4415,134 @@ namespace std
 	    const int clkIindx = 0;
 	    clkptr[clkIindx] = (clkptr[clkIindx]+1)%(frames<<1);
 	    return( clkptr[clkIindx]&frames );
+	}
+}
+
+void getScrTimeName(char32 buf, int scrtime)
+{
+	switch(scrtime)
+	{
+		case SCR_TIMING_START_FRAME:
+			strcpy(buf, "SCR_TIMING_START_FRAME");
+			break;
+		case SCR_TIMING_POST_COMBO_ANIM:
+			strcpy(buf, "SCR_TIMING_POST_COMBO_ANIM");
+			break;
+		case SCR_TIMING_POST_POLL_INPUT:
+			strcpy(buf, "SCR_TIMING_POST_POLL_INPUT");
+			break;
+		case SCR_TIMING_POST_DRAW_CLEAR:
+			strcpy(buf, "SCR_TIMING_POST_DRAW_CLEAR");
+			break;
+		case SCR_TIMING_POST_FFCS:
+			strcpy(buf, "SCR_TIMING_POST_FFCS");
+			break;
+		case SCR_TIMING_POST_GLOBAL_ACTIVE:
+			strcpy(buf, "SCR_TIMING_POST_GLOBAL_ACTIVE");
+			break;
+		case SCR_TIMING_POST_PLAYER_ACTIVE:
+			strcpy(buf, "SCR_TIMING_POST_PLAYER_ACTIVE");
+			break;
+		case SCR_TIMING_POST_DMAPDATA_ACTIVE:
+			strcpy(buf, "SCR_TIMING_POST_DMAPDATA_ACTIVE");
+			break;
+		case SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN:
+			strcpy(buf, "SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN");
+			break;
+		case SCR_TIMING_POST_COMBOSCRIPT:
+			strcpy(buf, "SCR_TIMING_POST_COMBOSCRIPT");
+			break;
+		case SCR_TIMING_POST_PUSHBLOCK:
+			strcpy(buf, "SCR_TIMING_POST_PUSHBLOCK");
+			break;
+		case SCR_TIMING_POST_ITEMSPRITE_SCRIPT:
+			strcpy(buf, "SCR_TIMING_POST_ITEMSPRITE_SCRIPT");
+			break;
+		case SCR_TIMING_POST_ITEMSPRITE_ANIMATE:
+			strcpy(buf, "SCR_TIMING_POST_ITEMSPRITE_ANIMATE");
+			break;
+		case SCR_TIMING_POST_NPC_ANIMATE:
+			strcpy(buf, "SCR_TIMING_POST_NPC_ANIMATE");
+			break;
+		case SCR_TIMING_POST_EWPN_ANIMATE:
+			strcpy(buf, "SCR_TIMING_POST_EWPN_ANIMATE");
+			break;
+		case SCR_TIMING_POST_EWPN_SCRIPT:
+			strcpy(buf, "SCR_TIMING_POST_EWPN_SCRIPT");
+			break;
+		case SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT:
+			strcpy(buf, "SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT");
+			break;
+		case SCR_TIMING_POST_PLAYER_ANIMATE:
+			strcpy(buf, "SCR_TIMING_POST_PLAYER_ANIMATE");
+			break;
+		case SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT:
+			strcpy(buf, "SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT");
+			break;
+		case SCR_TIMING_POST_CASTING:
+			strcpy(buf, "SCR_TIMING_POST_CASTING");
+			break;
+		case SCR_TIMING_POST_LWPN_ANIMATE:
+			strcpy(buf, "SCR_TIMING_POST_LWPN_ANIMATE");
+			break;
+		case SCR_TIMING_POST_DECOPARTICLE_ANIMATE:
+			strcpy(buf, "SCR_TIMING_POST_DECOPARTICLE_ANIMATE");
+			break;
+		case SCR_TIMING_POST_COLLISIONS_PALETTECYCLE:
+			strcpy(buf, "SCR_TIMING_POST_COLLISIONS_PALETTECYCLE");
+			break;
+		case SCR_TIMING_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_GLOBAL_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_GLOBAL_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_PLAYER_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_PLAYER_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_SCREEN_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_SCREEN_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_FFC_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_FFC_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_COMBO_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_COMBO_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_ITEM_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_ITEM_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_NPC_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_NPC_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_EWPN_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_EWPN_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_LWPN_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_LWPN_WAITDRAW");
+			break;
+		case SCR_TIMING_POST_ITEMSPRITE_WAITDRAW:
+			strcpy(buf, "SCR_TIMING_POST_ITEMSPRITE_WAITDRAW");
+			break;
+		case SCR_TIMING_PRE_DRAW:
+			strcpy(buf, "SCR_TIMING_PRE_DRAW");
+			break;
+		case SCR_TIMING_POST_DRAW:
+			strcpy(buf, "SCR_TIMING_POST_DRAW");
+			break;
+		case SCR_TIMING_POST_STRINGS:
+			strcpy(buf, "SCR_TIMING_POST_STRINGS");
+			break;
+		case SCR_TIMING_END_FRAME:
+			strcpy(buf, "SCR_TIMING_END_FRAME");
+			break;
+		//(SCR_TIMING_[^,]+),
+		//\t\tcase $1:\r\n\t\t\tstrcpy\(buf, "$1"\);\r\n\t\t\tbreak;\r\n
 	}
 }

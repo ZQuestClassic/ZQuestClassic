@@ -304,10 +304,11 @@ CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
 
 
-const char script_types[16][16]=
+const char script_types[][16]=
 {
 	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
-	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)"
+	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)",
+	"generic", "generic (FRZ)"
 };
 	
 int32_t FFScript::UpperToLower(std::string *s)
@@ -544,11 +545,39 @@ int32_t sarg1 = 0;
 int32_t sarg2 = 0;
 refInfo *ri = NULL;
 script_data *curscript = NULL;
+int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
+
+static std::vector<int32_t> sarg1cache;
+static std::vector<int32_t> sarg2cache;
+static std::vector<refInfo*> ricache;
+static std::vector<script_data*> sdcache;
+static std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> stackcache;
+void push_ri()
+{
+	sarg1cache.push_back(sarg1);
+	sarg2cache.push_back(sarg2);
+	ricache.push_back(ri);
+	sdcache.push_back(curscript);
+	stackcache.push_back(stack);
+}
+void pop_ri()
+{
+	sarg1 = sarg1cache.back(); sarg1cache.pop_back();
+	sarg2 = sarg2cache.back(); sarg2cache.pop_back();
+	ri = ricache.back(); ricache.pop_back();
+	curscript = sdcache.back(); sdcache.pop_back();
+	stack = stackcache.back(); stackcache.pop_back();
+}
+
 
 static int32_t numInstructions; // Used to detect hangs
 static bool scriptCanSave = true;
 byte curScriptType;
 word curScriptNum;
+
+std::vector<refInfo*> genericActiveData;
+std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
+bool gen_active_doscript = false, gen_active_initialized = false;
 
 //Global script data
 refInfo globalScriptData[NUMSCRIPTGLOBAL];
@@ -598,7 +627,6 @@ int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 int32_t ffc_stack[32][MAX_SCRIPT_REGISTERS];
 int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
@@ -611,6 +639,48 @@ int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t screen_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
+
+user_genscript user_scripts[NUMSCRIPTSGENERIC];
+int32_t genscript_timing = SCR_TIMING_START_FRAME;
+static word max_valid_genscript;
+void countGenScripts()
+{
+	max_valid_genscript = 0;
+	for(auto q = 1; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		if(genericscripts[q] && genericscripts[q]->valid())
+			max_valid_genscript = q;
+	}
+}
+void timeExitAllGenscript(byte exState)
+{
+	for(user_genscript& g : user_scripts)
+		g.timeExit(exState);
+}
+void FFScript::runGenericPassiveEngine(int32_t scrtm)
+{
+	if(!max_valid_genscript) return; //No generic scripts in the quest!
+	if(genscript_timing != scrtm)
+	{
+		//zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
+		while(genscript_timing != scrtm)
+			runGenericPassiveEngine(genscript_timing);
+	}
+	for(auto q = 1; q <= max_valid_genscript; ++q)
+	{
+		user_genscript& scr = user_scripts[q];
+		if(!scr.doscript) continue;
+		if(!genericscripts[q]->valid()) continue;
+		if(scr.waituntil > scrtm || (!scr.wait_atleast && scr.waituntil != scrtm))
+			continue;
+		
+		//Run the script!
+		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+	}
+	if(genscript_timing >= SCR_TIMING_END_FRAME)
+		genscript_timing = SCR_TIMING_START_FRAME;
+	else ++genscript_timing;
+}
 
 void clear_ffc_stack(const byte i)
 {
@@ -2503,6 +2573,16 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
 	return NULL;
+}
+
+user_genscript *checkGenericScr(int32_t ref, const char *what)
+{
+	if(ref < 1 || ref >= NUMSCRIPTSGENERIC)
+	{
+		Z_scripterrlog("Invalid gendata pointer access (%ld) for '->%s'\n", ref, what);
+		return NULL;
+	}
+	return &user_scripts[ref];
 }
 
 user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
@@ -10966,6 +11046,7 @@ int32_t get_register(const int32_t arg)
 		case REFDROPS: ret = ri->dropsetref; break;
 		case REFBOTTLETYPE: ret = ri->bottletyperef; break;
 		case REFBOTTLESHOP: ret = ri->bottleshopref; break;
+		case REFGENERICDATA: ret = ri->genericdataref; break;
 		case REFPONDS: ret = ri->pondref; break;
 		case REFWARPRINGS: ret = ri->warpringref; break;
 		case REFDOORS: ret = ri->doorsref; break;
@@ -11009,6 +11090,86 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		///----------------------------------------------------------------------------------------------------//
+		
+		case GENDATARUNNING:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
+			{
+				ret = scr->doscript ? 10000L : 0L;
+			}
+			break;
+		}
+		case GENDATASIZE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "DataSize"))
+			{
+				ret = scr->dataSize()*10000;
+			}
+			break;
+		}
+		case GENDATAEXITSTATE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ExitState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ExitState[]: %d\n", indx);
+					break;
+				}
+				ret = (scr->exitState & (1<<indx)) ? 10000L : 0;
+			}
+			break;
+		}
+		case GENDATARELOADSTATE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ReloadState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					break;
+				}
+				ret = (scr->reloadState & (1<<indx)) ? 10000L : 0;
+			}
+			break;
+		}
+		case GENDATADATA:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= scr->dataSize())
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->Data[]: %d\n", indx);
+					break;
+				}
+				ret = scr->data[indx];
+			}
+			break;
+		}
+		case GENDATAINITD:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "InitD[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->InitD[]: %d\n", indx);
+					break;
+				}
+				ret = scr->initd[indx];
+			}
+			break;
+		}
+		
 		//Most of this is deprecated I believe ~Joe123
 		default:
 		{
@@ -19692,6 +19853,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFDROPS:  ri->dropsetref = value; break;
 		case REFBOTTLETYPE:  ri->bottletyperef = value; break;
 		case REFBOTTLESHOP:  ri->bottleshopref = value; break;
+		case REFGENERICDATA:  ri->genericdataref = value; break;
 		case REFPONDS:  ri->pondref = value; break;
 		case REFWARPRINGS:  ri->warpringref = value; break;
 		case REFDOORS:  ri->doorsref = value; break;
@@ -19706,7 +19868,83 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFDIRECTORY: ri->directoryref = value; break;
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
-			
+		
+		case GENDATARUNNING:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Running"))
+			{
+				if(value)
+					scr->launch();
+				else scr->quit();
+			}
+			break;
+		}
+		case GENDATASIZE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "DataSize"))
+			{
+				scr->dataResize(value/10000);
+			}
+			break;
+		}
+		case GENDATAEXITSTATE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ExitState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					break;
+				}
+				SETFLAG(scr->exitState, (1<<indx), value);
+			}
+			break;
+		}
+		case GENDATARELOADSTATE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "ReloadState"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMST)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->ReloadState[]: %d\n", indx);
+					break;
+				}
+				SETFLAG(scr->reloadState, (1<<indx), value);
+			}
+			break;
+		}
+		case GENDATADATA:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= scr->dataSize())
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->Data[]: %d\n", indx);
+					break;
+				}
+				scr->data[indx] = value;
+			}
+			break;
+		}
+		case GENDATAINITD:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "InitD[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->InitD[]: %d\n", indx);
+					break;
+				}
+				scr->initd[indx] = value;
+			}
+			break;
+		}
+		
+		
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
@@ -21754,6 +21992,17 @@ void FFScript::do_loadbottleshop(const bool v)
 	}
 	else ri->bottleshopref = ID+1;
 }
+void FFScript::do_loadgenericdata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if ( ID < 1 || ID > NUMSCRIPTSGENERIC )
+	{
+		Z_scripterrlog("Invalid GenericData ID passed to Game->LoadGenericData(): %d\n", ID);
+		ri->genericdataref = 0;
+	}
+	else ri->genericdataref = ID;
+}
 
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
@@ -23207,6 +23456,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			doWarpEffect(warpEffect, true);
 			//zprint("FFCore.warp_player reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
+			if(currdmap != dmapID)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[dmapID].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = dmapID;
 			dlevel = DMaps[currdmap].level;
 			currmap = DMaps[currdmap].map;
@@ -23298,6 +23551,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
+			if(currdmap != dmapID)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[dmapID].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = dmapID;
 			dlevel=DMaps[currdmap].level;
 			currmap=DMaps[currdmap].map;
@@ -23433,6 +23690,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			
 			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			if(currdmap != dmapID)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			if(dlevel != DMaps[dmapID].level)
+				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
 			
 			Hero.reset_hookshot();
@@ -24463,6 +24724,35 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
+		case SCRIPT_GENERIC:
+		{
+			user_genscript& scr = user_scripts[script];
+			stack = &scr.stack;
+			ri = &scr.ri;
+			ri->genericdataref = script;
+			curscript = genericscripts[script];
+			if(!scr.initialized)
+			{
+				scr.initialized = true;
+				memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
+			}
+		}
+		break;
+		
+		case SCRIPT_GENERIC_FROZEN:
+		{
+			ri = genericActiveData.back();
+			ri->genericdataref = script;
+			curscript = genericscripts[script];
+			stack = generic_active_stack.back();
+			if(!gen_active_initialized)
+			{
+				gen_active_initialized = true;
+				memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
+			}
+		}
+		break;
+		
 		case SCRIPT_PLAYER:
 		{
 			ri = &playerScriptData;
@@ -24647,7 +24937,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		#endif
 	}
 	
-	while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
+	while(scommand != 0xFFFF && scommand != WAITFRAME
+		&& scommand != WAITDRAW && scommand != WAITTO)
 	{
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -24722,6 +25013,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				scommand = 0xFFFF;
 				break;
 				
+			case NOP: //No Operation. Do nothing. -Em
+				break;
 			case GOTO:
 			{
 				uint8_t invalid = 0;
@@ -27859,9 +28152,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				}
 				break;
 			//}
-			
-			case NOP: //No Operation. Do nothing. -V
+			case LOADGENERICDATA:
+				FFCore.do_loadgenericdata(false); break;
+			case RUNGENFRZSCR:
+			{
+				bool r = FFCore.runGenericFrozenEngine(word(ri->genericdataref));
+				set_register(sarg1, r ? 10000L : 0L);
 				break;
+			}
 			
 			default:
 			{
@@ -27925,6 +28223,63 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			scommand = curscript->zasm[ri->pc].command;
 			sarg1 = curscript->zasm[ri->pc].arg1;
 			sarg2 = curscript->zasm[ri->pc].arg2;
+		}
+		if(scommand == WAITDRAW)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC:
+				case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
+					Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
+					scommand = NOP;
+					break;
+			}
+		}
+		else if(scommand == WAITTO)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC_FROZEN:
+					//ignore, no warn/error
+					scommand = NOP;
+					break;
+				case SCRIPT_GENERIC:
+				{
+					user_genscript& scr = user_scripts[script];
+					int32_t target = get_register(sarg1)/10000L;
+					bool atleast = get_register(sarg2)!=0;
+					if(unsigned(target) > SCR_TIMING_END_FRAME)
+					{
+						Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
+						scommand = NOP;
+						break;
+					}
+					if(genscript_timing == target ||
+						(atleast && genscript_timing < target))
+					{
+						//Already that time, skip the command
+						scommand = NOP;
+						break;
+					}
+					scr.waituntil = scr_timing(target);
+					scr.wait_atleast = atleast;
+					break;
+				}
+				default:
+					Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
+					scommand = NOP;
+					break;
+			}
+		}
+		else if(scommand == WAITFRAME)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC:
+					user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
+					user_scripts[script].wait_atleast = false;
+					break;
+			}
 		}
 	}
 	
@@ -28066,7 +28421,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				combo_waitdraw[pos] |= (1<<l);
 				break;
 			}
-		
+			
+			case SCRIPT_GENERIC:
+			case SCRIPT_GENERIC_FROZEN:
+				//No Waitdraw
+				break;
+			
 			default:
 				Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
 				break;
@@ -28085,6 +28445,16 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 		case SCRIPT_GLOBAL:
 			g_doscript &= ~(1<<i);
+			FFScript::deallocateAllArrays(type, i);
+			break;
+		
+		case SCRIPT_GENERIC:
+			user_scripts[script].quit();
+			FFScript::deallocateAllArrays(type, i);
+			break;
+		
+		case SCRIPT_GENERIC_FROZEN:
+			gen_active_doscript = 0;
 			FFScript::deallocateAllArrays(type, i);
 			break;
 		
@@ -30456,6 +30826,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	countGenScripts();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger )
@@ -31263,10 +31634,7 @@ void FFScript::runF6Engine()
 		if(globalscripts[GLOBAL_SCRIPT_F6]->valid())
 		{
 			//Incase this was called mid-another script, store ref data
-			int32_t tsarg1 = sarg1;
-			int32_t tsarg2 = sarg2;
-			refInfo *tri = ri;
-			script_data *tcurscript = curscript;
+			push_ri();
 			//
 			clear_bitmap(f6_menu_buf);
 			blit(framebuf, f6_menu_buf, 0, 0, 0, 0, 256, 224);
@@ -31307,10 +31675,7 @@ void FFScript::runF6Engine()
 				memcpy(tempblackpal, RAMpal, PAL_SIZE*sizeof(RGB));
 			}
 			//Restore script refinfo
-			sarg1 = tsarg1;
-			sarg2 = tsarg2;
-			ri = tri;
-			curscript = tcurscript;
+			pop_ri();
 			//
 		}
 		if(!Quit)
@@ -31377,6 +31742,64 @@ void FFScript::runOnLaunchEngine()
 	script_drawing_commands.Clear();
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
+bool FFScript::runGenericFrozenEngine(const word script)
+{
+	static int32_t local_i = 0;
+	if(script < 1 || script >= NUMSCRIPTSGENERIC) return false;
+	if(!genericscripts[script]->valid()) return false; //No script to run
+	//Store script refinfo
+	push_ri();
+	refInfo local_ri;
+	int32_t local_stack[MAX_SCRIPT_REGISTERS];
+	local_ri.Clear();
+	memset(local_stack, 0, sizeof(local_stack));
+	genericActiveData.push_back(&local_ri);
+	generic_active_stack.push_back(&local_stack);
+	bool tmp_init = gen_active_initialized;
+	bool tmp_doscript = gen_active_doscript;
+	gen_active_doscript = true;
+	gen_active_initialized = false;
+	//run script
+	uint32_t fl = GameFlags & GAMEFLAG_SCRIPTMENU_ACTIVE;
+	BITMAP* tmpbuf = script_menu_buf;
+	if(fl)
+	{
+		script_menu_buf = create_bitmap_ex(8,256,224);
+	}
+	clear_bitmap(script_menu_buf);
+	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
+	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
+	++local_i;
+	while(gen_active_doscript && !Quit)
+	{
+		script_drawing_commands.Clear();
+		load_control_state();
+		ZScriptVersion::RunScript(SCRIPT_GENERIC_FROZEN, script, local_i);
+		//Draw
+		clear_bitmap(framebuf);
+		if( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
+		doScriptMenuDraws();
+		//
+		advanceframe(true);
+	}
+	--local_i;
+	gen_active_doscript = tmp_doscript;
+	gen_active_initialized = tmp_init;
+	//clear
+	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
+	if(fl)
+	{
+		GameFlags |= fl;
+		destroy_bitmap(script_menu_buf);
+		script_menu_buf = tmpbuf;
+	}
+	genericActiveData.pop_back();
+	generic_active_stack.pop_back();
+	//Restore script refinfo
+	pop_ri();
+	return true;
+}
+
 bool FFScript::runActiveSubscreenScriptEngine()
 {
 	word activesubscript = DMaps[currdmap].active_sub_script;
@@ -31500,10 +31923,7 @@ void FFScript::runOnSaveEngine()
 {
 	if(globalscripts[GLOBAL_SCRIPT_ONSAVE]->valid())
 	{
-		int32_t tsarg1 = sarg1;
-		int32_t tsarg2 = sarg2;
-		refInfo *tri = ri;
-		script_data *tcurscript = curscript;
+		push_ri();
 		//Prevent getting here via Quit from causing a forced-script-quit after 1000 commands!
 		int32_t tQuit = Quit;
 		Quit = 0;
@@ -31511,10 +31931,7 @@ void FFScript::runOnSaveEngine()
 		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
 		//
-		sarg1 = tsarg1;
-		sarg2 = tsarg2;
-		ri = tri;
-		curscript = tcurscript;
+		pop_ri();
 		Quit = tQuit;
 	}
 }
@@ -32640,6 +33057,25 @@ void FFScript::do_getcomboscript()
 	}
 	set_register(sarg1, (script_num * 10000));
 }
+
+//!TODO GENERIC
+// void FFScript::do_getgenericscript()
+// {
+	// int32_t arrayptr = get_register(sarg1) / 10000;
+	// string the_string;
+	// int32_t script_num = -1;
+	// FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+	
+	// for(int32_t q = 0; q < NUMSCRIPTSCOMBODATA; q++)
+	// {
+		// if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
+		// {
+			// script_num = q+1;
+			// break;
+		// }
+	// }
+	// set_register(sarg1, (script_num * 10000));
+// }
 
 void FFScript::do_getlweaponscript()
 {
@@ -34438,6 +34874,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FILEOWN",         0,   0,   0,   0},
 	{ "DIRECTORYOWN",         0,   0,   0,   0},
 	{ "RNGOWN",         0,   0,   0,   0},
+	{ "LOADGENERICDATA",         1,   0,   0,   0},
+	{ "RUNGENFRZSCR",         1,   0,   0,   0},
+	{ "WAITTO",			   2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -35703,6 +36142,13 @@ script_variable ZASMVars[]=
 	{ "GAMEMAXCHEAT",  GAMEMAXCHEAT,  0, 0 },
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	{ "COMBODTRIGGERBUTTON",  COMBODTRIGGERBUTTON,  0, 0 },
+	{ "REFGENERICDATA", REFGENERICDATA, 0, 0 },
+	{ "GENDATARUNNING", GENDATARUNNING, 0, 0 },
+	{ "GENDATASIZE", GENDATASIZE, 0, 0 },
+	{ "GENDATAEXITSTATE", GENDATAEXITSTATE, 0, 0 },
+	{ "GENDATADATA", GENDATADATA, 0, 0 },
+	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
+	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
@@ -36488,6 +36934,26 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 					printf("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
 				#endif  
 			break;
+			case SCRIPT_GENERIC:
+				al_trace("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
+				#ifdef _WIN32
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("Generic Script %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
+				#endif  
+				break;
+			case SCRIPT_GENERIC_FROZEN:
+				al_trace("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
+				#ifdef _WIN32
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());}
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("Generic Script (FRZ) %u (%s): ", curScriptNum, genericmap[curScriptNum-1].scriptname.c_str());
+				#endif  
+				break;
 		}
 	}
 }

@@ -679,6 +679,20 @@ private:
     void generateCode();
 };
 
+class GenericDataSymbols : public LibrarySymbols
+{
+public:
+    static GenericDataSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static GenericDataSymbols singleton;
+    GenericDataSymbols();
+    void generateCode();
+};
+
 #endif
 
 

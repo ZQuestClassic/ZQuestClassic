@@ -550,6 +550,9 @@ untyped : A special datatype that can be cast to and from any other type.
 	bottleshopdata :
 		Object type for modifying bottle shop type data
 	
+	genericdata :
+		Object type for managing 'generic scripts'
+	
 	//Planned/Incomplete
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
@@ -858,8 +861,6 @@ TYPE IDENTIFIER[SIZE] = { INITILISERS };
 	SIZE may be any constant expression.
 
 TYPE IDENTIFIER[] = { INITIALISERS };
-TYPE IDENTIFIER[A,B]; //Size is A*B
-TYPE IDENTIFIER[A,B] = { INITILISERS }; //Size is A*B
 
 char32 arrays may be initialised with a string:
 
@@ -2251,21 +2252,46 @@ Waitdraw Support:	t/b/a
 * coordinates for a combo running a script.
 
 
+///////////////////////
+/// Generic Scripts ///
+///////////////////////
+
+TOKEN(s):		generic script
+POINTER: 		genericdata
+InitD:			(Not *yet*)
+InitD Labels:	No
+Multiple Frames:	Yes
+Waitdraw Support:	Special
+
+A generic script can be run in multiple different ways.
+
+Firstly, it can run 'passively':
+	This is not yet implemented
+
+Secondly, it can run 'frozen':
+	A 'frozen' run works similar to the dmapdata 'ActiveSubscreen' slot, or global onF6 or onLaunch.
+	The script will run frame after frame, with NO other part of the engine running (aside from
+		combo animation, which will run unless 'Game->Suspend[]' is used) until the script
+		reaches end-of-scope or exits.
+	While running frozen, a still image of the screen before the script started will be
+		drawn to layer 0 each frame; nothing else other than script draws is drawn.
+	A generic script is run frozen using the 'genericdata->RunFrozen()' function.
+
 /////////////////////////
 /// Subscreen Scripts ///
 /////////////////////////
-
-NOT IMPLEMENTED!
-
-TOKEN(s):		subscreendata script
-POINTER: 		subscreendata
-InitD:			Yes, [8]
-InitD Labels:		No
-InitA:			No
-Multiple Frames:	Yes
-Waitdraw Support:	Undecided
-
-To be added in a future spec. Will run on subscreens, set in the Subscreen Editor via a script subscreen object.
+//
+// NOT IMPLEMENTED!
+// 
+// TOKEN(s):		subscreendata script
+// POINTER: 		subscreendata
+// InitD:			Yes, [8]
+// InitD Labels:		No
+// InitA:			No
+// Multiple Frames:	Yes
+// Waitdraw Support:	Undecided
+// 
+// To be added in a future spec. Will run on subscreens, set in the Subscreen Editor via a script subscreen object.
 
 
 
@@ -2548,6 +2574,19 @@ Available annotations:
 //////////////
 //  Global  //
 //////////////								// Global
+
+void Waitframe();
+ * Pauses the script until the start of the next frame
+
+void Waitdraw();
+ * Attempts to wait until later in a frame. Script-type-dependant.
+
+void WaitTo(int script_timing, bool at_least);
+ * Only for passively-running 'Generic Scripts'
+ * Waits until the specified timing.
+ * If 'at_least' is true, any later timing will also end the wait.
+ * Use the 'SCR_TIMING_' constants from 'std_constants.zh' for 'script_timing'
+ * !WIP! Timings are subject to change
 
 float Distance(float x1, float y1, float x1, float y2)
  * Returns the distance between two sets of coordinates using Pythagoras' Theorem
@@ -3064,6 +3103,10 @@ shopdata LoadInfoShopData(int shop);
 randgen LoadRNG();
  * Opens a free random number generator and returns it.
  * Be sure to '->Free()' it when you are done with it!
+
+genericdata LoadGenericData(int scriptslot);
+ * Loads the 'genericdata' pointer referencing the specified generic script slot.
+ * Note that '0' is invalid.
 
 bool TypingMode;
  * If set true, all keyboard presses that would ordinarily perform an in-engine action are suppressed.
@@ -7491,6 +7534,50 @@ void DrawScreenComboIFlags	(int layer,
 // Transform() 
 // RenderTo(target, mode, args[])
 // RenderFrom(target, mode, args[])
+
+
+/////////////////////
+///  genericdata  ///
+///////////////////// genericdata
+
+bool RunFrozen();
+ * Attempts to run the given generic script in frozen mode.
+ * Returns true if successful, false otherwise.
+
+bool Running;
+ * Reads as whether or not the script is currently running passively
+ * If written to false, kills the script
+ * If written to true, launches (or restarts) the script
+
+bool ExitState[GENSCR_NUMST];
+ * An array of exit states. Each exit state, if true, specifies a condition for the script
+ *     to stop running passively. Use the 'GENSCR_EXIT_' constants from 'std_constants.zh'.
+ * All states default to 'false'
+
+bool ReloadState[GENSCR_NUMST];
+ * An array of reload states. Each reload state, if true, specifies a condition for the script
+ *     to exit and relaunch if running. Use the 'GENSCR_EXIT_' constants from 'std_constants.zh'.
+ * All states default to 'false'
+ * GENSCR_ST_RELOAD: Exits/Reloads upon exiting to the save select screen.
+ * GENSCR_ST_CONTINUE: Exits/Reloads upon 'F6->Continue' or similar.
+ * GENSCR_ST_CHANGE_SCREEN: Exits/Reloads upon loading a new screen
+ * GENSCR_ST_CHANGE_DMAP: Exits/Reloads upon loading a new dmap
+ * GENSCR_ST_CHANGE_LEVEL: Exits/Reloads upon loading a new dmap level
+
+int DataSize;
+ * Represents the size of the 'Data[]' array.
+ * Read/Write, result saves to the save file.
+ * If written larger than current size, 'new' space will be zeroed out.
+ * Default 0, range 0-214748.
+
+untyped Data[DataSize];
+ * An array of variable size, settable in 'DataSize' above.
+ * This data is saved to the save file.
+ * Attempting to access any index '>= DataSize' results in an error.
+
+untyped InitD[8];
+ * Access to the InitD[] for this script slot
+ * This is shared by the passive and frozen modes
 
 
 

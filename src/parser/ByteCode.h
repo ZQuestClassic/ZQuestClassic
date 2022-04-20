@@ -1341,8 +1341,15 @@
 #define SHOWNMSG                1258
 #define COMBODTRIGGERFLAGS2     1259
 #define COMBODTRIGGERBUTTON     1260
+#define REFGENERICDATA          1261
+#define GENDATARUNNING          1262
+#define GENDATASIZE             1263
+#define GENDATAEXITSTATE        1264
+#define GENDATADATA             1265
+#define GENDATAINITD            1266
+#define GENDATARELOADSTATE      1267
 
-#define LAST_BYTECODE           1261
+#define LAST_BYTECODE           1268
 
 //} END OF BYTECODE
 
@@ -1846,6 +1853,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OWaitdraw();
+		}
+	};
+	
+	class OWaitTo : public BinaryOpcode
+	{
+	public:
+		OWaitTo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWaitTo(a->clone(),b->clone());
 		}
 	};
 	
@@ -3093,6 +3111,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OLoadBShopRegister(a->clone());
+		}
+	};
+
+	class OLoadGenericDataR : public UnaryOpcode
+	{
+	public:
+		OLoadGenericDataR(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadGenericDataR(a->clone());
 		}
 	};
 
@@ -9818,6 +9847,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OModuleGetIC(a->clone(), b->clone());
+		}
+	};
+	class ORunGenericFrozenScript : public UnaryOpcode
+	{
+	public:
+		ORunGenericFrozenScript(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ORunGenericFrozenScript(a->clone());
 		}
 	};
 }

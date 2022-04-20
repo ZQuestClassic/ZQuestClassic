@@ -6830,264 +6830,268 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 
 int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    int32_t i;
-    int32_t tx;
-    int32_t sd=2; //selected delta
-    TABPANEL *panel=(TABPANEL *)d->dp;
-    DIALOG   *panel_dialog=NULL, *current_object=NULL;
-    int32_t selected=0;
-    int32_t counter=0;
-    ASSERT(d);
-    int32_t temp_d, temp_d2;
-    
-    if(d->dp==NULL) return D_O_K;
-    
-    panel_dialog=(DIALOG *)d->dp3;
-    
-    for(i=0; panel[i].text; ++i)
-    {
-        if((panel[i].flags&D_SELECTED) && !(d->flags & D_HIDDEN))
-        {
-            for(counter=0; counter<panel[i].objects; counter++)
-            {
-                current_object=panel_dialog+(panel[i].dialog[counter]);
-                current_object->flags&=~D_HIDDEN;
-            }
-        }
-        else
-        {
-            for(counter=0; counter<panel[i].objects; counter++)
-            {
-                current_object=panel_dialog+(panel[i].dialog[counter]);
-                current_object->flags|=D_HIDDEN;
-                
-                if(current_object->proc == &jwin_tab_proc)
-                    object_message(current_object,0,c);
-            }
-        }
-        
-        /*if (d->flags & D_HIDDEN)
-        {
-        	for(counter=0; counter<panel[i].objects; counter++)
-            {
-              current_object=panel_dialog+(panel[i].dialog[counter]);
-              current_object->x=zq_screen_w*3;
-              current_object->y=zq_screen_h*3;
-            }
-        }*/
-    }
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-    {
-        FONT *oldfont = font;
-        
-        if(d->x<zq_screen_w&&d->y<zq_screen_h)
-        {
-            if(d->dp2)
-            {
-                font = (FONT *)d->dp2;
-            }
-            
-            panel_dialog=(DIALOG *)d->dp3;
-            rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
-            rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, scheme[jcBOX]); //panel
-            _allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
-            _allegro_vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
-            _allegro_vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
-            _allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
-            _allegro_hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
-            _allegro_hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
-            tx=d->x;
-            
-            if(d->dp)
-            {
-                if(!(panel[((d->d1&0xFF00)>>8)].flags&D_SELECTED))
-                {
-                    _allegro_hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
-                    _allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
-                }
-                
-                tx+=2;
-                
-                for(i=0; panel[i].text; ++i)
-                {
-                    if(panel[i].flags&D_SELECTED)
-                    {
-                        selected=i;
-                    }
-                }
-                
-                for(i=((d->d1&0xFF00)>>8); panel[i].text&&i<=last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w); ++i)
-                {
-                    sd=(panel[i].flags&D_SELECTED)?0:2;
-                    
-                    if((i==((d->d1&0xFF00)>>8)) || (!(panel[i-1].flags&D_SELECTED)))
-                    {
-                        _allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
-                        _allegro_vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
-                        putpixel(screen, tx+1-(2-sd), d->y+sd+1, scheme[jcLIGHT]);                               //left angle
-                    }
-                    
-                    _allegro_hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcLIGHT]); //top
-                    _allegro_hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcMEDLT]); //top
-                    
-                    if(!(panel[i].flags&D_SELECTED))
-                    {
-                        _allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcLIGHT]); //bottom
-                        _allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcMEDLT]); //bottom
-                    }
-                    
-                    tx+=4;
-                    gui_textout_ln(screen, (uint8_t*)panel[i].text, tx+4, d->y+sd+4, scheme[jcBOXFG], scheme[jcBOX], 0);
-                    tx+=text_length(font, (char *)panel[i].text)+10;
-                    
-                    if(!(panel[i+1].text) || (!(panel[i+1].flags&D_SELECTED)))
-                    {
-                        putpixel(screen, tx-1+(2-sd), d->y+sd+1, scheme[jcDARK]); //right angle
-                        _allegro_vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
-                        _allegro_vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
-                    }
-                    
-                    tx++;
-                }
-                
-                if(((d->d1&0xFF00)>>8)!=0||last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w)+1<tab_count(panel))
-                {
-                    jwin_draw_text_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", 0, true);
-                    jwin_draw_text_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", 0, true);
-                }
-            }
-            
-            if((tx+(2-sd))<(d->x+d->w))
-            {
-                _allegro_hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
-                _allegro_hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
-            }
-            
-            font = oldfont;
-            
-            //what dialog is this tab control in (programmer must set manually)
-            panel_dialog=(DIALOG *)d->dp3;
-            
-            //for each object handled by the currently selected tab...
-            for(counter=0; counter<panel[selected].objects; counter++)
-            {
-                //assign current_object to one of the controls handled by the tab
-                current_object=panel_dialog+(panel[selected].dialog[counter]);
-                //remember the x and y positions of the control
-                current_object->x=panel[selected].xy[counter*2];
-                current_object->y=panel[selected].xy[counter*2+1];
-                object_message(current_object, MSG_DRAW, 0);
-            }
-            
-            //if there was a previously selected tab...
-            if((d->d1&0x00FF)!=0x00FF)
-            {
-                //for each object handled by the tab
-                for(counter=0; counter<panel[d->d1&0xFF].objects; counter++)
-                {
-                    //assign current_object to one of the controls handled by the tab
-                    current_object=panel_dialog+(panel[d->d1&0xFF].dialog[counter]);
-                    //          //remember the x and y positions of the control
-                    //          panel[d->d1].xy[counter*2]=current_object->x;
-                    //          panel[d->d1].xy[counter*2+1]=current_object->y;
-                    current_object->x=zq_screen_w*3;
-                    current_object->y=zq_screen_h*3;
-                }
-            }
-        }
-    }
-    break;
-    
-    case MSG_CLICK:
-    {
-        d->d1&=0xFF00;
-        d->d1|=0x00FF;
-        
-        // is the mouse on one of the tab arrows (if visible) or in the tab area?
-        if(uses_tab_arrows(panel, d->w)&&(mouse_in_rect(d->x+d->w-28, d->y+2, 28, 14)))
-        {
-            if(mouse_in_rect(d->x+d->w-28, d->y+2, 14, 14))
-            {
-                if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A"))
-                {
-                    temp_d=((d->d1&0xFF00)>>8);
-                    temp_d2=(d->d1&0x00FF);
-                    
-                    if(temp_d>0)
-                    {
-                        --temp_d;
-                    }
-                    
-                    d->d1=(temp_d<<8)|temp_d2;
-                    d->flags|=D_DIRTY;
-                }
-            }
-            else if(mouse_in_rect(d->x+d->w-14, d->y+2, 14, 14))
-            {
-                if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
-                {
-                    temp_d=((d->d1&0xFF00)>>8);
-                    temp_d2=(d->d1&0x00FF);
-                    
-                    if(last_visible_tab(panel, temp_d, d->w)<(tab_count(panel)-1))
-                    {
-                        ++temp_d;
-                    }
-                    
-                    d->d1=(temp_d<<8)|temp_d2;
-                    d->flags|=D_DIRTY;
-                }
-            }
-        }
-        else
-        {
-            d_tab_proc(msg, d, c);
-        }
-    }
-    break;
-    
-    default:
-        return d_tab_proc(msg, d, c);
-        break;
-    }
-    
-    panel_dialog=(DIALOG *)d->dp3;
-    
-    if(d->flags & D_HIDDEN)
-    {
-        for(i=0; panel[i].text; ++i)
-        {
-            for(counter=0; counter<panel[i].objects; counter++)
-            {
-                current_object=panel_dialog+(panel[i].dialog[counter]);
-                current_object->x=zq_screen_w*3;
-                current_object->y=zq_screen_h*3;
-            }
-        }
-        
-        //d->x=zq_screen_w*3;
-        //d->y=zq_screen_h*3;
-    }
-    else
-    {
-        for(i=0; panel[i].text; ++i)
-        {
-            for(counter=0; counter<panel[i].objects; counter++)
-            {
-                current_object=panel_dialog+(panel[i].dialog[counter]);
-                current_object->x=panel[i].xy[counter*2];
-                current_object->y=panel[i].xy[counter*2+1];
-            }
-        }
-        
-        // d->x=zq_screen_w*3;
-        //d->y=zq_screen_h*3;
-    }
-    
-    return D_O_K;
+	int32_t i;
+	int32_t tx;
+	int32_t sd=2; //selected delta
+	TABPANEL *panel=(TABPANEL *)d->dp;
+	DIALOG   *panel_dialog=NULL, *current_object=NULL;
+	int32_t selected=0;
+	int32_t counter=0;
+	ASSERT(d);
+	int32_t temp_d, temp_d2;
+	
+	if(d->dp==NULL) return D_O_K;
+	
+	panel_dialog=(DIALOG *)d->dp3;
+	
+	for(i=0; panel[i].text; ++i)
+	{
+		if((panel[i].flags&D_SELECTED) && !(d->flags & D_HIDDEN))
+		{
+			for(counter=0; counter<panel[i].objects; counter++)
+			{
+				current_object=panel_dialog+(panel[i].dialog[counter]);
+				current_object->flags&=~D_HIDDEN;
+			}
+		}
+		else
+		{
+			for(counter=0; counter<panel[i].objects; counter++)
+			{
+				current_object=panel_dialog+(panel[i].dialog[counter]);
+				current_object->flags|=D_HIDDEN;
+				
+				if(current_object->proc == &jwin_tab_proc)
+					object_message(current_object,0,c);
+			}
+		}
+		
+		/*if (d->flags & D_HIDDEN)
+		{
+			for(counter=0; counter<panel[i].objects; counter++)
+			{
+			  current_object=panel_dialog+(panel[i].dialog[counter]);
+			  current_object->x=zq_screen_w*3;
+			  current_object->y=zq_screen_h*3;
+			}
+		}*/
+	}
+	
+	FONT *oldfont = font;
+	switch(msg)
+	{
+	case MSG_DRAW:
+	{
+		if(d->x<zq_screen_w&&d->y<zq_screen_h)
+		{
+			if(d->dp2)
+			{
+				font = (FONT *)d->dp2;
+			}
+			
+			panel_dialog=(DIALOG *)d->dp3;
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
+			rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, scheme[jcBOX]); //panel
+			_allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
+			_allegro_vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
+			_allegro_vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
+			_allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
+			_allegro_hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
+			_allegro_hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
+			tx=d->x;
+			
+			if(d->dp)
+			{
+				if(!(panel[((d->d1&0xFF00)>>8)].flags&D_SELECTED))
+				{
+					_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
+					_allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
+				}
+				
+				tx+=2;
+				
+				for(i=0; panel[i].text; ++i)
+				{
+					if(panel[i].flags&D_SELECTED)
+					{
+						selected=i;
+					}
+				}
+				
+				for(i=((d->d1&0xFF00)>>8); panel[i].text&&i<=last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w); ++i)
+				{
+					sd=(panel[i].flags&D_SELECTED)?0:2;
+					
+					if((i==((d->d1&0xFF00)>>8)) || (!(panel[i-1].flags&D_SELECTED)))
+					{
+						_allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
+						_allegro_vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
+						putpixel(screen, tx+1-(2-sd), d->y+sd+1, scheme[jcLIGHT]);                               //left angle
+					}
+					
+					_allegro_hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcLIGHT]); //top
+					_allegro_hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcMEDLT]); //top
+					
+					if(!(panel[i].flags&D_SELECTED))
+					{
+						_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcLIGHT]); //bottom
+						_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcMEDLT]); //bottom
+					}
+					
+					tx+=4;
+					gui_textout_ln(screen, (uint8_t*)panel[i].text, tx+4, d->y+sd+4, scheme[jcBOXFG], scheme[jcBOX], 0);
+					tx+=text_length(font, (char *)panel[i].text)+10;
+					
+					if(!(panel[i+1].text) || (!(panel[i+1].flags&D_SELECTED)))
+					{
+						putpixel(screen, tx-1+(2-sd), d->y+sd+1, scheme[jcDARK]); //right angle
+						_allegro_vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
+						_allegro_vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
+					}
+					
+					tx++;
+				}
+				
+				if(((d->d1&0xFF00)>>8)!=0||last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w)+1<tab_count(panel))
+				{
+					jwin_draw_text_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", 0, true);
+					jwin_draw_text_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", 0, true);
+				}
+			}
+			
+			if((tx+(2-sd))<(d->x+d->w))
+			{
+				_allegro_hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
+				_allegro_hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
+			}
+			
+			font = oldfont;
+			
+			//what dialog is this tab control in (programmer must set manually)
+			panel_dialog=(DIALOG *)d->dp3;
+			
+			//for each object handled by the currently selected tab...
+			for(counter=0; counter<panel[selected].objects; counter++)
+			{
+				//assign current_object to one of the controls handled by the tab
+				current_object=panel_dialog+(panel[selected].dialog[counter]);
+				//remember the x and y positions of the control
+				current_object->x=panel[selected].xy[counter*2];
+				current_object->y=panel[selected].xy[counter*2+1];
+				object_message(current_object, MSG_DRAW, 0);
+			}
+			
+			//if there was a previously selected tab...
+			if((d->d1&0x00FF)!=0x00FF)
+			{
+				//for each object handled by the tab
+				for(counter=0; counter<panel[d->d1&0xFF].objects; counter++)
+				{
+					//assign current_object to one of the controls handled by the tab
+					current_object=panel_dialog+(panel[d->d1&0xFF].dialog[counter]);
+					//          //remember the x and y positions of the control
+					//          panel[d->d1].xy[counter*2]=current_object->x;
+					//          panel[d->d1].xy[counter*2+1]=current_object->y;
+					current_object->x=zq_screen_w*3;
+					current_object->y=zq_screen_h*3;
+				}
+			}
+		}
+	}
+	break;
+	
+	case MSG_CLICK:
+	{
+		d->d1&=0xFF00;
+		d->d1|=0x00FF;
+		if(d->dp2)
+		{
+			font = (FONT *)d->dp2;
+		}
+		
+		// is the mouse on one of the tab arrows (if visible) or in the tab area?
+		if(uses_tab_arrows(panel, d->w)&&(mouse_in_rect(d->x+d->w-28, d->y+2, 28, 14)))
+		{
+			if(mouse_in_rect(d->x+d->w-28, d->y+2, 14, 14))
+			{
+				if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A"))
+				{
+					temp_d=((d->d1&0xFF00)>>8);
+					temp_d2=(d->d1&0x00FF);
+					
+					if(temp_d>0)
+					{
+						--temp_d;
+					}
+					
+					d->d1=(temp_d<<8)|temp_d2;
+					d->flags|=D_DIRTY;
+				}
+			}
+			else if(mouse_in_rect(d->x+d->w-14, d->y+2, 14, 14))
+			{
+				if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
+				{
+					temp_d=((d->d1&0xFF00)>>8);
+					temp_d2=(d->d1&0x00FF);
+					
+					if(last_visible_tab(panel, temp_d, d->w)<(tab_count(panel)-1))
+					{
+						++temp_d;
+					}
+					
+					d->d1=(temp_d<<8)|temp_d2;
+					d->flags|=D_DIRTY;
+				}
+			}
+		}
+		else
+		{
+			d_tab_proc(msg, d, c);
+		}
+		font = oldfont;
+	}
+	break;
+	
+	default:
+		return d_tab_proc(msg, d, c);
+		break;
+	}
+	
+	panel_dialog=(DIALOG *)d->dp3;
+	
+	if(d->flags & D_HIDDEN)
+	{
+		for(i=0; panel[i].text; ++i)
+		{
+			for(counter=0; counter<panel[i].objects; counter++)
+			{
+				current_object=panel_dialog+(panel[i].dialog[counter]);
+				current_object->x=zq_screen_w*3;
+				current_object->y=zq_screen_h*3;
+			}
+		}
+		
+		//d->x=zq_screen_w*3;
+		//d->y=zq_screen_h*3;
+	}
+	else
+	{
+		for(i=0; panel[i].text; ++i)
+		{
+			for(counter=0; counter<panel[i].objects; counter++)
+			{
+				current_object=panel_dialog+(panel[i].dialog[counter]);
+				current_object->x=panel[i].xy[counter*2];
+				current_object->y=panel[i].xy[counter*2+1];
+			}
+		}
+		
+		// d->x=zq_screen_w*3;
+		//d->y=zq_screen_h*3;
+	}
+	
+	return D_O_K;
 }
 
 int32_t discern_tab(GUI::TabPanel *panel, int32_t first_tab, int32_t x)

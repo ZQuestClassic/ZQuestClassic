@@ -406,6 +406,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 	case ZVARTYPEID_RNG: return &RNGSymbols::getInst();
 	case ZVARTYPEID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
 	case ZVARTYPEID_BOTTLESHOP: return &BottleShopSymbols::getInst();
+	case ZVARTYPEID_GENERICDATA: return &GenericDataSymbols::getInst();
     default: return NULL;
     }
 }
@@ -590,6 +591,7 @@ static AccessorTable GlobalTable[] =
 	{ "Quit",                   ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Waitframe",              ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Waitdraw",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "WaitTo",                 ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Trace",                  ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "TraceLWeapon",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "TraceEWeapon",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -939,6 +941,18 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
+	//void WaitTo(int32_t, bool)
+	{
+	    Function* function = getFunction("WaitTo", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        addOpcode2 (code, new OWaitTo(new VarArgument(EXP1), new VarArgument(EXP2)));
+        RETURN();
+        function->giveCode(code);
+	}
     //void Trace(int32_t val)
     {
 	    Function* function = getFunction("Trace", 1);
@@ -4678,6 +4692,7 @@ static AccessorTable gameTable[] =
 	{ "LoadRNG",                       ZVARTYPEID_RNG,           FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadBottleData",                ZVARTYPEID_BOTTLETYPE,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "LoadBottleShopData",            ZVARTYPEID_BOTTLESHOP,    FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "LoadGenericData",               ZVARTYPEID_GENERICDATA,   FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "CreateBitmap",                  ZVARTYPEID_BITMAP,        FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "PlayOgg",                       ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "GetOggPos",                     ZVARTYPEID_FLOAT,         FUNCTION,     0,                    1,              FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_GAME, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -4806,6 +4821,21 @@ void GameSymbols::generateCode()
         POPREF();
         addOpcode2 (code, new OLoadBShopRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFBOTTLESHOP)));
+        RETURN();
+        function->giveCode(code);
+    }
+	//GenericData
+    {
+	    Function* function = getFunction("LoadGenericData", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OLoadGenericDataR(new VarArgument(EXP1)));
+        addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFGENERICDATA)));
         RETURN();
         function->giveCode(code);
     }
@@ -14127,6 +14157,50 @@ void BottleShopSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
+}
+
+GenericDataSymbols GenericDataSymbols::singleton = GenericDataSymbols();
+
+static AccessorTable GenericDataTable[] =
+{
+	//name,                     rettype,                  setorget,     var,                numindex,      funcFlags,                            numParams,   params
+	{ "RunFrozen",              ZVARTYPEID_BOOL,          FUNCTION,     0,                  1,             FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_GENERICDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getRunning",             ZVARTYPEID_BOOL,          GETTER,       GENDATARUNNING,     1,             0,                                    1,           { ZVARTYPEID_GENERICDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setRunning",             ZVARTYPEID_VOID,          SETTER,       GENDATARUNNING,     1,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getDataSize",            ZVARTYPEID_FLOAT,         GETTER,       GENDATASIZE,        1,             0,                                    1,           { ZVARTYPEID_GENERICDATA, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setDataSize",            ZVARTYPEID_VOID,          SETTER,       GENDATASIZE,        1,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getExitState[]",         ZVARTYPEID_BOOL,          GETTER,       GENDATAEXITSTATE,   1,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setExitState[]",         ZVARTYPEID_VOID,          SETTER,       GENDATAEXITSTATE,   1,             0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getReloadState[]",       ZVARTYPEID_BOOL,          GETTER,       GENDATARELOADSTATE, 1,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setReloadState[]",       ZVARTYPEID_VOID,          SETTER,       GENDATARELOADSTATE, 1,             0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getData[]",              ZVARTYPEID_UNTYPED,       GETTER,       GENDATADATA,        214748,        0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setData[]",              ZVARTYPEID_VOID,          SETTER,       GENDATADATA,        214748,        0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getInitD[]",             ZVARTYPEID_UNTYPED,       GETTER,       GENDATAINITD,       8,             0,                                    2,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setInitD[]",             ZVARTYPEID_VOID,          SETTER,       GENDATAINITD,       8,             0,                                    3,           { ZVARTYPEID_GENERICDATA, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "",                       -1,                       -1,           -1,                 -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+};
+
+GenericDataSymbols::GenericDataSymbols()
+{
+    table = GenericDataTable;
+    refVar = REFGENERICDATA;
+}
+
+void GenericDataSymbols::generateCode()
+{
+    //RunFrozen(genericdata)
+	{
+		Function* function = getFunction("RunFrozen", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop pointer
+		ASSERT_NON_NUL();
+        POPREF();
+        LABELBACK(label);
+        addOpcode2 (code, new ORunGenericFrozenScript(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+	}
 }
 
 

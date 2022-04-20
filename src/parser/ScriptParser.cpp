@@ -354,6 +354,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 					new OSetRegister(new VarArgument(EXP2),
 							new VarArgument(REFCOMBODATA)));
 			}
+			else if (type == ScriptType::genericscr)
+			{
+				addOpcode2(funccode,
+					new OSetRegister(new VarArgument(EXP2),
+							new VarArgument(REFGENERICDATA)));
+			}
 			
 			addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
 		}
