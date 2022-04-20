@@ -838,7 +838,6 @@ void position_mouse_z(int z)
       return;
 
    _mouse_z = z;
-   // local edit
    al_set_mouse_z(z);
    update_mouse();
 }
@@ -854,6 +853,7 @@ void position_mouse_w(int w)
       return;
 
    _mouse_w = w;
+   al_set_mouse_w(w);
    update_mouse();
 }
 
