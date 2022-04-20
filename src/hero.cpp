@@ -235,6 +235,8 @@ void HeroClass::set_respawn_point(bool setwarp)
 	{
 		warpx = x;
 		warpy = y;
+		raftwarpx = x;
+		raftwarpy = y;
 	}
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
 	{
@@ -309,6 +311,8 @@ void HeroClass::go_respawn_point()
 	can_mirror_portal = false; //incase entry is on a portal!
 	warpx=x;
 	warpy=y;
+	raftwarpx = x;
+	raftwarpy = y;
 	trySideviewLadder(); //Cling to ladder automatically
 	
 	if(get_bit(quest_rules, qr_OLD_RESPAWN_POINTS))
@@ -1154,6 +1158,12 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	if(action == falling && new_action != falling)
 	{
 		fallclk = 0; //Stop falling;
+	}
+	
+	if (action == rafting && new_action != rafting)
+	{
+		raftwarpx = x;//If you wanted to make Link stop rafting on a dock combo, don't make the dock retrigger the raft.
+		raftwarpy = y;
 	}
 	
 	switch(new_action)
@@ -11122,18 +11132,18 @@ void HeroClass::do_hopping()
 void HeroClass::do_rafting()
 {
 
-    if(toogam)
-    {
-        action=none; FFCore.setHeroAction(none);
-        return;
-    }
-    
-    FFCore.setHeroAction(rafting);
-    
-    do_lens();
-    
-    herostep();
-    
+	if(toogam)
+	{
+		action=none; FFCore.setHeroAction(none);
+		return;
+	}
+	
+	FFCore.setHeroAction(rafting);
+	
+	do_lens();
+	
+	herostep();
+	
 	//Calculate rafting speed
 	int32_t raft_item = current_item_id(itype_raft);
 	int32_t raft_step = (raft_item < 0 ? 1 : itemsbuf[raft_item].misc1);
@@ -11157,100 +11167,104 @@ void HeroClass::do_rafting()
 	++raftclk;
 	if((raftclk % raft_time) || raft_step == 0) return; //No movement this frame
 	
-    if(!(x.getInt()&15) && !(y.getInt()&15))
-    {
-        // this sections handles switching to raft branches
-        if((MAPFLAG(x,y)==mfRAFT_BRANCH||MAPCOMBOFLAG(x,y)==mfRAFT_BRANCH))
-        {
-            if(dir!=down && DrunkUp() && (isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
-            {
-                dir = up;
-                goto skip;
-            }
-            
-            if(dir!=up && DrunkDown() && (isRaftFlag(nextflag(x,y,down,false))||isRaftFlag(nextflag(x,y,down,true))))
-            {
-                dir = down;
-                goto skip;
-            }
-            
-            if(dir!=right && DrunkLeft() && (isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
-            {
-                dir = left;
-                goto skip;
-            }
-            
-            if(dir!=left && DrunkRight() && (isRaftFlag(nextflag(x,y,right,false))||isRaftFlag(nextflag(x,y,right,true))))
-            {
-                dir = right;
-                goto skip;
-            }
-        }
-        else if((MAPFLAG(x,y)==mfRAFT_BOUNCE||MAPCOMBOFLAG(x,y)==mfRAFT_BOUNCE))
-        {
-            if(dir == left) dir = right;
-            else if(dir == right) dir = left;
-            else if(dir == up) dir = down;
-            else if(dir == down) dir = up;
-        }
-        
-        
-        if(!isRaftFlag(nextflag(x,y,dir,false))&&!isRaftFlag(nextflag(x,y,dir,true)))
-        {
-            if(dir<left) //going up or down
-            {
-                if((isRaftFlag(nextflag(x,y,right,false))||isRaftFlag(nextflag(x,y,right,true))))
-                    dir=right;
-                else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
-                    dir=left;
-                else if(y>0 && y<160) 
+	if(!(x.getInt()&15) && !(y.getInt()&15))
+	{
+		// this sections handles switching to raft branches
+		if((MAPFLAG(x,y)==mfRAFT_BRANCH||MAPCOMBOFLAG(x,y)==mfRAFT_BRANCH))
 		{
-                    action=none; FFCore.setHeroAction(none);
+			if(dir!=down && DrunkUp() && (isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
+			{
+				dir = up;
+				goto skip;
+			}
+			
+			if(dir!=up && DrunkDown() && (isRaftFlag(nextflag(x,y,down,false))||isRaftFlag(nextflag(x,y,down,true))))
+			{
+				dir = down;
+				goto skip;
+			}
+			
+			if(dir!=right && DrunkLeft() && (isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
+			{
+				dir = left;
+				goto skip;
+			}
+			
+			if(dir!=left && DrunkRight() && (isRaftFlag(nextflag(x,y,right,false))||isRaftFlag(nextflag(x,y,right,true))))
+			{
+				dir = right;
+				goto skip;
+			}
 		}
-            }
-            else //going left or right
-            {
-                if((isRaftFlag(nextflag(x,y,down,false))||isRaftFlag(nextflag(x,y,down,true))))
-                    dir=down;
-                else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
-                    dir=up;
-                else if(x>0 && x<240)
+		else if((MAPFLAG(x,y)==mfRAFT_BOUNCE||MAPCOMBOFLAG(x,y)==mfRAFT_BOUNCE))
 		{
-                    action=none; FFCore.setHeroAction(none);
+			if(dir == left) dir = right;
+			else if(dir == right) dir = left;
+			else if(dir == up) dir = down;
+			else if(dir == down) dir = up;
 		}
-            }
-        }
-    }
-    
+		
+		
+		if(!isRaftFlag(nextflag(x,y,dir,false))&&!isRaftFlag(nextflag(x,y,dir,true)))
+		{
+			if(dir<left) //going up or down
+			{
+				if((isRaftFlag(nextflag(x,y,right,false))||isRaftFlag(nextflag(x,y,right,true))))
+					dir=right;
+				else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
+					dir=left;
+				else if(y>0 && y<160) 
+				{
+					action=none; FFCore.setHeroAction(none);
+					x = x.getInt();
+					y = y.getInt();
+				}
+			}
+			else //going left or right
+			{
+				if((isRaftFlag(nextflag(x,y,down,false))||isRaftFlag(nextflag(x,y,down,true))))
+					dir=down;
+				else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
+					dir=up;
+				else if(x>0 && x<240)
+				{
+					action=none; FFCore.setHeroAction(none);
+					x = x.getInt();
+					y = y.getInt();
+				}
+			}
+		}
+	}
+	
 skip:
 
-    switch(dir)
-    {
-    case up:
-        if(x.getInt()&15)
-        {
-            if(x.getInt()&8)
-                x++;
-            else x--;
-        }
-        else y -= step_inc;
-        
-        break;
-        
-    case down:
-        if(x.getInt()&15)
-        {
-            if(x.getInt()&8)
-                x++;
-            else x--;
-        }
-        else y += step_inc;
-        
-        break;
-        
-    case left:
-        if(y.getInt()&15)
-        {
+	switch(dir)
+	{
+	case up:
+		if(x.getInt()&15)
+		{
+			if(x.getInt()&8)
+				x++;
+			else x--;
+		}
+		else y -= step_inc;
+		
+		break;
+		
+	case down:
+		if(x.getInt()&15)
+		{
+			if(x.getInt()&8)
+				x++;
+			else x--;
+		}
+		else y += step_inc;
+		
+		break;
+		
+	case left:
+		if(y.getInt()&15)
+		{
 		if (get_bit(quest_rules, qr_BETTER_RAFT_2))
 		{
 			if ((y.getInt() % 16) < 4) y--;
@@ -11258,34 +11272,34 @@ skip:
 		}
 		else
 		{
-		    if(y.getInt()&8)
+			if(y.getInt()&8)
 			y++;
-		    else y--;
+			else y--;
 		}
-        }
-        else x -= step_inc;
-        
-        break;
-        
-    case right:
-        if(y.getInt()&15)
-        {
+		}
+		else x -= step_inc;
+		
+		break;
+		
+	case right:
+		if(y.getInt()&15)
+		{
 		if (get_bit(quest_rules, qr_BETTER_RAFT_2))
 		{
-			if ((y.getInt() % 16) < 4) y--;
+			if ((y.getInt() % 16) <= 4) y--;
 			else y++;
 		}
 		else
 		{
-		    if(y.getInt()&8)
+			if(y.getInt()&8)
 			y++;
-		    else y--;
+			else y--;
 		}
-        }
-        else x += step_inc;
-        
-        break;
-    }
+		}
+		else x += step_inc;
+		
+		break;
+	}
 }
 
 bool HeroClass::try_hover()
@@ -11727,6 +11741,7 @@ void HeroClass::movehero()
 		{
 			return;
 		}
+		
 		
 		set_respawn_point();
 		trySideviewLadder();
@@ -19498,6 +19513,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 		}
 	}
 	
+	bool RaftPass = false;//Special case for the raft, where only the raft stuff gets checked and nothing else.
+	
 	// check if he's standing on a warp he just came out of
 	// But if the QR is checked, it uses the old logic, cause some quests like Ballad of a Bloodline warp you onto a trigger and this new logic bricks that.
 	if (!get_bit(quest_rules,qr_210_WARPRETURN))
@@ -19506,7 +19523,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			if(((int32_t)x>=warpx-8&&(int32_t)x<=warpx+7)&&warpx!=-1)
 			{
-				return;
+				if (get_bit(quest_rules, qr_BETTER_RAFT_2) && dir != up) RaftPass = true;
+				else return;
 			}
 		}
 	}
@@ -19514,11 +19532,23 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		if((int(y)&0xF8)==warpy)
 		{
-			if(x==warpx) return;
+			if(x==warpx) 
+			{
+				if (get_bit(quest_rules, qr_BETTER_RAFT_2) && dir != up) RaftPass = true;
+				else return;
+			}
 		}
 	}
+	warpy=-1;
 	
-	warpy=255;
+	if(((int32_t)y<raftwarpy-(get_bit(quest_rules, qr_BETTER_RAFT_2)?12:8)||(int32_t)y>raftwarpy+(get_bit(quest_rules, qr_BETTER_RAFT_2)?3:7))||raftwarpy==-1)
+	{
+		raftwarpy = -1;
+	}
+	if (((int32_t)x<raftwarpx - 8 || (int32_t)x>raftwarpx + 7) || raftwarpx == -1)
+	{
+		raftwarpx = -1;
+	}
 	int32_t tx=x;
 	int32_t ty=y;
 	
@@ -19528,6 +19558,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 	int32_t type=0;
 	int32_t water=0;
 	int32_t index = 0;
+	
+	if (RaftPass) goto RaftingStuff;
 	
 	//bool gotpit=false;
 	
@@ -20360,8 +20392,17 @@ void HeroClass::checkspecial2(int32_t *ls)
 			type!=cPIT && type!=cSWIMWARP && type!=cRESET &&
 			!(type==cDIVEWARP && isDiving()))
 	{
+RaftingStuff:
 		if (get_bit(quest_rules, qr_BETTER_RAFT_2))
 		{
+			bool doraft = true;
+			if(((int32_t)y>=raftwarpy-12&&(int32_t)y<=raftwarpy+3)&&raftwarpy!=-1)
+			{
+				if(((int32_t)x>=raftwarpx-8&&(int32_t)x<=raftwarpx+7)&&raftwarpx!=-1)
+				{
+					doraft = false;
+				}
+			}
 			//if (mfRAFT)
 			int32_t rafttypes[2];
 			int32_t raftx1 = tx+6;
@@ -20400,9 +20441,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 							reset_swordcharge();
 							action=rafting; FFCore.setHeroAction(rafting);
 							raftclk=0;
-							sfx(tmpscr->secretsfx);
+							if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+							else sfx(tmpscr->secretsfx);
 						}
-						else if (get_bit(quest_rules, qr_BETTER_RAFT))
+						else if (get_bit(quest_rules, qr_BETTER_RAFT) && doraft)
 						{
 							for (int32_t i = 0; i < 4; ++i)
 							{
@@ -20411,7 +20453,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 									reset_swordcharge();
 									action=rafting; FFCore.setHeroAction(rafting);
 									raftclk=0;
-									sfx(tmpscr->secretsfx);
+									if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+									else sfx(tmpscr->secretsfx);
 									dir = i;
 									break;
 								}
@@ -20421,6 +20464,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 			}
 		}
+		if (RaftPass) return;
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
@@ -20439,6 +20483,14 @@ void HeroClass::checkspecial2(int32_t *ls)
 			//		if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
 			if (!get_bit(quest_rules, qr_BETTER_RAFT_2))
 			{
+				bool doraft = true;
+				if(((int32_t)y>=raftwarpy-8&&(int32_t)y<=raftwarpy+7)&&raftwarpy!=-1)
+				{
+					if(((int32_t)x>=raftwarpx-8&&(int32_t)x<=raftwarpx+7)&&raftwarpx!=-1)
+					{
+						doraft = false;
+					}
+				}
 				if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
 				{
 					if(isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true)))
@@ -20446,9 +20498,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 						reset_swordcharge();
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
-						sfx(tmpscr->secretsfx);
+						if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+						else sfx(tmpscr->secretsfx);
 					}
-					else if (get_bit(quest_rules, qr_BETTER_RAFT))
+					else if (get_bit(quest_rules, qr_BETTER_RAFT) && doraft)
 					{
 						for (int32_t i = 0; i < 4; ++i)
 						{
@@ -20457,7 +20510,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 								reset_swordcharge();
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
-								sfx(tmpscr->secretsfx);
+								if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+								else sfx(tmpscr->secretsfx);
 								dir = i;
 								break;
 							}
@@ -20491,6 +20545,14 @@ void HeroClass::checkspecial2(int32_t *ls)
 			//		if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
 			if (!get_bit(quest_rules, qr_BETTER_RAFT_2))
 			{
+				bool doraft = true;
+				if(((int32_t)y>=raftwarpy-8&&(int32_t)y<=raftwarpy+7)&&raftwarpy!=-1)
+				{
+					if(((int32_t)x>=raftwarpx-8&&(int32_t)x<=raftwarpx+7)&&raftwarpx!=-1)
+					{
+						doraft = false;
+					}
+				}
 				if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
 				{
 					if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
@@ -20498,9 +20560,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 						reset_swordcharge();
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
-						sfx(tmpscr->secretsfx);
+						if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+						else sfx(tmpscr->secretsfx);
 					}
-					else if (get_bit(quest_rules, qr_BETTER_RAFT))
+					else if (get_bit(quest_rules, qr_BETTER_RAFT) && doraft)
 					{
 						for (int32_t i = 0; i < 4; ++i)
 						{
@@ -20509,7 +20572,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 								reset_swordcharge();
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
-								sfx(tmpscr->secretsfx);
+								if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+								else sfx(tmpscr->secretsfx);
 								dir = i;
 								break;
 							}
@@ -20543,6 +20607,14 @@ void HeroClass::checkspecial2(int32_t *ls)
 			//	  if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && type==cOLD_DOCK)
 			if (!get_bit(quest_rules, qr_BETTER_RAFT_2))
 			{
+				bool doraft = true;
+				if(((int32_t)y>=raftwarpy-8&&(int32_t)y<=raftwarpy+7)&&raftwarpy!=-1)
+				{
+					if(((int32_t)x>=raftwarpx-8&&(int32_t)x<=raftwarpx+7)&&raftwarpx!=-1)
+					{
+						doraft = false;
+					}
+				}
 				if(current_item(itype_raft) && action!=rafting && action!=swimhit && action!=gothit && action!=sideswimhit && z==0 && combo_class_buf[type].dock)
 				{
 					if((isRaftFlag(nextflag(tx,ty,dir,false))||isRaftFlag(nextflag(tx,ty,dir,true))))
@@ -20550,9 +20622,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 						reset_swordcharge();
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
-						sfx(tmpscr->secretsfx);
+						if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+						else sfx(tmpscr->secretsfx);
 					}
-					else if (get_bit(quest_rules, qr_BETTER_RAFT))
+					else if (get_bit(quest_rules, qr_BETTER_RAFT) && doraft)
 					{
 						for (int32_t i = 0; i < 4; ++i)
 						{
@@ -20561,7 +20634,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 								reset_swordcharge();
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
-								sfx(tmpscr->secretsfx);
+								if (get_bit(quest_rules, qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
+								else sfx(tmpscr->secretsfx);
 								dir = i;
 								break;
 							}
