@@ -1342,8 +1342,9 @@
 #define COMBODTRIGGERFLAGS2     1259
 #define COMBODTRIGGERBUTTON     1260
 #define REFGENERICDATA          1261
+#define GENDATARUNNING          1262
 
-#define LAST_BYTECODE           1262
+#define LAST_BYTECODE           1263
 
 //} END OF BYTECODE
 
@@ -1847,6 +1848,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OWaitdraw();
+		}
+	};
+	
+	class OWaitTo : public BinaryOpcode
+	{
+	public:
+		OWaitTo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWaitTo(a->clone(),b->clone());
 		}
 	};
 	

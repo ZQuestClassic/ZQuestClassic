@@ -575,8 +575,6 @@ static bool scriptCanSave = true;
 byte curScriptType;
 word curScriptNum;
 
-refInfo genericPassiveData[NUMSCRIPTSGENERIC];
-int32_t generic_passive_stack[NUMSCRIPTSGENERIC][MAX_SCRIPT_REGISTERS];
 std::vector<refInfo*> genericActiveData;
 std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
 bool gen_active_doscript = false;
@@ -641,6 +639,48 @@ int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t screen_stack[MAX_SCRIPT_REGISTERS];
 refInfo ffcScriptData[32];
+
+user_genscript user_scripts[NUMSCRIPTSGENERIC];
+int32_t genscript_timing = SCR_TIMING_START_FRAME;
+static word max_valid_genscript;
+void initUserScripts()
+{
+	genscript_timing = SCR_TIMING_START_FRAME;
+	for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		user_scripts[q].clear();
+	}
+	max_valid_genscript = 0;
+	for(auto q = 1; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		if(genericscripts[q] && genericscripts[q]->valid())
+			max_valid_genscript = q;
+	}
+}
+void FFScript::runGenericPassiveEngine(int32_t scrtm)
+{
+	if(!max_valid_genscript) return; //No generic scripts in the quest!
+	if(genscript_timing != scrtm)
+	{
+		zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
+		while(genscript_timing != scrtm)
+			runGenericPassiveEngine(genscript_timing);
+	}
+	for(auto q = 1; q <= max_valid_genscript; ++q)
+	{
+		user_genscript& scr = user_scripts[q];
+		if(!scr.doscript) continue;
+		if(!genericscripts[q]->valid()) continue;
+		if(scr.waituntil > scrtm || (!scr.wait_atleast && scr.waituntil != scrtm))
+			continue;
+		
+		//Run the script!
+		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+	}
+	if(genscript_timing >= SCR_TIMING_END_FRAME)
+		genscript_timing = SCR_TIMING_START_FRAME;
+	else ++genscript_timing;
+}
 
 void clear_ffc_stack(const byte i)
 {
@@ -11040,6 +11080,13 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		///----------------------------------------------------------------------------------------------------//
+		
+		case GENDATARUNNING:
+			if(ri->genericdataref < 1 || ri->genericdataref >= NUMSCRIPTSGENERIC)
+				ret = 0;
+			else ret = user_scripts[ri->genericdataref].doscript;
+			break;
+		
 		//Most of this is deprecated I believe ~Joe123
 		default:
 		{
@@ -19738,7 +19785,16 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFDIRECTORY: ri->directoryref = value; break;
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
-			
+		
+		case GENDATARUNNING:
+			if(ri->genericdataref < 1 || ri->genericdataref >= NUMSCRIPTSGENERIC)
+				break;
+			if(value)
+				user_scripts[ri->genericdataref].launch();
+			else user_scripts[ri->genericdataref].quit();
+			break;
+		
+		
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
@@ -24508,9 +24564,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		
 		case SCRIPT_GENERIC:
 		{
-			ri = &genericPassiveData[script];
+			ri = &user_scripts[script].ri;
+			ri->genericdataref = script;
 			curscript = genericscripts[script];
-			stack = &generic_passive_stack[script];
+			stack = &user_scripts[script].stack;
 		}
 		break;
 		
@@ -24707,7 +24764,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		#endif
 	}
 	
-	while(scommand != 0xFFFF && scommand != WAITFRAME && scommand != WAITDRAW)
+	while(scommand != 0xFFFF && scommand != WAITFRAME
+		&& scommand != WAITDRAW && scommand != WAITTO)
 	{
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -27997,14 +28055,56 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			switch(type)
 			{
+				case SCRIPT_GENERIC:
 				case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
-					while(scommand == WAITDRAW)
+					Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
+					scommand = NOP;
+					break;
+			}
+		}
+		else if(scommand == WAITTO)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC_FROZEN:
+					//ignore, no warn/error
+					scommand = NOP;
+					break;
+				case SCRIPT_GENERIC:
+				{
+					user_genscript& scr = user_scripts[script];
+					int32_t target = get_register(sarg1)/10000L;
+					bool atleast = get_register(sarg2)!=0;
+					if(unsigned(target) > SCR_TIMING_END_FRAME)
 					{
-						++ri->pc;
-						scommand = curscript->zasm[ri->pc].command;
-						sarg1 = curscript->zasm[ri->pc].arg1;
-						sarg2 = curscript->zasm[ri->pc].arg2;
+						Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
+						scommand = NOP;
+						break;
 					}
+					if(genscript_timing == target ||
+						(atleast && genscript_timing < target))
+					{
+						//Already that time, skip the command
+						scommand = NOP;
+						break;
+					}
+					scr.waituntil = scr_timing(target);
+					scr.wait_atleast = atleast;
+					break;
+				}
+				default:
+					Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
+					scommand = NOP;
+					break;
+			}
+		}
+		else if(scommand == WAITFRAME)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC:
+					user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
+					user_scripts[script].wait_atleast = false;
 					break;
 			}
 		}
@@ -28150,16 +28250,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			}
 			
 			case SCRIPT_GENERIC:
-			{
-				
-				break;
-			}
-			
 			case SCRIPT_GENERIC_FROZEN:
-			{
 				//No Waitdraw
 				break;
-			}
+			
 			default:
 				Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
 				break;
@@ -28182,6 +28276,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			break;
 		
 		case SCRIPT_GENERIC:
+			user_scripts[script].quit();
+			FFScript::deallocateAllArrays(type, i);
 			break;
 		
 		case SCRIPT_GENERIC_FROZEN:
@@ -30557,6 +30653,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	initUserScripts();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
 	if ( zasm_debugger )
@@ -31475,7 +31572,7 @@ void FFScript::runOnLaunchEngine()
 bool FFScript::runGenericFrozenEngine(const word script)
 {
 	static int32_t local_i = 0;
-	if(script < 1 || script > NUMSCRIPTSGENERIC) return false;
+	if(script < 1 || script >= NUMSCRIPTSGENERIC) return false;
 	if(!genericscripts[script]->valid()) return false; //No script to run
 	//Store script refinfo
 	push_ri();
@@ -31526,6 +31623,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 	pop_ri();
 	return true;
 }
+
 bool FFScript::runActiveSubscreenScriptEngine()
 {
 	word activesubscript = DMaps[currdmap].active_sub_script;
@@ -34602,6 +34700,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RNGOWN",         0,   0,   0,   0},
 	{ "LOADGENERICDATA",         1,   0,   0,   0},
 	{ "RUNGENFRZSCR",         1,   0,   0,   0},
+	{ "WAITTO",			   2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -35868,6 +35967,7 @@ script_variable ZASMVars[]=
 	{ "SHOWNMSG",  SHOWNMSG,  0, 0 },
 	{ "COMBODTRIGGERBUTTON",  COMBODTRIGGERBUTTON,  0, 0 },
 	{ "REFGENERICDATA", REFGENERICDATA, 0, 0 },
+	{ "GENDATARUNNING", GENDATARUNNING, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
@@ -36653,6 +36753,26 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 					printf("combodata script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
 				#endif  
 			break;
+			case SCRIPT_GENERIC:
+				al_trace("generic script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				#ifdef _WIN32
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"generic script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("generic script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				#endif  
+				break;
+			case SCRIPT_GENERIC_FROZEN:
+				al_trace("generic (frozen) script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				#ifdef _WIN32
+				if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
+					CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"generic (frozen) script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());}
+				#else //Unix
+					std::cout << "Z_scripterrlog Test\n" << std::endl;
+					printf("generic (frozen) script %u (%s): ", curScriptNum, comboscriptmap[curScriptNum-1].scriptname.c_str());
+				#endif  
+				break;
 		}
 	}
 }

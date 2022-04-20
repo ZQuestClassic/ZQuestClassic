@@ -1027,6 +1027,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RNGOWN",         0,   0,   0,   0},
 	{ "LOADGENERICDATA",         1,   0,   0,   0},
 	{ "RUNGENFRZSCR",         1,   0,   0,   0},
+	{ "WAITTO",			   2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2305,6 +2306,7 @@ script_variable variable_list[]=
 	{"COMBODTRIGGERFLAGS2", COMBODTRIGGERFLAGS2, 0, 0 },
 	{"COMBODTRIGGERBUTTON", COMBODTRIGGERBUTTON, 0, 0 },
 	{ "REFGENERICDATA", REFGENERICDATA, 0, 0 },
+	{ "GENDATARUNNING", GENDATARUNNING, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

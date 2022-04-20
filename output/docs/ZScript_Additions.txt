@@ -2575,6 +2575,19 @@ Available annotations:
 //  Global  //
 //////////////								// Global
 
+void Waitframe();
+ * Pauses the script until the start of the next frame
+
+void Waitdraw();
+ * Attempts to wait until later in a frame. Script-type-dependant.
+
+void WaitTo(int script_timing, bool at_least);
+ * Only for passively-running 'Generic Scripts'
+ * Waits until the specified timing.
+ * If 'at_least' is true, any later timing will also end the wait.
+ * Use the 'SCR_TIMING_' constants from 'std_constants.zh' for 'script_timing'
+ * !WIP! Timings are subject to change
+
 float Distance(float x1, float y1, float x1, float y2)
  * Returns the distance between two sets of coordinates using Pythagoras' Theorem
  * The old version is now std::Distance(...)

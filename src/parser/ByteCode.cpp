@@ -2006,6 +2006,7 @@ string ZScript::VarToString(int32_t ID)
 	case NPCDDEATHSPR: return "NPCDDEATHSPR";
 	
 	case REFGENERICDATA: return "REFGENERICDATA";
+	case GENDATARUNNING: return "GENDATARUNNING";
 	
 	default:
 	{
@@ -2215,6 +2216,11 @@ string OWaitframe::toString()
 string OWaitdraw::toString()
 {
     return "WAITDRAW";
+}
+
+string OWaitTo::toString()
+{
+    return "WAITTO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string ONoOp::toString()

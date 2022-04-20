@@ -612,6 +612,73 @@ void zscript_free_config_entries(const char ***names);
 
 void clearConsole();
 
+
+enum scr_timing
+{
+	//0
+	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
+	SCR_TIMING_POST_DRAW_CLEAR, SCR_TIMING_POST_FFCS,
+	//5
+	SCR_TIMING_POST_GLOBAL_ACTIVE, SCR_TIMING_POST_PLAYER_ACTIVE, SCR_TIMING_POST_DMAPDATA_ACTIVE,
+	SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN, SCR_TIMING_POST_COMBOSCRIPT,
+	//10
+	SCR_TIMING_POST_PUSHBLOCK, SCR_TIMING_POST_ITEMSPRITE_SCRIPT,
+	SCR_TIMING_POST_ITEMSPRITE_ANIMATE, SCR_TIMING_POST_NPC_ANIMATE,
+	SCR_TIMING_POST_EWPN_ANIMATE,
+	//15
+	SCR_TIMING_POST_EWPN_SCRIPT, SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT,
+	SCR_TIMING_POST_PLAYER_ANIMATE, SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT, SCR_TIMING_POST_CASTING,
+	//20
+	SCR_TIMING_POST_LWPN_ANIMATE, SCR_TIMING_POST_DECOPARTICLE_ANIMATE,
+	SCR_TIMING_POST_COLLISIONS_PALETTECYCLE, SCR_TIMING_WAITDRAW,
+	SCR_TIMING_POST_GLOBAL_WAITDRAW,
+	//25
+	SCR_TIMING_POST_PLAYER_WAITDRAW, SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW,
+	SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW, SCR_TIMING_POST_SCREEN_WAITDRAW,
+	SCR_TIMING_POST_FFC_WAITDRAW,
+	//30
+	SCR_TIMING_POST_COMBO_WAITDRAW, SCR_TIMING_POST_ITEM_WAITDRAW,
+	SCR_TIMING_POST_NPC_WAITDRAW, SCR_TIMING_POST_EWPN_WAITDRAW,
+	SCR_TIMING_POST_LWPN_WAITDRAW,
+	//35
+	SCR_TIMING_POST_ITEMSPRITE_WAITDRAW, SCR_TIMING_PRE_DRAW, SCR_TIMING_POST_DRAW,
+	SCR_TIMING_POST_STRINGS, SCR_TIMING_END_FRAME,
+	//40
+	SCR_NUM_TIMINGS
+};
+struct user_genscript
+{
+	bool doscript;
+	bool wait_atleast;
+	scr_timing waituntil;
+	refInfo ri;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+	
+	user_genscript(){clear();}
+	void clear()
+	{
+		doscript = false;
+		wait_atleast = true;
+		waituntil = SCR_TIMING_START_FRAME;
+		ri.Clear();
+		memset(stack, 0, sizeof(stack));
+	}
+	void launch()
+	{
+		doscript = true;
+		wait_atleast = true;
+		waituntil = SCR_TIMING_START_FRAME;
+		ri.Clear();
+		memset(stack, 0, sizeof(stack));
+	}
+	void quit()
+	{
+		doscript = false;
+	}
+};
+extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
+extern int32_t genscript_timing;
+
 class FFScript
 {
 	
@@ -652,6 +719,7 @@ void runWarpScripts(bool waitdraw);
 void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
+void runGenericPassiveEngine(int32_t scrtm);
 bool runGenericFrozenEngine(const word script);
 bool runActiveSubscreenScriptEngine();
 bool runOnMapScriptEngine();
@@ -3022,8 +3090,9 @@ enum ASM_DEFINE
 	RNGOWN,
 	LOADGENERICDATA,
 	RUNGENFRZSCR,
+	WAITTO,
 	
-	NUMCOMMANDS           //0x01B8
+	NUMCOMMANDS           //0x01B9
 };
 
 
@@ -4449,8 +4518,9 @@ enum ASM_DEFINE
 #define COMBODTRIGGERFLAGS2     0x1421
 #define COMBODTRIGGERBUTTON     0x1422
 #define REFGENERICDATA          0x1423
+#define GENDATARUNNING          0x1424
 
-#define NUMVARIABLES         	0x1424
+#define NUMVARIABLES         	0x1425
 
 //} End variables
 
