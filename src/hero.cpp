@@ -19539,7 +19539,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 	}
-	warpy=-1;
+	if (!RaftPass) warpy=-1;
 	
 	if(((int32_t)y<raftwarpy-(get_bit(quest_rules, qr_BETTER_RAFT_2)?12:8)||(int32_t)y>raftwarpy+(get_bit(quest_rules, qr_BETTER_RAFT_2)?3:7))||raftwarpy==-1)
 	{

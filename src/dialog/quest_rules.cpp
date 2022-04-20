@@ -370,6 +370,9 @@ static const GUI::ListData comboRulesList
 	{ "More Sensitive Dock Combos", qr_BETTER_RAFT_2, 
 		"If enabled, the collision for dock combos will only check the bottom part of the player's"
 		" hitbox, as opposed to the bottom and top parts of their hitbox."},
+	{ "Docks use Raft Item's sound", qr_RAFT_SOUND,
+		"The raft will use the sound specified in UseSound when starting rafting,"
+		" as opposed to the screen's secret sound."}
 };
 
 static const GUI::ListData compatRulesList
@@ -1101,10 +1104,7 @@ static const GUI::ListData miscRulesList
 		" the boundary between screens *during scrolling*." },
 	{ "Restarting Level always goes to DMap continue point", qr_LEVEL_RESTART_CONT_POINT,
 		"Effects like Wallmasters and Farore's Wind will go back to the DMap's"
-		" continue point, rather than the last entrance point." },
-	{ "Docks use Raft Item's sound", qr_RAFT_SOUND,
-		"The raft will use the sound specified in UseSound when starting rafting,"
-		" as opposed to the screen's secret sound."}
+		" continue point, rather than the last entrance point." }
 };
 
 static const GUI::ListData nesfixesRulesList
