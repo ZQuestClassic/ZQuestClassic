@@ -1,5 +1,5 @@
 // std_functions.zh
-// 26th Sept, 2021 for ZC 2.55 Alpha 96
+// 20th Apr, 2022 for ZC 2.55 Alpha 107
 
 //A
 
@@ -4430,9 +4430,6 @@ void getScrTimeName(char32 buf, int scrtime)
 			break;
 		case SCR_TIMING_POST_POLL_INPUT:
 			strcpy(buf, "SCR_TIMING_POST_POLL_INPUT");
-			break;
-		case SCR_TIMING_POST_DRAW_CLEAR:
-			strcpy(buf, "SCR_TIMING_POST_DRAW_CLEAR");
 			break;
 		case SCR_TIMING_POST_FFCS:
 			strcpy(buf, "SCR_TIMING_POST_FFCS");

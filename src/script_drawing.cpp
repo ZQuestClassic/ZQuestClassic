@@ -11214,6 +11214,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 
 void CScriptDrawingCommands::Clear()
 {
+	zprint2("Cleared draw commands\n");
 	scb.update();
 	if(commands.empty())
 		return;

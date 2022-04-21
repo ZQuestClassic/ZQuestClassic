@@ -3396,13 +3396,16 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
-void draw_screen(mapscr* this_screen, bool showhero)
+void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
 		return;
 	}
+	
+	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+	
 	//The Plan:
 	//0: Set sideview gravity from dmaps. -Z
 	//1. Draw some layers onto scrollbuf with clipping
@@ -3932,6 +3935,7 @@ void draw_screen(mapscr* this_screen, bool showhero)
 	}
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
+	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 }
 
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)

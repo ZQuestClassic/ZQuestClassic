@@ -2491,7 +2491,6 @@ int32_t init_game()
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptActiveSubscreenScript();
 	ffscript_engine(true);  //Here is a much safer place...
-	
 	return 0;
 }
 
@@ -2641,7 +2640,6 @@ int32_t cont_game()
 			Hero.ganon_intro();
 		}
 	}
-	
 	return 0;
 }
 
@@ -3416,7 +3414,6 @@ void game_loop()
 		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 		
-		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
@@ -3424,6 +3421,11 @@ void game_loop()
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
 		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
 			&& (get_bit(quest_rules,qr_MSGFREEZE)));
+		if(!freezemsg)
+		{
+			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
+		}
+		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		
 		if(fadeclk>=0 && !freezemsg)
 		{
@@ -3473,11 +3475,6 @@ void game_loop()
 		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_POLL_INPUT);
 		
-		if(!freezemsg)
-		{
-			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
-		}
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW_CLEAR);
 		if(!freezeff)
 		{
 			//if ( !FFCore.system_suspend[susptUPDATEFFC] ) 
@@ -3738,9 +3735,8 @@ void game_loop()
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
 		#endif
-		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
-		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr);
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
+		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr,true,true);
+		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 		
 		//clear Hero's last hits 
 		//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
@@ -3932,6 +3928,7 @@ void game_loop()
 		}
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		zprint2("END FRAME\n");
 		//  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
 		break;
 	}

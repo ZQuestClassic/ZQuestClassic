@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 107
-Document Revision: 18th April, 2022
+Document Revision: 20th April, 2022
 
 
  __           _   _                 
@@ -2980,6 +2980,10 @@ int Game->GetUntypedScript("name");
  
 int Game->GetItemSpriteScript("name");
  * Returns the slot ID of the itemsprite script 'name'.
+ * Returns -1 if there is no match.
+
+int Game->GetGenericScript("name");
+ * Returns the slot ID of the generic script 'name'.
  * Returns -1 if there is no match.
  
 int Game->GetNPC("name");

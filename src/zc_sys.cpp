@@ -5016,6 +5016,7 @@ void zapout()
     set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
     blit(framebuf,scrollbuf,0,0,256,0,256,224);
     
+	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
     script_drawing_commands.Clear();
     
     // zap out
@@ -5041,6 +5042,7 @@ void zapin()
     blit(framebuf,scrollbuf,0,0,256,0,256,224);
     
     // zap out
+	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
     for(int32_t i=24; i>=1; i--)
     {
         draw_fuzzy(i);
@@ -5072,6 +5074,7 @@ void wavyout(bool showhero)
     int32_t wavelength=4;
     double palpos=0, palstep=4, palstop=126;
     
+	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
     for(int32_t i=0; i<168; i+=wavelength)
     {
         for(int32_t l=0; l<256; l++)
@@ -5144,6 +5147,7 @@ void wavyin()
     int32_t wavelength=4;
     double palpos=168, palstep=4, palstop=126;
     
+	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
     for(int32_t i=0; i<168; i+=wavelength)
     {
         for(int32_t l=0; l<256; l++)

@@ -1028,6 +1028,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LOADGENERICDATA",         1,   0,   0,   0},
 	{ "RUNGENFRZSCR",         1,   0,   0,   0},
 	{ "WAITTO",			   2,   0,   0,   0},
+	{ "GETGENERICSCRIPT",                1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

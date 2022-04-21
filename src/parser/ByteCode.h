@@ -9270,6 +9270,16 @@ namespace ZScript
 			return new OGETEWEAPONSCRIPT(a->clone());
 		}
 	};
+	class OGETGENERICSCRIPT : public UnaryOpcode
+	{
+	public:
+		OGETGENERICSCRIPT(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGETGENERICSCRIPT(a->clone());
+		}
+	};
 	class OGETHEROSCRIPT : public UnaryOpcode
 	{
 	public:

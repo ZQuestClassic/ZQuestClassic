@@ -657,6 +657,7 @@ void timeExitAllGenscript(byte exState)
 	for(user_genscript& g : user_scripts)
 		g.timeExit(exState);
 }
+
 void FFScript::runGenericPassiveEngine(int32_t scrtm)
 {
 	if(!max_valid_genscript) return; //No generic scripts in the quest!
@@ -25645,6 +25646,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case GETLWEAPONSCRIPT:	FFCore.do_getlweaponscript(); break;
 			case GETEWEAPONSCRIPT:	FFCore.do_geteweaponscript(); break;
 			case GETHEROSCRIPT:	FFCore.do_getheroscript(); break;
+			case GETGENERICSCRIPT:	FFCore.do_getgenericscript(); break;
 			case GETGLOBALSCRIPT:	FFCore.do_getglobalscript(); break;
 			case GETDMAPSCRIPT:	FFCore.do_getdmapscript(); break;
 			case GETSCREENSCRIPT:	FFCore.do_getscreenscript(); break;
@@ -33058,24 +33060,23 @@ void FFScript::do_getcomboscript()
 	set_register(sarg1, (script_num * 10000));
 }
 
-//!TODO GENERIC
-// void FFScript::do_getgenericscript()
-// {
-	// int32_t arrayptr = get_register(sarg1) / 10000;
-	// string the_string;
-	// int32_t script_num = -1;
-	// FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+void FFScript::do_getgenericscript()
+{
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	string the_string;
+	int32_t script_num = -1;
+	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
-	// for(int32_t q = 0; q < NUMSCRIPTSCOMBODATA; q++)
-	// {
-		// if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
-		// {
-			// script_num = q+1;
-			// break;
-		// }
-	// }
-	// set_register(sarg1, (script_num * 10000));
-// }
+	for(int32_t q = 0; q < NUMSCRIPTSGENERIC; q++)
+	{
+		if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
+		{
+			script_num = q+1;
+			break;
+		}
+	}
+	set_register(sarg1, (script_num * 10000));
+}
 
 void FFScript::do_getlweaponscript()
 {
@@ -34877,6 +34878,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "LOADGENERICDATA",         1,   0,   0,   0},
 	{ "RUNGENFRZSCR",         1,   0,   0,   0},
 	{ "WAITTO",			   2,   0,   0,   0},
+	{ "GETGENERICSCRIPT",                1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

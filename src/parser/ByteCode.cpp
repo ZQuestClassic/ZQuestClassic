@@ -5468,6 +5468,10 @@ string OGETEWEAPONSCRIPT::toString()
 {
     return "GETEWEAPONSCRIPT " + getArgument()->toString();
 }
+string OGETGENERICSCRIPT::toString()
+{
+    return "GETGENERICSCRIPT " + getArgument()->toString();
+}
 string OGETHEROSCRIPT::toString()
 {
     return "GETHEROSCRIPT " + getArgument()->toString();
