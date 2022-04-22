@@ -170,15 +170,23 @@ function set_files {
   sed -i -e "s|files: \[\]|files: $R|" $1
 }
 
+function insert_css {
+  sed " /*__INLINECSS__*/  r ../../web/styles.css" "$1" > tmp.html
+  mv tmp.html "$1"
+}
+
 if [ -f zelda.html ]; then
   sed -i -e 's/__TARGET__/zelda/' zelda.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
+  sed -i -e 's|/*__INLINECSS__*/|<script src="zc.data.js"></script>|' zelda.html
   set_files zelda.html
+  insert_css zelda.html
 fi
 if [ -f zquest.html ]; then
   sed -i -e 's/__TARGET__/zquest/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
   set_files zquest.html
+  insert_css zquest.html
 fi
 
 cp -r ../../timidity .
