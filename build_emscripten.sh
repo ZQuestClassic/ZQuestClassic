@@ -9,7 +9,7 @@ then
   exit 1
 fi
 
-EMCC_VERSION=3.1.8
+EMCC_VERSION=3.1.9
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 

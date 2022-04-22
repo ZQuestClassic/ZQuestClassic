@@ -9,19 +9,15 @@ index 7efe323..0f95062 100644
 +// See https://github.com/libsdl-org/SDL/pull/5496
 +#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1
 diff --git a/src/audio/emscripten/SDL_emscriptenaudio.c b/src/audio/emscripten/SDL_emscriptenaudio.c
-index c85d8d0..0ff11cf 100644
+index bc2a0e1..2da2000 100644
 --- a/src/audio/emscripten/SDL_emscriptenaudio.c
 +++ b/src/audio/emscripten/SDL_emscriptenaudio.c
-@@ -349,7 +349,11 @@ EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl * impl)
+@@ -352,7 +352,7 @@ EMSCRIPTENAUDIO_Init(SDL_AudioDriverImpl * impl)
      impl->OpenDevice = EMSCRIPTENAUDIO_OpenDevice;
      impl->CloseDevice = EMSCRIPTENAUDIO_CloseDevice;
  
--    impl->OnlyHasDefaultOutputDevice = 1;
-+    // SDL's emscripten audio specifies only one default audio output device, but turns out
-+    // that can be ignored and things will just work. Without this, only SFX will play and MIDIs
-+    // will error on opening a handle to the audio device.
-+    // See https://github.com/libsdl-org/SDL/issues/5485
-+    impl->OnlyHasDefaultOutputDevice = 0;
+-    impl->OnlyHasDefaultOutputDevice = SDL_TRUE;
++    impl->OnlyHasDefaultOutputDevice = SDL_FALSE;
  
      /* no threads here */
-     impl->SkipMixerLock = 1;
+     impl->LockDevice = impl->UnlockDevice = EMSCRIPTENAUDIO_LockOrUnlockDeviceWithNoMixerLock;
