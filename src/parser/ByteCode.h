@@ -1349,8 +1349,10 @@
 #define GENDATAINITD            1266
 #define GENDATARELOADSTATE      1267
 #define COMBODCSET2FLAGS        1268
+#define HEROIMMORTAL            1269
+#define HEROTILEMOD             1270
 
-#define LAST_BYTECODE           1269
+#define LAST_BYTECODE           1271
 
 //} END OF BYTECODE
 
@@ -8209,6 +8211,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OSwitchCombo(a->clone(),b->clone());
+		}
+	};
+	class OKillPlayer : public UnaryOpcode
+	{
+	public:
+		OKillPlayer(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OKillPlayer(a->clone());
 		}
 	};
 	class OScreenDoSpawn : public Opcode

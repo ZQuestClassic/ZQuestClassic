@@ -1029,6 +1029,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RUNGENFRZSCR",         1,   0,   0,   0},
 	{ "WAITTO",			   2,   0,   0,   0},
 	{ "GETGENERICSCRIPT",                1,   0,   0,   0},
+	{ "KILLPLAYER",                1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2314,6 +2315,8 @@ script_variable variable_list[]=
 	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
+	{ "HEROIMMORTAL", HEROIMMORTAL, 0, 0 },
+	{ "HEROTILEMOD", HEROTILEMOD, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

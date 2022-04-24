@@ -3137,8 +3137,9 @@ enum ASM_DEFINE
 	RUNGENFRZSCR,
 	WAITTO,
 	GETGENERICSCRIPT,
+	KILLPLAYER,
 	
-	NUMCOMMANDS           //0x01BA
+	NUMCOMMANDS           //0x01BB
 };
 
 
@@ -4571,8 +4572,10 @@ enum ASM_DEFINE
 #define GENDATAINITD            0x1428
 #define GENDATARELOADSTATE      0x1429
 #define COMBODCSET2FLAGS        0x142A
+#define HEROIMMORTAL            0x142B
+#define HEROTILEMOD             0x142C
 
-#define NUMVARIABLES         	0x142B
+#define NUMVARIABLES         	0x142D
 
 //} End variables
 

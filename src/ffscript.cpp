@@ -3347,6 +3347,18 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case HEROIMMORTAL:
+		{
+			ret = Hero.immortal * 10000;
+			break;
+		}
+		
+		case HEROTILEMOD:
+		{
+			ret = Hero.getTileModifier()*10000;
+			break;
+		}
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -12187,7 +12199,15 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case HEROSWITCHMAXTIMER:
 		case HEROSWITCHTIMER:
+		case HEROTILEMOD:
 			break; //read-only
+		
+		case HEROIMMORTAL:
+		{
+			Hero.setImmortal(value/10000);
+			break;
+		}
+		
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Input States
@@ -27201,6 +27221,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				
 			}
 			
+			case KILLPLAYER:
+			{
+				Hero.kill(get_register(sarg1));
+				break;
+			}
+			
 			case LINKEXPLODER:
 			{
 				int32_t mode = get_register(sarg1) / 10000;
@@ -34930,6 +34956,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RUNGENFRZSCR",         1,   0,   0,   0},
 	{ "WAITTO",			   2,   0,   0,   0},
 	{ "GETGENERICSCRIPT",                1,   0,   0,   0},
+	{ "KILLPLAYER",                1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -36203,6 +36230,8 @@ script_variable ZASMVars[]=
 	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
+	{ "HEROIMMORTAL", HEROIMMORTAL, 0, 0 },
+	{ "HEROTILEMOD", HEROTILEMOD, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

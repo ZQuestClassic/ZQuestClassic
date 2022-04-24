@@ -2014,6 +2014,8 @@ string ZScript::VarToString(int32_t ID)
 	case GENDATARELOADSTATE: return "GENDATARELOADSTATE";
 	
 	case COMBODCSET2FLAGS: return "COMBODCSET2FLAGS";
+	case HEROIMMORTAL: return "HEROIMMORTAL";
+	case HEROTILEMOD: return "HEROTILEMOD";
 	
 	default:
 	{
@@ -4965,6 +4967,10 @@ string OSwitchEW::toString()
 string OSwitchCombo::toString()
 {
 	return "SWITCHCMB " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OKillPlayer::toString()
+{
+	return "KILLPLAYER " + getArgument()->toString();
 }
 
 string OScreenDoSpawn::toString()

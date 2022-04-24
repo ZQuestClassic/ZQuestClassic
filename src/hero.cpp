@@ -6801,7 +6801,8 @@ void do_trigger_combo(int32_t layer, int32_t pos); //weapons.cpp
 bool HeroClass::animate(int32_t)
 {
 	int32_t lsave=0;
-	
+	if(immortal > 0)
+		--immortal;
 	if (onpassivedmg)
 	{
 		onpassivedmg=false;
@@ -8018,10 +8019,13 @@ bool HeroClass::animate(int32_t)
 	ClearhitHeroUIDs(); //clear them before we advance. 
 	checkhit();
 	
-	if(game->get_life()<=0)
+	bool forcedeath = dying_flags&DYING_FORCED;
+	bool norev = (dying_flags&DYING_NOREV);
+	if(forcedeath || (game->get_life()<=0 && !immortal))
 	{
-		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-		{
+		if(forcedeath)
+			game->set_life(0);
+		if(!norev)
 			for(size_t slot = 0; slot < 256; ++slot)
 			{
 				if(size_t bind = game->get_bottle_slot(slot))
@@ -8098,15 +8102,21 @@ bool HeroClass::animate(int32_t)
 					game->set_bottle_slot(slot,bt->next_type);
 					if(game->get_life() > 0)
 					{
+						dying_flags = 0;
+						forcedeath = false;
 						break; //Revived! Stop drinking things...
 					}
 				}
 			}
-			if(game->get_life()<=0) //Not saved by fairy
+		
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			if(forcedeath || (game->get_life()<=0 && !immortal)) //Not saved by fairy
 			{
 				// So scripts can have one frame to handle hp zero events
-				if(false == (last_hurrah = !last_hurrah))
+				if(norev || false == (last_hurrah = !last_hurrah))
 				{
+					dying_flags = 0;
 					drunkclk=0;
 					lstunclock = 0;
 					is_conveyor_stunned = 0;
@@ -8141,7 +8151,6 @@ bool HeroClass::animate(int32_t)
 		}
 		else //2.50.x
 		{
-			
 			// So scripts can have one frame to handle hp zero events
 			if(false == (last_hurrah = !last_hurrah))
 			{
@@ -8150,7 +8159,6 @@ bool HeroClass::animate(int32_t)
 				
 				return true;
 			}
-			
 		}
 	}
 	else last_hurrah=false;
@@ -28333,6 +28341,14 @@ bool HeroClass::CanSideSwim()
 int32_t HeroClass::getTileModifier()
 {
 	return item_tile_mod() + bunny_tile_mod();
+}
+void HeroClass::setImmortal(int32_t nimmortal)
+{
+	immortal = nimmortal;
+}
+void HeroClass::kill(bool bypassFairy)
+{
+	dying_flags = DYING_FORCED | (bypassFairy ? DYING_NOREV : 0);
 }
 /*** end of hero.cpp ***/
 

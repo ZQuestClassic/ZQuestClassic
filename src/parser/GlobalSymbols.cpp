@@ -2368,7 +2368,12 @@ static AccessorTable HeroSTable[] =
 	{ "setSwitchTimer",         ZVARTYPEID_VOID,          SETTER,       HEROSWITCHTIMER,      1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getSwitchMaxTimer",      ZVARTYPEID_FLOAT,         GETTER,       HEROSWITCHMAXTIMER,   1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setSwitchMaxTimer",      ZVARTYPEID_VOID,          SETTER,       HEROSWITCHMAXTIMER,   1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getImmortal",            ZVARTYPEID_FLOAT,         GETTER,       HEROIMMORTAL,         1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setImmortal",            ZVARTYPEID_VOID,          SETTER,       HEROIMMORTAL,         1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileMod",             ZVARTYPEID_FLOAT,         GETTER,       HEROTILEMOD,          1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTileMod",             ZVARTYPEID_VOID,          SETTER,       HEROTILEMOD,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "SwitchCombo",            ZVARTYPEID_BOOL,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "Kill",                   ZVARTYPEID_VOID,          FUNCTION,     0,                    1,           FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 };
@@ -2597,7 +2602,20 @@ void HeroSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    
+    //bool Kill(player, bool)
+    {
+        Function* function = getFunction("Kill", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        //pop off the param
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OKillPlayer(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 ScreenSymbols ScreenSymbols::singleton = ScreenSymbols();

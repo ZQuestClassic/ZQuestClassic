@@ -4630,6 +4630,10 @@ int SlideSpeed;
  * The number of pixels per frame this NPC will move during ENGINE knockback
  * Range: 0 to 255
 
+bool Immortal;
+ * If true, the enemy will not 'die' even if it has 0hp or is too far off-screen.
+ * '->Remove()' will still delete the npc.
+
 float Scale;
  * The scale factor for this sprited object. 
  * A scale of 0 and a scale of 1 are identical.
@@ -5041,6 +5045,24 @@ bool IsWarping;
  * Returns true if the player is currently being warped
  * Note that as scripts generally do not run in warps, this may not ever return true
  *     during a given warp, depending on the warp type, QRs, script type, etc.
+
+int Immortal;
+ * If non-zero, the player will not die, even if their HP drops to 0.
+ * This will prevent effects such as bottled fairies from being triggered.
+ * If greater than 0, decrements by 1 each frame.
+ * If it becomes 0 while the player has 0 hp, it will act as though their HP just dropped
+ *     to 0 that frame, and normal effects such as fairies will trigger.
+
+int TileMod;
+ * Read-only
+ * The current *total* Player Tile Modifier.
+
+void Kill(bool bypass_revive);
+ * Kills the player. Their HP will be set to 0, and 'Immortal' will be bypassed.
+ * If 'bypass_revive' is true, bottles will not be checked for revival items,
+ *     and the normal single frame delay before death that is used for script-revival
+ *     will also be skipped.
+ * Otherwise, revival processes will occur as normal.
 
 float Scale;
  * The scale factor for this sprited object. 

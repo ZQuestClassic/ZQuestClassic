@@ -79,6 +79,9 @@ typedef struct tilesequence
 #define HOV_OUT 0x02
 #define HOV_PITFALL_OUT 0x04
 
+#define DYING_FORCED 0x01
+#define DYING_NOREV  0x02
+
 class HeroClass : public sprite
 {
 	class WalkflagInfo
@@ -242,10 +245,11 @@ public:
 		switchhookstyle, //the switchhook animation style
 		switchhookarg; //a parameter based on the switchhook style
 	int32_t shiftdir, // shift direction when walking into corners of solid combos
-	lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
-	lbunnyclock,
-	sdir, // scrolling direction
-	sideswimdir;  //for forcing hero to face left or right in sideview
+		lstunclock, //scripted stun clock from weapons; possibly for later eweapon effects in the future. 
+		lbunnyclock,
+		sdir, // scrolling direction
+		sideswimdir,  //for forcing hero to face left or right in sideview
+		immortal; //Timer for being unable to die
 	int32_t hammer_swim_up_offset,
 	hammer_swim_down_offset,
 	hammer_swim_left_offset,
@@ -279,6 +283,7 @@ public:
 	int32_t subscr_speed;
 	bool is_warping;
 	bool can_mirror_portal;
+	byte dying_flags;
 	
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
@@ -314,6 +319,8 @@ public:
 	void explode(int32_t type);
 	int32_t getTileModifier();
 	void setTileModifier(int32_t ntemod);
+	void setImmortal(int32_t nimmortal);
+	void kill(bool bypassFairy);
 	bool try_hover();
 	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
