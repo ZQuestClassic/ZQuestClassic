@@ -68,6 +68,7 @@ export function fsReadAllFiles(folder) {
   return files;
 }
 
+// TODO: use FS.mkdirTree
 export function mkdirp(folderPath) {
   const pathParts = folderPath.split('/')
   let dirPath = '/'
@@ -94,3 +95,26 @@ export function createElement(tagName, className, textContent) {
   el.textContent = textContent;
   return el;
 }
+
+export const getFsHandles = async (dirHandle) => {
+  const handles = [];
+
+  async function collect(curDirHandle) {
+    for await (const entry of curDirHandle.values()) {
+      handles.push(entry);
+      if (entry.kind === 'directory') {
+        await collect(entry);
+      }
+    }
+  }
+
+  await collect(dirHandle);
+
+  const result = new Map();
+  result.set('.', dirHandle);
+  for (const handle of handles) {
+    const relativePath = (await dirHandle.resolve(handle)).join('/');
+    result.set(relativePath, handle);
+  }
+  return result;
+};

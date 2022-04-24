@@ -34,10 +34,9 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
-  FS.mkdir('/local');
-  FS.mkdir('/local/browser');
+  ZC.mkdirp('/local/browser');
   FS.mount(IDBFS, {}, '/local/browser');
-  await new Promise(resolve => FS.syncfs(true, resolve));
+  await ZC.fsSync(true);
   if (!FS.analyzePath('/local/browser/zc.cfg').exists) {
     FS.writeFile('/local/browser/zc.cfg', FS.readFile('/zc.cfg'));
   }
@@ -50,7 +49,7 @@ void em_init_fs() {
 }
 
 EM_ASYNC_JS(void, em_sync_fs_, (), {
-  await ZC.fsSync();
+  await ZC.fsSync(false);
 });
 void em_sync_fs() {
   em_sync_fs_();

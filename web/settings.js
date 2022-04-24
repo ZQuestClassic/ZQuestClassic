@@ -1,38 +1,11 @@
 import { fileSave } from "browser-fs-access";
 import * as kv from "idb-keyval";
-import { createElement, ensureFolderExists, fsReadAllFiles } from "./utils.js";
+import { createElement, fsReadAllFiles, mkdirp } from "./utils.js";
 
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
 
-const getFiles = async (dirHandle, recursive) => {
-  const dirs = [];
-  const files = [];
-  for await (const entry of dirHandle.values()) {
-    if (entry.kind === 'file') {
-      files.push(
-        entry.getFile().then((file) => {
-          file.directoryHandle = dirHandle;
-          file.handle = entry;
-          return file;
-        })
-      );
-    } else if (entry.kind === 'directory' && recursive) {
-      dirs.push(getFiles(entry, recursive));
-    }
-  }
-  return [...(await Promise.all(dirs)).flat(), ...(await Promise.all(files))];
-};
-
 async function setAttachedDir(dir) {
-  if (FS.analyzePath('/local/filesystem').exists) {
-    for (const { path } of fsReadAllFiles('/local/filesystem')) {
-      FS.unlink(path);
-    }
-    // TODO: need to remove directories too...
-    // FS.rmdir('/local/filesystem');
-  }
-
   const options = { mode: 'readwrite' };
   if (dir && await dir.queryPermission(options) !== 'granted') {
     if (await dir.requestPermission(options) !== 'granted') {
@@ -40,6 +13,7 @@ async function setAttachedDir(dir) {
     }
   }
 
+  if (attachedDirHandle) FS.unmount('/local/filesystem');
   attachedDirHandle = dir;
   if (dir) {
     await kv.set('attached-dir', dir);
@@ -51,14 +25,13 @@ async function setAttachedDir(dir) {
 
   if (!dir) return;
 
-  FS.mkdir('/local/filesystem');
-  for (const file of await getFiles(attachedDirHandle, true)) {
-    const resolvedPath = (await attachedDirHandle.resolve(file.handle)).join('/');
-    const path = `/local/filesystem/${resolvedPath}`;
-    ensureFolderExists(path);
-    // TOOD: write empty file and only load when requested.
-    FS.writeFile(path, new Uint8Array(await file.arrayBuffer()));
-  }
+  await import('./fsfs.js');
+  mkdirp('/local/filesystem');
+  FS.mount(FSFS, { dirHandle: attachedDirHandle }, '/local/filesystem');
+  await new Promise((resolve, reject) => FS.syncfs(true, (err) => {
+    if (err) return reject(err);
+    resolve();
+  }));
 }
 
 export async function setupSettingsPanel() {
