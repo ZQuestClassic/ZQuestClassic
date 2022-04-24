@@ -21,9 +21,10 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
     const quest = quests[i];
     if (!quest.urls.length) continue;
 
-    const url = quest.urls[0];
-    const path = window.ZC.createPathFromUrl(url);
-    writeFakeFile(path, 'https://hoten.cc/quest-maker/play/' + url);
+    for (const url of quest.urls) {
+      const path = window.ZC.createPathFromUrl(url);
+      writeFakeFile(path, 'https://hoten.cc/quest-maker/play/' + url);
+    }
     for (const extraResourceUrl of quest.extraResources || []) {
       writeFakeFile(window.ZC.createPathFromUrl(extraResourceUrl), 'https://hoten.cc/quest-maker/play/' + extraResourceUrl);
     }
