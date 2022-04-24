@@ -164,11 +164,20 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 	string intpart;
 	string fpart;
 	bool is_long = false;
+	bool alt = false;
 	bool neg = negative;
 	switch(type)
 	{
 		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX: case TYPE_L_OCTAL:
+		case TYPE_L_BINARY_2: case TYPE_L_OCTAL_2:
 			is_long = true;
+			break;
+	}
+	switch(type)
+	{
+		case TYPE_BINARY_2: case TYPE_L_BINARY_2:
+		case TYPE_OCTAL_2: case TYPE_L_OCTAL_2:
+			alt = true;
 			break;
 	}
 
@@ -276,10 +285,19 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			break;
 		}
 
-		case TYPE_L_OCTAL:
 		case TYPE_OCTAL:
+		case TYPE_L_OCTAL:
+		case TYPE_OCTAL_2:
+		case TYPE_L_OCTAL_2:
 		{
-			if(is_long)
+			if(alt)
+			{
+				//Trim '0o' prefix
+				f = f.substr(2,f.size()-2);
+				if(is_long) //...and 'L' suffix
+					f = f.substr(0,f.size()-1);
+			}
+			else if(is_long)
 			{
 				// Trim off the "oL".
 				f = f.substr(0,f.size()-2);
@@ -321,17 +339,26 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			break;
 		}
 
-		case TYPE_L_BINARY:
 		case TYPE_BINARY:
+		case TYPE_L_BINARY:
+		case TYPE_BINARY_2:
+		case TYPE_L_BINARY_2:
 		{
-			if(is_long)
+			if(alt)
 			{
-				//trim off the 'Lb'
+				//Trim '0b' prefix
+				f = f.substr(2,f.size()-2);
+				if(is_long) //...and 'L' suffix
+					f = f.substr(0,f.size()-1);
+			}
+			else if(is_long)
+			{
+				//trim 'Lb' / 'bL' suffix
 				f = f.substr(0,f.size()-2);
 			}
 			else
 			{
-				//trim off the 'b'
+				//trim 'b' suffix
 				f = f.substr(0,f.size()-1);
 			}
 			int32_t val2=0;

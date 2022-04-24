@@ -951,6 +951,22 @@ You may now use escape sequences in a SINGLECHAR type:
 	
 	If no type is specified, the array will default to 'untyped'.
 
+///////////////////////
+/// Binary Literals ///
+///////////////////////
+
+Binary numbers may be specified as '01010101b', or '0b01010101'
+	(both representing '84' in this example).
+
+//////////////////////
+///  Hex Literals  ///
+//////////////////////
+
+Hexadecimal numbers may be specified, prefixed with '0x'.
+
+Ex. 0x22 == 34
+    0x4A == 74
+
 //////////////////////
 /// Octal Literals ///
 //////////////////////
@@ -959,7 +975,11 @@ Similarly to hex and binary literals, you can now specify numbers using octal li
 To specify an octal literal, the digits of the number must be 0-7, and the number must have an 'o' appended.
 
 Ex: 17o == 15
-Ex: 47o == 39	
+Ex: 47o == 39
+
+Prefixing with '0o' is a valid alternative
+
+Ex: 0o21 ==	17
 
 /////////////////////
 /// Long Literals ///
@@ -973,7 +993,9 @@ Long literals:
 	0xFL (== 0.0015, == 15L) //Hex long
 	101010Lb (== 0.0042, == 42L) //Binary long
 	00011bL (== 0.0003, == 3L) //Binary long
+	0b01011L (== 0.0011, == 11L) //Binary long
 	17oL, 17Lo (== 0.0015, == 15L) //Octal long
+	0o27L (== 0.0023, == 23L) //Octal long
 
  _______                  ___________            __                               
  \      \   ______  _  __ \_   _____/___ _____ _/  |_ __ _________   ____   ______

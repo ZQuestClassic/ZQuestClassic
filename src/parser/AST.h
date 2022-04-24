@@ -304,7 +304,11 @@ namespace ZScript
 	class ASTFloat : public AST
 	{
 	public:
-		enum Type {TYPE_DECIMAL, TYPE_BINARY, TYPE_HEX, TYPE_L_DECIMAL, TYPE_L_BINARY, TYPE_L_HEX, TYPE_OCTAL, TYPE_L_OCTAL};
+		enum Type {TYPE_DECIMAL, TYPE_BINARY, TYPE_HEX,
+			TYPE_L_DECIMAL, TYPE_L_BINARY, TYPE_L_HEX,
+			TYPE_OCTAL, TYPE_L_OCTAL,
+			TYPE_BINARY_2, TYPE_L_BINARY_2,
+			TYPE_OCTAL_2, TYPE_L_OCTAL_2};
 	
 		ASTFloat(char* value, Type type,
 		         LocationData const& location = LOC_NONE);

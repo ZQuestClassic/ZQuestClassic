@@ -467,6 +467,12 @@ appx_equal	TOKEN( APPXEQUAL );
 [0-1]+bL			{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
 }
+0b[0-1]+			{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY_2, yylloc) );
+}
+0b[0-1]+L			{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY_2, yylloc) );
+}
 [0-7]+o 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );
 }
@@ -475,6 +481,12 @@ appx_equal	TOKEN( APPXEQUAL );
 }
 [0-7]+Lo 		{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
+}
+0o[0-7]+ 		{
+	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL_2, yylloc) );
+}
+0o[0-7]+L 		{
+	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL_2, yylloc) );
 }
 
  /* Char */

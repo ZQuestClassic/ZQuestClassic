@@ -1,6 +1,7 @@
 // 2.55 Change Log
 // Updated 24th April, 2022
 
+New ZScript binary/octal format option
 Add visual button prompts for signposts/chests, and a 'ButtonPrompt' combo type
 	to display button prompts generically.
 Add 'Hero->TileMod' (read-only),
