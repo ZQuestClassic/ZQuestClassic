@@ -1,5 +1,5 @@
 import { renderSettingsPanel, setupSettingsPanel } from "./settings.js";
-import { createUrlString, ensureFolderExists, fetchWithProgress, mkdirp } from "./utils.js";
+import { createUrlString, fetchWithProgress } from "./utils.js";
 
 window.ZC = {
   pathToUrl: {},
@@ -35,8 +35,6 @@ window.ZC = {
     const response = await ZC.fetch(url, opts);
     return new Uint8Array(await response.arrayBuffer());
   },
-  mkdirp,
-  ensureFolderExists,
   url: '',
   setShareableUrl(params) {
     ZC.url = createUrlString('', params);

@@ -68,27 +68,6 @@ export function fsReadAllFiles(folder) {
   return files;
 }
 
-// TODO: use FS.mkdirTree
-export function mkdirp(folderPath) {
-  const pathParts = folderPath.split('/')
-  let dirPath = '/'
-  for (let i = 0; i < pathParts.length; i++) {
-    const curPart = pathParts[i]
-    try {
-      FS.mkdir(`${dirPath}${curPart}`)
-    } catch (err) { }
-    dirPath += `${curPart}/`
-  }
-};
-
-export function ensureFolderExists(path) {
-  const folderPath = path
-    .split('/')
-    .slice(0, -1) // remove basename
-    .join('/');
-  mkdirp(folderPath);
-};
-
 export function createElement(tagName, className, textContent) {
   const el = document.createElement(tagName);
   if (className) el.className = className;
