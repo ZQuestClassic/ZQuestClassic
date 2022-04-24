@@ -1,6 +1,6 @@
 import { fileSave } from "browser-fs-access";
 import * as kv from "idb-keyval";
-import { createElement, fsReadAllFiles, mkdirp } from "./utils.js";
+import { createElement, fsReadAllFiles } from "./utils.js";
 
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
@@ -26,7 +26,7 @@ async function setAttachedDir(dir) {
   if (!dir) return;
 
   await import('./fsfs.js');
-  mkdirp('/local/filesystem');
+  FS.mkdirTree('/local/filesystem');
   FS.mount(FSFS, { dirHandle: attachedDirHandle }, '/local/filesystem');
   await new Promise((resolve, reject) => FS.syncfs(true, (err) => {
     if (err) return reject(err);

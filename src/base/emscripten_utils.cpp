@@ -29,12 +29,12 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   }
 
   for (const file of window.ZC_Constants.files) {
-    ZC.ensureFolderExists(file);
+    FS.mkdirTree(PATH.dirname(file));
     writeFakeFile(file, 'files' + file);
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
-  ZC.mkdirp('/local/browser');
+  FS.mkdirTree('/local/browser');
   FS.mount(IDBFS, {}, '/local/browser');
   await ZC.fsSync(true);
   if (!FS.analyzePath('/local/browser/zc.cfg').exists) {

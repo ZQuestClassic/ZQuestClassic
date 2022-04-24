@@ -56,7 +56,7 @@ index ef4a2e7..d390acc 100644
 +  const promises = instruments.map(async (url) => {
 +    const data = await ZC.fetchAsByteArray(ZC_Constants.patsUrl + '/' + url);
 +    const path = '/etc/' + url;
-+    ZC.ensureFolderExists(path);
++    FS.mkdirTree(PATH.dirname(path));
 +    FS.writeFile(path, data);
 +  });
 +  await Promise.all(promises);
