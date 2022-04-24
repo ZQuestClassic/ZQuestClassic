@@ -2013,6 +2013,8 @@ string ZScript::VarToString(int32_t ID)
 	case GENDATAINITD: return "GENDATAINITD";
 	case GENDATARELOADSTATE: return "GENDATARELOADSTATE";
 	
+	case COMBODCSET2FLAGS: return "COMBODCSET2FLAGS";
+	
 	default:
 	{
 		sprintf(temp, "d%d", ID);

@@ -4570,8 +4570,9 @@ enum ASM_DEFINE
 #define GENDATADATA             0x1427
 #define GENDATAINITD            0x1428
 #define GENDATARELOADSTATE      0x1429
+#define COMBODCSET2FLAGS        0x142A
 
-#define NUMVARIABLES         	0x142A
+#define NUMVARIABLES         	0x142B
 
 //} End variables
 

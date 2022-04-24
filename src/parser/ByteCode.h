@@ -1348,8 +1348,9 @@
 #define GENDATADATA             1265
 #define GENDATAINITD            1266
 #define GENDATARELOADSTATE      1267
+#define COMBODCSET2FLAGS        1268
 
-#define LAST_BYTECODE           1268
+#define LAST_BYTECODE           1269
 
 //} END OF BYTECODE
 

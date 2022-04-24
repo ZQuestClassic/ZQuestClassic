@@ -10214,7 +10214,32 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		case COMBODTYPE:		GET_COMBO_VAR_BYTE(type, "Type"); break;					//char
-		case COMBODCSET:		GET_COMBO_VAR_BYTE(csets, "CSet"); break;					//C
+		case COMBODCSET:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2");
+				ret = -10000;
+			}
+			else
+			{
+				bool neg = combobuf[ri->combosref].csets&0x8;
+				ret = ((combobuf[ri->combosref].csets&0x7) * (neg ? -10000 : 10000));
+			}
+			break;
+		}
+		case COMBODCSET2FLAGS:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2Flags");
+			}
+			else
+			{
+				ret = ((combobuf[ri->combosref].csets & 0xF0) >> 4) * 10000;
+			}
+			break;
+		}
 		case COMBODFOO:			GET_COMBO_VAR_DWORD(foo, "Foo"); break;						//W
 		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script, "Script"); break;						//W
 		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
@@ -19079,7 +19104,33 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}
 		case COMBODTYPE:	SET_COMBO_VAR_BYTE(type, "Type"); break;						//char
-		case COMBODCSET:	SET_COMBO_VAR_BYTE(csets, "CSet"); break;						//C
+		case COMBODCSET:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2");
+			}
+			else
+			{
+				int8_t v = vbound(value, -8, 7);
+				combobuf[ri->combosref].csets &= ~0xF;
+				combobuf[ri->combosref].csets |= v;
+			}
+			break;
+		}
+		case COMBODCSET2FLAGS:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "CSet2Flags");
+			}
+			else
+			{
+				combobuf[ri->combosref].csets &= 0xF;
+				combobuf[ri->combosref].csets |= (value&0xF)<<4;
+			}
+			break;
+		}
 		case COMBODFOO:		SET_COMBO_VAR_DWORD(foo, "Foo"); break;							//W
 		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
 		case COMBODNEXTD:	SET_COMBO_VAR_DWORD(speed, "NextData"); break;						//W
@@ -36151,6 +36202,7 @@ script_variable ZASMVars[]=
 	{ "GENDATADATA", GENDATADATA, 0, 0 },
 	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
+	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

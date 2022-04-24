@@ -2313,6 +2313,7 @@ script_variable variable_list[]=
 	{ "GENDATADATA", GENDATADATA, 0, 0 },
 	{ "GENDATAINITD", GENDATAINITD, 0, 0 },
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
+	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

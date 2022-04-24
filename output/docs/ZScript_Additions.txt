@@ -6417,20 +6417,19 @@ int Flip;
  * The flip settings for the combo tile.
 	
 int Walk;
- * The walkability flags value. 
- * Walk flags are OR'd together using values of:
- *	
+ * The walkability flags value.
+ * ???
  
 int Effect;
  * The effect area flags value.
  * Uses the same binary values as 'Walk' above
 
-int CSet; 
-* The CSet values for the combo.
- * 	How is CSet2 stored?
+int CSet2; 
+ * The CSet2 Offset value for the combo
 
-int Foo; 
- * Unused.
+int CSet2Flags; 
+ * The CSet2 flags value
+ * ???
 
 int Frames; 
  * The number of frames of animation.
