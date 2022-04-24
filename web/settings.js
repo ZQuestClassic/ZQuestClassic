@@ -1,9 +1,14 @@
-import { fileSave } from "browser-fs-access";
+import { fileSave, fileOpen, directoryOpen } from "browser-fs-access";
 import * as kv from "idb-keyval";
 import { createElement, fsReadAllFiles } from "./utils.js";
 
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
+
+let configuredMountPromiseResolve;
+const configuredMountPromise = new Promise(resolve => {
+  configuredMountPromiseResolve = resolve;
+});
 
 export async function configureMount() {
   let type = 'fs';
@@ -28,6 +33,7 @@ export async function configureMount() {
     FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest.cfg'));
   }
   renderSettingsPanel();
+  configuredMountPromiseResolve();
 }
 
 async function requestPermission() {
@@ -112,6 +118,41 @@ export function setupSettingsPanel() {
     await fileSave(blob, {
       fileName: path.replace('/local/', ''),
     });
+  });
+
+  const criticalFileNames = ['zc.cfg', 'zquest.cfg', 'zc.sav'];
+
+  async function handleFilesCopy(files) {
+    // Just in case user is faster than the game.
+    await configuredMountPromise;
+
+    for (const file of files) {
+      const path = '/local/' + file.webkitRelativePath.split('/').slice(1).join('/');
+
+      // Backup existing files.
+      if (FS.analyzePath(path).exists) {
+        const backupPath = '/local/.backup/' + file.webkitRelativePath.split('/').slice(1).join('/');
+        FS.mkdirTree(PATH.dirname(backupPath));
+        FS.writeFile(backupPath, FS.readFile(path));
+      }
+
+      FS.mkdirTree(PATH.dirname(path));
+      FS.writeFile(path, new Uint8Array(await file.arrayBuffer()));
+    }
+
+    await ZC.fsSync(false);
+    if (files.some(file => criticalFileNames.includes(file.name))) window.location.reload();
+    renderSettingsPanel();
+  }
+
+  el.querySelector('.settings__copy button.copy-folder').addEventListener('click', async () => {
+    const files = await directoryOpen({ recursive: true });
+    await handleFilesCopy(files);
+  });
+  el.querySelector('.settings__copy button.copy-file').addEventListener('click', async () => {
+    const file = await fileOpen();
+    file.webkitRelativePath = file.name;
+    await handleFilesCopy([file]);
   });
 
   el.querySelector('.settings__attach button.attach').addEventListener('click', async () => {

@@ -102,18 +102,21 @@
 
       <!-- FF: open directory -> write to /local -->
       <span class="settings__copy">
-        <h3>Copy local filesystem folder</h3>
+        <h3>Copy local filesystem files</h3>
         <div>
-          Copy all files in a folder to the local browser storage. These files will then be
+          Copy files to the local browser storage. These files will then be
           available to Zelda Classic. Any updates to these files by Zelda Classic will exist
-          only in the browser–the original folder will not be updated. In other words, this
+          only in the browser–the originals will not be modified. In other words, this
           is one-way.
         </div>
+        <br>
         <div>
           Note: Browsers that support the File System Access API (ex: Chrome, Edge) can attach
           a folder permanently, and data will be synchronized. This browser does not support that API, so
           when you want these updated files back on your filesystem, use the following section.
         </div>
+        <button class="copy-folder">Copy folder</button>
+        <button class="copy-file">Copy file</button>
       </span>
 
       <!-- FF: Download any file in /local -->
