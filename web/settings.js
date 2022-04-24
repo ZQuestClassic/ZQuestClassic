@@ -5,25 +5,56 @@ import { createElement, fsReadAllFiles } from "./utils.js";
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
 
-async function setAttachedDir(dir) {
+async function requestPermission(dirHandle) {
   const options = { mode: 'readwrite' };
-  if (dir && await dir.queryPermission(options) !== 'granted') {
-    if (await dir.requestPermission(options) !== 'granted') {
-      dir = null;
+  if (await dirHandle.queryPermission(options) === 'granted') return true;
+
+  try {
+    if (await dirHandle.requestPermission(options) !== 'granted') {
+      return false;
     }
+    return true;
+  } catch {
+    // ...
+  }
+
+  // User activation is required to request permissions
+  document.querySelector('.content').classList.add('hidden');
+  document.querySelector('.permission').classList.remove('hidden');
+  document.querySelector('.permission .folder-name').textContent = dirHandle.name;
+
+  let result = await new Promise((resolve) => {
+    document.querySelector('.permission .ok').addEventListener('click', () => {
+      resolve(true);
+    });
+    document.querySelector('.permission .cancel').addEventListener('click', () => {
+      resolve(false);
+    });
+  });
+
+
+  if (result) result = await dirHandle.requestPermission(options) === 'granted';
+  document.querySelector('.content').classList.remove('hidden');
+  document.querySelector('.permission').classList.add('hidden');
+  return result;
+}
+
+async function setAttachedDir(dirHandle) {
+  if (dirHandle && !await requestPermission(dirHandle)) {
+    dirHandle = null;
   }
 
   if (attachedDirHandle) FS.unmount('/local/filesystem');
-  attachedDirHandle = dir;
-  if (dir) {
-    await kv.set('attached-dir', dir);
+  attachedDirHandle = dirHandle;
+  if (dirHandle) {
+    await kv.set('attached-dir', dirHandle);
   } else {
     await kv.del('attached-dir');
   }
 
   renderSettingsPanel();
 
-  if (!dir) return;
+  if (!dirHandle) return;
 
   await import('./fsfs.js');
   FS.mkdirTree('/local/filesystem');
@@ -34,7 +65,7 @@ async function setAttachedDir(dir) {
   }));
 }
 
-export async function setupSettingsPanel() {
+export function setupSettingsPanel() {
   const el = document.querySelector('.settings');
 
   const filesEl = el.querySelector('.settings__browser-files');
@@ -53,14 +84,15 @@ export async function setupSettingsPanel() {
     const dir = await self.showDirectoryPicker({
       id: 'zc',
     });
-    setAttachedDir(dir);
+    await setAttachedDir(dir);
   });
   el.querySelector('.settings__attach button.unattach').addEventListener('click', async () => {
-    setAttachedDir(null);
+    await setAttachedDir(null);
   });
+}
 
-  // TODO: work out requesting for permission prompt.
-  // setAttachedDir(await kv.get('attached-dir'));
+export async function attachDir() {
+  await setAttachedDir(await kv.get('attached-dir'));
 }
 
 export function renderSettingsPanel() {
