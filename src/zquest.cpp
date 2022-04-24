@@ -11274,8 +11274,10 @@ int32_t select_cflag(const char *prompt,int32_t index)
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
     cflag_dlg[2].d1=index;
-    ListData select_cflag_list(flaglist, &font);
-    cflag_dlg[2].dp=(void *) &select_cflag_list;
+    //ListData select_cflag_list(flaglist, &font);
+    GUI::ListData ld = GUI::ListData::mapflag(true);
+	ListData select_cflag_list = ld.getJWin(&font);
+	cflag_dlg[2].dp=(void *) &select_cflag_list;
     
     if(is_large)
         large_dialog(cflag_dlg);

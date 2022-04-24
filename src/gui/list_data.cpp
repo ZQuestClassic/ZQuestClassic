@@ -172,8 +172,11 @@ ListData ListData::combotype(bool numbered)
 ListData ListData::mapflag(bool numbered)
 {
 	ListData ls;
+	map<string, int32_t> vals;
+	set<string> names;
 	
-	for(int32_t q = 0; q < mfMAX; ++q)
+	ls.add("(None)", 0);
+	for(int32_t q = 1; q < mfMAX; ++q)
 	{
 		char const* module_str = moduledata.combo_flag_names[q];
 		if(module_str[0] == '-')
@@ -182,8 +185,18 @@ ListData ListData::mapflag(bool numbered)
 		if(numbered)
 			sprintf(name, "%s (%03d)", module_str, q);
 		else strcpy(name, module_str);
-		ls.add(name, q);
+		
+		string sname(name);
+		
+		vals[sname] = q;
+		names.insert(sname);
+		
 		delete[] name;
+	}
+	
+	for(auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, vals[*it]);
 	}
 	
 	return ls;

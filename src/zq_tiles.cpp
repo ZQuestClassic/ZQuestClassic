@@ -17737,8 +17737,6 @@ int32_t click_d_ctile_proc()
 
 int32_t click_d_combo_proc();
 
-static ListData flag_list(flaglist, &font);
-
 const char *comboscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
