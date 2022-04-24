@@ -10,6 +10,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   FS.mkdir('/_quests');
 
   function writeFakeFile(path, url) {
+    FS.mkdirTree(PATH.dirname(path));
     FS.writeFile(path, '');
     // UHHHH why does this result in an error during linking (acorn parse error) ???
     // window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;
