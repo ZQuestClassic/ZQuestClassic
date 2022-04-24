@@ -49,12 +49,12 @@ window.ZC = {
     const url = createUrlString(ZC_Constants.zeldaUrl, params);
     window.open(url, '_blank');
   },
-  async fsSync() {
-    // Sync /local/browser to IndexedDB.
-    await new Promise(resolve => FS.syncfs(false, resolve));
-
-    // Sync /local/filesystem to attached folder.
-    // TODO
+  async fsSync(populate) {
+    // Sync /local/browser to IndexedDB and /local/filesystem to attached folder.
+    await new Promise((resolve, reject) => FS.syncfs(populate, (err) => {
+      if (err) return reject(err);
+      resolve();
+    }));
   }
 };
 
