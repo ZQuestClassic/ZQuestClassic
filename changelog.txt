@@ -1,6 +1,8 @@
 // 2.55 Change Log
 // Updated 24th April, 2022
 
+Add visual button prompts for signposts/chests, and a 'ButtonPrompt' combo type
+	to display button prompts generically.
 Add 'Hero->TileMod' (read-only),
 	'Hero->Kill(bool bypass_revive)',
 	'Hero->Immortal'

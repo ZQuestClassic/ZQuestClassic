@@ -418,6 +418,9 @@ std::string getTypeHelpText(int32_t id)
 		case cSWITCHHOOK:
 			typehelp = "When hit with a switch-hook, swaps position with the player (staying on the same layer).";
 			break;
+		case cBUTTONPROMPT:
+			typehelp = "Displays a button prompt based on the 'Btn:' triggerflags";
+			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
 				typehelp = combotype_help_string[id];
@@ -932,9 +935,23 @@ void ComboEditorDialog::loadComboType()
 			h_flag[10] = "Cannot be activated standing to the left side if checked";
 			l_flag[11] = "Can't use from right";
 			h_flag[11] = "Cannot be activated standing to the right side if checked";
+			l_flag[12] = "Display prompt combo";
+			h_flag[12] = "Displays a prompt combo when able to interact\n"
+				"Must set: Combo, Xoffset, Yoffset, CSet";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the chest will trigger it.";
+			if(FL(cflag13))
+			{
+				l_attribute[1] = "Prompt Combo";
+				h_attribute[1] = "Combo to display as a 'prompt'";
+				l_attrishort[0] = "Prompt Xoffset";
+				h_attrishort[0] = "X offset from player's position for the prompt to display at";
+				l_attrishort[1] = "Prompt Yoffset";
+				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+				l_attribyte[4] = "Prompt CSet";
+				h_attribyte[4] = "CSet to draw the prompt in";
+			}
 			break;
 		}
 		case cSIGNPOST:
@@ -947,6 +964,9 @@ void ComboEditorDialog::loadComboType()
 			h_flag[10] = "Cannot be activated standing to the left side if checked";
 			l_flag[11] = "Can't use from right";
 			h_flag[11] = "Cannot be activated standing to the right side if checked";
+			l_flag[12] = "Display prompt combo";
+			h_flag[12] = "Displays a prompt combo when able to interact\n"
+				"Must set: Combo, Xoffset, Yoffset, CSet";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the signpost will trigger it.";
@@ -955,6 +975,29 @@ void ComboEditorDialog::loadComboType()
 				"-1: Use screen string\n"
 				"-2: Use screen catchall as string\n"
 				"-10 to -17: Use Screen->D[0] to [7] as string";
+			if(FL(cflag13))
+			{
+				l_attribute[1] = "Prompt Combo";
+				h_attribute[1] = "Combo to display as a 'prompt'";
+				l_attrishort[0] = "Prompt Xoffset";
+				h_attrishort[0] = "X offset from player's position for the prompt to display at";
+				l_attrishort[1] = "Prompt Yoffset";
+				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+				l_attribyte[4] = "Prompt CSet";
+				h_attribyte[4] = "CSet to draw the prompt in";
+			}
+			break;
+		}
+		case cBUTTONPROMPT:
+		{
+			l_attribute[0] = "Prompt Combo";
+			h_attribute[0] = "Combo to display as a 'prompt'";
+			l_attrishort[0] = "Prompt Xoffset";
+			h_attrishort[0] = "X offset from player's position for the prompt to display at";
+			l_attrishort[1] = "Prompt Yoffset";
+			h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+			l_attribyte[0] = "Prompt CSet";
+			h_attribyte[0] = "CSet to draw the prompt in";
 			break;
 		}
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:

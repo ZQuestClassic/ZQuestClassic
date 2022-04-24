@@ -1330,6 +1330,8 @@ void HeroClass::init()
 	hammer_swim_down_offset = hammeroffsets[1];
 	hammer_swim_left_offset = hammeroffsets[2];
 	hammer_swim_right_offset = hammeroffsets[3];
+	
+	prompt_combo = prompt_x = prompt_y = prompt_cset = 0;
     
     if(get_bit(quest_rules,qr_NOARRIVALPOINT))
     {
@@ -2770,6 +2772,7 @@ void HeroClass::masked_draw(BITMAP* dest)
             yofs -= (playing_field_offset+16);
             xofs -= 16;
             sprite::draw(sub);
+			prompt_draw(sub);
             xofs=0;
             yofs += (playing_field_offset+16);
             destroy_bitmap(sub);
@@ -2778,9 +2781,18 @@ void HeroClass::masked_draw(BITMAP* dest)
     else
     {
         sprite::draw(dest);
+		prompt_draw(dest);
     }
     
     return;
+}
+void HeroClass::prompt_draw(BITMAP* dest)
+{
+	if(!prompt_combo) return;
+	int32_t sx = real_x(x+xofs+prompt_x);
+	int32_t sy = real_y(y+yofs+prompt_y)-real_z(z+zofs);
+	overcombo(dest, sx, sy, prompt_combo, prompt_cset);
+	return;
 }
 
 void collectitem_script(int32_t id)
@@ -6803,6 +6815,7 @@ bool HeroClass::animate(int32_t)
 	int32_t lsave=0;
 	if(immortal > 0)
 		--immortal;
+	prompt_combo = 0;
 	if (onpassivedmg)
 	{
 		onpassivedmg=false;
@@ -17345,7 +17358,16 @@ void HeroClass::checkchest(int32_t type)
 	if(intbtn) //
 	{
 		if(!getIntBtnInput(intbtn, true, true, false, false))
+		{
+			if(cmb.usrflags & cflag13) //display prompt
+			{
+				prompt_combo = cmb.attributes[1]/10000;
+				prompt_cset = cmb.attribytes[4];
+				prompt_x = cmb.attrishorts[0];
+				prompt_y = cmb.attrishorts[1];
+			}
 			return; //Button not pressed
+		}
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
 	
@@ -17556,7 +17578,16 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				break;
 		}
 		if(!getIntBtnInput(cmb.triggerbtn, true, true, false, false))
+		{
+			if(cmb.type == cBUTTONPROMPT)
+			{
+				prompt_combo = cmb.attributes[0]/10000;
+				prompt_cset = cmb.attribytes[0];
+				prompt_x = cmb.attrishorts[0];
+				prompt_y = cmb.attrishorts[1];
+			}
 			return;
+		}
 		do_trigger_combo(found_lyr, COMBOPOS(fx,fy));
 		return;
 	}
@@ -17584,7 +17615,16 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	if(intbtn) //
 	{
 		if(!getIntBtnInput(intbtn, true, true, false, false))
+		{
+			if(cmb.usrflags & cflag13) //display prompt
+			{
+				prompt_combo = cmb.attributes[1]/10000;
+				prompt_cset = cmb.attribytes[4];
+				prompt_x = cmb.attrishorts[0];
+				prompt_y = cmb.attrishorts[1];
+			}
 			return; //Button not pressed
+		}
 	}
 	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
 	

@@ -284,6 +284,8 @@ public:
 	bool is_warping;
 	bool can_mirror_portal;
 	byte dying_flags;
+	int32_t prompt_combo, prompt_x, prompt_y;
+	byte prompt_cset;
 	
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
@@ -385,6 +387,7 @@ private:
 	void exitcave();
 	void stepout();
 	void masked_draw(BITMAP *dest);
+	void prompt_draw(BITMAP *dest);
 	void getTriforce(int32_t id);
 	int32_t weaponattackpower();
 	void positionNet(weapon* w,int32_t itemid);
