@@ -1,4 +1,4 @@
-import { renderSettingsPanel, setupSettingsPanel } from "./settings.js";
+import { attachDir, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
 import { createUrlString, fetchWithProgress } from "./utils.js";
 
 window.ZC = {
@@ -53,7 +53,8 @@ window.ZC = {
       if (err) return reject(err);
       resolve();
     }));
-  }
+  },
+  attachDir,
 };
 
 async function main() {

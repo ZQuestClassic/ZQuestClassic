@@ -43,6 +43,8 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   if (!FS.analyzePath('/local/browser/zquest.cfg').exists) {
     FS.writeFile('/local/browser/zquest.cfg', FS.readFile('/zquest.cfg'));
   }
+
+  await ZC.attachDir();
 });
 void em_init_fs() {
   em_init_fs_();

@@ -23,6 +23,10 @@ body.canvas-focus {
   justify-content: space-evenly;
 }
 
+.m5 {
+  margin: 5px;
+}
+
 a {
   color: whitesmoke;
 }
@@ -176,4 +180,12 @@ canvas {
 }
 .file:hover {
   color: gold;
+}
+
+.permission {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 15vw;
 }
