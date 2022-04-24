@@ -1,5 +1,5 @@
 import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
-import { createUrlString, fetchWithProgress } from "./utils.js";
+import { createElement, createUrlString, fetchWithProgress } from "./utils.js";
 
 window.ZC = {
   pathToUrl: {},
@@ -286,12 +286,22 @@ async function renderQuestList() {
       imagesEl.append(imgEl);
     }
 
-    const url = quest.urls[0];
-    const path = window.ZC.createPathFromUrl(url);
-    const questParamValue = path.replace('/_quests/', '');
+    for (const url of quest.urls) {
+      const path = window.ZC.createPathFromUrl(url);
+      const questParamValue = path.replace('/_quests/', '');
 
-    contentEl.querySelector('.play-link').href = createUrlString(ZC_Constants.zeldaUrl, { quest: questParamValue });
-    contentEl.querySelector('.editor-link').href = createUrlString(ZC_Constants.zquestUrl, { quest: questParamValue });
+      const playEl = createElement('a');
+      playEl.href = createUrlString(ZC_Constants.zeldaUrl, { quest: questParamValue });
+      playEl.textContent = 'Play!';
+
+      const editEl = createElement('a');
+      editEl.href = createUrlString(ZC_Constants.zquestUrl, { quest: questParamValue });
+      editEl.textContent = 'Open in Editor';
+
+      const el = createElement('div', 'link-group');
+      contentEl.querySelector('.links').append(el);
+      el.append(questParamValue, playEl, editEl);
+    }
 
     questListCurrentEl.textContent = '';
     questListCurrentEl.append(contentEl);
@@ -331,7 +341,7 @@ async function renderQuestList() {
 
   const qsQuest = new URLSearchParams(location.search).get('quest');
   const initialSelectedQuest =
-    (qsQuest && quests.find(q => window.ZC.createPathFromUrl(q.urls[0]).replace('/_quests/', '') === qsQuest)) || quests[0];
+    (qsQuest && quests.find(q => q.urls.some(url => window.ZC.createPathFromUrl(url).replace('/_quests/', '') === qsQuest))) || quests[0];
   showQuest(initialSelectedQuest);
 }
 

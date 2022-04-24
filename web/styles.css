@@ -101,6 +101,12 @@ button:active {
   color: gold;
 }
 
+.link-group {
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+}
+
 .play-link {
   font-size: 30px;
 }
