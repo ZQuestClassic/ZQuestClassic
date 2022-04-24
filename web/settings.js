@@ -160,11 +160,11 @@ export function setupSettingsPanel() {
       id: 'zc',
     });
     await setAttachedDir(dir);
-    renderSettingsPanel();
+    window.location.reload();
   });
   el.querySelector('.settings__attach button.unattach').addEventListener('click', async () => {
     await setAttachedDir(null);
-    renderSettingsPanel();
+    window.location.reload();
   });
 }
 
