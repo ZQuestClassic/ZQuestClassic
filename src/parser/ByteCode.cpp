@@ -2015,7 +2015,6 @@ string ZScript::VarToString(int32_t ID)
 	
 	case COMBODCSET2FLAGS: return "COMBODCSET2FLAGS";
 	case HEROIMMORTAL: return "HEROIMMORTAL";
-	case HEROTILEMOD: return "HEROTILEMOD";
 	
 	default:
 	{

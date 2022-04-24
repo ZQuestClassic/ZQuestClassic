@@ -4573,9 +4573,8 @@ enum ASM_DEFINE
 #define GENDATARELOADSTATE      0x1429
 #define COMBODCSET2FLAGS        0x142A
 #define HEROIMMORTAL            0x142B
-#define HEROTILEMOD             0x142C
 
-#define NUMVARIABLES         	0x142D
+#define NUMVARIABLES         	0x142C
 
 //} End variables
 

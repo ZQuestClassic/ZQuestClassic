@@ -2316,7 +2316,6 @@ script_variable variable_list[]=
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
 	{ "HEROIMMORTAL", HEROIMMORTAL, 0, 0 },
-	{ "HEROTILEMOD", HEROTILEMOD, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

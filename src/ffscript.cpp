@@ -3353,12 +3353,6 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
-		case HEROTILEMOD:
-		{
-			ret = Hero.getTileModifier()*10000;
-			break;
-		}
-		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -12199,7 +12193,6 @@ void set_register(const int32_t arg, const int32_t value)
 		
 		case HEROSWITCHMAXTIMER:
 		case HEROSWITCHTIMER:
-		case HEROTILEMOD:
 			break; //read-only
 		
 		case HEROIMMORTAL:
@@ -36231,7 +36224,6 @@ script_variable ZASMVars[]=
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
 	{ "HEROIMMORTAL", HEROIMMORTAL, 0, 0 },
-	{ "HEROTILEMOD", HEROTILEMOD, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };
