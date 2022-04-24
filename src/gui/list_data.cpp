@@ -124,22 +124,24 @@ ListData ListData::itemclass(bool numbered)
 	return ls;
 }
 
-ListData ListData::combotype(bool numbered)
+ListData ListData::combotype(bool numbered, bool skipNone)
 {
+	ListData ls;
 	map<string, int32_t> types;
 	set<string> typenames;
-	
-	for(int32_t i=0; i<cMAX; ++i)
+
+	if(!skipNone) ls.add("(None)", 0);
+	for(int32_t i=1; i<cMAX; ++i)
 	{
-		if(moduledata.combo_type_names[i][0] == '-')
+		if(!ZI.isUsableComboType(i))
 			continue; //Hidden
-        if(moduledata.combo_type_names[i][0])
+		char const* module_str = ZI.getComboTypeName(i);
+		if(module_str[0])
 		{
-            char const* module_str = moduledata.combo_type_names[i];
-            char* name = new char[strlen(module_str) + 7];
-            if(numbered)
+			char* name = new char[strlen(module_str) + 7];
+			if(numbered)
 				sprintf(name, "%s (%03d)", module_str, i);
-            else strcpy(name, module_str);
+			else strcpy(name, module_str);
 			string sname(name);
 			
 			types[sname] = i;
@@ -159,9 +161,7 @@ ListData ListData::combotype(bool numbered)
 			delete[] name;
 		}
 	}
-	
-	ListData ls;
-	
+
 	for(auto it = typenames.begin(); it != typenames.end(); ++it)
 	{
 		ls.add(*it, types[*it]);
@@ -169,18 +169,18 @@ ListData ListData::combotype(bool numbered)
 	return ls;
 }
 
-ListData ListData::mapflag(bool numbered)
+ListData ListData::mapflag(bool numbered, bool skipNone)
 {
 	ListData ls;
 	map<string, int32_t> vals;
 	set<string> names;
 	
-	ls.add("(None)", 0);
+	if(!skipNone) ls.add("(None)", 0);
 	for(int32_t q = 1; q < mfMAX; ++q)
 	{
-		char const* module_str = moduledata.combo_flag_names[q];
-		if(module_str[0] == '-')
+		if(!ZI.isUsableMapFlag(q))
 			continue; //Hidden
+		char const* module_str = ZI.getMapFlagName(q);
 		char* name = new char[strlen(module_str) + 7];
 		if(numbered)
 			sprintf(name, "%s (%03d)", module_str, q);

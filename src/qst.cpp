@@ -9661,86 +9661,14 @@ int32_t init_combo_classes()
     for(int32_t i=0; i<cMAX; i++)
     {
         combo_class_buf[i] = default_combo_classes[i];
-	if ( moduledata.combo_type_names[i][0] != NULL )
-	{
-		//al_trace("Copying over a combo type name from a module: %s\n",(char *)moduledata.combo_type_names[i]);
-		for ( int32_t q = 0; q < 64; q++ )
+		if ( char const* nm = ZI.getComboTypeName(i) )
 		{
-			combo_class_buf[i].name[q] = moduledata.combo_type_names[i][q];
+			size_t len = strlen(nm);
+			for ( int32_t q = 0; q < 64; q++ )
+			{
+				combo_class_buf[i].name[q] = (q<len ? nm[q] : 0);
+			}
 		}
-	}
-	    continue;
-        /*
-            al_trace("===== %03d (%s)=====\n", i, ctype_name[i]);
-            al_trace("name:  %s\n", combo_class_buf[i].name);
-            al_trace("block_enemies:  %d\n", combo_class_buf[i].block_enemies);
-            al_trace("block_hole:  %d\n", combo_class_buf[i].block_hole);
-            al_trace("block_trigger:  %d\n", combo_class_buf[i].block_trigger);
-            for(int32_t j=0; j<32; j++)
-            {
-              al_trace("block_weapon[%d]:  %d\n", j, combo_class_buf[i].block_weapon[j]);
-            }
-            al_trace("conveyor_direction:  %d\n", combo_class_buf[i].conveyor_direction);
-            al_trace("create_enemy:  %d\n", combo_class_buf[i].create_enemy);
-            al_trace("create_enemy_when:  %d\n", combo_class_buf[i].create_enemy_when);
-            al_trace("create_enemy_change:  %ld\n", combo_class_buf[i].create_enemy_change);
-            al_trace("directional_change_type:  %d\n", combo_class_buf[i].directional_change_type);
-            al_trace("distance_change_tiles:  %ld\n", combo_class_buf[i].distance_change_tiles);
-            al_trace("dive_item:  %d\n", combo_class_buf[i].dive_item);
-            al_trace("dock:  %d\n", combo_class_buf[i].dock);
-            al_trace("fairy:  %d\n", combo_class_buf[i].fairy);
-            al_trace("ff_combo_attr_change:  %d\n", combo_class_buf[i].ff_combo_attr_change);
-            al_trace("foot_decorations_tile:  %ld\n", combo_class_buf[i].foot_decorations_tile);
-            al_trace("foot_decorations_type:  %d\n", combo_class_buf[i].foot_decorations_type);
-            al_trace("hookshot_grab_point:  %d\n", combo_class_buf[i].hookshot_grab_point);
-            al_trace("ladder_pass:  %d\n", combo_class_buf[i].ladder_pass);
-            al_trace("lock_block_type:  %d\n", combo_class_buf[i].lock_block_type);
-            al_trace("lock_block_change:  %ld\n", combo_class_buf[i].lock_block_change);
-            al_trace("magic_mirror_type:  %d\n", combo_class_buf[i].magic_mirror_type);
-            al_trace("modify_hp_amount:  %d\n", combo_class_buf[i].modify_hp_amount);
-            al_trace("modify_hp_delay:  %d\n", combo_class_buf[i].modify_hp_delay);
-            al_trace("modify_hp_type:  %d\n", combo_class_buf[i].modify_hp_type);
-            al_trace("modify_mp_amount:  %d\n", combo_class_buf[i].modify_mp_amount);
-            al_trace("modify_mp_delay:  %d\n", combo_class_buf[i].modify_mp_delay);
-            al_trace("modify_mp_type:  %d\n", combo_class_buf[i].modify_mp_type);
-            al_trace("no_push_blocks:  %d\n", combo_class_buf[i].no_push_blocks);
-            al_trace("overhead:  %d\n", combo_class_buf[i].overhead);
-            al_trace("place_enemy:  %d\n", combo_class_buf[i].place_enemy);
-            al_trace("push_direction:  %d\n", combo_class_buf[i].push_direction);
-            al_trace("push_weight:  %d\n", combo_class_buf[i].push_weight);
-            al_trace("push_wait:  %d\n", combo_class_buf[i].push_wait);
-            al_trace("pushed:  %d\n", combo_class_buf[i].pushed);
-            al_trace("raft:  %d\n", combo_class_buf[i].raft);
-            al_trace("reset_room:  %d\n", combo_class_buf[i].reset_room);
-            al_trace("save_point_type:  %d\n", combo_class_buf[i].save_point_type);
-            al_trace("screen_freeze_type:  %d\n", combo_class_buf[i].screen_freeze_type);
-            al_trace("secret_combo:  %d\n", combo_class_buf[i].secret_combo);
-            al_trace("singular:  %d\n", combo_class_buf[i].singular);
-            al_trace("slow_movement:  %d\n", combo_class_buf[i].slow_movement);
-            al_trace("statue_type:  %d\n", combo_class_buf[i].statue_type);
-            al_trace("step_type:  %d\n", combo_class_buf[i].step_type);
-            al_trace("step_change_to:  %ld\n", combo_class_buf[i].step_change_to);
-            for(int32_t j=0; j<32; j++)
-            {
-              al_trace("strike_weapons[%d]:  %d\n", j, combo_class_buf[i].strike_weapons[j]);
-            }
-            al_trace("strike_remnants:  %ld\n", combo_class_buf[i].strike_remnants);
-            al_trace("strike_remnants_type:  %d\n", combo_class_buf[i].strike_remnants_type);
-            al_trace("strike_change:  %ld\n", combo_class_buf[i].strike_change);
-            al_trace("strike_item:  %d\n", combo_class_buf[i].strike_item);
-            al_trace("touch_item:  %d\n", combo_class_buf[i].touch_item);
-            al_trace("touch_stairs:  %d\n", combo_class_buf[i].touch_stairs);
-            al_trace("trigger_type:  %d\n", combo_class_buf[i].trigger_type);
-            al_trace("trigger_sensitive:  %d\n", combo_class_buf[i].trigger_sensitive);
-            al_trace("warp_type:  %d\n", combo_class_buf[i].warp_type);
-            al_trace("warp_sensitive:  %d\n", combo_class_buf[i].warp_sensitive);
-            al_trace("warp_direct:  %d\n", combo_class_buf[i].warp_direct);
-            al_trace("warp_location:  %d\n", combo_class_buf[i].warp_location);
-            al_trace("water:  %d\n", combo_class_buf[i].water);
-            al_trace("whistle:  %d\n", combo_class_buf[i].whistle);
-            al_trace("win_game:  %d\n", combo_class_buf[i].win_game);
-            al_trace("\n\n");
-        */
     }
     
     return 0;
@@ -20393,13 +20321,13 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		if(read_ext_zinfo)
 		{
 			PACKFILE *inf=pack_fopen_password(zinfofilename, F_READ, "");
-			ret=readzinfo(inf, ZI);
+			ret=readzinfo(inf, ZI, tempheader);
 			if(inf) pack_fclose(inf);
 			checkstatus(ret);
 		}
 		else
 		{
-			ret=readzinfo(f, ZI);
+			ret=readzinfo(f, ZI, tempheader);
 			checkstatus(ret);
 		}
 		box_out("okay.");

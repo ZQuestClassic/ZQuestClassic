@@ -39,8 +39,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_counters(GUI::ListData::counters()),
 	list_sprites(GUI::ListData::miscsprites()),
 	list_weaptype(GUI::ListData::lweaptypes()),
-	list_deftypes(GUI::ListData::deftypes()),
-	lasttype(-1), typehelp(""), flaghelp("")
+	list_deftypes(GUI::ListData::deftypes())
 {
 	if(clrd)
 	{
@@ -348,7 +347,7 @@ static const char *flag_help_string[mfMAX] =
 //}
 
 
-std::string getTypeHelpText(int32_t id)
+std::string getComboTypeHelpText(int32_t id)
 {
 	std::string typehelp;
 	switch(id)
@@ -429,7 +428,7 @@ std::string getTypeHelpText(int32_t id)
 	}
 	return typehelp;
 }
-std::string getFlagHelpText(int32_t id)
+std::string getMapFlagHelpText(int32_t id)
 {
 	std::string flaghelp = "?? Missing documentation! ??";
 	if(flag_help_string[id] && flag_help_string[id][0])
@@ -534,21 +533,16 @@ std::string getFlagHelpText(int32_t id)
 }
 void ctype_help(int32_t id)
 {
-	InfoDialog(moduledata.combo_type_names[id],getTypeHelpText(id)).show();
+	InfoDialog(ZI.getComboTypeName(id),ZI.getComboTypeHelp(id)).show();
 }
 void cflag_help(int32_t id)
 {
-	InfoDialog(moduledata.combo_flag_names[id],getFlagHelpText(id)).show();
+	InfoDialog(ZI.getMapFlagName(id),ZI.getMapFlagHelp(id)).show();
 }
 //Load all the info for the combo type and checked flags
 void ComboEditorDialog::loadComboType()
 {
 	static std::string dirstr[] = {"up","down","left","right"};
-	if(lasttype != local_comboref.type) //Load type helpinfo
-	{
-		lasttype = local_comboref.type;
-		typehelp = getTypeHelpText(lasttype);
-	}
 	string l_flag[16];
 	string l_attribyte[8];
 	string l_attrishort[8];
@@ -567,7 +561,7 @@ void ComboEditorDialog::loadComboType()
 		l_attribute[q] = "Attributes["+to_string(q)+"]:";
 		h_attribute[q].clear();
 	}
-	switch(lasttype) //Label names
+	switch(local_comboref.type) //Label names
 	{
 		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
 		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
@@ -691,7 +685,7 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Stunned while moving";
 			h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
 			l_flag[1] = "Custom Speed";
-			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[lasttype-cCVUP] + "ward direction.";
+			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[local_comboref.type-cCVUP] + "ward direction.";
 			l_flag[2] = "Force Dir";
 			h_flag[2] = "Forces the Player to face in the conveyor's direction";
 			l_flag[3] = "Smart Corners";
@@ -1482,10 +1476,6 @@ void ComboEditorDialog::loadComboType()
 	}
 	pendDraw();
 }
-void ComboEditorDialog::loadComboFlag()
-{
-	flaghelp = getFlagHelpText(local_comboref.flag);
-}
 void ComboEditorDialog::updateCSet()
 {
 	tswatch->setCSet(CSet);
@@ -1676,7 +1666,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						width = 1.5_em, padding = 0_px, forceFitH = true,
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
-							InfoDialog(moduledata.combo_type_names[local_comboref.type],typehelp).show();
+							ctype_help(local_comboref.type);
 						}
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
@@ -1689,7 +1679,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						width = 1.5_em, padding = 0_px, forceFitH = true,
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
-							InfoDialog(moduledata.combo_flag_names[local_comboref.flag],flaghelp).show();
+							cflag_help(local_comboref.flag);
 						}
 					)
 				),
@@ -2075,7 +2065,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						width = 1.5_em, padding = 0_px, forceFitH = true,
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
-							InfoDialog(moduledata.combo_type_names[local_comboref.type],typehelp).show();
+							ctype_help(local_comboref.type);
 						}
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
@@ -2088,7 +2078,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						width = 1.5_em, padding = 0_px, forceFitH = true,
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
-							InfoDialog(moduledata.combo_type_names[local_comboref.type],flaghelp).show();
+							cflag_help(local_comboref.flag);
 						}
 					)
 				),
@@ -2456,7 +2446,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 		);
 	}
 	loadComboType();
-	loadComboFlag();
 	return window;
 }
 
@@ -2473,7 +2462,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::COMBOFLAG:
 		{
 			local_comboref.flag = int32_t(msg.argument);
-			loadComboFlag();
 			return false;
 		}
 		case message::HFLIP:

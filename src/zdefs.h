@@ -286,7 +286,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        1
 
 #define V_COMPATRULE       23
-#define V_ZINFO            0
+#define V_ZINFO            1
 
 //= V_SHOPS is under V_MISC
 
@@ -4721,8 +4721,6 @@ struct zcmodule
 	
 	char enem_type_names[eeMAX][255];
 	char enem_anim_type_names[aMAX][255];
-	char combo_type_names[cMAX][255];
-	char combo_flag_names[mfMAX][255];
 	char roomtype_names[rMAX][255];
 	char walkmisc7_names[e7tEATHURT+1][255];
 	char walkmisc9_names[e9tARMOS+1][255];
@@ -5379,6 +5377,9 @@ void load_colorset(int32_t colorset);
 #include "process_managment.h"
 
 void update_hw_screen(bool force = false);
+
+bool valid_str(char const* ptr, char cancel = 0);
+
 
 #endif                                                      //_ZDEFS_H_
 

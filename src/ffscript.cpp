@@ -31124,8 +31124,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
 	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
 	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
-	memset(moduledata.combo_type_names, 0, sizeof(moduledata.combo_type_names));
-	memset(moduledata.combo_flag_names, 0, sizeof(moduledata.combo_flag_names));
 	
 	memset(moduledata.startingdmap, 0, sizeof(moduledata.startingdmap));
 	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));

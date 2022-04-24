@@ -22,11 +22,11 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	std::shared_ptr<GUI::TextField> fields[2];
-	std::shared_ptr<GUI::Label> helplbl;
-	std::shared_ptr<GUI::Checkbox> defcheck[2];
+	std::shared_ptr<GUI::TextField> fields[6];
+	std::shared_ptr<GUI::Label> helplbl[3];
+	std::shared_ptr<GUI::Checkbox> defcheck[6];
 	zinfo lzinfo;
-	GUI::ListData list_itemclass;
+	GUI::ListData list_itemclass, list_combotype, list_mapflag;
 };
 
 #endif

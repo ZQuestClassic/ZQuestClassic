@@ -123,8 +123,8 @@ public:
 	
 #ifndef IS_LAUNCHER
 	static ListData itemclass(bool numbered = false);
-	static ListData combotype(bool numbered = false);
-	static ListData mapflag(bool numbered = false);
+	static ListData combotype(bool numbered = false, bool skipNone = false);
+	static ListData mapflag(bool numbered = false, bool skipNone = false);
 	static ListData counters();
 	static ListData miscsprites();
 	static ListData bottletype();

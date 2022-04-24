@@ -1,6 +1,9 @@
 // 2.55 Change Log
 // Updated 24th April, 2022
 
+Add Combo Types and Mapflags to 'ZInfo', allowing custom names and
+	help text per-quest. Updated default names for some flags.
+	Hid unimplemented flags from view.
 New ZScript binary/octal format option
 Add visual button prompts for signposts/chests, and a 'ButtonPrompt' combo type
 	to display button prompts generically.

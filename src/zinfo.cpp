@@ -4,7 +4,11 @@
 #include "qst.h"
 #include "fonts.h"
 
+
 #ifdef IS_ZQUEST
+std::string getComboTypeHelpText(int32_t id);
+std::string getMapFlagHelpText(int32_t id);
+
 const char *itemclass_help_string_defaults[itype_max] =
 {
 	"The player's standard weapon. When wielded, it can stab, slash and fire beams. It is used to perform several scroll techniques, too.",
@@ -136,6 +140,93 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"When used, displays a string onscreen. Especially useful when combined"
 		" with string control codes." //Note
 };
+const char default_ctype_strings[cMAX][255] = 
+{
+	"(None)", "Stairs [A]", "Cave (Walk Down) [A]", "Liquid", "Armos",
+	"Grave", "Dock", "-UNDEF", "Push (Wait)", "Push (Heavy)",
+	"Push (Heavy, Wait)", "Left Statue", "Right Statue", "Slow Walk", "Conveyor Up",
+	"Conveyor Down", "Conveyor Left", "Conveyor Right", "Swim Warp [A]", "Dive Warp [A]",
+	"Ladder or Hookshot", "Step->Secrets (Temporary)", "Step->Secrets (Permanent)", "-WINGAME", "Slash",
+	"Slash (Item)", "Push (Very Heavy)", "Push (Very Heavy, Wait)", "Pound", "Hookshot Grab",
+	"-HSBRIDGE", "Damage (1/2 Heart)", "Damage (1 Heart)", "Damage (2 hearts)", "Damage (4 Hearts)",
+	"Center Statue", "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way)", "Trap (Horizontal, Constant)",
+	"Trap (Vertical, Constant)", "Direct Warp [A]", "Hookshot Only", "Overhead", "No Flying Enemies",
+	"Magic Mirror (4-Way)", "Magic Mirror (Up-Left, Down-Right)", "Magic Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)", "Magic Prism (4-Way)",
+	"Block Magic", "Cave (Walk Up) [A]", "Eyeball (8-Way A)", "Eyeball (8-Way B)", "No Jumping Enemies",
+	"Bush", "Flowers", "Tall Grass", "Shallow Liquid", "Lock Block (Normal)",
+	"Lock Block (Normal, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
+	"Chest (Basic)", "Chest (Basic, Copycat)", "Chest (Locked)", "Chest (Locked, Copycat)", "Chest (Boss)",
+	"Chest (Boss, Copycat)", "Reset Room", "Save Point", "Save-Quit Point", "Cave (Walk Down) [B]",
+	"Cave (Walk Down) [C]", "Cave (Walk Down) [D]", "Stairs [B]", "Stairs [C]", "Stairs [D]",
+	"Direct Warp [B]", "Direct Warp [C]", "Direct Warp [D]", "Cave (Walk Up) [B]", "Cave (Walk Up) [C]",
+	"Cave (Walk Up) [D]", "Swim Warp [B]", "Swim Warp [C]", "Swim Warp [D]", "Dive Warp [B]",
+	"Dive Warp [C]", "Dive Warp [D]", "Stairs [Random]", "Direct Warp [Random]", "Auto Side Warp [A]",
+	"Auto Side Warp [B]","Auto Side Warp [C]","Auto Side Warp [D]","Auto Side Warp [Random]","Sensitive Warp [A]",
+	"Sensitive Warp [B]","Sensitive Warp [C]","Sensitive Warp [D]","Sensitive Warp [Random]","Step->Secrets (Sensitive, Temp)",
+	"Step->Secrets (Sensitive, Perm.)","Step->Next","Step->Next (Same)","Step->Next (All)","Step->Next (Copycat)",
+	"No Enemies","Block Arrow (L1)","Block Arrow (L1, L2)","Block Arrow (All)","Block Brang (L1)",
+	"Block Brang (L1, L2)","Block Brang (All)","Block Sword Beam","Block All","Block Fireball",
+	"Damage (8 hearts)","Damage (16 hearts)","Damage (32 hearts)","-Unused","Spinning Tile (Immediate)",
+	"-Unused","Screen Freeze (Except FFCs)","Screen Freeze (FFCs Only)","No Ground Enemies","Slash->Next",
+	"Slash->Next (Item)","Bush->Next","Slash (Continuous)","Slash (Item, Continuous)","Bush (Continuous)",
+	"Flowers (Continuous)","Tall Grass (Continuous)","Slash->Next (Continuous)","Slash->Next (Item, Continuous)","Bush->Next (Continuous)",
+	"Eyeball (4-Way)","Tall Grass->Next","Script 01","Script 02","Script 03",
+	"Script 04","Script 05","Script 06","Script 07","Script 08",
+	"Script 09","Script 10","Script 11","Script 12","Script 13",
+	"Script 14","Script 15","Script 16","Script 17","Script 18",
+	"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
+	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
+	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block",
+	"ButtonPrompt"
+};
+const char old_mapflag_strings[mfMAX][255] =
+{
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+	"", "", "", "", "",
+	"Pit or Hole (Scripted)", "Pit or Hole, Fall Down Floor (Scripted)", "Fire or Lava (Scripted)",
+	"Ice (Scripted)", "Ice, Damaging (Scripted)", "Damage-1 (Scripted)", "Damage-2 (Scripted)",
+	"Damage-4 (Scripted)","Damage-8 (Scripted)", "Damage-16 (Scripted)", "Damage-32 (Scripted)",
+	"", "", "", "", "", "", "", "", "", "", "", "", "",
+	"Dig Spot (Scripted)", "Dig Spot, Next (Scripted)", "Dig Spot, Special Item (Scripted)",
+	"Pot, Slashable (Scripted)", "Pot, Liftable (Scripted)", "Pot, Slash or Lift (Scripted)",
+	"Rock, Lift Normal (Scripted)", "Rock, Lift Heavy (Scripted)", "Dropset Item (Scripted)",
+	"Special Item (Scripted)", "Drop Key (Scripted)", "Drop level-Specific Key (Scripted)",
+	"Drop Compass (Scripted)", "Drop Map (Scripted)", "Drop Bosskey (Scripted)",
+	"Spawn NPC (Scripted)", "SwitchHook Spot (Scripted)"
+};
+const char map_flag_default_string[mfMAX][255] =
+{
+	"(None)", "Push Block (Vertical, Trigger)", "Push Block (4-Way, Trigger)", "Whistle Trigger", "Burn Trigger (Any)", "Arrow Trigger (Any)", "Bomb Trigger (Any)", "Fairy Ring (Life)",
+	"Raft Path", "Armos -> Secret", "Armos/Chest -> Item", "Bomb (Super)", "Raft Branch", "Dive -> Item", "Lens Marker", "Win Game",
+	"Secret Tile 00", "Secret Tile 01", "Secret Tile 02", "Secret Tile 03", "Secret Tile 04", "Secret Tile 05", "Secret Tile 06", "Secret Tile 07",
+	"Secret Tile 08", "Secret Tile 09", "Secret Tile 10", "Secret Tile 11", "Secret Tile 12", "Secret Tile 13", "Secret Tile 14", "Secret Tile 15",
+	"Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way, Line of Sight)", "Trap (Horizontal, Constant)", "Trap (Vertical, Constant)", "Enemy 0", "Enemy 1", "Enemy 2",
+	"Enemy 3", "Enemy 4", "Enemy 5", "Enemy 6", "Enemy 7", "Enemy 8", "Enemy 9", "Push Block (Horiz, Once, Trigger)",
+	"Push Block (Up, Once, Trigger)", "Push Block (Down, Once, Trigger)", "Push Block (Left, Once, Trigger)", "Push Block (Right, Once, Trigger)", "Push Block (Vert, Once)", "Push Block (Horizontal, Once)", "Push Block (4-Way, Once)", "Push Block (Up, Once)",
+	"Push Block (Down, Once)", "Push Block (Left, Once)", "Push Block (Right, Once)", "Push Block (Vertical, Many)", "Push Block (Horizontal, Many)", "Push Block (4-Way, Many)", "Push Block (Up, Many)", "Push Block (Down, Many)",
+	"Push Block (Left, Many)", "Push Block (Right, Many)", "Block Trigger", "No Push Blocks", "Boomerang Trigger (Any)", "Boomerang Trigger (Magic +)", "Boomerang Trigger (Fire)", "Arrow Trigger (Silver +)",
+	"Arrow Trigger (Golden)", "Burn Trigger (Red Candle +)", "Burn Trigger (Wand Fire)", "Burn Trigger (Din's Fire)", "Magic Trigger (Wand)", "Magic Trigger (Reflected)", "Fireball Trigger (Reflected)", "Sword Trigger (Any)",
+	"Sword Trigger (White +)", "Sword Trigger (Magic +)", "Sword Trigger (Master)", "Sword Beam Trigger (Any)", "Sword Beam Trigger (White +)", "Sword Beam Trigger (Magic +)", "Sword Beam Trigger (Master)", "Hookshot Trigger",
+	"Wand Trigger", "Hammer Trigger", "Strike Trigger", "Block Hole (Block -> Next)", "Fairy Ring (Magic)", "Fairy Ring (All)", "Trigger -> Self Only", "Trigger -> Self, Secret Tiles",
+	"No Enemies", "No Ground Enemies", "Script 01", "Script 02", "Script 03", "Script 04", "Script 05", "Raft Bounce",
+	 "Pushed", "Script 06", "Script 07", "Script 08", "Script 09", "Script 10", "Script 11", "Script 12",
+	"Script 13", "Script 14", "Script 15", "Script 16", "Script 17", "Script 18", "Script 19", "Script 20",
+	"Script 21", "Script 22", "Script 23", "Script 24", "Script 25", "Script 26", "Script 27", "Script 28",
+	"Script 29", "Script 30", "Script 31", "-Freeze Screen (Unimplemented)", "-Freeze Screen, Except FFCs (Unimplemented)", "-Freeze FFCs Only (Unimplemented)", "-Trigger LW_SCRIPT1 (Unimplemented)", "-Trigger LW_SCRIPT2 (Unimplemented)",
+	"-Trigger LW_SCRIPT3 (Unimplemented)", "-Trigger LW_SCRIPT4 (Unimplemented)", "-Trigger LW_SCRIPT5 (Unimplemented)", "-Trigger LW_SCRIPT6 (Unimplemented)", "-Trigger LW_SCRIPT7 (Unimplemented)", "-Trigger LW_SCRIPT8 (Unimplemented)", "-Trigger LW_SCRIPT9 (Unimplemented)", "-Trigger LW_SCRIPT10 (Unimplemented)",
+	"Script 32", "Script 33", "Script 34", "Script 35", "Script 36", "Script 37", "Script 38", "Script 39",
+	"Script 40", "Script 41", "Script 42", "Script 43", "Script 44", "Script 45", "Script 46", "Script 47",
+	"Script 48", "Sideview Ladder", "Sideview Platform","Spawn No Enemies","Spawn All Enemies","Secrets->Next","No Mirroring","-mf167","-mf168","-mf169", "-mf170","-mf171","-mf172","-mf173","-mf174","-mf175","-mf176","-mf177","-mf178","-mf179",
+	"-mf180","-mf181","-mf182","-mf183","-mf184","-mf185","-mf186","-mf187","-mf188","-mf189", "-mf190","-mf191","-mf192","-mf193","-mf194","-mf195","-mf196","-mf197","-mf198","-mf199",
+	"-mf200","-mf201","-mf202","-mf203","-mf204","-mf205","-mf206","-mf207","-mf208","-mf209", "-mf210","-mf211","-mf212","-mf213","-mf214","-mf215","-mf216","-mf217","-mf218","-mf219",
+	"-mf220","-mf221","-mf222","-mf223","-mf224","-mf225","-mf226","-mf227","-mf228","-mf229", "-mf230","-mf231","-mf232","-mf233","-mf234","-mf235","-mf236","-mf237","-mf238","-mf239",
+	"-mf240","-mf241","-mf242","-mf243","-mf244","-mf245","-mf246","-mf247","-mf248","-mf249", "-mf250","-mf251","-mf252","-mf253","-mf254",
+	"-Extended (Extended Flag Editor)"
+};
 #else
 #endif
 const char default_itype_strings[itype_max][255] = 
@@ -191,6 +282,10 @@ zinfo::zinfo()
 {
 #ifdef IS_ZQUEST
 	memset(ic_help_string, 0, sizeof(ic_help_string));
+	memset(ctype_name, 0, sizeof(ctype_name));
+	memset(ctype_help_string, 0, sizeof(ctype_help_string));
+	memset(mf_name, 0, sizeof(mf_name));
+	memset(mf_help_string, 0, sizeof(mf_help_string));
 #else
 #endif
 	memset(ic_name, 0, sizeof(ic_name));
@@ -216,10 +311,58 @@ void zinfo::clear_ic_name()
 		ic_name[q] = nullptr;
 	}
 }
+void zinfo::clear_ctype_name()
+{
+#ifdef IS_ZQUEST
+	for(auto q = 0; q < cMAX; ++q)
+	{
+		if(ctype_name[q])
+			zc_free(ctype_name[q]);
+		ctype_name[q] = nullptr;
+	}
+#endif
+}
+void zinfo::clear_ctype_help()
+{
+#ifdef IS_ZQUEST
+	for(auto q = 0; q < cMAX; ++q)
+	{
+		if(ctype_help_string[q])
+			zc_free(ctype_help_string[q]);
+		ctype_help_string[q] = nullptr;
+	}
+#endif
+}
+void zinfo::clear_mf_name()
+{
+#ifdef IS_ZQUEST
+	for(auto q = 0; q < mfMAX; ++q)
+	{
+		if(mf_name[q])
+			zc_free(mf_name[q]);
+		mf_name[q] = nullptr;
+	}
+#endif
+}
+void zinfo::clear_mf_help()
+{
+#ifdef IS_ZQUEST
+	for(auto q = 0; q < mfMAX; ++q)
+	{
+		if(mf_help_string[q])
+			zc_free(mf_help_string[q]);
+		mf_help_string[q] = nullptr;
+	}
+#endif
+}
 void zinfo::clear()
 {
 	clear_ic_help();
 	clear_ic_name();
+	clear_ctype_name();
+	clear_ctype_help();
+	clear_mf_name();
+	clear_mf_help();
 }
 
 void assignchar(char** p, char const* str)
@@ -240,15 +383,29 @@ static char const* nilptr = "";
 static char zinfbuf[2048] = {0};
 bool zinfo::isUsableItemclass(size_t q)
 {
-	return (default_itype_strings[q]
-		&& default_itype_strings[q][0]
-		&& default_itype_strings[q][0]!='-');
+	return valid_str(default_itype_strings[q],'-');
+}
+bool zinfo::isUsableComboType(size_t q)
+{
+#ifdef IS_ZQUEST
+	return valid_str(default_ctype_strings[q],'-');
+#else
+	return true;
+#endif
+}
+bool zinfo::isUsableMapFlag(size_t q)
+{
+#ifdef IS_ZQUEST
+	return valid_str(map_flag_default_string[q],'-');
+#else
+	return true;
+#endif
 }
 char const* zinfo::getItemClassName(size_t q)
 {
-	if(ic_name[q] && ic_name[q][0])
+	if(valid_str(ic_name[q]))
 		return ic_name[q];
-	if(default_itype_strings[q] && default_itype_strings[q][0])
+	if(valid_str(default_itype_strings[q]))
 		return default_itype_strings[q];
 	sprintf(zinfbuf, "-zz%03d\0", q);
 	return zinfbuf;
@@ -256,10 +413,52 @@ char const* zinfo::getItemClassName(size_t q)
 char const* zinfo::getItemClassHelp(size_t q)
 {
 #ifdef IS_ZQUEST
-	if(ic_help_string[q] && ic_help_string[q][0])
+	if(valid_str(ic_help_string[q]))
 		return ic_help_string[q];
-	if(itemclass_help_string_defaults[q] && itemclass_help_string_defaults[q][0])
+	if(valid_str(itemclass_help_string_defaults[q]))
 		return itemclass_help_string_defaults[q];
+#endif
+	return nilptr;
+}
+char const* zinfo::getComboTypeName(size_t q)
+{
+#ifdef IS_ZQUEST
+	if(valid_str(ctype_name[q]))
+		return ctype_name[q];
+	if(valid_str(default_ctype_strings[q]))
+		return default_ctype_strings[q];
+#endif
+	return nilptr;
+}
+char const* zinfo::getComboTypeHelp(size_t q)
+{
+#ifdef IS_ZQUEST
+	if(valid_str(ctype_help_string[q]))
+		return ctype_help_string[q];
+	std::string defstr = getComboTypeHelpText(q);
+	if(defstr.size())
+		return defstr.c_str();
+#endif
+	return nilptr;
+}
+char const* zinfo::getMapFlagName(size_t q)
+{
+#ifdef IS_ZQUEST
+	if(valid_str(mf_name[q]))
+		return mf_name[q];
+	if(valid_str(map_flag_default_string[q]))
+		return map_flag_default_string[q];
+#endif
+	return nilptr;
+}
+char const* zinfo::getMapFlagHelp(size_t q)
+{
+#ifdef IS_ZQUEST
+	if(valid_str(mf_help_string[q]))
+		return mf_help_string[q];
+	std::string defstr = getMapFlagHelpText(q);
+	if(defstr.size())
+		return defstr.c_str();
 #endif
 	return nilptr;
 }
@@ -272,6 +471,10 @@ void zinfo::copyFrom(zinfo const& other)
 		assignchar(ic_name+q, other.ic_name[q]);
 #ifdef IS_ZQUEST
 		assignchar(ic_help_string+q, other.ic_help_string[q]);
+		assignchar(ctype_name+q, other.ctype_name[q]);
+		assignchar(ctype_help_string+q, other.ctype_help_string[q]);
+		assignchar(mf_name+q, other.mf_name[q]);
+		assignchar(mf_help_string+q, other.mf_help_string[q]);
 #endif
 	}
 }
@@ -313,29 +516,87 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 		
 		writesize=0;
 		
+		if(!p_iputw(itype_max,f)) //num itemtypes
+		{
+			new_return(6);
+		}
 		for(auto q = 0; q < itype_max; ++q)
 		{
-			byte namesize = (byte)(vbound((z.ic_name[q] && z.ic_name[q][0]) ? strlen(z.ic_name[q]) : 0,0,255));
+			byte namesize = (byte)(vbound(valid_str(z.ic_name[q]) ? strlen(z.ic_name[q]) : 0,0,255));
 			
 			if(!p_putc(namesize,f))
 			{
-				new_return(6);
+				new_return(7);
 			}
 			if(namesize)
 				if(!pfwrite(z.ic_name[q],namesize,f))
-					new_return(7);
+					new_return(8);
 			
-			dword htxtsz = (z.ic_help_string[q] && z.ic_help_string[q][0]) ? strlen(z.ic_help_string[q]) : 0;
+			dword htxtsz = valid_str(z.ic_help_string[q]) ? strlen(z.ic_help_string[q]) : 0;
 			
 			if(!p_iputw(htxtsz,f))
 			{
-				new_return(8);
+				new_return(9);
 			}
 			if(htxtsz)
 				if(!pfwrite(z.ic_help_string[q],htxtsz,f))
-					new_return(7);
+					new_return(10);
 		}
-	
+		
+		if(!p_iputw(cMAX,f)) //num combotypes
+		{
+			new_return(11);
+		}
+		for(auto q = 0; q < cMAX; ++q)
+		{
+			byte namesize = (byte)(vbound(valid_str(z.ctype_name[q]) ? strlen(z.ctype_name[q]) : 0,0,255));
+			
+			if(!p_putc(namesize,f))
+			{
+				new_return(12);
+			}
+			if(namesize)
+				if(!pfwrite(z.ctype_name[q],namesize,f))
+					new_return(13);
+			
+			dword htxtsz = valid_str(z.ctype_help_string[q]) ? strlen(z.ctype_help_string[q]) : 0;
+			
+			if(!p_iputw(htxtsz,f))
+			{
+				new_return(14);
+			}
+			if(htxtsz)
+				if(!pfwrite(z.ctype_help_string[q],htxtsz,f))
+					new_return(15);
+		}
+		
+		if(!p_iputw(mfMAX,f)) //num mapflags
+		{
+			new_return(16);
+		}
+		for(auto q = 0; q < mfMAX; ++q)
+		{
+			byte namesize = (byte)(vbound(valid_str(z.mf_name[q]) ? strlen(z.mf_name[q]) : 0,0,255));
+			
+			if(!p_putc(namesize,f))
+			{
+				new_return(17);
+			}
+			if(namesize)
+				if(!pfwrite(z.mf_name[q],namesize,f))
+					new_return(18);
+			
+			dword htxtsz = valid_str(z.mf_help_string[q]) ? strlen(z.mf_help_string[q]) : 0;
+			
+			if(!p_iputw(htxtsz,f))
+			{
+				new_return(19);
+			}
+			if(htxtsz)
+				if(!pfwrite(z.mf_help_string[q],htxtsz,f))
+					new_return(20);
+		}
+		
 		if(writecycle==0)
 		{
 			section_size=writesize;
@@ -352,7 +613,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	new_return(0);
 }
 #endif
-int32_t readzinfo(PACKFILE *f, zinfo& z)
+int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 {
 	int32_t dummy;
 	word section_version, section_cversion;
@@ -376,7 +637,11 @@ int32_t readzinfo(PACKFILE *f, zinfo& z)
 	if(!p_igetl(&dummy,f,true))
 		return qe_invalid;
 	
-	for(auto q = 0; q < itype_max; ++q)
+	word num_itemtypes = 512;
+	if(section_version > 0)
+		if(!p_igetw(&num_itemtypes,f,true))
+			return qe_invalid;
+	for(auto q = 0; q < num_itemtypes; ++q)
 	{
 		byte namesize;
 		if(!p_getc(&namesize,f,true))
@@ -405,7 +670,113 @@ int32_t readzinfo(PACKFILE *f, zinfo& z)
 #endif
 		}
 	}
-
+	
+	if(section_version > 0)
+	{
+		word num_combotypes;
+		if(!p_igetw(&num_combotypes,f,true))
+			return qe_invalid;
+		for(auto q = 0; q < num_combotypes; ++q)
+		{
+			byte namesize;
+			if(!p_getc(&namesize,f,true))
+				return qe_invalid;
+			if(namesize)
+			{
+				char* p = (char*)zc_malloc(namesize+1);
+				if(!pfread(p,namesize,f,true))
+					return qe_invalid;
+				p[namesize] = 0;
+#ifdef IS_ZQUEST
+				z.ctype_name[q] = p;
+#else
+				zc_free(p);
+#endif
+			}
+			
+			word htxtsz;
+			if(!p_igetw(&htxtsz,f,true))
+				return qe_invalid;
+			if(htxtsz)
+			{
+				char* p = (char*)zc_malloc(htxtsz+1);
+				if(!pfread(p,htxtsz,f,true))
+					return qe_invalid;
+				p[htxtsz] = 0;
+#ifdef IS_ZQUEST
+				z.ctype_help_string[q] = p;
+#else
+				zc_free(p);
+#endif
+			}
+		}
+		
+		word num_mapflags;
+		if(!p_igetw(&num_mapflags,f,true))
+			return qe_invalid;
+		for(auto q = 0; q < num_mapflags; ++q)
+		{
+			byte namesize;
+			if(!p_getc(&namesize,f,true))
+				return qe_invalid;
+			if(namesize)
+			{
+				char* p = (char*)zc_malloc(namesize+1);
+				if(!pfread(p,namesize,f,true))
+					return qe_invalid;
+				p[namesize] = 0;
+#ifdef IS_ZQUEST
+				z.mf_name[q] = p;
+#else
+				zc_free(p);
+#endif
+			}
+			
+			word htxtsz;
+			if(!p_igetw(&htxtsz,f,true))
+				return qe_invalid;
+			if(htxtsz)
+			{
+				char* p = (char*)zc_malloc(htxtsz+1);
+				if(!pfread(p,htxtsz,f,true))
+					return qe_invalid;
+				p[htxtsz] = 0;
+#ifdef IS_ZQUEST
+				z.mf_help_string[q] = p;
+#else
+				zc_free(p);
+#endif
+			}
+		}
+	}
+	else
+	{
+#ifdef IS_ZQUEST
+		memset(z.ctype_name, 0, sizeof(z.ctype_name));
+		memset(z.ctype_help_string, 0, sizeof(z.ctype_help_string));
+		memset(z.mf_name, 0, sizeof(z.mf_name));
+		memset(z.mf_help_string, 0, sizeof(z.mf_help_string));
+		if(hdr.zelda_version == 0x255) //Old quest naming
+			for(auto q = 0; q < mfMAX; ++q)
+			{
+				if(valid_str(old_mapflag_strings[q]))
+				{
+					byte namesize = (byte)(vbound(strlen(old_mapflag_strings[q]),0,255));
+					z.mf_name[q] = (char*)zc_malloc(namesize+1);
+					memcpy(z.mf_name[q], old_mapflag_strings[q], namesize);
+					z.mf_name[q][namesize] = 0;
+					
+					char const* scrdesc = "These flags have no built-in effect,"
+						" but can be given special significance with ZASM or ZScript.";
+					namesize = (byte)strlen(scrdesc);
+					z.mf_help_string[q] = (char*)zc_malloc(namesize+1);
+					memcpy(z.mf_help_string[q], scrdesc, namesize);
+					z.mf_help_string[q][namesize] = 0;
+				}
+			}
+#endif
+	}
+	
 	return 0;
 }
 
@@ -416,6 +787,10 @@ bool zinfo::isNull()
 		if(ic_name[q]) return false;
 #ifdef IS_ZQUEST
 		if(ic_help_string[q]) return false;
+		if(ctype_name[q]) return false;
+		if(ctype_help_string[q]) return false;
+		if(mf_name[q]) return false;
+		if(mf_help_string[q]) return false;
 #endif
 	}
 	return true;

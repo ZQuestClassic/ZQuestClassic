@@ -630,3 +630,9 @@ void MsgStr::clear()
 	shadow_color=0;
 	listpos=0;
 }
+
+bool valid_str(char const* ptr, char cancel)
+{
+	return ptr && ptr[0] && ptr[0] != cancel;
+}
+

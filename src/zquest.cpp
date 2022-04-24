@@ -11274,7 +11274,6 @@ int32_t select_cflag(const char *prompt,int32_t index)
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
     cflag_dlg[2].d1=index;
-    //ListData select_cflag_list(flaglist, &font);
     GUI::ListData ld = GUI::ListData::mapflag(true);
 	ListData select_cflag_list = ld.getJWin(&font);
 	cflag_dlg[2].dp=(void *) &select_cflag_list;
@@ -13445,22 +13444,6 @@ const char *nslist(int32_t index, int32_t *list_size)
     }
     
     *list_size=MAXSCREENS;
-    return NULL;
-}
-
-const char *flaglist(int32_t index, int32_t *list_size)
-{
-	static char buf[300] = {0};
-    if(index>=0)
-    {
-        if(index>=MAXFLAGS)
-            index=MAXFLAGS-1;
-		
-		sprintf(buf, "%s (%03d)\0", moduledata.combo_flag_names[index], index);
-		return buf;
-    }
-    
-    *list_size=MAXFLAGS;
     return NULL;
 }
 

@@ -143,18 +143,6 @@ int32_t onCombos();
 int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c);
 
-typedef struct combotype_struct
-{
-    char *s;
-    int32_t i;
-} combotype_struct;
-
-//extern combotype_struct bict[cMAX];
-//extern int32_t bict_cnt;
-
-void build_bict_list();
-const char *combotypelist(int32_t index, int32_t *list_size);
-
 int32_t click_d_ctile_proc();
 int32_t onCmb_dlg_h();
 int32_t onCmb_dlg_v();
