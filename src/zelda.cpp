@@ -3928,7 +3928,6 @@ void game_loop()
 		}
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
-		zprint2("END FRAME\n");
 		//  putpixel(framebuf, walkflagx, walkflagy+playing_field_offset, vc(int32_t(zc_oldrand()%16)));
 		break;
 	}
