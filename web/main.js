@@ -260,7 +260,11 @@ async function renderQuestList() {
     contentEl.querySelector('.author').textContent = quest.author;
     contentEl.querySelector('.genre').textContent = quest.genre;
     contentEl.querySelector('.version').textContent = quest.zcVersion;
-    contentEl.querySelector('.purezc-link').href = quest.projectUrl;
+    if (quest.projectUrl) {
+      contentEl.querySelector('.purezc-link').href = quest.projectUrl;
+    } else {
+      contentEl.querySelector('.purezc-link').remove();
+    }
 
     if (quest.rating) {
       contentEl.querySelector('.rating').textContent = quest.rating.score;
