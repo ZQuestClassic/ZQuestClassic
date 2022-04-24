@@ -4,9 +4,10 @@ import { createUrlString, fetchWithProgress } from "./utils.js";
 window.ZC = {
   pathToUrl: {},
   createPathFromUrl(url) {
-    const urlSplit = url.split('/');
-    const filename = urlSplit[urlSplit.length - 1];
-    const path = `/_quests/${filename}`;
+    if (url.startsWith('zc_quests/')) {
+      url = url.replace('zc_quests/', '');
+    }
+    const path = `/_quests/${url}`;
     return path;
   },
   async fetch(url, opts) {
@@ -285,15 +286,8 @@ async function renderQuestList() {
     const path = window.ZC.createPathFromUrl(url);
     const questParamValue = path.replace('/_quests/', '');
 
-    const playQuestUrl = new URL(ZC_Constants.zeldaUrl, location.href);
-    playQuestUrl.search = '';
-    playQuestUrl.searchParams.set('quest', questParamValue);
-    contentEl.querySelector('.play-link').href = playQuestUrl;
-
-    const editQuestUrl = new URL(ZC_Constants.zquestUrl, location.href);
-    editQuestUrl.search = '';
-    editQuestUrl.searchParams.set('quest', questParamValue);
-    contentEl.querySelector('.editor-link').href = editQuestUrl;
+    contentEl.querySelector('.play-link').href = createUrlString(ZC_Constants.zeldaUrl, { quest: questParamValue });
+    contentEl.querySelector('.editor-link').href = createUrlString(ZC_Constants.zquestUrl, { quest: questParamValue });
 
     questListCurrentEl.textContent = '';
     questListCurrentEl.append(contentEl);
