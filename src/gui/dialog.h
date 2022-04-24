@@ -42,6 +42,7 @@ public:
 		#ifdef IS_PLAYER
 		if(p) game_pal();
 		#endif
+		position_mouse_z(0);
 	}
 	
 	inline void pendDraw()

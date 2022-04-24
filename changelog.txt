@@ -1,6 +1,7 @@
 // 2.55 Change Log
 // Updated 24th April, 2022
 
+Fix scrolling in dialog pop-ups carrying over to combo pane
 Add Combo Types and Mapflags to 'ZInfo', allowing custom names and
 	help text per-quest. Updated default names for some flags.
 	Hid unimplemented flags from view.
