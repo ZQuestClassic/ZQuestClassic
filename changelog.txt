@@ -1,5 +1,31 @@
 // 2.55 Change Log
-// Updated 8th April, 2022
+// Updated 24th April, 2022
+
+Add 'Hero->TileMod' (read-only),
+	'Hero->Kill(bool bypass_revive)',
+	'Hero->Immortal'
+	( EmilyV, Apr 24, 2022 )
+
+Add 'generic' scripts, which can either:
+	-Run 'frozen', similar to Active Subscreen and onF6 slots
+	-Run 'passively' similar to Global Active, except, while running
+		passively, 'WaitTo()' can be used to wait until precise timings
+		within a frame.
+	( EmilyV, Apr 20, 2022 )
+Raft fixes
+	( Deedee, Apr 20, 2022 )
+
+Add multi-break/continue ('break 2;')
+Fix F4 not working during onDeath script
+Fix rounding error
+Fix enemy/pit collision
+	( EmilyV, Apr 19th, 2022 )
+
+Fix 'mapdata->Enemy[]' offset
+	( EmilyV, Apr 18th, 2022 )
+
+Fix enhanced music warp issue
+	( Deedee, Apr 10th, 2022 )
 
 //A106
 
