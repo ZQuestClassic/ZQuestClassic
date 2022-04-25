@@ -19607,6 +19607,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 	int32_t water=0;
 	int32_t index = 0;
 	
+	bool setsave=false;
+	int32_t warpsfx2 = 0;
 	if (RaftPass) goto RaftingStuff;
 	
 	//bool gotpit=false;
@@ -19711,7 +19713,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 		types[3] = FFCOMBOTYPE(x2,y2);
 		cids[3] = MAPFFCOMBO(x2,y2);
 	}
-	int32_t warpsfx2 = 0;
 	// Change B, C and D warps into A, for the comparison below...
 	for(int32_t i=0; i<4; i++)
 	{
@@ -19911,7 +19912,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 	if(MAPFFCOMBO(x2,y2))
 		types[3] = FFCOMBOTYPE(x2,y2);
 		
-	bool setsave=false;
 	
 	for(int32_t i=0; i<4; i++)
 	{
