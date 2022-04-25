@@ -31135,7 +31135,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
 	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names));
 	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
-	memset(moduledata.counter_names, 0, sizeof(moduledata.counter_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
@@ -31413,22 +31412,6 @@ bool ZModule::init(bool d) //bool default
 			"crCUSTOM14","crCUSTOM15","crCUSTOM16","crCUSTOM17","crCUSTOM18","crCUSTOM19",
 			"crCUSTOM20","crCUSTOM21","crCUSTOM22","crCUSTOM23","crCUSTOM24","crCUSTOM25"
 		};
-
-		static const char counter_default_names[33][255]=
-		{
-			"None","Life","Rupees", "Bombs","Arrows","Magic",
-			"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
-			"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
-			"Custom 9","Custom 10","Custom 11","Custom 12",
-			"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
-			"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
-			"Custom 23","Custom 24","Custom 25"	
-		};
-		for ( int32_t q = 0; q < 33; q++ )
-		{
-			strcpy(moduledata.counter_names[q],zc_get_config("COUNTERS",counter_cats[q],counter_default_names[q]));
-			//al_trace("Counter ID %d is: %s\n", q, moduledata.counter_names[q]);
-		}
 		
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);

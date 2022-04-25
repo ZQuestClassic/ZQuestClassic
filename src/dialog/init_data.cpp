@@ -296,7 +296,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					TabRef(name = "Counters", TabPanel(
 						TabRef(name = "Engine", Rows<2>(
 							Rows<2>(
-								framed = true, frameText = "Bombs", hAlign = 0.0,
+								framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
 								margins = 2_spx,
 								Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
@@ -310,7 +310,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									})
 							),
 							Rows<3>(
-								framed = true, frameText = "Super Bombs", hAlign = 0.0,
+								framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
 								margins = 2_spx,
 								Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
@@ -330,40 +330,40 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 										sBombMax->setVal(SBOMB_RATIO);
 									})
 							),
-							COUNTER_FRAME("Arrows", WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
-							COUNTER_FRAME("Rupees", WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
-							COUNTER_FRAME("Keys", BYTE_FIELD(keys), WORD_FIELD(max_keys))
+							COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
+							COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
+							COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(max_keys))
 						)),
 						TabRef(name = "Cust 1", Columns<3>(margins = 1_px,
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM1], WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM2], WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM3], WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM4], WORD_FIELD(scrcnt[3]), WORD_FIELD(scrmaxcnt[3])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM5], WORD_FIELD(scrcnt[4]), WORD_FIELD(scrmaxcnt[4])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM6], WORD_FIELD(scrcnt[5]), WORD_FIELD(scrmaxcnt[5])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM7], WORD_FIELD(scrcnt[6]), WORD_FIELD(scrmaxcnt[6])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM8], WORD_FIELD(scrcnt[7]), WORD_FIELD(scrmaxcnt[7])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM9], WORD_FIELD(scrcnt[8]), WORD_FIELD(scrmaxcnt[8]))
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(scrcnt[3]), WORD_FIELD(scrmaxcnt[3])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(scrcnt[4]), WORD_FIELD(scrmaxcnt[4])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(scrcnt[5]), WORD_FIELD(scrmaxcnt[5])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(scrcnt[6]), WORD_FIELD(scrmaxcnt[6])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(scrcnt[7]), WORD_FIELD(scrmaxcnt[7])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(scrcnt[8]), WORD_FIELD(scrmaxcnt[8]))
 						)),
 						TabRef(name = "Cust 2", Columns<3>(margins = 1_px,
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM10], WORD_FIELD(scrcnt[9]), WORD_FIELD(scrmaxcnt[9])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM11], WORD_FIELD(scrcnt[10]), WORD_FIELD(scrmaxcnt[10])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM12], WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM13], WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM14], WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM15], WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM16], WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM17], WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM18], WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17]))
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(scrcnt[9]), WORD_FIELD(scrmaxcnt[9])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(scrcnt[10]), WORD_FIELD(scrmaxcnt[10])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17]))
 						)),
 						TabRef(name = "Cust 3", Columns<3>(margins = 1_px,
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM19], WORD_FIELD(scrcnt[18]), WORD_FIELD(scrmaxcnt[18])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM20], WORD_FIELD(scrcnt[19]), WORD_FIELD(scrmaxcnt[19])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM21], WORD_FIELD(scrcnt[20]), WORD_FIELD(scrmaxcnt[20])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM22], WORD_FIELD(scrcnt[21]), WORD_FIELD(scrmaxcnt[21])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM23], WORD_FIELD(scrcnt[22]), WORD_FIELD(scrmaxcnt[22])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM24], WORD_FIELD(scrcnt[23]), WORD_FIELD(scrmaxcnt[23])),
-							COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM25], WORD_FIELD(scrcnt[24]), WORD_FIELD(scrmaxcnt[24]))
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(scrcnt[18]), WORD_FIELD(scrmaxcnt[18])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(scrcnt[19]), WORD_FIELD(scrmaxcnt[19])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(scrcnt[20]), WORD_FIELD(scrmaxcnt[20])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(scrcnt[21]), WORD_FIELD(scrmaxcnt[21])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(scrcnt[22]), WORD_FIELD(scrmaxcnt[22])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(scrcnt[23]), WORD_FIELD(scrmaxcnt[23])),
+							COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(scrcnt[24]), WORD_FIELD(scrmaxcnt[24]))
 						))
 					)),
 					TabRef(name = "LItems", Column(
@@ -454,14 +454,14 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						),
 						Row(
 							Rows<2>(
-								framed = true, frameText = "Hearts",
+								framed = true, frameText = "Hearts ("+std::string(ZI.getCtrName(crLIFE))+")",
 								Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
 								Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
 								BYTE_FIELD(start_heart),
 								BYTE_FIELD(hc)
 							),
 							Rows<3>(
-								framed = true, frameText = "Magic",
+								framed = true, frameText = ZI.getCtrName(crMAGIC),
 								Label(hAlign = 0.0, text = "Start"),
 								Label(hAlign = 1.0, text = "Max"),
 								Row(
@@ -593,7 +593,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				TabRef(name = "Counters", TabPanel(
 					TabRef(name = "Engine", Rows<2>(hAlign = 0.0, vAlign = 0.0,
 						Rows<2>(
-							framed = true, frameText = "Bombs", hAlign = 0.0,
+							framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
 							margins = 2_spx,
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
@@ -607,7 +607,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								})
 						),
 						Rows<3>(
-							framed = true, frameText = "Super Bombs", hAlign = 0.0,
+							framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
 							margins = 2_spx,
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
@@ -627,38 +627,38 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									sBombMax->setVal(SBOMB_RATIO);
 								})
 						),
-						COUNTER_FRAME("Arrows", WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
-						COUNTER_FRAME("Rupees", WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
-						COUNTER_FRAME("Keys", BYTE_FIELD(keys), WORD_FIELD(max_keys))
+						COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(arrows), WORD_FIELD(max_arrows)),
+						COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(rupies), WORD_FIELD(max_rupees)),
+						COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(max_keys))
 					)),
 					TabRef(name = "Custom 1", Columns<5>(margins = 1_px,
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM1], WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM2], WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM3], WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM4], WORD_FIELD(scrcnt[3]), WORD_FIELD(scrmaxcnt[3])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM5], WORD_FIELD(scrcnt[4]), WORD_FIELD(scrmaxcnt[4])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM6], WORD_FIELD(scrcnt[5]), WORD_FIELD(scrmaxcnt[5])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM7], WORD_FIELD(scrcnt[6]), WORD_FIELD(scrmaxcnt[6])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM8], WORD_FIELD(scrcnt[7]), WORD_FIELD(scrmaxcnt[7])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM9], WORD_FIELD(scrcnt[8]), WORD_FIELD(scrmaxcnt[8])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM10], WORD_FIELD(scrcnt[9]), WORD_FIELD(scrmaxcnt[9])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM11], WORD_FIELD(scrcnt[10]), WORD_FIELD(scrmaxcnt[10])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM12], WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM13], WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM14], WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM15], WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14]))
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(scrcnt[0]), WORD_FIELD(scrmaxcnt[0])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(scrcnt[1]), WORD_FIELD(scrmaxcnt[1])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(scrcnt[2]), WORD_FIELD(scrmaxcnt[2])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(scrcnt[3]), WORD_FIELD(scrmaxcnt[3])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(scrcnt[4]), WORD_FIELD(scrmaxcnt[4])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(scrcnt[5]), WORD_FIELD(scrmaxcnt[5])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(scrcnt[6]), WORD_FIELD(scrmaxcnt[6])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(scrcnt[7]), WORD_FIELD(scrmaxcnt[7])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(scrcnt[8]), WORD_FIELD(scrmaxcnt[8])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(scrcnt[9]), WORD_FIELD(scrmaxcnt[9])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(scrcnt[10]), WORD_FIELD(scrmaxcnt[10])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(scrcnt[11]), WORD_FIELD(scrmaxcnt[11])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(scrcnt[12]), WORD_FIELD(scrmaxcnt[12])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(scrcnt[13]), WORD_FIELD(scrmaxcnt[13])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(scrcnt[14]), WORD_FIELD(scrmaxcnt[14]))
 					)),
 					TabRef(name = "Custom 2", Columns<5>(margins = 1_px,
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM16], WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM17], WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM18], WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM19], WORD_FIELD(scrcnt[18]), WORD_FIELD(scrmaxcnt[18])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM20], WORD_FIELD(scrcnt[19]), WORD_FIELD(scrmaxcnt[19])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM21], WORD_FIELD(scrcnt[20]), WORD_FIELD(scrmaxcnt[20])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM22], WORD_FIELD(scrcnt[21]), WORD_FIELD(scrmaxcnt[21])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM23], WORD_FIELD(scrcnt[22]), WORD_FIELD(scrmaxcnt[22])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM24], WORD_FIELD(scrcnt[23]), WORD_FIELD(scrmaxcnt[23])),
-						COUNTER_FRAME(moduledata.counter_names[1+crCUSTOM25], WORD_FIELD(scrcnt[24]), WORD_FIELD(scrmaxcnt[24]))
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(scrcnt[15]), WORD_FIELD(scrmaxcnt[15])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(scrcnt[16]), WORD_FIELD(scrmaxcnt[16])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(scrcnt[17]), WORD_FIELD(scrmaxcnt[17])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(scrcnt[18]), WORD_FIELD(scrmaxcnt[18])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(scrcnt[19]), WORD_FIELD(scrmaxcnt[19])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(scrcnt[20]), WORD_FIELD(scrmaxcnt[20])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(scrcnt[21]), WORD_FIELD(scrmaxcnt[21])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(scrcnt[22]), WORD_FIELD(scrmaxcnt[22])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(scrcnt[23]), WORD_FIELD(scrmaxcnt[23])),
+						COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(scrcnt[24]), WORD_FIELD(scrmaxcnt[24]))
 					))
 				)),
 				TabRef(name = "LItems", Column(
@@ -747,14 +747,14 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					),
 					Row(
 						Rows<2>(
-							framed = true, frameText = "Hearts",
+							framed = true, frameText = "Hearts ("+std::string(ZI.getCtrName(crLIFE))+")",
 							Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
 							BYTE_FIELD(start_heart),
 							BYTE_FIELD(hc)
 						),
 						Rows<3>(
-							framed = true, frameText = "Magic",
+							framed = true, frameText = ZI.getCtrName(crMAGIC),
 							Label(hAlign = 0.0, text = "Start"),
 							Label(hAlign = 1.0, text = "Max"),
 							Row(

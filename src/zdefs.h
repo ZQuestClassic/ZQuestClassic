@@ -286,7 +286,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        1
 
 #define V_COMPATRULE       23
-#define V_ZINFO            1
+#define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
 
@@ -4728,7 +4728,6 @@ struct zcmodule
 	char enemy_weapon_names[wMax-wEnemyWeapons][255];
 	char enemy_scriptweaponweapon_names[10][255];
 	char player_weapon_names[wIce+1][255];
-	char counter_names[33][255];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];

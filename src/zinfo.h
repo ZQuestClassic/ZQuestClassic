@@ -11,6 +11,7 @@ struct zinfo
 	void clear_ctype_help();
 	void clear_mf_name();
 	void clear_mf_help();
+	void clear_ctr_name();
 	void clear();
 	zinfo();
 #ifdef IS_ZQUEST
@@ -25,16 +26,19 @@ struct zinfo
 #endif
 	//Shared
 	char *ic_name[itype_max];
+	char *ctr_name[MAX_COUNTERS];
 	
 	bool isUsableItemclass(size_t q);
 	bool isUsableComboType(size_t q);
 	bool isUsableMapFlag(size_t q);
+	bool isUsableCtr(int32_t q);
 	char const* getItemClassName(size_t q);
 	char const* getItemClassHelp(size_t q);
 	char const* getComboTypeName(size_t q);
 	char const* getComboTypeHelp(size_t q);
 	char const* getMapFlagName(size_t q);
 	char const* getMapFlagHelp(size_t q);
+	char const* getCtrName(int32_t q);
 	
 	void copyFrom(zinfo const& other);
 	bool isNull();

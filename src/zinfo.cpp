@@ -275,6 +275,16 @@ const char default_itype_strings[itype_max][255] =
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
 	"SwitchHooks", "Item Bundle", "Progressive Item", "Note"
 };
+const char counter_default_names[MAX_COUNTERS][255] =
+{
+	"Life","Rupees","Bombs","Arrows","Magic",
+	"Keys","Super Bombs","Custom 1","Custom 2","Custom 3",
+	"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
+	"Custom 9","Custom 10","Custom 11","Custom 12",
+	"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
+	"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+	"Custom 23","Custom 24","Custom 25"	
+};
 
 zinfo ZI;
 
@@ -289,6 +299,7 @@ zinfo::zinfo()
 #else
 #endif
 	memset(ic_name, 0, sizeof(ic_name));
+	memset(ctr_name, 0, sizeof(ctr_name));
 }
 
 void zinfo::clear_ic_help()
@@ -355,6 +366,15 @@ void zinfo::clear_mf_help()
 	}
 #endif
 }
+void zinfo::clear_ctr_name()
+{
+	for(auto q = 0; q < MAX_COUNTERS; ++q)
+	{
+		if(ctr_name[q])
+			zc_free(ctr_name[q]);
+		ctr_name[q] = nullptr;
+	}
+}
 void zinfo::clear()
 {
 	clear_ic_help();
@@ -363,6 +383,7 @@ void zinfo::clear()
 	clear_ctype_help();
 	clear_mf_name();
 	clear_mf_help();
+	clear_ctr_name();
 }
 
 void assignchar(char** p, char const* str)
@@ -400,6 +421,11 @@ bool zinfo::isUsableMapFlag(size_t q)
 #else
 	return true;
 #endif
+}
+bool zinfo::isUsableCtr(int32_t q)
+{
+	return q >= crNONE && q < MAX_COUNTERS;
+	//return valid_str(counter_default_names[q+1],'-');
 }
 char const* zinfo::getItemClassName(size_t q)
 {
@@ -462,21 +488,45 @@ char const* zinfo::getMapFlagHelp(size_t q)
 #endif
 	return nilptr;
 }
+char const* zinfo::getCtrName(int32_t q)
+{
+	if(q == crNONE)
+	{
+		return "(None)";
+	}
+	if(valid_str(ctr_name[q]))
+		return ctr_name[q];
+	if(valid_str(counter_default_names[q]))
+		return counter_default_names[q];
+	return nilptr;
+}
 
 void zinfo::copyFrom(zinfo const& other)
 {
 	clear();
+	for(auto q = 0; q < MAX_COUNTERS; ++q)
+	{
+		assignchar(ctr_name+q, other.ctr_name[q]);
+	}
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		assignchar(ic_name+q, other.ic_name[q]);
 #ifdef IS_ZQUEST
 		assignchar(ic_help_string+q, other.ic_help_string[q]);
-		assignchar(ctype_name+q, other.ctype_name[q]);
-		assignchar(ctype_help_string+q, other.ctype_help_string[q]);
-		assignchar(mf_name+q, other.mf_name[q]);
-		assignchar(mf_help_string+q, other.mf_help_string[q]);
 #endif
 	}
+#ifdef IS_ZQUEST
+	for(auto q = 0; q < cMAX; ++q)
+	{
+		assignchar(ctype_name+q, other.ctype_name[q]);
+		assignchar(ctype_help_string+q, other.ctype_help_string[q]);
+	}
+	for(auto q = 0; q < mfMAX; ++q)
+	{
+		assignchar(mf_name+q, other.mf_name[q]);
+		assignchar(mf_help_string+q, other.mf_help_string[q]);
+	}
+#endif
 }
 
 #ifdef IS_ZQUEST
@@ -595,6 +645,23 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 			if(htxtsz)
 				if(!pfwrite(z.mf_help_string[q],htxtsz,f))
 					new_return(20);
+		}
+		
+		if(!p_iputw(MAX_COUNTERS,f)) //num counters
+		{
+			new_return(21);
+		}
+		for(auto q = 0; q < MAX_COUNTERS; ++q)
+		{
+			byte namesize = (byte)(vbound(valid_str(z.ctr_name[q]) ? strlen(z.ctr_name[q]) : 0,0,255));
+			
+			if(!p_putc(namesize,f))
+			{
+				new_return(22);
+			}
+			if(namesize)
+				if(!pfwrite(z.ctr_name[q],namesize,f))
+					new_return(23);
 		}
 		
 		if(writecycle==0)
@@ -777,6 +844,30 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 #endif
 	}
 	
+	if(section_version > 1)
+	{
+		word num_counters;
+		if(!p_igetw(&num_counters,f,true))
+			return qe_invalid;
+		for(auto q = 0; q < num_counters; ++q)
+		{
+			byte namesize;
+			if(!p_getc(&namesize,f,true))
+				return qe_invalid;
+			if(namesize)
+			{
+				char* p = (char*)zc_malloc(namesize+1);
+				if(!pfread(p,namesize,f,true))
+					return qe_invalid;
+				p[namesize] = 0;
+				z.ctr_name[q] = p;
+			}
+		}
+	}
+	else
+	{
+		memset(z.ctr_name, 0, sizeof(z.ctr_name));
+	}
 	return 0;
 }
 

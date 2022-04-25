@@ -784,7 +784,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
 	local_itemref(ref), itemname(str), index(index),
 	list_items(GUI::ListData::itemclass(true)),
-	list_counters(GUI::ListData::counters()),
+	list_counters(GUI::ListData::counters(true)),
 	list_sprites(GUI::ListData::miscsprites()),
 	list_itemdatscript(GUI::ListData::itemdata_script()),
 	list_itemsprscript(GUI::ListData::itemsprite_script()),

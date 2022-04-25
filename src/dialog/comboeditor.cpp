@@ -36,7 +36,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_ctype(GUI::ListData::combotype(true)),
 	list_flag(GUI::ListData::mapflag(true)),
 	list_combscript(GUI::ListData::combodata_script()),
-	list_counters(GUI::ListData::counters()),
+	list_counters(GUI::ListData::counters(true)),
 	list_sprites(GUI::ListData::miscsprites()),
 	list_weaptype(GUI::ListData::lweaptypes()),
 	list_deftypes(GUI::ListData::deftypes())

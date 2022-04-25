@@ -16,7 +16,7 @@ void call_bottle_dlg(int32_t index)
 BottleTypeDialog::BottleTypeDialog(int32_t index):
 	index(index), sourceBottle(misc.bottle_types[index]),
 	tempBottle(misc.bottle_types[index]),
-	list_counters(GUI::ListData::counters())
+	list_counters(GUI::ListData::counters(true))
 {}
 
 #define NUM_FIELD(member,_min,_max) \

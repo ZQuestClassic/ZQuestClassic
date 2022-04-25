@@ -22,11 +22,29 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	std::shared_ptr<GUI::TextField> fields[6];
-	std::shared_ptr<GUI::Label> helplbl[3];
-	std::shared_ptr<GUI::Checkbox> defcheck[6];
+	enum
+	{
+		FLD_IC_NAME,
+		FLD_IC_HELP,
+		FLD_CT_NAME,
+		FLD_CT_HELP,
+		FLD_MF_NAME,
+		FLD_MF_HELP,
+		FLD_CTR_NAME,
+		NUM_FIELDS
+	};
+	enum
+	{
+		LBL_IC_HELP,
+		LBL_CT_HELP,
+		LBL_MF_HELP,
+		NUM_LBLS
+	};
+	std::shared_ptr<GUI::TextField> fields[NUM_FIELDS];
+	std::shared_ptr<GUI::Checkbox> defcheck[NUM_FIELDS];
+	std::shared_ptr<GUI::Label> helplbl[NUM_LBLS];
 	zinfo lzinfo;
-	GUI::ListData list_itemclass, list_combotype, list_mapflag;
+	GUI::ListData list_itemclass, list_combotype, list_mapflag, list_counters;
 };
 
 #endif

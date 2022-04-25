@@ -222,14 +222,36 @@ ListData ListData::dmaps(bool numbered)
 	return ls;
 }
 
-ListData ListData::counters()
+ListData ListData::counters(bool numbered, bool skipNone)
 {
 	ListData ls;
+	// map<string, int32_t> vals;
+	// set<string> names;
 	
-	for(int32_t q = -1; q < MAX_COUNTERS; ++q)
+	if(!skipNone) ls.add("(None)", crNONE);
+	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{
-		ls.add(moduledata.counter_names[q+1], q);
+		if(!ZI.isUsableCtr(q))
+			continue; //Hidden
+		char const* module_str = ZI.getCtrName(q);
+		char* name = new char[strlen(module_str) + 6];
+		if(numbered)
+			sprintf(name, "%s (%02d)", module_str, q);
+		else strcpy(name, module_str);
+		
+		string sname(name);
+		
+		// vals[sname] = q;
+		// names.insert(sname);
+		ls.add(sname, q);
+		
+		delete[] name;
 	}
+	
+	// for(auto it = names.begin(); it != names.end(); ++it)
+	// {
+		// ls.add(*it, vals[*it]);
+	// }
 	
 	return ls;
 }
