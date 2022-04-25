@@ -282,7 +282,7 @@ const char counter_default_names[MAX_COUNTERS][255] =
 	"Custom 4","Custom 5","Custom 6","Custom 7","Custom 8",
 	"Custom 9","Custom 10","Custom 11","Custom 12",
 	"Custom 13","Custom 14","Custom 15","Custom 16","Custom 17",
-	"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22"
+	"Custom 18","Custom 19","Custom 20","Custom 21","Custom 22",
 	"Custom 23","Custom 24","Custom 25"	
 };
 
