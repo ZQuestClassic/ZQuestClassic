@@ -8329,30 +8329,45 @@ finished:
 
 void doflags()
 {
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-    int32_t of=Flags;
-    Flags=cFLAGS;
-    refresh(rMAP | rNOCURSOR);
-    
-    bool canedit=false;
-    
-    while(!(gui_mouse_b()&2))
-    {
-        int32_t x=gui_mouse_x();
-        int32_t y=gui_mouse_y();
-        double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-        double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-        int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
-        int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
-        int32_t c=(cy*16)+cx;
-        
-        if(!gui_mouse_b())
-            canedit=true;
-            
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
-        {
+	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+	int32_t of=Flags;
+	Flags=cFLAGS;
+	refresh(rMAP | rNOCURSOR);
+	
+	bool canedit=false;
+	bool didShift = false;
+	int32_t tFlag = Flag;
+	while(!(gui_mouse_b()&2))
+	{
+		int32_t x=gui_mouse_x();
+		int32_t y=gui_mouse_y();
+		double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
+		double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
+		int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+		int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
+		int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
+		int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
+		int32_t c=(cy*16)+cx;
+		
+		if(!gui_mouse_b())
+			canedit=true;
+        bool shift = key[KEY_LSHIFT] || key[KEY_RSHIFT];
+		if(didShift != shift)
+		{
+			didShift = shift;
+			if(shift)
+			{
+				setFlagColor(0);
+				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+			}
+			else
+			{
+				setFlagColor();
+				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+			}
+		}
+		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+		{
 			mapscr* cur_scr = (CurrentLayer
 				? &(TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS
 					+(Map.CurrScr()->layerscreen[CurrentLayer-1])])
@@ -8367,7 +8382,7 @@ void doflags()
 			{
 				saved=false;
 				int32_t tflag = Flag;
-				if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+				if(shift)
 					Flag = mfNONE;
 				if(CurrentLayer!=0)
 				{
@@ -8412,96 +8427,102 @@ void doflags()
 				else cur_scr->sflag[c] = Flag;
 				Flag = tflag;
 			}
-            
-            refresh(rMAP | rNOCURSOR);
-        }
-        
-        if(mouse_z)
-        {
-            for(int32_t i=0; i<abs(mouse_z); ++i)
-            {
-                if(mouse_z>0)
-                {
-                    onIncreaseFlag();
-                }
-                else
-                {
-                    onDecreaseFlag();
-                }
-            }
-            
-            position_mouse_z(0);
+			
+			refresh(rMAP | rNOCURSOR);
+		}
+		
+		if(mouse_z)
+		{
+			for(int32_t i=0; i<abs(mouse_z); ++i)
+			{
+				if(mouse_z>0)
+				{
+					onIncreaseFlag();
+				}
+				else
+				{
+					onDecreaseFlag();
+				}
+			}
+			
+			position_mouse_z(0);
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-        }
-        
-        if(keypressed())
-        {
-            switch(readkey()>>8)
-            {
-            case KEY_ESC:
-            case KEY_ENTER:
-                goto finished;
-                
-            case KEY_ASTERISK:
-            case KEY_CLOSEBRACE:
-                onIncreaseFlag();
-                break;
-                
-            case KEY_SLASH_PAD:
-            case KEY_OPENBRACE:
-                onDecreaseFlag();
-                break;
-                
-            case KEY_UP:
-                onUp();
-                break;
-                
-            case KEY_DOWN:
-                onDown();
-                break;
-                
-            case KEY_LEFT:
-                onLeft();
-                break;
-                
-            case KEY_RIGHT:
-                onRight();
-                break;
-                
-            case KEY_PGUP:
-                onPgUp();
-                break;
-                
-            case KEY_PGDN:
-                onPgDn();
-                break;
-                
-            case KEY_COMMA:
-                onDecMap();
-                break;
-                
-            case KEY_STOP:
-                onIncMap();
-                break;
-            }
-            
-            // The cursor could've been overwritten by the Combo Brush?
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-        }
-        
-        do_animations();
-        refresh(rALL | rNOCURSOR);
-    }
-    
+		}
+		
+		if(keypressed())
+		{
+			switch(readkey()>>8)
+			{
+			case KEY_ESC:
+			case KEY_ENTER:
+				goto finished;
+				
+			case KEY_ASTERISK:
+			case KEY_CLOSEBRACE:
+				onIncreaseFlag();
+				break;
+				
+			case KEY_SLASH_PAD:
+			case KEY_OPENBRACE:
+				onDecreaseFlag();
+				break;
+				
+			case KEY_UP:
+				onUp();
+				break;
+				
+			case KEY_DOWN:
+				onDown();
+				break;
+				
+			case KEY_LEFT:
+				onLeft();
+				break;
+				
+			case KEY_RIGHT:
+				onRight();
+				break;
+				
+			case KEY_PGUP:
+				onPgUp();
+				break;
+				
+			case KEY_PGDN:
+				onPgDn();
+				break;
+				
+			case KEY_COMMA:
+				onDecMap();
+				break;
+				
+			case KEY_STOP:
+				onIncMap();
+				break;
+			}
+			
+			// The cursor could've been overwritten by the Combo Brush?
+			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+		}
+		
+		if(shift && theFlagColor)
+		{
+			setFlagColor(0);
+			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+		}
+		
+		do_animations();
+		refresh(rALL | rNOCURSOR);
+	}
+	
 finished:
-    Flags=of;
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    refresh(rMAP+rMENU);
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-    }
+	Flags=of;
+	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	refresh(rMAP+rMENU);
+	
+	while(gui_mouse_b())
+	{
+		/* do nothing */
+	}
 }
 
 // Drag FFCs around

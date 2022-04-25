@@ -1374,20 +1374,29 @@ int32_t onJ()
     return D_O_K;
 }
 
+int32_t theFlagColor = 0;
 void setFlagColor()
 {
-    RAMpal[dvc(0)]=RAMpal[vc(Flag%16)];
+	setFlagColor(Flag);
+}
+void setFlagColor(int32_t c)
+{
+	theFlagColor = c%16;
+    RAMpal[dvc(0)]=RAMpal[vc(c%16)];
     set_palette_range(RAMpal,dvc(0),dvc(0),false);
 }
 
 int32_t onIncreaseFlag()
 {
-    Flag=(Flag+1);
+	do
+	{
+		Flag=(Flag+1);
 
-    if(Flag==mfMAX)
-    {
-        Flag=0;
-    }
+		if(Flag==mfMAX)
+		{
+			Flag=0;
+		}
+	} while(!ZI.isUsableMapFlag(Flag));
 
     setFlagColor();
     refresh(rMENU);
@@ -1396,12 +1405,16 @@ int32_t onIncreaseFlag()
 
 int32_t onDecreaseFlag()
 {
-    if(Flag==0)
-    {
-        Flag=mfMAX;
-    }
+	do
+	{
+		if(Flag==0)
+		{
+			Flag=mfMAX;
+		}
 
-    Flag=(Flag-1);
+		Flag=(Flag-1);
+	} while(!ZI.isUsableMapFlag(Flag));
+	
     setFlagColor();
     refresh(rMENU);
     return D_O_K;
