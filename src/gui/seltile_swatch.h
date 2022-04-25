@@ -14,14 +14,17 @@ public:
 
 	void setTile(int32_t value);
 	void setCSet(int32_t value);
+	void setFlip(int32_t value);
+	void setShowFlip(bool val);
 	void setShowVals(bool showVals);
 	
 	void click();
 
 	int32_t getTile();
 	int32_t getCSet();
+	int32_t getFlip();
 
-	void setOnSelectFunc(std::function<void(int32_t,int32_t)> newOnSelect)
+	void setOnSelectFunc(std::function<void(int32_t,int32_t,int32_t)> newOnSelect)
 	{
 		onSelectFunc = newOnSelect;
 	}
@@ -34,10 +37,11 @@ public:
 protected:
 	int32_t message;
 private:
-	int32_t tile, cset;
+	int32_t tile, cset, flip;
+	bool showFlip;
 	bool showsVals;
 	DialogRef alDialog;
-	std::function<void(int32_t,int32_t)> onSelectFunc;
+	std::function<void(int32_t,int32_t,int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

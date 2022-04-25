@@ -1495,6 +1495,7 @@ void ComboEditorDialog::updateAnimation()
 	animFrame->setSpeed(local_comboref.speed);
 	animFrame->setTile(local_comboref.tile);
 	animFrame->setFlip(local_comboref.flip);
+	tswatch->setFlip(local_comboref.flip);
 }
 
 //{ Macros
@@ -1746,12 +1747,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									colSpan = 2,
 									tile = local_comboref.tile,
 									cset = CSet,
+									flip = local_comboref.flip,
+									showFlip = true,
 									showvals = false,
-									onSelectFunc = [&](int32_t t, int32_t c)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t f)
 									{
 										local_comboref.tile = t;
 										local_comboref.o_tile = t;
+										local_comboref.flip = f;
 										CSet = (c&0xF)%12;
+										l_flip->setText(std::to_string(f));
 										updateAnimation();
 									}
 								),
@@ -2147,12 +2152,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									colSpan = 2,
 									tile = local_comboref.tile,
 									cset = CSet,
+									flip = local_comboref.flip,
+									showFlip = true,
 									showvals = false,
-									onSelectFunc = [&](int32_t t, int32_t c)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t f)
 									{
 										local_comboref.tile = t;
 										local_comboref.o_tile = t;
+										local_comboref.flip = f;
 										CSet = (c&0xF)%12;
+										l_flip->setText(std::to_string(f));
 										updateAnimation();
 									}
 								),

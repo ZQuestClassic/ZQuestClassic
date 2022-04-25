@@ -88,7 +88,7 @@ ColorSel(fitParent = true, \
 SelTileSwatch( \
 	tile = tmpMsgStr.memTile, \
 	cset = (tmpMsgStr.memCSet & 0x0F), \
-	onSelectFunc = [&](int32_t t, int32_t c) \
+	onSelectFunc = [&](int32_t t, int32_t c, int32_t) \
 	{ \
 		tmpMsgStr.memTile = t; \
 		tmpMsgStr.memCSet &= 0xF0; \

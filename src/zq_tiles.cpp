@@ -15316,6 +15316,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				case KEY_R:
 					if(type==2)
 						break;
+					if(type==1)
+					{
+						flip = rotate_value(flip);
+						redraw=true;
+						break;
+					}
 						
 					go_tiles();
 					

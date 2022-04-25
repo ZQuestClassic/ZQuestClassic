@@ -20,14 +20,16 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 	{
 		case MSG_CLICK:
 		{
-			int32_t f = 0;
+			int32_t f = d->fg;
 			int32_t t = d->d1;
 			int32_t cs = d->d2;
+			bool showflip = d->bg & 0b10;
 			
-			if(select_tile(t,f,1,cs,true))
+			if(select_tile(t,f,1,cs,true,0,showflip))
 			{
 				d->d1 = t;
 				d->d2 = cs;
+				d->fg = f;
 				GUI_EVENT(d, geCHANGE_SELECTION);
 				return D_REDRAW;
 			}
@@ -43,7 +45,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 				clear_bitmap(buf);
 				
 				if(d->d1)
-					overtile16(buf,d->d1,2,2,d->d2,0);
+					overtile16(buf,d->d1,2,2,d->d2,d->fg);
 					
 				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
 				destroy_bitmap(buf);
@@ -53,7 +55,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 			
 			//    text_mode(d->bg);
-			if(d->bg)
+			if(d->bg & 0b1)
 			{
 				FONT *fonty = (is_large ? font : pfont);
 				if(d->dp2) fonty = (FONT*)d->dp2;
@@ -69,8 +71,9 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 namespace GUI
 {
 
-SelTileSwatch::SelTileSwatch(): tile(0), cset(0),
-	alDialog(), message(-1), showsVals(true)
+SelTileSwatch::SelTileSwatch(): tile(0), cset(0), flip(0),
+	showFlip(false), showsVals(true),
+	alDialog(), message(-1)
 {
 	Size s = sized(16_px,32_px)+4_px;
 	setPreferredWidth(s);
@@ -108,12 +111,32 @@ void SelTileSwatch::setCSet(int32_t value)
 	}
 }
 
+void SelTileSwatch::setFlip(int32_t value)
+{
+	flip = value;
+	if(alDialog)
+	{
+		alDialog->fg = value;
+		pendDraw();
+	}
+}
+
+void SelTileSwatch::setShowFlip(bool val)
+{
+	showFlip = val;
+	if(alDialog)
+	{
+		SETFLAG(alDialog->bg, 0b10, val);
+		pendDraw();
+	}
+}
+
 void SelTileSwatch::setShowVals(bool val)
 {
 	showsVals = val;
 	if(alDialog)
 	{
-		alDialog->bg = val?1:0;
+		SETFLAG(alDialog->bg, 0b1, val);
 		pendDraw();
 	}
 }
@@ -126,6 +149,11 @@ int32_t SelTileSwatch::getTile()
 int32_t SelTileSwatch::getCSet()
 {
 	return alDialog ? alDialog->d2 : cset;
+}
+
+int32_t SelTileSwatch::getFlip()
+{
+	return alDialog ? alDialog->fg : flip;
 }
 
 void SelTileSwatch::applyVisibility(bool visible)
@@ -156,7 +184,7 @@ void SelTileSwatch::realize(DialogRunner& runner)
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<newg_seltile_proc>,
 		x, y, getHeight(), getHeight(),
-		fgColor, showsVals?1:0,
+		flip, (showsVals?0b1:0) | (showFlip?0b10:0),
 		0,
 		getFlags(),
 		tile, cset, // d1, d2,
@@ -175,7 +203,7 @@ int32_t SelTileSwatch::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
 	if(onSelectFunc)
-		onSelectFunc(alDialog->d1, alDialog->d2);
+		onSelectFunc(alDialog->d1, alDialog->d2, alDialog->fg);
 	if(message >= 0)
 		sendMessage(message, alDialog->d1);
 	return -1;

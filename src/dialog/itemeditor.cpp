@@ -1627,7 +1627,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SelTileSwatch(
 									tile = local_itemref.tile,
 									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int32_t t, int32_t c)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t)
 									{
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
@@ -2874,7 +2874,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SelTileSwatch(
 									tile = local_itemref.tile,
 									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int32_t t, int32_t c)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t)
 									{
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
