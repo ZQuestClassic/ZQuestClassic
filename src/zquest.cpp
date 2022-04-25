@@ -3562,7 +3562,6 @@ int32_t onDefault_MapStyles()
 
 int32_t on0()
 {
-    saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		return on10();
@@ -3574,14 +3573,14 @@ int32_t on0()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(0);
 		refresh(rSCRMAP);
-    }
+	}
 	return D_O_K;
 }
 int32_t on1()
 {
-    saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		return on11();
@@ -3596,14 +3595,14 @@ int32_t on1()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(1);
 		refresh(rSCRMAP);
-    }
+	}
 	return D_O_K;
 }
 int32_t on2()
 {
-    saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		return on12();
@@ -3618,14 +3617,14 @@ int32_t on2()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(2);
 		refresh(rSCRMAP);
-    }
+	}
 	return D_O_K;
 }
 int32_t on3()
 {
-    saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		return on13();
@@ -3640,6 +3639,7 @@ int32_t on3()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(3);
 		refresh(rSCRMAP);
     }
@@ -3647,7 +3647,6 @@ int32_t on3()
 }
 int32_t on4()
 {
-    saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		return on14();
@@ -3662,14 +3661,14 @@ int32_t on4()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(4);
 		refresh(rSCRMAP);
-    }
+	}
 	return D_O_K;
 }
 int32_t on5()
 {
-    saved=false;
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		return on15();
@@ -3684,6 +3683,7 @@ int32_t on5()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(5);
 		refresh(rSCRMAP);
     }
@@ -3692,7 +3692,6 @@ int32_t on5()
 
 int32_t on6()
 {
-    saved=false;
 	if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 	// if(key_shifts & KB_CTRL_FLAG)
 	{
@@ -3704,101 +3703,102 @@ int32_t on6()
 	}
 	else if(!DisableLPalShortcuts)
 	{
+		saved=false;
 		Map.setcolor(6);
 		refresh(rSCRMAP);
-    }
+	}
 	return D_O_K;
 }
 int32_t on7()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(7);
 		refresh(rSCRMAP);
-    }
+	}
 	return D_O_K;
 }
 int32_t on8()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(8);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 int32_t on9()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(9);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 
 int32_t on10()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(10);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 int32_t on11()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(11);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 int32_t on12()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(12);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 int32_t on13()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(13);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 int32_t on14()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(14);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 int32_t on15()
 {
 	if(!DisableLPalShortcuts)
-    {
+	{
 		saved=false;
 		Map.setcolor(15);
 		refresh(rSCRMAP);
-    }
-    return D_O_K;
+	}
+	return D_O_K;
 }
 
 int32_t onLeft()
