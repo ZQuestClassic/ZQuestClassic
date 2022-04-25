@@ -7598,12 +7598,12 @@ bool Running;
 
 bool ExitState[GENSCR_NUMST];
  * An array of exit states. Each exit state, if true, specifies a condition for the script
- *     to stop running passively. Use the 'GENSCR_EXIT_' constants from 'std_constants.zh'.
+ *     to stop running passively. Use the 'GENSCR_ST_' constants from 'std_constants.zh'.
  * All states default to 'false'
 
 bool ReloadState[GENSCR_NUMST];
  * An array of reload states. Each reload state, if true, specifies a condition for the script
- *     to exit and relaunch if running. Use the 'GENSCR_EXIT_' constants from 'std_constants.zh'.
+ *     to exit and relaunch if running. Use the 'GENSCR_ST_' constants from 'std_constants.zh'.
  * All states default to 'false'
  * GENSCR_ST_RELOAD: Exits/Reloads upon exiting to the save select screen.
  * GENSCR_ST_CONTINUE: Exits/Reloads upon 'F6->Continue' or similar.
