@@ -32,7 +32,7 @@ public:
 	
 	void applyVisibility(bool visible, int32_t offs = 0);
 	void applyDisabled(bool dis, int32_t offs = 0);
-	void message(int32_t msg, int32_t c);
+	int32_t message(int32_t msg, int32_t c);
 	
 private:
 	DialogRunner* owner;

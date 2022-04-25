@@ -21,7 +21,8 @@ bool call_combo_editor(int32_t index);
 class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP, ROTATE, PLUSCS, MINUSCS, CLEAR };
+	enum class message { OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP,
+		ROTATE, PLUSCS, MINUSCS, CLEAR, TILESEL };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;

@@ -1642,7 +1642,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			info = "Edit combos, setting up their graphics, effects, and attributes.\n"
 				"Hotkeys:\n"
 				"-/+: Change CSet\n"
-				"H/V/R: Flip (Horz,Vert,Rotate)",
+				"H/V/R: Flip (Horz,Vert,Rotate)\n"
+				"T: Change tile",
 			onEnter = message::OK,
 			onClose = message::CANCEL,
 			shortcuts={
@@ -1653,6 +1654,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Equals=message::PLUSCS,
 				MinusPad=message::MINUSCS,
 				Minus=message::MINUSCS,
+				T=message::TILESEL,
 			},
 			Column(
 				Rows<3>(padding = 0_px,
@@ -2041,7 +2043,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			info = "Edit combos, setting up their graphics, effects, and attributes.\n"
 				"Hotkeys:\n"
 				"-/+: Change CSet\n"
-				"H/V/R: Flip (Horz,Vert,Rotate)",
+				"H/V/R: Flip (Horz,Vert,Rotate)\n"
+				"T: Change tile",
 			onEnter = message::OK,
 			onClose = message::CANCEL,
 			shortcuts={
@@ -2052,6 +2055,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Equals=message::PLUSCS,
 				MinusPad=message::MINUSCS,
 				Minus=message::MINUSCS,
+				T=message::TILESEL,
 			},
 			Column(
 				Rows<3>(padding = 0_px,
@@ -2525,6 +2529,12 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			CSet = (CSet+11)%12;
 			updateCSet();
 			return false;
+		}
+		case message::TILESEL:
+		{
+			if(cmb_tab1) break;
+			tswatch->click();
+			break;
 		}
 		case message::CLEAR:
 			AlertDialog("Are you sure?",

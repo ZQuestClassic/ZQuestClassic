@@ -77,6 +77,17 @@ SelTileSwatch::SelTileSwatch(): tile(0), cset(0),
 	setPreferredHeight(s);
 }
 
+void SelTileSwatch::click()
+{
+	if(alDialog && allowDraw())
+	{
+		if(alDialog.message(MSG_CLICK, 0) & D_REDRAW)
+		{
+			pendDraw();
+		}
+	}
+}
+
 void SelTileSwatch::setTile(int32_t value)
 {
 	tile = value;

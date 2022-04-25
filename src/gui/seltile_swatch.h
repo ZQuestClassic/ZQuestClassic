@@ -15,6 +15,8 @@ public:
 	void setTile(int32_t value);
 	void setCSet(int32_t value);
 	void setShowVals(bool showVals);
+	
+	void click();
 
 	int32_t getTile();
 	int32_t getCSet();

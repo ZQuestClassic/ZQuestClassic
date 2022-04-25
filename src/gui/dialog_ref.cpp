@@ -37,9 +37,9 @@ const DIALOG& DialogRef::operator[](int32_t offset) const
 	return owner->alDialog.at(index+offset);
 }
 
-void DialogRef::message(int32_t msg, int32_t c)
+int32_t DialogRef::message(int32_t msg, int32_t c)
 {
-	object_message(&owner->alDialog[index], msg, c);
+	return object_message(&owner->alDialog[index], msg, c);
 }
 
 void DialogRef::applyVisibility(bool visible, int32_t offs)
