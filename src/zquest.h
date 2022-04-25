@@ -435,6 +435,7 @@ void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
 void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
+void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal);
 void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
@@ -484,8 +485,11 @@ int32_t set_fill2_4();
 int32_t set_fill2_8();
 
 void flood();
+void flood_flag();
 void fill_4();
+void fill_4_flag();
 void fill_8();
+void fill_8_flag();
 void fill2_4();
 void fill2_8();
 void set_brush_width(int32_t width);

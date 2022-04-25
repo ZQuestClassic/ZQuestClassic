@@ -448,7 +448,7 @@ static int32_t do_NewQuest()
 
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
-int32_t  Flags=0,Flag=1,menutype=(m_block);
+int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
 	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
@@ -8120,6 +8120,42 @@ void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, 
     
 }
 
+void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+{
+	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
+		return;
+	
+	fillscr->sflag[((sy<<4)+sx)]=Flag;
+	
+	if((sy>0) && (dir!=down))
+		fill_flag(fillscr, targetflag, sx, sy-1, up, diagonal);
+		
+	if((sy<10) && (dir!=up))
+		fill_flag(fillscr, targetflag, sx, sy+1, down, diagonal);
+		
+	if((sx>0) && (dir!=right))
+		fill_flag(fillscr, targetflag, sx-1, sy, left, diagonal);
+		
+	if((sx<15) && (dir!=left))
+		fill_flag(fillscr, targetflag, sx+1, sy, right, diagonal);
+		
+	if(diagonal==1)
+	{
+		if((sy>0) && (sx>0) && (dir!=r_down))
+			fill_flag(fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
+			
+		if((sy<10) && (sx<15) && (dir!=l_up))
+			fill_flag(fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
+			
+		if((sx>0) && (sy<10) && (dir!=r_up))
+			fill_flag(fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
+			
+		if((sx<15) && (sy>0) && (dir!=l_down))
+			fill_flag(fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
+	}
+	
+}
+
 
 void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
@@ -8317,36 +8353,65 @@ void doflags()
             
         if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
-            saved=false;
-            
-            if(CurrentLayer==0)
-            {
-                Map.CurrScr()->sflag[c]=Flag;
-            }
-            else
-            {
-                // Notify if they are using a flag that doesn't work on this layer.
-                if(!skipLayerWarning && ((Flag >= mfTRAP_H && Flag < mfPUSHD) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
-                        || (Flag == mfALLFAIRY) || (Flag == mfRAFT) || (Flag == mfRAFT_BRANCH)
-                        || (Flag == mfDIVE_ITEM) || (Flag == mfARMOS_SECRET) || (Flag == mfNOENEMY)
-                        || (Flag == mfZELDA)))
-                {
-					InfoDialog("Notice","You are currently working on layer "
-						+to_string(CurrentLayer)
-						+". This combo flag does not function on layers above '0'.").show();
-                }
-				if(!skipLayerWarning && CurrentLayer > 2 &&
-					((Flag == mfBLOCKHOLE) || (Flag >= mfPUSHD && Flag < mfNOBLOCKS)
-					|| (Flag == mfPUSHUD) || (Flag == mfPUSH4)))
+			mapscr* cur_scr = (CurrentLayer
+				? &(TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS
+					+(Map.CurrScr()->layerscreen[CurrentLayer-1])])
+				: Map.CurrScr());
+			if(key[KEY_ALT]||key[KEY_ALTGR])
+			{
+				Flag = cur_scr->sflag[c];
+				setFlagColor();
+				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+			}
+			else
+			{
+				saved=false;
+				int32_t tflag = Flag;
+				if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+					Flag = mfNONE;
+				if(CurrentLayer!=0)
 				{
-					InfoDialog("Notice","You are currently working on layer "
-						+to_string(CurrentLayer)
-						+". This combo flag does not function on layers above '2'.").show();
+					// Notify if they are using a flag that doesn't work on this layer.
+					if(!skipLayerWarning && ((Flag >= mfTRAP_H && Flag < mfPUSHD) || (Flag == mfFAIRY) || (Flag == mfMAGICFAIRY)
+							|| (Flag == mfALLFAIRY) || (Flag == mfRAFT) || (Flag == mfRAFT_BRANCH)
+							|| (Flag == mfDIVE_ITEM) || (Flag == mfARMOS_SECRET) || (Flag == mfNOENEMY)
+							|| (Flag == mfZELDA)))
+					{
+						InfoDialog("Notice","You are currently working on layer "
+							+to_string(CurrentLayer)
+							+". This combo flag does not function on layers above '0'.").show();
+					}
+					if(!skipLayerWarning && CurrentLayer > 2 &&
+						((Flag == mfBLOCKHOLE) || (Flag >= mfPUSHD && Flag < mfNOBLOCKS)
+						|| (Flag == mfPUSHUD) || (Flag == mfPUSH4)))
+					{
+						InfoDialog("Notice","You are currently working on layer "
+							+to_string(CurrentLayer)
+							+". This combo flag does not function on layers above '2'.").show();
+					}
 				}
-                
-                TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS+(Map.CurrScr()->layerscreen[CurrentLayer-1])].sflag[c]=Flag;
-                //      Map.CurrScr()->sflag[c]=Flag;
-            }
+				if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+				{
+					switch(fill_type)
+					{
+						case 0:
+							flood_flag();
+							break;
+							
+						case 1:
+						case 3:
+							fill_4_flag();
+							break;
+							
+						case 2:
+						case 4:
+							fill_8_flag();
+							break;
+					}
+				}
+				else cur_scr->sflag[c] = Flag;
+				Flag = tflag;
+			}
             
             refresh(rMAP | rNOCURSOR);
         }
@@ -8366,6 +8431,7 @@ void doflags()
             }
             
             position_mouse_z(0);
+			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
         }
         
         if(keypressed())
@@ -8689,6 +8755,44 @@ void flood()
     
     refresh(rMAP+rSCRMAP);
 }
+void flood_flag()
+{
+    // int32_t start=0, w=0, h=0;
+    int32_t drawmap, drawscr;
+    
+    if(CurrentLayer==0)
+    {
+        drawmap=Map.getCurrMap();
+        drawscr=Map.getCurrScr();
+    }
+    else
+    {
+        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+        
+        if(drawmap<0)
+        {
+            return;
+        }
+    }
+    
+    saved=false;
+    Map.Ugo();
+    
+    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    {
+        Map.CurrScr()->valid|=mVALID;
+        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        Map.setcolor(Color);
+    }
+    
+    for(int32_t i=0; i<176; i++)
+    {
+        Map.AbsoluteScr(drawmap, drawscr)->sflag[i]=Flag;
+    }
+    
+    refresh(rMAP+rSCRMAP);
+}
 
 void fill_4()
 {
@@ -8735,7 +8839,49 @@ void fill_4()
         refresh(rMAP+rSCRMAP);
     }
 }
-
+void fill_4_flag()
+{
+    int32_t drawmap, drawscr;
+    
+    if(CurrentLayer==0)
+    {
+        drawmap=Map.getCurrMap();
+        drawscr=Map.getCurrScr();
+    }
+    else
+    {
+        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+        
+        if(drawmap<0)
+        {
+            return;
+        }
+    }
+    
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
+    int32_t by= (y>>4)/(mapscreensize);
+    int32_t bx= (x>>4)/(mapscreensize);
+    
+    if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx] != Flag)
+    {
+        saved=false;
+        Map.Ugo();
+        
+        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        {
+            Map.CurrScr()->valid|=mVALID;
+            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            Map.setcolor(Color);
+        }
+        
+		fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+             (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
+             bx, by, 255, 0);
+        refresh(rMAP+rSCRMAP);
+    }
+}
 void fill_8()
 {
     int32_t drawmap, drawscr;
@@ -8778,6 +8924,49 @@ void fill_8()
         fill(Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
              (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        refresh(rMAP+rSCRMAP);
+    }
+}
+void fill_8_flag()
+{
+    int32_t drawmap, drawscr;
+    
+    if(CurrentLayer==0)
+    {
+        drawmap=Map.getCurrMap();
+        drawscr=Map.getCurrScr();
+    }
+    else
+    {
+        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+        
+        if(drawmap<0)
+        {
+            return;
+        }
+    }
+    
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
+    int32_t by= (y>>4)/(mapscreensize);
+    int32_t bx= (x>>4)/(mapscreensize);
+    
+    if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx]!=Flag)
+    {
+        saved=false;
+        Map.Ugo();
+        
+        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        {
+            Map.CurrScr()->valid|=mVALID;
+            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            Map.setcolor(Color);
+        }
+        
+        fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+             (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
+             bx, by, 255, 1);
         refresh(rMAP+rSCRMAP);
     }
 }
