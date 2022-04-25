@@ -104,6 +104,16 @@ public:
 		return nullstr;
 	}
 	
+	inline const size_t findIndex(int32_t key) const
+	{
+		for(size_t ind = 0; ind < listItems.size(); ++ind)
+		{
+			if(listItems[ind].value == key)
+				return ind;
+		}
+		return -1;
+	}
+	
 	inline void removeVal(int32_t key)
 	{
 		for(std::vector<ListItem>::iterator it = listItems.begin(); it != listItems.end();)

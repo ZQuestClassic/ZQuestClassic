@@ -9664,7 +9664,7 @@ int32_t init_combo_classes()
 		if ( char const* nm = ZI.getComboTypeName(i) )
 		{
 			size_t len = strlen(nm);
-			for ( int32_t q = 0; q < 64; q++ )
+			for ( size_t q = 0; q < 64; q++ )
 			{
 				combo_class_buf[i].name[q] = (q<len ? nm[q] : 0);
 			}

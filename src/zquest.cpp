@@ -11269,13 +11269,14 @@ void questminrev_help()
 	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,lfont);
 }
 
-int32_t select_cflag(const char *prompt,int32_t index)
+int32_t select_cflag(const char *prompt,int32_t flag)
 {
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
-    cflag_dlg[2].d1=index;
     GUI::ListData ld = GUI::ListData::mapflag(true);
 	ListData select_cflag_list = ld.getJWin(&font);
+    int32_t index = ld.findIndex(flag);
+	cflag_dlg[2].d1=index;
 	cflag_dlg[2].dp=(void *) &select_cflag_list;
     
     if(is_large)
@@ -11289,8 +11290,7 @@ int32_t select_cflag(const char *prompt,int32_t index)
         
         if(ret==5)
         {
-            int32_t id = cflag_dlg[2].d1;
-            cflag_help(id);
+            cflag_help(ld.getValue(cflag_dlg[2].d1));
         }
     }
     while(ret==5);
@@ -11301,7 +11301,7 @@ int32_t select_cflag(const char *prompt,int32_t index)
         return -1;
     }
     
-    return cflag_dlg[2].d1;
+    return ld.getValue(cflag_dlg[2].d1);
 }
 
 int32_t select_flag(int32_t &f)
