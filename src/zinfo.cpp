@@ -138,7 +138,8 @@ const char *itemclass_help_string_defaults[itype_max] =
 		" that has been collected.\nHeart pieces check the counter max increase"
 		" of the heart container they grant.", //Progressive
 	"When used, displays a string onscreen. Especially useful when combined"
-		" with string control codes." //Note
+		" with string control codes.", //Note
+	"When used, can refill up to 5 counters, and optionally cure sword jinxes."
 };
 const char default_ctype_strings[cMAX][255] = 
 {
@@ -273,7 +274,7 @@ const char default_itype_strings[itype_max][255] =
 	"Custom Weapon 01", "Custom Weapon 02", "Custom Weapon 03", "Custom Weapon 04", "Custom Weapon 05",
 	"Custom Weapon 06", "Custom Weapon 07", "Custom Weapon 08", "Custom Weapon 09", "Custom Weapon 10",
 	"Ice Rod", "Attack Ring", "Lanterns", "Pearls", "Bottles", "Bottle Fillers", "Bug Nets", "Mirrors",
-	"SwitchHooks", "Item Bundle", "Progressive Item", "Note"
+	"SwitchHooks", "Item Bundle", "Progressive Item", "Note", "Refiller"
 };
 const char counter_default_names[MAX_COUNTERS][255] =
 {

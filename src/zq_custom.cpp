@@ -481,7 +481,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.misc,f,true))
+	if(!p_getc(&tempitem.misc_flags,f,true))
 	{
 		return 0;
 	}
@@ -967,7 +967,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(6);
 			}
 			
-			if(!p_putc(itemsbuf[i].misc,f))
+			if(!p_putc(itemsbuf[i].misc_flags,f))
 			{
 				new_return(7);
 			}

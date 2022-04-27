@@ -1,6 +1,17 @@
 // 2.55 Change Log
-// Updated 24th April, 2022
+// Updated 25th April, 2022
 
+-- Apr 25th nightly build
+
+Fix issues with rotate/flip in combo editor
+Fix several issues with map flags, and added new shortcuts:
+	CTRL+Click will 'floodfill' a flag
+	ALT+Click will 'select' a flag
+	Holding SHIFT while in flag placement temporarily 'selects' the (None) flag,
+		acting like an eraser.
+	( EmilyV, Apr 25, 2022 )
+Add option to skip warning when placing flags on a layer they "don't work on"
+	( Deedee, Apr 25, 2022 )
 
 Add counter names to 'ZInfo' so that they can be renamed per-quest
 	( EmilyV, Apr 24, 2022 )

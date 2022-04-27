@@ -115,6 +115,30 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
 
+bool usingActiveShield(int32_t itmid)
+{
+	if(HeroItemClk()) return false;
+	if(itmid < 0) itmid = current_item_id(itype_shield);
+	if(itmid < 0) return false;
+	if(!(itemsbuf[itmid].flags & ITEM_FLAG1)) return false;
+	if(!isItmPressed(itmid)) return false;
+	return (checkbunny(itmid) && checkmagiccost(itmid));
+}
+int32_t getCurrentShield(bool requireActive)
+{
+	if(!requireActive) return current_item_id(itype_shield);
+	
+	int32_t itmid = current_item_id(itype_shield);
+	if(itmid < 0) return itmid;
+	
+	if(itemsbuf[itmid].flags & ITEM_FLAG1) //'Active Shield'
+	{
+		if(!usingActiveShield(itmid))
+			return -1;
+	}
+	return itmid;
+}
+
 bool HeroClass::isStanding(bool forJump)
 {
 	bool st = (z==0 && !(isSideViewHero() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
@@ -1406,6 +1430,8 @@ void HeroClass::init()
     bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
     diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
     
+	shield_active = false;
+	
     //2.6
 	preventsubscreenfalling = false;  //-Z
 	flickerorflash = true; //flicker or flash unless disabled externally.
@@ -1439,12 +1465,12 @@ void HeroClass::draw_under(BITMAP* dest)
         if(((dir==left) || (dir==right)) && (get_bit(quest_rules,qr_RLFIX)))
         {
             overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
-                       itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc>>2)&3)^3);
+                       itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc_flags>>2)&3)^3);
         }
         else
         {
             overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
-                       itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc>>2)&3);
+                       itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc_flags>>2)&3);
         }
     }
     
@@ -1453,12 +1479,12 @@ void HeroClass::draw_under(BITMAP* dest)
         if((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
         {
             overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
-                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
+                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc_flags>>2)&3)^3);
         }
         else
         {
             overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
-                       itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc>>2)&3);
+                       itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc_flags>>2)&3);
         }
     }
 }
@@ -5517,7 +5543,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			w->power = 0;
 			w->dead = 0;
-			int32_t itemid = current_item_id(itype_shield);
+			int32_t itemid = getCurrentShield();
 			//sfx(WAV_BREAKSHIELD,pan(int32_t(x)));
 			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
 				game->set_item(itemid, false);
@@ -5596,7 +5622,7 @@ int32_t HeroClass::EwpnHit()
 				return i;
 			}
 			
-			int32_t itemid = current_item_id(itype_shield);
+			int32_t itemid = getCurrentShield();
 			
 			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
 			
@@ -5745,7 +5771,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
                 break;
             }
             
-            int32_t itemid = current_item_id(itype_shield);
+            int32_t itemid = getCurrentShield();
             bool reflect = false;
             
             switch(lw->id)
@@ -8445,6 +8471,18 @@ bool HeroClass::animate(int32_t)
 		movehero();										   // call the main movement routine
 	}
 	
+	bool sh = usingActiveShield();
+	if(sh != shield_active)
+	{
+		shield_active = sh;
+		if(sh)
+		{
+			int32_t itid = getCurrentShield();
+			if(itid > -1)
+				sfx(itemsbuf[itid].usesound2); //'Activate' sfx
+		}
+	}
+	
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
 		set_respawn_point(false); //Keep the 'last safe location' updated!
 	
@@ -9468,6 +9506,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			if(!msg_active && itm.misc1 > 0 && itm.misc1 < MAXMSGS)
 			{
+				sfx(itm.usesound);
 				donewmsg(itm.misc1);
 				paymagiccost(itemid);
 			}
@@ -10355,6 +10394,124 @@ bool HeroClass::startwpn(int32_t itemid)
 		}
 		break;
 		
+		case itype_clock:
+		{
+			ret = false;
+			if(!(itm.flags & ITEM_FLAG1))
+				break; //Passive clock, don't use
+			if((itm.flags & ITEM_FLAG2) && watch) //"Can't activate while clock active"
+				break;
+			if(!(checkbunny(itemid) && checkmagiccost(itemid))) //cost/bunny check
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			
+			paymagiccost(itemid);
+			
+			setClock(watch=true);
+			
+			for(int32_t i=0; i<eMAXGUYS; i++)
+				clock_zoras[i]=0;
+				
+			clockclk=itm.misc1;
+			sfx(itm.usesound);
+			break;
+		}
+		case itype_killem:
+		{
+			ret = false;
+			if(!(itm.flags & ITEM_FLAG1))
+				break; //Passive killemall, don't use
+			
+			if(!(checkbunny(itemid) && checkmagiccost(itemid))
+				|| !can_kill_em_all()) //No enemies onscreen
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			
+			paymagiccost(itemid);
+			
+			kill_em_all();
+			sfx(itm.usesound);
+			break;
+		}
+		case itype_refill:
+		{
+			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			
+			bool did_something = false;
+			
+			if(itm.flags & ITEM_FLAG1) //Cure sword jinx
+			{
+				if(swordclk)
+					did_something = true;
+				swordclk = 0;
+			}
+			for(auto q = 0; q < 5; ++q)
+			{
+				auto ctr = itm.misc(q);
+				if(unsigned(ctr) >= MAX_COUNTERS)
+					continue;
+				int16_t amnt = vbound(itm.misc(q+5),-32768,32767);
+				if(!amnt) continue;
+				bool gradual = itm.flags & ITEM_FLAG2;
+				if(amnt > 0)
+				{
+					if(game->get_counter(ctr) + game->get_dcounter(ctr) >= game->get_maxcounter(ctr))
+					{
+						//Can't *do* anything... skip
+						continue;
+					}
+					if(game->get_counter(ctr) >= game->get_maxcounter(ctr))
+					{
+						//Can't do anything unless affecting dcounter
+						gradual = true;
+					}
+				}
+				else //Negative
+				{
+					if(game->get_counter(ctr) + game->get_dcounter(ctr) <= 0)
+					{
+						//Can't *do* anything... skip
+						continue;
+					}
+					if(game->get_counter(ctr) <= 0)
+					{
+						//Can't do anything unless affecting dcounter
+						gradual = true;
+					}
+				}
+				did_something = true;
+				if(gradual) //Gradual
+				{
+					game->change_dcounter(amnt, ctr);
+				}
+				else
+				{
+					game->change_counter(amnt, ctr);
+				}
+			}
+			if(!did_something)
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			paymagiccost(itemid);
+			sfx(itm.usesound);
+			ret = false;
+			break;
+		}
+		
 		default:
 			ret = false;
 	}
@@ -10682,8 +10839,11 @@ bool HeroClass::doattack()
 bool HeroClass::can_attack()
 {
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-    if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze || lstunclock > 0 || is_conveyor_stunned ||
-            ((action==attacking||action==sideswimattacking) && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
+    if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze
+		|| lstunclock > 0 || is_conveyor_stunned || spins>0 || usingActiveShield()
+		|| ((action==attacking||action==sideswimattacking)
+			&& ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))
+			&& charging!=0))
     {
         return false;
     }
@@ -18370,6 +18530,17 @@ static int32_t GridY(int32_t y)
 	return (y >> 4) << 4;
 }
 
+int32_t grabComboFromPos(int32_t pos, int32_t type)
+{
+	for(int32_t lyr = 6; lyr > -1; --lyr)
+	{
+		int32_t id = FFCore.tempScreens[lyr]->data[pos];
+		if(combobuf[id].type == type)
+			return id;
+	}
+	return -1;
+}
+
 static int32_t typeMap[176];
 static int32_t istrig[176];
 static const int32_t SPTYPE_SOLID = -1;
@@ -18384,6 +18555,7 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 	byte f = 0;
 	while(unsigned(curpos) < 176)
 	{
+		bool block_light = false;
 		f = SPFLAG(spotdir);
 		if((grid[curpos] & f) != f)
 		{
@@ -18441,6 +18613,9 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 			spotdir = dir;
 		else switch(typeMap[curpos])
 		{
+			case cLIGHTTARGET:
+				if(combobuf[grabComboFromPos(curpos, cLIGHTTARGET)].usrflags&cflag3) //Blocks light
+					return;
 			case cMIRROR:
 				spotdir = oppositeDir[spotdir];
 				break;
@@ -18492,7 +18667,7 @@ void HeroClass::handleSpotlights()
 	typedef byte spot_t;
 	//Store each different tile/color as grids
 	std::map<int32_t, spot_t*> maps;
-	int32_t shieldid = current_item_id(itype_shield);
+	int32_t shieldid = getCurrentShield();
 	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
 	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
 	int32_t heropos = COMBOPOS(x.getInt()+8,y.getInt()+8);
@@ -18509,7 +18684,7 @@ void HeroClass::handleSpotlights()
 			{
 				case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
 				case cMAGICPRISM: case cMAGICPRISM4:
-				case cBLOCKALL:
+				case cBLOCKALL: case cLIGHTTARGET:
 					typeMap[pos] = cmb->type;
 					break;
 				case cGLASS:
@@ -25161,25 +25336,32 @@ void HeroClass::cleanupByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true; //0xFFF for subscreen overrides
+	//0xFFF for subscreen overrides
 	//Will crash on win10 without it! -Z
-    
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
-	
     if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
     if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
-    
     return false;
 }
 
 int32_t getWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn; //0xFFF for subscreen overrides
-	//Will crash on win10 without it! -Z
-
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
+    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
+    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
     
     return -1;
+}
+
+bool isItmPressed(int32_t itmid)
+{
+    if(itmid==(Bwpn&0xFFF) && DrunkcBbtn()) return true;
+    if(itmid==(Awpn&0xFFF) && DrunkcAbtn()) return true;
+    if(itmid==(Xwpn&0xFFF) && DrunkcEx1btn()) return true;
+    if(itmid==(Ywpn&0xFFF) && DrunkcEx2btn()) return true;
+    return false;
 }
 
 void selectNextAWpn(int32_t type)
@@ -25820,12 +26002,17 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		case itype_clock:
 		{
+			if(idat.flags & ITEM_FLAG1) //Active use, not passive
+				break;
+			if((idat.flags & ITEM_FLAG2) && clockclk) //"Can't activate while clock active"
+				break;
 			setClock(watch=true);
 			
 			for(int32_t i=0; i<eMAXGUYS; i++)
 				clock_zoras[i]=0;
 				
 			clockclk=itemsbuf[id&0xFF].misc1;
+			sfx(idat.usesound);
 		}
 		break;
 		
@@ -25890,8 +26077,13 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			break;
 			
 		case itype_killem:
+		{
+			if(idat.flags & ITEM_FLAG1) //Active use, not passive
+				break;
 			kill_em_all();
-			break;
+			sfx(idat.usesound);
+		}
+		break;
 	}
 	
 	update_subscreens();

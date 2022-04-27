@@ -286,6 +286,7 @@ public:
 	byte dying_flags;
 	int32_t prompt_combo, prompt_x, prompt_y;
 	byte prompt_cset;
+	bool shield_active;
 	
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
@@ -563,6 +564,8 @@ public:
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
 };
 
+bool usingActiveShield(int32_t itmid = -1);
+int32_t getCurrentShield(bool requireActive = true);
 bool isRaftFlag(int32_t flag);
 void do_lens();
 void do_210_lens();
@@ -594,6 +597,7 @@ const int32_t SEL_VERIFY_RIGHT = 5;
 int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
+bool isItmPressed(int32_t itmid);
 int32_t selectSword();
 int32_t selectItemclass(int32_t itemclass);
 void selectNextAWpn(int32_t type);

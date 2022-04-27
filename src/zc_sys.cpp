@@ -1982,179 +1982,173 @@ bool has_item(int32_t item_type, int32_t it)                        //does Hero 
 {
     switch(item_type)
     {
-    case itype_bomb:
-    case itype_sbomb:
-    {
-        int32_t itemid = getItemID(itemsbuf, item_type, it);
-        
-        if(itemid == -1)
-            return false;
-            
-        return (game->get_item(itemid));
-    }
-    
-    case itype_clock:
-        return Hero.getClock()?1:0;
-        
-    case itype_key:
-        return (game->get_keys()>0);
-        
-    case itype_magiccontainer:
-        return (game->get_maxmagic()>=game->get_mp_per_block());
-        
-    case itype_triforcepiece:                               //it: -2=any, -1=current level, other=that level
-    {
-        switch(it)
-        {
-        case -2:
-        {
-            for(int32_t i=0; i<MAXLEVELS; i++)
-            {
-                if(game->lvlitems[i]&liTRIFORCE)
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-            break;
-        }
-        
-        case -1:
-            return (game->lvlitems[dlevel]&liTRIFORCE);
-            break;
-            
-        default:
-            if(it>=0&&it<MAXLEVELS)
-            {
-                return (game->lvlitems[it]&liTRIFORCE);
-            }
-            
-            break;
-        }
-        
-        return 0;
-    }
-    
-    case itype_map:                                         //it: -2=any, -1=current level, other=that level
-    {
-        switch(it)
-        {
-        case -2:
-        {
-            for(int32_t i=0; i<MAXLEVELS; i++)
-            {
-                if(game->lvlitems[i]&liMAP)
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-        break;
-        
-        case -1:
-            return (game->lvlitems[dlevel]&liMAP)!=0;
-            break;
-            
-        default:
-            if(it>=0&&it<MAXLEVELS)
-            {
-                return (game->lvlitems[it]&liMAP)!=0;
-            }
-            
-            break;
-        }
-        
-        return 0;
-    }
-    
-    case itype_compass:                                     //it: -2=any, -1=current level, other=that level
-    {
-        switch(it)
-        {
-        case -2:
-        {
-            for(int32_t i=0; i<MAXLEVELS; i++)
-            {
-                if(game->lvlitems[i]&liCOMPASS)
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-            break;
-        }
-        
-        case -1:
-            return (game->lvlitems[dlevel]&liCOMPASS)!=0;
-            break;
-            
-        default:
-            if(it>=0&&it<MAXLEVELS)
-            {
-                return (game->lvlitems[it]&liCOMPASS)!=0;
-            }
-            
-            break;
-        }
-        
-        return 0;
-    }
-    
-    case itype_bosskey:                                     //it: -2=any, -1=current level, other=that level
-    {
-        switch(it)
-        {
-        case -2:
-        {
-            for(int32_t i=0; i<MAXLEVELS; i++)
-            {
-                if(game->lvlitems[i]&liBOSSKEY)
-                {
-                    return true;
-                }
-            }
-            
-            return false;
-            break;
-        }
-        
-        case -1:
-            return (game->lvlitems[dlevel]&liBOSSKEY)?1:0;
-            break;
-            
-        default:
-            if(it>=0&&it<MAXLEVELS)
-            {
-                return (game->lvlitems[it]&liBOSSKEY)?1:0;
-            }
-            
-            break;
-        }
-        
-        return 0;
-    }
-    
-    default:
-        //it=(1<<(it-1));
-        /*if (item_type>=itype_max)
-        {
-          system_pal();
-          jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,lfont);
-          game_pal();
-        
-          return false;
-        }*/
-        int32_t itemid = getItemID(itemsbuf, item_type, it);
-        
-        if(itemid == -1)
-            return false;
-            
-        return game->get_item(itemid);
-        break;
+		case itype_bomb:
+		case itype_sbomb:
+		{
+			int32_t itemid = getItemID(itemsbuf, item_type, it);
+			
+			if(itemid == -1)
+				return false;
+				
+			return (game->get_item(itemid));
+		}
+		
+		case itype_clock:
+		{
+			int32_t itemid = getItemID(itemsbuf, item_type, it);
+			
+			if(itemid != -1 && (itemsbuf[itemid].flags & ITEM_FLAG1)) //Active clock
+				return (game->get_item(itemid));
+			return Hero.getClock()?1:0;
+		}
+			
+		case itype_key:
+			return (game->get_keys()>0);
+			
+		case itype_magiccontainer:
+			return (game->get_maxmagic()>=game->get_mp_per_block());
+			
+		case itype_triforcepiece:                               //it: -2=any, -1=current level, other=that level
+		{
+			switch(it)
+			{
+				case -2:
+				{
+					for(int32_t i=0; i<MAXLEVELS; i++)
+					{
+						if(game->lvlitems[i]&liTRIFORCE)
+						{
+							return true;
+						}
+					}
+					
+					return false;
+				}
+				
+				case -1:
+					return (game->lvlitems[dlevel]&liTRIFORCE);
+					
+				default:
+					if(it>=0&&it<MAXLEVELS)
+					{
+						return (game->lvlitems[it]&liTRIFORCE);
+					}
+					
+					break;
+			}
+			
+			return 0;
+		}
+		
+		case itype_map:                                         //it: -2=any, -1=current level, other=that level
+		{
+			switch(it)
+			{
+				case -2:
+				{
+					for(int32_t i=0; i<MAXLEVELS; i++)
+					{
+						if(game->lvlitems[i]&liMAP)
+						{
+							return true;
+						}
+					}
+					
+					return false;
+				}
+				
+				case -1:
+					return (game->lvlitems[dlevel]&liMAP)!=0;
+					
+				default:
+					if(it>=0&&it<MAXLEVELS)
+					{
+						return (game->lvlitems[it]&liMAP)!=0;
+					}
+					
+					break;
+			}
+			
+			return 0;
+		}
+		
+		case itype_compass:                                     //it: -2=any, -1=current level, other=that level
+		{
+			switch(it)
+			{
+				case -2:
+				{
+					for(int32_t i=0; i<MAXLEVELS; i++)
+					{
+						if(game->lvlitems[i]&liCOMPASS)
+						{
+							return true;
+						}
+					}
+					
+					return false;
+				}
+				
+				case -1:
+					return (game->lvlitems[dlevel]&liCOMPASS)!=0;
+					
+				default:
+					if(it>=0&&it<MAXLEVELS)
+					{
+						return (game->lvlitems[it]&liCOMPASS)!=0;
+					}
+					
+					break;
+			}
+			return 0;
+		}
+		
+		case itype_bosskey:                                     //it: -2=any, -1=current level, other=that level
+		{
+			switch(it)
+			{
+				case -2:
+				{
+					for(int32_t i=0; i<MAXLEVELS; i++)
+					{
+						if(game->lvlitems[i]&liBOSSKEY)
+						{
+							return true;
+						}
+					}
+					
+					return false;
+				}
+				
+				case -1:
+					return (game->lvlitems[dlevel]&liBOSSKEY)?1:0;
+					
+				default:
+					if(it>=0&&it<MAXLEVELS)
+					{
+						return (game->lvlitems[it]&liBOSSKEY)?1:0;
+					}
+					break;
+			}
+			return 0;
+		}
+		
+		default:
+			//it=(1<<(it-1));
+			/*if (item_type>=itype_max)
+			{
+			  system_pal();
+			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			  game_pal();
+			
+			  return false;
+			}*/
+			int32_t itemid = getItemID(itemsbuf, item_type, it);
+			
+			if(itemid == -1)
+				return false;
+				
+			return game->get_item(itemid);
     }
 }
 
@@ -2163,79 +2157,80 @@ int32_t current_item(int32_t item_type, bool checkenabled)           //item curr
 {
     switch(item_type)
     {
-    case itype_clock:
-        return has_item(itype_clock,1) ? 1 : 0;
-        break;
-        
-    case itype_key:
-        return game->get_keys();
-        
-    case itype_lkey:
-        return game->lvlkeys[get_dlevel()];
-        
-    case itype_magiccontainer:
-        return game->get_maxmagic()/game->get_mp_per_block();
-        
-    case itype_triforcepiece:
-    {
-        int32_t count=0;
-        
-        for(int32_t i=0; i<MAXLEVELS; i++)
-        {
-            count+=(game->lvlitems[i]&liTRIFORCE)?1:0;
-        }
-        
-        return count;
-        break;
-    }
-    
-    case itype_map:
-    {
-        int32_t count=0;
-        
-        for(int32_t i=0; i<MAXLEVELS; i++)
-        {
-            count+=(game->lvlitems[i]&liMAP)?1:0;
-        }
-        
-        return count;
-        break;
-    }
-    
-    case itype_compass:
-    {
-        int32_t count=0;
-        
-        for(int32_t i=0; i<MAXLEVELS; i++)
-        {
-            count+=(game->lvlitems[i]&liCOMPASS)?1:0;
-        }
-        
-        return count;
-        break;
-    }
-    
-    case itype_bosskey:
-    {
-        int32_t count=0;
-        
-        for(int32_t i=0; i<MAXLEVELS; i++)
-        {
-            count+=(game->lvlitems[i]&liBOSSKEY)?1:0;
-        }
-        
-        return count;
-        break;
-    }
-    
-    default:
-        int32_t maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
-        
-        if(maxid == -1)
-            return 0;
-            
-        return itemsbuf[maxid].fam_type;
-        break;
+		case itype_clock:
+		{
+			int32_t maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
+			
+			if(maxid != -1 && (itemsbuf[maxid].flags & ITEM_FLAG1)) //Active clock
+				return itemsbuf[maxid].fam_type;
+			
+			return has_item(itype_clock,1) ? 1 : 0;
+		}
+			
+		case itype_key:
+			return game->get_keys();
+			
+		case itype_lkey:
+			return game->lvlkeys[get_dlevel()];
+			
+		case itype_magiccontainer:
+			return game->get_maxmagic()/game->get_mp_per_block();
+			
+		case itype_triforcepiece:
+		{
+			int32_t count=0;
+			
+			for(int32_t i=0; i<MAXLEVELS; i++)
+			{
+				count+=(game->lvlitems[i]&liTRIFORCE)?1:0;
+			}
+			
+			return count;
+		}
+		
+		case itype_map:
+		{
+			int32_t count=0;
+			
+			for(int32_t i=0; i<MAXLEVELS; i++)
+			{
+				count+=(game->lvlitems[i]&liMAP)?1:0;
+			}
+			
+			return count;
+		}
+		
+		case itype_compass:
+		{
+			int32_t count=0;
+			
+			for(int32_t i=0; i<MAXLEVELS; i++)
+			{
+				count+=(game->lvlitems[i]&liCOMPASS)?1:0;
+			}
+			
+			return count;
+		}
+		
+		case itype_bosskey:
+		{
+			int32_t count=0;
+			
+			for(int32_t i=0; i<MAXLEVELS; i++)
+			{
+				count+=(game->lvlitems[i]&liBOSSKEY)?1:0;
+			}
+			
+			return count;
+		}
+		
+		default:
+			int32_t maxid = getHighestLevelOfFamily(game, itemsbuf, item_type, checkenabled);
+			
+			if(maxid == -1)
+				return 0;
+				
+			return itemsbuf[maxid].fam_type;
     }
 }
 
@@ -2324,7 +2319,6 @@ int32_t heart_container_id()
 int32_t item_tile_mod()
 {
 	int32_t tile=0;
-	int32_t ret=0;
 	
 	if(game->get_bombs())
 	{
@@ -2439,10 +2433,24 @@ int32_t item_tile_mod()
 					continue; //already handled
 			}
 		}
-		ret=current_item_id(i,false);
+		int32_t itemid = current_item_id(i,false);
 		
-		if(ret >= 0 && checkbunny(ret))
-			tile+=itemsbuf[ret].ltm;
+		if(itemid < 0) continue;
+		
+		itemdata const& itm = itemsbuf[itemid];
+		
+		switch(itm.family)
+		{
+			case itype_shield:
+				if(itm.flags & ITEM_FLAG1) //active shield
+				{
+					if(!usingActiveShield(itemid)) continue;
+				}
+				break;
+		}
+		
+		if(checkbunny(itemid))
+			tile+=itemsbuf[itemid].ltm;
 	}
 	
 	return tile;

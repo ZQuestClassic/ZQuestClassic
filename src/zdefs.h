@@ -1841,7 +1841,7 @@ enum
 struct itemdata
 {
     int32_t tile;
-    byte misc;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
+    byte misc_flags;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
     byte csets;                                               // ffffcccc (f:flash cset, c:cset)
     byte frames;                                              // animation frame count
     byte speed;                                               // animation speed
@@ -1913,7 +1913,7 @@ struct itemdata
     int32_t misc8;
     int32_t misc9;
     int32_t misc10;
-    byte magic; // Magic usage!
+	byte magic; // Magic usage!
     byte usesound, usesound2;
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
@@ -1973,6 +1973,42 @@ struct itemdata
     int32_t sprite_initiald[INITIAL_D];
     byte sprite_initiala[INITIAL_A];
     word sprite_script;
+	
+	//helper functions because stupid shit
+	int32_t misc(size_t ind) const
+	{
+		switch(ind)
+		{
+			case 0: return misc1;
+			case 1: return misc2;
+			case 2: return misc3;
+			case 3: return misc4;
+			case 4: return misc5;
+			case 5: return misc6;
+			case 6: return misc7;
+			case 7: return misc8;
+			case 8: return misc9;
+			case 9: return misc10;
+		}
+		return 0;
+	}
+	void misc(size_t ind, int32_t val)
+	{
+		switch(ind)
+		{
+			case 0: misc1 = val; break;
+			case 1: misc2 = val; break;
+			case 2: misc3 = val; break;
+			case 3: misc4 = val; break;
+			case 4: misc5 = val; break;
+			case 5: misc6 = val; break;
+			case 6: misc7 = val; break;
+			case 7: misc8 = val; break;
+			case 8: misc9 = val; break;
+			case 9: misc10 = val; break;
+		}
+		return;
+	}
 };
 
 struct wpndata
@@ -4122,7 +4158,7 @@ enum // used for gamedata ITEMS
 	itype_script1 = 256, //Scripted Weapons
 	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
 	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
-	itype_mirror, itype_switchhook, itype_itmbundle, itype_progressive_itm, itype_note,
+	itype_mirror, itype_switchhook, itype_itmbundle, itype_progressive_itm, itype_note, itype_refill,
 	/*
 	itype_templast,
 	itype_ether, itype_bombos, itype_quake, 
