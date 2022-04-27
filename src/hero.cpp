@@ -18530,6 +18530,17 @@ static int32_t GridY(int32_t y)
 	return (y >> 4) << 4;
 }
 
+int32_t grabComboFromPos(int32_t pos, int32_t type)
+{
+	for(int32_t lyr = 6; lyr > -1; --lyr)
+	{
+		int32_t id = FFCore.tempScreens[lyr]->data[pos];
+		if(combobuf[id].type == type)
+			return id;
+	}
+	return -1;
+}
+
 static int32_t typeMap[176];
 static int32_t istrig[176];
 static const int32_t SPTYPE_SOLID = -1;
@@ -18544,6 +18555,7 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 	byte f = 0;
 	while(unsigned(curpos) < 176)
 	{
+		bool block_light = false;
 		f = SPFLAG(spotdir);
 		if((grid[curpos] & f) != f)
 		{
@@ -18601,6 +18613,9 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 			spotdir = dir;
 		else switch(typeMap[curpos])
 		{
+			case cLIGHTTARGET:
+				if(combobuf[grabComboFromPos(curpos, cLIGHTTARGET)].usrflags&cflag3) //Blocks light
+					return;
 			case cMIRROR:
 				spotdir = oppositeDir[spotdir];
 				break;
@@ -18669,7 +18684,7 @@ void HeroClass::handleSpotlights()
 			{
 				case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
 				case cMAGICPRISM: case cMAGICPRISM4:
-				case cBLOCKALL:
+				case cBLOCKALL: case cLIGHTTARGET:
 					typeMap[pos] = cmb->type;
 					break;
 				case cGLASS:

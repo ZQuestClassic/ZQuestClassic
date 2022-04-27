@@ -1412,6 +1412,8 @@ void ComboEditorDialog::loadComboType()
 				"\nIf unchecked, becomes the next combo when hit by a spotlight.";
 			l_flag[1] = "Invert";
 			h_flag[1] = "If checked, counts as triggered when light is NOT hitting it.";
+			l_flag[2] = "Blocks Light";
+			h_flag[2] = "Light that hits will trigger, but not pass, the target";
 			l_attribyte[4] = "Trigger Set:";
 			h_attribyte[4] = "0-32; if 0 will be triggered by any beams, otherwise only by matching beams";
 			break;
