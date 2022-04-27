@@ -19370,7 +19370,7 @@ bool can_kill_em_all()
 		enemy *e = ((enemy*)guys.spr(i));
 		
 		if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
-		
+		if(e->superman) continue;
 		return true;
 	}
 	return false;
