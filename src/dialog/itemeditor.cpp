@@ -129,6 +129,10 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
+			_SET(flag[0], "Active Use", "If enabled, the shield only protects the player (and provides its' LTM)"
+				" while it is equipped to a button that is being held.");
+			if(FLAG(1))
+				_SET(actionsnd[1], "Activation Sound:", "Plays when the shield button is pressed");
 			break;
 		}
 		case itype_agony:

@@ -115,6 +115,30 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
 
+bool usingActiveShield(int32_t itmid)
+{
+	if(HeroItemClk()) return false;
+	if(itmid < 0) itmid = current_item_id(itype_shield);
+	if(itmid < 0) return false;
+	if(!(itemsbuf[itmid].flags & ITEM_FLAG1)) return false;
+	if(!isItmPressed(itmid)) return false;
+	return (checkbunny(itmid) && checkmagiccost(itmid));
+}
+int32_t getCurrentShield(bool requireActive)
+{
+	if(!requireActive) return current_item_id(itype_shield);
+	
+	int32_t itmid = current_item_id(itype_shield);
+	if(itmid < 0) return itmid;
+	
+	if(itemsbuf[itmid].flags & ITEM_FLAG1) //'Active Shield'
+	{
+		if(!usingActiveShield(itmid))
+			return -1;
+	}
+	return itmid;
+}
+
 bool HeroClass::isStanding(bool forJump)
 {
 	bool st = (z==0 && !(isSideViewHero() && !on_sideview_solid(x,y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
@@ -1406,6 +1430,8 @@ void HeroClass::init()
     bigHitbox=(get_bit(quest_rules, qr_LTTPCOLLISION));
     diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
     
+	shield_active = false;
+	
     //2.6
 	preventsubscreenfalling = false;  //-Z
 	flickerorflash = true; //flicker or flash unless disabled externally.
@@ -5517,7 +5543,7 @@ int32_t HeroClass::defend(weapon *w)
 		{
 			w->power = 0;
 			w->dead = 0;
-			int32_t itemid = current_item_id(itype_shield);
+			int32_t itemid = getCurrentShield();
 			//sfx(WAV_BREAKSHIELD,pan(int32_t(x)));
 			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
 				game->set_item(itemid, false);
@@ -5596,7 +5622,7 @@ int32_t HeroClass::EwpnHit()
 				return i;
 			}
 			
-			int32_t itemid = current_item_id(itype_shield);
+			int32_t itemid = getCurrentShield();
 			
 			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
 			
@@ -5745,7 +5771,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
                 break;
             }
             
-            int32_t itemid = current_item_id(itype_shield);
+            int32_t itemid = getCurrentShield();
             bool reflect = false;
             
             switch(lw->id)
@@ -8445,6 +8471,18 @@ bool HeroClass::animate(int32_t)
 		movehero();										   // call the main movement routine
 	}
 	
+	bool sh = usingActiveShield();
+	if(sh != shield_active)
+	{
+		shield_active = sh;
+		if(sh)
+		{
+			int32_t itid = getCurrentShield();
+			if(itid > -1)
+				sfx(itemsbuf[itid].usesound2); //'Activate' sfx
+		}
+	}
+	
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
 		set_respawn_point(false); //Keep the 'last safe location' updated!
 	
@@ -10801,8 +10839,11 @@ bool HeroClass::doattack()
 bool HeroClass::can_attack()
 {
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-    if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze || lstunclock > 0 || is_conveyor_stunned ||
-            ((action==attacking||action==sideswimattacking) && ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)) && charging!=0) || spins>0)
+    if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze
+		|| lstunclock > 0 || is_conveyor_stunned || spins>0 || usingActiveShield()
+		|| ((action==attacking||action==sideswimattacking)
+			&& ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))
+			&& charging!=0))
     {
         return false;
     }
@@ -18611,7 +18652,7 @@ void HeroClass::handleSpotlights()
 	typedef byte spot_t;
 	//Store each different tile/color as grids
 	std::map<int32_t, spot_t*> maps;
-	int32_t shieldid = current_item_id(itype_shield);
+	int32_t shieldid = getCurrentShield();
 	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
 	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
 	int32_t heropos = COMBOPOS(x.getInt()+8,y.getInt()+8);
@@ -25280,25 +25321,32 @@ void HeroClass::cleanupByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true; //0xFFF for subscreen overrides
+	//0xFFF for subscreen overrides
 	//Will crash on win10 without it! -Z
-    
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
-	
     if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
     if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
-    
     return false;
 }
 
 int32_t getWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn; //0xFFF for subscreen overrides
-	//Will crash on win10 without it! -Z
-
+    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
     if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
+    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
+    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
     
     return -1;
+}
+
+bool isItmPressed(int32_t itmid)
+{
+    if(itmid==(Bwpn&0xFFF) && DrunkcBbtn()) return true;
+    if(itmid==(Awpn&0xFFF) && DrunkcAbtn()) return true;
+    if(itmid==(Xwpn&0xFFF) && DrunkcEx1btn()) return true;
+    if(itmid==(Ywpn&0xFFF) && DrunkcEx2btn()) return true;
+    return false;
 }
 
 void selectNextAWpn(int32_t type)
