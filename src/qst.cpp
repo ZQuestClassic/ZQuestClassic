@@ -6246,7 +6246,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			}
 		}
 		
-        if(!p_getc(&tempitem.misc,f,true))
+        if(!p_getc(&tempitem.misc_flags,f,true))
         {
             return qe_invalid;
         }
@@ -6922,7 +6922,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         else if(zgpmode)
         {
             itemsbuf[i].tile=tempitem.tile;
-            itemsbuf[i].misc=tempitem.misc;
+            itemsbuf[i].misc_flags=tempitem.misc_flags;
             itemsbuf[i].csets=tempitem.csets;
             itemsbuf[i].frames=tempitem.frames;
             itemsbuf[i].speed=tempitem.speed;
@@ -6949,7 +6949,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 strcpy(item_string[i],old_item_string[i]);
                 tempitem.tile = itemsbuf[iLetter].tile;
                 tempitem.csets = itemsbuf[iLetter].csets;
-                tempitem.misc = itemsbuf[iLetter].misc;
+                tempitem.misc_flags = itemsbuf[iLetter].misc_flags;
                 tempitem.frames = itemsbuf[iLetter].frames;
                 tempitem.speed = itemsbuf[iLetter].speed;
                 tempitem.ltm = itemsbuf[iLetter].ltm;
@@ -9243,12 +9243,12 @@ void reset_itembuf(itemdata *item, int32_t id)
     {
         // Copy everything *EXCEPT* the tile, misc, cset, frames, speed, delay and ltm.
         word tile = item->tile;
-        byte miscs = item->misc, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
+        byte miscs = item->misc_flags, cset = item->csets, frames = item->frames, speed = item->speed, delay = item->delay;
         int32_t ltm = item->ltm;
         
         memcpy(item,&default_items[id],sizeof(itemdata));
         item->tile = tile;
-        item->misc = miscs;
+        item->misc_flags = miscs;
         item->csets = cset;
         item->frames = frames;
         item->speed = speed;

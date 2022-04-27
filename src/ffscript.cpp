@@ -4713,7 +4713,7 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].misc)*10000;
+			ret=(itemsbuf[ri->idata].misc_flags)*10000;
 			break;
 		//->CSet
 		case IDATACSET:
@@ -13826,7 +13826,7 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].misc=value/10000;
+			itemsbuf[ri->idata].misc_flags=value/10000;
 			break;
 		//cset
 		case IDATACSET:
@@ -38797,7 +38797,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",6);
 			}
 			
-			if(!p_putc(itemsbuf[i].misc,f))
+			if(!p_putc(itemsbuf[i].misc_flags,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",7);
 			}
@@ -39234,7 +39234,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",6);
 			}
 			
-			if(!p_getc(&itemsbuf[i].misc,f,true))
+			if(!p_getc(&itemsbuf[i].misc_flags,f,true))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",7);
 			}

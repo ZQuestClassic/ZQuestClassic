@@ -5,6 +5,7 @@
 #include <gui/builder.h>
 
 void reset_itembuf(itemdata *item, int32_t id);
+char *ordinal(int32_t num);
 extern zquestheader header;
 extern bool saved;
 extern char *item_string[];
@@ -249,6 +250,33 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_clock:
 		{
 			_SET(misc[0], "Duration:", "How long the invincibility lasts, in frames. 0 = infinite.");
+			_SET(flag[0], "Active-Use", "If enabled, activates on use as an 'Equipment Item' instead"
+				" of on pickup.");
+			_SET(flag[1], "Can't trigger while active", "If enabled, will not activate while a clock"
+				" is already active.");
+			_SET(actionsnd[0], "Activation Sound", "SFX to play when the effect activates");
+			break;
+		}
+		case itype_killem:
+		{
+			_SET(flag[0], "Active-Use", "If enabled, activates on use as an 'Equipment Item' instead"
+				" of on pickup.");
+			_SET(actionsnd[0], "Activation Sound", "SFX to play when the effect activates");
+			break;
+		}
+		case itype_refill:
+		{
+			for(auto q = 0; q < 5; ++q)
+			{
+				std::string numstr = std::to_string(q + 1);
+				std::string ordstr = ordinal(q + 1);
+				_SET(misc[q], "Counter " + numstr, "The " + ordstr + " counter that will be refilled when activating the item."
+					"\nIf <0, acts as 'no counter'.");
+				_SET(misc[q+5], "Amount " + numstr, "How much the " + ordstr + " counter will be refilled by.");
+			}
+			_SET(flag[0], "Cures Sword Jinx", "When activated, cures sword jinx effects");
+			_SET(flag[1], "Gradual Refill", "Counters refill gradually instead of immediately.");
+			_SET(actionsnd[0], "Activation Sound", "SFX to play when the item is used");
 			break;
 		}
 		case itype_magicring:
@@ -462,6 +490,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_note:
 		{
 			_SET(misc[0], "String:", "The string to display when this item is used.");
+			_SET(actionsnd[0], "Opening Sound", "SFX to play when the note is opened");
 			break;
 		}
 		case itype_boots:
@@ -1638,20 +1667,20 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.misc & 1),
+									checked = (local_itemref.misc_flags & 1),
 									text = "Flash",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.misc,1,state);
+										SETFLAG(local_itemref.misc_flags,1,state);
 									}
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.misc & 2),
+									checked = (local_itemref.misc_flags & 2),
 									text = "2-Hand",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.misc,2,state);
+										SETFLAG(local_itemref.misc_flags,2,state);
 									}
 								),
 								animFrame = TileFrame(
@@ -2885,20 +2914,20 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.misc & 1),
+									checked = (local_itemref.misc_flags & 1),
 									text = "Flash",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.misc,1,state);
+										SETFLAG(local_itemref.misc_flags,1,state);
 									}
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.misc & 2),
+									checked = (local_itemref.misc_flags & 2),
 									text = "2-Hand",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.misc,2,state);
+										SETFLAG(local_itemref.misc_flags,2,state);
 									}
 								),
 								animFrame = TileFrame(

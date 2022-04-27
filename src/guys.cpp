@@ -19363,6 +19363,19 @@ void kill_em_all()
 	}
 }
 
+bool can_kill_em_all()
+{
+	for(int32_t i=0; i<guys.Count(); i++)
+	{
+		enemy *e = ((enemy*)guys.spr(i));
+		
+		if(e->flags&(1<<3) && !(e->family == eeGHINI && e->dmisc1 == 1)) continue;
+		
+		return true;
+	}
+	return false;
+}
+
 //This needs a quest rule, or enemy flag, Dying Enemy Doesn't  Hurt Hero
 // For Hero's hit detection. Don't count them if they are stunned or are guys.
 int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz)

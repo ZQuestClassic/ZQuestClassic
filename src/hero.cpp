@@ -1439,12 +1439,12 @@ void HeroClass::draw_under(BITMAP* dest)
         if(((dir==left) || (dir==right)) && (get_bit(quest_rules,qr_RLFIX)))
         {
             overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
-                       itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc>>2)&3)^3);
+                       itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc_flags>>2)&3)^3);
         }
         else
         {
             overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
-                       itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc>>2)&3);
+                       itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc_flags>>2)&3);
         }
     }
     
@@ -1453,12 +1453,12 @@ void HeroClass::draw_under(BITMAP* dest)
         if((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
         {
             overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
-                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc>>2)&3)^3);
+                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc_flags>>2)&3)^3);
         }
         else
         {
             overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
-                       itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc>>2)&3);
+                       itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc_flags>>2)&3);
         }
     }
 }
@@ -9468,6 +9468,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			if(!msg_active && itm.misc1 > 0 && itm.misc1 < MAXMSGS)
 			{
+				sfx(itm.usesound);
 				donewmsg(itm.misc1);
 				paymagiccost(itemid);
 			}
@@ -10354,6 +10355,124 @@ bool HeroClass::startwpn(int32_t itemid)
 				stop_sfx(itm.usesound); //If we can't create the beams, kill the sound. 
 		}
 		break;
+		
+		case itype_clock:
+		{
+			ret = false;
+			if(!(itm.flags & ITEM_FLAG1))
+				break; //Passive clock, don't use
+			if((itm.flags & ITEM_FLAG2) && watch) //"Can't activate while clock active"
+				break;
+			if(!(checkbunny(itemid) && checkmagiccost(itemid))) //cost/bunny check
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			
+			paymagiccost(itemid);
+			
+			setClock(watch=true);
+			
+			for(int32_t i=0; i<eMAXGUYS; i++)
+				clock_zoras[i]=0;
+				
+			clockclk=itm.misc1;
+			sfx(itm.usesound);
+			break;
+		}
+		case itype_killem:
+		{
+			ret = false;
+			if(!(itm.flags & ITEM_FLAG1))
+				break; //Passive killemall, don't use
+			
+			if(!(checkbunny(itemid) && checkmagiccost(itemid))
+				|| !can_kill_em_all()) //No enemies onscreen
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			
+			paymagiccost(itemid);
+			
+			kill_em_all();
+			sfx(itm.usesound);
+			break;
+		}
+		case itype_refill:
+		{
+			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			
+			bool did_something = false;
+			
+			if(itm.flags & ITEM_FLAG1) //Cure sword jinx
+			{
+				if(swordclk)
+					did_something = true;
+				swordclk = 0;
+			}
+			for(auto q = 0; q < 5; ++q)
+			{
+				auto ctr = itm.misc(q);
+				if(unsigned(ctr) >= MAX_COUNTERS)
+					continue;
+				int16_t amnt = vbound(itm.misc(q+5),-32768,32767);
+				if(!amnt) continue;
+				bool gradual = itm.flags & ITEM_FLAG2;
+				if(amnt > 0)
+				{
+					if(game->get_counter(ctr) + game->get_dcounter(ctr) >= game->get_maxcounter(ctr))
+					{
+						//Can't *do* anything... skip
+						continue;
+					}
+					if(game->get_counter(ctr) >= game->get_maxcounter(ctr))
+					{
+						//Can't do anything unless affecting dcounter
+						gradual = true;
+					}
+				}
+				else //Negative
+				{
+					if(game->get_counter(ctr) + game->get_dcounter(ctr) <= 0)
+					{
+						//Can't *do* anything... skip
+						continue;
+					}
+					if(game->get_counter(ctr) <= 0)
+					{
+						//Can't do anything unless affecting dcounter
+						gradual = true;
+					}
+				}
+				did_something = true;
+				if(gradual) //Gradual
+				{
+					game->change_dcounter(amnt, ctr);
+				}
+				else
+				{
+					game->change_counter(amnt, ctr);
+				}
+			}
+			if(!did_something)
+			{
+				if(QMisc.miscsfx[sfxERROR])
+					sfx(QMisc.miscsfx[sfxERROR]);
+				return false;
+			}
+			paymagiccost(itemid);
+			sfx(itm.usesound);
+			ret = false;
+			break;
+		}
 		
 		default:
 			ret = false;
@@ -25820,12 +25939,17 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		case itype_clock:
 		{
+			if(idat.flags & ITEM_FLAG1) //Active use, not passive
+				break;
+			if((idat.flags & ITEM_FLAG2) && clockclk) //"Can't activate while clock active"
+				break;
 			setClock(watch=true);
 			
 			for(int32_t i=0; i<eMAXGUYS; i++)
 				clock_zoras[i]=0;
 				
 			clockclk=itemsbuf[id&0xFF].misc1;
+			sfx(idat.usesound);
 		}
 		break;
 		
@@ -25890,8 +26014,13 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			break;
 			
 		case itype_killem:
+		{
+			if(idat.flags & ITEM_FLAG1) //Active use, not passive
+				break;
 			kill_em_all();
-			break;
+			sfx(idat.usesound);
+		}
+		break;
 	}
 	
 	update_subscreens();

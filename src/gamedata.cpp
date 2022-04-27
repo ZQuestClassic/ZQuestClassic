@@ -276,7 +276,7 @@ void gamedata::change_quest(int16_t q)
 
 word gamedata::get_counter(byte c)
 {
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
         
     return _counter[c];
@@ -288,7 +288,7 @@ void gamedata::set_counter(word change, byte c)
     al_trace("Changing counter %i from %i to %i\n", c, _counter[c], change);
 #endif
     
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
     if(game!=NULL)
@@ -312,7 +312,7 @@ void gamedata::change_counter(int16_t change, byte c)
     al_trace("Changing counter %i from %i by %i\n", c, _counter[c], change);
 #endif
     
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
     if(game!=NULL)
@@ -331,7 +331,7 @@ void gamedata::change_counter(int16_t change, byte c)
 
 word gamedata::get_maxcounter(byte c)
 {
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
         
     return _maxcounter[c];
@@ -351,7 +351,7 @@ void gamedata::set_maxcounter(word change, byte c)
         return;
     }
     
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
     _maxcounter[c]=change;
@@ -370,7 +370,7 @@ void gamedata::change_maxcounter(int16_t change, byte c)
         return;
     }
     
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
     _maxcounter[c]=zc_max(0, _maxcounter[c]+change);
@@ -379,7 +379,7 @@ void gamedata::change_maxcounter(int16_t change, byte c)
 
 int16_t gamedata::get_dcounter(byte c)
 {
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
         
     return _dcounter[c];
@@ -394,7 +394,7 @@ void gamedata::set_dcounter(int16_t change, byte c)
         
 #endif
         
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
     if(game!=NULL)
@@ -419,7 +419,7 @@ void gamedata::change_dcounter(int16_t change, byte c)
     
 #endif
     
-    if(c>=32)  // Sanity check
+    if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
     if(game!=NULL)

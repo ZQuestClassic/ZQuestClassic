@@ -355,7 +355,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	o_speed = itm.speed;
 	o_delay = itm.delay;
 	frames = itm.frames;
-	flip = itm.misc>>2;
+	flip = itm.misc_flags>>2;
 	family = itm.family;
 	lvl = itm.fam_type;
 	overrideFLAGS = itm.overrideFLAGS; 
@@ -384,10 +384,10 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 			break;
 	}
 	
-	if(itm.misc&1)
+	if(itm.misc_flags&1)
 		flash=true;
 		
-	if(itm.misc&2)
+	if(itm.misc_flags&2)
 		twohand=true;
 		
 	anim = itm.frames>0;
@@ -477,7 +477,7 @@ void item::load_gfx(itemdata const& itm)
 	o_speed = itm.speed;
 	o_delay = itm.delay;
 	frames = itm.frames;
-	flip = itm.misc>>2;
+	flip = itm.misc_flags>>2;
 	anim = itm.frames>0;
 	aframe = aclk = 0;
 	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itm.family==itype_bottle))
