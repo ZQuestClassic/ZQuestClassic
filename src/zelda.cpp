@@ -5504,6 +5504,7 @@ int32_t main(int32_t argc, char* argv[])
 		setup_combo_animations();
 		setup_combo_animations2();
 		
+		clear_bitmap(lightbeam_bmp);
 		while(Quit<=0)
 		{
 #ifdef _WIN32
