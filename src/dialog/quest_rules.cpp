@@ -762,7 +762,11 @@ static const GUI::ListData compatRulesList
 		"If enabled, 'Keep Lower Level Items' acts as always checked for all items." },
 	{ "Old Half Magic", qr_OLD_HALF_MAGIC,
 		"If enabled, half magic rooms always set the multiplier to 1,"
-		" instead of halving its' previous value." }
+		" instead of halving its' previous value." },
+	{ "Engine warps restart DMap Script", qr_WARPS_RESTART_DMAPSCRIPT,
+		"If enabled, engine warps will restart or clear the currently running dmap script, even if you warp to the same dmap you were just on." },
+	{ "DMap 0 hardcoded continue", qr_DMAP_0_CONTINUE_BUG,
+		"If enabled, entering DMap 0 will set your continue point to it's continue screen, even if it shouldn't." }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -1104,7 +1108,10 @@ static const GUI::ListData miscRulesList
 		" the boundary between screens *during scrolling*." },
 	{ "Restarting Level always goes to DMap continue point", qr_LEVEL_RESTART_CONT_POINT,
 		"Effects like Wallmasters and Farore's Wind will go back to the DMap's"
-		" continue point, rather than the last entrance point." }
+		" continue point, rather than the last entrance point." },
+	{ "Flip 'don't restart dmap script' script warp flag", qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
+		"If enabled, the warp flag to disable restarting the dmap script when warping to the same dmap will be flipped"
+		" so that having the flag on will restart the dmap script and having it off won't restart when warping to the same dmap."}
 };
 
 static const GUI::ListData nesfixesRulesList

@@ -24970,7 +24970,7 @@ int32_t onCompileScript()
 				for(;;) //while (true)
 				{
 					pm->read(&code, sizeof(int32_t));
-					if (code != -9998 && code != -9997 && code != -9996) break;
+					if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
 					else
 					{
 						fseek(console, 0, SEEK_END);

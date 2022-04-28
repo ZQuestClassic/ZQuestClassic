@@ -8,6 +8,10 @@
 #include "zquest.h"
 #endif //!IS_PARSER
 
+#define ZC_CONSOLE_ERROR_CODE -9997
+#define ZC_CONSOLE_WARN_CODE -9996
+#define ZC_CONSOLE_INFO_CODE -9998
+
 using std::map;
 using std::string;
 using std::vector;
@@ -342,8 +346,8 @@ void ReadConsole(char buf[], int code)
 	//al_trace("%s\n", buf);
 	switch(code)
 	{
-		case -9996: zconsole_warn(buf);
-		case -9997: zconsole_error(buf);
+		case ZC_CONSOLE_WARN_CODE: zconsole_warn(buf);
+		case ZC_CONSOLE_ERROR_CODE: zconsole_error(buf);
 		default: zconsole_info(buf);
 	}
 }
