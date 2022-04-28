@@ -23914,7 +23914,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 						"Insta-Warp");
 						
 	eventlog_mapflags();
-	if ( !(warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) || olddmap != currdmap) //Changed DMaps, or needs to reset the script
+	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_bit(quest_rules, qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != currdmap) //Changed DMaps, or needs to reset the script
 	{
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		initZScriptDMapScripts();

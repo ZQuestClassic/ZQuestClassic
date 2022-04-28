@@ -22164,7 +22164,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 	}
 	
-	if((DMaps[currdmap].type&dmfCONTINUE) || (currdmap==0))
+	if((DMaps[currdmap].type&dmfCONTINUE) || (currdmap==0&&get_bit(quest_rules, qr_DMAP_0_CONTINUE_BUG)))
 	{
 		if(dlevel)
 		{
@@ -22262,8 +22262,11 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 	}
 	FFCore.init_combo_doscript();
-	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	if (!intradmap || get_bit(quest_rules, qr_WARPS_RESTART_DMAPSCRIPT))
+	{
+		FFCore.initZScriptDMapScripts();
+		FFCore.initZScriptActiveSubscreenScript();
+	}
 	is_warping = false;
 	return true;
 }
