@@ -963,8 +963,8 @@ void ComboEditorDialog::loadComboType()
 		{
 			if(FL(cflag13)) //Prompt flag
 			{
-				l_attribute[1] = "Locked Prompt Combo";
-				h_attribute[1] = "Combo to display as a 'prompt', if you are not currently able to"
+				l_attribute[2] = "Locked Prompt Combo";
+				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
 					" open it. If 0, the normal prompt will be used instead.";
 			}
 		}
