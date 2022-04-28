@@ -124,6 +124,7 @@ public:
 	int32_t drownclk; // Pitfall fall clk
 	int32_t drownCombo; // Pitfall fallen combo
 	bool isspawning;
+	bool can_flicker;
 	
 	byte spr_shadow, spr_death, spr_spawn;
 	int16_t spr_death_anim_clk, spr_spawn_anim_clk;
@@ -164,6 +165,8 @@ public:
 	virtual bool knockback(int32_t time, int32_t dir, int32_t speed);
 	virtual bool runKnockback();
     void explode(int32_t mode);
+	bool getCanFlicker();
+	void setCanFlicker(bool v);
 	
 	void alloc_scriptmem();
 	

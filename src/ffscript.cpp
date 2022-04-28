@@ -3183,7 +3183,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case LINKCANFLICKER:
-			ret= Hero.getCanHeroFlicker()?10000:0;
+			ret= Hero.getCanFlicker()?10000:0;
 			break;
 		case LINKHURTSFX:
 			ret = (int32_t)Hero.getHurtSFX()*10000;
@@ -5676,6 +5676,12 @@ int32_t get_register(const int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->SwitchHooked") == SH::_NoError)
 			{
 				ret = GuyH::getNPC()->switch_hooked ? 10000 : 0;
+			}
+			break;
+		case NPCCANFLICKER:
+			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->getCanFlicker() ? 10000 : 0;
 			}
 			break;
 		
@@ -11945,7 +11951,7 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		
 		case LINKCANFLICKER:
-			Hero.setCanHeroFlicker((value/10000)?1:0);
+			Hero.setCanFlicker((value/10000)?1:0);
 			break;
 		
 		case LINKHURTSFX:
@@ -15535,6 +15541,12 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		case NPCSWHOOKED:
 			break; //read-only
+		case NPCCANFLICKER:
+			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
+			{
+				GuyH::getNPC()->setCanFlicker(value != 0);
+			}
+			break;
 		
 		
 	///----------------------------------------------------------------------------------------------------//
@@ -36205,6 +36217,7 @@ script_variable ZASMVars[]=
 	{ "GENDATARELOADSTATE", GENDATARELOADSTATE, 0, 0 },
 	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
 	{ "HEROIMMORTAL", HEROIMMORTAL, 0, 0 },
+	{ "NPCCANFLICKER", NPCCANFLICKER, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

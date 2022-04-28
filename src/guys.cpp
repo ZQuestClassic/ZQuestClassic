@@ -6295,7 +6295,7 @@ void enemy::draw(BITMAP *dest)
 		else
 			cs = (((clk2+5)>>1)&3)+6;
 	}
-	else if(hclk>0)
+	else if(hclk>0 && getCanFlicker())
 	{
 		if(family==eeGANON)
 			cs=(((hclk-1)>>1)&3)+6;
@@ -6303,7 +6303,7 @@ void enemy::draw(BITMAP *dest)
 			cs=(((hclk-1)>>1)&3)+6;
 	}
 	//draw every other frame for flickering enemies
-	if((frame&1)==1 || !(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER)))
+	if((frame&1)==1 || !(family !=eeGANON && hclk>0 && get_bit(quest_rules,qr_ENEMIESFLICKER) && getCanFlicker()))
 	{
 		if (canSee == DRAW_CLOAKED)
 		{

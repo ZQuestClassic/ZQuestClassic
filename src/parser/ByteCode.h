@@ -1350,8 +1350,9 @@
 #define GENDATARELOADSTATE      1267
 #define COMBODCSET2FLAGS        1268
 #define HEROIMMORTAL            1269
+#define NPCCANFLICKER           1270
 
-#define LAST_BYTECODE           1270
+#define LAST_BYTECODE           1271
 
 //} END OF BYTECODE
 

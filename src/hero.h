@@ -519,9 +519,6 @@ public:
 	void setscriptnohit(bool);
 	bool getscriptnohit();
 	
-	 bool getCanHeroFlicker(); //enable or disable flicker or flash
-	void setCanHeroFlicker(bool v);
-	
 	void sethitHeroUID(int32_t type, int32_t screen_index);
 	void ClearhitHeroUIDs();
 	void set_defence(int32_t def, int32_t v);

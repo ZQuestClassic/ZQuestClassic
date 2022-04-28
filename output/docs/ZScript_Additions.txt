@@ -4586,6 +4586,9 @@ float UID;
  * UIDs begin at 00000.0001 and overflow at 217478.3648. 
  *	Note: This allows for 2,147,483,647 unique npcs, per-session.
 
+bool InvFlicker;			
+ * If set false, the npc will neither flash, nor flicker when invincible. 
+
 int Frame;
  * The current frame of the npc's animation.
  

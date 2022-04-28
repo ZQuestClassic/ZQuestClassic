@@ -169,6 +169,7 @@ sprite::sprite()
 	glowRad = 0;
 	glowShape = 0;
 	switch_hooked = false;
+	can_flicker = true;
 	spr_shadow = iwShadow;
 	spr_death = iwDeath;
 	spr_spawn = iwSpawn;
@@ -255,7 +256,8 @@ spr_spawn(other.spr_spawn),
 spr_death_anim_clk(other.spr_death_anim_clk),
 spr_death_anim_frm(other.spr_death_anim_frm),
 spr_spawn_anim_clk(other.spr_spawn_anim_clk),
-spr_spawn_anim_frm(other.spr_spawn_anim_frm)
+spr_spawn_anim_frm(other.spr_spawn_anim_frm),
+can_flicker(other.can_flicker)
 
 {
     uid = getNextUID();
@@ -377,6 +379,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	glowRad = 0;
 	glowShape = 0;
 	switch_hooked = false;
+	can_flicker = true;
 	
 	//Defaults for old hardcoded sprites
 	spr_shadow = iwShadow;
@@ -2543,6 +2546,14 @@ void sprite::explode(int32_t type)
 	
 }
 
+bool sprite::getCanFlicker()
+{
+	return can_flicker;
+}
+void sprite::setCanFlicker(bool v)
+{
+	can_flicker = v;
+}
 
 
 /*

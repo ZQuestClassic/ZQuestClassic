@@ -4573,8 +4573,9 @@ enum ASM_DEFINE
 #define GENDATARELOADSTATE      0x1429
 #define COMBODCSET2FLAGS        0x142A
 #define HEROIMMORTAL            0x142B
+#define NPCCANFLICKER           0x142C
 
-#define NUMVARIABLES         	0x142C
+#define NUMVARIABLES         	0x142D
 
 //} End variables
 
