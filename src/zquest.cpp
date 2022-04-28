@@ -9329,8 +9329,11 @@ static MENU combosel_rc_menu[] =
 static MENU fav_rc_menu[] =
 {
     { (char *)"Scroll to Combo  ",       NULL,  NULL, 0, NULL },
-    { (char *)"Edit Combo  ",         NULL,  NULL, 0, NULL },
+    { (char *)"Edit Combo  ",            NULL,  NULL, 0, NULL },
     { (char *)"Remove Combo  ",          NULL,  NULL, 0, NULL },
+    { (char *)"",                        NULL,  NULL, 0, NULL },
+    { (char *)"Open Combo Page  ",       NULL,  NULL, 0, NULL },
+    { (char *)"Open Tile Page  ",        NULL,  NULL, 0, NULL },
     { NULL,                              NULL,  NULL, 0, NULL }
 };
 
@@ -10795,6 +10798,8 @@ void domouse()
 			{
 				if(isinRect(gui_mouse_x(),gui_mouse_y(),favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
 				{
+					SETFLAG(fav_rc_menu[4].flags, D_DISABLED, draw_mode == dm_alias);
+					SETFLAG(fav_rc_menu[5].flags, D_DISABLED, draw_mode == dm_alias);
 					int32_t m = popup_menu(fav_rc_menu,x,y);
 					int32_t row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
 					int32_t col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
@@ -10802,41 +10807,53 @@ void domouse()
 					
 					switch(m)
 					{
-					case 0:
-						First[current_combolist]=vbound((Combo/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
-						break;
-						
-					case 1:
-						if(draw_mode != dm_alias)
+						case 0:
+							First[current_combolist]=vbound((Combo/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
+							break;
+							
+						case 1:
+							if(draw_mode != dm_alias)
+							{
+								reset_combo_animations();
+								reset_combo_animations2();
+								edit_combo(Combo,true,CSet);
+								setup_combo_animations();
+								setup_combo_animations2();
+							}
+							else
+							{
+								comboa_cnt = combo_apos;
+								onEditComboAlias();
+							}
+							
+							redraw|=rALL;
+							break;
+							
+						case 2:
+							if(draw_mode != dm_alias)
+							{
+								favorite_combos[f]=-1;
+								saved = false;
+							}
+							else
+							{
+								favorite_comboaliases[f]=-1;
+								saved = false;
+							}
+							
+							break;
+						case 4:
+							combo_screen(Combo>>8,Combo);
+							redraw|=rALL;
+							break;
+						case 5:
 						{
-							reset_combo_animations();
-							reset_combo_animations2();
-							edit_combo(Combo,true,CSet);
-							setup_combo_animations();
-							setup_combo_animations2();
+							int32_t t = combobuf[Combo].tile;
+							int32_t f = 0;
+							select_tile(t,f,0,CSet,true);
+							redraw|=rALL;
+							break;
 						}
-						else
-						{
-							comboa_cnt = combo_apos;
-							onEditComboAlias();
-						}
-						
-						redraw|=rALL;
-						break;
-						
-					case 2:
-						if(draw_mode != dm_alias)
-						{
-							favorite_combos[f]=-1;
-							saved = false;
-						}
-						else
-						{
-							favorite_comboaliases[f]=-1;
-							saved = false;
-						}
-						
-						break;
 					}
 				}
 			}
