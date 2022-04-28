@@ -857,8 +857,8 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cLOCKBLOCK:
 		{
-			l_flag[0] = "Require Item";
-			h_flag[0] = "Require an item in your inventory to unlock the block";
+			l_flag[0] = "Use Item";
+			h_flag[0] = "Allow an item in your inventory to unlock the block";
 			if(FL(cflag1))
 			{
 				l_flag[4] = "Eat Item";
@@ -866,15 +866,15 @@ void ComboEditorDialog::loadComboType()
 				if(FL(cflag5))
 				{
 					l_attribyte[0] = "Consumed Item";
-					h_attribyte[0] = "The Item ID required to open the lock block. Consumed.";
+					h_attribyte[0] = "The Item ID to open the lock block. Consumed.";
 				}
 				else
 				{
 					l_attribyte[0] = "Held Item";
-					h_attribyte[0] = "The Item ID required to open the lock block. Not consumed.";
+					h_attribyte[0] = "The Item ID to open the lock block. Not consumed.";
 				}
-				l_flag[1] = "Only Item";
-				h_flag[1] = "Only the required item can open this block";
+				l_flag[1] = "Require Item";
+				h_flag[1] = "Only the required item can open this block (instead of ALSO allowing a key)";
 			}
 			else
 			{
@@ -898,16 +898,8 @@ void ComboEditorDialog::loadComboType()
 					h_flag[5] = "Consumes from counter even if you don't have enough";
 				}
 			}
-			
-			l_flag[2] = "Custom Unlock Sound";
-			h_flag[2] = "Play a custom sound when unlocked";
-			if(FL(cflag3))
-			{
-				l_attribyte[3] = "Unlock Sound:";
-				h_attribyte[3] = "The sound to play when unlocking the block";
-			}
-			break;
 		}
+		[[fallthrough]];
 		case cBOSSLOCKBLOCK:
 		{
 			l_flag[2] = "Custom Unlock Sound";
@@ -919,7 +911,65 @@ void ComboEditorDialog::loadComboType()
 			}
 			break;
 		}
-		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cLOCKEDCHEST:
+		{
+			l_flag[0] = "Use Item";
+			h_flag[0] = "Allow an item in your inventory to unlock the chest";
+			if(FL(cflag1))
+			{
+				l_flag[4] = "Eat Item";
+				h_flag[4] = "Consume the required item instead of simply requiring its presence";
+				if(FL(cflag5))
+				{
+					l_attribyte[0] = "Consumed Item";
+					h_attribyte[0] = "The Item ID to open the chest. Consumed.";
+				}
+				else
+				{
+					l_attribyte[0] = "Held Item";
+					h_attribyte[0] = "The Item ID to open the chest. Not consumed.";
+				}
+				l_flag[1] = "Require Item";
+				h_flag[1] = "Only the required item can open this chest (instead of ALSO allowing a key)";
+			}
+			else
+			{
+				l_attribute[0] = "Amount:";
+				if(FL(cflag4))
+					h_attribute[0] = "The amount of the arbitrary counter required to open this chest";
+				else
+					h_attribute[0] = "The amount of keys required to open this chest";
+			}
+			if(!(FL(cflag1)&&FL(cflag2)))
+			{
+				l_flag[3] = "Counter";
+				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
+				if(FL(cflag4))
+				{
+					l_attribyte[1] = "Counter:";
+					h_attribyte[1] = "The counter to use to open this block";
+					l_flag[7] = "No Drain";
+					h_flag[7] = "Requires the counter have the amount, but do not consume from it";
+					if(!FL(cflag8))
+					{
+						l_flag[5] = "Thief";
+						h_flag[5] = "Consumes from counter even if you don't have enough";
+					}
+				}
+			}
+		}
+		[[fallthrough]];
+		case cBOSSCHEST:
+		{
+			if(FL(cflag13)) //Prompt flag
+			{
+				l_attribute[1] = "Locked Prompt Combo";
+				h_attribute[1] = "Combo to display as a 'prompt', if you are not currently able to"
+					" open it. If 0, the normal prompt will be used instead.";
+			}
+		}
+		[[fallthrough]];
+		case cCHEST:
 		{
 			l_flag[8] = "Can't use from top";
 			h_flag[8] = "Cannot be activated standing to the top side if checked";
@@ -935,6 +985,8 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the chest will trigger it.";
+			l_attribyte[3] = "Open Sound:";
+			h_attribyte[3] = "The sound to play when opening the chest";
 			if(FL(cflag13))
 			{
 				l_attribute[1] = "Prompt Combo";

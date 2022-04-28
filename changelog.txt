@@ -1,5 +1,19 @@
 // 2.55 Change Log
-// Updated 25th April, 2022
+// Updated 28th April, 2022
+
+Fix dmap script restarting issues
+	( Deedee, Apr 28, 2022 )
+
+Add 'npc->InvFlicker' to match 'Hero->InvFlicker'
+Add the new features from lock blocks to locked chests as well
+	Also, locked chests and boss-locked chests can now display a separate button-prompt
+	pop-up when you are unable to open them.
+Add 'open chest' sfx for chest combos
+Allow light targets to block light
+Add active shields (must hold button down to block)
+Add active clocks, 'Kill All Enemies', and the new itemclass 'Refiller' which
+	acts as an active version of a counter refilling item.
+	( EmilyV, Apr 27, 2022 )
 
 -- Apr 25th nightly build
 

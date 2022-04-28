@@ -415,13 +415,6 @@ void HeroClass::setBButtonItem(int32_t itmslot){
 	game->bwpn = itmslot;
 }
 
-bool HeroClass::getCanHeroFlicker(){
-	return flickerorflash; //enable or disable flicker or flash
-}
-void HeroClass::setCanHeroFlicker(bool v){
-	flickerorflash = v;
-}
-
 void HeroClass::ClearhitHeroUIDs()
 { 		//Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
 		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
@@ -1434,7 +1427,6 @@ void HeroClass::init()
 	
     //2.6
 	preventsubscreenfalling = false;  //-Z
-	flickerorflash = true; //flicker or flash unless disabled externally.
 	walkspeed = 0; //not used, yet. -Z
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][0] = 0; 
 	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) lastHitBy[q][1] = 0; 
@@ -2001,11 +1993,11 @@ void HeroClass::draw(BITMAP* dest)
 	if ( script_hero_cset > -1 ) cs = script_hero_cset;
 	if(!get_bit(quest_rules,qr_HEROFLICKER))
 	{
-		if(superman && getCanHeroFlicker())
+		if(superman && getCanFlicker())
 		{
 			cs += (((~frame)>>1)&3);
 		}
-		else if(hclk&&(NayrusLoveShieldClk<=0) && getCanHeroFlicker())
+		else if(hclk&&(NayrusLoveShieldClk<=0) && getCanFlicker())
 		{
 			cs += ((hclk>>1)&3);
 		}
@@ -2158,7 +2150,7 @@ attack:
 				}
 
 				//Prevent flickering -Z
-				if (!getCanHeroFlicker()) masked_draw(dest);
+				if (!getCanFlicker()) masked_draw(dest);
 			}
 			
 			if(attack!=wHammer)
@@ -16885,6 +16877,27 @@ bool usekey(int32_t num)
     return true;
 }
 
+bool canUseKey(int32_t num = 1)
+{
+    int32_t itemid = current_item_id(itype_magickey);
+    
+    if(itemid<0 ||
+            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
+             : itemsbuf[itemid].power!=dlevel))
+    {
+        if(game->lvlkeys[dlevel]>=num)
+        {
+            game->lvlkeys[dlevel]-=num;
+            return true;
+        }
+        
+        if(game->get_keys()<num)
+            return false;
+    }
+    
+    return true;
+}
+
 bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 {
     int32_t mc = (y&0xF0)+(x>>4);
@@ -16893,6 +16906,80 @@ bool islockeddoor(int32_t x, int32_t y, int32_t lock)
                 || ((mc==64||mc==65||mc==80||mc==81) && tmpscr->door[left]==lock)
                 || ((mc==78||mc==79||mc==94||mc==95) && tmpscr->door[right]==lock));
     return ret;
+}
+
+bool can_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specifically
+{
+	switch(cmb.type) //sanity check
+	{
+		case cLOCKBLOCK: case cLOCKEDCHEST:
+			break;
+		default: return false; //not a locked container?
+	}
+	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.attribytes[0] : 0;
+	int32_t itemonly = cmb.usrflags&cflag2;
+	int32_t thecounter = cmb.attribytes[1];
+	int32_t ctr_amount = cmb.attributes[0]/10000L;
+	if( requireditem && game->item[requireditem]) 
+	{
+		return true;
+	}
+	else if((cmb.usrflags&cflag1) && itemonly) return false; //Nothing but item works
+	else if ( (cmb.usrflags&cflag4) )
+	{
+		if ( game->get_counter(thecounter) >= ctr_amount )
+		{
+			return true;
+		}
+		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock
+		{
+			return false;
+		}
+	}
+	else if (ctr_amount && canUseKey(ctr_amount) ) return true;
+	else if(!ctr_amount && !requireditem && !itemonly && canUseKey() ) return true;
+	return false;
+}
+
+bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specifically
+{
+	switch(cmb.type) //sanity check
+	{
+		case cLOCKBLOCK: case cLOCKEDCHEST:
+			break;
+		default: return false; //not a locked container?
+	}
+	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.attribytes[0] : 0;
+	int32_t itemonly = cmb.usrflags&cflag2;
+	int32_t thecounter = cmb.attribytes[1];
+	int32_t ctr_amount = cmb.attributes[0]/10000L;
+	if( requireditem && game->item[requireditem]) 
+	{
+		if ((cmb.usrflags&cflag5)) 
+		{
+			takeitem(requireditem);
+		}
+		return true;
+	}
+	else if((cmb.usrflags&cflag1) && itemonly) return false; //Nothing but item works
+	else if ( (cmb.usrflags&cflag4) )
+	{
+		if ( game->get_counter(thecounter) >= ctr_amount )
+		{
+			//flag 6 only checks the required count; it doesn't drain it
+			if (!(cmb.usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
+			return true;
+		}
+		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock
+		{
+			//shadowtiger requested this on 29th Dec, 2019 -Z
+			if (!(cmb.usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
+			return false;
+		}
+	}
+	else if (ctr_amount && usekey(ctr_amount) ) return true;
+	else if(!ctr_amount && !requireditem && !itemonly && usekey() ) return true;
+	return false;
 }
 
 void HeroClass::checklockblock()
@@ -17017,55 +17104,16 @@ void HeroClass::checklockblock()
 	{
 		return;
 	}
-	int32_t cid = found1 ? cid1 : cid2;
-	//zprint("foundlayer: %d\n", foundlayer);
-	//zprint("cid: %d\n", cid);
-	//zprint("MAPCOMBO2(foundlayer,bx2,by): %d\n", MAPCOMBO2(foundlayer,bx2,by));
-	int32_t requireditem = combobuf[cid].usrflags&cflag1 ? combobuf[cid].attribytes[0] : 0;
-	int32_t itemonly = combobuf[cid].usrflags&cflag2;
-	int32_t thecounter = combobuf[cid].attribytes[1];
-	int32_t ctr_amount = combobuf[cid].attributes[0]/10000L;
-	if( requireditem && game->item[requireditem]) 
-	{
-		if ((combobuf[cid].usrflags&cflag5)) 
-		{
-			//zprint("Setting item %d false.\n", requireditem);
-			takeitem(requireditem);
-		}
-		goto unlock;
-	}
-	else if((combobuf[cid].usrflags&cflag1) && itemonly) return; //Nothing but item works
-	else if ( (combobuf[cid].usrflags&cflag4) )
-	{
-		if ( game->get_counter(thecounter) >= ctr_amount )
-		{
-			//flag 6 only checks the required count; it doesn't drain it
-			if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
-			goto unlock; 
-		}
-		else if (combobuf[cid].usrflags&cflag6) //eat counter even if insufficient, but don't unlock
-		{
-			//shadowtiger requested this on 29th Dec, 2019 -Z
-			if (!(combobuf[cid].usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
-			return;
-		}
-	}
-	else if (ctr_amount && usekey(ctr_amount) ) goto unlock;
-	else if(!ctr_amount && !requireditem && !itemonly && usekey() ) goto unlock;
-	
-	
-	return;
-	 
-	
-	unlock:
-	
+	newcombo const& cmb = combobuf[found1 ? cid1 : cid2];
+	if(!try_locked_combo(cmb))
+		return;
 	
 	setmapflag(mLOCKBLOCK);
 	remove_lockblocks((currscr>=128)?1:0);
-	if ( combobuf[cid].usrflags&cflag3 )
+	if ( cmb.usrflags&cflag3 )
 	{
-		if ( (combobuf[cid].attribytes[3]) )
-			sfx(combobuf[cid].attribytes[3]);
+		if ( (cmb.attribytes[3]) )
+			sfx(cmb.attribytes[3]);
 	}
 	else sfx(WAV_DOOR);
 }
@@ -17517,25 +17565,29 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(intbtn) //
 	{
+		if(cmb.usrflags & cflag13) //display prompt
+		{
+			int altcmb = cmb.attributes[2]/10000;
+			prompt_combo = cmb.attributes[1]/10000;
+			if(altcmb && ((type == cLOCKEDCHEST && !can_locked_combo(cmb))
+				|| (type == cBOSSCHEST && !(game->lvlitems[dlevel]&liBOSSKEY))))
+				prompt_combo = altcmb;
+			prompt_cset = cmb.attribytes[4];
+			prompt_x = cmb.attrishorts[0];
+			prompt_y = cmb.attrishorts[1];
+		}
 		if(!getIntBtnInput(intbtn, true, true, false, false))
 		{
-			if(cmb.usrflags & cflag13) //display prompt
-			{
-				prompt_combo = cmb.attributes[1]/10000;
-				prompt_cset = cmb.attribytes[4];
-				prompt_x = cmb.attrishorts[0];
-				prompt_y = cmb.attrishorts[1];
-			}
 			return; //Button not pressed
 		}
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
 	
-	//!TODO Add attributes from lockblocks to locked/boss locked chests
 	switch(type)
 	{
-		case cLOCKEDCHEST:
-			if(!usekey()) return;
+		case cLOCKEDCHEST: //Special flags!
+			//if(!usekey()) return; //Old check
+			if(!try_locked_combo(cmb)) return;
 			
 			setmapflag(mLOCKEDCHEST);
 			break;
@@ -17568,6 +17620,10 @@ void HeroClass::checkchest(int32_t type)
 			setmapflag(mBOSSCHEST);
 			break;
 	}
+	
+	if(intbtn && (cmb.usrflags & cflag13))
+		prompt_combo = 0;
+	sfx(cmb.attribytes[3]); //opening sfx
 	
 	bool itemflag = MAPCOMBOFLAG(fx,fy)==mfARMOS_ITEM;
 	itemflag |= MAPFLAG(fx,fy)==mfARMOS_ITEM;
