@@ -2288,7 +2288,14 @@ Waitdraw Support:	Special
 A generic script can be run in multiple different ways.
 
 Firstly, it can run 'passively':
-	This is not yet implemented
+	Once a generic script starts running passively, there are 39 different timings throughout each
+		frame that they can run. They will first run at the first available timing after being
+		launched; after 'Waitframe()', they return to the "Start of Frame" timing.
+	The 'WaitTo' function can be used to go to each specific timing, similarly to how
+		'Waitdraw' works in other scripts.
+	The passive running of a generic script is also affected by it's 'ExitState' and 'ReloadState'
+		arrays, which can exit the script or restart it from the beginning when certain conditions
+		are met (such as changing screens/dmaps, continuing, reloading, ...)
 
 Secondly, it can run 'frozen':
 	A 'frozen' run works similar to the dmapdata 'ActiveSubscreen' slot, or global onF6 or onLaunch.
