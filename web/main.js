@@ -249,17 +249,42 @@ async function renderQuestList() {
     el.quest = quest;
     el.append(quest.name);
     questListEntriesEl.append(el);
+    el.tabIndex = -1;
   }
+
+  questListEntriesEl.addEventListener('keyup', (e) => {
+    if (e.keyCode === 38) {
+      const questIndex = Number(e.target.previousElementSibling.getAttribute('data-quest-index'));
+      const quest = quests[questIndex];
+      showQuest(quest);
+      e.target.previousElementSibling.focus();
+    } else if (e.keyCode === 40 && e.target.nextElementSibling) {
+      const questIndex = Number(e.target.nextElementSibling.getAttribute('data-quest-index'));
+      const quest = quests[questIndex];
+      showQuest(quest);
+      e.target.nextElementSibling.focus();
+    }
+  });
 
   function showQuest(quest) {
     document.querySelector('.quest-list__entry.selected')?.classList.remove('selected');
     document.querySelector(`.quest-list__entry[data-quest-index="${quests.indexOf(quest)}"]`).classList.add('selected');
 
-    const contentEl = questListCurrentTemplate.content.cloneNode(true);
-    contentEl.querySelector('.name').textContent = quest.name;
-    contentEl.querySelector('.author').textContent = quest.author;
-    contentEl.querySelector('.genre').textContent = quest.genre;
-    contentEl.querySelector('.version').textContent = quest.zcVersion;
+    const contentEl = questListCurrentTemplate.content.cloneNode(true).children[0];
+
+    function fillOrDelete(selector, value) {
+      if (value) {
+        contentEl.querySelector(selector).textContent = value;
+      } else {
+        contentEl.querySelector(selector).parentElement.remove();
+      }
+    }
+
+    fillOrDelete('.name', quest.name);
+    fillOrDelete('.author', quest.author);
+    fillOrDelete('.genre', quest.genre);
+    fillOrDelete('.version', quest.version);
+
     if (quest.projectUrl) {
       contentEl.querySelector('.purezc-link').href = quest.projectUrl;
     } else {
@@ -279,18 +304,35 @@ async function renderQuestList() {
     contentEl.querySelector('.tips').innerHTML = quest.tipsAndCheatsHtml;
     contentEl.querySelector('.credits').innerHTML = quest.storyHtml;
 
-    const imagesEl = contentEl.querySelector('.images');
-    for (const imgUrl of quest.imageUrls) {
+    function setCurImage(imgUrl) {
       const imgEl = document.createElement('img');
       imgEl.src = 'https://hoten.cc/quest-maker/play/' + imgUrl;
-      imagesEl.append(imgEl);
+      contentEl.querySelector('.current-image').innerHTML = '';
+      contentEl.querySelector('.current-image').append(imgEl);
     }
+
+    const imagesEl = contentEl.querySelector('.images');
+    if (quest.imageUrls.length > 1) {
+      for (const imgUrl of quest.imageUrls) {
+        const imgEl = document.createElement('img');
+        imgEl.src = 'https://hoten.cc/quest-maker/play/' + imgUrl;
+        imagesEl.append(imgEl);
+        imgEl.addEventListener('click', () => {
+          setCurImage(imgUrl);
+        });
+        imgEl.addEventListener('mouseover', () => {
+          setCurImage(imgUrl);
+        });
+      }
+    }
+
+    if (quest.imageUrls.length > 0) setCurImage(quest.imageUrls[0]);
 
     for (const url of quest.urls) {
       const path = window.ZC.createPathFromUrl(url);
       const questParamValue = path.replace('/_quests/', '');
 
-      const playEl = createElement('a');
+      const playEl = createElement('a', 'play-link');
       playEl.href = createUrlString(ZC_Constants.zeldaUrl, { quest: questParamValue });
       playEl.textContent = 'Play!';
 
