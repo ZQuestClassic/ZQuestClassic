@@ -52,6 +52,7 @@
         This is an alpha version of Zelda Classic for the browser. You can expect occasional sound hiccups, and
         other bugs.
         But for the most part things should work well enough to play any quest that the Windows version can handle.
+        For more, see <a href="https://hoten.cc/blog/porting-zelda-classic-to-the-web/" target="_blank">this blog post</a>.
       </p>
       <p>
         Find a quest from the Quest List and hit Play to quicky load it. If a save file already exists, it will load
@@ -63,17 +64,17 @@
 
         Controls can be configured in the Settings menu (click to open).
 
-        <div>Default Controls</div>
-        <div>A: z</div>
-        <div>B: x</div>
-        <div>L: a</div>
-        <div>R: s</div>
-        <div>Start: Enter</div>
-        <div>Map: space</div>
+      <div>Default Controls</div>
+      <div>A: z</div>
+      <div>B: x</div>
+      <div>L: a</div>
+      <div>R: s</div>
+      <div>Start: Enter</div>
+      <div>Map: space</div>
       </p>
       <p>
-        To report issues, contact Connor (discord connorclark#9300) or file an issue on the <a target="_blank"
-          href="https://github.com/ArmageddonGames/ZeldaClassic">GitHub</a> issue tracker.
+        To report issues, contact Connor (discord connorclark#9300) or <a target="_blank"
+        href="https://github.com/connorjclark/ZeldaClassic/issues">open an issue</a> on the GitHub issue tracker.
       </p>
     </div>
 
@@ -191,37 +192,41 @@
   </div>
 
   <template class="tmpl-selected-quest">
-    <div><span class="name"></span></div>
-
-    <div>By: <span class="author"></span></div>
-    <div>Genre: <span class="genre"></span></div>
-    <div>ZC Version: <span class="version"></span></div>
-    <div class="_rating">Rating: <span class="rating"></span> (<span class="rating-votes"></span> reviews)</div>
     <div>
-      <a class="purezc-link" target="_blank">View on PureZC</a>
+      <div class="top-section">
+        <div>
+          <div><span class="name"></span></div>
+
+          <div>By: <span class="author"></span></div>
+          <div>Genre: <span class="genre"></span></div>
+          <div>ZC Version: <span class="version"></span></div>
+          <div class="_rating">Rating: <span class="rating"></span> (<span class="rating-votes"></span> reviews)</div>
+          <div>
+            <a class="purezc-link" target="_blank">View on PureZC</a>
+          </div>
+        </div>
+        <div class="links"></div>
+      </div>
+
+      <br>
+      <div class="information"></div>
+      <br>
+
+      <div class="current-image"></div>
+      <div class="images"></div>
+
+      <h3>Description</h3>
+      <div class="description"></div>
+
+      <h3>Story</h3>
+      <div class="story"></div>
+
+      <h3>Tips and Cheats</h3>
+      <div class="tips"></div>
+
+      <h3>Credits</h3>
+      <div class="credits"></div>
     </div>
-
-    <br>
-
-    <div class="links"></div>
-
-    <br>
-    <div class="information"></div>
-    <br>
-
-    <div class="images"></div>
-
-    <h3>Description</h3>
-    <div class="description"></div>
-
-    <h3>Story</h3>
-    <div class="story"></div>
-
-    <h3>Tips and Cheats</h3>
-    <div class="tips"></div>
-
-    <h3>Credits</h3>
-    <div class="credits"></div>
   </template>
 
   <script src="main.js"></script>

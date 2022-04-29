@@ -35,6 +35,8 @@ header {
   display: flex;
   justify-content: space-between;
   padding: 5px;
+  position: sticky;
+  background-color: black;
 }
 
 progress {
@@ -66,9 +68,10 @@ button:active {
 }
 
 .quest-list {
+  display: grid;
+  grid-template-columns: 25vw 75vw;
   height: 100vh;
   overflow-y: scroll;
-  display: flex;
 }
 
 .quest-list__entries {
@@ -86,10 +89,20 @@ button:active {
 }
 
 .quest-list__entry {
+  max-width: 20vw;
   margin: 5px;
   font-size: 16px;
   user-select: none;
   cursor: pointer;
+}
+
+.quest-list__current {
+  margin: 10px;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
 }
 
 .quest-list__entry:hover {
@@ -105,14 +118,11 @@ button:active {
   display: flex;
   flex-direction: column;
   margin: 15px;
+  text-align: end;
 }
 
 .play-link {
   font-size: 30px;
-}
-
-.quest-list__current img {
-  max-width: 50%;
 }
 
 .emscripten {
@@ -194,4 +204,17 @@ canvas {
   justify-content: center;
   flex-direction: column;
   padding: 15vw;
+}
+
+.images {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.images img {
+  width: 12vw;
+}
+.current-image img {
+  height: max(40vh, 300px);
 }
