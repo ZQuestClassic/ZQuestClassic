@@ -507,3 +507,13 @@ function setupOpenTestMode() {
 }
 
 main();
+
+function checkForGamepads() {
+  const hasGamepad = navigator.getGamepads().some(Boolean);
+  for (const el of [...document.querySelectorAll('.touch-inputs')]) {
+    el.classList.toggle('hidden', hasGamepad);
+  }
+}
+checkForGamepads();
+window.addEventListener('gamepadconnected', checkForGamepads);
+window.addEventListener('gamepaddisconnected', checkForGamepads);
