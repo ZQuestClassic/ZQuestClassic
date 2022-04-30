@@ -129,10 +129,22 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
-			_SET(flag[0], "Active Use", "If enabled, the shield only protects the player (and provides its' LTM)"
+			
+			_SET(flag[0], "Protects Front", "The shield will protect the front side of the player");
+			_SET(flag[1], "Protects Back", "The shield will protect the back side of the player");
+			_SET(flag[2], "Protects Left", "The shield will protect the left side of the player");
+			_SET(flag[3], "Protects Right", "The shield will protect the right side of the player");
+			_SET(flag[8], "Active Use", "If enabled, the shield only protects the player (and provides its' LTM)"
 				" while it is equipped to a button that is being held.");
-			if(FLAG(1))
+			if(FLAG(9))
+			{
 				_SET(actionsnd[1], "Activation Sound:", "Plays when the shield button is pressed");
+				_SET(flag[4], "Inactive Front", "Protects the front when button is NOT held");
+				_SET(flag[5], "Inactive Back", "Protects the back when button is NOT held");
+				_SET(flag[6], "Inactive Left", "Protects the left when button is NOT held");
+				_SET(flag[7], "Inactive Right", "Protects the right when button is NOT held");
+				_SET(misc[5], "Inactive PTM", "Player Tile Modifier to use while shield is inactive");
+			}
 			break;
 		}
 		case itype_agony:

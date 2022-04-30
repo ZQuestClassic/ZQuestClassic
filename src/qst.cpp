@@ -9232,6 +9232,12 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				}
 			}
 			
+			if( s_version < 52 )
+			{
+				if( tempitem.family == itype_shield )
+					tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
+			}
+			
 			if(tempitem.fam_type==0)  // Always do this
 				tempitem.fam_type=1;
 				

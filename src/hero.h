@@ -397,6 +397,13 @@ private:
 	void fairycircle(int32_t type);
 	void StartRefill(int32_t refillWhat);
 	void Start250Refill(int32_t refillWhat);
+	
+#define CMPDIR_FRONT 0x1
+#define CMPDIR_BACK  0x2
+#define CMPDIR_LEFT  0x4
+#define CMPDIR_RIGHT 0x8
+	int32_t compareDir(int32_t other);
+	
 	int32_t  EwpnHit();
 	int32_t  LwpnHit();
 	void heroDeathAnimation();

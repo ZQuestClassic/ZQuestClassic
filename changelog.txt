@@ -1,5 +1,8 @@
 // 2.55 Change Log
-// Updated 28th April, 2022
+// Updated 29th April, 2022
+
+Shields can now be configured to block different sides
+	( EmilyV, Apr 29, 2022 )
 
 Fix dmap script restarting issues
 	( Deedee, Apr 28, 2022 )

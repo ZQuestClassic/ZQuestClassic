@@ -2435,22 +2435,26 @@ int32_t item_tile_mod()
 		}
 		int32_t itemid = current_item_id(i,false);
 		
-		if(itemid < 0) continue;
+		if(itemid < 0 || !checkbunny(itemid))
+			continue;
 		
 		itemdata const& itm = itemsbuf[itemid];
 		
 		switch(itm.family)
 		{
 			case itype_shield:
-				if(itm.flags & ITEM_FLAG1) //active shield
+				if(itm.flags & ITEM_FLAG9) //active shield
 				{
-					if(!usingActiveShield(itemid)) continue;
+					if(!usingActiveShield(itemid))
+					{
+						tile+=itm.misc6; //'Inactive PTM'
+						continue;
+					}
 				}
 				break;
 		}
 		
-		if(checkbunny(itemid))
-			tile+=itemsbuf[itemid].ltm;
+		tile+=itm.ltm;
 	}
 	
 	return tile;

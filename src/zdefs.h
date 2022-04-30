@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           51
+#define V_ITEMS           52
 #define V_WEAPONS          7
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -1152,10 +1152,15 @@ enum
 };
 
 // directions
-enum direction { up, down, left, right, l_up, r_up, l_down, r_down };
+enum direction { dir_invalid = -1, up, down, left, right, l_up, r_up, l_down, r_down };
 const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_up};
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
+const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
+const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
+int32_t X_DIR(int32_t dir);
+int32_t Y_DIR(int32_t dir);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
+
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
 #define REFILL_FAIRY -1

@@ -131,7 +131,7 @@ int32_t getCurrentShield(bool requireActive)
 	int32_t itmid = current_item_id(itype_shield);
 	if(itmid < 0) return itmid;
 	
-	if(itemsbuf[itmid].flags & ITEM_FLAG1) //'Active Shield'
+	if(itemsbuf[itmid].flags & ITEM_FLAG9) //'Active Shield'
 	{
 		if(!usingActiveShield(itmid))
 			return -1;
@@ -5549,6 +5549,133 @@ int32_t HeroClass::defend(weapon *w)
 	}
 }
 
+int32_t HeroClass::compareDir(int32_t other)
+{
+	if(other != NORMAL_DIR(other))
+		return 0; //*sigh* scripts expect dirs >=8 to NOT hit shields...
+	int32_t ret = 0;
+	switch(dir)
+	{
+		case up:
+		{
+			switch(X_DIR(other))
+			{
+				case left:
+					ret |= CMPDIR_RIGHT;
+					break;
+				case right:
+					ret |= CMPDIR_LEFT;
+					break;
+			}
+			switch(Y_DIR(other))
+			{
+				case up:
+					ret |= CMPDIR_BACK;
+					break;
+				case down:
+					ret |= CMPDIR_FRONT;
+					break;
+			}
+			break;
+		}
+		case down:
+		{
+			switch(X_DIR(other))
+			{
+				case left:
+					ret |= CMPDIR_LEFT;
+					break;
+				case right:
+					ret |= CMPDIR_RIGHT;
+					break;
+			}
+			switch(Y_DIR(other))
+			{
+				case up:
+					ret |= CMPDIR_FRONT;
+					break;
+				case down:
+					ret |= CMPDIR_BACK;
+					break;
+			}
+			break;
+		}
+		case left:
+		{
+			switch(X_DIR(other))
+			{
+				case left:
+					ret |= CMPDIR_BACK;
+					break;
+				case right:
+					ret |= CMPDIR_FRONT;
+					break;
+			}
+			switch(Y_DIR(other))
+			{
+				case up:
+					ret |= CMPDIR_LEFT;
+					break;
+				case down:
+					ret |= CMPDIR_RIGHT;
+					break;
+			}
+			break;
+		}
+		case right:
+		{
+			switch(X_DIR(other))
+			{
+				case left:
+					ret |= CMPDIR_FRONT;
+					break;
+				case right:
+					ret |= CMPDIR_BACK;
+					break;
+			}
+			switch(Y_DIR(other))
+			{
+				case up:
+					ret |= CMPDIR_RIGHT;
+					break;
+				case down:
+					ret |= CMPDIR_LEFT;
+					break;
+			}
+			break;
+		}
+	}
+	return ret;
+}
+
+bool compareShield(int32_t cmpdir, itemdata const& shield)
+{
+	bool standard = !(shield.flags&ITEM_FLAG9) || usingActiveShield();
+	if(standard) //Use standard sides, either a passive shield, or a held active shield
+	{
+		if((cmpdir&CMPDIR_FRONT) && (shield.flags&ITEM_FLAG1))
+			return true;
+		else if((cmpdir&CMPDIR_BACK) && (shield.flags&ITEM_FLAG2))
+			return true;
+		else if((cmpdir&CMPDIR_LEFT) && (shield.flags&ITEM_FLAG3))
+			return true;
+		else if((cmpdir&CMPDIR_RIGHT) && (shield.flags&ITEM_FLAG4))
+			return true;
+	}
+	else //Active Shield that is NOT held down
+	{
+		if((cmpdir&CMPDIR_FRONT) && (shield.flags&ITEM_FLAG5))
+			return true;
+		else if((cmpdir&CMPDIR_BACK) && (shield.flags&ITEM_FLAG6))
+			return true;
+		else if((cmpdir&CMPDIR_LEFT) && (shield.flags&ITEM_FLAG7))
+			return true;
+		else if((cmpdir&CMPDIR_RIGHT) && (shield.flags&ITEM_FLAG8))
+			return true;
+	}
+	return false;
+}
+
 int32_t HeroClass::EwpnHit()
 {
 	for(int32_t i=0; i<Ewpns.Count(); i++)
@@ -5556,7 +5683,6 @@ int32_t HeroClass::EwpnHit()
 		if(Ewpns.spr(i)->hit(x+7,y+7,z,2,2,1))
 		{
 			weapon *ew = (weapon*)(Ewpns.spr(i));
-			bool hitshield=false;
 			
 			if((ew->ignoreHero)==true || ew->fallclk|| ew->drownclk)
 				break;
@@ -5573,33 +5699,6 @@ int32_t HeroClass::EwpnHit()
 				return -1;
 			}
 			
-			switch(dir)
-			{
-				case up:
-					if(ew->dir==down || ew->dir==l_down || ew->dir==r_down)
-						hitshield=true;
-						
-					break;
-					
-				case down:
-					if(ew->dir==up || ew->dir==l_up || ew->dir==r_up)
-						hitshield=true;
-						
-					break;
-					
-				case left:
-					if(ew->dir==right || ew->dir==r_up || ew->dir==r_down)
-						hitshield=true;
-						
-					break;
-					
-				case right:
-					if(ew->dir==left || ew->dir==l_up || ew->dir==l_down)
-						hitshield=true;
-						
-					break;
-			}
-			
 			switch(ew->id)
 			{
 				case ewLitBomb:
@@ -5609,14 +5708,17 @@ int32_t HeroClass::EwpnHit()
 					return i;
 			}
 			
+			int32_t itemid = getCurrentShield(false);
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
+			itemdata const& shield = itemsbuf[itemid];
+			auto cmpdir = compareDir(ew->dir);
+			bool hitshield = compareShield(cmpdir, shield);
+			
+			
 			if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF)
 			{
 				return i;
 			}
-			
-			int32_t itemid = getCurrentShield();
-			
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
 			
 			paymagiccost(itemid);
 			
@@ -5628,58 +5730,58 @@ int32_t HeroClass::EwpnHit()
 				case ewFireball:
 					if(ew->type & 1) //Boss fireball
 					{
-						if(!(itemsbuf[itemid].misc1 & (shFIREBALL2)))
+						if(!(shield.misc1 & (shFIREBALL2)))
 							return i;
 							
-						reflect = ((itemsbuf[itemid].misc2 & shFIREBALL2) != 0);
+						reflect = ((shield.misc2 & shFIREBALL2) != 0);
 					}
 					else
 					{
-						if(!(itemsbuf[itemid].misc1 & (shFIREBALL)))
+						if(!(shield.misc1 & (shFIREBALL)))
 							return i;
 							
-						reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
+						reflect = ((shield.misc2 & shFIREBALL) != 0);
 					}
 					
 					break;
 					
 				case ewMagic:
-					if(!(itemsbuf[itemid].misc1 & shMAGIC))
+					if(!(shield.misc1 & shMAGIC))
 						return i;
 						
-					reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
+					reflect = ((shield.misc2 & shMAGIC) != 0);
 					break;
 					
 				case ewSword:
-					if(!(itemsbuf[itemid].misc1 & shSWORD))
+					if(!(shield.misc1 & shSWORD))
 						return i;
 						
-					reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
+					reflect = ((shield.misc2 & shSWORD) != 0);
 					break;
 					
 				case ewFlame:
-					if(!(itemsbuf[itemid].misc1 & shFLAME))
+					if(!(shield.misc1 & shFLAME))
 						return i;
 						
-					reflect = ((itemsbuf[itemid].misc2 & shFLAME) != 0); // Actually isn't reflected.
+					reflect = ((shield.misc2 & shFLAME) != 0); // Actually isn't reflected.
 					break;
 					
 				case ewRock:
-					if(!(itemsbuf[itemid].misc1 & shROCK))
+					if(!(shield.misc1 & shROCK))
 						return i;
 						
-					reflect = (itemsbuf[itemid].misc2 & shROCK);
+					reflect = (shield.misc2 & shROCK);
 					break;
 					
 				case ewArrow:
-					if(!(itemsbuf[itemid].misc1 & shARROW))
+					if(!(shield.misc1 & shARROW))
 						return i;
 						
-					reflect = ((itemsbuf[itemid].misc2 & shARROW) != 0); // Actually isn't reflected.
+					reflect = ((shield.misc2 & shARROW) != 0); // Actually isn't reflected.
 					break;
 					
 				case ewBrang:
-					if(!(itemsbuf[itemid].misc1 & shBRANG))
+					if(!(shield.misc1 & shBRANG))
 						return i;
 						
 					break;
@@ -5687,10 +5789,10 @@ int32_t HeroClass::EwpnHit()
 				default: // Just throw the script weapons in here...
 					if(ew->id>=wScript1 && ew->id<=wScript10)
 					{
-						if(!(itemsbuf[itemid].misc1 & shSCRIPT))
+						if(!(shield.misc1 & shSCRIPT))
 							return i;
 							
-						reflect = ((itemsbuf[itemid].misc2 & shSCRIPT) != 0);
+						reflect = ((shield.misc2 & shSCRIPT) != 0);
 					}
 					
 					break;
@@ -5718,7 +5820,7 @@ int32_t HeroClass::EwpnHit()
 				ew->ignorecombo=-1;
 			}
 			
-			sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+			sfx(shield.usesound,pan(x.getInt()));
 		}
 	}
 	
@@ -5731,39 +5833,15 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
         if(Lwpns.spr(i)->hit(x+7,y+7,z,2,2,1))
         {
             weapon *lw = (weapon*)(Lwpns.spr(i));
-            bool hitshield=false;
             
             if((lw->ignoreHero)==true)
                 break;
-                
-            switch(dir)
-            {
-            case up:
-                if(lw->dir==down || lw->dir==l_down || lw->dir==r_down)
-                    hitshield=true;
-                    
-                break;
-                
-            case down:
-                if(lw->dir==up || lw->dir==l_up || lw->dir==r_up)
-                    hitshield=true;
-                    
-                break;
-                
-            case left:
-                if(lw->dir==right || lw->dir==r_up || lw->dir==r_down)
-                    hitshield=true;
-                    
-                break;
-                
-            case right:
-                if(lw->dir==left || lw->dir==l_up || lw->dir==l_down)
-                    hitshield=true;
-                    
-                break;
-            }
             
-            int32_t itemid = getCurrentShield();
+			int32_t itemid = getCurrentShield(false);
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
+			itemdata const& shield = itemsbuf[itemid];
+			auto cmpdir = compareDir(lw->dir);
+			bool hitshield = compareShield(cmpdir, shield);
             bool reflect = false;
             
             switch(lw->id)
@@ -5775,40 +5853,40 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
                 if(lw->type & 1)  //Boss fireball
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & (shFIREBALL)))
+                if(!(shield.misc1 & (shFIREBALL)))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shFIREBALL) != 0);
+                reflect = ((shield.misc2 & shFIREBALL) != 0);
                 break;
                 
             case wRefMagic:
                 if(itemid<0)
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & shMAGIC))
+                if(!(shield.misc1 & shMAGIC))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shMAGIC) != 0);
+                reflect = ((shield.misc2 & shMAGIC) != 0);
                 break;
                 
             case wRefBeam:
                 if(itemid<0)
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & shSWORD))
+                if(!(shield.misc1 & shSWORD))
                     return i;
                     
-                reflect = ((itemsbuf[itemid].misc2 & shSWORD) != 0);
+                reflect = ((shield.misc2 & shSWORD) != 0);
                 break;
                 
             case wRefRock:
                 if(itemid<0)
                     return i;
                     
-                if(!(itemsbuf[itemid].misc1 & shROCK))
+                if(!(shield.misc1 & shROCK))
                     return i;
                     
-                reflect = (itemsbuf[itemid].misc2 & shROCK);
+                reflect = (shield.misc2 & shROCK);
                 break;
                 
             default:
@@ -5825,7 +5903,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
             lw->onhit(false, 1+reflect, dir);
             lw->ignoreHero=true;
             lw->ignorecombo=-1;
-            sfx(itemsbuf[itemid].usesound,pan(x.getInt()));
+            sfx(shield.usesound,pan(x.getInt()));
         }
         
     return -1;
