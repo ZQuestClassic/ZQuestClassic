@@ -2858,8 +2858,8 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	bool shwtr = iwtr(ci, dx, dy, true);
 	bool pit = ispitfall(dx,dy);
 	
-	bool canwtr = (moveflags & FLAG_CAN_WATERWALK);
-	bool canpit = (moveflags & FLAG_CAN_PITWALK);
+	bool canwtr = (moveflags & FLAG_CAN_WATERWALK) || ((moveflags & FLAG_CAN_WATERDROWN) && kb);
+	bool canpit = (moveflags & FLAG_CAN_PITWALK) || ((moveflags & FLAG_CAN_PITFALL) && kb);
 	bool needwtr = (moveflags & FLAG_ONLY_WATERWALK);
 	bool needshwtr = (moveflags & FLAG_ONLY_SHALLOW_WATERWALK);
 	bool needpit = (moveflags & FLAG_ONLY_PITWALK);
