@@ -34,34 +34,9 @@ ListData::ListData(size_t numItems,
 	function<int32_t(size_t)> getValue)
 {
 	listItems.reserve(numItems);
+	ListFont = &font;
 	for(size_t index = 0; index < numItems; ++index)
 		listItems.emplace_back(move(getString(index)), getValue(index));
-}
-
-ListData::ListData(::ListData const& jwinldata, int32_t valoffs)
-{
-	int32_t sz;
-	jwinldata.listFunc(-1, &sz);
-	listItems.reserve(size_t(sz));
-	if (sz < 1) return;
-	for(size_t index = 0; index < size_t(sz); ++index)
-	{
-		string str(jwinldata.listFunc(index, NULL));
-		listItems.emplace_back(move(str), int32_t(index)+valoffs);
-	}
-}
-
-const char* ListData::jwinWrapper(int32_t index, int32_t* size, void* owner)
-{
-	ListData* cb=static_cast<ListData*>(owner);
-	
-	if(index >= 0)
-		return cb->getText(index).c_str();
-	else
-	{
-		*size = cb->size();
-		return nullptr;
-	}
 }
 
 ListData ListData::numbers(bool none, int32_t start, uint32_t count)
@@ -169,6 +144,47 @@ ListData ListData::combotype(bool numbered, bool skipNone)
 	}
 	return ls;
 }
+#ifdef IS_PLAYER
+
+ListData ListData::midiinfo()
+{
+	ListData ls;
+	for(int32_t i=0; i<MAXMIDIS; ++i)
+	{
+		if(!tunes[i].data) continue;
+		char const* midi_name = tunes[i].title;
+		ls.add(midi_name, i);
+	}
+	
+	return ls;
+}
+
+ListData ListData::screensaver_time()
+{
+	ListData ls = 
+	{
+		{ " 5 sec", 0 },
+		{ "15 sec", 1 },
+		{ "30 sec", 2 },
+		{ "45 sec", 3 },
+		{ " 1 min", 4 },
+		{ " 2 min", 5 },
+		{ " 3 min", 6 },
+		{ " 4 min", 7 },
+		{ " 5 min", 8 },
+		{ " 6 min", 9 },
+		{ " 7 min", 10 },
+		{ " 8 min", 11 },
+		{ " 9 min", 12 },
+		{ "10 min", 13 },
+		{ "Never", 14 }
+	};
+	
+	return ls;
+}
+
+
+#endif
 #ifdef IS_ZQUEST
 ListData ListData::mapflag(bool numbered, bool skipNone)
 {
@@ -333,8 +349,6 @@ ListData ListData::lweaptypes()
 
 ListData ListData::sfxnames(bool numbered)
 {
-	map<string, int32_t> vals;
-	
 	ListData ls;
 	ls.add("(None)", 0);
 	for(int32_t i=1; i<WAV_COUNT; ++i)
@@ -449,6 +463,38 @@ ListData ListData::shadowtypes()
 	{
 		ls.add(shadowstyle_str[q], q);
 	}
+	
+	return ls;
+}
+ListData ListData::warp_types(bool numbered)
+{
+	ListData ls;
+	
+	for(int32_t q = 0; q < MAXWARPTYPES; ++q)
+	{
+		char const* str = warptype_string[q];
+		if(numbered)
+		{
+			char* name = new char[strlen(str) + 6];
+			sprintf(name, "%s (%d)", str, q);
+			ls.add(name, q);
+			delete[] name;
+		}
+		else ls.add(str, q);
+	}
+	
+	return ls;
+}
+
+ListData ListData::warp_returns()
+{
+	ListData ls = 
+	{
+		{ "A", 0 },
+		{ "B", 1 },
+		{ "C", 2 },
+		{ "D", 3 }
+	};
 	
 	return ls;
 }

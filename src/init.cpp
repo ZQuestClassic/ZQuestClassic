@@ -84,7 +84,6 @@ public:
 
 extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
-extern const char *dmaplist(int32_t index, int32_t *list_size);
 extern int32_t onHelp();
 extern int32_t startdmapxy[6];
 extern void onInitOK();
@@ -958,8 +957,6 @@ char *walkstylelist(int32_t index, int32_t *list_size)
     *list_size=ws_max;
     return NULL;
 }
-
-ListData dmap_list(dmaplist, &font);
 
 //InitData
 

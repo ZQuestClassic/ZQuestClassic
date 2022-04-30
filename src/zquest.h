@@ -803,17 +803,7 @@ const char *roomslist(int32_t index, int32_t *list_size);
 const char *guyslist(int32_t index, int32_t *list_size);
 const char *msgslist(int32_t index, int32_t *list_size);
 
-//static char number_str_buf[32];
-//int32_t number_list_size=1;
-//bool number_list_zero=false;
-
 const char *numberlist(int32_t index, int32_t *list_size);
-
-//static char dmap_str_buf[37];
-//int32_t dmap_list_size=1;
-//bool dmap_list_zero=false;
-
-const char *dmaplist(int32_t index, int32_t *list_size);
 
 char *hexnumlist(int32_t index, int32_t *list_size);
 const char *maplist(int32_t index, int32_t *list_size);

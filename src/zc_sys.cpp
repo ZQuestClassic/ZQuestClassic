@@ -235,8 +235,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
         }
         else if(!bigfontproc)
         {
-//      ((ListData *)d[i].dp)->font = &sfont3;
-            ((ListData *)d[i].dp)->font = &lfont_l;
+            ((GUI::ListData *)d[i].dp)->ListFont = &lfont_l;
         }
         
         // Make checkboxes work
@@ -6630,68 +6629,68 @@ static DIALOG credits_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static ListData dmap_list(dmaplist, &font);
-
 static DIALOG goto_dlg[] =
 {
-    /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)                     (dp2) (dp3) */
-    { jwin_win_proc,       48,   25,   205,  100,  0,       0,       0,       D_EXIT,    0,        0, (void *) "Goto Location", NULL,  NULL },
-    { jwin_button_proc,    90,   176-78,  61,   21,   vc(14),  0,       13,     D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
-    { jwin_button_proc,    170,  176-78,  61,   21,   vc(14),  0,       27,     D_EXIT,    0,        0, (void *) "Cancel", NULL,  NULL },
-    { jwin_text_proc,      55,   129-75,  80,   8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "DMap:", NULL,  NULL },
-    { jwin_droplist_proc,      88,  126-75,  160,  16,   0,       0,       0,       0,         0,        0, (void *) &dmap_list, NULL,  NULL },
-    { jwin_text_proc,      55,   149-75,  80,   8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Screen:", NULL,  NULL },
-    { jwin_edit_proc,      132,  146-75,  91,   16,   0,       0,       0,       0,         2,        0,       NULL, NULL,  NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)					 (dp2) (dp3) */
+	{ jwin_win_proc,	   48,   25,   205,  100,  0,	   0,	   0,	   D_EXIT,	0,		0, (void *) "Goto Location", NULL,  NULL },
+	{ jwin_button_proc,	90,   176-78,  61,   21,   vc(14),  0,	   13,	 D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
+	{ jwin_button_proc,	170,  176-78,  61,   21,   vc(14),  0,	   27,	 D_EXIT,	0,		0, (void *) "Cancel", NULL,  NULL },
+	{ jwin_text_proc,	  55,   129-75,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "DMap:", NULL,  NULL },
+	{ jwin_droplist_proc,	  88,  126-75,  160,  16,   0,	   0,	   0,	   0,		 0,		0, NULL, NULL,  NULL },
+	{ jwin_text_proc,	  55,   149-75,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Screen:", NULL,  NULL },
+	{ jwin_edit_proc,	  132,  146-75,  91,   16,   0,	   0,	   0,	   0,		 2,		0,	   NULL, NULL,  NULL },
+	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
+	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
 int32_t onGoTo()
 {
-    bool music = false;
-    music = music;
-    sprintf(cheat_goto_screen_str,"%X",cheat_goto_screen);
-    
-    goto_dlg[0].dp2=lfont;
-    goto_dlg[4].d2=cheat_goto_dmap;
-    goto_dlg[6].dp=cheat_goto_screen_str;
-    
-    clear_keybuf();
-    
-    if(is_large)
-        large_dialog(goto_dlg);
-        
-    if(zc_popup_dialog(goto_dlg,4)==1)
-    {
-        cheat_goto_dmap=goto_dlg[4].d2;
-        cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
-        do_cheat_goto=true;
-    };
-    
-    return D_O_K;
+	bool music = false;
+	music = music;
+	sprintf(cheat_goto_screen_str,"%X",cheat_goto_screen);
+	
+	goto_dlg[0].dp2=lfont;
+	GUI::ListData DMList = GUI::ListData::dmaps(true);
+	goto_dlg[4].dp = &DMList;
+	goto_dlg[4].d2=cheat_goto_dmap;
+	goto_dlg[6].dp=cheat_goto_screen_str;
+	
+	clear_keybuf();
+	
+	if(is_large)
+		large_dialog(goto_dlg);
+		
+	if(zc_popup_dialog(goto_dlg,4)==1)
+	{
+		cheat_goto_dmap=goto_dlg[4].d2;
+		cheat_goto_screen=zc_min(zc_xtoi(cheat_goto_screen_str),0x7F);
+		do_cheat_goto=true;
+	};
+	
+	return D_O_K;
 }
 
 int32_t onGoToComplete()
 {
-    if(!Playing)
-    {
-        return D_O_K;
-    }
-    
-    system_pal();
-    music_pause();
-    pause_all_sfx();
-    show_mouse(screen);
-    onGoTo();
-    eat_buttons();
-    
-    zc_readrawkey(KEY_ESC);
-        
-    show_mouse(NULL);
-    game_pal();
-    music_resume();
-    resume_all_sfx();
-    return D_O_K;
+	if(!Playing)
+	{
+		return D_O_K;
+	}
+	
+	system_pal();
+	music_pause();
+	pause_all_sfx();
+	show_mouse(screen);
+	onGoTo();
+	eat_buttons();
+	
+	zc_readrawkey(KEY_ESC);
+		
+	show_mouse(NULL);
+	game_pal();
+	music_resume();
+	resume_all_sfx();
+	return D_O_K;
 }
 
 int32_t onCredits()
@@ -6755,37 +6754,6 @@ int32_t onCredits()
     return D_O_K;
 }
 
-const char *midilist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size=0;
-        
-        for(int32_t i=0; i<MAXMIDIS; i++)
-            if(tunes[i].data)
-                ++(*list_size);
-                
-        return NULL;
-    }
-    
-    int32_t i=0,m=0;
-    
-    while(m<=index && i<=MAXMIDIS)
-    {
-        if(tunes[i].data)
-            ++m;
-            
-        ++i;
-    }
-    
-    --i;
-    
-    if(i==MAXMIDIS && m<index)
-        return "(null)";
-        
-    return tunes[i].title;
-}
-
 /*  ------- MIDI info stuff -------- */
 
 char *text;
@@ -6797,15 +6765,15 @@ void get_info(int32_t index);
 
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int32_t d2 = d->d2;
-    int32_t ret = jwin_droplist_proc(msg,d,c);
-    
-    if(d2!=d->d2)
-    {
-        get_info(d->d2);
-    }
-    
-    return ret;
+	int32_t d2 = d->d2;
+	int32_t ret = jwin_droplist_proc(msg,d,c);
+
+	if(d2!=d->d2)
+	{
+		get_info(d->d2);
+	}
+
+	return ret;
 }
 
 int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -6898,14 +6866,12 @@ done:
     return ret;
 }
 
-static ListData midi_list(midilist, &font);
-
 static DIALOG midi_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)     (dp2) (dp3) */
     { jwin_win_proc,       8,    28,   304,  184,  0,       0,        0,       D_EXIT,    0,        0, (void *) "MIDI Info", NULL,  NULL },
     { jwin_text_proc,         32,   60,   40,   8,    vc(0),   vc(11),   0,       0,         0,        0, (void *) "Tune:", NULL,  NULL },
-    { d_midilist_proc,     80,   56,   192,  16,   0,       0,        0,       0,         0,        0, (void *) &midi_list, NULL,  NULL },
+    { d_midilist_proc,     80,   56,   192,  16,   0,       0,        0,       0,         0,        0,  NULL, NULL,  NULL },
     { jwin_textbox_proc,   15,   80,   290,  96,   0,       0,        0,       0,         0,        0,       NULL, NULL,  NULL },
     { d_listen_proc,       24,   183,  72,   21,   0,       0,        'l',     D_EXIT,    -2,       0, (void *) "&Listen", NULL,  NULL },
     { d_savemidi_proc,     108,  183,  72,   21,   0,       0,        's',     D_EXIT,    -3,       0, (void *) "&Save", NULL,  NULL },
@@ -6972,6 +6938,9 @@ int32_t onMIDICredits()
     get_info(0);
     
     dialog_running=true;
+    
+    GUI::ListData midinf = GUI::ListData::midiinfo();
+    midi_dlg[2].dp = &midinf;
     
     if(is_large)
         large_dialog(midi_dlg);
@@ -7908,26 +7877,6 @@ int32_t after_time()
     return MAX_IDLE + 1;
 }
 
-static const char *after_str[15] =
-{
-    " 5 sec", "15 sec", "30 sec", "45 sec", " 1 min", " 2 min", " 3 min",
-    " 4 min", " 5 min", " 6 min", " 7 min", " 8 min", " 9 min", "10 min",
-    "Never"
-};
-
-const char *after_list(int32_t index, int32_t *list_size)
-{
-    if(index < 0)
-    {
-        *list_size = 15;
-        return NULL;
-    }
-    
-    return after_str[index];
-}
-
-static ListData after__list(after_list, &font);
-
 static DIALOG scrsaver_dlg[] =
 {
     /* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)     (key)    (flags)    (d1)      (d2)     (dp)  (dp2)    (dp3) */
@@ -7936,7 +7885,7 @@ static DIALOG scrsaver_dlg[] =
     { jwin_text_proc,         60,   104,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Run After", NULL,  NULL },
     { jwin_text_proc,         60,   128,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Speed", NULL,  NULL },
     { jwin_text_proc,         60,   144,  48,   8,    vc(0),   vc(11),  0,       0,         0,        0, (void *) "Density", NULL,  NULL },
-    { jwin_droplist_proc,  144,  100,  96,   16,   0,       0,       0,       0,         0,        0, (void *) &after__list, NULL,  NULL },
+    { jwin_droplist_proc,  144,  100,  96,   16,   0,       0,       0,       0,         0,        0,   NULL, NULL,  NULL },
     { jwin_slider_proc,    144,  128,  116,  8,    vc(0),   jwin_pal[jcBOX],  0,       0,         6,        0,       NULL, NULL,  NULL },
     { jwin_slider_proc,    144,  144,  116,  8,    vc(0),   jwin_pal[jcBOX],  0,       0,         6,        0,       NULL, NULL,  NULL },
     { jwin_button_proc,    42,   170,  61,   21,   0,       0,       0,       D_EXIT,    0,        0, (void *) "OK", NULL,  NULL },
@@ -7949,6 +7898,8 @@ static DIALOG scrsaver_dlg[] =
 int32_t onScreenSaver()
 {
     scrsaver_dlg[0].dp2=lfont;
+    GUI::ListData aftertime = GUI::ListData::screensaver_time();
+    scrsaver_dlg[5].dp = &aftertime;
     scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = ss_after;
     scrsaver_dlg[6].d2 = ss_speed;
     scrsaver_dlg[7].d2 = ss_density;

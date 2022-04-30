@@ -43,35 +43,6 @@
 #include "zc_alleg.h"
 #include "tab_ctl.h"
 
-struct ListData
-{
-    constexpr ListData() noexcept:
-        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), owner(nullptr)
-    {}
-
-    ListData(const char *(*lf)(int32_t, int32_t*), FONT **f) noexcept:
-        unownedFunc(lf), ownedFunc(nullptr), font(f), owner(nullptr)
-    {}
-
-    ListData(const char *(*lf)(int32_t, int32_t*, void*), FONT **f, void* o) noexcept:
-        unownedFunc(nullptr), ownedFunc(lf), font(f), owner(o)
-    {}
-
-    const char* listFunc(int32_t index, int32_t* size) const
-    {
-        if(owner)
-            return ownedFunc(index, size, owner);
-        else
-            return unownedFunc(index, size);
-    }
-
-    const char *(*unownedFunc)(int32_t, int32_t *);
-    const char *(*ownedFunc)(int32_t, int32_t *, void *);
-
-    FONT **font;
-    void* owner;
-};
-
 #ifdef __cplusplus
 extern "C"
 {

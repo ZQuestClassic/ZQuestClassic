@@ -40,15 +40,19 @@ struct ListItem
 class ListData
 {
 public:
+	FONT** ListFont;
 	ListData(const ListData& other) = default;
 	ListData(ListData&& other) = default;
 	ListData(std::initializer_list<ListItem> listItems): listItems(listItems)
-	{}
+	{
+		ListFont = &font;
+	}
 
 	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
-	{}
-	
-	ListData(::ListData const& jwinldata, int32_t valoffs = 0);
+	{
+		ListFont = &font;
+	}
+
 
 	ListData(size_t numItems, std::function<std::string(size_t)> getString,
 		std::function<int32_t(size_t)> getValue);
@@ -56,12 +60,6 @@ public:
 	ListData& operator=(const ListData& other) = default;
 	ListData& operator=(ListData&& other) noexcept = default;
 
-	/* Returns a jwin ListData object for use in DIALOGs. */
-	inline ::ListData getJWin(FONT** font) const
-	{
-		// Not actually const, but it's never modified.
-		return ::ListData(jwinWrapper, font, const_cast<ListData*>(this));
-	}
 
 	inline size_t size() const
 	{
@@ -134,7 +132,6 @@ public:
 #ifndef IS_LAUNCHER
 	static ListData itemclass(bool numbered = false);
 	static ListData combotype(bool numbered = false, bool skipNone = false);
-	static ListData mapflag(bool numbered = false, bool skipNone = false);
 	static ListData counters(bool numbered = false, bool skipNone = false);
 	static ListData miscsprites();
 	static ListData bottletype();
@@ -150,8 +147,15 @@ public:
 	static ListData combodata_script();
 #endif
 #if IS_ZQUEST
-static ListData fonts();
-static ListData shadowtypes();
+	static ListData fonts();
+	static ListData shadowtypes();
+	static ListData warp_types(bool numbered = false);
+	static ListData warp_returns();
+	static ListData mapflag(bool numbered = false, bool skipNone = false);
+#endif
+#ifdef IS_PLAYER
+	static ListData midiinfo();
+	static ListData screensaver_time();
 #endif
 	
 	static ListData const& deftypes();
