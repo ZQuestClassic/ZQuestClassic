@@ -2785,7 +2785,7 @@ enemy::~enemy()
 
 bool enemy::is_move_paused()
 {
-	return (clk<0 || dying || stunclk || watch || ceiling || frozenclock );
+	return (clk<0 || dying || stunclk || watch || ceiling || frozenclock || fallclk || drownclk);
 }
 
 bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
@@ -2988,7 +2988,7 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	{
 		for(zfix tx = 0; bx+tx < rx; tx += 8)
 		{
-			if(scr_walkflag(bx+tx, ry+dy, special, -1, -1000, -1000, kb))
+			if(scr_walkflag(bx+tx, by+ty, special, -1, -1000, -1000, kb))
 				return false;
 		}
 		if(scr_walkflag(rx, by+ty, special, -1, -1000, -1000, kb))
