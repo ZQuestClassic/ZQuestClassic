@@ -194,7 +194,7 @@ bool item::animate(int32_t)
 			{
 				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
-					fallCombo = check_water();
+					drownCombo = check_water();
 				}
 			}
 		}
