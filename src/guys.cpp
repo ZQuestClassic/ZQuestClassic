@@ -2912,7 +2912,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	return false;
 }
 
-bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special)
+bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 {
 	if(!(dx || dy)) return true;
 	zfix bx = x+hxofs, by = y+hyofs; //left/top
@@ -2930,20 +2930,20 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special)
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(bx+dx, by+ty, special, left, bx+dx, by, false))
+				if(scr_walkflag(bx+dx, by+ty, special, left, bx+dx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(bx+dx, ry, special, left, bx+dx, by, false))
+			if(scr_walkflag(bx+dx, ry, special, left, bx+dx, by, kb))
 				return false;
 		}
 		else
 		{
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(rx+dx, by+ty, special, right, bx+dx, by, false))
+				if(scr_walkflag(rx+dx, by+ty, special, right, bx+dx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(rx+dx, ry, special, right, bx+dx, by, false))
+			if(scr_walkflag(rx+dx, ry, special, right, bx+dx, by, kb))
 				return false;
 		}
 	}
@@ -2954,32 +2954,57 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special)
 			special = (special==spw_clipbottomright)?spw_none:special;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, by+dy, special, up, bx, by+dy, false))
+				if(scr_walkflag(bx+tx, by+dy, special, up, bx, by+dy, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, by+dy, special, up, bx, by+dy, false))
+			if(scr_walkflag(rx, by+dy, special, up, bx, by+dy, kb))
 				return false;
 		}
 		else
 		{
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ry+dy, special, down, bx, by+dy, false))
+				if(scr_walkflag(bx+tx, ry+dy, special, down, bx, by+dy, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ry+dy, special, down, bx, by+dy, false))
+			if(scr_walkflag(rx, ry+dy, special, down, bx, by+dy, kb))
 				return false;
 		}
 	}
 	else
 	{
 		//!No diagonal checks.... this is a placeholder that might work?
-		return scr_canmove(dx, 0, special) && scr_canmove(dy, 0, special);
+		return scr_canmove(dx, 0, special, kb) && scr_canmove(dy, 0, special, kb);
 	}
 	return true;
 }
 
-bool enemy::movexy(zfix dx, zfix dy, int32_t special)
+bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
+{
+	zfix bx = dx+hxofs, by = dy+hyofs; //left/top
+	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
+	
+	for(zfix ty = 0; by+ty < ry; ty += 8)
+	{
+		for(zfix tx = 0; bx+tx < rx; tx += 8)
+		{
+			if(scr_walkflag(bx+tx, ry+dy, special, -1, -1000, -1000, kb))
+				return false;
+		}
+		if(scr_walkflag(rx, by+ty, special, -1, -1000, -1000, kb))
+			return false;
+	}
+	for(zfix tx = 0; bx+tx < rx; tx += 8)
+	{
+		if(scr_walkflag(bx+tx, ry, special, -1, -1000, -1000, kb))
+			return false;
+	}
+	if(scr_walkflag(rx, ry, special, -1, -1000, -1000, kb))
+		return false;
+	return true;
+}
+
+bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 {
 	bool ret = true;
 	if(dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
@@ -2990,7 +3015,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 		{
 			if(dx < 0)
 			{
-				if(movexy(-8, 0, special))
+				if(movexy(-8, 0, special, kb))
 					dx += 8;
 				else
 				{
@@ -3000,7 +3025,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 			}
 			else
 			{
-				if(movexy(8, 0, special))
+				if(movexy(8, 0, special, kb))
 					dx -= 8;
 				else
 				{
@@ -3013,7 +3038,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 		{
 			if(dy < 0)
 			{
-				if(movexy(0, -8, special))
+				if(movexy(0, -8, special, kb))
 					dy += 8;
 				else
 				{
@@ -3023,7 +3048,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 			}
 			else
 			{
-				if(movexy(0, 8, special))
+				if(movexy(0, 8, special, kb))
 					dy -= 8;
 				else
 				{
@@ -3036,20 +3061,20 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 	
 	if(dx)
 	{
-		if(scr_canmove(dx, 0, special))
+		if(scr_canmove(dx, 0, special, kb))
 			x += dx;
 		else
 		{
 			ret = false;
 			x.doTrunc();
 			dx.doTrunc();
-			if(scr_canmove(dx/abs(dx), 0, special)) //can move at all in the direction
+			if(scr_canmove(dx/abs(dx), 0, special, kb)) //can move at all in the direction
 			{
 				if(dx < 0)
 				{
 					while(dx < 0)
 					{
-						if(scr_canmove(dx, 0, special))
+						if(scr_canmove(dx, 0, special, kb))
 						{
 							x += dx;
 							break;
@@ -3061,7 +3086,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 				{
 					while(dx > 0)
 					{
-						if(scr_canmove(dx, 0, special))
+						if(scr_canmove(dx, 0, special, kb))
 						{
 							x += dx;
 							break;
@@ -3074,20 +3099,20 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 	}
 	if(dy)
 	{
-		if(scr_canmove(0, dy, special))
+		if(scr_canmove(0, dy, special, kb))
 			y += dy;
 		else
 		{
 			ret = false;
 			y.doTrunc();
 			dy.doTrunc();
-			if(scr_canmove(0, dy/abs(dy), special)) //can move at all in the direction
+			if(scr_canmove(0, dy/abs(dy), special, kb)) //can move at all in the direction
 			{
 				if(dy < 0)
 				{
 					while(dy < 0)
 					{
-						if(scr_canmove(0, dy, special))
+						if(scr_canmove(0, dy, special, kb))
 						{
 							y += dy;
 							break;
@@ -3099,7 +3124,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 				{
 					while(dy > 0)
 					{
-						if(scr_canmove(0, dy, special))
+						if(scr_canmove(0, dy, special, kb))
 						{
 							y += dy;
 							break;
@@ -3113,58 +3138,58 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special)
 	return ret;
 }
 
-bool enemy::moveDir(int32_t dir, zfix px, int32_t special)
+bool enemy::moveDir(int32_t dir, zfix px, int32_t special, bool kb)
 {
 	zfix diagrate = zslongToFix(7071);
 	switch(NORMAL_DIR(dir))
 	{
 		case up:
-			return movexy(0, -px, special);
+			return movexy(0, -px, special, kb);
 		case down:
-			return movexy(0, px, special);
+			return movexy(0, px, special, kb);
 		case left:
-			return movexy(-px, 0, special);
+			return movexy(-px, 0, special, kb);
 		case right:
-			return movexy(px, 0, special);
+			return movexy(px, 0, special, kb);
 		case r_up:
-			return movexy(px*diagrate, -px*diagrate, special);
+			return movexy(px*diagrate, -px*diagrate, special, kb);
 		case r_down:
-			return movexy(px*diagrate, px*diagrate, special);
+			return movexy(px*diagrate, px*diagrate, special, kb);
 		case l_up:
-			return movexy(-px*diagrate, -px*diagrate, special);
+			return movexy(-px*diagrate, -px*diagrate, special, kb);
 		case l_down:
-			return movexy(-px*diagrate, px*diagrate, special);
+			return movexy(-px*diagrate, px*diagrate, special, kb);
 	}
 	return false;
 }
 
-bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special)
+bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
 {
 	double v = degrees.getFloat() * PI / 180.0;
 	zfix dx = cos(v)*px, dy = sin(v)*px;
-	return movexy(dx, dy, special);
+	return movexy(dx, dy, special, kb);
 }
 
-bool enemy::can_movexy(zfix dx, zfix dy, int32_t special)
+bool enemy::can_movexy(zfix dx, zfix dy, int32_t special, bool kb)
 {
 	zfix tx = x, ty = y;
-	bool ret = movexy(dx, dy, special);
+	bool ret = movexy(dx, dy, special, kb);
 	x = tx;
 	y = ty;
 	return ret;
 }
-bool enemy::can_moveDir(int32_t dir, zfix px, int32_t special)
+bool enemy::can_moveDir(int32_t dir, zfix px, int32_t special, bool kb)
 {
 	zfix tx = x, ty = y;
-	bool ret = moveDir(dir, px, special);
+	bool ret = moveDir(dir, px, special, kb);
 	x = tx;
 	y = ty;
 	return ret;
 }
-bool enemy::can_moveAtAngle(zfix degrees, zfix px, int32_t special)
+bool enemy::can_moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
 {
 	zfix tx = x, ty = y;
-	bool ret = moveAtAngle(degrees, px, special);
+	bool ret = moveAtAngle(degrees, px, special, kb);
 	x = tx;
 	y = ty;
 	return ret;
@@ -7653,9 +7678,10 @@ bool enemy::runKnockback()
 	int32_t move = script_knockback_speed;
 	int32_t kb_dir = script_knockback_clk>>8;
 	--script_knockback_clk;
+	
 	while(move>0)
 	{
-		int32_t thismove = zc_min(8, move);
+		int32_t thismove = zc_min(get_bit(quest_rules, qr_OLD_SCRIPTED_KNOCKBACK)?8:4, move);
 		move -= thismove;
 		hitdir = kb_dir;
 		switch(kb_dir)
@@ -7686,40 +7712,116 @@ bool enemy::runKnockback()
 				x+=thismove;
 				break;
 		}
-		if(!canmove(kb_dir,(zfix)0,0,true))
+		if (get_bit(quest_rules, qr_OLD_SCRIPTED_KNOCKBACK))
 		{
-			script_knockback_clk=0;
-			clk3=0;
-			//Fix to grid
-			switch(kb_dir)
+			if(!canmove(kb_dir,(zfix)0,0,true))
 			{
-				case up:
-				case down:
-					break;
-				default:
-					if(x < 0)
-						x = 0;
-					else if((int32_t(x)&15) > 7)
-						x=(int32_t(x)&0xF0)+16;
-					else
-						x=(int32_t(x)&0xF0);
-					break;
+				script_knockback_clk=0;
+				clk3=0;
+				//Fix to grid
+				switch(kb_dir)
+				{
+					case up:
+					case down:
+						break;
+					default:
+						if(x < 0)
+							x = 0;
+						else if((int32_t(x)&15) > 7)
+							x=(int32_t(x)&0xF0)+16;
+						else
+							x=(int32_t(x)&0xF0);
+						break;
+				}
+				switch(kb_dir)
+				{
+					case left:
+					case right:
+						break;
+					default:
+						if(y < 0)
+							y = 0;
+						else if((int32_t(y)&15) > 7)
+							y=(int32_t(y)&0xF0)+16;
+						else
+							y=(int32_t(y)&0xF0);
+						break;
+				}
+				break;
 			}
-			switch(kb_dir)
+		}
+		else
+		{
+			if(!scr_canplace(x,y,0,true))
 			{
-				case left:
-				case right:
-					break;
-				default:
-					if(y < 0)
-						y = 0;
-					else if((int32_t(y)&15) > 7)
-						y=(int32_t(y)&0xF0)+16;
-					else
-						y=(int32_t(y)&0xF0);
-					break;
+				script_knockback_clk=0;
+				clk3=0;
+				//Fix to grid
+				if (OFFGRID_ENEMY)
+				{
+					switch(kb_dir)
+					{
+						case up:
+						case down:
+							break;
+						default:
+							if(x < 0)
+								x = 0;
+							else if((int32_t(x)&7) > 3)
+								x=(int32_t(x)&0xF8)+8;
+							else
+								x=(int32_t(x)&0xF8);
+							break;
+					}
+					switch(kb_dir)
+					{
+						case left:
+						case right:
+							break;
+						default:
+							if(y < 0)
+								y = 0;
+							else if((int32_t(y)&7) > 3)
+								y=(int32_t(y)&0xF8)+8;
+							else
+								y=(int32_t(y)&0xF8);
+							break;
+					}
+				}
+				else
+				{
+					switch(kb_dir)
+					{
+						case up:
+						case down:
+							break;
+						default:
+							if(x < 0)
+								x = 0;
+							else if((int32_t(x)&15) > 7)
+								x=(int32_t(x)&0xF0)+16;
+							else
+								x=(int32_t(x)&0xF0);
+							break;
+					}
+					switch(kb_dir)
+					{
+						case left:
+						case right:
+							break;
+						default:
+							if(y < 0)
+								y = 0;
+							else if((int32_t(y)&15) > 7)
+								y=(int32_t(y)&0xF0)+16;
+							else
+								y=(int32_t(y)&0xF0);
+							break;
+					}
+				}
+				break;
 			}
-			break;
+
 		}
 	}
 	return true;

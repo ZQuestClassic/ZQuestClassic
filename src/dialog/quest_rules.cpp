@@ -585,10 +585,9 @@ static const GUI::ListData compatRulesList
 		"Changes the timing of itemdata scripts. If this is disabled, they run"
 		" immediately before the Player's internal code. If this is enabled,"
 		" it will run immediately after."},
-	{ "No fairy spawn limit", qr_FIXED_FAIRY_LIMIT, 
-		"If this rule is enabled, there is no longer a single spawn limit on the number"
-		" of fairies onscreen. This lets enemies and other things drop fairies while"
-		" there is a fairy onscreen." },
+	{ "Old fairy spawn limit", qr_OLD_FAIRY_LIMIT, 
+		"If this rule is enabled, there is a limit of one fairy onscreen that enemies"
+		" and combos can drop."},
 	{ "Arrows clip farther into dungeon walls", qr_ARROWCLIP, 
 		"If this rule is enabled, arrows will still check for secrets even while they"
 		" are 'blinking out'. This lets them hit triggers on top of blocking combos and"
@@ -766,7 +765,9 @@ static const GUI::ListData compatRulesList
 	{ "Engine warps restart DMap Script", qr_WARPS_RESTART_DMAPSCRIPT,
 		"If enabled, engine warps will restart or clear the currently running dmap script, even if you warp to the same dmap you were just on." },
 	{ "DMap 0 hardcoded continue", qr_DMAP_0_CONTINUE_BUG,
-		"If enabled, entering DMap 0 will set your continue point to it's continue screen, even if it shouldn't." }
+		"If enabled, entering DMap 0 will set your continue point to it's continue screen, even if it shouldn't." },
+	{ "Old Scripted Knockback", qr_OLD_SCRIPTED_KNOCKBACK,
+		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." }
 };
 
 static const GUI::ListData enemiesRulesList

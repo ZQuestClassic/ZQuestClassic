@@ -792,7 +792,6 @@ void applyRuleset(int32_t newRuleset)
 			set_bit(quest_rules, qr_HOOKSHOTALLLAYER, 1);
 			set_bit(quest_rules, qr_ITEMCOMBINE_NEW_PSTR, 1);
 			set_bit(quest_rules, qr_ITEMCOMBINE_CONTINUOUS, 1);
-			set_bit(quest_rules, qr_FIXED_FAIRY_LIMIT, 1);
 			set_bit(quest_rules, qr_FAIRYDIR, 1);
 			set_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS, 1);
 			//}

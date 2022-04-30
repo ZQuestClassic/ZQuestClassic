@@ -41,7 +41,7 @@ int32_t fairy_cnt=0;
 
 item::~item()
 {
-	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_bit(quest_rules,qr_FIXED_FAIRY_LIMIT))
+	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_bit(quest_rules,qr_OLD_FAIRY_LIMIT))
 		killfairynew(*this);
 #ifndef IS_ZQUEST
 	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());

@@ -189,7 +189,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
 	
-    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_bit(quest_rules,qr_FIXED_FAIRY_LIMIT))
+    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_bit(quest_rules,qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
         {
