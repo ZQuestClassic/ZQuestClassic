@@ -11,6 +11,7 @@ extern char *sfx_string[];
 #ifdef IS_ZQUEST
 extern const char *msgfont_str[font_max];
 extern const char *shadowstyle_str[sstsMAX];
+extern int32_t numericalFlags;
 extern miscQdata misc;
 #define QMisc misc
 #else
@@ -168,7 +169,7 @@ ListData ListData::combotype(bool numbered, bool skipNone)
 	}
 	return ls;
 }
-
+#ifdef IS_ZQUEST
 ListData ListData::mapflag(bool numbered, bool skipNone)
 {
 	ListData ls;
@@ -187,20 +188,29 @@ ListData ListData::mapflag(bool numbered, bool skipNone)
 		else strcpy(name, module_str);
 		
 		string sname(name);
-		
-		vals[sname] = q;
-		names.insert(sname);
+		if (numericalFlags)
+		{
+			ls.add(sname, q);
+		}
+		else
+		{
+			vals[sname] = q;
+			names.insert(sname);
+		}
 		
 		delete[] name;
 	}
-	
-	for(auto it = names.begin(); it != names.end(); ++it)
+	if (!numericalFlags)
 	{
-		ls.add(*it, vals[*it]);
+		for(auto it = names.begin(); it != names.end(); ++it)
+		{
+			ls.add(*it, vals[*it]);
+		}
 	}
 	
 	return ls;
 }
+#endif
 
 ListData ListData::dmaps(bool numbered)
 {

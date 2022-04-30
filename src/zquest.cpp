@@ -450,7 +450,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 bool Vsync = false, ShowFPS = false;
@@ -30446,6 +30446,7 @@ int32_t main(int32_t argc,char **argv)
 	ShowSquares					= zc_get_config("zquest","showsquares",1);
 	ShowInfo					   = zc_get_config("zquest","showinfo",1);
 	skipLayerWarning			   = zc_get_config("zquest","skip_layer_warning",0);
+	numericalFlags			  	 = zc_get_config("zquest","numerical_flags",0);
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
@@ -32698,6 +32699,7 @@ int32_t save_config_file()
     set_config_int("zquest","invalid_static",InvalidStatic);
 //	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
     set_config_int("zquest","skip_layer_warning",skipLayerWarning);
+    set_config_int("zquest","numerical_flags",numericalFlags);
     set_config_int("zquest","tile_protection",TileProtection);
     set_config_int("zquest","showinfo",ShowInfo);
     set_config_int("zquest","show_grid",ShowGrid);

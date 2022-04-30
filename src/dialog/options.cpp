@@ -50,6 +50,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_DISABLE_LPAL_SHORTCUT] = DisableLPalShortcuts;
 	opts[OPT_DISABLE_COMPILE_CONSOLE] = DisableCompileConsole;
 	opts[OPT_SKIP_LAYER_WARNING] = skipLayerWarning;
+	opts[OPT_NUMERICAL_FLAG_LIST] = numericalFlags;
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -96,6 +97,7 @@ void OptionsDialog::saveOptions()
 	zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
 	DisableLPalShortcuts = opts[OPT_DISABLE_LPAL_SHORTCUT];
 	skipLayerWarning = opts[OPT_SKIP_LAYER_WARNING];
+	numericalFlags = opts[OPT_NUMERICAL_FLAG_LIST];
 	DisableCompileConsole = opts[OPT_DISABLE_COMPILE_CONSOLE];
 	load_mice(); //Reset cursor scale
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
@@ -273,7 +275,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
 					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
 					OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window"),
-					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning")
+					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
+					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
