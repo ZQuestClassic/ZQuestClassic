@@ -1351,8 +1351,18 @@
 #define COMBODCSET2FLAGS        1268
 #define HEROIMMORTAL            1269
 #define NPCCANFLICKER           1270
+#define NPCDROWNCLK             1271
+#define NPCDROWNCMB             1272
+#define ITEMDROWNCLK		1273
+#define ITEMDROWNCMB		1274
+#define LWPNDROWNCLK		1275
+#define LWPNDROWNCMB		1276
+#define EWPNDROWNCLK		1277
+#define EWPNDROWNCMB		1278
+#define HERODROWNCLK		1279
+#define HERODROWNCMB		1280
 
-#define LAST_BYTECODE           1271
+#define LAST_BYTECODE           1281
 
 //} END OF BYTECODE
 

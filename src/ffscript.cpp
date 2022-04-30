@@ -3285,6 +3285,14 @@ int32_t get_register(const int32_t arg)
 		case HEROFALLCMB:
 			ret = Hero.fallCombo * 10000;
 			break;
+			
+		case HERODROWNCLK:
+			ret = Hero.drownclk * 10000;
+			break;
+		
+		case HERODROWNCMB:
+			ret = Hero.drownCombo * 10000;
+			break;
 		
 		case HEROMOVEFLAGS:
 		{
@@ -4054,6 +4062,20 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				ret = ((item*)(s))->fallCombo * 10000;
+			}
+			break;
+		
+		case ITEMDROWNCLK:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->drownclk * 10000;
+			}
+			break;
+		
+		case ITEMDROWNCMB:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->drownCombo * 10000;
 			}
 			break;
 		
@@ -5623,6 +5645,20 @@ int32_t get_register(const int32_t arg)
 				ret = GuyH::getNPC()->fallCombo * 10000;
 			}
 			break;
+			
+		case NPCDROWNCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Drowning") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->drownclk * 10000;
+			}
+			break;
+		
+		case NPCDROWNCMB:
+			if(GuyH::loadNPC(ri->guyref, "npc->DrownCombo") == SH::_NoError)
+			{
+				ret = GuyH::getNPC()->drownCombo * 10000;
+			}
+			break;
 		
 		case NPCMOVEFLAGS:
 		{
@@ -6085,6 +6121,20 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		
+		case LWPNDROWNCLK:
+			if(0!=(s=checkLWpn(ri->lwpn,"Drowning")))
+			{
+				ret = ((weapon*)(s))->drownclk * 10000;
+			}
+			break;
+		
+		case LWPNDROWNCMB:
+			if(0!=(s=checkLWpn(ri->lwpn,"DrownCombo")))
+			{
+				ret = ((weapon*)(s))->drownCombo * 10000;
+			}
+			break;
+		
 		case LWPNMOVEFLAGS:
 		{
 			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
@@ -6507,6 +6557,20 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
 			{
 				ret = ((weapon*)(s))->fallCombo * 10000;
+			}
+			break;
+		
+		case EWPNDROWNCLK:
+			if(0!=(s=checkEWpn(ri->ewpn,"Drowning")))
+			{
+				ret = ((weapon*)(s))->drownclk * 10000;
+			}
+			break;
+		
+		case EWPNDROWNCMB:
+			if(0!=(s=checkEWpn(ri->ewpn,"DrownCombo")))
+			{
+				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
 		
@@ -12145,6 +12209,23 @@ void set_register(const int32_t arg, const int32_t value)
 		case HEROFALLCMB:
 			Hero.fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			break;
+		case HERODROWNCLK:
+		{
+			int32_t val = vbound(value/10000,0,70);
+			if(val)
+			{
+				if (Hero.action != lavadrowning) Hero.setAction(drowning);
+			}
+			else if(Hero.action == drowning || Hero.action == lavadrowning)
+			{
+				Hero.setAction(none);
+			}
+			Hero.drownclk = val;
+			break;
+		}
+		case HERODROWNCMB:
+			Hero.drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			break;
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
@@ -13075,6 +13156,24 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				((item*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case ITEMDROWNCLK:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				if(((item*)(s))->drownclk != 0 && value == 0)
+				{
+					((item*)(s))->cs = ((item*)(s))->old_cset;
+					((item*)(s))->tile = ((item*)(s))->o_tile;
+				}
+				else if(((item*)(s))->drownclk == 0 && value != 0) ((item*)(s))->old_cset = ((item*)(s))->cs;
+				((item*)(s))->drownclk = vbound(value/10000,0,70);
+			}
+			break;
+		case ITEMDROWNCMB:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMMOVEFLAGS:
@@ -14279,6 +14378,24 @@ void set_register(const int32_t arg, const int32_t value)
 				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
+		case LWPNDROWNCLK:
+			if(0!=(s=checkLWpn(ri->lwpn,"Drowning")))
+			{
+				if(((weapon*)(s))->drownclk != 0 && value == 0)
+				{
+					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+				}
+				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
+			}
+			break;
+		case LWPNDROWNCMB:
+			if(0!=(s=checkLWpn(ri->lwpn,"DrownCombo")))
+			{
+				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
 		case LWPNMOVEFLAGS:
 		{
 			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
@@ -14687,6 +14804,24 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"FallCombo")))
 			{
 				((weapon*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case EWPNDROWNCLK:
+			if(0!=(s=checkEWpn(ri->ewpn,"Drowning")))
+			{
+				if(((weapon*)(s))->drownclk != 0 && value == 0)
+				{
+					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
+				}
+				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
+			}
+			break;
+		case EWPNDROWNCMB:
+			if(0!=(s=checkEWpn(ri->ewpn,"DrownCombo")))
+			{
+				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case EWPNMOVEFLAGS:
@@ -15488,6 +15623,24 @@ void set_register(const int32_t arg, const int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
 			{
 				GuyH::getNPC()->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+			}
+			break;
+		case NPCDROWNCLK:
+			if(GuyH::loadNPC(ri->guyref, "npc->Drowning") == SH::_NoError)
+			{
+				if(GuyH::getNPC()->drownclk != 0 && value == 0)
+				{
+					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
+				}
+				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
+				GuyH::getNPC()->drownclk = vbound(value/10000,0,70);
+			}
+			break;
+		case NPCDROWNCMB:
+			if(GuyH::loadNPC(ri->guyref, "npc->DrowningCombo") == SH::_NoError)
+			{
+				GuyH::getNPC()->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case NPCMOVEFLAGS:
@@ -36218,6 +36371,16 @@ script_variable ZASMVars[]=
 	{ "COMBODCSET2FLAGS", COMBODCSET2FLAGS, 0, 0 },
 	{ "HEROIMMORTAL", HEROIMMORTAL, 0, 0 },
 	{ "NPCCANFLICKER", NPCCANFLICKER, 0, 0 },
+	{ "NPCDROWNCLK", NPCDROWNCLK, 0, 0 },
+	{ "NPCDROWNCMB", NPCDROWNCMB, 0, 0 },
+	{ "ITEMDROWNCLK", ITEMDROWNCLK, 0, 0 },
+	{ "ITEMDROWNCMB", ITEMDROWNCMB, 0, 0 },
+	{ "LWPNDROWNCLK", LWPNDROWNCLK, 0, 0 },
+	{ "LWPNDROWNCMB", LWPNDROWNCMB, 0, 0 },
+	{ "EWPNDROWNCLK", EWPNDROWNCLK, 0, 0 },
+	{ "EWPNDROWNCMB", EWPNDROWNCMB, 0, 0 },
+	{ "HERODROWNCLK", EWPNDROWNCMB, 0, 0 },
+	{ "HERODROWNCMB", EWPNDROWNCMB, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

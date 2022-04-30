@@ -4575,7 +4575,18 @@ enum ASM_DEFINE
 #define HEROIMMORTAL            0x142B
 #define NPCCANFLICKER           0x142C
 
-#define NUMVARIABLES         	0x142D
+#define NPCDROWNCLK		0x142D
+#define NPCDROWNCMB		0x142E
+#define ITEMDROWNCLK		0x142F
+#define ITEMDROWNCMB		0x1430
+#define LWPNDROWNCLK		0x1431
+#define LWPNDROWNCMB		0x1432
+#define EWPNDROWNCLK		0x1433
+#define EWPNDROWNCMB		0x1434
+#define HERODROWNCLK		0x1435
+#define HERODROWNCMB		0x1436
+
+#define NUMVARIABLES         	0x1437
 
 //} End variables
 

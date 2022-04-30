@@ -222,6 +222,7 @@ public:
 		didstuff, //played the whistle? used the blue candle?
 		blowcnt,  //number of times whistle blown on this screen.
 		drownclk, //drowning timeout.
+		drownCombo, //drowning timeout.
 		stepoutindex, // where to step out when in a passageway
 		stepoutwr, // which warp return to use for a passageway
 		stepoutdmap, // which dmap the passageway exits to

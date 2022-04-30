@@ -591,7 +591,7 @@ void HeroClass::resetflags(bool all)
     attackclk=0;
     stomping=false;
     reset_swordcharge();
-    diveclk=drownclk=0;
+    diveclk=drownclk=drownCombo=0;
     action=none; FFCore.setHeroAction(none);
     conveyor_flags=0;
     magiccastclk=0;
@@ -8344,6 +8344,7 @@ bool HeroClass::animate(int32_t)
 			int32_t water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			int32_t damage = combobuf[water].attributes[0]/10000L;
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
+			drownCombo = 0;
 			if (combobuf[water].type != cWATER) damage = 4;
 			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			go_respawn_point();
@@ -20444,6 +20445,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{
+			if(!(ladderx+laddery)) drownCombo = water;
 			if (combobuf[water].usrflags&cflag1) Drown(1);
 			else Drown();
 		}
@@ -22233,6 +22235,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	// Stop Hero from drowning!
 	if(action==drowning || action==lavadrowning || action==sidedrowning)
 	{
+		drownclk=0;
 		drownclk=0;
 		action=none; FFCore.setHeroAction(none);
 	}
