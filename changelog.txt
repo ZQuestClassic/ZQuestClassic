@@ -1,5 +1,17 @@
 // 2.55 Change Log
-// Updated 29th April, 2022
+// Updated 1st May, 2022
+
+Fix itemclass zinfo not refreshing on opening subscreen editor
+	( EmilyV, May 1, 2022 )
+
+Stomp boots can hit multiple enemies, and stunned/clocked enemies.
+	( Deedee, May 1, 2022 )
+
+Fix fairy spawning limit QR being reversed
+Fix scripted `npc->Knockback()` clipping into walls
+Add `->Drowning` and `->DrownCombo` access for scripts
+Add option to sort mapflags by ID
+	( Deedee, Apr 30, 2022 )
 
 Shields can now be configured to block different sides
 	( EmilyV, Apr 29, 2022 )
