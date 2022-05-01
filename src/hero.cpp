@@ -6223,19 +6223,20 @@ killweapon:
 	}
 	
 	if(action==rafting || action==freeze || action==sideswimfreeze ||
-			action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning || superman || !(scriptcoldet&1) || fallclk)
+			action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning)
 		return;
-		
-	int32_t hit2 = diagonalMovement?GuyHit(x+4,y+4,z,8,8,hzsz):GuyHit(x+7,y+7,z,2,2,hzsz);
 	
-	
-	
-	if(hit2!=-1)
+	int32_t hit2 = -1;
+	do
 	{
-		hithero(hit2);
-		return;
-	}
-	
+		hit2 = diagonalMovement?GuyHitFrom(hit2+1,x+4,y+4,z,8,8,hzsz):GuyHit(hit2+1,x+7,y+7,z,2,2,hzsz);
+		
+		if(hit2!=-1)
+		{
+			if (hithero(hit2) == 0) return;
+		}
+	} while (hit2 != -1);
+	if (superman || !(scriptcoldet&1) || fallclk) return;
 	hit2 = LwpnHit();
 	
 	if(hit2!=-1)
@@ -6254,17 +6255,17 @@ killweapon:
 		((weapon*)Lwpns.spr(hit2))->onhit(false);
 		
 		if (IsSideSwim())
-	{
-		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-	}
+		{
+			action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
+		}
 		else if(action==swimming || hopclk==0xFF)
-	{
+		{
 			action=swimhit; FFCore.setHeroAction(swimhit);
-	}
+		}
 		else
-	{
+		{
 			action=gothit; FFCore.setHeroAction(gothit);
-	}
+		}
 			
 		hclk=48;
 		
@@ -6586,7 +6587,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	return false;
 }
 
-void HeroClass::hithero(int32_t hit2)
+int32_t HeroClass::hithero(int32_t hit2)
 {
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
@@ -6615,10 +6616,15 @@ void HeroClass::hithero(int32_t hit2)
 			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid);
 		}
 		
-		return;
+		return -1;
 	}
 	else if(superman || !(scriptcoldet&1) || fallclk)
-		return;
+		return 0;
+	else if (!(((enemy*)guys.spr(hit2))->stunclk==0 &&  ((enemy*)guys.spr(hit2))->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(hit2))->fading != fade_flicker)
+			&&(((enemy*)guys.spr(hit2))->d->family != eeGUY || ((enemy*)guys.spr(hit2))->dmisc1)))
+	{
+		return -1;
+	}
 	else if(NayrusLoveShieldClk<=0)
 	{
 		int32_t ringpow = ringpower(enemy_dp(hit2));
@@ -6659,7 +6665,7 @@ void HeroClass::hithero(int32_t hit2)
 	
 	switch(((enemy*)guys.spr(hit2))->family)
 	{
-	case eeWALLM:
+		case eeWALLM:
 		if(((enemy*)guys.spr(hit2))->hp>0)
 		{
 			GrabHero(hit2);
@@ -6671,65 +6677,66 @@ void HeroClass::hithero(int32_t hit2)
 		
 		//case eBUBBLEST:
 		//case eeBUBBLE:
-	case eeWALK:
-	{
-		int32_t itemid = current_item_id(itype_whispring);
-		//I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
-		int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
-		int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
-		
-		switch(dm7)
+		case eeWALK:
 		{
-		case e7tTEMPJINX:
-			if(dm8==0 || dm8==2)
-				if(swordclk>=0 && !(sworddivisor==0))
-					swordclk=150;
+			int32_t itemid = current_item_id(itype_whispring);
+			//I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
+			int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
+			int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
+			
+			switch(dm7)
+			{
+			case e7tTEMPJINX:
+				if(dm8==0 || dm8==2)
+					if(swordclk>=0 && !(sworddivisor==0))
+						swordclk=150;
+						
+				if(dm8==1 || dm8==2)
+					if(itemclk>=0 && !(itemdivisor==0))
+						itemclk=150;
+						
+				break;
+				
+			case e7tPERMJINX:
+				if(dm8==0 || dm8==2)
+					if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
 					
-			if(dm8==1 || dm8==2)
-				if(itemclk>=0 && !(itemdivisor==0))
-					itemclk=150;
+				if(dm8==1 || dm8==2)
+					if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
 					
-			break;
-			
-		case e7tPERMJINX:
-			if(dm8==0 || dm8==2)
-				if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
+				break;
 				
-			if(dm8==1 || dm8==2)
-				if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
+			case e7tUNJINX:
+				if(dm8==0 || dm8==2)
+					swordclk=0;
+					
+				if(dm8==1 || dm8==2)
+					itemclk=0;
+					
+				break;
 				
-			break;
-			
-		case e7tUNJINX:
-			if(dm8==0 || dm8==2)
-				swordclk=0;
+			case e7tTAKEMAGIC:
+				game->change_dmagic(-dm8*game->get_magicdrainrate());
+				break;
 				
-			if(dm8==1 || dm8==2)
-				itemclk=0;
+			case e7tTAKERUPEES:
+				game->change_drupy(-dm8);
+				break;
 				
-			break;
+			case e7tDRUNK:
+				drunkclk += dm8;
+				break;
+			}
 			
-		case e7tTAKEMAGIC:
-			game->change_dmagic(-dm8*game->get_magicdrainrate());
-			break;
-			
-		case e7tTAKERUPEES:
-			game->change_drupy(-dm8);
-			break;
-			
-		case e7tDRUNK:
-			drunkclk += dm8;
-			break;
-		}
-		
-		if(dm7 >= e7tEATITEMS)
-		{
-			EatHero(hit2);
-			inlikelike=(dm7 == e7tEATHURT ? 2:1);
-			action=none; FFCore.setHeroAction(none);
+			if(dm7 >= e7tEATITEMS)
+			{
+				EatHero(hit2);
+				inlikelike=(dm7 == e7tEATHURT ? 2:1);
+				action=none; FFCore.setHeroAction(none);
+			}
 		}
 	}
-	}
+	return 0;
 }
 
 void HeroClass::addsparkle(int32_t wpn)

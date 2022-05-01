@@ -19497,6 +19497,19 @@ int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_
 	return -1;
 }
 
+int32_t GuyHitFrom(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz)
+{
+	for(int32_t i=zc_max(0, index); i<guys.Count(); i++)
+	{
+		if(guys.spr(i)->hit(tx,ty,tz,txsz,tysz,tzsz))
+		{
+			return i;
+		}
+	}
+   
+	return -1;
+}
+
 // For Hero's hit detection. Count them if they are dying.
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz)
 {
