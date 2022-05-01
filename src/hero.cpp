@@ -6223,7 +6223,7 @@ killweapon:
 	}
 	
 	if(action==rafting || action==freeze || action==sideswimfreeze ||
-			action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning || superman || !(scriptcoldet&1) || fallclk)
+			action==casting || action==sideswimcasting || action==drowning || action==lavadrowning || action==sidedrowning)
 		return;
 	
 	int32_t hit2 = -1;
@@ -6236,6 +6236,7 @@ killweapon:
 			if (hithero(hit2) == 0) return;
 		}
 	} while (hit2 != -1);
+	if (superman || !(scriptcoldet&1) || fallclk) return;
 	hit2 = LwpnHit();
 	
 	if(hit2!=-1)
@@ -6619,6 +6620,11 @@ int32_t HeroClass::hithero(int32_t hit2)
 	}
 	else if(superman || !(scriptcoldet&1) || fallclk)
 		return 0;
+	else if (!(((enemy*)guys.spr(hit2))->stunclk==0 &&  ((enemy*)guys.spr(hit2))->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(hit2))->fading != fade_flicker)
+			&&(((enemy*)guys.spr(hit2))->d->family != eeGUY || ((enemy*)guys.spr(hit2))->dmisc1)))
+	{
+		return -1;
+	}
 	else if(NayrusLoveShieldClk<=0)
 	{
 		int32_t ringpow = ringpower(enemy_dp(hit2));

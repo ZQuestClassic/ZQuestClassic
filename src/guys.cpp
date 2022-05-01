@@ -19503,11 +19503,7 @@ int32_t GuyHitFrom(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,i
 	{
 		if(guys.spr(i)->hit(tx,ty,tz,txsz,tysz,tzsz))
 		{
-			if(((enemy*)guys.spr(i))->stunclk==0 &&  ((enemy*)guys.spr(i))->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(i))->fading != fade_flicker)
-					&&(((enemy*)guys.spr(i))->d->family != eeGUY || ((enemy*)guys.spr(i))->dmisc1))
-			{
-				return i;
-			}
+			return i;
 		}
 	}
    
