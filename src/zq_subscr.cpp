@@ -1471,8 +1471,7 @@ int32_t sso_properties(subscreen_object *tempsso)
     replacedp(sso_properties_dlg[168],x_str);
     x_stri=168;
     
-    if(biic_cnt==-1)
-        build_biic_list();
+    build_biic_list();
         
     if(is_large && !sso_properties_dlg[0].d1)
     {
