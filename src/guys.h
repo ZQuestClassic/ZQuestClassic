@@ -883,6 +883,7 @@ void kill_em_all();
 bool can_kill_em_all();
 // For Hero's hit detection. Don't count them if they are stunned or are guys.
 int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+int32_t GuyHitFrom(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 // For Hero's hit detection. Count them if they are dying.
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 bool hasMainGuy();
