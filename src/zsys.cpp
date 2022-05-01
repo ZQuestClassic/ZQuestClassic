@@ -176,18 +176,6 @@ char *snapshotformat_str[ssfmtMAX][2]=
     { (char *)"TGA", (char *)"tga"},
 };
 
-const char *snapshotformatlist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,ssfmtMAX);
-        return snapshotformat_str[index][0];
-    }
-    
-    *list_size=ssfmtMAX;
-    return NULL;
-}
-
 
 //Allegro's make_relative_filename doesn't handle uppercase/lowercase too well for drive letters
 char *zc_make_relative_filename(char *dest, const char *path, const char *filename, int32_t size)

@@ -210,24 +210,6 @@ static const GUI::ListData asRetentionList {
 	{ " 9", 8 },
 	{ "10", 9 }
 };
-static const GUI::ListData colorList {
-	{ "Black", 0 },
-	{ "Blue", 1 },
-	{ "Green", 2 },
-	{ "Cyan", 3 },
-	{ "Red", 4 },
-	{ "Magenta", 5 },
-	{ "Brown", 6 },
-	{ "Light Gray", 7 },
-	{ "Dark Gray", 8 },
-	{ "Light Blue", 9 },
-	{ "Light Green", 10 },
-	{ "Light Cyan", 11 },
-	{ "Light Red", 12 },
-	{ "Light Magenta", 13 },
-	{ "Yellow", 14 },
-	{ "White", 15 }
-};
 static const GUI::ListData snapFormatList {
 	{ "BMP", 0 },
 	{ "GIF", 1 },
@@ -283,7 +265,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
 					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
 					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
-					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
+					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", color_list),
 					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
 					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
 					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999)

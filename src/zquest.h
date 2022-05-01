@@ -558,6 +558,11 @@ void build_binpcs_list();
 extern script_struct binpcs[NUMSCRIPTGUYS]; //item script
 extern int32_t binpcs_cnt;
 
+//generic script list for editors
+void build_bigenericscripts_list();
+extern script_struct bigenericscripts[NUMSCRIPTGUYS]; //item script
+extern int32_t bigenericscripts_cnt;
+
 //lweapon script list for editors
 void build_bilweapons_list();
 extern script_struct bilweapons[NUMSCRIPTWEAPONS]; //item script

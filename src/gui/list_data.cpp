@@ -65,12 +65,12 @@ ListData ListData::itemclass(bool numbered)
 		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
 		char const* itname = ZI.getItemClassName(i);
-        if(i < itype_last || itname[0])
+		if(i < itype_last || itname[0])
 		{
-            char* name = new char[strlen(itname) + 7];
-            if(numbered)
+			char* name = new char[strlen(itname) + 7];
+			if(numbered)
 				sprintf(name, "%s (%03d)", itname, i);
-            else strcpy(name, itname);
+			else strcpy(name, itname);
 			string sname(name);
 			
 			fams[sname] = i;
@@ -184,48 +184,6 @@ ListData ListData::screensaver_time()
 }
 
 
-#endif
-#ifdef IS_ZQUEST
-ListData ListData::mapflag(bool numbered, bool skipNone)
-{
-	ListData ls;
-	map<string, int32_t> vals;
-	set<string> names;
-	
-	if(!skipNone) ls.add("(None)", 0);
-	for(int32_t q = 1; q < mfMAX; ++q)
-	{
-		if(!ZI.isUsableMapFlag(q))
-			continue; //Hidden
-		char const* module_str = ZI.getMapFlagName(q);
-		char* name = new char[strlen(module_str) + 7];
-		if(numbered)
-			sprintf(name, "%s (%03d)", module_str, q);
-		else strcpy(name, module_str);
-		
-		string sname(name);
-		if (numericalFlags)
-		{
-			ls.add(sname, q);
-		}
-		else
-		{
-			vals[sname] = q;
-			names.insert(sname);
-		}
-		
-		delete[] name;
-	}
-	if (!numericalFlags)
-	{
-		for(auto it = names.begin(); it != names.end(); ++it)
-		{
-			ls.add(*it, vals[*it]);
-		}
-	}
-	
-	return ls;
-}
 #endif
 
 ListData ListData::dmaps(bool numbered)
@@ -380,6 +338,212 @@ static void load_scriptnames(set<string> &names, map<string, int32_t> &vals,
 	}
 }
 
+ListData ListData::script_slottype()
+{
+	ListData ls = 
+	{
+		{ "FFC", 0 },
+		{ "Global", 1 },
+		{ "Item", 2 },
+		{ "NPC", 3 },
+		{ "LWeapon", 4 },
+		{ "EWeapon", 5 },
+		{ "Hero", 6 },
+		{ "DMap", 7 },
+		{ "Screen", 8 },
+		{ "ItemSprite", 9 },
+		{ "Combo", 10 },
+		{ "Generic", 11 }
+	};
+	
+	return ls;
+}
+
+//{ Start type-specific import dlgs
+static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
+static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
+static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
+static ListData gscript_sel_dlg_list(gscriptlist2, &font);
+static char npcscript_str_buf2[32];
+const char *npcscriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,254);
+		
+		if(npcmap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, npcmap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+		
+		sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
+		return npcscript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTGUYS-1);
+	return NULL;
+}
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
+static char lweaponscript_str_buf2[32];
+const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,254);
+		
+		if(lwpnmap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, lwpnmap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+		
+		sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
+		return lweaponscript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTWEAPONS-1);
+	return NULL;
+}
+static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
+static char eweaponscript_str_buf2[32];
+const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,254);
+		
+		if(ewpnmap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, ewpnmap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+		
+		sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
+		return eweaponscript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTWEAPONS-1);
+	return NULL;
+}
+static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
+static char playerscript_str_buf2[32];
+const char *playerscriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,3);
+		
+		if(playermap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, playermap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+	
+	if(index==0)
+			sprintf(playerscript_str_buf2,"Init: %s", buf);
+			
+		if(index==1)
+			sprintf(playerscript_str_buf2,"Active: %s", buf);
+	
+	if(index==2)
+			sprintf(playerscript_str_buf2,"Death: %s", buf);
+			
+		
+		//sprintf(playerscript_str_buf2,"%d: %s",index+1, buf);
+		return playerscript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTPLAYER-1);
+	return NULL;
+}
+static char itemspritescript_str_buf2[32];
+const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,254);
+		
+		if(itemspritemap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, itemspritemap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+		
+		sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+		return itemspritescript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTSITEMSPRITE-1);
+	return NULL;
+}
+static ListData playerscript_sel_dlg_list(playerscriptlist2, &font);
+static char dmapscript_str_buf2[32];
+const char *dmapscriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,254);
+		
+		if(dmapmap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, dmapmap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+		
+		sprintf(dmapscript_str_buf2,"%d: %s",index+1, buf);
+		return dmapscript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTSDMAP-1);
+	return NULL;
+}
+static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
+static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
+static char screenscript_str_buf2[32];
+const char *screenscriptlist2(int32_t index, int32_t *list_size)
+{
+	if(index>=0)
+	{
+		char buf[20];
+		bound(index,0,254);
+		
+		if(screenmap[index].scriptname=="")
+			strcpy(buf, "<none>");
+		else
+		{
+			strncpy(buf, screenmap[index].scriptname.c_str(), 19);
+			buf[19]='\0';
+		}
+		
+		sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
+		return screenscript_str_buf2;
+	}
+	
+	*list_size=(NUMSCRIPTSCREEN-1);
+	return NULL;
+}
+static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
+//} End type-specific import dlgs
+
 ListData ListData::itemdata_script()
 {
 	map<string, int32_t> vals;
@@ -432,12 +596,103 @@ ListData ListData::lweapon_script()
 	return ls;
 }
 
+ListData ListData::eweapon_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,ewpnmap,NUMSCRIPTWEAPONS-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
 ListData ListData::combodata_script()
 {
 	map<string, int32_t> vals;
 	set<string> names;
 	
 	load_scriptnames(names,vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::screen_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,screenmap,NUMSCRIPTSCREEN-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::dmap_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,dmapmap,NUMSCRIPTSDMAP-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::player_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,playermap,NUMSCRIPTPLAYER-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::npc_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,npcmap,NUMSCRIPTGUYS-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::global_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,globalmap,NUMSCRIPTGLOBAL-1);
+	
+	ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+ListData ListData::generic_script()
+{
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	load_scriptnames(names,vals,genericmap,NUMSCRIPTSGENERIC-1);
 	
 	ListData ls;
 	ls.add("(None)", 0);
@@ -494,6 +749,71 @@ ListData ListData::warp_returns()
 		{ "B", 1 },
 		{ "C", 2 },
 		{ "D", 3 }
+	};
+	
+	return ls;
+}
+ListData ListData::mapflag(bool numbered, bool skipNone)
+{
+	ListData ls;
+	map<string, int32_t> vals;
+	set<string> names;
+	
+	if(!skipNone) ls.add("(None)", 0);
+	for(int32_t q = 1; q < mfMAX; ++q)
+	{
+		if(!ZI.isUsableMapFlag(q))
+			continue; //Hidden
+		char const* module_str = ZI.getMapFlagName(q);
+		char* name = new char[strlen(module_str) + 7];
+		if(numbered)
+			sprintf(name, "%s (%03d)", module_str, q);
+		else strcpy(name, module_str);
+		
+		string sname(name);
+		if (numericalFlags)
+		{
+			ls.add(sname, q);
+		}
+		else
+		{
+			vals[sname] = q;
+			names.insert(sname);
+		}
+		
+		delete[] name;
+	}
+	if (!numericalFlags)
+	{
+		for(auto it = names.begin(); it != names.end(); ++it)
+		{
+			ls.add(*it, vals[*it]);
+		}
+	}
+	
+	return ls;
+}
+
+ListData ListData::color_list()
+{
+	ListData ls = 
+	{
+		{"Black", 0},
+		{"Blue", 1},
+		{"Green", 2},
+		{"Cyan", 3},
+		{"Red", 4},
+		{"Magenta", 5},
+		{"Brown", 6},
+		{"Light Gray", 7},
+		{"Dark Gray", 8},
+		{"Light Blue", 9},
+		{"Light Green", 10},
+		{"Light Cyan", 11},
+		{"Light Red", 12},
+		{"Light Magenta", 13},
+		{"Yellow", 14},
+		{"White", 15}
 	};
 	
 	return ls;

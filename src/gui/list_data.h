@@ -140,11 +140,20 @@ public:
 	static ListData lweaptypes();
 	static ListData sfxnames(bool numbered = false);
 	
+	static ListData script_slottype();
+	
 	static ListData itemdata_script();
 	static ListData itemsprite_script();
 	static ListData ffc_script();
 	static ListData lweapon_script();
+	static ListData eweapon_script();
 	static ListData combodata_script();
+	static ListData screen_script();
+	static ListData dmap_script();
+	static ListData player_script();
+	static ListData npc_script();
+	static ListData global_script();
+	static ListData generic_script();
 #endif
 #if IS_ZQUEST
 	static ListData fonts();
@@ -152,6 +161,7 @@ public:
 	static ListData warp_types(bool numbered = false);
 	static ListData warp_returns();
 	static ListData mapflag(bool numbered = false, bool skipNone = false);
+	static ListData color_list();
 #endif
 #ifdef IS_PLAYER
 	static ListData midiinfo();

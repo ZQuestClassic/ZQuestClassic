@@ -71,9 +71,6 @@ enum {selection_mode_normal, selection_mode_add, selection_mode_subtract, select
 BITMAP *selecting_pattern;
 int32_t selecting_x1, selecting_x2, selecting_y1, selecting_y2;
 
-extern int32_t bidcomboscripts_cnt;
-extern script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; 
-
 BITMAP *intersection_pattern;
 
 byte relational_template[48][4]=
@@ -17692,18 +17689,6 @@ int32_t click_d_ctile_proc()
 }
 
 int32_t click_d_combo_proc();
-
-const char *comboscriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = bidcomboscripts_cnt;
-		return NULL;
-	}
-	
-	return bidcomboscripts[index].first.c_str();
-}
-ListData comboscript_list(comboscriptdroplist, &font);
 
 bool call_combo_editor(int32_t);
 bool edit_combo(int32_t c,bool freshen,int32_t cs)

@@ -2898,192 +2898,6 @@ void fix_layers(mapscr *tempscr, bool showwarning)
 /*** dialog handlers ***/
 /***********************/
 
-extern const char *colorlist(int32_t index, int32_t *list_size);
-
-static char autobackup_str_buf[32];
-const char *autobackuplist(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		bound(index,0,10);
-		
-		if(index==0)
-		{
-			sprintf(autobackup_str_buf,"Disabled");
-		}
-		else
-		{
-			sprintf(autobackup_str_buf,"%2d",index);
-		}
-		
-		return autobackup_str_buf;
-	}
-	
-	*list_size=11;
-	return NULL;
-}
-
-static char autosave_str_buf[32];
-const char *autosavelist(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		bound(index,0,10);
-		
-		if(index==0)
-		{
-			sprintf(autosave_str_buf,"Disabled");
-		}
-		else
-		{
-			sprintf(autosave_str_buf,"%2d Minute%c",index,index>1?'s':0);
-		}
-		
-		return autosave_str_buf;
-	}
-	
-	*list_size=11;
-	return NULL;
-}
-
-const char *autosavelist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		bound(index,0,9);
-		sprintf(autosave_str_buf,"%2d",index+1);
-		return autosave_str_buf;
-	}
-	
-	*list_size=10;
-	return NULL;
-}
-
-
-static int32_t options_1_list[] =
-{
-	// dialog control number
-	4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, -1
-};
-
-static int32_t options_2_list[] =
-{
-	// dialog control number
-	50, 51, -1
-};
-
-static int32_t options_3_list[] =
-{
-	// dialog control number
-	31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, -1
-};
-static int32_t options_4_list[] =
-{
-	57, 58, 59, 60,
-	-1
-};
-
-static TABPANEL options_tabs[] =
-{
-	// (text)
-	{ (char *)" 1 ",       D_SELECTED,   options_1_list,  0, NULL },
-	{ (char *)" 2 ",       0,            options_2_list,  0, NULL },
-	{ (char *)" 3 ",       0,            options_3_list,  0, NULL },
-	{ (char *)" 4 ",       0,            options_4_list,  0, NULL },
-	{ NULL,                0,            NULL, 0, NULL }
-};
-
-static ListData autobackup_list(autobackuplist, &font);
-static ListData autosave_list(autosavelist, &font);
-static ListData autosave_list2(autosavelist2, &font);
-static ListData color_list(colorlist, &font);
-static ListData snapshotformat_list(snapshotformatlist, &font);
-
-static DIALOG options_dlg[] =
-{
-	/* (dialog proc)           (x)     (y)     (w)     (h)    (fg)        (bg)      (key)    (flags)    (d1)  (d2) (dp) */
-	{ jwin_win_proc,            0,      0,    260,    238,    vc(14),     vc(1),       0,    D_EXIT,     0,    0, (void *) "ZQuest Options",                                              NULL,   NULL                },
-	{ jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) options_tabs,                                                  NULL, (void *)options_dlg },
-	{ jwin_button_proc,        60,    212,     61,     21,    vc(14),     vc(1),      13,    D_EXIT,     0,    0, (void *) "OK",                                                          NULL,   NULL                },
-	{ jwin_button_proc,       140,    212,     61,     21,    vc(14),     vc(1),      27,    D_EXIT,     0,    0, (void *) "Cancel",                                                      NULL,   NULL                },
-	// 4
-	{ jwin_check_proc,         12,     44,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Mouse scroll",                                                NULL,   NULL                },
-	{ jwin_check_proc,         12,     54,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Save paths",                                                  NULL,   NULL                },
-	{ jwin_check_proc,         12,     64,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Palette cycle",                                               NULL,   NULL                },
-	{ jwin_check_proc,         12,     74,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Vsync",                                                       NULL,   NULL                },
-	{ jwin_check_proc,         12,     84,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Frames Per Second",                                      NULL,   NULL                },
-	{ jwin_check_proc,         12,     94,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Combo Brush",                                                 NULL,   NULL                },
-	// 10
-	{ jwin_check_proc,         12,    104,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Floating Brush",                                              NULL,   NULL                },
-	{ jwin_check_proc,         12,    114,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Reload Last Quest",                                                 NULL,   NULL                },
-	{ jwin_check_proc,         12,    124,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Misaligns",                                              NULL,   NULL                },
-	{ jwin_check_proc,         12,    134,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Animate Combos",                                              NULL,   NULL                },
-	{ jwin_check_proc,         12,    144,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Overwrite Protection",                                        NULL,   NULL                },
-	// 15
-	{ jwin_check_proc,         12,    154,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Tile Protection",                                             NULL,   NULL                },
-	{ jwin_check_proc,         12,    164,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Use Static for Invalid Data",                                 NULL,   NULL                },
-	{ jwin_check_proc,         12,    174,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Use Small Mode",                                              NULL,   NULL                },
-	{ jwin_check_proc,         12,    184,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Show Ruleset Dialog When Creating New Quests",                NULL,   NULL                },
-	{ jwin_check_proc,         12,    194,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Enable Tooltips",                                             NULL,   NULL                },
-	
-	// 20
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	// 25
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	// 30
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	
-	// 31
-	{ jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-backup Retention:",                                      NULL,   NULL                },
-	{ jwin_droplist_proc,     120,     44,     73,     16,    0,          0,           0,    0,          0,    0, (void *) &autobackup_list,                                              NULL,   NULL                },
-	{ jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Interval:",                                         NULL,   NULL                },
-	{ jwin_droplist_proc,     105,     62,     86,     16,    0,          0,           0,    0,          0,    0, (void *) &autosave_list,                                                NULL,   NULL                },
-	// 35
-	{ jwin_text_proc,          12,     84,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Auto-save Retention:",                                        NULL,   NULL                },
-	{ jwin_droplist_proc,     111,     80,     49,     16,    0,          0,           0,    0,          0,    0, (void *) &autosave_list2,                                               NULL,   NULL                },
-	{ jwin_check_proc,         12,     98,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Uncompressed Auto-saves",                                     NULL,   NULL                },
-	{ jwin_text_proc,          12,    112,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Grid Color:",                                                 NULL,   NULL                },
-	{ jwin_droplist_proc,      64,    108,    100,     16,    0,          0,           0,    0,          0,    0, (void *) &color_list,                                                   NULL,   NULL                },
-	// 40
-	{ jwin_text_proc,          12,    130,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Snapshot Format:",                                            NULL,   NULL                },
-	{ jwin_droplist_proc,      93,    126,     55,     16,    0,          0,           0,    0,          0,    0, (void *) &snapshotformat_list,                                          NULL,   NULL                },
-	
-	// 42
-	{ jwin_text_proc,          12,    148,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Keyboard Repeat Delay:",                                      NULL,   NULL                },
-	{ jwin_edit_proc,         121,    144,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
-	{ jwin_text_proc,          12,    166,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Keyboard Repeat Rate:",                                       NULL,   NULL                },
-	// 45
-	{ jwin_edit_proc,         121,    162,     36,     16,    0,          0,           0,    0,          5,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	// 50
-	{ jwin_check_proc,         12,     44,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "Listers use Pattern-Matching Search",                          NULL,   NULL                },
-	{ jwin_check_proc,         12,     54,    129,      9,    vc(14),     vc(1),       0,    0,          1,    0, (void *) "No Next-Screen Preview",                                       NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	// 55
-	{ d_dummy_proc,             0,      0,      0,      0,    vc(14),     vc(1),       0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	{ d_timer_proc,             0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                },
-	
-	{ jwin_text_proc,          12,     48,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Large Mode):",                                      NULL,   NULL                },
-	{ jwin_edit_proc,         121,     44,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
-	{ jwin_text_proc,          12,     66,    129,      9,    0,          0,           0,    0,          0,    0, (void *) "Cursor Scale (Small Mode):",                                       NULL,   NULL                },
-	// 60
-	{ jwin_edit_proc,         121,     62,     36,     16,    0,          0,           0,    0,          8,    0,  NULL,                                                                   NULL,   NULL                },
-	{ NULL,                     0,      0,      0,      0,    0,          0,           0,    0,          0,    0,  NULL,                                                                   NULL,   NULL                }
-};
-
 void call_options_dlg();
 int32_t onOptions()
 {
@@ -22917,6 +22731,9 @@ int32_t biitemsprites_cnt = -1;
 
 script_struct bidcomboscripts[NUMSCRIPTSCOMBODATA]; //dmap (dmapdata) script
 int32_t bidcomboscripts_cnt = -1;
+
+script_struct bigenericscripts[NUMSCRIPTSGENERIC]; //dmap (dmapdata) script
+int32_t bigenericscripts_cnt = -1;
 //static char ffscript_str_buf[32];
 
 void build_biglobal_list()
@@ -23380,6 +23197,49 @@ void build_bidcomboscripts_list()
 	for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
 		if(bidcomboscripts[i].first.length() > 0)
 			bidcomboscripts_cnt = i+1;
+}
+
+//npc scripts
+void build_bigenericscripts_list()
+{
+	bigenericscripts[0].first = "(None)";
+	bigenericscripts[0].second = -1;
+	bigenericscripts_cnt = 1;
+	
+	for(int32_t i = 0; i < NUMSCRIPTSGENERIC - 1; i++)
+	{
+		if(genericmap[i].scriptname.length()==0)
+			continue;
+			
+		stringstream ss;
+		ss << genericmap[i].scriptname << " (" << i+1 << ")"; // The word 'slot' preceding all of the numbers is a bit cluttersome. -L.
+		bigenericscripts[bigenericscripts_cnt].first = ss.str();
+		bigenericscripts[bigenericscripts_cnt].second = i;
+		bigenericscripts_cnt++;
+	}
+	
+	// Blank out the rest of the list
+	for(int32_t i=bigenericscripts_cnt; i<NUMSCRIPTSGENERIC; i++)
+	{
+		bigenericscripts[i].first="";
+		bigenericscripts[i].second=-1;
+	}
+	
+	//Bubble sort! (doesn't account for gaps between scripts)
+	for(int32_t i = 0; i < bigenericscripts_cnt - 1; i++)
+	{
+		for(int32_t j = i + 1; j < bigenericscripts_cnt; j++)
+		{
+			if(stricmp(bigenericscripts[i].first.c_str(),bigenericscripts[j].first.c_str()) > 0 && strcmp(bigenericscripts[j].first.c_str(),""))
+				zc_swap(bigenericscripts[i],bigenericscripts[j]);
+		}
+	}
+	
+	bigenericscripts_cnt = 0;
+	
+	for(int32_t i = 0; i < NUMSCRIPTSGENERIC; i++)
+		if(bigenericscripts[i].first.length() > 0)
+			bigenericscripts_cnt = i+1;
 }
 
 
@@ -24413,191 +24273,6 @@ void doEditZScript(int32_t bg,int32_t fg)
 		
 	delete em;
 }
-
-//{ Start type-specific import dlgs
-static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
-static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
-static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
-static ListData gscript_sel_dlg_list(gscriptlist2, &font);
-static char npcscript_str_buf2[32];
-const char *npcscriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,254);
-		
-		if(npcmap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, npcmap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-		
-		sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
-		return npcscript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTGUYS-1);
-	return NULL;
-}
-static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
-static char lweaponscript_str_buf2[32];
-const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,254);
-		
-		if(lwpnmap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, lwpnmap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-		
-		sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
-		return lweaponscript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTWEAPONS-1);
-	return NULL;
-}
-static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
-static char eweaponscript_str_buf2[32];
-const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,254);
-		
-		if(ewpnmap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, ewpnmap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-		
-		sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
-		return eweaponscript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTWEAPONS-1);
-	return NULL;
-}
-static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
-static char playerscript_str_buf2[32];
-const char *playerscriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,3);
-		
-		if(playermap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, playermap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-	
-	if(index==0)
-			sprintf(playerscript_str_buf2,"Init: %s", buf);
-			
-		if(index==1)
-			sprintf(playerscript_str_buf2,"Active: %s", buf);
-	
-	if(index==2)
-			sprintf(playerscript_str_buf2,"Death: %s", buf);
-			
-		
-		//sprintf(playerscript_str_buf2,"%d: %s",index+1, buf);
-		return playerscript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTPLAYER-1);
-	return NULL;
-}
-static char itemspritescript_str_buf2[32];
-const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,254);
-		
-		if(itemspritemap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, itemspritemap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-		
-		sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
-		return itemspritescript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTSITEMSPRITE-1);
-	return NULL;
-}
-static ListData playerscript_sel_dlg_list(playerscriptlist2, &font);
-static char dmapscript_str_buf2[32];
-const char *dmapscriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,254);
-		
-		if(dmapmap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, dmapmap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-		
-		sprintf(dmapscript_str_buf2,"%d: %s",index+1, buf);
-		return dmapscript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTSDMAP-1);
-	return NULL;
-}
-static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
-static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
-static char screenscript_str_buf2[32];
-const char *screenscriptlist2(int32_t index, int32_t *list_size)
-{
-	if(index>=0)
-	{
-		char buf[20];
-		bound(index,0,254);
-		
-		if(screenmap[index].scriptname=="")
-			strcpy(buf, "<none>");
-		else
-		{
-			strncpy(buf, screenmap[index].scriptname.c_str(), 19);
-			buf[19]='\0';
-		}
-		
-		sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
-		return screenscript_str_buf2;
-	}
-	
-	*list_size=(NUMSCRIPTSCREEN-1);
-	return NULL;
-}
-static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
-//} End type-specific import dlgs
 
 void clear_map_states()
 {
@@ -27225,67 +26900,12 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	}
 }
 
-static char slottype_str_buf[32];
-
-const char *slottype_list(int32_t index, int32_t *list_size)
-{
-	if(index >= 0)
-	{
-		bound(index,0,num_types-1);
-		
-		switch(index)
-		{
-			case type_ffc:
-				strcpy(slottype_str_buf, "FFC");
-				break;
-			case type_global:
-				strcpy(slottype_str_buf, "Global");
-				break;
-			case type_itemdata:
-				strcpy(slottype_str_buf, "Item");
-				break;
-			case type_npc:
-				strcpy(slottype_str_buf, "NPC");
-				break;
-			case type_lweapon:
-				strcpy(slottype_str_buf, "LWeapon");
-				break;
-			case type_eweapon:
-				strcpy(slottype_str_buf, "EWeapon");
-				break;
-			case type_hero:
-				strcpy(slottype_str_buf, "Hero");
-				break;
-			case type_dmap:
-				strcpy(slottype_str_buf, "DMap");
-				break;
-			case type_screen:
-				strcpy(slottype_str_buf, "Screen");
-				break;
-			case type_itemsprite:
-				strcpy(slottype_str_buf, "ItemSprite");
-				break;
-			case type_combo:
-				strcpy(slottype_str_buf, "Combo");
-				break;
-			case type_generic:
-				strcpy(slottype_str_buf, "Generic");
-				break;
-		}
-		
-		return slottype_str_buf;
-	}
-	*list_size = 11;
-	return NULL;
-}
-static ListData slottype_sel_list(slottype_list, &font);
-
 static DIALOG clearslots_dlg[] =
 {
 	{ jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Clear Slots", NULL, NULL },
 	{ jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
 	{ jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
-	{ jwin_droplist_proc,   50,      28+16,   70,   16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, (void *) &slottype_sel_list, NULL, NULL },
+	{ jwin_droplist_proc,   50,      28+16,   70,   16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, NULL, NULL, NULL },
 	{ jwin_radio_proc,      40,      34+00,   81,   9,      vc(14),             vc(1),              0,   D_SELECTED, 0,  0, (void *) "Clear Script Type:", NULL, NULL },
 	{ jwin_radio_proc,      40,      34+32,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Missing (--) Slots", NULL, NULL },
 	{ jwin_radio_proc,      40,      34+48,   81,   9,      vc(14),             vc(1),              0,   0,          0,  0, (void *) "Clear Preserved (++) Slots", NULL, NULL },
@@ -27299,6 +26919,8 @@ void doClearSlots(byte* flags)
 {
 	//{ Setup
 	clearslots_dlg[0].dp2=lfont;
+	GUI::ListData scrtypes = GUI::ListData::script_slottype();
+	clearslots_dlg[3].dp = &scrtypes;
 	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
 	clearslots_dlg[4].flags |= D_SELECTED;
 	clearslots_dlg[5].flags &= ~D_SELECTED;
@@ -27366,7 +26988,7 @@ static DIALOG exportzasm_dlg[] =
 	{ jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Export ZASM", NULL, NULL },
 	{ jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
 	{ jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
-	{ jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, (void *) &slottype_sel_list, NULL, NULL },
+	{ jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, NULL, NULL, NULL },
 	{ jwin_droplist_proc,   50,      28+48,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, NULL, NULL, NULL },
 	{ jwin_text_proc,       50,      28+8,    16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Type:", NULL, NULL },
 	{ jwin_text_proc,       50,      28+40,   16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Slot:", NULL, NULL },
@@ -27378,7 +27000,7 @@ static DIALOG importzasm_dlg[] =
 	{ jwin_win_proc,        0,       0,       200,  159,    vc(14),             vc(1),              0,   D_EXIT,     0,  0, (void *) "Import ZASM", NULL, NULL },
 	{ jwin_button_proc,     35,      132,     61,   21,     vc(14),             vc(1),              13,  D_EXIT,     0,  0, (void *) "Confirm", NULL, NULL },
 	{ jwin_button_proc,     104,     132,     61,   21,     vc(14),             vc(1),              27,  D_EXIT,     0,  0, (void *) "Cancel", NULL, NULL },
-	{ jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, (void *) &slottype_sel_list, NULL, NULL },
+	{ jwin_droplist_proc,   50,      28+16,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   D_EXIT,     0,  0, NULL, NULL, NULL },
 	{ jwin_droplist_proc,   50,      28+48,   100,  16,     jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,   0,          0,  0, NULL, NULL, NULL },
 	// 5
 	{ jwin_text_proc,       50,      28+8,    16,   8,      vc(11),             vc(1),              0,   0,          0,  0, (void *) "Script Type:", NULL, NULL },
@@ -27393,7 +27015,6 @@ extern ListData itemspritescript_list;
 extern ListData lweaponscript_list;
 extern ListData npcscript_list;
 extern ListData eweaponscript_list;
-extern ListData comboscript_list;
 
 static EXT_LIST zasm_extlist[] =
 {
@@ -27404,8 +27025,11 @@ static EXT_LIST zasm_extlist[] =
 int32_t onExportZASM()
 {
 	exportzasm_dlg[0].dp2 = lfont;
+	GUI::ListData scrtypes = GUI::ListData::script_slottype();
+	exportzasm_dlg[3].dp = &scrtypes;
 	exportzasm_dlg[3].d1 = type_ffc;
-	exportzasm_dlg[4].dp = (void*)&ffscript_list;
+	GUI::ListData scrlist2 = GUI::ListData::ffc_script();
+	exportzasm_dlg[4].dp = &scrlist2;
 	exportzasm_dlg[4].d1 = 0;
 	//{ Build script lists
 	build_biffs_list();
@@ -27419,6 +27043,7 @@ int32_t onExportZASM()
 	build_biscreens_list();
 	build_biitemsprites_list();
 	build_bidcomboscripts_list();
+	build_bigenericscripts_list();
 	//}
 	int32_t indx = 1;
 	script_data const* scriptChoice = NULL;
@@ -27469,6 +27094,9 @@ int32_t onExportZASM()
 					case type_combo:
 						scriptInd = bidcomboscripts[exportzasm_dlg[4].d1].second;
 						break;
+					case type_generic:
+						scriptInd = bigenericscripts[exportzasm_dlg[4].d1].second;
+						break;
 				}
 				if(scriptInd < 0) break; //Invalid; likely '(None)'
 				switch(exportzasm_dlg[3].d1)
@@ -27505,6 +27133,9 @@ int32_t onExportZASM()
 						break;
 					case type_combo:
 						scriptChoice = comboscripts[scriptInd];
+						break;
+					case type_generic:
+						scriptChoice = genericscripts[scriptInd];
 						break;
 				}
 				//}
@@ -27545,37 +27176,52 @@ int32_t onExportZASM()
 				{
 					default: //Shouldn't occur, but to be safe
 					case type_ffc:
-						exportzasm_dlg[4].dp = (void*)&ffscript_list;
+						GUI::ListData scrlist = GUI::ListData::ffc_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_global:
-						exportzasm_dlg[4].dp = (void*)&globalscript_list;
+						GUI::ListData scrlist = GUI::ListData::global_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_itemdata:
-						exportzasm_dlg[4].dp = (void*)&itemscript_list;
+						GUI::ListData scrlist = GUI::ListData::itemdata_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_npc:
-						exportzasm_dlg[4].dp = (void*)&npcscript_list;
+						GUI::ListData scrlist = GUI::ListData::npc_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_lweapon:
-						exportzasm_dlg[4].dp = (void*)&lweaponscript_list;
+						GUI::ListData scrlist = GUI::ListData::lweapon_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_eweapon:
-						exportzasm_dlg[4].dp = (void*)&eweaponscript_list;
+						GUI::ListData scrlist = GUI::ListData::eweapon_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_hero:
-						exportzasm_dlg[4].dp = (void*)&playerscript_list;
+						GUI::ListData scrlist = GUI::ListData::player_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_dmap:
-						exportzasm_dlg[4].dp = (void*)&dmapscript_list;
+						GUI::ListData scrlist = GUI::ListData::dmap_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_screen:
-						exportzasm_dlg[4].dp = (void*)&screenscript_list;
+						GUI::ListData scrlist = GUI::ListData::screen_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_itemsprite:
-						exportzasm_dlg[4].dp = (void*)&itemspritescript_list;
+						GUI::ListData scrlist = GUI::ListData::itemsprite_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 					case type_combo:
-						exportzasm_dlg[4].dp = (void*)&comboscript_list;
+						GUI::ListData scrlist = GUI::ListData::combodata_script();
+						exportzasm_dlg[4].dp = &scrlist;
+						break;
+					case type_generic:
+						GUI::ListData scrlist = GUI::ListData::generic_script();
+						exportzasm_dlg[4].dp = &scrlist;
 						break;
 				}
 				exportzasm_dlg[4].d1 = 0;
@@ -27589,7 +27235,10 @@ int32_t onExportZASM()
 int32_t onImportZASM()
 {
 	importzasm_dlg[0].dp2 = lfont;
-	importzasm_dlg[4].dp = (void*)&ffscript_list;
+	GUI::ListData scrtypes = GUI::ListData::script_slottype();
+	importzasm_dlg[3].dp = &scrtypes;
+	GUI::ListData scrlist2 = GUI::ListData::ffc_script();
+	importzasm_dlg[4].dp = &scrlist2;
 	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
 	{
 		return D_O_K;
@@ -27654,7 +27303,7 @@ int32_t onImportZASM()
 	else
 	{
 		importzasm_dlg[3].d1 = 0;
-		importzasm_dlg[4].dp = (void*)&ffscript_list;
+		importzasm_dlg[4].dp = &scrlist2;
 		importzasm_dlg[4].d1 = 0;
 	}
 	importzasm_dlg[8].dp = (void*)namebuf;
@@ -32003,7 +31652,6 @@ void center_zquest_dialogs()
 	jwin_center_dialog(mapstyles_dlg);
 	jwin_center_dialog(misccolors_dlg);
 	jwin_center_dialog(newcomboa_dlg);
-	jwin_center_dialog(options_dlg);
 	jwin_center_dialog(orgcomboa_dlg);
 	jwin_center_dialog(path_dlg);
 	jwin_center_dialog(pattern_dlg);
