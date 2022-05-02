@@ -19514,8 +19514,7 @@ int32_t GuyHitFrom(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,i
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz)
 {
 	enemy *e = (enemy*)guys.spr(index);
-	
-	if(e->hp > 0)
+	if(!e || e->hp > 0)
 		return -1;
 		
 	bool d = e->dying;

@@ -1,6 +1,8 @@
 // 2.55 Change Log
 // Updated 1st May, 2022
 
+-- May 1st nightly build
+
 Fix itemclass zinfo not refreshing on opening subscreen editor
 	( EmilyV, May 1, 2022 )
 
