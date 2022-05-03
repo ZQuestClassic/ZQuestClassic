@@ -75,7 +75,6 @@ button:active {
 }
 
 .quest-list__entries {
-  flex-shrink: 0;
   overflow-y: scroll;
 }
 
