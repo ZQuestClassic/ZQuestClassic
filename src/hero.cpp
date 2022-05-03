@@ -6229,7 +6229,8 @@ killweapon:
 	int32_t hit2 = -1;
 	do
 	{
-		hit2 = diagonalMovement?GuyHitFrom(hit2+1,x+4,y+4,z,8,8,hzsz):GuyHit(hit2+1,x+7,y+7,z,2,2,hzsz);
+		hit2 = diagonalMovement ? GuyHitFrom(hit2+1,x+4,y+4,z,8,8,hzsz)
+			: GuyHitFrom(hit2+1,x+7,y+7,z,2,2,hzsz);
 		
 		if(hit2!=-1)
 		{
