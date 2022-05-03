@@ -127,11 +127,21 @@ export function setupSettingsPanel() {
     await configuredMountPromise;
 
     for (const file of files) {
-      const path = '/local/' + file.webkitRelativePath.split('/').slice(1).join('/');
+      let localRelPath;
+      if (file.webkitRelativePath) {
+        localRelPath = [
+          ...PATH.dirname(file.webkitRelativePath).split('/').slice(1),
+          PATH.basename(file.webkitRelativePath),
+        ].join('/');
+      } else {
+        localRelPath = file.name;
+      }
+
+      const path = '/local/' + localRelPath;
 
       // Backup existing files.
       if (FS.analyzePath(path).exists) {
-        const backupPath = '/local/.backup/' + file.webkitRelativePath.split('/').slice(1).join('/');
+        const backupPath = '/local/.backup/' + localRelPath;
         FS.mkdirTree(PATH.dirname(backupPath));
         FS.writeFile(backupPath, FS.readFile(path));
       }
@@ -151,7 +161,6 @@ export function setupSettingsPanel() {
   });
   el.querySelector('.settings__copy button.copy-file').addEventListener('click', async () => {
     const file = await fileOpen();
-    file.webkitRelativePath = file.name;
     await handleFilesCopy([file]);
   });
 
@@ -170,9 +179,10 @@ export function setupSettingsPanel() {
 
 export function renderSettingsPanel() {
   const el = document.querySelector('.settings');
+  const shouldUseDirPicker = !!self.showDirectoryPicker && attachedDirHandle !== false;
 
   {
-    el.querySelector('.settings__attach').classList.toggle('hidden', !self.showDirectoryPicker);
+    el.querySelector('.settings__attach').classList.toggle('hidden', !shouldUseDirPicker);
 
     const attachEl = el.querySelector('.settings__attach button.attach');
     attachEl.classList.toggle('hidden', attachedDirHandle);
@@ -182,9 +192,9 @@ export function renderSettingsPanel() {
     unattachEl.textContent = `Folder attached: ${attachedDirHandle?.name}–Click to unattach`;
   }
 
-  el.querySelector('.settings__copy').classList.toggle('hidden', !!self.showDirectoryPicker);
+  el.querySelector('.settings__copy').classList.toggle('hidden', shouldUseDirPicker);
 
-  if (!self.showDirectoryPicker) {
+  if (!shouldUseDirPicker) {
     const filesEl = el.querySelector('.settings__browser-files');
     filesEl.innerHTML = '';
     for (const { path, timestamp } of fsReadAllFiles('/local')) {
