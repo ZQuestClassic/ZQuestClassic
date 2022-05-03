@@ -56,6 +56,19 @@ else
   cd release
 fi
 
+function build_js {
+  ESBUILD_ARGS=()
+  if ! [[ "$DEBUG" ]]; then
+    ESBUILD_ARGS+=(
+      --minify
+    )
+  fi
+  npx esbuild --bundle ../../web/main.js --outfile=main.js --sourcemap ${ESBUILD_ARGS[@]}
+  cp ../../web/styles.css .
+}
+
+# build_js && exit 0
+
 # Wish I knew how to remove this.
 EMCC_CACHE_DIR="$(dirname $(which emcc))/cache"
 EMCC_CACHE_INCLUDE_DIR="$EMCC_CACHE_DIR/sysroot/include"
@@ -178,7 +191,6 @@ function insert_css {
 if [ -f zelda.html ]; then
   sed -i -e 's/__TARGET__/zelda/' zelda.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
-  sed -i -e 's|/*__INLINECSS__*/|<script src="zc.data.js"></script>|' zelda.html
   set_files zelda.html
   insert_css zelda.html
 fi
@@ -194,13 +206,7 @@ cp -r ../../timidity .
 rm -rf files
 mv ../../output/_auto/buildpack_lazy files
 
-ESBUILD_ARGS=()
-if ! [[ "$DEBUG" ]]; then
-  ESBUILD_ARGS+=(
-    --minify
-  )
-fi
-npx esbuild --bundle ../../web/main.js --outfile=main.js --sourcemap ${ESBUILD_ARGS[@]}
+build_js
 
 # Now start a local webserver in the build_emscripten folder:
 #   npx statikk --port 8000 --coi
