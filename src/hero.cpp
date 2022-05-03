@@ -2791,7 +2791,7 @@ void HeroClass::masked_draw(BITMAP* dest)
             xofs -= 16;
             sprite::draw(sub);
 			prompt_draw(sub);
-            xofs=0;
+            xofs+=16;
             yofs += (playing_field_offset+16);
             destroy_bitmap(sub);
         }

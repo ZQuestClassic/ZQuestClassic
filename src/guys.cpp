@@ -4061,13 +4061,13 @@ void enemy::FireWeapon()
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
-				//zprint2("summon\n");
-				//al_trace("summon\n");
+						//zprint2("summon\n");
+						//al_trace("summon\n");
 						if(addchild(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
-			{
+						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
-			}
+						}
 							
 						summoned=true;
 						break;

@@ -76,7 +76,7 @@ sprite::sprite()
 {
     uid = getNextUID();
 	isspawning = false;
-    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
+    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=fakez=0;
     txsz=1;
     tysz=1;
     id=-1;
