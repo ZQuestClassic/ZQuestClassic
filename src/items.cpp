@@ -166,33 +166,55 @@ bool item::animate(int32_t)
 		{
 			if ( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
 			{
-				z-=fall/100;
+				if (moveflags & FLAG_FAKE_Z)
+				{
+					fakez-=fall/100;
 				
-				if(z<0)
-				{
-					z = 0;
-					fall = -fall/2;
+					if(fakez<0)
+					{
+						fakez = 0;
+						fall = -fall/2;
+					}
+					else if(fakez <= 1 && abs(fall) < (int32_t)(zinit.gravity2 / 100))
+					{
+						fakez=0;
+						fall=0;
+					}
+					else if(fall <= (int32_t)zinit.terminalv)
+					{
+						fall += (zinit.gravity2 / 100);
+					}
 				}
-				else if(z <= 1 && abs(fall) < (int32_t)(zinit.gravity2 / 100))
+				else
 				{
-					z=0;
-					fall=0;
-				}
-				else if(fall <= (int32_t)zinit.terminalv)
-				{
-					fall += (zinit.gravity2 / 100);
+					z-=fall/100;
+					
+					if(z<0)
+					{
+						z = 0;
+						fall = -fall/2;
+					}
+					else if(z <= 1 && abs(fall) < (int32_t)(zinit.gravity2 / 100))
+					{
+						z=0;
+						fall=0;
+					}
+					else if(fall <= (int32_t)zinit.terminalv)
+					{
+						fall += (zinit.gravity2 / 100);
+					}
 				}
 			}
 			if ( moveflags & FLAG_CAN_PITFALL )
 			{
-				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
+				if(!subscreenItem && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					fallCombo = check_pits();
 				}
 			}
 			if ( moveflags & FLAG_CAN_WATERDROWN )
 			{
-				if(!subscreenItem && z <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
+				if(!subscreenItem && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					drownCombo = check_water();
 				}
@@ -309,7 +331,7 @@ void item::draw(BITMAP *dest)
 	if(pickup&ipNODRAW || tile==0)
 		return;
 		
-	if ( z > 0 && get_bit(quest_rules, qr_ITEMSHADOWS) )
+	if ( (z > 0 || fakez > 0) && get_bit(quest_rules, qr_ITEMSHADOWS) )
 	{
 		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);

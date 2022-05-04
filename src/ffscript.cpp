@@ -3293,11 +3293,21 @@ int32_t get_register(const int32_t arg)
 		case HERODROWNCMB:
 			ret = Hero.drownCombo * 10000;
 			break;
-		
+			
+		case HEROFAKEZ:
+		{
+			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
+			{
+				ret = Hero.getFakeZ().getZLong();
+			}
+			else ret = int32_t(Hero.getFakeZ()) * 10000;
+
+			break;
+		} 
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, 1, "Hero->MoveFlags[]") != SH::_NoError)
+			if(BC::checkBounds(indx, 0, 8, "Hero->MoveFlags[]") != SH::_NoError)
 				ret = 0; //false
 			else
 			{
@@ -4079,12 +4089,25 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		
+		case ITEMFAKEZ:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				{
+					ret=(((item*)(s))->fakez).getZLong();    
+				}
+				else 
+					ret=((int32_t)((item*)(s))->fakez)*10000;
+			}
+			break;
+			
+		
 		case ITEMMOVEFLAGS:
 		{
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 1, "itemsprite->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "itemsprite->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5660,12 +5683,32 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		
+		case NPCFAKEZ:
+		{
+			if(GuyH::loadNPC(ri->guyref, "FakeZ") != SH::_NoError) 
+			{
+				ret = -10000; 
+			}
+			else 
+			{
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				{
+					ret = ((GuyH::getNPC()->fakez).getZLong()); 
+				}
+				else
+				{
+					ret = (int32_t(GuyH::getNPC()->fakez) * 10000);   
+				}
+			}
+			break;
+		}
+		
 		case NPCMOVEFLAGS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 7, "npc->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "npc->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -6134,13 +6177,25 @@ int32_t get_register(const int32_t arg)
 				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
+			
+		case LWPNFAKEZ:
+			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
+			{
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				{
+					ret=(((weapon*)(s))->fakez).getZLong();  
+				}
+				else 
+					ret=((int32_t)((weapon*)(s))->fakez)*10000;
+			}
+			break;
 		
 		case LWPNMOVEFLAGS:
 		{
 			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 1, "lweapon->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "lweapon->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -6573,13 +6628,24 @@ int32_t get_register(const int32_t arg)
 				ret = ((weapon*)(s))->drownCombo * 10000;
 			}
 			break;
+		case EWPNFAKEZ:
+			if(0!=(s=checkEWpn(ri->ewpn, "FakeZ")))
+			{
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				{
+					ret=(((weapon*)(s))->fakez).getZLong();
+				}
+				else 
+					ret=((int32_t)((weapon*)(s))->fakez)*10000;
+			}
+			break;
 		
 		case EWPNMOVEFLAGS:
 		{
 			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 1, "eweapon->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "eweapon->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -12226,10 +12292,22 @@ void set_register(const int32_t arg, const int32_t value)
 		case HERODROWNCMB:
 			Hero.drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			break;
+		case HEROFAKEZ:
+			{
+				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				{
+					Hero.setFakeZfix(zslongToFix(value));
+				}
+				else
+				{
+					Hero.setFakeZ(value/10000);
+				}
+			}
+			break;
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, 1, "Hero->MoveFlags[]") == SH::_NoError)
+			if(BC::checkBounds(indx, 0, 8, "Hero->MoveFlags[]") == SH::_NoError)
 			{
 				//All bits, in order, of a single byte; just use bitwise
 				byte bit = 1<<indx;
@@ -13176,12 +13254,23 @@ void set_register(const int32_t arg, const int32_t value)
 				((item*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
+		case ITEMFAKEZ:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				(s->fakez)=(zfix)(value/10000);
+				
+				if(s->fakez < 0)
+					s->fakez = 0;
+			}
+			
+			break;
+		
 		case ITEMMOVEFLAGS:
 		{
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 1, "itemsprite->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "itemsprite->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					byte bit = 1<<indx;
@@ -14396,12 +14485,21 @@ void set_register(const int32_t arg, const int32_t value)
 				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
+		case LWPNFAKEZ:
+			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
+			{
+				((weapon*)s)->fakez=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = zfix(0);
+			}
+				
+			break;
+			
 		case LWPNMOVEFLAGS:
 		{
 			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 1, "lweapon->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "lweapon->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					byte bit = 1<<indx;
@@ -14824,12 +14922,21 @@ void set_register(const int32_t arg, const int32_t value)
 				((weapon*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
+		case EWPNFAKEZ:
+			if(0!=(s=checkEWpn(ri->ewpn,"FakeZ")))
+			{
+				((weapon*)s)->fakez=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = zfix(0);
+			}
+				
+			break;
+			
 		case EWPNMOVEFLAGS:
 		{
 			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 1, "eweapon->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "eweapon->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					byte bit = 1<<indx;
@@ -15642,13 +15749,29 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				GuyH::getNPC()->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
+		case NPCFAKEZ:
+			{
+				if(GuyH::loadNPC(ri->guyref, "npc->FakeZ") == SH::_NoError)
+				{
+					if(!never_in_air(GuyH::getNPC()->id))
+					{
+						if(value < 0)
+							GuyH::getNPC()->fakez = zfix(0);
+						else
+							GuyH::getNPC()->fakez = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+							
+						if(GuyH::hasHero())
+							Hero.setFakeZfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+					}
+				}
+			}
 			break;
 		case NPCMOVEFLAGS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 7, "npc->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 8, "npc->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					byte bit = 1<<indx;
@@ -36379,8 +36502,13 @@ script_variable ZASMVars[]=
 	{ "LWPNDROWNCMB", LWPNDROWNCMB, 0, 0 },
 	{ "EWPNDROWNCLK", EWPNDROWNCLK, 0, 0 },
 	{ "EWPNDROWNCMB", EWPNDROWNCMB, 0, 0 },
-	{ "HERODROWNCLK", EWPNDROWNCMB, 0, 0 },
-	{ "HERODROWNCMB", EWPNDROWNCMB, 0, 0 },
+	{ "HERODROWNCLK", HERODROWNCLK, 0, 0 },
+	{ "HERODROWNCMB", HERODROWNCMB, 0, 0 },
+	{ "NPCFAKEZ", NPCFAKEZ, 0, 0 },
+	{ "ITEMFAKEZ", ITEMFAKEZ, 0, 0 },
+	{ "LWPNFAKEZ", LWPNFAKEZ, 0, 0 },
+	{ "EWPNFAKEZ", EWPNFAKEZ, 0, 0 },
+	{ "HEROFAKEZ", HEROFAKEZ, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

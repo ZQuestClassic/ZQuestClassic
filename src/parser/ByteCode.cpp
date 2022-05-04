@@ -2026,6 +2026,11 @@ string ZScript::VarToString(int32_t ID)
 	case EWPNDROWNCMB: return "EWPNDROWNCMB";
 	case HERODROWNCLK: return "HERODROWNCLK";
 	case HERODROWNCMB: return "HERODROWNCMB";
+	case NPCFAKEZ: return "NPCFAKEZ";
+	case ITEMFAKEZ: return "ITEMFAKEZ";
+	case LWPNFAKEZ: return "LWPNFAKEZ";
+	case EWPNFAKEZ: return "EWPNFAKEZ";
+	case HEROFAKEZ: return "HEROFAKEZ";
 	
 	default:
 	{

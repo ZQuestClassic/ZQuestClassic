@@ -2327,6 +2327,11 @@ script_variable variable_list[]=
 	{ "EWPNDROWNCMB", EWPNDROWNCMB, 0, 0 },
 	{ "HERODROWNCLK", HERODROWNCLK, 0, 0 },
 	{ "HERODROWNCMB", HERODROWNCMB, 0, 0 },
+	{ "NPCFAKEZ", NPCFAKEZ, 0, 0 },
+	{ "ITEMFAKEZ", ITEMFAKEZ, 0, 0 },
+	{ "LWPNFAKEZ", LWPNFAKEZ, 0, 0 },
+	{ "EWPNFAKEZ", EWPNFAKEZ, 0, 0 },
+	{ "HEROFAKEZ", HEROFAKEZ, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

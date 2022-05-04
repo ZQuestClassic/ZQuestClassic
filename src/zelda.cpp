@@ -1437,6 +1437,10 @@ zfix  HeroZ()
 {
     return Hero.getZ();
 }
+zfix  HeroFakeZ()
+{
+    return Hero.getZ();
+}
 int32_t  HeroHClk()
 {
     return Hero.getHClk();
@@ -1519,12 +1523,12 @@ void StunGuy(int32_t j,int32_t stun)
 {
     if(stun<=0) return;
     
-    if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->id))
+    if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->fakez==0 && canfall(((enemy*)guys.spr(j))->id))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
         ((enemy*)guys.spr(j))->fall=-zc_min(FEATHERJUMP,(stun*8)+zc_oldrand()%5);
     }
-    else if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->family == eeLEV && get_bit(quest_rules, qr_QUAKE_STUNS_LEEVERS))
+    else if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->fakez==0 && ((enemy*)guys.spr(j))->family == eeLEV && get_bit(quest_rules, qr_QUAKE_STUNS_LEEVERS))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
     }

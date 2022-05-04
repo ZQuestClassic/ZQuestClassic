@@ -4585,8 +4585,13 @@ enum ASM_DEFINE
 #define EWPNDROWNCMB		0x1434
 #define HERODROWNCLK		0x1435
 #define HERODROWNCMB		0x1436
+#define NPCFAKEZ		0x1437
+#define ITEMFAKEZ		0x1438
+#define LWPNFAKEZ		0x1439
+#define EWPNFAKEZ		0x143A
+#define HEROFAKEZ		0x143B
 
-#define NUMVARIABLES         	0x1437
+#define NUMVARIABLES         	0x143C
 
 //} End variables
 

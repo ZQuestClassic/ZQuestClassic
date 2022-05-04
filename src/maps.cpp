@@ -3723,7 +3723,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			}
 		}
 		
-		if(guys.spr(i)->z > Hero.getZ())
+		if(guys.spr(i)->z+guys.spr(i)->fakez > Hero.getZ()+Hero.getFakeZ())
 		{
 			//Jumping enemies in front of Hero.
 			guys.spr(i)->draw(framebuf);
@@ -3788,7 +3788,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
-			if(Lwpns.spr(i)->z > (zfix)zinit.jump_hero_layer_threshold)
+			if(Lwpns.spr(i)->z+Lwpns.spr(i)->fakez > (zfix)zinit.jump_hero_layer_threshold)
 			{
 				Lwpns.spr(i)->draw(framebuf);
 			}
@@ -3799,7 +3799,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > (zfix)zinit.jump_hero_layer_threshold)
+			if((isflier(guys.spr(i)->id)) || (guys.spr(i)->z+guys.spr(i)->fakez) > (zfix)zinit.jump_hero_layer_threshold)
 			{
 				guys.spr(i)->draw(framebuf);
 			}
@@ -3808,7 +3808,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	{
 		for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0)
+			if((isflier(guys.spr(i)->id)) || guys.spr(i)->z > 0 || guys.spr(i)->fakez > 0)
 			{
 				guys.spr(i)->draw(framebuf);
 			}
