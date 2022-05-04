@@ -2332,6 +2332,11 @@ script_variable variable_list[]=
 	{ "LWPNFAKEZ", LWPNFAKEZ, 0, 0 },
 	{ "EWPNFAKEZ", EWPNFAKEZ, 0, 0 },
 	{ "HEROFAKEZ", HEROFAKEZ, 0, 0 },
+	{ "NPCFAKEJUMP", NPCFAKEJUMP, 0, 0 },
+	{ "ITEMFAKEJUMP", ITEMFAKEJUMP, 0, 0 },
+	{ "LWPNFAKEJUMP", LWPNFAKEJUMP, 0, 0 },
+	{ "EWPNFAKEJUMP", EWPNFAKEJUMP, 0, 0 },
+	{ "HEROFAKEJUMP", HEROFAKEJUMP, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

@@ -459,6 +459,7 @@ public:
 	zfix  getZ();
 	zfix  getFakeZ();
 	zfix  getFall();
+	zfix  getFakeFall();
 	zfix  getXOfs();
 	zfix  getYOfs();
 	void setXOfs(int32_t newxofs);
@@ -481,6 +482,7 @@ public:
 	void setZfix(zfix new_Z);
 	void setFakeZfix(zfix new_Z);
 	void setFall(zfix new_fall);
+	void setFakeFall(zfix new_fall);
 	void setClimbCoverX(int32_t new_x);
 	void setClimbCoverY(int32_t new_y);
 	int32_t  getLStep();

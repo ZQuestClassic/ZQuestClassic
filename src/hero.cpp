@@ -99,7 +99,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 #define CANFORCEFACEUP	(get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))
 #define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
-#define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fake_z < 0 ? zslongToFix(2147483647) : switchblock_z+z+fake_z))
+#define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fakez < 0 ? zslongToFix(2147483647) : switchblock_z+z+fakez))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_bit(quest_rules,qr_BROKEN_Z3_ANIMATION))
 
 static inline bool platform_fallthrough()
@@ -357,7 +357,7 @@ void HeroClass::trySideviewLadder()
 
 bool HeroClass::can_pitfall(bool ignore_hover)
 {
-	return (!(isSideViewGravity()||action==rafting||z>0||fakez>0||fall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_hero||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
+	return (!(isSideViewGravity()||action==rafting||z>0||fakez>0||fall<0||fakefall<0||(hoverclk && !ignore_hover)||inlikelike||inwallm||pull_hero||toogam||(ladderx||laddery)||getOnSideviewLadder()||drownclk||!(moveflags & FLAG_CAN_PITFALL)));
 }
 
 int32_t HeroClass::DrunkClock()
@@ -630,7 +630,7 @@ void HeroClass::Drown(int32_t state)
 			attackid=-1;
 			reset_swordcharge();
 			drownclk=64;
-			z=fakez=fall=0;
+			z=fakez=fall=fakefall=0;
 			break;
 
 		
@@ -643,7 +643,7 @@ void HeroClass::Drown(int32_t state)
 			attackid=-1;
 			reset_swordcharge();
 			drownclk=64;
-			z=fakez=fall=0;
+			z=fakez=fall=fakefall=0;
 			break;
 		}
 	}
@@ -696,6 +696,10 @@ zfix  HeroClass::getFakeZ()
 zfix  HeroClass::getFall()
 {
     return fall;
+}
+zfix  HeroClass::getFakeFall()
+{
+    return fakefall;
 }
 zfix  HeroClass::getXOfs()
 {
@@ -1034,6 +1038,11 @@ void HeroClass::setFakeZfix(zfix new_z)
 void HeroClass::setFall(zfix new_fall)
 {
     fall=new_fall;
+    jumping=-1;
+}
+void HeroClass::setFakeFall(zfix new_fall)
+{
+    fakefall=new_fall;
     jumping=-1;
 }
 void HeroClass::setClimbCoverX(int32_t new_x)
@@ -1449,7 +1458,7 @@ void HeroClass::init()
         y=tmpscr->warparrivaly;
     }
     
-    z=fakez=fall=0;
+    z=fakez=fall=fakefall=0;
     hzsz = 12; // So that flying peahats can still hit him.
     
     if(x==0)   dir=right;
@@ -6673,7 +6682,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
 	if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
-			((z+fakexz) > (((enemy*)guys.spr(hit2))->z+(((enemy*)guys.spr(hit2))->fakez)) ||
+			((z+fakez) > (((enemy*)guys.spr(hit2))->z+(((enemy*)guys.spr(hit2))->fakez))) ||
 			((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
 	{
 		paymagiccost(stompid);
@@ -7210,7 +7219,7 @@ bool HeroClass::animate(int32_t)
 	
 	if(getOnSideviewLadder())
 	{
-		if(!canSideviewLadder() || jumping<0 || fall!=0)
+		if(!canSideviewLadder() || jumping<0 || fall!=0 || fakefall!=0)
 		{
 			setOnSideviewLadder(false);
 		}
@@ -7430,8 +7439,8 @@ bool HeroClass::animate(int32_t)
 	}
 	else // Topdown gravity
 	{
-		if (moveflags & FLAG_FAKE_Z) fakez-=fall/(spins && fall>0 ? 200:100);
-		else z-=fall/(spins && fall>0 ? 200:100);
+		if (!(moveflags & FLAG_NO_FAKE_Z)) fakez-=fakefall/(spins && fakefall>0 ? 200:100);
+		if (!(moveflags & FLAG_NO_REAL_Z)) z-=fall/(spins && fall>0 ? 200:100);
 		if(z>0||fakez>0)
 		{
 			switch(action)
@@ -7478,33 +7487,69 @@ bool HeroClass::animate(int32_t)
 			Lwpns.spr(Lwpns.idFirst(wHSHandle))->fakez=fakez;
 		}
 		
-		if(z<=0&&fakez<=0)
+		if(z<=0&&!(moveflags & FLAG_NO_REAL_Z))
 		{
-			if(fall > 0)
+			if (fakez <= 0 || (moveflags & FLAG_NO_FAKE_Z)) 
 			{
-				if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-					sfx(WAV_ZN1SPLASH,x.getInt());
-					
-				stomping = true;
-			}
-			
-			z = fakez = fall = jumping = 0;
-			if(check_pitslide(true) == -1)
-			{
-				hoverclk = 0;
-				hoverflags = 0;
-			}
-			else if(hoverclk > 0 && !(hoverflags&HOV_INF))
-			{
-				if(!--hoverclk)
+				if(fall > 0)
 				{
-					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
+					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+						sfx(WAV_ZN1SPLASH,x.getInt());
+						
+					stomping = true;
+				}
+			}
+			z = fall = 0;
+			if (fakez <= 0 || (moveflags & FLAG_NO_FAKE_Z)) 
+			{
+				jumping = 0;
+				if(check_pitslide(true) == -1)
+				{
+					hoverclk = 0;
+					hoverflags = 0;
+				}
+				else if(hoverclk > 0 && !(hoverflags&HOV_INF))
+				{
+					if(!--hoverclk)
+					{
+						hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
+					}
 				}
 			}
 		}
-		else if(fall <= (int32_t)zinit.terminalv)
+		if(fakez<=0&&!(moveflags & FLAG_NO_FAKE_Z))
 		{
-			if(fall != 0 || hoverclk>0)
+			if (z <= 0 || (moveflags & FLAG_NO_REAL_Z))
+			{
+				if(fakefall > 0)
+				{
+					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+						sfx(WAV_ZN1SPLASH,x.getInt());
+						
+					stomping = true;
+				}
+			}
+			fakez = fakefall = 0;
+			if (z <= 0 || (moveflags & FLAG_NO_REAL_Z)) 
+			{
+				jumping = 0;
+				if(check_pitslide(true) == -1)
+				{
+					hoverclk = 0;
+					hoverflags = 0;
+				}
+				else if(hoverclk > 0 && !(hoverflags&HOV_INF))
+				{
+					if(!--hoverclk)
+					{
+						hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
+					}
+				}
+			}
+		}
+		if(fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && fall > 0 || fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakefall > 0)
+		{
+			if(fall != 0 || fakefall != 0 || hoverclk>0)
 				jumping++;
 				
 			if(hoverclk > 0)
@@ -7516,17 +7561,19 @@ bool HeroClass::animate(int32_t)
 				
 				if(!hoverclk)
 				{
-					fall += (zinit.gravity2 / 100);
+					if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && fall > 0) fall += (zinit.gravity2 / 100);
+					if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakefall > 0) fakefall += (zinit.gravity2 / 100);
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0) || (fakefall+(int32_t)(zinit.gravity2 / 100) > 0 && fakefall<=0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
 				else
 				{
 					fall = 0;
+					fakefall = 0;
 					int32_t itemid = current_item_id(itype_hoverboots);
 					if(itemsbuf[itemid].misc1)
 						hoverclk = itemsbuf[itemid].misc1;
@@ -7539,8 +7586,14 @@ bool HeroClass::animate(int32_t)
 				}
 				decorations.add(new dHover(x, y, dHOVER, 0));
 			}
-			else fall += (zinit.gravity2 / 100);
+			else 
+			{
+				if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && fall > 0) fall += (zinit.gravity2 / 100);
+				if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakefall > 0) fakefall += (zinit.gravity2 / 100);
+			}
 		}
+		if (fakez<0) fakez = 0;
+		if (z<0) z = 0;
 	}
 	
 	if(drunkclk)
@@ -7592,7 +7645,7 @@ bool HeroClass::animate(int32_t)
 		lbunnyclock = 0;
 	}
 	
-	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || z>0 || fakez>0) && charging==0 && spins<=5
+	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || fakefall==0 || z>0 || fakez>0) && charging==0 && spins<=5
 			&& action != gothit)
 	{
 		switch(dir)
@@ -9063,7 +9116,7 @@ bool HeroClass::animate(int32_t)
 	
 	if(getOnSideviewLadder())
 	{
-		if(!canSideviewLadder() || jumping<0 || fall!=0)
+		if(!canSideviewLadder() || jumping<0 || fall!=0 || fakefall!=0)
 		{
 			setOnSideviewLadder(false);
 		}
@@ -9705,6 +9758,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					{
 						++extra_jump_count;
 						fall = 0;
+						fakefall = 0;
 						if(hoverclk > 0)
 							hoverclk = -hoverclk;
 					}
@@ -11654,7 +11708,7 @@ bool HeroClass::try_hover()
 			hoverclk = -hoverclk;
 		else
 		{
-			fall = jumping = 0;
+			fall = fakefall = jumping = 0;
 			if(itemsbuf[itemid].misc1)
 				hoverclk = itemsbuf[itemid].misc1;
 			else
@@ -20532,7 +20586,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
 	
-	if(water > 0 && get_bit(quest_rules,qr_DROWN) && z==0 && fakez==0 && fall>=0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
+	if(water > 0 && get_bit(quest_rules,qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
 	{
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{
@@ -22365,6 +22419,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	else if(!isSideViewHero())
 	{
 		fall=0;
+		fakefall=0;
 	}
 	
 	// If warping between top-down and sideview screens,
@@ -22843,7 +22898,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     dir=down;
     // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
-    z=fakez=fall=0;
+    z=fakez=fall=fakefall=0;
     
     if(opening)
     {
@@ -22897,7 +22952,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         
     // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
-    z=fakez=fall=0;
+    z=fakez=fall=fakefall=0;
     
     if(opening)
     {
@@ -27941,6 +27996,7 @@ void HeroClass::ganon_intro()
     if ( !isSideViewHero() )
     {
 	fall = 0; //Fix midair glitch on holding triforce. -Z
+	fakefall = 0;
 	z = 0;
 	fakez = 0;
     }
@@ -28049,7 +28105,7 @@ void HeroClass::saved_Zelda()
     hclk=0;
     x = 136;
     y = (isdungeon() && currscr<128) ? 75 : 73;
-    z = fakez = fall = spins = 0;
+    z = fakez = fall = fakefall = spins = 0;
     dir=left;
 }
 
@@ -28617,7 +28673,7 @@ void HeroClass::setOnSideviewLadder(bool val)
 {
 	if(val)
 	{
-		fall = hoverclk = jumping = 0;
+		fall = fakefall = hoverclk = jumping = 0;
 		hoverflags = 0;
 	}
 	on_sideview_ladder = val;

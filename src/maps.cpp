@@ -3691,7 +3691,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		if(!Hero.isSwimming())
 		{
-			if(Hero.getZ()>0 &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
 			{
 				Hero.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
 			}

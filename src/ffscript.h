@@ -4590,8 +4590,13 @@ enum ASM_DEFINE
 #define LWPNFAKEZ		0x1439
 #define EWPNFAKEZ		0x143A
 #define HEROFAKEZ		0x143B
+#define NPCFAKEJUMP		0x143C
+#define ITEMFAKEJUMP		0x143D
+#define LWPNFAKEJUMP		0x143E
+#define EWPNFAKEJUMP		0x143F
+#define HEROFAKEJUMP		0x1440
 
-#define NUMVARIABLES         	0x143C
+#define NUMVARIABLES         	0x1441
 
 //} End variables
 

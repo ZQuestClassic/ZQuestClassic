@@ -2957,6 +2957,10 @@ int32_t get_register(const int32_t arg)
 			ret = Hero.getFall().getZLong() / -100;
 			break;
 			
+		case HEROFAKEJUMP:
+			ret = Hero.getFakeFall().getZLong() / -100;
+			break;
+			
 		case LINKDIR:
 			ret=(int32_t)(Hero.dir)*10000;
 			break;
@@ -3307,7 +3311,7 @@ int32_t get_register(const int32_t arg)
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, 8, "Hero->MoveFlags[]") != SH::_NoError)
+			if(BC::checkBounds(indx, 0, 10, "Hero->MoveFlags[]") != SH::_NoError)
 				ret = 0; //false
 			else
 			{
@@ -3816,6 +3820,14 @@ int32_t get_register(const int32_t arg)
 				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 			break;
+		
+		case ITEMFAKEJUMP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)(s))->fakefall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
+			break;
 			
 		case ITEMDRAWTYPE:
 			if(0!=(s=checkItem(ri->itemref)))
@@ -4107,7 +4119,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "itemsprite->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5266,6 +5278,17 @@ int32_t get_register(const int32_t arg)
 				
 			break;
 		
+		case NPCFAKEJUMP:
+			if(GuyH::loadNPC(ri->guyref, "npc->FakeJump") != SH::_NoError)
+				ret = -10000;
+			else
+			{
+				ret = GuyH::getNPC()->fakefall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
+				
+			break;
+		
 		
 		case NPCSCALE:
 			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
@@ -5708,7 +5731,7 @@ int32_t get_register(const int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "npc->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "npc->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -5836,6 +5859,15 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
+				
+			break;
+		
+		case LWPNFAKEJUMP:
+			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
+			{
+				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
 				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
@@ -6195,7 +6227,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "lweapon->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -6301,6 +6333,15 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
+				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+			}
+				
+			break;
+		
+		case EWPNFAKEJUMP:
+			if(0!=(s=checkEWpn(ri->ewpn, "FakeJump")))
+			{
+				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
 				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
@@ -6645,7 +6686,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "eweapon->MoveFlags[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") != SH::_NoError)
 					ret = 0; //false
 				else
 				{
@@ -11573,6 +11614,10 @@ void set_register(const int32_t arg, const int32_t value)
 		case LINKJUMP:
 			Hero.setFall(zslongToFix(value) * -100);
 			break;
+		
+		case HEROFAKEJUMP:
+			Hero.setFakeFall(zslongToFix(value) * -100);
+			break;
 			
 		case LINKDIR:
 		{
@@ -12307,10 +12352,10 @@ void set_register(const int32_t arg, const int32_t value)
 		case HEROMOVEFLAGS:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;
-			if(BC::checkBounds(indx, 0, 8, "Hero->MoveFlags[]") == SH::_NoError)
+			if(BC::checkBounds(indx, 0, 10, "Hero->MoveFlags[]") == SH::_NoError)
 			{
 				//All bits, in order, of a single byte; just use bitwise
-				byte bit = 1<<indx;
+				int32_t bit = 1<<indx;
 				if(value)
 					Hero.moveflags |= bit;
 				else
@@ -12842,6 +12887,14 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			
 			break;
+		
+		case ITEMFAKEJUMP:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				(((item *)s)->fakefall)=zslongToFix(value)*-100;
+			}
+			
+			break;
 			
 		case ITEMDRAWTYPE:
 			if(0!=(s=checkItem(ri->itemref)))
@@ -13270,10 +13323,10 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "itemsprite->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					byte bit = 1<<indx;
+					int32_t bit = 1<<indx;
 					if(value)
 						((item*)(s))->moveflags |= bit;
 					else
@@ -14127,6 +14180,12 @@ void set_register(const int32_t arg, const int32_t value)
 				
 			break;
 			
+		case LWPNFAKEJUMP:
+			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
+				((weapon*)s)->fakefall=zslongToFix(value)*-100;
+				
+			break;
+			
 		case LWPNDIR:
 			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
 				((weapon*)s)->dir=(value/10000);
@@ -14499,10 +14558,10 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "lweapon->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					byte bit = 1<<indx;
+					int32_t bit = 1<<indx;
 					if(value)
 						((weapon*)(s))->moveflags |= bit;
 					else
@@ -14587,6 +14646,12 @@ void set_register(const int32_t arg, const int32_t value)
 		case EWPNJUMP:
 			if(0!=(s=checkEWpn(ri->ewpn,"Jump")))
 				((weapon*)s)->fall=zslongToFix(value)*-100;
+				
+			break;
+			
+		case EWPNFAKEJUMP:
+			if(0!=(s=checkEWpn(ri->ewpn,"FakeJump")))
+				((weapon*)s)->fakefall=zslongToFix(value)*-100;
 				
 			break;
 			
@@ -14936,10 +15001,10 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"MoveFlags[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "eweapon->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					byte bit = 1<<indx;
+					int32_t bit = 1<<indx;
 					if(value)
 						((weapon*)(s))->moveflags |= bit;
 					else
@@ -15099,6 +15164,19 @@ void set_register(const int32_t arg, const int32_t value)
 					
 				if(GuyH::hasHero())
 					Hero.setFall(zslongToFix(value)*-100);
+			}
+		}
+		break;
+		
+		case NPCFAKEJUMP:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->FakeJump") == SH::_NoError)
+			{
+				if(canfall(GuyH::getNPC()->id))
+					GuyH::getNPC()->fakefall =zslongToFix(value)*-100;
+					
+				if(GuyH::hasHero())
+					Hero.setFakeFall(zslongToFix(value)*-100);
 			}
 		}
 		break;
@@ -15771,10 +15849,10 @@ void set_register(const int32_t arg, const int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 8, "npc->MoveFlags[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, 10, "npc->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					byte bit = 1<<indx;
+					int32_t bit = 1<<indx;
 					if(value)
 						GuyH::getNPC()->moveflags |= bit;
 					else
@@ -24123,14 +24201,17 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	loadside=Hero.dir^1;
 	whistleclk=-1;
 		
-	if((int32_t)Hero.z>0 && isSideViewHero())
+	if(((int32_t)Hero.z>0 || (int32_t)Hero.fakez>0) && isSideViewHero())
 	{
 		Hero.y-=Hero.z;
+		Hero.y-=Hero.fakez;
 		Hero.z=0;
+		Hero.fakez=0;
 	}
 	else if(!isSideViewHero())
 	{
 		Hero.fall=0;
+		Hero.fakefall=0;
 	}
 		
 	// If warping between top-down and sideview screens,
@@ -36509,6 +36590,11 @@ script_variable ZASMVars[]=
 	{ "LWPNFAKEZ", LWPNFAKEZ, 0, 0 },
 	{ "EWPNFAKEZ", EWPNFAKEZ, 0, 0 },
 	{ "HEROFAKEZ", HEROFAKEZ, 0, 0 },
+	{ "NPCFAKEJUMP", NPCFAKEJUMP, 0, 0 },
+	{ "ITEMFAKEJUMP", ITEMFAKEJUMP, 0, 0 },
+	{ "LWPNFAKEJUMP", LWPNFAKEJUMP, 0, 0 },
+	{ "EWPNFAKEJUMP", EWPNFAKEJUMP, 0, 0 },
+	{ "HEROFAKEJUMP", HEROFAKEJUMP, 0, 0 },
 	
 	{ " ",                       -1,             0,             0 }
 };

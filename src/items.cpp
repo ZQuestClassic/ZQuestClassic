@@ -54,46 +54,6 @@ bool item::animate(int32_t)
 		return false;
 	if(!screenIsScrolling()) // Because subscreen items are items, too. :p
 	{
-		/* this is the code used for weapons 
-		
-		if ( moveflags & FLAG_OBEYS_GRAV ) // from above, or if scripted
-		{
-			if(isSideViewGravity())
-			{
-				if(!_walkflag(x,y+16,0))
-				{
-				y+=fall/100;
-				
-				if(fall <= (int32_t)zinit.terminalv)
-				{
-					fall += (zinit.gravity2 / 100);
-				}
-				}
-				else
-				{
-				if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
-					y-=(int32_t)y%8; // Fix position
-					
-				fall = 0;
-				}
-				
-				if(y>192) dead=0;  // Out of bounds
-			}
-			else
-			{
-				z-=fall/100;
-				
-				if(z<=0)
-				{
-				z = fall = 0;
-				}
-				else if(fall <= (int32_t)zinit.terminalv)
-				{
-				fall += (zinit.gravity2 / 100);
-				}
-			}
-		} 
-		*/
 		if(fallclk > 0)
 		{
 			if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
@@ -166,26 +126,26 @@ bool item::animate(int32_t)
 		{
 			if ( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
 			{
-				if (moveflags & FLAG_FAKE_Z)
+				if (!(moveflags & FLAG_NO_FAKE_Z))
 				{
-					fakez-=fall/100;
+					fakez-=fakefall/100;
 				
 					if(fakez<0)
 					{
 						fakez = 0;
-						fall = -fall/2;
+						fakefall = -fakefall/2;
 					}
-					else if(fakez <= 1 && abs(fall) < (int32_t)(zinit.gravity2 / 100))
+					else if(fakez <= 1 && abs(fakefall) < (int32_t)(zinit.gravity2 / 100))
 					{
 						fakez=0;
-						fall=0;
+						fakefall=0;
 					}
-					else if(fall <= (int32_t)zinit.terminalv)
+					else if(fakefall <= (int32_t)zinit.terminalv)
 					{
-						fall += (zinit.gravity2 / 100);
+						fakefall += (zinit.gravity2 / 100);
 					}
 				}
-				else
+				if (!(moveflags & FLAG_NO_REAL_Z))
 				{
 					z-=fall/100;
 					

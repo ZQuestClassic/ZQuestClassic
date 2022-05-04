@@ -3393,20 +3393,19 @@ bool enemy::animate(int32_t index)
 		}
 		else
 		{
-			if (moveflags & FLAG_FAKE_Z)
+			if (!(moveflags & FLAG_NO_FAKE_Z))
 			{
-				if(fall!=0)
-					fakez-=(fall/100);
+				if(fakefall!=0)
+					fakez-=(fakefall/100);
 					
 				if(fakez<0)
-					fakez = fall = 0;
-				else if(fall <= (int32_t)zinit.terminalv)
-					fall += (zinit.gravity2/100);
+					fakez = fakefall = 0;
+				else if(fakefall <= (int32_t)zinit.terminalv)
+					fakefall += (zinit.gravity2/100);
 				
-				if (fakez<=0 && fall > 0 && !get_bit(quest_rules, qr_FLUCTUATING_ENEMY_JUMP)) fall = 0;
-
+				if (fakez<=0 && fakefall > 0 && !get_bit(quest_rules, qr_FLUCTUATING_ENEMY_JUMP)) fakefall = 0;
 			}
-			else
+			if (!(moveflags & FLAG_NO_REAL_Z))
 			{
 				if(fall!=0)
 					z-=(fall/100);
@@ -6572,22 +6571,23 @@ void enemy::try_death(bool force_kill)
 						if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 						{
 							items.spr(i)->x = x+hxofs+(hxsz/2)-8;
-							items.spr(i)->y = y+hyofs+(hysz/2)-10-(moveflags & FLAG_FAKE_Z)?0:fakez;
+							items.spr(i)->y = y+hyofs+(hysz/2)-10-fakez;
 						}
 						else
 						{
 							if(extend >= 3) 
 							{
 								items.spr(i)->x = x+(txsz-1)*8;
-								items.spr(i)->y = y-2+(tysz-1)*8-(moveflags & FLAG_FAKE_Z)?0:fakez;
+								items.spr(i)->y = y-2+(tysz-1)*8;
 							}
 							else 
 							{
 								items.spr(i)->x = x;
-								items.spr(i)->y = y - 2-(moveflags & FLAG_FAKE_Z)?0:fakez;
+								items.spr(i)->y = y - 2;
 							}
 						}
-						items.spr(i)->z = z+(moveflags & FLAG_FAKE_Z)?fakez:0;
+						items.spr(i)->z = z;
+						items.spr(i)->fakez = fakez;
 					}
 					else
 					{
@@ -10704,7 +10704,7 @@ bool eTektite::animate(int32_t index)
 	
 	if(get_bit(quest_rules,qr_ENEMIESZAXIS) && misc==2)
 	{
-		if (moveflags & FLAG_FAKE_Z)
+		if (moveflags & FLAG_USE_FAKE_Z)
 		{
 			int32_t tempy = floor_y;
 			fakez=zc_max(0,zc_min(clk2start-clk2,clk2));
@@ -10889,7 +10889,7 @@ bool ePeahat::animate(int32_t index)
 	
 	if(get_bit(quest_rules,qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 	{
-		if (moveflags & FLAG_FAKE_Z) fakez=int32_t(step*1.1/((zslongToFix(dstep*10))*1.1));
+		if (moveflags & FLAG_USE_FAKE_Z) fakez=int32_t(step*1.1/((zslongToFix(dstep*10))*1.1));
 		else z=int32_t(step*1.1/((zslongToFix(dstep*10))*1.1));
 	}
 	
@@ -12175,7 +12175,7 @@ bool eBoulder::animate(int32_t index)
 	}
 	
 	zfix *vert;
-	vert = (moveflags & FLAG_FAKE_Z) ? &fakez : get_bit(quest_rules,qr_ENEMIESZAXIS) ? &z : &y;
+	vert = (moveflags & FLAG_USE_FAKE_Z) ? &fakez : get_bit(quest_rules,qr_ENEMIESZAXIS) ? &z : &y;
 	
 	if(++clk2==0)                                             // start it
 	{
@@ -19886,8 +19886,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	if(z && canfall(id))
 	{
-		if((e->moveflags & FLAG_FAKE_Z)) e->fakez = (zfix)z;
-		else e->z = (zfix)z;
+		 e->z = (zfix)z;
 	}
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
@@ -20336,8 +20335,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	
 	if(z && canfall(id))
 	{
-		if ((e->moveflags & FLAG_FAKE_Z)) e->fakez = (zfix)z;
-		else e->z = (zfix)z;
+		e->z = (zfix)z;
 	}
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
@@ -23617,27 +23615,29 @@ void roaming_item()
 					if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 					{
 						items.spr(i)->x = guys.spr(guycarryingitem)->x+guys.spr(guycarryingitem)->hxofs+(guys.spr(guycarryingitem)->hxsz/2)-8;
-						items.spr(i)->y = guys.spr(guycarryingitem)->y+guys.spr(guycarryingitem)->hyofs+(guys.spr(guycarryingitem)->hysz/2)-10-(guys.spr(guycarryingitem)->moveflags & FLAG_FAKE_Z)?0:guys.spr(guycarryingitem)->fakez;
+						items.spr(i)->y = guys.spr(guycarryingitem)->y+guys.spr(guycarryingitem)->hyofs+(guys.spr(guycarryingitem)->hysz/2)-10;
 					}
 					else
 					{
 						if(guys.spr(guycarryingitem)->extend >= 3) 
 						{
 							items.spr(i)->x = guys.spr(guycarryingitem)->x+(guys.spr(guycarryingitem)->txsz-1)*8;
-							items.spr(i)->y = guys.spr(guycarryingitem)->y-2+(guys.spr(guycarryingitem)->tysz-1)*8 - (guys.spr(guycarryingitem)->moveflags & FLAG_FAKE_Z)?0:guys.spr(guycarryingitem)->fakez;
+							items.spr(i)->y = guys.spr(guycarryingitem)->y-2+(guys.spr(guycarryingitem)->tysz-1)*8;
 						}
 						else 
 						{
 							items.spr(i)->x = guys.spr(guycarryingitem)->x;
-							items.spr(i)->y = guys.spr(guycarryingitem)->y - 2 - (guys.spr(guycarryingitem)->moveflags & FLAG_FAKE_Z)?0:guys.spr(guycarryingitem)->fakez;
+							items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
 						}
 					}
-					items.spr(i)->z = guys.spr(guycarryingitem)->z+(guys.spr(guycarryingitem)->moveflags & FLAG_FAKE_Z)?guys.spr(guycarryingitem)->fakez:0;
+					items.spr(i)->z = guys.spr(guycarryingitem)->z;
+					items.spr(i)->fakez = guys.spr(guycarryingitem)->fakez;
 				}
 				else
 				{
 					items.spr(i)->x = guys.spr(guycarryingitem)->x;
-					items.spr(i)->y = guys.spr(guycarryingitem)->y - 2 - (guys.spr(guycarryingitem)->moveflags & FLAG_FAKE_Z)?0:guys.spr(guycarryingitem)->fakez;
+					items.spr(i)->y = guys.spr(guycarryingitem)->y - 2;
+					items.spr(i)->fakez = guys.spr(guycarryingitem)->fakez;
 				}
 			}
 		}

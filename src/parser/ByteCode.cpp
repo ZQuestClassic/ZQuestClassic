@@ -2031,6 +2031,11 @@ string ZScript::VarToString(int32_t ID)
 	case LWPNFAKEZ: return "LWPNFAKEZ";
 	case EWPNFAKEZ: return "EWPNFAKEZ";
 	case HEROFAKEZ: return "HEROFAKEZ";
+	case NPCFAKEJUMP: return "NPCFAKEJUMP";
+	case ITEMFAKEJUMP: return "ITEMFAKEJUMP";
+	case LWPNFAKEJUMP: return "LWPNFAKEJUMP";
+	case EWPNFAKEJUMP: return "EWPNFAKEJUMP";
+	case HEROFAKEJUMP: return "HEROFAKEJUMP";
 	
 	default:
 	{

@@ -2378,6 +2378,8 @@ static AccessorTable HeroSTable[] =
 	{ "setDrownCombo",           ZVARTYPEID_VOID,          SETTER,       HERODROWNCMB,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFakeZ",           ZVARTYPEID_FLOAT,         GETTER,       HEROFAKEZ,          1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFakeZ",           ZVARTYPEID_VOID,          SETTER,       HEROFAKEZ,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFakeJump",           ZVARTYPEID_FLOAT,         GETTER,       HEROFAKEJUMP,          1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFakeJump",           ZVARTYPEID_VOID,          SETTER,       HEROFAKEJUMP,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 };
@@ -4132,6 +4134,8 @@ static AccessorTable itemTable[] =
 	{ "setDrownCombo",           ZVARTYPEID_VOID,          SETTER,       ITEMDROWNCMB,          1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFakeZ",           ZVARTYPEID_FLOAT,         GETTER,       ITEMFAKEZ,          1,           0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFakeZ",           ZVARTYPEID_VOID,          SETTER,       ITEMFAKEZ,          1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFakeJump",           ZVARTYPEID_FLOAT,         GETTER,       ITEMFAKEJUMP,          1,           0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFakeJump",           ZVARTYPEID_VOID,          SETTER,       ITEMFAKEJUMP,          1,           0,                                    2,           { ZVARTYPEID_ITEM, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -7148,6 +7152,8 @@ static AccessorTable npcTable[] =
 	{ "setDrownCombo",           ZVARTYPEID_VOID,          SETTER,       NPCDROWNCMB,          1,           0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFakeZ",           ZVARTYPEID_FLOAT,         GETTER,       NPCFAKEZ,          1,           0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFakeZ",           ZVARTYPEID_VOID,          SETTER,       NPCFAKEZ,          1,           0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFakeJump",           ZVARTYPEID_FLOAT,         GETTER,       NPCFAKEJUMP,          1,           0,                                    1,           { ZVARTYPEID_NPC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFakeJump",           ZVARTYPEID_VOID,          SETTER,       NPCFAKEJUMP,          1,           0,                                    2,           { ZVARTYPEID_NPC, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -7799,6 +7805,8 @@ static AccessorTable lwpnTable[] =
 	{ "setDrownCombo",           ZVARTYPEID_VOID,          SETTER,       LWPNDROWNCMB,          1,           0,                                    2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFakeZ",           ZVARTYPEID_FLOAT,         GETTER,       LWPNFAKEZ,          1,           0,                                    1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFakeZ",           ZVARTYPEID_VOID,          SETTER,       LWPNFAKEZ,          1,           0,                                    2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFakeJump",           ZVARTYPEID_FLOAT,         GETTER,       LWPNFAKEJUMP,          1,           0,                                    1,           { ZVARTYPEID_LWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFakeJump",           ZVARTYPEID_VOID,          SETTER,       LWPNFAKEJUMP,          1,           0,                                    2,           { ZVARTYPEID_LWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -8020,6 +8028,8 @@ static AccessorTable ewpnTable[] =
 	{ "setDrownCombo",           ZVARTYPEID_VOID,          SETTER,       EWPNDROWNCMB,          1,           0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getFakeZ",           ZVARTYPEID_FLOAT,         GETTER,       EWPNFAKEZ,          1,           0,                                    1,           { ZVARTYPEID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setFakeZ",           ZVARTYPEID_VOID,          SETTER,       EWPNFAKEZ,          1,           0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getFakeJump",           ZVARTYPEID_FLOAT,         GETTER,       EWPNFAKEJUMP,          1,           0,                                    1,           { ZVARTYPEID_EWPN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setFakeJump",           ZVARTYPEID_VOID,          SETTER,       EWPNFAKEJUMP,          1,           0,                                    2,           { ZVARTYPEID_EWPN, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };

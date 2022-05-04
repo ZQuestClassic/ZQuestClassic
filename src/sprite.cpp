@@ -959,7 +959,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 		if(ispitur) return ispitur;
 		if(ispitbl) return ispitbl;
 		if(ispitbr) return ispitbr;
-		fall = old_drown; //sanity check
+		fallclk = old_drown; //sanity check
 	}
 	return 0;
 }

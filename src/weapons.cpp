@@ -4378,20 +4378,20 @@ bool weapon::animate(int32_t index)
 		}
 		else
 		{
-			if (moveflags & FLAG_FAKE_Z)
+			if (!(moveflags & FLAG_NO_FAKE_Z))
 			{
-				fakez-=fall/100;
+				fakez-=fakefall/100;
 			
 				if(fakez <= 0)
 				{
-					fakez = fall = 0;
+					fakez = fakefall = 0;
 				}
-				else if(fall <= (int32_t)zinit.terminalv)
+				else if(fakefall <= (int32_t)zinit.terminalv)
 				{
-					fall += zinit.gravity;
+					fakefall += zinit.gravity;
 				}
 			}
-			else
+			if (!(moveflags & FLAG_NO_REAL_Z))
 			{
 				z-=fall/100;
 				
