@@ -105,6 +105,14 @@ LINKER_FLAGS=(
   -lidbfs.js
   -lembind
 )
+EMCC_AND_LINKER_FLAGS=(
+  # Error when using -fwasm-exceptions:
+  #   unexpected expression type
+  # UNREACHABLE executed at /opt/s/w/ir/cache/builder/emscripten-releases/binaryen/src/passes/Asyncify.cpp:1072!
+  # em++: error: '/Users/connorclark/tools/emsdk/upstream/bin/wasm-opt --post-emscripten -O3 --low-memory-unused --asyncify --pass-arg=asyncify-asserts --pass-arg=asyncify-imports@env.invoke_*,env.__call_main,env.emscripten_sleep,env.emscripten_wget,env.emscripten_wget_data,env.emscripten_idb_load,env.emscripten_idb_store,env.emscripten_idb_delete,env.emscripten_idb_exists,env.emscripten_idb_load_blob,env.emscripten_idb_store_blob,env.SDL_Delay,env.emscripten_scan_registers,env.emscripten_lazy_load_code,env.emscripten_fiber_swap,wasi_snapshot_preview1.fd_sync,env.__wasi_fd_sync,env._emval_await,env._dlopen_js,env.__asyncjs__* --zero-filled-memory --strip-producers zquest.wasm -o zquest.wasm -g --mvp-features --enable-threads --enable-mutable-globals --enable-bulk-memory --enable-sign-ext --enable-exception-handling' failed (received SIGABRT (-6)
+  # -fwasm-exceptions
+  -fexceptions
+)
 
 CMAKE_BUILD_TYPE=""
 if [[ "$DEBUG" ]]; then
@@ -140,9 +148,9 @@ emcmake cmake ../.. \
   -D WANT_ALSA=OFF \
   -D SDL2_INCLUDE_DIR="$EMCC_CACHE_INCLUDE_DIR" \
   -D SDL2_LIBRARY="$EMCC_CACHE_LIB_DIR/libSDL2-mt.a" \
-  -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]}" \
-  -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]} -D_NPASS" \
-  -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]}" \
+  -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
+  -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]} -D_NPASS" \
+  -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
   -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
 
 sh ../../patches/apply.sh
