@@ -3593,6 +3593,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		else set_bit(quest_rules,qr_OLD_FAIRY_LIMIT,1);
 		set_bit(quest_rules,qr_OLD_SCRIPTED_KNOCKBACK,1);
 	}
+	if(compatrule_version < 26)
+	{
+		set_bit(quest_rules,qr_OLD_KEESE_Z_AXIS,1);
+		set_bit(quest_rules,qr_POLVIRE_NO_SHADOW,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

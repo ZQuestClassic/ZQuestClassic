@@ -2906,7 +2906,8 @@ void HeroClass::prompt_draw(BITMAP* dest)
 {
 	if(!prompt_combo) return;
 	int32_t sx = real_x(x+xofs+prompt_x);
-	int32_t sy = real_y(y+yofs+prompt_y)-real_z(z+zofs)-fake_z(fakez);
+	int32_t sy = real_y(y + yofs + prompt_y) - real_z(z + zofs);
+	sy -= fake_z(fakez);
 	overcombo(dest, sx, sy, prompt_combo, prompt_cset);
 	return;
 }
@@ -5924,84 +5925,85 @@ int32_t HeroClass::EwpnHit()
 
 int32_t HeroClass::LwpnHit()                                    //only here to check magic hits
 {
-    for(int32_t i=0; i<Lwpns.Count(); i++)
-        if(Lwpns.spr(i)->hit(x+7,y+7-fakez,z,2,2,1))
-        {
-            weapon *lw = (weapon*)(Lwpns.spr(i));
-            
-            if((lw->ignoreHero)==true)
-                break;
-            
+	for(int32_t i=0; i<Lwpns.Count(); i++)
+		if(Lwpns.spr(i)->hit(x+7,y+7-fakez,z,2,2,1))
+		{
+			weapon *lw = (weapon*)(Lwpns.spr(i));
+			
+			if((lw->ignoreHero)==true)
+				break;
+			
+			if (!(lw->id == wRefFireball || lw->id == wRefMagic || lw->id == wRefBeam || lw->id == wRefRock)) return -1;
 			int32_t itemid = getCurrentShield(false);
 			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
 			itemdata const& shield = itemsbuf[itemid];
 			auto cmpdir = compareDir(lw->dir);
 			bool hitshield = compareShield(cmpdir, shield);
-            bool reflect = false;
-            
-            switch(lw->id)
-            {
-            case wRefFireball:
-                if(itemid<0)
-                    return i;
-                    
-                if(lw->type & 1)  //Boss fireball
-                    return i;
-                    
-                if(!(shield.misc1 & (shFIREBALL)))
-                    return i;
-                    
-                reflect = ((shield.misc2 & shFIREBALL) != 0);
-                break;
-                
-            case wRefMagic:
-                if(itemid<0)
-                    return i;
-                    
-                if(!(shield.misc1 & shMAGIC))
-                    return i;
-                    
-                reflect = ((shield.misc2 & shMAGIC) != 0);
-                break;
-                
-            case wRefBeam:
-                if(itemid<0)
-                    return i;
-                    
-                if(!(shield.misc1 & shSWORD))
-                    return i;
-                    
-                reflect = ((shield.misc2 & shSWORD) != 0);
-                break;
-                
-            case wRefRock:
-                if(itemid<0)
-                    return i;
-                    
-                if(!(shield.misc1 & shROCK))
-                    return i;
-                    
-                reflect = (shield.misc2 & shROCK);
-                break;
-                
-            default:
-                return -1;
-            }
-            
-            if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || hopclk==0xFF)
-                return i;
-                
-            if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
-            
-            paymagiccost(itemid);
-            
-            lw->onhit(false, 1+reflect, dir);
-            lw->ignoreHero=true;
-            lw->ignorecombo=-1;
-            sfx(shield.usesound,pan(x.getInt()));
-        }
-        
-    return -1;
+			bool reflect = false;
+			
+			switch(lw->id)
+			{
+			case wRefFireball:
+				if(itemid<0)
+					return i;
+					
+				if(lw->type & 1)  //Boss fireball
+					return i;
+					
+				if(!(shield.misc1 & (shFIREBALL)))
+					return i;
+					
+				reflect = ((shield.misc2 & shFIREBALL) != 0);
+				break;
+				
+			case wRefMagic:
+				if(itemid<0)
+					return i;
+					
+				if(!(shield.misc1 & shMAGIC))
+					return i;
+					
+				reflect = ((shield.misc2 & shMAGIC) != 0);
+				break;
+				
+			case wRefBeam:
+				if(itemid<0)
+					return i;
+					
+				if(!(shield.misc1 & shSWORD))
+					return i;
+					
+				reflect = ((shield.misc2 & shSWORD) != 0);
+				break;
+				
+			case wRefRock:
+				if(itemid<0)
+					return i;
+					
+				if(!(shield.misc1 & shROCK))
+					return i;
+					
+				reflect = (shield.misc2 & shROCK);
+				break;
+				
+			default:
+				return -1;
+			}
+			
+			if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || hopclk==0xFF)
+				return i;
+				
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
+			
+			paymagiccost(itemid);
+			
+			lw->onhit(false, 1+reflect, dir);
+			lw->ignoreHero=true;
+			lw->ignorecombo=-1;
+			sfx(shield.usesound,pan(x.getInt()));
+		}
+		
+	return -1;
 }
 
 void HeroClass::checkhit()
@@ -7547,7 +7549,7 @@ bool HeroClass::animate(int32_t)
 				}
 			}
 		}
-		if(fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && fall > 0 || fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakefall > 0)
+		if(fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && z>0 || fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)
 		{
 			if(fall != 0 || fakefall != 0 || hoverclk>0)
 				jumping++;
@@ -7561,8 +7563,8 @@ bool HeroClass::animate(int32_t)
 				
 				if(!hoverclk)
 				{
-					if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && fall > 0) fall += (zinit.gravity2 / 100);
-					if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakefall > 0) fakefall += (zinit.gravity2 / 100);
+					if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += (zinit.gravity2 / 100);
+					if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += (zinit.gravity2 / 100);
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
@@ -7588,8 +7590,8 @@ bool HeroClass::animate(int32_t)
 			}
 			else 
 			{
-				if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && fall > 0) fall += (zinit.gravity2 / 100);
-				if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakefall > 0) fakefall += (zinit.gravity2 / 100);
+				if (fall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += (zinit.gravity2 / 100);
+				if (fakefall <= (int32_t)zinit.terminalv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += (zinit.gravity2 / 100);
 			}
 		}
 		if (fakez<0) fakez = 0;

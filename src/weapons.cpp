@@ -4363,7 +4363,7 @@ bool weapon::animate(int32_t index)
 				
 				if(fall <= (int32_t)zinit.terminalv)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2/100);
 				}
 			}
 			else
@@ -4388,7 +4388,7 @@ bool weapon::animate(int32_t index)
 				}
 				else if(fakefall <= (int32_t)zinit.terminalv)
 				{
-					fakefall += zinit.gravity;
+					fakefall += (zinit.gravity2/100);
 				}
 			}
 			if (!(moveflags & FLAG_NO_REAL_Z))
@@ -4401,7 +4401,7 @@ bool weapon::animate(int32_t index)
 				}
 				else if(fall <= (int32_t)zinit.terminalv)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2/100);
 				}
 			}
 		}

@@ -767,7 +767,12 @@ static const GUI::ListData compatRulesList
 	{ "DMap 0 hardcoded continue", qr_DMAP_0_CONTINUE_BUG,
 		"If enabled, entering DMap 0 will set your continue point to it's continue screen, even if it shouldn't." },
 	{ "Old Scripted Knockback", qr_OLD_SCRIPTED_KNOCKBACK,
-		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." }
+		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." },
+	{ "Old Keese Z Axis Behavior", qr_OLD_KEESE_Z_AXIS,
+		"If enabled, Keese will barely change their z value unless over 128 pixels away from Link. If disabled,"
+		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to Link."},
+	{ "No Pols Voice/Vire Shadows with Z axis", qr_POLVIRE_NO_SHADOW,
+		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."}
 };
 
 static const GUI::ListData enemiesRulesList

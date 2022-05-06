@@ -1143,7 +1143,8 @@ void sprite::draw(BITMAP* dest)
 		return; //don't run the rest, use the old code
 	}
 	int32_t sx = real_x(x+xofs);
-	int32_t sy = real_y(y+yofs)-real_z(z+zofs)-fake_z(fakez);
+	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	sy -= fake_z(fakez);
 	
     
 	if(id<0)
@@ -1595,7 +1596,8 @@ void sprite::drawzcboss(BITMAP* dest)
     }
     
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs)-fake_z(fakez);
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+    sy -= fake_z(fakez);
     
     if(id<0)
         return;
@@ -1950,7 +1952,8 @@ void sprite::drawzcboss(BITMAP* dest)
 void sprite::draw8(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs)-fake_z(fakez);
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	sy -= fake_z(fakez);
     
     if(id<0)
         return;
@@ -1973,7 +1976,8 @@ void sprite::draw8(BITMAP* dest)
 void sprite::drawcloaked(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs)-fake_z(fakez);
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+    sy -= fake_z(fakez);
     
     if(id<0)
         return;
