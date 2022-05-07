@@ -144,6 +144,16 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				_SET(flag[6], "Inactive Left", "Protects the left when button is NOT held");
 				_SET(flag[7], "Inactive Right", "Protects the right when button is NOT held");
 				_SET(misc[5], "Inactive PTM", "Player Tile Modifier to use while shield is inactive");
+				_SET(flag[9], "Change Speed", "Change the player's walking speed while the shield is active");
+				_SET(flag[10], "Lock Direction", "When the shield is activated, lock the player's direction until"
+					" it is released.");
+				if(FLAG(10))
+				{
+					_SET(misc[6], "Speed Percentage", "A percentage multiplier for the player's movement speed."
+						" A negative value will deal that amount *more* damage; i.e. '-100' is the same as '200'.");
+					_SET(misc[7], "Speed Bonus", "A step value (in 100ths of a pixel per frame) to be added to the"
+						" player's speed.");
+				}
 			}
 			break;
 		}
@@ -550,7 +560,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[0] = "Affects Damage Combos";
 			inf->flag[1] = "Percentage Multiplier";
 			if(FLAG(2))
-				inf->power = "Damage % Mult:";
+				_SET(power, "Damage % Mult:", "The percentage to multiply the damage by. A negative value"
+					" will deal that amount *more* damage; i.e. '-100' is the same as '200'.");
 			else
 				inf->power = "Damage Divisor:";
 			break;

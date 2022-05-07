@@ -118,9 +118,15 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 bool usingActiveShield(int32_t itmid)
 {
 	if(HeroItemClk()) return false;
+	switch(Hero.action) //filter allowed actions
+	{
+		case none: case walking: case rafting:
+			break;
+		default: return false;
+	}
 	if(itmid < 0) itmid = current_item_id(itype_shield);
 	if(itmid < 0) return false;
-	if(!(itemsbuf[itmid].flags & ITEM_FLAG1)) return false;
+	if(!(itemsbuf[itmid].flags & ITEM_FLAG9)) return false;
 	if(!isItmPressed(itmid)) return false;
 	return (checkbunny(itmid) && checkmagiccost(itmid));
 }
@@ -137,6 +143,31 @@ int32_t getCurrentShield(bool requireActive)
 			return -1;
 	}
 	return itmid;
+}
+int32_t getCurrentActiveShield()
+{
+	int32_t id = getCurrentShield();
+	if(id > -1 && usingActiveShield(id))
+		return id;
+	return -1;
+}
+static bool is_immobile()
+{
+	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+		return false;
+	zfix rate(Hero.steprate);
+	int32_t shieldid = getCurrentActiveShield();
+	if(shieldid > -1)
+	{
+		itemdata const& shield = itemsbuf[shieldid];
+		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		{
+			zfix perc = shield.misc7;
+			perc /= 100;
+			rate = (rate * perc) + shield.misc8;
+		}
+	}
+	return rate != 0;
 }
 
 bool HeroClass::isStanding(bool forJump)
@@ -1020,7 +1051,7 @@ zfix  HeroClass::getModifiedY()
     return tempy;
 }
 
-int32_t  HeroClass::getDir()
+int32_t HeroClass::getDir()
 {
     return dir;
 }
@@ -5554,7 +5585,8 @@ int32_t HeroClass::compareDir(int32_t other)
 	if(other != NORMAL_DIR(other))
 		return 0; //*sigh* scripts expect dirs >=8 to NOT hit shields...
 	int32_t ret = 0;
-	switch(dir)
+	auto d = (shield_forcedir < 0) ? dir : shield_forcedir;
+	switch(d)
 	{
 		case up:
 		{
@@ -8324,6 +8356,24 @@ bool HeroClass::animate(int32_t)
 		holdclk=0;
 	}
 	
+	int32_t shieldid = getCurrentActiveShield();
+	bool sh = shieldid > -1;
+	itemdata const& shield = itemsbuf[shieldid];
+	//Handle direction forcing. This runs every frame so that scripts can interact with dir still.
+	shield_forcedir = -1;
+	if(sh && action != rafting && (shield.flags & ITEM_FLAG11)) //Lock Dir
+	{
+		shield_forcedir = dir;
+	}
+	if(sh != shield_active) //Toggle active shield on/off
+	{
+		shield_active = sh;
+		if(sh) //Toggle active shield on
+		{
+			sfx(shield.usesound2); //'Activate' sfx
+		}
+	}
+	
 	bool isthissolid = false;
 	switch(action)
 	{
@@ -8550,17 +8600,8 @@ bool HeroClass::animate(int32_t)
 		movehero();										   // call the main movement routine
 	}
 	
-	bool sh = usingActiveShield();
-	if(sh != shield_active)
-	{
-		shield_active = sh;
-		if(sh)
-		{
-			int32_t itid = getCurrentShield();
-			if(itid > -1)
-				sfx(itemsbuf[itid].usesound2); //'Activate' sfx
-		}
-	}
+	if(shield_forcedir > -1 && action != rafting)
+		dir = shield_forcedir;
 	
 	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
 		set_respawn_point(false); //Keep the 'last safe location' updated!
@@ -14369,7 +14410,8 @@ void HeroClass::movehero()
 				}
 			}
 		}
-		
+		if(shield_forcedir > -1 && action != rafting)
+			dir = shield_forcedir;
 		int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
 		int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
 		int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
@@ -15446,8 +15488,21 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.hero_swim_speed>60);
+	zfix rate(steprate);
+	int32_t shieldid = getCurrentActiveShield();
+	if(shieldid > -1)
+	{
+		itemdata const& shield = itemsbuf[shieldid];
+		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		{
+			zfix perc = shield.misc7;
+			perc /= 100;
+			rate = (rate * perc) + shield.misc8;
+		}
+	}
+	
 	zfix dx, dy;
-	zfix movepix(steprate / 100.0);
+	zfix movepix(rate / 100);
 	zfix step(movepix);
 	zfix step_diag(movepix);
 	zfix up_step(game->get_sideswim_up() / -100.0);
@@ -15658,6 +15713,7 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
 				dy = 0;
 		}
 	}
+	if(dx == 0 && dy == 0) return;
 	if(action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 	{
 		herostep();
