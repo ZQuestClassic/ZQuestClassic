@@ -121,10 +121,13 @@ bool usingActiveShield(int32_t itmid)
 	switch(Hero.action) //filter allowed actions
 	{
 		case none: case walking: case rafting:
+		case gothit: case swimhit:
 			break;
 		default: return false;
 	}
-	if(itmid < 0) itmid = current_item_id(itype_shield);
+	if(itmid < 0)
+		itmid = (Hero.active_shield_id < 0
+			? current_item_id(itype_shield) : Hero.active_shield_id);
 	if(itmid < 0) return false;
 	if(!(itemsbuf[itmid].flags & ITEM_FLAG9)) return false;
 	if(!isItmPressed(itmid)) return false;
@@ -132,24 +135,56 @@ bool usingActiveShield(int32_t itmid)
 }
 int32_t getCurrentShield(bool requireActive)
 {
+	if(Hero.active_shield_id > -1 && usingActiveShield(Hero.active_shield_id))
+		return Hero.active_shield_id;
 	if(!requireActive) return current_item_id(itype_shield);
-	
-	int32_t itmid = current_item_id(itype_shield);
-	if(itmid < 0) return itmid;
-	
-	if(itemsbuf[itmid].flags & ITEM_FLAG9) //'Active Shield'
-	{
-		if(!usingActiveShield(itmid))
-			return -1;
-	}
-	return itmid;
+	return -1;
 }
 int32_t getCurrentActiveShield()
 {
-	int32_t id = getCurrentShield();
+	int32_t id = Hero.active_shield_id;
 	if(id > -1 && usingActiveShield(id))
 		return id;
 	return -1;
+}
+int32_t refreshActiveShield()
+{
+	int32_t id = -1;
+    if(DrunkcBbtn())
+	{
+		itemdata const& dat = itemsbuf[Bwpn&0xFFF];
+		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		{
+			id = Bwpn&0xFFF;
+		}
+	}
+    if(id < 0 && DrunkcAbtn())
+	{
+		itemdata const& dat = itemsbuf[Awpn&0xFFF];
+		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		{
+			id = Awpn&0xFFF;
+		}
+	}
+    if(id < 0 && DrunkcEx1btn())
+	{
+		itemdata const& dat = itemsbuf[Xwpn&0xFFF];
+		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		{
+			id = Xwpn&0xFFF;
+		}
+	}
+    if(id < 0 && DrunkcEx2btn())
+	{
+		itemdata const& dat = itemsbuf[Ywpn&0xFFF];
+		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		{
+			id = Ywpn&0xFFF;
+		}
+	}
+	if(!usingActiveShield(id))
+		return -1;
+    return id;
 }
 static bool is_immobile()
 {
@@ -164,6 +199,8 @@ static bool is_immobile()
 		{
 			zfix perc = shield.misc7;
 			perc /= 100;
+			if(perc < 0)
+				perc = (perc*-1)+1;
 			rate = (rate * perc) + shield.misc8;
 		}
 	}
@@ -1455,6 +1492,8 @@ void HeroClass::init()
     diagonalMovement=(get_bit(quest_rules,qr_LTTPWALK));
     
 	shield_active = false;
+	shield_forcedir = -1;
+	active_shield_id = -1;
 	
     //2.6
 	preventsubscreenfalling = false;  //-Z
@@ -8356,9 +8395,9 @@ bool HeroClass::animate(int32_t)
 		holdclk=0;
 	}
 	
-	int32_t shieldid = getCurrentActiveShield();
-	bool sh = shieldid > -1;
-	itemdata const& shield = itemsbuf[shieldid];
+	active_shield_id = refreshActiveShield();
+	bool sh = active_shield_id > -1;
+	itemdata const& shield = itemsbuf[active_shield_id];
 	//Handle direction forcing. This runs every frame so that scripts can interact with dir still.
 	shield_forcedir = -1;
 	if(sh && action != rafting && (shield.flags & ITEM_FLAG11)) //Lock Dir
@@ -15497,6 +15536,8 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
 		{
 			zfix perc = shield.misc7;
 			perc /= 100;
+			if(perc < 0)
+				perc = (perc*-1)+1;
 			rate = (rate * perc) + shield.misc8;
 		}
 	}
