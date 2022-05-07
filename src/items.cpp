@@ -267,7 +267,7 @@ bool item::animate(int32_t)
 			if(o_tile/TILES_PER_ROW==(o_tile+txsz*aframe)/TILES_PER_ROW)
 				tile=o_tile+txsz*aframe;
 			else
-				tile=o_tile+(txsz*aframe)+((tysz-1)*TILES_PER_ROW)*((o_tile+txsz*aframe)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW);
+				tile=o_tile+(txsz*aframe)+((tysz-1)*TILES_PER_ROW)*(((o_tile+txsz*aframe)/TILES_PER_ROW)-(o_tile/TILES_PER_ROW));
 		}
 		else
 			tile = o_tile + aframe;
@@ -278,6 +278,13 @@ bool item::animate(int32_t)
 			int32_t slot = itm->misc1;
 			size_t btype = game->get_bottle_slot(slot);
 			int32_t offset = (frames ? frames : 1) * btype;
+			if(extend > 2)
+			{
+				if(tile/TILES_PER_ROW==(tile+offset*txsz)/TILES_PER_ROW)
+					offset *= txsz;
+				else
+					offset = (offset*txsz) + ((tysz-1)*TILES_PER_ROW)*(((tile+offset*txsz)/TILES_PER_ROW)-(tile/TILES_PER_ROW));
+			}
 			tile += offset;
 		}
 #endif

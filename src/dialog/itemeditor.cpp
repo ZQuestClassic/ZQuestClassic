@@ -11,18 +11,22 @@ extern bool saved;
 extern char *item_string[];
 extern itemdata *itemsbuf;
 extern zcmodule moduledata;
-static bool _reset_default;
-static itemdata reset_ref;
+static bool _reset_default, _reload_editor;
+static itemdata static_ref;
 static std::string reset_name;
 void call_item_editor(int32_t index)
 {
 	_reset_default = false;
 	ItemEditorDialog(index).show();
-	while(_reset_default)
+	while(_reset_default || _reload_editor)
 	{
-		_reset_default = false;
-		reset_itembuf(&reset_ref, index);
-		ItemEditorDialog(reset_ref, reset_name.c_str(), index).show();
+		if(_reset_default)
+		{
+			_reset_default = false;
+			reset_itembuf(&static_ref, index);
+		}
+		_reload_editor = false;
+		ItemEditorDialog(static_ref, reset_name.c_str(), index).show();
 	}
 }
 
@@ -150,7 +154,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				if(FLAG(10))
 				{
 					_SET(misc[6], "Speed Percentage", "A percentage multiplier for the player's movement speed."
-						" A negative value will deal that amount *more* damage; i.e. '-100' is the same as '200'.");
+						" A negative value will give that amount *more* speed; i.e. '-100' is the same as '200'.");
 					_SET(misc[7], "Speed Bonus", "A step value (in 100ths of a pixel per frame) to be added to the"
 						" player's speed.");
 				}
@@ -846,7 +850,8 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t
 	list_itemsprscript(GUI::ListData::itemsprite_script()),
 	list_weaponscript(GUI::ListData::lweapon_script()),
 	list_weaptype(GUI::ListData::lweaptypes()),
-	list_deftypes(GUI::ListData::deftypes())
+	list_deftypes(GUI::ListData::deftypes()),
+	list_bottletypes(GUI::ListData::bottletype())
 {}
 
 ItemEditorDialog::ItemEditorDialog(int32_t index):
@@ -936,9 +941,29 @@ Row(vPadding = 0_px, \
 	) \
 )
 
+int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
+{
+	if(local_itemref.family != itype_bottle)
+		return local_itemref.tile;
+	int32_t o_tile = local_itemref.tile;
+	int32_t tile = o_tile + bottleVal * (zc_max(local_itemref.frames,1)
+		* ((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+			? zc_max(local_itemref.tilew,1) : 1));
+	auto oldRow = o_tile/TILES_PER_ROW;
+	auto newRow = tile/TILES_PER_ROW;
+	if(oldRow != newRow)
+	{
+		tile += (newRow-oldRow) * TILES_PER_ROW
+			* ((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+				? zc_max(local_itemref.tileh,1)-1 : 0);
+	}
+	return tile;
+}
+
 //}
 
 static size_t itmtabs[4] = {0};
+static byte bottleType = 0;
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -1688,7 +1713,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
 										local_itemref.csets |= c&0x0F;
-										animFrame->setTile(t);
+										animFrame->setTile(calcBottleTile(local_itemref, bottleType));
 										animFrame->setCSet(c);
 									}
 								),
@@ -1709,6 +1734,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.misc_flags,2,state);
 									}
+								)
+							),
+							Column(
+								animSwitcher = Switcher(
+									DummyWidget(),
+									DropDownList(data = list_bottletypes,
+										fitParent = true, padding = 0_px,
+										selectedValue = bottleType,
+										onSelectFunc = [&](int32_t val)
+										{
+											bottleType = (byte)val;
+											animFrame->setTile(calcBottleTile(local_itemref, bottleType));
+											pendDraw();
+										}
+									)
 								),
 								animFrame = TileFrame(
 									hAlign = 0.0,
@@ -1716,8 +1756,14 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									cset = (local_itemref.csets & 0xF),
 									frames = local_itemref.frames,
 									speed = local_itemref.speed,
-									delay = local_itemref.delay
-								)
+									delay = local_itemref.delay,
+									skipx = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+										? local_itemref.tilew-1 : 0,
+									skipy = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+										? local_itemref.tileh-1 : 0,
+									do_sized = true
+								),
+								Button(text = "Refresh Preview", onClick = message::RELOAD)
 							)
 						)),
 						TabRef(name = "Sprites", Columns<5>(
@@ -1741,6 +1787,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.tilew,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
+										onValueChanged = message::GFXSIZE,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.tilew = val;
@@ -1750,6 +1797,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										hAlign = 0.0,
 										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
 										text = "Enabled",
+										onToggle = message::GFXSIZE,
 										onToggleFunc = [&](bool state)
 										{
 											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
@@ -1762,6 +1810,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.tileh,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
+										onValueChanged = message::GFXSIZE,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.tileh = val;
@@ -1771,6 +1820,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										hAlign = 0.0,
 										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
 										text = "Enabled",
+										onToggle = message::GFXSIZE,
 										onToggleFunc = [&](bool state)
 										{
 											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
@@ -1936,6 +1986,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_tilew,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
+										onValueChanged = message::GFXSIZE,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_tilew = val;
@@ -1945,6 +1996,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										hAlign = 0.0,
 										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
 										text = "Enabled",
+										onToggle = message::GFXSIZE,
 										onToggleFunc = [&](bool state)
 										{
 											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
@@ -1957,6 +2009,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										val = local_itemref.weap_tileh,
 										type = GUI::TextField::type::INT_DECIMAL,
 										width = ACTION_FIELD_WID, high = 32,
+										onValueChanged = message::GFXSIZE,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_itemref.weap_tileh = val;
@@ -1966,6 +2019,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										hAlign = 0.0,
 										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
 										text = "Enabled",
+										onToggle = message::GFXSIZE,
 										onToggleFunc = [&](bool state)
 										{
 											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
@@ -2935,7 +2989,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
 										local_itemref.csets |= c&0x0F;
-										animFrame->setTile(t);
+										animFrame->setTile(calcBottleTile(local_itemref, bottleType));
 										animFrame->setCSet(c);
 									}
 								),
@@ -2956,6 +3010,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.misc_flags,2,state);
 									}
+								)
+							),
+							Column(
+								animSwitcher = Switcher(
+									DummyWidget(),
+									DropDownList(data = list_bottletypes,
+										fitParent = true, padding = 0_px,
+										selectedValue = bottleType,
+										onSelectFunc = [&](int32_t val)
+										{
+											bottleType = (byte)val;
+											animFrame->setTile(calcBottleTile(local_itemref, bottleType));
+											pendDraw();
+										}
+									)
 								),
 								animFrame = TileFrame(
 									hAlign = 0.0,
@@ -2963,8 +3032,14 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									cset = (local_itemref.csets & 0xF),
 									frames = local_itemref.frames,
 									speed = local_itemref.speed,
-									delay = local_itemref.delay
-								)
+									delay = local_itemref.delay,
+									skipx = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+										? local_itemref.tilew-1 : 0,
+									skipy = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+										? local_itemref.tileh-1 : 0,
+									do_sized = true
+								),
+								Button(text = "Refresh Preview", onClick = message::RELOAD)
 							)
 						)),
 						TabRef(name = "Sprites", 
@@ -3431,6 +3506,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 
 void ItemEditorDialog::loadItemClass()
 {
+	animFrame->setTile(calcBottleTile(local_itemref, bottleType));
+	animSwitcher->switchTo(local_itemref.family == itype_bottle ? 1 : 0);
+	
 	ItemNameInfo inf;
 	loadinfo(&inf, local_itemref);
 	
@@ -3496,7 +3574,16 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			loadItemClass();
 			return false;
 		}
-
+		
+		case message::GFXSIZE:
+		{
+			animFrame->setSkipX((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+				? local_itemref.tilew-1 : 0);
+			animFrame->setSkipY((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+				? local_itemref.tileh-1 : 0);
+			return false;
+		}
+		
 		case message::DEFAULT:
 		{
 			bool cancel = false;
@@ -3509,7 +3596,15 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}).show();
 			if(cancel) return false;
 			_reset_default = true;
-			reset_ref = local_itemref;
+			static_ref = local_itemref;
+			reset_name = itemname;
+			return true;
+		}
+		
+		case message::RELOAD:
+		{
+			_reload_editor = true;
+			static_ref = local_itemref;
 			reset_name = itemname;
 			return true;
 		}

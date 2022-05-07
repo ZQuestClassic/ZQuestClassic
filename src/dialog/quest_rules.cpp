@@ -767,7 +767,9 @@ static const GUI::ListData compatRulesList
 	{ "DMap 0 hardcoded continue", qr_DMAP_0_CONTINUE_BUG,
 		"If enabled, entering DMap 0 will set your continue point to it's continue screen, even if it shouldn't." },
 	{ "Old Scripted Knockback", qr_OLD_SCRIPTED_KNOCKBACK,
-		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." }
+		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." },
+	{ "Old Subscreen Selector", qr_SUBSCR_OLD_SELECTOR,
+		"If disabled, the subscreen selector will stretch to fit the item it is selecting." }
 };
 
 static const GUI::ListData enemiesRulesList
