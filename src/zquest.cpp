@@ -7546,6 +7546,7 @@ void update_combobrush()
         {
             for(int32_t i=0; i<256; i++)
             {
+				if(unsigned(Combo+i) >= MAXCOMBOS) break;
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
                     put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,Combo+i,CSet,Flags&(cFLAGS|cWALK),0);
@@ -7558,15 +7559,16 @@ void update_combobrush()
             
             for(int32_t i=0; i<256; i++)
             {
+				if(unsigned(Combo+c) >= MAXCOMBOS) break;
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
                     put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,Combo+c,CSet,Flags&(cFLAGS|cWALK),0);
                 }
                 
-                ++c;
-                
-                if((i&3)==3)
+                if(((Combo+c)&3)==3)
                     c+=48;
+				
+                ++c;
                     
                 if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
                     c-=256;
