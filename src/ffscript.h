@@ -4619,8 +4619,12 @@ enum ASM_DEFINE
 #define EWPNVY                  0x1450
 #define LWPNAUTOROTATE          0x1451
 #define EWPNAUTOROTATE          0x1452
+#define IDATACOSTCOUNTER2       0x1453
+#define IDATAMAGICTIMER2        0x1454
+#define IDATACOST2              0x1455
+#define IDATAVALIDATE2          0x1456
 
-#define NUMVARIABLES         	0x1451
+#define NUMVARIABLES         	0x1457
 
 //} End variables
 

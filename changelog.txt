@@ -1,6 +1,9 @@
 // 2.55 Change Log
-// Updated 7th May, 2022
+// Updated 9th May, 2022
 
+Add zscript angled weapon features
+	( DeeDee, May 9th, 2022 )
+	
 Fix separate 'item override' active shields not using
 	the correct shield.
 Fix several issues related to large items
@@ -12,6 +15,9 @@ Fix several issues related to large items
 Fix crash near end of combo list with large combo brush size
 Active Shields: Step speed modifier, lock direction (strafing)
 	( EmilyV, May 7th, 2022 )
+
+Add 'fakez' for sprites, with 'fakejump'
+	( DeeDee, May 3rd, 2022 )
 
 Fix crash in 4-way movement
 	( EmilyV, May 2nd, 2022 )

@@ -5491,6 +5491,8 @@ bool KeepOld;
  
 bool Validate;
  * Corresponds to 'Only Validate Cost' on the Action tab of the item editor
+bool Validate2;
+ * Corresponds to 'Only Validate Cost2' on the Action tab of the item editor
 	
 bool RupeeCost;	
  * Corresponds to the 'Use Rupees Instead of Magic' option on the item editor 'Action' tab.
@@ -5524,6 +5526,9 @@ int MagicCostTimer;
 int CostTimer;
  * The number of frames between counter decrements, when using an item with a perpetual 
  * 	upkeep cost, such as Boots and Cane items.
+
+int CostTimer2;
+ * The number of frames between counter decrements, for the second cost.
 
 int UseSound;
  * The sound that may play when the item is used. When it plays differs depending on itemclass.
@@ -5559,10 +5564,16 @@ int Cost;
  * If the item runs for more than one frame, this amount will be decremented every n frames,
  * 	where n is the value of 'CostTimer'.
 
+int Cost2;
+ * The second cost of the item, in units.
+ * Charged in addition to the first cost.
+
 int CostCounter;
  * The counter to use when decrementing the item cost. The default is 'CR_MAGIC'.
- * Some item classes (e.g. Bombs) reduce a counter, whether this is set or not.
- * In the case that this is set on such an uitem, it acts as a secobdary cost.
+
+int CostCounter2;
+ * The counter to use when decrementing the second cost. The default is 'CR_NONE'.
+ * Charged in addition to the first cost.
 
 int DrawXOffset;
  * The horizontal draw offset of the item. 

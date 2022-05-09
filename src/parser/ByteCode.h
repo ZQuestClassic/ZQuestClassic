@@ -1389,8 +1389,12 @@
 #define EWPNVY                  1306
 #define LWPNAUTOROTATE          1307
 #define EWPNAUTOROTATE          1308
+#define IDATACOSTCOUNTER2       1309
+#define IDATAMAGICTIMER2        1310
+#define IDATACOST2              1311
+#define IDATAVALIDATE2          1312
 
-#define LAST_BYTECODE           1309
+#define LAST_BYTECODE           1313
 
 //} END OF BYTECODE
 

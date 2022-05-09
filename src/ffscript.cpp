@@ -73,11 +73,6 @@ using std::ostringstream;
 #define rZELDAVERSION               9 // What, no 9?
 #define rSP                     10
 
-#define IDATACOSTCOUNTER2 -1
-#define IDATAMAGICTIMER2 -2
-#define IDATACOST2 -3
-#define IDATAVALIDATE2 -4
-
 extern zinitdata zinit;
 int32_t hangcount = 0;
 
@@ -37318,6 +37313,10 @@ script_variable ZASMVars[]=
 	{ "EWPNVY", EWPNVY, 0, 0 },
 	{ "LWPNAUTOROTATE", LWPNAUTOROTATE, 0, 0 },
 	{ "EWPNAUTOROTATE", EWPNAUTOROTATE, 0, 0 },
+	{ "IDATACOSTCOUNTER2", IDATACOSTCOUNTER2, 0, 0 },
+	{ "IDATAMAGICTIMER2", IDATAMAGICTIMER2, 0, 0 },
+	{ "IDATACOST2", IDATACOST2, 0, 0 },
+	{ "IDATAVALIDATE2", IDATAVALIDATE2, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
