@@ -31,11 +31,6 @@
       <button class="panel-button hidden button--copyurl">Copy URL</button>
       <button class="panel-button hidden button--open-testmode">Test Mode</button>
     </div>
-
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress"></progress>
-      <div id="status">Initializing...</div>
-    </div>
   </header>
 
   <div>
@@ -138,58 +133,64 @@
     </div>
   </div>
 
-  <div class="permission hidden">
-    <div class="already-attached">
-      The folder "<span class="folder-name"></span>" is attached. Press OK and approve
-      the browser permission prompt to continue.
+  <main>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress"></progress>
+      <div id="status">Initializing...</div>
     </div>
-    <div class="not-attached">
-      Press OK, select a folder and approve the browser permission prompt to continue.
-    </div>
-    <div>
-      <div class="m5">
-        <button class="ok">OK</button>
+    <div class="permission hidden">
+      <div class="already-attached">
+        The folder "<span class="folder-name"></span>" is attached. Press OK and approve
+        the browser permission prompt to continue.
       </div>
-      <div class="m5">
-        <button class="cancel">No (store data in browser instead)</button>
+      <div class="not-attached">
+        Press OK, select a folder and approve the browser permission prompt to continue.
       </div>
-    </div>
-  </div>
-
-  <div class="content">
-    <div class="touch-inputs">
-      <div class="dpad">
-        <div class="touch-input" data-x="-1" data-y="-1"></div>
-        <div class="touch-input" data-x="0" data-y="-1">U</div>
-        <div class="touch-input" data-x="1" data-y="-1"></div>
-        <div class="touch-input" data-x="-1" data-y="0">L</div>
-        <div></div>
-        <div class="touch-input" data-x="1" data-y="0">R</div>
-        <div class="touch-input" data-x="-1" data-y="1"></div>
-        <div class="touch-input" data-x="0" data-y="1">D</div>
-        <div class="touch-input" data-x="1" data-y="1"></div>
-      </div>
-    </div>
-
-    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-
-    <div class="touch-inputs">
-      <div style="width: 100%">
-        <div class="flex justify-evenly" style="margin: 5vh 0">
-          <div class="touch-input" data-action="Start">Start</div>
-          <div class="touch-input" data-action="Map">Map</div>
+      <div>
+        <div class="m5">
+          <button class="ok">OK</button>
         </div>
-        <div class="flex justify-evenly" style="margin: 5vh 0">
-          <div class="touch-input" data-action="L">L</div>
-          <div class="touch-input" data-action="R">R</div>
-        </div>
-        <div class="flex justify-evenly" style="margin: 5vh 0">
-          <div class="touch-input" data-action="B">B</div>
-          <div class="touch-input" data-action="A">A</div>
+        <div class="m5">
+          <button class="cancel">No (store data in browser instead)</button>
         </div>
       </div>
     </div>
-  </div>
+
+    <div class="content">
+      <div class="touch-inputs">
+        <div class="dpad">
+          <div class="touch-input" data-x="-1" data-y="-1"></div>
+          <div class="touch-input" data-x="0" data-y="-1">U</div>
+          <div class="touch-input" data-x="1" data-y="-1"></div>
+          <div class="touch-input" data-x="-1" data-y="0">L</div>
+          <div></div>
+          <div class="touch-input" data-x="1" data-y="0">R</div>
+          <div class="touch-input" data-x="-1" data-y="1"></div>
+          <div class="touch-input" data-x="0" data-y="1">D</div>
+          <div class="touch-input" data-x="1" data-y="1"></div>
+        </div>
+      </div>
+
+      <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+      <div class="touch-inputs">
+        <div style="width: 100%">
+          <div class="flex justify-evenly" style="margin: 5vh 0">
+            <div class="touch-input" data-action="Start">Start</div>
+            <div class="touch-input" data-action="Map">Map</div>
+          </div>
+          <div class="flex justify-evenly" style="margin: 5vh 0">
+            <div class="touch-input" data-action="L">L</div>
+            <div class="touch-input" data-action="R">R</div>
+          </div>
+          <div class="flex justify-evenly" style="margin: 5vh 0">
+            <div class="touch-input" data-action="B">B</div>
+            <div class="touch-input" data-action="A">A</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
   <template class="tmpl-selected-quest">
     <div>

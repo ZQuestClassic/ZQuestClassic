@@ -517,3 +517,20 @@ function checkForGamepads() {
 checkForGamepads();
 window.addEventListener('gamepadconnected', checkForGamepads);
 window.addEventListener('gamepaddisconnected', checkForGamepads);
+
+function goFullscreen() {
+  document.querySelector('main').requestFullscreen();
+}
+
+const fullscreenEl = document.createElement('button');
+fullscreenEl.textContent = 'Fullscreen';
+fullscreenEl.classList.add('panel-button');
+fullscreenEl.addEventListener('click', goFullscreen);
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.panel-buttons').append(fullscreenEl);
+});
+
+// If using gamepad, probably want to go fullscreen.
+if (TARGET === 'zelda') {
+  window.addEventListener('gamepadconnected', goFullscreen, { once: true });
+}
