@@ -1,5 +1,5 @@
 import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
-import { createElement, createUrlString, fetchWithProgress } from "./utils.js";
+import { createElement, createUrlString, fetchWithProgress, formatBytes } from "./utils.js";
 
 window.ZC = {
   pathToUrl: {},
@@ -11,14 +11,13 @@ window.ZC = {
     return path;
   },
   async fetch(url, opts) {
-    const formatKB = (bytes) => `${Math.floor(bytes / 1024)} KB`;
     const response = await fetchWithProgress(url, opts, (received, total, done) => {
       if (done) {
         Module.setStatus('Ready');
       } else if (received && total) {
-        Module.setStatus(`Fetching file (${Math.floor(received / 1024)}/${formatKB(total)})`, received / total);
+        Module.setStatus(`Fetching file (${formatBytes(received, total)})`, received / total);
       } else if (received) {
-        Module.setStatus(`Fetching file (${formatKB(received)})`);
+        Module.setStatus(`Fetching file (${formatBytes(received)})`);
       } else {
         Module.setStatus('Fetching file');
       }
@@ -100,7 +99,7 @@ async function main() {
         // And there's no way to configure that, so just parse it.
         if (text.startsWith('Downloading data... (')) {
           const [, x, y] = text.match(/(\d+)\/(\d+)/);
-          text = `Downloading data... (${Math.floor(x / 1024)}/${Math.floor(y / 1024)} KB)`;
+          text = `Downloading data... (${formatBytes(x, y, 'MB')})`;
           percentProgress = x / y;
         }
 

@@ -97,3 +97,36 @@ export const getFsHandles = async (dirHandle) => {
   }
   return result;
 };
+
+export function formatBytes(bytes1, bytes2, unit) {
+  const b = (bytes1 || bytes2);
+  let scale = 1;
+  let fixedUnits = 0;
+
+  if (unit === undefined) {
+    if (b > 1024 ** 2) {
+      unit = 'MB';
+    } else if (b > 1024) {
+      unit = 'KB';
+    } else {
+      unit = 'B';
+    }
+  }
+
+  if (unit === 'B') {
+    scale = 1;
+    fixedUnits = 0;
+  } else if (unit === 'KB') {
+    scale = 1024;
+    fixedUnits = 0;
+  } else if (unit === 'MB') {
+    scale = 1024 ** 2;
+    fixedUnits = 1;
+  }
+
+  if (bytes2 === undefined) {
+    return `${(bytes1 / scale).toFixed(fixedUnits)} ${unit}`
+  }
+
+  return `${(bytes1 / scale).toFixed(fixedUnits)}/${(bytes2 / scale).toFixed(fixedUnits)} ${unit}`
+}
