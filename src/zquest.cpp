@@ -33789,3 +33789,69 @@ void update_hw_screen(bool force)
 	}
 }
 
+
+bool checkCost(int32_t ctr, int32_t amnt)
+{
+	if(!game) return true;
+	if(amnt <= 0) return true;
+	switch (ctr)
+	{
+		case crMONEY: //rupees
+		{
+			if ( current_item_power(itype_wallet) ) return true;
+			break;
+		}
+		case crMAGIC: //magic
+		{
+			if (get_bit(quest_rules,qr_ENABLEMAGIC))
+			{
+				return (((current_item_power(itype_magicring) > 0)
+					 ? game->get_maxmagic()
+					 : game->get_magic()+game->get_dmagic())>=amnt*game->get_magicdrainrate());
+			}
+			return true;
+		}
+		case crARROWS:
+		{
+			if(current_item_power(itype_quiver))
+				return true;
+			if(!get_bit(quest_rules,qr_TRUEARROWS))
+				return checkCost(crMONEY, amnt);
+			break;
+		}
+		case crBOMBS:
+		{
+			if(current_item_power(itype_bombbag))
+				return true;
+			break;
+		}
+		case crSBOMBS:
+		{
+			if(current_item_power(itype_bombbag)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				return true;
+			break;
+		}
+	}
+	return (game->get_counter(ctr)+game->get_dcounter(ctr)>=amnt);
+}
+bool checkmagiccost(int32_t itemid)
+{
+	if(itemid < 0)
+	{
+		return false;
+	}
+	itemdata const& id = itemsbuf[itemid];
+	return checkCost(id.cost_counter[0], id.cost_amount[0])
+		&& checkCost(id.cost_counter[1], id.cost_amount[1]);
+}
+
+void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
+{
+	return;
+}
+void paymagiccost(int32_t itemid, bool ignoreTimer)
+{
+	return;
+}
+

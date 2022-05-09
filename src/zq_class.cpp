@@ -8501,10 +8501,13 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
                 new_return(38);
             }
             
-            if(!p_putc(itemsbuf[i].magic,f))
-            {
-                new_return(39);
-            }
+			for(auto q = 0; q < 2; ++q)
+			{
+				if(!p_iputw(itemsbuf[i].cost_amount[q],f))
+				{
+					new_return(39);
+				}
+			}
             
             if(!p_iputl(itemsbuf[i].misc3,f))
             {
@@ -8671,9 +8674,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 		{
 		    new_return(73);
 		}
-		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		for(auto q = 0; q < 2; ++q)
 		{
-		    new_return(74);
+			if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
+			{
+				new_return(74);
+			}
 		}
 		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
 		{
@@ -8712,9 +8718,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 		    new_return(83);
 		}
 		
-		if(!p_putc(itemsbuf[i].cost_counter,f))
+		for(auto q = 0; q < 2; ++q)
 		{
-		    new_return(84);
+			if(!p_putc(itemsbuf[i].cost_counter[q],f))
+			{
+				new_return(84);
+			}
 		}
 		
 		//InitD[] labels

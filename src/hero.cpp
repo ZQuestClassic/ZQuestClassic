@@ -9842,12 +9842,6 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
-			//Remote bombs:
-			//Even if you have no bombs, the icon remains so that you can detonate laid bombs.
-			//But the remaining code requires at least one bomb.
-			if(!game->get_bombs() && !current_item_power(itype_bombbag))
-				return false;
-				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
 				if(QMisc.miscsfx[sfxERROR])
@@ -9856,9 +9850,6 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			
-			if(!get_debug() && !current_item_power(itype_bombbag))
-				game->change_bombs(-1);
 				
 			if(itm.misc1>0) // If not remote bombs
 				deselectbombs(false);
@@ -9893,15 +9884,6 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
-			//Remote bombs:
-			//Even if you have no bombs, the icon remains so that you can detonate laid bombs.
-			//But the remaining code requires at least one bomb.
-			bool magicbag = (current_item_power(itype_bombbag)
-							 && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1);
-							 
-			if(!game->get_sbombs() && !magicbag)
-				return false;
-				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
 				if(QMisc.miscsfx[sfxERROR])
@@ -9910,9 +9892,6 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 				
 			paymagiccost(itemid);
-			
-			if(!get_debug() && !magicbag)
-				game->change_sbombs(-1);
 				
 			if(itm.misc1>0) // If not remote bombs
 				deselectbombs(true);
@@ -10148,21 +10127,6 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(QMisc.miscsfx[sfxERROR])
 					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
-			}
-			
-			if(get_bit(quest_rules,qr_TRUEARROWS) && !current_item_power(itype_quiver))
-			{
-				if(game->get_arrows()<=0)
-					return false;
-					
-				game->change_arrows(-1);
-			}
-			else if(!current_item_power(itype_quiver) && !current_item_power(itype_wallet))
-			{
-				if(game->get_drupy()+game->get_rupies()<=0)
-					return false;
-					
-				game->change_drupy(-1);
 			}
 			
 			paymagiccost(itemid);
@@ -11065,7 +11029,7 @@ void do_lens()
 					did_scriptl=true;
 			}
 			
-			if (itemsbuf[itemid].magiccosttimer) lensclk = itemsbuf[itemid].magiccosttimer;
+			if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
 			else lensclk = 12;
 		}
 		else
@@ -11123,7 +11087,7 @@ void do_210_lens()
 		did_scriptl=true;
         }
         
-        if (itemsbuf[itemid].magiccosttimer) lensclk = itemsbuf[itemid].magiccosttimer;
+        if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
 	else lensclk = 12;
     }
     else
@@ -25234,101 +25198,6 @@ int32_t lwpn_dp(int32_t index)
 bool checkbunny(int32_t itemid)
 {
 	return !Hero.BunnyClock() || (itemid > 0 && itemsbuf[itemid].flags&ITEM_BUNNY_ENABLED);
-}
-
-bool checkmagiccost(int32_t itemid)
-{
-	if(itemid < 0)
-	{
-		return false;
-	}
-	
-	switch (itemsbuf[itemid].cost_counter )
-	{
-		case 1: //rupees
-		{
-			if ( current_item_power(itype_wallet) ) return true;
-			return (game->get_rupies()+game->get_drupy()>=itemsbuf[itemid].magic);
-		}
-		case 4: //magic
-		{
-			if (get_bit(quest_rules,qr_ENABLEMAGIC))
-			{
-				return (((current_item_power(itype_magicring) > 0)
-					 ? game->get_maxmagic()
-					 : game->get_magic()+game->get_dmagic())>=itemsbuf[itemid].magic*game->get_magicdrainrate());
-			}
-			return true;
-		}
-	}
-	return (game->get_counter(itemsbuf[itemid].cost_counter)+game->get_dcounter(itemsbuf[itemid].cost_counter)>=itemsbuf[itemid].magic);
-}
-
-void paymagiccost(int32_t itemid, bool ignoreTimer)
-{
-	if(itemid < 0)
-	{
-		return;
-	}
-	else if(itemsbuf[itemid].magic <= 0)
-	{
-		return;
-	}
-	else if(itemsbuf[itemid].flags&ITEM_VALIDATEONLY) //Only validate, not pay, the cost. -V
-	{
-		return;
-	}
-	
-	switch(itemsbuf[itemid].cost_counter)
-	{
-		case 4: //magic
-		{
-			if(!get_bit(quest_rules,qr_ENABLEMAGIC))
-				return;
-			if(current_item_power(itype_magicring) > 0)
-				return;
-			if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
-			{
-				if ( frame % itemsbuf[itemid].magiccosttimer == 0 )
-					game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
-				return;
-			}
-			else 
-			{	game->change_magic(-(itemsbuf[itemid].magic*game->get_magicdrainrate()));
-				return;
-			}
-			break;
-		}
-		case 1:
-		{
-			if ( current_item_power(itype_wallet) )
-				return;
-			if(get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_magicring) > 0)
-				return;
-			if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
-			{
-				if ( frame % itemsbuf[itemid].magiccosttimer == 0 )
-					game->change_drupy(-itemsbuf[itemid].magic);
-				return;
-			}
-			else 
-			{
-				game->change_drupy(-itemsbuf[itemid].magic);
-				return;
-			}
-			break;
-		}
-	}
-	if ( itemsbuf[itemid].magiccosttimer > 0 && !ignoreTimer) 
-	{
-		//game->set_counter
-		if ( frame % itemsbuf[itemid].magiccosttimer == 0 )
-			game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
-	}
-	else 
-	{
-		game->change_counter(-(itemsbuf[itemid].magic), itemsbuf[itemid].cost_counter);
-	}
 }
 
 int32_t Bweapon(int32_t pos)

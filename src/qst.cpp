@@ -6229,19 +6229,17 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         }
     }
     
-    if(keepdata)
-    {
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            memset(&itemsbuf[i], 0, sizeof(itemdata));
-            itemsbuf[i].power=itemsbuf[i].flags=itemsbuf[i].wpn=itemsbuf[i].wpn2=itemsbuf[i].wpn3=
-                                                    itemsbuf[i].wpn4=itemsbuf[i].pickup_hearts=itemsbuf[i].misc1=
-                                                            itemsbuf[i].misc2=itemsbuf[i].magic=tempitem.usesound=0;
-            itemsbuf[i].count=-1;
-            itemsbuf[i].playsound=WAV_SCALE;
-            reset_itembuf(&itemsbuf[i],i);
-        }
-    }
+	if(keepdata)
+	{
+		for(int32_t i=0; i<MAXITEMS; i++)
+		{
+			itemdata& id = itemsbuf[i];
+			memset(&id, 0, sizeof(itemdata));
+			id.count=-1;
+			id.playsound=WAV_SCALE;
+			reset_itembuf(&id,i);
+		}
+	}
     
     for(int32_t i=0; i<items_to_read; i++)
     {
@@ -6583,10 +6581,35 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                         }
                     }
                     
-                    if(!p_getc(&tempitem.magic,f,true))
-                    {
-                        return qe_invalid;
-                    }
+					if(s_version < 53)
+					{
+						byte tempbyte;
+						if(!p_getc(&tempbyte,f,true))
+						{
+							return qe_invalid;
+						}
+						tempitem.cost_amount[0] = tempbyte;
+						switch(tempitem.family)
+						{
+							case itype_arrow:
+							case itype_bomb:
+							case itype_sbomb:
+								tempitem.cost_amount[1] = 1;
+								break;
+							default:
+								tempitem.cost_amount[1] = 0;
+						}
+					}
+					else
+					{
+						for(auto q = 0; q < 2; ++q)
+						{
+							if(!p_igetw(&tempitem.cost_amount[q],f,true))
+							{
+								return qe_invalid;
+							}
+						}
+					}
                 }
                 else
                 {
@@ -6803,10 +6826,16 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.magiccosttimer,f,true))
+				auto num_cost_tmr = (s_version > 52 ? 2 : 1);
+				for(auto q = 0; q < num_cost_tmr; ++q)
 				{
-					return qe_invalid;
+					if(!p_igetl(&tempitem.magiccosttimer[q],f,true))
+					{
+						return qe_invalid;
+					}
 				}
+				for(auto q = num_cost_tmr; q < 2; ++q)
+					tempitem.magiccosttimer[q] = 0;
 			}
 			if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
 			{
@@ -6866,10 +6895,36 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			}
 			if ( s_version >= 34 )  //! cost counter
 			{
-				//Pickup Type
-				if(!p_getc(&tempitem.cost_counter,f,true))
+				if(s_version < 53)
 				{
-					return qe_invalid;
+					if(!p_getc(&tempitem.cost_counter[0],f,true))
+					{
+						return qe_invalid;
+					}
+					switch(tempitem.family)
+					{
+						case itype_arrow:
+							tempitem.cost_counter[1] = crARROWS;
+							break;
+						case itype_bomb:
+							tempitem.cost_counter[1] = crBOMBS;
+							break;
+						case itype_sbomb:
+							tempitem.cost_counter[1] = crSBOMBS;
+							break;
+						default:
+							tempitem.cost_counter[1] = crNONE;
+					}
+				}
+				else
+				{
+					for(auto q = 0; q < 2; ++q)
+					{
+						if(!p_getc(&tempitem.cost_counter[q],f,true))
+						{
+							return qe_invalid;
+						}
+					}
 				}
 			}
 			if ( s_version >= 44 )  //! cost counter
@@ -7105,26 +7160,26 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						break;
 						
 					case iBoots:
-						tempitem.magic = get_bit(deprecated_rules,51) ? 1 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,51) ? 1 : 0;
 						tempitem.power=7;
 						break;
 						
 					case iWand:
-						tempitem.magic = get_bit(deprecated_rules,49) ? 8 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,49) ? 8 : 0;
 						tempitem.power=2;
 						tempitem.wpn=wWAND;
 						tempitem.wpn3=wMAGIC;
 						break;
 						
 					case iBCandle:
-						tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,50) ? 4 : 0;
 						tempitem.power=1;
 						tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
 						tempitem.wpn3=wFIRE;
 						break;
 						
 					case iRCandle:
-						tempitem.magic = get_bit(deprecated_rules,50) ? 4 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,50) ? 4 : 0;
 						tempitem.power=1;
 						tempitem.wpn3=wFIRE;
 						break;
@@ -7171,13 +7226,13 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn5 = iwNayrusLoveShieldFront;
 						tempitem.wpn10 = iwNayrusLoveShieldBack;
 						tempitem.misc1=512;
-						tempitem.magic=64;
+						tempitem.cost_amount[0]=64;
 						break;
 						
 					case iLens:
 						tempitem.misc1=60;
 						tempitem.flags |= get_bit(quest_rules,qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
-						tempitem.magic = get_bit(quest_rules,qr_ENABLEMAGIC) ? 2 : 1;
+						tempitem.cost_amount[0] = get_bit(quest_rules,qr_ENABLEMAGIC) ? 2 : 1;
 						break;
 						
 					case iArrow:
@@ -7198,11 +7253,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn4=wDINSFIRES1B;
 						tempitem.misc1 = 32;
 						tempitem.misc2 = 200;
-						tempitem.magic=32;
+						tempitem.cost_amount[0]=32;
 						break;
 						
 					case iFaroresWind:
-						tempitem.magic=32;
+						tempitem.cost_amount[0]=32;
 						break;
 						
 					case iHookshot:
@@ -7241,7 +7296,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.misc1=4;
 						tempitem.misc2=16;
 						tempitem.misc3=1;
-						tempitem.magic=1;
+						tempitem.cost_amount[0]=1;
 						break;
 						
 					case iWhistle:
@@ -7273,7 +7328,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					case iL2SpinScroll:
 						tempitem.family=itype_spinscroll2;
 						tempitem.fam_type=1;
-						tempitem.magic=8;
+						tempitem.cost_amount[0]=8;
 						tempitem.power=2;
 						tempitem.misc1 = 20;
 						break;
@@ -7289,7 +7344,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.power = 2;
 						tempitem.misc1=0x20;
 						tempitem.misc2=192;
-						tempitem.magic=8;
+						tempitem.cost_amount[0]=8;
 						break;
 						
 					case iChargeRing:
@@ -9187,16 +9242,16 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
 				{
-					tempitem.cost_counter = 1;
+					tempitem.cost_counter[0] = 1;
 				}
 				else 
 				{
 					if(get_bit(quest_rules,qr_ENABLEMAGIC))
-						tempitem.cost_counter = 4;
+						tempitem.cost_counter[0] = 4;
 					else
 					{
-						tempitem.magic = 0;
-						tempitem.cost_counter = -1;
+						tempitem.cost_amount[0] = 0;
+						tempitem.cost_counter[0] = -1;
 					}
 				}
 			}
@@ -9260,9 +9315,20 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 	return 0;
 }
 
-
+static bool did_init_def_items = false;
+void init_def_items()
+{
+	if(did_init_def_items) return;
+	did_init_def_items = true;
+	default_items[3].cost_counter[1] = crBOMBS;
+	default_items[13].cost_counter[1] = crARROWS;
+	default_items[14].cost_counter[1] = crARROWS;
+	default_items[48].cost_counter[1] = crBOMBS;
+	default_items[57].cost_counter[1] = crARROWS;
+}
 void reset_itembuf(itemdata *item, int32_t id)
 {
+	init_def_items();
     if(id<iLast)
     {
         // Copy everything *EXCEPT* the tile, misc, cset, frames, speed, delay and ltm.

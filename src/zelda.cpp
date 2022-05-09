@@ -6064,5 +6064,127 @@ void __zc_always_assert(bool e, const char* expression, const char* file, int32_
 }
 
 
+bool checkCost(int32_t ctr, int32_t amnt)
+{
+	if(!game) return true;
+	if(amnt <= 0) return true;
+	switch (ctr)
+	{
+		case crMONEY: //rupees
+		{
+			if ( current_item_power(itype_wallet) ) return true;
+			break;
+		}
+		case crMAGIC: //magic
+		{
+			if (get_bit(quest_rules,qr_ENABLEMAGIC))
+			{
+				return (((current_item_power(itype_magicring) > 0)
+					 ? game->get_maxmagic()
+					 : game->get_magic()+game->get_dmagic())>=amnt*game->get_magicdrainrate());
+			}
+			return true;
+		}
+		case crARROWS:
+		{
+			if(current_item_power(itype_quiver))
+				return true;
+			if(!get_bit(quest_rules,qr_TRUEARROWS))
+				return checkCost(crMONEY, amnt);
+			break;
+		}
+		case crBOMBS:
+		{
+			if(current_item_power(itype_bombbag))
+				return true;
+			break;
+		}
+		case crSBOMBS:
+		{
+			if(current_item_power(itype_bombbag)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				return true;
+			break;
+		}
+	}
+	return (game->get_counter(ctr)+game->get_dcounter(ctr)>=amnt);
+}
+bool checkmagiccost(int32_t itemid)
+{
+	if(itemid < 0)
+	{
+		return false;
+	}
+	itemdata const& id = itemsbuf[itemid];
+	return checkCost(id.cost_counter[0], id.cost_amount[0])
+		&& checkCost(id.cost_counter[1], id.cost_amount[1]);
+}
+
+void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
+{
+	if(!game) return;
+	if(!amnt) return;
+	if(tmr > 0 && !ignoreTimer && (frame%tmr))
+		return;
+	bool cost = amnt > 0;
+	switch(ctr)
+	{
+		case crMAGIC:
+		{
+			if(!get_bit(quest_rules,qr_ENABLEMAGIC))
+				return;
+			if(cost && current_item_power(itype_magicring) > 0)
+				return;
+			if(cost)
+				amnt *= game->get_magicdrainrate();
+			break;
+		}
+		case crMONEY:
+		{
+			if(!cost) break;
+			if ( current_item_power(itype_wallet) )
+				return;
+			if(get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_magicring) > 0)
+				return;
+			break;
+		}
+		case crARROWS:
+		{
+			if(cost && current_item_power(itype_quiver))
+				return;
+			if(!get_bit(quest_rules,qr_TRUEARROWS))
+				return payCost(crMONEY, amnt, tmr, ignoreTimer);
+			break;
+		}
+		case crBOMBS:
+		{
+			if(cost && current_item_power(itype_bombbag))
+				return;
+			break;
+		}
+		case crSBOMBS:
+		{
+			if(cost && current_item_power(itype_bombbag)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				return;
+			break;
+		}
+	}
+	game->change_counter(-amnt, ctr);
+}
+void paymagiccost(int32_t itemid, bool ignoreTimer)
+{
+	if(itemid < 0)
+	{
+		return;
+	}
+	itemdata const& id = itemsbuf[itemid];
+	if(!(id.flags&ITEM_VALIDATEONLY))
+		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);
+	if(!(id.flags&ITEM_VALIDATEONLY2))
+		payCost(id.cost_counter[1], id.cost_amount[1], id.magiccosttimer[1], ignoreTimer);
+}
+
+
 /*** end of zelda.cc ***/
 

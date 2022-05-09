@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            22
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           52
+#define V_ITEMS           53
 #define V_WEAPONS          7
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -1884,10 +1884,7 @@ struct itemdata
 #define ITEM_VALIDATEONLY       0x01000000
 #define ITEM_SIDESWIM_DISABLED  0x02000000
 #define ITEM_BUNNY_ENABLED      0x04000000
-
-
-
-
+#define ITEM_VALIDATEONLY2      0x08000000
     word script;												// Which script the item is using
     char count;
     word amount;
@@ -1919,7 +1916,7 @@ struct itemdata
     int32_t misc8;
     int32_t misc9;
     int32_t misc10;
-	byte magic; // Magic usage!
+	int16_t cost_amount[2]; // Magic usage!
     byte usesound, usesound2;
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
@@ -1969,8 +1966,8 @@ struct itemdata
     
     word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
     int32_t wpnsprite; //enemy weapon sprite. 
-    int32_t magiccosttimer; //TImer for timed magic costs. 
-    char cost_counter; //replaces mp cost with a list
+    int32_t magiccosttimer[2]; 
+    char cost_counter[2];
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
@@ -5420,7 +5417,6 @@ void load_colorset(int32_t colorset);
 void update_hw_screen(bool force = false);
 
 bool valid_str(char const* ptr, char cancel = 0);
-
 
 #endif                                                      //_ZDEFS_H_
 

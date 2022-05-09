@@ -73,6 +73,11 @@ using std::ostringstream;
 #define rZELDAVERSION               9 // What, no 9?
 #define rSP                     10
 
+#define IDATACOSTCOUNTER2 -1
+#define IDATAMAGICTIMER2 -2
+#define IDATACOST2 -3
+#define IDATAVALIDATE2 -4
+
 extern zinitdata zinit;
 int32_t hangcount = 0;
 
@@ -4174,7 +4179,16 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].magiccosttimer)*10000;
+			ret=(itemsbuf[ri->idata].magiccosttimer[0])*10000;
+			break;
+		case IDATAMAGICTIMER2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].magiccosttimer[1])*10000;
 			break;
 		case IDATAUSEMVT:
 		{
@@ -4695,7 +4709,16 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].magic)*10000;
+			ret=(itemsbuf[ri->idata].cost_amount[0])*10000;
+			break;
+		case IDATACOST2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].cost_amount[1])*10000;
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
@@ -4705,7 +4728,16 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].cost_counter)*10000;
+			ret=(itemsbuf[ri->idata].cost_counter[0])*10000;
+			break;
+		case IDATACOSTCOUNTER2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].cost_counter[1])*10000;
 			break;
 		//Min Hearts to Pick Up
 		case IDATAMINHEARTS:
@@ -4811,6 +4843,15 @@ int32_t get_register(const int32_t arg)
 				break;
 			}
 			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY)?10000:0;
+			break;
+		case IDATAVALIDATE2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = 0;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY2)?10000:0;
 			break;
 		//->Flags[5]
 		case IDATAFLAGS:
@@ -13275,7 +13316,15 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].magiccosttimer)=vbound(value/10000, 0, 214747);
+			(itemsbuf[ri->idata].magiccosttimer[0])=vbound(value/10000, 0, 214747);
+			break;
+		case IDATAMAGICTIMER2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			(itemsbuf[ri->idata].magiccosttimer[1])=vbound(value/10000, 0, 214747);
 			break;
 		case IDATADURATION:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -13638,6 +13687,14 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_VALIDATEONLY: (itemsbuf[ri->idata].flags)&= ~ITEM_VALIDATEONLY;
 			break;
+		case IDATAVALIDATE2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			SETFLAG(itemsbuf[ri->idata].flags, ITEM_VALIDATEONLY2, value);
+			break;
 
 		//Flags[5]
 		case IDATAFLAGS:
@@ -13895,7 +13952,15 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].magic=value/10000;
+			itemsbuf[ri->idata].cost_amount[0]=vbound(value/10000,32767,-32768);
+			break;
+		case IDATACOST2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].cost_amount[1]=vbound(value/10000,32767,-32768);
 			break;
 		//cost counter ref
 		case IDATACOSTCOUNTER:
@@ -13904,7 +13969,15 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].cost_counter=(vbound(value/10000,-1,32));
+			itemsbuf[ri->idata].cost_counter[0]=(vbound(value/10000,-1,32));
+			break;
+		case IDATACOSTCOUNTER2:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].cost_counter[1]=(vbound(value/10000,-1,32));
 			break;
 		//min hearts to pick up
 		case IDATAMINHEARTS:
@@ -39139,7 +39212,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",38);
 			}
 			
-			if(!p_putc(itemsbuf[i].magic,f))
+			if(!p_putc(itemsbuf[i].cost_amount[0],f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",39);
 			}
@@ -39309,7 +39382,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",73);
 		}
-		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		if(!p_iputl(itemsbuf[i].magiccosttimer[0],f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",74);
 		}
@@ -39350,7 +39423,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",83);
 		}
 		
-		if(!p_putc(itemsbuf[i].cost_counter,f))
+		if(!p_putc(itemsbuf[i].cost_counter[0],f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",84);
 		}
@@ -39576,7 +39649,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",38);
 			}
 			
-			if(!p_getc(&itemsbuf[i].magic,f,true))
+			if(!p_getc(&itemsbuf[i].cost_amount[0],f,true))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",39);
 			}
@@ -39746,7 +39819,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",73);
 		}
-		if(!p_igetl(&itemsbuf[i].magiccosttimer,f,true))
+		if(!p_igetl(&itemsbuf[i].magiccosttimer[0],f,true))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",74);
 		}
@@ -39787,7 +39860,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",83);
 		}
 		
-		if(!p_getc(&itemsbuf[i].cost_counter,f,true))
+		if(!p_getc(&itemsbuf[i].cost_counter[0],f,true))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",84);
 		}

@@ -647,9 +647,34 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.magic,f,true))
+	if(section_version < 53)
 	{
-		return 0;
+		byte tempbyte;
+		if(!p_getc(&tempbyte,f,true))
+		{
+			return 0;
+		}
+		tempitem.cost_amount[0] = tempbyte;
+		switch(tempitem.family)
+		{
+			case itype_arrow:
+			case itype_bomb:
+			case itype_sbomb:
+				tempitem.cost_amount[1] = 1;
+				break;
+			default:
+				tempitem.cost_amount[1] = 0;
+		}
+	}
+	else
+	{
+		for(auto q = 0; q < 2; ++q)
+		{
+			if(!p_igetw(&tempitem.cost_amount[q],f,true))
+			{
+				return 0;
+			}
+		}
 	}
 	
 	if(!p_igetl(&tempitem.misc3,f,true))
@@ -821,9 +846,13 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.magiccosttimer,f,true))
+			size_t num_cost_tmr = (section_version > 52 ? 2 : 1);
+			for(size_t q = 0; q < num_cost_tmr; ++q)
 			{
-				return 0;
+				if(!p_igetl(&tempitem.magiccosttimer[q],f,true))
+				{
+					return 0;
+				}
 			}
 			if(!p_igetl(&tempitem.overrideFLAGS,f,true))
 			{
@@ -862,9 +891,13 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 				return 0;
 			}
 			
-			if(!p_getc(&tempitem.cost_counter,f,true))
+			size_t num_cost_ctr = (section_version > 52 ? 2 : 1);
+			for(size_t q = 0; q < num_cost_ctr; ++q)
 			{
-				return 0;
+				if(!p_getc(&tempitem.cost_counter[q],f,true))
+				{
+					return 0;
+				}
 			}
 			
 			//InitD[] labels
@@ -1133,9 +1166,12 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(38);
 			}
 			
-			if(!p_putc(itemsbuf[i].magic,f))
+			for(auto q = 0; q < 2; ++q)
 			{
-				new_return(39);
+				if(!p_iputw(itemsbuf[i].cost_amount[q],f))
+				{
+					new_return(39);
+				}
 			}
 			
 			if(!p_iputl(itemsbuf[i].misc3,f))
@@ -1303,9 +1339,13 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		{
 			new_return(73);
 		}
-		if(!p_iputl(itemsbuf[i].magiccosttimer,f))
+		
+		for(auto q = 0; q < 2; ++q)
 		{
-			new_return(74);
+			if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
+			{
+				new_return(74);
+			}
 		}
 		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
 		{
@@ -1344,9 +1384,12 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 			new_return(83);
 		}
 		
-		if(!p_putc(itemsbuf[i].cost_counter,f))
+		for(auto q = 0; q < 2; ++q)
 		{
-			new_return(84);
+			if(!p_putc(itemsbuf[i].cost_counter[q],f))
+			{
+				new_return(84);
+			}
 		}
 		
 		//InitD[] labels

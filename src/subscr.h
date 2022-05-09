@@ -137,6 +137,7 @@ enum { sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPC
 // special tiles
 enum { ssmstSSVINETILE, ssmstMAGICMETER, ssmstMAX };
 
+
 // counter objects
 enum { sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
        sscGENKEYMAGIC, sscGENKEYNOMAGIC, sscLEVKEYMAGIC, sscLEVKEYNOMAGIC,
@@ -148,6 +149,7 @@ enum { sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
        sscSCRIPT19, sscSCRIPT20, sscSCRIPT21, sscSCRIPT22,
        sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscLIFE, sscMAGIC, sscMAXHP, sscMAXMP, sscMAX
      };
+int32_t scounter_to_ctr(int32_t ssc);
 
 
 //subscreen items

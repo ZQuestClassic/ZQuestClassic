@@ -1,5 +1,20 @@
 // 2.55 Change Log
-// Updated 1st May, 2022
+// Updated 7th May, 2022
+
+Fix separate 'item override' active shields not using
+	the correct shield.
+Fix several issues related to large items
+	-Large bottles now display correctly
+	-With a compat rule for old behavior, engine subscreen selectors
+		will now stretch to fit sized items on the subscreen (uses hit sizes)
+	-Large items will now preview correctly in the item editor
+	-Dropdown added for bottle items to preview any bottle type
+Fix crash near end of combo list with large combo brush size
+Active Shields: Step speed modifier, lock direction (strafing)
+	( EmilyV, May 7th, 2022 )
+
+Fix crash in 4-way movement
+	( EmilyV, May 2nd, 2022 )
 
 -- May 1st nightly build
 

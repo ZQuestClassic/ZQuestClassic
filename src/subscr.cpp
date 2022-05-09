@@ -3923,15 +3923,15 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						
 					char itemname[140]="";
 					sprintf(itemname, "%s", item_string[itemid]);
-					
-					switch(itemsbuf[itemid].family)
+					itemdata const& itm = itemsbuf[itemid];
+					switch(itm.family)
 					{
 						case itype_arrow:
 							if(Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
 							{
-								if(current_item_id(itype_bow))
+								if(current_item_id(itype_bow)>-1)
 								{
-									bool hasarrows=((get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_arrows()))||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game==NULL || game->get_rupies())));
+									bool hasarrows=checkmagiccost(itemid);
 									sprintf(itemname, "%s%s%s", item_string[current_item_id(itype_bow)], hasarrows?" & ":"",hasarrows?item_string[Bitem->id]:"");
 								}
 							}
@@ -3939,7 +3939,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						case itype_bottle:
 							if(size_t bind = game->get_bottle_slot(itemsbuf[itemid].misc1))
 							{
-								char* btype_name = QMisc.bottle_types[bind-1].name;
+								char const* btype_name = QMisc.bottle_types[bind-1].name;
 								if(btype_name[0])
 								{
 									sprintf(itemname, "%s", btype_name);
@@ -4135,13 +4135,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-                        
-                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&!game->get_arrows())
-                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&!game->get_rupies()&&!current_item_power(itype_wallet)))
-                                &&!current_item_power(itype_quiver))
-                        {
-                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
-                        }
+						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+                        if(!checkmagiccost(Aitem->id)) return;
                     }
                 }
                 
@@ -4167,13 +4162,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-                        
-                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
-                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
-                                &&!current_item_power(itype_quiver))
-                        {
-                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
-                        }
+						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+                        if(!checkmagiccost(Bitem->id)) return;
                     }
                 }
                 
@@ -4201,13 +4191,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-                        
-                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
-                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
-                                &&!current_item_power(itype_quiver))
-                        {
-                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
-                        }
+						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+                        if(!checkmagiccost(Xitem->id)) return;
                     }
                 }
                 
@@ -4236,13 +4221,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-                        
-                        if(((get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_arrows()))
-                                ||(!get_bit(quest_rules,qr_TRUEARROWS)&&(game != NULL && !game->get_rupies())&&!current_item_power(itype_wallet)))
-                                &&!current_item_power(itype_quiver))
-                        {
-                            if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) return;
-                        }
+						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+                        if(!checkmagiccost(Yitem->id)) return;
                     }
                 }
                 
@@ -4303,33 +4283,12 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
 
 bool is_counter_item(int32_t itemtype, int32_t countertype)
 {
-    switch(countertype)
-    {
-    case sscBOMBS:
-        if(itemsbuf[itemtype].family==itype_bomb)
-        {
-            return true;
-        }
-        
-        break;
-        
-    case sscSBOMBS:
-        if(itemsbuf[itemtype].family==itype_sbomb)
-        {
-            return true;
-        }
-        
-        break;
-        
-    case sscARROWS:
-        if(itemsbuf[itemtype].family==itype_arrow)
-        {
-            return true;
-        }
-        
-        break;
-    }
-    
+	itemdata const& itm = itemsbuf[itemtype];
+	int32_t ctr = scounter_to_ctr(countertype);
+	if(ctr == crNONE) return false;
+	if(ctr == itm.cost_counter[0] ||
+		ctr == itm.cost_counter[1])
+		return true;
     return false;
 }
 
@@ -5961,6 +5920,48 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32
     }
 }
 
+
+int32_t scounter_to_ctr(int32_t ssc)
+{
+	switch(ssc)
+	{
+		case sscRUPEES: return crMONEY;
+		case sscBOMBS: return crBOMBS;
+		case sscSBOMBS: return crSBOMBS;
+		case sscARROWS: return crARROWS;
+		case sscSCRIPT1: return crCUSTOM1;
+		case sscSCRIPT2: return crCUSTOM2;
+		case sscSCRIPT3: return crCUSTOM3;
+		case sscSCRIPT4: return crCUSTOM4;
+		case sscSCRIPT5: return crCUSTOM5;
+		case sscSCRIPT6: return crCUSTOM6;
+		case sscSCRIPT7: return crCUSTOM7;
+		case sscSCRIPT8: return crCUSTOM8;
+		case sscSCRIPT9: return crCUSTOM9;
+		case sscSCRIPT10: return crCUSTOM10;
+		case sscSCRIPT11: return crCUSTOM11;
+		case sscSCRIPT12: return crCUSTOM12;
+		case sscSCRIPT13: return crCUSTOM13;
+		case sscSCRIPT14: return crCUSTOM14;
+		case sscSCRIPT15: return crCUSTOM15;
+		case sscSCRIPT16: return crCUSTOM16;
+		case sscSCRIPT17: return crCUSTOM17;
+		case sscSCRIPT18: return crCUSTOM18;
+		case sscSCRIPT19: return crCUSTOM19;
+		case sscSCRIPT20: return crCUSTOM20;
+		case sscSCRIPT21: return crCUSTOM21;
+		case sscSCRIPT22: return crCUSTOM22;
+		case sscSCRIPT23: return crCUSTOM23;
+		case sscSCRIPT24: return crCUSTOM24;
+		case sscSCRIPT25: return crCUSTOM25;
+		case sscLIFE: return crLIFE;
+		case sscMAGIC: return crMAGIC;
+		case sscGENKEYMAGIC: case sscGENKEYNOMAGIC:
+		case sscANYKEYMAGIC: case sscANYKEYNOMAGIC:
+			return crKEYS;
+	}
+	return crNONE;
+}
 
 /*** end of subscr.cc ***/
 

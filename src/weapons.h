@@ -111,7 +111,6 @@ public:
     
     //2.6 enemy editor weapon sprite
     int32_t wpnsprite;
-    int32_t magiccosttimer; ///Magic cost for byrna beam, boots. -Z
     
     //Used only by ffscript! No not make readable by scripts!
     byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
