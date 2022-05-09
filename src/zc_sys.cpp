@@ -2434,6 +2434,8 @@ int32_t item_tile_mod()
 			}
 		}
 		int32_t itemid = current_item_id(i,false);
+		if(i == itype_shield)
+			itemid = getCurrentShield(false);
 		
 		if(itemid < 0 || !checkbunny(itemid))
 			continue;

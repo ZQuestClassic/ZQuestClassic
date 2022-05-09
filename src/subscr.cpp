@@ -3213,6 +3213,96 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 	}
 }
 
+int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
+{
+	if(forceItem && (itemtype & 0x8000))
+		return itemtype&0xFFF;
+    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
+    int32_t overridecheck = 0xFFFF;
+    
+    for(int32_t i=Sitems.Count()-1; i>=0; i--)
+    {
+        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
+        {
+            if(overridecheck==0xFFFF)
+			{
+                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
+			}
+        }
+        else if(Sitems.spr(i)->misc!=-1)
+        {
+            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
+            
+            if((d==itemtype)||
+                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
+                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
+            {
+				return Sitems.spr(i)->id;
+            }
+        }
+    }
+    if(forceItem)
+	{
+		for(auto q = 0; q < MAXITEMS; ++q)
+		{
+			if(itemsbuf[q].family == itemtype)
+				return q;
+		}
+		return -1;
+	}
+
+    //Item Override stuff here
+    if((itemtype & 0x8000) && 
+		(!game || game->item[itemtype&0xFFF])
+            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
+    {
+		return itemtype&0xFFF;
+    }
+	return -1;
+}
+
+item* get_subscreenitem(int32_t itemtype)
+{
+    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
+    int32_t overridecheck = 0xFFFF;
+    
+    for(int32_t i=Sitems.Count()-1; i>=0; i--)
+    {
+        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
+        {
+            if(overridecheck==0xFFFF)
+			{
+                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
+			}
+        }
+        else if(Sitems.spr(i)->misc!=-1)
+        {
+            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
+            
+            if((d==itemtype)||
+                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
+                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
+            {
+				return (item*)Sitems.spr(i);
+            }
+        }
+    }
+    
+    //Item Override stuff here
+    if((itemtype & 0x8000) && 
+		(!game || game->item[itemtype&0xFFF])
+            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
+    {
+        if(overridecheck == 0xFFFF)
+        {
+            overridecheck = Sitems.Count()-1;
+		}
+		return (item*)Sitems.spr(overridecheck);
+    }
+	return NULL;
+}
+
+
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
@@ -3255,9 +3345,8 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
     }
     
     //Item Override stuff here
-   // if((itemtype & 0x8000) && game->item[itemtype])
     if((itemtype & 0x8000) && 
-    (has_item(itemsbuf[itemtype&0xFFF].family,itemsbuf[itemtype&0xFFF].fam_type))
+		(!game || game->item[itemtype&0xFFF])
             && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
         if(overridecheck == 0xFFFF)
@@ -3957,20 +4046,36 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					{
 						tempsel->drawstyle=1;
 					}
-					
+					int32_t itemtype = css->objects[p].d8>0 ? ((css->objects[p].d8-1) | 0x8000) : css->objects[p].d1;
+					itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
+					bool oldsel = get_bit(quest_rules, qr_SUBSCR_OLD_SELECTOR);
+					if(!oldsel) big_sel = false;
+					int32_t sw = oldsel ? 16 : (tempsel->extend > 2 ? tempsel->hxsz : 16),
+						sh = oldsel ? 16 : (tempsel->extend > 2 ? tempsel->hysz : 16),
+						dw = oldsel ? 16 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
+						dh = oldsel ? 16 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+					int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
+						syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
+						dxofs = oldsel ? 0 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0),
+						dyofs = oldsel ? 0 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0);
+					BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
 					for(int32_t j=0; j<4; ++j)
 					{
+						clear_bitmap(tmpbmp);
 						if(p!=-1)
 						{
-							tempsel->x=css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
-							tempsel->y=css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
+							tempsel->x=0;
+							tempsel->y=0;
+							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
+							int32_t tmpy = css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
 							tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
 							
 							if(temptile)
 							{
-								tempsel->drawzcboss(dest);
+								tempsel->drawzcboss(tmpbmp);
 								tempsel->tile=temptile;
 							}
+							masked_stretch_blit(tmpbmp, dest, sxofs, syofs, sw, sh, tmpx+dxofs, tmpy+dyofs, dw, dh);
 							
 							if(!big_sel)
 							{
@@ -3978,7 +4083,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 							}
 						}
 					}
-					
+					destroy_bitmap(tmpbmp);
 				}
 				break;
 				

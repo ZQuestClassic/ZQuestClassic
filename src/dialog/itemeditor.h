@@ -8,6 +8,7 @@
 #include <gui/text_field.h>
 #include <gui/window.h>
 #include <gui/list_data.h>
+#include <gui/switcher.h>
 #include <gui/tileanim_frame.h>
 #include <functional>
 #include <string_view>
@@ -56,7 +57,7 @@ std::map<int32_t, ItemNameInfo *> *getItemNameMap();
 class ItemEditorDialog: public GUI::Dialog<ItemEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL, DEFAULT, ITEMCLASS };
+	enum class message { OK, CANCEL, DEFAULT, ITEMCLASS, RELOAD, GFXSIZE };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;
@@ -83,12 +84,13 @@ private:
 	std::shared_ptr<GUI::Button> ib_power;
 	std::shared_ptr<GUI::Button> ib_sfx[2];
 	std::shared_ptr<GUI::TileFrame> animFrame;
+	std::shared_ptr<GUI::Switcher> animSwitcher;
 	std::string itemname;
 	int32_t index;
 	itemdata local_itemref;
 	GUI::ListData list_items, list_counters, list_sprites,
 		list_itemdatscript, list_itemsprscript, list_weaponscript,
-		list_weaptype, list_deftypes;
+		list_weaptype, list_deftypes, list_bottletypes;
 	friend void call_item_editor(int32_t index);
 };
 

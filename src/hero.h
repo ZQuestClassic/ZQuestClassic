@@ -252,10 +252,10 @@ public:
 		sideswimdir,  //for forcing hero to face left or right in sideview
 		immortal; //Timer for being unable to die
 	int32_t hammer_swim_up_offset,
-	hammer_swim_down_offset,
-	hammer_swim_left_offset,
-	hammer_swim_right_offset,
-	swimjump; //jump amount when leaving sideview water from the top
+		hammer_swim_down_offset,
+		hammer_swim_left_offset,
+		hammer_swim_right_offset,
+		swimjump; //jump amount when leaving sideview water from the top
 	int32_t hopdir;  // direction to hop out of water (diagonal movement only)
 	int32_t holddir;
 	int32_t landswim; // incremental time spent swimming against land
@@ -288,6 +288,8 @@ public:
 	int32_t prompt_combo, prompt_x, prompt_y;
 	byte prompt_cset;
 	bool shield_active;
+	int8_t shield_forcedir;
+	int32_t active_shield_id;
 	
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();

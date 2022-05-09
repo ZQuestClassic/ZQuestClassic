@@ -772,7 +772,9 @@ static const GUI::ListData compatRulesList
 		"If enabled, Keese will barely change their z value unless over 128 pixels away from Link. If disabled,"
 		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to Link."},
 	{ "No Pols Voice/Vire Shadows with Z axis", qr_POLVIRE_NO_SHADOW,
-		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."}
+		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."},
+	{ "Old Subscreen Selector", qr_SUBSCR_OLD_SELECTOR,
+		"If disabled, the subscreen selector will stretch to fit the item it is selecting." }
 };
 
 static const GUI::ListData enemiesRulesList
