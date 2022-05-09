@@ -1371,8 +1371,26 @@
 #define LWPNFAKEJUMP		1288
 #define EWPNFAKEJUMP		1289
 #define HEROFAKEJUMP		1290
+#define HEROSHADOWXOFS		1291
+#define HEROSHADOWYOFS		1292
+#define NPCSHADOWXOFS		1293
+#define NPCSHADOWYOFS		1294
+#define ITEMSHADOWXOFS		1295
+#define ITEMSHADOWYOFS		1296
+#define LWPNSHADOWXOFS		1297
+#define LWPNSHADOWYOFS		1298
+#define EWPNSHADOWXOFS		1299
+#define EWPNSHADOWYOFS		1300
+#define LWPNDEGANGLE            1301
+#define EWPNDEGANGLE            1302
+#define LWPNVX                  1303
+#define LWPNVY                  1304
+#define EWPNVX                  1305
+#define EWPNVY                  1306
+#define LWPNAUTOROTATE          1307
+#define EWPNAUTOROTATE          1308
 
-#define LAST_BYTECODE           1291
+#define LAST_BYTECODE           1309
 
 //} END OF BYTECODE
 
@@ -2476,6 +2494,28 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OTanRegister(a->clone(), b->clone());
+		}
+	};
+	
+	class OEngineDegtoRad : public BinaryOpcode
+	{
+	public:
+		OEngineDegtoRad(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OEngineDegtoRad(a->clone(), b->clone());
+		}
+	};
+	
+	class OEngineRadtoDeg : public BinaryOpcode
+	{
+	public:
+		OEngineRadtoDeg(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OEngineRadtoDeg(a->clone(), b->clone());
 		}
 	};
 	
@@ -3983,6 +4023,50 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OIsValidEWpn(a->clone());
+		}
+	};
+	
+	class OMakeAngularLwpn : public UnaryOpcode
+	{
+	public:
+		OMakeAngularLwpn(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMakeAngularLwpn(a->clone());
+		}
+	};
+	
+	class OMakeAngularEwpn : public UnaryOpcode
+	{
+	public:
+		OMakeAngularEwpn(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMakeAngularEwpn(a->clone());
+		}
+	};
+	
+	class OMakeDirectionalLwpn : public UnaryOpcode
+	{
+	public:
+		OMakeDirectionalLwpn(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMakeDirectionalLwpn(a->clone());
+		}
+	};
+	
+	class OMakeDirectionalEwpn : public UnaryOpcode
+	{
+	public:
+		OMakeDirectionalEwpn(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OMakeDirectionalEwpn(a->clone());
 		}
 	};
 

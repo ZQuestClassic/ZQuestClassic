@@ -41,7 +41,7 @@ extern ZModule zcm;
 extern enemy Enemy;
 extern byte epilepsyFlashReduction;
 
-static double WrapAngle( double radians ) 
+double WrapAngle( double radians ) 
 {
 	while (radians <= -PI) radians += (PI*2);
 	while (radians > PI) radians -= (PI*2);
@@ -80,22 +80,47 @@ static double DirToRadians(int d)
 	
 }
 
+double DirToDegrees(int d)
+{
+	switch(d)
+	{
+		case up:
+			return 270;
+		case down:
+			return 90;
+		case left:
+			return 180;
+		case right:
+			return 0;
+		case 4:
+			return 225;
+		case 5:
+			return 315;
+		case 6:
+			return 135;
+		case 7:
+			return 45;
+	}
+	return 0;
+	
+}
+
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
-static int32_t AngleToDir(double ddir)
+int32_t AngleToDir(double ddir)
 {
 	int32_t lookat=0;
 	
 	if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 	{
-		lookat=l_down;
+		lookat=l_up;
 	}
 	else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
 	{
-		lookat=down;
+		lookat=up;
 	}
 	else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
 	{
-		lookat=r_down;
+		lookat=r_up;
 	}
 	else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
 	{
@@ -103,15 +128,15 @@ static int32_t AngleToDir(double ddir)
 	}
 	else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
 	{
-		lookat=r_up;
+		lookat=r_down;
 	}
 	else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
 	{
-		lookat=up;
+		lookat=down;
 	}
 	else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
 	{
-		lookat=l_up;
+		lookat=l_down;
 	}
 	else
 	{
@@ -1580,6 +1605,7 @@ void weapon::setAngle(double angletoset)
 {
     angular = true;
     angle = angletoset;
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1595,6 +1621,7 @@ void weapon::seekHero()
 {
     angular = true;
     angle = atan2(double(HeroY()-y),double(HeroX()-x));
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1640,6 +1667,7 @@ void weapon::seekEnemy(int32_t j)
     }
     
     angle = atan2(double(GuyY(j)-y),double(GuyX(j)-x));
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1681,6 +1709,7 @@ int32_t weapon::seekEnemy2(int32_t j)
     
     //al_trace("Guy: %d, gx: %f, gy: %f, x: %f, y: %f\n", j, float(GuyX(j)), float(GuyY(j)), float(dummy_fix[0]), float(dummy_fix[1]));
     angle = atan2(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1889,6 +1918,7 @@ weapon::weapon(weapon const & other):
     
     //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
     //else wpnsprite  = -1;
+    doAutoRotate(true);
 }
 
 // Let's dispose of some sound effects!
@@ -2022,6 +2052,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hxsz=15;
 	hysz=15;
 	hzsz=8;
+	autorotate = false;
 	do_animation = 1;
 	ref_o_tile = 0;
 	useweapon = usedefence = useweapondummy = usedefencedummy = 0;
@@ -4567,6 +4598,8 @@ bool weapon::animate(int32_t index)
 				dir=l_up;
 			else
 				dir=up;
+			
+			doAutoRotate(true);
 				
 			x = (zfix)((double)HeroX() + xdiff);
 			y = (zfix)((double)HeroY() + ydiff);
@@ -4691,6 +4724,7 @@ bool weapon::animate(int32_t index)
 							flip |= 2;  // vert
 						}
 						tile=ref_o_tile;
+						doAutoRotate(true);
 						
 						if(dir&2)
 						{
@@ -4763,6 +4797,7 @@ bool weapon::animate(int32_t index)
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							w->doAutoRotate(true);
 							//jesus fuck Zoria, this is blatantly wrong...
 							//In your next job, don't code while drunk you dumbass. -Deedee
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
@@ -4775,21 +4810,10 @@ bool weapon::animate(int32_t index)
 									w->angular = true;
 									//Zoria, you need to set the dir... *sigh*
 									w->dir = AngleToDir(WrapAngle(newangle));
+									w->doAutoRotate();
 									//That's not to mention that the scope above checked for direction... on an angular weapon. Come on, that'll result in buggy behavior.
 									//Did you even fucking test this?
-									//No, of course you didn't.
-									//You left this community stagnant for 5 years pretending to be someone important,
-									//When all you could deliver was fucking lies.
-									//You almost singlehandedly killed the community with your incompetence.
-									//You expected *us* to test *your* shit
-									//You expected *us* to fix *your* shit
-									//You expected *us* to make features that *you* could never do, and what did we get?
-									//"It's a minor feature, nobody fucking cares"
-									//What did you deliver exactly? Buggy Combo Scripts? Buggy Diagonal Hookshot? A bunch of planned features that were advertised as features, but weren't even implemented?
-									//All that was allowed because this fucking community is of the impression that *a* dev is better than *no* dev; god damn what a mistake.
-									//You probably won't even see this rant; my fix probably doesn't even work! I could have spent this time testing this but instead ranted to someone who cannot hear.
-									//Maybe you will see this rant though, when you comb through trying to steal our hard work. I don't expect you to have any integrity, after all...
-									//Fuck, this was a waste of time. -Deedee
+									//No, of course you didn't. -Deedee
 								}
 							}
 							w->o_tile = ref_o_tile;
@@ -4847,6 +4871,7 @@ bool weapon::animate(int32_t index)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
+						w->doAutoRotate(true);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -4854,6 +4879,7 @@ bool weapon::animate(int32_t index)
 							if (AngleReflect)
 							{
 								w->angular = true;
+								w->doAutoRotate();
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
@@ -5607,6 +5633,7 @@ bool weapon::animate(int32_t index)
 				{
 					dir=right;
 				}
+				doAutoRotate(true);
 			}
 			
 			if(dead==1)
@@ -5784,6 +5811,7 @@ bool weapon::animate(int32_t index)
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
+				doAutoRotate(true);
 			}
 			
 			// Hookshot grab and retract code 
@@ -6238,6 +6266,7 @@ bool weapon::animate(int32_t index)
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
+				doAutoRotate(true);
 			}
 			break;
 		}
@@ -6601,6 +6630,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir = 3-w->dir;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -6651,6 +6681,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir ^= 2;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -6698,6 +6729,7 @@ bool weapon::animate(int32_t index)
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							w->doAutoRotate(true);
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -6705,6 +6737,7 @@ bool weapon::animate(int32_t index)
 								if (AngleReflect)
 								{
 									w->angular = true;
+									w->doAutoRotate();
 									w->dir = AngleToDir(WrapAngle(newangle));
 								}
 							}
@@ -6764,6 +6797,7 @@ bool weapon::animate(int32_t index)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
+						w->doAutoRotate(true);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -6771,6 +6805,7 @@ bool weapon::animate(int32_t index)
 							if (AngleReflect)
 							{
 								w->angular = true;
+								w->doAutoRotate();
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
@@ -6958,6 +6993,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir = 3-w->dir;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -7008,6 +7044,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir ^= 2;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -7055,6 +7092,7 @@ bool weapon::animate(int32_t index)
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							w->doAutoRotate(true);
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -7062,6 +7100,7 @@ bool weapon::animate(int32_t index)
 								if (AngleReflect)
 								{
 									w->angular = true;
+									w->doAutoRotate();
 									w->dir = AngleToDir(WrapAngle(newangle));
 								}
 							}
@@ -7121,6 +7160,7 @@ bool weapon::animate(int32_t index)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
+						w->doAutoRotate(true);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -7128,6 +7168,7 @@ bool weapon::animate(int32_t index)
 							if (AngleReflect)
 							{
 								w->angular = true;
+								w->doAutoRotate();
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
@@ -7606,22 +7647,27 @@ reflect:
                 {
                 case up:
                     angle += (PI - angle) * 2.0;
+		    doAutoRotate();
                     break;
                     
                 case down:
                     angle = -angle;
+		    doAutoRotate();
                     break;
                     
                 case left:
                     angle += ((-PI/2) - angle) * 2.0;
+		    doAutoRotate();
                     break;
                     
                 case right:
                     angle += ((PI/2) - angle) * 2.0;
+		    doAutoRotate();
                     break;
                     
                 default:
                     angle += PI;
+		    doAutoRotate();
                     break;
                 }
             else
@@ -7947,6 +7993,21 @@ void weapon::update_weapon_frame(int32_t change, int32_t orig)
     }
     else
         tile=orig+change;
+}
+
+void weapon::doAutoRotate(bool dodir, bool doboth)
+{
+	if (autorotate)
+	{
+		if (angular && (!dodir || doboth))
+		{
+			rotation = angle*(180.0 / PI);
+		}
+		else if (dodir || doboth)
+		{
+			rotation = DirToDegrees(dir);
+		}
+	}
 }
 
 void weapon::draw(BITMAP *dest)

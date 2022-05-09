@@ -847,6 +847,15 @@ string ZScript::VarToString(int32_t ID)
 		
 	case LWPNANGLE:
 		return "LWPNANGLE";
+	
+	case LWPNDEGANGLE:
+		return "LWPNDEGANGLE";
+		
+	case LWPNVX:
+		return "LWPNVX";
+		
+	case LWPNVY:
+		return "LWPNVY";
 		
 	case LWPNSTEP:
 		return "LWPNSTEP";
@@ -868,6 +877,9 @@ string ZScript::VarToString(int32_t ID)
 		
 	case LWPNANGULAR:
 		return "LWPNANGULAR";
+		
+	case LWPNAUTOROTATE:
+		return "LWPNAUTOROTATE";
 		
 	case LWPNBEHIND:
 		return "LWPNBEHIND";
@@ -939,6 +951,15 @@ string ZScript::VarToString(int32_t ID)
 	case EWPNANGLE:
 		return "EWPNANGLE";
 		
+	case EWPNDEGANGLE:
+		return "EWPNDEGANGLE";
+		
+	case EWPNVX:
+		return "EWPNVX";
+		
+	case EWPNVY:
+		return "EWPNVY";
+		
 	case EWPNSTEP:
 		return "EWPNSTEP";
 		
@@ -959,6 +980,9 @@ string ZScript::VarToString(int32_t ID)
 		
 	case EWPNANGULAR:
 		return "EWPNANGULAR";
+		
+	case EWPNAUTOROTATE:
+		return "EWPNAUTOROTATE";
 		
 	case EWPNBEHIND:
 		return "EWPNBEHIND";
@@ -1019,6 +1043,12 @@ string ZScript::VarToString(int32_t ID)
 		
 	case LWPNYOFS:
 		return "LWPNYOFS";
+	
+	case LWPNSHADOWXOFS:
+		return "LWPNSHADOWXOFS";
+		
+	case LWPNSHADOWYOFS:
+		return "LWPNSHADOWYOFS";
 		
 	case LWPNZOFS:
 		return "LWPNZOFS";
@@ -1053,6 +1083,12 @@ string ZScript::VarToString(int32_t ID)
 	case EWPNYOFS:
 		return "EWPNYOFS";
 		
+	case EWPNSHADOWXOFS:
+		return "EWPNSHADOWXOFS";
+		
+	case EWPNSHADOWYOFS:
+		return "EWPNSHADOWYOFS";
+		
 	case EWPNZOFS:
 		return "EWPNZOFS";
 		
@@ -1086,6 +1122,12 @@ string ZScript::VarToString(int32_t ID)
 	case NPCYOFS:
 		return "NPCYOFS";
 		
+	case NPCSHADOWXOFS:
+		return "NPCSHADOWXOFS";
+		
+	case NPCSHADOWYOFS:
+		return "NPCSHADOWYOFS";
+		
 	case NPCZOFS:
 		return "NPCZOFS";
 		
@@ -1116,6 +1158,12 @@ string ZScript::VarToString(int32_t ID)
 	case ITEMYOFS:
 		return "ITEMYOFS";
 		
+	case ITEMSHADOWXOFS:
+		return "ITEMSHADOWXOFS";
+		
+	case ITEMSHADOWYOFS:
+		return "ITEMSHADOWYOFS";
+		
 	case ITEMZOFS:
 		return "ITEMZOFS";
 		
@@ -1145,6 +1193,12 @@ string ZScript::VarToString(int32_t ID)
 		
 	case LINKYOFS:
 		return "LINKYOFS";
+		
+	case HEROSHADOWXOFS:
+		return "HEROSHADOWXOFS";
+		
+	case HEROSHADOWYOFS:
+		return "HEROSHADOWYOFS";
 		
 	case LINKZOFS:
 		return "LINKZOFS";
@@ -2416,6 +2470,16 @@ string OTanRegister::toString()
     return "TANR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OEngineDegtoRad::toString()
+{
+    return "DEGTORAD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OEngineRadtoDeg::toString()
+{
+    return "RADTODEG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string Ostrlen::toString()
 {
     return "STRINGLENGTH " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -3392,6 +3456,26 @@ string OIsValidLWpn::toString()
 string OIsValidEWpn::toString()
 {
     return "ISVALIDEWPN " + getArgument()->toString();
+}
+
+string OMakeAngularLwpn::toString()
+{
+    return "LWPNMAKEANGULAR " + getArgument()->toString();
+}
+
+string OMakeAngularEwpn::toString()
+{
+    return "EWPNMAKEANGULAR " + getArgument()->toString();
+}
+
+string OMakeDirectionalLwpn::toString()
+{
+    return "LWPNMAKEDIRECTIONAL " + getArgument()->toString();
+}
+
+string OMakeDirectionalEwpn::toString()
+{
+    return "EWPNMAKEDIRECTIONAL " + getArgument()->toString();
 }
 
 string OUseSpriteLWpn::toString()

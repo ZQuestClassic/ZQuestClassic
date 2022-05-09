@@ -1743,6 +1743,7 @@ void HeroClass::positionNet(weapon *w, int32_t itemid)
     w->tile = t+tiledir;
     w->power = 0;
     w->dir = dir;
+    w->doAutoRotate(true);
 }
 void HeroClass::positionSword(weapon *w, int32_t itemid)
 {
@@ -2027,6 +2028,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     w->flip = f;
     w->power = weaponattackpower();
     w->dir = dir;
+    w->doAutoRotate(true);
 }
 
 void HeroClass::draw(BITMAP* dest)
@@ -7952,12 +7954,14 @@ bool HeroClass::animate(int32_t)
 											w->x = hw->x + dx;
 											w->y = hw->y + dy;
 											w->dir = oppositeDir[w->dir];
+											w->doAutoRotate(true);
 											byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
 											w->flip ^= hflip;
 											//Position the handle appropriately
 											hw->x = x-(hw->x-tx);
 											hw->y = y-(hw->y-ty);
 											hw->dir = oppositeDir[hw->dir];
+											hw->doAutoRotate(true);
 											hw->flip ^= hflip;
 											//Move chains
 											for(int32_t j=0; j<chainlinks.Count(); j++)
@@ -8006,12 +8010,14 @@ bool HeroClass::animate(int32_t)
 										w->x = hw->x + dx;
 										w->y = hw->y + dy;
 										w->dir = oppositeDir[w->dir];
+										w->doAutoRotate(true);
 										byte hflip = (w->dir > 3 ? 3 : ((w->dir & 2) ? 1 : 2));
 										w->flip ^= hflip;
 										//Position the handle appropriately
 										hw->x = x-(hw->x-tx);
 										hw->y = y-(hw->y-ty);
 										hw->dir = oppositeDir[hw->dir];
+										hw->doAutoRotate(true);
 										hw->flip ^= hflip;
 										//Move chains
 										for(int32_t j=0; j<chainlinks.Count(); j++)

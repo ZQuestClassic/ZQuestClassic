@@ -67,6 +67,7 @@ public:
     zfix x,y,z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
     zfix xofs,yofs,zofs;
+    zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
     int32_t hxofs,hyofs,hxsz,hysz,hzsz;
     int32_t txsz,tysz;

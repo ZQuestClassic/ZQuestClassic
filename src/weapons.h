@@ -50,6 +50,7 @@ private:
     
 public:
     void setAngle(double angletoset);
+    void doAutoRotate(bool dodir = false, bool doboth = false);
     int32_t power,type,dead,clk2,misc2,ignorecombo;
     bool isLit; //if true, this weapon is providing light to the current screen
     int32_t parentid, //Enemy who created it
@@ -62,6 +63,7 @@ public:
 	byte script_wrote_otile;
     int32_t temp1;
     bool behind;
+    bool autorotate;
 	byte linkedItem;
 	byte unblockable;
 	byte wscreengrid[22];
@@ -142,6 +144,10 @@ public:
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
 };
+
+int32_t AngleToDir(double ddir);
+double DirToDegrees(int d);
+double WrapAngle(double radians);
 
 void do_trigger_combo(int32_t layer, int32_t pos);
 bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w = NULL);

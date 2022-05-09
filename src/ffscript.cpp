@@ -3144,6 +3144,15 @@ int32_t get_register(const int32_t arg)
 		case LINKYOFS:
 			ret = (int32_t)(Hero.yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))*10000;
 			break;
+			
+		case HEROSHADOWXOFS:
+			ret = (int32_t)(Hero.shadowxofs)*10000;
+			break;
+			
+		case HEROSHADOWYOFS:
+			ret = (int32_t)(Hero.shadowyofs)*10000;
+			break;
+			
 		case HEROTOTALDYOFFS:
 			ret = 10000*(((int32_t)(Hero.yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))
 				+ ((Hero.switch_hooked && Hero.switchhookstyle == swRISE)
@@ -4000,6 +4009,21 @@ int32_t get_register(const int32_t arg)
 				ret=((int32_t)(((item*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 			}
 			break;
+		
+		case ITEMSHADOWXOFS:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret=((int32_t)(((item*)(s))->shadowyofs))*10000;
+			}
+			break;
+			
+		case ITEMSHADOWYOFS:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret=((int32_t)(((item*)(s))->shadowxofs))*10000;
+			}
+			break;
+			
 			
 		case ITEMZOFS:
 			if(0!=(s=checkItem(ri->itemref)))
@@ -5248,6 +5272,12 @@ int32_t get_register(const int32_t arg)
 		case NPCYOFS:
 			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
 			break;
+		case NPCSHADOWXOFS:
+			GET_NPC_VAR_FIX(shadowxofs, "npc->ShadowXOffset") break;
+			
+		case NPCSHADOWYOFS:
+			GET_NPC_VAR_FIX(shadowyofs, "npc->ShadowYOffset") break;
+			
 		case NPCTOTALDYOFFS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->TotalDYOffset") != SH::_NoError)
@@ -5912,10 +5942,83 @@ int32_t get_register(const int32_t arg)
 				ret=(int32_t)(((weapon*)(s))->angle*10000);
 				
 			break;
+		
+		case LWPNDEGANGLE:
+			if(0!=(s=checkLWpn(ri->lwpn,"DegAngle")))
+			{
+				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
+			}
+				
+			break;
 			
+		case LWPNVX:
+			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
+			{
+				if (((weapon*)(s))->angular)
+					ret = int32_t(cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case l_down:
+						case left:
+							ret = int32_t(-10000.0*((weapon*)s)->step);
+							break;
+							
+						case r_down:
+						case r_up:
+						case right:
+							ret = int32_t(10000.0*((weapon*)s)->step);
+							break;
+						
+						default:
+							ret = 0;
+							break;
+					}
+				}
+			}
+				
+			break;
+		
+		case LWPNVY:
+			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
+			{
+				if (((weapon*)(s))->angular)
+					ret = int32_t(sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case r_up:
+						case up:
+							ret = int32_t(-10000.0*((weapon*)s)->step);
+							break;
+						case l_down:
+						case r_down:
+						case down:
+							ret = int32_t(10000.0*((weapon*)s)->step);
+							break;
+							
+						default:
+							ret = 0;
+							break;
+					}
+				}
+			}
+				
+			break;
+				
 		case LWPNANGULAR:
 			if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
 				ret=((weapon*)(s))->angular*10000;
+				
+			break;
+			
+		case LWPNAUTOROTATE:
+			if(0!=(s=checkLWpn(ri->lwpn,"AutoRotate")))
+				ret=((weapon*)(s))->autorotate*10000;
 				
 			break;
 			
@@ -6060,6 +6163,19 @@ int32_t get_register(const int32_t arg)
 				ret=((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
+			
+		case LWPNSHADOWXOFS:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowXOffset")))
+				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
+				
+			break;
+			
+		case LWPNSHADOWYOFS:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowYOffset")))
+				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
+				
+			break;
+			
 		case LWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
 				ret = ((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
@@ -6391,9 +6507,82 @@ int32_t get_register(const int32_t arg)
 				
 			break;
 			
+		case EWPNDEGANGLE:
+			if(0!=(s=checkEWpn(ri->ewpn,"DegAngle")))
+			{
+				ret=(int32_t)(((weapon*)(s))->angle*(180.0 / PI)*10000);
+			}
+				
+			break;
+			
+		case EWPNVX:
+			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
+			{
+				if (((weapon*)(s))->angular)
+					ret = int32_t(cos(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case l_down:
+						case left:
+							ret = int32_t(-10000.0*((weapon*)s)->step);
+							break;
+						case r_up:
+						case r_down:
+						case right:
+							ret = int32_t(10000.0*((weapon*)s)->step);
+							break;
+							
+						default:
+							ret = 0;
+							break;
+					}
+				}
+			}
+				
+			break;
+		
+		case EWPNVY:
+			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
+			{
+				if (((weapon*)(s))->angular)
+					ret = int32_t(sin(((weapon*)s)->angle)*10000.0*((weapon*)s)->step);
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case r_up:
+						case up:
+							ret = int32_t(-10000.0*((weapon*)s)->step);
+							break;
+						case l_down:
+						case r_down:
+						case down:
+							ret = int32_t(10000.0*((weapon*)s)->step);
+							break;
+							
+						default:
+							ret = 0;
+							break;
+					}
+				}
+			}
+				
+			break;
+			
+			
 		case EWPNANGULAR:
 			if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
 				ret=((weapon*)(s))->angular*10000;
+				
+			break;
+			
+		case EWPNAUTOROTATE:
+			if(0!=(s=checkEWpn(ri->ewpn,"AutoRotate")))
+				ret=((weapon*)(s))->autorotate*10000;
 				
 			break;
 			
@@ -6542,6 +6731,18 @@ int32_t get_register(const int32_t arg)
 		case EWPNYOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
 				ret=((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+				
+			break;
+			
+		case EWPNSHADOWXOFS:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowXOffset")))
+				ret=((int32_t)(((weapon*)(s))->shadowxofs))*10000;
+				
+			break;
+			
+		case EWPNSHADOWYOFS:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowYOffset")))
+				ret=((int32_t)(((weapon*)(s))->shadowyofs))*10000;
 				
 			break;
 		case EWPNTOTALDYOFFS:
@@ -12087,6 +12288,14 @@ void set_register(const int32_t arg, const int32_t value)
 		case HEROTOTALDYOFFS:
 			break; //READ-ONLY
 			
+		case HEROSHADOWXOFS:
+			(Hero.shadowxofs)=(zfix)(value/10000);
+			break;
+			
+		case HEROSHADOWYOFS:
+			(Hero.shadowyofs)=(zfix)(value/10000);
+			break;
+			
 		case LINKZOFS:
 			(Hero.zofs)=(zfix)(value/10000);
 			break;
@@ -13114,6 +13323,22 @@ void set_register(const int32_t arg, const int32_t value)
 			
 			break;
 			
+		case ITEMSHADOWXOFS:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->shadowxofs=(zfix)(value/10000);
+			}
+			
+			break;
+		
+		case ITEMSHADOWYOFS:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->shadowyofs=(zfix)(value/10000);
+			}
+			
+			break;
+		
 		case ITEMZOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
@@ -14188,7 +14413,10 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case LWPNDIR:
 			if(0!=(s=checkLWpn(ri->lwpn,"Dir")))
+			{
 				((weapon*)s)->dir=(value/10000);
+				((weapon*)s)->doAutoRotate(true);
+			}
 				
 			break;
 			
@@ -14232,19 +14460,114 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case LWPNANGLE:
 			if(0!=(s=checkLWpn(ri->lwpn,"Angle")))
+			{
 				((weapon*)s)->angle=(double)(value/10000.0);
+				((weapon*)(s))->doAutoRotate();
+			}
+				
+			break;
+			
+		case LWPNDEGANGLE:
+			if(0!=(s=checkLWpn(ri->lwpn,"DegAngle")))
+			{
+				double rangle = (value / 10000.0) * (PI / 180.0);
+				((weapon*)s)->angle=(double)(rangle);
+				((weapon*)(s))->doAutoRotate();
+			}
+				
+			break;
+			
+		case LWPNVX:
+			if(0!=(s=checkLWpn(ri->lwpn,"Vx")))
+			{
+				double vy;
+				double vx = (value / 10000.0);
+				if (((weapon*)(s))->angular)
+					vy = sin(((weapon*)s)->angle)*((weapon*)s)->step;
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case r_up:
+						case up:
+							vy = -1.0*((weapon*)s)->step;
+							break;
+						case l_down:
+						case r_down:
+						case down:
+							vy = ((weapon*)s)->step;
+							break;
+							
+						default:
+							vy = 0;
+							break;
+					}
+				}
+				((weapon*)s)->angular = true;
+				((weapon*)s)->angle=atan2(vy, vx);
+				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+				((weapon*)(s))->doAutoRotate();
+			}
+				
+			break;
+		
+		case LWPNVY:
+			if(0!=(s=checkLWpn(ri->lwpn,"Vy")))
+			{
+				double vx;
+				double vy = (value / 10000.0);
+				if (((weapon*)(s))->angular)
+					vx = cos(((weapon*)s)->angle)*((weapon*)s)->step;
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case l_down:
+						case left:
+							vx = -1.0*((weapon*)s)->step;
+							break;
+						case r_down:
+						case r_up:
+						case right:
+							vx = ((weapon*)s)->step;
+							break;
+							
+						default:
+							vx = 0;
+							break;
+					}
+				}
+				((weapon*)s)->angular = true;
+				((weapon*)s)->angle=atan2(vy, vx);
+				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+				((weapon*)(s))->doAutoRotate();
+			}
 				
 			break;
 			
 		case LWPNANGULAR:
 			if(0!=(s=checkLWpn(ri->lwpn,"Angular")))
-				((weapon*)s)->angular=(value/10000) != 0;
+			{
+				((weapon*)s)->angular=(value!=0);
+				((weapon*)(s))->doAutoRotate(false, true);
+			}
+				
+			break;
+			
+		case LWPNAUTOROTATE:
+			if(0!=(s=checkLWpn(ri->lwpn,"AutoRotate")))
+			{
+				((weapon*)s)->autorotate=(value!=0);
+				((weapon*)(s))->doAutoRotate(false, true);
+			}
 				
 			break;
 			
 		case LWPNBEHIND:
 			if(0!=(s=checkLWpn(ri->lwpn,"Behind")))
-				((weapon*)s)->behind=(value/10000) != 0;
+				((weapon*)s)->behind=(value!=0);
 				
 			break;
 			
@@ -14398,6 +14721,19 @@ void set_register(const int32_t arg, const int32_t value)
 				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
+		
+		case LWPNSHADOWXOFS:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowXOffset")))
+				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
+				
+			break;
+		
+		case LWPNSHADOWYOFS:
+			if(0!=(s=checkLWpn(ri->lwpn,"ShadowYOffset")))
+				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
+				
+			break;
+			
 		case LWPNTOTALDYOFFS:
 			break; //READ-ONLY
 			
@@ -14657,7 +14993,10 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case EWPNDIR:
 			if(0!=(s=checkEWpn(ri->ewpn,"Dir")))
+			{
 				((weapon*)s)->dir=(value/10000);
+				((weapon*)s)->doAutoRotate(true);
+			}
 				
 			break;
 			
@@ -14701,19 +15040,114 @@ void set_register(const int32_t arg, const int32_t value)
 			
 		case EWPNANGLE:
 			if(0!=(s=checkEWpn(ri->ewpn,"Angle")))
+			{
 				((weapon*)s)->angle=(double)(value/10000.0);
+				((weapon*)(s))->doAutoRotate();
+			}
+				
+			break;
+			
+		case EWPNDEGANGLE:
+			if(0!=(s=checkEWpn(ri->ewpn,"DegAngle")))
+			{
+				double rangle = (value / 10000.0) * (PI / 180.0);
+				((weapon*)s)->angle=(double)(rangle);
+				((weapon*)(s))->doAutoRotate();
+			}
+				
+			break;
+			
+		case EWPNVX:
+			if(0!=(s=checkEWpn(ri->ewpn,"Vx")))
+			{
+				double vy;
+				double vx = (value / 10000.0);
+				if (((weapon*)(s))->angular)
+					vy = sin(((weapon*)s)->angle)*((weapon*)s)->step;
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case r_up:
+						case up:
+							vy = -1.0*((weapon*)s)->step;
+							break;
+						case l_down:
+						case r_down:
+						case down:
+							vy = ((weapon*)s)->step;
+							break;
+							
+						default:
+							vy = 0;
+							break;
+					}
+				}
+				((weapon*)s)->angular = true;
+				((weapon*)s)->angle=atan2(vy, vx);
+				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000;
+				((weapon*)(s))->doAutoRotate();
+			}
+				
+			break;
+		
+		case EWPNVY:
+			if(0!=(s=checkEWpn(ri->ewpn,"Vy")))
+			{
+				double vx;
+				double vy = (value / 10000.0);
+				if (((weapon*)(s))->angular)
+					vx = cos(((weapon*)s)->angle)*((weapon*)s)->step;
+				else
+				{
+					switch(NORMAL_DIR(((weapon*)(s))->dir))
+					{
+						case l_up:
+						case l_down:
+						case left:
+							vx = -1.0*((weapon*)s)->step;
+							break;
+						case r_down:
+						case r_up:
+						case right:
+							vx = ((weapon*)s)->step;
+							break;
+							
+						default:
+							vx = 0;
+							break;
+					}
+				}
+				((weapon*)s)->angular = true;
+				((weapon*)s)->angle=atan2(vy, vx);
+				((weapon*)s)->step=FFCore.Distance(0, 0, vx, vy)/10000;
+				((weapon*)(s))->doAutoRotate();
+			}
 				
 			break;
 			
 		case EWPNANGULAR:
 			if(0!=(s=checkEWpn(ri->ewpn,"Angular")))
-				((weapon*)s)->angular=(value/10000) != 0;
+			{
+				((weapon*)s)->angular=(value!=0);
+				((weapon*)(s))->doAutoRotate(false, true);
+			}
+				
+			break;
+			
+		case EWPNAUTOROTATE:
+			if(0!=(s=checkEWpn(ri->ewpn,"AutoRotate")))
+			{
+				((weapon*)s)->autorotate=(value!=0);
+				((weapon*)(s))->doAutoRotate(false, true);
+			}
 				
 			break;
 			
 		case EWPNBEHIND:
 			if(0!=(s=checkEWpn(ri->ewpn,"Behind")))
-				((weapon*)s)->behind=(value/10000) != 0;
+				((weapon*)s)->behind=(value!=0);
 				
 			break;
 			
@@ -14859,6 +15293,18 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		case EWPNTOTALDYOFFS:
 			break; //READ-ONLY
+			
+		case EWPNSHADOWXOFS:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowXOffset")))
+				(((weapon*)s)->shadowxofs)=(zfix)(value/10000);
+				
+			break;
+			
+		case EWPNSHADOWYOFS:
+			if(0!=(s=checkEWpn(ri->ewpn,"ShadowYOffset")))
+				(((weapon*)s)->shadowyofs)=(zfix)(value/10000);
+				
+			break;
 			
 		case EWPNZOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawZOffset")))
@@ -15228,6 +15674,21 @@ void set_register(const int32_t arg, const int32_t value)
 				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 		}
 		break;
+		
+		case NPCSHADOWXOFS:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->ShadowXOffset") == SH::_NoError)
+				GuyH::getNPC()->shadowxofs = zfix(value / 10000);
+		}
+		break;
+		
+		case NPCSHADOWYOFS:
+		{
+			if(GuyH::loadNPC(ri->guyref, "npc->ShadowYOffset") == SH::_NoError)
+				GuyH::getNPC()->shadowyofs = zfix(value / 10000);
+		}
+		break;
+		
 		case NPCTOTALDYOFFS:
 			break; //READ-ONLY
 		
@@ -20761,6 +21222,21 @@ void do_trig(const bool v, const byte type)
 	}
 }
 
+void do_degtorad()
+{
+	double rangle = (SH::get_arg(sarg2, false) / 10000.0) * (PI / 180.0);
+	rangle += rangle < 0?-0.00005:0.00005;
+	
+	set_register(sarg1, int32_t(rangle * 10000.0));
+}
+
+void do_radtodeg()
+{
+	double rangle = (SH::get_arg(sarg2, false) / 10000.0) * (180.0 / PI);
+	
+	set_register(sarg1, int32_t(rangle * 10000.0));
+}
+
 void do_asin(const bool v)
 {
 	double temp = double(SH::get_arg(sarg2, v)) / 10000.0;
@@ -22173,6 +22649,132 @@ void do_isvalidewpn()
 		}
 		
 	set_register(sarg1, 0);
+}
+
+void do_lwpnmakeangular()
+{
+	if(LwpnH::loadWeapon(ri->lwpn, "lweapon->MakeAngular") == SH::_NoError)
+	{
+		if (!LwpnH::getWeapon()->angular)
+		{
+			double vx;
+			double vy;
+			switch(NORMAL_DIR(LwpnH::getWeapon()->dir))
+			{
+				case l_up:
+				case l_down:
+				case left:
+					vx = -1.0*((weapon*)s)->step;
+					break;
+				case r_down:
+				case r_up:
+				case right:
+					vx = ((weapon*)s)->step;
+					break;
+					
+				default:
+					vx = 0;
+					break;
+			}
+			switch(NORMAL_DIR(LwpnH::getWeapon()->dir))
+			{
+				case l_up:
+				case r_up:
+				case up:
+					vy = -1.0*((weapon*)s)->step;
+					break;
+				case l_down:
+				case r_down:
+				case down:
+					vy = ((weapon*)s)->step;
+					break;
+					
+				default:
+					vy = 0;
+					break;
+			}
+			LwpnH::getWeapon()->angular = true;
+			LwpnH::getWeapon()->angle=atan2(vy, vx);
+			LwpnH::getWeapon()->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+			LwpnH::getWeapon()->doAutoRotate();
+		}
+	}
+}
+
+void do_lwpnmakedirectional()
+{
+	if(LwpnH::loadWeapon(ri->lwpn, "lweapon->MakeDirectional") == SH::_NoError)
+	{
+		if (LwpnH::getWeapon()->angular)
+		{
+			LwpnH::getWeapon()->dir = NORMAL_DIR(AngleToDir(WrapAngle(LwpnH::getWeapon()->angle)));
+			LwpnH::getWeapon()->angular = false;
+			LwpnH::getWeapon()->doAutoRotate(true);
+		}
+	}
+}
+
+void do_ewpnmakeangular()
+{
+	if(EwpnH::loadWeapon(ri->ewpn, "eweapon->MakeAngular") == SH::_NoError)
+	{
+		if (!EwpnH::getWeapon()->angular)
+		{
+			double vx;
+			double vy;
+			switch(NORMAL_DIR(EwpnH::getWeapon()->dir))
+			{
+				case l_up:
+				case l_down:
+				case left:
+					vx = -1.0*((weapon*)s)->step;
+					break;
+				case r_down:
+				case r_up:
+				case right:
+					vx = ((weapon*)s)->step;
+					break;
+					
+				default:
+					vx = 0;
+					break;
+			}
+			switch(NORMAL_DIR(EwpnH::getWeapon()->dir))
+			{
+				case l_up:
+				case r_up:
+				case up:
+					vy = -1.0*((weapon*)s)->step;
+					break;
+				case l_down:
+				case r_down:
+				case down:
+					vy = ((weapon*)s)->step;
+					break;
+					
+				default:
+					vy = 0;
+					break;
+			}
+			EwpnH::getWeapon()->angular = true;
+			EwpnH::getWeapon()->angle=atan2(vy, vx);
+			EwpnH::getWeapon()->step=FFCore.Distance(0, 0, vx, vy)/10000.0;
+			EwpnH::getWeapon()->doAutoRotate();
+		}
+	}
+}
+
+void do_ewpnmakedirectional()
+{
+	if(EwpnH::loadWeapon(ri->lwpn, "eweapon->MakeDirectional") == SH::_NoError)
+	{
+		if (EwpnH::getWeapon()->angular)
+		{
+			EwpnH::getWeapon()->dir = NORMAL_DIR(AngleToDir(WrapAngle(EwpnH::getWeapon()->angle)));
+			EwpnH::getWeapon()->angular = false;
+			EwpnH::getWeapon()->doAutoRotate(true);
+		}
+	}
 }
 
 void do_lwpnusesprite(const bool v)
@@ -26008,6 +26610,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case TANR:
 				do_trig(false, 2);
 				break;
+				
+			case DEGTORAD:
+				do_degtorad();
+				break;
+				
+			case RADTODEG:
+				do_radtodeg();
+				break;
 			
 			case STRINGLENGTH:
 				FFCore.do_strlen(false);
@@ -26873,6 +27483,22 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				
 			case ISVALIDEWPN:
 				do_isvalidewpn();
+				break;
+				
+			case LWPNMAKEANGULAR:
+				do_lwpnmakeangular();
+				break;
+				
+			case EWPNMAKEANGULAR:
+				do_ewpnmakeangular();
+				break;
+			
+			case LWPNMAKEDIRECTIONAL:
+				do_lwpnmakedirectional();
+				break;
+				
+			case EWPNMAKEDIRECTIONAL:
+				do_ewpnmakedirectional();
 				break;
 				
 			case LWPNUSESPRITER:
@@ -35300,6 +35926,12 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "WAITTO",			   2,   0,   0,   0},
 	{ "GETGENERICSCRIPT",                1,   0,   0,   0},
 	{ "KILLPLAYER",                1,   0,   0,   0},
+	{ "DEGTORAD",                2,   0,   0,   0},
+	{ "RADTODEG",                2,   0,   0,   0},
+	{ "LWPNMAKEANGULAR",      1,   0,   0,   0},
+	{ "EWPNMAKEANGULAR",      1,   0,   0,   0},
+	{ "LWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
+	{ "EWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -36595,8 +37227,26 @@ script_variable ZASMVars[]=
 	{ "LWPNFAKEJUMP", LWPNFAKEJUMP, 0, 0 },
 	{ "EWPNFAKEJUMP", EWPNFAKEJUMP, 0, 0 },
 	{ "HEROFAKEJUMP", HEROFAKEJUMP, 0, 0 },
+	{ "HEROSHADOWXOFS", HEROSHADOWXOFS, 0, 0 },
+	{ "HEROSHADOWYOFS", HEROSHADOWYOFS, 0, 0 },
+	{ "NPCSHADOWXOFS", NPCSHADOWXOFS, 0, 0 },
+	{ "NPCSHADOWYOFS", NPCSHADOWYOFS, 0, 0 },
+	{ "ITEMSHADOWXOFS", ITEMSHADOWXOFS, 0, 0 },
+	{ "ITEMSHADOWYOFS", ITEMSHADOWYOFS, 0, 0 },
+	{ "LWPNSHADOWXOFS", LWPNSHADOWXOFS, 0, 0 },
+	{ "LWPNSHADOWYOFS", LWPNSHADOWYOFS, 0, 0 },
+	{ "EWPNSHADOWXOFS", EWPNSHADOWXOFS, 0, 0 },
+	{ "EWPNSHADOWYOFS", EWPNSHADOWYOFS, 0, 0 },
+	{ "LWPNDEGANGLE", LWPNDEGANGLE, 0, 0 },
+	{ "EWPNDEGANGLE", EWPNDEGANGLE, 0, 0 },
+	{ "LWPNVX", LWPNVX, 0, 0 },
+	{ "LWPNVY", LWPNVY, 0, 0 },
+	{ "EWPNVX", EWPNVX, 0, 0 },
+	{ "EWPNVY", EWPNVY, 0, 0 },
+	{ "LWPNAUTOROTATE", LWPNAUTOROTATE, 0, 0 },
+	{ "EWPNAUTOROTATE", EWPNAUTOROTATE, 0, 0 },
 	
-	{ " ",                       -1,             0,             0 }
+	{ " ", -1, 0, 0 }
 };
 
 

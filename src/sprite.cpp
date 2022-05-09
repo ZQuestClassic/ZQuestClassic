@@ -76,7 +76,7 @@ sprite::sprite()
 {
     uid = getNextUID();
 	isspawning = false;
-    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=fakez=0;
+    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=hxofs=hyofs=fall=fakefall=fakez=0;
     txsz=1;
     tysz=1;
     id=-1;
@@ -2037,8 +2037,8 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 		return;
 	}
 	
-	int32_t sx = real_x(x+xofs)+(txsz-1)*8;
-	int32_t sy = real_y(y+yofs+(tysz-1)*16);
+	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
+	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
