@@ -41,7 +41,7 @@ extern ZModule zcm;
 extern enemy Enemy;
 extern byte epilepsyFlashReduction;
 
-static double WrapAngle( double radians ) 
+double WrapAngle( double radians ) 
 {
 	while (radians <= -PI) radians += (PI*2);
 	while (radians > PI) radians -= (PI*2);
@@ -80,22 +80,47 @@ static double DirToRadians(int d)
 	
 }
 
+double DirToDegrees(int d)
+{
+	switch(d)
+	{
+		case up:
+			return 270;
+		case down:
+			return 90;
+		case left:
+			return 180;
+		case right:
+			return 0;
+		case 4:
+			return 225;
+		case 5:
+			return 315;
+		case 6:
+			return 135;
+		case 7:
+			return 45;
+	}
+	return 0;
+	
+}
+
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
-static int32_t AngleToDir(double ddir)
+int32_t AngleToDir(double ddir)
 {
 	int32_t lookat=0;
 	
 	if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 	{
-		lookat=l_down;
+		lookat=l_up;
 	}
 	else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
 	{
-		lookat=down;
+		lookat=up;
 	}
 	else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
 	{
-		lookat=r_down;
+		lookat=r_up;
 	}
 	else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
 	{
@@ -103,15 +128,15 @@ static int32_t AngleToDir(double ddir)
 	}
 	else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
 	{
-		lookat=r_up;
+		lookat=r_down;
 	}
 	else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
 	{
-		lookat=up;
+		lookat=down;
 	}
 	else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
 	{
-		lookat=l_up;
+		lookat=l_down;
 	}
 	else
 	{
@@ -1571,6 +1596,7 @@ void getdraggeditem(int32_t j)
         
     it->x = HeroX();
     it->y = HeroY();
+    it->fakez = HeroFakeZ();
     it->z = HeroZ();
     HeroCheckItems();
 }
@@ -1579,6 +1605,7 @@ void weapon::setAngle(double angletoset)
 {
     angular = true;
     angle = angletoset;
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1594,6 +1621,7 @@ void weapon::seekHero()
 {
     angular = true;
     angle = atan2(double(HeroY()-y),double(HeroX()-x));
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1606,6 +1634,8 @@ void weapon::seekHero()
     
     if(z>HeroZ()) z--;
     else if(z<HeroZ()) z++;
+    if(fakez>HeroFakeZ()) fakez--;
+    else if(fakez<HeroFakeZ()) fakez++;
 }
 
 void weapon::seekEnemy(int32_t j)
@@ -1637,6 +1667,7 @@ void weapon::seekEnemy(int32_t j)
     }
     
     angle = atan2(double(GuyY(j)-y),double(GuyX(j)-x));
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1678,6 +1709,7 @@ int32_t weapon::seekEnemy2(int32_t j)
     
     //al_trace("Guy: %d, gx: %f, gy: %f, x: %f, y: %f\n", j, float(GuyX(j)), float(GuyY(j)), float(dummy_fix[0]), float(dummy_fix[1]));
     angle = atan2(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
+    doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -1885,6 +1917,7 @@ weapon::weapon(weapon const & other):
     
     //if ( parentid > 0 ) wpnsprite = guysbuf[parentid].wpnsprite;
     //else wpnsprite  = -1;
+    doAutoRotate(true);
 }
 
 // Let's dispose of some sound effects!
@@ -2018,6 +2051,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	hxsz=15;
 	hysz=15;
 	hzsz=8;
+	autorotate = false;
 	do_animation = 1;
 	ref_o_tile = 0;
 	useweapon = usedefence = useweapondummy = usedefencedummy = 0;
@@ -4295,39 +4329,39 @@ bool weapon::animate(int32_t index)
 		{
 			for(int32_t dy = 0; dy < hysz; dy += 16)
 			{
-				Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 				//Layers
 				//1
-				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,1);
+				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this,1);
 				//2
-				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this,2);
+				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this,2);
 				
-				Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
-				Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
-				Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, this);
+				Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
+				Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
+				Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 			}
-			Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
-			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,1);
-			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this,2);
-			Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
-			Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
-			Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), this);
+			Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
+			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this,1);
+			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this,2);
+			Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
+			Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
+			Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
 		}
 		for(int32_t dy = 0; dy < hysz; dy += 16)
 		{
-			Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
-			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,1);
-			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this,2);
-			Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
-			Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
-			Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, this);
+			Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
+			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this,1);
+			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this,2);
+			Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
+			Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
+			Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
 		}
-		Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
-		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,1);
-		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this,2);
-		Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
-		Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
-		Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), this);
+		Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
+		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this,1);
+		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this,2);
+		Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
+		Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
+		Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
 		findcombotriggers();
 		/* Don't check every single pixel.
 		for ( int32_t w = 0; q < hysz; q++ )
@@ -4359,7 +4393,7 @@ bool weapon::animate(int32_t index)
 				
 				if(fall <= (int32_t)zinit.terminalv)
 				{
-					fall += zinit.gravity;
+					fall += (zinit.gravity2/100);
 				}
 			}
 			else
@@ -4374,15 +4408,31 @@ bool weapon::animate(int32_t index)
 		}
 		else
 		{
-			z-=fall/100;
+			if (!(moveflags & FLAG_NO_FAKE_Z))
+			{
+				fakez-=fakefall/100;
 			
-			if(z<=0)
-			{
-				z = fall = 0;
+				if(fakez <= 0)
+				{
+					fakez = fakefall = 0;
+				}
+				else if(fakefall <= (int32_t)zinit.terminalv)
+				{
+					fakefall += (zinit.gravity2/100);
+				}
 			}
-			else if(fall <= (int32_t)zinit.terminalv)
+			if (!(moveflags & FLAG_NO_REAL_Z))
 			{
-				fall += zinit.gravity;
+				z-=fall/100;
+				
+				if(z <= 0)
+				{
+					z = fall = 0;
+				}
+				else if(fall <= (int32_t)zinit.terminalv)
+				{
+					fall += (zinit.gravity2/100);
+				}
 			}
 		}
 	}
@@ -4404,7 +4454,7 @@ bool weapon::animate(int32_t index)
 			case wSmack:
 				break;
 			default:
-				if(z <= 0)
+				if(z <= 0 && fakez <= 0)
 				{
 					fallCombo = check_pits();
 				}
@@ -4428,7 +4478,7 @@ bool weapon::animate(int32_t index)
 			case wSmack:
 				break;
 			default:
-				if(z <= 0)
+				if(z <= 0 && fakez <= 0)
 				{
 					drownCombo = check_water();
 				}
@@ -4547,9 +4597,12 @@ bool weapon::animate(int32_t index)
 				dir=l_up;
 			else
 				dir=up;
+			
+			doAutoRotate(true);
 				
 			x = (zfix)((double)HeroX() + xdiff);
 			y = (zfix)((double)HeroY() + ydiff);
+			fakez = HeroFakeZ();
 			z = HeroZ();
 			
 			if(parentitem>-1 && dead != 1) //Perhaps don't play the sound if the weapon is dead?
@@ -4592,7 +4645,7 @@ bool weapon::animate(int32_t index)
 				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 				{
 					checkx = (x+hxofs+(hxsz*0.5));
-					checky = (y+hyofs+(hysz*0.5));
+					checky = (y+hyofs+(hysz*0.5)-fakez);
 					check_x_ofs = x - (checkx-8);
 					check_y_ofs = y - (checky-8);
 				}
@@ -4620,6 +4673,7 @@ bool weapon::animate(int32_t index)
 							checky=y+7;
 							break;
 					}
+					checky -= fakez;
 				}
 				
 				if(ignorecombo==((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
@@ -4669,6 +4723,7 @@ bool weapon::animate(int32_t index)
 							flip |= 2;  // vert
 						}
 						tile=ref_o_tile;
+						doAutoRotate(true);
 						
 						if(dir&2)
 						{
@@ -4741,6 +4796,7 @@ bool weapon::animate(int32_t index)
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							w->doAutoRotate(true);
 							//jesus fuck Zoria, this is blatantly wrong...
 							//In your next job, don't code while drunk you dumbass. -Deedee
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
@@ -4753,27 +4809,17 @@ bool weapon::animate(int32_t index)
 									w->angular = true;
 									//Zoria, you need to set the dir... *sigh*
 									w->dir = AngleToDir(WrapAngle(newangle));
+									w->doAutoRotate();
 									//That's not to mention that the scope above checked for direction... on an angular weapon. Come on, that'll result in buggy behavior.
 									//Did you even fucking test this?
-									//No, of course you didn't.
-									//You left this community stagnant for 5 years pretending to be someone important,
-									//When all you could deliver was fucking lies.
-									//You almost singlehandedly killed the community with your incompetence.
-									//You expected *us* to test *your* shit
-									//You expected *us* to fix *your* shit
-									//You expected *us* to make features that *you* could never do, and what did we get?
-									//"It's a minor feature, nobody fucking cares"
-									//What did you deliver exactly? Buggy Combo Scripts? Buggy Diagonal Hookshot? A bunch of planned features that were advertised as features, but weren't even implemented?
-									//All that was allowed because this fucking community is of the impression that *a* dev is better than *no* dev; god damn what a mistake.
-									//You probably won't even see this rant; my fix probably doesn't even work! I could have spent this time testing this but instead ranted to someone who cannot hear.
-									//Maybe you will see this rant though, when you comb through trying to steal our hard work. I don't expect you to have any integrity, after all...
-									//Fuck, this was a waste of time. -Deedee
+									//No, of course you didn't. -Deedee
 								}
 							}
 							w->o_tile = ref_o_tile;
 							w->tile = ref_o_tile;
 							w->x=newx;
 							w->y=newy;
+							w->fakez=fakez;
 							w->z=z;
 							w->id=wRefBeam;
 							w->parentid=parentid;
@@ -4824,6 +4870,7 @@ bool weapon::animate(int32_t index)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
+						w->doAutoRotate(true);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -4831,6 +4878,7 @@ bool weapon::animate(int32_t index)
 							if (AngleReflect)
 							{
 								w->angular = true;
+								w->doAutoRotate();
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
@@ -4839,6 +4887,7 @@ bool weapon::animate(int32_t index)
 						w->x=newx;
 						w->y=newy;
 						w->z=z;
+						w->fakez=fakez;
 						w->id=wRefBeam;
 						w->parentid=parentid;
 						w->parentitem=parentitem;
@@ -5583,6 +5632,7 @@ bool weapon::animate(int32_t index)
 				{
 					dir=right;
 				}
+				doAutoRotate(true);
 			}
 			
 			if(dead==1)
@@ -5760,6 +5810,7 @@ bool weapon::animate(int32_t index)
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
+				doAutoRotate(true);
 			}
 			
 			// Hookshot grab and retract code 
@@ -6214,6 +6265,7 @@ bool weapon::animate(int32_t index)
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
+				doAutoRotate(true);
 			}
 			break;
 		}
@@ -6493,7 +6545,7 @@ bool weapon::animate(int32_t index)
 			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 			{
 				checkx = (x+hxofs+(hxsz*0.5));
-				checky = (y+hyofs+(hysz*0.5));
+				checky = (y+hyofs+(hysz*0.5)-fakez);
 				check_x_ofs = x - (checkx-8);
 				check_y_ofs = y - (checky-8);
 			}
@@ -6521,6 +6573,7 @@ bool weapon::animate(int32_t index)
 						checky=y+7;
 						break;
 				}
+				checky-=fakez;
 			}
 			
 			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
@@ -6576,6 +6629,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir = 3-w->dir;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -6626,6 +6680,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir ^= 2;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -6673,6 +6728,7 @@ bool weapon::animate(int32_t index)
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							w->doAutoRotate(true);
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -6680,6 +6736,7 @@ bool weapon::animate(int32_t index)
 								if (AngleReflect)
 								{
 									w->angular = true;
+									w->doAutoRotate();
 									w->dir = AngleToDir(WrapAngle(newangle));
 								}
 							}
@@ -6687,6 +6744,7 @@ bool weapon::animate(int32_t index)
 							w->tile = ref_o_tile;
 							w->x=newx;
 							w->y=newy;
+							w->fakez=fakez;
 							w->z=z;
 							w->id=wRefMagic; w->convertType(true);
 							w->parentid=parentid;
@@ -6738,6 +6796,7 @@ bool weapon::animate(int32_t index)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
+						w->doAutoRotate(true);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -6745,6 +6804,7 @@ bool weapon::animate(int32_t index)
 							if (AngleReflect)
 							{
 								w->angular = true;
+								w->doAutoRotate();
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
@@ -6752,6 +6812,7 @@ bool weapon::animate(int32_t index)
 						w->tile = ref_o_tile;
 						w->x=newx;
 						w->y=newy;
+						w->fakez=fakez;
 						w->z=z;
 						w->id=wRefMagic; w->convertType(true);
 						w->parentid=parentid;
@@ -6846,7 +6907,7 @@ bool weapon::animate(int32_t index)
 			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 			{
 				checkx = (x+hxofs+(hxsz*0.5));
-				checky = (y+hyofs+(hysz*0.5));
+				checky = (y+hyofs+(hysz*0.5)-fakez);
 				check_x_ofs = x - (checkx-8);
 				check_y_ofs = y - (checky-8);
 			}
@@ -6874,6 +6935,7 @@ bool weapon::animate(int32_t index)
 						checky=y+7;
 						break;
 				}
+				checky-=fakez;
 			}
 			
 			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
@@ -6930,6 +6992,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir = 3-w->dir;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -6980,6 +7043,7 @@ bool weapon::animate(int32_t index)
 					w->o_tile = ref_o_tile;
 					w->tile = ref_o_tile;
 					w->dir ^= 2;
+					w->doAutoRotate(true);
 					
 					if(w->id != wWind)
 					{
@@ -7027,6 +7091,7 @@ bool weapon::animate(int32_t index)
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
+							w->doAutoRotate(true);
 							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -7034,6 +7099,7 @@ bool weapon::animate(int32_t index)
 								if (AngleReflect)
 								{
 									w->angular = true;
+									w->doAutoRotate();
 									w->dir = AngleToDir(WrapAngle(newangle));
 								}
 							}
@@ -7041,6 +7107,7 @@ bool weapon::animate(int32_t index)
 							w->tile = ref_o_tile;
 							w->x=newx;
 							w->y=newy;
+							w->fakez=fakez;
 							w->z=z;
 							w->id=wRefMagic; w->convertType(true);
 							w->parentid=parentid;
@@ -7092,6 +7159,7 @@ bool weapon::animate(int32_t index)
 					{
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
+						w->doAutoRotate(true);
 						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
@@ -7099,6 +7167,7 @@ bool weapon::animate(int32_t index)
 							if (AngleReflect)
 							{
 								w->angular = true;
+								w->doAutoRotate();
 								w->dir = AngleToDir(WrapAngle(newangle));
 							}
 						}
@@ -7106,6 +7175,7 @@ bool weapon::animate(int32_t index)
 						w->tile = ref_o_tile;
 						w->x=newx;
 						w->y=newy;
+						w->fakez=fakez;
 						w->z=z;
 						w->id=wRefMagic; w->convertType(true);
 						w->parentid=parentid;
@@ -7576,22 +7646,27 @@ reflect:
                 {
                 case up:
                     angle += (PI - angle) * 2.0;
+		    doAutoRotate();
                     break;
                     
                 case down:
                     angle = -angle;
+		    doAutoRotate();
                     break;
                     
                 case left:
                     angle += ((-PI/2) - angle) * 2.0;
+		    doAutoRotate();
                     break;
                     
                 case right:
                     angle += ((PI/2) - angle) * 2.0;
+		    doAutoRotate();
                     break;
                     
                 default:
                     angle += PI;
+		    doAutoRotate();
                     break;
                 }
             else
@@ -7823,7 +7898,7 @@ offscreenCheck:
 		if(((id==wMagic && current_item(itype_book) &&
 			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
+		    Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
@@ -7837,7 +7912,7 @@ offscreenCheck:
 		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
 			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
 		{
-		    Lwpns.add(new weapon(x,y,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1));
+		    Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1));
 		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
 		    {
 			sfx(WAV_FIRE,pan(x));
@@ -7917,6 +7992,21 @@ void weapon::update_weapon_frame(int32_t change, int32_t orig)
     }
     else
         tile=orig+change;
+}
+
+void weapon::doAutoRotate(bool dodir, bool doboth)
+{
+	if (autorotate)
+	{
+		if (angular && (!dodir || doboth))
+		{
+			rotation = angle*(180.0 / PI);
+		}
+		else if (dodir || doboth)
+		{
+			rotation = DirToDegrees(dir);
+		}
+	}
 }
 
 void weapon::draw(BITMAP *dest)
@@ -8026,13 +8116,13 @@ void weapon::draw(BITMAP *dest)
 					if(type2==3 || type2 == 4 && (f&2))
 						++tile;
 				}
-				if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,0);
+				if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,0);
 				
-				if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs),cs,1);
+				if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,1);
 				
-				if(!type2 || type2 == 4 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,2);
+				if(!type2 || type2 == 4 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,2);
 				
-				if(!type2 || type2 == 4 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs),cs,3);
+				if(!type2 || type2 == 4 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,3);
 			}
 		}
 		
@@ -8107,18 +8197,18 @@ void weapon::draw(BITMAP *dest)
 				}
 			}
 			
-			overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-13-(z+zofs),cs,0);
-			overtile16(dest,tile,x,y+yofs-(z+zofs),cs,0);
-			overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs-(z+zofs),cs,0);
-			overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14-(z+zofs),cs,0);
+			overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-fakez-13-(z+zofs),cs,0);
+			overtile16(dest,tile,x,y+yofs-fakez-(z+zofs),cs,0);
+			overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs-fakez-(z+zofs),cs,0);
+			overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14-fakez-(z+zofs),cs,0);
 			
 			if(id==wSBomb||id==ewSBomb)
 			{
-				overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28-(z+zofs),cs,0);
+				overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28-fakez-(z+zofs),cs,0);
 			}
 			else
 			{
@@ -8126,8 +8216,8 @@ void weapon::draw(BITMAP *dest)
 			}
 			
 			if(get_debug() && zc_getkey(KEY_O))
-				rectfill(dest,x+hxofs,y+hyofs+yofs-(z+zofs),
-						 x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs,vc(id));
+				rectfill(dest,x+hxofs,y+hyofs+yofs-(z+zofs)-fakez,
+						 x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs-fakez,vc(id));
 						 
 			return;											   // don't draw bomb
 		}
@@ -8323,7 +8413,7 @@ void weapon::draw(BITMAP *dest)
 	
 	// draw it
 	
-	if ( z > 0 && get_bit(quest_rules, qr_WEAPONSHADOWS) )
+	if ( (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
 	{
 		shadowtile = wpnsbuf[spr_shadow].newtile+aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
@@ -8356,18 +8446,18 @@ void weapon::findcombotriggers()
 		{
 			for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 			{
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 			}
 		}
 		for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 		}
 		
 	}
@@ -8375,19 +8465,19 @@ void weapon::findcombotriggers()
 	{
 		for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 		}
 		
 	}
 	for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
 	{
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1), combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 	}
 }
 

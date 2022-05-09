@@ -1094,7 +1094,7 @@ enum
 	qr_MANHANDLA_BLOCK_SFX, qr_GRASS_SENSITIVE, qr_BETTER_RAFT, qr_BETTER_RAFT_2,
 	qr_RAFT_SOUND, qr_WARPS_RESTART_DMAPSCRIPT, qr_DMAP_0_CONTINUE_BUG, qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
 	//43
-	qr_OLD_SCRIPTED_KNOCKBACK,
+	qr_OLD_SCRIPTED_KNOCKBACK, qr_OLD_KEESE_Z_AXIS, qr_POLVIRE_NO_SHADOW,
 	
 	//50
 	
@@ -2245,6 +2245,9 @@ struct guydata
 #define FLAG_ONLY_WATERWALK    0x20 //Only walks on water
 #define FLAG_ONLY_SHALLOW_WATERWALK 0x40 //Only walks on shallow water
 #define FLAG_ONLY_PITWALK 0x80 //Only walks on pitfalls
+#define FLAG_NO_FAKE_Z 0x100
+#define FLAG_NO_REAL_Z 0x200
+#define FLAG_USE_FAKE_Z 0x400
 
 class refInfo
 {

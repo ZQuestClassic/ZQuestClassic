@@ -85,7 +85,7 @@ public:
 	int32_t  clk2,sclk;
 	int32_t  starting_hp;
 	int32_t  ox, oy;
-	word  s_tile; //secondary (additional) tile(s)
+	int32_t  s_tile; //secondary (additional) tile(s)
 	
 	int32_t hitby[NUM_HIT_TYPES_USED];
 	int16_t firesfx;
@@ -244,7 +244,7 @@ public:
 	// place the enemy in line with Hero (red wizzrobes)
 	void place_on_axis(bool floater, bool solid_ok);
 	void update_enemy_frame();
-	void n_frame_n_dir(int32_t frames, int32_t dir, int32_t f4);
+	int32_t n_frame_n_dir(int32_t frames, int32_t dir, int32_t f4);
 	void tiledir_small(int32_t ndir, bool fourdir);
 	void tiledir_three(int32_t ndir);
 	void tiledir(int32_t ndir, bool fourdir);
@@ -872,7 +872,7 @@ public:
 /**********************************/
 /**********  Misc Code  ***********/
 /**********************************/
-void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_gen = 0);
+void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_gen = 0, int32_t fakez = 0);
 // Used by Hero's swords & stomp boots
 int32_t hit_enemy(int32_t index,int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon);
 void enemy_scored(int32_t index);

@@ -611,7 +611,7 @@ bool dTallGrass::animate(int32_t index)
 {
 	index=index;  //this is here to bypass compiler warnings about unused arguments
 	
-	if(HeroZ()>8) return true;
+	if(HeroZ()>8 || HeroFakeZ()>8) return true;
 	bool g1 = isGrassType(COMBOTYPE(HeroX(),HeroY()+15)), g2 = isGrassType(COMBOTYPE(HeroX()+15,HeroY()+15));
 	if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
 	{
@@ -672,7 +672,7 @@ bool dRipples::animate(int32_t index)
 	clk++;
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
-		if (HeroZ() == 0 && HeroAction() != swimming && HeroAction() != sideswimming && HeroAction() != sideswimhit && HeroAction() != sideswimattacking && HeroAction() != isdiving && HeroAction() != drowning)
+		if (HeroZ() == 0 && HeroFakeZ() == 0 && HeroAction() != swimming && HeroAction() != sideswimming && HeroAction() != sideswimhit && HeroAction() != sideswimattacking && HeroAction() != isdiving && HeroAction() != drowning)
 		{
 			/*
 			return !((FFORCOMBOTYPE(HeroX()+11,HeroY()+15)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+11,HeroY()+15)))
@@ -691,7 +691,7 @@ bool dRipples::animate(int32_t index)
 	else
 	{
 		return ((COMBOTYPE(HeroX(),HeroY()+15)!=cSHALLOWWATER)||
-			(COMBOTYPE(HeroX()+15,HeroY()+15)!=cSHALLOWWATER) || HeroZ() != 0);
+			(COMBOTYPE(HeroX()+15,HeroY()+15)!=cSHALLOWWATER) || HeroZ() != 0 || HeroFakeZ() != 0);
 	}
 }
 
@@ -738,7 +738,7 @@ void dHover::draw(BITMAP *dest)
 	cs=wpnsbuf[wpnid].csets&15;
 	flip=0;
 	x=HeroX();
-	y=HeroY()+10-HeroZ();
+	y=HeroY()+10-HeroZ()-HeroFakeZ();
 	tile=t+(((clk/8)%3)*2);
 	decoration::draw8(dest);
 	x+=8;
@@ -790,7 +790,7 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	{
 		drawstyle=translucent?1:0;
 		x=HeroX()-8;
-		y=HeroY()-8-HeroZ();
+		y=HeroY()-8-HeroZ()-HeroFakeZ();
 		tile=t;
 		
 		if(fr>0&&spd>0)

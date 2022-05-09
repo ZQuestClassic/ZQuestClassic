@@ -76,7 +76,7 @@ sprite::sprite()
 {
     uid = getNextUID();
 	isspawning = false;
-    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=zofs=hxofs=hyofs=fall=0;
+    x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=hxofs=hyofs=fall=fakefall=fakez=0;
     txsz=1;
     tysz=1;
     id=-1;
@@ -183,6 +183,7 @@ sprite::sprite(sprite const & other):
     x(other.x),
     y(other.y),
     z(other.z),
+    fakez(other.fakez),
     fall(other.fall),
     tile(other.tile),
     shadowtile(other.shadowtile),
@@ -440,6 +441,11 @@ int32_t sprite::real_y(zfix fy)
 }
 
 int32_t sprite::real_z(zfix fz)
+{
+    return fz.getInt();
+}
+
+int32_t sprite::fake_z(zfix fz)
 {
     return fz.getInt();
 }
@@ -953,7 +959,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 		if(ispitur) return ispitur;
 		if(ispitbl) return ispitbl;
 		if(ispitbr) return ispitbr;
-		fall = old_drown; //sanity check
+		fallclk = old_drown; //sanity check
 	}
 	return 0;
 }
@@ -968,7 +974,7 @@ bool sprite::hit(sprite *s)
     {
     }
     
-    return hit(s->x+s->hxofs,s->y+s->hyofs,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
+    return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
@@ -978,11 +984,11 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,in
     if(id<0 || clk<0) return false;
     
     return tx+txsz2>x+hxofs &&
-           ty+tysz2>y+hyofs &&
+           ty+tysz2>y+hyofs-fakez &&
            tz+tzsz2>z+zofs &&
            
            tx<x+hxofs+hxsz &&
-           ty<y+hyofs+hysz &&
+           ty<y+hyofs+hysz-fakez &&
            tz<z+zofs+hzsz;
 }
 
@@ -991,7 +997,7 @@ int32_t sprite::hitdir(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2,int32_t
     if(!(scriptcoldet&1) || fallclk || drownclk) return 0xFF;
     
     int32_t cx1=x+hxofs+(hxsz>>1);
-    int32_t cy1=y+hyofs+(hysz>>1);
+    int32_t cy1=y+hyofs+(hysz>>1)-fakez;
     int32_t cx2=tx+(txsz2>>1);
     int32_t cy2=ty+(tysz2>>1);
     
@@ -1138,6 +1144,7 @@ void sprite::draw(BITMAP* dest)
 	}
 	int32_t sx = real_x(x+xofs);
 	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	sy -= fake_z(fakez);
 	
     
 	if(id<0)
@@ -1568,7 +1575,7 @@ void sprite::draw(BITMAP* dest)
 	}
     
 	if(show_hitboxes && !is_zquest())
-		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
 
 	if ( sprBMP2 ) 
 	{
@@ -1590,6 +1597,7 @@ void sprite::drawzcboss(BITMAP* dest)
     
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+    sy -= fake_z(fakez);
     
     if(id<0)
         return;
@@ -1938,13 +1946,14 @@ void sprite::drawzcboss(BITMAP* dest)
     }
     
     if(show_hitboxes && !is_zquest())
-        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs),x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs))-1,vc((id+16)%255));
+        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
 }
 
 void sprite::draw8(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	sy -= fake_z(fakez);
     
     if(id<0)
         return;
@@ -1968,6 +1977,7 @@ void sprite::drawcloaked(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+    sy -= fake_z(fakez);
     
     if(id<0)
         return;
@@ -2017,7 +2027,7 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     
     if(get_debug() && key[KEY_O])
-        rectfill(dest,x+hxofs,sy+hyofs,x+hxofs+hxsz-1,sy+hyofs+hysz-1,vc(id));
+        rectfill(dest,x+hxofs,sy+hyofs-fakez,x+hxofs+hxsz-1,sy+hyofs+hysz-fakez-1,vc(id));
 }
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)
@@ -2027,8 +2037,8 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 		return;
 	}
 	
-	int32_t sx = real_x(x+xofs)+(txsz-1)*8;
-	int32_t sy = real_y(y+yofs+(tysz-1)*16);
+	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
+	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
@@ -2505,7 +2515,7 @@ void sprite::explode(int32_t type)
                     {
                         if(type==0)  // Twilight
                         {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
+                            particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 0, 0, (zc_oldrand()%8)+i*4));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=3;
@@ -2515,7 +2525,7 @@ void sprite::explode(int32_t type)
                         
 			else if(type ==1)  // Sands of Hours
                         {
-                            particles.add(new pTwilight(x+j, y-z+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
+                            particles.add(new pTwilight(x+j, y-z-fakez+i, 5, 1, 2, (zc_oldrand()%16)+i*2));
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
                             p->step=4;
@@ -2528,7 +2538,7 @@ void sprite::explode(int32_t type)
                         }
                         else //explode
                         {
-                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pFaroresWindDust(x+j, y-z-fakez+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));

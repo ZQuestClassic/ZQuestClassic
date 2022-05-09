@@ -5247,7 +5247,7 @@ void openscreen(int32_t shape)
     
     if(COOLSCROLL || shape>-1)
     {
-        open_black_opening(HeroX()+8, (HeroY()-HeroZ())+8+playing_field_offset, true, shape);
+        open_black_opening(HeroX()+8, (HeroY()-HeroZ()-HeroFakeZ())+8+playing_field_offset, true, shape);
         return;
     }
     else
@@ -5307,7 +5307,7 @@ void closescreen(int32_t shape)
     
     if(COOLSCROLL || shape>-1)
     {
-        close_black_opening(HeroX()+8, (HeroY()-HeroZ())+8+playing_field_offset, true, shape);
+        close_black_opening(HeroX()+8, (HeroY()-HeroZ()-HeroFakeZ())+8+playing_field_offset, true, shape);
         return;
     }
     else

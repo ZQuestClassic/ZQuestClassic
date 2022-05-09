@@ -133,6 +133,7 @@ void centerHero();
 zfix  HeroX();
 zfix  HeroY();
 zfix  HeroZ();
+zfix  HeroFakeZ();
 int32_t  HeroHClk();
 int32_t  HeroNayrusLoveShieldClk();
 int32_t  HeroHoverClk();

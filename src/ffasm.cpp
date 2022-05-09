@@ -1030,6 +1030,12 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "WAITTO",			   2,   0,   0,   0},
 	{ "GETGENERICSCRIPT",                1,   0,   0,   0},
 	{ "KILLPLAYER",                1,   0,   0,   0},
+	{ "DEGTORAD",                2,   0,   0,   0},
+	{ "RADTODEG",                2,   0,   0,   0},
+	{ "LWPNMAKEANGULAR",      1,   0,   0,   0},
+	{ "EWPNMAKEANGULAR",      1,   0,   0,   0},
+	{ "LWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
+	{ "EWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2327,8 +2333,36 @@ script_variable variable_list[]=
 	{ "EWPNDROWNCMB", EWPNDROWNCMB, 0, 0 },
 	{ "HERODROWNCLK", HERODROWNCLK, 0, 0 },
 	{ "HERODROWNCMB", HERODROWNCMB, 0, 0 },
+	{ "NPCFAKEZ", NPCFAKEZ, 0, 0 },
+	{ "ITEMFAKEZ", ITEMFAKEZ, 0, 0 },
+	{ "LWPNFAKEZ", LWPNFAKEZ, 0, 0 },
+	{ "EWPNFAKEZ", EWPNFAKEZ, 0, 0 },
+	{ "HEROFAKEZ", HEROFAKEZ, 0, 0 },
+	{ "NPCFAKEJUMP", NPCFAKEJUMP, 0, 0 },
+	{ "ITEMFAKEJUMP", ITEMFAKEJUMP, 0, 0 },
+	{ "LWPNFAKEJUMP", LWPNFAKEJUMP, 0, 0 },
+	{ "EWPNFAKEJUMP", EWPNFAKEJUMP, 0, 0 },
+	{ "HEROFAKEJUMP", HEROFAKEJUMP, 0, 0 },
+	{ "HEROSHADOWXOFS", HEROSHADOWXOFS, 0, 0 },
+	{ "HEROSHADOWYOFS", HEROSHADOWYOFS, 0, 0 },
+	{ "NPCSHADOWXOFS", NPCSHADOWXOFS, 0, 0 },
+	{ "NPCSHADOWYOFS", NPCSHADOWYOFS, 0, 0 },
+	{ "ITEMSHADOWXOFS", ITEMSHADOWXOFS, 0, 0 },
+	{ "ITEMSHADOWYOFS", ITEMSHADOWYOFS, 0, 0 },
+	{ "LWPNSHADOWXOFS", LWPNSHADOWXOFS, 0, 0 },
+	{ "LWPNSHADOWYOFS", LWPNSHADOWYOFS, 0, 0 },
+	{ "EWPNSHADOWXOFS", EWPNSHADOWXOFS, 0, 0 },
+	{ "EWPNSHADOWYOFS", EWPNSHADOWYOFS, 0, 0 },
+	{ "LWPNDEGANGLE", LWPNDEGANGLE, 0, 0 },
+	{ "EWPNDEGANGLE", EWPNDEGANGLE, 0, 0 },
+	{ "LWPNVX", LWPNVX, 0, 0 },
+	{ "LWPNVY", LWPNVY, 0, 0 },
+	{ "EWPNVX", EWPNVX, 0, 0 },
+	{ "EWPNVY", EWPNVY, 0, 0 },
+	{ "LWPNAUTOROTATE", LWPNAUTOROTATE, 0, 0 },
+	{ "EWPNAUTOROTATE", EWPNAUTOROTATE, 0, 0 },
 	
-	{ " ",                       -1,             0,             0 }
+	{ " ",  -1, 0, 0 }
 };
 
 

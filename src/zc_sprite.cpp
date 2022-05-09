@@ -82,7 +82,7 @@ void sprite::check_conveyor()
     int32_t deltax=0;
     int32_t deltay=0;
     
-    if(conveyclk<=0 && (z==0 || (tmpscr->flags2&fAIRCOMBOS)))
+    if(conveyclk<=0 && ((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
     {
         int32_t ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;

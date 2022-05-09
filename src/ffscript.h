@@ -3138,6 +3138,12 @@ enum ASM_DEFINE
 	WAITTO,
 	GETGENERICSCRIPT,
 	KILLPLAYER,
+	DEGTORAD,
+	RADTODEG,
+	LWPNMAKEANGULAR,
+	EWPNMAKEANGULAR,
+	LWPNMAKEDIRECTIONAL,
+	EWPNMAKEDIRECTIONAL,
 	
 	NUMCOMMANDS           //0x01BB
 };
@@ -4575,18 +4581,46 @@ enum ASM_DEFINE
 #define HEROIMMORTAL            0x142B
 #define NPCCANFLICKER           0x142C
 
-#define NPCDROWNCLK		0x142D
-#define NPCDROWNCMB		0x142E
-#define ITEMDROWNCLK		0x142F
-#define ITEMDROWNCMB		0x1430
-#define LWPNDROWNCLK		0x1431
-#define LWPNDROWNCMB		0x1432
-#define EWPNDROWNCLK		0x1433
-#define EWPNDROWNCMB		0x1434
-#define HERODROWNCLK		0x1435
-#define HERODROWNCMB		0x1436
+#define NPCDROWNCLK             0x142D
+#define NPCDROWNCMB             0x142E
+#define ITEMDROWNCLK            0x142F
+#define ITEMDROWNCMB            0x1430
+#define LWPNDROWNCLK            0x1431
+#define LWPNDROWNCMB            0x1432
+#define EWPNDROWNCLK            0x1433
+#define EWPNDROWNCMB            0x1434
+#define HERODROWNCLK            0x1435
+#define HERODROWNCMB            0x1436
+#define NPCFAKEZ                0x1437
+#define ITEMFAKEZ               0x1438
+#define LWPNFAKEZ               0x1439
+#define EWPNFAKEZ               0x143A
+#define HEROFAKEZ               0x143B
+#define NPCFAKEJUMP             0x143C
+#define ITEMFAKEJUMP            0x143D
+#define LWPNFAKEJUMP            0x143E
+#define EWPNFAKEJUMP            0x143F
+#define HEROFAKEJUMP            0x1440
+#define HEROSHADOWXOFS          0x1441
+#define HEROSHADOWYOFS          0x1442
+#define NPCSHADOWXOFS           0x1443
+#define NPCSHADOWYOFS           0x1444
+#define ITEMSHADOWXOFS          0x1445
+#define ITEMSHADOWYOFS          0x1446
+#define LWPNSHADOWXOFS          0x1447
+#define LWPNSHADOWYOFS          0x1448
+#define EWPNSHADOWXOFS          0x1449
+#define EWPNSHADOWYOFS          0x144A
+#define LWPNDEGANGLE            0x144B
+#define EWPNDEGANGLE            0x144C
+#define LWPNVX                  0x144D
+#define LWPNVY                  0x144E
+#define EWPNVX                  0x144F
+#define EWPNVY                  0x1450
+#define LWPNAUTOROTATE          0x1451
+#define EWPNAUTOROTATE          0x1452
 
-#define NUMVARIABLES         	0x1437
+#define NUMVARIABLES         	0x1451
 
 //} End variables
 

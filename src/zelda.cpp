@@ -1437,6 +1437,10 @@ zfix  HeroZ()
 {
     return Hero.getZ();
 }
+zfix  HeroFakeZ()
+{
+    return Hero.getFakeZ();
+}
 int32_t  HeroHClk()
 {
     return Hero.getHClk();
@@ -1519,12 +1523,12 @@ void StunGuy(int32_t j,int32_t stun)
 {
     if(stun<=0) return;
     
-    if(((enemy*)guys.spr(j))->z==0 && canfall(((enemy*)guys.spr(j))->id))
+    if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->fakez==0 && canfall(((enemy*)guys.spr(j))->id))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
         ((enemy*)guys.spr(j))->fall=-zc_min(FEATHERJUMP,(stun*8)+zc_oldrand()%5);
     }
-    else if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->family == eeLEV && get_bit(quest_rules, qr_QUAKE_STUNS_LEEVERS))
+    else if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->fakez==0 && ((enemy*)guys.spr(j))->family == eeLEV && get_bit(quest_rules, qr_QUAKE_STUNS_LEEVERS))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
     }
@@ -2860,6 +2864,7 @@ void do_magic_casting()
         {
             Lwpns.add(new weapon(HeroX(),HeroY(),HeroZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+	    w1->fakez = HeroFakeZ();
             w1->step=4;
             //          Hero.tile=(BSZ)?32:29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
@@ -2876,6 +2881,7 @@ void do_magic_casting()
         {
             Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+	    w1->fakez = HeroFakeZ();
             w1->step=4;
             //          Hero.tile=29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
@@ -2909,6 +2915,7 @@ void do_magic_casting()
                 Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
                                      isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+		w->fakez = HeroFakeZ();
                 w->step=(itemsbuf[magicitem].misc2/100.0);
                 w->angular=true;
                 w->angle=(flamecounter*PI/(flamemax/2.0));
@@ -3074,9 +3081,11 @@ void do_magic_casting()
             int32_t d=zc_max(HeroX(),256-HeroX())+32;
             Lwpns.add(new weapon((zfix)(HeroX()-d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+	    w1->fakez = HeroFakeZ();
             w1->step=4;
             Lwpns.add(new weapon((zfix)(HeroX()+d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
+	    w1->fakez = HeroFakeZ();
             w1->step=4;
             //          Hero.tile=29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
