@@ -4525,7 +4525,7 @@ bool weapon::animate(int32_t index)
 			//case r_down:y+=.354; x+=.354; break;
 		}
 	
-	bool AngleReflect = (this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) && get_bit(quest_rules, qr_ANGULAR_REFLECT_BROKEN));
+	bool AngleReflect = (this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) && !get_bit(quest_rules, qr_ANGULAR_REFLECT_BROKEN));
 	
 	switch(id)
 	{
@@ -4792,7 +4792,7 @@ bool weapon::animate(int32_t index)
 					{
 						//AngleToDir(double ddir)
 						//This didn't check for these before with the angle reflect rule... -Deedee
-						if((dir!=(tdir^1) && !AngleReflect) || (tdir < 3 && AngleReflect))
+						if((dir!=(tdir^1) && !AngleReflect) || (tdir != 2 && AngleReflect))
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
@@ -6724,7 +6724,7 @@ bool weapon::animate(int32_t index)
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
-						if((dir!=(tdir^1) && !AngleReflect) || (tdir < 3 && AngleReflect))
+						if((dir!=(tdir^1) && !AngleReflect) || (tdir != 2 && AngleReflect))
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
@@ -7087,7 +7087,7 @@ bool weapon::animate(int32_t index)
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
-						if((dir!=(tdir^1) && !AngleReflect) || (tdir < 3 && AngleReflect))
+						if((dir!=(tdir^1) && !AngleReflect) || (tdir != 2 && AngleReflect))
 						{
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
