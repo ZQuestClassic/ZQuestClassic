@@ -1,5 +1,17 @@
 // 2.55 Change Log
-// Updated 9th May, 2022
+// Updated 11th May, 2022
+
+-- May 11th nightly build
+
+Add floating selection to tile editor
+	-A 'selected' area can now be moved
+	-Moving the selected area causes it to "float" above the rest of the tile
+	-While floating, it does not overwrite the pixels 'below' it
+	-Upon changing the selection or saving, it 'falls', merging back into the tile.
+	( EmilyV, May 11th, 2022 )
+
+Fix enemies causing death SFX when they shouldn't
+	( EmilyV, May 9th, 2022 )
 
 Add zscript angled weapon features
 	( DeeDee, May 9th, 2022 )
@@ -18,6 +30,8 @@ Active Shields: Step speed modifier, lock direction (strafing)
 
 Add 'fakez' for sprites, with 'fakejump'
 	( DeeDee, May 3rd, 2022 )
+
+-- May 2nd nightly build
 
 Fix crash in 4-way movement
 	( EmilyV, May 2nd, 2022 )

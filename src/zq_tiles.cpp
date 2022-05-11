@@ -718,8 +718,16 @@ void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 	//  selection_anchor=(selection_anchor+1)%64;
 }
 
+void unfloat_selection();
+bool floating_sel = false;
+byte floatsel[256];
+byte undofloatsel[256];
+bool undo_is_floatsel = false;
+
+
 void add_color_to_selection(int32_t color)
 {
+	unfloat_selection();
 	for(int32_t i=1; i<17; ++i)
 	{
 		for(int32_t j=1; j<17; ++j)
@@ -734,6 +742,7 @@ void add_color_to_selection(int32_t color)
 
 void remove_color_from_selection(int32_t color)
 {
+	unfloat_selection();
 	for(int32_t i=1; i<17; ++i)
 	{
 		for(int32_t j=1; j<17; ++j)
@@ -748,6 +757,7 @@ void remove_color_from_selection(int32_t color)
 
 void intersect_color_with_selection(int32_t color)
 {
+	unfloat_selection();
 	for(int32_t i=1; i<17; ++i)
 	{
 		for(int32_t j=1; j<17; ++j)
@@ -766,6 +776,9 @@ void intersect_color_with_selection(int32_t color)
 
 bool is_in_selection(int32_t x, int32_t y)
 {
+	x %= 16; y %= 16;
+	if(x < 0) x = (16 - abs(x));
+	if(y < 0) y = (16 - abs(y));
 	return (!has_selection()||(selection_grid[x+1][y+1]!=0));
 }
 
@@ -789,9 +802,10 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 		{
 			int32_t dx = ((flip&1)?15-cx:cx)*m;
 			int32_t dy = ((flip&2)?15-cy:cy)*m;
-			rectfill(dest,x+dx+1,y+dy+1,x+dx+m-1,y+dy+m-1,*si+cset);
+			byte col = (floating_sel && floatsel[cx+(cy<<4)]) ? floatsel[cx+(cy<<4)] : *si;
+			rectfill(dest,x+dx+1,y+dy+1,x+dx+m-1,y+dy+m-1,col+cset);
 			
-			if(*si==0)
+			if(col==0)
 			{
 				little_x(dest,x+dx+m/4,y+dy+m/4,invcol,m/2);
 			}
@@ -1241,14 +1255,21 @@ void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c)
 {
 	if(is_in_selection(x,y))
 	{
-		unpack_tile(newtilebuf, tile, 0, false);
+		if(floating_sel)
+		{
+			memcpy(unpackbuf, floatsel, 256);
+		}
+		else unpack_tile(newtilebuf, tile, 0, false);
 		tf_c = c;
 		tf_u = unpackbuf[(y<<4)+x];
 		
 		if(tf_u != tf_c)
 			tile_floodfill_rec(x,y);
-			
-		pack_tile(newtilebuf,unpackbuf,tile);
+		if(floating_sel)
+		{
+			memcpy(floatsel, unpackbuf, 256);
+		}
+		else pack_tile(newtilebuf,unpackbuf,tile);
 	}
 }
 
@@ -1290,6 +1311,7 @@ int32_t c2=0;
 //int32_t bgc=dvc(4+5);
 //int32_t bgc=vc(1);
 //enum { t_pen, t_fill, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
+int32_t floating_tile = -1;
 int32_t tool = t_pen;
 int32_t old_tool = -1;
 int32_t tool_cur = -1;
@@ -1420,53 +1442,48 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	}
 	
 	textprintf_ex(screen2,lfont,5,5,jwin_pal[jcTITLEFG],-1,"Tile Editor (%d)",tile);
-	//draw_x_button(screen2, 320 - 21, 5, 0);
 	
 	clear_to_color(preview_bmp, 0);
-	zc_swap(oldtile,newtilebuf[tile].data);
-//  jwin_draw_win(screen2, 222, 46, 20, 20, FR_DEEP);
-//  puttile16(screen2,tile,224,48,cs,flip);
-//  jwin_draw_win(screen2, 246, 46, 20, 20, FR_DEEP);
-//  overtile16(screen2,tile,248,48,cs,flip);
+	
+	zc_swap(oldtile,newtilebuf[tile].data); //Put oldtile in the tile buffer
 	jwin_draw_win(screen2, preview_tiles_x-2,preview_tiles_y-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
-//  puttile16(screen2,tile,preview_tiles_x,preview_tiles_y,cs,flip);
 	puttile16(preview_bmp,tile,0,0,cs,flip);
 	stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x, preview_tiles_y, 16*preview_tiles_scale, 16*preview_tiles_scale);
 	
 	clear_to_color(preview_bmp, 0);
 	jwin_draw_win(screen2, preview_tiles_x+(16*preview_tiles_scale)+8-2,preview_tiles_y-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
-//  overtile16(screen2,tile,preview_tiles_x+(16*preview_tiles_scale)+8,preview_tiles_y,cs,flip);
 	overtile16(preview_bmp,tile,0,0,cs,flip);
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x+(16*preview_tiles_scale)+8, preview_tiles_y, 16*preview_tiles_scale, 16*preview_tiles_scale);
-	zc_swap(oldtile,newtilebuf[tile].data);
+	zc_swap(oldtile,newtilebuf[tile].data); //Swap the real tile back to the buffer
 	
-//  jwin_draw_win(screen2, 222, 78, 20, 20, FR_DEEP);
-//  puttile16(screen2,tile,224,80,cs,flip);
-//  jwin_draw_win(screen2, 246, 78, 20, 20, FR_DEEP);
-//  overtile16(screen2,tile,248,80,cs,flip);
+	unpack_tile(newtilebuf, tile, 0, false);
+	if(floating_sel)
+		for(auto q = 0; q < 256; ++q)
+			if(floatsel[q])
+				unpackbuf[q] = floatsel[q];
+	byte tmptile[256];
+	byte *tmpptr = tmptile;
+	zc_swap(tmpptr,newtilebuf[tile].data); //Put temp data in the tile buffer
+	pack_tile(newtilebuf,unpackbuf,tile);
 	clear_to_color(preview_bmp, 0);
-//  jwin_draw_win(screen2, preview_tiles_x-2,preview_tiles_y+24-2, 20, 20, FR_DEEP);
 	jwin_draw_win(screen2, preview_tiles_x-2, preview_tiles_y+(16*preview_tiles_scale)+8-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
-//  puttile16(screen2,tile,preview_tiles_x,preview_tiles_y+24,cs,flip);
 	puttile16(preview_bmp,tile,0,0,cs,flip);
 	stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x, preview_tiles_y+(16*preview_tiles_scale)+8, 16*preview_tiles_scale, 16*preview_tiles_scale);
 	
 	clear_to_color(preview_bmp, 0);
-//  jwin_draw_win(screen2, preview_tiles_x+24-2,preview_tiles_y+24-2, 20, 20, FR_DEEP);
 	jwin_draw_win(screen2, preview_tiles_x+(16*preview_tiles_scale)+8-2, preview_tiles_y+(16*preview_tiles_scale)+8-2, (16*preview_tiles_scale)+4, (16*preview_tiles_scale)+4, FR_DEEP);
-//  overtile16(screen2,tile,preview_tiles_x+24,preview_tiles_y+24,cs,flip);
 	overtile16(preview_bmp,tile,0,0,cs,flip);
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, preview_tiles_x+(16*preview_tiles_scale)+8, preview_tiles_y+(16*preview_tiles_scale)+8, 16*preview_tiles_scale, 16*preview_tiles_scale);
+	zc_swap(tmpptr,newtilebuf[tile].data); //Swap the real tile back to the buffer
 	
 	jwin_draw_win(screen2, zoom_tile_x-3, zoom_tile_y-3, (16*zoom_tile_scale)+5, (16*zoom_tile_scale)+5, FR_DEEP);
-//  zoomtile16(screen2,tile,79,31,cs,flip,zoom_scale);
 	zoomtile16(screen2,tile,zoom_tile_x-1,zoom_tile_y-1,cs,flip,zoom_tile_scale);
 	
-//  textprintf_ex(screen2,font,224,112,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile: %d",tile);
-//  textprintf_ex(screen2,font,224,120,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cset: %d",cs);
+	if(floating_sel)
+		textprintf_ex(screen2,font,status_info_x,status_info_y-10,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Floating selection");
 	textprintf_ex(screen2,font,status_info_x,status_info_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"tile: %d",tile);
 	if(newtilebuf[tile].format==tf8Bit)
-			textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"8-bit");
+		textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"8-bit");
 	else
 		textprintf_ex(screen2,font,status_info_x,status_info_y+8,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"cset: %d",cs);
 	
@@ -1590,6 +1607,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 
 void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 {
+	unfloat_selection();
 	if(tile>tile2)
 	{
 		zc_swap(tile, tile2);
@@ -1643,6 +1661,7 @@ void normalize(int32_t tile,int32_t tile2, bool rect_sel, int32_t flip)
 
 void rotate_tile(int32_t tile, bool backward)
 {
+	unfloat_selection();
 	unpack_tile(newtilebuf, tile, 0, false);
 	byte tempunpackbuf[256];
 	byte tempx, tempy;
@@ -1684,24 +1703,10 @@ void wrap_tile(int32_t tile, int32_t vertical, int32_t horizontal, bool clear)
 	
 	unpack_tile(newtilebuf, tile, 0, true);
 	
-	//vertical
-	if(vertical)
+	for(int32_t i=0; i<256; i++)
 	{
-		for(int32_t i=0; i<256; i++)
-		{
-			buf[(i+(vertical*16))&0xFF] = unpackbuf[i];
-		}
-		
-		memcpy(unpackbuf,buf,256);
-	}
-	
-	//horizontal
-	if(horizontal)
-	{
-		for(int32_t i=0; i<256; i++)
-		{
-			buf[((i+horizontal)&15)+(i&0xF0)] = unpackbuf[i];
-		}
+		auto shift_ind = ((i+horizontal)&0x0F)|((i+(vertical*0x10))&0xF0);
+		buf[shift_ind] = unpackbuf[i];
 	}
 	
 	if(clear)
@@ -1726,10 +1731,83 @@ void wrap_tile(int32_t tile, int32_t vertical, int32_t horizontal, bool clear)
 	pack_tile(newtilebuf,buf,tile);
 }
 
-void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
+void wrap_sel_tile(int32_t vertical, int32_t horizontal)
 {
 	byte buf[256];
 	
+	if(!(horizontal||vertical))
+	{
+		return;
+	}
+	
+	memset(buf,0,256);
+	
+	for(int32_t i=0; i<256; i++)
+	{
+		if(is_in_selection(i%16,i/16))
+		{
+			auto shift_ind = ((i+horizontal)&0x0F)|((i+(vertical*0x10))&0xF0);
+			buf[shift_ind] = floatsel[i];
+		}
+	}
+	
+	memcpy(floatsel,buf,256);
+}
+
+void float_selection(int32_t tile, bool clear)
+{
+	if(floating_sel) return;
+	floating_sel = true;
+	floating_tile = tile;
+	
+	unpack_tile(newtilebuf, tile, 0, true);
+	
+	for(auto q = 0; q < 256; ++q)
+	{
+		if(is_in_selection(q%16,q/16))
+		{
+			floatsel[q] = unpackbuf[q];
+			unpackbuf[q] = clear ? 0 : c2;
+		}
+		else floatsel[q] = 0;
+	}
+	
+	pack_tile(newtilebuf,unpackbuf,tile);
+}
+
+void unfloat_selection()
+{
+	if(!floating_sel) return;
+	floating_sel = false;
+	
+	unpack_tile(newtilebuf, floating_tile, 0, true);
+	
+	for(auto q = 0; q < 256; ++q)
+	{
+		if(floatsel[q])
+		{
+			unpackbuf[q] = floatsel[q];
+		}
+	}
+	
+	pack_tile(newtilebuf,unpackbuf,floating_tile);
+	floating_tile = -1;
+}
+
+void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
+{
+	if(floating_sel)
+	{
+		for(auto q = 0; q < 256; ++q)
+		{
+			if(ignore_transparent && floatsel[q]==0)
+				continue;
+			floatsel[q]=wrap(floatsel[q]+amount, 0, newtilebuf[tile].format==tf8Bit ? 191 : 15);
+		}
+		return;
+	}
+	
+	byte buf[256];
 	unpack_tile(newtilebuf, tile, 0, true);
 	
 	for(int32_t i=0; i<256; i++)
@@ -1755,6 +1833,7 @@ void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
 
 void clear_selection_grid()
 {
+	unfloat_selection();
 	for(int32_t x=0; x<18; ++x)
 	{
 		for(int32_t y=0; y<18; ++y)
@@ -1766,11 +1845,35 @@ void clear_selection_grid()
 
 void invert_selection_grid()
 {
+	unfloat_selection();
 	for(int32_t x=1; x<17; ++x)
 	{
 		for(int32_t y=1; y<17; ++y)
 		{
 			selection_grid[x][y]=selection_grid[x][y]?0:1;
+		}
+	}
+}
+
+void shift_selection_grid(int32_t xoffs, int32_t yoffs)
+{
+	byte local_grid[16][16];
+	memset(local_grid, 0, sizeof(local_grid));
+	for(auto x = 0; x < 16; ++x)
+	{
+		for(auto y = 0; y < 16; ++y)
+		{
+			auto offs_x = (x+xoffs)%16, offs_y = (y+yoffs)%16;
+			if(offs_x < 0) offs_x = (16 - abs(offs_x));
+			if(offs_y < 0) offs_y = (16 - abs(offs_y));
+			local_grid[offs_x][offs_y] = selection_grid[x+1][y+1]?1:0;
+		}
+	}
+	for(auto x = 0; x < 16; ++x)
+	{
+		for(auto y = 0; y < 16; ++y)
+		{
+			selection_grid[x+1][y+1] = local_grid[x][y]?1:0;
 		}
 	}
 }
@@ -1802,6 +1905,17 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	for(int32_t i=0; i<undocount; i++)
 	{
 		oldtile[i]=undotile[i]=newtilebuf[tile].data[i];
+	}
+	byte undoselgrid[16][16];
+	for(auto x = 0; x < 16; ++x)
+		for(auto y = 0; y < 16; ++y)
+			undoselgrid[x][y] = selection_grid[x+1][y+1];
+	for(auto q = 0; q < 256; ++q)
+	{
+		floatsel[q] = 0;
+		undofloatsel[q] = 0;
+		floating_sel = false;
+		undo_is_floatsel = false;
 	}
 	
 	int32_t tile_x=-1, tile_y=-1;
@@ -1930,12 +2044,84 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 			case KEY_ENTER_PAD:
 			case KEY_ENTER:
+				unfloat_selection();
 				done=2;
 				break;
 				
 			case KEY_ESC:
+				unfloat_selection();
 				done=1;
 				break;
+			
+			case KEY_DEL:
+			{
+				unpack_tile(newtilebuf, tile, 0, false);
+				bool all = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] || !has_selection();
+				bool canDel = false;
+				if(all)
+				{
+					//Check all
+					for(auto q = 0; q < 256; ++q)
+						if(unpackbuf[q])
+						{
+							canDel = true;
+							break;
+						}
+				}
+				else
+				{
+					//Check selection
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							if(is_in_selection(x,y))
+								if(unpackbuf[(y<<4)+x])
+								{
+									canDel = true;
+									break;
+								}
+				}
+				if(!canDel) break; //don't delete (and thus reset undo) if nothing would change!
+				
+				for(int32_t i=0; i<undocount; i++)
+				{
+					undotile[i]=newtilebuf[tile].data[i];
+				}
+				for(auto x = 0; x < 16; ++x)
+					for(auto y = 0; y < 16; ++y)
+						undoselgrid[x][y] = selection_grid[x+1][y+1];
+				for(auto q = 0; q < 256; ++q)
+					undofloatsel[q] = floatsel[q];
+				undo_is_floatsel = floating_sel;
+				
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] || !has_selection())
+				{
+					//Delete all
+					for(auto q = 0; q < 256; ++q)
+					{
+						unpackbuf[q] = 0;
+						floatsel[q] = 0;
+					}
+				}
+				else
+				{
+					//Delete selection
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+						{
+							if(floating_sel)
+							{
+								floatsel[x+(y<<4)] = 0;
+							}
+							else if(is_in_selection(x,y))
+							{
+								unpackbuf[(y<<4)+x] = 0;
+							}
+						}
+				}
+				pack_tile(newtilebuf, unpackbuf, tile);
+				redraw=true;
+			}
+			break;
 				
 			case KEY_A:
 				clear_selection_grid();
@@ -1994,6 +2180,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				{
 					for(int32_t i=0; i<undocount; i++)
 						undotile[i]=newtilebuf[tile].data[i];
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
 						
 					if(key[KEY_ALT] || key[KEY_ALTGR])
 						shift_tile_colors(tile, 16, false);
@@ -2015,6 +2207,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				{
 					for(int32_t i=0; i<undocount; i++)
 						undotile[i]=newtilebuf[tile].data[i];
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
 						
 					if(key[KEY_ALT] || key[KEY_ALTGR])
 						shift_tile_colors(tile, -16, false);
@@ -2034,7 +2232,16 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				break;
 				
 			case KEY_U:
-				for(int32_t i=0; i<undocount; i++) zc_swap(undotile[i],newtilebuf[tile].data[i]);
+				for(int32_t i=0; i<undocount; i++)
+					zc_swap(undotile[i],newtilebuf[tile].data[i]);
+				
+				for(auto x = 0; x < 16; ++x)
+					for(auto y = 0; y < 16; ++y)
+						zc_swap(selection_grid[x+1][y+1], undoselgrid[x][y]);
+					
+				for(auto q = 0; q < 256; ++q)
+					zc_swap(undofloatsel[q], floatsel[q]);
+				zc_swap(undo_is_floatsel, floating_sel);
 				
 				redraw=true;
 				break;
@@ -2046,18 +2253,54 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 					}
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
 					
 					unpack_tile(newtilebuf, tile, 0, false);
 					
-					for(int32_t i=0; i<256; i++)
+					if(has_selection())
 					{
-						if(unpackbuf[i]==c1)
+						for(int32_t i=0; i<256; i++)
 						{
-							unpackbuf[i]=c2;
+							if(!is_in_selection(i%16,i/16))
+								continue;
+							if(unpackbuf[i]==c1)
+							{
+								unpackbuf[i]=c2;
+							}
+							else if(unpackbuf[i]==c2)
+							{
+								unpackbuf[i]=c1;
+							}
+							if(floating_sel)
+							{
+								if(floatsel[i]==c1)
+								{
+									floatsel[i]=c2;
+								}
+								else if(floatsel[i]==c2)
+								{
+									floatsel[i]=c1;
+								}
+							}
 						}
-						else if(unpackbuf[i]==c2)
+					}
+					else
+					{
+						for(int32_t i=0; i<256; i++)
 						{
-							unpackbuf[i]=c1;
+							if(unpackbuf[i]==c1)
+							{
+								unpackbuf[i]=c2;
+							}
+							else if(unpackbuf[i]==c2)
+							{
+								unpackbuf[i]=c1;
+							}
 						}
 					}
 					
@@ -2071,6 +2314,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			case KEY_UP:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
+					unfloat_selection();
 					tile=zc_max(0,tile-TILES_PER_ROW);
 					undocount = tilesize(newtilebuf[tile].format);
 					
@@ -2088,8 +2332,19 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 					}
-					
-					wrap_tile(tile, -1, 0, false);
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
+					if(has_selection())
+					{
+						float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+						wrap_sel_tile(-1, 0);
+						shift_selection_grid(0, -1);
+					}
+					else wrap_tile(tile, -1, 0, false);
 					redraw=true;
 				}
 				
@@ -2098,6 +2353,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			case KEY_DOWN:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
+					unfloat_selection();
 					tile=zc_min(tile+TILES_PER_ROW,NEWMAXTILES-1);
 					undocount = tilesize(newtilebuf[tile].format);
 					
@@ -2115,8 +2371,19 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 					}
-					
-					wrap_tile(tile, 1, 0, false);
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
+					if(has_selection())
+					{
+						float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+						wrap_sel_tile(1, 0);
+						shift_selection_grid(0, 1);
+					}
+					else wrap_tile(tile, 1, 0, false);
 					redraw=true;
 				}
 				
@@ -2125,6 +2392,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			case KEY_LEFT:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
+					unfloat_selection();
 					tile=zc_max(0,tile-1);
 					undocount = tilesize(newtilebuf[tile].format);
 					
@@ -2142,8 +2410,19 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 					}
-					
-					wrap_tile(tile, 0, -1, false);
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
+					if(has_selection())
+					{
+						float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+						wrap_sel_tile(0, -1);
+						shift_selection_grid(-1, 0);
+					}
+					else wrap_tile(tile, 0, -1, false);
 					redraw=true;
 				}
 				
@@ -2152,6 +2431,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			case KEY_RIGHT:
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
+					unfloat_selection();
 					tile=zc_min(tile+1, NEWMAXTILES-1);
 					undocount = tilesize(newtilebuf[tile].format);
 					
@@ -2169,8 +2449,19 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					{
 						undotile[i]=newtilebuf[tile].data[i];
 					}
-					
-					wrap_tile(tile, 0, 1, false);
+					for(auto x = 0; x < 16; ++x)
+						for(auto y = 0; y < 16; ++y)
+							undoselgrid[x][y] = selection_grid[x+1][y+1];
+					for(auto q = 0; q < 256; ++q)
+						undofloatsel[q] = floatsel[q];
+					undo_is_floatsel = floating_sel;
+					if(has_selection())
+					{
+						float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+						wrap_sel_tile(0, 1);
+						shift_selection_grid(1, 0);
+					}
+					else wrap_tile(tile, 0, 1, false);
 					redraw=true;
 				}
 				
@@ -2204,6 +2495,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		{
 			if(is_selecting())
 			{
+				unfloat_selection();
 				int32_t x1=zc_min(selecting_x1,selecting_x2);
 				int32_t x2=zc_max(selecting_x1,selecting_x2);
 				int32_t y1=zc_min(selecting_y1,selecting_y2);
@@ -2361,6 +2653,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				{
 					undotile[i]=newtilebuf[tile].data[i];
 				}
+				for(auto x = 0; x < 16; ++x)
+					for(auto y = 0; y < 16; ++y)
+						undoselgrid[x][y] = selection_grid[x+1][y+1];
+				for(auto q = 0; q < 256; ++q)
+					undofloatsel[q] = floatsel[q];
+				undo_is_floatsel = floating_sel;
 				
 				drawing=1;
 			}
@@ -2496,6 +2794,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				{
 					undotile[i]=newtilebuf[tile].data[i];
 				}
+				for(auto x = 0; x < 16; ++x)
+					for(auto y = 0; y < 16; ++y)
+						undoselgrid[x][y] = selection_grid[x+1][y+1];
+				for(auto q = 0; q < 256; ++q)
+					undofloatsel[q] = floatsel[q];
+				undo_is_floatsel = floating_sel;
 				
 				drawing=2;
 			}
@@ -2584,9 +2888,16 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				
 				if(is_in_selection(x,y))
 				{
-					unpack_tile(newtilebuf, tile, 0, false);
-					unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
-					pack_tile(newtilebuf, unpackbuf,tile);
+					if(floating_sel)
+					{
+						floatsel[(y<<4)+x]=(drawing==1)?c1:c2;
+					}
+					else
+					{
+						unpack_tile(newtilebuf, tile, 0, false);
+						unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
+						pack_tile(newtilebuf, unpackbuf,tile);
+					}
 				}
 				
 				break;
@@ -2603,28 +2914,47 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			case t_recolor:
 				if(is_in_selection(x,y))
 				{
-					unpack_tile(newtilebuf, tile, 0, false);
-					tf_u = unpackbuf[(y<<4)+x];
-					
-					for(int32_t i=0; i<256; i++)
+					if(floating_sel)
 					{
-						if(is_in_selection(i&15,i>>4))
+						tf_u = floatsel[(y<<4)+x];
+						for(int32_t i=0; i<256; i++)
 						{
-							if(unpackbuf[i]==tf_u)
+							if(is_in_selection(i&15,i>>4))
 							{
-								unpackbuf[i]=(drawing==1)?c1:c2;
+								if(floatsel[i]==tf_u)
+								{
+									floatsel[i]=(drawing==1)?c1:c2;
+								}
 							}
 						}
 					}
-					
-					pack_tile(newtilebuf, unpackbuf,tile);
+					else
+					{
+						unpack_tile(newtilebuf, tile, 0, false);
+						tf_u = unpackbuf[(y<<4)+x];
+						
+						for(int32_t i=0; i<256; i++)
+						{
+							if(is_in_selection(i&15,i>>4))
+							{
+								if(unpackbuf[i]==tf_u)
+								{
+									unpackbuf[i]=(drawing==1)?c1:c2;
+								}
+							}
+						}
+						
+						pack_tile(newtilebuf, unpackbuf,tile);
+					}
 					drawing=0;
 				}
 				
 				break;
 				
 			case t_eyedropper:
-				unpack_tile(newtilebuf, tile, 0, false);
+				if(floating_sel)
+					memcpy(unpackbuf, floatsel, 256);
+				else unpack_tile(newtilebuf, tile, 0, false);
 				
 				if(gui_mouse_b()&1)
 				{
@@ -2641,7 +2971,13 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			case t_move:
 				if((prev_x!=x)||(prev_y!=y))
 				{
-					wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
+					if(has_selection())
+					{
+						float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+						wrap_sel_tile(y-prev_y, x-prev_x);
+						shift_selection_grid(x-prev_x, y-prev_y);
+					}
+					else wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
 					prev_x=x;
 					prev_y=y;
 				}
@@ -2649,6 +2985,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				break;
 				
 			case t_select:
+				unfloat_selection();
 				if(flip&1) x=15-x;
 				
 				if(flip&2) y=15-y;
@@ -2667,6 +3004,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				break;
 				
 			case t_wand:
+				unfloat_selection();
 				if(flip&1) x=15-x;
 				
 				if(flip&2) y=15-y;
@@ -2796,6 +3134,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	}
 	while(!done);
 	
+	unfloat_selection();
 	clear_selection_grid();
 	
 	while(gui_mouse_b())
