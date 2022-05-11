@@ -6254,7 +6254,8 @@ void enemy::draw(BITMAP *dest)
 				{
 					spr_death_anim_clk=0;
 					clk2=1;
-					death_sfx();
+					if(hp > -1000)
+						death_sfx();
 				}
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
@@ -6350,7 +6351,8 @@ void enemy::drawzcboss(BITMAP *dest)
 				{
 					spr_death_anim_clk=0;
 					clk2=1;
-					death_sfx();
+					if(hp > -1000)
+						death_sfx();
 				}
 				if(clk2==1 && spr_death_anim_clk>-1)
 				{
