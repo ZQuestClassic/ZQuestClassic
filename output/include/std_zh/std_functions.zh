@@ -118,7 +118,7 @@ void AimLWeapon(lweapon l, int aimtype)
 //Returns the direction of the vector from point 1 to point 2, in degrees from -180 to 180. (0 = right)
 float Angle(int x1, int y1, int x2, int y2) 
 {
-	return ArcTan(x2-x1, y2-y1)*57.2958;
+	return EngineRadtoDeg(ArcTan(x2-x1, y2-y1));
 }
 
 // Converts a counterclockwise degree angle (from -180 to 180) into one of the four
@@ -788,7 +788,7 @@ int DefeatedLevelBoss(int level)
 //Converts 'd' in degrees to radians
 float DegtoRad(float d) 
 {
-    return d*0.0174;
+    return EngineDegtoRad(d);
 }
 
 
@@ -2979,19 +2979,19 @@ float RadianAngle(int x1, int y1, int x2, int y2)
 //The above, but for radian angles.
 int RadianAngleDir4(float angle) 
 {
-	return AngleDir4(angle*57.2958);
+	return AngleDir4(EngineRadtoDeg(angle));
 }
 
 //The above, but for radian angles.
 int RadianAngleDir8(float angle) 
 {
-	return AngleDir8(angle*57.2958);
+	return AngleDir8(EngineRadtoDeg(angle));
 }
 
 //Converts 'r' in radians to degrees
 float RadtoDeg(float r) 
 {
-	return r*57.2958;
+	return EngineRadtoDeg(r);
 }
 
 //Returns a random integer in the bounds of min and max
