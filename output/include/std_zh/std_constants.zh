@@ -41,8 +41,10 @@ const int MIN_SHORT             = -32768;
 const int MAX_BYTE              = 255;
 const int MIN_BYTE              = 0;
 
-const int MAX_COUNTER 			= WORD_MAX; 
+const int MAX_COUNTER 			= WORD_MAX;
 const int MIN_COUNTER 			= WORD_MIN;
+
+const long MAX_TIME             = 1944000000L; //Max value of 'Game->Time'
 
 const int MIN_LWEAPON 			= 1; //Lowest numbered objects.
 const int MIN_EWEAPON 			= 1;
