@@ -2637,6 +2637,17 @@ long LongDistance(long x1, long y1, long x1, long y2, long scale)
  * Takes args only as long (e.g. 100L).
  * Retrns a vale as a long.
  
+float EngineDegtoRad(float deg)
+ * Converts Degrees to Radians. More accurate than the old std_functions DegtoRad.
+ * Because radians are mostly decimal and zscript can only have 4 decimals, there is very minor inaccuracies
+ * with this conversion that are not feasibly fixable; however, it is still more accurate than the old std.zh conversion function,
+ * where the old conversion could potentially be 2 entire degrees off at certain angles, while this version only loses about 0.0004 degrees of accuracy.
+ * In addition, casting between EngineDegtoRad and EngineRadtoDeg repeatedly will *not* lose additional precision with each call; only the first call will lose precision.
+ 
+float EngineRadtoDeg(float deg)
+ * Converts Radians to Degrees. More accurate than the old std_functions RadtoDeg.
+ * See above (EngineDegtoRad) for more details on how this is more accurate.
+ 
 void ArrayCopy(untyped *dest, untyped *src);
  * Copies the data from array src to array dest. 
  * If the arrays are the same size, then the data of 'dest' will be
@@ -4393,6 +4404,17 @@ bool Switch(int effect);
  * Switch the player with this object
  * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
  * Returns true if it is successful
+ 
+int FakeZ;
+ * Current FakeZ position. This value is treated as a second, separate Z axis;
+ * Sprites will be offset upwards by this amount when drawn just like the Z axis and shadows will draw if applicable.
+ * However, the sprite's hitbox will not be moved upwards into the Z Axis; instead it will be moved upwards on the Y axis,
+ * mimicking how Vires and Pols Voice worked in the original Zelda.
+ * This value is affected by FakeJump instead of Jump.
+ 
+int FakeJump;			
+ * The current velocity on the FakeZ axis. This value is added to FakeZ every frame; and this value is decreased
+ * by the gravity value until it is lower than the terminal velocity value.
 
 /************************************************************************************************************/	
 
@@ -4526,6 +4548,37 @@ bool Switch(int effect);
  * Switch the player with this object
  * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
  * Returns true if it is successful
+ 
+int Vx;
+int Vy;
+ * Gets the weapons current velocity in that direction in Pixels.
+ * Setting either of these will make the weapon angular if it isn't already, and will set it's angle and speed to match it's new Vx and Vy.
+ 
+int DegAngle;
+ * Gets the weapon's current angle in degrees. Setting this will convert what you set to radians and set the weapon's angle to that.
+ 
+bool AutoRotate;
+ * If true, automatically rotates the weapon's sprite using 360 degree rotation to match either it's angle or direction.
+ * Assumes a right-facing sprite is set for the weapon.
+ 
+void MakeAngular();
+ * If angular isn't already set, sets angular to true and converts the weapon's direction to an angle.
+ * If angular is set, this does nothing.
+ 
+void MakeDirectional();
+ * If angular is set, converts the weapon's direction to the closest direction it can find to it's current angle in 8 directions, and unsets angular.
+ * If angular isn't set, this does nothing.
+ 
+int FakeZ;
+ * Current FakeZ position. This value is treated as a second, separate Z axis;
+ * Sprites will be offset upwards by this amount when drawn just like the Z axis and shadows will draw if applicable.
+ * However, the sprite's hitbox will not be moved upwards into the Z Axis; instead it will be moved upwards on the Y axis,
+ * mimicking how Vires and Pols Voice worked in the original Zelda.
+ * This value is affected by FakeJump instead of Jump.
+ 
+int FakeJump;			
+ * The current velocity on the FakeZ axis. This value is added to FakeZ every frame; and this value is decreased
+ * by the gravity value until it is lower than the terminal velocity value.
 
 ///////////////////////////
 ///  EWeapon  Specific  ///
@@ -4963,6 +5016,7 @@ bool MoveFlags[3];
  * [0] == Obeys gravity (see ->Gravity)
  * [1] == Can fall in pitfalls
  * [2] == Can walk over pitfalls
+
  * Read-Write
  
 int LightRadius;
@@ -4987,6 +5041,17 @@ bool Switch(int effect);
  * Switch the player with this object
  * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
  * Returns true if it is successful
+ 
+int FakeZ;
+ * Current FakeZ position. This value is treated as a second, separate Z axis;
+ * Sprites will be offset upwards by this amount when drawn just like the Z axis and shadows will draw if applicable.
+ * However, the sprite's hitbox will not be moved upwards into the Z Axis; instead it will be moved upwards on the Y axis,
+ * mimicking how Vires and Pols Voice worked in the original Zelda.
+ * This value is affected by FakeJump instead of Jump.
+ 
+int FakeJump;			
+ * The current velocity on the FakeZ axis. This value is added to FakeZ every frame; and this value is decreased
+ * by the gravity value until it is lower than the terminal velocity value.
  
 /* The following commands are valid, but do not yet have in-engine use, */
 
@@ -5147,43 +5212,17 @@ bool SwitchCombo(int pos, int effect);
  * Switch the player with the given combo position
  * Use the 'SW_EFF_' constants from std_constants.zh for 'effect'
  * Returns true if it is successful
-
-**************************************************************
-
-untyped HitBy[10];
- * Stores the ID/UIDs of objects that hurt the Link this frame.
-
- * Indices:
-
- * The first four indices are for the *screen index* of objects:
-
- * Description		Index	Status
- * HIT_BY_NPC 		[0] 	In use by the engine. 
- * HIT_BY_EWEAPON 	[1] 	In use by the engine.
- * HIT_BY_LWEAPON 	[2]	Not used at this time.
- * HIT_BY_FFC 		[3] 	Not used at this time. 
-
- * The next four, are for the FFCore 'script' UIDs of objects:
-
- * Description		Index	Status
- * HIT_BY_NPC_UID 	[4] 	Not used at this time. 
- * HIT_BY_EWEAPON_UID 	[5] 	Not used at this time. 
- * HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
- * HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
- * HIT_BY_FFC_UID 	[7] 	Not used at this time. 
-
- * The last two, are reserved for special damage-object types. 
-
- * Description		Index	Status
- * HIT_BY_COMBO 	[8]	Not used at this time. 
- * HIT_BY_MAPFLAG 	[9] 	Not used at this time. 
-
- * These indices are uniform across all HitBy[] array members, for any datatype with that member. 
-
- * Some lweapons, notably some melee weapons such as swords (but not sword beams), and boomerangs
- * are not yet implemented in this mechanic. 
-
-**************************************************************
+ 
+int FakeZ;
+ * Current FakeZ position. This value is treated as a second, separate Z axis;
+ * Sprites will be offset upwards by this amount when drawn just like the Z axis and shadows will draw if applicable.
+ * However, the sprite's hitbox will not be moved upwards into the Z Axis; instead it will be moved upwards on the Y axis,
+ * mimicking how Vires and Pols Voice worked in the original Zelda.
+ * This value is affected by FakeJump instead of Jump.
+ 
+int FakeJump;			
+ * The current velocity on the FakeZ axis. This value is added to FakeZ every frame; and this value is decreased
+ * by the gravity value until it is lower than the terminal velocity value.
 
 int TotalDrawYOffset;
  * READ-ONLY
@@ -5395,6 +5434,43 @@ bool MoveFlags[2];
  * [0] == Obeys gravity (see ->Gravity)
  * [1] == Can fall in pitfalls
  * Read-Write
+ 
+**************************************************************
+
+untyped HitBy[10];
+ * Stores the ID/UIDs of objects that hurt the Link this frame.
+
+ * Indices:
+
+ * The first four indices are for the *screen index* of objects:
+
+ * Description		Index	Status
+ * HIT_BY_NPC 		[0] 	In use by the engine. 
+ * HIT_BY_EWEAPON 	[1] 	In use by the engine.
+ * HIT_BY_LWEAPON 	[2]	Not used at this time.
+ * HIT_BY_FFC 		[3] 	Not used at this time. 
+
+ * The next four, are for the FFCore 'script' UIDs of objects:
+
+ * Description		Index	Status
+ * HIT_BY_NPC_UID 	[4] 	Not used at this time. 
+ * HIT_BY_EWEAPON_UID 	[5] 	Not used at this time. 
+ * HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
+ * HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
+ * HIT_BY_FFC_UID 	[7] 	Not used at this time. 
+
+ * The last two, are reserved for special damage-object types. 
+
+ * Description		Index	Status
+ * HIT_BY_COMBO 	[8]	Not used at this time. 
+ * HIT_BY_MAPFLAG 	[9] 	Not used at this time. 
+
+ * These indices are uniform across all HitBy[] array members, for any datatype with that member. 
+
+ * Some lweapons, notably some melee weapons such as swords (but not sword beams), and boomerangs
+ * are not yet implemented in this mechanic. 
+
+**************************************************************
 
 /************************************************************************************************************/
 
