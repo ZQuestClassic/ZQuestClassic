@@ -616,6 +616,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_SMARTER_SMART_SCROLL, 1);
 }
 
+int32_t onStrFix();
 void applyRuleset(int32_t newRuleset)
 {
 	ruleset = newRuleset;
@@ -623,7 +624,6 @@ void applyRuleset(int32_t newRuleset)
 	{
 		switch(i)
 		{
-			//Rules to IGNORE, and leave be! -Em
 			case qr_PARSER_NO_LOGGING:
 			case qr_PARSER_250DIVISION:
 			case qr_PARSER_SHORT_CIRCUIT:
@@ -631,11 +631,17 @@ void applyRuleset(int32_t newRuleset)
 			case qr_PARSER_TRUE_INT_SIZE:
 			case qr_PARSER_BINARY_32BIT:
 			case qr_PARSER_STRINGSWITCH_INSENSITIVE:
+				//Ignore compiler options
+				break;
+			case qr_OLD_STRING_EDITOR_MARGINS:
+			case qr_STRING_FRAME_OLD_WIDTH_HEIGHT:
+				//These get their own fix in 'onStrFix()'
 				break;
 			default:
 				set_bit(quest_rules,i,0);
 		}
 	}
+	onStrFix();
 	
 	alwaysOnRules(); //Set on things that should ALWAYS be on.
 	
