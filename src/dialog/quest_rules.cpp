@@ -1341,6 +1341,7 @@ static const GUI::ListData weaponsRulesList
 };
 
 //}
+int32_t onStrFix(); //zquest.cpp
 void applyRuleTemplate(int32_t ruleTemplate)
 {
 	switch(ruleTemplate)
@@ -1349,8 +1350,16 @@ void applyRuleTemplate(int32_t ruleTemplate)
 		{
 			for(size_t q = 0; q < compatRulesList.size(); ++q)
 			{
-				set_bit(quest_rules, compatRulesList.getValue(q), 0);
+				auto rule = compatRulesList.getValue(q);
+				switch(rule)
+				{
+					case qr_OLD_STRING_EDITOR_MARGINS:
+					case qr_STRING_FRAME_OLD_WIDTH_HEIGHT:
+						continue; //Don't auto-unset, use 'onStrFix()' instead
+				}
+				set_bit(quest_rules, rule, 0);
 			}
+			onStrFix();
 			break;
 		}
 		case ruletemplateZSCompat:

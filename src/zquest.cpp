@@ -1110,7 +1110,50 @@ static MENU quest_reports_menu[] =
 
 int32_t onPalFix();
 int32_t onPitFix();
+int32_t onStrFix()
+{
+	if(get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS))
+	{
+		AlertDialog("Fix: Old Margins",
+			"Fixing margins may cause strings that used to spill outside the textbox"
+			" to instead be cut off. Are you sure?",
+			[&](bool ret)
+			{
+				if(ret)
+				{
+					set_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS, 0);
+					saved = false;
+				}
+			}).show();
+	}
+	if(get_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
+	{
+		AlertDialog("Fix: Old Frame Size",
+			"This will fix the frame size of all strings. No visual changes should occur,"
+			" as the string width/height will be fixed, but the compat QR will also be unchecked.",
+			[&](bool ret)
+			{
+				if(ret)
+				{
+					for(auto q = 0; q < msg_count; ++q)
+					{
+						MsgStrings[q].w += 16;
+						MsgStrings[q].h += 16;
+					}
+					set_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
+					saved = false;
+				}
+			}).show();
+	}
+	return D_O_K;
+}
 
+enum
+{
+	ftCSFix, ftLSFix, ftESFix,
+	ftLPFix, ftPLDFix, ftOSFix,
+	ft_size
+};
 static MENU fixtools_menu[] =
 {
     { (char*)"&Color Set Fix",             onCSetFix,                 NULL,                     0,            NULL   },
@@ -1118,6 +1161,7 @@ static MENU fixtools_menu[] =
     { (char*)"&Effect Square Fix",         onEffectFix,               NULL,                     0,            NULL   },
     { (char*)"&Level Palette Fix",         onPalFix,                  NULL,                     0,            NULL   },
     { (char*)"&Pit and Liquid Damage Fix", onPitFix,                  NULL,                     0,            NULL   },
+    { (char*)"&Old Strings Fix",           onStrFix,                  NULL,                     0,            NULL   },
     {  NULL,                                NULL,                     NULL,                     0,            NULL   }
 };
 
@@ -31546,7 +31590,11 @@ int32_t main(int32_t argc,char **argv)
 						
 		file_menu[fileSaveAs].flags =
 			commands[cmdSaveAs].flags = disable_saving ? D_DISABLED : 0;
-			
+		
+		fixtools_menu[ftOSFix].flags = (get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
+			|| get_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
+				? 0 : D_DISABLED;
+		
 		edit_menu[0].flags =
 			commands[cmdUndo].flags = Map.CanUndo() ? 0 : D_DISABLED;
 			
