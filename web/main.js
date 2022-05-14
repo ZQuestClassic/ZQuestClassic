@@ -88,7 +88,13 @@ async function main() {
       canvas: document.querySelector('canvas'),
       instantiateWasm,
       onRuntimeInitialized: () => {
-        setupTouchControls();
+        if (TARGET === 'zelda') setupTouchControls();
+        else {
+          // TODO: better way to hide touch controls (just don't render them?)
+          for (const el of [...document.querySelectorAll('.touch-inputs')]) {
+            el.classList.toggle('hidden', true);
+          }
+        }
         setupCopyUrl();
         setupSettingsPanel();
         if (TARGET === 'zquest') setupOpenTestMode();
@@ -153,13 +159,13 @@ async function main() {
     canvas.addEventListener('click', requestPersist);
 
     for (const el of [...document.querySelectorAll('.panel-button[data-panel]')]) {
-      el.addEventListener('click', () => {
+      el.addEventListener('click', async () => {
         for (const buttonEl of document.querySelectorAll('.panel-button')) {
           const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
           if (el === buttonEl) {
             buttonEl.classList.toggle('active');
             if (panelEl) panelEl.classList.toggle('hidden');
-            if (panelEl && buttonEl.getAttribute('data-panel') === '.settings') renderSettingsPanel();
+            if (panelEl && buttonEl.getAttribute('data-panel') === '.settings') await renderSettingsPanel();
           } else {
             buttonEl.classList.remove('active');
             if (panelEl) panelEl.classList.add('hidden');

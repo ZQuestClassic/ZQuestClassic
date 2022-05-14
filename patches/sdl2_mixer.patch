@@ -26,7 +26,7 @@ index d53d4a2..f8dc2da 100644
  
    SNDDBG(("Loading instrument %s\n", (i < 0)? name : tmp));
 diff --git a/src/codecs/timidity/timidity.c b/src/codecs/timidity/timidity.c
-index ef4a2e7..d390acc 100644
+index ef4a2e7..de17943 100644
 --- a/src/codecs/timidity/timidity.c
 +++ b/src/codecs/timidity/timidity.c
 @@ -20,6 +20,10 @@
@@ -40,7 +40,7 @@ index ef4a2e7..d390acc 100644
  static ToneBank *master_tonebank[MAXBANK], *master_drumset[MAXBANK];
  
  static char def_instr_name[256] = "";
-@@ -512,6 +516,25 @@ int Timidity_Init(const char *config_file)
+@@ -512,6 +516,29 @@ int Timidity_Init(const char *config_file)
    return init_with_config(config_file);
  }
  
@@ -54,6 +54,10 @@ index ef4a2e7..d390acc 100644
 +  }
 +
 +  const promises = instruments.map(async (url) => {
++    if (!url.endsWith('.pat')) {
++      url += '.pat';
++    }
++
 +    const data = await ZC.fetchAsByteArray(ZC_Constants.patsUrl + '/' + url);
 +    const path = '/etc/' + url;
 +    FS.mkdirTree(PATH.dirname(path));
@@ -66,7 +70,7 @@ index ef4a2e7..d390acc 100644
  static void do_song_load(SDL_RWops *rw, SDL_AudioSpec *audio, MidiSong **out)
  {
    MidiSong *song;
-@@ -623,6 +646,18 @@ static void do_song_load(SDL_RWops *rw, SDL_AudioSpec *audio, MidiSong **out)
+@@ -623,6 +650,18 @@ static void do_song_load(SDL_RWops *rw, SDL_AudioSpec *audio, MidiSong **out)
  
    load_missing_instruments(song);
  
@@ -85,7 +89,7 @@ index ef4a2e7..d390acc 100644
    if (! song->oom)
        *out = song;
    else {
-@@ -653,6 +688,9 @@ void Timidity_FreeSong(MidiSong *song)
+@@ -653,6 +692,9 @@ void Timidity_FreeSong(MidiSong *song)
    SDL_free(song->common_buffer);
    SDL_free(song->resample_buffer);
    SDL_free(song->events);
