@@ -32,7 +32,7 @@ export async function configureMount() {
   if (!FS.analyzePath('/local/zquest.cfg').exists) {
     FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest.cfg'));
   }
-  renderSettingsPanel();
+  await renderSettingsPanel();
   configuredMountPromiseResolve();
 }
 
@@ -152,7 +152,7 @@ export function setupSettingsPanel() {
 
     await ZC.fsSync(false);
     if (files.some(file => criticalFileNames.includes(file.name))) window.location.reload();
-    renderSettingsPanel();
+    await renderSettingsPanel();
   }
 
   el.querySelector('.settings__copy button.copy-folder').addEventListener('click', async () => {
@@ -177,7 +177,7 @@ export function setupSettingsPanel() {
   });
 }
 
-export function renderSettingsPanel() {
+export async function renderSettingsPanel() {
   const el = document.querySelector('.settings');
   const shouldUseDirPicker = !!self.showDirectoryPicker && attachedDirHandle !== false;
 
@@ -207,4 +207,31 @@ export function renderSettingsPanel() {
   }
 
   el.querySelector('.settings__download').classList.toggle('hidden', !!attachedDirHandle);
+
+  {
+    const cfgs = [
+      'zc.cfg',
+      'oot.cfg',
+      '2MGM.cfg',
+      'ultra.cfg',
+      'ppl160.cfg',
+      'freepats.cfg',
+    ];
+    let currentCfg = await kv.get('timidity-cfg');
+    if (!currentCfg || !FS.analyzePath(`/etc/${currentCfg}`).exists) {
+      currentCfg = cfgs[0];
+    }
+
+    const cfgsSelectEl = el.querySelector('.settings__timidity-cfgs select');
+    cfgsSelectEl.textContent = '';
+    for (const cfg of cfgs) {
+      const el = createElement('option', '', cfg);
+      cfgsSelectEl.append(el);
+    }
+    cfgsSelectEl.addEventListener('change', async () => {
+      await kv.set('timidity-cfg', cfgsSelectEl.value)
+    });
+    cfgsSelectEl.value = currentCfg;
+    FS.writeFile('/etc/timidity.cfg', FS.readFile(`/etc/${currentCfg}`));
+  }
 }

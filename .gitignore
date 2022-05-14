@@ -60,6 +60,7 @@ src - Copy (9)/
 src - Copy (10)/
 build_emscripten
 node_modules
+/timidity/soundfont-pats
 
 CMakeFiles/
 
