@@ -132,19 +132,19 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     {
                         _mouse_x = event.touch.x;
                         _mouse_y = event.touch.y;
-                        if (event.type == ALLEGRO_EVENT_TOUCH_END)
+                        if (event.type == ALLEGRO_EVENT_TOUCH_BEGIN)
                         {
                             _mouse_b |= 1;
+                        }
+                        else if (event.type == ALLEGRO_EVENT_TOUCH_END)
+                        {
+                            _mouse_b &= ~1;
                         }
                     }
                     break;
                 }
             }
             _handle_mouse_input();
-            if (event.type == ALLEGRO_EVENT_TOUCH_END && event.touch.primary)
-            {
-                _mouse_b &= ~1;
-            }
         }
     }
     al_destroy_event_queue(queue);
