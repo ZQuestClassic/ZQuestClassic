@@ -2210,7 +2210,8 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 	{
 		//If it's an enemies->secret screen, only do the high 16 if told to
 		//That way you can have secret and burn/bomb entrance separately
-		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
+		bool old_enem_secret = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31);
+		if(((!(old_enem_secret && (s->flags2&fCLEARSECRET)) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM))
 		{
 			int32_t newflag = -1;
 			
