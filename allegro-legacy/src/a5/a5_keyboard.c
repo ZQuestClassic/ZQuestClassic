@@ -90,7 +90,8 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
     while(!al_get_thread_should_stop(thread))
     {
         al_init_timeout(&timeout, 0.1);
-        if(al_wait_for_event_until(queue, &event, &timeout))
+        al_wait_for_event(queue, &event);
+        if(true)
         {
             switch(event.type)
             {

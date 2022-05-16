@@ -100,7 +100,8 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
     while(!al_get_thread_should_stop(thread))
     {
         al_init_timeout(&timeout, 0.1);
-        if(al_wait_for_event_until(queue, &event, &timeout))
+        al_wait_for_event(queue, &event);
+        if(true)
         {
             cur_time = al_get_time();
             diff_time = cur_time - prev_time;
