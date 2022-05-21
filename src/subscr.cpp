@@ -3345,9 +3345,11 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
     }
     
     //Item Override stuff here
-    if((itemtype & 0x8000) && 
-		(!game || game->item[itemtype&0xFFF])
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
+    if((itemtype & 0x8000) &&
+#ifdef IS_PLAYER
+		(game->item[itemtype&0xFFF]) &&
+#endif
+            !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
         if(overridecheck == 0xFFFF)
         {
