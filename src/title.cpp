@@ -3901,7 +3901,6 @@ int32_t custom_game(int32_t file)
 	bool customized = false;
 	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
 	{
-		customized = true;
 		scare_mouse();
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
 		unscare_mouse();
@@ -3917,6 +3916,7 @@ int32_t custom_game(int32_t file)
 		
 		if(jwin_file_browse_ex("Load Quest", path, list, &sel, 2048, -1, -1, lfont))
 		{
+			customized = true;
 			//      strcpy(qstpath, path);
 			replace_extension(qstpath,path,"qst",2047);
 			gamemode_dlg[2].dp = get_filename(qstpath);
@@ -3925,13 +3925,13 @@ int32_t custom_game(int32_t file)
 			{
 				gamemode_dlg[4].dp = infostr;
 				gamemode_dlg[5].flags = D_DISABLED;
-			focus_obj = 1;
+				focus_obj = 1;
 			}
 			else
 			{
 				gamemode_dlg[4].dp = infostr;
 				gamemode_dlg[5].flags = D_EXIT;
-			focus_obj = 5;
+				focus_obj = 5;
 			}
 			
 			gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
