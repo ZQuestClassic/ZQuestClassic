@@ -8301,7 +8301,7 @@ bool HeroClass::animate(int32_t)
 	if(!isSideViewHero())
 	{
 		int32_t tx = x.getInt()+8,
-		    ty = y.getInt()+(bigHitbox?8:12);
+		    ty = y.getInt()+8;//(bigHitbox?8:12);
 		if(!(unsigned(ty)>175 || unsigned(tx) > 255))
 		{
 			for(int32_t q = 0; q < 3; ++q)
