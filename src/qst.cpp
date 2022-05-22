@@ -117,6 +117,8 @@ const std::string script_slot_data::ZASM_FORMAT = "%s ==%s";
 
 char qstdat_string[2048] = { 0 };
 
+static zinfo* load_tmp_zi = NULL;
+
 int32_t memDBGwatch[8]= {0,0,0,0,0,0,0,0}; //So I can monitor memory crap
 const byte clavio[9]={97,109,111,110,103,117,115,0};
 
@@ -9753,10 +9755,11 @@ const char *ctype_name[cMAX]=
 
 int32_t init_combo_classes()
 {
+	zinfo* zi = (load_tmp_zi ? load_tmp_zi : &ZI);
     for(int32_t i=0; i<cMAX; i++)
     {
         combo_class_buf[i] = default_combo_classes[i];
-		if ( char const* nm = ZI.getComboTypeName(i) )
+		if ( char const* nm = zi->getComboTypeName(i) )
 		{
 			size_t len = strlen(nm);
 			for ( size_t q = 0; q < 64; q++ )
@@ -20389,6 +20392,9 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 	
     zquestheader tempheader;
     memset(&tempheader, 0, sizeof(zquestheader));
+	zinfo tempzi;
+	tempzi.clear();
+	load_tmp_zi = &tempzi;
     
     // oldquest flag is set when an unencrypted qst file is suspected.
     bool oldquest = false;
@@ -20416,19 +20422,18 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		if(read_ext_zinfo)
 		{
 			PACKFILE *inf=pack_fopen_password(zinfofilename, F_READ, "");
-			ret=readzinfo(inf, ZI, tempheader);
+			ret=readzinfo(inf, tempzi, tempheader);
 			if(inf) pack_fclose(inf);
 			checkstatus(ret);
 		}
 		else
 		{
-			ret=readzinfo(f, ZI, tempheader);
+			ret=readzinfo(f, tempzi, tempheader);
 			checkstatus(ret);
 		}
 		box_out("okay.");
 		box_eol();
 	}
-	else ZI.clear();
 	
     if(tempheader.zelda_version>=0x193)
     {
@@ -21114,6 +21119,10 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
     }
+    if(keepall&&!get_bit(skip_flags, skip_zinfo))
+    {
+		ZI.copyFrom(tempzi);
+    }
     
     if(!keepall||get_bit(skip_flags, skip_maps))
     {
@@ -21294,6 +21303,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	loading_qst_num = qst_num;
 	loadquest_report = report;
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, compressed, encrypted, keepall, skip_flags,printmetadata);
+	load_tmp_zi = NULL;
 	loading_qst_name = NULL;
 	loadquest_report = false;
 	loading_qst_num = 0;

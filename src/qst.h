@@ -163,7 +163,7 @@ enum
     skip_weapons, skip_colors, skip_icons, skip_initdata,
     skip_guys, skip_herosprites, skip_subscreens, skip_ffscript,
     skip_sfx, skip_midis, skip_cheats, skip_itemdropsets,
-    skip_favorites, skip_max
+    skip_favorites, skip_zinfo, skip_max
 };
 
 extern const char *qst_error[];

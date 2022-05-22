@@ -685,12 +685,9 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 {
 	int32_t dummy;
 	word section_version, section_cversion;
-	if(!f)
-	{
-		z.clear();
-		return 0;
-	}
 	z.clear();
+	if(!f)
+		return 0;
 	
 	if(!p_mgetl(&dummy,f,true))
 		return qe_invalid;
