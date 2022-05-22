@@ -9,11 +9,13 @@
 
 LauncherDialog::LauncherDialog(){}
 
+#define LAUNCHER_EXIT_WARN false
 static int32_t queue_revert = 0;
 int32_t LauncherDialog::launcher_on_tick()
 {
 	if(close_button_quit)
 	{
+		#if LAUNCHER_EXIT_WARN
 		bool r = false;
 		AlertDialog("Exit",
 			"Are you sure?",
@@ -23,6 +25,9 @@ int32_t LauncherDialog::launcher_on_tick()
 			}).show();
 		close_button_quit = false;
 		return r ? ONTICK_EXIT : ONTICK_CONTINUE;
+		#else
+		return ONTICK_EXIT;
+		#endif
 	}
 	if(queue_revert > 0)
 	{
