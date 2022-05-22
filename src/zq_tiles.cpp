@@ -15013,7 +15013,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		} \
 	}
 	
-	
+	bool did_snap = false;
 	do
 	{
 		rest(4);
@@ -15071,7 +15071,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				}
 				case KEY_Z:
 				{
-					onSnapshot();
+					if(!did_snap)
+					{
+						onSnapshot();
+						redraw = true;
+						did_snap = true;
+					}
 					break;
 				}
 				case KEY_S:
@@ -15896,6 +15901,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 			clear_keybuf();
 		}
 		
+		if(!key[KEY_Z]) did_snap = false;
+		
 		if(gui_mouse_b()&1)
 		{
 			if(is_large)
@@ -16108,8 +16115,9 @@ REDRAW:
 			redraw=true;
 			
 		if(redraw)
+		{
 			draw_tiles(first,cs,f);
-			
+		}
 		if(f&8)
 		{
 			if(rect_sel)
@@ -19914,7 +19922,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		} \
 	}
 	
-	
+	bool did_snap = false;
 	do
 	{
 		rest(4);
@@ -19972,7 +19980,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			}
 		case KEY_Z:
 		{
-			onSnapshot();
+			if(!did_snap)
+			{
+				onSnapshot();
+				redraw = true;
+				did_snap = true;
+			}
 			break;
 		}
 			case KEY_S:
@@ -20790,9 +20803,10 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			}
 			break;
 			}
-			
 			clear_keybuf();
 		}
+		
+		if(!key[KEY_Z]) did_snap = false;
 		
 		if(gui_mouse_b()&1)
 		{
@@ -21006,8 +21020,9 @@ REDRAW_DMAP_SELTILE:
 			redraw=true;
 			
 		if(redraw)
+		{
 			draw_tiles(first,cs,f);
-			
+		}
 		if(f&8)
 		{
 			if(rect_sel)
