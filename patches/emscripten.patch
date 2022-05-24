@@ -103,7 +103,7 @@ index 0000000..bc6c924
 +def show():
 +  return 'GME (USE_GME; GPL 2.1 license)'
 diff --git a/tools/ports/sdl2_mixer.py b/tools/ports/sdl2_mixer.py
-index 6fe6883..2e5912e 100644
+index 6fe6883..b971160 100644
 --- a/tools/ports/sdl2_mixer.py
 +++ b/tools/ports/sdl2_mixer.py
 @@ -7,8 +7,8 @@ import os
@@ -112,8 +112,8 @@ index 6fe6883..2e5912e 100644
  
 -TAG = 'release-2.0.2'
 -HASH = 'b9d03061d177f20f4e03f3e3553afd7bfe0c05da7b9a774312b389318e747cf9724e0475e9afff6a64ce31bab0217e2afb2619d75556753fbbb6ecafa9775219'
-+TAG = 'gme-2'
-+HASH = 'eea871c9dc0e11607293f6ac6fa6c19bbc0c02ec9e2eedda8f12fa0483a63f6f771ca9e0d584bea1855fc3c146377914d22eefe9b64903218c643c781332f23e'
++TAG = 'gme-4'
++HASH = '0865935183b4a6b215394ba1bc2aca404356d661345770ab7da36c7fb9c520534bde84f657655e8f4e487c5210359d9e887e6877300b15d289235b4a579f380a'
  
  deps = ['sdl2']
  
@@ -154,7 +154,12 @@ index 6fe6883..2e5912e 100644
        flags=flags,
        exclude_files=[
          'playmus.c',
-@@ -89,7 +98,7 @@ def get(ports, settings, shared):
+@@ -85,11 +94,12 @@ def get(ports, settings, shared):
+       exclude_dirs=[
+         'native_midi',
+         'external',
++        'Xcode',
+       ]
      )
  
      # copy header to a location so it can be used as 'SDL2/'
@@ -163,7 +168,7 @@ index 6fe6883..2e5912e 100644
  
    return [shared.Cache.get_lib(libname, create, what='port')]
  
-@@ -109,6 +118,9 @@ def process_dependencies(settings):
+@@ -109,6 +119,9 @@ def process_dependencies(settings):
    if "mod" in settings.SDL2_MIXER_FORMATS:
      deps.append('libmodplug')
      settings.USE_MODPLUG = 1
