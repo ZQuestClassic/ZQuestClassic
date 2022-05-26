@@ -570,7 +570,7 @@ void pop_ri()
 }
 
 
-static int32_t numInstructions; // Used to detect hangs
+static int32_t numInstructions = 0; // Used to detect hangs
 static bool scriptCanSave = true;
 byte curScriptType;
 word curScriptNum;
@@ -25652,7 +25652,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	combopos_modified = -1;
 	curScriptType=type;
 	curScriptNum=script;
-	numInstructions=0;
+	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
 #ifdef _SCRIPT_COUNTER
 	dword script_timer[NUMCOMMANDS];
 	dword script_execount[NUMCOMMANDS];
