@@ -28090,7 +28090,7 @@ void HeroClass::reset_swordcharge()
 
 void HeroClass::reset_hookshot()
 {
-	if(action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
+	if(action!=walking && action!=rafting && action!=landhold1 && action!=landhold2 && action!=sidewaterhold1 && action!=sidewaterhold2)
 	{
 		action=none; FFCore.setHeroAction(none);
 	}
