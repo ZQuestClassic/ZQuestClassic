@@ -690,6 +690,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[2] = "Forces the Player to face in the conveyor's direction";
 			l_flag[3] = "Smart Corners";
 			h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
+			l_flag[4] = "Heavy Boots Disable";
+			h_flag[4] = "If the player has boots with the 'heavy' flag, the conveyor will not push them.";
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";

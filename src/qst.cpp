@@ -3599,11 +3599,15 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_OLD_KEESE_Z_AXIS,1);
 		set_bit(quest_rules,qr_POLVIRE_NO_SHADOW,1);
-	}
-	
-	if(compatrule_version < 26)
-	{
 		set_bit(quest_rules,qr_SUBSCR_OLD_SELECTOR,1);
+	}
+	if(compatrule_version < 27) //Noticed some junk data in the QR array...
+	{
+		for(auto q = qr_POLVIRE_NO_SHADOW+1; q < qr_PARSER_250DIVISION; ++q)
+			set_bit(quest_rules,q,0);
+		for(auto q = qr_COMBODATA_INITD_MULT_TENK+1; q < QUESTRULES_NEW_SIZE*8; ++q)
+			set_bit(quest_rules,q,0);
+		//This should nuke any remaining junk data... not sure if it affected anything previous. -Em
 	}
 	
 	//always set

@@ -28138,8 +28138,14 @@ void HeroClass::reset_ladder()
     ladderx=laddery=0;
 }
 
+bool is_conveyor(int32_t type);
+int32_t get_conveyor(int32_t x, int32_t y);
+
 void HeroClass::check_conveyor()
 {
+	++newconveyorclk;
+	if (newconveyorclk < 0) newconveyorclk = 0;
+	
 	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)))
 	{
 		is_conveyor_stunned = 0;
@@ -28149,39 +28155,25 @@ void HeroClass::check_conveyor()
 	WalkflagInfo info;
 	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
-	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
-	int32_t cmbid = MAPCOMBO(x+7,y+(bigHitbox?8:12));
+	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
+	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
-	++newconveyorclk;
-	if (newconveyorclk < 0) newconveyorclk = 0;
+	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
 	{
 		int32_t ctype=cmb->type;
-		for (int32_t i = 0; i <= 1; ++i)
-		{
-			if(tmpscr2[i].valid!=0)
-			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-				{
-					if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && !_walkflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
-				}
-				else
-				{
-					if (combobuf[MAPCOMBO2(i,x+7,y+(bigHitbox?8:12))].type == cBRIDGE && _effectflag_layer(x+7,y+(bigHitbox?8:12),1, &(tmpscr2[i]))) return;
-				}
-			}
-		}
-		if (!_effectflag(x+7,y+(bigHitbox?8:12),1, -1)) return;
 		auto rate = custom_spd ? zc_max(cmb->attribytes[0], 1) : 3;
 		if(custom_spd && (newconveyorclk % rate)) return;
+		if((cmb->usrflags&cflag5) && HasHeavyBoots())
+			return;
 		is_on_conveyor=false;
 		is_conveyor_stunned=0;
 		
 		deltax=combo_class_buf[ctype].conveyor_x_speed;
 		deltay=combo_class_buf[ctype].conveyor_y_speed;
-	
-		if ((deltax!=0 || deltay!=0) && custom_spd)
+		
+		if (is_conveyor(ctype) && custom_spd)
 		{
 			deltax = zslongToFix(cmb->attributes[0]);
 			deltay = zslongToFix(cmb->attributes[1]);
@@ -28206,6 +28198,7 @@ void HeroClass::check_conveyor()
 		{
 			is_on_conveyor=true;
 		}
+		else return;
 		
 		bool movedx = false, movedy = false;
 		if(cmb->usrflags&cflag4) //Smart corners

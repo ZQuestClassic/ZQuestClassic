@@ -77,17 +77,88 @@ void sprite::handle_sprlighting()
 	}
 }
 
+bool is_conveyor(int32_t type)
+{
+	auto& cc = combo_class_buf[type];
+	return cc.conveyor_x_speed || cc.conveyor_y_speed;
+}
+
+int32_t get_conveyor(int32_t x, int32_t y)
+{
+	int32_t cmbid = MAPCOMBO(x,y);
+	newcombo const* cmb = &combobuf[cmbid];
+	if (!_effectflag(x,y,1,-1))
+	{
+		cmbid = -1;
+		cmb = NULL;
+	}
+	if(get_bit(quest_rules, qr_CONVEYORS_L1_L2))
+		for (int32_t i = 0; i <= 1; ++i)
+		{
+			if(!tmpscr2[i].valid) continue;
+			
+			auto tcid = MAPCOMBO2(i,x,y);
+			if(is_conveyor(combobuf[tcid].type))
+			{
+				if (_effectflag_layer(x,y,1,&(tmpscr2[i])))
+				{
+					cmbid = tcid;
+					cmb = &combobuf[tcid];
+				}
+				else
+				{
+					cmbid = -1;
+					cmb = NULL;
+				}
+			}
+		}
+	if(!cmb) return -1;
+	bool custom_spd = (cmb->usrflags&cflag2);
+	if(custom_spd || conveyclk<=0)
+	{
+		int32_t ctype=cmb->type;
+		for (int32_t i = 0; i <= 1; ++i)
+		{
+			if(!tmpscr2[i].valid) continue;
+			
+			auto tcid = MAPCOMBO2(i,x,y);
+			if(combobuf[tcid].type == cBRIDGE)
+			{
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					if (!_walkflag_layer(x,y,1,&(tmpscr2[i]))) return -1;
+				}
+				else
+				{
+					if (_effectflag_layer(x,y,1,&(tmpscr2[i]))) return -1;
+				}
+			}
+		}
+		auto rate = custom_spd ? zc_max(cmb->attribytes[0], 1) : 3;
+		if(custom_spd && (newconveyorclk % rate)) return -1;
+		return cmbid;
+	}
+	return -1;
+}
+
 void sprite::check_conveyor()
 {
     int32_t deltax=0;
     int32_t deltay=0;
-    
-    if(conveyclk<=0 && ((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
+    int32_t cmbid = get_conveyor(x+8,y+8);
+	if(cmbid < 0) return;
+	newcombo const* cmb = &combobuf[cmbid];
+	bool custom_spd = (cmb->usrflags&cflag2);
+    if(((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
     {
-        int32_t ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
+        int32_t ctype=(combobuf[cmbid].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;
         deltay=combo_class_buf[ctype].conveyor_y_speed;
-        
+		if (is_conveyor(ctype) && custom_spd)
+		{
+			deltax = zslongToFix(cmb->attributes[0]);
+			deltay = zslongToFix(cmb->attributes[1]);
+		}
         if(deltax!=0||deltay!=0)
         {
             if(deltay<0&&!_walkflag(x,y+8-2,2))

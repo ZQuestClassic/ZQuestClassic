@@ -31,6 +31,7 @@ extern int32_t fadeclk;
 extern int32_t frame;
 extern bool BSZ;
 extern int32_t conveyclk;
+extern byte newconveyorclk;
 
 struct scriptmem
 {

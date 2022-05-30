@@ -86,6 +86,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		inf->h_##mem = helpstr; \
 	}while(false)
 	#define FLAG(val) (ref.flags & ITEM_FLAG##val)
+	std::string classname(ZI.getItemClassName(ref.family));
+	
 	switch(ref.family)
 	{
 		case itype_fairy:
@@ -527,7 +529,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			_SET(power, "Protection Power:", "Protects against damage combos that deal up to 16*power points of damage.");
 			_SET(flag[0], "Not Solid Combos", "Does not protect against solid damage combos");
-			_SET(flag[1], "Heavy", "Some step combo types are only triggered if the player has boots with this flag checked.");
+			_SET(flag[1], "Heavy", "Some combo settings interact with this flag.\n"
+				"Unlike most items, this applies as long as you have a heavy " + classname + " item,"
+				" even if it is not the highest level " + classname + " item.");
 			break;
 		}
 		case itype_bracelet:

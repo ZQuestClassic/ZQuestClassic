@@ -240,7 +240,6 @@ public:
 		ladderstart, // starting direction of ladder...?
 		inlikelike, // 1 = Like Like. 2 = Taking damage while trapped
 		damageovertimeclk, // clock for determining when Hero takes passive damage from combos beneath him.
-		newconveyorclk, // clock for determining when Hero gets moved by a conveyor
 		switchhookclk, //clock for switchhook animation timing
 		switchhookmaxtime, //the switchhookclk starting value
 		switchhookstyle, //the switchhook animation style

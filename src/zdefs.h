@@ -285,7 +285,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       26
+#define V_COMPATRULE       27
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -1097,6 +1097,7 @@ enum
 	qr_OLD_SCRIPTED_KNOCKBACK, qr_OLD_KEESE_Z_AXIS, qr_POLVIRE_NO_SHADOW,
 	
 	//50
+	qr_CONVEYORS_L1_L2,
 	
 	//60
 	

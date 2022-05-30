@@ -372,7 +372,10 @@ static const GUI::ListData comboRulesList
 		" hitbox, as opposed to the bottom and top parts of their hitbox."},
 	{ "Docks use Raft Item's sound", qr_RAFT_SOUND,
 		"The raft will use the sound specified in UseSound when starting rafting,"
-		" as opposed to the screen's secret sound."}
+		" as opposed to the screen's secret sound."},
+	{ "Conveyors work on layers 1 and 2", qr_CONVEYORS_L1_L2,
+		"Conveyor combos work on layers 1 and 2. If multiple conveyors overlap, only"
+		" the highest layer conveyor will apply."}
 };
 
 static const GUI::ListData compatRulesList

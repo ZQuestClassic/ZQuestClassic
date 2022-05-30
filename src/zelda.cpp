@@ -380,6 +380,7 @@ int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
 int32_t nets=1580, magicitem=-1,nayruitem=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
+byte newconveyorclk = 0;
 float avgfps=0;
 dword fps_secs=0;
 bool do_cheat_goto=false, do_cheat_light=false;
