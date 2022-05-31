@@ -17455,7 +17455,12 @@ void set_register(const int32_t arg, const int32_t value)
 			{ 
 				Z_scripterrlog("Invaid enemy ID (%d) passed to Screen->%s.", enemyid,"Enemy[]"); \
 				break; 
-			} 
+			}
+			if(unsigned(indx) > 9)
+			{
+				Z_scripterrlog("Invalid index (%d) used for Screen->Enemy[]", indx);
+				break;
+			}
 			tmpscr->enemy[indx] = enemyid; 
 			break;
 		} 
@@ -18337,7 +18342,7 @@ void set_register(const int32_t arg, const int32_t value)
 			int32_t enemyid = value/10000;
 			if( ((unsigned)indx) > 9 ) 
 			{ 
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), "Enemy[]");
+				Z_scripterrlog("Invalid Index passed to mapdata->%s: %d\n", "Enemy[]", (indx));
 			} 
 			else if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
