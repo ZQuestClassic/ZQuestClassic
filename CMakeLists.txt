@@ -109,9 +109,12 @@ include_directories(./include/zlib123)
 include_directories(./include/loadpng)
 include_directories(./include/jpgalleg-2.5)
 include_directories(./include/dumb)
-include_directories(./include/alogg)
-include_directories(./include/almp3)
-include_directories(./include/gme)
+if(NOT APPLE)
+	# These are built from source on OSX, so don't muddle things up with old headers.
+	include_directories(./include/alogg)
+	include_directories(./include/almp3)
+	include_directories(./include/gme)
+endif()
 include_directories(./src)
 
 if(MSVC)
@@ -301,7 +304,18 @@ elseif(APPLE)
 	)
 	target_link_libraries(alogg PUBLIC allegro_with_legacy)
 
-	set(SOUNDLIBS almp3 alogg)
+	FetchContent_Declare(
+		gme_external
+		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
+		GIT_TAG        839ea742c42c4e0fbe4f153621d92e24c20d0799
+	)
+	SET(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+	FetchContent_MakeAvailable(gme_external)
+	add_library(gme_headers INTERFACE)
+	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
+	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
+
+	set(SOUNDLIBS almp3 alogg gme gme_headers)
 endif()
 
 #############################################################

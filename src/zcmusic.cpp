@@ -9,7 +9,7 @@
 
 //#include "precompiled.h" //always first
 
-// #define SUPPORT_GME
+#define SUPPORT_GME
 #define SUPPORT_OGG
 #define SUPPORT_MP3
 // #define SUPPORT_DUH
@@ -272,8 +272,8 @@ extern "C"
                     break;
                     
                 case ZCMF_GME:
-                    // if(((GMEFILE*)*b)->emu)
-                    //     poll_gme_file((GMEFILE*)*b);
+                    if(((GMEFILE*)*b)->emu)
+                        poll_gme_file((GMEFILE*)*b);
                         
                     break;
 		    
@@ -460,34 +460,34 @@ extern "C"
         //     }
         // }
         
-        // if((libflags & ZCMF_GME))
-        // {
-        //     if((stricmp(ext,"spc")==0) || (stricmp(ext,"gbs")==0) || (stricmp(ext,"vgm")==0)|| (stricmp(ext,"gym")==0)|| (stricmp(ext,"nsf")==0))
-        //     {
+        if((libflags & ZCMF_GME))
+        {
+            if((stricmp(ext,"spc")==0) || (stricmp(ext,"gbs")==0) || (stricmp(ext,"vgm")==0)|| (stricmp(ext,"gym")==0)|| (stricmp(ext,"nsf")==0))
+            {
             
-        //         Music_Emu *emu;
+                Music_Emu *emu;
                 
-        //         emu=gme_load_file(filename, ext);
+                emu=gme_load_file(filename, ext);
                 
-        //         if(emu)
-        //         {
-        //             GMEFILE *p=(GMEFILE*)zc_malloc(sizeof(GMEFILE));
+                if(emu)
+                {
+                    GMEFILE *p=(GMEFILE*)zc_malloc(sizeof(GMEFILE));
                     
-        //             if(!p) return NULL;
+                    if(!p) return NULL;
                     
-        //             p->type = ZCMF_GME;
-        //             p->playing = ZCM_STOPPED;
-        //             p->emu = emu;
-        //             ZCMUSIC *music=(ZCMUSIC*)p;
-        //             zcm_extract_name(filename, music->filename, FILENAMEALL);
-        //             music->filename[255]='\0';
-        //             music->track=0;
-        //             return music;
-        //         }
-        //         else al_trace("%s file '%s' not found.\n",ext,filename);
+                    p->type = ZCMF_GME;
+                    p->playing = ZCM_STOPPED;
+                    p->emu = emu;
+                    ZCMUSIC *music=(ZCMUSIC*)p;
+                    zcm_extract_name(filename, music->filename, FILENAMEALL);
+                    music->filename[255]='\0';
+                    music->track=0;
+                    return music;
+                }
+                else al_trace("%s file '%s' not found.\n",ext,filename);
                 
-        //     }
-        // }
+            }
+        }
         
 error:
         return NULL;
@@ -658,10 +658,10 @@ error:
                 break;
                 
             case ZCMF_GME:
-                // if(((GMEFILE*)zcm)->emu != NULL)
-                // {
-                //     gme_play((GMEFILE*) zcm, vol);
-                // }
+                if(((GMEFILE*)zcm)->emu != NULL)
+                {
+                    gme_play((GMEFILE*) zcm, vol);
+                }
                 
                 break;
 		
@@ -763,18 +763,18 @@ error:
                     break;
                     
                 case ZCMF_GME:
-                    // if(((GMEFILE*)zcm)->emu != NULL)
-                    // {
-                    //     if(p == ZCM_PAUSED)
-                    //     {
-                    //         voice_stop(((GMEFILE*)zcm)->stream->voice);
-                    //     }
-                    //     else
-                    //     {
-                    //         voice_start(((GMEFILE*)zcm)->stream->voice);
-                    //     }
+                    if(((GMEFILE*)zcm)->emu != NULL)
+                    {
+                        if(p == ZCM_PAUSED)
+                        {
+                            voice_stop(((GMEFILE*)zcm)->stream->voice);
+                        }
+                        else
+                        {
+                            voice_start(((GMEFILE*)zcm)->stream->voice);
+                        }
                         
-                    // }
+                    }
                     break;
                 
 		case ZCMF_OGGEX:
@@ -821,12 +821,12 @@ error:
             break;
             
         case ZCMF_GME:
-            // if(((GMEFILE*)zcm)->emu != NULL)
-            // {
-            //     if(zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream);
+            if(((GMEFILE*)zcm)->emu != NULL)
+            {
+                if(zcm->playing != ZCM_STOPPED) stop_audio_stream(((GMEFILE*)zcm)->stream);
                 
-            //     zcm->playing = ZCM_STOPPED;
-            // }
+                zcm->playing = ZCM_STOPPED;
+            }
             
             break;
         
@@ -896,7 +896,7 @@ error:
             break;
             
         case ZCMF_GME:
-            // unload_gme_file((GMEFILE*)zcm);
+            unload_gme_file((GMEFILE*)zcm);
             break;
         
 	case ZCMF_OGGEX:
@@ -922,12 +922,12 @@ error:
             break;
             
         case ZCMF_GME:
-            // if(((GMEFILE*)zcm)->emu != NULL)
-            // {
-            //     int32_t t=((GMEFILE*)zcm)->emu->track_count();
-            //     return (t>1)?t:0;
-            // }
-            // else
+            if(((GMEFILE*)zcm)->emu != NULL)
+            {
+                int32_t t=((GMEFILE*)zcm)->emu->track_count();
+                return (t>1)?t:0;
+            }
+            else
             {
                 return 0;
             }
@@ -952,25 +952,25 @@ error:
             break;
             
         case ZCMF_GME:
-            // if(((GMEFILE*)zcm)->emu != NULL)
-            // {
-            //     mutex_lock(&playlistmutex);
-            //     int32_t t=((GMEFILE*)zcm)->emu->track_count();
+            if(((GMEFILE*)zcm)->emu != NULL)
+            {
+                mutex_lock(&playlistmutex);
+                int32_t t=((GMEFILE*)zcm)->emu->track_count();
                 
-            //     if(tracknum<0 || tracknum>=t)
-            //     {
-            //         tracknum=0;
-            //     }
+                if(tracknum<0 || tracknum>=t)
+                {
+                    tracknum=0;
+                }
                 
-            //     ((GMEFILE*)zcm)->emu->start_track(tracknum);
-            //     zcm->track=tracknum;
-            //     mutex_unlock(&playlistmutex);
-            //     return tracknum;
-            // }
-            // else
-            // {
-            //     return -1;
-            // }
+                ((GMEFILE*)zcm)->emu->start_track(tracknum);
+                zcm->track=tracknum;
+                mutex_unlock(&playlistmutex);
+                return tracknum;
+            }
+            else
+            {
+                return -1;
+            }
             
             break;
         }
@@ -1679,95 +1679,95 @@ void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed)
 
 //!dimi: End of ogg_ex.
 
-// int32_t poll_gme_file(GMEFILE* gme)
-// {
-//     uint8_t *p;
-//     p = (uint8_t*) get_audio_stream_buffer(gme->stream);
+int32_t poll_gme_file(GMEFILE* gme)
+{
+    uint8_t *p;
+    p = (uint8_t*) get_audio_stream_buffer(gme->stream);
     
-//     if(p)
-//     {
-//         int32_t samples=gme->samples;
-//         memset(p,0,4*samples);
-//         uint16_t *q=(uint16_t*) p;
-//         gme->emu->play((int32_t) 2*samples,(int16_t*)p);
+    if(p)
+    {
+        int32_t samples=gme->samples;
+        memset(p,0,4*samples);
+        uint16_t *q=(uint16_t*) p;
+        gme->emu->play((int32_t) 2*samples,(int16_t*)p);
         
-//         // Allegro only uses UNSIGNED samples ...
-//         for(int32_t j=0; j<2*samples; ++j)
-//         {
-//             *q ^= 0x8000;
-//             q++;
-//         }
+        // Allegro only uses UNSIGNED samples ...
+        for(int32_t j=0; j<2*samples; ++j)
+        {
+            *q ^= 0x8000;
+            q++;
+        }
         
-//         free_audio_stream_buffer(gme->stream);
-//         return true;
-//     }
+        free_audio_stream_buffer(gme->stream);
+        return true;
+    }
     
-//     return false;
-// }
+    return false;
+}
 
 
-// Music_Emu* gme_load_file(char* filename, char* ext)
-// {
-//     Music_Emu* emu=NULL;
+Music_Emu* gme_load_file(char* filename, char* ext)
+{
+    Music_Emu* emu=NULL;
     
-//     if(stricmp(ext,"spc")==0) emu = new Spc_Emu;
+    if(stricmp(ext,"spc")==0) emu = new Spc_Emu;
     
-//     if(stricmp(ext,"gbs")==0) emu = new Gbs_Emu;
+    if(stricmp(ext,"gbs")==0) emu = new Gbs_Emu;
     
-//     if(stricmp(ext,"vgm")==0) emu = new Vgm_Emu;
+    if(stricmp(ext,"vgm")==0) emu = new Vgm_Emu;
     
-//     if(stricmp(ext,"nsf")==0) emu = new Nsf_Emu;
+    if(stricmp(ext,"nsf")==0) emu = new Nsf_Emu;
     
-//     if(stricmp(ext,"gym")==0) emu = new Gym_Emu;
+    if(stricmp(ext,"gym")==0) emu = new Gym_Emu;
     
-//     if(!emu) return NULL;
+    if(!emu) return NULL;
     
-//     Std_File_Reader in;
+    Std_File_Reader in;
     
-//     const char* err = emu->set_sample_rate(DUH_SAMPLES);
+    const char* err = emu->set_sample_rate(DUH_SAMPLES);
     
-//     if(!err) err = in.open(filename);
+    if(!err) err = in.open(filename);
     
-//     if(!err) err = emu->load(in);
+    if(!err) err = emu->load(in);
     
-//     if(err)
-//     {
-//         delete emu;
-//         return NULL;
-//     }
+    if(err)
+    {
+        delete emu;
+        return NULL;
+    }
     
-//     return emu;
-// }
+    return emu;
+}
 
-// int32_t gme_play(GMEFILE *gme, int32_t vol)
-// {
-//     gme->emu->start_track(0);
-//     int32_t samples=512;
-//     int32_t buf_size=2*DUH_SAMPLES/50;
+int32_t gme_play(GMEFILE *gme, int32_t vol)
+{
+    gme->emu->start_track(0);
+    int32_t samples=512;
+    int32_t buf_size=2*DUH_SAMPLES/50;
     
-//     while(samples < buf_size) samples *= 2;
+    while(samples < buf_size) samples *= 2;
     
-//     gme->samples=samples;
+    gme->samples=samples;
     
-//     if(gme->playing != ZCM_STOPPED) stop_audio_stream(gme->stream);
+    if(gme->playing != ZCM_STOPPED) stop_audio_stream(gme->stream);
     
-//     gme->stream = play_audio_stream(samples, 16, TRUE, DUH_SAMPLES, vol, 128);
-//     return true;
-// }
+    gme->stream = play_audio_stream(samples, 16, TRUE, DUH_SAMPLES, vol, 128);
+    return true;
+}
 
-// int32_t unload_gme_file(GMEFILE* gme)
-// {
-//     if(gme!=NULL)
-//     {
-//         if(gme->emu != NULL)
-//         {
-//             zcmusic_stop(gme);
-//             delete gme->emu;
-//             gme->emu=NULL;
-//             zc_free(gme);
-//         }
-//     }
+int32_t unload_gme_file(GMEFILE* gme)
+{
+    if(gme!=NULL)
+    {
+        if(gme->emu != NULL)
+        {
+            zcmusic_stop(gme);
+            delete gme->emu;
+            gme->emu=NULL;
+            zc_free(gme);
+        }
+    }
     
-//     return true;
-// }
+    return true;
+}
 
