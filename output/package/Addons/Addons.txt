@@ -1,9 +1,0 @@
---AntiMicro--
-This utility allows configuring joypads/joysticks that have buttons
-beyond what ZC Player is capable of reading, such as the XBoxOne and
-the XBox360 controllers.
-
---DXGL--
-This is a replacement for the DirectX and DirectDraw libraries that
-fixes drawing issues when using ZC on newer hardware, Windows10,
-and some video card drivers, by converting DX output to OpenGL.

@@ -10,7 +10,6 @@ set incl=%out%\include
 set docs=%out%\docs
 set theme=%out%\themes
 set tsets=%out%\tilesets
-set util=%out%\utilities
 set conf=%out%\config
 set mod=%out%\modules
 set pack=%out%\package
@@ -52,10 +51,6 @@ xcopy /e /y /i "%theme%" "%nb%\themes" >>%log%
 echo Copying '\output\tilesets'...
 echo Copying '\output\tilesets'...>>%log%
 xcopy /e /y /i "%tsets%" "%nb%\tilesets" >>%log%
-
-echo Copying '\output\utilities'...
-echo Copying '\output\utilities'...>>%log%
-xcopy /e /y /i "%util%" "%nb%\utilities" >>%log%
 
 echo Copying '\output\configs'...
 echo Copying '\output\configs'...>>%log%
