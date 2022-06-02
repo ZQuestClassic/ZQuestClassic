@@ -10,7 +10,7 @@
 //#include "precompiled.h" //always first
 
 // #define SUPPORT_GME
-// #define SUPPORT_OGG
+#define SUPPORT_OGG
 #define SUPPORT_MP3
 // #define SUPPORT_DUH
 
@@ -264,7 +264,7 @@ extern "C"
                     break;
                     
                 case ZCMF_OGG:
-                    // poll_ogg_file((OGGFILE*)*b);
+                    poll_ogg_file((OGGFILE*)*b);
                     break;
                     
                 case ZCMF_MP3:
@@ -278,7 +278,7 @@ extern "C"
                     break;
 		    
 		case ZCMF_OGGEX:
-                    // poll_ogg_ex_file((OGGEXFILE*)*b);
+                    poll_ogg_ex_file((OGGEXFILE*)*b);
                     break;
                 }
                 [[fallthrough]];
@@ -353,33 +353,33 @@ extern "C"
         
         char *ext=get_extension(filename);
         
-        // if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGG))
-        // {
-        //     OGGFILE *p = load_ogg_file(filename);
+        if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGG))
+        {
+            OGGFILE *p = load_ogg_file(filename);
             
-        //     if(!p)
-        //     {
-        //         al_trace("OGG file '%s' not loaded.\n",filename);
-        //         goto error;
-        //     }
+            if(!p)
+            {
+                al_trace("OGG file '%s' not loaded.\n",filename);
+                goto error;
+            }
             
-        //     p->fname = (char*)zc_malloc(strlen(filename)+1);
+            p->fname = (char*)zc_malloc(strlen(filename)+1);
             
-        //     if(!p->fname)
-        //     {
-        //         unload_ogg_file(p);
-        //         goto error;
-        //     }
+            if(!p->fname)
+            {
+                unload_ogg_file(p);
+                goto error;
+            }
             
-        //     strcpy(p->fname, filename);
-        //     p->type = ZCMF_OGG;
-        //     p->playing = ZCM_STOPPED;
-        //     ZCMUSIC *music=(ZCMUSIC*)p;
-        //     zcm_extract_name(filename, music->filename, FILENAMEALL);
-        //     music->filename[255]='\0';
-        //     music->track=0;
-        //     return music;
-        // }
+            strcpy(p->fname, filename);
+            p->type = ZCMF_OGG;
+            p->playing = ZCM_STOPPED;
+            ZCMUSIC *music=(ZCMUSIC*)p;
+            zcm_extract_name(filename, music->filename, FILENAMEALL);
+            music->filename[255]='\0';
+            music->track=0;
+            return music;
+        }
         
         if((stricmp(ext,"mp3")==0) && (libflags & ZCMF_MP3))
         {
@@ -510,33 +510,33 @@ error:
         
         char *ext=get_extension(filename);
 	
-	// if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGGEX))
-    //     {
-    //         OGGEXFILE *p = load_ogg_ex_file(filename);
+	if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGGEX))
+        {
+            OGGEXFILE *p = load_ogg_ex_file(filename);
             
-    //         if(!p)
-    //         {
-    //             al_trace("OGG file '%s' not loaded.\n",filename);
-    //             goto error;
-    //         }
+            if(!p)
+            {
+                al_trace("OGG file '%s' not loaded.\n",filename);
+                goto error;
+            }
             
-    //         p->fname = (char*)zc_malloc(strlen(filename)+1);
+            p->fname = (char*)zc_malloc(strlen(filename)+1);
             
-    //         if(!p->fname)
-    //         {
-    //             unload_ogg_ex_file(p);
-    //             goto error;
-    //         }
+            if(!p->fname)
+            {
+                unload_ogg_ex_file(p);
+                goto error;
+            }
             
-    //         strcpy(p->fname, filename);
-    //         p->type = ZCMF_OGGEX;
-    //         p->playing = ZCM_STOPPED;
-    //         ZCMUSIC *music=(ZCMUSIC*)p;
-    //         zcm_extract_name(filename, music->filename, FILENAMEALL);
-    //         music->filename[255]='\0';
-    //         music->track=0;
-    //         return music;
-    //     }
+            strcpy(p->fname, filename);
+            p->type = ZCMF_OGGEX;
+            p->playing = ZCM_STOPPED;
+            ZCMUSIC *music=(ZCMUSIC*)p;
+            zcm_extract_name(filename, music->filename, FILENAMEALL);
+            music->filename[255]='\0';
+            music->track=0;
+            return music;
+        }
         
 error:
         return NULL;
@@ -569,12 +569,12 @@ error:
                 break;
                 
             case ZCMF_OGG:
-                // if(((OGGFILE*)zcm)->s != NULL)
-                // {
-                //     /*pan*/
-                //     alogg_adjust_oggstream(((OGGFILE*)zcm)->s, vol, 128, 1000/*speed*/);
-                //     ((OGGFILE*)zcm)->vol = vol;
-                // }
+                if(((OGGFILE*)zcm)->s != NULL)
+                {
+                    /*pan*/
+                    alogg_adjust_oggstream(((OGGFILE*)zcm)->s, vol, 128, 1000/*speed*/);
+                    ((OGGFILE*)zcm)->vol = vol;
+                }
                 
                 break;
                 
@@ -593,12 +593,12 @@ error:
                 break;
 		
 	    case ZCMF_OGGEX:
-                // if(((OGGEXFILE*)zcm)->s != NULL)
-                // {
-                //     /*pan*/
-                //     alogg_adjust_ogg(((OGGEXFILE*)zcm)->s, vol, 128, 1000/*speed*/, true);
-                //     ((OGGEXFILE*)zcm)->vol = vol;
-                // }
+                if(((OGGEXFILE*)zcm)->s != NULL)
+                {
+                    /*pan*/
+                    alogg_adjust_ogg(((OGGEXFILE*)zcm)->s, vol, 128, 1000/*speed*/, true);
+                    ((OGGEXFILE*)zcm)->vol = vol;
+                }
                 
                 break;
                 
@@ -618,19 +618,19 @@ error:
                 break;
                 
             case ZCMF_OGG:
-            //     if(((OGGFILE*)zcm)->s != NULL)
-            //     {
-            //         if(alogg_play_oggstream(((OGGFILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALOGG_OK)
-            //             ret = FALSE;
+                if(((OGGFILE*)zcm)->s != NULL)
+                {
+                    if(alogg_play_oggstream(((OGGFILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALOGG_OK)
+                        ret = FALSE;
                         
-            //         ((OGGFILE*)zcm)->vol = vol;
-		    // /*
-		    // //Should be possible to establish loops for these file types. -Z
-			// ((MP3FILE*)zcm)->loop_start = 0;
-			// ((MP3FILE*)zcm)->loop_end = samp->len;
-		    // */
-            //     }
-            //     else
+                    ((OGGFILE*)zcm)->vol = vol;
+		    /*
+		    //Should be possible to establish loops for these file types. -Z
+			((MP3FILE*)zcm)->loop_start = 0;
+			((MP3FILE*)zcm)->loop_end = samp->len;
+		    */
+                }
+                else
                 {
                     ret = FALSE;
                 }
@@ -666,22 +666,22 @@ error:
                 break;
 		
 	    case ZCMF_OGGEX:
-            //     if(((OGGEXFILE*)zcm)->s != NULL)
-            //     {
-            //         if(alogg_play_ogg(((OGGEXFILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALOGG_OK)
-            //             ret = FALSE;
+                if(((OGGEXFILE*)zcm)->s != NULL)
+                {
+                    if(alogg_play_ogg(((OGGEXFILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALOGG_OK)
+                        ret = FALSE;
                         
-            //         ((OGGEXFILE*)zcm)->vol = vol;
-		    // /*
-		    // //Should be possible to establish loops for these file types. -Z
-			// ((MP3FILE*)zcm)->loop_start = 0;
-			// ((MP3FILE*)zcm)->loop_end = samp->len;
-		    // */
-            //     }
-            //     else
-            //     {
-            //         ret = FALSE;
-            //     }
+                    ((OGGEXFILE*)zcm)->vol = vol;
+		    /*
+		    //Should be possible to establish loops for these file types. -Z
+			((MP3FILE*)zcm)->loop_start = 0;
+			((MP3FILE*)zcm)->loop_end = samp->len;
+		    */
+                }
+                else
+                {
+                    ret = FALSE;
+                }
                 
                 break;
                 
@@ -747,10 +747,10 @@ error:
                     break;
                     
                 case ZCMF_OGG:
-                    // if(p == ZCM_PAUSED)
-                    //     ogg_pause((OGGFILE*)zcm);
-                    // else
-                    //     ogg_resume((OGGFILE*)zcm);
+                    if(p == ZCM_PAUSED)
+                        ogg_pause((OGGFILE*)zcm);
+                    else
+                        ogg_resume((OGGFILE*)zcm);
                         
                     break;
                     
@@ -778,10 +778,10 @@ error:
                     break;
                 
 		case ZCMF_OGGEX:
-                    // if(p == ZCM_PAUSED)
-                    //     ogg_ex_pause((OGGEXFILE*)zcm);
-                    // else
-                    //     ogg_ex_resume((OGGEXFILE*)zcm);
+                    if(p == ZCM_PAUSED)
+                        ogg_ex_pause((OGGEXFILE*)zcm);
+                    else
+                        ogg_ex_resume((OGGEXFILE*)zcm);
                         
                     break;
                 }
@@ -813,7 +813,7 @@ error:
             break;
             
         case ZCMF_OGG:
-            // ogg_stop((OGGFILE*)zcm);
+            ogg_stop((OGGFILE*)zcm);
             break;
             
         case ZCMF_MP3:
@@ -831,7 +831,7 @@ error:
             break;
         
 	case ZCMF_OGGEX:
-            // ogg_ex_stop((OGGEXFILE*)zcm);
+            ogg_ex_stop((OGGEXFILE*)zcm);
             break;
         }
         
@@ -888,7 +888,7 @@ error:
             break;
             
         case ZCMF_OGG:
-            // unload_ogg_file((OGGFILE*)zcm);
+            unload_ogg_file((OGGFILE*)zcm);
             break;
             
         case ZCMF_MP3:
@@ -900,7 +900,7 @@ error:
             break;
         
 	case ZCMF_OGGEX:
-            // unload_ogg_ex_file((OGGEXFILE*)zcm);
+            unload_ogg_ex_file((OGGEXFILE*)zcm);
             break;
 	}
         
@@ -984,7 +984,7 @@ error:
         switch(zcm->type & libflags)
         {
         case ZCMF_OGGEX:
-		// return ogg_ex_getpos((OGGEXFILE*)zcm);
+		return ogg_ex_getpos((OGGEXFILE*)zcm);
 		break;
 	}
 	
@@ -997,7 +997,7 @@ error:
         switch(zcm->type & libflags)
         {
         case ZCMF_OGGEX:
-		// ogg_ex_setpos((OGGEXFILE*)zcm, value);
+		ogg_ex_setpos((OGGEXFILE*)zcm, value);
 		break;
 	}
 	
@@ -1010,7 +1010,7 @@ error:
         switch(zcm->type & libflags)
         {
         case ZCMF_OGGEX:
-		// ogg_ex_setspeed((OGGEXFILE*)zcm, value);
+		ogg_ex_setspeed((OGGEXFILE*)zcm, value);
 		break;
 	}
 	
@@ -1233,449 +1233,449 @@ void mp3_stop(MP3FILE *mp3)
     }
 }
 
-// OGGFILE *load_ogg_file(char *filename)
-// {
-//     OGGFILE *p = NULL;
-//     PACKFILE *f = NULL;
-//     ALOGG_OGGSTREAM *s = NULL;
-//     char *data = new char[(zcmusic_bufsz_private*512)];
-//     int32_t len;
+OGGFILE *load_ogg_file(char *filename)
+{
+    OGGFILE *p = NULL;
+    PACKFILE *f = NULL;
+    ALOGG_OGGSTREAM *s = NULL;
+    char *data = new char[(zcmusic_bufsz_private*512)];
+    int32_t len;
     
-//     if((p = (OGGFILE *)zc_malloc(sizeof(OGGFILE)))==NULL)
-//     {
-//         goto error;
-//     }
+    if((p = (OGGFILE *)zc_malloc(sizeof(OGGFILE)))==NULL)
+    {
+        goto error;
+    }
     
-//     if((f = pack_fopen_password(filename, F_READ,""))==NULL)
-//     {
-//         goto error;
-//     }
+    if((f = pack_fopen_password(filename, F_READ,""))==NULL)
+    {
+        goto error;
+    }
     
-//     if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-//     {
-//         goto error;
-//     }
+    if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
+    {
+        goto error;
+    }
     
-//     if(len < (zcmusic_bufsz_private*512))
-//     {
-//         if((s = alogg_create_oggstream(data, len, TRUE))==NULL)
-//         {
-//             goto error;
-//         }
-//     }
-//     else
-//     {
-//         if((s = alogg_create_oggstream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
-//         {
-//             goto error;
-//         }
-//     }
+    if(len < (zcmusic_bufsz_private*512))
+    {
+        if((s = alogg_create_oggstream(data, len, TRUE))==NULL)
+        {
+            goto error;
+        }
+    }
+    else
+    {
+        if((s = alogg_create_oggstream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
+        {
+            goto error;
+        }
+    }
     
-//     p->f = f;
-//     p->s = s;
-//     delete[] data;
-//     return p;
+    p->f = f;
+    p->s = s;
+    delete[] data;
+    return p;
     
-// error:
+error:
 
-//     if(f)
-//         pack_fclose(f);
+    if(f)
+        pack_fclose(f);
         
-//     if(p)
-//         zc_free(p);
+    if(p)
+        zc_free(p);
         
-//     delete[] data;
-//     return NULL;
-// }
+    delete[] data;
+    return NULL;
+}
 
-// int32_t poll_ogg_file(OGGFILE *ogg)
-// {
-//     if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
+int32_t poll_ogg_file(OGGFILE *ogg)
+{
+    if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
     
-//     if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
+    if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
     
-//     char *data = (char *)alogg_get_oggstream_buffer(ogg->s);
+    char *data = (char *)alogg_get_oggstream_buffer(ogg->s);
     
-//     if(data)
-//     {
-//         int32_t len = pack_fread(data, (zcmusic_bufsz_private*512), ogg->f);
+    if(data)
+    {
+        int32_t len = pack_fread(data, (zcmusic_bufsz_private*512), ogg->f);
         
-//         if(len < (zcmusic_bufsz_private*512))
-//             alogg_free_oggstream_buffer(ogg->s, len);
-//         else
-//             alogg_free_oggstream_buffer(ogg->s, -1);
-//     }
+        if(len < (zcmusic_bufsz_private*512))
+            alogg_free_oggstream_buffer(ogg->s, len);
+        else
+            alogg_free_oggstream_buffer(ogg->s, -1);
+    }
     
-//     int32_t ret = alogg_poll_oggstream(ogg->s);
+    int32_t ret = alogg_poll_oggstream(ogg->s);
     
-//     if(ret != ALOGG_OK)
-//     {
-//         ogg_reset(ogg);
-//         alogg_play_oggstream(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
-//         ogg->playing = ZCM_PLAYING;
-//     }
+    if(ret != ALOGG_OK)
+    {
+        ogg_reset(ogg);
+        alogg_play_oggstream(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
+        ogg->playing = ZCM_PLAYING;
+    }
     
-//     return ret;
-// }
+    return ret;
+}
 
-// void unload_ogg_file(OGGFILE *ogg)
-// {
-//     if(ogg != NULL)
-//     {
-//         if(ogg->f != NULL)
-//         {
-//             pack_fclose(ogg->f);
-//             ogg->f = NULL;
-//         }
+void unload_ogg_file(OGGFILE *ogg)
+{
+    if(ogg != NULL)
+    {
+        if(ogg->f != NULL)
+        {
+            pack_fclose(ogg->f);
+            ogg->f = NULL;
+        }
         
-//         if(ogg->s != NULL)
-//         {
-//             AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
+        if(ogg->s != NULL)
+        {
+            AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
             
-//             if(a != NULL)
-//                 voice_stop(a->voice);
+            if(a != NULL)
+                voice_stop(a->voice);
                 
-//             alogg_destroy_oggstream(ogg->s);
-//             ogg->s = NULL;
-//         }
+            alogg_destroy_oggstream(ogg->s);
+            ogg->s = NULL;
+        }
         
-//         if(ogg->fname != NULL)
-//         {
-//             zc_free(ogg->fname);
-//             zc_free(ogg);
-//         }
-//     }
-// }
+        if(ogg->fname != NULL)
+        {
+            zc_free(ogg->fname);
+            zc_free(ogg);
+        }
+    }
+}
 
-// bool ogg_pause(OGGFILE *ogg)
-// {
-//     AUDIOSTREAM* a = NULL;
+bool ogg_pause(OGGFILE *ogg)
+{
+    AUDIOSTREAM* a = NULL;
     
-//     if(ogg->s != NULL)
-//         a = alogg_get_audiostream_oggstream(ogg->s);
+    if(ogg->s != NULL)
+        a = alogg_get_audiostream_oggstream(ogg->s);
         
-//     if(a != NULL)
-//     {
-//         voice_stop(a->voice);
-//         return true;
-//     }
+    if(a != NULL)
+    {
+        voice_stop(a->voice);
+        return true;
+    }
     
-//     return false;
-// }
+    return false;
+}
 
-// bool ogg_resume(OGGFILE *ogg)
-// {
-//     AUDIOSTREAM* a = NULL;
+bool ogg_resume(OGGFILE *ogg)
+{
+    AUDIOSTREAM* a = NULL;
     
-//     if(ogg->s != NULL)
-//         a = alogg_get_audiostream_oggstream(ogg->s);
+    if(ogg->s != NULL)
+        a = alogg_get_audiostream_oggstream(ogg->s);
         
-//     if(a != NULL)
-//     {
-//         voice_start(a->voice);
-//         return true;
-//     }
+    if(a != NULL)
+    {
+        voice_start(a->voice);
+        return true;
+    }
     
-//     return false;
-// }
+    return false;
+}
 
-// bool ogg_reset(OGGFILE *ogg)
-// {
-//     if(ogg->fname != NULL)
-//     {
-//         if(ogg->f != NULL)
-//         {
-//             pack_fclose(ogg->f);
-//             ogg->f = NULL;
-//         }
+bool ogg_reset(OGGFILE *ogg)
+{
+    if(ogg->fname != NULL)
+    {
+        if(ogg->f != NULL)
+        {
+            pack_fclose(ogg->f);
+            ogg->f = NULL;
+        }
         
-//         if(ogg->s != NULL)
-//         {
-//             AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
+        if(ogg->s != NULL)
+        {
+            AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
             
-//             if(a != NULL)
-//                 voice_stop(a->voice);
+            if(a != NULL)
+                voice_stop(a->voice);
                 
-//             alogg_destroy_oggstream(ogg->s);
-//             ogg->s = NULL;
-//         }
+            alogg_destroy_oggstream(ogg->s);
+            ogg->s = NULL;
+        }
         
-//         OGGFILE* togg = load_ogg_file(ogg->fname);
+        OGGFILE* togg = load_ogg_file(ogg->fname);
         
-//         if(togg != NULL)
-//         {
-//             ogg->playing = ZCM_STOPPED;
-//             ogg->s = togg->s;
-//             ogg->f = togg->f;
-//             zc_free(togg);
-//             return true;
-//         }
-//     }
+        if(togg != NULL)
+        {
+            ogg->playing = ZCM_STOPPED;
+            ogg->s = togg->s;
+            ogg->f = togg->f;
+            zc_free(togg);
+            return true;
+        }
+    }
     
-//     return false;
-// }
+    return false;
+}
 
-// void ogg_stop(OGGFILE *ogg)
-// {
-//     if(ogg->fname != NULL)
-//     {
-//         if(ogg->f != NULL)
-//         {
-//             pack_fclose(ogg->f);
-//             ogg->f = NULL;
-//         }
+void ogg_stop(OGGFILE *ogg)
+{
+    if(ogg->fname != NULL)
+    {
+        if(ogg->f != NULL)
+        {
+            pack_fclose(ogg->f);
+            ogg->f = NULL;
+        }
         
-//         if(ogg->s != NULL)
-//         {
-//             AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
+        if(ogg->s != NULL)
+        {
+            AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
             
-//             if(a != NULL)
-//                 voice_stop(a->voice);
+            if(a != NULL)
+                voice_stop(a->voice);
                 
-//             alogg_destroy_oggstream(ogg->s);
-//             ogg->s = NULL;
-//         }
-//     }
-// }
+            alogg_destroy_oggstream(ogg->s);
+            ogg->s = NULL;
+        }
+    }
+}
 
-// OGGEXFILE *load_ogg_ex_file(char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
-// {
-//     //OGGEXFILE *p = NULL;
-//     OGGEXFILE *p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE));
-//     FILE *f = fopen(filename, "rb");
-//     ALOGG_OGG *s = alogg_create_ogg_from_file(f);
-//     /*char *data = new char[(zcmusic_bufsz_private*512)];
-//     int32_t len;*/
+OGGEXFILE *load_ogg_ex_file(char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
+{
+    //OGGEXFILE *p = NULL;
+    OGGEXFILE *p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE));
+    FILE *f = fopen(filename, "rb");
+    ALOGG_OGG *s = alogg_create_ogg_from_file(f);
+    /*char *data = new char[(zcmusic_bufsz_private*512)];
+    int32_t len;*/
     
-//     /*if((p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE)))==NULL)
-//     {
-//         goto error;
-//     }*/
+    /*if((p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE)))==NULL)
+    {
+        goto error;
+    }*/
     
-//     if(!p)
-//     {
-//         goto error;
-//     }
+    if(!p)
+    {
+        goto error;
+    }
     
-//     al_trace("oggex filename is: %s\n",filename);
-//     if(!f)
-//     {
-//         al_trace("oggex error at %s\n", "reading file");
-//         goto error;
-//     }
+    al_trace("oggex filename is: %s\n",filename);
+    if(!f)
+    {
+        al_trace("oggex error at %s\n", "reading file");
+        goto error;
+    }
     
-//     /*if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-//     {
-//         goto error;
-//     }*/
+    /*if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
+    {
+        goto error;
+    }*/
     
-//     /*if(len < (zcmusic_bufsz_private*512))
-//     {*/
-//         if(!s)
-//         {
-// 	    al_trace("oggex error at %s\n", "checking alogg");
-//             goto error;
-//         }
-//     /*}
-//     else
-//     {
-//         if((s = alogg_create_ogg_from_buffer(data, (zcmusic_bufsz_private*512)))==NULL)
-//         {
-//             goto error;
-//         }
-//     }*/
+    /*if(len < (zcmusic_bufsz_private*512))
+    {*/
+        if(!s)
+        {
+	    al_trace("oggex error at %s\n", "checking alogg");
+            goto error;
+        }
+    /*}
+    else
+    {
+        if((s = alogg_create_ogg_from_buffer(data, (zcmusic_bufsz_private*512)))==NULL)
+        {
+            goto error;
+        }
+    }*/
     
-//     p->f = f;
-//     p->s = s;
-//     //delete[] data;
-//     return p;
+    p->f = f;
+    p->s = s;
+    //delete[] data;
+    return p;
     
-// error:
+error:
 
-//     if(f)
-//         fclose(f);
+    if(f)
+        fclose(f);
         
-//     if(p)
-//         zc_free(p);
+    if(p)
+        zc_free(p);
         
-//     //delete[] data;
-//     return NULL;
-// }
+    //delete[] data;
+    return NULL;
+}
 
-// int32_t poll_ogg_ex_file(OGGEXFILE *ogg)
-// {
-//     if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
+int32_t poll_ogg_ex_file(OGGEXFILE *ogg)
+{
+    if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
     
-//     if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
+    if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
     
-//     int32_t ret = alogg_poll_ogg(ogg->s);
+    int32_t ret = alogg_poll_ogg(ogg->s);
     
-//     if(ret != ALOGG_OK && ret != ALOGG_POLL_PLAYJUSTFINISHED && ret != ALOGG_POLL_NOTPLAYING)
-//     {
-//         if (ogg_ex_reset(ogg))
-// 	{
-// 		alogg_play_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
-// 		ogg->playing = ZCM_PLAYING;
-// 	}
-//     }
-//     else if (ret == ALOGG_POLL_PLAYJUSTFINISHED || ret == ALOGG_POLL_NOTPLAYING)
-//     {
-// 	alogg_rewind_ogg(ogg->s);
-// 	alogg_play_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
-//     }
+    if(ret != ALOGG_OK && ret != ALOGG_POLL_PLAYJUSTFINISHED && ret != ALOGG_POLL_NOTPLAYING)
+    {
+        if (ogg_ex_reset(ogg))
+	{
+		alogg_play_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
+		ogg->playing = ZCM_PLAYING;
+	}
+    }
+    else if (ret == ALOGG_POLL_PLAYJUSTFINISHED || ret == ALOGG_POLL_NOTPLAYING)
+    {
+	alogg_rewind_ogg(ogg->s);
+	alogg_play_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
+    }
     
-//     return ret;
-// }
+    return ret;
+}
 
-// void unload_ogg_ex_file(OGGEXFILE *ogg)
-// {
-//     if(ogg != NULL)
-//     {
-//         if(ogg->f != NULL)
-//         {
-//             fclose(ogg->f);
-//             ogg->f = NULL;
-//         }
+void unload_ogg_ex_file(OGGEXFILE *ogg)
+{
+    if(ogg != NULL)
+    {
+        if(ogg->f != NULL)
+        {
+            fclose(ogg->f);
+            ogg->f = NULL;
+        }
         
-//         if(ogg->s != NULL)
-//         {
-//             AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
+        if(ogg->s != NULL)
+        {
+            AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
             
-//             if(a != NULL)
-//                 voice_stop(a->voice);
+            if(a != NULL)
+                voice_stop(a->voice);
                 
-//             alogg_destroy_ogg(ogg->s);
-//             ogg->s = NULL;
-//         }
+            alogg_destroy_ogg(ogg->s);
+            ogg->s = NULL;
+        }
         
-//         if(ogg->fname != NULL)
-//         {
-//             zc_free(ogg->fname);
-//             zc_free(ogg);
-//         }
-//     }
-// }
+        if(ogg->fname != NULL)
+        {
+            zc_free(ogg->fname);
+            zc_free(ogg);
+        }
+    }
+}
 
-// bool ogg_ex_pause(OGGEXFILE *ogg)
-// {
-//     AUDIOSTREAM* a = NULL;
+bool ogg_ex_pause(OGGEXFILE *ogg)
+{
+    AUDIOSTREAM* a = NULL;
     
-//     if(ogg->s != NULL)
-//         a = alogg_get_audiostream_ogg(ogg->s);
+    if(ogg->s != NULL)
+        a = alogg_get_audiostream_ogg(ogg->s);
         
-//     if(a != NULL)
-//     {
-//         voice_stop(a->voice);
-//         return true;
-//     }
+    if(a != NULL)
+    {
+        voice_stop(a->voice);
+        return true;
+    }
     
-//     return false;
-// }
+    return false;
+}
 
-// bool ogg_ex_resume(OGGEXFILE *ogg)
-// {
-//     AUDIOSTREAM* a = NULL;
+bool ogg_ex_resume(OGGEXFILE *ogg)
+{
+    AUDIOSTREAM* a = NULL;
     
-//     if(ogg->s != NULL)
-//         a = alogg_get_audiostream_ogg(ogg->s);
+    if(ogg->s != NULL)
+        a = alogg_get_audiostream_ogg(ogg->s);
         
-//     if(a != NULL)
-//     {
-//         voice_start(a->voice);
-//         return true;
-//     }
+    if(a != NULL)
+    {
+        voice_start(a->voice);
+        return true;
+    }
     
-//     return false;
-// }
+    return false;
+}
 
-// bool ogg_ex_reset(OGGEXFILE *ogg)
-// {
-//     if(ogg->fname != NULL)
-//     {
-//         if(ogg->f != NULL)
-//         {
-//             fclose(ogg->f);
-//             ogg->f = NULL;
-//         }
+bool ogg_ex_reset(OGGEXFILE *ogg)
+{
+    if(ogg->fname != NULL)
+    {
+        if(ogg->f != NULL)
+        {
+            fclose(ogg->f);
+            ogg->f = NULL;
+        }
         
-//         if(ogg->s != NULL)
-//         {
-//             AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
+        if(ogg->s != NULL)
+        {
+            AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
             
-//             if(a != NULL)
-//                 voice_stop(a->voice);
+            if(a != NULL)
+                voice_stop(a->voice);
                 
-//             alogg_destroy_ogg(ogg->s);
-//             ogg->s = NULL;
-//         }
+            alogg_destroy_ogg(ogg->s);
+            ogg->s = NULL;
+        }
         
-//         OGGEXFILE* togg = load_ogg_ex_file(ogg->fname);
+        OGGEXFILE* togg = load_ogg_ex_file(ogg->fname);
         
-//         if(togg != NULL)
-//         {
-//             ogg->playing = ZCM_STOPPED;
-//             ogg->s = togg->s;
-//             ogg->f = togg->f;
-//             zc_free(togg);
-//             return true;
-//         }
-//     }
+        if(togg != NULL)
+        {
+            ogg->playing = ZCM_STOPPED;
+            ogg->s = togg->s;
+            ogg->f = togg->f;
+            zc_free(togg);
+            return true;
+        }
+    }
     
-//     return false;
-// }
+    return false;
+}
 
-// void ogg_ex_stop(OGGEXFILE *ogg)
-// {
-//     if(ogg->fname != NULL)
-//     {
-//         if(ogg->f != NULL)
-//         {
-//             fclose(ogg->f);
-//             ogg->f = NULL;
-//         }
+void ogg_ex_stop(OGGEXFILE *ogg)
+{
+    if(ogg->fname != NULL)
+    {
+        if(ogg->f != NULL)
+        {
+            fclose(ogg->f);
+            ogg->f = NULL;
+        }
         
-//         if(ogg->s != NULL)
-//         {
-//             AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
+        if(ogg->s != NULL)
+        {
+            AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
             
-//             if(a != NULL)
-//                 voice_stop(a->voice);
+            if(a != NULL)
+                voice_stop(a->voice);
                 
-//             alogg_destroy_ogg(ogg->s);
-//             ogg->s = NULL;
-//         }
-//     }
-// }
+            alogg_destroy_ogg(ogg->s);
+            ogg->s = NULL;
+        }
+    }
+}
 
-// int32_t ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
-// {
-//     if(ogg->s != NULL)
-//     {
-// 	int32_t baddebugtimes = alogg_get_pos_msecs_ogg(ogg->s);
-// 	return baddebugtimes;
+int32_t ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
+{
+    if(ogg->s != NULL)
+    {
+	int32_t baddebugtimes = alogg_get_pos_msecs_ogg(ogg->s);
+	return baddebugtimes;
 	
-// 	return 0;
-//     }
-//     return 0; //if it is NULL, we still need to return a value. -Z
-// }
+	return 0;
+    }
+    return 0; //if it is NULL, we still need to return a value. -Z
+}
 
-// void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs)
-// {
-//     if(ogg->s != NULL)
-//     {
-// 	alogg_seek_abs_msecs_ogg(ogg->s, msecs);
-//     }
-// }
+void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs)
+{
+    if(ogg->s != NULL)
+    {
+	alogg_seek_abs_msecs_ogg(ogg->s, msecs);
+    }
+}
 
-// void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed)
-// {
-//     if(ogg->s != NULL)
-//     {
-// 	//alogg_adjust_ogg(ogg->s, ogg->vol, 128, speed, 1);
-// 	alogg_stop_ogg(ogg->s);
-// 	alogg_play_ex_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128, speed, 1);
-//     }
-// }
+void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed)
+{
+    if(ogg->s != NULL)
+    {
+	//alogg_adjust_ogg(ogg->s, ogg->vol, 128, speed, 1);
+	alogg_stop_ogg(ogg->s);
+	alogg_play_ex_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128, speed, 1);
+    }
+}
 
 //!dimi: End of ogg_ex.
 

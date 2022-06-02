@@ -262,7 +262,46 @@ elseif(APPLE)
 	)
 	target_link_libraries(almp3 PUBLIC allegro_with_legacy)
 
-	set(SOUNDLIBS almp3)
+	add_library(alogg SHARED
+		allegro-addons/alogg/decoder/libogg/macos/compat/strdup.c
+		allegro-addons/alogg/decoder/libogg/src/bitwise.c
+		allegro-addons/alogg/decoder/libogg/src/framing.c
+		allegro-addons/alogg/decoder/libvorbis/lib/analysis.c
+		allegro-addons/alogg/decoder/libvorbis/lib/bitrate.c
+		allegro-addons/alogg/decoder/libvorbis/lib/block.c
+		allegro-addons/alogg/decoder/libvorbis/lib/codebook.c
+		allegro-addons/alogg/decoder/libvorbis/lib/envelope.c
+		allegro-addons/alogg/decoder/libvorbis/lib/floor0.c
+		allegro-addons/alogg/decoder/libvorbis/lib/floor1.c
+		allegro-addons/alogg/decoder/libvorbis/lib/info.c
+		allegro-addons/alogg/decoder/libvorbis/lib/lookup.c
+		allegro-addons/alogg/decoder/libvorbis/lib/lpc.c
+		allegro-addons/alogg/decoder/libvorbis/lib/lsp.c
+		allegro-addons/alogg/decoder/libvorbis/lib/mapping0.c
+		allegro-addons/alogg/decoder/libvorbis/lib/mdct.c
+		allegro-addons/alogg/decoder/libvorbis/lib/psy.c
+		allegro-addons/alogg/decoder/libvorbis/lib/registry.c
+		allegro-addons/alogg/decoder/libvorbis/lib/res0.c
+		allegro-addons/alogg/decoder/libvorbis/lib/sharedbook.c
+		allegro-addons/alogg/decoder/libvorbis/lib/smallft.c
+		allegro-addons/alogg/decoder/libvorbis/lib/synthesis.c
+		allegro-addons/alogg/decoder/libvorbis/lib/vorbisenc.c
+		allegro-addons/alogg/decoder/libvorbis/lib/vorbisfile.c
+		allegro-addons/alogg/decoder/libvorbis/lib/window.c
+		allegro-addons/alogg/decoder/libvorbis/vq/bookutil.c
+		allegro-addons/alogg/decoder/libvorbis/vq/vqgen.c
+		allegro-addons/alogg/src/alogg.c
+	)
+	target_include_directories(alogg PUBLIC
+		allegro-addons/alogg/include
+		allegro-addons/alogg/decoder
+		allegro-addons/alogg/decoder/libogg/include
+		allegro-addons/alogg/decoder/libvorbis/include
+		allegro-addons/alogg/decoder/libvorbis/lib
+	)
+	target_link_libraries(alogg PUBLIC allegro_with_legacy)
+
+	set(SOUNDLIBS almp3 alogg)
 endif()
 
 #############################################################
