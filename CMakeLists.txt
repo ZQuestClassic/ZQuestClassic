@@ -17,6 +17,11 @@ if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
 
+if(APPLE)
+	# Makes binaries look in their directory for shared libraries.
+	list(APPEND CMAKE_BUILD_RPATH "@loader_path")
+endif()
+
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit

@@ -533,6 +533,12 @@ set_target_properties(allegro-legacy
     SOVERSION ${ALLEGRO_LEGACY_SOVERSION}
     )
 
+# local edit
+if(APPLE)
+    set_target_properties(allegro-legacy PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+    set_target_properties(allegro-legacy PROPERTIES INSTALL_NAME_DIR "@rpath")
+endif()
+
 if(WIN32)
     if(SHARED)
         # Make mingw not add lib prefix to DLL, to match MSVC.
