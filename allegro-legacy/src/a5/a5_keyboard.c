@@ -166,8 +166,8 @@ static int a5_keyboard_init(void)
 
 static void a5_keyboard_exit(void)
 {
-    al_destroy_thread(a5_keyboard_thread);
-    a5_keyboard_thread = NULL;
+    // al_destroy_thread(a5_keyboard_thread);
+    // a5_keyboard_thread = NULL;
     al_uninstall_keyboard();
 }
 

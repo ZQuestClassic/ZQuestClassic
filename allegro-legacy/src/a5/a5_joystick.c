@@ -157,8 +157,8 @@ static int a5_joystick_init(void)
 
 static void a5_joystick_exit(void)
 {
-    al_destroy_thread(a5_joystick_thread);
-    a5_joystick_thread = NULL;
+    // al_destroy_thread(a5_joystick_thread);
+    // a5_joystick_thread = NULL;
     al_uninstall_joystick();
 }
 

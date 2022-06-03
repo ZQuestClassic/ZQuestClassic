@@ -132,12 +132,16 @@ static int a5_timer_init(void)
 
 static void a5_timer_exit(void)
 {
-    int i;
+    // int i;
 
-    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
-    {
-        a5_destroy_timer_data(a5_timer_data[i]);
-    }
+    // for(i = 0; i < a5_timer_count; i++)
+    // {
+    //     if(a5_timer_data[i])
+    //     {
+    //         a5_destroy_timer_data(a5_timer_data[i]);
+    //     }
+    // }
+    // a5_timer_count = 0;
 }
 
 static double a5_get_timer_speed(long speed)
