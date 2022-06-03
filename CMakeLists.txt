@@ -108,9 +108,9 @@ include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
 include_directories(./include/jpgalleg-2.5)
-include_directories(./include/dumb)
 if(NOT APPLE)
 	# These are built from source on OSX, so don't muddle things up with old headers.
+	include_directories(./include/dumb)
 	include_directories(./include/alogg)
 	include_directories(./include/almp3)
 	include_directories(./include/gme)
@@ -309,13 +309,26 @@ elseif(APPLE)
 		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
 		GIT_TAG        839ea742c42c4e0fbe4f153621d92e24c20d0799
 	)
-	SET(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
 	FetchContent_MakeAvailable(gme_external)
 	add_library(gme_headers INTERFACE)
 	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
-	set(SOUNDLIBS almp3 alogg gme gme_headers)
+	option(BUILD_EXAMPLES "" OFF)
+	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/allegro-legacy/include)
+	set(ALLEGRO_LIBRARY allegro_with_legacy)
+	FetchContent_Declare(
+		dumb_external
+		GIT_REPOSITORY https://github.com/kode54/dumb.git
+		GIT_TAG        396caa4d31859045ccb5ef943fd430ca4026cce8
+		PATCH_COMMAND  patch -s -p1 < ${CMAKE_SOURCE_DIR}/allegro-addons/aldumb.patch || true
+	)
+	FetchContent_MakeAvailable(dumb_external)
+	add_library(dumb_headers INTERFACE)
+	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
+
+	set(SOUNDLIBS almp3 alogg gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 #############################################################

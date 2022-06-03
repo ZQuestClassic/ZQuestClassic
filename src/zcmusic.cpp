@@ -9,33 +9,18 @@
 
 //#include "precompiled.h" //always first
 
-#define SUPPORT_GME
-#define SUPPORT_OGG
-#define SUPPORT_MP3
-// #define SUPPORT_DUH
-
 
 #include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
 #include <string.h>
-
-#ifdef SUPPORT_DUH
 #include <aldumb.h>
-#endif
-
-#ifdef SUPPORT_OGG
 #include <alogg.h>
-#endif
-
-#ifdef SUPPORT_MP3
 #include <almp3.h>
-#endif
 
 #include "zsys.h"
 #include "zcmusic.h"
 #include "zc_malloc.h"
 #include "mutex.h"
 
-#ifdef SUPPORT_GME
 //short of fixing gme, these warnings will always be there...
 #pragma warning(disable:4512) //assignment operator could not be generated
 #pragma warning(disable:4100) //unreferenced formal parameter
@@ -46,7 +31,6 @@
 #include "Gym_Emu.h"
 #pragma warning(default:4100)
 #pragma warning(default:4512)
-#endif
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -69,15 +53,12 @@ static int32_t zcmusic_bufsz_private = 64;
 
 mutex playlistmutex;
 
-#ifdef SUPPORT_DUH
 typedef struct DUHFILE : public ZCMUSICBASE
 {
     DUH *s;
     AL_DUH_PLAYER *p;
 } DUHFILE;
-#endif
 
-#ifdef SUPPORT_OGG
 typedef struct OGGFILE : public ZCMUSICBASE
 {
     ALOGG_OGGSTREAM *s;
@@ -93,9 +74,7 @@ typedef struct OGGEXFILE : public ZCMUSICBASE
     char *fname;
     int32_t vol;
 } OGGEXFILE;
-#endif
 
-#ifdef SUPPORT_MP3
 typedef struct MP3FILE : public ZCMUSICBASE
 {
     ALMP3_MP3STREAM *s;
@@ -103,16 +82,13 @@ typedef struct MP3FILE : public ZCMUSICBASE
     char *fname;
     int32_t vol;
 } MP3FILE;
-#endif
 
-#ifdef SUPPORT_GME
 typedef struct GMEFILE : public ZCMUSICBASE
 {
     AUDIOSTREAM *stream;
     class Music_Emu* emu;
     int32_t samples;
 } GMEFILE;
-#endif
 
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -122,7 +98,6 @@ static std::vector<ZCMUSIC*> playlist;                      //yeah, I'm too lazy
 static int32_t libflags = 0;
 
 // forward declarations
-#ifdef SUPPORT_OGG
 OGGFILE *load_ogg_file(char *filename);
 int32_t poll_ogg_file(OGGFILE *ogg);
 void unload_ogg_file(OGGFILE *ogg);
@@ -141,9 +116,7 @@ void ogg_ex_stop(OGGEXFILE *ogg);
 int32_t ogg_ex_getpos(OGGEXFILE *ogg);
 void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs);
 void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed);
-#endif
 
-#ifdef SUPPORT_MP3
 MP3FILE *load_mp3_file(char *filename);
 int32_t poll_mp3_file(MP3FILE *mp3);
 void unload_mp3_file(MP3FILE *mp3);
@@ -151,14 +124,11 @@ bool mp3_pause(MP3FILE *mp3);
 bool mp3_resume(MP3FILE *mp3);
 bool mp3_reset(MP3FILE *mp3);
 void mp3_stop(MP3FILE *mp3);
-#endif
 
-#ifdef SUPPORT_GME
 Music_Emu* gme_load_file(char* filename, char* ext);
 int32_t poll_gme_file(GMEFILE *gme);
 int32_t unload_gme_file(GMEFILE* gme);
 int32_t gme_play(GMEFILE *gme, int32_t vol);
-#endif
 
 
 extern "C"
@@ -203,8 +173,8 @@ extern "C"
         
         if(flags & ZCMF_DUH)
         {
-            // dumb_register_packfiles();
-            // dumb_resampling_quality = DUH_RESAMPLE;
+            dumb_register_stdfiles();
+            dumb_resampling_quality = DUH_RESAMPLE;
             libflags |= ZCMF_DUH;
         }
         
@@ -258,8 +228,8 @@ extern "C"
                 switch((*b)->type & flags & libflags)             // only poll those specified by 'flags'
                 {
                 case ZCMF_DUH:
-                    // if(((DUHFILE*)*b)->p)
-                    //     al_poll_duh(((DUHFILE*)*b)->p);
+                    if(((DUHFILE*)*b)->p)
+                        al_poll_duh(((DUHFILE*)*b)->p);
                         
                     break;
                     
@@ -311,7 +281,7 @@ extern "C"
         
         if(libflags & ZCMF_DUH)
         {
-            // dumb_exit();
+            dumb_exit();
             libflags ^= ZCMF_DUH;
         }
         
@@ -409,56 +379,62 @@ extern "C"
             return music;
         }
         
-        // if(libflags & ZCMF_DUH)
-        // {
-        //     DUH* d = NULL;
+        if(libflags & ZCMF_DUH)
+        {
+            DUH* d = NULL;
             
-        //     if(stricmp(ext,"it")==0)
-        //     {
-        //         d = dumb_load_it(filename);
+            if(stricmp(ext,"it")==0)
+            {
+                d = dumb_load_it(filename);
                 
-        //         if(!d) al_trace("IT file '%s' not found.\n",filename);
-        //     }
-        //     else if(stricmp(ext,"xm")==0)
-        //     {
-        //         d = dumb_load_xm(filename);
+                if(!d) al_trace("IT file '%s' not found.\n",filename);
+            }
+            else if(stricmp(ext,"xm")==0)
+            {
+                d = dumb_load_xm(filename);
                 
-        //         if(!d) al_trace("XM file '%s' not found.\n",filename);
-        //     }
-        //     else if(stricmp(ext,"s3m")==0)
-        //     {
-        //         d = dumb_load_s3m(filename);
+                if(!d) al_trace("XM file '%s' not found.\n",filename);
+            }
+            else if(stricmp(ext,"s3m")==0)
+            {
+                d = dumb_load_s3m(filename);
                 
-        //         if(!d) al_trace("S3M file '%s' not found.\n",filename);
-        //     }
-        //     else if(stricmp(ext,"mod")==0)
-        //     {
-        //         d = dumb_load_mod(filename);
+                if(!d) al_trace("S3M file '%s' not found.\n",filename);
+            }
+            else if(stricmp(ext,"mod")==0)
+            {
+#ifdef __APPLE__
+                // Using newer dumb library when building from source.
+                // No idea what this second arg does...
+                d = dumb_load_mod(filename, 2);
+#else
+                d = dumb_load_mod(filename);
+#endif
                 
-        //         if(!d) al_trace("MOD file '%s' not found.\n",filename);
-        //     }
+                if(!d) al_trace("MOD file '%s' not found.\n",filename);
+            }
             
-        //     if(d)
-        //     {
-        //         DUHFILE *p = (DUHFILE*)zc_malloc(sizeof(DUHFILE));
+            if(d)
+            {
+                DUHFILE *p = (DUHFILE*)zc_malloc(sizeof(DUHFILE));
                 
-        //         if(!p)
-        //         {
-        //             unload_duh(d);
-        //             goto error;
-        //         }
+                if(!p)
+                {
+                    unload_duh(d);
+                    goto error;
+                }
                 
-        //         p->type = ZCMF_DUH;
-        //         p->playing = ZCM_STOPPED;
-        //         p->s = d;
-        //         p->p = NULL;
-        //         ZCMUSIC *music=(ZCMUSIC*)p;
-        //         zcm_extract_name(filename, music->filename, FILENAMEALL);
-        //         music->filename[255]='\0';
-        //         music->track=0;
-        //         return music;
-        //     }
-        // }
+                p->type = ZCMF_DUH;
+                p->playing = ZCM_STOPPED;
+                p->s = d;
+                p->p = NULL;
+                ZCMUSIC *music=(ZCMUSIC*)p;
+                zcm_extract_name(filename, music->filename, FILENAMEALL);
+                music->filename[255]='\0';
+                music->track=0;
+                return music;
+            }
+        }
         
         if((libflags & ZCMF_GME))
         {
@@ -563,8 +539,8 @@ error:
             switch(zcm->type & libflags)
             {
             case ZCMF_DUH:
-                // if(((DUHFILE*)zcm)->p != NULL)
-                //     al_duh_set_volume(((DUHFILE*)zcm)->p, (float)vol / (float)255);
+                if(((DUHFILE*)zcm)->p != NULL)
+                    al_duh_set_volume(((DUHFILE*)zcm)->p, (float)vol / (float)255);
                     
                 break;
                 
@@ -609,11 +585,11 @@ error:
             switch(zcm->type & libflags)
             {
             case ZCMF_DUH:
-                // if(((DUHFILE*)zcm)->s != NULL)
-                // {
-                //     ((DUHFILE*)zcm)->p = al_start_duh(((DUHFILE*)zcm)->s, DUH_CHANNELS, 0/*pos*/, ((float)vol) / (float)255, (zcmusic_bufsz_private*1024)/*bufsize*/, DUH_SAMPLES);
-                //     ret = (((DUHFILE*)zcm)->p != NULL) ? TRUE : FALSE;
-                // }
+                if(((DUHFILE*)zcm)->s != NULL)
+                {
+                    ((DUHFILE*)zcm)->p = al_start_duh(((DUHFILE*)zcm)->s, DUH_CHANNELS, 0/*pos*/, ((float)vol) / (float)255, (zcmusic_bufsz_private*1024)/*bufsize*/, DUH_SAMPLES);
+                    ret = (((DUHFILE*)zcm)->p != NULL) ? TRUE : FALSE;
+                }
                 
                 break;
                 
@@ -736,14 +712,14 @@ error:
                 switch(zcm->type & libflags)
                 {
                 case ZCMF_DUH:
-                    // if(((DUHFILE*)zcm)->p != NULL)
-                    // {
-                    //     if(p == ZCM_PAUSED)
-                    //         al_pause_duh(((DUHFILE*)zcm)->p);
-                    //     else
-                    //         al_resume_duh(((DUHFILE*)zcm)->p);
+                    if(((DUHFILE*)zcm)->p != NULL)
+                    {
+                        if(p == ZCM_PAUSED)
+                            al_pause_duh(((DUHFILE*)zcm)->p);
+                        else
+                            al_resume_duh(((DUHFILE*)zcm)->p);
                             
-                    // }
+                    }
                     break;
                     
                 case ZCMF_OGG:
@@ -803,12 +779,12 @@ error:
         switch(zcm->type & libflags)
         {
         case ZCMF_DUH:
-            // if(((DUHFILE*)zcm)->p != NULL)
-            // {
-            //     al_stop_duh(((DUHFILE*)zcm)->p);
-            //     ((DUHFILE*)zcm)->p = NULL;
-            //     zcm->playing = ZCM_STOPPED;
-            // }
+            if(((DUHFILE*)zcm)->p != NULL)
+            {
+                al_stop_duh(((DUHFILE*)zcm)->p);
+                ((DUHFILE*)zcm)->p = NULL;
+                zcm->playing = ZCM_STOPPED;
+            }
             
             break;
             
@@ -872,18 +848,18 @@ error:
         switch(zcm->type & libflags)
         {
         case ZCMF_DUH:
-            // if(((DUHFILE*)zcm)->p != NULL)
-            // {
-            //     zcmusic_stop(zcm);
-            //     ((DUHFILE*)zcm)->p = NULL;
-            // }
+            if(((DUHFILE*)zcm)->p != NULL)
+            {
+                zcmusic_stop(zcm);
+                ((DUHFILE*)zcm)->p = NULL;
+            }
             
-            // if(((DUHFILE*)zcm)->s != NULL)
-            // {
-            //     unload_duh(((DUHFILE*)zcm)->s);
-            //     ((DUHFILE*)zcm)->s = NULL;
-            //     zc_free(zcm);
-            // }
+            if(((DUHFILE*)zcm)->s != NULL)
+            {
+                unload_duh(((DUHFILE*)zcm)->s);
+                ((DUHFILE*)zcm)->s = NULL;
+                zc_free(zcm);
+            }
             
             break;
             
