@@ -847,10 +847,18 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::ZC:
+#ifdef __APPLE__
+			launch_process("zelda");
+#else
 			launch_process("zelda.exe");
+#endif
 			break;
 		case message::ZQ:
+#ifdef __APPLE__
+			launch_process("zquest");
+#else
 			launch_process("zquest.exe");
+#endif
 			break;
 		case message::EXIT:
 			close_button_quit = true;
