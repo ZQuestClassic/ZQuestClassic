@@ -15,22 +15,12 @@
 #include <aldumb.h>
 #include <alogg.h>
 #include <almp3.h>
+#include <gme.h>
 
 #include "zsys.h"
 #include "zcmusic.h"
 #include "zc_malloc.h"
 #include "mutex.h"
-
-//short of fixing gme, these warnings will always be there...
-#pragma warning(disable:4512) //assignment operator could not be generated
-#pragma warning(disable:4100) //unreferenced formal parameter
-#include "Nsf_Emu.h"
-#include "Gbs_Emu.h"
-#include "Spc_Emu.h"
-#include "Vgm_Emu.h"
-#include "Gym_Emu.h"
-#pragma warning(default:4100)
-#pragma warning(default:4512)
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -98,7 +88,7 @@ static std::vector<ZCMUSIC*> playlist;                      //yeah, I'm too lazy
 static int32_t libflags = 0;
 
 // forward declarations
-OGGFILE *load_ogg_file(char *filename);
+OGGFILE *load_ogg_file(const char *filename);
 int32_t poll_ogg_file(OGGFILE *ogg);
 void unload_ogg_file(OGGFILE *ogg);
 bool ogg_pause(OGGFILE *ogg);
@@ -106,7 +96,7 @@ bool ogg_resume(OGGFILE *ogg);
 bool ogg_reset(OGGFILE *ogg);
 void ogg_stop(OGGFILE *ogg);
 
-OGGEXFILE *load_ogg_ex_file(char *filename);
+OGGEXFILE *load_ogg_ex_file(const char *filename);
 int32_t poll_ogg_ex_file(OGGEXFILE *ogg);
 void unload_ogg_ex_file(OGGEXFILE *ogg);
 bool ogg_ex_pause(OGGEXFILE *ogg);
@@ -117,7 +107,7 @@ int32_t ogg_ex_getpos(OGGEXFILE *ogg);
 void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs);
 void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed);
 
-MP3FILE *load_mp3_file(char *filename);
+MP3FILE *load_mp3_file(const char *filename);
 int32_t poll_mp3_file(MP3FILE *mp3);
 void unload_mp3_file(MP3FILE *mp3);
 bool mp3_pause(MP3FILE *mp3);
@@ -125,7 +115,7 @@ bool mp3_resume(MP3FILE *mp3);
 bool mp3_reset(MP3FILE *mp3);
 void mp3_stop(MP3FILE *mp3);
 
-Music_Emu* gme_load_file(char* filename, char* ext);
+Music_Emu* gme_load_file(const char* filename, const char* ext);
 int32_t poll_gme_file(GMEFILE *gme);
 int32_t unload_gme_file(GMEFILE* gme);
 int32_t gme_play(GMEFILE *gme, int32_t vol);
@@ -133,7 +123,7 @@ int32_t gme_play(GMEFILE *gme, int32_t vol);
 
 extern "C"
 {
-	void zcm_extract_name(char *path,char *name,int32_t type)
+	void zcm_extract_name(const char *path,char *name,int32_t type)
 	{
 		int32_t l=(int32_t)strlen(path);
 		int32_t i=l;
@@ -306,7 +296,7 @@ extern "C"
         }
     }
     
-    ZCMUSIC const * zcmusic_load_file(char *filename)
+    ZCMUSIC const * zcmusic_load_file(const char *filename)
     {
         if(filename == NULL)
         {
@@ -443,7 +433,7 @@ extern "C"
             
                 Music_Emu *emu;
                 
-                emu=gme_load_file(filename, ext);
+                emu=gme_load_file(std::string(filename).c_str(), ext);
                 
                 if(emu)
                 {
@@ -469,7 +459,7 @@ error:
         return NULL;
     }
     
-    ZCMUSIC const * zcmusic_load_file_ex(char *filename)
+    ZCMUSIC const * zcmusic_load_file_ex(const char *filename)
     {
         if(filename == NULL)
         {
@@ -900,7 +890,7 @@ error:
         case ZCMF_GME:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
-                int32_t t=((GMEFILE*)zcm)->emu->track_count();
+                int32_t t= gme_track_count(((GMEFILE*)zcm)->emu);
                 return (t>1)?t:0;
             }
             else
@@ -931,14 +921,15 @@ error:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
                 mutex_lock(&playlistmutex);
-                int32_t t=((GMEFILE*)zcm)->emu->track_count();
+                int32_t t= gme_track_count(((GMEFILE*)zcm)->emu);
                 
                 if(tracknum<0 || tracknum>=t)
                 {
                     tracknum=0;
                 }
                 
-                ((GMEFILE*)zcm)->emu->start_track(tracknum);
+                gme_start_track(((GMEFILE*)zcm)->emu, tracknum);
+
                 zcm->track=tracknum;
                 mutex_unlock(&playlistmutex);
                 return tracknum;
@@ -994,7 +985,7 @@ error:
     }
 }                                                           // extern "C"
 
-MP3FILE *load_mp3_file(char *filename)
+MP3FILE *load_mp3_file(const char *filename)
 {
     MP3FILE *p = NULL;
     PACKFILE *f = NULL;
@@ -1209,7 +1200,7 @@ void mp3_stop(MP3FILE *mp3)
     }
 }
 
-OGGFILE *load_ogg_file(char *filename)
+OGGFILE *load_ogg_file(const char *filename)
 {
     OGGFILE *p = NULL;
     PACKFILE *f = NULL;
@@ -1414,7 +1405,7 @@ void ogg_stop(OGGFILE *ogg)
     }
 }
 
-OGGEXFILE *load_ogg_ex_file(char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
+OGGEXFILE *load_ogg_ex_file(const char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
 {
     //OGGEXFILE *p = NULL;
     OGGEXFILE *p = (OGGEXFILE*)zc_malloc(sizeof(OGGEXFILE));
@@ -1665,7 +1656,7 @@ int32_t poll_gme_file(GMEFILE* gme)
         int32_t samples=gme->samples;
         memset(p,0,4*samples);
         uint16_t *q=(uint16_t*) p;
-        gme->emu->play((int32_t) 2*samples,(int16_t*)p);
+        gme_play(gme->emu, (int32_t) 2*samples, (int16_t*)p);
         
         // Allegro only uses UNSIGNED samples ...
         for(int32_t j=0; j<2*samples; ++j)
@@ -1682,42 +1673,21 @@ int32_t poll_gme_file(GMEFILE* gme)
 }
 
 
-Music_Emu* gme_load_file(char* filename, char* ext)
+Music_Emu* gme_load_file(const char* filename, const char* ext)
 {
     Music_Emu* emu=NULL;
-    
-    if(stricmp(ext,"spc")==0) emu = new Spc_Emu;
-    
-    if(stricmp(ext,"gbs")==0) emu = new Gbs_Emu;
-    
-    if(stricmp(ext,"vgm")==0) emu = new Vgm_Emu;
-    
-    if(stricmp(ext,"nsf")==0) emu = new Nsf_Emu;
-    
-    if(stricmp(ext,"gym")==0) emu = new Gym_Emu;
-    
-    if(!emu) return NULL;
-    
-    Std_File_Reader in;
-    
-    const char* err = emu->set_sample_rate(DUH_SAMPLES);
-    
-    if(!err) err = in.open(filename);
-    
-    if(!err) err = emu->load(in);
-    
-    if(err)
+    gme_err_t err = gme_open_file(filename, &emu, DUH_SAMPLES);
+    if (err)
     {
-        delete emu;
+        gme_delete(emu);
         return NULL;
     }
-    
     return emu;
 }
 
 int32_t gme_play(GMEFILE *gme, int32_t vol)
 {
-    gme->emu->start_track(0);
+    gme_start_track(gme->emu, 0);
     int32_t samples=512;
     int32_t buf_size=2*DUH_SAMPLES/50;
     
@@ -1738,7 +1708,7 @@ int32_t unload_gme_file(GMEFILE* gme)
         if(gme->emu != NULL)
         {
             zcmusic_stop(gme);
-            delete gme->emu;
+            gme_delete(gme->emu);
             gme->emu=NULL;
             zc_free(gme);
         }

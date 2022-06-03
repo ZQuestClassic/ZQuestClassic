@@ -50,8 +50,8 @@ typedef struct ZCMUSICBASE
     int32_t track;
 } ZCMUSIC;
 
-ZCM_EXTERN ZCMUSIC const * zcmusic_load_file(char *filename);
-ZCM_EXTERN ZCMUSIC const * zcmusic_load_file_ex(char *filename);
+ZCM_EXTERN ZCMUSIC const * zcmusic_load_file(const char *filename);
+ZCM_EXTERN ZCMUSIC const * zcmusic_load_file_ex(const char *filename);
 ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int32_t vol);
 ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause);
 ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
