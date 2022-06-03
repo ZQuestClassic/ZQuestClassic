@@ -133,8 +133,8 @@ static int a5_sound_init(int input, int voices)
 
 static void a5_sound_exit(int input)
 {
-    al_destroy_thread(a5_sound_thread);
-    a5_sound_thread = NULL;
+    // al_destroy_thread(a5_sound_thread);
+    // a5_sound_thread = NULL;
     al_uninstall_audio();
 }
 
