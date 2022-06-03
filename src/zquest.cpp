@@ -4935,11 +4935,7 @@ int32_t mapMaker(BITMAP * _map, PALETTE _mappal)
     
     do
     {
-#ifdef ALLEGRO_MACOSX
-        snprintf(buf, 200, "../../../%szquest_map%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#else
         snprintf(buf, 200, "%szquest_map%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#endif
         buf[199]='\0';
     }
     while(num<99999 && exists(buf));
@@ -30451,13 +30447,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	filepath[0]=temppath[0]=0;
 	
-#ifdef ALLEGRO_MACOSX
-	const char *default_path="../../../";
-	sprintf(filepath, "../../../");
-	sprintf(temppath, "../");
-#else
 	const char *default_path="";
-#endif
 	
 	strcpy(datapath,get_config_string("zquest",data_path_name,default_path));
 	strcpy(midipath,get_config_string("zquest",midi_path_name,default_path));
@@ -31441,10 +31431,6 @@ int32_t main(int32_t argc,char **argv)
 			{
 				filepath[0]=temppath[0]=0;
 				first_save=false;
-#ifdef ALLEGRO_MACOSX
-				sprintf(filepath, "../../../");
-				sprintf(temppath, "../");
-#endif
 			}
 		}
 		else
@@ -31460,10 +31446,6 @@ int32_t main(int32_t argc,char **argv)
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 			filepath[0]=temppath[0]=0;
 			first_save=false;
-#ifdef ALLEGRO_MACOSX
-			sprintf(filepath, "../../../");
-			sprintf(temppath, "../");
-#endif
 		}
 	}
 	

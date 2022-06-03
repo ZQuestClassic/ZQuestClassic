@@ -1058,11 +1058,7 @@ int32_t onSnapshot()
 
     do
     {
-#ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#else
         sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#endif
     }
     while(num<99999 && exists(buf));
 
