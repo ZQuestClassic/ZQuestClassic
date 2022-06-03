@@ -25,9 +25,7 @@
 #include "zsys.h"
 #include "zquest.h"
 
-//#ifdef ALLEGRO_MACOSX
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
 
 extern int32_t dmap_list_size;
 extern bool dmap_list_zero;

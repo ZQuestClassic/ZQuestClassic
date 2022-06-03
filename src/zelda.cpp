@@ -4464,10 +4464,6 @@ int main(int argc, char **argv)
 	qstdir[0] = 0;
 	qstpath[0] = 0;
 	
-#ifdef ALLEGRO_MACOSX
-	sprintf(qstdir, "../../../");
-	sprintf(qstpath, "../../../");
-#endif
 	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
