@@ -1,0 +1,26 @@
+diff --git a/cmake-scripts/FindAllegro4.cmake b/cmake-scripts/FindAllegro4.cmake
+index 8b0e7d8..d3540c9 100644
+--- a/cmake-scripts/FindAllegro4.cmake
++++ b/cmake-scripts/FindAllegro4.cmake
+@@ -12,7 +12,7 @@ $ENV{MINGDIR}/include
+ )
+ 
+ if(UNIX AND NOT CYGWIN)
+-    exec_program(allegro-config ARGS --libs OUTPUT_VARIABLE ALLEGRO_LIBRARY)
++    # exec_program(allegro-config ARGS --libs OUTPUT_VARIABLE ALLEGRO_LIBRARY)
+ else(UNIX AND NOT CYGWIN)
+     SET(ALLEGRO_NAMES alleg alleglib alleg41 alleg42 allegdll)
+     FIND_LIBRARY(ALLEGRO_LIBRARY
+diff --git a/src/allegro/packfile.c b/src/allegro/packfile.c
+index f2ada08..9c9d90b 100644
+--- a/src/allegro/packfile.c
++++ b/src/allegro/packfile.c
+@@ -48,7 +48,7 @@ static void *dumb_packfile_open(const char *filename) {
+ static int dumb_packfile_skip(void *f, dumb_off_t n) {
+     dumb_packfile *file = (dumb_packfile *)f;
+     file->pos += n;
+-    return pack_fseek(file->p, file->pos);
++    return pack_fseek(file->p, n);
+ }
+ 
+ static int dumb_packfile_getc(void *f) {
