@@ -266,8 +266,8 @@ static void a5_display_exit(BITMAP * bp)
 {
   if(_a5_screen_thread)
   {
-    // al_destroy_thread(_a5_screen_thread);
-    // _a5_screen_thread = NULL;
+    al_destroy_thread(_a5_screen_thread);
+    _a5_screen_thread = NULL;
   }
   else
   {

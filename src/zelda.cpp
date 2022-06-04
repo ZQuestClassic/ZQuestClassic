@@ -5610,7 +5610,6 @@ int main(int argc, char **argv)
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		
-	allegro_exit();
 	return 0;
 }
 END_OF_MAIN()
