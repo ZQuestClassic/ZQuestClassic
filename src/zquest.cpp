@@ -31676,8 +31676,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(ForceExit) //last resort fix to the allegro process hanging bug.
 		exit(0);
-		
-	allegro_exit();
 	
 	return 0;
 // memset(qtpathtitle,0,10);//UNREACHABLE

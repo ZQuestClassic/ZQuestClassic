@@ -12,7 +12,6 @@
 
 #define QUIT_LAUNCHER() \
 do{ \
-	allegro_exit(); \
 	return 1; \
 } \
 while(false)
@@ -242,7 +241,6 @@ int32_t main(int32_t argc, char* argv[])
 	//
 	
 	flush_config_file();
-	allegro_exit();
 	return 0;
 }
 END_OF_MAIN()

@@ -258,7 +258,6 @@ int32_t main(int32_t argc, char **argv)
 	{
 		parser_console.kill();
 	}*/
-	allegro_exit();
 	return res;
 }
 END_OF_MAIN()
