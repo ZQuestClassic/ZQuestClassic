@@ -59,9 +59,9 @@ void zconsole_warn(const char *format,...)
 	va_end(argList);
 	fprintf(console, "%s", tmp);
 	fclose(console);
-	int errorcode = -9996;
-	ConsoleWrite->write(&errorcode, sizeof(size_t));
-	ConsoleWrite->read(&errorcode, sizeof(size_t));
+	int32_t errorcode = ZC_CONSOLE_WARN_CODE;
+	ConsoleWrite->write(&errorcode, sizeof(int32_t));
+	ConsoleWrite->read(&errorcode, sizeof(int32_t));
 }
 void zconsole_error(const char *format,...)
 {
@@ -84,9 +84,9 @@ void zconsole_error(const char *format,...)
 	//}
 	fprintf(console, "%s", tmp);
 	fclose(console);
-	int errorcode = -9997;
-	ConsoleWrite->write(&errorcode, sizeof(size_t));
-	ConsoleWrite->read(&errorcode, sizeof(size_t));
+	int32_t errorcode = ZC_CONSOLE_ERROR_CODE;
+	ConsoleWrite->write(&errorcode, sizeof(int32_t));
+	ConsoleWrite->read(&errorcode, sizeof(int32_t));
 }
 void zconsole_info(const char *format,...)
 {
@@ -108,9 +108,9 @@ void zconsole_info(const char *format,...)
 	//}
 	fprintf(console, "%s", tmp);
 	fclose(console);
-	int errorcode = -9998;
-	ConsoleWrite->write(&errorcode, sizeof(size_t));
-	ConsoleWrite->read(&errorcode, sizeof(size_t));
+	int32_t errorcode = ZC_CONSOLE_INFO_CODE;
+	ConsoleWrite->write(&errorcode, sizeof(int32_t));
+	ConsoleWrite->read(&errorcode, sizeof(int32_t));
 }
 
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
@@ -122,7 +122,7 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 	FILE *zscript = fopen(script_path.c_str(),"r");
 	if(zscript == NULL)
 	{
-		zconsole_error(" Cannot open specified file!");
+		zconsole_error("%s", "Cannot open specified file!");
 		zscript_failcode = -404;
 		return NULL;
 	}
@@ -140,7 +140,7 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 		FILE *tempfile = fopen("tmp","w");
 		if(!tempfile)
 		{
-			zconsole_error("Unable to create a temporary file in current directory!");
+			zconsole_error("%s", "Unable to create a temporary file in current directory!");
 			zscript_failcode = -404;
 			return NULL;
 		}
@@ -202,12 +202,16 @@ int32_t main(int32_t argc, char **argv)
 	
 	child_process_handler cph;
 	ConsoleWrite = &cph;
-	allegro_init();
+	if(allegro_init() != 0)
+	{
+		zconsole_error("%s", "Failed Init!");
+		exit(1);
+	}
 	
 	int32_t script_path_index = used_switch(argc, argv, "-input");
 	if (!script_path_index)
 	{
-		zconsole_error("Error: missing required flag: -input");
+		zconsole_error("%s", "Error: missing required flag: -input");
 		return 1;
 	}
 	
@@ -245,10 +249,10 @@ int32_t main(int32_t argc, char **argv)
 	cph.write(&res, sizeof(int32_t));
 	/*
 	if(zscript_had_warn_err)
-		zconsole_warn("Leaving console open; there were errors or warnings during compile!");
+		zconsole_warn("%s", "Leaving console open; there were errors or warnings during compile!");
 	else if(used_switch(argc, argv, "-noclose"))
 	{
-		zconsole_info("Leaving console open; '-noclose' switch used");
+		zconsole_info("%s", "Leaving console open; '-noclose' switch used");
 	}
 	else
 	{

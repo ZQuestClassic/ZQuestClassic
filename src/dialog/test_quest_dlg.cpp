@@ -146,15 +146,32 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 		{
-			if(!fileexists("zelda.exe"))
+			if(!fileexists(ZELDA_FILE))
 			{
-				InfoDialog("Error", "'zelda.exe' not found!").show();
+				InfoDialog("Error", ZELDA_FILE " not found!").show();
 				return true;
 			}
 			test_killer.kill();
-			char buf[2048] = {0};
-			sprintf(buf, "zelda.exe -test \"%s\" %d %d %d", filepath, test_start_dmap, test_start_screen, test_ret_sqr);
-			test_killer = launch_process(buf);
+
+			char arg2[5];
+			sprintf(arg2, "%d", test_start_dmap);
+			char arg3[5];
+			sprintf(arg3, "%d", test_start_screen);
+			char arg4[5];
+			sprintf(arg4, "%d", test_ret_sqr);
+			const char* argv[] = {
+#ifndef _WIN32
+				ZELDA_FILE,
+#endif
+				"-test",
+				filepath,
+				arg2,
+				arg3,
+				arg4,
+				NULL
+			};
+
+			test_killer = launch_process(ZELDA_FILE, argv);
 		}
 		return true;
 		

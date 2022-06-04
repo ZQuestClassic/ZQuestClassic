@@ -24965,9 +24965,9 @@ int32_t onCompileScript()
 			map<string, disassembled_script_data> scripts;
 			
 			int32_t code = -9999;
-			if(!fileexists("zscript.exe"))
+			if(!fileexists(ZSCRIPT_FILE))
 			{
-				InfoDialog("Parser","'zscript.exe' was not found!").show();
+				InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
 				break;
 			}
 			parser_console.kill();
@@ -24976,21 +24976,24 @@ int32_t onCompileScript()
 				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe");
 				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 				parser_console.gotoxy(0,0);
-				zconsole_info("External ZScript Parser\n");
+				zconsole_info("%s", "External ZScript Parser\n");
 			}
 			else
 			{
 				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
 			clock_t start_compile_time = clock();
-			char const* noclose = "-noclose";
-			char const* argv[5] = {"-input", "tmp", "-linked", NULL, NULL};
+			const char* argv[] = {
+#ifndef _WIN32
+				ZSCRIPT_FILE,
+#endif
+                "-input", "tmp", "-linked", NULL, NULL};
 			if(zc_get_config("Compiler","noclose_compile_console",0))
-				argv[3] = noclose;
-			process_manager* pm = launch_piped_process("zscript.exe", argv);
+				argv[3] = "-noclose";
+			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
 			if(!pm)
 			{
-				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();
+				InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
 				break;
 			}
 			
