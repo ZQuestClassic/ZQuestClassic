@@ -4489,9 +4489,9 @@ int main(int argc, char **argv)
 #endif
 	
 	// set and load game configurations
-	set_config_file("zc.cfg");
+	zc_set_config_standard();
 	
-	if(exists("zc.cfg") != 0)
+	if(!zc_config_standard_exists())
 	{
 		load_game_configs();
 	}

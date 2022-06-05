@@ -18,6 +18,7 @@ src/zq_strings.cpp
 src/zq_tiles.cpp
 src/zqscale.cpp
 src/zsys.cpp
+src/zapp.cpp
 src/jwin.cpp
 
 src/gui/button.cpp
@@ -87,3 +88,6 @@ src/dialog/waterpit_convert.cpp
 ## End of ZQuest GUI module
 )
 
+if(APPLE)
+    list(APPEND ZQUEST_GUI_SOURCES src/osx/FolderManager.mm)
+endif()

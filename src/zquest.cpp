@@ -29963,7 +29963,7 @@ int32_t main(int32_t argc,char **argv)
 #endif
 	
 	//set_config_file("ag.cfg");
-	set_config_file("zquest.cfg");
+	zc_set_config_standard();
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
 	if(install_timer() < 0)
@@ -31089,7 +31089,7 @@ int32_t main(int32_t argc,char **argv)
 #endif
 		
 		//set_config_file("ag.cfg");
-		set_config_file("zquest.cfg");
+		zc_set_config_standard();
 		if(install_timer() < 0)
 		{
 

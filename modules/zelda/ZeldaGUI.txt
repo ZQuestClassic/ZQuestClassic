@@ -5,6 +5,7 @@ set(ZELDA_GUI_SOURCES
 # Add or remove files here
 ################################
 src/zsys.cpp
+src/zapp.cpp
 src/aglogo.cpp
 src/colors.cpp
 src/debug.cpp
@@ -59,3 +60,6 @@ src/gui/zc_gui.cpp
 ## End of Zelda GUI module
 )
 
+if(APPLE)
+    list(APPEND ZELDA_GUI_SOURCES src/osx/FolderManager.mm)
+endif()

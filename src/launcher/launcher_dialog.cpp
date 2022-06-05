@@ -4,6 +4,7 @@
 #include "dialog/alertfunc.h"
 #include "dialog/theme_editor.h"
 #include "launcher.h"
+#include "zapp.h"
 #include <gui/builder.h>
 #include <boost/format.hpp>
 
@@ -743,10 +744,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							if(fileexists(themename.c_str()))
 							{
 								lbl_theme_error->setText("");
-								set_config_file("zc.cfg");
+								set_config_file(get_user_data_path("zc.cfg").c_str());
 								zc_set_config("Theme","theme_filename",themename.c_str());
 								zc_set_config("zeldadx","gui_colorset",99);
-								set_config_standard();
+								zc_set_config_standard();
 							}
 							else
 							{
@@ -766,10 +767,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							if(fileexists(themename.c_str()))
 							{
 								lbl_theme_error->setText("");
-								set_config_file("zquest.cfg");
+								set_config_file(get_user_data_path("zquest.cfg").c_str());
 								zc_set_config("Theme","theme_filename",themename.c_str());
 								zc_set_config("zquest","gui_colorset",99);
-								set_config_standard();
+								zc_set_config_standard();
 							}
 							else
 							{

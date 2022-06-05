@@ -56,6 +56,7 @@
 #include "jwinfsel.h"
 #include "zsys.h"
 #include "zc_malloc.h"
+#include "zapp.h"
 
 extern FONT *lfont_l;
 
@@ -984,20 +985,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     
     if(!ugetc(path))
     {
-    
-#ifdef HAVE_DIR_LIST
-    
-        int32_t drive = _al_getdrive();
-        
-#else
-        
-        int32_t drive = 0;
-#endif
-        
-        _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
-        fix_filename_case(path);
-        fix_filename_slashes(path);
-        put_backslash(path);
+        get_root_path(path, size);
     }
     
     clear_keybuf();
@@ -1190,20 +1178,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     
     if(!ugetc(path))
     {
-    
-#ifdef HAVE_DIR_LIST
-    
-        int32_t drive = _al_getdrive();
-        
-#else
-        
-        int32_t drive = 0;
-#endif
-        
-        _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
-        fix_filename_case(path);
-        fix_filename_slashes(path);
-        put_backslash(path);
+        get_root_path(path, size);
     }
     
     clear_keybuf();
@@ -1261,7 +1236,16 @@ void get_root_path(char* path, int32_t size)
 #else
 	int32_t drive = 0;
 #endif
+
+#ifdef __APPLE__
+    if (is_in_osx_application_bundle()) {
+        strcpy(path, get_user_data_directory().c_str());
+    } else {
+        _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
+    }
+#else
 	_al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
+#endif
 	fix_filename_case(path);
 	fix_filename_slashes(path);
 	put_backslash(path);
@@ -1272,6 +1256,13 @@ void get_root_path(char* path, int32_t size)
   */
 void relativize_path(char* dest, char const* src_path)
 {
+#ifdef __APPLE__
+    // Seems broken on OSX. At least it is for launcher. Let's hope disabling this doesn't
+    // break anything important.
+    strcpy(dest, src_path);
+    return;
+#endif
+
 	char path[4096] = {0};
 	strcpy(path, src_path);
 	dest[0] = 0;

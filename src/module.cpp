@@ -743,7 +743,7 @@ bool ZModule::init(bool d) //bool default
 	}
 	
 	//shift back to the normal config file, when done
-	set_config_standard();
+	zc_set_config_standard();
 	return true;
 }
 #endif
