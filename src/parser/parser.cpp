@@ -10,6 +10,7 @@
 FFScript FFCore;
 
 std::vector<std::string> ZQincludePaths;
+std::string console_path;
 byte quest_rules[QUESTRULES_NEW_SIZE];
 
 extern byte monochrome_console;
@@ -42,7 +43,7 @@ static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 void zconsole_warn(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	FILE *console=fopen("tmp3", "a");
+	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -66,7 +67,7 @@ void zconsole_warn(const char *format,...)
 void zconsole_error(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	FILE *console=fopen("tmp3", "a");
+	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -90,7 +91,7 @@ void zconsole_error(const char *format,...)
 }
 void zconsole_info(const char *format,...)
 {
-	FILE *console=fopen("tmp3", "a");
+	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -127,30 +128,28 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 		return NULL;
 	}
 
-	if(strcmp(script_path.c_str(), "tmp")) // if path matches "tmp", no reason to copy it to "tmp"
+	char c = fgetc(zscript);
+	while(!feof(zscript))
 	{
-		char c = fgetc(zscript);
-		while(!feof(zscript))
-		{
-			zScript += c;
-			c = fgetc(zscript);
-		}
-		fclose(zscript);
-
-		FILE *tempfile = fopen("tmp","w");
-		if(!tempfile)
-		{
-			zconsole_error("%s", "Unable to create a temporary file in current directory!");
-			zscript_failcode = -404;
-			return NULL;
-		}
-		fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-		fclose(tempfile);
+		zScript += c;
+		c = fgetc(zscript);
 	}
-	else fclose(zscript);
+	fclose(zscript);
+
+	char tmpfilename[64];
+	std::tmpnam(tmpfilename);
+	FILE *tempfile = fopen(tmpfilename, "w");
+	if(!tempfile)
+	{
+		zconsole_error("%s", "Unable to create a temporary file in current directory!");
+		zscript_failcode = -404;
+		return NULL;
+	}
+	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+	fclose(tempfile);
 	
-	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile("tmp"));
-	unlink("tmp");
+	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename));
+	unlink(tmpfilename);
 	return res;
 }
 
@@ -199,6 +198,14 @@ int32_t main(int32_t argc, char **argv)
 	{
 		return 1;
 	}
+
+	int32_t console_path_index = used_switch(argc, argv, "-console");
+	if (!console_path_index)
+	{
+		zconsole_error("%s", "Error: missing required flag: -console");
+		return 1;
+	}
+	console_path = argv[console_path_index + 1];
 	
 	child_process_handler cph;
 	ConsoleWrite = &cph;
@@ -215,7 +222,7 @@ int32_t main(int32_t argc, char **argv)
 		return 1;
 	}
 	
-	FILE *console=fopen("tmp3", "w");
+	FILE *console=fopen(console_path.c_str(), "w");
 	fclose(console);
 	
 	std::string script_path = argv[script_path_index + 1];
