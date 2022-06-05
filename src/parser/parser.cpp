@@ -6,6 +6,7 @@
 #include "zconfig.h"
 #include "ConsoleLogger.h"
 #include "zscrdata.h"
+#include "zapp.h"
 
 FFScript FFCore;
 
@@ -194,6 +195,8 @@ void updateIncludePaths()
 
 int32_t main(int32_t argc, char **argv)
 {
+	common_main_setup(argc, argv);
+
 	if (!used_switch(argc, argv, "-linked"))
 	{
 		return 1;

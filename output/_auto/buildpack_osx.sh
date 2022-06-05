@@ -13,6 +13,9 @@ rel="${src}/build"
 sh buildpack.sh
 set -eu
 
+# Need shared libraries.
+find "$rel" -name "*.dylib" -exec cp {} "$nb" \;
+
 # Change some defaults.
 sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/zquest.cfg"
 sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/zc.cfg"
@@ -25,6 +28,18 @@ find "$nb" -name "*.dll" -exec rm {} \;
 rm -rf "$nb/Addons"
 rm -rf "$nb/utilities"
 
+# Set SKIP_APP_BUNDLE=1 to skip building an osx application bundle.
+# This won't be able to distribute easily, because OSX will prevent users from running
+# unverified binaries unless they right-click->Open and ignore a scary warning. Even then,
+# when zlauncher/zquest opens other ZC processes OSX will prevent it without a way to ignore
+# the intervention, so some features won't work.
+if test "${SKIP_APP_BUNDLE+x}"; then
+  rm -rf "$mac_nb"
+  mv "$nb" "$mac_nb"
+  echo "Done"
+  exit
+fi
+
 # Prepare the Mac application bundle.
 contents="$mac_nb/ZeldaClassic.app/Contents"
 
@@ -33,7 +48,6 @@ mkdir -p "$contents/MacOS"
 cp Info.plist "$contents"
 mv buildpack/zlauncher "$contents/MacOS"
 mv buildpack "$contents/Resources"
-find "$rel" -name "*.dylib" -exec cp {} "$contents/Resources" \;
 
 # Generate icon.
 ICONDIR="$contents/Resources/icons.iconset"

@@ -74,6 +74,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "colors.h"
 #include "qst.h"
 #include "zsys.h"
+#include "zapp.h"
 #include "zcmusic.h"
 
 #include "midi.h"
@@ -29794,6 +29795,8 @@ int32_t main(int32_t argc,char **argv)
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
+
+	common_main_setup(argc, argv);
 	
 	scrtmp = NULL;
 	
