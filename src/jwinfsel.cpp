@@ -47,6 +47,7 @@
 #include "precompiled.h" //always first
 
 #include <string.h>
+#include <filesystem>
 
 #include "allegro_wrapper.h"
 #include <allegro/internal/aintern.h>
@@ -1256,64 +1257,9 @@ void get_root_path(char* path, int32_t size)
   */
 void relativize_path(char* dest, char const* src_path)
 {
-#ifdef __APPLE__
-    // Seems broken on OSX. At least it is for launcher. Let's hope disabling this doesn't
-    // break anything important.
-    strcpy(dest, src_path);
-    return;
-#endif
-
-	char path[4096] = {0};
-	strcpy(path, src_path);
-	dest[0] = 0;
-	char rootpath[4096] = {0};
-	get_root_path(rootpath, 4096);
-	size_t ind = 0;
-	while(true)
-	{
-		if(!(path[ind] && rootpath[ind]) || toupper(rootpath[ind]) != toupper(path[ind]))
-		{
-			if(rootpath[ind]) //'path' is above the root directory
-			{
-				if(ind)
-					--ind;
-				while(rootpath[ind] != '/' && rootpath[ind] != '\\')
-				{
-					if(!ind) //'path' includes NONE of the root directory... no relative path can be formed.
-					{
-						strcpy(dest, path);
-						return;
-					}
-					--ind; //return to previous slash
-				}
-				++ind;
-				size_t slashes = 0;
-				for(auto q = 0; rootpath[q+ind]; ++q)
-				{
-					if(rootpath[q+ind] == '/' || rootpath[q+ind] == '\\')
-					{
-						while(rootpath[q+ind+1] == '/' || rootpath[q+ind+1] == '\\')
-							++q;
-						++slashes;
-					}
-				}
-				
-                for (size_t q = 0; q < slashes; ++q)
-                    strcat(dest, "../");
-				
-				strcat(dest, path+ind);
-			}
-			else if(path[ind]) //'path' is under the root directory
-			{
-				strcpy(dest, path+ind);
-			}
-			//else 'path' is 'rootpath'
-			fix_filename_case(dest);
-			fix_filename_slashes(dest);
-			return;
-		}
-		++ind;
-	}
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    strcpy(dest, std::filesystem::relative(src_path, rootpath).c_str());
 }
 
 /* derelativize_path:
@@ -1321,36 +1267,10 @@ void relativize_path(char* dest, char const* src_path)
   */
 void derelativize_path(char* dest, char const* src_path)
 {
-	char path[4096] = {0};
-	strcpy(path, src_path);
-	dest[0] = 0;
-	char rootpath[4096] = {0};
-	get_root_path(rootpath, 4096);
-	size_t root_ind = strlen(rootpath)-1;
-	bool running = true;
-	char* path_ptr = path;
-	while(running)
-	{
-		running = false;
-		while(path_ptr[0]=='.' && path_ptr[1] == '.' && (path_ptr[2] == '/' || path_ptr[2] == '\\'))
-		{
-			if(root_ind > 0)
-			{
-				do --root_ind; while(rootpath[root_ind] != '/' && rootpath[root_ind] != '\\' && root_ind > 0);
-				size_t offs = (rootpath[root_ind] == '/' || rootpath[root_ind] == '\\')?1:0;
-				rootpath[root_ind+offs] = 0;
-			}
-			running = true;
-			path_ptr += 3;
-		}
-		while(path_ptr[0]=='.' && (path_ptr[1] == '/' || path_ptr[1] == '\\'))
-		{
-			running = true;
-			path_ptr += 3;
-		}
-	}
-	strcat(dest, rootpath);
-	strcat(dest, path_ptr);
+    char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    auto result = std::filesystem::path(rootpath) / src_path;
+    strcpy(dest, result.c_str());
 }
 
 /* jwin_file_browse_ex:

@@ -515,7 +515,6 @@ void update_hw_screen(bool force)
 
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
-	Z_message("getname_nogo\n");
     if(def!=temppath)
         strcpy(temppath,def);
         
@@ -545,7 +544,6 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
-	Z_message("getname\n");
     go();
     int32_t ret=0;
     ret = getname_nogo(prompt,ext,list,def,usefilename);
