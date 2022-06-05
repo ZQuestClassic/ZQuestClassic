@@ -9,6 +9,7 @@ src/util.cpp
 src/random.cpp
 src/zinfo.cpp
 src/zsys.cpp
+src/zapp.cpp
 src/alleg_compat.cpp
 src/module.cpp
 src/zdefs.cpp
@@ -20,3 +21,6 @@ src/zqscale.cpp
 ## End of Launcher Core module
 )
 
+if(APPLE)
+    list(APPEND LAUNCHER_SOURCES src/osx/FolderManager.mm)
+endif()

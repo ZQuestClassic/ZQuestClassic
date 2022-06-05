@@ -38,6 +38,7 @@
 #include "colors.h"
 #include "pal.h"
 #include "zsys.h"
+#include "zapp.h"
 #include "qst.h"
 #include "zc_sys.h"
 #include "debug.h"
@@ -106,7 +107,7 @@ static  const char *qst_module_name = "current_module";
 const char *qst_dir_name = "linux_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(__APPLE__)
-const char *qst_dir_name = "macosx_qst_dir";
+const char *qst_dir_name = "osx_qst_dir";
 static  const char *qst_module_name = "current_module";
 #endif
 #ifdef ALLEGRO_LINUX
@@ -395,8 +396,11 @@ void load_game_configs()
     monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 
-    const char *default_path="";
-    strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
+    std::string default_path;
+    if (is_in_osx_application_bundle()) {
+        default_path = get_user_data_path("quests");
+    }
+    strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path.c_str()));
    
     if(strlen(qstdir)==0)
     {

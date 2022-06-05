@@ -231,9 +231,9 @@ int32_t main(int32_t argc, char **argv)
 	cph.read(quest_rules, QUESTRULES_NEW_SIZE);
 	cph.write(&syncthing, sizeof(int32_t));
 	
-	set_config_file("zscript.cfg");
+	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config("zquest.cfg","Compiler","run_string","run");
+	char const* runstr = zc_get_config(STANDARD_CFG,"Compiler","run_string","run");
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.

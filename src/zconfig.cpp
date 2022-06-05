@@ -1,10 +1,16 @@
 #include "zc_alleg.h"
+#include "zapp.h"
 #include "zconfig.h"
 
-void set_config_standard()
+void zc_set_config_standard()
 {
 	flush_config_file();
-	set_config_file(STANDARD_CFG);
+	set_config_file(get_user_data_path(STANDARD_CFG).c_str());
+}
+
+bool zc_config_standard_exists()
+{
+	return exists(get_user_data_path(STANDARD_CFG).c_str());
 }
 
 static char cfg_str[2048];
@@ -54,7 +60,7 @@ void zc_set_config(char const* header, char const* name, char const* val)
 int32_t zc_get_config(char const* cfg_file, char const* header, char const* name, int32_t default_val)
 {
 	push_config_state();
-	set_config_file(cfg_file);
+	set_config_file(get_user_data_path(cfg_file).c_str());
 	int32_t ret = get_config_int(header,name,default_val);
 	if(ret == default_val) //Might have been defaulted, so write it back
 		set_config_int(header, name, ret);
@@ -64,7 +70,7 @@ int32_t zc_get_config(char const* cfg_file, char const* header, char const* name
 double zc_get_config(char const* cfg_file, char const* header, char const* name, double default_val)
 {
 	push_config_state();
-	set_config_file(cfg_file);
+	set_config_file(get_user_data_path(cfg_file).c_str());
 	double ret = get_config_float(header,name,default_val);
 	if(ret == default_val) //Might have been defaulted, so write it back
 		set_config_float(header, name, ret);
@@ -74,7 +80,7 @@ double zc_get_config(char const* cfg_file, char const* header, char const* name,
 char const* zc_get_config(char const* cfg_file, char const* header, char const* name, char const* default_val)
 {
 	push_config_state();
-	set_config_file(cfg_file);
+	set_config_file(get_user_data_path(cfg_file).c_str());
 	char const* ret = get_config_string(header,name,default_val);
 	if(ret==default_val) //Defaulted, so write it back
 	{
@@ -88,21 +94,21 @@ char const* zc_get_config(char const* cfg_file, char const* header, char const* 
 void zc_set_config(char const* cfg_file, char const* header, char const* name, int32_t val)
 {
 	push_config_state();
-	set_config_file(cfg_file);
+	set_config_file(get_user_data_path(cfg_file).c_str());
 	set_config_int(header,name,val);
 	pop_config_state();
 }
 void zc_set_config(char const* cfg_file, char const* header, char const* name, double default_val)
 {
 	push_config_state();
-	set_config_file(cfg_file);
+	set_config_file(get_user_data_path(cfg_file).c_str());
 	set_config_float(header, name, default_val);
 	pop_config_state();
 }
 void zc_set_config(char const* cfg_file, char const* header, char const* name, char const* val)
 {
 	push_config_state();
-	set_config_file(cfg_file);
+	set_config_file(get_user_data_path(cfg_file).c_str());
 	set_config_string(header,name,val);
 	pop_config_state();
 }

@@ -6,6 +6,8 @@
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
 #include "zqscale.h"
+#include "zapp.h"
+#include <filesystem>
 
 #define QUICK_EXIT 0
 
@@ -89,7 +91,25 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Initializing Allegro... "); //{
 	allegro_init();
-	set_config_standard();
+
+	// Do first run setup for OSX.
+	if (is_in_osx_application_bundle()) {
+		std::filesystem::create_directories(get_user_data_directory());
+		// Copy over default cfg files.
+		// TODO: is this necessary? Could just rely on the default values as defined in the code,
+		//       which would then be written to disk on the first run.
+		if (!std::filesystem::exists(get_user_data_path("zcl.cfg"))) {
+			std::filesystem::copy("zcl.cfg", get_user_data_path("zcl.cfg"));
+		}
+		if (!std::filesystem::exists(get_user_data_path("zc.cfg"))) {
+			std::filesystem::copy("zc.cfg", get_user_data_path("zc.cfg"));
+		}
+		if (!std::filesystem::exists(get_user_data_path("zquest.cfg"))) {
+			std::filesystem::copy("zquest.cfg", get_user_data_path("zquest.cfg"));
+		}
+	}
+
+	zc_set_config_standard();
 	// register_bitmap_file_type("GIF",  load_gif, save_gif);
 	// jpgalleg_init();
 	// loadpng_init();

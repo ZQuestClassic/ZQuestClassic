@@ -11486,7 +11486,7 @@ int32_t get_register(const int32_t arg)
 				set_config_file(moduledata.module_name);
 				ret = get_config_int(sectionid.c_str(), elementid.c_str(), 0)*10000;
 				//return config file to zc.cfg
-				set_config_file("zc.cfg");
+				zc_set_config_standard();
 			}
 			break;
 		}
@@ -20815,7 +20815,7 @@ void set_register(const int32_t arg, const int32_t value)
 			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
 				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
 			//return config file to zc.cfg
-			set_config_file("zc.cfg");
+			zc_set_config_standard();
 		}
 	
 		break;
@@ -32603,7 +32603,7 @@ bool ZModule::init(bool d) //bool default
 	
 	
 	
-	set_config_file("zc.cfg"); //shift back to the normal config file, when done
+	zc_set_config_standard(); //shift back to the normal config file, when done
 	
 	//int32_t x = zc_get_config("zeldadx","gui_colorset",0);
 	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);

@@ -12,7 +12,9 @@
 #else
 #define STANDARD_CFG "ag.cfg"
 #endif
-void set_config_standard();
+
+void zc_set_config_standard();
+bool zc_config_standard_exists();
 
 int32_t zc_get_config(char const* header, char const* name, int32_t default_val);
 double zc_get_config(char const* header, char const* name, double default_val);
