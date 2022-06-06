@@ -1,8 +1,11 @@
 #!/bin/sh
 
 # Same as buildpack.sh, but in the end creates a mac application bundle.
-# First, install this tool:
-#     brew install dylibbundler
+# First, install these tools:
+#     brew install dylibbundler create-dmg
+#
+# Does not need user input. When the Finder ZeldaClassic.app -> Applications window opens
+# don't do anything - just wait.
 
 src="../.."
 out="${src}/output"
@@ -79,5 +82,18 @@ dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
     -x "$contents/MacOS/zlauncher" -x "$contents/Resources/zquest" \
     -x "$contents/Resources/zelda" -x "$contents/Resources/zscript"
 rm -rf "$tmp_libs_dir"
+
+rm -f "ZeldaClassic.dmg"
+create-dmg \
+  --volname "ZeldaClassic" \
+  --volicon "$contents/Resources/icons.icns" \
+  --window-pos 200 120 \
+  --window-size 800 400 \
+  --icon-size 100 \
+  --icon "ZeldaClassic.app" 200 190 \
+  --hide-extension "ZeldaClassic.app" \
+  --app-drop-link 600 185 \
+  "ZeldaClassic.dmg" \
+  "$mac_nb"
 
 echo "Done!"
