@@ -18,7 +18,6 @@
 #include <string>
 #include <sstream>
 #include "util.h"
-#include "zapp.h"
 
 using namespace util;
 using std::string;
@@ -2456,7 +2455,7 @@ int32_t zc_trace_handler(const char * msg)
 {
     if(trace_file == 0)
     {
-        trace_file = fopen(get_user_data_path("allegro.log").c_str(), "a+");
+        trace_file = fopen("allegro.log", "a+");
         
         if(0==trace_file)
         {
@@ -2476,7 +2475,7 @@ void zc_trace_clear()
         fclose(trace_file);
     }
     
-    trace_file = fopen(get_user_data_path("allegro.log").c_str(), "w");
+    trace_file = fopen("allegro.log", "w");
     ASSERT(trace_file);
 }
 

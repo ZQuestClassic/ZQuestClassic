@@ -59,7 +59,3 @@ src/gui/zc_gui.cpp
 
 ## End of Zelda GUI module
 )
-
-if(APPLE)
-    list(APPEND ZELDA_GUI_SOURCES src/osx/FolderManager.mm)
-endif()
