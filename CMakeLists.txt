@@ -51,12 +51,14 @@ FetchContent_Declare(
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
   FetchContent_Populate(allegro5)
-	set(WANT_TESTS OFF)
-	set(WANT_EXAMPLES OFF)
-	set(WANT_DEMO OFF)
-	set(WANT_DOCS OFF)
-	set(CMAKE_BUILD_TYPE Debug)
+	option(WANT_TESTS "" OFF)
+	option(WANT_EXAMPLES "" OFF)
+	option(WANT_DEMO "" OFF)
+	option(WANT_DOCS "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
+  # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
+  # so set it back to our value.
+  set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
 endif()
 
 # These include files are typically copied into the correct places via allegro's install
@@ -82,7 +84,6 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
-set(CMAKE_BUILD_TYPE Debug)
 add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 
 add_library(allegro_with_legacy INTERFACE)
@@ -289,6 +290,7 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
+target_link_libraries(zelda allegro_with_legacy)
 
 if(WIN32)
 	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
@@ -331,7 +333,7 @@ if(Boost_FOUND)
 	add_definitions(-DHAS_BOOST)
     add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
-	target_link_libraries(zquest PUBLIC zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC allegro_with_legacy zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
@@ -390,3 +392,15 @@ target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegr
 #############################################################
 
 set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+
+#############################################################
+# Misc.
+#############################################################
+
+if(WIN32)
+	target_compile_definitions(zcsound PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zelda PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zlauncher PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zquest PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zscript PRIVATE __STDC_LIMIT_MACROS)
+endif()

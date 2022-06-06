@@ -21,7 +21,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 # Restrict configuration types to the selected build type.
 # Note: This needs to be done before the project command
-set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
+# local edit
+if(NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_CONFIGURATION_TYPES "${CMAKE_BUILD_TYPE}" CACHE INTERNAL "internal")
+endif()
 
 #-----------------------------------------------------------------------------#
 #
