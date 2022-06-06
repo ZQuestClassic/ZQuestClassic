@@ -31507,8 +31507,7 @@ int32_t main(int32_t argc,char **argv)
 	{
 		al_trace("Config file warning: \"zq_win_proc_fix\" enabled switch found. This can cause crashes on some computers.\n");
 		win32data.zqSetDefaultThreadPriority(0);
-        // TODO: why is `all_get_display` symbol unresolved?
-		// win32data.zqSetCustomCallbackProc(al_get_win_window_handle(all_get_display()));
+		win32data.zqSetCustomCallbackProc(al_get_win_window_handle(all_get_display()));
 	}
 	
 #endif
