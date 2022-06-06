@@ -20,7 +20,3 @@ src/zqscale.cpp
 
 ## End of Launcher Core module
 )
-
-if(APPLE)
-    list(APPEND LAUNCHER_SOURCES src/osx/FolderManager.mm)
-endif()

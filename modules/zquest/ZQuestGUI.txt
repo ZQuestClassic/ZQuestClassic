@@ -87,7 +87,3 @@ src/dialog/waterpit_convert.cpp
 
 ## End of ZQuest GUI module
 )
-
-if(APPLE)
-    list(APPEND ZQUEST_GUI_SOURCES src/osx/FolderManager.mm)
-endif()

@@ -57,7 +57,6 @@
 #include "jwinfsel.h"
 #include "zsys.h"
 #include "zc_malloc.h"
-#include "zapp.h"
 
 extern FONT *lfont_l;
 
@@ -1238,15 +1237,7 @@ void get_root_path(char* path, int32_t size)
 	int32_t drive = 0;
 #endif
 
-#ifdef __APPLE__
-    if (is_in_osx_application_bundle()) {
-        strcpy(path, get_user_data_directory().c_str());
-    } else {
-        _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
-    }
-#else
-	_al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
-#endif
+    _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
 	fix_filename_case(path);
 	fix_filename_slashes(path);
 	put_backslash(path);

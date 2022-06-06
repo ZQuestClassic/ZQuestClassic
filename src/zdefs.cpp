@@ -1,7 +1,5 @@
-
 #include "zdefs.h"
 #include "jwin.h"
-#include "zapp.h"
 
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
@@ -167,7 +165,7 @@ void load_udef_colorset(char const* fpath)
 void load_udef_colorset(char const* fpath, PALETTE pal)
 {
 	push_config_state();
-	set_config_file(get_user_data_path(fpath).c_str());
+	set_config_file(fpath);
 	char const* darkthemename = "themes/dark.ztheme";
 	char const* tfnm = zc_get_config("Theme", "theme_filename", "-");
 	bool defaulted_theme = !(tfnm[0]&&tfnm[0]!='-');

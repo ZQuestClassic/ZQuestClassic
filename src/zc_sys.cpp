@@ -38,7 +38,6 @@
 #include "colors.h"
 #include "pal.h"
 #include "zsys.h"
-#include "zapp.h"
 #include "qst.h"
 #include "zc_sys.h"
 #include "debug.h"
@@ -396,11 +395,8 @@ void load_game_configs()
     monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 
-    std::string default_path;
-    if (is_in_osx_application_bundle()) {
-        default_path = get_user_data_path("quests");
-    }
-    strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path.c_str()));
+    char* default_path = "";
+    strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
    
     if(strlen(qstdir)==0)
     {
