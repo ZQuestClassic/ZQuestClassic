@@ -201,7 +201,8 @@ mapscr* GetMapscr(int32_t mapref)
 {
 	switch(mapref)
 	{
-		case LONG_MAX: return NULL; //shouldn't happen, as error should already have been thrown before calling this func
+		// TODO: fails to compile for 64 bit
+		// case LONG_MAX: return NULL; //shouldn't happen, as error should already have been thrown before calling this func
 		case MAPSCR_TEMP0: return FFCore.tempScreens[0]; //Temp layer 0
 		case MAPSCR_TEMP1: return FFCore.tempScreens[1]; //Temp layer 1
 		case MAPSCR_TEMP2: return FFCore.tempScreens[2]; //Temp layer 2

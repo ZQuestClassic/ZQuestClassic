@@ -4387,7 +4387,7 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
-int32_t main(int32_t argc, char* argv[])
+int main(int argc, char **argv)
 {
 	bool onlyInstance=true;
 	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
@@ -4484,9 +4484,12 @@ int32_t main(int32_t argc, char* argv[])
 	
 	three_finger_flag=false;
 	
+	// TODO: build these plugins from source
+#ifndef __APPLE__
 	register_bitmap_file_type("GIF",  load_gif, save_gif);
 	jpgalleg_init();
 	loadpng_init();
+#endif
 	
 	// set and load game configurations
 	set_config_file("zc.cfg");

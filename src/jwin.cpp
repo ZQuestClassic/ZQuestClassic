@@ -2056,7 +2056,7 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
-		swapbtn = d+(int32_t)(d->dp3);
+		swapbtn = d+(int64_t)(d->dp3);
 	}
 	else swapbtn = (DIALOG*)d->dp3;
 	if(!swapbtn) return D_O_K;
@@ -2136,7 +2136,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
-		swapbtn = d+(int32_t)(d->dp3);
+		swapbtn = d+(int64_t)(d->dp3);
 	}
 	else swapbtn = (DIALOG*)d->dp3;
 	if(!swapbtn) return D_O_K;
@@ -2276,7 +2276,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	DIALOG* swapbtn;
 	if(d->flags&D_NEW_GUI)
 	{
-		swapbtn = d+(int32_t)(d->dp3);
+		swapbtn = d+(int64_t)(d->dp3);
 	}
 	else swapbtn = (DIALOG*)d->dp3;
 	if(!swapbtn) return D_O_K;
