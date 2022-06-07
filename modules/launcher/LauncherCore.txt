@@ -15,6 +15,7 @@ src/zdefs.cpp
 src/process_managment.cpp
 src/ConsoleLogger.cpp
 src/zconfig.cpp
+src/zqscale.cpp
 
 ## End of Launcher Core module
 )
