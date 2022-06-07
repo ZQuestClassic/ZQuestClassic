@@ -632,7 +632,7 @@ GFX_DRIVER display_allegro_5 = {
    NULL,                              // AL_LEGACY_METHOD(void, save_state, (void));
    NULL,                              // AL_LEGACY_METHOD(void, restore_state, (void));
    NULL,                              // AL_LEGACY_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
-   NULL, //be_gfx_bwindowscreen_fetch_mode_list,// AL_LEGACY_METHOD(int, fetch_mode_list, (void));
+   NULL,                   // AL_LEGACY_METHOD(GFX_MODE_LIST *, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
    0,                                 // long bank_size;  /* bank size, in bytes */

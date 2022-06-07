@@ -4504,7 +4504,7 @@ int main(int argc, char **argv)
 		save_game_configs();
 	}
 	
-#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
+#ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
 	if(!is_only_instance("zc.lck"))
 	{
 		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
@@ -5127,6 +5127,8 @@ int main(int argc, char **argv)
 		
 		//mode = GFX_AUTODETECT;
 	}
+
+	printf("x y %d %d\n", resx, resy);
 	
 	if(resx>=640 && resy>=480)
 	{
@@ -5147,6 +5149,11 @@ int main(int argc, char **argv)
 		al_trace("Used switch: -windowed\n");
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
+
+	if (tempmode == GFX_AUTODETECT_FULLSCREEN) {
+		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+	}
+	printf("al_set_new_display_flags\n");
 	
 	//set scale
 	if(resx < 256) resx = 256;

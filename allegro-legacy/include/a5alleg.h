@@ -42,4 +42,8 @@ AL_LEGACY_FUNC(void, all_unlock_screen, (void));
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* ifndef A5_ALLEGRO_LEGACY_H */
