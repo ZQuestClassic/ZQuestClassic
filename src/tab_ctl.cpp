@@ -111,8 +111,11 @@ int32_t vc2(int32_t x)
     return -1;
 }
 
-
-INLINE int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
+// TODO: why doesn't this work for mac?
+#ifndef __APPLE__
+INLINE
+#endif
+int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
 }

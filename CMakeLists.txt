@@ -38,15 +38,18 @@ endfunction(enable_unity_build)
 # Allegro
 #############################################################
 
-add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
+if(NOT APPLE)
+	add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
+endif()
 add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
+set(CMAKE_BUILD_TYPE Release)
 option(SHARED "" ON)
 
 include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/liballeg/allegro5.git
-  GIT_TAG        5.2.7.0
+  GIT_TAG        fbb3f0c9cb62fe19bba58e8a3fa7892196070fc8
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -109,11 +112,21 @@ if(MSVC)
   include_directories(./src/msvcCompat)
 endif()
 
-set(ZCSOUNDSOURCES
-	src/zcmusic.cpp
-	src/zcmusicd.cpp
-	src/alleg_compat.cpp
-)
+if(APPLE)
+	# TODO: use SDL backend for sound.
+	#       also build SDL, and SDL_mixer (connor's fork that includes GME) from source
+	set(ZCSOUNDSOURCES
+		src/zcmusic_fake.cpp
+		src/zcmusicd.cpp
+		src/alleg_compat.cpp
+	)
+else()
+	set(ZCSOUNDSOURCES
+		src/zcmusic.cpp
+		src/zcmusicd.cpp
+		src/alleg_compat.cpp
+	)
+endif()
 
 set(ROMVIEW_MODULES
 	${CMAKE_SOURCE_DIR}/modules/romview/RomviewCore.txt
@@ -296,8 +309,10 @@ if(WIN32)
 	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
 	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+elseif(APPLE)
+	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
-
+target_link_libraries(zelda allegro_with_legacy)
 
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")

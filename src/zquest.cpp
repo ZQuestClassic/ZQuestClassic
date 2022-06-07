@@ -26,7 +26,12 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#ifdef __APPLE__
+// malloc.h is deprecated, but malloc also lives in stdlib
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -29929,9 +29934,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	allegro_init();
 	three_finger_flag=false;
+	
+    // TODO: build these plugins from source
+#ifndef __APPLE__
 	register_bitmap_file_type("GIF",  load_gif, save_gif);
 	jpgalleg_init();
 	loadpng_init();
+#endif
 	
 	//set_config_file("ag.cfg");
 	set_config_file("zquest.cfg");
@@ -31058,9 +31067,12 @@ int32_t main(int32_t argc,char **argv)
 	{
 		allegro_init();
 		three_finger_flag=false;
+
+#ifndef __APPLE__
 		register_bitmap_file_type("GIF",  load_gif, save_gif);
 		jpgalleg_init();
 		loadpng_init();
+#endif
 		
 		//set_config_file("ag.cfg");
 		set_config_file("zquest.cfg");
