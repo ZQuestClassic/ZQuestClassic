@@ -118,21 +118,11 @@ if(MSVC)
   include_directories(./src/msvcCompat)
 endif()
 
-if(APPLE)
-	# TODO: use SDL backend for sound.
-	#       also build SDL, and SDL_mixer (connor's fork that includes GME) from source
-	set(ZCSOUNDSOURCES
-		src/zcmusic_fake.cpp
-		src/zcmusicd.cpp
-		src/alleg_compat.cpp
-	)
-else()
-	set(ZCSOUNDSOURCES
-		src/zcmusic.cpp
-		src/zcmusicd.cpp
-		src/alleg_compat.cpp
-	)
-endif()
+set(ZCSOUNDSOURCES
+	src/zcmusic.cpp
+	src/zcmusicd.cpp
+	src/alleg_compat.cpp
+)
 
 set(ROMVIEW_MODULES
 	${CMAKE_SOURCE_DIR}/modules/romview/RomviewCore.txt
@@ -254,10 +244,25 @@ elseif(LINUX)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 elseif(APPLE)
-	# set(SOUNDLIBS ${CMAKE_SOURCE_DIR}/libs/osx/libdumb.a ${CMAKE_SOURCE_DIR}/libs/osx/libalogg.a)
-	# link_directories(./libs/osx)
-	# set(SOUNDLIBS dumb aldmb alogg gme almp3 alspc)
-	# add_compile_options("-m32")
+	# Currently only build these libraries from source for osx,
+	# but no reason we shouldn't do the same for all platforms.
+	add_library(almp3 SHARED
+		allegro-addons/almp3/src/almp3.c
+		allegro-addons/almp3/decoder/common.c
+		allegro-addons/almp3/decoder/dct64_i386.c
+		allegro-addons/almp3/decoder/decode_i386.c
+		allegro-addons/almp3/decoder/interface.c
+		allegro-addons/almp3/decoder/layer2.c
+		allegro-addons/almp3/decoder/layer3.c
+		allegro-addons/almp3/decoder/tabinit.c
+	)
+	target_include_directories(almp3 PUBLIC
+		allegro-addons/almp3/include
+		allegro-addons/almp3/decoder
+	)
+	target_link_libraries(almp3 PUBLIC allegro_with_legacy)
+
+	set(SOUNDLIBS almp3)
 endif()
 
 #############################################################
