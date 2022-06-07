@@ -728,10 +728,14 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
    if (card == GFX_AUTODETECT_FULLSCREEN) {
       flags |= GFX_DRIVER_FULLSCREEN_FLAG;
       card = GFX_AUTODETECT;
+      // local edit
+      all_set_fullscreen_flag(true);
    }
    else if (card == GFX_AUTODETECT_WINDOWED) {
       flags |= GFX_DRIVER_WINDOWED_FLAG;
       card = GFX_AUTODETECT;
+      // local edit
+      all_set_fullscreen_flag(false);
    }
 
    if (card == GFX_AUTODETECT) {

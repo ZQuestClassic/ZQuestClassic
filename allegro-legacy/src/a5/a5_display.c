@@ -37,6 +37,8 @@ static int _a5_screen_format = ALLEGRO_LEGACY_PIXEL_FORMAT_OTHER;
 static bool _a5_disable_threaded_display = false;
 static int _a5_display_width = 0;
 static int _a5_display_height = 0;
+static int _a5_display_scale = 1;
+static bool _a5_display_fullscreen = false;
 static volatile int _a5_display_creation_done = 0;
 static ALLEGRO_EVENT_QUEUE * _a5_display_thread_event_queue = NULL;
 static ALLEGRO_TIMER * _a5_display_thread_timer = NULL;
@@ -47,6 +49,7 @@ static bool _a5_setup_screen(int w, int h)
 {
   ALLEGRO_STATE old_state;
   int pixel_format;
+  if (_a5_display_fullscreen) al_set_new_display_flags(ALLEGRO_FULLSCREEN);
   _a5_display = al_create_display(w, h);
   if(!_a5_display)
   {
@@ -538,6 +541,14 @@ ALLEGRO_BITMAP * all_get_a5_bitmap(BITMAP * bp)
 void all_render_screen(void)
 {
     all_render_a5_bitmap(screen, _a5_screen);
+
+    // local edit
+    if (!_a5_display_fullscreen && _a5_display_scale != 1) {
+      ALLEGRO_TRANSFORM transform;
+      al_build_transform(&transform, 0, 0, _a5_display_scale, _a5_display_scale, 0);
+      al_use_transform(&transform);
+    }
+
     al_draw_bitmap(_a5_screen, 0, 0, 0);
     al_flip_display();
 }
@@ -545,6 +556,26 @@ void all_render_screen(void)
 void all_disable_threaded_display(void)
 {
   _a5_disable_threaded_display = true;
+}
+
+// local edit
+void all_set_fullscreen_flag(bool fullscreen)
+{
+  _a5_display_fullscreen = fullscreen;
+  // So set_gfx_mode can find the Allegro 5 "display" driver.
+  display_allegro_5.windowed = !fullscreen;
+}
+
+// local edit
+void all_set_scale(int scale)
+{
+  _a5_display_scale = scale;
+}
+
+// local edit
+int all_get_scale()
+{
+  return _a5_display_scale;
 }
 
 GFX_DRIVER display_allegro_5 = {

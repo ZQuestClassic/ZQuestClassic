@@ -204,6 +204,10 @@ static void draw_mouse(int remove, int add)
    int newmx = _mouse_x;
    int newmy = _mouse_y;
 
+   // local edit - hack to apply correct scaling to mouse position
+   newmx /= all_get_scale();
+   newmy /= all_get_scale();
+
    int cf = _mouse_screen->clip;
    int cl = _mouse_screen->cl;
    int cr = _mouse_screen->cr;
