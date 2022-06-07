@@ -131,7 +131,7 @@ static const char *tmusic_path_name = "linux_tmusic_path";
 static const char *last_quest_name  = "linux_last_quest";
 static const char *qtname_name      = "linux_qtname%d";
 static const char *qtpath_name      = "linux_qtpath%d";
-#elif defined(ALLEGRO_MACOSX)
+#elif defined(__APPLE__)
 static const char *data_path_name   = "macosx_data_path";
 static const char *midi_path_name   = "macosx_midi_path";
 static const char *image_path_name  = "macosx_image_path";
@@ -309,11 +309,7 @@ bool resize_mouse_pos=false;                                //for eyeball combos
 int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 //int32_t mode, switch_mode, orig_mode;
-#ifdef ALLEGRO_MACOSX
-int32_t tempmode=GFX_AUTODETECT_FULLSCREEN;
-#else
 int32_t tempmode=GFX_AUTODETECT;
-#endif
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
@@ -31169,7 +31165,7 @@ int32_t main(int32_t argc,char **argv)
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
 
 		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease .\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
 
 
 		Z_error_fatal(allegro_error);

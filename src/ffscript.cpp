@@ -34989,7 +34989,7 @@ void FFScript::do_strnicmp()
 	string strB;
 	FFCore.getString(arrayptr_a, strA);
 	FFCore.getString(arrayptr_b, strB);
-	set_register(sarg1, (strnicmp(strA.c_str(), strB.c_str(), len) * 10000));
+	set_register(sarg1, (ustrnicmp(strA.c_str(), strB.c_str(), len) * 10000));
 }
 
 void FFScript::do_npc_canmove(const bool v)

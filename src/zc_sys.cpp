@@ -105,7 +105,7 @@ static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
 const char *qst_dir_name = "linux_qst_dir";
 static  const char *qst_module_name = "current_module";
-#elif defined(ALLEGRO_MACOSX)
+#elif defined(__APPLE__)
 const char *qst_dir_name = "macosx_qst_dir";
 static  const char *qst_module_name = "current_module";
 #endif
