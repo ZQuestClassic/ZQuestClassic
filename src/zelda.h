@@ -374,7 +374,6 @@ extern bool close_button_quit;
 extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;
-extern byte disable_triplebuffer, can_triplebuffer_in_windowed_mode;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
 extern byte use_debug_console, console_on_top, use_win32_proc, zasm_debugger, zscript_debugger; //windows only

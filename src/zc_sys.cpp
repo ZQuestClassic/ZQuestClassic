@@ -353,16 +353,11 @@ void load_game_configs()
     scanlines = zc_get_config(cfg_sect,"scanlines",0)!=0;
     loadlast = zc_get_config(cfg_sect,"load_last",0);
    
-// Fullscreen, page flipping may be problematic on newer windows systems.
+// Fullscreen may be problematic on newer windows systems.
 #ifdef _WIN32
-    
     fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
-    disable_triplebuffer = (byte) zc_get_config(cfg_sect,"doublebuffer",1);
-    can_triplebuffer_in_windowed_mode = (byte) zc_get_config(cfg_sect,"triplebuffer",0);
 #else
     fullscreen = zc_get_config(cfg_sect,"fullscreen",1);
-    disable_triplebuffer = (byte) zc_get_config(cfg_sect,"doublebuffer",0);
-    can_triplebuffer_in_windowed_mode = (byte) zc_get_config(cfg_sect,"triplebuffer",0);
 #endif
    
     zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
@@ -540,8 +535,6 @@ void save_game_configs()
     set_config_int(cfg_sect,"gui_colorset",gui_colorset);
     set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
     set_config_int(cfg_sect,"fullscreen",fullscreen);
-    set_config_int(cfg_sect,"doublebuffer",disable_triplebuffer);
-    set_config_int(cfg_sect,"triplebuffer",can_triplebuffer_in_windowed_mode);
     set_config_int(cfg_sect,"color_depth",zc_color_depth);
     set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
     set_config_int(cfg_sect,"force_exit",forceExit);
@@ -3865,17 +3858,7 @@ void updatescr(bool allowwavy)
     
     //TODO: Optimize blit 'overcalls' -Gleeok
     BITMAP *source = nosubscr ? panorama : wavybuf;
-    BITMAP *target = NULL;
-    
-    bool dontusetb = triplebuffer_not_available ||
-                     !(Throttlefps ^ (true && zc_getkey(KEY_TILDE)));
-                     
-    if(dontusetb)
-        target=screen;
-    else
-        target=tb_page[curr_tb_page];
         
-//  static BITMAP *tempscreen=NULL;
     static BITMAP *scanlinesbmp=NULL;
     
     if(resx != SCREEN_W || resy != SCREEN_H)
@@ -3907,50 +3890,40 @@ void updatescr(bool allowwavy)
             for(int32_t i=0; i<224; ++i)
                 _allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
                 
-            blit(scanlinesbmp, target, 0, 0, scrx+32-mx, scry+8-my, sx, sy);
+            blit(scanlinesbmp, screen, 0, 0, scrx+32-mx, scry+8-my, sx, sy);
         }
         else
         {
-            stretch_blit(source, target, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
+            stretch_blit(source, screen, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
         }
         
         if(quakeclk>0)
-            rectfill(target, // I don't know if these are right...
+            rectfill(screen, // I don't know if these are right...
                      scrx+32 - mx, //x1
                      scry+8 - my + sy, //y1
                      scrx+32 - mx + sx, //x2
                      scry+8 - my + sy + (16 * scale_mul), //y2
                      BLACK);
                      
-        //stretch_blit(nosubscr?panorama:wavybuf,target,0,0,256,224,scrx+32-128,scry+8-112,512,448);
-        //if(quakeclk>0) rectfill(target,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
+        //stretch_blit(nosubscr?panorama:wavybuf,screen,0,0,256,224,scrx+32-128,scry+8-112,512,448);
+        //if(quakeclk>0) rectfill(screen,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
     }
     else
     {
-        blit(source,target,0,0,scrx+32,scry+8,256,224);
+        blit(source,screen,0,0,scrx+32,scry+8,256,224);
         
-        if(quakeclk>0) rectfill(target,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
+        if(quakeclk>0) rectfill(screen,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
     }
     
     if(ShowFPS)// &&(frame&1))
-        show_fps(target);
+        show_fps(screen);
         
     if(Paused)
-        show_paused(target);
+        show_paused(screen);
         
     if(details)
     {
-        textprintf_ex(target,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
-    }
-    
-    if(!dontusetb)
-    {
-        if(!poll_scroll())
-        {
-            request_video_bitmap(tb_page[curr_tb_page]);
-            curr_tb_page=(curr_tb_page+1)%3;
-            clear_to_color(tb_page[curr_tb_page],BLACK);
-        }
+        textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
     }
     
     //if(panorama!=NULL) destroy_bitmap(panorama);

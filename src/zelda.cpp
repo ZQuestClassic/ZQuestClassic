@@ -274,7 +274,6 @@ int32_t startdmapxy[6] = {0,0,0,0,0,0};
 /**********************************/
 
 int32_t curr_tb_page=0;
-bool triplebuffer_not_available=false;
 
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
@@ -360,7 +359,6 @@ extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=0;
 int32_t fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
-byte disable_triplebuffer=0,can_triplebuffer_in_windowed_mode=0;
 byte zc_color_depth=8;
 byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
@@ -4334,76 +4332,6 @@ int32_t isFullScreen()
     return !is_windowed_mode();
 }
 
-class TB_Handler //Dear Santa: please kill Easter bunny. I've been a good boy.
-{
-public:
-
-    TB_Handler() {}
-    ~TB_Handler() {}
-    
-    bool CanEnable() const
-    {
-        if(is_windowed_mode() && can_triplebuffer_in_windowed_mode == FALSE)
-        {
-            triplebuffer_not_available = true;
-            return false;
-        }
-        
-        return (disable_triplebuffer == FALSE);
-    }
-    bool GFX_can_triple_buffer() const
-    {
-        if(!CanEnable())
-        {
-            triplebuffer_not_available = true;
-            return false;
-        }
-        
-        triplebuffer_not_available = false;
-        
-        if(!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) enable_triple_buffer();
-        
-        if(!(gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)) triplebuffer_not_available = true;
-        
-        return !triplebuffer_not_available;
-    }
-    void Destroy() const
-    {
-        if(disable_triplebuffer != FALSE || triplebuffer_not_available) return;
-        
-        for(int32_t i=0; i<3; i++)
-            if(tb_page[i])
-                destroy_bitmap(tb_page[i]);
-    }
-    void Create() const
-    {
-        if(!CanEnable())
-        {
-            triplebuffer_not_available = true;
-            return;
-        }
-        
-        for(int32_t i=0; i<3; ++i)
-        {
-            tb_page[i]=create_video_bitmap(SCREEN_W, SCREEN_H);
-            
-            if(!tb_page[i])
-            {
-                triplebuffer_not_available = true;
-                break;
-            }
-        }
-        
-        Clear();
-    }
-    void Clear() const
-    {
-        for(int32_t i=0; i<3; i++)
-            clear_bitmap(tb_page[i]);
-    }
-}
-static Triplebuffer;
-
 bool setGraphicsMode(bool windowed)
 {
     int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
@@ -4431,9 +4359,6 @@ int32_t onFullscreen()
 	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
-	    // these will become ultra corrupted no matter what.
-	    Triplebuffer.Destroy();
-	    
 	    bool success=setGraphicsMode(!windowed);
 	    if(success)
 		fullscreen=!fullscreen;
@@ -4448,15 +4373,6 @@ int32_t onFullscreen()
 		    exit(1);
 		}
 	    }
-	    
-	    /* ZC will crash going from fullscreen to windowed mode if triple buffer is left unchecked. -Gleeok  */
-	    if(Triplebuffer.GFX_can_triple_buffer())
-	    {
-		Triplebuffer.Create();
-		Z_message("Triplebuffer enabled \n");
-	    }
-	    else
-		Z_message("Triplebuffer disabled \n");
 	    
 	    //Everything set?
 	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
@@ -5152,20 +5068,6 @@ int32_t main(int32_t argc, char* argv[])
 	  }
 	  */
 	
-	//use only page flipping
-	if(used_switch(argc,argv,"-doublebuffer"))
-	{
-		disable_triplebuffer = 1;
-		Z_message("used switch: -doublebuffer\n");
-	}
-	
-	//allow video bitmaps in windowed mode
-	if(used_switch(argc,argv,"-triplebuffer"))
-	{
-		can_triplebuffer_in_windowed_mode = 1;
-		Z_message("used switch: -triplebuffer\n");
-	}
-	
 	const int32_t wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
 	
 	// quick quit
@@ -5196,7 +5098,6 @@ int32_t main(int32_t argc, char* argv[])
 		show_saving(screen);
 		save_savedgames();
 		save_game_configs();
-		Triplebuffer.Destroy();
 		set_gfx_mode(GFX_TEXT,80,25,0,0);
 		//rest(250); // ???
 		//  if(useCD)
@@ -5320,15 +5221,7 @@ int32_t main(int32_t argc, char* argv[])
 	hw_screen = screen;
 	hw_palette = &RAMpal;
 	screen = create_bitmap_ex(8, resx, resy);
-	clear_to_color(screen, BLACK);
-	
-	if(Triplebuffer.GFX_can_triple_buffer())
-	{
-		Triplebuffer.Create();
-	}
-	
-	Z_message("Triplebuffer %savailable\n", triplebuffer_not_available?"not ":"");
-	
+	clear_to_color(screen, BLACK);	
 	
 	set_close_button_callback((void (*)()) hit_close_button);
 	set_window_title("Zelda Classic");
@@ -5704,7 +5597,6 @@ int32_t main(int32_t argc, char* argv[])
 	show_saving(screen);
 	save_savedgames();
 	save_game_configs();
-	Triplebuffer.Destroy();
 	set_gfx_mode(GFX_TEXT,80,25,0,0);
 	//rest(250); // ???
 	//  if(useCD)
