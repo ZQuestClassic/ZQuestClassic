@@ -5,6 +5,7 @@
 #include "fonts.h"
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
+#include "zqscale.h"
 
 #define QUICK_EXIT 0
 
@@ -27,7 +28,7 @@ volatile int32_t framecnt = 0;
 int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
 volatile int32_t myvsync=0;
-int32_t zqwin_scale = 1;
+extern int32_t zqwin_scale;
 int32_t zq_screen_w=800;
 int32_t zq_screen_h=600;
 BITMAP *tmp_scr;
@@ -161,7 +162,25 @@ int32_t main(int32_t argc, char* argv[])
 	//} end Loading data files:
 	
 	set_color_depth(8);
-	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
+
+	int scale_arg = used_switch(argc,argv,"-scale");
+	if(scale_arg && (argc>(scale_arg+1)))
+	{
+		scale_arg = atoi(argv[scale_arg+1]);
+
+		if(scale_arg == 0)
+		{
+			scale_arg = 1;
+		}
+
+		zqwin_set_scale(scale_arg);
+	} else {
+#ifdef __APPLE__
+		zqwin_set_scale(2);
+#endif
+	}
+
+	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	
 	if(videofail)
 	{
