@@ -5,6 +5,10 @@ import { createElement, fsReadAllFiles } from "./utils.js";
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
 
+export function getAttachedDirHandle() {
+  return attachedDirHandle;
+}
+
 let configuredMountPromiseResolve;
 const configuredMountPromise = new Promise(resolve => {
   configuredMountPromiseResolve = resolve;
@@ -16,6 +20,7 @@ export async function configureMount() {
   attachedDirHandle = await kv.get('attached-dir');
   if (!self.showDirectoryPicker || attachedDirHandle === false || !await requestPermission()) {
     type = 'idb';
+    attachedDirHandle = null;
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
@@ -36,7 +41,7 @@ export async function configureMount() {
   configuredMountPromiseResolve();
 }
 
-async function requestPermission() {
+export async function requestPermission() {
   const options = { mode: 'readwrite' };
 
   if (attachedDirHandle) {

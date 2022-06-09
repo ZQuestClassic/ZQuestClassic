@@ -210,4 +210,4 @@ mergeInto(LibraryManager.library, {
 });
 
 globalThis.FSFS = LibraryManager.library.$FSFS;
-FS.filesystems.FSFS = FSFS
+FS.filesystems.FSFS = FSFS;

@@ -1,5 +1,6 @@
 import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
 import { createElement, createUrlString, fetchWithProgress, formatBytes } from "./utils.js";
+import { handleFileLaunch } from "./file_launch.js";
 
 window.ZC = {
   pathToUrl: {},
@@ -58,12 +59,12 @@ window.ZC = {
 };
 
 async function main() {
+  const params = new URLSearchParams(location.search);
+  const args = [];
+
   try {
     const statusElement = document.getElementById('status');
     const progressElement = document.getElementById('progress');
-
-    const args = [];
-    const params = new URLSearchParams(location.search);
 
     let questPath = params.get('quest');
     if (questPath) {
@@ -184,6 +185,15 @@ async function main() {
     document.body.classList.toggle('canvas-focus', true);
 
     await renderQuestList();
+
+    if (params.has('launch')) {
+      const result = await handleFileLaunch();
+      if (result.openInEditor) {
+        window.location.href = createUrlString(ZC_Constants.zquestUrl, { quest: result.quest });
+      } else {
+        window.location.href = createUrlString(ZC_Constants.zeldaUrl, { quest: result.quest });
+      }
+    }
   } catch (err) {
     console.error(err);
     document.querySelector('.content').textContent = err.toString();
@@ -511,21 +521,21 @@ function setupOpenTestMode() {
   });
 }
 
-main();
-
 function checkForGamepads() {
   const hasGamepad = navigator.getGamepads().some(Boolean);
   for (const el of [...document.querySelectorAll('.touch-inputs')]) {
     el.classList.toggle('hidden', hasGamepad);
   }
 }
-checkForGamepads();
-window.addEventListener('gamepadconnected', checkForGamepads);
-window.addEventListener('gamepaddisconnected', checkForGamepads);
 
 function goFullscreen() {
   document.querySelector('main').requestFullscreen();
 }
+
+main();
+checkForGamepads();
+window.addEventListener('gamepadconnected', checkForGamepads);
+window.addEventListener('gamepaddisconnected', checkForGamepads);
 
 const fullscreenEl = document.createElement('button');
 fullscreenEl.textContent = 'Fullscreen';
