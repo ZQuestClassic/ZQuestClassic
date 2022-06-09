@@ -14877,7 +14877,7 @@ void drawdmap(int32_t dmap)
             ;
         // overworld_map_tile overrides the NES minimap. dungeon_map_tile does not.
         else for(int32_t y=1; y<33; y+=4)
-                drawgrid(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2], DMaps[dmap].flags&dmfMINIMAPCOLORFIX ? mc.cave_fg : mc.dngn_fg, -1, -1);
+                drawgrid(dmapbmp_small,0,y,DMaps[dmap].grid[y>>2], DMaps[dmap].flags&dmfMINIMAPCOLORFIX ? mc.cave_fg : mc.dngn_fg, -1, -1);
                 
         c=DMaps[dmap].compass;
         //  rectfill(dmapbmp,(c&15)*8+3,(c>>4)*4+1,(c&15)*8+5,(c>>4)*4+3,dvc(2*4));
@@ -14907,7 +14907,7 @@ void drawdmap(int32_t dmap)
         else if(!mc.overworld_map_tile)
             for(int32_t y=1; y<33; y+=4)
                 //    drawgrid_s(dmapbmp,1,y,DMaps[dmap].grid[y>>2],dvc(2*4),dvc(2*3),dvc(3+4));
-                drawgrid_s(dmapbmp_small,1,y,DMaps[dmap].grid[y>>2],mc.bs_goal,mc.bs_dk,vc(14));
+                drawgrid_s(dmapbmp_small,0,y,DMaps[dmap].grid[y>>2],mc.bs_goal,mc.bs_dk,vc(14));
                 
         c=DMaps[dmap].cont;
         rectfill(dmapbmp_small,(c&15)*8+3,(c>>4)*4+1,(c&15)*8+5,(c>>4)*4+3,vc(10));
