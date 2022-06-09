@@ -2025,6 +2025,12 @@ void weapon::cleanup_sfx()
 }
 weapon::~weapon()
 {
+	if(dragging > 0)
+	{
+		item* dragItem = (item*)items.spr(dragging);
+		if(dragItem)
+			dragItem->is_dragged = false;
+	}
 	FFCore.deallocateAllArrays(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, getUID());
 	cleanup_sfx();
 }
@@ -5381,6 +5387,12 @@ bool weapon::animate(int32_t index)
 			if ( doscript )
 			{
 				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+			}
+			if(weapon_dying_frame)
+			{
+				if(dead != 0)
+					weapon_dying_frame = false;
+				else break;
 			}
 			if(dead>0 && !get_bit(quest_rules,qr_ARROWCLIP))
 			{

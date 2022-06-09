@@ -33405,7 +33405,21 @@ void FFScript::do_itemsprite_delete()
 {
 	if(0!=(s=checkItem(ri->itemref)))
 	{
-		items.del(ItemH::getItemIndex(ri->itemref));
+		auto ind = ItemH::getItemIndex(ri->itemref);
+		items.del(ind);
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = (weapon*)Lwpns.spr(i);
+			
+			if(w->dragging==ind)
+			{
+				w->dragging=-1;
+			}
+			else if(w->dragging>ind)
+			{
+				w->dragging-=1;
+			}
+		}
 	}
 }
 

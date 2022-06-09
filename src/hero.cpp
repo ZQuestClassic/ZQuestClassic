@@ -26814,19 +26814,21 @@ void HeroClass::checkitems(int32_t index)
 				fadeclk=66;
 				
 				if(((item*)items.spr(0))->id == iRupy && ((item*)items.spr(0))->pickup & ipDUMMY)
+				{
 					items.del(0);
 					
-				for(int32_t i=0; i<Lwpns.Count(); i++)
-				{
-					weapon *w = (weapon*)Lwpns.spr(i);
-					
-					if(w->dragging==0)
+					for(int32_t i=0; i<Lwpns.Count(); i++)
 					{
-						w->dragging=-1;
-					}
-					else if(w->dragging>0)
-					{
-						w->dragging-=1;
+						weapon *w = (weapon*)Lwpns.spr(i);
+						
+						if(w->dragging==0)
+						{
+							w->dragging=-1;
+						}
+						else if(w->dragging>0)
+						{
+							w->dragging-=1;
+						}
 					}
 				}
 			}
