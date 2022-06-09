@@ -587,6 +587,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_NEW_COMBO_ANIMATION, 1);
 	set_bit(quest_rules, qr_BUSHESONLAYERS1AND2, 1);
 	set_bit(quest_rules, qr_CUSTOMCOMBOSLAYERS1AND2, 1);
+	set_bit(quest_rules, qr_CUSTOMCOMBOS_EVERY_LAYER, 1);
 	set_bit(quest_rules, qr_HOOKSHOTLAYERFIX, 1);
 	set_bit(quest_rules, qr_EPILEPSY, 1);
 	set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 1);

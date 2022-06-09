@@ -177,8 +177,8 @@ const char default_ctype_strings[cMAX][255] =
 	"Script 14","Script 15","Script 16","Script 17","Script 18",
 	"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
 	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
-	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block",
-	"ButtonPrompt"
+	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block", "ButtonPrompt",
+	"Block Weapon (Custom)"
 };
 const char old_mapflag_strings[mfMAX][255] =
 {

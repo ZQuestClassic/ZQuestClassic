@@ -829,6 +829,8 @@ enum
 	cBRIDGE, cSIGNPOST, cCSWITCH, cCSWITCHBLOCK, cTORCH,
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
+	//175
+	cCUSTOMBLOCK,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1097,7 +1099,7 @@ enum
 	qr_OLD_SCRIPTED_KNOCKBACK, qr_OLD_KEESE_Z_AXIS, qr_POLVIRE_NO_SHADOW,
 	
 	//50
-	qr_CONVEYORS_L1_L2,
+	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER,
 	
 	//60
 	
@@ -1333,6 +1335,7 @@ enum
 #define combotriggerBTN_BOTTOM   0x00200000
 #define combotriggerBTN_LEFT     0x00400000
 #define combotriggerBTN_RIGHT    0x00800000
+#define combotriggerINVERTMINMAX 0x01000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001

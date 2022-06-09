@@ -46,6 +46,7 @@ private:
 	std::shared_ptr<GUI::Button> ib_flags[16];
 	std::shared_ptr<GUI::Label> l_flip;
 	std::shared_ptr<GUI::Label> l_cset;
+	std::shared_ptr<GUI::Label> l_minmax_trig;
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
 	std::shared_ptr<GUI::SelComboSwatch> cycleswatch;

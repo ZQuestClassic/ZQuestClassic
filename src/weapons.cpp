@@ -1043,79 +1043,46 @@ static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 	if(screenIsScrolling()) return 0;
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	
-		if ( ( wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wBeam && c[comboid].triggerflags[0]&combotriggerSWORDBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wBrang && c[comboid].triggerflags[0]&combotriggerBRANG ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wBomb && c[comboid].triggerflags[0]&combotriggerBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wSBomb && c[comboid].triggerflags[0]&combotriggerSBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wLitBomb && c[comboid].triggerflags[0]&combotriggerLITBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wLitSBomb && c[comboid].triggerflags[0]&combotriggerLITSBOMB ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wArrow && c[comboid].triggerflags[0]&combotriggerARROW ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wFire && c[comboid].triggerflags[0]&combotriggerFIRE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wWhistle && c[comboid].triggerflags[0]&combotriggerWHISTLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wBait && c[comboid].triggerflags[0]&combotriggerBAIT ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wWand && c[comboid].triggerflags[0]&combotriggerWAND ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wMagic && c[comboid].triggerflags[0]&combotriggerMAGIC ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wWind && c[comboid].triggerflags[0]&combotriggerWIND ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wRefMagic && c[comboid].triggerflags[0]&combotriggerREFMAGIC ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wRefFireball && c[comboid].triggerflags[0]&combotriggerREFFIREBALL ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wRefRock && c[comboid].triggerflags[0]&combotriggerREFROCK ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wHammer && c[comboid].triggerflags[0]&combotriggerHAMMER ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		    //ZScript liter support ends here. 
-		
-		else if ( ( wid == wHookshot && c[comboid].triggerflags[1]&combotriggerHOOKSHOT ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		
-		else if ( ( wid == wFSparkle && c[comboid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		else if ( ( wid == wSSparkle && c[comboid].triggerflags[1]&combotriggerSPARKLE ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wCByrna && c[comboid].triggerflags[1]&combotriggerBYRNA ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wRefBeam && c[comboid].triggerflags[1]&combotriggerREFBEAM ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wStomp && c[comboid].triggerflags[1]&combotriggerSTOMP ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		    
-		    //item trigger flags page 2
-		
-		else if ( ( wid == wScript1 && c[comboid].triggerflags[1]&combotriggerSCRIPT01 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript2 && c[comboid].triggerflags[1]&combotriggerSCRIPT02 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript3 && c[comboid].triggerflags[1]&combotriggerSCRIPT03 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript4 && c[comboid].triggerflags[1]&combotriggerSCRIPT04 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript5 && c[comboid].triggerflags[1]&combotriggerSCRIPT05 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript6 && c[comboid].triggerflags[1]&combotriggerSCRIPT06 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript7 && c[comboid].triggerflags[1]&combotriggerSCRIPT07 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript8 && c[comboid].triggerflags[1]&combotriggerSCRIPT08 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript9 && c[comboid].triggerflags[1]&combotriggerSCRIPT09 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else if ( ( wid == wScript10 && c[comboid].triggerflags[1]&combotriggerSCRIPT10 ) && ( w->type >= c[comboid].triggerlevel ) )  return 1;
-		
-		else return 0;
+	if ( ( wid == wSword && c[comboid].triggerflags[0]&combotriggerSWORD));
+	else if ( ( wid == wBeam && c[comboid].triggerflags[0]&combotriggerSWORDBEAM));
+	else if ( ( wid == wBrang && c[comboid].triggerflags[0]&combotriggerBRANG));
+	else if ( ( wid == wBomb && c[comboid].triggerflags[0]&combotriggerBOMB));
+	else if ( ( wid == wSBomb && c[comboid].triggerflags[0]&combotriggerSBOMB));
+	else if ( ( wid == wLitBomb && c[comboid].triggerflags[0]&combotriggerLITBOMB));
+	else if ( ( wid == wLitSBomb && c[comboid].triggerflags[0]&combotriggerLITSBOMB));
+	else if ( ( wid == wArrow && c[comboid].triggerflags[0]&combotriggerARROW));
+	else if ( ( wid == wFire && c[comboid].triggerflags[0]&combotriggerFIRE));
+	else if ( ( wid == wWhistle && c[comboid].triggerflags[0]&combotriggerWHISTLE));
+	else if ( ( wid == wBait && c[comboid].triggerflags[0]&combotriggerBAIT));
+	else if ( ( wid == wWand && c[comboid].triggerflags[0]&combotriggerWAND));
+	else if ( ( wid == wMagic && c[comboid].triggerflags[0]&combotriggerMAGIC));
+	else if ( ( wid == wWind && c[comboid].triggerflags[0]&combotriggerWIND));
+	else if ( ( wid == wRefMagic && c[comboid].triggerflags[0]&combotriggerREFMAGIC));
+	else if ( ( wid == wRefFireball && c[comboid].triggerflags[0]&combotriggerREFFIREBALL));
+	else if ( ( wid == wRefRock && c[comboid].triggerflags[0]&combotriggerREFROCK));
+	else if ( ( wid == wHammer && c[comboid].triggerflags[0]&combotriggerHAMMER));
+	else if ( ( wid == wHookshot && c[comboid].triggerflags[1]&combotriggerHOOKSHOT));
+	else if ( ( wid == wFSparkle && c[comboid].triggerflags[1]&combotriggerSPARKLE));
+	else if ( ( wid == wSSparkle && c[comboid].triggerflags[1]&combotriggerSPARKLE));
+	else if ( ( wid == wCByrna && c[comboid].triggerflags[1]&combotriggerBYRNA));
+	else if ( ( wid == wRefBeam && c[comboid].triggerflags[1]&combotriggerREFBEAM));
+	else if ( ( wid == wStomp && c[comboid].triggerflags[1]&combotriggerSTOMP));
+	else if ( ( wid == wScript1 && c[comboid].triggerflags[1]&combotriggerSCRIPT01));
+	else if ( ( wid == wScript2 && c[comboid].triggerflags[1]&combotriggerSCRIPT02));
+	else if ( ( wid == wScript3 && c[comboid].triggerflags[1]&combotriggerSCRIPT03));
+	else if ( ( wid == wScript4 && c[comboid].triggerflags[1]&combotriggerSCRIPT04));
+	else if ( ( wid == wScript5 && c[comboid].triggerflags[1]&combotriggerSCRIPT05));
+	else if ( ( wid == wScript6 && c[comboid].triggerflags[1]&combotriggerSCRIPT06));
+	else if ( ( wid == wScript7 && c[comboid].triggerflags[1]&combotriggerSCRIPT07));
+	else if ( ( wid == wScript8 && c[comboid].triggerflags[1]&combotriggerSCRIPT08));
+	else if ( ( wid == wScript9 && c[comboid].triggerflags[1]&combotriggerSCRIPT09));
+	else if ( ( wid == wScript10 && c[comboid].triggerflags[1]&combotriggerSCRIPT10));
+	else return 0;
+	if( (c[comboid].triggerflags[0]&combotriggerINVERTMINMAX)
+		? w->type <= c[comboid].triggerlevel
+		: w->type >= c[comboid].triggerlevel) 
+		return 1;
+	return 0;
 }
 
 static int32_t COMBOAT(int32_t x, int32_t y) 
@@ -1466,6 +1433,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, i
 	if(screenIsScrolling()) return;
 	int32_t cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
 	if(!MatchComboTrigger(w, c, cid)) return;
+	if(w->weapon_dying_frame) return;
 	newcombo const& cmb = c[cid];
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	int32_t flag = ( layer ) ? MAPFLAGL(layer, bx,by) : MAPFLAG(bx,by);
@@ -1481,6 +1449,11 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, i
 		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 		case cTRIGGERGENERIC:
 			do_generic_combo(w, bx, by, c, wid, cid, flag, flag2, ft, scombo, single16, layer);
+			break;
+		case cCUSTOMBLOCK:
+			killgenwpn(w);
+			if(cmb.attribytes[0])
+				sfx(cmb.attribytes[0]);
 			break;
 		case cCSWITCH:
 			if (!check_bit)
@@ -8452,11 +8425,13 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
 
 void weapon::findcombotriggers()
 {
+	int32_t layercount = get_bit(quest_rules,qr_CUSTOMCOMBOS_EVERY_LAYER) ?
+		7 : ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1);
 	for(int32_t dx = 0; dx < hxsz; dx += 16)
 	{
 		for(int32_t dy = 0; dy < hysz; dy += 16)
 		{
-			for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+			for (int32_t ly = 0; ly < layercount; ++ly )
 			{
 				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
@@ -8464,7 +8439,7 @@ void weapon::findcombotriggers()
 				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 			}
 		}
-		for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
 			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
@@ -8475,7 +8450,7 @@ void weapon::findcombotriggers()
 	}
 	for(int32_t dy = 0; dy < hysz; dy += 16)
 	{
-		for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
 			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
@@ -8484,7 +8459,7 @@ void weapon::findcombotriggers()
 		}
 		
 	}
-	for (int32_t ly = 0; ly < ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1); ++ly )
+	for (int32_t ly = 0; ly < layercount; ++ly )
 	{
 		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
