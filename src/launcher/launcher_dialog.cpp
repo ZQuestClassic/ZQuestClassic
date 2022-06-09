@@ -554,7 +554,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								}
 							}),
 						tf_module_zc = TextField(
-							read_only = true, fitParent = true
+							read_only = true, fitParent = true,
+							forceFitW = true
 						),
 						DummyWidget(),
 						//
@@ -576,6 +577,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							}),
 						tf_savefile = TextField(
 							read_only = true, fitParent = true,
+							forceFitW = true,
 							text = zc_get_config("zc.cfg", "SAVEFILE", "save_filename", "zc.sav")
 						),
 						DummyWidget(),
@@ -651,7 +653,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								}
 							}),
 						tf_module_zq = TextField(
-							read_only = true, fitParent = true
+							read_only = true, fitParent = true,
+							forceFitW = true
 						),
 						DummyWidget()
 					))
@@ -680,7 +683,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 									}
 								}),
 							tf_module_zcl = TextField(
-								read_only = true, fitParent = true
+								read_only = true, fitParent = true,
+								forceFitW = true
 							),
 							DummyWidget()
 						)
