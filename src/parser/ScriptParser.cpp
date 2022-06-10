@@ -126,7 +126,7 @@ string ScriptParser::prepareFilename(string const& filename)
 
 vector<string> ScriptParser::includePaths;
 
-void cleanInclude(string& includePath)
+string& cleanInclude(string& includePath)
 {
 	//Add a `/` to the end of the include path, if it is missing
 	int32_t lastnot = includePath.find_last_not_of("/\\");
@@ -137,6 +137,7 @@ void cleanInclude(string& includePath)
 			includePath += "/";
 	}
 	regulate_path(includePath);
+	return includePath;
 }
 
 string* ScriptParser::checkIncludes(string& includePath, string const& importname, vector<string> includes)
@@ -231,7 +232,7 @@ bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 		for(auto it2 = includePaths.begin();
 			it2 != includePaths.end(); ++it2)
 		{
-			if(!strcmp((*it2).c_str(), path.c_str())
+			if(!strcmp((*it2).c_str(), path.c_str()))
 			{
 				dupe = true;
 				break;
