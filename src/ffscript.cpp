@@ -24262,19 +24262,59 @@ void do_drawing_command(const int32_t script_command)
 		{
 			set_user_bitmap_command_args(j, 6);
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
-			break;			
+			break;
 		}
 		case BMPDITHER:
 		{
 			set_user_bitmap_command_args(j, 5);
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
-			break;			
+			break;
 		}
 		case BMPMASKDRAW:
 		{
 			set_user_bitmap_command_args(j, 3);
+			script_drawing_commands[j][4] = 0x01 * 10000L;
+			script_drawing_commands[j][5] = 0xFF * 10000L;
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
-			break;			
+			break;
+		}
+		case BMPMASKDRAW2:
+		{
+			set_user_bitmap_command_args(j, 4);
+			script_drawing_commands[j][5] = script_drawing_commands[j][4];
+			script_drawing_commands[j][0] = BMPMASKDRAW;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			break;
+		}
+		case BMPMASKDRAW3:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][0] = BMPMASKDRAW;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			break;
+		}
+		case BMPMASKBLIT:
+		{
+			set_user_bitmap_command_args(j, 4);
+			script_drawing_commands[j][5] = 0x01 * 10000L;
+			script_drawing_commands[j][6] = 0xFF * 10000L;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			break;
+		}
+		case BMPMASKBLIT2:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][6] = script_drawing_commands[j][5];
+			script_drawing_commands[j][0] = BMPMASKBLIT;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			break;
+		}
+		case BMPMASKBLIT3:
+		{
+			set_user_bitmap_command_args(j, 6);
+			script_drawing_commands[j][0] = BMPMASKBLIT;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
+			break;
 		}
 		case BMPREPLCOLOR:
 		case BMPSHIFTCOLOR:
@@ -27838,6 +27878,11 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case BMPREPLCOLOR:
 			case BMPSHIFTCOLOR:
 			case BMPMASKDRAW:
+			case BMPMASKDRAW2:
+			case BMPMASKDRAW3:
+			case BMPMASKBLIT:
+			case BMPMASKBLIT2:
+			case BMPMASKBLIT3:
 				do_drawing_command(scommand);
 				break;
 			case READBITMAP:
@@ -36019,6 +36064,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "EWPNMAKEANGULAR",      1,   0,   0,   0},
 	{ "LWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
 	{ "EWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
+	{ "BMPMASKDRAW2",           0,   0,   0,   0},
+	{ "BMPMASKDRAW3",           0,   0,   0,   0},
+	{ "BMPMASKBLIT",           0,   0,   0,   0},
+	{ "BMPMASKBLIT2",           0,   0,   0,   0},
+	{ "BMPMASKBLIT3",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

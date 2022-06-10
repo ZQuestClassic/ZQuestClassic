@@ -8924,6 +8924,56 @@ namespace ZScript
 		}
 	};
 	
+	class OBitmapMaskDraw2 : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskDraw2();
+		}
+	};
+	
+	class OBitmapMaskDraw3 : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskDraw3();
+		}
+	};
+	
+	class OBitmapMaskBlit : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskBlit();
+		}
+	};
+	
+	class OBitmapMaskBlit2 : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskBlit2();
+		}
+	};
+	
+	class OBitmapMaskBlit3 : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OBitmapMaskBlit3();
+		}
+	};
+	
 	class OBMPDrawScreenSolidRegister : public Opcode
 	{
 	public:

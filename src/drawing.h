@@ -19,7 +19,10 @@ enum dithType
 	dithStatic3, dithStatic3Inv,
 	dithMax
 };
-void maskblit(BITMAP* dest, BITMAP* src, int32_t color);
+void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color);
+void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart, int32_t targEnd);
+void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats);
+void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_t targStart, int32_t targEnd);
 void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs=0, int32_t yoffs=0);
 void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
 

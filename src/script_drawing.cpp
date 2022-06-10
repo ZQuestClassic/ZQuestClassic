@@ -5183,22 +5183,59 @@ void do_bmpmaskdraw(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 	/* layer, mask, color */
 	//sdci[2] Mask Bitmap Pointer
 	//sdci[3] Color
+	//sdci[4] start mask color
+	//sdci[5] end mask color
 	//sdci[17] Bitmap Pointer
-	if ( sdci[17] <= 0 )
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL )
 	{
 		Z_scripterrlog("bitmap->MaskDraw() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
 		return;
 	}
-	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
-	if ( refbmp == NULL ) return;
-	if ( sdci[2] <= 0 )
+	BITMAP *mask = FFCore.GetScriptBitmap(sdci[2]-10);
+	if ( mask == NULL )
 	{
 		Z_scripterrlog("bitmap->MaskDraw() wanted to read from an invalid bitmap id: %d. Aborting.\n", sdci[2]);
 		return;
 	}
+	auto fillcol = sdci[3]/10000L;
+	if(unsigned(fillcol) > 0xFF) return; //invalid color, nothing to draw
+	auto startcol = vbound(sdci[4]/10000L,0x00,0xFF);
+	auto endcol = vbound(sdci[5]/10000L,0x00,0xFF);
+	mask_colorfill(refbmp, mask, fillcol, startcol, endcol);
+}
+
+void do_bmpmaskblit(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
+{
+	/* layer, mask, color */
+	//sdci[2] Mask Bitmap Pointer
+	//sdci[3] Pattern Bitmap
+	//sdci[4] bool 'pattern repeats'
+	//sdci[5] start mask color
+	//sdci[6] end mask color
+	//sdci[17] Bitmap Pointer
+	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
+	if ( refbmp == NULL )
+	{
+		Z_scripterrlog("bitmap->MaskDraw() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
+	}
 	BITMAP *mask = FFCore.GetScriptBitmap(sdci[2]-10);
-	if ( refbmp == NULL ) return;
-	maskblit(refbmp, mask, byte(sdci[3]/10000L));
+	if ( mask == NULL )
+	{
+		Z_scripterrlog("bitmap->MaskDraw() wanted to read from an invalid bitmap (mask) id: %d. Aborting.\n", sdci[2]);
+		return;
+	}
+	BITMAP *pattern = FFCore.GetScriptBitmap(sdci[3]-10);
+	if ( pattern == NULL )
+	{
+		Z_scripterrlog("bitmap->MaskDraw() wanted to read from an invalid bitmap (pattern) id: %d. Aborting.\n", sdci[3]);
+		return;
+	}
+	bool repeats = sdci[4]!=0;
+	auto startcol = vbound(sdci[5]/10000L,0x00,0xFF);
+	auto endcol = vbound(sdci[6]/10000L,0x00,0xFF);
+	mask_blit(refbmp, mask, pattern, repeats, startcol, endcol);
 }
 
 void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -6044,8 +6081,8 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	Z_scripterrlog("bitmap quad pointer: %d\n", sdci[17]);
     if ( sdci[17] <= 0 )
     {
-	Z_scripterrlog("bitmap->Quad() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
-	return;
+		Z_scripterrlog("bitmap->Quad() wanted to write to an invalid bitmap id: %d. Aborting.\n", sdci[17]);
+		return;
     }
 	BITMAP *refbmp = FFCore.GetScriptBitmap(sdci[17]-10);
     
@@ -6116,7 +6153,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			clear_bitmap(tex);
 		}
 		
-		if(tile > 0 && tile <= 65519)   // TILE
+		if(tile > 0)   // TILE
 		{
 			TileHelper::OverTile(tex, tile, 0, 0, w, h, color, flip);
 		}
@@ -6134,7 +6171,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 			Z_message("Quad() : Args h, w, must be in powers of two! Power of 2 error with %i, %i.", w, h);
 			return; //non power of two error
 		}
-		Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
+		//Z_scripterrlog("bitmap->Quad() is trying to blit from a bitmap texture.\n");
 		V3D_f V1 = { static_cast<float>(x1+xoffset), static_cast<float>(y1+yoffset), 0, 0,                             0,                              col[0] };
 		V3D_f V2 = { static_cast<float>(x2+xoffset), static_cast<float>(y2+yoffset), 0, 0,                             static_cast<float>(h), col[1] };
 		V3D_f V3 = { static_cast<float>(x3+xoffset), static_cast<float>(y3+yoffset), 0, static_cast<float>(w), static_cast<float>(h), col[2] };
@@ -11205,6 +11242,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			case BMPREPLCOLOR: do_bmpreplcol(bmp, sdci, xoffset, yoffset); break;
 			case BMPSHIFTCOLOR: do_bmpshiftcol(bmp, sdci, xoffset, yoffset); break;
 			case BMPMASKDRAW: do_bmpmaskdraw(bmp, sdci, xoffset, yoffset); break;
+			case BMPMASKBLIT: do_bmpmaskblit(bmp, sdci, xoffset, yoffset); break;
 		}
 	}
 	

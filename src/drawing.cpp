@@ -76,7 +76,7 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 	return ret^inv;
 }
 
-void maskblit(BITMAP* dest, BITMAP* src, int32_t color)
+void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color)
 {
 	int32_t wid = zc_min(dest->w, src->w);
 	int32_t hei = zc_min(dest->h, src->h);
@@ -93,6 +93,81 @@ void maskblit(BITMAP* dest, BITMAP* src, int32_t color)
 		}
 	}
 	bmp_unwrite_line(src);
+	bmp_unwrite_line(dest);
+}
+void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart, int32_t targEnd)
+{
+	int32_t wid = zc_min(dest->w, src->w);
+	int32_t hei = zc_min(dest->h, src->h);
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(src, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			auto oldc = bmp_read8(read_addr+tx);
+			if(oldc >= targStart && oldc <= targEnd)
+			{
+				bmp_write8(write_addr+tx, color);
+			}
+		}
+	}
+	bmp_unwrite_line(src);
+	bmp_unwrite_line(dest);
+}
+void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats)
+{
+	int32_t wid = zc_min(dest->w, mask->w);
+	int32_t hei = zc_min(dest->h, mask->h);
+	if(!repeats)
+	{
+		wid = zc_min(wid, pattern->w);
+		hei = zc_min(hei, pattern->h);
+	}
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t mask_addr = bmp_read_line(mask, ty);
+		uintptr_t pattern_addr = bmp_read_line(mask, ty % pattern->h);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			if(bmp_read8(mask_addr+tx))
+			{
+				auto color = bmp_read8(pattern_addr + (tx % pattern->w));
+				bmp_write8(write_addr+tx, color);
+			}
+		}
+	}
+	bmp_unwrite_line(mask);
+	bmp_unwrite_line(pattern);
+	bmp_unwrite_line(dest);
+}
+void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_t targStart, int32_t targEnd)
+{
+	int32_t wid = zc_min(dest->w, mask->w);
+	int32_t hei = zc_min(dest->h, mask->h);
+	if(!repeats)
+	{
+		wid = zc_min(wid, pattern->w);
+		hei = zc_min(hei, pattern->h);
+	}
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t mask_addr = bmp_read_line(mask, ty);
+		uintptr_t pattern_addr = bmp_read_line(pattern, ty % pattern->h);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			auto oldc = bmp_read8(mask_addr+tx);
+			if(oldc >= targStart && oldc <= targEnd)
+			{
+				auto patternc = bmp_read8(pattern_addr + (tx % pattern->w));
+				bmp_write8(write_addr+tx, patternc);
+			}
+		}
+	}
+	bmp_unwrite_line(mask);
+	bmp_unwrite_line(pattern);
 	bmp_unwrite_line(dest);
 }
 
