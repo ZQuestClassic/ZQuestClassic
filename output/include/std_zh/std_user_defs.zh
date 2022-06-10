@@ -1,11 +1,8 @@
-//User definitions
+//User definitions (feel free to edit this file)
+
+#include "EmilyMisc.zh"
+#include "std_zh/script_runners.zh"
 
 typedef const int define;
-typedef const int DEFINE;
-typedef const long DEFINEL;
-typedef const bool DEFINEB;
-typedef const int CONFIG;
-typedef const long CONFIGL;
-typedef const bool CONFIGB;
 typedef itemsprite item;
 script typedef itemdata item;

@@ -26,6 +26,7 @@ namespace ZScript
 	// AST.h
 	class ASTFile;
 	class ASTImportDecl;
+	class ASTIncludePath;
 
 	// ByteCode.h
 	class ArgumentVisitor;
@@ -156,6 +157,7 @@ namespace ZScript
 		static int32_t const recursionLimit = 30;
 	private:
 		static std::string prepareFilename(std::string const& filename);
+		static std::string* ScriptParser::checkIncludes(std::string& includePath, std::string const& importname, std::vector<std::string> includes);
 		static std::vector<std::shared_ptr<Opcode>> assembleOne(
 				Program& program, std::vector<std::shared_ptr<Opcode>> script,
 				int32_t numparams);
@@ -163,6 +165,7 @@ namespace ZScript
 		static int32_t fid;
 		static int32_t gid;
 		static int32_t lid;
+		static std::vector<std::string> includePaths;
 	};
 }
 

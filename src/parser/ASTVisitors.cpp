@@ -295,6 +295,8 @@ void RecursiveVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 {
 	visit(host.getTree(), param);
 }
+void RecursiveVisitor::caseIncludePath(ASTIncludePath& host, void* param)
+{}
 
 void RecursiveVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 {

@@ -243,6 +243,8 @@ void RegistrationVisitor::caseImportDecl(ASTImportDecl& host, void* param)
 		if(registered(host.getTree())) doRegister(host);
 	}
 }
+void RegistrationVisitor::caseIncludePath(ASTIncludePath& host, void* param)
+{}
 
 void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 {

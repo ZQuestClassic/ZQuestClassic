@@ -79,6 +79,9 @@ void ASTFile::addDeclaration(ASTDecl* declaration)
 	case ASTDecl::TYPE_IMPORT_COND:
 		condimports.push_back(static_cast<ASTImportCondDecl*>(declaration));
 		break;
+	case ASTDecl::TYPE_INCLUDE_PATH:
+		inclpaths.push_back(static_cast<ASTIncludePath*>(declaration));
+		break;
 	case ASTDecl::TYPE_FUNCTION:
 		functions.push_back(static_cast<ASTFuncDecl*>(declaration));
 		break;
@@ -783,6 +786,17 @@ ASTImportDecl::ASTImportDecl(
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
 {
 	visitor.caseImportDecl(*this,param);
+}
+// ASTIncludePath
+
+ASTIncludePath::ASTIncludePath(
+		string const& filename, LocationData const& location)
+	: ASTDecl(location), path(filename)
+{}
+
+void ASTIncludePath::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseIncludePath(*this,param);
 }
 
 // ASTImportCondDecl

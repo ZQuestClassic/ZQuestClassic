@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 107
-Document Revision: 20th April, 2022
+Document Revision: 10th Jun, 2022
 
 
  __           _   _                 
@@ -1447,6 +1447,22 @@ You may also include a custom message to be printed with the error.
 
 This can be useful to prevent yourself from making mistakes, or for scripts you share
 to ensure that others using your script don't make mistakes when setting constants.
+
+/////////////////////////
+//    Include Paths    //
+/////////////////////////
+
+You may now add include paths via script.
+Include paths are searched when importing/including files. You can set include paths in
+	'ZScript->Compiler Settings' as general configs, though now you can also add them to scripts.
+	
+	[example--
+	//File to include is "ZC Folder/foo/foobar.zs"
+	#includepath "foo"
+	#include "foobar.zs"
+	--end example]
+	
+	All '#includepath's in a file are processed before that file's imports are checked.
 
 /////////////////////////
 // Conditional Include //

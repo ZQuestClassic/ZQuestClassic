@@ -11,6 +11,8 @@
 #option SHORT_CIRCUIT on
 	//Should work for everything in std_zh, and just speed it up
 
+#includepath "include"
+
 //Version Metadata
 #include "std_zh/std_meta.zh"
 
@@ -31,7 +33,7 @@
 //#include "string.zh"
 #include "std_zh/string_constants.zh" //Now #includeed from here. This prevents conflicts for those people
 #include "std_zh/string_functions.zh" //who would #include string.zh from a secondary source, as that file is now 
-			     //empty, and the string.ch components load from here. 
+			     //empty, and the string.zh components load from here. 
 
 //Keyboard handling for 2.54 and above
 #include "std_zh/std_keyboard.zh"

@@ -42,6 +42,7 @@ namespace ZScript
 		void caseScript(ASTScript& host, void* = NULL);
 		void caseNamespace(ASTNamespace& host, void* = NULL);
 		void caseImportDecl(ASTImportDecl& host, void* = NULL);
+		void caseIncludePath(ASTIncludePath& host, void* = NULL);
 		void caseImportCondDecl(ASTImportCondDecl& host, void* = NULL);
 		void caseAssert(ASTAssert& host, void* = NULL);
 		// Expressions

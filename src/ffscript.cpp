@@ -34245,8 +34245,11 @@ void FFScript::do_getgenericscript()
 	int32_t script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
+	zprint2("Searching for generic script named '%s'\n", the_string.c_str());
 	for(int32_t q = 0; q < NUMSCRIPTSGENERIC; q++)
 	{
+		if(genericmap[q].scriptname.size()>2)
+			zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
 		if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;

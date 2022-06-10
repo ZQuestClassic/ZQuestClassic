@@ -1,5 +1,5 @@
 // std_functions.zh
-// 20th Apr, 2022 for ZC 2.55 Alpha 107
+// 10th Jun, 2022 for ZC 2.55 Alpha 107
 
 //A
 
@@ -4397,16 +4397,6 @@ float WrapDegrees( float degrees )
 	return degrees;
 }
 
-//X
-
-//Y
-
-//Z
-
-//New functions are all going into a namespace.
-//Later, we will likely migrate all std functions to here:
-//Should namespace scope functions be uppercase?
-//They aren't global, and lowercase seems logical?!
 namespace std
 {
 	////clkptr is an array, sized at least [1], frames is the duration on/off, so, 10 would be on for ten frames, then off for ten frames
@@ -4542,4 +4532,12 @@ void getScrTimeName(char32 buf, int scrtime)
 		//(SCR_TIMING_[^,]+),
 		//\t\tcase $1:\r\n\t\t\tstrcpy\(buf, "$1"\);\r\n\t\t\tbreak;\r\n
 	}
+}
+
+//Wrap a value between 0 and a bound
+untyped wrap(untyped x, int mod)
+{
+    if(x < 0)
+        return (mod-(-x%mod))%mod;
+    return x%mod;
 }
