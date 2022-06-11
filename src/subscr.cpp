@@ -4052,12 +4052,12 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
 					bool oldsel = get_bit(quest_rules, qr_SUBSCR_OLD_SELECTOR);
 					if(!oldsel) big_sel = false;
-					int32_t sw = oldsel ? 16 : (tempsel->extend > 2 ? tempsel->hxsz : 16),
-						sh = oldsel ? 16 : (tempsel->extend > 2 ? tempsel->hysz : 16),
-						dw = oldsel ? 16 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
-						dh = oldsel ? 16 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-					int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
-						syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
+					int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hxsz : 16),
+						sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hysz : 16),
+						dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
+						dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+					int32_t sxofs = oldsel ? (tempsel->extend > 2 ? tempsel->xofs : 0) : (tempsel->extend > 2 ? tempsel->hxofs : 0),
+						syofs = oldsel ? (tempsel->extend > 2 ? tempsel->yofs : 0) : (tempsel->extend > 2 ? tempsel->hyofs : 0),
 						dxofs = oldsel ? 0 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0),
 						dyofs = oldsel ? 0 : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0);
 					BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
@@ -4077,7 +4077,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 								tempsel->drawzcboss(tmpbmp);
 								tempsel->tile=temptile;
 							}
-							masked_stretch_blit(tmpbmp, dest, sxofs, syofs, sw, sh, tmpx+dxofs, tmpy+dyofs, dw, dh);
+							masked_stretch_blit(tmpbmp, dest, 0, 0, sw, sh, tmpx+dxofs+sxofs, tmpy+dyofs+syofs, dw, dh);
 							
 							if(!big_sel)
 							{
