@@ -4277,6 +4277,8 @@ static AccessorTable itemclassTable[] =
 	
 	{ "getModifier",                ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,             1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
 	{ "setModifier",                ZVARTYPEID_VOID,          SETTER,       IDATALTM,             1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTileMod",                 ZVARTYPEID_FLOAT,         GETTER,       IDATALTM,             1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
+	{ "setTileMod",                 ZVARTYPEID_VOID,          SETTER,       IDATALTM,             1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getScript",                  ZVARTYPEID_FLOAT,         GETTER,       IDATASCRIPT,          1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
 	{ "setScript",                  ZVARTYPEID_VOID,          SETTER,       IDATASCRIPT,          1,             0,                                    2,           { ZVARTYPEID_ITEMCLASS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getPScript",                 ZVARTYPEID_FLOAT,         GETTER,       IDATAPSCRIPT,         1,             0,                                    1,           { ZVARTYPEID_ITEMCLASS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },      
@@ -9328,6 +9330,11 @@ static AccessorTable BitmapTable[] =
 	{ "ReplaceColors",          ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ShiftColors",            ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      4,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MaskedDraw",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      5,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      6,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "MaskedBlit",             ZVARTYPEID_VOID,          FUNCTION,     0,                    1,             FUNCFLAG_INLINE,                      7,           { ZVARTYPEID_BITMAP, ZVARTYPEID_FLOAT, ZVARTYPEID_BITMAP, ZVARTYPEID_BITMAP, ZVARTYPEID_BOOL, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 
 	{ "",                       -1,                       -1,           -1,                   -1,            0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
@@ -10127,6 +10134,76 @@ void BitmapSymbols::generateCode()
 		addOpcode2 (code, new OBitmapMaskDraw());
 		LABELBACK(label);
 		POP_ARGS(3, NUL);
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t, int32_t)
+	{
+		Function* function = getFunction("MaskedDraw", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OBitmapMaskDraw2());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MaskedDraw(bitmap, int32_t, bitmap, int32_t, int32_t, int32_t)
+	{
+		Function* function = getFunction("MaskedDraw", 6);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OBitmapMaskDraw3());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap)
+	{
+		Function* function = getFunction("MaskedBlit", 5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OBitmapMaskBlit());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap, int32_t)
+	{
+		Function* function = getFunction("MaskedBlit", 6);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OBitmapMaskBlit2());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		//pop pointer, and ignore it
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MaskedBlit(bitmap, int32_t, bitmap, bitmap, int32_t, int32_t)
+	{
+		Function* function = getFunction("MaskedBlit", 7);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OBitmapMaskBlit3());
+		LABELBACK(label);
+		POP_ARGS(6, NUL);
 		//pop pointer, and ignore it
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
         

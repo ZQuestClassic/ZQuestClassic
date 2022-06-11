@@ -844,6 +844,8 @@ void SemanticAnalyzer::caseImportDecl(ASTImportDecl& host, void*)
 		RecursiveVisitor::caseImportDecl(host);
 	}
 }
+void SemanticAnalyzer::caseIncludePath(ASTIncludePath& host, void*)
+{}
 
 void SemanticAnalyzer::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 {

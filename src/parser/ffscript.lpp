@@ -301,6 +301,7 @@ appx_equal	TOKEN( APPXEQUAL );
 	"IGNORE WARNING"	TOKEN( EXPECTERROR );
 	"define"		TOKEN( DEFINE );
 	include			BEGIN( IMPORTING ); TOKEN( INCLUDE );
+	includepath			BEGIN( IMPORTING ); TOKEN( INCLUDEPATH );
 	includeif			++doImportStr; BEGIN( INITIAL ); TOKEN( INCLUDEIF );
 	inherit			TOKEN( INHERIT );
 	on			VALUE( NUMBER, ASTFloat("1", ASTFloat::TYPE_DECIMAL, yylloc) );

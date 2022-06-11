@@ -1,5 +1,49 @@
 // 2.55 Change Log
-// Updated 11th May, 2022
+// Updated 10th June, 2022
+
+//A107
+
+Fix textfield breaking
+Expand masked blitting options
+Include paths via script, update std_zh
+	( EmilyV, 10th June, 2022 )
+
+fix launcher textfields able to be too large
+fix advpaste dialog overlapping checkboxes
+fix item drag issues, arrow 'block combo' issues
+Fix dmap editor map preview misalign
+Add 'Block Weapon (Custom)' combo type
+	( EmilyV, June 9th, 2022 )
+
+fix random memory access in combo help string
+	( EmilyV, June 6th, 2022 )
+
+Fix mapdata->Enemy[] crash
+Fix cheat mod keys, AGAIN!
+	( EmilyV, May 31st, 2022 )
+
+Allow conveyors to work on layers
+	( EmilyV, May 30th, 2022 )
+
+fix setting dir resetting walk animation
+fix zscript hanging during specific edge-case
+	( EmilyV, May 26th, 2022 )
+
+Remove ZCL close warning
+Fix 'Z' in tile editor being weird/taking multiple snapshots
+Fix zinfo overwrite when grabbing tiles from .qst
+	( EmilyV, May 22nd, 2022 )
+
+Fix hero gets stuck on corners of "walk on top" switchblocks
+Fix custom quest selection bug
+Fix subscreen override items being invisible in zq
+	( EmilyV, May 21st, 2022 )
+
+Fix 'Enemies->Secret' weirdness
+	( EmilyV, May 14th, 2022 )
+
+Add string fix tool
+	( EmilyV, May 13th, 2022 )
 
 -- May 11th nightly build
 

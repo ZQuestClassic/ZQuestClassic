@@ -18,7 +18,7 @@ The following documents the changes, and expansions to the ZScript language in Z
 	versions 2.54, and 2.55. 
 	
 Document for: 2.55, Alpha 107
-Document Revision: 20th April, 2022
+Document Revision: 10th Jun, 2022
 
 
  __           _   _                 
@@ -1447,6 +1447,22 @@ You may also include a custom message to be printed with the error.
 
 This can be useful to prevent yourself from making mistakes, or for scripts you share
 to ensure that others using your script don't make mistakes when setting constants.
+
+/////////////////////////
+//    Include Paths    //
+/////////////////////////
+
+You may now add include paths via script.
+Include paths are searched when importing/including files. You can set include paths in
+	'ZScript->Compiler Settings' as general configs, though now you can also add them to scripts.
+	
+	[example--
+	//File to include is "ZC Folder/foo/foobar.zs"
+	#includepath "foo"
+	#include "foobar.zs"
+	--end example]
+	
+	All '#includepath's in a file are processed before that file's imports are checked.
 
 /////////////////////////
 // Conditional Include //
@@ -7364,8 +7380,25 @@ void WriteTile( int layer, int x, int y, int tile, bool is8bit, bool mask);
  *     TO the tile page, overwriting the tile 'tile', either 4 or 8 bit.
  * If 'mask' is true, overlays instead of overwrites
 
-void MaskedDraw( int layer, bitmap mask, int color )
+void MaskedDraw( int layer, bitmap mask, int color );
  * Draws 'color' to the bitmap, on any pixels that are non-color-0 on the mask.
+ * The mask's `0,0` is overlayed at `0,0` of the destination.
+void MaskedDraw( int layer, bitmap mask, int color, int maskColor );
+ * Same as above, but instead of any non-0 pixels, pixels that match 'maskColor' are used
+void MaskedDraw( int layer, bitmap mask, int color, int startMaskColor, int endMaskColor );
+ * Same as above, but colors c such that 'startMaskColor <= c <= endMaskColor' will be used
+ *  as the mask.
+
+void MaskedBlit( int layer, bitmap mask, bitmap pattern, bool repeatPattern );
+void MaskedBlit( int layer, bitmap mask, bitmap pattern, bool repeatPattern, int maskColor );
+void MaskedBlit( int layer, bitmap mask, bitmap pattern, bool repeatPattern, int startMaskColor, int endMaskColor );
+ * Same as 'MaskedDraw', but instead of drawing a color to the masked portions, draws from
+ * a supplied 'pattern' bitmap.
+ * If 'repeatPattern' is false, the pattern will be drawn at `0,0` with the width/height of the
+ *     pattern bitmap, and nowhere else.
+ * If 'repeatPattern' is true, the pattern will repeat in a tiled manner, starting from `0,0`,
+ *     up to the width/height of the destination bitmap.
+ * 'repeatPattern' does not affect the mask bitmap.
 
 void Dither( int layer, bitmap mask, int color, int ditherType, int ditherArg )
  * Draws 'color' to the bitmap, using a dithering pattern, only on pixels that are

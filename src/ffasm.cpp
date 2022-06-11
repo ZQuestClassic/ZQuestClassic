@@ -1036,6 +1036,11 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "EWPNMAKEANGULAR",      1,   0,   0,   0},
 	{ "LWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
 	{ "EWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
+	{ "BMPMASKDRAW2",           0,   0,   0,   0},
+	{ "BMPMASKDRAW3",           0,   0,   0,   0},
+	{ "BMPMASKBLIT",           0,   0,   0,   0},
+	{ "BMPMASKBLIT2",           0,   0,   0,   0},
+	{ "BMPMASKBLIT3",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

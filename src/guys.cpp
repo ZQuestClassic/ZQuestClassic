@@ -23586,6 +23586,7 @@ void check_collisions()
 									w->dead=1;
 									theItem->clk2=256;
 									w->dragging=j;
+									theItem->is_dragged = true;
 								}
 							}
 						}
@@ -23606,15 +23607,16 @@ void dragging_item()
 		{
 			if(w->dragging>=0 && w->dragging<items.Count())
 			{
-				items.spr(w->dragging)->x=w->x;
-				items.spr(w->dragging)->y=w->y;
+				item* dragItem = (item*)items.spr(w->dragging);
+				dragItem->x=w->x;
+				dragItem->y=w->y;
 				
 				// Drag the Fairy enemy as well as the Fairy item
-				int32_t id = items.spr(w->dragging)->id;
+				int32_t id = dragItem->id;
 				
 				if(itemsbuf[id].family ==itype_fairy && itemsbuf[id].misc3)
 				{
-					movefairynew2(w->x,w->y,*((item*)items.spr(w->dragging)));
+					movefairynew2(w->x,w->y,*dragItem);
 				}
 			}
 		}

@@ -264,6 +264,10 @@ void TextField::_updateBuf(size_t sz)
 	maxLength = sz;
 	
 	setPreferredWidth(Size::largePixels(isSwapType() ? 16 : 0)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
+	if(alDialog)
+	{
+		alDialog->dp = buffer.get();
+	}
 }
 
 void TextField::setOnValChanged(std::function<void(type,std::string_view,int32_t)> newOnValChanged)

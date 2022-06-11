@@ -17455,7 +17455,12 @@ void set_register(const int32_t arg, const int32_t value)
 			{ 
 				Z_scripterrlog("Invaid enemy ID (%d) passed to Screen->%s.", enemyid,"Enemy[]"); \
 				break; 
-			} 
+			}
+			if(unsigned(indx) > 9)
+			{
+				Z_scripterrlog("Invalid index (%d) used for Screen->Enemy[]", indx);
+				break;
+			}
 			tmpscr->enemy[indx] = enemyid; 
 			break;
 		} 
@@ -18337,7 +18342,7 @@ void set_register(const int32_t arg, const int32_t value)
 			int32_t enemyid = value/10000;
 			if( ((unsigned)indx) > 9 ) 
 			{ 
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", (indx), "Enemy[]");
+				Z_scripterrlog("Invalid Index passed to mapdata->%s: %d\n", "Enemy[]", (indx));
 			} 
 			else if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
@@ -24257,19 +24262,59 @@ void do_drawing_command(const int32_t script_command)
 		{
 			set_user_bitmap_command_args(j, 6);
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
-			break;			
+			break;
 		}
 		case BMPDITHER:
 		{
 			set_user_bitmap_command_args(j, 5);
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
-			break;			
+			break;
 		}
 		case BMPMASKDRAW:
 		{
 			set_user_bitmap_command_args(j, 3);
+			script_drawing_commands[j][4] = 0x01 * 10000L;
+			script_drawing_commands[j][5] = 0xFF * 10000L;
 			script_drawing_commands[j][17] = SH::read_stack(ri->sp+3);
-			break;			
+			break;
+		}
+		case BMPMASKDRAW2:
+		{
+			set_user_bitmap_command_args(j, 4);
+			script_drawing_commands[j][5] = script_drawing_commands[j][4];
+			script_drawing_commands[j][0] = BMPMASKDRAW;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			break;
+		}
+		case BMPMASKDRAW3:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][0] = BMPMASKDRAW;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			break;
+		}
+		case BMPMASKBLIT:
+		{
+			set_user_bitmap_command_args(j, 4);
+			script_drawing_commands[j][5] = 0x01 * 10000L;
+			script_drawing_commands[j][6] = 0xFF * 10000L;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+4);
+			break;
+		}
+		case BMPMASKBLIT2:
+		{
+			set_user_bitmap_command_args(j, 5);
+			script_drawing_commands[j][6] = script_drawing_commands[j][5];
+			script_drawing_commands[j][0] = BMPMASKBLIT;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+5);
+			break;
+		}
+		case BMPMASKBLIT3:
+		{
+			set_user_bitmap_command_args(j, 6);
+			script_drawing_commands[j][0] = BMPMASKBLIT;
+			script_drawing_commands[j][17] = SH::read_stack(ri->sp+6);
+			break;
 		}
 		case BMPREPLCOLOR:
 		case BMPSHIFTCOLOR:
@@ -27833,6 +27878,11 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case BMPREPLCOLOR:
 			case BMPSHIFTCOLOR:
 			case BMPMASKDRAW:
+			case BMPMASKDRAW2:
+			case BMPMASKDRAW3:
+			case BMPMASKBLIT:
+			case BMPMASKBLIT2:
+			case BMPMASKBLIT3:
 				do_drawing_command(scommand);
 				break;
 			case READBITMAP:
@@ -33400,7 +33450,21 @@ void FFScript::do_itemsprite_delete()
 {
 	if(0!=(s=checkItem(ri->itemref)))
 	{
-		items.del(ItemH::getItemIndex(ri->itemref));
+		auto ind = ItemH::getItemIndex(ri->itemref);
+		items.del(ind);
+		for(int32_t i=0; i<Lwpns.Count(); i++)
+		{
+			weapon *w = (weapon*)Lwpns.spr(i);
+			
+			if(w->dragging==ind)
+			{
+				w->dragging=-1;
+			}
+			else if(w->dragging>ind)
+			{
+				w->dragging-=1;
+			}
+		}
 	}
 }
 
@@ -34181,8 +34245,11 @@ void FFScript::do_getgenericscript()
 	int32_t script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
+	zprint2("Searching for generic script named '%s'\n", the_string.c_str());
 	for(int32_t q = 0; q < NUMSCRIPTSGENERIC; q++)
 	{
+		if(genericmap[q].scriptname.size()>2)
+			zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
 		if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
@@ -36000,6 +36067,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "EWPNMAKEANGULAR",      1,   0,   0,   0},
 	{ "LWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
 	{ "EWPNMAKEDIRECTIONAL",      1,   0,   0,   0},
+	{ "BMPMASKDRAW2",           0,   0,   0,   0},
+	{ "BMPMASKDRAW3",           0,   0,   0,   0},
+	{ "BMPMASKBLIT",           0,   0,   0,   0},
+	{ "BMPMASKBLIT2",           0,   0,   0,   0},
+	{ "BMPMASKBLIT3",           0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

@@ -1,0 +1,238 @@
+#include "ffcscript.zh"
+
+//start NPC
+DEFINE MIN_NPCSCRIPT = 1;
+DEFINE MAX_NPCSCRIPT = 255;
+int CheckNPCScript(char32 scriptname)
+{
+	int id = Game->GetNPCScript(scriptname);
+	if(id < 0)
+	{
+		printf("NPC Script '%s' is not assigned to a slot!\n", scriptname);
+		return 0;
+	}
+	return id;
+}
+npc RunNPCScript(int ID, int scriptNum, untyped args)
+{
+	// Invalid script
+	if(scriptNum < MIN_NPCSCRIPT || scriptNum > MAX_NPCSCRIPT)
+		return NULL;
+	
+	npc obj = Screen->CreateNPC(ID);
+	obj->Script = scriptNum;
+	if (args)
+	{
+		for (int q = SizeOfArray(args) - 1; q >= 0; --q)
+			obj->InitD[q] = args[q];
+	}
+	return obj;
+}
+npc RunNPCScript(int ID, int scriptNum)
+{
+	return RunNPCScript(ID, scriptNum, NULL);
+}
+
+npc RunNPCScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+{
+	npc obj = RunNPCScript(ID, scriptNum, args);
+	obj->X = x;
+	obj->Y = y;
+	return obj;
+}
+npc RunNPCScriptAt(int ID, int scriptNum, int x, int y)
+{
+	return RunNPCScriptAt(ID, scriptNum, x, y, NULL);
+}
+//end NPC
+
+//start LWeapon
+DEFINE MIN_LWEAPONSCRIPT = 1;
+DEFINE MAX_LWEAPONSCRIPT = 255;
+int CheckLWeaponScript(char32 scriptname)
+{
+	int id = Game->GetLWeaponScript(scriptname);
+	if(id < 0)
+	{
+		printf("LWeapon Script '%s' is not assigned to a slot!\n", scriptname);
+		return 0;
+	}
+	return id;
+}
+lweapon RunLWeaponScript(int ID, int scriptNum, untyped args)
+{
+	// Invalid script
+	if(scriptNum < MIN_LWEAPONSCRIPT || scriptNum > MAX_LWEAPONSCRIPT)
+		return NULL;
+	
+	lweapon obj = Screen->CreateLWeapon(ID);
+	obj->Script = scriptNum;
+	if (args)
+	{
+		for (int q = SizeOfArray(args) - 1; q >= 0; --q)
+			obj->InitD[q] = args[q];
+	}
+	return obj;
+}
+lweapon RunLWeaponScript(int ID, int scriptNum)
+{
+	return RunLWeaponScript(ID, scriptNum, NULL);
+}
+
+lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+{
+	lweapon obj = RunLWeaponScript(ID, scriptNum, args);
+	obj->X = x;
+	obj->Y = y;
+	return obj;
+}
+lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y)
+{
+	return RunLWeaponScriptAt(ID, scriptNum, x, y, NULL);
+}
+//end LWeapon
+
+//start EWeapon
+DEFINE MIN_EWEAPONSCRIPT = 1;
+DEFINE MAX_EWEAPONSCRIPT = 255;
+int CheckEWeaponScript(char32 scriptname)
+{
+	int id = Game->GetEWeaponScript(scriptname);
+	if(id < 0)
+	{
+		printf("EWeapon Script '%s' is not assigned to a slot!\n", scriptname);
+		return 0;
+	}
+	return id;
+}
+eweapon RunEWeaponScript(int ID, int scriptNum, untyped args)
+{
+	// Invalid script
+	if(scriptNum < MIN_EWEAPONSCRIPT || scriptNum > MAX_EWEAPONSCRIPT)
+		return NULL;
+	
+	eweapon obj = Screen->CreateEWeapon(ID);
+	obj->Script = scriptNum;
+	if (args)
+	{
+		for (int q = SizeOfArray(args) - 1; q >= 0; --q)
+			obj->InitD[q] = args[q];
+	}
+	return obj;
+}
+eweapon RunEWeaponScript(int ID, int scriptNum)
+{
+	return RunEWeaponScript(ID, scriptNum, NULL);
+}
+
+eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+{
+	eweapon obj = RunEWeaponScript(ID, scriptNum, args);
+	obj->X = x;
+	obj->Y = y;
+	return obj;
+}
+eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y)
+{
+	return RunEWeaponScriptAt(ID, scriptNum, x, y, NULL);
+}
+//end EWeapon
+
+//start ItemSprite
+DEFINE MIN_ITEMSPRITESCRIPT = 1;
+DEFINE MAX_ITEMSPRITESCRIPT = 255;
+int CheckItemSpriteScript(char32 scriptname)
+{
+	int id = Game->GetItemSpriteScript(scriptname);
+	if(id < 0)
+	{
+		printf("ItemSprite Script '%s' is not assigned to a slot!\n", scriptname);
+		return 0;
+	}
+	return id;
+}
+itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args)
+{
+	// Invalid script
+	if(scriptNum < MIN_ITEMSPRITESCRIPT || scriptNum > MAX_ITEMSPRITESCRIPT)
+		return NULL;
+	
+	itemsprite obj = Screen->CreateItem(ID);
+	obj->Script = scriptNum;
+	if (args)
+	{
+		for (int q = SizeOfArray(args) - 1; q >= 0; --q)
+			obj->InitD[q] = args[q];
+	}
+	return obj;
+}
+itemsprite RunItemSpriteScript(int ID, int scriptNum)
+{
+	return RunItemSpriteScript(ID, scriptNum, NULL);
+}
+
+itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+{
+	itemsprite obj = RunItemSpriteScript(ID, scriptNum, args);
+	obj->X = x;
+	obj->Y = y;
+	return obj;
+}
+itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y)
+{
+	return RunItemSpriteScriptAt(ID, scriptNum, x, y, NULL);
+}
+//end ItemSprite
+
+//start Generic
+DEFINE MIN_GENERICSCRIPT = 1;
+DEFINE MAX_GENERICSCRIPT = 511;
+int CheckGenericScript(char32 scriptname)
+{
+	int id = Game->GetGenericScript(scriptname);
+	if(id < 0)
+	{
+		printf("Generic Script '%s' is not assigned to a slot!\n", scriptname);
+		return 0;
+	}
+	return id;
+}
+genericdata RunGenericScript(int scriptNum, untyped args)
+{
+	// Invalid script
+	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
+		return NULL;
+	
+	genericdata obj = Game->LoadGenericData(scriptNum);
+	if (args)
+	{
+		for (int q = SizeOfArray(args) - 1; q >= 0; --q)
+			obj->InitD[q] = args[q];
+	}
+	obj->Running = true;
+	return obj;
+}
+genericdata RunGenericScript(int scriptNum)
+{
+	return RunGenericScript(scriptNum, NULL);
+}
+genericdata RunGenericScriptFrz(int scriptNum, untyped args)
+{
+	// Invalid script
+	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
+		return NULL;
+	
+	genericdata obj = Game->LoadGenericData(scriptNum);
+	if (args)
+	{
+		for (int q = SizeOfArray(args) - 1; q >= 0; --q)
+			obj->InitD[q] = args[q];
+	}
+	obj->RunFrozen();
+	return obj;
+}
+genericdata RunGenericScriptFrz(int scriptNum)
+{
+	return RunGenericScriptFrz(scriptNum, NULL);
+}
+//end Generic

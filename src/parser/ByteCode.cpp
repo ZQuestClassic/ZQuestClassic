@@ -5315,6 +5315,26 @@ string OBitmapMaskDraw::toString()
 {
     return "BMPMASKDRAW";
 }
+string OBitmapMaskDraw2::toString()
+{
+    return "BMPMASKDRAW2";
+}
+string OBitmapMaskDraw3::toString()
+{
+    return "BMPMASKDRAW3";
+}
+string OBitmapMaskBlit::toString()
+{
+    return "BMPMASKBLIT";
+}
+string OBitmapMaskBlit2::toString()
+{
+    return "BMPMASKBLIT2";
+}
+string OBitmapMaskBlit3::toString()
+{
+    return "BMPMASKBLIT3";
+}
 
 string OIsValidBitmap::toString()
 {

@@ -17047,7 +17047,7 @@ static DIALOG advpaste_dlg[] =
 	{ jwin_check_proc,		110,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Label", NULL, NULL },
 	{ jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
 	{ jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
-	{ jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
+	{ jwin_check_proc,		110,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
 	
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };

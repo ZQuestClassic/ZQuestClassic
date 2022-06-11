@@ -46,6 +46,8 @@ void ScriptParser::initialize()
 	lid = 0;
 	CompileError::initialize();
 	CompileOption::initialize();
+	includePaths.clear();
+	includePaths.resize(0);
 }
 extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
@@ -65,7 +67,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	}
 
 	zconsole_info("Pass 2: Preprocessing");
-
+	
 	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 		return nullptr;
 
@@ -122,6 +124,37 @@ string ScriptParser::prepareFilename(string const& filename)
 	return retval;
 }
 
+vector<string> ScriptParser::includePaths;
+
+string& cleanInclude(string& includePath)
+{
+	//Add a `/` to the end of the include path, if it is missing
+	int32_t lastnot = includePath.find_last_not_of("/\\");
+	int32_t last = includePath.find_last_of("/\\");
+	if(lastnot != string::npos)
+	{
+		if(last == string::npos || last < lastnot)
+			includePath += "/";
+	}
+	regulate_path(includePath);
+	return includePath;
+}
+
+string* ScriptParser::checkIncludes(string& includePath, string const& importname, vector<string> includes)
+{
+	for (size_t q = 0; q < includes.size(); ++q ) //Loop through all include paths, or until valid file is found
+	{
+		includePath = includes.at(q);
+		cleanInclude(includePath);
+		includePath = prepareFilename(includePath + importname);
+		FILE* f = fopen(includePath.c_str(), "r");
+		if(!f) continue;
+		fclose(f);
+		return &includePath;
+	}
+	return NULL;
+}
+
 bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 {
 	// Parse the imported file.
@@ -146,22 +179,10 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 			if(importfound != 0)
 				importname = importname.substr(importfound); //Remove leading `/` and `\`
 			//Convert the include string to a proper import path
-			for (size_t q = 0; q < ZQincludePaths.size() && !fname; ++q ) //Loop through all include paths, or until valid file is found
+			fname = checkIncludes(includePath, importname, ZQincludePaths);
+			if(!fname)
 			{
-				includePath = ZQincludePaths.at(q);
-				//Add a `/` to the end of the include path, if it is missing
-				int32_t lastnot = includePath.find_last_not_of("/\\");
-				int32_t last = includePath.find_last_of("/\\");
-				if(lastnot != string::npos)
-				{
-					if(last == string::npos || last < lastnot)
-						includePath += "/";
-				}
-				includePath = prepareFilename(includePath + importname);
-				FILE* f = fopen(includePath.c_str(), "r");
-				if(!f) continue;
-				fclose(f);
-				fname = &includePath;
+				fname = checkIncludes(includePath, importname, includePaths);
 			}
 		}
 	}
@@ -197,21 +218,38 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 {
 	assert(root);
-
+	
 	if (reclimit == 0)
 	{
 		log_error(CompileError::ImportRecursion(NULL, recursionLimit));
 		return false;
 	}
-
+	for(auto it = root->inclpaths.begin();
+	     it != root->inclpaths.end(); ++it)
+	{
+		bool dupe = false;
+		string& path = cleanInclude((*it)->path);
+		for(auto it2 = includePaths.begin();
+			it2 != includePaths.end(); ++it2)
+		{
+			if(!strcmp((*it2).c_str(), path.c_str()))
+			{
+				dupe = true;
+				break;
+			}
+		}
+		if(!dupe)
+			includePaths.push_back(path);
+	}
 	// Repeat parsing process for each of import files
-	for (vector<ASTImportDecl*>::iterator it = root->imports.begin();
+	bool ret = true;
+	for (auto it = root->imports.begin();
 	     it != root->imports.end(); ++it)
 	{
-		if(!preprocess_one(**it, reclimit)) return false;
+		if(!preprocess_one(**it, reclimit)) ret = false;
 	}
 
-	return true;
+	return ret;
 }
 
 unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)

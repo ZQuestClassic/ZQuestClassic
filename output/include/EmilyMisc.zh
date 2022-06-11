@@ -1,0 +1,1664 @@
+#option SHORT_CIRCUIT on
+/**
+* Author: Emily
+* Version: 1.4.5
+* Release: June 10th, 2021
+* Purpose: Miscellaneous functions
+*/
+namespace Emily
+{
+	typedef const int DEFINE;
+	typedef const int CONFIG;
+	typedef const long DEFINEL;
+	typedef const long CONFIGL;
+	typedef const bool CONFIGB;
+	
+	//start Directional Functions
+	/**
+	* Returns 1 if the dir is rightward, -1 if leftward, 0 if neither
+	*/
+	int dirX(int dir) //start
+	{
+		switch(dir)
+		{
+			case DIR_RIGHT: case DIR_RIGHTUP: case DIR_RIGHTDOWN:
+				return 1;
+			case DIR_LEFT: case DIR_LEFTUP: case DIR_LEFTDOWN:
+				return -1;
+			default:
+				return 0;
+		}
+	} //end
+
+	/**
+	* Returns 1 if the dir is downward, -1 if upward, 0 if neither
+	*/
+	int dirY(int dir) //start
+	{
+		switch(dir)
+		{
+			case DIR_DOWN: case DIR_LEFTDOWN: case DIR_RIGHTDOWN:
+				return 1;
+			case DIR_UP: case DIR_LEFTUP: case DIR_RIGHTUP:
+				return -1;
+			default:
+				return 0;
+		}
+	} //end
+
+	/**
+	* Removes the horizontal component of a direction
+	*/
+	int remX(int dir) //start
+	{
+		switch(dir)
+		{
+			case DIR_UP: case DIR_LEFTUP: case DIR_RIGHTUP:
+				return DIR_UP;
+			case DIR_DOWN: case DIR_LEFTDOWN: case DIR_RIGHTDOWN:
+				return DIR_DOWN;
+			default:
+				return -1;
+		}
+	} //end
+
+	/**
+	* Removes the vertical component of a direction
+	*/
+	int remY(int dir) //start
+	{
+		switch(dir)
+		{
+			case DIR_LEFT: case DIR_LEFTUP: case DIR_LEFTDOWN:
+				return DIR_LEFT;
+			case DIR_RIGHT: case DIR_RIGHTUP: case DIR_RIGHTDOWN:
+				return DIR_RIGHT;
+			default:
+				return -1;
+		}
+	} //end
+
+	/**
+	* Adds the horizontal component of a direction
+	*/
+	int addX(int dir, int add) //start
+	{
+		switch(remX(dir))
+		{
+			case DIR_UP:
+				switch(add)
+				{
+					case DIR_RIGHT:
+						return DIR_RIGHTUP;
+					case DIR_LEFT:
+						return DIR_LEFTUP;
+				}
+				return DIR_UP;
+			case DIR_DOWN:
+				switch(add)
+				{
+					case DIR_RIGHT:
+						return DIR_RIGHTDOWN;
+					case DIR_LEFT:
+						return DIR_LEFTDOWN;
+				}
+				return DIR_DOWN;
+			default:
+				return add;
+		}
+	} //end
+
+	/**
+	* Adds the vertical component of a direction
+	*/
+	int addY(int dir, int add) //start
+	{
+		switch(remY(dir))
+		{
+			case DIR_LEFT:
+				switch(add)
+				{
+					case DIR_UP:
+						return DIR_LEFTUP;
+					case DIR_DOWN:
+						return DIR_LEFTDOWN;
+				}
+				return DIR_LEFT;
+			case DIR_RIGHT:
+				switch(add)
+				{
+					case DIR_UP:
+						return DIR_RIGHTUP;
+					case DIR_DOWN:
+						return DIR_RIGHTDOWN;
+				}
+				return DIR_RIGHT;
+			default:
+				return add;
+		}
+	} //end
+
+	/**
+	* Spin a dir clockwise 45°
+	*/
+	int SpinDir8(int dir) //start
+	{
+		SpinDir8(dir, 1);
+	} //end
+	
+	/**
+	* Spin a dir clockwise 45°, `count` number of times
+	* If count is negative, will spin counterclockwise instead
+	*/
+	int SpinDir8(int dir, int count) //start
+	{
+		if(count<0)
+		{
+			for(int q = (-count) % 8; q > 0; --q)
+				switch(dir)
+				{
+					case DIR_UP: dir = DIR_LEFTUP; break;
+					case DIR_RIGHTUP: dir = DIR_UP; break;
+					case DIR_RIGHT: dir = DIR_RIGHTUP; break;
+					case DIR_RIGHTDOWN: dir = DIR_RIGHT; break;
+					case DIR_DOWN: dir = DIR_RIGHTDOWN; break;
+					case DIR_LEFTDOWN: dir = DIR_DOWN; break;
+					case DIR_LEFT: dir = DIR_LEFTDOWN; break;
+					case DIR_LEFTUP: dir = DIR_LEFT; break;
+					default: return -1;
+				}
+		}
+		else
+		{
+			for(count %= 8;count > 0; --count)
+				switch(dir)
+				{
+					case DIR_UP: dir = DIR_RIGHTUP; break;
+					case DIR_RIGHTUP: dir = DIR_RIGHT; break;
+					case DIR_RIGHT: dir = DIR_RIGHTDOWN; break;
+					case DIR_RIGHTDOWN: dir = DIR_DOWN; break;
+					case DIR_DOWN: dir = DIR_LEFTDOWN; break;
+					case DIR_LEFTDOWN: dir = DIR_LEFT; break;
+					case DIR_LEFT: dir = DIR_LEFTUP; break;
+					case DIR_LEFTUP: dir = DIR_UP; break;
+					default: return -1;
+				}
+		}
+		return dir;
+	} //end
+	
+	/**
+	* Flip a dir horizontally
+	*/
+	int HorzFlip(int dir) //start
+	{
+		switch(dir)
+		{
+			case DIR_LEFT: return DIR_RIGHT;
+			case DIR_RIGHT: return DIR_LEFT;
+			case DIR_LEFTUP: return DIR_RIGHTUP;
+			case DIR_RIGHTUP: return DIR_LEFTUP;
+			case DIR_LEFTDOWN: return DIR_RIGHTDOWN;
+			case DIR_RIGHTDOWN: return DIR_LEFTDOWN;
+		}
+		return dir;
+	} //end
+	/**
+	* Flip a dir horizontally
+	*/
+	int VertFlip(int dir) //start
+	{
+		switch(dir)
+		{
+			case DIR_UP: return DIR_DOWN;
+			case DIR_DOWN: return DIR_UP;
+			case DIR_DOWNLEFT: return DIR_UPLEFT;
+			case DIR_UPLEFT: return DIR_DOWNLEFT;
+			case DIR_DOWNRIGHT: return DIR_UPRIGHT;
+			case DIR_UPRIGHT: return DIR_DOWNRIGHT;
+		}
+		return dir;
+	} //end
+	//end Directional Functions
+	
+	//start CanWalkM
+	/** If true, then calling CanWalkM with the current screen's mapdata will use `Screen->` instead of the provided `mapdata->` */
+	CONFIGB MAPDATA_USECURSCREEN = true;
+	//start Standard (only checks ahead)
+	/**
+	* This function (and set of overloads) acts as CanWalk, but uses an arbitrary 
+	*      `mapdata` pointer for solidity, rather than the current screen.
+	* Related: `CurMapdata()`
+	*/
+	//lweapon
+	bool CanWalkM(lweapon weap, mapdata map, int dir, int step, bool useHit)
+	{
+		if(!weap->isValid())return false;
+		return CanWalkM(weap->X + (useHit ? weap->HitXOffset : 0), weap->Y + (useHit ? weap->HitYOffset : 0), weap->X + (useHit ?  weap->HitWidth + weap->HitXOffset :  weap->TileWidth * 16) - 1, weap->Y + (useHit ?  weap->HitHeight + weap->HitYOffset :  weap->TileHeight * 16) - 1, map, dir, step);
+	}
+	//eweapon
+	bool CanWalkM(eweapon weap, mapdata map, int dir, int step, bool useHit)
+	{
+		if(!weap->isValid())return false;
+		return CanWalkM(weap->X + (useHit ? weap->HitXOffset : 0), weap->Y + (useHit ? weap->HitYOffset : 0), weap->X + (useHit ?  weap->HitWidth + weap->HitXOffset :  weap->TileWidth * 16) - 1, weap->Y + (useHit ?  weap->HitHeight + weap->HitYOffset :  weap->TileHeight * 16) - 1, map, dir, step);
+	}
+	//npc
+	bool CanWalkM(npc n, mapdata map, int dir, int step, bool useHit)
+	{
+		if(!n->isValid())return false;
+		return CanWalkM(n->X + (useHit ? n->HitXOffset : 0), n->Y + (useHit ? n->HitYOffset : 0), n->X + (useHit ?  n->HitWidth + n->HitXOffset :  n->TileWidth * 16) - 1, n->Y + (useHit ?  n->HitHeight + n->HitYOffset :  n->TileHeight * 16) - 1, map, dir, step);
+	}
+	//ffc
+	bool CanWalkM(ffc f, mapdata map, int dir, int step, bool useEffect)
+	{
+		return CanWalkM(f->X, f->Y, f->X + (useEffect ?  f->EffectWidth :  f->TileWidth * 16) - 1, f->Y + (useEffect ?  f->EffectHeight :  f->TileHeight * 16) - 1, map, dir, step);
+	}
+	//Link
+	bool CanWalkM(mapdata map, int dir, int step)
+	{
+		return CanWalkM(Hero->X, Hero->Y + (Hero->BigHitbox ?  0 :  8), Hero->X + 15, Hero->Y + 15, map, dir, step);
+	}
+	//Main
+	bool CanWalkM(int x, int y, int xx, int yy, mapdata map, int dir, int step)
+	{
+		if(MAPDATA_USECURSCREEN && map==CurMapdata()) return CanWalkS(x,y,xx,yy,dir,step);
+		int width = xx - x + 1;
+		int height = yy - y + 1;
+		int midx = x + Floor(width/2);
+		int midy = y + Floor(height/2);
+		switch(dir)
+		{
+			case DIR_UP: return !(y-step<0||map->isSolid(x,y-step)||map->isSolid(midx,y-step)||map->isSolid(xx,y-step));
+			case DIR_DOWN: return !(yy+step>=176||map->isSolid(x,yy+step)||map->isSolid(midx,yy+step)||map->isSolid(xx,yy+step));
+			case DIR_LEFT: return !(x-step<0||map->isSolid(x-step,y)||map->isSolid(x-step,midy)||map->isSolid(x-step,yy));
+			case DIR_RIGHT: return !(xx+step>=256||map->isSolid(xx+step,y)||map->isSolid(xx+step,midy)||map->isSolid(xx+step,yy));
+			case DIR_LEFTUP: return (CanWalkM(x, y, xx, yy, map, DIR_LEFT, step) && CanWalkM(x, y, xx, yy, map, DIR_UP, step));
+			case DIR_LEFTDOWN: return (CanWalkM(x, y, xx, yy, map, DIR_LEFT, step) && CanWalkM(x, y, xx, yy, map, DIR_DOWN, step));
+			case DIR_RIGHTUP: return (CanWalkM(x, y, xx, yy, map, DIR_RIGHT, step) && CanWalkM(x, y, xx, yy, map, DIR_UP, step));
+			case DIR_RIGHTDOWN: return (CanWalkM(x, y, xx, yy, map, DIR_RIGHT, step) && CanWalkM(x, y, xx, yy, map, DIR_DOWN, step));
+		}
+		return false; //invalid direction
+	}
+	
+	//Current Screen
+	bool CanWalkS(int x, int y, int xx, int yy, int dir, int step)
+	{
+		int width = xx - x + 1;
+		int height = yy - y + 1;
+		int midx = x + Floor(width/2);
+		int midy = y + Floor(height/2);
+		switch(dir)
+		{
+			case DIR_UP: return !(y-step<0||Screen->isSolid(x,y-step)||Screen->isSolid(midx,y-step)||Screen->isSolid(xx,y-step));
+			case DIR_DOWN: return !(yy+step>=176||Screen->isSolid(x,yy+step)||Screen->isSolid(midx,yy+step)||Screen->isSolid(xx,yy+step));
+			case DIR_LEFT: return !(x-step<0||Screen->isSolid(x-step,y)||Screen->isSolid(x-step,midy)||Screen->isSolid(x-step,yy));
+			case DIR_RIGHT: return !(xx+step>=256||Screen->isSolid(xx+step,y)||Screen->isSolid(xx+step,midy)||Screen->isSolid(xx+step,yy));
+			case DIR_LEFTUP: return (CanWalkS(x, y, xx, yy, DIR_LEFT, step) && CanWalkS(x, y, xx, yy, DIR_UP, step));
+			case DIR_LEFTDOWN: return (CanWalkS(x, y, xx, yy, DIR_LEFT, step) && CanWalkS(x, y, xx, yy, DIR_DOWN, step));
+			case DIR_RIGHTUP: return (CanWalkS(x, y, xx, yy, DIR_RIGHT, step) && CanWalkS(x, y, xx, yy, DIR_UP, step));
+			case DIR_RIGHTDOWN: return (CanWalkS(x, y, xx, yy, DIR_RIGHT, step) && CanWalkS(x, y, xx, yy, DIR_DOWN, step));
+		}
+		return false; //invalid direction
+	}
+	//end Standard
+	//start Full (Checks the FULL hitbox, not just where you are moving into)
+	//lweapon
+	bool CanWalkMFull(lweapon weap, mapdata map, int dir, int step, bool useHit)
+	{
+		if(!weap->isValid())return false;
+		return CanWalkMFull(weap->X + (useHit ? weap->HitXOffset : 0), weap->Y + (useHit ? weap->HitYOffset : 0), weap->X + (useHit ?  weap->HitWidth + weap->HitXOffset :  weap->TileWidth * 16) - 1, weap->Y + (useHit ?  weap->HitHeight + weap->HitYOffset :  weap->TileHeight * 16) - 1, map, dir, step);
+	}
+	//eweapon
+	bool CanWalkMFull(eweapon weap, mapdata map, int dir, int step, bool useHit)
+	{
+		if(!weap->isValid())return false;
+		return CanWalkMFull(weap->X + (useHit ? weap->HitXOffset : 0), weap->Y + (useHit ? weap->HitYOffset : 0), weap->X + (useHit ?  weap->HitWidth + weap->HitXOffset :  weap->TileWidth * 16) - 1, weap->Y + (useHit ?  weap->HitHeight + weap->HitYOffset :  weap->TileHeight * 16) - 1, map, dir, step);
+	}
+	//npc
+	bool CanWalkMFull(npc n, mapdata map, int dir, int step, bool useHit)
+	{
+		if(!n->isValid())return false;
+		return CanWalkMFull(n->X + (useHit ? n->HitXOffset : 0), n->Y + (useHit ? n->HitYOffset : 0), n->X + (useHit ?  n->HitWidth + n->HitXOffset :  n->TileWidth * 16) - 1, n->Y + (useHit ?  n->HitHeight + n->HitYOffset :  n->TileHeight * 16) - 1, map, dir, step);
+	}
+	//ffc
+	bool CanWalkMFull(ffc f, mapdata map, int dir, int step, bool useEffect)
+	{
+		return CanWalkMFull(f->X, f->Y, f->X + (useEffect ?  f->EffectWidth :  f->TileWidth * 16) - 1, f->Y + (useEffect ?  f->EffectHeight :  f->TileHeight * 16) - 1, map, dir, step);
+	}
+	//Link
+	bool CanWalkMFull(mapdata map, int dir, int step)
+	{
+		return CanWalkMFull(Hero->X, Hero->Y + (Hero->BigHitbox ?  0 :  8), Hero->X + 15, Hero->Y + 15, map, dir, step);
+	}
+	//Main
+	bool CanWalkMFull(int x, int y, int xx, int yy, mapdata map, int dir, int step)
+	{
+		if(MAPDATA_USECURSCREEN && map==CurMapdata()) return CanWalkSFull(x,y,xx,yy,dir,step);
+		int width = xx - x + 1;
+		int height = yy - y + 1;
+		int midx = x + Floor(width/2);
+		int midy = y + Floor(height/2);
+		switch(dir)
+		{
+			case DIR_UP: return !(y-step<0||map->isSolid(x,y-step)||map->isSolid(midx,y-step)||map->isSolid(xx,y-step)||map->isSolid(x,yy-step)||map->isSolid(midx,yy-step)||map->isSolid(xx,yy-step));
+			case DIR_DOWN: return !(yy+step>=176||map->isSolid(x,yy+step)||map->isSolid(midx,yy+step)||map->isSolid(xx,yy+step)||map->isSolid(x,y+step)||map->isSolid(midx,y+step)||map->isSolid(xx,y+step));
+			case DIR_LEFT: return !(x-step<0||map->isSolid(x-step,y)||map->isSolid(x-step,midy)||map->isSolid(x-step,yy)||map->isSolid(xx-step,y)||map->isSolid(xx-step,midy)||map->isSolid(xx-step,yy));
+			case DIR_RIGHT: return !(xx+step>=256||map->isSolid(xx+step,y)||map->isSolid(xx+step,midy)||map->isSolid(xx+step,yy)||map->isSolid(x+step,y)||map->isSolid(x+step,midy)||map->isSolid(x+step,yy));
+			case DIR_LEFTUP: return (CanWalkMFull(x, y, xx, yy, map, DIR_LEFT, step) && CanWalkMFull(x, y, xx, yy, map, DIR_UP, step));
+			case DIR_LEFTDOWN: return (CanWalkMFull(x, y, xx, yy, map, DIR_LEFT, step) && CanWalkMFull(x, y, xx, yy, map, DIR_DOWN, step));
+			case DIR_RIGHTUP: return (CanWalkMFull(x, y, xx, yy, map, DIR_RIGHT, step) && CanWalkMFull(x, y, xx, yy, map, DIR_UP, step));
+			case DIR_RIGHTDOWN: return (CanWalkMFull(x, y, xx, yy, map, DIR_RIGHT, step) && CanWalkMFull(x, y, xx, yy, map, DIR_DOWN, step));
+		}
+		return false; //invalid direction
+	}
+	
+	//Current Screen
+	bool CanWalkSFull(int x, int y, int xx, int yy, int dir, int step)
+	{
+		int width = xx - x + 1;
+		int height = yy - y + 1;
+		int midx = x + Floor(width/2);
+		int midy = y + Floor(height/2);
+		switch(dir)
+		{
+			case DIR_UP: return !(y-step<0||Screen->isSolid(x,y-step)||Screen->isSolid(midx,y-step)||Screen->isSolid(xx,y-step)||Screen->isSolid(x,yy-step)||Screen->isSolid(midx,yy-step)||Screen->isSolid(xx,yy-step));
+			case DIR_DOWN: return !(yy+step>=176||Screen->isSolid(x,yy+step)||Screen->isSolid(midx,yy+step)||Screen->isSolid(xx,yy+step)||Screen->isSolid(x,y+step)||Screen->isSolid(midx,y+step)||Screen->isSolid(xx,y+step));
+			case DIR_LEFT: return !(x-step<0||Screen->isSolid(x-step,y)||Screen->isSolid(x-step,midy)||Screen->isSolid(x-step,yy)||Screen->isSolid(xx-step,y)||Screen->isSolid(xx-step,midy)||Screen->isSolid(xx-step,yy));
+			case DIR_RIGHT: return !(xx+step>=256||Screen->isSolid(xx+step,y)||Screen->isSolid(xx+step,midy)||Screen->isSolid(xx+step,yy)||Screen->isSolid(x+step,y)||Screen->isSolid(x+step,midy)||Screen->isSolid(x+step,yy));
+			case DIR_LEFTUP: return (CanWalkS(x, y, xx, yy, DIR_LEFT, step) && CanWalkS(x, y, xx, yy, DIR_UP, step));
+			case DIR_LEFTDOWN: return (CanWalkS(x, y, xx, yy, DIR_LEFT, step) && CanWalkS(x, y, xx, yy, DIR_DOWN, step));
+			case DIR_RIGHTUP: return (CanWalkS(x, y, xx, yy, DIR_RIGHT, step) && CanWalkS(x, y, xx, yy, DIR_UP, step));
+			case DIR_RIGHTDOWN: return (CanWalkS(x, y, xx, yy, DIR_RIGHT, step) && CanWalkS(x, y, xx, yy, DIR_DOWN, step));
+		}
+		return false; //invalid direction
+	}
+	//end Full
+	//end CanWalkM
+	
+	/**
+	* Returns a mapdata pointer to the current screen (Perm version).
+	*/
+	mapdata CurMapdata() //start
+	{
+		return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+	} //end
+	
+	/**
+	* Returns a mapdata pointer to the specified layer of the given pointer.
+	* Will be perm version unless 'Game->LoadTempScreen(0)' is provided, in which case
+	*     it will return the temp layer.
+	*/
+	mapdata loadLayer(mapdata m, int layer) //start
+	{
+		unless(layer) return m;
+		if(m == Game->LoadTempScreen(0)) return Game->LoadTempScreen(layer);
+		int map = m->LayerMap[layer];
+		int scr = m->LayerScreen[layer];
+		unless(map) return NULL;
+		return Game->LoadMapData(map, scr);
+	} //end
+
+	/**
+	 * Returns the length of the line which has an angle of `angle`, and results in a change in x of `deltax`
+	 */
+	int InvVectorX(int deltax, int angle) //start
+	{
+		return deltax / Cos(angle);
+	} //end
+
+	/**
+	 * Returns the length of the line which has an angle of `angle`, and results in a change in y of `deltay`
+	 */
+	int InvVectorY(int deltay, int angle) //start
+	{
+		return deltay / Sin(angle);
+	} //end
+	
+	//start Collsion Functions
+	/**
+	 * Checks if the given rectangle and triangle collide
+	 */
+	bool TriangleRectCollision(int tx1, int ty1, int tx2, int ty2, int tx3, int ty3, int rx1, int ry1, int rx2, int ry2)
+	{
+		define left = Min(rx1,rx2);
+		define right = Max(rx1,rx2);
+		define top = Min(ry1,ry2);
+		define bottom = Max(ry1,ry2);
+		return pointTriangleCollision(tx1, ty1, tx2, ty2, tx3, ty3, left, top)
+			|| pointTriangleCollision(tx1, ty1, tx2, ty2, tx3, ty3, left, bottom)
+			|| pointTriangleCollision(tx1, ty1, tx2, ty2, tx3, ty3, right, top)
+			|| pointTriangleCollision(tx1, ty1, tx2, ty2, tx3, ty3, right, bottom)
+			|| lineRectIntersect(tx1,ty1,tx2,ty2,left,right,top,bottom)
+			|| lineRectIntersect(tx1,ty1,tx3,ty3,left,right,top,bottom)
+			|| lineRectIntersect(tx3,ty3,tx2,ty2,left,right,top,bottom);
+	}
+	
+	/**
+	 * Checks if the given triangle collides with Hero, using Hero->BigHitbox's setting
+	 */
+	bool HeroTriangleCollision(int tx1, int ty1, int tx2, int ty2, int tx3, int ty3)
+	{
+		return HeroTriangleCollision(tx1, ty1, tx2, ty2, tx3, ty3, Hero->BigHitbox);
+	}
+	
+	/**
+	 * Checks if the given triangle collides with Hero, with an option for bigHitbox
+	 */
+	bool HeroTriangleCollision(int tx1, int ty1, int tx2, int ty2, int tx3, int ty3, bool bigHitbox)
+	{
+		return TriangleRectCollision(tx1, ty1, tx2, ty2, tx3, ty3, Hero->X, bigHitbox ? Hero->Y : Hero->Y + 8, Hero->X + 15, Hero->Y + 15);
+	}
+	
+	/**
+	 * Returns true if the line specified by points (x1,y1), (x2,y2) intersects with the rectangle defined by (left,right,top,bottom)
+	 * Based on: https://seblee.me/2009/05/super-fast-trianglerectangle-intersection-test/
+	 */
+	bool lineRectIntersect(int x1, int y1, int x2, int y2, int left, int right, int top, int bottom)
+	{
+		define top_line = Min(y1,y2);
+		define bot_line = Max(y1,y2);
+		unless(x2-x1) //Handle vertical lines - avoid div by 0
+		{
+			return left < x1 && right > x1 && bot_line > top && top_line < bottom;
+		}
+		int m = (y2-y1) / (x2-x1); //Slope
+		int b = y1 - (m*x1); //Y-intercept
+		
+		//Declare some vars
+		int top_intersect, bot_intersect;
+		
+		if(m>0) //For a positive slope, the top intersect is on the left
+		{
+			top_intersect = m*left + b;
+			bot_intersect = m*right + b;
+		}
+		else
+		{
+			top_intersect = m*right + b;
+			bot_intersect = m*left + b;
+		}
+		
+		int top_overlap = Max(top_intersect,top_line);
+		int bot_overlap = Min(bot_intersect,bot_line);
+		
+		return (top_overlap<bot_overlap) && (!((bot_overlap<top) || (top_overlap>bottom)));
+	}
+	
+	/**
+	 * Returns true if a point (px,py) is within the triangle defined by (x1,y1), (x2,y2), (x3,y3)
+	 */
+	bool pointTriangleCollision(int x1, int y1, int x2, int y2, int x3, int y3, int px, int py)
+	{
+		//Checks the area of the triangle
+		int triangleArea = Abs( (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1) );
+		//Checks the areas of each of 3 triangles, made from 2 points of the original triangle, and point (px,py)
+		int a1 = Abs( (x1-px)*(y2-py) - (x2-px)*(y1-py) );
+		int a2 = Abs( (x2-px)*(y3-py) - (x3-px)*(y2-py) );
+		int a3 = Abs( (x3-px)*(y1-py) - (x1-px)*(y3-py) );
+		//If the sum of these 3 areas is equivalent to the total area of the triangle, then the point is in the triangle
+		return a1 + a2 + a3 == triangleArea;
+	}
+	//end
+	
+	/**
+	 * My attempt at a solid FFC function. Call `ffcSolid(ffc)` each frame to make the ffc solid.
+	 * This is not fully tested.
+	 */
+	void ffcSolid(ffc anFFC)//start
+	{
+		int linkspeed = Ceiling(1.5);
+		int width = anFFC->EffectWidth;
+		int height = anFFC->EffectHeight;
+		int bottomheight = Hero->BigHitbox ? height : height - 8;
+		if(bottomheight<1) bottomheight = 1; //Ensure that it is actually solid, even if only 8 tall with non-big hitbox
+		if((Hero->Y>=anFFC->Y-(16+linkspeed)) && (Hero->Y<=anFFC->Y-16) && (Hero->X>=anFFC->X-15) && (Hero->X<=anFFC->X+(width-1)))//start inputdown
+		{
+			if(Hero->InputDown)
+			{
+				if(Hero->Y!=anFFC->Y-16)Hero->Y=anFFC->Y-16;
+				Hero->Dir=DIR_DOWN;
+				if(Hero->X>=anFFC->X+(width-4))
+				{
+					if(CanWalk(Hero->X,Hero->Y,DIR_RIGHT,Abs(Hero->X-(anFFC->X+width)),false))Hero->X=anFFC->X+width;
+				} else if(Hero->X<=anFFC->X-12)if(CanWalk(Hero->X,Hero->Y,DIR_LEFT,Abs(Hero->X-anFFC->X-16),false))Hero->X=anFFC->X-16;
+			}
+			Hero->InputDown=false;
+			Hero->PressDown=false;
+			return;
+		}//end
+		if((Hero->Y<=anFFC->Y+(bottomheight+linkspeed)) && (Hero->Y>=anFFC->Y+bottomheight) && (Hero->X>=anFFC->X-15) && (Hero->X<=anFFC->X+(width-1))){//start inputup
+			if(Hero->InputUp){
+				if(Hero->Y!=anFFC->Y+bottomheight)Hero->Y=anFFC->Y+bottomheight;
+				Hero->Dir=DIR_UP;
+				if(Hero->X>=anFFC->X+(width-4)){
+					if(CanWalk(Hero->X,Hero->Y,DIR_RIGHT,Abs(Hero->X-(anFFC->X+width)),false))Hero->X=anFFC->X+width;
+				} else if(Hero->X<=anFFC->X-12)if(CanWalk(Hero->X,Hero->Y,DIR_LEFT,Abs(Hero->X-anFFC->X-16),false))Hero->X=anFFC->X-16;
+			}
+			Hero->InputUp=false;
+			Hero->PressUp=false;
+			return;
+		}//end
+		if((Hero->X>=anFFC->X-(16+linkspeed)) && (Hero->X<=anFFC->X-16) && (Hero->Y<=anFFC->Y+(bottomheight-1)) && (Hero->Y>=anFFC->Y-15)){//start inputright
+			if(Hero->InputRight){
+				if(Hero->X!=anFFC->X-16)Hero->X=anFFC->X-16;
+				Hero->Dir=DIR_RIGHT;
+				if(Hero->Y>=anFFC->Y+(bottomheight-4)){
+					if(CanWalk(Hero->X,Hero->Y,DIR_DOWN,Abs(Hero->Y-(anFFC->Y+bottomheight)),false))Hero->Y=anFFC->Y+bottomheight;
+				} else if(Hero->Y<=anFFC->Y-12)if(CanWalk(Hero->X,Hero->Y,DIR_UP,Abs(Hero->Y-(anFFC->Y-16)),false))Hero->Y=anFFC->Y-16;
+			}
+			Hero->InputRight=false;
+			Hero->PressRight=false;
+			return;
+		}//end
+		if((Hero->X<=anFFC->X+(width+linkspeed)) && (Hero->X>=anFFC->X+width) && (Hero->Y>=anFFC->Y-15) && (Hero->Y<=anFFC->Y+(bottomheight-1))){//start inputleft
+			if(Hero->InputLeft){
+				if(Hero->X!=anFFC->X+width)Hero->X=anFFC->X+width;
+				Hero->Dir=DIR_LEFT;
+				if(Hero->Y>=anFFC->Y+(bottomheight-4)){
+					if(CanWalk(Hero->X,Hero->Y,DIR_DOWN,Abs(Hero->Y-(anFFC->Y+bottomheight)),false))Hero->Y=anFFC->Y+bottomheight;
+				} else if(Hero->Y<=anFFC->Y-12)if(CanWalk(Hero->X,Hero->Y,DIR_UP,Abs(Hero->Y-(anFFC->Y-16)),false))Hero->Y=anFFC->Y-16;
+			}
+			Hero->InputLeft=false;
+			Hero->PressLeft=false;
+			return;
+		}//end
+	}//end
+	
+	/**
+	 * Returns true if Hero is scrolling, or about to begin scrolling. Any scripted draws intended to not draw during scrolling should run only if this returns false.
+	 * Due to variance with Hero's movement (1 or 2 pixels), this may sometimes return true extraneously.
+	 */
+	bool HeroIsScrolling() //start
+	{
+		return Hero->Action == LA_SCROLLING
+			|| (Hero->X >= 239 && Input->Button[CB_RIGHT] && CanScrollInDir(DIR_RIGHT))
+			|| (Hero->X <= 1 && Input->Button[CB_LEFT] && CanScrollInDir(DIR_LEFT))
+			|| (Hero->Y <= 1 && Input->Button[CB_UP] && CanScrollInDir(DIR_UP))
+			|| (Hero->Y >= 159 && Input->Button[CB_DOWN] && CanScrollInDir(DIR_DOWN));
+	} //end
+	
+	/**
+	 * Returns true if Hero is scrolling, or about to begin scrolling. Any scripted draws intended to not draw during scrolling should run only if this returns false.
+	 * Due to variance with Hero's movement (1 or 2 pixels), this may sometimes return true extraneously.
+	 */
+	bool HeroIsScrollingOrWarping()
+	{
+		return Hero->IsWarping || HeroIsScrolling();
+	}
+	
+	/**
+	 * Returns true if scrolling in a particular direction from this screen is valid. This checks for the edge of the map, respecting sidewarps.
+	 */
+	bool CanScrollInDir(int dir) //start
+	{
+		if(Game->GetCurScreen() == 0x80) return dir == DIR_DOWN;
+		if(Screen->SideWarpID[dir] > -1) return true;
+		switch(dir)
+		{
+			case DIR_UP:
+				return Game->GetCurScreen() > 0x0F;
+			case DIR_DOWN:
+				return Game->GetCurScreen() < 0x70;
+			case DIR_LEFT:
+				return Game->GetCurScreen() % 0x10;
+			case DIR_RIGHT:
+				return (Game->GetCurScreen() % 0x10) != 0x0F;
+		}
+		return false;
+	} //end
+	
+	/**
+	 * Returns the X-offset to add to a sprite's coordinate to be directly in front of it, by 'dist' pixels of them
+	 */
+	int InFrontCenteredX(int dir, int dist) //start
+	{
+		switch(dir)
+		{
+			case DIR_UP:
+			case DIR_DOWN:
+				return 8;
+			case DIR_LEFT:
+				return -dist;
+			case DIR_RIGHT:
+				return 15+dist;
+		}
+	} //end
+	
+	/**
+	 * Returns the Y-offset to add to a sprite's coordinate to be directly in front of it, by 'dist' pixels of them
+	 */
+	int InFrontCenteredY(int dir, int dist) //start
+	{
+		switch(dir)
+		{
+			case DIR_UP:
+				return -dist;
+			case DIR_DOWN:
+				return 15+dist;
+			case DIR_LEFT:
+			case DIR_RIGHT:
+				return 8;
+		}
+	} //end
+	
+	/**
+	 * Zeroes all movement factors of an FFC
+	 */
+	void haltFFC(ffc f) //start
+	{
+		f->Vx = 0; f->Vy = 0;
+		f->Ax = 0; f->Ay = 0;
+	} //end
+	
+	//start Drawing Functions
+
+	//As the name of the function implies, this was stolen from Moosh.
+	void MooshDrawTile(int layer, int cx, int cy, int tile, int blockw, int blockh, int cset, int xscale, int yscale, int rx, int ry, int rangle, int flip, bool transparency, int opacity) //start
+	{
+		int w = xscale;
+		if(xscale==-1)
+			w = blockw*16;
+		int h = yscale;
+		if(yscale==-1)
+			h = blockh*16;
+		Screen->DrawTile(layer, cx-w/2, cy-h/2, tile, blockw, blockh, cset, xscale, yscale, rx-w/2, ry-h/2, rangle, flip, transparency, opacity);
+	} //end
+	
+	/**
+	 * Colors the entire screen. bool subscrArea determines if the passive
+	 *     subscreen should be included.
+	 */
+	void ColorScreen(int layer, int color, bool subscrArea) //start
+	{
+		Screen->Rectangle(layer,0,subscrArea?-56:0,255,175,color,1,0,0,0,true,OP_OPAQUE);
+	} //end
+	
+	/**
+	 * This will work as DrawString, but, it can draw over multiple vertical lines.
+	 * Text over the Max Width, as well as newline characters ('\n'), will break to the next line.
+	 * New params:
+	 *	'verticalSpacing' is the extra space to include between lines.
+	 *	'MaxWidth' is the width at which text will be forced onto the next line.
+	 */
+	void DrawStrings(int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int verticalSpacing, int MaxWidth) //start
+	{
+		if(MaxWidth <= 0)
+		{
+			Screen->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity);
+			return;
+		}
+		int cpyptr[2048];
+		strcpy(cpyptr,ptr);
+		int fontHeight = Text->FontHeight(font);
+		while(true)
+		{
+			int endpos = -1;
+			int width = 0;
+			int lastEmptyPos = -1;
+			int length = strlen(cpyptr);
+			for(int q = 0; cpyptr[q] != 0; ++q)
+			{
+				char32 chr = cpyptr[q];
+				if(chr==CHAR_SPACE) lastEmptyPos = q;
+				if(chr==CHAR_NEWLINE)
+				{
+					lastEmptyPos = q;
+					break;
+				}
+				width += Text->CharWidth(chr, font);
+				if(width>=MaxWidth)
+				{
+					unless(lastEmptyPos==q)
+						endpos = q;
+					break;
+				}
+				if(cpyptr[q+1]==0) lastEmptyPos = -1;
+			}
+			int pos;
+			if(endpos==-1)pos=lastEmptyPos;
+			else if(lastEmptyPos==-1)pos=endpos;
+			else pos = Min(lastEmptyPos,endpos);
+			if(pos==-1) //No newline
+			{
+				Screen->DrawString(layer, x, y, font, color, background_color, format, cpyptr, opacity);
+				return;
+			}
+			if(pos && !(endpos == pos && pos <= 1))
+			{
+				int buf[256];
+				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
+				Screen->DrawString(layer, x, y, font, color, background_color, format, buf, opacity);
+			}
+			if(endpos==pos)
+			{
+				if(pos <= 1)
+				{
+					DrawStrings(layer, x, y, font, color, background_color, format, ptr, opacity, verticalSpacing, MaxWidth + 4);
+					return;
+				}
+				remnchr(cpyptr, 0, pos-1); //Shift back the string, save for 2 chars
+				cpyptr[0] = '-'; //Hyphenate when cutting mid-word
+			}
+			else remnchr(cpyptr, 0, pos+1); //Shift back the string, deleting what was already drawn
+			y+=fontHeight+verticalSpacing;
+		}
+	} //end
+	void DrawStrings(int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int shadow_type, int shadow_color, int verticalSpacing, int MaxWidth) //start
+	{
+		if(MaxWidth <= 0)
+		{
+			Screen->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity, shadow_type, shadow_color);
+			return;
+		}
+		int cpyptr[2048];
+		strcpy(cpyptr,ptr);
+		int fontHeight = Text->FontHeight(font);
+		while(true)
+		{
+			int endpos = -1;
+			int width = 0;
+			int lastEmptyPos = -1;
+			int length = strlen(cpyptr);
+			for(int q = 0; cpyptr[q] != 0; ++q)
+			{
+				char32 chr = cpyptr[q];
+				if(chr==CHAR_SPACE) lastEmptyPos = q;
+				if(chr==CHAR_NEWLINE)
+				{
+					lastEmptyPos = q;
+					break;
+				}
+				width += Text->CharWidth(chr, font);
+				if(width>=MaxWidth)
+				{
+					unless(lastEmptyPos==q)
+						endpos = q;
+					break;
+				}
+				if(cpyptr[q+1]==0) lastEmptyPos = -1;
+			}
+			int pos;
+			if(endpos==-1)pos=lastEmptyPos;
+			else if(lastEmptyPos==-1)pos=endpos;
+			else pos = Min(lastEmptyPos,endpos);
+			if(pos==-1) //No newline
+			{
+				Screen->DrawString(layer, x, y, font, color, background_color, format, cpyptr, opacity, shadow_type, shadow_color);
+				return;
+			}
+			if(pos && !(endpos == pos && pos <= 1))
+			{
+				int buf[256];
+				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
+				Screen->DrawString(layer, x, y, font, color, background_color, format, buf, opacity, shadow_type, shadow_color);
+			}
+			if(endpos==pos)
+			{
+				if(pos <= 1)
+				{
+					DrawStrings(layer, x, y, font, color, background_color, format, ptr, opacity, shadow_type, shadow_color, verticalSpacing, MaxWidth + 4);
+					return;
+				}
+				remnchr(cpyptr, 0, pos-1); //Shift back the string, save for 2 chars
+				cpyptr[0] = '-'; //Hyphenate when cutting mid-word
+			}
+			else remnchr(cpyptr, 0, pos+1); //Shift back the string, deleting what was already drawn
+			y+=fontHeight+verticalSpacing;
+		}
+	} //end
+
+	
+	/**
+	 * This will work as DrawString, but, it can draw over multiple vertical lines.
+	 * Text over the Max Width, as well as newline characters ('\n'), will break to the next line.
+	 * New params:
+	 *  'b' is the bitmap to render to.
+	 *	'verticalSpacing' is the extra space to include between lines.
+	 *	'MaxWidth' is the width at which text will be forced onto the next line.
+	 */
+	void DrawStringsBitmap(bitmap b, int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int verticalSpacing, int MaxWidth) //start
+	{
+		if(MaxWidth <= 0)
+		{
+			b->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity);
+			return;
+		}
+		int cpyptr[2048];
+		strcpy(cpyptr,ptr);
+		int fontHeight = Text->FontHeight(font);
+		while(true)
+		{
+			int endpos = -1;
+			int width = 0;
+			int lastEmptyPos = -1;
+			int length = strlen(cpyptr);
+			for(int q = 0; cpyptr[q] != 0; ++q)
+			{
+				char32 chr = cpyptr[q];
+				if(chr==CHAR_SPACE) lastEmptyPos = q;
+				if(chr==CHAR_NEWLINE)
+				{
+					lastEmptyPos = q;
+					break;
+				}
+				width += Text->CharWidth(chr, font);
+				if(width>=MaxWidth)
+				{
+					unless(lastEmptyPos==q)
+						endpos = q;
+					break;
+				}
+				if(cpyptr[q+1]==0) lastEmptyPos = -1;
+			}
+			int pos;
+			if(endpos==-1)pos=lastEmptyPos;
+			else if(lastEmptyPos==-1)pos=endpos;
+			else pos = Min(lastEmptyPos,endpos);
+			if(pos==-1) //No newline
+			{
+				b->DrawString(layer, x, y, font, color, background_color, format, cpyptr, opacity);
+				return;
+			}
+			if(pos && !(endpos == pos && pos <= 1))
+			{
+				int buf[256];
+				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
+				b->DrawString(layer, x, y, font, color, background_color, format, buf, opacity);
+			}
+			if(endpos==pos)
+			{
+				if(pos <= 1)
+				{
+					DrawStringsBitmap(b, layer, x, y, font, color, background_color, format, ptr, opacity, verticalSpacing, MaxWidth + 4);
+					return;
+				}
+				remnchr(cpyptr, 0, pos-1); //Shift back the string, save for 2 chars
+				cpyptr[0] = '-'; //Hyphenate when cutting mid-word
+			}
+			else remnchr(cpyptr, 0, pos+1); //Shift back the string, deleting what was already drawn
+			y+=fontHeight+verticalSpacing;
+		}
+	} //end
+	void DrawStringsBitmap(bitmap b, int layer, int x, int y, int font, int color, int background_color, int format, char32 ptr, int opacity, int shadow_type, int shadow_color, int verticalSpacing, int MaxWidth) //start
+	{
+		if(MaxWidth <= 0)
+		{
+			b->DrawString(layer, x, y, font, color, background_color, format, ptr, opacity, shadow_type, shadow_color);
+			return;
+		}
+		int cpyptr[2048];
+		strcpy(cpyptr,ptr);
+		int fontHeight = Text->FontHeight(font);
+		while(true)
+		{
+			int endpos = -1;
+			int width = 0;
+			int lastEmptyPos = -1;
+			int length = strlen(cpyptr);
+			for(int q = 0; cpyptr[q] != 0; ++q)
+			{
+				char32 chr = cpyptr[q];
+				if(chr==CHAR_SPACE) lastEmptyPos = q;
+				if(chr==CHAR_NEWLINE)
+				{
+					lastEmptyPos = q;
+					break;
+				}
+				width += Text->CharWidth(chr, font);
+				if(width>=MaxWidth)
+				{
+					unless(lastEmptyPos==q)
+						endpos = q;
+					break;
+				}
+				if(cpyptr[q+1]==0) lastEmptyPos = -1;
+			}
+			int pos;
+			if(endpos==-1)pos=lastEmptyPos;
+			else if(lastEmptyPos==-1)pos=endpos;
+			else pos = Min(lastEmptyPos,endpos);
+			if(pos==-1) //No newline
+			{
+				b->DrawString(layer, x, y, font, color, background_color, format, cpyptr, opacity, shadow_type, shadow_color);
+				return;
+			}
+			if(pos && !(endpos == pos && pos <= 1))
+			{
+				int buf[256];
+				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
+				b->DrawString(layer, x, y, font, color, background_color, format, buf, opacity, shadow_type, shadow_color);
+			}
+			if(endpos==pos)
+			{
+				if(pos <= 1)
+				{
+					DrawStringsBitmap(b, layer, x, y, font, color, background_color, format, ptr, opacity, shadow_type, shadow_color, verticalSpacing, MaxWidth + 4);
+					return;
+				}
+				remnchr(cpyptr, 0, pos-1); //Shift back the string, save for 2 chars
+				cpyptr[0] = '-'; //Hyphenate when cutting mid-word
+			}
+			else remnchr(cpyptr, 0, pos+1); //Shift back the string, deleting what was already drawn
+			y+=fontHeight+verticalSpacing;
+		}
+	} //end
+	
+	/**
+	 * Same as DrawStrings, but, does not draw anything.
+	 * Returns the number of lines that DrawStrings would use.
+	 */
+	int DrawStringsCount(int font, char32 ptr, int MaxWidth) //start
+	{
+		if(MaxWidth <= 0) return 1;
+		int count = 1;
+		int cpyptr[2048];
+		strcpy(cpyptr,ptr);
+		int fontHeight = Text->FontHeight(font);
+		while(true)
+		{
+			int endpos = -1;
+			int width = 0;
+			int lastEmptyPos = -1;
+			int length = strlen(cpyptr);
+			for(int q = 0; cpyptr[q] != 0; ++q)
+			{
+				char32 chr = cpyptr[q];
+				if(chr==CHAR_SPACE) lastEmptyPos = q;
+				if(chr==CHAR_NEWLINE)
+				{
+					lastEmptyPos = q;
+					break;
+				}
+				width += Text->CharWidth(chr, font);
+				if(width>=MaxWidth)
+				{
+					unless(lastEmptyPos==q)
+						endpos = q;
+					break;
+				}
+				if(cpyptr[q+1]==0) lastEmptyPos = -1;
+			}
+			int pos;
+			if(endpos==-1)pos=lastEmptyPos;
+			else if(lastEmptyPos==-1)pos=endpos;
+			else pos = Min(lastEmptyPos,endpos);
+			if(pos<0) //No newline
+			{
+				return count;
+			}
+			if(endpos==pos)
+			{
+				if(pos <= 1)
+				{
+					return DrawStringsCount(font, ptr, MaxWidth + 4);
+				}
+				remnchr(cpyptr, 0, pos-1); //Shift back the string, save for 2 chars
+				cpyptr[0] = '-'; //Hyphenate when cutting mid-word
+			}
+			else remnchr(cpyptr, 0, pos+1); //Shift back the string, deleting what was already drawn
+			++count;
+		}
+	} //end
+	/**
+	 * Same as DrawStrings, but, does not draw anything.
+	 * Returns the width that DrawStrings would hit, at max.
+	 */
+	int DrawStringsWid(int font, char32 ptr, int MaxWidth) //start
+	{
+		if(MaxWidth <= 0) return 1;
+		int runningWid = 0;
+		int cpyptr[2048];
+		strcpy(cpyptr,ptr);
+		int fontHeight = Text->FontHeight(font);
+		while(true)
+		{
+			int endpos = -1;
+			int width = 0;
+			int lastEmptyPos = -1;
+			int length = strlen(cpyptr);
+			for(int q = 0; cpyptr[q] != 0; ++q)
+			{
+				char32 chr = cpyptr[q];
+				if(chr==CHAR_SPACE) lastEmptyPos = q;
+				if(chr==CHAR_NEWLINE)
+				{
+					lastEmptyPos = q;
+					break;
+				}
+				width += Text->CharWidth(chr, font);
+				if(width>=MaxWidth)
+				{
+					unless(lastEmptyPos==q)
+						endpos = q;
+					break;
+				}
+				if(cpyptr[q+1]==0) lastEmptyPos = -1;
+			}
+			int pos;
+			if(endpos==-1)pos=lastEmptyPos;
+			else if(lastEmptyPos==-1)pos=endpos;
+			else pos = Min(lastEmptyPos,endpos);
+			if(pos<0) //No newline
+			{
+				int w = Text->StringWidth(cpyptr, font);
+				if(w > runningWid)
+					return w;
+				return runningWid;
+			}
+			if(pos && !(endpos == pos && pos <= 1))
+			{
+				int buf[256];
+				memcpy(buf, 0, cpyptr, 0, pos); //Copy first string
+				int w = Text->StringWidth(buf, font);
+				if(w > runningWid)
+					runningWid = w;
+			}
+			if(endpos==pos)
+			{
+				if(pos <= 1)
+				{
+					return DrawStringsWid(font, ptr, MaxWidth + 4);
+				}
+				remnchr(cpyptr, 0, pos-1); //Shift back the string, save for 2 chars
+				cpyptr[0] = '-'; //Hyphenate when cutting mid-word
+			}
+			else remnchr(cpyptr, 0, pos+1); //Shift back the string, deleting what was already drawn
+		}
+	} //end
+	//end Drawing Functions
+
+	void getFontName(char32 buf, int font) //start
+	{
+		switch(font)
+		{
+			case FONT_Z1:
+				strcpy(buf, "Zelda NES");
+				break;
+				
+			case FONT_Z3:
+				strcpy(buf, "Link to the Past");
+				break;
+				
+			case FONT_Z3SMALL:
+				strcpy(buf, "LttP Small");
+				break;
+				
+			case FONT_DEF:
+				strcpy(buf, "Allegro Default");
+				break;
+				
+			case FONT_L:
+				strcpy(buf, "GUI Font Bold");
+				break;
+				
+			case FONT_L2:
+				strcpy(buf, "GUI Font");
+				break;
+				
+			case FONT_P:
+				strcpy(buf, "GUI Font Narrow");
+				break;
+				
+			case FONT_MATRIX:
+				strcpy(buf, "Zelda NES (Matrix)");
+				break;
+				
+			case FONT_ZTIME:
+				strcpy(buf, "BS Time (Incomplete)");
+				break;
+				
+			case FONT_S:
+				strcpy(buf, "Small");
+				break;
+				
+			case FONT_S2:
+				strcpy(buf, "Small 2");
+				break;
+				
+			case FONT_SP:
+				strcpy(buf, "S. Proportional");
+				break;
+				
+			case FONT_SUBSCREEN1:
+				strcpy(buf, "SS 1 (Numerals)");
+				break;
+				
+			case FONT_SUBSCREEN2:
+				strcpy(buf, "SS 2 (Incomplete)");
+				break;
+				
+			case FONT_SUBSCREEN3:
+				strcpy(buf, "SS 3");
+				break;
+				
+			case FONT_SUBSCREEN4:
+				strcpy(buf, "SS 4 (Numerals)");
+				break;
+				
+			case FONT_LA:
+				strcpy(buf, "Link's Awakening");
+				break;
+				
+			case FONT_GORON:
+				strcpy(buf, "Goron");
+				break;
+				
+			case FONT_ZORAN:
+				strcpy(buf, "Zoran");
+				break;
+				
+			case FONT_HYLIAN1:
+				strcpy(buf, "Hylian 1");
+				break;
+				
+			case FONT_HYLIAN2:
+				strcpy(buf, "Hylian 2");
+				break;
+				
+			case FONT_HYLIAN3:
+				strcpy(buf, "Hylian 3");
+				break;
+				
+			case FONT_HYLIAN4:
+				strcpy(buf, "Hylian 4");
+				break;
+				
+			case FONT_GBORACLE:
+				strcpy(buf, "Oracle");
+				break;
+				
+			case FONT_GBORACLEP:
+				strcpy(buf, "Oracle Proportional");
+				break;
+				
+			case FONT_DSPHANTOM:
+				strcpy(buf, "Phantom");
+				break;
+				
+			case FONT_DSPHANTOMP:
+				strcpy(buf, "Phantom Proportional");
+				break;
+				
+			case FONT_ATARI800:
+				strcpy(buf, "Atari 800");
+				break;
+				
+			case FONT_ACORN:
+				strcpy(buf, "Acorn");
+				break;
+				
+			case FONT_ADOS:
+				strcpy(buf, "ADOS");
+				break;
+				
+			case FONT_ALLEGRO:
+				strcpy(buf, "Allegro");
+				break;
+				
+			case FONT_APPLE2:
+				strcpy(buf, "Apple II");
+				break;
+				
+			case FONT_APPLE2_80COL:
+				strcpy(buf, "Apple II 80 Column");
+				break;
+				
+			case FONT_APPLE2GS:
+				strcpy(buf, "Apple IIgs");
+				break;
+				
+			case FONT_AQUARIUS:
+				strcpy(buf, "Aquarius");
+				break;
+				
+			case FONT_ATARI400:
+				strcpy(buf, "Atari 400");
+				break;
+				
+			case FONT_C64:
+				strcpy(buf, "C64");
+				break;
+				
+			case FONT_C64_HIRES:
+				strcpy(buf, "C64 HiRes");
+				break;
+				
+			case FONT_CGA:
+				strcpy(buf, "IBM CGA");
+				break;
+				
+			case FONT_COCO:
+				strcpy(buf, "COCO Mode I");
+				break;
+				
+			case FONT_COCO2:
+				strcpy(buf, "COCO Mode II");
+				break;
+				
+			case FONT_COUPE:
+				strcpy(buf, "Coupe");
+				break;
+				
+			case FONT_CPC:
+				strcpy(buf, "Amstrad CPC");
+				break;
+				
+			case FONT_FANTASY:
+				strcpy(buf, "Fantasy Letters");
+				break;
+				
+			case FONT_FDS_KANA:
+				strcpy(buf, "FDS Katakana");
+				break;
+				
+			case FONT_FDSLIKE:
+				strcpy(buf, "FDSesque");
+				break;
+				
+			case FONT_FDS_ROMAN:
+				strcpy(buf, "FDS Roman");
+				break;
+				
+			case FONT_FF:
+				strcpy(buf, "FF");
+				break;
+				
+			case FONT_FUTHARK:
+				strcpy(buf, "Elder Futhark");
+				break;
+				
+			case FONT_GAIA:
+				strcpy(buf, "Gaia");
+				break;
+				
+			case FONT_HIRA:
+				strcpy(buf, "Hira");
+				break;
+				
+			case FONT_JP:
+				strcpy(buf, "JP Unsorted");
+				break;
+				
+			case FONT_KONG:
+				strcpy(buf, "Kong");
+				break;
+				
+			case FONT_MANA:
+				strcpy(buf, "Mana");
+				break;
+				
+			case FONT_MARIOLAND:
+				strcpy(buf, "Mario");
+				break;
+				
+			case FONT_MOT:
+				strcpy(buf, "Mot CPU");
+				break;
+				
+			case FONT_MSX0:
+				strcpy(buf, "MSX Mode 0");
+				break;
+				
+			case FONT_MSX1:
+				strcpy(buf, "MSX Mode 1");
+				break;
+				
+			case FONT_PET:
+				strcpy(buf, "PET");
+				break;
+				
+			case FONT_PSTART:
+				strcpy(buf, "Homebrew");
+				break;
+				
+			case FONT_SATURN:
+				strcpy(buf, "Mr. Saturn");
+				break;
+				
+			case FONT_SCIFI:
+				strcpy(buf, "Sci-Fi");
+				break;
+				
+			case FONT_SHERWOOD:
+				strcpy(buf, "Sherwood");
+				break;
+				
+			case FONT_SINQL:
+				strcpy(buf, "Sinclair QL");
+				break;
+				
+			case FONT_SPECTRUM:
+				strcpy(buf, "Spectrum");
+				break;
+				
+			case FONT_SPECTRUM_LG:
+				strcpy(buf, "Spectrum Large");
+				break;
+				
+			case FONT_TI99:
+				strcpy(buf, "TI99");
+				break;
+				
+			case FONT_TRS:
+				strcpy(buf, "TRS");
+				break;
+				
+			case FONT_Z2:
+				strcpy(buf, "Zelda 2");
+				break;
+				
+			case FONT_LISA:
+				strcpy(buf, "Lisa");
+				break;
+			
+			default:
+				strcpy(buf, "Unknown Font");
+				break;
+		}
+	} //end
+	
+	void colorscr_txt(int color, int txtcolor, int font, char32 buf, bool hidesubscr) //start
+	{
+		Screen->Rectangle(7, 0, hidesubscr ? -56 : 0, 256, 168, color, 1, 0, 0, 0, true, OP_OPAQUE);
+		DrawStrings(7, 128, ((224-Text->FontHeight(font))/2)-56, font, txtcolor, color, TF_CENTERED, buf, OP_OPAQUE, 2, 256);
+	} //end
+	
+	bitmap create(int w, int h) //start
+	{
+		if(Game->FFRules[qr_OLDCREATEBITMAP_ARGS])
+			return Game->CreateBitmap(h, w);
+		else
+			return Game->CreateBitmap(w, h);
+	} 
+	 //end
+	
+	//start Fancy screenshot thing
+	DEFINE SCRNSHOT_DMAP = 511;
+	DEFINE SYS_WHITE = 0xF5, SYS_BLACK = 0xE0;
+	CONFIGB MAPSCREENSHOT_HIDES_SUBSCR = true;
+	void doMapScreenshot(int map) {doMapScreenshot(map,10);}
+	void doMapScreenshot(int map, int frameDelay) //start
+	{
+		char32 waitmsg[] = "Processing...\nThis may take a bit, Boing!";
+		Game->Suspend[susptCOMBOANIM] = true;
+		Game->Suspend[susptPALCYCLE] = true;
+		Game->Suspend[susptGUYS] = true;
+		Game->Suspend[susptSUBSCREENSCRIPTS] = true;
+		Hero->Invisible = true;
+		dmapdata dm = Game->LoadDMapData(SCRNSHOT_DMAP);
+		int olddm[] = {dm->Map, dm->Level, dm->Offset, dm->Type, dm->Palette};
+		dm->Map = map;
+		dm->Level = Game->GetCurLevel();
+		dm->Offset = 0;
+		dm->Type = (dm->Type & ~11b) | DMAP_OVERWORLD;
+		//
+		int olddmap = Game->GetCurDMap();
+		int oldscr = Game->GetCurDMapScreen();
+		int oldx = Hero->X;
+		int oldy = Hero->Y;
+		bool msgfrz = Game->FFRules[qr_MSGFREEZE];
+		Game->FFRules[qr_MSGFREEZE] = false;
+		//
+		int pals[0x200];
+		int palscrs[0x200];
+		int ind = 0;
+		for(int q = 0; q < 0x80; ++q)
+		{
+			mapdata m = Game->LoadMapData(map, q);
+			for(int p = 0; p < ind; ++p)
+			{
+				if(m->Palette == pals[p])
+				{
+					m = NULL;
+					break;
+				}
+			}
+			if(m)
+			{
+				pals[ind++] = m->Palette;
+			}
+		}
+		bitmap b = create(256*16,176*8);
+		int outputind = 0;
+		for(int q = 0; q < ind; ++q)
+		{
+			dm->Palette = pals[q];
+			b->ClearToColor(0, SYS_WHITE);
+			colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+			Waitframe();
+			for(int x = 0; x < 16*256; x+=256)
+			{
+				for(int y = 0; y < 8*176; y += 176)
+				{
+					Hero->ItemJinx = 999; Hero->SwordJinx = 999;
+					int scr = (x/256) + ((y/176)*0x10);
+					mapdata m = Game->LoadMapData(map, scr);
+					unless(m->Palette == pals[q])
+						continue;
+					unless(m->Valid & 1b)
+						continue;
+					int pat = m->Pattern;
+					int twarp = m->TimedWarpTimer;
+					m->TimedWarpTimer = 0;
+					m->Pattern = PATTERN_NO_SPAWNING;
+					//start Warp
+					Hero->WarpEx({WT_IWARP, SCRNSHOT_DMAP, scr, 0, 0, 0, 0, WARP_FLAG_SCRIPTDRAW});
+					Game->Suspend[susptLINK] = false;
+					int timeout = 60;
+					do
+					{
+						Screen->Flags[SF_VIEW] ~= SFV_NOSUBSCREEN;
+						colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+						Waitframe();
+					}
+					until(Game->GetCurScreen() == scr || !--timeout);
+					if(Game->GetCurScreen() != scr) //Warp failed, for some reason?
+					{
+						printf("Error warping to (%d,%02X), skipping screenshot\n", map, scr);
+						m->Pattern = pat;
+						m->TimedWarpTimer = twarp;
+						continue;
+					}
+					Game->Suspend[susptLINK] = true;
+					//end Warp
+					for(int q = 0; q < frameDelay; ++q)
+					{
+						Screen->Message(0); //Clear any displayed strings
+						colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+						Waitframe();
+					}
+					b->BlitTo(7, RT_SCREEN, 0, 0, 256, 176, x, y, 256, 176, 0, 0, 0, 0, 0, false);
+					for(int lyr = 0; lyr < 7; ++lyr)
+					{
+						mapdata m = Game->LoadTempScreen(lyr);
+						int op = (lyr > 0 ? (Screen->LayerOpacity[lyr]==128 ? OP_TRANS : OP_OPAQUE) : OP_OPAQUE);
+						for(int pos = 160; pos < 176; ++pos)
+						{
+							b->DrawCombo(7, x + (pos%16)*16, y + 10*16, m->ComboD[pos], 1, 1, m->ComboC[pos], -1, -1, 0, 0, 0, 0, 0, lyr > 0, op);
+						}
+					}
+					colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+					Waitframe();
+					m->Pattern = pat;
+					m->TimedWarpTimer = twarp;
+				}
+			}
+			char32 buf[256];
+			sprintf(buf, "mapscreenshot/m_%03d/pal_%03X.png", map, pals[q]);
+			b->Write(7, buf, true);
+			colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+			Waitframe();
+		}
+		b->Free();
+		dm->Map = olddm[0];
+		dm->Level = olddm[1];
+		dm->Offset = olddm[2];
+		dm->Type = olddm[3];
+		dm->Palette = olddm[4];
+		Hero->WarpEx({WT_IWARP, olddmap, oldscr, oldx, oldy, 0, 0, WARP_FLAG_SCRIPTDRAW});
+		Hero->Invisible = false;
+		Hero->ItemJinx = 0;
+		Hero->SwordJinx = 0;
+		Game->Suspend[susptCOMBOANIM] = false;
+		Game->Suspend[susptPALCYCLE] = false;
+		Game->Suspend[susptGUYS] = false;
+		Game->Suspend[susptLINK] = false;
+		Game->Suspend[susptSUBSCREENSCRIPTS] = false;
+		Game->FFRules[qr_MSGFREEZE] = msgfrz;
+		colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+		Waitframe();
+	} //end
+
+	void doAllMapScreenshots() {doAllMapScreenshots(10);}
+	void doAllMapScreenshots(int frameDelay) //start
+	{
+		char32 waitmsg[] = "Processing...\nThis may take a bit, Boing!";
+		Game->Suspend[susptCOMBOANIM] = true;
+		Game->Suspend[susptPALCYCLE] = true;
+		Game->Suspend[susptGUYS] = true;
+		Game->Suspend[susptSUBSCREENSCRIPTS] = true;
+		Hero->Invisible = true;
+		dmapdata dm = Game->LoadDMapData(SCRNSHOT_DMAP);
+		int olddm[] = {dm->Map, dm->Level, dm->Offset, dm->Type, dm->Palette};
+		dm->Level = Game->GetCurLevel();
+		dm->Offset = 0;
+		dm->Type = (dm->Type & ~11b) | DMAP_OVERWORLD;
+		int olddmap = Game->GetCurDMap();
+		int oldscr = Game->GetCurDMapScreen();
+		int oldx = Hero->X;
+		int oldy = Hero->Y;
+		bool msgfrz = Game->FFRules[qr_MSGFREEZE];
+		Game->FFRules[qr_MSGFREEZE] = false;
+		bitmap b = create(256*16,176*8);
+		
+		for(int map = 1; map <= Game->MapCount(); ++map)
+		{
+			dm->Map = map;
+			//
+			//
+			int pals[0x200];
+			int palscrs[0x200];
+			int ind = 0;
+			for(int q = 0; q < 0x80; ++q)
+			{
+				mapdata m = Game->LoadMapData(map, q);
+				for(int p = 0; p < ind; ++p)
+				{
+					if(m->Palette == pals[p])
+					{
+						m = NULL;
+						break;
+					}
+				}
+				if(m)
+				{
+					pals[ind++] = m->Palette;
+				}
+			}
+			int outputind = 0;
+			for(int q = 0; q < ind; ++q)
+			{
+				dm->Palette = pals[q];
+				b->ClearToColor(0, SYS_WHITE);
+				colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+				Waitframe();
+				for(int x = 0; x < 16*256; x+=256)
+				{
+					for(int y = 0; y < 8*176; y += 176)
+					{
+						Hero->ItemJinx = 999; Hero->SwordJinx = 999;
+						int scr = (x/256) + ((y/176)*0x10);
+						mapdata m = Game->LoadMapData(map, scr);
+						unless(m->Palette == pals[q])
+							continue;
+						unless(m->Valid & 1b)
+							continue;
+						int pat = m->Pattern;
+						int twarp = m->TimedWarpTimer;
+						m->TimedWarpTimer = 0;
+						m->Pattern = PATTERN_NO_SPAWNING;
+						//start Warp
+						Hero->WarpEx({WT_IWARP, SCRNSHOT_DMAP, scr, 0, 0, 0, 0, WARP_FLAG_SCRIPTDRAW});
+						Game->Suspend[susptLINK] = false;
+						int timeout = 60;
+						do
+						{
+							Screen->Flags[SF_VIEW] ~= SFV_NOSUBSCREEN;
+							colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+							Waitframe();
+						}
+						until(Game->GetCurScreen() == scr || !--timeout);
+						if(Game->GetCurScreen() != scr) //Warp failed, for some reason?
+						{
+							printf("Error warping to (%d,%02X), skipping screenshot\n", map, scr);
+							m->Pattern = pat;
+							m->TimedWarpTimer = twarp;
+							continue;
+						}
+						Game->Suspend[susptLINK] = true;
+						//end Warp
+						for(int q = 0; q < frameDelay; ++q)
+						{
+							Screen->Message(0); //Clear any displayed strings
+							colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+							Waitframe();
+						}
+						b->BlitTo(7, RT_SCREEN, 0, 0, 256, 176, x, y, 256, 176, 0, 0, 0, 0, 0, false);
+						for(int lyr = 0; lyr < 7; ++lyr)
+						{
+							mapdata m = Game->LoadTempScreen(lyr);
+							int op = (lyr > 0 ? (Screen->LayerOpacity[lyr]==128 ? OP_TRANS : OP_OPAQUE) : OP_OPAQUE);
+							for(int pos = 160; pos < 176; ++pos)
+							{
+								b->DrawCombo(7, x + (pos%16)*16, y + 10*16, m->ComboD[pos], 1, 1, m->ComboC[pos], -1, -1, 0, 0, 0, 0, 0, lyr > 0, op);
+							}
+						}
+						colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+						Waitframe();
+						m->Pattern = pat;
+						m->TimedWarpTimer = twarp;
+					}
+				}
+				char32 buf[256];
+				sprintf(buf, "mapscreenshot/m_%03d/pal_%03X.png", map, pals[q]);
+				b->Write(7, buf, true);
+				colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+				Waitframe();
+			}
+		}
+		b->Free();
+		dm->Map = olddm[0];
+		dm->Level = olddm[1];
+		dm->Offset = olddm[2];
+		dm->Type = olddm[3];
+		dm->Palette = olddm[4];
+		Hero->WarpEx({WT_IWARP, olddmap, oldscr, oldx, oldy, 0, 0, WARP_FLAG_SCRIPTDRAW});
+		Hero->Invisible = false;
+		Hero->ItemJinx = 0;
+		Hero->SwordJinx = 0;
+		Game->Suspend[susptCOMBOANIM] = false;
+		Game->Suspend[susptPALCYCLE] = false;
+		Game->Suspend[susptGUYS] = false;
+		Game->Suspend[susptLINK] = false;
+		Game->Suspend[susptSUBSCREENSCRIPTS] = false;
+		Game->FFRules[qr_MSGFREEZE] = msgfrz;
+		colorscr_txt(SYS_BLACK, SYS_WHITE, FONT_SATURN, waitmsg, MAPSCREENSHOT_HIDES_SUBSCR);
+		Waitframe();
+	} //end
+	//end
+
+	
+	/**
+	 * As memmove(), but with a larger buffer
+	 */
+	untyped large_memmove(untyped dest, int dpos, untyped src, int spos, int n) //start
+	{
+		untyped buffer[1];
+		ResizeArray(buffer, n);
+		for(int i = 0; i < n; ++i)
+			buffer[i] = src[spos + i];
+		for(int i = 0; i < n; ++i)
+			dest[dpos + i] = buffer[i];
+		return dest;
+	} //end
+}

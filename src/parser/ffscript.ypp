@@ -110,6 +110,7 @@ extern YYLTYPE noloc;
 %token ALWAYS
 %token ZASM
 %token INCLUDE
+%token INCLUDEPATH
 %token INCLUDEIF
 %token UNTIL
 %token UNLESS
@@ -257,6 +258,7 @@ Global_List :
 
 Global_Statement :
 	Import {$$ = $1;}
+	| IncludePath {$$ = $1;}
 	| Namespace {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
 	| ScriptTypeDef SEMICOLON {$$ = $1;}
@@ -420,6 +422,13 @@ Import :
 		ASTExprConst* cond = (ASTExprConst*)$4;
 		ASTImportDecl* decl = new ASTImportDecl(str->getValue(), @$, true);
 		$$ = new ASTImportCondDecl(cond, decl, @$);
+		delete str;}
+	;
+
+IncludePath :
+	HASH INCLUDEPATH IMPORTSTRING {
+		ASTString* str = (ASTString*)$3;
+		$$ = new ASTIncludePath(str->getValue(), @$);
 		delete str;}
 	;
 

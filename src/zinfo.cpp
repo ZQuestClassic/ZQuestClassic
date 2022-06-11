@@ -177,8 +177,8 @@ const char default_ctype_strings[cMAX][255] =
 	"Script 14","Script 15","Script 16","Script 17","Script 18",
 	"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
 	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
-	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block",
-	"ButtonPrompt"
+	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block", "ButtonPrompt",
+	"Block Weapon (Custom)"
 };
 const char old_mapflag_strings[mfMAX][255] =
 {
@@ -457,14 +457,15 @@ char const* zinfo::getComboTypeName(size_t q)
 #endif
 	return nilptr;
 }
+static std::string ctype_help_buff;
 char const* zinfo::getComboTypeHelp(size_t q)
 {
 #ifdef IS_ZQUEST
 	if(valid_str(ctype_help_string[q]))
 		return ctype_help_string[q];
-	std::string defstr = getComboTypeHelpText(q);
-	if(defstr.size())
-		return defstr.c_str();
+	ctype_help_buff = getComboTypeHelpText(q);
+	if(ctype_help_buff.size())
+		return ctype_help_buff.c_str();
 #endif
 	return nilptr;
 }

@@ -167,14 +167,14 @@ bool item::animate(int32_t)
 			}
 			if ( moveflags & FLAG_CAN_PITFALL )
 			{
-				if(!subscreenItem && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
+				if(!subscreenItem && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					fallCombo = check_pits();
 				}
 			}
 			if ( moveflags & FLAG_CAN_WATERDROWN )
 			{
-				if(!subscreenItem && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
+				if(!subscreenItem && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					drownCombo = check_water();
 				}
@@ -324,6 +324,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	aframe=aclk=0;
 	anim=flash=twohand=subscreenItem=false;
 	dummy_int[0]=PriceIndex=-1;
+	is_dragged=false;
 	itemdata const& itm = itemsbuf[id];
 
 	#ifndef IS_ZQUEST

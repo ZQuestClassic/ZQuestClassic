@@ -289,6 +289,7 @@ namespace ZScript
 		owning_vector<ASTSetOption> options;
 		owning_vector<ASTImportDecl> imports;
 		owning_vector<ASTImportCondDecl> condimports;
+		owning_vector<ASTIncludePath> inclpaths;
 		owning_vector<ASTDataDeclList> variables;
 		owning_vector<ASTFuncDecl> functions;
 		owning_vector<ASTDataTypeDef> dataTypes;
@@ -663,7 +664,8 @@ namespace ZScript
 			TYPE_NAMESPACE,
 			TYPE_USING,
 			TYPE_ASSERT,
-			TYPE_IMPORT_COND
+			TYPE_IMPORT_COND,
+			TYPE_INCLUDE_PATH
 		};
 
 		ASTDecl(LocationData const& location = LOC_NONE);
@@ -773,6 +775,20 @@ namespace ZScript
 		owning_ptr<ASTImportDecl> import;
 		
 		bool preprocessed;
+	};
+	
+	class ASTIncludePath : public ASTDecl
+	{
+	public:
+		ASTIncludePath(std::string const& filename, LocationData const& location = LOC_NONE);
+		ASTIncludePath* clone() const /*override*/ {
+			return new ASTIncludePath(*this);}
+		
+		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
+
+		Type getDeclarationType() const /*override*/ {return TYPE_INCLUDE_PATH;}
+		
+		std::string path;
 	};
 	
 	class ASTFuncDecl : public ASTDecl

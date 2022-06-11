@@ -53,6 +53,7 @@ public:
     int32_t family;
     byte lvl;
     int32_t linked_parent;
+	bool is_dragged;
     //int32_t weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.

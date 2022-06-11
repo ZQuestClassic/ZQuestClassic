@@ -420,6 +420,9 @@ std::string getComboTypeHelpText(int32_t id)
 		case cBUTTONPROMPT:
 			typehelp = "Displays a button prompt based on the 'Btn:' triggerflags";
 			break;
+		case cCUSTOMBLOCK:
+			typehelp = "Blocks weapons denoted by the weapon triggerflags.";
+			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
 				typehelp = combotype_help_string[id];
@@ -1046,6 +1049,12 @@ void ComboEditorDialog::loadComboType()
 			h_attrishort[1] = "Y offset from player's position for the prompt to display at";
 			l_attribyte[0] = "Prompt CSet";
 			h_attribyte[0] = "CSet to draw the prompt in";
+			break;
+		}
+		case cCUSTOMBLOCK:
+		{
+			l_attribyte[0] = "Block SFX";
+			h_attribyte[0] = "SFX to play when blocking a weapon";
 			break;
 		}
 		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
@@ -1683,6 +1692,8 @@ int32_t solidity_to_flag(int32_t val)
 	return (val&0b1001) | (val&0b0100)>>1 | (val&0b0010)<<1;
 }
 
+const std::string minstr = "Min Level (Applies to all):";
+const std::string maxstr = "Max Level (Applies to all):";
 std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -1979,7 +1990,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							Column(framed = true,
 								Row(
 									padding = 0_px,
-									Label(text = "Min Level (Applies to all):"),
+									l_minmax_trig = Label(text = "Min Level (Applies to all):"),
 									TextField(
 										fitParent = true,
 										vPadding = 0_px,
@@ -1988,6 +1999,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_comboref.triggerlevel = val;
+										}),
+									Checkbox(
+										text = "Max level instead", hAlign = 0.0,
+										checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
+											l_minmax_trig->setText(state ? maxstr : minstr);
 										})
 								),
 								Rows<4>(
@@ -2393,7 +2412,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
 								Row(
-									Label(text = "Min Level (Applies to all):"),
+									l_minmax_trig = Label(text = "Min Level (Applies to all):"),
 									TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
@@ -2401,6 +2420,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_comboref.triggerlevel = val;
+										}),
+									Checkbox(
+										text = "Max level instead", hAlign = 0.0,
+										checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
+											l_minmax_trig->setText(state ? maxstr : minstr);
 										})
 								),
 								Rows<3>(
@@ -2514,6 +2541,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			)
 		);
 	}
+	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
+		? maxstr : minstr);
 	loadComboType();
 	return window;
 }
