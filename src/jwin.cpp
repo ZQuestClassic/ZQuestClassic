@@ -2099,10 +2099,10 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 		switch(ntype)
 		{
 			case typeDEC:
-				sprintf(str, "%d\0", b);
+				sprintf(str, "%d", b);
 				break;
 			case typeHEX:
-				sprintf(str, "%X\0", b);
+				sprintf(str, "%X", b);
 				break;
 		}
 		if(msg != MSG_DRAW) ret |= D_REDRAWME;
@@ -2231,12 +2231,12 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 		switch(ntype)
 		{
 			case typeDEC:
-				sprintf(str, "%d\0", b);
+				sprintf(str, "%d", b);
 				break;
 			case typeHEX:
 				if(b<0)
-					sprintf(str, "-%X\0", -b);
-				else sprintf(str, "%X\0", b);
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
 				break;
 		}
 		d->d2 = strlen(str);
@@ -2416,23 +2416,23 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			case typeDEC:
 				if(b < 0)
-					sprintf(str, "-%d.%04d\0", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%d.%04d\0", b/10000L, b%10000L);
+					sprintf(str, "-%d.%04d", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%d.%04d", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
 			case typeHEX:
 				if(b<0)
-					sprintf(str, "-%X.%04d\0", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%X.%04d\0", b/10000L, abs(b%10000L));
+					sprintf(str, "-%X.%04d", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%X.%04d", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
 			case typeLDEC:
-				sprintf(str, "%ld\0", b);
+				sprintf(str, "%ld", b);
 				break;
 			case typeLHEX:
 				if(b<0)
-					sprintf(str, "-%lX\0", -b);
-				else sprintf(str, "%lX\0", b);
+					sprintf(str, "-%lX", -b);
+				else sprintf(str, "%lX", b);
 				break;
 		}
 		d->d2 = strlen(str);

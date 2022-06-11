@@ -8,12 +8,6 @@ namespace ZScript
 }
 #define YYSTYPE ZScript::AST*
 
-#ifdef _MSC_VER
-#if (_MSC_VER <= 1600)
-#define snprintf _snprintf
-#endif
-#endif
-
 #include <list>
 #include <vector>
 #include <map>
