@@ -12574,7 +12574,8 @@ void HeroClass::movehero()
 				spins=0;
 			}
 			
-			action=none; FFCore.setHeroAction(none);
+			if (IsSideSwim()) {action=sideswimming; FFCore.setHeroAction(sideswimming);}
+			else {action=none; FFCore.setHeroAction(none);}
 			attackclk=0;
 			charging=0;
 		}
@@ -15888,7 +15889,7 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
 		WalkflagInfo info;
 		info = walkflag(x,y+8-(bigHitbox*8)-4,2,up);
 		execute(info);
-		if (checkladder && !canSideviewLadderRemote(x, y-4) && !info.isUnwalkable())
+		if (checkladder && !canSideviewLadderRemote(x, y-4) && !info.isUnwalkable() && (y + 8 - (bigHitbox * 8) - 4) > 0)
 		{
 			if (game->get_sideswim_jump() != 0)
 			{
@@ -20450,7 +20451,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	// Now, let's check for Drowning combos...
 	//
-	if(get_bit(quest_rules,qr_DROWN))
+	if(get_bit(quest_rules,qr_DROWN) || CanSideSwim())
 	{
 		y1 = ty+9;
 		y2 = ty+15;
@@ -20655,7 +20656,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	// This used to check for swimming too, but I moved that into the block so that you can drown in higher-leveled water. -Dimi
 	
-	if(water > 0 && get_bit(quest_rules,qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0 && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
+	if(water > 0 && ((get_bit(quest_rules,qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim()) && !ladderx && hoverclk==0 && action!=rafting && !inlikelike && !DRIEDLAKE)
 	{
 		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
 		{
