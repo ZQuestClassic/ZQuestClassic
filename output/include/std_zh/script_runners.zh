@@ -13,7 +13,7 @@ int CheckNPCScript(char32 scriptname)
 	}
 	return id;
 }
-npc RunNPCScript(int ID, int scriptNum, untyped args)
+npc RunNPCScript(int ID, int scriptNum, untyped args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_NPCSCRIPT || scriptNum > MAX_NPCSCRIPT)
@@ -28,21 +28,13 @@ npc RunNPCScript(int ID, int scriptNum, untyped args)
 	}
 	return obj;
 }
-npc RunNPCScript(int ID, int scriptNum)
-{
-	return RunNPCScript(ID, scriptNum, NULL);
-}
 
-npc RunNPCScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+npc RunNPCScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
 {
 	npc obj = RunNPCScript(ID, scriptNum, args);
 	obj->X = x;
 	obj->Y = y;
 	return obj;
-}
-npc RunNPCScriptAt(int ID, int scriptNum, int x, int y)
-{
-	return RunNPCScriptAt(ID, scriptNum, x, y, NULL);
 }
 //end NPC
 
@@ -59,7 +51,7 @@ int CheckLWeaponScript(char32 scriptname)
 	}
 	return id;
 }
-lweapon RunLWeaponScript(int ID, int scriptNum, untyped args)
+lweapon RunLWeaponScript(int ID, int scriptNum, untyped args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_LWEAPONSCRIPT || scriptNum > MAX_LWEAPONSCRIPT)
@@ -74,21 +66,13 @@ lweapon RunLWeaponScript(int ID, int scriptNum, untyped args)
 	}
 	return obj;
 }
-lweapon RunLWeaponScript(int ID, int scriptNum)
-{
-	return RunLWeaponScript(ID, scriptNum, NULL);
-}
 
-lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
 {
 	lweapon obj = RunLWeaponScript(ID, scriptNum, args);
 	obj->X = x;
 	obj->Y = y;
 	return obj;
-}
-lweapon RunLWeaponScriptAt(int ID, int scriptNum, int x, int y)
-{
-	return RunLWeaponScriptAt(ID, scriptNum, x, y, NULL);
 }
 //end LWeapon
 
@@ -105,7 +89,7 @@ int CheckEWeaponScript(char32 scriptname)
 	}
 	return id;
 }
-eweapon RunEWeaponScript(int ID, int scriptNum, untyped args)
+eweapon RunEWeaponScript(int ID, int scriptNum, untyped args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_EWEAPONSCRIPT || scriptNum > MAX_EWEAPONSCRIPT)
@@ -120,21 +104,13 @@ eweapon RunEWeaponScript(int ID, int scriptNum, untyped args)
 	}
 	return obj;
 }
-eweapon RunEWeaponScript(int ID, int scriptNum)
-{
-	return RunEWeaponScript(ID, scriptNum, NULL);
-}
 
-eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
 {
 	eweapon obj = RunEWeaponScript(ID, scriptNum, args);
 	obj->X = x;
 	obj->Y = y;
 	return obj;
-}
-eweapon RunEWeaponScriptAt(int ID, int scriptNum, int x, int y)
-{
-	return RunEWeaponScriptAt(ID, scriptNum, x, y, NULL);
 }
 //end EWeapon
 
@@ -151,7 +127,7 @@ int CheckItemSpriteScript(char32 scriptname)
 	}
 	return id;
 }
-itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args)
+itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_ITEMSPRITESCRIPT || scriptNum > MAX_ITEMSPRITESCRIPT)
@@ -166,21 +142,13 @@ itemsprite RunItemSpriteScript(int ID, int scriptNum, untyped args)
 	}
 	return obj;
 }
-itemsprite RunItemSpriteScript(int ID, int scriptNum)
-{
-	return RunItemSpriteScript(ID, scriptNum, NULL);
-}
 
-itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y, untyped args)
+itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y, untyped args = NULL)
 {
 	itemsprite obj = RunItemSpriteScript(ID, scriptNum, args);
 	obj->X = x;
 	obj->Y = y;
 	return obj;
-}
-itemsprite RunItemSpriteScriptAt(int ID, int scriptNum, int x, int y)
-{
-	return RunItemSpriteScriptAt(ID, scriptNum, x, y, NULL);
 }
 //end ItemSprite
 
@@ -197,7 +165,7 @@ int CheckGenericScript(char32 scriptname)
 	}
 	return id;
 }
-genericdata RunGenericScript(int scriptNum, untyped args)
+genericdata RunGenericScript(int scriptNum, untyped args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
@@ -212,11 +180,7 @@ genericdata RunGenericScript(int scriptNum, untyped args)
 	obj->Running = true;
 	return obj;
 }
-genericdata RunGenericScript(int scriptNum)
-{
-	return RunGenericScript(scriptNum, NULL);
-}
-genericdata RunGenericScriptFrz(int scriptNum, untyped args)
+genericdata RunGenericScriptFrz(int scriptNum, untyped args = NULL)
 {
 	// Invalid script
 	if(scriptNum < MIN_GENERICSCRIPT || scriptNum > MAX_GENERICSCRIPT)
@@ -230,9 +194,5 @@ genericdata RunGenericScriptFrz(int scriptNum, untyped args)
 	}
 	obj->RunFrozen();
 	return obj;
-}
-genericdata RunGenericScriptFrz(int scriptNum)
-{
-	return RunGenericScriptFrz(scriptNum, NULL);
 }
 //end Generic

@@ -1,5 +1,13 @@
 // 2.55 Change Log
-// Updated 10th June, 2022
+// Updated 12th June, 2022
+
+Add 'optional parameters' to ZScript
+	see ZScript_Additions.txt for details
+	( EmilyV, 12th June, 2022 )
+
+Fix subscreen bugs
+Fix sideview swimming bugs
+	( Deedee, 11th June, 2022)
 
 //A107
 

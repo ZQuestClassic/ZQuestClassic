@@ -82,7 +82,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 		zconsole_error("%s",err_str_ptr);
 	}
 	else zconsole_warn("%s",err_str_ptr);
-	log_error(error);
+	//log_error(error);
 }
 
 void RecursiveVisitor::visit(AST& node, void* param)

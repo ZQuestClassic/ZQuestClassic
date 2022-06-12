@@ -403,9 +403,12 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		 it != functions.end();)
 	{
 		Function& function = **it;
-
-		// Match against parameter count.
-		if (function.paramTypes.size() != parameterTypes.size())
+		
+		auto targetSize = parameterTypes.size();
+		auto maxSize = function.paramTypes.size();
+		auto minSize = maxSize - function.opt_vals.size();
+		// Match against parameter count, including optional params.
+		if (maxSize < targetSize || minSize > targetSize)
 		{
 			it = functions.erase(it);
 			continue;
