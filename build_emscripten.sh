@@ -56,26 +56,6 @@ cd -
 
 mkdir -p build_emscripten
 cd build_emscripten
-if [[ "$DEBUG" ]]; then
-  mkdir -p debug
-  cd debug
-else
-  mkdir -p release
-  cd release
-fi
-
-function build_js {
-  ESBUILD_ARGS=()
-  if ! [[ "$DEBUG" ]]; then
-    ESBUILD_ARGS+=(
-      --minify
-    )
-  fi
-  npx esbuild --bundle ../../web/main.js --outfile=main.js --sourcemap ${ESBUILD_ARGS[@]}
-  cp ../../web/styles.css .
-}
-
-# build_js && exit 0
 
 # Wish I knew how to remove this.
 EMCC_CACHE_DIR="$(dirname $(which emcc))/cache"
@@ -94,7 +74,7 @@ EMCC_FLAGS=(
   -I "$EMCC_CACHE_INCLUDE_DIR/AL"
 )
 LINKER_FLAGS=(
-  --shell-file="../../web/index.html"
+  --shell-file="../web/index.html"
   --shared-memory
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
@@ -121,7 +101,7 @@ EMCC_AND_LINKER_FLAGS=(
   -fexceptions
 )
 
-CMAKE_BUILD_TYPE=""
+CONFIG=""
 if [[ "$DEBUG" ]]; then
   EMCC_FLAGS+=(
     -O2
@@ -131,14 +111,26 @@ if [[ "$DEBUG" ]]; then
     # --threadprofiler
     -s ASSERTIONS=1
   )
-  # CMAKE_BUILD_TYPE="Debug"
-  CMAKE_BUILD_TYPE="Release"
+  CONFIG="Debug"
 else
   EMCC_FLAGS+=(
     -O3
   )
-  CMAKE_BUILD_TYPE="Release"
+  CONFIG="Release"
 fi
+
+function build_js {
+  ESBUILD_ARGS=()
+  if ! [[ "$DEBUG" ]]; then
+    ESBUILD_ARGS+=(
+      --minify
+    )
+  fi
+  npx esbuild --bundle ../../web/main.js --outfile=main.js --sourcemap ${ESBUILD_ARGS[@]}
+  cp ../../web/styles.css .
+}
+
+# cd $CONFIG && build_js && exit 0
 
 # Find memory leaks.
 # EMCC_FLAGS+=(-fsanitize=leak)
@@ -147,8 +139,8 @@ fi
 # LINKER_FLAGS+=(-s SAFE_HEAP=1)
 # EMCC_FLAGS+=(--memoryprofiler)
 
-emcmake cmake ../.. \
-  -D CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+emcmake cmake \
+  -G "Ninja Multi-Config" \
   -D ALLEGRO_SDL=ON \
   -D WANT_ALLOW_SSE=OFF \
   -D WANT_OPENAL=OFF \
@@ -158,12 +150,14 @@ emcmake cmake ../.. \
   -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]} -D_NPASS" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
-  -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html"
+  -D CMAKE_EXECUTABLE_SUFFIX_CXX=".html" \
+  ..
 
-sh ../../patches/apply.sh
+sh ../patches/apply.sh
 
 TARGETS="${@:-zelda zquest}"
-cmake --build . -t $TARGETS
+cmake --build . --config $CONFIG -t $TARGETS
+cd $CONFIG
 
 "$(dirname $(which emcc))"/tools/file_packager.py zc.data \
   --no-node \
