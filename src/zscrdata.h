@@ -346,9 +346,9 @@ void ReadConsole(char buf[], int code)
 	//al_trace("%s\n", buf);
 	switch(code)
 	{
-		case ZC_CONSOLE_WARN_CODE: zconsole_warn(buf);
-		case ZC_CONSOLE_ERROR_CODE: zconsole_error(buf);
-		default: zconsole_info(buf);
+		case ZC_CONSOLE_WARN_CODE: zconsole_warn(buf); break;
+		case ZC_CONSOLE_ERROR_CODE: zconsole_error(buf); break;
+		default: zconsole_info(buf); break;
 	}
 }
 #endif //!IS_PARSER

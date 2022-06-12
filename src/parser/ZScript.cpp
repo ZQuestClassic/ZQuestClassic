@@ -441,7 +441,7 @@ Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, ASTExprConst* defaultReturn)
 	: node(NULL), internalScope(NULL), thisVar(NULL),
-	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames),
+	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames), opt_vals(),
 	  id(id), label(nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
 	  prototype(prototype), defaultReturn(defaultReturn)
 {}

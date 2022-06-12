@@ -403,9 +403,12 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		 it != functions.end();)
 	{
 		Function& function = **it;
-
-		// Match against parameter count.
-		if (function.paramTypes.size() != parameterTypes.size())
+		
+		auto targetSize = parameterTypes.size();
+		auto maxSize = function.paramTypes.size();
+		auto minSize = maxSize - function.opt_vals.size();
+		// Match against parameter count, including optional params.
+		if (maxSize < targetSize || minSize > targetSize)
 		{
 			it = functions.erase(it);
 			continue;
@@ -925,6 +928,13 @@ Function* BasicScope::addFunction(
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->internalScope = makeFunctionChild(*fun);
+	if(node)
+	{
+		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
+		{
+			fun->opt_vals.push_back(*it);
+		}
+	}
 
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;

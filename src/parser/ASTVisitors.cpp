@@ -82,7 +82,7 @@ void RecursiveVisitor::handleError(CompileError const& error)
 		zconsole_error("%s",err_str_ptr);
 	}
 	else zconsole_warn("%s",err_str_ptr);
-	log_error(error);
+	//log_error(error);
 }
 
 void RecursiveVisitor::visit(AST& node, void* param)
@@ -324,6 +324,8 @@ void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	visit(host.returnType.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host, host.parameters, param);
+	if (breakRecursion(host, param)) return;
+	visit(host, host.optparams, param);
 	if (breakRecursion(host, param)) return;
 	if(host.prototype)
 		visit(host.defaultReturn.get(), param);

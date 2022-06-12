@@ -35,6 +35,8 @@ void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol);
 std::string curfilename;
 extern YYLTYPE noloc;
 
+#define push_front(v, elem) (v).insert((v).begin(), elem)
+
 // Since c macros can't directly contain bison macros, they need to be passed
 // in where they're invoked. The following arguments are named so that 'd'
 // stands in for '$' and 'a' stands in for '@'.
@@ -747,26 +749,47 @@ Function :
 	;
 
 Function_Parameters_List :
-	Function_Parameters_List COMMA Function_Parameters_Element {
-			ASTFuncDecl* func = (ASTFuncDecl*)$1;
-			ASTDataDecl* param = (ASTDataDecl*)$3;
-			func->parameters.push_back(param);
+	Function_Parameters_Element COMMA Function_Parameters_List {
+			ASTDataDecl* param = (ASTDataDecl*)$1;
+			ASTFuncDecl* func = (ASTFuncDecl*)$3;
+			push_front(func->parameters, param);
 			func->location = @$;
 			$$ = func;}
 	| Function_Parameters_Element {
 			ASTDataDecl* param = (ASTDataDecl*)$1;
 			ASTFuncDecl* func = new ASTFuncDecl(@$);
-			func->parameters.push_back(param);
+			push_front(func->parameters, param);
 			$$ = func;}
+	| Function_OptParams_List {$$ = $1;}
 	;
 
 Function_Parameters_Element :
-	DataType Data_Element_Array_List {
+	DataType Identifier {
 		ASTDataType* type = (ASTDataType*)$1;
-		ASTDataDecl* data = (ASTDataDecl*)$2;
-		data->baseType = type;
-		data->location = @$;
-		$$ = data;}
+		ASTString* name = (ASTString*)$2;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		element->baseType = type;
+		$$ = element;
+		delete name;}
+	;
+
+Function_OptParams_List :
+	Function_Parameters_Element ASSIGN Expression_Constant COMMA Function_OptParams_List {
+			ASTFuncDecl* func = (ASTFuncDecl*)$5;
+			ASTDataDecl* param = (ASTDataDecl*)$1;
+			ASTExprConst* cval = (ASTExprConst*)$3;
+			push_front(func->parameters, param);
+			push_front(func->optparams, cval);
+			func->location = @$;
+			$$ = func;}
+	| Function_Parameters_Element ASSIGN Expression_Constant {
+			ASTDataDecl* param = (ASTDataDecl*)$1;
+			ASTExprConst* cval = (ASTExprConst*)$3;
+			ASTFuncDecl* func = new ASTFuncDecl(@$);
+			push_front(func->parameters, param);
+			push_front(func->optparams, cval);
+			$$ = func;}
 	;
 
 ////////////////////////////////////////////////////////////////

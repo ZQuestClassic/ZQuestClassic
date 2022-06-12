@@ -17,8 +17,8 @@
 The following documents the changes, and expansions to the ZScript language in ZQuest/ZC 
 	versions 2.54, and 2.55. 
 	
-Document for: 2.55, Alpha 107
-Document Revision: 10th Jun, 2022
+Document for: 2.55, Alpha 108
+Document Revision: 12th Jun, 2022
 
 
  __           _   _                 
@@ -1557,6 +1557,23 @@ Do note that the type of the default value must match the return type. The defau
 	void foo() : default 1; //Type cast error
 	void foo(); //correct
 	--end example]
+
+////////////////////////////////
+//  Function Optional Params  //
+////////////////////////////////
+
+You may now have optional parameters in functions.
+	[example--
+	void foo(int x = 25)
+	{
+		Trace(x*2);
+	}
+	foo(); //Traces '50'
+	foo(10); //Traces '20'
+	--end example]
+
+Optional parameters cannot have any non-optional parameters listed after them.
+The default value for an optional parameter must be compile-time constant.
 
 /////////////////////////////
 //  Function Declarations  //

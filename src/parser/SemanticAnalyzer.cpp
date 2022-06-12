@@ -662,7 +662,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 	}
 }
 
-void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
+void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if(host.registered()) return; //Skip if already handled
 	
@@ -769,6 +769,21 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 		else checkCast(defValType, returnType, &host);
 	}
 	
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	visit(host, host.optparams, param);
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	
+	auto parcnt = paramTypes.size() - host.optparams.size();
+	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
+	{
+		DataType const* getType = (*it)->getReadType(scope, this);
+		if(getType)
+			checkCast(*getType, *paramTypes[parcnt], &host);
+		if(breakRecursion(host)) {scope = oldScope; return;}
+		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		assert(optVal);
+		host.optvals.push_back(*optVal);
+	}
 	if(breakRecursion(host)) {scope = oldScope; return;}
 
 	// Add the function to the scope.
@@ -1116,6 +1131,28 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		// If this just matches the record, append it.
 		else if (castCount == bestCastCount)
 			bestFunctions.push_back(&function);
+	}
+	// We may have failed, but let's check optional parameters first...
+	if(bestFunctions.size() > 1)
+	{
+		auto targSize = parameterTypes.size();
+		int32_t bestDiff = -1;
+		//Find the best (minimum) difference between the passed param count and function max param count
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(bestDiff < 0 || diff < bestDiff) bestDiff = diff;
+		}
+		//Remove any functions that don't share the minimum difference.
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
+		{
+			int32_t maxSize = (*it)->paramTypes.size();
+			int32_t diff = maxSize - targSize;
+			if(diff > bestDiff)
+				it = bestFunctions.erase(it);
+			else ++it;
+		}
 	}
 	// We may have failed, though namespaces may resolve the issue. Check for namespace closeness.
 	if(bestFunctions.size() > 1)

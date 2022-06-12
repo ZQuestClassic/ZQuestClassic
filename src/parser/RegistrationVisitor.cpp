@@ -647,9 +647,25 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		else checkCast(defValType, returnType, &host);
 	}
 	
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	visit(host, host.optparams, param);
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	
+	auto parcnt = paramTypes.size() - host.optparams.size();
+	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
+	{
+		DataType const* getType = (*it)->getReadType(scope, this);
+		if(!getType) return;
+		checkCast(*getType, *paramTypes[parcnt], &host);
+		if(breakRecursion(host)) {scope = oldScope; return;}
+		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		assert(optVal);
+		host.optvals.push_back(*optVal);
+	}
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	
 	doRegister(host);
 	
-	if(breakRecursion(host)) {scope = oldScope; return;}
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);

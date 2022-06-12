@@ -1,8 +1,8 @@
 #option SHORT_CIRCUIT on
 /**
 * Author: Emily
-* Version: 1.4.5
-* Release: June 10th, 2021
+* Version: 1.4.6
+* Release: June 12th, 2021
 * Purpose: Miscellaneous functions
 */
 namespace Emily
@@ -139,18 +139,10 @@ namespace Emily
 	} //end
 
 	/**
-	* Spin a dir clockwise 45°
-	*/
-	int SpinDir8(int dir) //start
-	{
-		SpinDir8(dir, 1);
-	} //end
-	
-	/**
 	* Spin a dir clockwise 45°, `count` number of times
 	* If count is negative, will spin counterclockwise instead
 	*/
-	int SpinDir8(int dir, int count) //start
+	int SpinDir8(int dir, int count = 1) //start
 	{
 		if(count<0)
 		{
@@ -1369,15 +1361,13 @@ namespace Emily
 			return Game->CreateBitmap(h, w);
 		else
 			return Game->CreateBitmap(w, h);
-	} 
-	 //end
+	} //end
 	
 	//start Fancy screenshot thing
 	DEFINE SCRNSHOT_DMAP = 511;
 	DEFINE SYS_WHITE = 0xF5, SYS_BLACK = 0xE0;
 	CONFIGB MAPSCREENSHOT_HIDES_SUBSCR = true;
-	void doMapScreenshot(int map) {doMapScreenshot(map,10);}
-	void doMapScreenshot(int map, int frameDelay) //start
+	void doMapScreenshot(int map, int frameDelay = 10) //start
 	{
 		char32 waitmsg[] = "Processing...\nThis may take a bit, Boing!";
 		Game->Suspend[susptCOMBOANIM] = true;
@@ -1509,8 +1499,7 @@ namespace Emily
 		Waitframe();
 	} //end
 
-	void doAllMapScreenshots() {doAllMapScreenshots(10);}
-	void doAllMapScreenshots(int frameDelay) //start
+	void doAllMapScreenshots(int frameDelay = 10) //start
 	{
 		char32 waitmsg[] = "Processing...\nThis may take a bit, Boing!";
 		Game->Suspend[susptCOMBOANIM] = true;

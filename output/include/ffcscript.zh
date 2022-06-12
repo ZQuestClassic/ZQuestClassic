@@ -19,7 +19,7 @@ int CheckFFCScript(char32 scriptname)
 	}
 	return id;
 }
-int RunFFCScript(int scriptNum, untyped args)
+int RunFFCScript(int scriptNum, untyped args = NULL)
 {
     // Invalid script
     if(scriptNum<0 || scriptNum>511)
@@ -54,7 +54,7 @@ int RunFFCScript(int scriptNum, untyped args)
     return 0;
 }
 
-ffc RunFFCScriptOrQuit(int scriptNum, untyped args)
+ffc RunFFCScriptOrQuit(int scriptNum, untyped args = NULL)
 {
     // Invalid script
     if(scriptNum<0 || scriptNum>511)

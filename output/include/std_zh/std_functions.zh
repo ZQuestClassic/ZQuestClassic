@@ -641,8 +641,9 @@ itemdata Cond(bool cond, itemdata a, itemdata b)
 	return ( cond ? a : b ); 
 }
 
-bool ConsumeKey(int level)
+bool ConsumeKey(int level = -1)
 {
+	if(level < 0) level = Game->GetCurLevel();
 	if(Game->LKeys[level]>0)
 	{
 		--Game->LKeys[level];
@@ -655,11 +656,6 @@ bool ConsumeKey(int level)
 	}
 	else
 		return false;
-	}
-
-bool ConsumeKey()
-{
-	return ConsumeKey(Game->GetCurLevel());
 }
 
 //Copies a block of tiles defined by diagonal corners 'sourcefirst' and 'sourcelast'
@@ -2138,14 +2134,16 @@ int GridY(int y)
 //H
 
 //Returns if Link has the map for a given level.
-int HasBossKey(int level)
+int HasBossKey(int level = -1)
 {
+	if(level < 0) level = Game->GetCurLevel();
 	return ( ((Game->LItems[level]&LI_BOSSKEY)) ? 1 : 0 );
 }
 
 //Returns if Link has the compass for a given level.
-int HasCompass(int level)
+int HasCompass(int level = -1)
 {
+	if(level < 0) level = Game->GetCurLevel();
 	return ( ((Game->LItems[level]&LI_COMPASS)) ? 1 : 0 );
 }
 
@@ -2160,24 +2158,18 @@ bool HasHeavyBoots()
 	return false;
 }
 
-//Returns if Link has the map for a given level.
-int HasMap(int level)
+int HasMap(int level = -1)
 {
+	if(level < 0) level = Game->GetCurLevel();
 	return ( ((Game->LItems[level]&LI_MAP)) ? 1 : 0 );
 }
 
-bool HasKey(int level)
+bool HasKey(int level = -1)
 {
-
+	if(level < 0) level = Game->GetCurLevel();
 	return Game->LKeys[level]>0 || Game->Counter[CR_KEYS]>0;
 }
 
-bool HasKey()
-{
-	return HasKey(Game->GetCurLevel());
-}
-
-//Returns if Link has the Triforce piece for a given level.
 int HasTriforce(int level)
 {
 	return ( ((Game->LItems[level]&LI_TRIFORCE)) ? 1 : 0 );
@@ -2813,15 +2805,10 @@ int NumItemsOf(int type)
 }
 
 //Returns the number of keys that the player has for the level 'level'
-int NumKeys(int level)
+int NumKeys(int level = -1)
 {
+	if(level < 0) level = Game->GetCurLevel();
 	return Game->LKeys[level]+Game->Counter[CR_KEYS];
-}
-
-//Returns the number of keys that the player has for the current level.
-int NumKeys()
-{
-	return NumKeys(Game->GetCurLevel());
 }
 
 // Use the LW_ constants.
@@ -2855,18 +2842,9 @@ int NumNPCsOf(int type)
 	return ret;
 }
 
-//Returns the number of Triforce Pieces Link currently has
-int NumTriforcePieces()
-{
-	int ret = 0;
-	for(int i=1;i<=8;++i)
-		if(Game->LItems[i]&LI_TRIFORCE) ++ret;
-	return ret;
-}
-
 //Returns the number of Triforce Pieces Link currently has.
 //Specify the highest level in your game with arg 'maxlevel'.
-int NumTriforcePieces(int maxlevel)
+int NumTriforcePieces(int maxlevel = 8)
 {
 	int ret = 0;
 	for(int i=1;i<=maxlevel;++i)
@@ -4161,7 +4139,7 @@ void SwapTileRow(int first, int second, int length)
 //T
 
 // Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
-float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t ) 
+float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t = 1.0 ) 
 {
 	float a = ArcTan( targetX - X, targetY - Y );
 	float d = WrapAngle(a - radian_angle);
