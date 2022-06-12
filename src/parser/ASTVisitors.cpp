@@ -325,6 +325,8 @@ void RecursiveVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	if (breakRecursion(host, param)) return;
 	visit(host, host.parameters, param);
 	if (breakRecursion(host, param)) return;
+	visit(host, host.optparams, param);
+	if (breakRecursion(host, param)) return;
 	if(host.prototype)
 		visit(host.defaultReturn.get(), param);
 	else visit(host.block.get(), param);

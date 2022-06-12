@@ -809,6 +809,8 @@ namespace ZScript
 
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
+		owning_vector<ASTExprConst> optparams;
+		std::vector<int32_t> optvals;
 		owning_ptr<ASTExprIdentifier> iden;
 		std::string name;
 		owning_ptr<ASTBlock> block;

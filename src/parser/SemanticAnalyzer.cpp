@@ -770,6 +770,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void*)
 	}
 	
 	if(breakRecursion(host)) {scope = oldScope; return;}
+	visit(host, host.optparams);
+	if(breakRecursion(host)) {scope = oldScope; return;}
 
 	// Add the function to the scope.
 	Function* function = scope->addFunction(

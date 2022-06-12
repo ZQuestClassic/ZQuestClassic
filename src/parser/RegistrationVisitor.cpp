@@ -647,9 +647,19 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		else checkCast(defValType, returnType, &host);
 	}
 	
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	visit(host, host.optparams, param);
+	if(breakRecursion(host)) {scope = oldScope; return;}
+	
+	for(auto it = host.optparams.begin(); it != host.optparams.end(); ++it)
+	{
+		optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
+		assert(optVal);
+		host.optvals.push_back(*optVal);
+	}
+	
 	doRegister(host);
 	
-	if(breakRecursion(host)) {scope = oldScope; return;}
 	// Add the function to the scope.
 	Function* function = scope->addFunction(
 			&returnType, host.name, paramTypes, paramNames, host.getFlags(), &host, this);

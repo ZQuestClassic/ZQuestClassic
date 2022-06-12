@@ -364,6 +364,7 @@ namespace ZScript
 		bool hasPrefixType;
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
+		std::vector<int32_t> opt_vals;
 		int32_t id;
 
 		ASTFuncDecl* node;

@@ -925,6 +925,13 @@ Function* BasicScope::addFunction(
 	Function* fun = new Function(
 			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags, 0, prototype, defRet);
 	fun->internalScope = makeFunctionChild(*fun);
+	if(node)
+	{
+		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
+		{
+			fun->opt_vals.push_back(*it);
+		}
+	}
 
 	functionsByName_[name].push_back(fun);
 	functionsBySignature_[signature] = fun;
