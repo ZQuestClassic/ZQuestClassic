@@ -6661,6 +6661,10 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
+#ifdef __EMSCRIPTEN__
+    return 1;
+#endif
+
     //Protection against compiling a release version with password protection off.
     static bool passguard = false;
     

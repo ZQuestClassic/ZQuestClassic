@@ -61,9 +61,6 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 #    aintern_bitmap.h:154:33: error: unknown type name 'ALLEGRO_BITMAP_WRAP'
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
-# set(BUILD_SHARED_LIBS ${SHARED})
-# TODO: work this out.
-set(CMAKE_BUILD_TYPE Release)
 
 include(FetchContent)
 FetchContent_Declare(
