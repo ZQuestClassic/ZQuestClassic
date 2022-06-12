@@ -7,7 +7,7 @@
 */
 namespace time
 {
-	const float TIME_FRAME = 0.0001;
+	const long TIME_FRAME = 1L;
 	const int FRAMES_PER_SECOND = 60;
 	const int SECONDS_PER_MINUTE = 60;
 	const int MINUTES_PER_HOUR = 60;

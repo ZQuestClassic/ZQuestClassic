@@ -1,5 +1,5 @@
 // std_constants.zh
-// 10th Jun, 2022 for ZC 2.55 Alpha 107
+// 12th Jun, 2022 for ZC 2.55 Alpha 107
 // Contains required constants for std.zh and ZScript functions.
 
 //some type shorthands
@@ -2606,7 +2606,8 @@ DEFINE CT_SPOTLIGHT          = 170;
 DEFINE CT_GLASS              = 171;
 DEFINE CT_LIGHT_TARGET       = 172;
 DEFINE CT_SWITCHHOOK_BLOCK   = 173;
-DEFINE CT_MAX                = 174;
+DEFINE CT_CUSTOM_BLOCKER     = 174;
+DEFINE CT_MAX                = 175;
 
 
 //////////////////
