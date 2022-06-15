@@ -3,6 +3,7 @@
 #ifndef _WIN32
 	#include <csignal>
 	#include <sys/types.h>
+	#include <spawn.h>
 #endif
 using namespace util;
 
@@ -56,16 +57,9 @@ process_killer launch_process(char const* file, const char *argv[])
 	CreateProcess(NULL,path_buf,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 	return process_killer(pi.hProcess);
 #else
-	int32_t pid;
-	switch(pid = vfork())
-	{
-		case -1:
-			ERR_EXIT("Failed to fork process", (process_manager*)0);
-		case 0: //child
-			execv(file, (char *const *)argv);
-			ERR_EXIT("Failed execv()", (process_manager*)0);
-	}
-	
+	int32_t pid, s;
+	s = posix_spawn(&pid, file, NULL, NULL, (char *const *)argv, NULL);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0);
 	return process_killer(pid);
 #endif
 }
@@ -126,23 +120,26 @@ process_manager* launch_piped_process(char const* file, const char *argv[])
 	return pm;
 #else
 	int32_t pdes_r[2], pdes_w[2], pid;
-	
+	posix_spawn_file_actions_t file_actions;
+	int s;
+
 	pipe(pdes_r);
 	pipe(pdes_w);
-	switch(pid = vfork())
-	{
-		case -1:
-			ERR_EXIT("Failed to fork process", pm);
-		case 0: //child
-			dup2(pdes_r[1], fileno(stdout));
-			close(pdes_r[1]);
-			close(pdes_r[0]);
-			dup2(pdes_w[0], fileno(stdin));
-			close(pdes_w[0]);
-			close(pdes_w[1]);
-			execv(file, (char *const *)argv);
-			ERR_EXIT("Failed execv", pm);
-	}
+
+	s = posix_spawn_file_actions_init(&file_actions);
+	if (s != 0) ERR_EXIT("Failed posix_spawn_file_actions_init", pm);
+	
+	posix_spawn_file_actions_adddup2(&file_actions, pdes_r[1], fileno(stdout));
+	posix_spawn_file_actions_addclose(&file_actions, pdes_r[1]);
+	posix_spawn_file_actions_addclose(&file_actions, pdes_r[0]);
+
+	posix_spawn_file_actions_adddup2(&file_actions, pdes_w[0], fileno(stdin));
+	posix_spawn_file_actions_addclose(&file_actions, pdes_w[0]);
+	posix_spawn_file_actions_addclose(&file_actions, pdes_w[1]);
+
+	pid_t child_pid;
+	s = posix_spawn(&child_pid, file, &file_actions, NULL, (char *const *)argv, NULL);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", pm);
 	
 	pm->read_handle = pdes_r[0];
 	pm->write_handle = pdes_w[1];
