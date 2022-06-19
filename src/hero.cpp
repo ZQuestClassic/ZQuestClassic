@@ -7641,7 +7641,7 @@ bool HeroClass::animate(int32_t)
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0) || (fakefall+(int32_t)(zinit.gravity2 / 100) > 0 && fakefall<=0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+(int32_t)(zinit.gravity2 / 100) > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
