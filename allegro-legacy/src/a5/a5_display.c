@@ -636,6 +636,24 @@ int all_get_scale()
   return _a5_display_scale;
 }
 
+// local edit
+int all_get_osx_scale()
+{
+  if (!_a5_display_fullscreen) return 1;
+  if (!_a5_display) return 1;
+
+  int want_w = _a5_display_width / _a5_display_scale;
+  int want_h = _a5_display_height / _a5_display_scale;
+  int w = al_get_display_width(_a5_display);
+  int h = al_get_display_height(_a5_display);
+  double scale = (double)w / want_w;
+  double scale_y = (double)h / want_h;
+  if (scale_y < scale) {
+    scale = scale_y;
+  }
+  return scale;
+}
+
 GFX_DRIVER display_allegro_5 = {
    GFX_ALLEGRO_5,                     // int id;
    empty_string,                      // char *name;

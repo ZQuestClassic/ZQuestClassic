@@ -19,6 +19,8 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/ainta5.h"
 #include "allegro/platform/ala5.h"
+// local edit
+#include "a5alleg.h"
 
 static ALLEGRO_THREAD * a5_mouse_thread = NULL;
 static int a5_last_mouse_x = -1;
@@ -50,6 +52,11 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_x = event.mouse.x;
                     _mouse_y = event.mouse.y;
                     _mouse_z = event.mouse.z;
+#ifdef __APPLE__
+                    int scale = all_get_osx_scale();
+                    _mouse_x /= scale;
+                    _mouse_y /= scale;
+#endif
                     break;
                 }
                 case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
