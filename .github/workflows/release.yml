@@ -62,4 +62,4 @@ jobs:
         files: output/_auto/buildpack.zip
         prerelease: true
         fail_on_unmatched_files: true
-        # generate_release_notes: true
+        generate_release_notes: true
