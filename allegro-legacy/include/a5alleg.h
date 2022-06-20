@@ -33,6 +33,7 @@ AL_LEGACY_FUNC(void, all_disable_threaded_display, (void));
 // local edit
 AL_LEGACY_FUNC(void, all_set_scale, (int scale));
 AL_LEGACY_FUNC(int, all_get_scale, (void));
+AL_LEGACY_FUNC(int, all_get_osx_scale, (void));
 AL_LEGACY_FUNC(void, all_set_fullscreen_flag, (bool fullscreen));
 
 // local edit
