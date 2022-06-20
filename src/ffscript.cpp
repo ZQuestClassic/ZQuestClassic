@@ -18050,7 +18050,7 @@ void set_register(const int32_t arg, const int32_t value)
 			int32_t colour = value/10000;
 			int32_t index = ri->d[rINDEX]/10000;
 			index = vbound(index,0,SAVESC_LAST-1);
-			zprint("GameOverScreen Index,Value: %d,%ld/n",index,colour);
+			// zprint("GameOverScreen Index,Value: %d,%ld/n",index,colour);
 			SetSaveScreenSetting(index,colour);
 			break;
 		}
@@ -23295,10 +23295,10 @@ void FFScript::do_loadmapdata(const bool v)
 	int32_t _map = SH::get_arg(sarg1, v) / 10000;
 	
 	int32_t _scr = SH::get_arg(sarg2, v) / 10000;
-	zprint("LoadMapData Map Value: %d\n", _map);
-	zprint("LoadMapData Screen Value: %d\n", _scr);
+	// zprint("LoadMapData Map Value: %d\n", _map);
+	// zprint("LoadMapData Screen Value: %d\n", _scr);
 	int32_t indx = (_map * MAPSCRS + _scr);
-	zprint("LoadMapData Indx Value: %d\n", indx);
+	// zprint("LoadMapData Indx Value: %d\n", indx);
 	if ( _map < 1 || _map > (map_count-1) )
 	{
 		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
@@ -23310,7 +23310,7 @@ void FFScript::do_loadmapdata(const bool v)
 		ri->mapsref = 0;
 	}
 	else ri->mapsref = indx;
-	zprint("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
+	// zprint("LoadMapData Screen set ri->mapsref to: %d\n", ri->mapsref);
 	//zprint("Script loaded mapdata with ID = %ld\n", ri->idata);
 }
 
@@ -25014,17 +25014,17 @@ void FFScript::do_adjustvolume(const bool v)
 {
 	int32_t perc = (SH::get_arg(sarg1, v) / 10000);
 	float pct = perc / 100.0;
-	zprint("pct is: %f\n",pct);
+	// zprint("pct is: %f\n",pct);
 	float temp_midi = 0;
 	float temp_digi = 0;
 	float temp_mus = 0;
 	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
 	{
-		zprint("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
+		// zprint("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
 		temp_midi = do_getMIDI_volume();
-		zprint("temp_midi is %f\n", temp_midi);
+		// zprint("temp_midi is %f\n", temp_midi);
 		usr_midi_volume = do_getMIDI_volume();
-		zprint("usr_midi_volume stored as %d\n", usr_midi_volume);
+		// zprint("usr_midi_volume stored as %d\n", usr_midi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
 	}
 	else 
@@ -25035,7 +25035,7 @@ void FFScript::do_adjustvolume(const bool v)
 	{
 		temp_digi = do_getDIGI_volume();
 		usr_digi_volume = do_getDIGI_volume();
-		zprint("usr_music_volume stored as %d\n", usr_digi_volume);
+		// zprint("usr_music_volume stored as %d\n", usr_digi_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
 	}
 	else
@@ -25046,7 +25046,7 @@ void FFScript::do_adjustvolume(const bool v)
 	{
 		temp_mus = do_getMusic_volume();
 		usr_music_volume = do_getMusic_volume();
-		zprint("usr_music_volume stored as %d\n", usr_music_volume);
+		// zprint("usr_music_volume stored as %d\n", usr_music_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
 	}
 	else
@@ -25057,9 +25057,9 @@ void FFScript::do_adjustvolume(const bool v)
 	temp_midi *= pct;
 	temp_digi *= pct;
 	temp_mus *= pct;
-	zprint("temp_midi is: %f\n",temp_midi);
-	zprint("temp_digi is: %f\n",temp_digi);
-	zprint("temp_mus is: %f\n",temp_mus);
+	// zprint("temp_midi is: %f\n",temp_midi);
+	// zprint("temp_digi is: %f\n",temp_digi);
+	// zprint("temp_mus is: %f\n",temp_mus);
 	do_setMIDI_volume((int32_t)temp_midi);
 	do_setDIGI_volume((int32_t)temp_digi);
 	do_setMusic_volume((int32_t)temp_mus);
@@ -25074,7 +25074,7 @@ void FFScript::do_adjustsfxvolume(const bool v)
 	{
 		temp_sfx = do_getSFX_volume();
 		usr_sfx_volume = (int32_t)temp_sfx;
-		zprint("usr_sfx_volume stored as %d\n", usr_sfx_volume);
+		// zprint("usr_sfx_volume stored as %d\n", usr_sfx_volume);
 		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
 	}
 	else 
@@ -25176,7 +25176,7 @@ void FFScript::do_set_oggex_position(const bool v)
 void FFScript::go_get_oggex_position()
 {
 	int32_t pos = get_zcmusicpos()*10;
-	zprint("ZC OGG Position is %d\n", pos);
+	// zprint("ZC OGG Position is %d\n", pos);
 	set_register(sarg1, pos);
 }
 
@@ -28486,9 +28486,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				int32_t itemid = ri->idata;
 				if(unsigned(itemid) > MAXITEMS) break;
 				int32_t mode = get_register(sarg1) / 10000;
-				zprint("Trying to run the script on item: %d\n",itemid);
-				zprint("The script ID is: %d\n",itemsbuf[itemid].script);
-				zprint("Runitemscript mode is: %d\n", mode);
+				// zprint("Trying to run the script on item: %d\n",itemid);
+				// zprint("The script ID is: %d\n",itemsbuf[itemid].script);
+				// zprint("Runitemscript mode is: %d\n", mode);
 				switch(mode)
 				{
 					case 0:
@@ -29674,7 +29674,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 		case SCRIPT_ITEM:
 		{
-			zprint("Item script reached quit/end of scope\n");
+			// zprint("Item script reached quit/end of scope\n");
 			int32_t new_i = 0;
 			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
@@ -29693,7 +29693,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				itemCollectScriptData[new_i].Clear();
 			}
 			FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
-			zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
+			// zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
 			itemscriptInitialised[new_i] = 0;
 			
 			break; //item scripts aren't gonna go again anyway
@@ -30442,21 +30442,21 @@ void FFScript::do_directory_free()
 
 void FFScript::do_write_bitmap()
 {
-	for ( int32_t q = 0; q < 16; q++)
-	zprint("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
+	// for ( int32_t q = 0; q < 16; q++)
+	// zprint("do_write_bitmap stack sp+%d: %d\n", q, SH::read_stack(ri->sp+q));
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 
 	ArrayH::getString(arrayptr, filename_str, 512);
 	int32_t ref = ri->bitmapref-10;
-	zprint("WriteBitmap() filename is %s\n",filename_str.c_str());
-	zprint("WriteBitmap ri->bitmapref is: %d\n",ref );
+	// zprint("WriteBitmap() filename is %s\n",filename_str.c_str());
+	// zprint("WriteBitmap ri->bitmapref is: %d\n",ref );
 	if ( ref <= 0 )
 	{
 		if (ref == -2 )
 		{
 			save_bitmap(filename_str.c_str(), framebuf, RAMpal);
-			zprint("Wrote image file %s\n",filename_str.c_str());
+			// zprint("Wrote image file %s\n",filename_str.c_str());
 		}
 		else
 		{
@@ -30468,7 +30468,7 @@ void FFScript::do_write_bitmap()
 		if ( scb.script_created_bitmaps[ref].u_bmp ) 
 		{
 			save_bitmap(filename_str.c_str(), scb.script_created_bitmaps[ri->bitmapref-10].u_bmp, RAMpal);
-			zprint("Wrote image file %s\n",filename_str.c_str());
+			// zprint("Wrote image file %s\n",filename_str.c_str());
 		}
 		else
 		{
@@ -30480,7 +30480,7 @@ void FFScript::do_write_bitmap()
 		if ( zscriptDrawingRenderTarget->GetBitmapPtr(ref) ) 
 		{
 			save_bitmap(filename_str.c_str(), zscriptDrawingRenderTarget->GetBitmapPtr(ref), RAMpal);
-			zprint("Wrote image file %s\n",filename_str.c_str());
+			// zprint("Wrote image file %s\n",filename_str.c_str());
 		}
 		else
 		{
@@ -30895,7 +30895,7 @@ int32_t FFScript::do_getpixel()
 	//zscriptDrawingRenderTarget->SetCurrentRenderTarget(ri->bitmapref);
 	//BITMAP *bitty = zscriptDrawingRenderTarget->GetBitmapPtr(ri->bitmapref);
 	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
-	zprint("Getpixel pointer is: %d\n", ri->bitmapref-10);
+	// zprint("Getpixel pointer is: %d\n", ri->bitmapref-10);
 	//bmp = targetBitmap;
 	if(!bitty)
 		{
@@ -33810,45 +33810,45 @@ int32_t FFScript::npc_collision()
 		{
 			case obj_type_lweapon:
 			{
-				zprint("Checking collision on npc (%d) against lweapon (%d)\n", ri->guyref, _obj_ptr);
+				// zprint("Checking collision on npc (%d) against lweapon (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_eweapon:
 			{
-				zprint("Checking collision on npc (%d) against eweapon (%d)\n", ri->guyref, _obj_ptr);
+				// zprint("Checking collision on npc (%d) against eweapon (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_npc:
 			{
-				zprint("Checking collision on npc (%d) against npc (%d)\n", ri->guyref, _obj_ptr);
+				// zprint("Checking collision on npc (%d) against npc (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_player:
 			{
-				zprint("Checking collision on npc (%d) against Player\n", ri->guyref);
+				// zprint("Checking collision on npc (%d) against Player\n", ri->guyref);
 				isColl = 0;
 				break;
 			}
 			case obj_type_ffc:
 			{
 				_obj_ptr *= 10000; _obj_ptr -= 1;
-				zprint("Checking collision on npc (%d) against ffc (%d)\n", ri->guyref, _obj_ptr);
+				// zprint("Checking collision on npc (%d) against ffc (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_combo_pos:
 			{
 				_obj_ptr *= 10000;
-				zprint("Checking collision on npc (%d) against combo position (%d)\n", ri->guyref, _obj_ptr);
+				// zprint("Checking collision on npc (%d) against combo position (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
 			case obj_type_item:
 			{
-				zprint("Checking collision on npc (%d) against item (%d)\n", ri->guyref, _obj_ptr);
+				// zprint("Checking collision on npc (%d) against item (%d)\n", ri->guyref, _obj_ptr);
 				isColl = 0;
 				break;
 			}
@@ -33904,7 +33904,7 @@ void FFScript::do_npc_simulate_hit(const bool v)
 	
 	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") == SH::_NoError)
 	{
-		zprint("Trying to simulate a hit on npc\n");
+		// zprint("Trying to simulate a hit on npc\n");
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 2 ) //type and pointer
 		{
@@ -34149,7 +34149,7 @@ void FFScript::do_LowerToUpper(const bool v)
 	FFCore.getString(arrayptr_a, strA);
 	if ( strA.size() < 1 ) 
 	{
-		zprint("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
+		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
 		set_register(sarg1, 0); return;
 	}
 	for ( size_t q = 0; q < strA.size(); ++q )
@@ -34967,7 +34967,7 @@ void FFScript::do_npc_canmove(const bool v)
 		}
 		else if ( sz == 7 ) //bool canmove(int32_t ndir,zfix s,int32_t special) : I'm pretty sure that 'zfix s' is 'step' here. 
 		{
-			zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false);
+			// zprint("npc->CanMove(%d, %d, %d, %d, %d, %d, %d)\n",(getElement(arrayptr, 0)/10000),(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false);
 			//can_mv = e->canmove((getElement(arrayptr, 0)/10000), (zfix)(getElement(arrayptr, 1)/10000), (getElement(arrayptr, 2)/10000));
 			//set_register(sarg1, ( can_mv ? 10000 : 0));
 			set_register(sarg1, ( GuyH::getNPC()->canmove((getElement(arrayptr, 0)/10000),(zfix)(getElement(arrayptr, 1)/10000),(getElement(arrayptr, 2)/10000),(getElement(arrayptr, 3)/10000),(getElement(arrayptr, 4)/10000),(getElement(arrayptr, 5)/10000),(getElement(arrayptr, 6)/10000),false)) ? 10000 : 0);

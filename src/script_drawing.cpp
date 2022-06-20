@@ -7099,8 +7099,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					masked_stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -7381,8 +7382,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					stretch_blit(sbmp, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -7666,8 +7668,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					masked_blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -7946,8 +7949,9 @@ void bmp_do_drawbitmapexr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					blit(sbmp, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite(destBMP, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -8497,8 +8501,9 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					masked_stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -8777,8 +8782,9 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					stretch_blit(newSource, subBmp, sx, sy, sw, sh, 0, 0, dw, dh);
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -9060,8 +9066,9 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					masked_blit(newSource, subBmp, sx, sy, 0, 0, dw, dh);
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 
@@ -9338,8 +9345,9 @@ void bmp_do_blittor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
 					
 					case 2: 
 						//pivot?
-					Z_message("Warning: Screen->DrawBitmap(%d) cannot both Pivot and Rotate.\n", bitmapIndex);
-					//return an error, cannot both rotate and pivot
+					blit(newSource, subBmp, sx, sy, 0, 0, dw, dh); 
+					pivot_sprite(newDest, subBmp, dx, dy, cx, cy, degrees_to_fixed(rot));
+					//Pivoting requires two more args
 					break;
 					
 					case 3: 

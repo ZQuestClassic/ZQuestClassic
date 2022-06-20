@@ -20049,7 +20049,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
 			{
-				zprint("Step Secs\n");
+				// zprint("Step Secs\n");
 				if(stype==cSTRIGFLAG && canPermSecret())
 				{ 
 					if(!didstrig)

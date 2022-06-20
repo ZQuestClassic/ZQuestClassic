@@ -273,11 +273,11 @@ static void weapon_triggersecret(int32_t pos, int32_t flag)
 			//{		
 				if(iter==1) checkflag=s->sflag[pos]; //Placed
 				else checkflag=combobuf[s->data[pos]].flag; //Inherent
-				Z_message("checkflag is: %d\n", checkflag);
-				al_trace("checkflag is: %d\n", checkflag);
+				// Z_message("checkflag is: %d\n", checkflag);
+				// al_trace("checkflag is: %d\n", checkflag);
 				
-				Z_message("flag is: %d\n", flag);
-				al_trace("flag is: %d\n", flag);
+				// Z_message("flag is: %d\n", flag);
+				// al_trace("flag is: %d\n", flag);
 				//cmbx = COMBOX(pos);
 				////cmby = COMBOY(pos);
 				
@@ -2245,7 +2245,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			LOADGFX(defaultw);
 			if ( itemid > -1 )
 			{
-				Z_message("Flags: %d\n",itemsbuf[itemid].weapoverrideFLAGS);
+				// Z_message("Flags: %d\n",itemsbuf[itemid].weapoverrideFLAGS);
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
@@ -2328,18 +2328,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 			
-			Z_message("itemid: %d\n",itemid);
-			Z_message("parentitem: %d\n",parentitem);
-			Z_message("extend: %d\n",extend);
-			Z_message("size flags: %d\n",itemsbuf[parentitem].weapoverrideFLAGS);
-			Z_message("TileWidth: %d\n",txsz);
-			Z_message("TileHeight: %d\n",tysz);
-			Z_message("HitWidth: %d\n",hxsz);
-			Z_message("HitHeight: %d\n",hysz);
-			Z_message("HitZHeight: %d\n",hzsz);
-			Z_message("HitXOffset: %d\n",hxofs);
-			Z_message("HitYOffset: %d\n",(int32_t)xofs);
-			Z_message("DrawYOffset: %d\n",(int32_t)yofs);
+			// Z_message("itemid: %d\n",itemid);
+			// Z_message("parentitem: %d\n",parentitem);
+			// Z_message("extend: %d\n",extend);
+			// Z_message("size flags: %d\n",itemsbuf[parentitem].weapoverrideFLAGS);
+			// Z_message("TileWidth: %d\n",txsz);
+			// Z_message("TileHeight: %d\n",tysz);
+			// Z_message("HitWidth: %d\n",hxsz);
+			// Z_message("HitHeight: %d\n",hysz);
+			// Z_message("HitZHeight: %d\n",hzsz);
+			// Z_message("HitXOffset: %d\n",hxofs);
+			// Z_message("HitYOffset: %d\n",(int32_t)xofs);
+			// Z_message("DrawYOffset: %d\n",(int32_t)yofs);
 			
 			
 			if(itemid >-1)
