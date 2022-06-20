@@ -37,7 +37,6 @@
 #ifdef _MSC_VER
 #define strupr _strupr
 #define stricmp _stricmp
-#define snprintf _snprintf
 #endif
 
 extern int32_t loadlast;

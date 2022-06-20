@@ -38,11 +38,6 @@
   *  or non-zero on error.
   */
 
-// snprintf is defined as _snprintf in windows stdio.h
-#ifdef _MSC_VER
-#define snprintf _snprintf
-#endif
-
 int32_t save_midi(char *filename, MIDI *midi)
 {
     int32_t c;

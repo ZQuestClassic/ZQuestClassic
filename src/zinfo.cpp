@@ -434,7 +434,7 @@ char const* zinfo::getItemClassName(size_t q)
 		return ic_name[q];
 	if(valid_str(default_itype_strings[q]))
 		return default_itype_strings[q];
-	sprintf(zinfbuf, "-zz%03d\0", q);
+	sprintf(zinfbuf, "-zz%03d", q);
 	return zinfbuf;
 }
 char const* zinfo::getItemClassHelp(size_t q)

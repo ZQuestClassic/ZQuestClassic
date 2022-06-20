@@ -116,6 +116,11 @@ endif()
 if(WIN32)
 	# Prevents definition of min and max macros, which conflict with std::min and std::max
 	add_definitions(-DNOMINMAX)
+
+	string(REGEX MATCH "MSVC" CMAKE_COMPILER_IS_MSVC "${CMAKE_C_COMPILER_ID}")
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.20.2750.8)
+		message(FATAL_ERROR "MSVC version ${CMAKE_CXX_COMPILER_VERSION} is too old. Must use at least 2019 version 16.0.0")
+	endif()
 endif()
 
 if(MSVC)
