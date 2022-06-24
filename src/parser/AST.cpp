@@ -1492,7 +1492,7 @@ optional<int32_t> ASTExprAnd::getCompileTimeValue(
 	bool short_circuit = *lookupOption(*scope, CompileOption::OPT_SHORT_CIRCUIT) != 0;
 	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
 	if (!leftValue) return nullopt;
-	if(short_circuit && !*leftValue) return 0L; //Cut it int16_t if we already know the result, and the option is on.
+	if(short_circuit && !*leftValue) return 0L; //Cut it short if we already know the result, and the option is on.
 	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	if (!rightValue) return nullopt;
 	return (*leftValue && *rightValue) ? (*lookupOption(*scope, CompileOption::OPT_BOOL_TRUE_RETURN_DECIMAL) ? 1L : 10000L) : 0L;
