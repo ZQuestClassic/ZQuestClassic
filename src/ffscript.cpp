@@ -10308,6 +10308,16 @@ int32_t get_register(const int32_t arg)
 				ret = ((int32_t)MsgStrings[ID].portrait_th) * 10000;
 			break;
 		}
+		case MESSAGEDATATEXTLEN: //BYTE
+		{
+			int32_t ID = ri->zmsgref;
+			
+			if(BC::checkMessage(ID, "messagedata->PortraitTileHeight") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = int32_t(MsgStrings[ID].s.size()) * 10000;
+			break;
+		}
 		case MESSAGEDATATEXTWID:
 		{
 			ret = do_msgwidth(ri->zmsgref, "messagedata->TextWidth")*10000;
@@ -37389,6 +37399,7 @@ script_variable ZASMVars[]=
 	{ "IDATAMAGICTIMER2", IDATAMAGICTIMER2, 0, 0 },
 	{ "IDATACOST2", IDATACOST2, 0, 0 },
 	{ "IDATAVALIDATE2", IDATAVALIDATE2, 0, 0 },
+	{ "MESSAGEDATATEXTLEN", MESSAGEDATATEXTLEN, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

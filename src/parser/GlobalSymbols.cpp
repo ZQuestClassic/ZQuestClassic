@@ -13160,7 +13160,6 @@ static AccessorTable MessageDataTable[] =
 {
 //	All of these return a function label error when used:
 //	  name,                     rettype,                  setorget,     var,                  numindex,     funcFlags,                            numParams,   params
-	 { "getTest",                ZVARTYPEID_FLOAT,         GETTER,       DEBUGREFFFC,          1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Get",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,            FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Set",                    ZVARTYPEID_VOID,          FUNCTION,     0,                    1,            0,                                    2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
@@ -13210,6 +13209,8 @@ static AccessorTable MessageDataTable[] =
 	{ "setPortraitTileHeight",  ZVARTYPEID_VOID,          SETTER,       MESSAGEDATAPORTHEI,   1,            0,                                    2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "TextHeight",             ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATATEXTHEI,   1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "TextWidth",              ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATATEXTWID,   1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getLength",              ZVARTYPEID_FLOAT,         GETTER,       MESSAGEDATATEXTLEN,   1,            0,                                    1,           { ZVARTYPEID_ZMESSAGE, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setLength",              ZVARTYPEID_VOID,          SETTER,       MESSAGEDATATEXTLEN,   1,            0,                                    2,           { ZVARTYPEID_ZMESSAGE, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,           0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -13226,9 +13227,22 @@ void MessageDataSymbols::generateCode()
     {
 	    Function* function = getFunction("Get", 2); 
 	    int32_t label = function->getLabel(); 
+	    vector<shared_ptr<Opcode>> code;
+	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+	    LABELBACK(label);
+		POPREF();
+	    addOpcode2 (code, new OMessageDataGetStringRegister(new VarArgument(EXP2))); 
+	    RETURN(); 
+        function->giveCode(code);
+    }
+    // Set("src_string[]")
+    {
+	    Function* function = getFunction("Set", 2); 
+	    int32_t label = function->getLabel(); 
 	    vector<shared_ptr<Opcode>> code; 
 	    addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
 	    LABELBACK(label); 
+		POPREF();
 	    addOpcode2 (code, new OMessageDataSetStringRegister(new VarArgument(EXP2))); 
 	    RETURN(); 
         function->giveCode(code);

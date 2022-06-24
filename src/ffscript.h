@@ -4628,8 +4628,9 @@ enum ASM_DEFINE
 #define IDATAMAGICTIMER2        0x1454
 #define IDATACOST2              0x1455
 #define IDATAVALIDATE2          0x1456
+#define MESSAGEDATATEXTLEN      0x1457
 
-#define NUMVARIABLES         	0x1457
+#define NUMVARIABLES         	0x1458
 
 //} End variables
 

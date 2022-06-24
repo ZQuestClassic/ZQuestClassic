@@ -5901,6 +5901,10 @@ int TextHeight;
  * Returns the height, in pixels, of the message.
  * This uses the font as set in the 'Strings' editor, and ignores line breaks.
  * Read-Only
+
+int Length;
+ * Returns the length, in characters, of the message string text
+ * Read-Only
 	
 //////////////////
 ///  dmapdata  ///

@@ -1393,8 +1393,9 @@
 #define IDATAMAGICTIMER2        1310
 #define IDATACOST2              1311
 #define IDATAVALIDATE2          1312
+#define MESSAGEDATATEXTLEN      1313
 
-#define LAST_BYTECODE           1313
+#define LAST_BYTECODE           1314
 
 //} END OF BYTECODE
 
