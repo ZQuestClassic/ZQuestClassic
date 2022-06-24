@@ -21052,10 +21052,12 @@ void do_dequeue(const bool)
 {
 }
 
-void do_comp(const bool v)
+void do_comp(bool v, const bool inv = false)
 {
+	bool v2 = false;
+	if(inv) zc_swap(v,v2);
 	int32_t temp = SH::get_arg(sarg2, v);
-	int32_t temp2 = get_register(sarg1);
+	int32_t temp2 = SH::get_arg(sarg1, v2);
 	
 	if(temp2 >= temp)   ri->scriptflag |= MOREFLAG;
 	else                ri->scriptflag &= ~MOREFLAG;
@@ -21239,12 +21241,15 @@ void do_add(const bool v)
 	set_register(sarg1, temp2 + temp);
 }
 
-void do_sub(const bool v)
+void do_sub(bool v, const bool inv = false)
 {
+	bool v2 = false;
+	if(inv) zc_swap(v,v2);
+	auto destreg = (inv ? sarg1 : sarg2);
 	int32_t temp = SH::get_arg(sarg2, v);
-	int32_t temp2 = get_register(sarg1);
+	int32_t temp2 = SH::get_arg(sarg1, v2);
 	
-	set_register(sarg1, temp2 - temp);
+	set_register(destreg, temp2 - temp);
 }
 
 void do_mult(const bool v)
@@ -21255,26 +21260,32 @@ void do_mult(const bool v)
 	set_register(sarg1, int32_t((temp * temp2) / 10000));
 }
 
-void do_div(const bool v)
+void do_div(bool v, const bool inv = false)
 {
+	bool v2 = false;
+	if(inv) zc_swap(v,v2);
+	auto destreg = (inv ? sarg1 : sarg2);
 	int64_t temp = SH::get_arg(sarg2, v);
-	int64_t temp2 = get_register(sarg1);
+	int64_t temp2 = SH::get_arg(sarg1, v2);
 	
 	if(temp == 0)
 	{
 		Z_scripterrlog("Script attempted to divide %ld by zero!\n", temp2);
-		set_register(sarg1, int32_t(sign(temp2) * LONG_MAX));
+		set_register(destreg, int32_t(sign(temp2) * LONG_MAX));
 	}
 	else
 	{
-		set_register(sarg1, int32_t((temp2 * 10000) / temp));
+		set_register(destreg, int32_t((temp2 * 10000) / temp));
 	}
 }
 
-void do_mod(const bool v)
+void do_mod(bool v, const bool inv = false)
 {
+	bool v2 = false;
+	if(inv) zc_swap(v,v2);
+	auto destreg = (inv ? sarg1 : sarg2);
 	int32_t temp = SH::get_arg(sarg2, v);
-	int32_t temp2 = get_register(sarg1);
+	int32_t temp2 = SH::get_arg(sarg1, v2);
 	
 	if(temp == 0)
 	{
@@ -21282,7 +21293,7 @@ void do_mod(const bool v)
 		temp = 1;
 	}
 	
-	set_register(sarg1, temp2 % temp);
+	set_register(destreg, temp2 % temp);
 }
 
 void do_trig(const bool v, const byte type)
@@ -26533,6 +26544,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case COMPAREV:
 				do_comp(true);
 				break;
+			case COMPAREV2:
+				do_comp(true,true);
+				break;
 				
 			case COMPARER:
 				do_comp(false);
@@ -26681,6 +26695,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case SUBV:
 				do_sub(true);
 				break;
+			case SUBV2:
+				do_sub(true,true);
+				break;
 				
 			case SUBR:
 				do_sub(false);
@@ -26697,6 +26714,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case DIVV:
 				do_div(true);
 				break;
+			case DIVV2:
+				do_div(true,true);
+				break;
 				
 			case DIVR:
 				do_div(false);
@@ -26704,6 +26724,9 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				
 			case MODV:
 				do_mod(true);
+				break;
+			case MODV2:
+				do_mod(true,true);
 				break;
 				
 			case MODR:
@@ -36082,6 +36105,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "BMPMASKBLIT",           0,   0,   0,   0},
 	{ "BMPMASKBLIT2",           0,   0,   0,   0},
 	{ "BMPMASKBLIT3",           0,   0,   0,   0},
+	{ "SUBV2",                2,   1,   0,   0},
+	{ "DIVV2",                2,   1,   0,   0},
+	{ "COMPAREV2",            2,   1,   0,   0},
+	{ "MODV2",                2,   1,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

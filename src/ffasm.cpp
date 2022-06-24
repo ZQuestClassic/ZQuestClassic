@@ -1041,6 +1041,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "BMPMASKBLIT",           0,   0,   0,   0},
 	{ "BMPMASKBLIT2",           0,   0,   0,   0},
 	{ "BMPMASKBLIT3",           0,   0,   0,   0},
+	{ "SUBV2",                2,   1,   0,   0},
+	{ "DIVV2",                2,   1,   0,   0},
+	{ "COMPAREV2",            2,   1,   0,   0},
+	{ "MODV2",                2,   1,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

@@ -235,8 +235,8 @@ namespace ZScript
 		template <class Container>
 		void visit(AST& host, Container const& nodes, void* param = NULL)
 		{
-			for (typename Container::const_iterator it = nodes.begin();
-			     it != nodes.end(); ++it)
+			for (typename Container::const_iterator it = nodes.cbegin();
+			     it != nodes.cend(); ++it)
 			{
 				if (breakRecursion(host, param)) return;
 				visit(**it, param);
@@ -246,8 +246,8 @@ namespace ZScript
 		template <class Container>
 		void block_visit(AST& host, Container const& nodes, void* param = NULL)
 		{
-			for (typename Container::const_iterator it = nodes.begin();
-			     it != nodes.end(); ++it)
+			for (typename Container::const_iterator it = nodes.cbegin();
+			     it != nodes.cend(); ++it)
 			{
 				failure_temp = false;
 				visit(**it, param);

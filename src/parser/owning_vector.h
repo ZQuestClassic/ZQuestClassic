@@ -42,13 +42,13 @@ public:
 
 	// Iterators
 	inline iterator begin() {return vector_.begin();}
-	inline const_iterator begin() const {return vector_.begin();}
+	inline const_iterator cbegin() const {return vector_.begin();}
 	inline iterator end() {return vector_.end();}
-	inline const_iterator end() const {return vector_.end();}
+	inline const_iterator cend() const {return vector_.end();}
 	inline reverse_iterator rbegin() {return vector_.rbegin();}
-	inline const_reverse_iterator rbegin() const {return vector_.rbegin();}
+	inline const_reverse_iterator crbegin() const {return vector_.rbegin();}
 	inline reverse_iterator rend() {return vector_.rend();}
-	inline const_reverse_iterator rend() const {return vector_.rend();}
+	inline const_reverse_iterator crend() const {return vector_.rend();}
 
 	// Capacity
 	inline size_type size() const {return vector_.size();}

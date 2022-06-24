@@ -37,8 +37,8 @@ void RegistrationVisitor::visit(AST& node, void* param)
 template <class Container>
 void RegistrationVisitor::regvisit(AST& host, Container const& nodes, void* param)
 {
-	for (typename Container::const_iterator it = nodes.begin();
-		 it != nodes.end(); ++it)
+	for (auto it = nodes.cbegin();
+		 it != nodes.cend(); ++it)
 	{
 		if (breakRecursion(host, param)) return;
 		visit(**it, param);
@@ -47,8 +47,8 @@ void RegistrationVisitor::regvisit(AST& host, Container const& nodes, void* para
 template <class Container>
 void RegistrationVisitor::block_regvisit(AST& host, Container const& nodes, void* param)
 {
-	for (typename Container::const_iterator it = nodes.begin();
-		 it != nodes.end(); ++it)
+	for (auto it = nodes.cbegin();
+		 it != nodes.cend(); ++it)
 	{
 		failure_temp = false;
 		visit(**it, param);
@@ -1061,8 +1061,7 @@ bool RegistrationVisitor::registered(AST* node) const
 template <class Container>
 bool RegistrationVisitor::registered(AST& host, Container const& nodes) const
 {
-	for(typename Container::const_iterator it = nodes.begin();
-		it != nodes.end(); ++it)
+	for(auto it = nodes.cbegin(); it != nodes.cend(); ++it)
 	{
 		if(!registered(*it)) return false;
 	}

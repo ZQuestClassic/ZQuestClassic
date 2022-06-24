@@ -863,8 +863,8 @@ ASTDataDeclList::ASTDataDeclList(ASTDataDeclList const& other)
 	: ASTDecl(other),
 	  baseType(other.baseType)
 {
-	for (vector<ASTDataDecl*>::const_iterator it = other.declarations_.begin();
-	     it != other.declarations_.end(); ++it)
+	for (auto it = other.declarations_.cbegin();
+	     it != other.declarations_.cend(); ++it)
 	{
 		ASTDataDecl* decl = (*it)->clone();
 		if(decl->baseType)
@@ -879,8 +879,8 @@ ASTDataDeclList& ASTDataDeclList::operator=(ASTDataDeclList const& rhs)
 
     baseType = rhs.baseType;
     declarations_.clear();
-	for (vector<ASTDataDecl*>::const_iterator it = rhs.declarations_.begin();
-	     it != rhs.declarations_.end(); ++it)
+	for (auto it = rhs.declarations_.cbegin();
+	     it != rhs.declarations_.cend(); ++it)
 	{
 		ASTDataDecl* decl = (*it)->clone();
 		if(decl->baseType)
@@ -1010,9 +1010,7 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 
 bool ZScript::hasSize(ASTDataDecl const& decl)
 {
-	for (vector<ASTDataDeclExtraArray*>::const_iterator it =
-		     decl.extraArrays.begin();
-	     it != decl.extraArrays.end(); ++it)
+	for (auto it = decl.extraArrays.cbegin(); it != decl.extraArrays.cend(); ++it)
 		if ((*it)->hasSize()) return true;
 	return false;
 }
@@ -1034,8 +1032,7 @@ optional<int32_t> ASTDataDeclExtraArray::getCompileTimeSize(
 {
 	if (dimensions.size() == 0) return nullopt;
 	int32_t size = 1;
-	for (vector<ASTExpr*>::const_iterator it = dimensions.begin();
-		 it != dimensions.end(); ++it)
+	for (auto it = dimensions.cbegin(); it != dimensions.cend(); ++it)
 	{
 		ASTExpr& expr = **it;
 		if (optional<int32_t> value = expr.getCompileTimeValue(errorHandler, scope))
@@ -1824,8 +1821,8 @@ optional<int32_t> ASTExprDivide::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero(this));
-		return nullopt;
+			errorHandler->handleError(CompileError::DivByZero(this, "divide"));
+		return (*leftValue >= 0) ? 2147483647 : -2147483647; //error value
 	}
 	
 	if(*lookupOption(*scope, CompileOption::OPT_TRUNCATE_DIVISION_BY_LITERAL_BUG)
@@ -1861,7 +1858,7 @@ optional<int32_t> ASTExprModulo::getCompileTimeValue(
 	if (*rightValue == 0)
 	{
 		if (errorHandler)
-			errorHandler->handleError(CompileError::DivByZero(this));
+			errorHandler->handleError(CompileError::DivByZero(this,"modulo"));
 		return nullopt;
 	}
 	return *leftValue % *rightValue;

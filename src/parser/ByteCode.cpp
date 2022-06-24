@@ -2250,6 +2250,11 @@ string OSubImmediate::toString()
     return "SUBV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OSubImmediate2::toString()
+{
+    return "SUBV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OSubRegister::toString()
 {
     return "SUBR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2271,6 +2276,11 @@ string ODivImmediate::toString()
     return "DIVV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string ODivImmediate2::toString()
+{
+    return "DIVV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string ODivRegister::toString()
 {
     return "DIVR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2279,6 +2289,11 @@ string ODivRegister::toString()
 string OCompareImmediate::toString()
 {
     return "COMPAREV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OCompareImmediate2::toString()
+{
+    return "COMPAREV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OCompareRegister::toString()
@@ -2649,6 +2664,11 @@ string O32BitRShiftRegister::toString()
 string OModuloImmediate::toString()
 {
     return "MODV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OModuloImmediate2::toString()
+{
+    return "MODV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OModuloRegister::toString()

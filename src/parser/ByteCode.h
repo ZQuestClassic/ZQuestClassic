@@ -1783,6 +1783,17 @@ namespace ZScript
 		}
 	};
 
+	class OSubImmediate2 : public BinaryOpcode
+	{
+	public:
+		OSubImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OSubImmediate2(a->clone(),b->clone());
+		}
+	};
+
 	class OSubRegister : public BinaryOpcode
 	{
 	public:
@@ -1827,6 +1838,17 @@ namespace ZScript
 		}
 	};
 
+	class ODivImmediate2 : public BinaryOpcode
+	{
+	public:
+		ODivImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODivImmediate2(a->clone(),b->clone());
+		}
+	};
+
 	class ODivRegister : public BinaryOpcode
 	{
 	public:
@@ -1846,6 +1868,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OCompareImmediate(a->clone(),b->clone());
+		}
+	};
+
+	class OCompareImmediate2 : public BinaryOpcode
+	{
+	public:
+		OCompareImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OCompareImmediate2(a->clone(),b->clone());
 		}
 	};
 
@@ -2433,6 +2466,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OModuloImmediate(a->clone(), b->clone());
+		}
+	};
+
+	class OModuloImmediate2 : public BinaryOpcode
+	{
+	public:
+		OModuloImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OModuloImmediate2(a->clone(), b->clone());
 		}
 	};
 

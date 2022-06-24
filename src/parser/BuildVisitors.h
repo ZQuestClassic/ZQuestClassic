@@ -134,6 +134,8 @@ namespace ZScript
 				ASTArrayLiteral& host, OpcodeContext& context);
 		// For when ASTArrayLiteral is not a declaration initializer.
 		void arrayLiteralFree(ASTArrayLiteral& host, OpcodeContext& context);
+		void parseExprs(ASTExpr* left, ASTExpr* right, void* param, bool orderMatters = false);
+		void compareExprs(ASTExpr* left, ASTExpr* right, void* param, bool boolMode = false);
 	};
 
 	class LValBOHelper : public ASTVisitor
