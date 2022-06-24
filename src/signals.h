@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <utility>
+#include <vector>
 
 /* A minimal signal class. We could use something like boost::signals2,
  * but that's serious overkill right now.

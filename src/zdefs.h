@@ -351,7 +351,6 @@ void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
 
 extern int32_t curr_tb_page;
-extern bool triplebuffer_not_available;
 extern int32_t original_playing_field_offset;
 extern int32_t playing_field_offset;
 extern int32_t passive_subscreen_height;

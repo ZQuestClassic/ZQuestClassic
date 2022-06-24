@@ -6,6 +6,7 @@
 #include "precompiled.h" //always first
 
 #include "allegro.h"
+#include "a5alleg.h"
 #include "zqscale.h"
 
 extern int32_t zq_screen_w, zq_screen_h;
@@ -643,6 +644,8 @@ bool zqwin_set_scale(int32_t scale, bool defer)
     
     int32_t old_scale;
     old_scale = zqwin_scale;
+
+    all_set_scale(scale);
     
 #ifndef ROMVIEW_SCALE
     zqwin_scale = (scale > 1) ? scale : 1;

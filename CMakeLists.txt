@@ -8,6 +8,11 @@ set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# This allows outputs to be run where they are by putting their libaries in
+# the same folder. 
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
@@ -30,10 +35,66 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
 endfunction(enable_unity_build)
 
 #############################################################
+# Allegro
+#############################################################
+
+add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
+add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
+option(SHARED "" ON)
+
+include(FetchContent)
+FetchContent_Declare(
+  allegro5
+  GIT_REPOSITORY https://github.com/liballeg/allegro5.git
+  GIT_TAG        5.2.7.0
+)
+FetchContent_GetProperties(allegro5)
+if(NOT allegro5_POPULATED)
+  FetchContent_Populate(allegro5)
+	option(WANT_TESTS "" OFF)
+	option(WANT_EXAMPLES "" OFF)
+	option(WANT_DEMO "" OFF)
+	option(WANT_DOCS "" OFF)
+  add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
+  # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
+  # so set it back to our value.
+  set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
+endif()
+
+# These include files are typically copied into the correct places via allegro's install
+# target, but we do it manually because we are compiling from source.
+file(COPY ${allegro5_SOURCE_DIR}/addons/font/allegro5/allegro_font.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/primitives/allegro5/allegro_primitives.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/allegro_audio.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/audio/allegro5/internal/aintern_audio.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5/internal
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/image/allegro5/allegro_image.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
+
+include_directories(${allegro5_SOURCE_DIR}/include)
+include_directories(${allegro5_BINARY_DIR}/include)
+add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
+
+add_library(allegro_with_legacy INTERFACE)
+target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
+target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_main)
+
+#############################################################
 # Header and source file lists
 #############################################################
 
-include_directories(./allegro/include)
 include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
@@ -124,11 +185,7 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	set(ALLEGROLIB "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/alleg44-debug.lib>"
-				   "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/alleg44.lib>")
-
-	add_definitions(-DALLEGRO_MSVC)
-
+	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
 	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
 
@@ -136,7 +193,7 @@ if(MSVC)
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
 
 	if(MSVC_VERSION GREATER 1500)
-		add_definitions(-DALLEGRO_HAVE_STDINT_H)
+		add_definitions(-DALLEGRO_LEGACY_HAVE_STDINT_H)
 	endif()
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
@@ -168,10 +225,7 @@ if(MSVC)
 elseif(LINUX)
 	link_directories(/usr/lib/i386-linux-gnu)
 	link_directories(./libs/linux)
-	set(ALLEGROLIB alleg)
-	add_definitions(-DALLEGRO_UNIX)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
-	execute_process(COMMAND "${CMAKE_SOURCE_DIR}/allegro/configure --enable-static=yes --enable-shared=no --enable-ossdigi=no --enable-ossmidi=no --enable-esddigi=no --enable-artsdigi=no --enable-sgialdigi=no --enable-jackdigi=no --enable-xwin-dga2=no --enable-vga=no --enable-svgalib=no" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/allegro")
 
 	set(IMAGELIBS algif ldpng jpgal png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
@@ -182,7 +236,6 @@ elseif(LINUX)
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
 
-
 #############################################################
 # Sound Library
 #############################################################
@@ -191,7 +244,7 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound ${ALLEGROLIB} ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_link_libraries(zcsound PUBLIC allegro_with_legacy ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
 
 #############################################################
 # Romview
@@ -237,11 +290,12 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
+target_link_libraries(zelda allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 
 
@@ -279,7 +333,8 @@ if(Boost_FOUND)
 	add_definitions(-DHAS_BOOST)
     add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
-	target_link_libraries(zquest zcsound ${IMAGELIBS} ${ALLEGROLIB} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC allegro_with_legacy zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
 		target_compile_definitions(zquest PRIVATE ZC_PCH)
@@ -303,7 +358,7 @@ endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
-	target_link_libraries(zscript ${ALLEGROLIB} ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript allegro_with_legacy ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -320,6 +375,32 @@ elseif(LINUX)
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
-target_link_libraries(zlauncher ${ALLEGROLIB} ${LAUNCHERLIBSEXTRA})
+target_link_libraries(zlauncher allegro_with_legacy ${LAUNCHERLIBSEXTRA})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 
+#############################################################
+# Allegro 5 Example
+#############################################################
+
+add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.c)
+target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
+target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
+target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegro_primitives)
+
+#############################################################
+# Visual Studio
+#############################################################
+
+set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+
+#############################################################
+# Misc.
+#############################################################
+
+if(WIN32)
+	target_compile_definitions(zcsound PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zelda PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zlauncher PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zquest PRIVATE __STDC_LIMIT_MACROS)
+	target_compile_definitions(zscript PRIVATE __STDC_LIMIT_MACROS)
+endif()

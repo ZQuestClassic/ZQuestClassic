@@ -9,7 +9,6 @@
 
 //#include "precompiled.h" //always first
 
-
 #include "zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
 #include <string.h>
 #include <aldumb.h>
