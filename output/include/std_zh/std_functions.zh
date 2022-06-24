@@ -2079,10 +2079,13 @@ bool GetMapscreenFlag(int mapid, int scr, mapscreenflags flagid)
 //Puts a ZQE Message String into a client array string 'ptr'
 void GetMessage(int ID, char32 ptr)
 {
-	Game->GetMessage(ID, ptr);
-	int i;
-	for(i = MAX_MESSAGELENGTH-2; ptr[i] == ' '; --i);
-	ptr[i+1] = 0;
+	messagedata md = Game->LoadMessageData(ID);
+	int sz = md->Length;
+	if(SizeOfArray(ptr) <= sz)
+		ResizeArray(ptr, sz+1);
+	md->Get(ptr);
+	for(; ptr[sz-1] == ' '; --sz);
+	ptr[sz] = 0;
 }
 
 //Returns true if an npc's Misc. flag is set.
