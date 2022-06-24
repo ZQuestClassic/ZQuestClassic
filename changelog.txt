@@ -1,5 +1,26 @@
 // 2.55 Change Log
-// Updated 12th June, 2022
+// Updated 24th June, 2022
+
+Fix spawned sprite object (ex. bushes/generic combos) repeating the first
+	frame at the end for one frame
+	( EmilyV, 24th June, 2022 )
+
+--June 23rd nightly
+
+Upgrade to Allegro 5 (major backend change)
+	( connorjclark, 23rd June, 2022 )
+
+Add 'messagedata->Length', to read the length of a message string
+Update std_functions 'GetMessage()':
+	If the passed array is too small, it will be resized to be large enough
+	Now works with strings <140 chars
+	( EmilyV, 23rd June, 2022 )
+
+Removed debug messages
+	( EmilyV, 20th June, 2022 )
+
+Fixed Hover Boots
+	( Deedee, 19th June, 2022 )
 
 Add 'optional parameters' to ZScript
 	see ZScript_Additions.txt for details

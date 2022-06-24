@@ -223,6 +223,7 @@ bool comboSprite::animate(int32_t index)
 	int32_t dur = zc_max(1,wpnsbuf[the_deco_sprite].frames) * zc_max(1,wpnsbuf[the_deco_sprite].speed);
 	//al_trace("dur: %d\n", dur);
 	//al_trace("clk: %d\n", clk);
+	//zprint2("Animating comboSprite: %d / %d\n", clk, dur);
 	return (clk++>=dur);
 }
 /*
@@ -248,20 +249,15 @@ void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 	
 	int32_t fb=the_deco_sprite;
 	int32_t t=wpnsbuf[fb].newtile;
-	int32_t fr=wpnsbuf[fb].frames;
-	int32_t spd=wpnsbuf[fb].speed;
+	int32_t fr=zc_max(1,wpnsbuf[fb].frames);
+	int32_t spd=zc_max(1,wpnsbuf[fb].speed);
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
 	
-		tile=t;
-		
-		if(fr>0&&spd>0)
-		{
-			tile+=((clk/spd)%fr);
-		}
-		
-		decoration::draw(dest);
-		
+	tile = t+(((clk-1)/spd)%fr);
+	
+	//zprint2("Drawing comboSprite: %d / %d (tile %d)\n", clk-1, fr*spd, tile);
+	decoration::draw(dest);
 }
 
 void comboSprite::draw(BITMAP *dest)
