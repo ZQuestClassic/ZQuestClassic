@@ -2041,7 +2041,7 @@ void BuildOpcodes::caseExprLShift(ASTExprLShift& host, void* param)
 	if(lval)
 	{
 		visit(host.right.get(), param);
-		addOpcode(new OSetRegister(new VarArgument(EXP2), new LiteralArgument(*lval)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(*lval)));
 	}
 	else if (rval)
 	{
@@ -2082,7 +2082,7 @@ void BuildOpcodes::caseExprRShift(ASTExprRShift& host, void* param)
 	if(lval)
 	{
 		visit(host.right.get(), param);
-		addOpcode(new OSetRegister(new VarArgument(EXP2), new LiteralArgument(*lval)));
+		addOpcode(new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(*lval)));
 	}
 	else if (rval)
 	{
