@@ -1,5 +1,10 @@
 // 2.55 Change Log
-// Updated 24th June, 2022
+// Updated 25th June, 2022
+
+--June 25th nightly
+
+Fix zscript compiler console closing even when warnings were thrown.
+	( EmilyV, 25th June, 2022 )
 
 Optimize ZScript internally (various small optimizations)
 Fix editing the ZScript buffer causing a hardlock
