@@ -25005,6 +25005,7 @@ int32_t onCompileScript()
 
 			FILE *console=fopen("tmp3", "r");
 			char buf4[512];
+			bool hasWarnErr = false;
 			if (console) 
 			{
 				for(;;) //while (true)
@@ -25013,6 +25014,7 @@ int32_t onCompileScript()
 					if (code != ZC_CONSOLE_INFO_CODE && code != ZC_CONSOLE_ERROR_CODE && code != ZC_CONSOLE_WARN_CODE) break;
 					else
 					{
+						if(code != ZC_CONSOLE_INFO_CODE) hasWarnErr = true;
 						fseek(console, 0, SEEK_END);
 						current = ftell(console);
 						if (current != last) {
@@ -25048,7 +25050,7 @@ int32_t onCompileScript()
 			if(!code)
 			{
 				read_compile_data(stypes, scripts);
-				if (!DisableCompileConsole) 
+				if (!(DisableCompileConsole || hasWarnErr)) 
 				{
 					parser_console.kill();
 				}
