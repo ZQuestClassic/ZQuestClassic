@@ -21245,10 +21245,10 @@ void do_sub(bool v, const bool inv = false)
 {
 	bool v2 = false;
 	if(inv) zc_swap(v,v2);
-	auto destreg = (inv ? sarg1 : sarg2);
+	auto destreg = (inv ? sarg2 : sarg1);
 	int32_t temp = SH::get_arg(sarg2, v);
 	int32_t temp2 = SH::get_arg(sarg1, v2);
-	
+	//zprint2("Subtraction found: '%d - %d' where '%s - %s'\n", temp2, temp, v2 ? "const" : "reg", v ? "const" : "reg");
 	set_register(destreg, temp2 - temp);
 }
 
@@ -21264,7 +21264,7 @@ void do_div(bool v, const bool inv = false)
 {
 	bool v2 = false;
 	if(inv) zc_swap(v,v2);
-	auto destreg = (inv ? sarg1 : sarg2);
+	auto destreg = (inv ? sarg2 : sarg1);
 	int64_t temp = SH::get_arg(sarg2, v);
 	int64_t temp2 = SH::get_arg(sarg1, v2);
 	
@@ -21283,7 +21283,7 @@ void do_mod(bool v, const bool inv = false)
 {
 	bool v2 = false;
 	if(inv) zc_swap(v,v2);
-	auto destreg = (inv ? sarg1 : sarg2);
+	auto destreg = (inv ? sarg2 : sarg1);
 	int32_t temp = SH::get_arg(sarg2, v);
 	int32_t temp2 = SH::get_arg(sarg1, v2);
 	
