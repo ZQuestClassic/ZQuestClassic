@@ -61,7 +61,12 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 {
                     if(event.keyboard.unichar >= 0)
                     {
-                        _handle_key_press(event.keyboard.unichar, event.keyboard.keycode);
+                        // local edit
+                        if ((ALLEGRO_KEYMOD_ALT & event.keyboard.modifiers) != 0) {
+                            _handle_key_press(0, event.keyboard.keycode);
+                        } else {
+                            _handle_key_press(event.keyboard.unichar, event.keyboard.keycode);
+                        }
                     }
                     break;
                 }
