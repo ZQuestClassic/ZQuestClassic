@@ -27,7 +27,7 @@ jobs:
 
     # Prevent forks from running this job.
     # if: (github.event_name == 'schedule' && github.repository == 'ArmageddonGames/ZeldaClassic') || (github.event_name != 'schedule')
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
     - uses: ilammy/msvc-dev-cmd@v1
