@@ -1,6 +1,8 @@
 // 2.55 Change Log
 // Updated 24th June, 2022
 
+Optimize ZScript internally (various small optimizations)
+Fix editing the ZScript buffer causing a hardlock
 Fix spawned sprite object (ex. bushes/generic combos) repeating the first
 	frame at the end for one frame
 	( EmilyV, 24th June, 2022 )
