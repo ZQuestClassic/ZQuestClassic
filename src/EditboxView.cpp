@@ -361,7 +361,7 @@ void BasicEditboxView::draw()
 	
 	set_clip_rect(dbuf, 0,0,host->w,host->h);
 	drawExtraComponents();
-	vsync();
+	//vsync();
 	blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
 	set_clip_rect(screen, 0, 0,SCREEN_W,SCREEN_H);
 	
