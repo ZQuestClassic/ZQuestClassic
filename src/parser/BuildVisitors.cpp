@@ -702,13 +702,10 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
-	if(optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
-	{
-		if((host.isInverted()) != (*val==0)) //False, so ignore this all.
-		{
-			return;
-		}
-	}
+	optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
+	bool falsyval = val && !*val;
+	if(falsyval)
+		return; //never runs
 	int32_t startlabel = ScriptParser::getUniqueLabelID();
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
 	//run the test
@@ -716,21 +713,24 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
 	start->setLabel(startlabel);
 	addOpcode(start);
-	int32_t startRefCount = arrayRefs.size(); //Store ref count
-	literalVisit(host.test.get(), param);
-	//Deallocate string/array literals from within the test
-	deallocateRefsUntilCount(startRefCount);
-	while ((int32_t)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
-	//Continue
-	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	if(host.isInverted()) //Is this `until` or `while`?
+	if(!val)
 	{
-		addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
-	}
-	else
-	{
-		addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+		int32_t startRefCount = arrayRefs.size(); //Store ref count
+		literalVisit(host.test.get(), param);
+		//Deallocate string/array literals from within the test
+		deallocateRefsUntilCount(startRefCount);
+		while ((int32_t)arrayRefs.size() > startRefCount)
+			arrayRefs.pop_back();
+		//Continue
+		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+		if(host.isInverted()) //Is this `until` or `while`?
+		{
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+		}
+		else
+		{
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+		}
 	}
 
 	breaklabelids.push_back(endlabel);
@@ -747,7 +747,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 
 	addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
 	//nop to end while
-	Opcode *end = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+	Opcode *end = new ONoOp();
 	end->setLabel(endlabel);
 	addOpcode(end);
 }
