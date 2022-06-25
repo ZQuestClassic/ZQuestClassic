@@ -98,9 +98,12 @@ Win32/*
 # Misc files
 *.gcda
 makefile.inc
+
+# Allegro Files
 _deps/*
 allegro-legacy/include/allegro/platform/alplatf.h
-
+allegro-legacy/allegro-legacy.dir/*
+allegro-legacy/lib/Debug/*
 
 # Generated CMake Files.
 /allegro/CMakeCache.txt
