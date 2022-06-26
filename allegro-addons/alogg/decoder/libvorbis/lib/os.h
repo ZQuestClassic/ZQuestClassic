@@ -103,7 +103,7 @@ static inline int vorbis_ftoi(double f){  /* yes, double!  Otherwise,
 #endif
 
 
-#if defined(_WIN32) && !defined(__GNUC__) && !defined(__BORLANDC__)
+#if defined(__i386__) && !defined(__GNUC__) && !defined(__BORLANDC__)
 #  define VORBIS_FPU_CONTROL
 
 typedef ogg_int16_t vorbis_fpu_control;

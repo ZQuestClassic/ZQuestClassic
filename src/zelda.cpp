@@ -4485,7 +4485,7 @@ int main(int argc, char **argv)
 	three_finger_flag=false;
 	
 	// TODO: build these plugins from source
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(_WIN64)
 	register_bitmap_file_type("GIF",  load_gif, save_gif);
 	jpgalleg_init();
 	loadpng_init();

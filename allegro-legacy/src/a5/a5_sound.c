@@ -72,7 +72,8 @@ static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         fragment = al_get_audio_stream_fragment(a5_sound_stream);
                         if(fragment)
                         {
-                            _mix_some_samples((unsigned long)fragment, 0, TRUE);
+                            // local edit
+                            _mix_some_samples((uintptr_t)fragment, 0, TRUE);
                             al_set_audio_stream_fragment(a5_sound_stream, fragment);
                         }
                         else
