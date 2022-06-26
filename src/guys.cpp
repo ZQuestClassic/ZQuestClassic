@@ -4164,75 +4164,8 @@ int32_t getDefType(weapon *w)
 
 int32_t getWeaponID(weapon *w)
 {
-	int32_t wpnID = w->id;
-	//al_trace("getWeaponID(), initial wpnID is: %d\n", wpnID);
-	
-	if ( w->parentitem < 0 ) 
-	{
-		//al_trace("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem == -1, eturning w->id: %d\n", w->id);
-		//Z_message("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem == -1, eturning w->id: %d\n", w->id);
-		return w->id;
-		
-	}
-	if ( w->parentitem > -1 ) 
-	{
-		//al_trace("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
-		//Z_message("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
-	
-		int32_t usewpn = itemsbuf[w->parentitem].useweapon;
-		al_trace("getWeaponID() usewpn is %d\n",usewpn);
-		//al_trace("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
-		//Z_message("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
-	
-		if ( usewpn > 0 ) 
-		{ 
-			//al_trace("Assigning weapon id: %d\n", usewpn);
-			wpnID = usewpn; //Not forwarding to the weapon sprite?
-			//al_trace("enemy::getWeaponID(*w), Step 3A, useweapon > 0; setting wpnID = useweapon; wpnID is: %d\n", wpnID);
-			//Z_message("enemy::getWeaponID(*w), Step 3A, useweapon > 0; setting wpnID = useweapon; wpnID is: %d\n", wpnID);
-		}
-		else 
-		{
-			wpnID = w->id;
-			//al_trace("weaponToDefence() w->id is: %d\n", w->id);
-			//al_trace("enemy::getWeaponID(*w), Step 3A, useweapon !> 0; setting wpnID = w->id; wpnID is: %d\n", wpnID);
-			//Z_message("enemy::getWeaponID(*w), Step 3A, useweapon !> 0; setting wpnID = w->id; wpnID is: %d\n", wpnID);
-			
-		}
-		return wpnID;
-	}
-	else if ( w->parentitem == -1 && w->ScriptGenerated ) 
-	{
-		//al_trace("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
-		//Z_message("enemy::getWeaponID(*w), Step 1B, checking parentitem; parentitem > -1, and is: %d\n", w->parentitem);
-		
-		int32_t usewpn = w->useweapon;
-		//al_trace("weaponToDefence() usewpn is %d\n",usewpn);
-		//al_trace("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
-		//Z_message("enemy::getWeaponID(*w), Step 2, getting itemsbuf[w->parentitem].useweapon; usewpn is: %d\n", usewpn);
-	
-		if ( usewpn > 0 ) 
-		{ 
-			//al_trace("Assigning weapon id: %d\n", usewpn);
-			wpnID = usewpn; //Not forwarding to the weapon sprite?
-			//al_trace("enemy::getWeaponID(*w), Step 3A, useweapon > 0; setting wpnID = useweapon; wpnID is: %d\n", wpnID);
-			//Z_message("enemy::getWeaponID(*w), Step 3A, useweapon > 0; setting wpnID = useweapon; wpnID is: %d\n", wpnID);
-		}
-		else 
-		{
-			wpnID = w->id;
-			//al_trace("weaponToDefence() w->id is: %d\n", w->id);
-			//al_trace("enemy::getWeaponID(*w), Step 3A, useweapon !> 0; setting wpnID = w->id; wpnID is: %d\n", wpnID);
-			//Z_message("enemy::getWeaponID(*w), Step 3A, useweapon !> 0; setting wpnID = w->id; wpnID is: %d\n", wpnID);
-			
-		}
-		return wpnID;
-	}
-	else 
-	{
-		return w->id;
-	}
-
+	int32_t usewpn = w->useweapon;
+	return (usewpn > 0) ? usewpn : w->id;
 }
 
 int32_t enemy::resolveEnemyDefence(weapon *w)
@@ -4240,34 +4173,17 @@ int32_t enemy::resolveEnemyDefence(weapon *w)
 	//sword edef is 9, but we're reading it at 0
 	//, 
 	int32_t weapondef = 0;
-	int32_t wid = getWeaponID(w);
-	int32_t wtype = (w->useweapon > 0 ? w->useweapon : wid);
 	int32_t wdeftype = getDefType(w);
 	int32_t usedef = w->usedefence;
 	
 	if ( usedef > 0 && (wdeftype < 0 || wdeftype >= edefLAST255 || defense[wdeftype] == 0)) 
 	{
-		//zprint2("Using a default defence of: %d\n", usedef);
 		weapondef = usedef*-1;
 	}
-	else if(wdeftype < 0 || wdeftype >= edefLAST255)
+	else if(unsigned(wdeftype) < edefLAST255)
 	{
-		//zprint2("Invalid wdeftype %d, using no defense\n");
-		weapondef = 0;
-	}
-	else
-	{
-		//zprint2("Using an engine defence of: %d\n", wdeftype);
 		weapondef = wdeftype;
 	}
-	/*
-	if ( defense[weaponToDefence(wid)] == 0 ) {
-		weapondef = usedef;
-		//al_trace("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
-		//Z_message("enemy::resolveEnemyDefence(), Step 4A, defense[wid] == 0; edef = usedef; edef is: %d\n", weapondef);
-	}
-	else weapondef = defense[weaponToDefence(wid)]; //defense] is not in the same order as weapon id enum, is it?
-	*/
 	return weapondef;
 }
 
