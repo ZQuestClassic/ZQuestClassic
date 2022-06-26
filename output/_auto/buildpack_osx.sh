@@ -11,9 +11,9 @@ src="../.."
 out="${src}/output"
 nb="${out}/_auto/buildpack"
 mac_nb="${out}/_auto/zelda-classic-mac"
-rel="${src}/build"
+rel="${src}/build/Release"
 
-sh buildpack.sh
+sh buildpack.sh "$rel"
 set -eu
 
 # Need shared libraries.
