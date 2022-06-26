@@ -30,6 +30,7 @@ AL_LEGACY_FUNC(ALLEGRO_BITMAP *, all_get_a5_bitmap, (BITMAP * bp));
 AL_LEGACY_FUNC(void, all_render_a5_bitmap, (BITMAP * bp, ALLEGRO_BITMAP * a5bp));
 AL_LEGACY_FUNC(void, all_render_screen, (void));
 AL_LEGACY_FUNC(void, all_disable_threaded_display, (void));
+// local edit
 AL_LEGACY_FUNC(void, all_set_scale, (int scale));
 AL_LEGACY_FUNC(int, all_get_scale, (void));
 AL_LEGACY_FUNC(void, all_set_fullscreen_flag, (bool fullscreen));
@@ -37,10 +38,6 @@ AL_LEGACY_FUNC(void, all_set_fullscreen_flag, (bool fullscreen));
 // local edit
 AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
-
-#ifdef __cplusplus
-}
-#endif
 
 #ifdef __cplusplus
 }
