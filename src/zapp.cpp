@@ -1,6 +1,8 @@
 #include "zapp.h"
 #include <filesystem>
+#ifdef __APPLE__
 #include <unistd.h>
+#endif
 
 bool is_in_osx_application_bundle()
 {
