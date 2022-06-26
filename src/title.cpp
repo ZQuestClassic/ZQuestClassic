@@ -2156,7 +2156,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	int32_t ret;
 	PACKFILE *f=NULL;
 	FILE *f2=NULL;
-	char tmpfilename[32];
+	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 //  const char *passwd = datapwd;
 
@@ -2690,7 +2690,7 @@ int32_t save_savedgames()
 		}
 	}
 	
-	char tmpfilename[32];
+	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 	
 	PACKFILE *f = pack_fopen_password(tmpfilename, F_WRITE_PACKED, "");
@@ -3673,7 +3673,7 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 	// default error
 	strcpy(str,"Error: Invalid quest file");
 	
-	char tmpfilename[32];
+	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 	int32_t ret;
 	PACKFILE *f;

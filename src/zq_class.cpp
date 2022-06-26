@@ -13946,7 +13946,7 @@ int32_t save_quest(const char *filename, bool timed_save)
 	}
 	
 	char *tmpfilename;
-	char tempfilestr[32]; // This is stupid...
+	char tempfilestr[L_tmpnam]; // This is stupid...
 	
 	if(compress)
 	{

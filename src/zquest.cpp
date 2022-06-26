@@ -24949,11 +24949,11 @@ int32_t onCompileScript()
 			#endif
 			//need elseif for linux here! -Z
 			//Compile!
-			char tmpfilename[64];
+			char tmpfilename[L_tmpnam];
 			std::tmpnam(tmpfilename);
 			FILE *tempfile = fopen(tmpfilename,"w");
 
-			char consolefilename[64];
+			char consolefilename[L_tmpnam];
 			std::tmpnam(consolefilename);
 
 			if(!tempfile)
