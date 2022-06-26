@@ -3542,3 +3542,9 @@ enum
 	GENSCR_NUMST
 };
 
+enum //*weapon->Flags[] indexes
+{
+	WFLAG_PICKUP_ITEMS,
+	WFLAG_MAX
+};
+

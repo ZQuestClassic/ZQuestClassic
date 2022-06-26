@@ -36,6 +36,8 @@ extern byte bszboomflip[4];
 #define WPNUNB_REFL      0x08
 #define WPNUNB_ALL       0x0F
 
+#define WPNPICKITEMS     0x01
+
 class weapon : public sprite
 {
 private:
@@ -66,6 +68,7 @@ public:
     bool autorotate;
 	byte linkedItem;
 	byte unblockable;
+	byte misc_wflags;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 

@@ -4633,8 +4633,10 @@ enum ASM_DEFINE
 #define IDATACOST2              0x1455
 #define IDATAVALIDATE2          0x1456
 #define MESSAGEDATATEXTLEN      0x1457
+#define LWPNFLAGS               0x1458
+#define EWPNFLAGS               0x1459
 
-#define NUMVARIABLES         	0x1458
+#define NUMVARIABLES         	0x145A
 
 //} End variables
 

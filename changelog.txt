@@ -1,5 +1,13 @@
 // 2.55 Change Log
-// Updated 25th June, 2022
+// Updated 26th June, 2022
+
+Add '*weapon->Flags[]', including [WFLAG_PICKUP_ITEMS], a flag which allows weapons
+	to automatically collect items they touch, similar to how engine melee weapons do so.
+Hopefully fix 'lweapon->Weapon' not working properly at all.
+	( EmilyV, 26th June, 2022 )
+
+Fix alt key shortcuts not working properly
+	( connorjclark, 25th June, 2022 )
 
 --June 25th nightly
 

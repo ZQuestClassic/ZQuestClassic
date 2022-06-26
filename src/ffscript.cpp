@@ -6389,6 +6389,21 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case LWPNFLAGS:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, 0, "lweapon->Flags[]") != SH::_NoError)
+					ret = 0; //false
+				else
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					ret = (((weapon*)(s))->misc_wflags & (1<<indx)) ? 10000 : 0;
+				}
+			}
+			break;
+		}
 		
 		case LWPNGLOWRAD:
 			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
@@ -6929,6 +6944,21 @@ int32_t get_register(const int32_t arg)
 				{
 					//All bits, in order, of a single byte; just use bitwise
 					ret = (((weapon*)(s))->moveflags & (1<<indx)) ? 10000 : 0;
+				}
+			}
+			break;
+		}
+		case EWPNFLAGS:
+		{
+			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, 0, "eweapon->Flags[]") != SH::_NoError)
+					ret = 0; //false
+				else
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					ret = (((weapon*)(s))->misc_wflags & (1<<indx)) ? 10000 : 0;
 				}
 			}
 			break;
@@ -14984,6 +15014,23 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			break;
 		}
+		case LWPNFLAGS:
+		{
+			if(0!=(s=checkLWpn(ri->lwpn,"Flags[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, 0, "lweapon->Flags[]") == SH::_NoError)
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					int32_t bit = 1<<indx;
+					if(value)
+						((weapon*)(s))->misc_wflags |= bit;
+					else
+						((weapon*)(s))->misc_wflags &= ~bit;
+				}
+			}
+			break;
+		}
 		
 		case LWPNGLOWRAD:
 			if(0!=(s=checkLWpn(ri->lwpn,"LightRadius")))
@@ -15533,6 +15580,23 @@ void set_register(const int32_t arg, const int32_t value)
 						((weapon*)(s))->moveflags |= bit;
 					else
 						((weapon*)(s))->moveflags &= ~bit;
+				}
+			}
+			break;
+		}
+		case EWPNFLAGS:
+		{
+			if(0!=(s=checkEWpn(ri->ewpn,"Flags[]")))
+			{
+				int32_t indx = ri->d[rINDEX]/10000;
+				if(BC::checkBounds(indx, 0, 0, "eweapon->Flags[]") == SH::_NoError)
+				{
+					//All bits, in order, of a single byte; just use bitwise
+					int32_t bit = 1<<indx;
+					if(value)
+						((weapon*)(s))->misc_wflags |= bit;
+					else
+						((weapon*)(s))->misc_wflags &= ~bit;
 				}
 			}
 			break;
@@ -37427,6 +37491,8 @@ script_variable ZASMVars[]=
 	{ "IDATACOST2", IDATACOST2, 0, 0 },
 	{ "IDATAVALIDATE2", IDATAVALIDATE2, 0, 0 },
 	{ "MESSAGEDATATEXTLEN", MESSAGEDATATEXTLEN, 0, 0 },
+	{ "LWPNFLAGS", LWPNFLAGS, 0, 0 },
+	{ "EWPNFLAGS", EWPNFLAGS, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

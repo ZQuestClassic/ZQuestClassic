@@ -2375,6 +2375,8 @@ script_variable variable_list[]=
 	{ "IDATACOST2", IDATACOST2, 0, 0 },
 	{ "IDATAVALIDATE2", IDATAVALIDATE2, 0, 0 },
 	{ "MESSAGEDATATEXTLEN", MESSAGEDATATEXTLEN, 0, 0 },
+	{ "LWPNFLAGS", LWPNFLAGS, 0, 0 },
+	{ "EWPNFLAGS", EWPNFLAGS, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };

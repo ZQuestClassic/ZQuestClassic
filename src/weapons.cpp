@@ -3429,6 +3429,8 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
     return false;
 }
 
+
+void collectitem_script(int32_t id);
 bool weapon::animate(int32_t index)
 {
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
@@ -3531,6 +3533,62 @@ bool weapon::animate(int32_t index)
 	bool hooked=false;
 	//Z_scripterrlog("Weapon script is: %d\n",weaponscript);
 	
+	if(misc_wflags & WPNPICKITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
+	{
+		zfix wx = x+hxofs;
+		zfix wy = y+hyofs-fakez;
+		auto wxsz = hxsz, wysz = hysz;
+		for(int32_t j=0; j<items.Count(); ++j)
+		{
+			item* ptr = (item*)items.spr(j);
+			
+			if((itemsbuf[ptr->id].family == itype_bottlefill) && !game->canFillBottle())
+				continue; //No picking these up unless you have a bottle to fill!
+			int32_t pickup = ptr->pickup;
+			if((pickup & ipCANGRAB) || (pickup & ipTIMER))
+			{
+				if(((pickup & ipCANGRAB) || ptr->clk2 >= 32) && !ptr->fallclk && !ptr->drownclk)
+				{
+					if(ptr->hit(wx,wy,z,wxsz,wysz,1))
+					{
+						if(pickup&ipONETIME) // set mITEM for one-time-only items
+							setmapflag(mITEM);
+						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
+							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+						
+						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
+						{
+							if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+							hidden_entrance(0, true, false, -5);
+						}
+						//!DIMI
+						
+						collectitem_script(ptr->id);
+						
+						getitem(ptr->id, false, true);
+						
+						items.del(j);
+						
+						for(int32_t i=0; i<Lwpns.Count(); i++)
+						{
+							weapon *w2 = (weapon*)Lwpns.spr(i);
+							
+							if(w2->dragging==j)
+							{
+								w2->dragging=-1;
+							}
+							else if(w2->dragging>j)
+							{
+								w2->dragging-=1;
+							}
+						}
+						
+						--j;
+					}
+				}
+			}
+		}
+	}
 	//Only lweapons, or wScript if the weapon is not script generated, or if it IS script-generated and is not an eweapon.
 	if ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10 && ( (ScriptGenerated && isLWeapon) || !ScriptGenerated) ) ) 
 	{
@@ -3634,6 +3692,7 @@ bool weapon::animate(int32_t index)
 		//Hero.check_wand_block(this);
 		//Hero.check_pound_block(this);
 	}
+	
 	// fall down
 	if ( moveflags & FLAG_OBEYS_GRAV ) // from above, or if scripted
 	{

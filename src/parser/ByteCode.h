@@ -1394,8 +1394,10 @@
 #define IDATACOST2              1311
 #define IDATAVALIDATE2          1312
 #define MESSAGEDATATEXTLEN      1313
+#define LWPNFLAGS               1314
+#define EWPNFLAGS               1315
 
-#define LAST_BYTECODE           1314
+#define LAST_BYTECODE           1316
 
 //} END OF BYTECODE
 

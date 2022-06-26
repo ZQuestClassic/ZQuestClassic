@@ -881,6 +881,11 @@ string ZScript::VarToString(int32_t ID)
 	case LWPNAUTOROTATE:
 		return "LWPNAUTOROTATE";
 		
+	case LWPNFLAGS:
+		return "LWPNFLAGS";
+	case EWPNFLAGS:
+		return "EWPNFLAGS";
+		
 	case LWPNBEHIND:
 		return "LWPNBEHIND";
 		
