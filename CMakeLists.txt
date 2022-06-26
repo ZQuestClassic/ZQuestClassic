@@ -199,10 +199,6 @@ if(MSVC)
 	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
 
-	if(MSVC_VERSION GREATER 1500)
-		add_definitions(-DALLEGRO_LEGACY_HAVE_STDINT_H)
-	endif()
-
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 
@@ -457,6 +453,10 @@ if(Boost_FOUND)
 		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 	endif()
 	target_compile_definitions(zquest PRIVATE IS_ZQUEST)
+endif()
+
+if(WIN32)
+	set_source_files_properties(src/dialog/itemeditor.cpp PROPERTIES COMPILE_FLAGS "/bigobj")
 endif()
 
 #############################################################

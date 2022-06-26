@@ -127,8 +127,8 @@ public:
         const int32_t MAX_ZASM_LINES = 32767;
         
         CONSOLE_SCREEN_BUFFER_INFO console_info;
-        int32_t hConHandle;
-        int32_t lStdHandle;
+        long hConHandle;
+        HANDLE lStdHandle;
         
         ::AllocConsole();
         ::SetConsoleTitle("ZASM Stack");
@@ -141,22 +141,22 @@ public:
         
         
         // redirect unbuffered STDOUT to the console
-        lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
-        hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+        lStdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+        hConHandle = _open_osfhandle((long)lStdHandle, _O_TEXT);
         *stdout = *_fdopen(hConHandle, "w");
         setvbuf(stdout, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDIN to the console
-        lStdHandle = (int32_t)GetStdHandle(STD_INPUT_HANDLE);
-        hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+        lStdHandle = GetStdHandle(STD_INPUT_HANDLE);
+        hConHandle = _open_osfhandle((long)lStdHandle, _O_TEXT);
         *stdin = *_fdopen(hConHandle, "r");
         setvbuf(stdin, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDERR to the console
-        lStdHandle = (int32_t)GetStdHandle(STD_ERROR_HANDLE);
-        hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+        lStdHandle = GetStdHandle(STD_ERROR_HANDLE);
+        hConHandle = _open_osfhandle((long)lStdHandle, _O_TEXT);
         *stderr = *_fdopen(hConHandle, "w");
         setvbuf(stderr, NULL, _IONBF, 0);
         
