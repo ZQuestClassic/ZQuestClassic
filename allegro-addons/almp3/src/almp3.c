@@ -330,8 +330,11 @@ ALMP3_MP3 *almp3_create_mp3(void *data, int data_len) {
 
   /* test for ID3v2 and if exists, skip it */
   data_start_skipped = almp3_get_id3v2_skip_bytes(p);
-  // (char *)data += data_start_skipped;
+#ifdef _MSC_VER
+  (char *)data += data_start_skipped;
+#else
   data += data_start_skipped;
+#endif
   data_len -= data_start_skipped;
 
   /* test the next 16 * MAXFRAMESIZE bytes after ID3v2 until we find one valid frame */
@@ -379,8 +382,11 @@ ALMP3_MP3 *almp3_create_mp3(void *data, int data_len) {
 
     data_start_skipped += skipbytes;
     data_len -= skipbytes;
-    // (char *)data += skipbytes;
+#ifdef _MSC_VER
+    (char *)data += skipbytes;
+#else
     data += skipbytes;
+#endif
   }
 
   /* must be layer III or II */

@@ -113,13 +113,6 @@ include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
 include_directories(./include/jpgalleg-2.5)
-if(NOT APPLE)
-	# These are built from source on OSX, so don't muddle things up with old headers.
-	include_directories(./include/dumb)
-	include_directories(./include/alogg)
-	include_directories(./include/almp3)
-	include_directories(./include/gme)
-endif()
 include_directories(./src)
 
 if(MSVC)
@@ -206,9 +199,6 @@ if(MSVC)
 	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
 	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
 
-	set(SOUNDLIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/aldmd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/dumbd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/gme.lib>"
-	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
-
 	if(MSVC_VERSION GREATER 1500)
 		add_definitions(-DALLEGRO_LEGACY_HAVE_STDINT_H)
 	endif()
@@ -251,10 +241,26 @@ elseif(LINUX)
 	add_compile_options("-m32")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
-elseif(APPLE)
-	# Currently only build these libraries from source for osx,
-	# but no reason we shouldn't do the same for all platforms.
-	add_library(almp3 SHARED
+endif()
+
+#############################################################
+# Sound Library
+#############################################################
+
+if(LINUX)
+	# TODO: Build sound deps from source on linux.
+	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
+else()
+	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
+endif()
+
+if(BUILD_SOUND_LIBS_FROM_SOURCE)
+	if(WIN32)
+		set(SOUND_LIB_SHARED STATIC)
+	else()
+		set(SOUND_LIB_SHARED SHARED)
+	endif()
+	add_library(almp3 ${SOUND_LIB_SHARED}
 		allegro-addons/almp3/src/almp3.c
 		allegro-addons/almp3/decoder/common.c
 		allegro-addons/almp3/decoder/dct64_i386.c
@@ -270,7 +276,7 @@ elseif(APPLE)
 	)
 	target_link_libraries(almp3 PUBLIC allegro_with_legacy)
 
-	add_library(alogg SHARED
+	add_library(alogg ${SOUND_LIB_SHARED}
 		allegro-addons/alogg/decoder/libogg/macos/compat/strdup.c
 		allegro-addons/alogg/decoder/libogg/src/bitwise.c
 		allegro-addons/alogg/decoder/libogg/src/framing.c
@@ -296,8 +302,6 @@ elseif(APPLE)
 		allegro-addons/alogg/decoder/libvorbis/lib/vorbisenc.c
 		allegro-addons/alogg/decoder/libvorbis/lib/vorbisfile.c
 		allegro-addons/alogg/decoder/libvorbis/lib/window.c
-		allegro-addons/alogg/decoder/libvorbis/vq/bookutil.c
-		allegro-addons/alogg/decoder/libvorbis/vq/vqgen.c
 		allegro-addons/alogg/src/alogg.c
 	)
 	target_include_directories(alogg PUBLIC
@@ -336,15 +340,20 @@ elseif(APPLE)
 	set(SOUNDLIBS almp3 alogg gme gme_headers aldmb dumb dumb_headers)
 endif()
 
-#############################################################
-# Sound Library
-#############################################################
-
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+
+if(BUILD_SOUND_LIBS_FROM_SOURCE)
+	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
+else()
+	include_directories(./include/dumb)
+	include_directories(./include/alogg)
+	include_directories(./include/almp3)
+	include_directories(./include/gme)
+endif()
 
 #############################################################
 # Romview
