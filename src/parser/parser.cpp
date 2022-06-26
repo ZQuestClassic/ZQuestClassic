@@ -137,7 +137,7 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 	}
 	fclose(zscript);
 
-	char tmpfilename[64];
+	char tmpfilename[L_tmpnam];
 	std::tmpnam(tmpfilename);
 	FILE *tempfile = fopen(tmpfilename, "w");
 	if(!tempfile)
