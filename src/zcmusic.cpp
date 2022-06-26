@@ -15,12 +15,27 @@
 #include <aldumb.h>
 #include <alogg.h>
 #include <almp3.h>
+#ifdef SOUND_LIBS_BUILT_FROM_SOURCE
 #include <gme.h>
+#endif
 
 #include "zsys.h"
 #include "zcmusic.h"
 #include "zc_malloc.h"
 #include "mutex.h"
+
+#ifndef SOUND_LIBS_BUILT_FROM_SOURCE
+//short of fixing gme, these warnings will always be there...
+#pragma warning(disable:4512) //assignment operator could not be generated
+#pragma warning(disable:4100) //unreferenced formal parameter
+#include "Nsf_Emu.h"
+#include "Gbs_Emu.h"
+#include "Spc_Emu.h"
+#include "Vgm_Emu.h"
+#include "Gym_Emu.h"
+#pragma warning(default:4100)
+#pragma warning(default:4512)
+#endif
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -393,8 +408,7 @@ extern "C"
             }
             else if(stricmp(ext,"mod")==0)
             {
-#ifdef __APPLE__
-                // Using newer dumb library when building from source.
+#ifdef SOUND_LIBS_BUILT_FROM_SOURCE
                 // No idea what this second arg does...
                 d = dumb_load_mod(filename, 2);
 #else
