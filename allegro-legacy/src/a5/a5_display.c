@@ -72,7 +72,12 @@ static bool _a5_setup_screen(int w, int h)
 {
   ALLEGRO_STATE old_state;
   int pixel_format;
+#ifdef __APPLE__
+  // https://www.allegro.cc/forums/thread/615982/1018935
+  if (_a5_display_fullscreen) al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+#else
   if (_a5_display_fullscreen) al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+#endif
   _a5_display = al_create_display(w, h);
   if(!_a5_display)
   {
@@ -180,6 +185,12 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
         }
         break;
       }
+      // local edit
+      case ALLEGRO_EVENT_DISPLAY_RESIZE:
+      {
+        // al_acknowledge_resize(_a5_display);
+        break;
+      }
     }
     if(al_event_queue_is_empty(_a5_display_thread_event_queue))
     {
@@ -220,7 +231,6 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
 static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
 {
     BITMAP * bp;
-    ALLEGRO_STATE old_state;
     int pixel_format;
 
     screen_mutex = al_create_mutex_recursive();
@@ -235,7 +245,8 @@ static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
         _a5_display_height = h;
         _a5_screen_thread = al_create_thread(_a5_display_thread, NULL);
         al_start_thread(_a5_screen_thread);
-        while(!_a5_display_creation_done);
+
+        while(!_a5_display_creation_done) rest(1);
       }
       else
       {
@@ -575,6 +586,26 @@ void all_render_screen(void)
       al_build_transform(&transform, 0, 0, _a5_display_scale, _a5_display_scale, 0);
       al_use_transform(&transform);
     }
+
+#ifdef __APPLE__
+    if (_a5_display_fullscreen) {
+      int want_w = _a5_display_width / _a5_display_scale;
+      int want_h = _a5_display_height / _a5_display_scale;
+      int w = al_get_display_width(_a5_display);
+      int h = al_get_display_height(_a5_display);
+      double scale = (double)w / want_w;
+      double scale_y = (double)h / want_h;
+      if (scale_y < scale) {
+        scale = scale_y;
+      }
+      int offset_x = (w - want_w * scale) / 2;
+      int offset_y = (h - want_h * scale) / 2;
+      ALLEGRO_TRANSFORM transform;
+      al_build_transform(&transform, offset_x, offset_y, scale, scale, 0);
+      al_use_transform(&transform);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+    }
+#endif
 
     al_draw_bitmap(_a5_screen, 0, 0, 0);
     al_flip_display();

@@ -38,6 +38,10 @@ endfunction(enable_unity_build)
 # Allegro
 #############################################################
 
+# SDL WIP:
+#    cmake .. -DALLEGRO_SDL=on -DWANT_NATIVE_DIALOG=off
+# https://github.com/liballeg/allegro5/issues/1335
+
 if(NOT APPLE)
 	add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
 endif()
@@ -45,7 +49,6 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 # Needed to build on Mac, otherwise get this error:
 #    aintern_bitmap.h:154:33: error: unknown type name 'ALLEGRO_BITMAP_WRAP'
 add_definitions(-DALLEGRO_UNSTABLE)
-set(CMAKE_BUILD_TYPE Release)
 option(SHARED "" ON)
 
 include(FetchContent)

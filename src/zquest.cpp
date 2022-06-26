@@ -1508,7 +1508,7 @@ int32_t onFullScreen()
 	    {
 		zqwin_set_scale(scale_arg);
 	    }
-	    
+
 	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	    
 	    if(ret!=0)
@@ -31056,9 +31056,9 @@ int32_t main(int32_t argc,char **argv)
 	#endif
 	  zqwin_set_scale(scale_arg);
 	}*/
-	
+
 	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
-	
+
 	if(videofail!=0)
 	{
 		allegro_init();

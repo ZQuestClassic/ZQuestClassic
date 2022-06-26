@@ -4332,7 +4332,8 @@ int32_t isFullScreen()
 bool setGraphicsMode(bool windowed)
 {
     int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
-    return set_gfx_mode(type, resx, resy, 0, 0)==0;
+    bool result = set_gfx_mode(type, resx, resy, 0, 0)==0;
+    return result;
 }
 
 int32_t onFullscreen()
@@ -5124,11 +5125,7 @@ int main(int argc, char **argv)
 		resy = atoi(argv[res_arg+2]);
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
-		
-		//mode = GFX_AUTODETECT;
 	}
-
-	printf("x y %d %d\n", resx, resy);
 	
 	if(resx>=640 && resy>=480)
 	{
@@ -5150,10 +5147,6 @@ int main(int argc, char **argv)
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
 
-	if (tempmode == GFX_AUTODETECT_FULLSCREEN) {
-		al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
-	}
-	printf("al_set_new_display_flags\n");
 	
 	//set scale
 	if(resx < 256) resx = 256;
