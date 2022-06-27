@@ -13,6 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+# Hide various test-related targets created by GME cmake so they
+# don't clutter up the Solution file. https://gitlab.kitware.com/cmake/cmake/-/issues/21730
+set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
@@ -503,6 +507,10 @@ target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegr
 #############################################################
 
 set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
+set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_primitives allegro-legacy al5_example PROPERTIES FOLDER Allegro)
 
 #############################################################
 # Misc.
