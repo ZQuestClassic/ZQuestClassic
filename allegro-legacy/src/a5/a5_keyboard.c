@@ -25,6 +25,56 @@
 static ALLEGRO_THREAD * a5_keyboard_thread = NULL;
 static int a5_keyboard_keycode_map[256];
 
+// local edit
+static void update_key_shifts(ALLEGRO_EVENT* event) {
+    _key_shifts = 0;
+    if ((ALLEGRO_KEYMOD_SHIFT & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_SHIFT_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_CTRL & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_CTRL_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_ALT & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_ALT_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_LWIN & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_LWIN_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_RWIN & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_RWIN_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_MENU & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_MENU_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_COMMAND & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_COMMAND_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_SCROLLLOCK & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_SCROLOCK_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_NUMLOCK & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_NUMLOCK_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_CAPSLOCK & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_CAPSLOCK_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_INALTSEQ & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_INALTSEQ_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_ACCENT1 & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_ACCENT1_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_ACCENT2 & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_ACCENT2_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_ACCENT3 & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_ACCENT3_FLAG;
+    }
+    if ((ALLEGRO_KEYMOD_ACCENT4 & event->keyboard.modifiers) != 0) {
+        _key_shifts |= KB_ACCENT4_FLAG;
+    }
+}
+
 static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
@@ -46,6 +96,7 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
             {
                 case ALLEGRO_EVENT_KEY_DOWN:
                 {
+                    update_key_shifts(&event);
                     if(event.keyboard.keycode >= ALLEGRO_KEY_MODIFIERS)
                     {
                         _handle_key_press(0, a5_keyboard_keycode_map[event.keyboard.keycode]);
@@ -54,11 +105,13 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 }
                 case ALLEGRO_EVENT_KEY_UP:
                 {
+                    update_key_shifts(&event);
                     _handle_key_release(a5_keyboard_keycode_map[event.keyboard.keycode]);
                     break;
                 }
                 case ALLEGRO_EVENT_KEY_CHAR:
                 {
+                    update_key_shifts(&event);
                     if(event.keyboard.unichar >= 0)
                     {
                         // local edit
