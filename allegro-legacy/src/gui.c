@@ -1317,7 +1317,9 @@ int update_dialog(DIALOG_PLAYER *player)
    }
 
    /* redraw? */
+   acquire_screen(); // local edit - Prevent a5_display thread from writing to screen until the entire redraw is done.
    check_for_redraw(player);
+   release_screen(); // local edit
 
    /* send idle messages */
    player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &player->obj);
