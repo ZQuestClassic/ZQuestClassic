@@ -200,8 +200,8 @@ endif()
 
 if(MSVC)
 	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
-	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
-	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
+	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
+	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
@@ -242,6 +242,14 @@ elseif(LINUX)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
+
+add_library(algif STATIC
+	allegro-addons/algif/src/algif.c
+	allegro-addons/algif/src/gif.c
+	allegro-addons/algif/src/lzw.c
+)
+target_link_libraries(algif PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS algif)
 
 #############################################################
 # Sound Library
@@ -510,7 +518,7 @@ set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(Proje
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_primitives allegro-legacy al5_example PROPERTIES FOLDER Allegro)
+set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_primitives allegro-legacy algif al5_example PROPERTIES FOLDER Allegro)
 
 #############################################################
 # Misc.
