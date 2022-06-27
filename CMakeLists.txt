@@ -248,6 +248,9 @@ add_library(algif STATIC
 	allegro-addons/algif/src/gif.c
 	allegro-addons/algif/src/lzw.c
 )
+target_include_directories(algif INTERFACE
+	allegro-addons/algif/src
+)
 target_link_libraries(algif PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS algif)
 
