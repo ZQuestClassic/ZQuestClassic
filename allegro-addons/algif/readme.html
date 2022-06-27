@@ -1,0 +1,258 @@
+<html>
+<head>
+<title>Allegro GIF Addon</title>
+<style>
+body {margin-left: 10px; background-color: #fffefd; width: 750px;}
+p {margin-left: 20px; }
+pre {margin-left: 30px; background-color: #ffefdf}
+</style>
+</head>
+<body>
+<a name = "0"</a>
+<h1>algif - Allegro GIF Addon</h1>
+<p>Version 1.2</p><p>by Elias Pschernig</p><p>Download - <a href="http://prdownloads.sourceforge.net/algif/algif_1.2.zip?download">http://prdownloads.sourceforge.net/algif/algif_1.2.zip?download</a></p><p>algif homepage - <a href="http://algif.sf.net">http://algif.sf.net</a></p><p>Allegro homepage - <a href="http://alleg.sf.net">http://alleg.sf.net</a></p><a name = "1"</a>
+<h1>Contents</h1>
+<ul>
+<li><a href="#0">
+algif - Allegro GIF Addon</li></a>
+<li><a href="#1">
+Contents</li></a>
+<li><a href="#2">
+Introduction</li></a>
+<li><a href="#3">
+HOW TO USE</li></a>
+<li><a href="#4">
+API - Standard use</li></a>
+<ul>
+<li><a href="#5">
+algif_init</li></a>
+<li><a href="#6">
+load_gif</li></a>
+<li><a href="#7">
+save_gif</li></a>
+<li><a href="#8">
+algif_load_animation</li></a>
+</ul>
+<li><a href="#9">
+API - Advanced use</li></a>
+<ul>
+<li><a href="#10">
+algif_load_raw_animation</li></a>
+<li><a href="#11">
+algif_create_raw_animation</li></a>
+<li><a href="#12">
+destroy_gif_animation</li></a>
+<li><a href="#13">
+algif_save_raw_animation</li></a>
+<li><a href="#14">
+algif_render_frame</li></a>
+<li><a href="#15">
+GIF_ANIMATION</li></a>
+<li><a href="#16">
+GIF_FRAME</li></a>
+<li><a href="#17">
+GIF_PALETTE</li></a>
+</ul>
+<li><a href="#18">
+Example gifs</li></a>
+<ul>
+<li><a href="#19">
+alex.gif</li></a>
+<li><a href="#20">
+allefant.gif</li></a>
+<li><a href="#21">
+dispose.gif</li></a>
+<li><a href="#22">
+rgb.gif</li></a>
+</ul>
+<li><a href="#23">
+Example programs</li></a>
+<ul>
+<li><a href="#24">
+load_gif</li></a>
+<li><a href="#25">
+load_animation</li></a>
+<li><a href="#26">
+load_raw_animation</li></a>
+<li><a href="#27">
+save_raw_animation</li></a>
+</ul>
+<li><a href="#28">
+Miscellaneous</li></a>
+<ul>
+<li><a href="#29">
+TODO</li></a>
+<li><a href="#30">
+BUGS</li></a>
+<li><a href="#31">
+Version history</li></a>
+<ul>
+<li><a href="#32">
+Version 1.0</li></a>
+<li><a href="#33">
+Version 1.1</li></a>
+<li><a href="#34">
+Version 1.2 (Feb 2005)</li></a>
+</ul>
+<li><a href="#35">
+License and disclaimer</li></a>
+<ul>
+<li><a href="#36">
+Notes</li></a>
+<li><a href="#37">
+MIT license</li></a>
+</ul>
+</ul>
+</ul>
+<a name = "2"</a>
+<h1>Introduction</h1>
+<p>This is a simple addon to Allegro which allows reading and writing of GIF animations. It provides functionality both to integrate with Allegro's load_bitmap and save_bitmap functions, as well as reading full animations.</p><p>The .gif specification can be found here: <a href="http://www.w3.org/Graphics/GIF/spec-gif89a.txt">http://www.w3.org/Graphics/GIF/spec-gif89a.txt</a></p><p>First of all, .gif may not be the right file format for you. It is severely limited, with no alpha channel, and only a maximum of 256 colors per frame. You may be better off using .png, which doesn't have any of these limits and compresses better. And there also exists an addon to use it with Allegro.</p><p>Having said that, .gif still is a common format for small animated pictures on websites - and therefore very well suited for small pixel animations in games, since you can use the same files you display on your website directly as in-game animations.</p><p>There are lots of other ways besides algif to read .gif files into an Allegro program. Some are:</p><ul>
+<li><a href="http://www.allegro.cc/depot/project-screenshots.php?id=648&amp">http://www.allegro.cc/depot/project-screenshots.php?id=648&amp</a>;</li>
+<li><a href="http://angband.oook.cz/file.php?dir=10&amp;file=load_gif.c">http://angband.oook.cz/file.php?dir=10&amp;file=load_gif.c</a></li>
+</ul>
+<p>The reason I released algif is, I wrote the code for it a long time ago, so never had a need to look at one of the other libraries - and maybe it has a useful feature which the others don't have.</p><a name = "3"</a>
+<h1>HOW TO USE</h1>
+<p>The first, and hardest step, is to compile it. This may seem very simple:</p><pre>gcc -c *.c
+ar -rcs libalgif.a *.o
+</pre>
+<p>Or simply compile the .c files along with your project.</p><p>But in practice, it is much harder. You may prefer to use a makefile, in which case you can try the provided one, it was tested with a recent mingw and linux distribution.</p><p>The makefile also has an install target, so if you type "make install", it will copy the libalgif.a to /usr/local/lib or $MINGDIR/lib and algif.h to /usr/local/include or $MINGDIR/include.</p><p>And last, put include &lt;algif.h&gt; at the top of the source files where you want to use functions out of it, and link your program against it. With gcc, just add -lalgif as option.</p><p>That should be it. If it doesn't work, contact me.</p><a name = "4"</a>
+<h1>API - Standard use</h1>
+<p>These are the standard functions you will need when loading gif animations in your programs.</p><a name = "5"</a>
+<h2>algif_init</h2>
+<pre>void algif_init (void);
+</pre>
+<p>This function calls register_bitmap_file_type to make "gif" one of Allegro's supported bitmap formats. After you call this, you can load .gif pictures with load_bitmap, and save them with save_bitmap.</p><p>Additionally, it will register a new datafile type with the id "GIF ". To create such datafiles, you first need to recompile grabber/dat with the GIF plugin. The -&gt;dat member of GIF datafile objects will point to a GIF_ANIMATION (see below).</p><a name = "6"</a>
+<h2>load_gif</h2>
+<pre>BITMAP *load_gif (char const *filename, RGB * pal);
+</pre>
+<p>This will load all the frames stored in a .gif into a single BITMAP, following the semantics of Allegro's load_bitmap. After calling algif_init, this function will be automatically used for .gif files by load_bitmap. Note that this function uses Allegro's select_palette internally, so if you are using select_palette yourself, you need to restore the palette afterwards.</p><a name = "7"</a>
+<h2>save_gif</h2>
+<pre>int save_gif (AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB * pal);
+</pre>
+<p>This will save a BITMAP as a gif image, following the semantics of Allegro's save_bitmap. After calling algif_init, this function will be automatically used for .gif files by save_bitmap.</p><a name = "8"</a>
+<h2>algif_load_animation</h2>
+<pre>int algif_load_animation (const char *filename, BITMAP ***frames, int **durations);
+</pre>
+<p>This will load a gif animation into an array of BITMAP pointers, and the frame durations into an integer array. A pointer to the BITMAPs is written to *frames, a pointer to the durations to *durations. Each bitmap will have the size of the complete animation. The bitmaps will all use Allegro's current color depth. Returns the number of stored frames, 0 on error. The durations are given in 1/100th seconds. You are responsible for freeing all the bitmaps as well as the arrays yourself.</p><p>Example:</p><pre>BITMAP **frames = NULL;
+int *durations = NULL;
+int n = algif_load_animation ("my.gif", &amp;frames, &amp;durations);
+if (n)
+{
+    ...
+    for (i = 0; i &lt; n; i++)
+        destroy_bitmap (frames[i]);
+    free (frames);
+    free (durations);
+}
+</pre>
+<a name = "9"</a>
+<h1>API - Advanced use</h1>
+<p>Normally, you should not need to use these functions directly - the other functions are wrappers around them which are easier to use. But in case you need more control, or need to write out .gif animations, you may use them.</p><p>See the descriptions of GIF_ANIMATION, GIF_FRAME and GIF_PALETTE for details on the values you can access/have to fill in.</p><a name = "10"</a>
+<h2>algif_load_raw_animation</h2>
+<pre>GIF_ANIMATION *algif_load_raw_animation (char const *filename);
+</pre>
+<p>Loads a .gif file into a GIF_ANIMATION structure.</p><a name = "11"</a>
+<h2>algif_create_raw_animation</h2>
+<pre>GIF_ANIMATION *algif_create_raw_animation (int frames_count);
+</pre>
+<p>Allocates an empty GIF_ANIMATION with the specified number of frames.</p><a name = "12"</a>
+<h2>destroy_gif_animation</h2>
+<pre>void destroy_gif_animation (GIF_ANIMATION * gif);
+</pre>
+<p>Deystroys a .gif animation, including all frames and bitmaps.</p><a name = "13"</a>
+<h2>algif_save_raw_animation</h2>
+<pre>int algif_save_raw_animation (const char *filename, GIF_ANIMATION *gif);
+</pre>
+<p>Saves a .gif animation. No optimizations are applied - if you want small gifs, you need to take care yourself to only include changed bitmap areas and only use as many palettes and colors as necessary. No comments or other invisible headers will be added.</p><p>Returns 0 on success.</p><a name = "14"</a>
+<h2>algif_render_frame</h2>
+<pre>void algif_render_frame (GIF_ANIMATION *gif, BITMAP *bitmap, int frame, int xpos, int ypos);
+</pre>
+<p>This is the worker function which handles conversion of a GIF_ANIMATION to real bitmaps. You need to call it for every frame, starting with frame 0, and always specify the same x and y position. This guarantees that the right offsets and disposal methods are applied. In regular programs, you will never use this - use load_gif or algif_load_animation instead.</p><a name = "15"</a>
+<h2>GIF_ANIMATION</h2>
+<p>This struct contains the following documented fields:</p><ul>
+<li>int width, height; - Dimensions of the complete animation.</li>
+<li>int frame_count; - Number of frames.</li>
+<li>int background_color; - The background color index.</li>
+<li>GIF_PALETTE palette; - The global palette.</li>
+<li>GIF_FRAME *frames; - The frames.</li>
+</ul>
+<p>The background color is read/written - but not otherwise used by algif.</p><a name = "16"</a>
+<h2>GIF_FRAME</h2>
+<p>This struct contains the following documented fields:</p><ul>
+<li>BITMAP *bitmap_8_bit; - The bitmap, in 8-bit format.</li>
+<li>GIF_PALETTE palette; - The local palette for this frame.</li>
+<li>int xoff, yoff; - Offset of this frame into the animation.</li>
+<li>int duration; - Duration of the frame in 1/100th seconds.</li>
+<li>int disposal_method; - Disposal method of this frame.</li>
+<li>int transparent_index; - The transparent color for this frame.</li>
+</ul>
+<p>The disposal method has the same numeric value as in the .gif. It specifies how to dispose the frame. The values are: 0 - do not dispose (i.e., whatever the application wants) 1 - keep (it is used as background for the next frame) 2 - background (before displaying the next frame, clear with background color) 3 - previous (before displaying the next frame, restore to previous frame)</p><p>The transparent_index is set to -1 if it is not enabled while loading, and will cause the frame to be saved without the transparency flag when saving.</p><p>Normally, you should not need to deal with disposal method and transparent index yourself, algif handles it for you.</p><a name = "17"</a>
+<h2>GIF_PALETTE</h2>
+<ul>
+<li>int colors_count; - Number of colors present.</li>
+<li>RGB colors[256]; - RGB triplets, where every color is from 0 to 255.</li>
+</ul>
+<p>Note that this is different from Allegro palettes which use RGB to only hold values from 0 to 63. The number of colors in a .gif palette always is a power of 2, so if you want small gifs, it helps using 64 colors instead of 65, but not using 65 colors instead of 128. If colors_count is 0, no global/local palette is present in the .gif file.</p><a name = "18"</a>
+<h1>Example gifs</h1>
+<a name = "19"</a>
+<h2>alex.gif</h2>
+<img src="example_gifs/alex.gif" /><pre>381 bytes
+</pre>
+<p>This is allegro/misc/alex.xpm, converted to .gif. Look how much smaller the file is.</p><a name = "20"</a>
+<h2>allefant.gif</h2>
+<img src="example_gifs/allefant.gif" /><pre>6172 bytes
+</pre>
+<p>Just a gif animation I drew. Look how extremely small the file size is, given it is a 16 frame animation with 256x64 pixel.</p><a name = "21"</a>
+<h2>dispose.gif</h2>
+<img src="example_gifs/dispose.gif" /><pre>475 bytes
+</pre>
+<p>A gif animation demonstrating the different disposal methods for frames. The first frame in the upper left corner has a disposal method of "keep", so it just stays there when the second frame in the upper right corner is displayed. That frame has a disposal method of "previous", so when its duration is over, the animation reverts to the previous state where only the upper left frame is displayed. The third frame in the lower left corner is draw on top of it. It has a disposal method of "background", so before displaying the forth frame, its area is cleared to transparent. The last frame has no disposal method specified, since the last frame is never disposed and the animation starts all over when looping.</p><a name = "22"</a>
+<h2>rgb.gif</h2>
+<img src="example_gifs/rgb.gif" /><pre>3257 bytes
+</pre>
+<p>This is a gif which contains more than 256 colors ("truecolor gif"). As you can see, instead of compressing the file, it is blown up now to use more space than any other existing bitmap format would use for the same picture - but it shows how well algif can handle the .gif palettes.</p><a name = "23"</a>
+<h1>Example programs</h1>
+<a name = "24"</a>
+<h2>load_gif</h2>
+<p>This is a simple example demonstrating load_gif. It will load alex.gif (or a gif given on the command line) by calling Allegro's load_bitmap, and display the bitmap. Since algif_init registers GIF as a known type, calling load_bitmap on a .gif file has the same effect as calling load_gif.</p><a name = "25"</a>
+<h2>load_animation</h2>
+<p>This is an equally simple example, this time for algif_load_animation. It loads a GIF animation and loops it forever.</p><a name = "26"</a>
+<h2>load_raw_animation</h2>
+<p>This example is here to demonstrate access to the raw GIF data. It loads a GIF, and displays global and per-frame information about it. Use cursor left/right to change the current frame.</p><a name = "27"</a>
+<h2>save_raw_animation</h2>
+<p>In case you want to save gif animations, this shows how it is done. It creates two of the example gifs, dispose.gif and rgb.gif, then saves them as files.</p><a name = "28"</a>
+<h1>Miscellaneous</h1>
+<a name = "29"</a>
+<h2>TODO</h2>
+<p>There are a few things I can think of, which I don't need personally. If at least one person requests one of them, I will add it. If there are other requests, I will consider them as well of course. For some, like e.g. providing a version ready for MSVC or OSX users, I'd need help.</p><ul>
+<li>Grabber plugin</li>
+<li>Better build process/autotools/libtool/dynamic library/...</li>
+<li>Better support for MSVC/OSX/djgpp/...</li>
+<li>Support for GIF comments</li>
+<li>Support for GIF text</li>
+<li>Automatic optimization (cropping, palette ordering)</li>
+<li>Make it work without Allegro</li>
+</ul>
+<a name = "30"</a>
+<h2>BUGS</h2>
+<p>Well, still quite a lot I guess. Please report. Release 1.0 meant, the base functinoality (loading a gif into allegro) worked. The lib will yet have to stabilize now.</p><a name = "31"</a>
+<h2>Version history</h2>
+<a name = "32"</a>
+<h3>Version 1.0</h3>
+<p>Initial version.</p><a name = "33"</a>
+<h3>Version 1.1</h3>
+<p>Maintenance release, no functional change.</p><a name = "34"</a>
+<h3>Version 1.2 (Feb 2005)</h3>
+<ul>
+<li>Jonny Cook reported problems with C++, added now extern "C" to algif.h</li>
+<li>Peter Wang fixed some bugs in save_gif</li>
+<li>Peter Wang fixed handling of palettes in load_gif</li>
+</ul>
+<a name = "35"</a>
+<h2>License and disclaimer</h2>
+<a name = "36"</a>
+<h3>Notes</h3>
+<p>There was a patent on the LZW algorithm used with GIF files, but to my knowledge, this patent is expired by now, and therefore everyone is free to use the algorithm.. you should still check yourself though before using this code.</p><p>The algif addon itself is put under the MIT license.</p><a name = "37"</a>
+<h3>MIT license</h3>
+<p>Copyright (c) 2000-2004 algif contributors</p><p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p><p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p><p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p><a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=121412&amp;type=5" /></a></body>
+</html>
