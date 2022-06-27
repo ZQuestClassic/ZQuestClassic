@@ -1768,6 +1768,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									std::string foo;
 									foo.assign(text);
 									strncpy(local_comboref.label, foo.c_str(), 10);
+									local_comboref.label[10] = 0;
 								}),
 							Label(text = "CSet 2:", hAlign = 1.0),
 							TextField(
@@ -2181,6 +2182,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									std::string foo;
 									foo.assign(text);
 									strncpy(local_comboref.label, foo.c_str(), 10);
+									local_comboref.label[10] = 0;
 								}),
 							Label(text = "CSet 2:", hAlign = 1.0),
 							TextField(
