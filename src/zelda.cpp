@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #include <loadpng.h>
-#include <jpgalleg.h>
+#include <aljpg.h>
 #include <gif.h>
 
 #include "zc_malloc.h"
@@ -4484,8 +4484,8 @@ int main(int argc, char **argv)
 	three_finger_flag=false;
 	
 	algif_init();
+	aljpg_init();
 #if !defined(__APPLE__) && !defined(_WIN64)
-	jpgalleg_init();
 	loadpng_init();
 #endif
 	
