@@ -17858,12 +17858,12 @@ void edit_tune(int32_t i)
             {
                 int32_t pos=midi_pos;
                 stop_midi();
-                midi_loop_end = -1;
                 midi_loop_start = -1;
+                midi_loop_end = -1;
                 play_midi((MIDI*)data,loop);
                 set_volume(-1,volume);
-                midi_loop_end = loop_end;
                 midi_loop_start = loop_start;
+                midi_loop_end = loop_end;
                 
                 if(midi_loop_end<=0)
                 {
@@ -17920,13 +17920,13 @@ void edit_tune(int32_t i)
         {
             int32_t pos=midi_pos;
             stop_midi();
-            midi_loop_end = -1;
             midi_loop_start = -1;
+            midi_loop_end = -1;
             play_midi((MIDI*)data,loop);
             set_volume(-1,volume);
             midi_seek(pos<0?start:pos);
-            midi_loop_end = loop_end;
             midi_loop_start = loop_start;
+            midi_loop_end = loop_end;
         }
         break;
         }

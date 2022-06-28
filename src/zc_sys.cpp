@@ -9182,8 +9182,8 @@ void jukebox(int32_t index,int32_t loop)
     if(tunes[index].start>0)
         midi_seek(tunes[index].start);
         
-    midi_loop_end = tunes[index].loop_end;
     midi_loop_start = tunes[index].loop_start;
+    midi_loop_end = tunes[index].loop_end;
     
     currmidi=index;
     master_volume(digi_volume,midi_volume);

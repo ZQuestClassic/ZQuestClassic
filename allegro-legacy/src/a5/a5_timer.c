@@ -33,7 +33,9 @@ typedef struct
 } _A5_TIMER_DATA;
 
 static _A5_TIMER_DATA * a5_timer_data[_A5_MAX_TIMERS];
-static int a5_timer_count = 0;
+
+// local edit
+static ALLEGRO_MUTEX *timers_mutex;
 
 static _A5_TIMER_DATA * a5_create_timer_data(void)
 {
@@ -45,6 +47,26 @@ static _A5_TIMER_DATA * a5_create_timer_data(void)
         memset(timer_data, 0, sizeof(_A5_TIMER_DATA));
     }
     return timer_data;
+}
+
+// local edit
+static _A5_TIMER_DATA * a5_get_free_timer_data(void)
+{
+    for(int i = 0; i < _A5_MAX_TIMERS; i++)
+    {
+        if (a5_timer_data[i] == NULL)
+        {
+            a5_timer_data[i] = a5_create_timer_data();
+            return a5_timer_data[i];
+        }
+
+        if (a5_timer_data[i]->timer_proc == NULL && a5_timer_data[i]->param_timer_proc == NULL)
+        {
+            return a5_timer_data[i];
+        }
+    }
+
+    return NULL;
 }
 
 static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
@@ -101,6 +123,7 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
 
 static int a5_timer_init(void)
 {
+    timers_mutex = al_create_mutex_recursive();
     return 0;
 }
 
@@ -108,14 +131,13 @@ static void a5_timer_exit(void)
 {
     int i;
 
-    for(i = 0; i < a5_timer_count; i++)
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
         if(a5_timer_data[i])
         {
             a5_destroy_timer_data(a5_timer_data[i]);
         }
     }
-    a5_timer_count = 0;
 }
 
 static double a5_get_timer_speed(long speed)
@@ -123,115 +145,119 @@ static double a5_get_timer_speed(long speed)
     return (double)speed / (float)TIMERS_PER_SECOND;
 }
 
-static int a5_timer_install_int(void (*proc)(void), long speed)
+// local edit
+static int _a5_timer_install_int(void (*proc)(void), long speed)
 {
     int i;
 
-    if(a5_timer_count < _A5_MAX_TIMERS)
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        for(i = 0; i < a5_timer_count; i++)
+        if(a5_timer_data[i] && proc == a5_timer_data[i]->timer_proc)
         {
-            if(proc == a5_timer_data[i]->timer_proc)
-            {
-                al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
-                return 0;
-            }
-        }
-
-        a5_timer_data[a5_timer_count] = a5_create_timer_data();
-        if(a5_timer_data[a5_timer_count])
-        {
-            a5_timer_data[a5_timer_count]->thread = al_create_thread(a5_timer_proc, a5_timer_data[a5_timer_count]);
-            if(a5_timer_data[a5_timer_count]->thread)
-            {
-                a5_timer_data[a5_timer_count]->timer = al_create_timer(a5_get_timer_speed(speed));
-                if(a5_timer_data[a5_timer_count]->timer)
-                {
-                    a5_timer_data[a5_timer_count]->timer_proc = proc;
-                    al_start_thread(a5_timer_data[a5_timer_count]->thread);
-                    a5_timer_count++;
-                    return 0;
-                }
-            }
-            a5_destroy_timer_data(a5_timer_data[a5_timer_count]);
+            al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
+            al_unlock_mutex(timers_mutex);
+            return 0;
         }
     }
-    return -1;
+
+    _A5_TIMER_DATA* timer_data = a5_get_free_timer_data();
+    if (!timer_data) return -1;
+    if (!timer_data->thread) timer_data->thread = al_create_thread(a5_timer_proc, timer_data);
+    if (!timer_data->timer) timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
+    else al_set_timer_speed(timer_data->timer, a5_get_timer_speed(speed));
+    if (!timer_data->thread || !timer_data->timer) return -1;
+
+    timer_data->timer_proc = proc;
+    al_start_thread(timer_data->thread);
+    al_start_timer(timer_data->timer);
+    return 0;
 }
 
+static int a5_timer_install_int(void (*proc)(void), long speed)
+{
+    al_lock_mutex(timers_mutex);
+    int result = _a5_timer_install_int(proc, speed);
+    al_unlock_mutex(timers_mutex);
+    return result;
+}
+
+// local edit
 static void a5_timer_remove_int(void (*proc)(void))
 {
     int i, j;
 
-    for(i = 0; i < a5_timer_count; i++)
+    al_lock_mutex(timers_mutex);
+
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        if(proc == a5_timer_data[i]->timer_proc)
+        if(a5_timer_data[i] && proc == a5_timer_data[i]->timer_proc)
         {
-            a5_destroy_timer_data(a5_timer_data[i]);
-            for(j = i; j < a5_timer_count - 1; j++)
-            {
-                a5_timer_data[j] = a5_timer_data[j + 1];
-            }
-            a5_timer_count--;
+            al_stop_timer(a5_timer_data[i]->timer);
+            a5_timer_data[i]->timer_proc = NULL;
             break;
         }
     }
+
+    al_unlock_mutex(timers_mutex);
+}
+
+// local edit
+static int _a5_timer_install_param_int(void (*proc)(void * data), void * param, long speed)
+{
+    int i;
+
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    {
+        if(a5_timer_data[i] && proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
+        {
+            a5_timer_data[i]->data = param;
+            al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
+            return 0;
+        }
+    }
+
+    _A5_TIMER_DATA* timer_data = a5_get_free_timer_data();
+    if (!timer_data) return -1;
+    if (!timer_data->thread) timer_data->thread = al_create_thread(a5_timer_proc, timer_data);
+    if (!timer_data->timer) timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
+    else al_set_timer_speed(timer_data->timer, speed);
+    if (!timer_data->thread || !timer_data->timer) return -1;
+
+    timer_data->param_timer_proc = proc;
+    timer_data->data = param;
+    al_start_thread(timer_data->thread);
+    al_start_timer(timer_data->timer);
+
+    return 0;
 }
 
 static int a5_timer_install_param_int(void (*proc)(void * data), void * param, long speed)
 {
-    int i;
-
-    if(a5_timer_count < _A5_MAX_TIMERS)
-    {
-        for(i = 0; i < a5_timer_count; i++)
-        {
-            if(proc == a5_timer_data[i]->param_timer_proc)
-            {
-                al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
-                return 0;
-            }
-        }
-
-        a5_timer_data[a5_timer_count] = a5_create_timer_data();
-        if(a5_timer_data[a5_timer_count])
-        {
-            a5_timer_data[a5_timer_count]->data = param;
-            a5_timer_data[a5_timer_count]->thread = al_create_thread(a5_timer_proc, a5_timer_data[a5_timer_count]);
-            if(a5_timer_data[a5_timer_count]->thread)
-            {
-                a5_timer_data[a5_timer_count]->timer = al_create_timer(a5_get_timer_speed(speed));
-                if(a5_timer_data[a5_timer_count]->timer)
-                {
-                    a5_timer_data[a5_timer_count]->param_timer_proc = proc;
-                    al_start_thread(a5_timer_data[a5_timer_count]->thread);
-                    a5_timer_count++;
-                    return 0;
-                }
-            }
-            a5_destroy_timer_data(a5_timer_data[a5_timer_count]);
-        }
-    }
-    return -1;
+    al_lock_mutex(timers_mutex);
+    int result = _a5_timer_install_param_int(proc, param, speed);
+    al_unlock_mutex(timers_mutex);
+    return result;
 }
 
 static void a5_timer_remove_param_int(void (*proc)(void * data), void * param)
 {
     int i, j;
 
-    for(i = 0; i < a5_timer_count; i++)
+    al_lock_mutex(timers_mutex);
+
+    for(i = 0; i < _A5_MAX_TIMERS; i++)
     {
-        if(proc == a5_timer_data[i]->param_timer_proc)
+        // local edit
+        if(a5_timer_data[i] && proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
         {
-            a5_destroy_timer_data(a5_timer_data[i]);
-            for(j = i; j < a5_timer_count - 1; j++)
-            {
-                a5_timer_data[j] = a5_timer_data[j + 1];
-            }
-            a5_timer_count--;
+            al_stop_timer(a5_timer_data[i]->timer);
+            a5_timer_data[i]->param_timer_proc = NULL;
+            a5_timer_data[i]->data = NULL;
             break;
         }
     }
+
+    al_unlock_mutex(timers_mutex);
 }
 
 static void a5_timer_rest(unsigned int time, void (*callback)(void))
