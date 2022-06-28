@@ -27,7 +27,7 @@
 #include <pngconf.h>
 
 #include <loadpng.h>
-#include <jpgalleg.h>
+// #include <jpgalleg.h>
 
 #include "load_gif.h"
 #include "save_gif.h"

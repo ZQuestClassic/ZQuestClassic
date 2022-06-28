@@ -107,7 +107,7 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_image allegro_main)
 
 #############################################################
 # Header and source file lists
@@ -116,7 +116,6 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_main)
 include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
-include_directories(./include/jpgalleg-2.5)
 include_directories(./src)
 
 if(MSVC)
@@ -200,8 +199,8 @@ endif()
 
 if(MSVC)
 	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
-	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
-	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
+	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib>"
+	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib>")
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
@@ -234,7 +233,7 @@ elseif(LINUX)
 	link_directories(./libs/linux)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
 
-	set(IMAGELIBS algif ldpng jpgal png z)
+	set(IMAGELIBS ldpng png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
@@ -242,6 +241,10 @@ elseif(LINUX)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 endif()
+
+#############################################################
+# Allegro Graphics Addons
+#############################################################
 
 add_library(algif STATIC
 	allegro-addons/algif/src/algif.c
@@ -253,6 +256,15 @@ target_include_directories(algif INTERFACE
 )
 target_link_libraries(algif PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS algif)
+
+add_library(aljpg STATIC
+	allegro-addons/aljpg/src/aljpg.c
+)
+target_include_directories(aljpg PUBLIC
+	allegro-addons/aljpg/include
+)
+target_link_libraries(aljpg PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS aljpg)
 
 #############################################################
 # Sound Library
