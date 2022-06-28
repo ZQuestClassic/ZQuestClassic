@@ -596,6 +596,7 @@ void alwaysOnRules()
 	set_bit(quest_rules, qr_FIXDRUNKINPUTS, 1);
 	set_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, 1);
 	set_bit(quest_rules, qr_SMARTER_WATER, 1);
+	set_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES, 1);
 	// Script Logging
 	set_bit(quest_rules, qr_SCRIPTERRLOG, 1);
 	set_bit(quest_rules, qr_LOG, 1);
