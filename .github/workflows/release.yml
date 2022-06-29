@@ -56,11 +56,18 @@ jobs:
     if: ${{ needs.check_date.outputs.should_run != 'false' }}
 
     runs-on: windows-2022
+    strategy:
+      matrix:
+        arrays: [
+          {arch: x64, name: Windows x64},
+          {arch: win32, name: Windows x86},
+        ]
+      fail-fast: false
 
     steps:
     - uses: ilammy/msvc-dev-cmd@v1
       with:
-        arch: win32
+        arch: ${{ matrix.arrays.arch }}
 
     - name: git clone
       uses: actions/checkout@v2
@@ -93,17 +100,18 @@ jobs:
         echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
         echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
 
-    - run: cmake . -A win32
+    - run: cmake . -A ${{ matrix.arrays.arch }}
     - run: cmake --build . --config Release
     - run: echo y | ./buildpack.bat
       working-directory: output/_auto
+    - run: mv output/_auto/buildpack.zip "output/_auto/Zelda Classic ${{ matrix.arrays.name }}.zip"
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         name: ${{ needs.create_tag.outputs.release_name }}
         tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
-        files: output/_auto/buildpack.zip
+        files: "output/_auto/Zelda Classic ${{ matrix.arrays.name }}.zip"
         prerelease: true
         fail_on_unmatched_files: true
         generate_release_notes: true
