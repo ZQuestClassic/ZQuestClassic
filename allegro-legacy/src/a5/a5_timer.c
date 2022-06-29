@@ -131,12 +131,9 @@ static void a5_timer_exit(void)
 {
     int i;
 
-    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
     {
-        if(a5_timer_data[i])
-        {
-            a5_destroy_timer_data(a5_timer_data[i]);
-        }
+        a5_destroy_timer_data(a5_timer_data[i]);
     }
 }
 
@@ -150,9 +147,9 @@ static int _a5_timer_install_int(void (*proc)(void), long speed)
 {
     int i;
 
-    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
     {
-        if(a5_timer_data[i] && proc == a5_timer_data[i]->timer_proc)
+        if(proc == a5_timer_data[i]->timer_proc)
         {
             al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
             al_unlock_mutex(timers_mutex);
@@ -188,9 +185,9 @@ static void a5_timer_remove_int(void (*proc)(void))
 
     al_lock_mutex(timers_mutex);
 
-    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
     {
-        if(a5_timer_data[i] && proc == a5_timer_data[i]->timer_proc)
+        if(proc == a5_timer_data[i]->timer_proc)
         {
             al_stop_timer(a5_timer_data[i]->timer);
             a5_timer_data[i]->timer_proc = NULL;
@@ -206,9 +203,9 @@ static int _a5_timer_install_param_int(void (*proc)(void * data), void * param, 
 {
     int i;
 
-    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
     {
-        if(a5_timer_data[i] && proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
+        if(proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
         {
             a5_timer_data[i]->data = param;
             al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
@@ -245,10 +242,10 @@ static void a5_timer_remove_param_int(void (*proc)(void * data), void * param)
 
     al_lock_mutex(timers_mutex);
 
-    for(i = 0; i < _A5_MAX_TIMERS; i++)
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
     {
         // local edit
-        if(a5_timer_data[i] && proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
+        if(proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
         {
             al_stop_timer(a5_timer_data[i]->timer);
             a5_timer_data[i]->param_timer_proc = NULL;
