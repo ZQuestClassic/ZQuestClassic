@@ -187,6 +187,8 @@ endif()
 
 # Windows
 
+string(TOLOWER "${CMAKE_VS_PLATFORM_NAME}" vs_platform)
+
 if(WIN32)
 	# Prevents definition of min and max macros, which conflict with std::min and std::max
 	add_definitions(-DNOMINMAX)
@@ -199,8 +201,10 @@ endif()
 
 if(MSVC)
 	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
-	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib>"
-	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib>")
+	if("${vs_platform}" STREQUAL "win32")
+		set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib>"
+		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib>")
+	endif()
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
@@ -529,7 +533,11 @@ target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegr
 # Visual Studio
 #############################################################
 
-set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+if("${vs_platform}" STREQUAL "win32")
+	set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+elseif("${vs_platform}" STREQUAL "x64")
+	set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)x64/$(Configuration)")
+endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)

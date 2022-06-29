@@ -111,8 +111,8 @@ int32_t vc2(int32_t x)
     return -1;
 }
 
-// TODO: why doesn't this work for mac?
-#ifndef __APPLE__
+// TODO: why does this only work for win32?
+#if defined(_WIN32) && !defined(_WIN64)
 INLINE
 #endif
 int32_t is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
