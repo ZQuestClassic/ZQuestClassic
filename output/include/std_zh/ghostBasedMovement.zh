@@ -1,0 +1,493 @@
+//V 1.0
+//Author: EmilyV
+#option SHORT_CIRCUIT on
+
+namespace GhostBasedMovement
+{
+	/* For each 'Walk' type function:
+	 * Pass a variable for the 'counter' param which is initialized to '-1',
+	 *     and assign the return from the function back to the counter variable.
+	 * Ex:
+	 * int counter = -1;
+	 * counter = ConstWalk4(n, counter);
+	 */
+	int ConstWalk4(npc n, int counter, bool flying = false)
+	{
+		return ConstWalk4(n, counter, n->Step, n->Random, n->Homing, n->Hunger, flying);
+	}
+	int ConstWalk4(npc n, int counter, int step, int rate, int homing, int hunger, bool flying = false)
+	{
+		if(n->HitDir > -1) return counter;
+		step /= 100;
+		unless(step) return counter;
+		if(counter <= 0)
+		{
+			FixCoords(n);
+			PickDir4(n, rate, homing, hunger);
+			
+			counter=Floor(16/step);
+		}
+		if(HitPlayerInvert(n))
+			counter = Floor(16/step)-counter;
+		int xStep, yStep;
+		switch(n->Dir)
+		{
+			case DIR_LEFT: case DIR_LEFTUP: case DIR_LEFTDOWN:
+				xStep = -step;
+				break;
+			case DIR_RIGHT: case DIR_RIGHTUP: case DIR_RIGHTDOWN:
+				xStep = step;
+				break;
+		}
+		switch(n->Dir)
+		{
+			case DIR_UP: case DIR_LEFTUP: case DIR_RIGHTUP:
+				yStep = -step;
+				break;
+			case DIR_DOWN: case DIR_LEFTDOWN: case DIR_RIGHTDOWN:
+				yStep = step;
+				break;
+		}
+		n->MoveXY(xStep, yStep, flying?SPW_FLOATER:SPW_NONE);
+		return counter-1;
+	}
+	int ConstWalk8(npc n, int counter, bool flying = false)
+	{
+		return ConstWalk8(n, counter, n->Step, n->Random, n->Homing, n->Hunger, flying);
+	}
+	int ConstWalk8(npc n, int counter, int step, int rate, int homing, int hunger, bool flying = false)
+	{
+		if(n->HitDir > -1) return counter;
+		step /= 100;
+		unless(step) return counter;
+		if(counter <= 0)
+		{
+			PickDir8(n, rate, homing, hunger);
+			
+			counter=Floor(8/step);
+		}
+		
+		int xStep, yStep;
+		switch(n->Dir)
+		{
+			case DIR_LEFT: case DIR_LEFTUP: case DIR_LEFTDOWN:
+				xStep = -step;
+				break;
+			case DIR_RIGHT: case DIR_RIGHTUP: case DIR_RIGHTDOWN:
+				xStep = step;
+				break;
+		}
+		switch(n->Dir)
+		{
+			case DIR_UP: case DIR_LEFTUP: case DIR_RIGHTUP:
+				yStep = -step;
+				break;
+			case DIR_DOWN: case DIR_LEFTDOWN: case DIR_RIGHTDOWN:
+				yStep = step;
+				break;
+		}
+		n->MoveXY(xStep, yStep, flying?SPW_FLOATER:SPW_NONE);
+		return counter-1;
+	}
+	int HaltWalk4(npc n, int counter, bool flying = false)
+	{
+		return HaltWalk4(n, counter, n->Step, n->Random, n->Homing, n->Hunger, n->Haltrate, 48, flying);
+	}
+	int HaltWalk4(npc n, int counter, int step, int rate, int homing, int hunger, int haltRate, int haltTime = 48, bool flying = false)
+	{
+		if(n->HitDir > -1) return counter;
+		step /= 100;
+		unless(step) return counter;
+		
+		int walkCounter, haltCounter;
+		if(counter != -1)
+		{
+			walkCounter=(counter%1)/1L;
+			haltCounter=counter>>0;
+		}
+		if(haltCounter > 0)
+			return haltCounter - 1;
+		
+		unless(walkCounter)
+		{
+			FixCoords(n);
+			walkCounter = Floor(16/step);
+			if(counter == -1)
+			{
+				PickDir4(n, rate, homing, hunger);
+				
+				if(Rand(16) < haltRate)
+				{
+					return haltTime;
+				}
+			}
+		}
+		if(HitPlayerInvert(n))
+			walkCounter = Floor(16/step)-walkCounter;
+		
+		--walkCounter;
+		n->Move(n->Dir, step, flying?SPW_FLOATER:SPW_NONE);
+		
+		if(walkCounter > 0)
+			return walkCounter*1L;
+		return -1;
+	}
+	int VarWalk8(npc n, int counter, bool flying = false)
+	{
+		return VarWalk8(n, counter, n->Step, n->Random, n->Homing, n->Hunger, n->Halt, flying);
+	}
+	int VarWalk8(npc n, int counter, int step, int rate, int homing, int hunger, int turnCheckTime, bool flying = false)
+	{
+		if(n->HitDir > -1) return counter;
+		step /= 100;
+		unless(step) return counter;
+		unless(n->CanMove(n->Dir, step, 0))
+			counter = 0;
+		if(counter <= 0)
+		{
+			PickDir8(n, rate, homing, hunger);
+			counter = turnCheckTime;
+		}
+		
+		n->Move(n->Dir, step, flying?SPW_FLOATER:SPW_NONE);
+		return counter - 1;
+	}
+	int FloatWalk(npc n, int counter, int step, int rate, int homing, int hunger, int turnCheckTime,
+		int accelTime, int accelAmount, int accelSteps, int restTime)
+	{
+		step /= 100;
+		unless(step) return counter;
+		int state = counter >> 14;
+		enum { STATE_RESTING, STATE_ACCEL, STATE_MAXSPEED, STATE_DECEL };
+		int stateTimer = (counter%1)/1L;
+		int walkCounter = counter & 0x7FFF;
+		
+		if(counter == -1)
+		{
+			state = STATE_ACCEL;
+			stateTimer = 0;
+			walkCounter = 0;
+		}
+		
+		stateTimer=Min(stateTimer+1, 9999);
+		
+		switch(state)
+		{
+			case STATE_RESTING:
+			{
+				step = 0;
+				if(stateTimer >= restTime)
+				{
+					state = STATE_ACCEL;
+					stateTimer = 0;
+				}
+				break;
+			}
+			case STATE_ACCEL:
+			{
+				rate = 0;
+				if(stateTimer >= accelTime * accelSteps)
+				{
+					state = STATE_MAXSPEED;
+					stateTimer = 0;
+				}
+				else
+				{
+					step = (((stateTimer-1)/accelTime)<<0)*accelAmount;
+				}
+				break;
+			}
+			case STATE_MAXSPEED:
+			{
+				if(stateTimer > 48 && !Rand(768))
+				{
+					step = accelAmount*accelSteps;
+					state = STATE_DECEL;
+					stateTimer = 0;
+				}
+				break;
+			}
+			case STATE_DECEL:
+			{
+				rate = 0;
+				if(stateTimer > accelTime*accelSteps)
+				{
+					step = 0;
+					state = STATE_RESTING;
+					stateTimer = 0;
+				}
+				else
+				{
+					int factor = ((accelTime*accelSteps-stateTimer)/accelTime)<<0;
+					step = factor*accelAmount;
+				}
+				break;
+			}
+		}
+		if(step)
+			walkCounter = VarWalk8(n, walkCounter, step, rate, homing, hunger, turnCheckTime, true);
+		return ((state<<14) | walkCounter) + (stateTimer*1L);
+	}
+	
+	//Helper functions, used by the above functions.
+	void FixCoords(npc n)
+	{
+		n->X = (n->X & 0xF0) + ((n->X&8)?16:0);
+		n->Y = (n->Y & 0xF0) + ((n->Y&8)?16:0);
+	}
+	int LinedUp(npc n, int range, bool eightWay)
+	{
+		if(Abs(Hero->X-n->X)<=range)
+		{
+			if(Hero->Y<n->Y)
+				return DIR_UP;
+			else
+				return DIR_DOWN;
+		}
+		else if(Abs(Hero->Y-n->Y)<=range)
+		{
+			if(Hero->X<n->X)
+				return DIR_LEFT;
+			else
+				return DIR_RIGHT;
+		}
+		
+		if (eightWay)
+		{
+			if (Abs(Hero->X-n->X)-Abs(Hero->Y-n->Y)<=range)
+			{
+				if (Hero->Y<n->Y)
+				{
+					if (Hero->X<n->X)
+						return DIR_LEFTUP;
+					else
+						return DIR_RIGHTUP;
+				}
+				else
+				{
+					if (Hero->X<n->X)
+						return DIR_LEFTDOWN;
+					else
+						return DIR_RIGHTDOWN;
+				}
+			}
+		}
+
+		// Not in range
+		return -1;
+	}
+	void PickDir4(npc n, int rate, int homing, int hunger)
+	{
+		int newDir=-1;
+		// Go for bait?
+		if(Rand(4)<hunger)
+		{
+			// See if any is on the screen
+			lweapon bait=LoadLWeaponOf(LW_BAIT);
+			
+			if(bait->isValid())
+			{
+				// Found bait; try to move toward it
+				if(Abs(n->Y-bait->Y)>14)
+				{
+					if(bait->Y<n->Y)
+						newDir=DIR_UP;
+					else
+						newDir=DIR_DOWN;
+					
+					if(n->CanMove(newDir, 16, 0))
+					{
+						n->Dir=newDir;
+						return;
+					}
+				}
+				
+				if(bait->X<n->X)
+					newDir=DIR_LEFT;
+				else
+					newDir=DIR_RIGHT;
+				
+				if(n->CanMove(newDir, 16, 0))
+				{
+					n->Dir=newDir;
+					return;
+				}
+			}
+		} // End hunger check
+		
+		// Homing?
+		if(Rand(256)<homing)
+		{
+			newDir=LinedUp(n, 8, false);
+			if(newDir>=0 && n->CanMove(newDir, 16, 0))
+			{
+				n->Dir=newDir;
+				return;
+			}
+		}
+		
+		// Check solidity of surrounding combos
+		bool combos[4];
+		int numDirs;
+		int counter;
+		
+		for(int i=0; i<4; ++i)
+		{
+			if(n->CanMove(i, 16, 0))
+			{
+				combos[i]=true;
+				++numDirs;
+			}
+		}
+		
+		// Trapped?
+		unless(numDirs)
+		{
+			n->Dir=-1;
+			return;
+		}
+		
+		if(Rand(16)>=rate)
+		{
+			// Doesn't want to turn; keep going the same direction if possible
+			if(combos[n->Dir])
+				return;
+		}
+		
+		// Pick a direction at random from the ones available
+		counter=Rand(numDirs);
+		for(int dir=0; dir<4; ++dir)
+		{
+			unless(combos[dir])
+				continue;
+			
+			unless(counter)
+			{
+				n->Dir=dir;
+				return;
+			}
+			else
+				--counter;
+		}
+	}
+	void PickDir8(npc n, int rate, int homing, int hunger)
+	{
+		int newDir=-1;
+		
+		if(n->CanMove(n->Dir, 8, 0))
+		{
+			// Go for bait?
+			if(Rand(4)<hunger)
+			{
+				// See if any is on the screen
+				lweapon bait=LoadLWeaponOf(LW_BAIT);
+				
+				if(bait->isValid())
+				{
+					if(bait->X<n->X)
+						newDir = DIR_LEFT;
+					else if(bait->X > n->X)
+						newDir=DIR_RIGHT;
+					else
+						newDir=0;
+					
+					if(Abs(n->Y-bait->Y)>14)
+					{
+						if(newDir > 0)
+						{
+							if(bait->Y<n->Y)
+								newDir += 2;
+							else
+								newDir += 4;
+						}
+						else
+						{
+							if(bait->Y<n->Y)
+								newDir=DIR_UP;
+							else
+								newDir=DIR_DOWN;
+						}
+					}
+					
+					
+					if(n->CanMove(newDir, 16, 0))
+					{
+						n->Dir=newDir;
+						n->X <<= 0;
+						n->Y <<= 0;
+						return;
+					}
+				}
+			} // End hunger check
+			
+			// Homing?
+			if(Rand(256)<homing)
+			{
+				newDir=LinedUp(n, 8, false);
+				if(newDir>=0 && n->CanMove(newDir, 16, 0))
+				{
+					n->Dir=newDir;
+					n->X <<= 0;
+					n->Y <<= 0;
+					return;
+				}
+			}
+			
+			if(Rand(16) >= rate)
+				return;
+		}
+		// See which ways the enemy can go
+		bool dirs[8];
+		int numDirs;
+		int counter;
+		
+		for(int i=0; i<8; ++i)
+		{
+			if(n->CanMove(i, 8, 0))
+			{
+				++numDirs;
+				dirs[i]=true;
+			}
+		}
+		
+		// Trapped?
+		unless(numDirs)
+		{
+			n->Dir=-1;
+			n->X <<= 0;
+			n->Y <<= 0;
+			return;
+		}
+		
+		// Pick a direction at random from the ones available
+		counter=Rand(numDirs);
+		for(int dir=0; dir<8; ++dir)
+		{
+			unless(dirs[dir])
+				continue;
+			
+			unless(counter)
+			{
+				n->Dir=dir;
+				n->X <<= 0;
+				n->Y <<= 0;
+				return;
+			}
+			else
+				--counter;
+		}
+	}
+	bool HitPlayerInvert(npc n)
+	{
+		if(Abs(n->X-Hero->X)<16 && Abs(n->Y-Hero->Y)<16)
+		{
+			int nIndex = Hero->HitBy[HIT_BY_NPC];
+			if(nIndex > 0 && n == Screen->LoadNPC(nIndex))
+			{
+				n->Dir^=1;
+				return true;
+			}
+		}
+		return false;
+	}
+}
