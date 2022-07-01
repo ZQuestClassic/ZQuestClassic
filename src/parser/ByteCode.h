@@ -5271,20 +5271,7 @@ namespace ZScript
 			return new OBMPPolygonRegister();
 		}
 	};
-
-	class OChangeFFCScriptRegister : public UnaryOpcode
-	{
-	public:
-		OChangeFFCScriptRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new OChangeFFCScriptRegister(a->clone());
-		}
-	};
-
-
-
+	
 	class ONDataBaseTile : public BinaryOpcode
 	{
 	public:

@@ -5485,28 +5485,24 @@ untyped HitBy[10];
  * Description		Index	Status
  * HIT_BY_NPC 		[0] 	In use by the engine. 
  * HIT_BY_EWEAPON 	[1] 	In use by the engine.
- * HIT_BY_LWEAPON 	[2]	Not used at this time.
+ * HIT_BY_LWEAPON 	[2]		In use by the engine.
  * HIT_BY_FFC 		[3] 	Not used at this time. 
 
  * The next four, are for the FFCore 'script' UIDs of objects:
 
- * Description		Index	Status
- * HIT_BY_NPC_UID 	[4] 	Not used at this time. 
- * HIT_BY_EWEAPON_UID 	[5] 	Not used at this time. 
- * HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
- * HIT_BY_LWEAPON_UID 	[6]	Not used at this time.
- * HIT_BY_FFC_UID 	[7] 	Not used at this time. 
+ * Description			Index	Status
+ * HIT_BY_NPC_UID 		[4] 	In use by the engine. 
+ * HIT_BY_EWEAPON_UID 	[5] 	In use by the engine.
+ * HIT_BY_LWEAPON_UID 	[6]		In use by the engine.
+ * HIT_BY_FFC_UID 		[7] 	Not used at this time. 
 
  * The last two, are reserved for special damage-object types. 
 
  * Description		Index	Status
- * HIT_BY_COMBO 	[8]	Not used at this time. 
+ * HIT_BY_COMBO 	[8]		Not used at this time. 
  * HIT_BY_MAPFLAG 	[9] 	Not used at this time. 
 
- * These indices are uniform across all HitBy[] array members, for any datatype with that member. 
-
- * Some lweapons, notably some melee weapons such as swords (but not sword beams), and boomerangs
- * are not yet implemented in this mechanic. 
+ * These indices are uniform across all HitBy[] array members, for any datatype with that member.
 
 **************************************************************
 

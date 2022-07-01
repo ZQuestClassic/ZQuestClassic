@@ -3092,7 +3092,7 @@ int32_t get_register(const int32_t arg)
 				case 7:
 				case 8:
 				{
-					ret = (int32_t)(Hero.gethitHeroUID(vbound(ri->d[rINDEX]/10000,0,3))); //do not multiply by 10000! UIDs are not *10000!
+					ret = (int32_t)(Hero.gethitHeroUID(indx)); //do not multiply by 10000! UIDs are not *10000!
 					break;
 					
 				}
@@ -11719,14 +11719,6 @@ void set_register(const int32_t arg, const int32_t value)
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
 				tmpscr->ffdata[ri->ffcref] = vbound(value/10000,0,MAXCOMBOS-1);
 			break;
-			
-		case CHANGEFFSCRIPTR:
-			FFScript::do_changeffcscript(false);
-			break;
-		
-		case CHANGEFFSCRIPTV:
-			FFScript::do_changeffcscript(true);
-			break;
 		
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
@@ -12301,7 +12293,7 @@ void set_register(const int32_t arg, const int32_t value)
 				case 2:
 				case 3:
 				{
-					Hero.sethitHeroUID(indx, vbound((value/10000), 0, 255)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
+					Hero.sethitHeroUID(indx, (value/10000)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
 				}
 				//UIDs
@@ -12310,7 +12302,7 @@ void set_register(const int32_t arg, const int32_t value)
 				case 6:
 				case 7:
 				{
-					Hero.sethitHeroUID(indx, vbound((value), 0, 255)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
+					Hero.sethitHeroUID(indx, value); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
 				}
 				default: { al_trace("Invalid index passed to Player->HitBy[%d] /n", indx); break; }
@@ -31327,37 +31319,6 @@ void FFScript::do_triggersecret(const bool v)
 	}
 	
 }
-
-//Get rid of this pile of rubbish. it does not work! -Z
-void FFScript::do_changeffcscript(const bool v)
-{
-	int32_t ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
-	/*
-	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
-	{
-		if(arrayOwner[i]==ri->ffcref)
-		FFScript::deallocateZScriptArray(i);
-	}
-	
-	tmpscr->ffscript[ri->ffcref] = vbound(ID/10000, 0, scripts.ffscripts.size()-1);
-	
-	for(int32_t i=0; i<16; i++)
-		ffmisc[ri->ffcref][i] = 0;
-		
-	for(int32_t i=0; i<2; i++)
-		tmpscr->inita[ri->ffcref][i] = 0;
-		
-	for(int32_t i=0; i<8; i++)
-		tmpscr->initd[ri->ffcref][i] = 0;
-		
-	ffcScriptData[ri->ffcref].Clear();
-	tmpscr->initialized[ri->ffcref] = true;
-	*/
-}
-
-
-
-
 //NPCData
 
 //NPCData Getter Macros
@@ -35480,8 +35441,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "GETSCREENWARPRY",      1,   0,   0,   0},
 	{ "TRIGGERSECRETR",          1,   0,   0,   0},
 	{ "TRIGGERSECRETV",          1,   1,   0,   0},
-	{ "CHANGEFFSCRIPTR",          1,   0,   0,   0},
-	{ "CHANGEFFSCRIPTV",          1,   1,   0,   0},
+	{ "NIL_UNUSED_1",          1,   0,   0,   0},
+	{ "NIL_UNUSED_2",          1,   1,   0,   0},
 	//NPCData
 	//one input, one return
 	{ "GETNPCDATAFLAGS",           2,   0,   0,   0},

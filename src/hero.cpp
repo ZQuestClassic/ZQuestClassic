@@ -6406,18 +6406,17 @@ killweapon:
 	
 	if(hit2!=-1)
 	{
+		weapon* lwpnspr = Lwpns.spr(hit2);
 		if(NayrusLoveShieldClk<=0)
 		{
 			int32_t ringpow = ringpower(lwpn_dp(hit2));
 			game->set_life(zc_max(game->get_life()-ringpow,0));
-		sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));  //this is first readable after waitdraw. 
-		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
-		//Z_scripterrlog("Hero->HitBy[LWPN] is: %d\n", gethitHeroUID(HIT_BY_LWEAPON));
-			
+			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
+			sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
 		}
 		
-		hitdir = Lwpns.spr(hit2)->hitdir(x,y,16,16,dir);
-		((weapon*)Lwpns.spr(hit2))->onhit(false);
+		hitdir = lwpnspr->hitdir(x,y,16,16,dir);
+		lwpnspr->onhit(false);
 		
 		if (IsSideSwim())
 		{
@@ -6451,30 +6450,30 @@ killweapon:
 	
 	if(hit2!=-1)
 	{
+		weapon* ewpnspr = Ewpns.spr(hit2);
 		if(NayrusLoveShieldClk<=0)
 		{
 			int32_t ringpow = ringpower(ewpn_dp(hit2));
 			game->set_life(zc_max(game->get_life()-ringpow,0));
-		sethitHeroUID(HIT_BY_EWEAPON,(hit2+1)); //this is first readable after waitdraw. 
-		//Z_scripterrlog("wweapon hit2 is: %d\n", hit2*10000);
-		//Z_scripterrlog("Hero->HitBy[EWPN] is: %d\n", gethitHeroUID(HIT_BY_EWEAPON));
+			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
+			sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
 		}
 		
-		hitdir = Ewpns.spr(hit2)->hitdir(x,y,16,16,dir);
-		((weapon*)Ewpns.spr(hit2))->onhit(false);
+		hitdir = ewpnspr->hitdir(x,y,16,16,dir);
+		ewpnspr->onhit(false);
 		
-	if (IsSideSwim())
-	{
-		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-	}
+		if (IsSideSwim())
+		{
+			action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
+		}
 		else if(action==swimming || hopclk==0xFF)
-	{
+		{
 			action=swimhit; FFCore.setHeroAction(swimhit);
-	}
+		}
 		else
-	{
+		{
 			action=gothit; FFCore.setHeroAction(gothit);
-	}
+		}
 			
 		hclk=48;
 		
@@ -6756,9 +6755,10 @@ int32_t HeroClass::hithero(int32_t hit2)
 {
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
+	enemy* enemyptr = guys.spr(hit2);
 	if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
-			((z+fakez) > (((enemy*)guys.spr(hit2))->z+(((enemy*)guys.spr(hit2))->fakez))) ||
-			((isSideViewHero() && (y+16)-(((enemy*)guys.spr(hit2))->y)<=14) && falling_oldy<y)))
+			((z+fakez) > (enemyptr->z+(enemyptr->fakez))) ||
+			((isSideViewHero() && (y+16)-(enemyptr->y)<=14) && falling_oldy<y)))
 	{
 		paymagiccost(stompid);
 		hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
@@ -6785,22 +6785,20 @@ int32_t HeroClass::hithero(int32_t hit2)
 	}
 	else if(superman || !(scriptcoldet&1) || fallclk)
 		return 0;
-	else if (!(((enemy*)guys.spr(hit2))->stunclk==0 &&  ((enemy*)guys.spr(hit2))->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || ((enemy*)guys.spr(hit2))->fading != fade_flicker)
-			&&(((enemy*)guys.spr(hit2))->d->family != eeGUY || ((enemy*)guys.spr(hit2))->dmisc1)))
+	else if (!(enemyptr->stunclk==0 && enemyptr->frozenclock==0 && (!get_bit(quest_rules, qr_SAFEENEMYFADE) || enemyptr->fading != fade_flicker)
+			&& (enemyptr->d->family != eeGUY || enemyptr->dmisc1)))
 	{
 		return -1;
 	}
-	else if(NayrusLoveShieldClk<=0)
+	if(NayrusLoveShieldClk<=0)
 	{
 		int32_t ringpow = ringpower(enemy_dp(hit2));
 		game->set_life(zc_max(game->get_life()-ringpow,0));
-		sethitHeroUID(HIT_BY_NPC,(hit2+1)); //this is first readable after waitdraw. 
-		//Z_scripterrlog("lweapon hit2 is: %d\n", hit2*10000);
-		//Z_scripterrlog("Hero->HitBy[NPC] is: %d\n", gethitHeroUID(HIT_BY_NPC));
-		
+		sethitHeroUID(HIT_BY_NPC,(hit2+1));
+		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
 	}
 	
-	hitdir = guys.spr(hit2)->hitdir(x,y,16,16,dir);
+	hitdir = enemyptr->hitdir(x,y,16,16,dir);
 	if (IsSideSwim())
 	{
 	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
@@ -6825,13 +6823,13 @@ int32_t HeroClass::hithero(int32_t hit2)
 	}
 	
 	enemy_scored(hit2);
-	int32_t dm7 = ((enemy*)guys.spr(hit2))->dmisc7;
-	int32_t dm8 = ((enemy*)guys.spr(hit2))->dmisc8;
+	int32_t dm7 = enemyptr->dmisc7;
+	int32_t dm8 = enemyptr->dmisc8;
 	
-	switch(((enemy*)guys.spr(hit2))->family)
+	switch(enemyptr->family)
 	{
 		case eeWALLM:
-		if(((enemy*)guys.spr(hit2))->hp>0)
+		if(enemyptr->hp>0)
 		{
 			GrabHero(hit2);
 			inwallm=true;

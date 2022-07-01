@@ -3850,11 +3850,6 @@ string OPolygonRegister::toString()
     return "POLYGONR";
 }
 
-string OChangeFFCScriptRegister::toString()
-{
-    return "CHANGEFFSCRIPTR " + getArgument()->toString();
-}
-
 
 //NPCData
 

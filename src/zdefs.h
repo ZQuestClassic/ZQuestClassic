@@ -1306,7 +1306,7 @@ enum
 #define HIT_BY_LWEAPON_LITERAL_ID 15
 
 #define NUM_HIT_TYPES_USED 16
-#define NUM_HIT_TYPES_USED_PLAYER 4
+#define NUM_HIT_TYPES_USED_PLAYER 8
 
 //Page 1, triggerflags[0]
 
