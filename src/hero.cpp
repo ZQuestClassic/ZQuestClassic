@@ -6406,7 +6406,7 @@ killweapon:
 	
 	if(hit2!=-1)
 	{
-		weapon* lwpnspr = Lwpns.spr(hit2);
+		weapon* lwpnspr = (weapon*)Lwpns.spr(hit2);
 		if(NayrusLoveShieldClk<=0)
 		{
 			int32_t ringpow = ringpower(lwpn_dp(hit2));
@@ -6450,7 +6450,7 @@ killweapon:
 	
 	if(hit2!=-1)
 	{
-		weapon* ewpnspr = Ewpns.spr(hit2);
+		weapon* ewpnspr = (weapon*)Ewpns.spr(hit2);
 		if(NayrusLoveShieldClk<=0)
 		{
 			int32_t ringpow = ringpower(ewpn_dp(hit2));
@@ -6755,7 +6755,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 {
 	//printf("Stomp check: %d <= 12, %d < %d\n", int32_t((y+16)-(((enemy*)guys.spr(hit2))->y)), (int32_t)falling_oldy, (int32_t)y);
 	int32_t stompid = current_item_id(itype_stompboots);
-	enemy* enemyptr = guys.spr(hit2);
+	enemy* enemyptr = (enemy*)guys.spr(hit2);
 	if(current_item(itype_stompboots) && checkbunny(stompid) && checkmagiccost(stompid) && (stomping ||
 			((z+fakez) > (enemyptr->z+(enemyptr->fakez))) ||
 			((isSideViewHero() && (y+16)-(enemyptr->y)<=14) && falling_oldy<y)))
@@ -6798,7 +6798,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
 	}
 	
-	hitdir = enemyptr->hitdir(x,y,16,16,dir);
+	hitdir = ((sprite*)enemyptr)->hitdir(x,y,16,16,dir);
 	if (IsSideSwim())
 	{
 	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
