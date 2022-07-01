@@ -23,8 +23,6 @@
 
 typedef struct
 {
-
-    ALLEGRO_THREAD * thread;
     ALLEGRO_TIMER * timer;
     void (*timer_proc)(void);
     void (*param_timer_proc)(void * data);
@@ -35,7 +33,15 @@ typedef struct
 static _A5_TIMER_DATA * a5_timer_data[_A5_MAX_TIMERS];
 
 // local edit
-static ALLEGRO_MUTEX *timers_mutex;
+static ALLEGRO_TIMER * a5_timer;
+static ALLEGRO_THREAD * a5_timer_thread;
+static ALLEGRO_EVENT_QUEUE * a5_timer_queue;
+static ALLEGRO_MUTEX * timers_mutex;
+
+static double a5_get_timer_speed(long speed)
+{
+    return (double)speed / (float)TIMERS_PER_SECOND;
+}
 
 static _A5_TIMER_DATA * a5_create_timer_data(void)
 {
@@ -71,10 +77,6 @@ static _A5_TIMER_DATA * a5_get_free_timer_data(void)
 
 static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
 {
-    if(timer_data->thread)
-    {
-        al_destroy_thread(timer_data->thread);
-    }
     if(timer_data->timer)
     {
         al_destroy_timer(timer_data->timer);
@@ -82,31 +84,35 @@ static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
     free(timer_data);
 }
 
-static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
+static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * unused)
 {
-    ALLEGRO_EVENT_QUEUE * queue;
+    ALLEGRO_TIMER* timer;
     ALLEGRO_EVENT event;
-    ALLEGRO_TIMEOUT timeout;
     double cur_time, prev_time = 0.0, diff_time;
-    _A5_TIMER_DATA * timer_data = (_A5_TIMER_DATA *)data;
+    _A5_TIMER_DATA * timer_data = NULL;
 
-    queue = al_create_event_queue();
-    if(!queue)
-    {
-        return NULL;
-    }
-    al_register_event_source(queue, al_get_timer_event_source(timer_data->timer));
-    al_start_timer(timer_data->timer);
+    timer = al_create_timer(a5_get_timer_speed(0x8000));
+    cur_time = al_get_time();
+
     while(!al_get_thread_should_stop(thread))
     {
-        al_init_timeout(&timeout, 0.1);
-        al_wait_for_event(queue, &event);
-        if(true)
+        al_wait_for_event(a5_timer_queue, &event);
+
+        al_lock_mutex(timers_mutex);
+        timer_data = NULL;
+        for(int i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+        {
+            if (a5_timer_data[i]->timer == event.timer.source) {
+                timer_data = a5_timer_data[i];
+                break;
+            }
+        }
+
+        if(timer_data)
         {
             cur_time = al_get_time();
             diff_time = cur_time - prev_time;
-            prev_time = al_get_time();
-            al_lock_mutex(timers_mutex);
+            prev_time = cur_time;
             if(timer_data->param_timer_proc)
             {
                 timer_data->param_timer_proc(timer_data->data);
@@ -115,38 +121,44 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
             {
                 timer_data->timer_proc();
             }
-            al_unlock_mutex(timers_mutex);
             _handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0));
         }
+
+        al_unlock_mutex(timers_mutex);
     }
-    al_stop_timer(timer_data->timer);
-    al_destroy_event_queue(queue);
     return NULL;
 }
 
 static int a5_timer_init(void)
 {
+    a5_timer_queue = al_create_event_queue();
+    if(!a5_timer_queue)
+    {
+        return 1;
+    }
+
     timers_mutex = al_create_mutex_recursive();
+    a5_timer_thread = al_create_thread(a5_timer_proc, NULL);
+
+    al_start_thread(a5_timer_thread);
     return 0;
 }
 
 static void a5_timer_exit(void)
 {
-    // int i;
+    int i;
 
-    // for(i = 0; i < a5_timer_count; i++)
-    // {
-    //     if(a5_timer_data[i])
-    //     {
-    //         a5_destroy_timer_data(a5_timer_data[i]);
-    //     }
-    // }
-    // a5_timer_count = 0;
-}
+    al_destroy_event_queue(a5_timer_queue);
+    // For some reason on Mac this will hang program exit.
+#ifndef __APPLE__
+    al_destroy_thread(a5_timer_thread);
+#endif
 
-static double a5_get_timer_speed(long speed)
-{
-    return (double)speed / (float)TIMERS_PER_SECOND;
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    {
+        a5_destroy_timer_data(a5_timer_data[i]);
+        a5_timer_data[i] = NULL;
+    }
 }
 
 // local edit
@@ -165,14 +177,13 @@ static int _a5_timer_install_int(void (*proc)(void), long speed)
 
     _A5_TIMER_DATA* timer_data = a5_get_free_timer_data();
     if (!timer_data) return -1;
-    if (!timer_data->thread) timer_data->thread = al_create_thread(a5_timer_proc, timer_data);
     if (!timer_data->timer) timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
     else al_set_timer_speed(timer_data->timer, a5_get_timer_speed(speed));
-    if (!timer_data->thread || !timer_data->timer) return -1;
+    if (!timer_data->timer) return -1;
 
     timer_data->timer_proc = proc;
-    al_start_thread(timer_data->thread);
     al_start_timer(timer_data->timer);
+    al_register_event_source(a5_timer_queue, al_get_timer_event_source(timer_data->timer));
     return 0;
 }
 
@@ -195,6 +206,7 @@ static void a5_timer_remove_int(void (*proc)(void))
     {
         if(proc == a5_timer_data[i]->timer_proc)
         {
+            al_unregister_event_source(a5_timer_queue, al_get_timer_event_source(a5_timer_data[i]->timer));
             al_stop_timer(a5_timer_data[i]->timer);
             a5_timer_data[i]->timer_proc = NULL;
             break;
@@ -221,15 +233,14 @@ static int _a5_timer_install_param_int(void (*proc)(void * data), void * param, 
 
     _A5_TIMER_DATA* timer_data = a5_get_free_timer_data();
     if (!timer_data) return -1;
-    if (!timer_data->thread) timer_data->thread = al_create_thread(a5_timer_proc, timer_data);
     if (!timer_data->timer) timer_data->timer = al_create_timer(a5_get_timer_speed(speed));
-    else al_set_timer_speed(timer_data->timer, speed);
-    if (!timer_data->thread || !timer_data->timer) return -1;
+    else al_set_timer_speed(timer_data->timer, a5_get_timer_speed(speed));
+    if (!timer_data->timer) return -1;
 
     timer_data->param_timer_proc = proc;
     timer_data->data = param;
-    al_start_thread(timer_data->thread);
     al_start_timer(timer_data->timer);
+    al_register_event_source(a5_timer_queue, al_get_timer_event_source(timer_data->timer));
 
     return 0;
 }
@@ -253,6 +264,7 @@ static void a5_timer_remove_param_int(void (*proc)(void * data), void * param)
         // local edit
         if(proc == a5_timer_data[i]->param_timer_proc && param == a5_timer_data[i]->data)
         {
+            al_unregister_event_source(a5_timer_queue, al_get_timer_event_source(a5_timer_data[i]->timer));
             al_stop_timer(a5_timer_data[i]->timer);
             a5_timer_data[i]->param_timer_proc = NULL;
             a5_timer_data[i]->data = NULL;
