@@ -105,6 +105,7 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
             cur_time = al_get_time();
             diff_time = cur_time - prev_time;
             prev_time = al_get_time();
+            al_lock_mutex(timers_mutex);
             if(timer_data->param_timer_proc)
             {
                 timer_data->param_timer_proc(timer_data->data);
@@ -113,6 +114,7 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
             {
                 timer_data->timer_proc();
             }
+            al_unlock_mutex(timers_mutex);
             _handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0));
         }
     }
@@ -152,7 +154,6 @@ static int _a5_timer_install_int(void (*proc)(void), long speed)
         if(proc == a5_timer_data[i]->timer_proc)
         {
             al_set_timer_speed(a5_timer_data[i]->timer, a5_get_timer_speed(speed));
-            al_unlock_mutex(timers_mutex);
             return 0;
         }
     }
