@@ -1,10 +1,14 @@
-name: Release
+name: Release Nightly
 
 on:
   schedule:
     # Once a week at midnight EST on saturday.
     - cron: '0 4 * * 6'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      number:
+        type: string
+        required: false
 
 jobs:
   check_date:
@@ -42,7 +46,29 @@ jobs:
       with:
         args: install .github/dependencies.config -y
 
-    - run: cp src/metadata/*.h.sig src/metadata/sigs/
+    #- run: cp src/metadata/*.h.sig src/metadata/sigs/
+    #Generate devsig: 'Build_Script', 'UTC'
+    - run: |
+        echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
+        echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
+    #Generate compilersig: MSVC 19.32.31332.0 [Should automatically fetch this somehow, instead of hardcoding... -Em]
+    - run: |
+        echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_FIRST 19' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_SECOND 32' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_THIRD 31332' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_FOURTH 0' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_NAME "MSVC"' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_VERSION "v17, 2022"' >> src/metadata/sigs/compilersig.h.sig
+    - if: (github.event_name != 'schedule' && inputs.number)
+      run: |
+        echo '#undef V_ZC_ALPHA' >> src/metadata/versionsig.h
+        echo '#define V_ZC_ALPHA ${{inputs.number}}' >> src/metadata/versionsig.h
+    - run: |
+        echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
+        echo '#define ZC_IS_NIGHTLY 1' >> src/metadata/versionsig.h
+
+    #build
     - run: cmake . -A win32
     - run: cmake --build . --config Release
     - run: echo y | ./buildpack.bat

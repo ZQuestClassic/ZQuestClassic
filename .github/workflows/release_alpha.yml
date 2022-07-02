@@ -1,0 +1,68 @@
+name: Release Alpha
+
+on:
+  workflow_dispatch:
+    inputs:
+      number:
+        type: string
+        required: false
+
+jobs:
+  release:
+    needs: check_date
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+
+    # Prevent forks from running this job.
+    # if: (github.event_name == 'schedule' && github.repository == 'ArmageddonGames/ZeldaClassic') || (github.event_name != 'schedule')
+    runs-on: windows-2022
+
+    steps:
+    - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: win32
+
+    - name: git clone
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install .github/dependencies.config -y
+
+    #- run: cp src/metadata/*.h.sig src/metadata/sigs/
+    #Generate devsig: 'Build_Script', 'UTC'
+    - run: |
+        echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
+        echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
+    #Generate compilersig: MSVC 19.32.31332.0 [Should automatically fetch this somehow, instead of hardcoding... -Em]
+    - run: |
+        echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_FIRST 19' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_SECOND 32' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_THIRD 31332' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_V_FOURTH 0' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_NAME "MSVC"' >> src/metadata/sigs/compilersig.h.sig
+        echo '#define COMPILER_VERSION "v17, 2022"' >> src/metadata/sigs/compilersig.h.sig
+    - if: (inputs.number)
+      run: |
+        echo '#undef V_ZC_ALPHA' >> src/metadata/versionsig.h
+        echo '#define V_ZC_ALPHA ${{inputs.number}}' >> src/metadata/versionsig.h
+    - run: |
+        echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
+        echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
+
+    #build
+    - run: cmake . -A win32
+    - run: cmake --build . --config Release
+    - run: echo y | ./buildpack.bat
+      working-directory: output/_auto
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: 2.55 Alpha ${{ inputs.number }}
+        tag_name: 2.55-alpha-${{ inputs.number }}
+        files: output/_auto/buildpack.zip
+        prerelease: false
+        fail_on_unmatched_files: true
+        generate_release_notes: true
