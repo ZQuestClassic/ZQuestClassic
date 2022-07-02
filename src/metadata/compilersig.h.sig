@@ -17,6 +17,5 @@
 #define COMPILER_V_THIRD 0
 #define COMPILER_V_FOURTH 0
 
-
 #define COMPILER_NAME "MSVC"
 #define COMPILER_VERSION "v9, 2008"
