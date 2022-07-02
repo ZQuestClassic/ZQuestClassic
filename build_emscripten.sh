@@ -26,6 +26,15 @@ cd build_emscripten
 EMCC_CACHE_INCLUDE_DIR=$(dirname $(which emcc))/cache/sysroot/include
 EMCC_CACHE_LIB_DIR=$(dirname $(which emcc))/cache/sysroot/lib/wasm32-emscripten
 
+# temporary workaround until fixed upstream
+# emcc's cache will require you to manually do this (one time) for this to be picked up:
+#    embuilder build sdl2
+#    <run that sed command below>
+#    rm -rf "$(dirname $(which emcc))/cache/sysroot/lib/wasm32-emscripten"
+#    Now you can run this script as normal.
+# see https://github.com/libsdl-org/SDL/issues/5428
+sed -i -e 's/#define FAKE_RECURSIVE_MUTEX 1//' $(dirname $(which emcc))/cache/ports/sdl2/SDL-release-2.0.20/src/thread/pthread/SDL_sysmutex.c
+
 EMCC_FLAGS=(
   -s USE_FREETYPE=1
   -s USE_VORBIS=1

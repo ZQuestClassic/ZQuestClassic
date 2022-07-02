@@ -219,11 +219,6 @@ void throttleFPS()
     timeBeginPeriod(1); // Basically, jist is that other programs can affect the FPS of ZC in weird ways. (making it better for example... go figure)
 #endif
 
-#ifdef __EMSCRIPTEN__
-	rest(0);
-	return;
-#endif
-    
     if( (Throttlefps ^ (zc_getkey(KEY_TILDE)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) )
     {
         if(zc_vsync == FALSE)
@@ -632,10 +627,6 @@ bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
-#ifdef __EMSCRIPTEN__
-	// force = true;
-#endif __EMSCRIPTEN__
-
 	//if(!hw_screen) return;
 	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
 	{
@@ -4892,7 +4883,6 @@ int main(int argc, char **argv)
 	
 	//set_keyboard_rate(1000,160);
 
-#ifndef __EMSCRIPTEN__
 	LOCK_VARIABLE(logic_counter);
 	LOCK_FUNCTION(update_logic_counter);
 	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
@@ -4900,7 +4890,6 @@ int main(int argc, char **argv)
 		Z_error_fatal("Could not install timer.\n");
 		quit_game();
 	}
-#endif
 	
 #ifdef _SCRIPT_COUNTER
 	LOCK_VARIABLE(script_counter);
