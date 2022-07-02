@@ -125,6 +125,7 @@ output/_auto/extrapack_log.txt
 output/_auto/extrapack
 output/_auto/zelda-classic-mac
 *.dmg
+output/_auto/buildpack_zq
 output/_auto/*.zip
 
 # Other

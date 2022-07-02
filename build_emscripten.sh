@@ -28,6 +28,11 @@ find buildpack -name "*.rtf" -type f -delete
 find buildpack -name "*.pdf" -type f -delete
 find buildpack -name "*.so" -type f -delete
 find buildpack -name "*.zip" -type f -delete
+
+rm -rf buildpack_zq
+mkdir -p buildpack_zq
+mkdir -p buildpack_zq/modules/classic/
+mv buildpack/modules/classic/classic_qst.dat buildpack_zq/modules/classic/
 cd -
 
 mkdir -p build_emscripten
@@ -142,20 +147,34 @@ cmake --build . -t $TARGETS
   --use-preload-cache \
   --js-output=zc.data.js
 
+# Zquest also uses zc.data
+"$(dirname $(which emcc))"/tools/file_packager.py zq.data \
+  --no-node \
+  --preload "../../output/_auto/buildpack_zq@/" \
+  --use-preload-cache \
+  --js-output=zq.data.js
+
 # https://github.com/emscripten-core/emscripten/issues/11952
-HASH=$(shasum -a 256 zc.data | awk '{print $1}')
-sed -i -e "s/\"package_uuid\": \"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zc.data.js
-if ! grep -q "$HASH" zc.data.js
-then
-  echo "failed to replace data hash"
-  exit 1
-fi
+function fix_hash {
+  HASH=$(shasum -a 256 $1 | awk '{print $1}')
+  sed -i -e "s/\"package_uuid\": \"[^\"]*\"/\"package_uuid\":\"$HASH\"/" "$2"
+  if ! grep -q "$HASH" "$2"
+  then
+    echo "failed to replace data hash"
+    exit 1
+  fi
+}
+
+fix_hash zc.data zc.data.js
+fix_hash zq.data zq.data.js
 
 if [ -f zelda.html ]; then
   sed -i -e 's/__TARGET__/zelda/' zelda.html
+  sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
 fi
 if [ -f zquest.html ]; then
   sed -i -e 's/__TARGET__/zquest/' zquest.html
+  sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
 fi
 
 cp -r ../../freepats .
