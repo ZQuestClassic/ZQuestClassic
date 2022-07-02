@@ -1,4 +1,4 @@
-name: Release Nightly
+name: Release
 
 on:
   schedule:
@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       number:
+        description: Alpha version number. If not set, does a nightly build
         type: string
         required: false
 
@@ -25,12 +26,35 @@ jobs:
         if: ${{ github.event_name == 'schedule' }}
         run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
-  release:
-    needs: check_date
+  create_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag_name: ${{ steps.make-vars.outputs.release_tag_name }}
+      release_name: ${{ steps.make-vars.outputs.release_name }}
+    steps:
+      - name: Get current time
+        uses: josStorer/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DD
+      - id: make-vars
+        run: |
+          if [ '${{ github.event.inputs.number }}' != '' ]; then
+            # Alpha
+            echo "::set-output name=release_tag_name::2.55-alpha-${{ inputs.number }}"
+            echo "::set-output name=release_name::2.55 Alpha ${{ inputs.number }}"
+          else
+            # Nightly
+            echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
+            echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}"
+          fi
+
+  release-win:
+    needs:
+      - check_date
+      - create_tag
     if: ${{ needs.check_date.outputs.should_run != 'false' }}
 
-    # Prevent forks from running this job.
-    # if: (github.event_name == 'schedule' && github.repository == 'ArmageddonGames/ZeldaClassic') || (github.event_name != 'schedule')
     runs-on: windows-2022
 
     steps:
@@ -46,13 +70,11 @@ jobs:
       with:
         args: install .github/dependencies.config -y
 
-    #- run: cp src/metadata/*.h.sig src/metadata/sigs/
-    #Generate devsig: 'Build_Script', 'UTC'
-    - run: |
+    - name: Configure *.h.sig
+      # Generate compilersig: MSVC 19.32.31332.0 [Should automatically fetch this somehow, instead of hardcoding... -Em]
+      run: |
         echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
         echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
-    #Generate compilersig: MSVC 19.32.31332.0 [Should automatically fetch this somehow, instead of hardcoding... -Em]
-    - run: |
         echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
         echo '#define COMPILER_V_FIRST 19' >> src/metadata/sigs/compilersig.h.sig
         echo '#define COMPILER_V_SECOND 32' >> src/metadata/sigs/compilersig.h.sig
@@ -60,30 +82,27 @@ jobs:
         echo '#define COMPILER_V_FOURTH 0' >> src/metadata/sigs/compilersig.h.sig
         echo '#define COMPILER_NAME "MSVC"' >> src/metadata/sigs/compilersig.h.sig
         echo '#define COMPILER_VERSION "v17, 2022"' >> src/metadata/sigs/compilersig.h.sig
-    - if: (github.event_name != 'schedule' && inputs.number)
+    # Alpha.
+    - if: "${{ github.event.inputs.number != '' }}"
       run: |
         echo '#undef V_ZC_ALPHA' >> src/metadata/versionsig.h
         echo '#define V_ZC_ALPHA ${{inputs.number}}' >> src/metadata/versionsig.h
-    - run: |
+    # Nightly.
+    - if: "${{ github.event.inputs.number == '' }}"
+      run: |
         echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
-        echo '#define ZC_IS_NIGHTLY 1' >> src/metadata/versionsig.h
+        echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
 
-    #build
     - run: cmake . -A win32
     - run: cmake --build . --config Release
     - run: echo y | ./buildpack.bat
       working-directory: output/_auto
 
-    - name: Get current time
-      uses: josStorer/get-current-time@v2
-      id: current-time
-      with:
-        format: YYYY-MM-DD
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        name: 2.55 Nightly ${{ steps.current-time.outputs.formattedTime }}
-        tag_name: nightly-${{ steps.current-time.outputs.formattedTime }}
+        name: ${{ needs.create_tag.outputs.release_name }}
+        tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
         files: output/_auto/buildpack.zip
         prerelease: true
         fail_on_unmatched_files: true
