@@ -23,9 +23,7 @@
 #include <stdexcept>
 #include <map>
 
-#include "metadata/sigs/devsig.h.sig"
-#include "metadata/sigs/compilersig.h.sig"
-#include "metadata/versionsig.h"
+#include "metadata/metadata.h"
 
 #include "gui.h"
 #include "zq_class.h"

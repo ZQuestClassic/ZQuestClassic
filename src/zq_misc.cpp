@@ -25,8 +25,7 @@
 #include <stdio.h>
 #include <sstream>
 
-#include "metadata/sigs/devsig.h.sig"
-#include "metadata/versionsig.h"
+#include "metadata/metadata.h"
 
 #ifdef _MSC_VER
 #define strupr _strupr

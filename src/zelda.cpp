@@ -30,14 +30,11 @@
 #include <loadpng.h>
 #include <jpgalleg.h>
 
-#include "metadata/sigs/devsig.h.sig"
-
 #include "zc_malloc.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "zdefs.h"
-#include "metadata/versionsig.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "colors.h"

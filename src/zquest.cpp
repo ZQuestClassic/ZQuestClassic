@@ -32,7 +32,6 @@
 #include "zc_alleg.h"
 #include "mem_debug.h"
 #include "particles.h"
-#include "metadata/versionsig.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
 particle_list particles;

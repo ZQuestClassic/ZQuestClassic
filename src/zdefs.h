@@ -140,12 +140,14 @@
 #include <set>
 #include <assert.h>
 #include <string>
-#include "metadata/versionsig.h"
+#include "metadata/metadata.h"
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_array.h"
 #include "random.h"
 #include "util.h"
+
+
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
@@ -3488,6 +3490,7 @@ struct zquestheader
 			new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
 			new_version_id_date_hour, new_version_id_date_minute,
 			BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
+		//!TODO handle timezones (build_timezone, __TIMEZONE__)
 		if(new_version_id_date_year > BUILDTM_YEAR)
 			return 1;
 		if(new_version_id_date_year < BUILDTM_YEAR)

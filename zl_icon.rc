@@ -59,7 +59,7 @@ END
 // Version
 //
 
-#include "src/metadata/versionsig.h"
+#include "src/metadata/metadata.h"
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
  PRODUCTVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH

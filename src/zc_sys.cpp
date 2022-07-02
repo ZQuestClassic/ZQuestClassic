@@ -32,8 +32,7 @@
 #endif
 
 #include "zdefs.h"
-#include "metadata/sigs/devsig.h.sig"
-#include "metadata/versionsig.h"
+#include "metadata/metadata.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "colors.h"
