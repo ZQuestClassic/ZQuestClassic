@@ -9,11 +9,6 @@ on:
 
 jobs:
   release:
-    needs: check_date
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
-
-    # Prevent forks from running this job.
-    # if: (github.event_name == 'schedule' && github.repository == 'ArmageddonGames/ZeldaClassic') || (github.event_name != 'schedule')
     runs-on: windows-2022
 
     steps:
