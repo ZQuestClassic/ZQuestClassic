@@ -1,5 +1,11 @@
 // 2.55 Change Log
-// Updated 26th June, 2022
+// Updated 1st July, 2022
+
+Update 'std_zh'; add 'ghostBasedMovement.zh'
+	( EmilyV, 30th June, 2022 )
+
+More Allegro5 fixes
+	( connorjclark, 26th June, 2022 )
 
 Add '*weapon->Flags[]', including [WFLAG_PICKUP_ITEMS], a flag which allows weapons
 	to automatically collect items they touch, similar to how engine melee weapons do so.
