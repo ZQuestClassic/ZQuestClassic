@@ -4250,9 +4250,8 @@ int SecretFlags[128];
  * The Combo Flags used by 'Secret Combos' on this screen.
  * See SECCMB_* in std_constants.zh for more information.
 
-int OceanSFX;
+int AmbientSFX;
  * The 'Ambient Sound' under S.Data2. 
- * Rename this to AmbientSFX, or just SFX.
 
 int BossSFX;
  * The Boss Roar sound for this screen.
