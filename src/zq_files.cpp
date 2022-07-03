@@ -388,10 +388,6 @@ int32_t NewQuestFile(int32_t template_slot)
 {
     memset(filepath,0,255);
     memset(temppath,0,255);
-#ifdef ALLEGRO_MACOSX
-    sprintf(filepath, "../../../");
-    sprintf(temppath, "../");
-#endif
     first_save=false;
     box_start(1, "Initializing Quest", lfont, pfont, false);
     box_out("Please wait.");

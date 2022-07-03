@@ -1,0 +1,71 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a793bba..3d100b2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -184,13 +184,27 @@ configure_file(
+     @ONLY
+ )
+ 
+-add_library(dumb ${SOURCES})
++if(WIN32)
++    # Required for Windows becuase dumb exports no symbols thus no .lib is created when shared lib
++    # is attempted. So just build static.
++    # May work for OSX/unix too but have not checked.
++    add_library(dumb STATIC ${SOURCES})
++else()
++    add_library(dumb ${SOURCES})
++endif()
+ set_target_properties(dumb PROPERTIES DEBUG_POSTFIX d)
+ set_target_properties(dumb PROPERTIES VERSION ${DUMB_VERSION})
+ set_target_properties(dumb PROPERTIES SOVERSION ${DUMB_VERSION_MAJOR})
+ 
+ if(BUILD_ALLEGRO4)
+-    add_library(aldmb ${ALLEGRO_SOURCES})
++    if(WIN32)
++        # Required for Windows becuase dumb exports no symbols thus no .lib is created when shared lib
++        # is attempted. So just build static.
++        # May work for OSX/unix too but have not checked.
++        add_library(aldmb STATIC ${ALLEGRO_SOURCES})
++    else()
++        add_library(aldmb ${ALLEGRO_SOURCES})
++    endif()
+     set_target_properties(aldmb PROPERTIES DEBUG_POSTFIX d)
+     set_target_properties(aldmb PROPERTIES VERSION ${DUMB_VERSION})
+     set_target_properties(aldmb PROPERTIES SOVERSION ${DUMB_VERSION_MAJOR})
+@@ -223,7 +237,9 @@ IF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+     set_target_properties(dumb PROPERTIES INSTALL_NAME_DIR ${CMAKE_INSTALL_FULL_LIBDIR})
+ ENDIF(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+ 
+-target_link_libraries(dumb m)
++IF (NOT WIN32)
++    target_link_libraries(dumb m)
++ENDIF()
+ 
+ install(FILES ${PKG_CONFIG_FILE} DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+ install(FILES ${INSTALL_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+diff --git a/cmake-scripts/FindAllegro4.cmake b/cmake-scripts/FindAllegro4.cmake
+index 8b0e7d8..d3540c9 100644
+--- a/cmake-scripts/FindAllegro4.cmake
++++ b/cmake-scripts/FindAllegro4.cmake
+@@ -12,7 +12,7 @@ $ENV{MINGDIR}/include
+ )
+ 
+ if(UNIX AND NOT CYGWIN)
+-    exec_program(allegro-config ARGS --libs OUTPUT_VARIABLE ALLEGRO_LIBRARY)
++    # exec_program(allegro-config ARGS --libs OUTPUT_VARIABLE ALLEGRO_LIBRARY)
+ else(UNIX AND NOT CYGWIN)
+     SET(ALLEGRO_NAMES alleg alleglib alleg41 alleg42 allegdll)
+     FIND_LIBRARY(ALLEGRO_LIBRARY
+diff --git a/src/allegro/packfile.c b/src/allegro/packfile.c
+index f2ada08..9c9d90b 100644
+--- a/src/allegro/packfile.c
++++ b/src/allegro/packfile.c
+@@ -48,7 +48,7 @@ static void *dumb_packfile_open(const char *filename) {
+ static int dumb_packfile_skip(void *f, dumb_off_t n) {
+     dumb_packfile *file = (dumb_packfile *)f;
+     file->pos += n;
+-    return pack_fseek(file->p, file->pos);
++    return pack_fseek(file->p, n);
+ }
+ 
+ static int dumb_packfile_getc(void *f) {

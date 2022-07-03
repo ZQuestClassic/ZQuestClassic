@@ -9,7 +9,7 @@ src/util.cpp
 src/ConsoleLogger.cpp
 src/process_managment.cpp
 src/zconfig.cpp
+src/zapp.cpp
 
 ## End of ZScript Core module
 )
-

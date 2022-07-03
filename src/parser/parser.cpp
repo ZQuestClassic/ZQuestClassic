@@ -6,10 +6,12 @@
 #include "zconfig.h"
 #include "ConsoleLogger.h"
 #include "zscrdata.h"
+#include "zapp.h"
 
 FFScript FFCore;
 
 std::vector<std::string> ZQincludePaths;
+std::string console_path;
 byte quest_rules[QUESTRULES_NEW_SIZE];
 
 extern byte monochrome_console;
@@ -42,7 +44,7 @@ static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 void zconsole_warn(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	FILE *console=fopen("tmp3", "a");
+	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -59,14 +61,14 @@ void zconsole_warn(const char *format,...)
 	va_end(argList);
 	fprintf(console, "%s", tmp);
 	fclose(console);
-	int errorcode = -9996;
-	ConsoleWrite->write(&errorcode, sizeof(size_t));
-	ConsoleWrite->read(&errorcode, sizeof(size_t));
+	int32_t errorcode = ZC_CONSOLE_WARN_CODE;
+	ConsoleWrite->write(&errorcode, sizeof(int32_t));
+	ConsoleWrite->read(&errorcode, sizeof(int32_t));
 }
 void zconsole_error(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	FILE *console=fopen("tmp3", "a");
+	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -84,13 +86,13 @@ void zconsole_error(const char *format,...)
 	//}
 	fprintf(console, "%s", tmp);
 	fclose(console);
-	int errorcode = -9997;
-	ConsoleWrite->write(&errorcode, sizeof(size_t));
-	ConsoleWrite->read(&errorcode, sizeof(size_t));
+	int32_t errorcode = ZC_CONSOLE_ERROR_CODE;
+	ConsoleWrite->write(&errorcode, sizeof(int32_t));
+	ConsoleWrite->read(&errorcode, sizeof(int32_t));
 }
 void zconsole_info(const char *format,...)
 {
-	FILE *console=fopen("tmp3", "a");
+	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -108,9 +110,9 @@ void zconsole_info(const char *format,...)
 	//}
 	fprintf(console, "%s", tmp);
 	fclose(console);
-	int errorcode = -9998;
-	ConsoleWrite->write(&errorcode, sizeof(size_t));
-	ConsoleWrite->read(&errorcode, sizeof(size_t));
+	int32_t errorcode = ZC_CONSOLE_INFO_CODE;
+	ConsoleWrite->write(&errorcode, sizeof(int32_t));
+	ConsoleWrite->read(&errorcode, sizeof(int32_t));
 }
 
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
@@ -122,35 +124,33 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 	FILE *zscript = fopen(script_path.c_str(),"r");
 	if(zscript == NULL)
 	{
-		zconsole_error(" Cannot open specified file!");
+		zconsole_error("%s", "Cannot open specified file!");
 		zscript_failcode = -404;
 		return NULL;
 	}
 
-	if(strcmp(script_path.c_str(), "tmp")) // if path matches "tmp", no reason to copy it to "tmp"
+	char c = fgetc(zscript);
+	while(!feof(zscript))
 	{
-		char c = fgetc(zscript);
-		while(!feof(zscript))
-		{
-			zScript += c;
-			c = fgetc(zscript);
-		}
-		fclose(zscript);
-
-		FILE *tempfile = fopen("tmp","w");
-		if(!tempfile)
-		{
-			zconsole_error("Unable to create a temporary file in current directory!");
-			zscript_failcode = -404;
-			return NULL;
-		}
-		fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-		fclose(tempfile);
+		zScript += c;
+		c = fgetc(zscript);
 	}
-	else fclose(zscript);
+	fclose(zscript);
+
+	char tmpfilename[L_tmpnam];
+	std::tmpnam(tmpfilename);
+	FILE *tempfile = fopen(tmpfilename, "w");
+	if(!tempfile)
+	{
+		zconsole_error("%s", "Unable to create a temporary file in current directory!");
+		zscript_failcode = -404;
+		return NULL;
+	}
+	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+	fclose(tempfile);
 	
-	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile("tmp"));
-	unlink("tmp");
+	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename));
+	unlink(tmpfilename);
 	return res;
 }
 
@@ -195,23 +195,37 @@ void updateIncludePaths()
 
 int32_t main(int32_t argc, char **argv)
 {
+	common_main_setup(argc, argv);
+
 	if (!used_switch(argc, argv, "-linked"))
 	{
 		return 1;
 	}
+
+	int32_t console_path_index = used_switch(argc, argv, "-console");
+	if (!console_path_index)
+	{
+		zconsole_error("%s", "Error: missing required flag: -console");
+		return 1;
+	}
+	console_path = argv[console_path_index + 1];
 	
 	child_process_handler cph;
 	ConsoleWrite = &cph;
-	allegro_init();
+	if(allegro_init() != 0)
+	{
+		zconsole_error("%s", "Failed Init!");
+		exit(1);
+	}
 	
 	int32_t script_path_index = used_switch(argc, argv, "-input");
 	if (!script_path_index)
 	{
-		zconsole_error("Error: missing required flag: -input");
+		zconsole_error("%s", "Error: missing required flag: -input");
 		return 1;
 	}
 	
-	FILE *console=fopen("tmp3", "w");
+	FILE *console=fopen(console_path.c_str(), "w");
 	fclose(console);
 	
 	std::string script_path = argv[script_path_index + 1];
@@ -220,9 +234,9 @@ int32_t main(int32_t argc, char **argv)
 	cph.read(quest_rules, QUESTRULES_NEW_SIZE);
 	cph.write(&syncthing, sizeof(int32_t));
 	
-	set_config_file("zscript.cfg");
+	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config("zquest.cfg","Compiler","run_string","run");
+	char const* runstr = zc_get_config(STANDARD_CFG,"Compiler","run_string","run");
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
@@ -245,16 +259,15 @@ int32_t main(int32_t argc, char **argv)
 	cph.write(&res, sizeof(int32_t));
 	/*
 	if(zscript_had_warn_err)
-		zconsole_warn("Leaving console open; there were errors or warnings during compile!");
+		zconsole_warn("%s", "Leaving console open; there were errors or warnings during compile!");
 	else if(used_switch(argc, argv, "-noclose"))
 	{
-		zconsole_info("Leaving console open; '-noclose' switch used");
+		zconsole_info("%s", "Leaving console open; '-noclose' switch used");
 	}
 	else
 	{
 		parser_console.kill();
 	}*/
-	allegro_exit();
 	return res;
 }
 END_OF_MAIN()

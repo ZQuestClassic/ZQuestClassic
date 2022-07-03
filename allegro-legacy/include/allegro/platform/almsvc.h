@@ -35,7 +35,9 @@
 #endif
 
 #define ALLEGRO_LEGACY_WINDOWS
-#define ALLEGRO_LEGACY_I386
+#ifdef __i386__
+   #define ALLEGRO_LEGACY_I386
+#endif
 #define ALLEGRO_LEGACY_LITTLE_ENDIAN
 #define ALLEGRO_LEGACY_GUESS_INTTYPES_OK
 #define ALLEGRO_LEGACY_MULTITHREADED
@@ -49,6 +51,10 @@
    #define ALLEGRO_LEGACY_NO_MAGIC_MAIN
 #endif
 
+// local edit
+#if _MSC_VER >= 1600
+   #define ALLEGRO_LEGACY_HAVE_STDINT_H
+#endif
 
 /* describe how function prototypes look to MSVC */
 #if defined ALLEGRO_LEGACY_STATICLINK

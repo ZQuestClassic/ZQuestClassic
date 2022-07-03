@@ -682,9 +682,7 @@ bool valid_zqt(const char *filename)
 
 PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
 {
-	char tmpfilename[64]; 	// This WAS [32]. I had to increase its size to prevent crashes 
-				// when changing qst.dat to a longer filename in the module file! -Z
-		
+	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 	char percent_done[30];
 	int32_t current_method=0;
@@ -20277,7 +20275,7 @@ void portBombRules()
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata)
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, const byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
@@ -20291,7 +20289,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     }
     
     //  show_progress=true;
-    char tmpfilename[32] = {0};
+    char tmpfilename[L_tmpnam];
     temp_name(tmpfilename);
 //  char percent_done[30];
     bool catchup=false;

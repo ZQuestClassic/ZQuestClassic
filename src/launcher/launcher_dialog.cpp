@@ -746,7 +746,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								set_config_file("zc.cfg");
 								zc_set_config("Theme","theme_filename",themename.c_str());
 								zc_set_config("zeldadx","gui_colorset",99);
-								set_config_standard();
+								zc_set_config_standard();
 							}
 							else
 							{
@@ -769,7 +769,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								set_config_file("zquest.cfg");
 								zc_set_config("Theme","theme_filename",themename.c_str());
 								zc_set_config("zquest","gui_colorset",99);
-								set_config_standard();
+								zc_set_config_standard();
 							}
 							else
 							{
@@ -847,10 +847,10 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::ZC:
-			launch_process("zelda.exe");
+			launch_process(ZELDA_FILE);
 			break;
 		case message::ZQ:
-			launch_process("zquest.exe");
+			launch_process(ZQUEST_FILE);
 			break;
 		case message::EXIT:
 			close_button_quit = true;

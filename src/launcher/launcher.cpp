@@ -5,13 +5,14 @@
 #include "fonts.h"
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
+#include "zqscale.h"
+#include "zapp.h"
 
 #define QUICK_EXIT 0
 
 
 #define QUIT_LAUNCHER() \
 do{ \
-	allegro_exit(); \
 	return 1; \
 } \
 while(false)
@@ -27,7 +28,7 @@ volatile int32_t framecnt = 0;
 int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
 volatile int32_t myvsync=0;
-int32_t zqwin_scale = 1;
+extern int32_t zqwin_scale;
 int32_t zq_screen_w=800;
 int32_t zq_screen_h=600;
 BITMAP *tmp_scr;
@@ -83,13 +84,16 @@ void hit_close_button()
 
 int32_t main(int32_t argc, char* argv[])
 {
+	common_main_setup(argc, argv);
+
 	set_uformat(U_ASCII);
 	zc_srand(time(0));
 	
 	
 	Z_message("Initializing Allegro... "); //{
 	allegro_init();
-	set_config_standard();
+
+	zc_set_config_standard();
 	// register_bitmap_file_type("GIF",  load_gif, save_gif);
 	// jpgalleg_init();
 	// loadpng_init();
@@ -161,7 +165,25 @@ int32_t main(int32_t argc, char* argv[])
 	//} end Loading data files:
 	
 	set_color_depth(8);
-	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
+
+	int scale_arg = used_switch(argc,argv,"-scale");
+	if(scale_arg && (argc>(scale_arg+1)))
+	{
+		scale_arg = atoi(argv[scale_arg+1]);
+
+		if(scale_arg == 0)
+		{
+			scale_arg = 1;
+		}
+
+		zqwin_set_scale(scale_arg);
+	} else {
+#ifdef __APPLE__
+		zqwin_set_scale(2);
+#endif
+	}
+
+	int32_t videofail = set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	
 	if(videofail)
 	{
@@ -223,7 +245,6 @@ int32_t main(int32_t argc, char* argv[])
 	//
 	
 	flush_config_file();
-	allegro_exit();
 	return 0;
 }
 END_OF_MAIN()
@@ -476,7 +497,6 @@ void update_hw_screen(bool force)
 
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
-	Z_message("getname_nogo\n");
     if(def!=temppath)
         strcpy(temppath,def);
         
@@ -506,7 +526,6 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
 
 bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
-	Z_message("getname\n");
     go();
     int32_t ret=0;
     ret = getname_nogo(prompt,ext,list,def,usefilename);

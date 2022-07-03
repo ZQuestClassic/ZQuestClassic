@@ -12,6 +12,18 @@ static uint32_t __dummy_;
 #include "windows.h"
 #undef WinMain
 #undef NOGDI
+#else
+#include <unistd.h>
+#endif
+
+#ifdef __APPLE__
+	#define ZELDA_FILE "zelda"
+	#define ZQUEST_FILE "zquest"
+	#define ZSCRIPT_FILE "zscript"
+#else
+	#define ZELDA_FILE "zelda.exe"
+	#define ZQUEST_FILE "zquest.exe"
+	#define ZSCRIPT_FILE "zscript.exe"
 #endif
 
 struct process_killer
@@ -115,8 +127,8 @@ struct process_manager : public io_manager
 	//}
 	#else
 	//{ Unix
-	FILE* write_handle;
-	FILE* read_handle;
+	int write_handle;
+	int read_handle;
 	process_killer pk;
 	
 	bool kill_on_destructor;
@@ -137,7 +149,7 @@ struct process_manager : public io_manager
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!read_handle) return false;
-		size_t ret = fread(buf, 1, bytes_to_read, read_handle);
+		size_t ret = ::read(read_handle, buf, bytes_to_read);
 		if(bytes_read) *bytes_read = ret;
 		return ret>0;
 	}
@@ -145,7 +157,7 @@ struct process_manager : public io_manager
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!write_handle) return false;
-		size_t ret = fwrite(buf, 1, bytes_to_write, write_handle);
+		size_t ret = ::write(write_handle, buf, bytes_to_write);
 		if(bytes_written) *bytes_written = ret;
 		return ret==bytes_to_write;
 	}
@@ -190,12 +202,12 @@ struct child_process_handler : public io_manager
 	//}
 	#else
 	//{
-	FILE *read_handle, *write_handle;
+	int read_handle, write_handle;
 	
 	bool init()
 	{
-		read_handle = stdin;
-		write_handle = stdout;
+		read_handle = fileno(stdin);
+		write_handle = fileno(stdout);
 		return true;
 	}
 	
@@ -207,7 +219,7 @@ struct child_process_handler : public io_manager
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL)
 	{
 		if(!read_handle) return false;
-		size_t ret = fread(buf, 1, bytes_to_read, read_handle);
+		size_t ret = ::read(read_handle, buf, bytes_to_read);
 		if(bytes_read) *bytes_read = ret;
 		return ret>0;
 	}
@@ -215,7 +227,7 @@ struct child_process_handler : public io_manager
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL)
 	{
 		if(!write_handle) return false;
-		size_t ret = fwrite(buf, 1, bytes_to_write, write_handle);
+		size_t ret = ::write(write_handle, buf, bytes_to_write);
 		if(bytes_written) *bytes_written = ret;
 		return ret==bytes_to_write;
 	}
@@ -223,8 +235,8 @@ struct child_process_handler : public io_manager
 	#endif
 };
 
-process_killer launch_process(char const* relative_path, char const** argv = NULL);
-process_manager* launch_piped_process(char const* relative_path, char const** argv = NULL);
+process_killer launch_process(char const* file, const char *argv[] = NULL);
+process_manager* launch_piped_process(char const* file, const char *argv[] = NULL);
 
 #endif
 

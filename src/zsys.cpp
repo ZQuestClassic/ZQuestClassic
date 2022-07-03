@@ -126,35 +126,8 @@ void extract_name(char const* path,char *name,int32_t type)
 
 void temp_name(char temporaryname[])
 {
-    int32_t tempnum;
-    
-    for(int32_t i=0; i<1000; ++i)
-    {
-        sprintf(temporaryname, "%s", "00000000.tmp");
-        
-        for(int32_t j=0; j<8; ++j)
-        {
-            tempnum=zc_rand(61);
-            
-            if(tempnum<26)
-            {
-                temporaryname[j]='A'+tempnum;
-            }
-            else if(tempnum<52)
-            {
-                temporaryname[j]='a'+tempnum-26;
-            }
-            else
-            {
-                temporaryname[j]='0'+tempnum-52;
-            }
-        }
-        
-        if(!exists(temporaryname))
-        {
-            return;
-        }
-    }
+    // TODO: remove temp_name, use std::tmpnam() directly
+    std::tmpnam(temporaryname);
 }
 
 int32_t bound(int32_t &x,int32_t low,int32_t high)

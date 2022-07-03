@@ -28,7 +28,8 @@
 #include <stdlib.h>
 
 #include <loadpng.h>
-#include <jpgalleg.h>
+#include <aljpg.h>
+#include <gif.h>
 
 #include "zc_malloc.h"
 #include "mem_debug.h"
@@ -41,12 +42,11 @@
 #include "pal.h"
 #include "aglogo.h"
 #include "zsys.h"
+#include "zapp.h"
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
 #include "jwinfsel.h"
-#include "save_gif.h"
-#include "load_gif.h" // not really needed; we're just saving GIF files in ZC.
 #include "fontsdat.h"
 #include "particles.h"
 #include "gamedata.h"
@@ -4332,7 +4332,8 @@ int32_t isFullScreen()
 bool setGraphicsMode(bool windowed)
 {
     int32_t type=windowed ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN;
-    return set_gfx_mode(type, resx, resy, 0, 0)==0;
+    bool result = set_gfx_mode(type, resx, resy, 0, 0)==0;
+    return result;
 }
 
 int32_t onFullscreen()
@@ -4387,8 +4388,10 @@ int32_t onFullscreen()
     else return D_O_K;
 }
 
-int32_t main(int32_t argc, char* argv[])
+int main(int argc, char **argv)
 {
+	common_main_setup(argc, argv);
+
 	bool onlyInstance=true;
 	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
 //	refresh_select_screen = 0;
@@ -4463,10 +4466,6 @@ int32_t main(int32_t argc, char* argv[])
 	qstdir[0] = 0;
 	qstpath[0] = 0;
 	
-#ifdef ALLEGRO_MACOSX
-	sprintf(qstdir, "../../../");
-	sprintf(qstpath, "../../../");
-#endif
 	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
@@ -4484,14 +4483,16 @@ int32_t main(int32_t argc, char* argv[])
 	
 	three_finger_flag=false;
 	
-	register_bitmap_file_type("GIF",  load_gif, save_gif);
-	jpgalleg_init();
+	algif_init();
+	aljpg_init();
+#if !defined(__APPLE__) && !defined(_WIN64)
 	loadpng_init();
+#endif
 	
 	// set and load game configurations
-	set_config_file("zc.cfg");
+	zc_set_config_standard();
 	
-	if(exists("zc.cfg") != 0)
+	if(!zc_config_standard_exists())
 	{
 		load_game_configs();
 	}
@@ -4501,7 +4502,7 @@ int32_t main(int32_t argc, char* argv[])
 		save_game_configs();
 	}
 	
-#ifndef ALLEGRO_MACOSX // Should be done on Mac, too, but I haven't gotten that working
+#ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
 	if(!is_only_instance("zc.lck"))
 	{
 		if(used_switch(argc, argv, "-multiple") || zc_get_config("zeldadx","multiple_instances",0))
@@ -5121,8 +5122,6 @@ int32_t main(int32_t argc, char* argv[])
 		resy = atoi(argv[res_arg+2]);
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
-		
-		//mode = GFX_AUTODETECT;
 	}
 	
 	if(resx>=640 && resy>=480)
@@ -5144,6 +5143,7 @@ int32_t main(int32_t argc, char* argv[])
 		al_trace("Used switch: -windowed\n");
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
+
 	
 	//set scale
 	if(resx < 256) resx = 256;
@@ -5611,7 +5611,6 @@ int32_t main(int32_t argc, char* argv[])
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		
-	allegro_exit();
 	return 0;
 }
 END_OF_MAIN()

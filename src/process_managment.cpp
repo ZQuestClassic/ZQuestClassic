@@ -3,6 +3,7 @@
 #ifndef _WIN32
 	#include <csignal>
 	#include <sys/types.h>
+	#include <spawn.h>
 #endif
 using namespace util;
 
@@ -12,7 +13,7 @@ using namespace util;
 		if(pm) \
 			delete pm; \
 		char buf[2048] = {0}; \
-		sprintf(buf, "[PROCESS_LAUNCH: '%s' ERROR]: %s\n", relative_path, str); \
+		sprintf(buf, "[PROCESS_LAUNCH: '%s' ERROR]: %s\n", file, str); \
 		safe_al_trace(buf); \
 		return NULL; \
 	} while(false)
@@ -34,35 +35,36 @@ void process_killer::kill(uint32_t exitcode)
 #endif
 }
 
-process_killer launch_process(char const* relative_path, char const** argv)
+process_killer launch_process(char const* file, const char *argv[])
 {
 #ifdef _WIN32
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
+
+	char path_buf[2048];
+	sprintf(path_buf, "\"%s\"", file);
+	if(argv)
+	{
+		for(auto q = 0; argv[q]; ++q)
+		{
+			strcat(path_buf, " \"");
+			strcat(path_buf, argv[q]);
+			strcat(path_buf, "\"");
+		}
+	}
+
 	GetStartupInfo(&si);
-	char path[MAX_PATH];
-	strcpy(path, relative_path);
-	CreateProcess(NULL,path,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
+	CreateProcess(NULL,path_buf,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 	return process_killer(pi.hProcess);
 #else
-	int32_t pid;
-	
-	char path_buf[2048];
-	sprintf(path_buf, "./%s", relative_path);
-	switch(pid = vfork())
-	{
-		case -1:
-			ERR_EXIT("Failed to fork process", (process_manager*)0);
-		case 0: //child
-			execv(path_buf, (char *const *)argv);
-			ERR_EXIT("Failed execv", (process_manager*)0);
-	}
-	
+	int32_t pid, s;
+	s = posix_spawn(&pid, file, NULL, NULL, (char *const *)argv, NULL);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0);
 	return process_killer(pid);
 #endif
 }
 
-process_manager* launch_piped_process(char const* relative_path, char const** argv)
+process_manager* launch_piped_process(char const* file, const char *argv[])
 {
 	process_manager* pm = new process_manager();
 #ifdef _WIN32
@@ -93,13 +95,14 @@ process_manager* launch_piped_process(char const* relative_path, char const** ar
 	si.hStdInput = pm->wr_2;
 	si.dwFlags |= STARTF_USESTDHANDLES;
 	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", relative_path);
+	sprintf(path_buf, "\"%s\"", file);
 	if(argv)
 	{
 		for(auto q = 0; argv[q]; ++q)
 		{
-			strcat(path_buf, " ");
+			strcat(path_buf, " \"");
 			strcat(path_buf, argv[q]);
+			strcat(path_buf, "\"");
 		}
 	}
 	bSuccess = CreateProcess(NULL, 
@@ -117,28 +120,29 @@ process_manager* launch_piped_process(char const* relative_path, char const** ar
 	return pm;
 #else
 	int32_t pdes_r[2], pdes_w[2], pid;
-	
+	posix_spawn_file_actions_t file_actions;
+	int s;
+
 	pipe(pdes_r);
 	pipe(pdes_w);
-	char path_buf[2048];
-	sprintf(path_buf, "./%s", relative_path);
-	switch(pid = vfork())
-	{
-		case -1:
-			ERR_EXIT("Failed to fork process", pm);
-		case 0: //child
-			dup2(pdes_r[1], fileno(stdout));
-			close(pdes_r[1]);
-			close(pdes_r[0]);
-			dup2(pdes_w[0], fileno(stdin));
-			close(pdes_w[0]);
-			close(pdes_w[1]);
-			execv(path_buf, (char *const *)argv);
-			ERR_EXIT("Failed execv", pm);
-	}
+
+	s = posix_spawn_file_actions_init(&file_actions);
+	if (s != 0) ERR_EXIT("Failed posix_spawn_file_actions_init", pm);
 	
-	pm->read_handle = (FILE*)(pdes_r[0]);
-	pm->write_handle = (FILE*)(pdes_w[1]);
+	posix_spawn_file_actions_adddup2(&file_actions, pdes_r[1], fileno(stdout));
+	posix_spawn_file_actions_addclose(&file_actions, pdes_r[1]);
+	posix_spawn_file_actions_addclose(&file_actions, pdes_r[0]);
+
+	posix_spawn_file_actions_adddup2(&file_actions, pdes_w[0], fileno(stdin));
+	posix_spawn_file_actions_addclose(&file_actions, pdes_w[0]);
+	posix_spawn_file_actions_addclose(&file_actions, pdes_w[1]);
+
+	pid_t child_pid;
+	s = posix_spawn(&child_pid, file, &file_actions, NULL, (char *const *)argv, NULL);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", pm);
+	
+	pm->read_handle = pdes_r[0];
+	pm->write_handle = pdes_w[1];
 	close(pdes_r[1]);
 	close(pdes_w[0]);
 	pm->pk.init(pid);

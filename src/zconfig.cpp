@@ -1,10 +1,15 @@
 #include "zc_alleg.h"
 #include "zconfig.h"
 
-void set_config_standard()
+void zc_set_config_standard()
 {
 	flush_config_file();
 	set_config_file(STANDARD_CFG);
+}
+
+bool zc_config_standard_exists()
+{
+	return exists(STANDARD_CFG);
 }
 
 static char cfg_str[2048];

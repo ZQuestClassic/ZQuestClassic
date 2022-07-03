@@ -26,7 +26,12 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#ifdef __APPLE__
+// malloc.h is deprecated, but malloc also lives in stdlib
+#include <stdlib.h>
+#else
 #include <malloc.h>
+#endif
 
 #include "parser/Compiler.h"
 #include "zc_alleg.h"
@@ -41,7 +46,8 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <pngconf.h>
 
 #include <loadpng.h>
-#include <jpgalleg.h>
+#include <aljpg.h>
+#include <gif.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
@@ -53,8 +59,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/ffc_editor.h"
 
 #include "gui.h"
-#include "load_gif.h"
-#include "save_gif.h"
 #include "editbox.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"                                       // tile and combo code
@@ -69,6 +73,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "colors.h"
 #include "qst.h"
 #include "zsys.h"
+#include "zapp.h"
 #include "zcmusic.h"
 
 #include "midi.h"
@@ -126,7 +131,7 @@ static const char *tmusic_path_name = "linux_tmusic_path";
 static const char *last_quest_name  = "linux_last_quest";
 static const char *qtname_name      = "linux_qtname%d";
 static const char *qtpath_name      = "linux_qtpath%d";
-#elif defined(ALLEGRO_MACOSX)
+#elif defined(__APPLE__)
 static const char *data_path_name   = "macosx_data_path";
 static const char *midi_path_name   = "macosx_midi_path";
 static const char *image_path_name  = "macosx_image_path";
@@ -304,11 +309,7 @@ bool resize_mouse_pos=false;                                //for eyeball combos
 int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 //int32_t mode, switch_mode, orig_mode;
-#ifdef ALLEGRO_MACOSX
-int32_t tempmode=GFX_AUTODETECT_FULLSCREEN;
-#else
 int32_t tempmode=GFX_AUTODETECT;
-#endif
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
@@ -1507,7 +1508,7 @@ int32_t onFullScreen()
 	    {
 		zqwin_set_scale(scale_arg);
 	    }
-	    
+
 	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
 	    
 	    if(ret!=0)
@@ -4934,11 +4935,7 @@ int32_t mapMaker(BITMAP * _map, PALETTE _mappal)
     
     do
     {
-#ifdef ALLEGRO_MACOSX
-        snprintf(buf, 200, "../../../%szquest_map%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#else
         snprintf(buf, 200, "%szquest_map%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#endif
         buf[199]='\0';
     }
     while(num<99999 && exists(buf));
@@ -24951,8 +24948,13 @@ int32_t onCompileScript()
 			#endif
 			//need elseif for linux here! -Z
 			//Compile!
-			FILE *tempfile = fopen("tmp","w");
-			
+			char tmpfilename[L_tmpnam];
+			std::tmpnam(tmpfilename);
+			FILE *tempfile = fopen(tmpfilename,"w");
+
+			char consolefilename[L_tmpnam];
+			std::tmpnam(consolefilename);
+
 			if(!tempfile)
 			{
 				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
@@ -24968,9 +24970,9 @@ int32_t onCompileScript()
 			map<string, disassembled_script_data> scripts;
 			
 			int32_t code = -9999;
-			if(!fileexists("zscript.exe"))
+			if(!fileexists(ZSCRIPT_FILE))
 			{
-				InfoDialog("Parser","'zscript.exe' was not found!").show();
+				InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
 				break;
 			}
 			parser_console.kill();
@@ -24979,21 +24981,24 @@ int32_t onCompileScript()
 				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "ZConsole.exe");
 				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 				parser_console.gotoxy(0,0);
-				zconsole_info("External ZScript Parser\n");
+				zconsole_info("%s", "External ZScript Parser\n");
 			}
 			else
 			{
 				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
 			clock_t start_compile_time = clock();
-			char const* noclose = "-noclose";
-			char const* argv[5] = {"-input", "tmp", "-linked", NULL, NULL};
+			const char* argv[] = {
+#ifndef _WIN32
+				ZSCRIPT_FILE,
+#endif
+                "-input", tmpfilename, "-console", consolefilename, "-linked", NULL, NULL};
 			if(zc_get_config("Compiler","noclose_compile_console",0))
-				argv[3] = noclose;
-			process_manager* pm = launch_piped_process("zscript.exe", argv);
+				argv[3] = "-noclose";
+			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
 			if(!pm)
 			{
-				InfoDialog("Parser","Failed to launch 'zscript.exe'!").show();
+				InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
 				break;
 			}
 			
@@ -25002,7 +25007,7 @@ int32_t onCompileScript()
 			int syncthing = 0;
 			pm->read(&syncthing, sizeof(int32_t));
 
-			FILE *console=fopen("tmp3", "r");
+			FILE *console = fopen(consolefilename, "r");
 			char buf4[512];
 			bool hasWarnErr = false;
 			if (console) 
@@ -26318,7 +26323,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26347,8 +26352,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							}
 						}
 						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&ffscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&ffscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) ffscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) ffscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26363,7 +26369,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26391,8 +26397,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&globalscripts[it->first],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&globalscripts[it->first],"tmp",false);
 						if(it->second.isDisassembled()) globalscripts[it->first]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) globalscripts[it->first]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26407,7 +26415,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26435,8 +26443,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&itemscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&itemscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) itemscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) itemscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26450,7 +26460,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26478,8 +26488,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&guyscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&guyscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) guyscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) guyscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26493,7 +26505,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26521,8 +26533,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&lwpnscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&lwpnscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26536,7 +26550,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26564,8 +26578,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&ewpnscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&ewpnscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26579,7 +26595,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26607,8 +26623,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&playerscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&playerscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) playerscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) playerscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26622,7 +26640,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26650,8 +26668,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&dmapscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&dmapscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26665,7 +26685,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26693,8 +26713,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 								al_trace("%s",theline.c_str());
 							}
 						}
+						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&screenscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&screenscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) screenscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) screenscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26708,7 +26730,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26737,8 +26759,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							}
 						}
 						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&itemspritescripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&itemspritescripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26753,7 +26776,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26782,8 +26805,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							}
 						}
 						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&comboscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&comboscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) comboscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) comboscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26797,7 +26821,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				{
 					if(it->second.hasScriptData())
 					{
-						tempfile = fopen("tmp","w");
+						tempfile = std::tmpfile();
 						
 						if(!tempfile)
 						{
@@ -26826,8 +26850,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							}
 						}
 						
+						fseek(tempfile, 0, SEEK_SET);
+						parse_script_file(&genericscripts[it->first+1],tempfile,false);
 						fclose(tempfile);
-						parse_script_file(&genericscripts[it->first+1],"tmp",false);
 						if(it->second.isDisassembled()) genericscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
 						else if(it->second.isImportedZASM()) genericscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
 					}
@@ -26837,7 +26862,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						genericscripts[it->first+1] = new script_data();
 					}
 				}
-				unlink("tmp");
+
 				clock_t end_assign_time = clock();
 				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				char buf[256] = {0};
@@ -29769,6 +29794,8 @@ int32_t main(int32_t argc,char **argv)
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
+
+	common_main_setup(argc, argv);
 	
 	scrtmp = NULL;
 	
@@ -29929,12 +29956,21 @@ int32_t main(int32_t argc,char **argv)
 	
 	allegro_init();
 	three_finger_flag=false;
-	register_bitmap_file_type("GIF",  load_gif, save_gif);
-	jpgalleg_init();
+
+	if(!al_init_image_addon())
+	{
+		Z_error_fatal("Failed al_init_image_addon");
+		quit_game();
+	}
+
+	algif_init();
+	aljpg_init();
+#if !defined(__APPLE__) && !defined(_WIN64)
 	loadpng_init();
+#endif
 	
 	//set_config_file("ag.cfg");
-	set_config_file("zquest.cfg");
+	zc_set_config_standard();
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
 	if(install_timer() < 0)
@@ -30446,13 +30482,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	filepath[0]=temppath[0]=0;
 	
-#ifdef ALLEGRO_MACOSX
-	const char *default_path="../../../";
-	sprintf(filepath, "../../../");
-	sprintf(temppath, "../");
-#else
 	const char *default_path="";
-#endif
 	
 	strcpy(datapath,get_config_string("zquest",data_path_name,default_path));
 	strcpy(midipath,get_config_string("zquest",midi_path_name,default_path));
@@ -31051,19 +31081,22 @@ int32_t main(int32_t argc,char **argv)
 	#endif
 	  zqwin_set_scale(scale_arg);
 	}*/
-	
+
 	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
-	
+
 	if(videofail!=0)
 	{
 		allegro_init();
 		three_finger_flag=false;
-		register_bitmap_file_type("GIF",  load_gif, save_gif);
-		jpgalleg_init();
+
+		algif_init();
+		aljpg_init();
+#if !defined(__APPLE__) && !defined(_WIN64)
 		loadpng_init();
+#endif
 		
 		//set_config_file("ag.cfg");
-		set_config_file("zquest.cfg");
+		zc_set_config_standard();
 		if(install_timer() < 0)
 		{
 
@@ -31157,7 +31190,7 @@ int32_t main(int32_t argc,char **argv)
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
 
 		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease .\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
+						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
 
 
 		Z_error_fatal(allegro_error);
@@ -31433,10 +31466,6 @@ int32_t main(int32_t argc,char **argv)
 			{
 				filepath[0]=temppath[0]=0;
 				first_save=false;
-#ifdef ALLEGRO_MACOSX
-				sprintf(filepath, "../../../");
-				sprintf(temppath, "../");
-#endif
 			}
 		}
 		else
@@ -31452,10 +31481,6 @@ int32_t main(int32_t argc,char **argv)
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 			filepath[0]=temppath[0]=0;
 			first_save=false;
-#ifdef ALLEGRO_MACOSX
-			sprintf(filepath, "../../../");
-			sprintf(temppath, "../");
-#endif
 		}
 	}
 	
@@ -31683,8 +31708,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(ForceExit) //last resort fix to the allegro process hanging bug.
 		exit(0);
-		
-	allegro_exit();
 	
 	return 0;
 // memset(qtpathtitle,0,10);//UNREACHABLE

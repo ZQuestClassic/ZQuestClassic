@@ -59,7 +59,8 @@ static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
     while(!al_get_thread_should_stop(thread))
     {
         al_init_timeout(&timeout, 0.1);
-        if(al_wait_for_event_until(queue, &event, &timeout))
+        al_wait_for_event(queue, &event);
+        if(true)
         {
             switch(event.type)
             {
@@ -71,7 +72,8 @@ static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
                         fragment = al_get_audio_stream_fragment(a5_sound_stream);
                         if(fragment)
                         {
-                            _mix_some_samples((unsigned long)fragment, 0, TRUE);
+                            // local edit
+                            _mix_some_samples((uintptr_t)fragment, 0, TRUE);
                             al_set_audio_stream_fragment(a5_sound_stream, fragment);
                         }
                         else
@@ -132,8 +134,8 @@ static int a5_sound_init(int input, int voices)
 
 static void a5_sound_exit(int input)
 {
-    al_destroy_thread(a5_sound_thread);
-    a5_sound_thread = NULL;
+    // al_destroy_thread(a5_sound_thread);
+    // a5_sound_thread = NULL;
     al_uninstall_audio();
 }
 

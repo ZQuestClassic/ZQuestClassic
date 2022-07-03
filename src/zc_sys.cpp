@@ -105,8 +105,8 @@ static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
 const char *qst_dir_name = "linux_qst_dir";
 static  const char *qst_module_name = "current_module";
-#elif defined(ALLEGRO_MACOSX)
-const char *qst_dir_name = "macosx_qst_dir";
+#elif defined(__APPLE__)
+const char *qst_dir_name = "osx_qst_dir";
 static  const char *qst_module_name = "current_module";
 #endif
 #ifdef ALLEGRO_LINUX
@@ -394,12 +394,8 @@ void load_game_configs()
     zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
     monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
-   
-#ifdef ALLEGRO_MACOSX
-    const char *default_path="../../../";
-#else
-    const char *default_path="";
-#endif
+
+    char* default_path = "";
     strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
    
     if(strlen(qstdir)==0)
@@ -3943,11 +3939,7 @@ int32_t onGUISnapshot()
     bool realpal=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
     do
     {
-#ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#else
         sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-#endif
     }
     while(num<99999 && exists(buf));
     
@@ -4088,11 +4080,7 @@ int32_t onSaveMapPic()
 	
 	do
 	{
-#ifdef ALLEGRO_MACOSX
-		sprintf(buf, "../../../%szc_screen%05d.png", get_snap_str(), ++num);
-#else
 		sprintf(buf, "%szc_screen%05d.png", get_snap_str(), ++num);
-#endif
 	}
 	while(num<99999 && exists(buf));
 	
@@ -4213,11 +4201,7 @@ int32_t onSaveMapPic()
     
     do
     {
-#ifdef ALLEGRO_MACOSX
-        sprintf(buf, "../../../zelda%03d.png", ++num);
-#else
         sprintf(buf, "zelda%03d.png", ++num);
-#endif
     }
     while(num<999 && exists(buf));
     

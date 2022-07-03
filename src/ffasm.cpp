@@ -3132,7 +3132,7 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 			found_command=true;
 			(*script)->zasm[com].command = i;
 			
-			if(((strnicmp(combuf,"GOTO",4)==0)||(strnicmp(combuf,"LOOP",4)==0)) && stricmp(combuf, "GOTOR"))
+			if(((ustrnicmp(combuf,"GOTO",4)==0)||(ustrnicmp(combuf,"LOOP",4)==0)) && ustricmp(combuf, "GOTOR"))
 			{
 				string lbl(arg1buf);
 				map<string,int32_t>::iterator it = labels.find(lbl);
@@ -3146,7 +3146,7 @@ int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_
 				}
 				
 				
-				if(strnicmp(combuf,"LOOP",4)==0)
+				if(ustrnicmp(combuf,"LOOP",4)==0)
 				{
 					if(command_list[i].arg2_type==1)  //this should NEVER happen with a loop, as arg2 needs to be a variable
 					{

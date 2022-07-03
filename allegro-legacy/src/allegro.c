@@ -631,7 +631,8 @@ void al_assert(AL_CONST char *file, int line)
 void al_trace(AL_CONST char *msg, ...)
 {
    int olderr = errno;
-   char buf[512];
+   // local edit - zconsole_info uses buffer of 1024 so this must match.
+   char buf[1024];
    char *s;
 
    /* todo, some day: use vsnprintf (C99) */

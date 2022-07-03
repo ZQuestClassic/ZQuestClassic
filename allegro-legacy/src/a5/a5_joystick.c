@@ -52,7 +52,8 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
     while(!al_get_thread_should_stop(thread))
     {
         al_init_timeout(&timeout, 0.1);
-        if(al_wait_for_event_until(queue, &event, &timeout))
+        al_wait_for_event(queue, &event);
+        if(true)
         {
             switch(event.type)
             {
@@ -156,8 +157,8 @@ static int a5_joystick_init(void)
 
 static void a5_joystick_exit(void)
 {
-    al_destroy_thread(a5_joystick_thread);
-    a5_joystick_thread = NULL;
+    // al_destroy_thread(a5_joystick_thread);
+    // a5_joystick_thread = NULL;
     al_uninstall_joystick();
 }
 

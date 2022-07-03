@@ -1,0 +1,39 @@
+PREFIX := /usr/local
+
+CFLAGS := -Isrc
+LDFLAGS :=
+LDLIBS := -L. -lalgif `allegro-config --libs`
+
+# When compiled with Allegro 4.1, don't warn about all the deprecated 4.0
+# functions.
+CFLAGS += -Wno-deprecated-declarations
+
+default: libalgif.a algif_examples
+
+%.o: %.c
+	gcc -c -o $@ $<
+
+libalgif.a: src/algif.o src/gif.o src/lzw.o
+	ar -rcs $@ $^
+
+algif_examples: load_gif load_animation load_raw_animation save_raw_animation
+
+load_gif: examples/load_gif/main.c
+	gcc -o $@ $< $(CFLAGS) $(LDFLAGS) $(LDLIBS)
+
+load_animation: examples/load_animation/main.c
+	gcc -o $@ $< $(CFLAGS) $(LDFLAGS) $(LDLIBS)
+
+load_raw_animation: examples/load_raw_animation/main.c
+	gcc -o $@ $< $(CFLAGS) $(LDFLAGS) $(LDLIBS)
+
+save_raw_animation: examples/save_raw_animation/main.c
+	gcc -o $@ $< $(CFLAGS) $(LDFLAGS) $(LDLIBS)
+
+install:
+	cp libalgif.a $(PREFIX)/lib
+	cp src/algif.h $(PREFIX)/include
+
+uninstall:
+	rm $(PREFIX)/lib/libalgif.a
+	rm $(PREFIX)/include/algif.h

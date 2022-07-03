@@ -25,7 +25,8 @@
 #define DRAW_GLYPH(bits, size)                                               \
 {                                                                            \
    AL_CONST unsigned char *data = glyph->dat;                                \
-   unsigned long addr;                                                       \
+   /* local edit */                                                          \
+   uintptr_t addr;                                                           \
    int w = glyph->w;                                                         \
    int h = glyph->h;                                                         \
    int stride = (w+7)/8;                                                     \

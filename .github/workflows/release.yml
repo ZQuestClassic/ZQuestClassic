@@ -56,11 +56,18 @@ jobs:
     if: ${{ needs.check_date.outputs.should_run != 'false' }}
 
     runs-on: windows-2022
+    strategy:
+      matrix:
+        arrays: [
+          {arch: x64, name: windows-x64},
+          {arch: win32, name: windows-x86},
+        ]
+      fail-fast: false
 
     steps:
     - uses: ilammy/msvc-dev-cmd@v1
       with:
-        arch: win32
+        arch: ${{ matrix.arrays.arch }}
 
     - name: git clone
       uses: actions/checkout@v2
@@ -70,40 +77,59 @@ jobs:
       with:
         args: install .github/dependencies.config -y
 
-    - name: Configure *.h.sig
-      # Generate compilersig: MSVC 19.32.31332.0 [Should automatically fetch this somehow, instead of hardcoding... -Em]
-      run: |
-        echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
-        echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
-        echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
-        echo '#define COMPILER_V_FIRST 19' >> src/metadata/sigs/compilersig.h.sig
-        echo '#define COMPILER_V_SECOND 32' >> src/metadata/sigs/compilersig.h.sig
-        echo '#define COMPILER_V_THIRD 31332' >> src/metadata/sigs/compilersig.h.sig
-        echo '#define COMPILER_V_FOURTH 0' >> src/metadata/sigs/compilersig.h.sig
-        echo '#define COMPILER_NAME "MSVC"' >> src/metadata/sigs/compilersig.h.sig
-        echo '#define COMPILER_VERSION "v17, 2022"' >> src/metadata/sigs/compilersig.h.sig
-    # Alpha.
-    - if: "${{ github.event.inputs.number != '' }}"
-      run: |
-        echo '#undef V_ZC_ALPHA' >> src/metadata/versionsig.h
-        echo '#define V_ZC_ALPHA ${{inputs.number}}' >> src/metadata/versionsig.h
-    # Nightly.
-    - if: "${{ github.event.inputs.number == '' }}"
-      run: |
-        echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
-        echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
-
-    - run: cmake . -A win32
+    - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.number }}
+    - run: cmake . -A ${{ matrix.arrays.arch }}
     - run: cmake --build . --config Release
     - run: echo y | ./buildpack.bat
       working-directory: output/_auto
+    - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         name: ${{ needs.create_tag.outputs.release_name }}
         tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
-        files: output/_auto/buildpack.zip
+        files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
+        prerelease: true
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+
+  release-mac:
+    needs:
+      - check_date
+      - create_tag
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+
+    runs-on: macos-12
+
+    steps:
+    - name: git clone
+      uses: actions/checkout@v2
+
+    - run: brew install ninja dylibbundler create-dmg
+    - name: Install Bison
+      run: |
+        wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+        tar -zxvf bison-3.6.tar.gz
+        cd bison-3.6
+        ./configure
+        make
+        sudo make install
+
+    - run: bash .github/workflows/configure-signatures.sh mac ${{ inputs.number }}
+    - run: cmake -S . -B build -G 'Ninja Multi-Config' .
+    - run: cmake --build build --config Release
+
+    - run: ./buildpack_osx.sh
+      working-directory: output/_auto
+    - run: mv output/_auto/ZeldaClassic.dmg "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}.dmg"
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ needs.create_tag.outputs.release_name }}
+        tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
+        files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}.dmg"
         prerelease: true
         fail_on_unmatched_files: true
         generate_release_notes: true

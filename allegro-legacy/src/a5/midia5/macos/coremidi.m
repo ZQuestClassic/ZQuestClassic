@@ -65,9 +65,10 @@ static void _setup_output_platform_data(MIDIA5_COREMIDI_DATA * cm_data)
     quality = 127;
     AudioUnitSetProperty(cm_data->synth_unit, kAudioUnitProperty_RenderQuality, kAudioUnitScope_Output, 0, &quality, sizeof(quality));
 
-    reverb = 5;
-    reverb_type = reverb_info[5].type;
-    AudioUnitSetProperty(cm_data->synth_unit, kAudioUnitProperty_ReverbRoomType, kAudioUnitScope_Output, 0, &reverb_type, sizeof(reverb_type));
+    // local edit - reverb sound awful.
+    // reverb = 5;
+    // reverb_type = reverb_info[5].type;
+    // AudioUnitSetProperty(cm_data->synth_unit, kAudioUnitProperty_ReverbRoomType, kAudioUnitScope_Output, 0, &reverb_type, sizeof(reverb_type));
 
     AUGraphStart(cm_data->graph);
 

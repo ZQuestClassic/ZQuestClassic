@@ -13,8 +13,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+# Hide various test-related targets created by GME cmake so they
+# don't clutter up the Solution file. https://gitlab.kitware.com/cmake/cmake/-/issues/21730
+set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
+endif()
+
+if(APPLE)
+	# Makes binaries look in their directory for shared libraries.
+	list(APPEND CMAKE_BUILD_RPATH "@loader_path")
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
@@ -38,15 +47,24 @@ endfunction(enable_unity_build)
 # Allegro
 #############################################################
 
-add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
+# SDL WIP:
+#    cmake .. -DALLEGRO_SDL=on -DWANT_NATIVE_DIALOG=off
+# https://github.com/liballeg/allegro5/issues/1335
+
+if(NOT APPLE)
+	add_definitions(-DALLEGRO_NO_MAGIC_MAIN)
+endif()
 add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
+# Needed to build on Mac, otherwise get this error:
+#    aintern_bitmap.h:154:33: error: unknown type name 'ALLEGRO_BITMAP_WRAP'
+add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
 
 include(FetchContent)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/liballeg/allegro5.git
-  GIT_TAG        5.2.7.0
+  GIT_TAG        74edb77851bd7e1820bed115e3ec1397aa2142ae
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -89,7 +107,7 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_image allegro_main)
 
 #############################################################
 # Header and source file lists
@@ -98,11 +116,6 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_main)
 include_directories(./include/lpng1212)
 include_directories(./include/zlib123)
 include_directories(./include/loadpng)
-include_directories(./include/jpgalleg-2.5)
-include_directories(./include/dumb)
-include_directories(./include/alogg)
-include_directories(./include/almp3)
-include_directories(./include/gme)
 include_directories(./src)
 
 if(MSVC)
@@ -174,6 +187,8 @@ endif()
 
 # Windows
 
+string(TOLOWER "${CMAKE_VS_PLATFORM_NAME}" vs_platform)
+
 if(WIN32)
 	# Prevents definition of min and max macros, which conflict with std::min and std::max
 	add_definitions(-DNOMINMAX)
@@ -186,14 +201,9 @@ endif()
 
 if(MSVC)
 	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
-	set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/libjpgal.lib>"
-	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/al_gif.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/libjpgal.lib>")
-
-	set(SOUNDLIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/aldmd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/dumbd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/gme.lib>"
-	              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/aldmb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/almp3.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/alogg.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/dumb.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/gme.lib>")
-
-	if(MSVC_VERSION GREATER 1500)
-		add_definitions(-DALLEGRO_LEGACY_HAVE_STDINT_H)
+	if("${vs_platform}" STREQUAL "win32")
+		set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib>"
+		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib>")
 	endif()
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
@@ -227,7 +237,7 @@ elseif(LINUX)
 	link_directories(./libs/linux)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
 
-	set(IMAGELIBS algif ldpng jpgal png z)
+	set(IMAGELIBS ldpng png z)
 	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
 	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
 
@@ -237,14 +247,140 @@ elseif(LINUX)
 endif()
 
 #############################################################
+# Allegro Graphics Addons
+#############################################################
+
+add_library(algif STATIC
+	allegro-addons/algif/src/algif.c
+	allegro-addons/algif/src/gif.c
+	allegro-addons/algif/src/lzw.c
+)
+target_include_directories(algif INTERFACE
+	allegro-addons/algif/src
+)
+target_link_libraries(algif PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS algif)
+
+add_library(aljpg STATIC
+	allegro-addons/aljpg/src/aljpg.c
+)
+target_include_directories(aljpg PUBLIC
+	allegro-addons/aljpg/include
+)
+target_link_libraries(aljpg PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS aljpg)
+
+#############################################################
 # Sound Library
 #############################################################
+
+if(LINUX)
+	# TODO: Build sound deps from source on linux.
+	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
+else()
+	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
+endif()
+
+if(BUILD_SOUND_LIBS_FROM_SOURCE)
+	if(WIN32)
+		set(SOUND_LIB_SHARED STATIC)
+	else()
+		set(SOUND_LIB_SHARED SHARED)
+	endif()
+	add_library(almp3 ${SOUND_LIB_SHARED}
+		allegro-addons/almp3/src/almp3.c
+		allegro-addons/almp3/decoder/common.c
+		allegro-addons/almp3/decoder/dct64_i386.c
+		allegro-addons/almp3/decoder/decode_i386.c
+		allegro-addons/almp3/decoder/interface.c
+		allegro-addons/almp3/decoder/layer2.c
+		allegro-addons/almp3/decoder/layer3.c
+		allegro-addons/almp3/decoder/tabinit.c
+	)
+	target_include_directories(almp3 PUBLIC
+		allegro-addons/almp3/include
+		allegro-addons/almp3/decoder
+	)
+	target_link_libraries(almp3 PUBLIC allegro_with_legacy)
+
+	add_library(alogg ${SOUND_LIB_SHARED}
+		allegro-addons/alogg/decoder/libogg/macos/compat/strdup.c
+		allegro-addons/alogg/decoder/libogg/src/bitwise.c
+		allegro-addons/alogg/decoder/libogg/src/framing.c
+		allegro-addons/alogg/decoder/libvorbis/lib/analysis.c
+		allegro-addons/alogg/decoder/libvorbis/lib/bitrate.c
+		allegro-addons/alogg/decoder/libvorbis/lib/block.c
+		allegro-addons/alogg/decoder/libvorbis/lib/codebook.c
+		allegro-addons/alogg/decoder/libvorbis/lib/envelope.c
+		allegro-addons/alogg/decoder/libvorbis/lib/floor0.c
+		allegro-addons/alogg/decoder/libvorbis/lib/floor1.c
+		allegro-addons/alogg/decoder/libvorbis/lib/info.c
+		allegro-addons/alogg/decoder/libvorbis/lib/lookup.c
+		allegro-addons/alogg/decoder/libvorbis/lib/lpc.c
+		allegro-addons/alogg/decoder/libvorbis/lib/lsp.c
+		allegro-addons/alogg/decoder/libvorbis/lib/mapping0.c
+		allegro-addons/alogg/decoder/libvorbis/lib/mdct.c
+		allegro-addons/alogg/decoder/libvorbis/lib/psy.c
+		allegro-addons/alogg/decoder/libvorbis/lib/registry.c
+		allegro-addons/alogg/decoder/libvorbis/lib/res0.c
+		allegro-addons/alogg/decoder/libvorbis/lib/sharedbook.c
+		allegro-addons/alogg/decoder/libvorbis/lib/smallft.c
+		allegro-addons/alogg/decoder/libvorbis/lib/synthesis.c
+		allegro-addons/alogg/decoder/libvorbis/lib/vorbisenc.c
+		allegro-addons/alogg/decoder/libvorbis/lib/vorbisfile.c
+		allegro-addons/alogg/decoder/libvorbis/lib/window.c
+		allegro-addons/alogg/src/alogg.c
+	)
+	target_include_directories(alogg PUBLIC
+		allegro-addons/alogg/include
+		allegro-addons/alogg/decoder
+		allegro-addons/alogg/decoder/libogg/include
+		allegro-addons/alogg/decoder/libvorbis/include
+		allegro-addons/alogg/decoder/libvorbis/lib
+	)
+	target_link_libraries(alogg PUBLIC allegro_with_legacy)
+
+	FetchContent_Declare(
+		gme_external
+		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
+		GIT_TAG        839ea742c42c4e0fbe4f153621d92e24c20d0799
+	)
+	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+	FetchContent_MakeAvailable(gme_external)
+	add_library(gme_headers INTERFACE)
+	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
+	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
+
+	option(BUILD_EXAMPLES "" OFF)
+	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/allegro-legacy/include)
+	set(ALLEGRO_LIBRARY allegro_with_legacy)
+	FetchContent_Declare(
+		dumb_external
+		GIT_REPOSITORY https://github.com/kode54/dumb.git
+		GIT_TAG        396caa4d31859045ccb5ef943fd430ca4026cce8
+		PATCH_COMMAND  patch -s -p1 < ${CMAKE_SOURCE_DIR}/allegro-addons/aldumb.patch || true
+	)
+	FetchContent_MakeAvailable(dumb_external)
+	add_library(dumb_headers INTERFACE)
+	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
+
+	set(SOUNDLIBS almp3 alogg gme gme_headers aldmb dumb dumb_headers)
+endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+
+if(BUILD_SOUND_LIBS_FROM_SOURCE)
+	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
+else()
+	include_directories(./include/dumb)
+	include_directories(./include/alogg)
+	include_directories(./include/almp3)
+	include_directories(./include/gme)
+endif()
 
 #############################################################
 # Romview
@@ -296,8 +432,10 @@ if(WIN32)
 	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
 	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+elseif(APPLE)
+	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
-
+target_link_libraries(zelda allegro_with_legacy)
 
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
@@ -348,6 +486,10 @@ if(Boost_FOUND)
 	target_compile_definitions(zquest PRIVATE IS_ZQUEST)
 endif()
 
+if(WIN32)
+	set_source_files_properties(src/dialog/itemeditor.cpp PROPERTIES COMPILE_FLAGS "/bigobj")
+endif()
+
 #############################################################
 # ZScript parser
 #############################################################
@@ -391,7 +533,15 @@ target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegr
 # Visual Studio
 #############################################################
 
-set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+if("${vs_platform}" STREQUAL "win32")
+	set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+elseif("${vs_platform}" STREQUAL "x64")
+	set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)x64/$(Configuration)")
+endif()
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
+set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_primitives allegro-legacy algif al5_example PROPERTIES FOLDER Allegro)
 
 #############################################################
 # Misc.

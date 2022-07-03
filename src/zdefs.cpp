@@ -1,6 +1,6 @@
-
 #include "zdefs.h"
 #include "jwin.h"
+
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
