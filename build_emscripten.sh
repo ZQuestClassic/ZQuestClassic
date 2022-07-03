@@ -9,7 +9,7 @@ then
   exit 1
 fi
 
-EMCC_VERSION=3.1.10
+EMCC_VERSION=3.1.15
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -188,20 +188,6 @@ cd $CONFIG
   --preload "../../output/_auto/buildpack_zq@/" \
   --use-preload-cache \
   --js-output=zq.data.js
-
-# https://github.com/emscripten-core/emscripten/issues/11952
-function fix_hash {
-  HASH=$(shasum -a 256 $1 | awk '{print $1}')
-  sed -i -e "s/\"package_uuid\": \"[^\"]*\"/\"package_uuid\":\"$HASH\"/" "$2"
-  if ! grep -q "$HASH" "$2"
-  then
-    echo "failed to replace data hash"
-    exit 1
-  fi
-}
-
-fix_hash zc.data zc.data.js
-fix_hash zq.data zq.data.js
 
 function set_files {
   R=$(jq --compact-output --null-input '$ARGS.positional' --args "${LAZY_LOAD[@]}")
