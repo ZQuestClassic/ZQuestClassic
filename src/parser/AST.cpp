@@ -141,7 +141,7 @@ ASTFloat::ASTFloat(int32_t value, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false)
 {
 	char tmp[15];
-	sprintf(tmp, "%ld", value);
+	sprintf(tmp, "%d", value);
 	ASTFloat::value = string(tmp);
 }
 
@@ -150,9 +150,9 @@ ASTFloat::ASTFloat(int32_t ipart, int32_t dpart, LocationData const& location)
 {
 	char tmp[13];
 	if(dpart)
-		sprintf(tmp,"%ld.%04ld",ipart,dpart);
+		sprintf(tmp,"%d.%04d",ipart,dpart);
 	else
-		sprintf(tmp,"%ld",ipart);
+		sprintf(tmp,"%d",ipart);
 	value = string(tmp);
 }
 
@@ -281,7 +281,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			}
 			else
 			{
-				sprintf(temp, "%ld", val2);
+				sprintf(temp, "%d", val2);
 				intpart = temp;
 				fpart = "";
 			}
@@ -335,7 +335,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			}
 			else
 			{
-				sprintf(temp, "%ld", val2);
+				sprintf(temp, "%d", val2);
 				intpart = temp;
 				fpart = "";
 			}
@@ -396,16 +396,16 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
 			{
 				char temp[60];
-				sprintf(temp, "%ld", abs(val2/10000));
+				sprintf(temp, "%d", abs(val2/10000));
 				intpart = temp;
 				if(val2 < 0) intpart = "-" + intpart;
-				sprintf(temp, "%04ld", abs(val2%10000));
+				sprintf(temp, "%04d", abs(val2%10000));
 				fpart = temp;
 			}
 			else
 			{
 				char temp[60];
-				sprintf(temp, "%ld", val2);
+				sprintf(temp, "%d", val2);
 				intpart = temp;
 				fpart = "";
 			}

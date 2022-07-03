@@ -53,8 +53,8 @@ string getOpcodeString(ffscript const* line)
 			}
 			else
 			{
-				if(line->arg2 % 10000 != 0) sprintf(a2buf, "%ld.%04d", line->arg2 / 10000, line->arg2 < 0 ? -(line->arg2) : line->arg2);
-				else sprintf(a2buf, "%ld", line->arg2/10000);
+				if(line->arg2 % 10000 != 0) sprintf(a2buf, "%d.%04d", line->arg2 / 10000, line->arg2 < 0 ? -(line->arg2) : line->arg2);
+				else sprintf(a2buf, "%d", line->arg2/10000);
 				sprintf(buf, "%s %s,%s", s_c.name, varToString(line->arg1).c_str(), a2buf);
 			}
 		}
@@ -62,16 +62,16 @@ string getOpcodeString(ffscript const* line)
 		{
 			if(s_c.arg2_type == 0)
 			{
-				if(line->arg1 % 10000 != 0) sprintf(a1buf, "%ld.%04d", line->arg1 / 10000, line->arg1 < 0 ? -(line->arg1) : line->arg1);
-				else sprintf(a1buf, "%ld", line->arg1/10000);
+				if(line->arg1 % 10000 != 0) sprintf(a1buf, "%d.%04d", line->arg1 / 10000, line->arg1 < 0 ? -(line->arg1) : line->arg1);
+				else sprintf(a1buf, "%d", line->arg1/10000);
 				sprintf(buf, "%s %s,%s", s_c.name, a1buf, varToString(line->arg2).c_str());
 			}
 			else
 			{
-				if(line->arg1 % 10000 != 0) sprintf(a1buf, "%ld.%04d", line->arg1 / 10000, line->arg1 < 0 ? -(line->arg1) : line->arg1);
-				else sprintf(a1buf, "%ld", line->arg1/10000);
-				if(line->arg2 % 10000 != 0) sprintf(a2buf, "%ld.%04d", line->arg2 / 10000, line->arg2 < 0 ? -(line->arg2) : line->arg2);
-				else sprintf(a2buf, "%ld", line->arg2/10000);
+				if(line->arg1 % 10000 != 0) sprintf(a1buf, "%d.%04d", line->arg1 / 10000, line->arg1 < 0 ? -(line->arg1) : line->arg1);
+				else sprintf(a1buf, "%d", line->arg1/10000);
+				if(line->arg2 % 10000 != 0) sprintf(a2buf, "%d.%04d", line->arg2 / 10000, line->arg2 < 0 ? -(line->arg2) : line->arg2);
+				else sprintf(a2buf, "%d", line->arg2/10000);
 				sprintf(buf, "%s %s,%s", s_c.name, a1buf, a2buf);
 			}
 		}
@@ -84,8 +84,8 @@ string getOpcodeString(ffscript const* line)
 		}
 		else
 		{
-			if(line->arg1 % 10000 != 0) sprintf(a1buf, "%ld.%04d", line->arg1 / 10000, line->arg1 < 0 ? -(line->arg1) : line->arg1);
-			else sprintf(a1buf, "%ld", line->arg1/10000);
+			if(line->arg1 % 10000 != 0) sprintf(a1buf, "%d.%04d", line->arg1 / 10000, line->arg1 < 0 ? -(line->arg1) : line->arg1);
+			else sprintf(a1buf, "%d", line->arg1/10000);
 			sprintf(buf, "%s %s", s_c.name, a1buf);
 		}
 	}

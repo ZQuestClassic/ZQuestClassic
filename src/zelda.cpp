@@ -2794,7 +2794,7 @@ void show_details()
 {
     //textprintf_ex(framebuf,font,-3,-5,WHITE,BLACK,"%-4d",whistleclk);
     textprintf_ex(framebuf,font,0,8,WHITE,BLACK,"dlvl:%-2d dngn:%d", dlevel, isdungeon());
-    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%ld %s",game->get_time(),time_str_long(game->get_time()));
+    textprintf_ex(framebuf,font,0,176,WHITE,BLACK,"%u %s",game->get_time(),time_str_long(game->get_time()));
     
 //    textprintf_ex(framebuf,font,200,16,WHITE,BLACK,"%3d",Hero.getPushing());
 //    for(int32_t i=0; i<Lwpns.Count(); i++)

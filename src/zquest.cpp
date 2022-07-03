@@ -17759,9 +17759,9 @@ void edit_tune(int32_t i)
     do
     {
         sprintf(volume_str,"%d",volume);
-        sprintf(start_str,"%ld",start);
-        sprintf(loop_start_str,"%ld",loop_start);
-        sprintf(loop_end_str,"%ld",loop_end);
+        sprintf(start_str,"%d",start);
+        sprintf(loop_start_str,"%d",loop_start);
+        sprintf(loop_end_str,"%d",loop_end);
         sprintf(len_str,"%d",Midi_Info.len_beats);
         sprintf(pos_str,"%ld",midi_pos);
         
@@ -17978,9 +17978,9 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         textprintf_ex(screen,font,x+56,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
         textprintf_ex(screen,font,x+56,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
-        textprintf_ex(screen,font,x+56,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",customtunes[i].start);
-        textprintf_ex(screen,font,x+56,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",customtunes[i].loop_start);
-        textprintf_ex(screen,font,x+56,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",customtunes[i].loop_end);
+        textprintf_ex(screen,font,x+56,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
+        textprintf_ex(screen,font,x+56,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
+        textprintf_ex(screen,font,x+56,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
     }
     
     return jwin_list_proc(msg,d,c);
@@ -33607,7 +33607,7 @@ void FFScript::initIncludePaths()
 
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
-		al_trace("Include path %d: ",q);
+		al_trace("Include path %zu: ",q);
 		safe_al_trace(includePaths.at(q).c_str());
 		al_trace("\n");
 	}

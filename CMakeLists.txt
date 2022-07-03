@@ -547,10 +547,24 @@ set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_pr
 # Misc.
 #############################################################
 
-if(WIN32)
-	target_compile_definitions(zcsound PRIVATE __STDC_LIMIT_MACROS)
-	target_compile_definitions(zelda PRIVATE __STDC_LIMIT_MACROS)
-	target_compile_definitions(zlauncher PRIVATE __STDC_LIMIT_MACROS)
-	target_compile_definitions(zquest PRIVATE __STDC_LIMIT_MACROS)
-	target_compile_definitions(zscript PRIVATE __STDC_LIMIT_MACROS)
-endif()
+set(zc_warnings
+	-Werror=format
+	# TODO: involves some manual refactors
+	-Wno-error=format-security
+	-Wno-error=format-insufficient-args
+)
+
+set(zc_targets zquest zelda zlauncher zcsound zscript)
+foreach(target IN LISTS zc_targets)
+	if(WIN32)
+		target_compile_definitions(${target} PRIVATE __STDC_LIMIT_MACROS)
+	endif()
+
+	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+		# Uncomment to autofix. Only works for clang. When done, comment this line out again.
+		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_warnings} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
+	endif()
+	if(NOT CMAKE_COMPILER_IS_MSVC)
+		target_compile_options(${target} PRIVATE ${zc_warnings})
+	endif()
+endforeach()

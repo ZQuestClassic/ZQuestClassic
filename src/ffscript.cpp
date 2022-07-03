@@ -12416,12 +12416,12 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Player->ItemB: %ld\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Player->ItemB: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Player->ItemB: %ld\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Player->ItemB: %d\n",value/10000);
 				break;
 			}
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -16137,7 +16137,7 @@ void set_register(const int32_t arg, const int32_t value)
 						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
 					}
-					default: al_trace("Invalid index used with npc->hitBy[%ld]. /n", indx); break;
+					default: al_trace("Invalid index used with npc->hitBy[%d]. /n", indx); break;
 				}
 			}
 			break;
@@ -21210,7 +21210,7 @@ void do_allocatemem(const bool v, const bool local, const byte type, const uint3
 		
 		if(ptrval >= game->globalRAM.size())
 		{
-			al_trace("Invalid pointer value of %ld passed to global allocate\n", ptrval);
+			al_trace("Invalid pointer value of %u passed to global allocate\n", ptrval);
 			//this shouldn't happen, unless people are putting ALLOCATEGMEM in their ZASM scripts where they shouldn't be
 		}
 		
@@ -28437,7 +28437,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				
 				int32_t mode = get_register(sarg1) / 10000;
-				al_trace("Called npc->Explode(%d), for enemy index %ld\n", mode, ri->guyref);
+				al_trace("Called npc->Explode(%d), for enemy index %u\n", mode, ri->guyref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to npc->Explode(int32_t mode)\n",mode);
@@ -28463,7 +28463,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				
 				int32_t mode = get_register(sarg1) / 10000;
-				al_trace("Called item->Explode(%d), for item index %ld\n", mode, ri->itemref);
+				al_trace("Called item->Explode(%d), for item index %u\n", mode, ri->itemref);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to item->Explode(int32_t mode)\n",mode);
@@ -28481,7 +28481,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				
 				int32_t mode = get_register(sarg1) / 10000;
-				al_trace("Called lweapon->Explode(%d), for lweapon index %ld\n", mode, ri->lwpn);
+				al_trace("Called lweapon->Explode(%d), for lweapon index %u\n", mode, ri->lwpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to lweapon->Explode(int32_t mode)\n",mode);
@@ -28499,7 +28499,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			{
 				
 				int32_t mode = get_register(sarg1) / 10000;
-				al_trace("Called eweapon->Explode(%d), for eweapon index %ld\n", mode, ri->ewpn);
+				al_trace("Called eweapon->Explode(%d), for eweapon index %u\n", mode, ri->ewpn);
 				if ( (unsigned) mode > 2 ) 
 				{
 					Z_scripterrlog("Invalid mode (%d) passed to eweapon->Explode(int32_t mode)\n",mode);
@@ -31287,7 +31287,7 @@ void FFScript::do_triggersecret(const bool v)
 				al_trace("checkflag is: %d\n", checkflag);
 				
 				Z_message("ID is: %ld\n", ID);
-				al_trace("ID is: %ld\n", ID);
+				al_trace("ID is: %d\n", ID);
 				//cmbx = COMBOX(q);
 				////cmby = COMBOY(q);
 				
@@ -32006,7 +32006,7 @@ void FFScript::FFChangeSubscreenText()
 	
 	if ( index < 0 || index > 3 ) 
 	{
-		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %ld /n", index);
+		al_trace("The index supplied to Game->SetSubscreenText() is invalid. The index specified was: %d /n", index);
 		return;
 	}
 
@@ -33582,7 +33582,7 @@ void FFScript::initIncludePaths()
 
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
-		al_trace("Include path %d: ",q);
+		al_trace("Include path %zu: ",q);
 		safe_al_trace(includePaths.at(q).c_str());
 		al_trace("\n");
 	}
@@ -37702,7 +37702,7 @@ void FFScript::do_trace(bool v)
 	int32_t temp = SH::get_arg(sarg1, v);
 	
 	char tmp[100];
-	sprintf(tmp, (temp < 0 ? "%06ld" : "%05ld"), temp);
+	sprintf(tmp, (temp < 0 ? "%06d" : "%05d"), temp);
 	string s2(tmp);
 	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4);
 	TraceScriptIDs();
