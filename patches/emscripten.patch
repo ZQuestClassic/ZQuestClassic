@@ -1,8 +1,8 @@
 diff --git a/embuilder.py b/embuilder.py
-index fdb0b3e..1a0a87b 100755
+index 6121fa1..5de1e1f 100755
 --- a/embuilder.py
 +++ b/embuilder.py
-@@ -67,6 +67,7 @@ PORT_VARIANTS = {
+@@ -101,6 +101,7 @@ PORT_VARIANTS = {
      'sdl2-mt': ('sdl2', {'USE_PTHREADS': 1}),
      'icu-mt': ('icu', {'USE_PTHREADS': 1}),
      'sdl2_mixer_mp3': ('sdl2_mixer', {'SDL2_MIXER_FORMATS': ["mp3"]}),
@@ -11,10 +11,10 @@ index fdb0b3e..1a0a87b 100755
      'sdl2_image_png': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["png"]}),
      'sdl2_image_jpg': ('sdl2_image', {'SDL2_IMAGE_FORMATS': ["jpg"]}),
 diff --git a/src/settings.js b/src/settings.js
-index f2ce79c..6cd66cb 100644
+index 2e412ce..e7de3d1 100644
 --- a/src/settings.js
 +++ b/src/settings.js
-@@ -1449,6 +1449,10 @@ var USE_COCOS2D = 0;
+@@ -1490,6 +1490,10 @@ var USE_COCOS2D = 0;
  // [link]
  var USE_MODPLUG = false;
  
@@ -27,10 +27,10 @@ index f2ce79c..6cd66cb 100644
  var SDL2_IMAGE_FORMATS = [];
 diff --git a/tools/ports/gme.py b/tools/ports/gme.py
 new file mode 100644
-index 0000000..bc6c924
+index 0000000..3a07ace
 --- /dev/null
 +++ b/tools/ports/gme.py
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,64 @@
 +# Copyright 2022 The Emscripten Authors.  All rights reserved.
 +# Emscripten is available under two separate licenses, the MIT license and the
 +# University of Illinois/NCSA Open Source License.  Both these licenses can be
@@ -75,7 +75,9 @@ index 0000000..bc6c924
 +      ],
 +      flags=flags,
 +      exclude_files=[],
-+      exclude_dirs=[]
++      exclude_dirs=[
++        'demo',
++      ]
 +    )
 +
 +    ports.install_headers(source_path, pattern='gme/*.h', target='gme')
@@ -163,7 +165,7 @@ index bdc90b2..b971160 100644
  
  def process_args(ports):
 diff --git a/tools/settings.py b/tools/settings.py
-index 98159e5..2753d72 100644
+index 9c84808..850f73c 100644
 --- a/tools/settings.py
 +++ b/tools/settings.py
 @@ -32,6 +32,7 @@ PORTS_SETTINGS = {
