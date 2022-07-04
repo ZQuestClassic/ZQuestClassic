@@ -24987,12 +24987,23 @@ int32_t onCompileScript()
 			{
 				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
+
+			std::string quest_rules_hex;
+			for (int i = 0; i < QUESTRULES_NEW_SIZE; i++) {
+				char hex_buf[3];
+				sprintf(hex_buf, "%02X", quest_rules[i]);
+				quest_rules_hex += hex_buf;
+			}
+
 			clock_t start_compile_time = clock();
 			const char* argv[] = {
 #ifndef _WIN32
 				ZSCRIPT_FILE,
 #endif
-                "-input", tmpfilename, "-console", consolefilename, "-linked", NULL, NULL};
+				"-input", tmpfilename,
+				"-console", consolefilename,
+				"-qr", quest_rules_hex.c_str(),
+				"-linked", NULL, NULL};
 			if(zc_get_config("Compiler","noclose_compile_console",0))
 				argv[3] = "-noclose";
 			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
@@ -25002,7 +25013,6 @@ int32_t onCompileScript()
 				break;
 			}
 			
-			pm->write(quest_rules, QUESTRULES_NEW_SIZE);
 			int current = 0, last = 0;
 			int syncthing = 0;
 			pm->read(&syncthing, sizeof(int32_t));
