@@ -66,14 +66,7 @@ jobs:
     - run: cp src/metadata/*.h.sig src/metadata/sigs/
     - run: cmake -S . -B build -G 'Ninja Multi-Config' .
 
-    # Build things individually just to have some seperation in the GHA UI.
-    - run: cmake --build . --config Release --target zcsound
-    - run: cmake --build . --config Release --target zquest
-    - run: cmake --build . --config Release --target zelda
-    - run: cmake --build . --config Release --target zscript
-    - run: cmake --build . --config Release --target zlauncher
-
-    # Build anything else that may not be covered above.
+    #Build
     - run: cmake --build build --config Release
     
     # Check ZScript
