@@ -28,11 +28,12 @@ else
 fi
 echo '' >> src/metadata/sigs/compilersig.h.sig
 
-#Filter out these defines
-grep -v -E 'V_ZC_(ALPHA|BETA|GAMMA|RELEASE)|ZC_IS_NIGHTLY' src/metadata/versionsig.h > src/metadata/tmp
-mv src/metadata/tmp src/metadata/versionsig.h
 
 if [ ! -z "${3:-}" ]; then
+  #Filter out these defines
+  grep -v -E 'V_ZC_(ALPHA|BETA|GAMMA|RELEASE)' src/metadata/versionsig.h > src/metadata/tmp
+  mv src/metadata/tmp src/metadata/versionsig.h
+  
   if [ "$2" == "alpha" ]; then
     echo "#define V_ZC_ALPHA $3" >> src/metadata/versionsig.h
   else
@@ -58,6 +59,9 @@ if [ ! -z "${3:-}" ]; then
   fi
 fi
 
+#Filter out ZC_IS_NIGHTLY
+grep -v 'ZC_IS_NIGHTLY' src/metadata/versionsig.h > src/metadata/tmp
+mv src/metadata/tmp src/metadata/versionsig.h
 if [ "$4" == "false" ]; then
   echo '#define ZC_IS_NIGHTLY 1' >> src/metadata/versionsig.h
 else
