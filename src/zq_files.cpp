@@ -563,10 +563,10 @@ int32_t d_rulesettext_proc(int32_t msg, DIALOG *d, int32_t)
     }
     
     FONT *f = is_large ? font : sfont2;
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf);
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf2);
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf3);
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],buf4);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf2);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf3);
+    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf4);
     return D_O_K;
 }
 

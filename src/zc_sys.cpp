@@ -770,7 +770,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 void null_quest()
 {
 	char qstdat_string[2048];
-	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
 	
     byte skip_flags[4] = { 0 };

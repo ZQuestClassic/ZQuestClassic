@@ -38088,13 +38088,13 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		sprintf(buf, "[%d:%d:%d] ", tm_struct->tm_hour, tm_struct->tm_min, tm_struct->tm_sec);
 		//
 		
-		al_trace(buf);
+		al_trace("%s", buf);
 		#ifdef _WIN32
 		if ( cond ) {console.cprintf((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
 		#else //Unix
 			std::cout << "Z_scripterrlog Test\n" << std::endl;
-			printf(buf);
+			printf("%s", buf);
 		#endif
 	}
 	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )

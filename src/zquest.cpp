@@ -30082,7 +30082,7 @@ int32_t main(int32_t argc,char **argv)
 	datafile_str=moduledata.datafiles[zquest_dat];
 	Z_message("OK\n");
 	
-	sprintf(qstdat_str,moduledata.datafiles[qst_dat]);
+	strcpy(qstdat_str,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_str,"#_SIGNATURE");
 	//al_trace("qstdat_str is: %s\n", qstdat_str);
 	

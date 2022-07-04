@@ -2402,7 +2402,7 @@ int32_t ffparse(char *string)
 	int32_t ret=0;
 	char *tempstring1;
 	tempstring1=(char *)zc_malloc(strlen(string)+5);
-	sprintf(tempstring1, string);
+	strcpy(tempstring1, string);
 	
 	for(int32_t i=0; i<4; ++i)
 	{

@@ -6411,7 +6411,7 @@ extern BITMAP *bmap;
 int32_t init_quest(const char *)
 {
 	char qstdat_string[2048];
-	sprintf(qstdat_string,moduledata.datafiles[qst_dat]);
+	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
 
     char buf[2048];

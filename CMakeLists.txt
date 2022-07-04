@@ -549,8 +549,6 @@ set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_pr
 
 set(zc_warnings
 	-Werror=format
-	# TODO: involves some manual refactors
-	-Wno-error=format-security
 )
 
 set(zc_targets zquest zelda zlauncher zcsound zscript)
