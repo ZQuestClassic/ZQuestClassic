@@ -118,7 +118,7 @@ jobs:
         name: ${{ needs.create_tag.outputs.release_name }}
         tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
         files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
-        prerelease: true
+        prerelease: ${{ !inputs.full_release }}
         fail_on_unmatched_files: true
         generate_release_notes: true
 
@@ -158,6 +158,6 @@ jobs:
         name: ${{ needs.create_tag.outputs.release_name }}
         tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
         files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}.dmg"
-        prerelease: true
+        prerelease: ${{ !inputs.full_release }}
         fail_on_unmatched_files: true
         generate_release_notes: true

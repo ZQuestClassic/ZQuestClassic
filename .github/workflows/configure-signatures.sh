@@ -59,9 +59,9 @@ if [ ! -z "${3:-}" ]; then
 fi
 
 if [ "$4" == "false" ]; then
-  echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
-else
   echo '#define ZC_IS_NIGHTLY 1' >> src/metadata/versionsig.h
+else
+  echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
 fi
 
 echo '' >> src/metadata/versionsig.h
