@@ -70,7 +70,7 @@ void zconsole_warn(const char *format,...)
 		ConsoleWrite->write(&errorcode, sizeof(int32_t));
 		ConsoleWrite->read(&errorcode, sizeof(int32_t));
 	}
-	else printf(console, "%s", tmp);
+	else printf("%s\n", tmp);
 }
 void zconsole_error(const char *format,...)
 {
@@ -102,7 +102,7 @@ void zconsole_error(const char *format,...)
 		ConsoleWrite->write(&errorcode, sizeof(int32_t));
 		ConsoleWrite->read(&errorcode, sizeof(int32_t));
 	}
-	else printf(console, "%s", tmp);
+	else printf("%s\n", tmp);
 }
 void zconsole_info(const char *format,...)
 {
@@ -133,7 +133,7 @@ void zconsole_info(const char *format,...)
 		ConsoleWrite->write(&errorcode, sizeof(int32_t));
 		ConsoleWrite->read(&errorcode, sizeof(int32_t));
 	}
-	else printf(console, "%s", tmp);
+	else printf("%s\n", tmp);
 }
 
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
