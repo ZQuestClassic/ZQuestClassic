@@ -39,6 +39,12 @@ jobs:
 
     # Build anything else that may not be covered above.
     - run: cmake --build . --config Release
+    
+    # Check ZScript
+    - run: ./buildpack.bat y
+      working-directory: output/_auto
+    - run: ./zscript.exe -input "include/std.zh" -unlinked
+      working-directory: output/_auto/buildpack
 
   compile-mac:
     runs-on: macos-12
@@ -69,3 +75,9 @@ jobs:
 
     # Build anything else that may not be covered above.
     - run: cmake --build .
+    
+    # Check ZScript
+    - run: ./buildpack_osx.sh
+      working-directory: output/_auto
+    - run: ./zscript.exe -input "include/std.zh" -unlinked
+      working-directory: output/_auto/buildpack

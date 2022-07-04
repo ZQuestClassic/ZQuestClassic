@@ -10,6 +10,20 @@ on:
         description: Alpha version number. If not set, does a nightly build
         type: string
         required: false
+      versiontype:
+        type: choice
+        description: Whether the build specified is an Alpha/Beta/Gamma/Release
+        options: 
+        - alpha
+        - beta
+        - gamma
+        - release
+        required: true
+        default: alpha
+      full_release:
+        type: boolean
+        description: If the specified build is a full release, rather than a nightly build
+        default: false
 
 jobs:
   check_date:
@@ -39,10 +53,24 @@ jobs:
           format: YYYY-MM-DD
       - id: make-vars
         run: |
-          if [ '${{ github.event.inputs.number }}' != '' ]; then
-            # Alpha
-            echo "::set-output name=release_tag_name::2.55-alpha-${{ inputs.number }}"
-            echo "::set-output name=release_name::2.55 Alpha ${{ inputs.number }}"
+          if [ ${{ github.event.inputs.full_release }} ]; then
+            if [ '${{ github.event.inputs.versiontype }}' == 'alpha' ]; then
+              # Alpha
+              echo "::set-output name=release_tag_name::2.55-alpha-${{ inputs.number }}"
+              echo "::set-output name=release_name::2.55 Alpha ${{ inputs.number }}"
+            elif [ '${{ github.event.inputs.versiontype }}' == 'beta' ]; then
+              # Beta
+              echo "::set-output name=release_tag_name::2.55-beta-${{ inputs.number }}"
+              echo "::set-output name=release_name::2.55 Beta ${{ inputs.number }}"
+            elif [ '${{ github.event.inputs.versiontype }}' == 'gamma' ]; then
+              # Gamma
+              echo "::set-output name=release_tag_name::2.55-gamma-${{ inputs.number }}"
+              echo "::set-output name=release_name::2.55 Gamma ${{ inputs.number }}"
+            else
+              # Release
+              echo "::set-output name=release_tag_name::2.55-release-${{ inputs.number }}"
+              echo "::set-output name=release_name::2.55 Release ${{ inputs.number }}"
+            fi
           else
             # Nightly
             echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
@@ -77,7 +105,7 @@ jobs:
       with:
         args: install .github/dependencies.config -y
 
-    - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.number }}
+    - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.number }} ${{ inputs.full_release }}
     - run: cmake . -A ${{ matrix.arrays.arch }}
     - run: cmake --build . --config Release
     - run: echo y | ./buildpack.bat
@@ -116,7 +144,7 @@ jobs:
         make
         sudo make install
 
-    - run: bash .github/workflows/configure-signatures.sh mac ${{ inputs.number }}
+    - run: bash .github/workflows/configure-signatures.sh mac ${{ inputs.versiontype }} ${{ inputs.number }} ${{ inputs.full_release }}
     - run: cmake -S . -B build -G 'Ninja Multi-Config' .
     - run: cmake --build build --config Release
 

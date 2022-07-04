@@ -26,12 +26,40 @@ else
   exit 1
 fi
 
-if [ ! -z "${2:-}" ]; then
-  # Alpha
+if [ ! -z "${3:-}" ]; then
   echo '#undef V_ZC_ALPHA' >> src/metadata/versionsig.h
-  echo "#define V_ZC_ALPHA $2" >> src/metadata/versionsig.h
-else
-  # Nightly
-  echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
+  echo '#undef V_ZC_BETA' >> src/metadata/versionsig.h
+  echo '#undef V_ZC_GAMMA' >> src/metadata/versionsig.h
+  echo '#undef V_ZC_RELEASE' >> src/metadata/versionsig.h
+  
+  if [ "$2" == "alpha" ]; then
+    echo "#define V_ZC_ALPHA $3" >> src/metadata/versionsig.h
+  else
+    echo "#define V_ZC_ALPHA 0" >> src/metadata/versionsig.h
+  fi
+  
+  if [ "$2" == "beta" ]; then
+    echo "#define V_ZC_BETA $3" >> src/metadata/versionsig.h
+  else
+    echo "#define V_ZC_BETA 0" >> src/metadata/versionsig.h
+  fi
+  
+  if [ "$2" == "gamma" ]; then
+    echo "#define V_ZC_GAMMA $3" >> src/metadata/versionsig.h
+  else
+    echo "#define V_ZC_GAMMA 0" >> src/metadata/versionsig.h
+  fi
+  
+  if [ "$2" == "release" ]; then
+    echo "#define V_ZC_RELEASE $3" >> src/metadata/versionsig.h
+  else
+    echo "#define V_ZC_RELEASE 0" >> src/metadata/versionsig.h
+  fi
+fi
+
+echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
+if [ "$4" == "false" ]; then
   echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
+else
+  echo '#define ZC_IS_NIGHTLY 1' >> src/metadata/versionsig.h
 fi

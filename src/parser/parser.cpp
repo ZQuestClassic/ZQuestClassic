@@ -61,7 +61,10 @@ void zconsole_warn(const char *format,...)
 	if(console_path.size())
 	{
 		FILE *console=fopen(console_path.c_str(), "a");
-		fprintf(console, "%s", tmp);
+		if(ConsoleWrite)
+			fprintf(console, "%s", tmp);
+		else
+			fprintf(console, "%s\r\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -93,7 +96,10 @@ void zconsole_error(const char *format,...)
 	if(console_path.size())
 	{
 		FILE *console=fopen(console_path.c_str(), "a");
-		fprintf(console, "%s", tmp);
+		if(ConsoleWrite)
+			fprintf(console, "%s", tmp);
+		else
+			fprintf(console, "%s\r\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -124,7 +130,10 @@ void zconsole_info(const char *format,...)
 	if(console_path.size())
 	{
 		FILE *console=fopen(console_path.c_str(), "a");
-		fprintf(console, "%s", tmp);
+		if(ConsoleWrite)
+			fprintf(console, "%s", tmp);
+		else
+			fprintf(console, "%s\r\n", tmp);
 		fclose(console);
 	}
 	if(ConsoleWrite)
@@ -237,8 +246,8 @@ int32_t main(int32_t argc, char **argv)
 		console_path = argv[console_path_index + 1];
 	else console_path = "";
 	
-	child_process_handler cph;
-	ConsoleWrite = linked ? &cph : nullptr;
+	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
+	ConsoleWrite = cph;
 	if(allegro_init() != 0)
 	{
 		zconsole_error("%s", "Failed Init!");
@@ -263,8 +272,8 @@ int32_t main(int32_t argc, char **argv)
 	
 	if(linked)
 	{
-		cph.read(quest_rules, QUESTRULES_NEW_SIZE);
-		cph.write(&syncthing, sizeof(int32_t));
+		cph->read(quest_rules, QUESTRULES_NEW_SIZE);
+		cph->write(&syncthing, sizeof(int32_t));
 	}
 	
 	zc_set_config_standard();
@@ -290,8 +299,8 @@ int32_t main(int32_t argc, char **argv)
 			write_compile_data(result->scriptTypes, result->theScripts);
 		}
 		int32_t errorcode = -9995;
-		cph.write(&errorcode, sizeof(int32_t));
-		cph.write(&res, sizeof(int32_t));
+		cph->write(&errorcode, sizeof(int32_t));
+		cph->write(&res, sizeof(int32_t));
 		/*
 		if(zscript_had_warn_err)
 			zconsole_warn("%s", "Leaving console open; there were errors or warnings during compile!");
@@ -314,6 +323,7 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 	}
+	if(cph) delete cph;
 	return res;
 }
 END_OF_MAIN()
