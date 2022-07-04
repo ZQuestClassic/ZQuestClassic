@@ -53,7 +53,7 @@ jobs:
           format: YYYY-MM-DD
       - id: make-vars
         run: |
-          if [ ${{ github.event.inputs.full_release }} ]; then
+          if [ '${{ github.event.inputs.full_release }}' == 'true' ]; then
             if [ '${{ github.event.inputs.versiontype }}' == 'alpha' ]; then
               # Alpha
               echo "::set-output name=release_tag_name::2.55-alpha-${{ inputs.number }}"
