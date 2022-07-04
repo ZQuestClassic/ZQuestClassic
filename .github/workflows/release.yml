@@ -105,7 +105,7 @@ jobs:
       with:
         args: install .github/dependencies.config -y
 
-    - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.number }} ${{ inputs.full_release }}
+    - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
     - run: cmake . -A ${{ matrix.arrays.arch }}
     - run: cmake --build . --config Release
     - run: echo y | ./buildpack.bat
@@ -144,7 +144,7 @@ jobs:
         make
         sudo make install
 
-    - run: bash .github/workflows/configure-signatures.sh mac ${{ inputs.versiontype }} ${{ inputs.number }} ${{ inputs.full_release }}
+    - run: bash .github/workflows/configure-signatures.sh mac ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
     - run: cmake -S . -B build -G 'Ninja Multi-Config' .
     - run: cmake --build build --config Release
 
