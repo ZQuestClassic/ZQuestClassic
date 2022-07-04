@@ -2416,23 +2416,23 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			case typeDEC:
 				if(b < 0)
-					sprintf(str, "-%d.%04d", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%d.%04d", b/10000L, b%10000L);
+					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
 				trim_trailing_0s(str);
 				break;
 			case typeHEX:
 				if(b<0)
-					sprintf(str, "-%X.%04d", abs(b/10000L), abs(b%10000L));
-				else sprintf(str, "%X.%04d", b/10000L, abs(b%10000L));
+					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
 				trim_trailing_0s(str);
 				break;
 			case typeLDEC:
-				sprintf(str, "%ld", b);
+				sprintf(str, "%d", b);
 				break;
 			case typeLHEX:
 				if(b<0)
-					sprintf(str, "-%lX", -b);
-				else sprintf(str, "%lX", b);
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
 				break;
 		}
 		d->d2 = strlen(str);

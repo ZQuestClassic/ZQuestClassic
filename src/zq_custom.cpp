@@ -4884,52 +4884,52 @@ void edit_enemydata(int32_t index)
 	sprintf(name,"%s",guy_string[index]);
 	enedata_dlg[36].dp = name;
 	
-	sprintf(ms[0],"%ld",guysbuf[index].misc1);
-	sprintf(ms[1],"%ld",guysbuf[index].misc2);
-	sprintf(ms[2],"%ld",guysbuf[index].misc3);
-	sprintf(ms[3],"%ld",guysbuf[index].misc4);
-	sprintf(ms[4],"%ld",guysbuf[index].misc5);
-	sprintf(ms[5],"%ld",guysbuf[index].misc6);
-	sprintf(ms[6],"%ld",guysbuf[index].misc7);
-	sprintf(ms[7],"%ld",guysbuf[index].misc8);
-	sprintf(ms[8],"%ld",guysbuf[index].misc9);
-	sprintf(ms[9],"%ld",guysbuf[index].misc10);
-	sprintf(ms[10],"%ld",guysbuf[index].misc11);
-	sprintf(ms[11],"%ld",guysbuf[index].misc12);
+	sprintf(ms[0],"%d",guysbuf[index].misc1);
+	sprintf(ms[1],"%d",guysbuf[index].misc2);
+	sprintf(ms[2],"%d",guysbuf[index].misc3);
+	sprintf(ms[3],"%d",guysbuf[index].misc4);
+	sprintf(ms[4],"%d",guysbuf[index].misc5);
+	sprintf(ms[5],"%d",guysbuf[index].misc6);
+	sprintf(ms[6],"%d",guysbuf[index].misc7);
+	sprintf(ms[7],"%d",guysbuf[index].misc8);
+	sprintf(ms[8],"%d",guysbuf[index].misc9);
+	sprintf(ms[9],"%d",guysbuf[index].misc10);
+	sprintf(ms[10],"%d",guysbuf[index].misc11);
+	sprintf(ms[11],"%d",guysbuf[index].misc12);
 	
 	//four pages of attributes, 1 through 32
-	sprintf(attribs[0],"%ld",guysbuf[index].misc1);
-	sprintf(attribs[1],"%ld",guysbuf[index].misc2);
-	sprintf(attribs[2],"%ld",guysbuf[index].misc3);
-	sprintf(attribs[3],"%ld",guysbuf[index].misc4);
-	sprintf(attribs[4],"%ld",guysbuf[index].misc5);
-	sprintf(attribs[5],"%ld",guysbuf[index].misc6);
-	sprintf(attribs[6],"%ld",guysbuf[index].misc7);
-	sprintf(attribs[7],"%ld",guysbuf[index].misc8);
-	sprintf(attribs[8],"%ld",guysbuf[index].misc9);
-	sprintf(attribs[9],"%ld",guysbuf[index].misc10);
-	sprintf(attribs[10],"%ld",guysbuf[index].misc11);
-	sprintf(attribs[11],"%ld",guysbuf[index].misc12);
-	sprintf(attribs[12],"%ld",guysbuf[index].misc13);
-	sprintf(attribs[13],"%ld",guysbuf[index].misc14);
-	sprintf(attribs[14],"%ld",guysbuf[index].misc15);
-	sprintf(attribs[15],"%ld",guysbuf[index].misc16);
-	sprintf(attribs[16],"%ld",guysbuf[index].misc17);
-	sprintf(attribs[17],"%ld",guysbuf[index].misc18);
-	sprintf(attribs[18],"%ld",guysbuf[index].misc19);
-	sprintf(attribs[19],"%ld",guysbuf[index].misc20);
-	sprintf(attribs[20],"%ld",guysbuf[index].misc21);
-	sprintf(attribs[21],"%ld",guysbuf[index].misc22);
-	sprintf(attribs[22],"%ld",guysbuf[index].misc23);
-	sprintf(attribs[23],"%ld",guysbuf[index].misc24);
-	sprintf(attribs[24],"%ld",guysbuf[index].misc25);
-	sprintf(attribs[25],"%ld",guysbuf[index].misc26);
-	sprintf(attribs[26],"%ld",guysbuf[index].misc27);
-	sprintf(attribs[27],"%ld",guysbuf[index].misc28);
-	sprintf(attribs[28],"%ld",guysbuf[index].misc29);
-	sprintf(attribs[29],"%ld",guysbuf[index].misc30);
-	sprintf(attribs[30],"%ld",guysbuf[index].misc31);
-	sprintf(attribs[31],"%ld",guysbuf[index].misc32);
+	sprintf(attribs[0],"%d",guysbuf[index].misc1);
+	sprintf(attribs[1],"%d",guysbuf[index].misc2);
+	sprintf(attribs[2],"%d",guysbuf[index].misc3);
+	sprintf(attribs[3],"%d",guysbuf[index].misc4);
+	sprintf(attribs[4],"%d",guysbuf[index].misc5);
+	sprintf(attribs[5],"%d",guysbuf[index].misc6);
+	sprintf(attribs[6],"%d",guysbuf[index].misc7);
+	sprintf(attribs[7],"%d",guysbuf[index].misc8);
+	sprintf(attribs[8],"%d",guysbuf[index].misc9);
+	sprintf(attribs[9],"%d",guysbuf[index].misc10);
+	sprintf(attribs[10],"%d",guysbuf[index].misc11);
+	sprintf(attribs[11],"%d",guysbuf[index].misc12);
+	sprintf(attribs[12],"%d",guysbuf[index].misc13);
+	sprintf(attribs[13],"%d",guysbuf[index].misc14);
+	sprintf(attribs[14],"%d",guysbuf[index].misc15);
+	sprintf(attribs[15],"%d",guysbuf[index].misc16);
+	sprintf(attribs[16],"%d",guysbuf[index].misc17);
+	sprintf(attribs[17],"%d",guysbuf[index].misc18);
+	sprintf(attribs[18],"%d",guysbuf[index].misc19);
+	sprintf(attribs[19],"%d",guysbuf[index].misc20);
+	sprintf(attribs[20],"%d",guysbuf[index].misc21);
+	sprintf(attribs[21],"%d",guysbuf[index].misc22);
+	sprintf(attribs[22],"%d",guysbuf[index].misc23);
+	sprintf(attribs[23],"%d",guysbuf[index].misc24);
+	sprintf(attribs[24],"%d",guysbuf[index].misc25);
+	sprintf(attribs[25],"%d",guysbuf[index].misc26);
+	sprintf(attribs[26],"%d",guysbuf[index].misc27);
+	sprintf(attribs[27],"%d",guysbuf[index].misc28);
+	sprintf(attribs[28],"%d",guysbuf[index].misc29);
+	sprintf(attribs[29],"%d",guysbuf[index].misc30);
+	sprintf(attribs[30],"%d",guysbuf[index].misc31);
+	sprintf(attribs[31],"%d",guysbuf[index].misc32);
 	
 	for(int32_t j=0; j <= edefBYRNA; j++)
 	{
@@ -4953,11 +4953,11 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[212].d1 = guysbuf[index].defense[edefSCRIPT10];
 	
 	//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-	sprintf(tilex,"%ld",guysbuf[index].txsz);
-	sprintf(tiley,"%ld",guysbuf[index].tysz);
-	sprintf(hitx,"%ld",guysbuf[index].hxsz);
-	sprintf(hity,"%ld",guysbuf[index].hysz);
-	sprintf(hitz,"%ld",guysbuf[index].hzsz);
+	sprintf(tilex,"%d",guysbuf[index].txsz);
+	sprintf(tiley,"%d",guysbuf[index].tysz);
+	sprintf(hitx,"%d",guysbuf[index].hxsz);
+	sprintf(hity,"%d",guysbuf[index].hysz);
+	sprintf(hitz,"%d",guysbuf[index].hzsz);
   
 	enedata_dlg[214].dp = tilex;
 	enedata_dlg[216].dp = tiley;
@@ -4966,11 +4966,11 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[222].dp = hitz;
 	
 	//HitXOffset, HitYOFfset, hitZOffset, DrawXOffsrt, DrawYOffset
-	sprintf(hitofsx,"%ld",guysbuf[index].hxofs);
-	sprintf(hitofsy,"%ld",guysbuf[index].hyofs);
-	sprintf(hitofsz,"%ld",guysbuf[index].zofs);
-	sprintf(drawofsx,"%ld",guysbuf[index].xofs);
-	sprintf(drawofsy,"%ld",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
+	sprintf(hitofsx,"%d",guysbuf[index].hxofs);
+	sprintf(hitofsy,"%d",guysbuf[index].hyofs);
+	sprintf(hitofsz,"%d",guysbuf[index].zofs);
+	sprintf(drawofsx,"%d",guysbuf[index].xofs);
+	sprintf(drawofsy,"%d",guysbuf[index].yofs); //This seems to be setting to +48 or something with any value set?! -Z
 	
 	enedata_dlg[224].dp = hitofsx;
 	enedata_dlg[226].dp = hitofsy;
@@ -8614,10 +8614,10 @@ int32_t onCustomHero()
 	char hmr2[8];
 	char hmr3[8];
 	char hmr4[8];
-	sprintf(hmr1,"%ld",hammeroffsets[0]);
-	sprintf(hmr2,"%ld",hammeroffsets[1]);
-	sprintf(hmr3,"%ld",hammeroffsets[2]);
-	sprintf(hmr4,"%ld",hammeroffsets[3]);
+	sprintf(hmr1,"%d",hammeroffsets[0]);
+	sprintf(hmr2,"%d",hammeroffsets[1]);
+	sprintf(hmr3,"%d",hammeroffsets[2]);
+	sprintf(hmr4,"%d",hammeroffsets[3]);
 	herotile_dlg[240].dp = hmr1;
 	herotile_dlg[241].dp = hmr2;
 	herotile_dlg[242].dp = hmr3;

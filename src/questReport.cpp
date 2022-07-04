@@ -2244,7 +2244,7 @@ void scriptLocationReport()
                 tempnode=tempnode->next;
                 //add it to the list
                 buf[0]=0;
-                sprintf(buf, "%s %3d:%02X (Args: %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
+                sprintf(buf, "%s %3d:%02X (Args: %d, %d, %d, %d, %d, %d, %d, %d)\n", palname_spaced(tempnode->pal), tempnode->map, tempnode->screen,
                         tempnode->d[0]/10000,tempnode->d[1]/10000,tempnode->d[2]/10000,tempnode->d[3]/10000,
                         tempnode->d[4]/10000,tempnode->d[5]/10000,tempnode->d[6]/10000,tempnode->d[7]/10000);
                 quest_report_str+=buf;

@@ -17,13 +17,13 @@ string LiteralArgument::toString()
 {
     char temp[128];
     string sign = value < 0 ? "-" : "";
-    sprintf(temp,"%ld", abs(value/10000));
+    sprintf(temp,"%d", abs(value/10000));
     string first = string(temp);
     
     if(value % 10000 == 0)
         return sign + first;
         
-    sprintf(temp,"%ld", abs(value%10000));
+    sprintf(temp,"%d", abs(value%10000));
     string second = string(temp);
     
     while(second.length() < 4)

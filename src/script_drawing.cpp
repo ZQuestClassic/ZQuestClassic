@@ -10279,7 +10279,7 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
 
 	if(index >= TheMaps.size())
 	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
     
@@ -10576,7 +10576,7 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
 
 	if(index >= TheMaps.size())
 	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
     
@@ -10671,7 +10671,7 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 
 	if(index >= TheMaps.size())
 	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
     
@@ -10747,7 +10747,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 
 	if(index >= TheMaps.size())
 	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
     
@@ -10821,7 +10821,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 
 	if(index >= TheMaps.size())
 	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
     
@@ -10895,7 +10895,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 
 	if(index >= TheMaps.size())
 	{
-		al_trace("DrawLayer: invalid map index \"%i\". Map count is %d.\n", index, TheMaps.size());
+		al_trace("DrawLayer: invalid map index \"%i\". Map count is %lu.\n", index, TheMaps.size());
 		return;
 	}
     

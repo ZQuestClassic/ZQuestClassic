@@ -17759,9 +17759,9 @@ void edit_tune(int32_t i)
     do
     {
         sprintf(volume_str,"%d",volume);
-        sprintf(start_str,"%ld",start);
-        sprintf(loop_start_str,"%ld",loop_start);
-        sprintf(loop_end_str,"%ld",loop_end);
+        sprintf(start_str,"%d",start);
+        sprintf(loop_start_str,"%d",loop_start);
+        sprintf(loop_end_str,"%d",loop_end);
         sprintf(len_str,"%d",Midi_Info.len_beats);
         sprintf(pos_str,"%ld",midi_pos);
         
@@ -17978,9 +17978,9 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         textprintf_ex(screen,font,x+56,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
         textprintf_ex(screen,font,x+56,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
-        textprintf_ex(screen,font,x+56,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",customtunes[i].start);
-        textprintf_ex(screen,font,x+56,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",customtunes[i].loop_start);
-        textprintf_ex(screen,font,x+56,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",customtunes[i].loop_end);
+        textprintf_ex(screen,font,x+56,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
+        textprintf_ex(screen,font,x+56,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
+        textprintf_ex(screen,font,x+56,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
     }
     
     return jwin_list_proc(msg,d,c);
@@ -24987,12 +24987,23 @@ int32_t onCompileScript()
 			{
 				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
+
+			std::string quest_rules_hex;
+			for (int i = 0; i < QUESTRULES_NEW_SIZE; i++) {
+				char hex_buf[3];
+				sprintf(hex_buf, "%02X", quest_rules[i]);
+				quest_rules_hex += hex_buf;
+			}
+
 			clock_t start_compile_time = clock();
 			const char* argv[] = {
 #ifndef _WIN32
 				ZSCRIPT_FILE,
 #endif
-                "-input", tmpfilename, "-console", consolefilename, "-linked", NULL, NULL};
+				"-input", tmpfilename,
+				"-console", consolefilename,
+				"-qr", quest_rules_hex.c_str(),
+				"-linked", NULL, NULL};
 			if(zc_get_config("Compiler","noclose_compile_console",0))
 				argv[3] = "-noclose";
 			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, argv);
@@ -25002,7 +25013,6 @@ int32_t onCompileScript()
 				break;
 			}
 			
-			pm->write(quest_rules, QUESTRULES_NEW_SIZE);
 			int current = 0, last = 0;
 			int syncthing = 0;
 			pm->read(&syncthing, sizeof(int32_t));
@@ -33607,7 +33617,7 @@ void FFScript::initIncludePaths()
 
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
-		al_trace("Include path %d: ",q);
+		al_trace("Include path %zu: ",q);
 		safe_al_trace(includePaths.at(q).c_str());
 		al_trace("\n");
 	}
