@@ -72,5 +72,5 @@ jobs:
     # Check ZScript
     - run: ./buildpack_osx.sh
       working-directory: output/_auto
-    - run: ./zscript.exe -input "include/std.zh" -unlinked
+    - run: ./zscript -input "include/std.zh" -unlinked
       working-directory: output/_auto/buildpack
