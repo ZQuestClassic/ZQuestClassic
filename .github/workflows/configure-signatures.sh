@@ -4,6 +4,7 @@ set -euxo pipefail
 
 echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
 echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
+echo '' >> src/metadata/sigs/devsig.h.sig
 
 if [ "$1" == 'win' ]; then
   echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
@@ -25,13 +26,13 @@ else
   echo "unknown platform $1"
   exit 1
 fi
+echo '' >> src/metadata/sigs/compilersig.h.sig
+
+#Filter out these defines
+grep -v -E 'V_ZC_(ALPHA|BETA|GAMMA|RELEASE)|ZC_IS_NIGHTLY' src/metadata/versionsig.h > src/metadata/tmp
+mv src/metadata/tmp src/metadata/versionsig.h
 
 if [ ! -z "${3:-}" ]; then
-  echo '#undef V_ZC_ALPHA' >> src/metadata/versionsig.h
-  echo '#undef V_ZC_BETA' >> src/metadata/versionsig.h
-  echo '#undef V_ZC_GAMMA' >> src/metadata/versionsig.h
-  echo '#undef V_ZC_RELEASE' >> src/metadata/versionsig.h
-  
   if [ "$2" == "alpha" ]; then
     echo "#define V_ZC_ALPHA $3" >> src/metadata/versionsig.h
   else
@@ -57,9 +58,10 @@ if [ ! -z "${3:-}" ]; then
   fi
 fi
 
-echo '#undef ZC_IS_NIGHTLY' >> src/metadata/versionsig.h
 if [ "$4" == "false" ]; then
   echo '#define ZC_IS_NIGHTLY 0' >> src/metadata/versionsig.h
 else
   echo '#define ZC_IS_NIGHTLY 1' >> src/metadata/versionsig.h
 fi
+
+echo '' >> src/metadata/versionsig.h

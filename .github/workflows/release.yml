@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       number:
-        description: Alpha version number. If not set, does a nightly build
+        description: Version number (Alpha/Beta/Gamma/Release).
         type: string
         required: false
       versiontype:
@@ -22,7 +22,7 @@ on:
         default: alpha
       full_release:
         type: boolean
-        description: If the specified build is a full release, rather than a nightly build
+        description: Full Version (i.e. NOT a nightly)
         default: false
 
 jobs:
