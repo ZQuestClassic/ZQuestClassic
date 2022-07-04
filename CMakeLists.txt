@@ -551,7 +551,6 @@ set(zc_warnings
 	-Werror=format
 	# TODO: involves some manual refactors
 	-Wno-error=format-security
-	-Wno-error=format-insufficient-args
 )
 
 set(zc_targets zquest zelda zlauncher zcsound zscript)

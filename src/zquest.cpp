@@ -1934,7 +1934,6 @@ void savesometiles(const char *prompt,int32_t initialval)
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
-				al_trace("Saving tiles %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
@@ -2172,7 +2171,6 @@ void savesomecombos(const char *prompt,int32_t initialval)
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
-				al_trace("Saving combos %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
@@ -2594,7 +2592,6 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
-				al_trace("Saving combo aliasess %d to %d: %d\n", first_tile_id, first_tile_id+(the_tile_count-1));
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
 				char tmpbuf[80]={0};
@@ -2740,7 +2737,6 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
-				al_trace("Saving doorsets %d to %d: %d\n", first_doorset_id, first_doorset_id+(the_doorset_count-1));
 				writezdoorsets(f,first_doorset_id,the_doorset_count);
 				pack_fclose(f);
 				char tmpbuf[512]={0};
