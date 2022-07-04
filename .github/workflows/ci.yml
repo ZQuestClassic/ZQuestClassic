@@ -64,17 +64,17 @@ jobs:
         sudo make install
 
     - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - run: cmake -G Ninja .
+    - run: cmake -S . -B build -G 'Ninja Multi-Config' .
 
     # Build things individually just to have some seperation in the GHA UI.
-    - run: cmake --build . --target zcsound
-    - run: cmake --build . --target zquest
-    - run: cmake --build . --target zelda
-    - run: cmake --build . --target zscript
-    - run: cmake --build . --target zlauncher
+    - run: cmake --build . --config Release --target zcsound
+    - run: cmake --build . --config Release --target zquest
+    - run: cmake --build . --config Release --target zelda
+    - run: cmake --build . --config Release --target zscript
+    - run: cmake --build . --config Release --target zlauncher
 
     # Build anything else that may not be covered above.
-    - run: cmake --build .
+    - run: cmake --build build --config Release
     
     # Check ZScript
     - run: ./buildpack_osx.sh
