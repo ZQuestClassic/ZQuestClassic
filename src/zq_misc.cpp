@@ -1208,9 +1208,13 @@ int32_t onAbout()
         {
             sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
+#elif V_ZC_GAMMA
+        {
+            sprintf(buf1,"ZQuest %s Gamma Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+        }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
 #endif
         sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);

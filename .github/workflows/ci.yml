@@ -39,6 +39,12 @@ jobs:
 
     # Build anything else that may not be covered above.
     - run: cmake --build . --config Release
+    
+    # Check ZScript
+    - run: ./buildpack.bat y
+      working-directory: output/_auto
+    - run: ./zscript.exe -input "include/std.zh" -unlinked
+      working-directory: output/_auto/buildpack
 
   compile-mac:
     runs-on: macos-12
@@ -47,7 +53,7 @@ jobs:
     - name: git clone
       uses: actions/checkout@v2
     
-    - run: brew install ninja
+    - run: brew install ninja dylibbundler create-dmg
     - name: Install Bison
       run: |
         wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
@@ -58,14 +64,13 @@ jobs:
         sudo make install
 
     - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - run: cmake -G Ninja .
+    - run: cmake -S . -B build -G 'Ninja Multi-Config' .
 
-    # Build things individually just to have some seperation in the GHA UI.
-    - run: cmake --build . --target zcsound
-    - run: cmake --build . --target zquest
-    - run: cmake --build . --target zelda
-    - run: cmake --build . --target zscript
-    - run: cmake --build . --target zlauncher
-
-    # Build anything else that may not be covered above.
-    - run: cmake --build .
+    #Build
+    - run: cmake --build build --config Release
+    
+    # Check ZScript
+    - run: ./buildpack_osx.sh
+      working-directory: output/_auto
+    - run: ./zscript -input "include/std.zh" -unlinked
+      working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
