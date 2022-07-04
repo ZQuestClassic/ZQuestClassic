@@ -44,7 +44,6 @@ static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 void zconsole_warn(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -59,16 +58,23 @@ void zconsole_warn(const char *format,...)
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
-	fprintf(console, "%s", tmp);
-	fclose(console);
-	int32_t errorcode = ZC_CONSOLE_WARN_CODE;
-	ConsoleWrite->write(&errorcode, sizeof(int32_t));
-	ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "a");
+		fprintf(console, "%s", tmp);
+		fclose(console);
+	}
+	if(ConsoleWrite)
+	{
+		int32_t errorcode = ZC_CONSOLE_WARN_CODE;
+		ConsoleWrite->write(&errorcode, sizeof(int32_t));
+		ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	}
+	else printf(console, "%s", tmp);
 }
 void zconsole_error(const char *format,...)
 {
 	zscript_had_warn_err = true;
-	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -84,15 +90,22 @@ void zconsole_error(const char *format,...)
 	
 	va_end(argList);
 	//}
-	fprintf(console, "%s", tmp);
-	fclose(console);
-	int32_t errorcode = ZC_CONSOLE_ERROR_CODE;
-	ConsoleWrite->write(&errorcode, sizeof(int32_t));
-	ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "a");
+		fprintf(console, "%s", tmp);
+		fclose(console);
+	}
+	if(ConsoleWrite)
+	{
+		int32_t errorcode = ZC_CONSOLE_ERROR_CODE;
+		ConsoleWrite->write(&errorcode, sizeof(int32_t));
+		ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	}
+	else printf(console, "%s", tmp);
 }
 void zconsole_info(const char *format,...)
 {
-	FILE *console=fopen(console_path.c_str(), "a");
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -108,11 +121,19 @@ void zconsole_info(const char *format,...)
 	
 	va_end(argList);
 	//}
-	fprintf(console, "%s", tmp);
-	fclose(console);
-	int32_t errorcode = ZC_CONSOLE_INFO_CODE;
-	ConsoleWrite->write(&errorcode, sizeof(int32_t));
-	ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "a");
+		fprintf(console, "%s", tmp);
+		fclose(console);
+	}
+	if(ConsoleWrite)
+	{
+		int32_t errorcode = ZC_CONSOLE_INFO_CODE;
+		ConsoleWrite->write(&errorcode, sizeof(int32_t));
+		ConsoleWrite->read(&errorcode, sizeof(int32_t));
+	}
+	else printf(console, "%s", tmp);
 }
 
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
@@ -196,22 +217,28 @@ void updateIncludePaths()
 int32_t main(int32_t argc, char **argv)
 {
 	common_main_setup(argc, argv);
-
+	bool linked = true;
 	if (!used_switch(argc, argv, "-linked"))
 	{
-		return 1;
+		if(used_switch(argc, argv, "-unlinked"))
+		{
+			linked = false;
+		}
+		else return 1;
 	}
 
 	int32_t console_path_index = used_switch(argc, argv, "-console");
-	if (!console_path_index)
+	if (linked && !console_path_index)
 	{
 		zconsole_error("%s", "Error: missing required flag: -console");
 		return 1;
 	}
-	console_path = argv[console_path_index + 1];
+	if(console_path_index)
+		console_path = argv[console_path_index + 1];
+	else console_path = "";
 	
 	child_process_handler cph;
-	ConsoleWrite = &cph;
+	ConsoleWrite = linked ? &cph : nullptr;
 	if(allegro_init() != 0)
 	{
 		zconsole_error("%s", "Failed Init!");
@@ -224,35 +251,21 @@ int32_t main(int32_t argc, char **argv)
 		zconsole_error("%s", "Error: missing required flag: -input");
 		return 1;
 	}
-
-	int32_t qr_hex_index = used_switch(argc, argv, "-qr");
-	if (!console_path_index)
-	{
-		zconsole_error("%s", "Error: missing required flag: -console");
-		return 1;
-	}
-	char* qr_hex = argv[qr_hex_index + 1];
-	if (strlen(qr_hex) != QUESTRULES_NEW_SIZE * 2)
-	{
-		zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);
-		return 1;
-	}
-
-	for (int i = 0; i < QUESTRULES_NEW_SIZE; i++) {
-		char ch0 = qr_hex[2 * i];
-		char ch1 = qr_hex[2 * i + 1];
-		uint8_t nib0 = (ch0 & 0xF) + (ch0 >> 6) | ((ch0 >> 3) & 0x8);
-		uint8_t nib1 = (ch1 & 0xF) + (ch1 >> 6) | ((ch1 >> 3) & 0x8);
-		quest_rules[i] = (nib0 << 4) | nib1;
-	}
 	
-	FILE *console=fopen(console_path.c_str(), "w");
-	fclose(console);
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "w");
+		fclose(console);
+	}
 	
 	std::string script_path = argv[script_path_index + 1];
 	int32_t syncthing = 0;
-
-	cph.write(&syncthing, sizeof(int32_t));
+	
+	if(linked)
+	{
+		cph.read(quest_rules, QUESTRULES_NEW_SIZE);
+		cph.write(&syncthing, sizeof(int32_t));
+	}
 	
 	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
@@ -270,24 +283,37 @@ int32_t main(int32_t argc, char **argv)
 	
 	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
 	
-	if(!res)
+	if(linked)
 	{
-		write_compile_data(result->scriptTypes, result->theScripts);
-	}
-	int32_t errorcode = -9995;
-	cph.write(&errorcode, sizeof(int32_t));
-	cph.write(&res, sizeof(int32_t));
-	/*
-	if(zscript_had_warn_err)
-		zconsole_warn("%s", "Leaving console open; there were errors or warnings during compile!");
-	else if(used_switch(argc, argv, "-noclose"))
-	{
-		zconsole_info("%s", "Leaving console open; '-noclose' switch used");
+		if(!res)
+		{
+			write_compile_data(result->scriptTypes, result->theScripts);
+		}
+		int32_t errorcode = -9995;
+		cph.write(&errorcode, sizeof(int32_t));
+		cph.write(&res, sizeof(int32_t));
+		/*
+		if(zscript_had_warn_err)
+			zconsole_warn("%s", "Leaving console open; there were errors or warnings during compile!");
+		else if(used_switch(argc, argv, "-noclose"))
+		{
+			zconsole_info("%s", "Leaving console open; '-noclose' switch used");
+		}
+		else
+		{
+			parser_console.kill();
+		}*/
 	}
 	else
 	{
-		parser_console.kill();
-	}*/
+		if(res)
+		{
+			if(res == -1)
+				zconsole_warn("Compile finished with exit code '-1' (compiled with warnings)");
+			else zconsole_error("Compile finished with exit code '%d' (compiled with errors)", res);
+		}
+		else zconsole_info("Compile finished with exit code '0' (success)");
+	}
 	return res;
 }
 END_OF_MAIN()
