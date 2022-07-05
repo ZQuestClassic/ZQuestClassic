@@ -150,14 +150,14 @@ jobs:
 
     - run: ./buildpack_osx.sh
       working-directory: output/_auto
-    - run: mv output/_auto/ZeldaClassic.dmg "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}.dmg"
+    - run: mv output/_auto/ZeldaClassic.dmg "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-mac.dmg"
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         name: ${{ needs.create_tag.outputs.release_name }}
         tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
-        files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}.dmg"
+        files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-mac.dmg"
         prerelease: ${{ !inputs.full_release }}
         fail_on_unmatched_files: true
         generate_release_notes: true
