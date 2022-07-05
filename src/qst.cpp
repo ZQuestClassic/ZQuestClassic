@@ -1223,7 +1223,10 @@ int32_t get_qst_buffers()
     // So let's be a bit generous and allow 4096 initially.
     // In the rare event that a quest overshoots this mark, we'll reallocate to the full 65535 later.
     // I tested it and it worked without flaw on 6/6/11. - L.
-    msg_strings_size = 4096;
+	// 2022: bumped from 4096 to 8192 to avoid a bug where the Strings menu shows (None) strings when the list passes
+	//       this threshold. Possibly some bug related to `msglistcache` to being reset?
+	// See https://discord.com/channels/876899628556091432/992984989073416242
+    msg_strings_size = 8192;
     memrequested+=(sizeof(MsgStr)*msg_strings_size);
     Z_message("Allocating string buffer (%s)... ", byte_conversion2(sizeof(MsgStr)*msg_strings_size,memrequested,-1,-1));
     
