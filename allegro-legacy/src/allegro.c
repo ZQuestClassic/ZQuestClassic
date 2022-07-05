@@ -696,7 +696,8 @@ void register_trace_handler(int (*handler)(AL_CONST char *msg))
  */
 void *_al_malloc(size_t size)
 {
-   return malloc(size);
+   // local edit
+   return al_malloc(size);
 }
 
 
@@ -707,7 +708,8 @@ void *_al_malloc(size_t size)
  */
 void _al_free(void *mem)
 {
-   free(mem);
+   // local edit
+   al_free(mem);
 }
 
 
@@ -718,7 +720,8 @@ void _al_free(void *mem)
  */
 void *_al_realloc(void *mem, size_t size)
 {
-   return realloc(mem, size);
+   // local edit
+   return al_realloc(mem, size);
 }
 
 
