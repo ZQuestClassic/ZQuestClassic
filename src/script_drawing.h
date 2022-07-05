@@ -368,6 +368,9 @@ public:
     {
         return small_tex_cache.GetTexture(bw, bh);
     }
+	
+	CScriptDrawingCommands* pop_commands();
+	void push_commands(CScriptDrawingCommands* other, bool del = true);
     
 public: 
 	int32_t count;

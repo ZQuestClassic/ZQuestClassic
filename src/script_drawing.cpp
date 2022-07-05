@@ -11270,6 +11270,23 @@ void CScriptDrawingCommands::Clear()
 	
 	draw_container.Clear();
 }
+CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
+{
+	CScriptDrawingCommands* ret = new CScriptDrawingCommands();
+	ret->push_commands(this, false);
+	
+	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));
+	count = 0;
+	
+	draw_container.Clear();
+	return ret;
+}
+void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool del)
+{
+	commands.insert(commands.end(), other->commands.begin(), other->commands.end());
+	count += other->count;
+	if(del) delete other;
+}
 
 void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
