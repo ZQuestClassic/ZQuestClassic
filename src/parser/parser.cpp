@@ -266,13 +266,33 @@ int32_t main(int32_t argc, char **argv)
 		FILE *console=fopen(console_path.c_str(), "w");
 		fclose(console);
 	}
-	
+
+	int32_t qr_hex_index = used_switch(argc, argv, "-qr");
+	if (qr_hex_index)
+	{
+		char* qr_hex = argv[qr_hex_index + 1];
+
+		if (strlen(qr_hex) != QUESTRULES_NEW_SIZE * 2)
+		{
+			zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);
+			return 1;
+		}
+
+		for (int i = 0; i < QUESTRULES_NEW_SIZE; i++)
+		{
+			char ch0 = qr_hex[2 * i];
+			char ch1 = qr_hex[2 * i + 1];
+			uint8_t nib0 = (ch0 & 0xF) + (ch0 >> 6) | ((ch0 >> 3) & 0x8);
+			uint8_t nib1 = (ch1 & 0xF) + (ch1 >> 6) | ((ch1 >> 3) & 0x8);
+			quest_rules[i] = (nib0 << 4) | nib1;
+		}
+	}
+
 	std::string script_path = argv[script_path_index + 1];
 	int32_t syncthing = 0;
 	
 	if(linked)
 	{
-		cph->read(quest_rules, QUESTRULES_NEW_SIZE);
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 	
