@@ -271,6 +271,19 @@ target_link_libraries(aljpg PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS aljpg)
 
 #############################################################
+# ZConsole
+#############################################################
+
+if(WIN32)
+	add_executable(zconsole src/zconsole/ConsoleLoggerHelper.cpp)
+	target_link_options(zconsole PRIVATE "/SUBSYSTEM:CONSOLE")
+endif()
+
+add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp src/util.cpp src/process_managment.cpp)
+target_include_directories(zconsolelogger INTERFACE src/zconsole)
+target_link_libraries(zconsolelogger allegro_with_legacy)
+
+#############################################################
 # Sound Library
 #############################################################
 
@@ -429,11 +442,11 @@ target_compile_definitions(zelda PRIVATE IS_PLAYER)
 target_link_libraries(zelda allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zelda zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zconsolelogger zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(APPLE)
-	target_link_libraries(zelda zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 target_link_libraries(zelda allegro_with_legacy)
 
@@ -471,7 +484,7 @@ if(Boost_FOUND)
 	add_definitions(-DHAS_BOOST)
     add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
-	target_link_libraries(zquest PUBLIC allegro_with_legacy zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
@@ -500,7 +513,7 @@ endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
-	target_link_libraries(zscript allegro_with_legacy ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -517,7 +530,7 @@ elseif(LINUX)
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
-target_link_libraries(zlauncher allegro_with_legacy ${LAUNCHERLIBSEXTRA})
+target_link_libraries(zlauncher allegro_with_legacy zconsolelogger ${LAUNCHERLIBSEXTRA})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 
 #############################################################
@@ -533,15 +546,18 @@ target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegr
 # Visual Studio
 #############################################################
 
-if("${vs_platform}" STREQUAL "win32")
-	set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
-elseif("${vs_platform}" STREQUAL "x64")
-	set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)x64/$(Configuration)")
-endif()
+if (WIN32)
+	if("${vs_platform}" STREQUAL "win32")
+		set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+	elseif("${vs_platform}" STREQUAL "x64")
+		set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)x64/$(Configuration)")
+	endif()
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-set_target_properties(allegro allegro_audio allegro_font allegro_main allegro_primitives allegro-legacy algif al5_example PROPERTIES FOLDER Allegro)
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro-legacy aljpg algif al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
+endif()
 
 #############################################################
 # Misc.
@@ -551,7 +567,10 @@ set(zc_warnings
 	-Werror=format
 )
 
-set(zc_targets zquest zelda zlauncher zcsound zscript)
+set(zc_targets zquest zelda zlauncher zcsound zscript zconsolelogger)
+if (WIN32)
+	list(APPEND zc_targets zconsole)
+endif()
 foreach(target IN LISTS zc_targets)
 	if(WIN32)
 		target_compile_definitions(${target} PRIVATE __STDC_LIMIT_MACROS)

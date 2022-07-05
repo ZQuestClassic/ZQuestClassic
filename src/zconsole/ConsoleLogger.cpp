@@ -3,6 +3,7 @@
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 byte monochrome_console;
 #include "zc_alleg.h"
+
 #ifdef _WIN32
 //{
 //////////////////////////////////////////////////////////////////////
@@ -88,11 +89,14 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	GetStartupInfo(&si);
 	
 	char cmdline[MAX_PATH];;
-	if (!helper_executable)
-		helper_executable=
-			( zc_get_config("zc.cfg","CONSOLE","console_on_top",0) ) 
-			? "ZConsole_OnTop.exe"
-			: "ZConsole.exe"; //DEFAULT_HELPER_EXE
+	if (!helper_executable) {
+		// TODO: should remove this option now.
+		// helper_executable=
+		// 	( zc_get_config("zc.cfg","CONSOLE","console_on_top",0) ) 
+		// 	? "ZConsole_OnTop.exe"
+		// 	: "ZConsole.exe"; //DEFAULT_HELPER_EXE
+		helper_executable = DEFAULT_HELPER_EXE;
+	}
 	sprintf(cmdline,"%s %s",helper_executable,logger_name);
 	BOOL bRet = CreateProcess(NULL,cmdline,NULL,NULL,FALSE,CREATE_NEW_CONSOLE,NULL,NULL,&si,&pi);
 	if (!bRet)

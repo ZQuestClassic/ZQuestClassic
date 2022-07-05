@@ -5,7 +5,6 @@
 #include "stdio.h"
 #include "windows.h"
 
-
 CONSOLE_SCREEN_BUFFER_INFO	g_ConsoleBufferInfo;
 HANDLE	g_hPipe;
 BOOL	g_bExtendedConsole=FALSE;
