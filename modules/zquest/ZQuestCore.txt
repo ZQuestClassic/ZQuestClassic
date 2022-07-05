@@ -25,7 +25,6 @@ src/module.cpp
 src/fonts.cpp
 src/zinfo.cpp
 src/zdefs.cpp
-src/ConsoleLogger.cpp
 src/process_managment.cpp
 src/zconfig.cpp
 

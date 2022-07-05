@@ -6,7 +6,6 @@ set(ZSCRIPT_CORE_SOURCES
 ################################
 src/parser/parser.cpp
 src/util.cpp
-src/ConsoleLogger.cpp
 src/process_managment.cpp
 src/zconfig.cpp
 src/zapp.cpp

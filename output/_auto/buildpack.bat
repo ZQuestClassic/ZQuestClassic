@@ -25,11 +25,12 @@ echo Copying '\output\package' files...>%log%
 xcopy /e /y /i "%pack%" "%nb%" >>%log%
 
 echo Copying '\Release' - zelda.exe, zquest.exe, zscript.exe, zlauncher.exe, *.dll...
-echo Copying '\Release' - zelda.exe, zquest.exe, zscript.exe, zlauncher.exe, *.dll...>>%log%
+echo Copying '\Release' - zelda.exe, zquest.exe, zscript.exe, zlauncher.exe, zconsole.exe, *.dll...>>%log%
 copy /y "%rel%\zelda.exe" "%nb%\zelda.exe" >>%log%
 copy /y "%rel%\zquest.exe" "%nb%\zquest.exe" >>%log%
 copy /y "%rel%\zscript.exe" "%nb%\zscript.exe" >>%log%
 copy /y "%rel%\zlauncher.exe" "%nb%\zlauncher.exe" >>%log%
+copy /y "%rel%\zconsole.exe" "%nb%\zconsole.exe" >>%log%
 copy /y "%rel%\*.dll" "%nb%" >>%log%
 
 echo Copying 'changelog.txt'...

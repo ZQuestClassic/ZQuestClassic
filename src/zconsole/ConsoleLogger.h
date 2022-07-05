@@ -1,6 +1,8 @@
-// ConsoleLogger.h: interface for the CConsoleLogger class.
-//
-//////////////////////////////////////////////////////////////////////
+#ifndef ZC_CONSOLE_LOGGER_H
+#define ZC_CONSOLE_LOGGER_H
+
+#include "zdefs.h"
+#include "process_managment.h"
 
 #if !defined(AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_)
 #define AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_
@@ -9,6 +11,9 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#ifdef _WIN32
+//{
+#include <windows.h>
 #include "windows.h"
 #include <time.h>
 #include <stdio.h>
@@ -16,6 +21,7 @@
 #include <fcntl.h>
 #include "io.h"
 #include "direct.h"
+#include <cstdint>
 
 
 #include "ntverp.h"
@@ -31,7 +37,7 @@
 
 // If no "helper_executable" location was specify -
 // search for the DEFAULT_HELPER_EXE 
-#define DEFAULT_HELPER_EXE	"ConsoleLoggerHelper.exe"
+#define DEFAULT_HELPER_EXE	"zconsole.exe"
 
 
 class CConsoleLogger
@@ -42,26 +48,32 @@ public:
 	CConsoleLogger();
 	virtual ~CConsoleLogger();
 	
+	bool valid();
+	
 	// create a logger: starts a pipe+create the child process
-	long Create(const char *lpszWindowTitle=NULL,
-				int buffer_size_x=-1,int buffer_size_y=-1,
+	int32_t Create(const char *lpszWindowTitle=NULL,
+				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
 				const char *logger_name=NULL,
 				const char *helper_executable=NULL);
-
+	
+	void kill();
+	
 	// close everything
-	long Close(void);
+	int32_t Close(void);
 	
 	// output functions
-	inline int print(const char *lpszText,int iSize=-1);
-	int printf(const char *format,...);
+	inline int32_t print(const char *lpszText,int32_t iSize=-1);
+	int32_t printf(const char *format,...);
 	
 	// play with the CRT output functions
-	int SetAsDefaultOutput(void);
-	static int ResetDefaultOutput(void);
+	int32_t SetAsDefaultOutput(void);
+	static int32_t ResetDefaultOutput(void);
 
 protected:
 	char	m_name[64];
 	HANDLE	m_hPipe;
+	process_killer killer;
+	bool kill_on_close;
 	
 #ifdef CONSOLE_LOGGER_USING_MS_SDK
 	// we'll use this DWORD as VERY fast critical-section . for more info:
@@ -103,11 +115,11 @@ protected:
 #endif
 
 	// you can extend this class by overriding the function
-	virtual long	AddHeaders(void)
+	virtual int32_t	AddHeaders(void)
 	{ return 0;}
 
 	// the _print() helper function
-	virtual int _print(const char *lpszText,int iSize);
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
 
 	
 
@@ -193,13 +205,13 @@ public:
 	void clear_eol(DWORD color);
 	
 	// write string , use specified color
-	int cprintf(int attributes,const char *format,...);
+	int32_t cprintf(int32_t attributes,const char *format,...);
 	
 	// write string , use current color
-	int cprintf(const char *format,...);
+	int32_t cprintf(const char *format,...);
 	
 	// goto(x,y)
-	void gotoxy(int x,int y);
+	void gotoxy(int32_t x,int32_t y);
 
 
 
@@ -211,7 +223,7 @@ public:
 	
 
 protected:
-	virtual long	AddHeaders(void)
+	virtual int32_t	AddHeaders(void)
 	{	// Thnx to this function, the "Helper" can see that we are "extended" logger !!!
 		// (so we can use the same helper-child-application for both loggers
 		DWORD cbWritten=0;
@@ -220,10 +232,199 @@ protected:
 		return (cbWritten==strlen(ptr)) ? 0 : -1;
 	}
 	
-	virtual int _print(const char *lpszText,int iSize);
-	virtual int _cprint(int attributes,const char *lpszText,int iSize);
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
+	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
 
 
 };
+//}
+#else
+//{Unix
+
+class CConsoleLogger
+{
+public:
+
+	// ctor,dtor
+	CConsoleLogger();
+	virtual ~CConsoleLogger();
+	
+	bool valid();
+	
+	// create a logger: starts a pipe+create the child process
+	int32_t Create(const char *lpszWindowTitle=NULL,
+				int32_t buffer_size_x=-1,int32_t buffer_size_y=-1,
+				const char *logger_name=NULL,
+				const char *helper_executable=NULL);
+	
+	void kill();
+
+	// close everything
+	int32_t Close(void);
+	
+	// output functions
+	inline int32_t print(const char *lpszText,int32_t iSize=-1);
+	int32_t printf(const char *format,...);
+	
+	// play with the CRT output functions
+	int32_t SetAsDefaultOutput(void);
+	static int32_t ResetDefaultOutput(void);
+
+protected:
+	char	m_name[64];
+	process_killer killer;
+	bool kill_on_close;
+	
+#ifdef CONSOLE_LOGGER_USING_MS_SDK
+	// we'll use this DWORD as VERY fast critical-section . for more info:
+	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
+	//		Vance Morrison , MSDN Magazine  October 2005
+	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
+	volatile int32_t m_fast_critical_section;
+
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{}
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ m_fast_critical_section=0; }
+#else
+	inline void InitializeCriticalSection(void)
+	{  }
+	
+	inline void DeleteCriticalSection(void)
+	{  }
+
+	// our own LOCK function
+	inline void EnterCriticalSection(void)
+	{ }
+
+	// our own UNLOCK function
+	inline void LeaveCriticalSection(void)
+	{ }
 
 #endif
+
+	// you can extend this class by overriding the function
+	virtual int32_t	AddHeaders(void)
+	{ return 0;}
+
+	// the _print() helper function
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
+
+	
+
+
+	// SafeWriteFile : write safely to the pipe
+	inline bool SafeWriteFile(
+		/*__in*/ int32_t hFile,
+		/*__in_bcount(nNumberOfBytesToWrite)*/	int32_t lpBuffer,
+		/*__in        */ int32_t nNumberOfBytesToWrite,
+		/*__out_opt   */ int32_t lpNumberOfBytesWritten,
+		/*__inout_opt */ int32_t lpOverlapped
+		)
+	{
+		return false;
+	}
+
+};
+
+
+class CConsoleLoggerEx : public CConsoleLogger
+{
+	int32_t	m_dwCurrentAttributes;
+	enum enumCommands
+	{
+		COMMAND_PRINT,
+		COMMAND_CPRINT,
+		COMMAND_CLEAR_SCREEN,
+		COMMAND_COLORED_CLEAR_SCREEN,
+		COMMAND_GOTOXY,
+		COMMAND_CLEAR_EOL,
+		COMMAND_COLORED_CLEAR_EOL
+	};
+public:
+	CConsoleLoggerEx();
+
+	enum enumColors
+	{
+		COLOR_BLACK=0,
+		COLOR_BLUE,
+		COLOR_GREEN,
+		COLOR_RED,
+		COLOR_WHITE,
+		COLOR_INTENSITY,
+		COLOR_BACKGROUND_BLACK,
+		COLOR_BACKGROUND_BLUE,
+		COLOR_BACKGROUND_GREEN,
+		COLOR_BACKGROUND_RED,
+		COLOR_BACKGROUND_WHITE,
+		COLOR_BACKGROUND_INTENSITY,
+		COLOR_COMMON_LVB_LEADING_BYTE,
+		COLOR_COMMON_LVB_TRAILING_BYTE,
+		COLOR_COMMON_LVB_GRID_HORIZONTAL,
+		COLOR_COMMON_LVB_GRID_LVERTICAL,
+		COLOR_COMMON_LVB_GRID_RVERTICAL,
+		COLOR_COMMON_LVB_REVERSE_VIDEO,
+		COLOR_COMMON_LVB_UNDERSCORE
+	};
+	
+	// Clear screen , use default color (black&white)
+	void cls(void);
+	
+	// Clear screen use specific color
+	void cls(word color);
+
+	// Clear till End Of Line , use default color (black&white)
+	void clear_eol(void);
+	
+	// Clear till End Of Line , use specified color
+	void clear_eol(word color);
+	
+	// write string , use specified color
+	int32_t cprintf(int32_t attributes,const char *format,...);
+	
+	// write string , use current color
+	int32_t cprintf(const char *format,...);
+	
+	// goto(x,y)
+	void gotoxy(int32_t x,int32_t y);
+
+
+
+	word	GetCurrentColor(void)
+	{
+        return 0;    
+    }
+	
+	void	SetCurrentColor(word dwColor)
+	{
+            
+    }
+	
+
+protected:
+	virtual int32_t AddHeaders(void)
+	{
+		return  0;
+	}
+	
+	virtual int32_t _print(const char *lpszText,int32_t iSize);
+	virtual int32_t _cprint(int32_t attributes,const char *lpszText,int32_t iSize);
+
+
+};
+//}
+#endif
+
+#endif
+
+#endif
+
