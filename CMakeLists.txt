@@ -99,6 +99,9 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/image/allegro5/allegro_image.h
 file(COPY ${allegro5_SOURCE_DIR}/addons/acodec/allegro5/allegro_acodec.h
 	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
 )
+file(COPY ${allegro5_SOURCE_DIR}/addons/native_dialog/allegro5/allegro_native_dialog.h
+	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
+)
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
@@ -107,7 +110,7 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_image allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_image allegro_dialog allegro_main)
 
 #############################################################
 # Header and source file lists

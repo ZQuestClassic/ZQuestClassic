@@ -3,6 +3,7 @@
 
 #include "zdefs.h"
 #include "process_managment.h"
+#include <allegro5/allegro_native_dialog.h>
 
 #if !defined(AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_)
 #define AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_
@@ -272,45 +273,8 @@ public:
 
 protected:
 	char	m_name[64];
-	process_killer killer;
+	ALLEGRO_TEXTLOG* m_textlog;
 	bool kill_on_close;
-	
-#ifdef CONSOLE_LOGGER_USING_MS_SDK
-	// we'll use this DWORD as VERY fast critical-section . for more info:
-	// * "Understand the Impact of Low-Lock Techniques in Multithreaded Apps"
-	//		Vance Morrison , MSDN Magazine  October 2005
-	// * "Performance-Conscious Thread Synchronization" , Jeffrey Richter , MSDN Magazine  October 2005
-	volatile int32_t m_fast_critical_section;
-
-	inline void InitializeCriticalSection(void)
-	{  }
-	
-	inline void DeleteCriticalSection(void)
-	{  }
-
-	// our own LOCK function
-	inline void EnterCriticalSection(void)
-	{}
-
-	// our own UNLOCK function
-	inline void LeaveCriticalSection(void)
-	{ m_fast_critical_section=0; }
-#else
-	inline void InitializeCriticalSection(void)
-	{  }
-	
-	inline void DeleteCriticalSection(void)
-	{  }
-
-	// our own LOCK function
-	inline void EnterCriticalSection(void)
-	{ }
-
-	// our own UNLOCK function
-	inline void LeaveCriticalSection(void)
-	{ }
-
-#endif
 
 	// you can extend this class by overriding the function
 	virtual int32_t	AddHeaders(void)
@@ -318,22 +282,6 @@ protected:
 
 	// the _print() helper function
 	virtual int32_t _print(const char *lpszText,int32_t iSize);
-
-	
-
-
-	// SafeWriteFile : write safely to the pipe
-	inline bool SafeWriteFile(
-		/*__in*/ int32_t hFile,
-		/*__in_bcount(nNumberOfBytesToWrite)*/	int32_t lpBuffer,
-		/*__in        */ int32_t nNumberOfBytesToWrite,
-		/*__out_opt   */ int32_t lpNumberOfBytesWritten,
-		/*__inout_opt */ int32_t lpOverlapped
-		)
-	{
-		return false;
-	}
-
 };
 
 

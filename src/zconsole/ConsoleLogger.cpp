@@ -1,8 +1,9 @@
 #include "ConsoleLogger.h"
 #include "zconfig.h"
-int32_t vbound(int32_t val, int32_t low, int32_t high);
-byte monochrome_console;
 #include "zc_alleg.h"
+
+// int32_t vbound(int32_t val, int32_t low, int32_t high);
+byte monochrome_console;
 
 #ifdef _WIN32
 //{
@@ -506,12 +507,20 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 							const char	*logger_name/*=NULL*/,
 							const char	*helper_executable/*=NULL*/)
 {
-	return 0;
+	if (m_textlog) {
+		kill();
+	}
+
+	m_textlog = al_open_native_text_log("ZScript", ALLEGRO_TEXTLOG_MONOSPACE);
+	return m_textlog == nullptr ? 1 : 0;
 }
 
 void CConsoleLogger::kill()
 {
-	killer.kill();
+	if (m_textlog) {
+		al_close_native_text_log(m_textlog);
+		m_textlog = NULL;
+	}
 }
 
 // Close and disconnect
@@ -529,12 +538,13 @@ int32_t CConsoleLogger::Close(void)
 //////////////////////////////////////////////////////////////////////////
 inline int32_t CConsoleLogger::print(const char *lpszText,int32_t iSize/*=-1*/)
 {
+	al_append_native_text_log(m_textlog, "%s", lpszText);
 	return 0;
 }
 
 bool CConsoleLogger::valid()
 {
-	return false;
+	return m_textlog != NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -552,7 +562,7 @@ int32_t CConsoleLogger::printf(const char *format,...)
 	
 	va_end(argList);
 	
-	::printf("%s",tmp);
+	al_append_native_text_log(m_textlog, "%s", tmp);
 	return ret;
 }
 
@@ -655,7 +665,7 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	
 	va_end(argList);
 	
-	printf("%s",tmp);
+	al_append_native_text_log(m_textlog, "%s", tmp);
 	return ret;
 }
 
@@ -674,7 +684,7 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	
 	va_end(argList);
 	
-	printf("%s",tmp);
+	al_append_native_text_log(m_textlog, "%s", tmp);
 	return ret;
 }
 
