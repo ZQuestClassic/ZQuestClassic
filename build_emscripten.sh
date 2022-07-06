@@ -166,7 +166,7 @@ rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_gme_mid-mod-mp3-ogg.a
 # https://github.com/emscripten-core/emscripten/issues/16744
 # embuilder clear sdl2-mt sdl2_mixer_gme_mid_mod_mp3_ogg
 
-bash ../patches/apply.sh
+bash ../web/patches/apply.sh
 
 # TODO: why doesn't emscripten build this for us?
 embuilder build sdl2-mt
