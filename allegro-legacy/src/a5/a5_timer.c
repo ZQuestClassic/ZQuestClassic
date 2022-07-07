@@ -29,20 +29,34 @@ static double a5_get_timer_speed(long speed)
 
 static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * unused)
 {
+    ALLEGRO_EVENT_QUEUE * queue;
+    ALLEGRO_EVENT event;
+    ALLEGRO_TIMER * timer;
+    ALLEGRO_TIMEOUT timeout;
     double cur_time, prev_time, diff_time;
 
+    queue = al_create_event_queue();
+    if(!queue)
+    {
+        return NULL;
+    }
+
+    timer = al_create_timer(ALLEGRO_BPS_TO_SECS(100));
+    al_register_event_source(queue, al_get_timer_event_source(timer));
     prev_time = al_get_time();
+    al_start_timer(timer);
+    al_init_timeout(&timeout, 0.1);
     while(!al_get_thread_should_stop(thread))
     {
-        cur_time = al_get_time();
-        diff_time = cur_time - prev_time;
-        prev_time = cur_time;
-        double delay = a5_get_timer_speed(_handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0)));
-        if (delay < .001) {
-            delay = .001;
+        if(al_wait_for_event_until(queue, &event, &timeout))
+        {
+            cur_time = al_get_time();
+            diff_time = cur_time - prev_time;
+            prev_time = cur_time;
+            a5_get_timer_speed(_handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0)));
         }
-        al_rest(delay);
     }
+
     return NULL;
 }
 
