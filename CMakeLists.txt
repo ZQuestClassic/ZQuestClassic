@@ -549,11 +549,13 @@ target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegr
 # Visual Studio
 #############################################################
 
+set(zc_targets zquest zelda zlauncher zcsound zscript zconsolelogger)
+
 if (WIN32)
 	if("${vs_platform}" STREQUAL "win32")
-		set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+		set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
 	elseif("${vs_platform}" STREQUAL "x64")
-		set_property(TARGET zquest zelda PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)x64/$(Configuration)")
+		set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)x64/$(Configuration)")
 	endif()
 
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -570,7 +572,6 @@ set(zc_warnings
 	-Werror=format
 )
 
-set(zc_targets zquest zelda zlauncher zcsound zscript zconsolelogger)
 if (WIN32)
 	list(APPEND zc_targets zconsole)
 endif()
