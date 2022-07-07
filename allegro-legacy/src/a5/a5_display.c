@@ -191,6 +191,18 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
         // al_acknowledge_resize(_a5_display);
         break;
       }
+      case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
+      {
+#ifdef _WIN32
+        // Window is sometimes blurry after minimizing, but blur goes away if the display is refreshed. A noop resize is the
+        // simplest way to refresh the display.
+        // Could not actually repro the blurry bug on my machine - Connor.
+        if (!_a5_display_fullscreen) {
+          al_resize_display(_a5_display, gfx_driver->w, gfx_driver->h);
+        }
+#endif
+        break;
+      }
     }
     if(al_event_queue_is_empty(_a5_display_thread_event_queue))
     {
@@ -231,7 +243,6 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
 static BITMAP * a5_display_init(int w, int h, int vw, int vh, int color_depth)
 {
     BITMAP * bp;
-    int pixel_format;
 
     screen_mutex = al_create_mutex_recursive();
 
