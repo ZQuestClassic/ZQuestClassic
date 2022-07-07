@@ -581,31 +581,21 @@ void all_render_screen(void)
     all_unlock_screen();
 
     // local edit
-    if (!_a5_display_fullscreen && _a5_display_scale != 1) {
-      ALLEGRO_TRANSFORM transform;
-      al_build_transform(&transform, 0, 0, _a5_display_scale, _a5_display_scale, 0);
-      al_use_transform(&transform);
+    int want_w = _a5_display_width / _a5_display_scale;
+    int want_h = _a5_display_height / _a5_display_scale;
+    int w = al_get_display_width(_a5_display);
+    int h = al_get_display_height(_a5_display);
+    double scale = (double)w / want_w;
+    double scale_y = (double)h / want_h;
+    if (scale_y < scale) {
+      scale = scale_y;
     }
-
-#ifdef __APPLE__
-    if (_a5_display_fullscreen) {
-      int want_w = _a5_display_width / _a5_display_scale;
-      int want_h = _a5_display_height / _a5_display_scale;
-      int w = al_get_display_width(_a5_display);
-      int h = al_get_display_height(_a5_display);
-      double scale = (double)w / want_w;
-      double scale_y = (double)h / want_h;
-      if (scale_y < scale) {
-        scale = scale_y;
-      }
-      int offset_x = (w - want_w * scale) / 2;
-      int offset_y = (h - want_h * scale) / 2;
-      ALLEGRO_TRANSFORM transform;
-      al_build_transform(&transform, offset_x, offset_y, scale, scale, 0);
-      al_use_transform(&transform);
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-    }
-#endif
+    int offset_x = (w - want_w * scale) / 2;
+    int offset_y = (h - want_h * scale) / 2;
+    ALLEGRO_TRANSFORM transform;
+    al_build_transform(&transform, offset_x, offset_y, scale, scale, 0);
+    al_use_transform(&transform);
+    al_clear_to_color(al_map_rgb(0, 0, 0));
 
     al_draw_bitmap(_a5_screen, 0, 0, 0);
     al_flip_display();
@@ -625,6 +615,12 @@ void all_set_fullscreen_flag(bool fullscreen)
 }
 
 // local edit
+bool all_get_fullscreen_flag()
+{
+  return _a5_display_fullscreen;
+}
+
+// local edit
 void all_set_scale(int scale)
 {
   _a5_display_scale = scale;
@@ -637,9 +633,8 @@ int all_get_scale()
 }
 
 // local edit
-int all_get_osx_scale()
+int all_get_display_transform_scale()
 {
-  if (!_a5_display_fullscreen) return 1;
   if (!_a5_display) return 1;
 
   int want_w = _a5_display_width / _a5_display_scale;

@@ -52,11 +52,13 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_x = event.mouse.x;
                     _mouse_y = event.mouse.y;
                     _mouse_z = event.mouse.z;
-#ifdef __APPLE__
-                    int scale = all_get_osx_scale();
-                    _mouse_x /= scale;
-                    _mouse_y /= scale;
-#endif
+                    // local edit
+                    if (all_get_fullscreen_flag())
+                    {
+                        int scale = all_get_display_transform_scale();
+                        _mouse_x /= scale;
+                        _mouse_y /= scale;
+                    }
                     break;
                 }
                 case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
