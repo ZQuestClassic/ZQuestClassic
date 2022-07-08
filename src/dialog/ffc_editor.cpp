@@ -15,7 +15,7 @@ bool call_ffc_dialog(int32_t ffcombo, mapscr* scr)
 	tCSet = CSet;
 	edited = false;
 	FFCDialog(scr,ffcombo).show();
-	if(edited) CSet = tCSet;
+	//if(edited) CSet = tCSet;
 	return edited;
 }
 bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr)
