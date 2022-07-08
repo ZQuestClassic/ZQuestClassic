@@ -35,7 +35,7 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
     al_unlock_bitmap(a5bmp);
     al_destroy_bitmap(a5bmp);
 
-    generate_332_palette(pal);
+    get_palette(pal);
 
     return bmp;
 
