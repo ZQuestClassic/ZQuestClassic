@@ -26,7 +26,7 @@
 #include <stdlib.h>
 
 #include <aljpg.h>
-#include <gif.h>
+#include <algif.h>
 
 #include "zc_malloc.h"
 #include "mem_debug.h"
@@ -4482,9 +4482,6 @@ int main(int argc, char **argv)
 	
 	algif_init();
 	aljpg_init();
-#if !defined(__APPLE__) && !defined(_WIN64)
-	loadpng_init();
-#endif
 	
 	// set and load game configurations
 	zc_set_config_standard();

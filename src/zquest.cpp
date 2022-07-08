@@ -45,7 +45,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <albmp.h>
 #include <alpng.h>
 #include <aljpg.h>
-#include <gif.h>
+#include <algif.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
@@ -29971,9 +29971,6 @@ int32_t main(int32_t argc,char **argv)
 	aljpg_init();
 	alpng_init();
 	albmp_init();
-#if !defined(__APPLE__) && !defined(_WIN64)
-	loadpng_init();
-#endif
 	
 	//set_config_file("ag.cfg");
 	zc_set_config_standard();

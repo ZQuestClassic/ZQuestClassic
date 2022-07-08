@@ -110,7 +110,7 @@ add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_image allegro_dialog allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_dialog allegro_main)
 
 #############################################################
 # Header and source file lists
@@ -251,17 +251,6 @@ endif()
 # Allegro Graphics Addons
 #############################################################
 
-add_library(algif STATIC
-	allegro-addons/algif/src/algif.c
-	allegro-addons/algif/src/gif.c
-	allegro-addons/algif/src/lzw.c
-)
-target_include_directories(algif INTERFACE
-	allegro-addons/algif/src
-)
-target_link_libraries(algif PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS algif)
-
 add_library(aljpg STATIC
 	allegro-addons/aljpg/src/aljpg.c
 )
@@ -288,6 +277,18 @@ target_include_directories(alpng PUBLIC
 )
 target_link_libraries(alpng PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS alpng)
+
+add_library(algif5 STATIC
+	allegro-addons/algif5/src/algif.c
+	allegro-addons/algif5/src/bitmap.c
+	allegro-addons/algif5/src/gif.c
+	allegro-addons/algif5/src/lzw.c
+)
+target_include_directories(algif5 PUBLIC
+	allegro-addons/algif5/src
+)
+target_link_libraries(algif5 PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS algif5)
 
 #############################################################
 # ZConsole
@@ -572,7 +573,7 @@ if (WIN32)
 
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro-legacy aljpg alpng algif al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro-legacy aljpg alpng algif5 al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 endif()
 
