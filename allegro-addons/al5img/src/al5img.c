@@ -33,7 +33,6 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
         }
     }
     al_unlock_bitmap(a5bmp);
-    al_destroy_bitmap(a5bmp);
 
     get_palette(pal);
 
@@ -56,7 +55,9 @@ fail:
 BITMAP *load_al4_bitmap_through_al5(AL_CONST char *filename, RGB *pal)
 {
     ALLEGRO_BITMAP *a5bmp = al_load_bitmap(filename);
-    return al5_bitmap_to_al4_bitmap(a5bmp, pal);
+    BITMAP* bmp = al5_bitmap_to_al4_bitmap(a5bmp, pal);
+    al_destroy_bitmap(a5bmp);
+    return bmp;
 }
 
 int save_al4_bitmap_through_al5(AL_CONST char *filename, BITMAP *bmp, AL_CONST PALETTE pal)
@@ -101,7 +102,7 @@ BITMAP *load_gif(AL_CONST char *filename, RGB *pal)
     ALGIF_ANIMATION *gif = algif_load_animation(filename);
     ALLEGRO_BITMAP *a5bmp = algif_get_bitmap(gif, 0);
     BITMAP *bmp = al5_bitmap_to_al4_bitmap(a5bmp, pal);
-    algif_destroy_animation(bmp);
+    algif_destroy_animation(gif);
     return bmp;
 }
 
