@@ -23,7 +23,6 @@
 
 #include "zc_alleg.h"
 
-#include <png.h>
 #include <pngconf.h>
 #include <stdlib.h>
 
