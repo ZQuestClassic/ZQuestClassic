@@ -78,6 +78,11 @@ static bool _a5_setup_screen(int w, int h)
 #else
   if (_a5_display_fullscreen) al_set_new_display_flags(ALLEGRO_FULLSCREEN);
 #endif
+// TODO: currently broken on mac.
+#ifndef __APPLE__
+  else al_set_new_display_flags(ALLEGRO_RESIZABLE);
+#endif
+
   _a5_display = al_create_display(w, h);
   if(!_a5_display)
   {
@@ -188,7 +193,7 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
       // local edit
       case ALLEGRO_EVENT_DISPLAY_RESIZE:
       {
-        // al_acknowledge_resize(_a5_display);
+        al_acknowledge_resize(_a5_display);
         break;
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
@@ -198,7 +203,9 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
         // simplest way to refresh the display.
         // Could not actually repro the blurry bug on my machine - Connor.
         if (!_a5_display_fullscreen) {
-          al_resize_display(_a5_display, gfx_driver->w, gfx_driver->h);
+          int w = al_get_display_width(_a5_display);
+          int h = al_get_display_height(_a5_display);
+          al_resize_display(_a5_display, w, h);
         }
 #endif
         break;
@@ -592,17 +599,9 @@ void all_render_screen(void)
     all_unlock_screen();
 
     // local edit
-    int want_w = _a5_display_width / _a5_display_scale;
-    int want_h = _a5_display_height / _a5_display_scale;
-    int w = al_get_display_width(_a5_display);
-    int h = al_get_display_height(_a5_display);
-    double scale = (double)w / want_w;
-    double scale_y = (double)h / want_h;
-    if (scale_y < scale) {
-      scale = scale_y;
-    }
-    int offset_x = (w - want_w * scale) / 2;
-    int offset_y = (h - want_h * scale) / 2;
+    int offset_x, offset_y;
+    double scale;
+    all_get_display_transform(NULL, NULL, NULL, NULL, &offset_x, &offset_y, &scale);
     ALLEGRO_TRANSFORM transform;
     al_build_transform(&transform, offset_x, offset_y, scale, scale, 0);
     al_use_transform(&transform);
@@ -644,20 +643,38 @@ int all_get_scale()
 }
 
 // local edit
-int all_get_display_transform_scale()
+void all_get_display_transform(int* out_native_width, int* out_native_height,
+                               int* out_display_width, int* out_display_height,
+                               int* out_offset_x, int* out_offset_y, double* out_scale)
 {
-  if (!_a5_display) return 1;
+  if (out_native_width) *out_native_width = _a5_display_width;
+  if (out_native_height) *out_native_height = _a5_display_height;
+
+  if (!_a5_display) {
+    if (out_display_width) *out_display_width = 0;
+    if (out_display_height) *out_display_height = 0;
+    if (out_offset_x) *out_offset_x = 0;
+    if (out_offset_y) *out_offset_y = 0;
+    if (out_scale) *out_scale = 1;
+    return;
+  }
+
+  int w = al_get_display_width(_a5_display);
+  int h = al_get_display_height(_a5_display);
+  if (out_display_width) *out_display_width = w;
+  if (out_display_height) *out_display_height = h;
 
   int want_w = _a5_display_width / _a5_display_scale;
   int want_h = _a5_display_height / _a5_display_scale;
-  int w = al_get_display_width(_a5_display);
-  int h = al_get_display_height(_a5_display);
   double scale = (double)w / want_w;
   double scale_y = (double)h / want_h;
   if (scale_y < scale) {
     scale = scale_y;
   }
-  return scale;
+
+  if (out_offset_x) *out_offset_x = (w - want_w * scale) / 2;
+  if (out_offset_y) *out_offset_y = (h - want_h * scale) / 2;
+  if (out_scale) *out_scale = scale;
 }
 
 GFX_DRIVER display_allegro_5 = {
