@@ -52,12 +52,31 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_x = event.mouse.x;
                     _mouse_y = event.mouse.y;
                     _mouse_z = event.mouse.z;
+
                     // local edit
+                    int native_width, native_height, display_width, display_height, offset_x, offset_y;
+                    double scale;
+                    all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
+
+                    // Show OS cursor when hovering over letterboxing.
+                    if (_mouse_x < offset_x || _mouse_y < offset_y || _mouse_x >= display_width - offset_x || _mouse_y >= display_height - offset_y)
+                    {
+                        al_show_mouse_cursor(_a5_display);
+                    }
+                    else
+                    {
+                        al_hide_mouse_cursor(_a5_display);
+                    }
+
                     if (all_get_fullscreen_flag())
                     {
-                        int scale = all_get_display_transform_scale();
                         _mouse_x /= scale;
                         _mouse_y /= scale;
+                    }
+                    else
+                    {
+                        _mouse_x = native_width * ((double)_mouse_x - offset_x) / ((double)display_width - offset_x * 2);
+                        _mouse_y = native_height * ((double)_mouse_y - offset_y) / ((double)display_height - offset_y * 2);
                     }
                     break;
                 }
