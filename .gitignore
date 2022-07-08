@@ -43,6 +43,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Bb]uild/
+build64/
 .git/
 .git - Copy/
 src - Copy/

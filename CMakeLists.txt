@@ -205,8 +205,8 @@ endif()
 if(MSVC)
 	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
 	if("${vs_platform}" STREQUAL "win32")
-		set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/loadpng.lib>"
-		              "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/loadpng.lib>")
+		set(IMAGELIBS "$<$<CONFIG:DEBUG>:${CMAKE_SOURCE_DIR}/libs/win32dbg/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib>"
+					  "$<$<CONFIG:RELEASE>:${CMAKE_SOURCE_DIR}/libs/win32/libpng.lib$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib>")
 	endif()
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
@@ -272,6 +272,27 @@ target_include_directories(aljpg PUBLIC
 )
 target_link_libraries(aljpg PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS aljpg)
+
+# TODO see alpng.c
+# add_library(alpng STATIC
+# 	allegro-addons/alpng/src/alpng.c
+# )
+# target_include_directories(alpng PUBLIC
+# 	allegro-addons/alpng/include
+# )
+# target_link_libraries(alpng PUBLIC allegro_with_legacy)
+# list(APPEND IMAGELIBS alpng)
+
+add_library(loadpng STATIC
+	allegro-addons/loadpng/loadpng.c
+	allegro-addons/loadpng/savepng.c
+	allegro-addons/loadpng/regpng.c
+)
+target_include_directories(loadpng PUBLIC
+	allegro-addons/loadpng/
+)
+target_link_libraries(loadpng PUBLIC allegro_with_legacy ${PNG_LIBRARIES})
+list(APPEND IMAGELIBS loadpng)
 
 #############################################################
 # ZConsole
@@ -560,7 +581,7 @@ if (WIN32)
 
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro-legacy aljpg algif al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro-legacy aljpg loadpng algif al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 endif()
 

@@ -94,9 +94,7 @@ int32_t main(int32_t argc, char* argv[])
 	allegro_init();
 
 	zc_set_config_standard();
-	// register_bitmap_file_type("GIF",  load_gif, save_gif);
-	// jpgalleg_init();
-	// loadpng_init();
+
 	if(install_timer() < 0
 		|| install_keyboard() < 0
 		|| install_mouse() < 0)
