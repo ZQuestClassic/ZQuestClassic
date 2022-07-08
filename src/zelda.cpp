@@ -25,6 +25,8 @@
 
 #include <stdlib.h>
 
+#include <albmp.h>
+#include <alpng.h>
 #include <aljpg.h>
 #include <algif.h>
 
@@ -4482,6 +4484,8 @@ int main(int argc, char **argv)
 	
 	algif_init();
 	aljpg_init();
+	alpng_init();
+	albmp_init();
 	
 	// set and load game configurations
 	zc_set_config_standard();

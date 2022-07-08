@@ -31096,9 +31096,6 @@ int32_t main(int32_t argc,char **argv)
 		aljpg_init();
 		alpng_init();
 		albmp_init();
-#if !defined(__APPLE__) && !defined(_WIN64)
-		loadpng_init();
-#endif
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();
