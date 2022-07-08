@@ -251,33 +251,6 @@ endif()
 # Allegro Graphics Addons
 #############################################################
 
-add_library(aljpg STATIC
-	allegro-addons/aljpg/src/aljpg.c
-)
-target_include_directories(aljpg PUBLIC
-	allegro-addons/aljpg/include
-)
-target_link_libraries(aljpg PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS aljpg)
-
-add_library(albmp STATIC
-	allegro-addons/albmp/src/albmp.c
-)
-target_include_directories(albmp PUBLIC
-	allegro-addons/albmp/include
-)
-target_link_libraries(albmp PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS albmp)
-
-add_library(alpng STATIC
-	allegro-addons/alpng/src/alpng.c
-)
-target_include_directories(alpng PUBLIC
-	allegro-addons/alpng/include
-)
-target_link_libraries(alpng PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS alpng)
-
 add_library(algif5 STATIC
 	allegro-addons/algif5/src/algif.c
 	allegro-addons/algif5/src/bitmap.c
@@ -289,6 +262,15 @@ target_include_directories(algif5 PUBLIC
 )
 target_link_libraries(algif5 PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS algif5)
+
+add_library(al5img STATIC
+	allegro-addons/al5img/src/al5img.c
+)
+target_include_directories(al5img PUBLIC
+	allegro-addons/al5img/include
+)
+target_link_libraries(al5img PUBLIC allegro_with_legacy algif5)
+list(APPEND IMAGELIBS al5img)
 
 #############################################################
 # ZConsole
@@ -573,7 +555,7 @@ if (WIN32)
 
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro-legacy aljpg alpng algif5 al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 endif()
 

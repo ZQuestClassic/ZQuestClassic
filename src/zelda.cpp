@@ -25,10 +25,7 @@
 
 #include <stdlib.h>
 
-#include <albmp.h>
-#include <alpng.h>
-#include <aljpg.h>
-#include <algif.h>
+#include <al5img.h>
 
 #include "zc_malloc.h"
 #include "mem_debug.h"
@@ -4482,10 +4479,7 @@ int main(int argc, char **argv)
 	
 	three_finger_flag=false;
 	
-	algif_init();
-	aljpg_init();
-	alpng_init();
-	albmp_init();
+	al5img_init();
 	
 	// set and load game configurations
 	zc_set_config_standard();

@@ -42,10 +42,7 @@
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
-#include <albmp.h>
-#include <alpng.h>
-#include <aljpg.h>
-#include <algif.h>
+#include <al5img.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
@@ -29967,10 +29964,7 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 	}
 
-	algif_init();
-	aljpg_init();
-	alpng_init();
-	albmp_init();
+	al5img_init();
 	
 	//set_config_file("ag.cfg");
 	zc_set_config_standard();
@@ -31092,10 +31086,7 @@ int32_t main(int32_t argc,char **argv)
 		allegro_init();
 		three_finger_flag=false;
 
-		algif_init();
-		aljpg_init();
-		alpng_init();
-		albmp_init();
+		al5img_init();
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();

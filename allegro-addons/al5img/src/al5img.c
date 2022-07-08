@@ -1,19 +1,15 @@
-// Not used at the moment. Would be preferred to use a5's png directly but there are bugs
-// such as bitmap being rotated when grabbing.
-
-#include "alpng.h"
+#include "al5img.h"
 #include <allegro.h>
 #include <a5alleg.h>
+#include <algif.h>
 
-BITMAP *load_png(AL_CONST char *filename, RGB *pal)
+BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
 {
-    ALLEGRO_BITMAP *a5bmp = NULL;
     BITMAP *bmp = NULL;
     ALLEGRO_COLOR color;
     unsigned char r, g, b;
     int i, j;
 
-    a5bmp = al_load_bitmap(filename);
     if (!a5bmp)
     {
         goto fail;
@@ -57,7 +53,13 @@ fail:
     return NULL;
 }
 
-int save_png(AL_CONST char *filename, BITMAP *bmp, AL_CONST PALETTE pal)
+BITMAP *load_al4_bitmap_through_al5(AL_CONST char *filename, RGB *pal)
+{
+    ALLEGRO_BITMAP *a5bmp = al_load_bitmap(filename);
+    return al5_bitmap_to_al4_bitmap(a5bmp, pal);
+}
+
+int save_al4_bitmap_through_al5(AL_CONST char *filename, BITMAP *bmp, AL_CONST PALETTE pal)
 {
     ALLEGRO_BITMAP *a5bmp;
     int i, j, c;
@@ -94,7 +96,20 @@ fail:
     return 0;
 }
 
-void alpng_init()
+BITMAP *load_gif(AL_CONST char *filename, RGB *pal)
 {
-    register_bitmap_file_type("png", load_png, save_png);
+    ALGIF_ANIMATION *gif = algif_load_animation(filename);
+    ALLEGRO_BITMAP *a5bmp = algif_get_bitmap(gif, 0);
+    BITMAP *bmp = al5_bitmap_to_al4_bitmap(a5bmp, pal);
+    algif_destroy_animation(bmp);
+    return bmp;
+}
+
+void al5img_init()
+{
+    register_bitmap_file_type("jpg", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
+    register_bitmap_file_type("jpeg", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
+    register_bitmap_file_type("bmp", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
+    register_bitmap_file_type("png", load_al4_bitmap_through_al5, save_al4_bitmap_through_al5);
+    register_bitmap_file_type("gif", load_gif, save_al4_bitmap_through_al5);
 }
