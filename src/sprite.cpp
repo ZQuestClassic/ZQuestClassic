@@ -1265,11 +1265,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j) // Wrapped around
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
-								//Yes, all of these are the same. No, you can't remove them.
-								//Removing these suddenly breaks everything. IDEFK why. -Em
-								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
@@ -1313,11 +1309,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
-								//Yes, all of these are the same. No, you can't remove them.
-								//Removing these suddenly breaks everything. IDEFK why. -Em
-								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,sx+j*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
@@ -1360,11 +1352,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 							    
-								//Yes, all of these are the same. No, you can't remove them.
-								//Removing these suddenly breaks everything. IDEFK why. -Em
-								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,sx+(txsz-j-1)*16,sy+(tysz-i-1)*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						if ( rotation )
@@ -1408,11 +1396,7 @@ void sprite::draw(BITMAP* dest)
 								if(tileToDraw%TILES_PER_ROW<j)
 									tileToDraw+=TILES_PER_ROW*(tysz-1);
 
-								//Yes, all of these are the same. No, you can't remove them.
-								//Removing these suddenly breaks everything. IDEFK why. -Em
-								if(drawstyle==0 || drawstyle==3) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==1) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
-								else if(drawstyle==2) overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
+								overtile16(sprBMP,tileToDraw,0+j*16,0+i*16,cs,((scriptflip > -1) ? scriptflip : flip));
 							}
 						}
 						//rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
