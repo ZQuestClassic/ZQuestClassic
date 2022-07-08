@@ -30,7 +30,7 @@ BITMAP *load_jpg(AL_CONST char *filename, RGB *pal)
         {
             color = al_get_pixel(a5bmp, j, i);
             al_unmap_rgb(color, &r, &g, &b);
-            putpixel(bmp, i, j, makecol(r, g, b));
+            putpixel(bmp, j, i, makecol(r, g, b));
         }
     }
     al_unlock_bitmap(a5bmp);

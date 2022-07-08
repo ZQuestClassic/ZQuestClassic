@@ -206,7 +206,8 @@ void _register_bitmap_file_type_init(void)
    _add_exit_func(register_bitmap_file_type_exit,
 		  "register_bitmap_file_type_exit");
 
-   register_bitmap_file_type(uconvert_ascii("bmp", buf), load_bmp, save_bmp);
+   // local edit - we defer to allegro 5 for its newer handling of bmp files.
+   // register_bitmap_file_type(uconvert_ascii("bmp", buf), load_bmp, save_bmp);
    register_bitmap_file_type(uconvert_ascii("lbm", buf), load_lbm, NULL);
    register_bitmap_file_type(uconvert_ascii("pcx", buf), load_pcx, save_pcx);
    register_bitmap_file_type(uconvert_ascii("tga", buf), load_tga, save_tga);

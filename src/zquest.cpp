@@ -42,10 +42,8 @@
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
-#include <png.h>
-#include <pngconf.h>
-
-#include <loadpng.h>
+#include <albmp.h>
+#include <alpng.h>
 #include <aljpg.h>
 #include <gif.h>
 
@@ -29971,6 +29969,8 @@ int32_t main(int32_t argc,char **argv)
 
 	algif_init();
 	aljpg_init();
+	alpng_init();
+	albmp_init();
 #if !defined(__APPLE__) && !defined(_WIN64)
 	loadpng_init();
 #endif
@@ -31097,6 +31097,8 @@ int32_t main(int32_t argc,char **argv)
 
 		algif_init();
 		aljpg_init();
+		alpng_init();
+		albmp_init();
 #if !defined(__APPLE__) && !defined(_WIN64)
 		loadpng_init();
 #endif

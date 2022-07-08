@@ -1,11 +1,11 @@
-// Not used at the moment. Would be preferred to use a5's png directly but there are bugs
+// Not used at the moment. Would be preferred to use a5's bmp directly but there are bugs
 // such as bitmap being rotated when grabbing.
 
-#include "alpng.h"
+#include "albmp.h"
 #include <allegro.h>
 #include <a5alleg.h>
 
-BITMAP *load_png(AL_CONST char *filename, RGB *pal)
+BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 {
     ALLEGRO_BITMAP *a5bmp = NULL;
     BITMAP *bmp = NULL;
@@ -57,7 +57,7 @@ fail:
     return NULL;
 }
 
-int save_png(AL_CONST char *filename, BITMAP *bmp, AL_CONST PALETTE pal)
+int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST PALETTE pal)
 {
     ALLEGRO_BITMAP *a5bmp;
     int i, j, c;
@@ -94,7 +94,7 @@ fail:
     return 0;
 }
 
-void alpng_init()
+void albmp_init()
 {
-    register_bitmap_file_type("png", load_png, save_png);
+    register_bitmap_file_type("bmp", load_bmp, save_bmp);
 }
