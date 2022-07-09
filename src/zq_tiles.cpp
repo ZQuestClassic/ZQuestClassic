@@ -3915,6 +3915,7 @@ void load_imagebuf()
 	{
 	case ftBMP:
 	packfile_password("");
+		memset(imagepal, 0, sizeof(PALETTE));
 		imagebuf = load_bitmap(imagepath,imagepal);
 		imagesize = file_size_ex_password(imagepath,"");
 		tilecount=0;

@@ -8,7 +8,7 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
     BITMAP *bmp = NULL;
     ALLEGRO_COLOR color;
     unsigned char r, g, b;
-    int i, j;
+    int i, j, k;
 
     if (!a5bmp)
     {
@@ -21,6 +21,9 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
     }
 
     int format = al_get_bitmap_format(a5bmp);
+    int depth = al_get_bitmap_depth(a5bmp);
+    int cur_pal_index = 0;
+    bool truecolor_fallback = false;
 
     al_lock_bitmap(a5bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
     for (i = 0; i < al_get_bitmap_height(a5bmp); i++)
@@ -30,11 +33,54 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
             color = al_get_pixel(a5bmp, j, i);
             al_unmap_rgb(color, &r, &g, &b);
             putpixel(bmp, j, i, makecol(r, g, b));
+
+            bool found_existing_color = false;
+            r /= 4;
+            g /= 4;
+            b /= 4;
+            for (k = 0; k < cur_pal_index; k++)
+            {
+                if (pal[k].r == r && pal[k].g == g && pal[k].b == b)
+                {
+                    found_existing_color = true;
+                    break;
+                }
+            }
+            if (!found_existing_color)
+            {
+                if (cur_pal_index == 256)
+                {
+                    truecolor_fallback = true;
+                    break;
+                }
+
+                pal[cur_pal_index].r = r;
+                pal[cur_pal_index].g = g;
+                pal[cur_pal_index].b = b;
+                cur_pal_index += 1;
+                k = cur_pal_index;
+            }
+
+            putpixel(bmp, j, i, k);
         }
     }
-    al_unlock_bitmap(a5bmp);
 
-    get_palette(pal);
+    if (truecolor_fallback)
+    {
+        for (i = 0; i < al_get_bitmap_height(a5bmp); i++)
+        {
+            for (j = 0; j < al_get_bitmap_width(a5bmp); j++)
+            {
+                color = al_get_pixel(a5bmp, j, i);
+                al_unmap_rgb(color, &r, &g, &b);
+                putpixel(bmp, j, i, makecol(r, g, b));
+            }
+        }
+
+        generate_332_palette(pal);
+    }
+
+    al_unlock_bitmap(a5bmp);
 
     return bmp;
 
