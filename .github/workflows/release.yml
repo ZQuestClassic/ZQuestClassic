@@ -71,6 +71,10 @@ jobs:
               echo "::set-output name=release_tag_name::2.55-release-${{ inputs.number }}"
               echo "::set-output name=release_name::2.55 Release ${{ inputs.number }}"
             fi
+          elif [ '${{ github.event.inputs.number }}' != '' ]; then
+            # Nightly
+            echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}-${{ github.event.inputs.number }}"
+            echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}-${{ github.event.inputs.number }}"
           else
             # Nightly
             echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
