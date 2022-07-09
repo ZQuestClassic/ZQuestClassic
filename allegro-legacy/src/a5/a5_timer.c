@@ -81,6 +81,7 @@ static void a5_timer_rest(unsigned int time, void (*callback)(void))
         while(current_time - start_time < (double)time / 1000.0)
         {
             callback();
+            current_time = al_get_time();
         }
     }
     else
