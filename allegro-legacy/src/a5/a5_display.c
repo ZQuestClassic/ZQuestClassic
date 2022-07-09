@@ -210,6 +210,11 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
 #endif
         break;
       }
+      case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
+      {
+        al_clear_keyboard_state(_a5_display);
+        break;
+      }
     }
     if(al_event_queue_is_empty(_a5_display_thread_event_queue))
     {
