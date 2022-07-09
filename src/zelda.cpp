@@ -4477,6 +4477,12 @@ int main(int argc, char **argv)
 		quit_game();
 	}
 	
+	if(!al_init_image_addon())
+	{
+		Z_error_fatal("Failed al_init_image_addon");
+		quit_game();
+	}
+	
 	three_finger_flag=false;
 	
 	al5img_init();
