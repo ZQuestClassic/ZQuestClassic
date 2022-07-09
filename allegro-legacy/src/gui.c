@@ -411,6 +411,9 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
    else
       try = 1;
 
+   // local edit
+   if (msg == MSG_DRAW) acquire_screen();
+
    for (; try > 0; try--) {
       for (count=0; dialog[count].proc; count++) {
          if ((try == 2) && (&dialog[count] != menu_dialog))
@@ -435,6 +438,9 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
       if (active_menu_player)
 	 break;
    }
+
+   // local edit
+   if (msg == MSG_DRAW) release_screen();
 
    return res;
 }
@@ -1014,6 +1020,9 @@ static void check_for_redraw(DIALOG_PLAYER *player)
    int c, r;
    ASSERT(player);
 
+   // local edit - Prevent a5_display thread from writing to screen until the entire redraw is done.
+   acquire_screen();
+
    /* need to redraw all active dialogs? */
    if (player->res & D_REDRAW_ALL) {
       for (iter = first_active_dialog_player; iter != current_active_dialog_player; iter = iter->next)
@@ -1036,10 +1045,8 @@ static void check_for_redraw(DIALOG_PLAYER *player)
 	 MESSAGE(c, MSG_DRAW, 0);
       }
    }
-//   if(!gui_screen || gui_screen == screen)
-//   {
-//       allegro_render_screen();
-//   }
+
+   release_screen();
 }
 
 
@@ -1317,9 +1324,7 @@ int update_dialog(DIALOG_PLAYER *player)
    }
 
    /* redraw? */
-   acquire_screen(); // local edit - Prevent a5_display thread from writing to screen until the entire redraw is done.
    check_for_redraw(player);
-   release_screen(); // local edit
 
    /* send idle messages */
    player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &player->obj);
