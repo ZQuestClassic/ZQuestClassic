@@ -11273,6 +11273,8 @@ void CScriptDrawingCommands::Clear()
 CScriptDrawingCommands* CScriptDrawingCommands::pop_commands()
 {
 	CScriptDrawingCommands* ret = new CScriptDrawingCommands();
+	if(commands.empty())
+		return ret;
 	ret->push_commands(this, false);
 	
 	memset((void*)&commands[0], 0, count * sizeof(CScriptDrawingCommandVars));

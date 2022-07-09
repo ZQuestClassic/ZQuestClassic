@@ -97,6 +97,11 @@ public:
     ScriptDrawingBitmapPool()
     {
     }
+	
+	~ScriptDrawingBitmapPool()
+	{
+		Dispose();
+	}
     
     void Dispose()
     {
