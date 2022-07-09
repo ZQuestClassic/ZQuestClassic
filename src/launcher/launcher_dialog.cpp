@@ -121,7 +121,6 @@ namespace GUI::Lists
 	
 	static const ListData resPresetList
 	{
-		{ "320x240", 1 },
 		{ "640x480", 2 },
 		{ "960x720", 3 },
 		{ "1280x960", 4 },

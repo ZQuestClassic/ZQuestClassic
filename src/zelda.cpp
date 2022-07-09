@@ -5148,9 +5148,13 @@ int main(int argc, char **argv)
 	
 	if(resy < 240) resy = 240;
 	
-	int32_t noborder = (resx % 256);
-	
-	screen_scale = zc_max(zc_min(resx / (noborder?320:256), resy / 240), 1);
+	// We pretty much ignore resx/resy now, always making a display of 640x480. a5_display.c handles the scaling now.
+	// TODO: rename "resx" "resy" and zlauncher "Resolution" to "Window size",
+	int window_width = resx;
+	int window_height = resy;
+	resx = 320*2;
+	resy = 240*2;
+	screen_scale = 2;
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
@@ -5205,6 +5209,22 @@ int main(int argc, char **argv)
 	else
 	{
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
+	}
+
+	if (!all_get_fullscreen_flag()) {
+		// Just in case.
+		while (!all_get_display()) {
+			al_rest(1);
+		}
+
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		int o_window_w = al_get_display_width(all_get_display());
+		int o_window_h = al_get_display_height(all_get_display());
+		int center_x = o_window_x + o_window_w / 2;
+		int center_y = o_window_y + o_window_h / 2;
+		al_resize_display(all_get_display(), window_width, window_height);
+		al_set_window_position(all_get_display(), center_x - window_width / 2, center_y - window_height / 2);
 	}
 	
 	sbig = (screen_scale > 1);
