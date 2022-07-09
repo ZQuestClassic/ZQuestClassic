@@ -250,7 +250,7 @@ static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
-void zconsole_warn(const char *format,...)
+void zconsole_warn2(const char *format,...)
 {
 	if (!DisableCompileConsole)
 	{
@@ -280,7 +280,7 @@ void zconsole_warn(const char *format,...)
 		box_eol();
 	}
 }
-void zconsole_error(const char *format,...)
+void zconsole_error2(const char *format,...)
 {
 	if (!DisableCompileConsole)
 	{
@@ -310,7 +310,7 @@ void zconsole_error(const char *format,...)
 		box_eol();
 	}
 }
-void zconsole_info(const char *format,...)
+void zconsole_info2(const char *format,...)
 {
 	if (!DisableCompileConsole)
 	{
@@ -346,9 +346,9 @@ void ReadConsole(char buf[], int code)
 	//al_trace("%s\n", buf);
 	switch(code)
 	{
-		case ZC_CONSOLE_WARN_CODE: zconsole_warn("%s", buf); break;
-		case ZC_CONSOLE_ERROR_CODE: zconsole_error("%s", buf); break;
-		default: zconsole_info("%s", buf); break;
+		case ZC_CONSOLE_WARN_CODE: zconsole_warn2("%s", buf); break;
+		case ZC_CONSOLE_ERROR_CODE: zconsole_error2("%s", buf); break;
+		default: zconsole_info2("%s", buf); break;
 	}
 }
 #endif //!IS_PARSER

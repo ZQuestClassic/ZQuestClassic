@@ -9820,7 +9820,6 @@ void domouse()
 				}
 				if(drawmap<0)
 					return;
-				
 				Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
 				if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 					CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
@@ -24972,7 +24971,7 @@ int32_t onCompileScript()
 				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
 				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 				parser_console.gotoxy(0,0);
-				zconsole_info("%s", "External ZScript Parser\n");
+				zconsole_info2("%s", "External ZScript Parser\n");
 			}
 			else
 			{
