@@ -32869,7 +32869,7 @@ void FFScript::runF6Engine()
 			black_opening_count = 0; //No opening wipe during F6 menu
 			if(black_opening_shape==bosFADEBLACK) black_fade(0);
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
-			CScriptDrawingCommands* tmpDrawCommands = script_drawing_commands.pop_commands();
+			//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 			pause_all_sfx();
 			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
 			{
@@ -32891,7 +32891,7 @@ void FFScript::runF6Engine()
 			}
 			resume_all_sfx();
 			script_drawing_commands.Clear();
-			script_drawing_commands.push_commands(tmpDrawCommands);
+			//script_drawing_commands.push_commands(tmpDrawCommands);
 			GameFlags &= ~GAMEFLAG_F6SCRIPT_ACTIVE;
 			//Restore opening wipe
 			black_opening_count = openingwipe;
@@ -32921,7 +32921,7 @@ void FFScript::runOnDeathEngine()
 	initZScriptHeroScripts();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
-	CScriptDrawingCommands* tmpDrawCommands = script_drawing_commands.pop_commands();
+	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	while(player_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -32940,7 +32940,7 @@ void FFScript::runOnDeathEngine()
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
-	script_drawing_commands.push_commands(tmpDrawCommands);
+	//script_drawing_commands.push_commands(tmpDrawCommands);
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
 void FFScript::runOnLaunchEngine()
@@ -32950,7 +32950,7 @@ void FFScript::runOnLaunchEngine()
 	clear_to_color(script_menu_buf,BLACK);
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
-	CScriptDrawingCommands* tmpDrawCommands = script_drawing_commands.pop_commands();
+	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	while(g_doscript & (1<<GLOBAL_SCRIPT_ONLAUNCH) && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -32970,7 +32970,7 @@ void FFScript::runOnLaunchEngine()
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
-	script_drawing_commands.push_commands(tmpDrawCommands);
+	//script_drawing_commands.push_commands(tmpDrawCommands);
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
 bool FFScript::runGenericFrozenEngine(const word script)
@@ -33001,7 +33001,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	++local_i;
-	CScriptDrawingCommands* tmpDrawCommands = script_drawing_commands.pop_commands();
+	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	while(gen_active_doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -33015,7 +33015,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 		advanceframe(true);
 	}
 	script_drawing_commands.Clear();
-	script_drawing_commands.push_commands(tmpDrawCommands);
+	//script_drawing_commands.push_commands(tmpDrawCommands);
 	--local_i;
 	gen_active_doscript = tmp_doscript;
 	gen_active_initialized = tmp_init;
@@ -33045,7 +33045,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	initZScriptActiveSubscreenScript();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
-	CScriptDrawingCommands* tmpDrawCommands = script_drawing_commands.pop_commands();
+	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
 	while(active_subscreen_doscript && !Quit)
 	{
@@ -33098,7 +33098,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	}
 	resume_all_sfx();
 	script_drawing_commands.Clear();
-	script_drawing_commands.push_commands(tmpDrawCommands);
+	//script_drawing_commands.push_commands(tmpDrawCommands);
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
@@ -33112,7 +33112,7 @@ bool FFScript::runOnMapScriptEngine()
 	initZScriptOnMapScript();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
-	CScriptDrawingCommands* tmpDrawCommands = script_drawing_commands.pop_commands();
+	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
 	while(onmap_doscript && !Quit)
 	{
@@ -33145,7 +33145,7 @@ bool FFScript::runOnMapScriptEngine()
 	}
 	resume_all_sfx();
 	script_drawing_commands.Clear();
-	script_drawing_commands.push_commands(tmpDrawCommands);
+	//script_drawing_commands.push_commands(tmpDrawCommands);
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 	GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
