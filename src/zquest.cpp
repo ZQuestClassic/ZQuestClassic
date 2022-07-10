@@ -5820,7 +5820,6 @@ bool isFavCmdSelected(int32_t cmd)
 void refresh(int32_t flags)
 {
     // CPage = Map.CurrScr()->cpage;
-    int32_t curscr;
     
     if(flags&rCLEAR)
         clear_to_color(menu1,vc(0));
@@ -5830,10 +5829,7 @@ void refresh(int32_t flags)
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), true);
             
-        curscr=Map.getCurrScr();
-        Map.setCurrScr(curscr);                                 // to update palette
         clear_to_color(mapscreenbmp,vc(0));
-        rebuild_trans_table();
         Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
         if(showedges)
         {
@@ -6308,7 +6304,6 @@ void refresh(int32_t flags)
             
             draw_text_button(menu1,combolist_window.x-64,0,64,16,dm_names[draw_mode],vc(1),vc(14),0,true);
         }
-	rebuild_trans_table();
     }
     
 	if(flags&rSCRMAP)
