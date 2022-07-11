@@ -31,6 +31,7 @@ copy /y "%rel%\zquest.exe" "%nb%\zquest.exe" >>%log%
 copy /y "%rel%\zscript.exe" "%nb%\zscript.exe" >>%log%
 copy /y "%rel%\zlauncher.exe" "%nb%\zlauncher.exe" >>%log%
 copy /y "%rel%\zconsole.exe" "%nb%\zconsole.exe" >>%log%
+copy /y "%rel%\crashpad_handler.exe" "%nb%\crashpad_handler.exe" >>%log%
 copy /y "%rel%\*.dll" "%nb%" >>%log%
 
 echo Copying 'changelog.txt'...

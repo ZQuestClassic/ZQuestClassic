@@ -5642,7 +5642,8 @@ int32_t enemy::takehit(weapon *w)
 	// This obscure quest rule...
 	if(get_bit(quest_rules,qr_BOMBDARKNUTFIX) && (wpnId==wBomb || wpnId==wSBomb))
 	{
-		double ddir=atan2(double(wpny-y),double(x-wpnx));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(wpny-y),double(x-wpnx));
 		wpnDir=zc_oldrand()&3;
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
@@ -9154,7 +9155,8 @@ waves2:
 		tilerows = 2;
 		int fakex = x + 8*(zc_max(1,txsz)-1);
 		int fakey = y + 8*(zc_max(1,tysz)-1);
-		double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(fakey-(Hero.y)),double(Hero.x-fakex));
 		int32_t lookat=zc_oldrand()&15;
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
@@ -11493,7 +11495,8 @@ bool eTrap::animate(int32_t index)
 	{
 		ox = x;
 		oy = y;
-		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -12281,7 +12284,8 @@ bool eProjectile::animate(int32_t index)
 		removearmos(x,y);
 	}
 	
-	double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+	double _MSVC2022_tmp1, _MSVC2022_tmp2;
+	double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 	
 	if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 	{
@@ -12417,7 +12421,8 @@ bool eNPC::animate(int32_t index)
 	{
 	case 0:
 	{
-		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-1)*PI)/4))&&(ddir>(((-3)*PI)/4)))
 		{
@@ -12513,7 +12518,8 @@ void eSpinTile::facehero()
 	}
 	else
 	{
-		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir <= -5.0*PI/8.0) && (ddir > -7.0*PI/8.0))
 		{
@@ -12570,7 +12576,8 @@ bool eSpinTile::animate(int32_t index)
 	if(misc==96)
 	{
 		facehero();
-		double ddir=atan2(double((Hero.y)-y),double(Hero.x-x));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double((Hero.y)-y),double(Hero.x-x));
 		angular=true;
 		angle=ddir;
 		step=zslongToFix(dstep*100);
@@ -12643,7 +12650,8 @@ void eZora::facehero()
 	}
 	else
 	{
-		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{
@@ -13350,7 +13358,8 @@ bool eStalfos::animate(int32_t index)
 			}
 			else //turn to face Hero
 			{
-				double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+				double _MSVC2022_tmp1, _MSVC2022_tmp2;
+				double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 				
 				if((ddir<=(((-2)*PI)/8))&&(ddir>(((-6)*PI)/8)))
 				{
@@ -18274,7 +18283,8 @@ bool ePatra::animate(int32_t index)
 				temp_y=circle_y;
 			}
 			
-			double ddir=atan2(double(temp_y),double(temp_x));
+			double _MSVC2022_tmp1, _MSVC2022_tmp2;
+			double ddir=atan2_MSVC2022_FIX(double(temp_y),double(temp_x));
 			
 			if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 			{
@@ -18529,7 +18539,8 @@ bool ePatra::animate(int32_t index)
 					temp_y=circle_y;
 				}
 				
-				double ddir=atan2(double(temp_y),double(temp_x));
+				double _MSVC2022_tmp1, _MSVC2022_tmp2;
+				double ddir=atan2_MSVC2022_FIX(double(temp_y),double(temp_x));
 				
 				if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 				{
@@ -19097,7 +19108,8 @@ bool ePatraBS::animate(int32_t index)
 				guys.spr(i)->y = temp_y;
 			}
 			
-			double ddir=atan2(double(temp_y),double(temp_x));
+			double _MSVC2022_tmp1, _MSVC2022_tmp2;
+			double ddir=atan2_MSVC2022_FIX(double(temp_y),double(temp_x));
 			
 			if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 			{
@@ -19147,7 +19159,8 @@ void ePatraBS::draw(BITMAP *dest)
 	
 	if(get_bit(quest_rules,qr_NEWENEMYTILES))
 	{
-		double ddir=atan2(double(y-(Hero.y)),double(Hero.x-x));
+		double _MSVC2022_tmp1, _MSVC2022_tmp2;
+		double ddir=atan2_MSVC2022_FIX(double(y-(Hero.y)),double(Hero.x-x));
 		
 		if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
 		{

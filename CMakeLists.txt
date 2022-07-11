@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
+set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
+set(SENTRY_RELEASE_TAG "" CACHE STRING "Release tag for sentry")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -37,7 +39,7 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   FILE(APPEND ${unit_build_file} "#include \"${CMAKE_SOURCE_DIR}/src/precompiled.h\"\n")
   # Add include statement for each translation unit
   foreach(source_file ${files} )
-    FILE( APPEND ${unit_build_file} "#include <${CMAKE_CURRENT_SOURCE_DIR}/${source_file}>\n")
+	FILE( APPEND ${unit_build_file} "#include <${CMAKE_CURRENT_SOURCE_DIR}/${source_file}>\n")
   endforeach(source_file)
   # Complement list of translation units with the name of ub
   set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)
@@ -76,7 +78,7 @@ if(NOT allegro5_POPULATED)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
-  set(CMAKE_CONFIGURATION_TYPES Debug Release CACHE STRING INTERNAL FORCE)
+  set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
 endif()
 
 # These include files are typically copied into the correct places via allegro's install
@@ -120,7 +122,7 @@ include_directories(./include/zlib123)
 include_directories(./src)
 
 if(MSVC)
-  include_directories(./src/msvcCompat)
+#   include_directories(./src/msvcCompat)
 endif()
 
 set(ZCSOUNDSOURCES
@@ -441,16 +443,16 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
-target_link_libraries(zelda allegro_with_legacy)
+target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zelda zconsolelogger zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda PRIVATE zconsolelogger zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zelda zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda PRIVATE zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(APPLE)
-	target_link_libraries(zelda zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda PRIVATE zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
-target_link_libraries(zelda allegro_with_legacy)
+target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
@@ -484,7 +486,7 @@ find_package(Boost 1.74.0)
 if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 	add_definitions(-DHAS_BOOST)
-    add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
+	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
 	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 
@@ -532,7 +534,7 @@ elseif(LINUX)
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
-target_link_libraries(zlauncher allegro_with_legacy zconsolelogger ${LAUNCHERLIBSEXTRA})
+target_link_libraries(zlauncher PRIVATE allegro_with_legacy zconsolelogger ${LAUNCHERLIBSEXTRA})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 
 #############################################################
@@ -542,30 +544,35 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.c)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
-target_link_libraries(al5_example PUBLIC allegro_with_legacy allegro_font allegro_primitives)
-
-#############################################################
-# Visual Studio
-#############################################################
-
-set(zc_targets zquest zelda zlauncher zcsound zscript zconsolelogger)
-
-if (WIN32)
-	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
-
-	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
-	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
-endif()
+target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
 
 #############################################################
 # Misc.
 #############################################################
 
+set(zc_targets zquest zelda zlauncher zcsound zscript zconsolelogger)
+set(zc_apps zquest zelda zlauncher)
 set(zc_warnings
 	-Werror=format
 )
+
+foreach(target IN LISTS zc_apps)
+	target_compile_definitions(${target} PRIVATE ZC_APP_NAME="${target}")
+endforeach()
+
+if(WANT_SENTRY)
+	set(SENTRY_VERSION 0.4.18)
+	set(SENTRY_BACKEND crashpad)
+	set(SENTRY_BUILD_SHARED_LIBS OFF)
+	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
+	FetchContent_MakeAvailable(sentry)
+
+	foreach(target IN LISTS zc_apps)
+		target_link_libraries(${target} PRIVATE sentry)
+		target_compile_definitions(${target} PRIVATE HAS_SENTRY)
+		target_compile_definitions(${target} PRIVATE SENTRY_RELEASE_TAG="${SENTRY_RELEASE_TAG}")
+	endforeach()
+endif()
 
 if (WIN32)
 	list(APPEND zc_targets zconsole)
@@ -583,3 +590,19 @@ foreach(target IN LISTS zc_targets)
 		target_compile_options(${target} PRIVATE ${zc_warnings})
 	endif()
 endforeach()
+
+#############################################################
+# Visual Studio
+#############################################################
+
+if (WIN32)
+	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
+
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
+	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
+	if(WANT_SENTRY)
+		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)
+	endif()
+endif()

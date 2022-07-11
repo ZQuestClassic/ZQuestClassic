@@ -866,7 +866,8 @@ void weapon::setAngle(double angletoset)
 void weapon::seekHero()
 {
     angular = true;
-    angle = atan2(double(HeroY()-y),double(HeroX()-x));
+    double _MSVC2022_tmp1, _MSVC2022_tmp2;
+    angle = atan2_MSVC2022_FIX(double(HeroY()-y),double(HeroX()-x));
     doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
@@ -911,9 +912,9 @@ void weapon::seekEnemy(int32_t j)
     {
         return;
     }
-    
-    angle = atan2(double(GuyY(j)-y),double(GuyX(j)-x));
-    doAutoRotate();
+
+    double _MSVC2022_tmp1, _MSVC2022_tmp2;
+    angle = atan2_MSVC2022_FIX(double(GuyY(j)-y),double(GuyX(j)-x));
     
     if(angle==-PI || angle==PI) dir=left;
     else if(angle==-PI/2) dir=up;
@@ -954,7 +955,8 @@ int32_t weapon::seekEnemy2(int32_t j)
     }
     
     //al_trace("Guy: %d, gx: %f, gy: %f, x: %f, y: %f\n", j, float(GuyX(j)), float(GuyY(j)), float(dummy_fix[0]), float(dummy_fix[1]));
-    angle = atan2(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
+    double _MSVC2022_tmp1, _MSVC2022_tmp2;
+    angle = atan2_MSVC2022_FIX(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
     doAutoRotate();
     
     if(angle==-PI || angle==PI) dir=left;
