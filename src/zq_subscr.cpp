@@ -5825,8 +5825,15 @@ int32_t onNewSubscreenObject()
         tempsso.w=1;
         tempsso.h=1;
         
-        if(tempsso.type==ssoCURRENTITEM)  // Should not be invisible!
-            tempsso.d2 = 1;
+		switch(tempsso.type)
+		{
+			case ssoCURRENTITEM:
+				tempsso.d2 = 1; // Should not be invisible!
+				break;
+			case ssoMAGICGAUGE:
+				tempsso.d9 = -1; // 'Always show' by default
+				break;
+		}
             
         int32_t temp_cso=curr_subscreen_object;
         curr_subscreen_object=ss_objects(css);
