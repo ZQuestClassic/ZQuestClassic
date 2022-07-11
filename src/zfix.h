@@ -11,6 +11,25 @@
 #define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()
 
+// Weird internal compiler error, but only for RelWithDebInfo 32bit...
+// Also may be only VS2020
+//
+//     double angle = atan2(double(y-(Hero.y)),double(Hero.x-x))
+//
+// results in error:
+//
+//      fatal error C1001: Internal compiler error
+//
+// Can avoid by using temporary variables.
+// There's a lot of these, so this macro helps by making drop-in replacement simple.
+// Usages of this macro must define these variables in scope somewhere:
+// double _MSVC2022_tmp1, _MSVC2022_tmp2;
+#define atan2_MSVC2022_FIX(x, y) (\
+    _MSVC2022_tmp1 = x,\
+    _MSVC2022_tmp2 = y,\
+    atan2(_MSVC2022_tmp1, _MSVC2022_tmp2)\
+);
+
 typedef int32_t ZLong;
 typedef int64_t zint64;
 

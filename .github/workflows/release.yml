@@ -26,7 +26,7 @@ on:
         default: false
 
 jobs:
-  check_date:
+  check-date:
     runs-on: ubuntu-latest
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
@@ -40,7 +40,7 @@ jobs:
         if: ${{ github.event_name == 'schedule' }}
         run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
-  create_tag:
+  create-tag:
     runs-on: ubuntu-latest
     outputs:
       release_tag_name: ${{ steps.make-vars.outputs.release_tag_name }}
@@ -77,11 +77,19 @@ jobs:
             echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}"
           fi
 
+      - name: Setup Sentry CLI
+        uses: mathieu-bour/setup-sentry-cli@1.2.0
+        with:
+          token: ${{ secrets.SENTRY_TOKEN }}
+          organization: zeldaclassic
+          project: zelda-classic
+      - run: sentry-cli releases new ${{ steps.make-vars.outputs.release_tag_name }}
+
   release-win:
     needs:
-      - check_date
-      - create_tag
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+      - check-date
+      - create-tag
+    if: ${{ needs.check-date.outputs.should_run != 'false' }}
 
     runs-on: windows-2022
     strategy:
@@ -104,29 +112,39 @@ jobs:
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install .github/dependencies.config -y
+    - name: Setup Sentry CLI
+      uses: mathieu-bour/setup-sentry-cli@1.2.0
+      with:
+        token: ${{ secrets.SENTRY_TOKEN }}
+        organization: zeldaclassic
+        project: zelda-classic
 
     - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
-    - run: cmake . -A ${{ matrix.arrays.arch }}
-    - run: cmake --build . --config Release
+    - run: cmake . -A ${{ matrix.arrays.arch }} -DWANT_SENTRY=ON -DSENTRY_RELEASE_TAG=${{ needs.create-tag.outputs.release_tag_name }}
+    - run: cmake --build . --config RelWithDebInfo
+    - run: mv RelWithDebInfo Release
     - run: echo y | ./buildpack.bat
       working-directory: output/_auto
-    - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
+    - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
+
+    - name: Upload debugging symbols
+      run: sentry-cli upload-dif ${{ needs.create-tag.outputs.release_tag_name }} --include-sources --wait Release
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        name: ${{ needs.create_tag.outputs.release_name }}
-        tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
-        files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
+        name: ${{ needs.create-tag.outputs.release_name }}
+        tag_name: ${{ needs.create-tag.outputs.release_tag_name }}
+        files: "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
         prerelease: ${{ !inputs.full_release }}
         fail_on_unmatched_files: true
         generate_release_notes: true
 
   release-mac:
     needs:
-      - check_date
-      - create_tag
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+      - check-date
+      - create-tag
+    if: ${{ needs.check-date.outputs.should_run != 'false' }}
 
     runs-on: macos-12
 
@@ -150,14 +168,35 @@ jobs:
 
     - run: ./buildpack_osx.sh
       working-directory: output/_auto
-    - run: mv output/_auto/ZeldaClassic.dmg "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-mac.dmg"
+    - run: mv output/_auto/ZeldaClassic.dmg "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-mac.dmg"
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        name: ${{ needs.create_tag.outputs.release_name }}
-        tag_name: ${{ needs.create_tag.outputs.release_tag_name }}
-        files: "output/_auto/${{ needs.create_tag.outputs.release_tag_name }}-mac.dmg"
+        name: ${{ needs.create-tag.outputs.release_name }}
+        tag_name: ${{ needs.create-tag.outputs.release_tag_name }}
+        files: "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-mac.dmg"
         prerelease: ${{ !inputs.full_release }}
         fail_on_unmatched_files: true
         generate_release_notes: true
+
+  finalize:
+    needs:
+      - create-tag
+      - release-win
+      - release-mac
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: git clone
+        uses: actions/checkout@v2
+      - name: Setup Sentry CLI
+        uses: mathieu-bour/setup-sentry-cli@1.2.0
+        with:
+          token: ${{ secrets.SENTRY_TOKEN }}
+          organization: zeldaclassic
+          project: zelda-classic
+      - name: Finalize sentry
+        run: |
+          sentry-cli releases set-commits ${{ needs.create-tag.outputs.release_tag_name }} --auto
+          sentry-cli releases finalize ${{ needs.create-tag.outputs.release_tag_name }}
