@@ -6323,10 +6323,6 @@ extern "C" void get_shareable_url()
 		ZC.setShareableUrl({quest: UTF8ToString($0), dmap: $1, screen: $2});
 	}, qstpath, currdmap, currscr);
 }
-extern "C" void open_test_mode() {
-	// do nothing.
-	// just here because dumb linker error.
-}
 #endif
 
 bool checkCost(int32_t ctr, int32_t amnt)

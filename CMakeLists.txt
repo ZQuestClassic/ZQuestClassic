@@ -630,6 +630,15 @@ target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
 
 #############################################################
+# Emscripten
+#############################################################
+
+if (EMSCRIPTEN)
+	target_link_options(zelda PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
+	target_link_options(zquest PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
+endif()
+
+#############################################################
 # Misc.
 #############################################################
 
