@@ -22619,6 +22619,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	FFCore.init_combo_doscript();
 	if (!intradmap || get_bit(quest_rules, qr_WARPS_RESTART_DMAPSCRIPT))
 	{
+		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		FFCore.initZScriptDMapScripts();
 		FFCore.initZScriptActiveSubscreenScript();
 	}
