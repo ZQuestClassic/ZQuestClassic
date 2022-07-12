@@ -96,7 +96,6 @@ EMCC_FLAGS=(
 LINKER_FLAGS=(
   --shell-file="../../web/index.html"
   --shared-memory
-  -s EXPORTED_FUNCTIONS=_main,_create_synthetic_key_event,_get_shareable_url,_open_test_mode
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
