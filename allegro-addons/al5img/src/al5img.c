@@ -90,10 +90,6 @@ fail:
     {
         destroy_bitmap(bmp);
     }
-    if (a5bmp)
-    {
-        al_destroy_bitmap(a5bmp);
-    }
 }
     return NULL;
 }
