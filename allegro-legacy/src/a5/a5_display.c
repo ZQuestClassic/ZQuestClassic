@@ -53,10 +53,6 @@ static ALLEGRO_MUTEX *screen_mutex;
 // This results in invalid memory access when the main thread writes to the screen
 // while the a5 display thread is reading from it.
 // TODO: Figure out how to set the SYSTEM_DRIVER `get_vtable` method (see a5_system.c) to define release/acquire.
-// TODO: Even with this locking, there are some issues with new GUI (old GUI seems to work just fine).
-//    example: Graphics>Palettes>Main (using old GUI) works, but Graphics>Palettes>Levels (new GUI)
-//             is a little bit slow to render (probably too much locking or vsyncing?) and flickers
-//             when holding the mouse down.
 void all_lock_screen(void)
 {
   al_lock_mutex(screen_mutex);
