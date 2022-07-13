@@ -47,6 +47,7 @@ static ALLEGRO_EVENT_QUEUE * _a5_display_vsync_event_queue = NULL;
 
 // local edit
 static ALLEGRO_MUTEX *screen_mutex;
+static bool dirty_screen = true;
 
 // For some reason the bitmap vtable doesn't have an impl. for acquire/release.
 // Perhaps they were purposefully not include in allegro-legacy?
@@ -593,8 +594,20 @@ ALLEGRO_BITMAP * all_get_a5_bitmap(BITMAP * bp)
     return NULL;
 }
 
+// local edit
+void all_mark_screen_dirty()
+{
+    dirty_screen = true;
+}
+
 void all_render_screen(void)
 {
+    if (!dirty_screen) {
+        al_flip_display();
+        return;
+    }
+
+    dirty_screen = false;
     all_lock_screen();
     all_render_a5_bitmap(screen, _a5_screen);
     all_unlock_screen();

@@ -29599,6 +29599,8 @@ void hit_close_button()
   jcMAX };
   */
 
+extern bool dirty_screen;
+
 /*
   static int32_t jwin_pal[jcMAX] =
   {
@@ -29633,6 +29635,7 @@ void custom_vsync()
     {
         blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
     }
+    all_mark_screen_dirty();
     
     myvsync=0;
     
@@ -33839,6 +33842,7 @@ void update_hw_screen(bool force)
 			update_hw_pal=false;
 		}
 		myvsync=0;
+		all_mark_screen_dirty();
 	}
 }
 

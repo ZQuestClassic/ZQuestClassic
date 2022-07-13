@@ -490,6 +490,7 @@ void update_hw_screen(bool force)
 		}
 		update_hw_pal=false;
 		myvsync=0;
+		all_mark_screen_dirty();
 	}
 }
 
