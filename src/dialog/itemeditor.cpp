@@ -532,6 +532,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[1], "Heavy", "Some combo settings interact with this flag.\n"
 				"Unlike most items, this applies as long as you have a heavy " + classname + " item,"
 				" even if it is not the highest level " + classname + " item.");
+			_SET(flag[2], "No Damage Protection", "These " + classname + " will not protect you"
+				" from Damage Combos at all.");
 			break;
 		}
 		case itype_bracelet:
