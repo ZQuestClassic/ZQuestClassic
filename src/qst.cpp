@@ -3610,6 +3610,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 			set_bit(quest_rules,q,0);
 		//This should nuke any remaining junk data... not sure if it affected anything previous. -Em
 	}
+	if(compatrule_version < 28)
+	{
+		set_bit(quest_rules,qr_SUBSCR_BACKWARDS_ID_ORDER,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

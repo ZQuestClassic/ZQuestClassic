@@ -780,7 +780,10 @@ static const GUI::ListData compatRulesList
 	{ "No Pols Voice/Vire Shadows with Z axis", qr_POLVIRE_NO_SHADOW,
 		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."},
 	{ "Old Subscreen Selector", qr_SUBSCR_OLD_SELECTOR,
-		"If disabled, the subscreen selector will stretch to fit the item it is selecting." }
+		"If disabled, the subscreen selector will stretch to fit the item it is selecting." },
+	{ "Old Subscreen Item ID order", qr_SUBSCR_BACKWARDS_ID_ORDER,
+		"If enabled, the subscreen will prioritize lower-ID items when there is a 'Level' tie, instead"
+		" of prioritizing higher-ID items like everything else in the engine." }
 };
 
 static const GUI::ListData enemiesRulesList

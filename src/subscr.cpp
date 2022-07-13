@@ -3243,12 +3243,17 @@ int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
     }
     if(forceItem)
 	{
+		bool useLowestID = get_bit(quest_rules,qr_SUBSCR_BACKWARDS_ID_ORDER);
+		int32_t id = -1;
 		for(auto q = 0; q < MAXITEMS; ++q)
 		{
 			if(itemsbuf[q].family == itemtype)
-				return q;
+			{
+				id = q;
+				if(useLowestID) break;
+			}
 		}
-		return -1;
+		return id;
 	}
 
     //Item Override stuff here
