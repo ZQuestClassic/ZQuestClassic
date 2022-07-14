@@ -620,6 +620,7 @@ void all_render_screen(void)
     ALLEGRO_TRANSFORM transform;
     al_build_transform(&transform, offset_x, offset_y, scale, scale, 0);
     al_use_transform(&transform);
+    al_clear_to_color(al_map_rgb(0, 0, 0));
 
     al_draw_bitmap(_a5_screen, 0, 0, 0);
     al_flip_display();
