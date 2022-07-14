@@ -476,6 +476,7 @@ extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 dword getNumGlobalArrays();
 
 extern int32_t  resx,resy,scrx,scry;
+extern int32_t window_width, window_height;
 extern bool sbig;                                           // big screen
 extern bool sbig2;	//BIGGER SCREEN!!!!
 extern int32_t screen_scale; //user adjustable screen size.

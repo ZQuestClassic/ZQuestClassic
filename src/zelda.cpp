@@ -556,6 +556,7 @@ dword getNumGlobalArrays()
 //HeroClass   Hero;
 
 int32_t resx= 0,resy= 0,scrx= 0,scry= 0;
+int32_t window_width = 0, window_height = 0;
 bool sbig=false;                                                  // big screen
 bool sbig2=false;													// bigger screen
 int32_t screen_scale = 2; //default = 2 (640x480)
@@ -5150,9 +5151,9 @@ int main(int argc, char **argv)
 	if(resy < 240) resy = 240;
 	
 	// We pretty much ignore resx/resy now, always making a display of 640x480. a5_display.c handles the scaling now.
-	// TODO: rename "resx" "resy" and zlauncher "Resolution" to "Window size",
-	int window_width = resx;
-	int window_height = resy;
+	// TODO: rename "resx" "resy" options and zlauncher "Resolution" to "Window size",
+	window_width = resx;
+	window_height = resy;
 	resx = 320*2;
 	resy = 240*2;
 	screen_scale = 2;

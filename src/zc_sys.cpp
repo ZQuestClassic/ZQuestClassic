@@ -509,8 +509,8 @@ void save_game_configs()
    
     
    
-    set_config_int(cfg_sect,"resx",resx);
-    set_config_int(cfg_sect,"resy",resy);
+    set_config_int(cfg_sect,"resx",window_width);
+    set_config_int(cfg_sect,"resy",window_height);
    
     //sbig depricated as of 2.5 RC3. handled exclusively by resx, resy now.
     //set_config_int(cfg_sect,"screen_scale",screen_scale);
