@@ -603,6 +603,7 @@ void all_mark_screen_dirty()
 void all_render_screen(void)
 {
     if (!dirty_screen) {
+        al_draw_bitmap(_a5_screen, 0, 0, 0);
         al_flip_display();
         return;
     }

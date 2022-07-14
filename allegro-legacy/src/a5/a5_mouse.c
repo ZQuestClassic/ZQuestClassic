@@ -25,6 +25,9 @@
 static ALLEGRO_THREAD * a5_mouse_thread = NULL;
 static int a5_last_mouse_x = -1;
 static int a5_last_mouse_y = -1;
+static int prevx = -1;
+static int prevy = -1;
+static int prevz = -1;
 static bool mouse_hidden = false;
 
 static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
@@ -77,6 +80,13 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     {
                         _mouse_x = native_width * ((double)_mouse_x - offset_x) / ((double)display_width - offset_x * 2);
                         _mouse_y = native_height * ((double)_mouse_y - offset_y) / ((double)display_height - offset_y * 2);
+                    }
+
+                    if (prevx != _mouse_x || prevy != _mouse_y || prevz != _mouse_z) {
+                        all_mark_screen_dirty();
+                        prevx = event.mouse.x;
+                        prevy = event.mouse.y;
+                        prevz = event.mouse.z;
                     }
                     break;
                 }
