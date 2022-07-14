@@ -195,6 +195,8 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_IN:
       {
+        _switch_in();
+
 #ifdef _WIN32
         // Window is sometimes blurry after minimizing, but blur goes away if the display is refreshed. A noop resize is the
         // simplest way to refresh the display.
@@ -209,6 +211,7 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
       }
       case ALLEGRO_EVENT_DISPLAY_SWITCH_OUT:
       {
+        _switch_out();
         al_clear_keyboard_state(_a5_display);
         break;
       }
