@@ -8657,10 +8657,16 @@ void system_pal2()
 	memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
 }
 
-#ifdef _WIN32
 void switch_out_callback()
 {
-	if(midi_patch_fix==0 || currmidi==0 || pause_in_background) //pause in background has its own handling, only on switch-in
+    if (pause_in_background)
+    {
+        callback_switchin = 3;
+        return;
+    }
+
+#ifdef _WIN32
+	if(midi_patch_fix==0 || currmidi==0)
         return;
 
 	
@@ -8668,16 +8674,17 @@ void switch_out_callback()
 	stop_midi();
 	midi_paused=true;
 	midi_suspended = midissuspHALTED;
+#endif
 }
 
 void switch_in_callback()
 {
 	if(pause_in_background)
 	{
-		callback_switchin = 1;
 		return;
 	}
-	
+
+#ifdef _WIN32
 	if(midi_patch_fix==0 || currmidi==0)
         return;
 	
@@ -8686,16 +8693,8 @@ void switch_in_callback()
 		callback_switchin = 1;
 		midi_suspended = midissuspRESUME;
 	}
-}
-#else // Not Windows
-void switch_out_callback()
-{
-}
-
-void switch_in_callback()
-{
-}
 #endif
+}
 
 void game_pal()
 {

@@ -3359,6 +3359,12 @@ void game_loop()
 {
 	while(true)
 	{
+		if(callback_switchin == 3) 
+		{
+			System();
+			callback_switchin = 0;
+		}
+
 		GameFlags &= ~GAMEFLAG_RESET_GAME_LOOP;
 		genscript_timing = SCR_TIMING_START_FRAME;
 		if((pause_in_background && callback_switchin && midi_patch_fix))
@@ -4378,8 +4384,8 @@ int32_t onFullscreen()
 	    show_mouse(screen);
 	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
-	//	set_display_switch_callback(SWITCH_OUT, switch_out_callback);/
-	//	set_display_switch_callback(SWITCH_IN,switch_in_callback);
+		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 
 	    return D_REDRAW;
     }
@@ -5347,11 +5353,9 @@ int main(int argc, char **argv)
 		}
 		zprint2("Finished Loading Saved Games\n");
 	}
-#ifdef _WIN32
-	// Nothing for them to do on other platforms
+
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
-#endif
 	
 	// AG logo
 	if(!(zqtesting_mode||fast_start||zc_get_config("zeldadx","skip_logo",1)))
@@ -5420,6 +5424,7 @@ int main(int argc, char **argv)
 		}
 		else titlescreen(load_save);
 		
+		callback_switchin = 0;
 		load_save=0;
 		setup_combo_animations();
 		setup_combo_animations2();
