@@ -325,7 +325,7 @@ bool zq_showpal=false;
 bool combo_cols=true;
 bool is_large = true;
 byte BMM = 3; // Big Minimap
-BITMAP *hw_screen, *scrtmp;
+BITMAP *hw_screen;
 
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
@@ -1490,9 +1490,6 @@ int32_t onFullScreen()
 	#endif
 	    get_palette(RAMpal);
 	    show_mouse(NULL);
-	    scrtmp = screen;
-	    screen = hw_screen;
-	    hw_screen = scrtmp;
 	    bool windowed=is_windowed_mode()!=0;
 	    
 	    if(windowed)
@@ -1554,15 +1551,10 @@ int32_t onFullScreen()
 		}
 	    }
 	    
-	    scrtmp = hw_screen;
-	    hw_screen = screen;
-	    screen = scrtmp;
-	    set_palette(RAMpal);
 	    gui_mouse_focus=0;
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
 	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	    //zqwin_set_scale(zq_scale);
 	    set_palette(RAMpal);
 	    position_mouse(zq_screen_w/2,zq_screen_h/2);
 	    show_mouse(screen);
@@ -29795,8 +29787,6 @@ int32_t main(int32_t argc,char **argv)
 
 	common_main_setup(argc, argv);
 	
-	scrtmp = NULL;
-	
 	//InitCrtDebug();
 	
 	// Before anything else, let's register our custom trace handler:
@@ -31207,7 +31197,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 	hw_screen = screen;
 	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-	scrtmp = screen;
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
@@ -31771,7 +31760,6 @@ void quit_game()
     save_config_file();
     set_palette(black_palette);
     stop_midi();
-    //if(scrtmp) {destroy_bitmap(screen); screen = hw_screen;}
     
     remove_locked_params_on_exit();
     
@@ -31957,7 +31945,6 @@ void quit_game2()
     save_config_file();
     set_palette(black_palette);
     stop_midi();
-    //if(scrtmp) {destroy_bitmap(screen); screen = hw_screen;}
     
     remove_locked_params_on_exit();
     

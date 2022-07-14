@@ -274,7 +274,7 @@ COLOR_MAP trans_table, trans_table2;
 BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
-		   *script_menu_buf, *f6_menu_buf, *hw_screen, *scrtmp;
+		   *script_menu_buf, *f6_menu_buf, *hw_screen;
 BITMAP     *zcmouse[4];
 DATAFILE   *data, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
