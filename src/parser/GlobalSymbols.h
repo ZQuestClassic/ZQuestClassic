@@ -609,6 +609,20 @@ private:
     void generateCode();
 };
 
+class StackSymbols : public LibrarySymbols
+{
+public:
+    static StackSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static StackSymbols singleton;
+    StackSymbols();
+    void generateCode();
+};
+
 class SubscreenDataSymbols : public LibrarySymbols
 {
 public:

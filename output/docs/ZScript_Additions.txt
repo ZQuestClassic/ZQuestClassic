@@ -541,6 +541,9 @@ untyped : A special datatype that can be cast to and from any other type.
 	directory :
 		Object type for accessing directories on the system. All directories accessed must exist in "[zc root]/files/[questname]/".
 	
+	stack :
+		Object type for complex data storage.
+	
 	randgen :
 		Object type for seeded random number generation.
 	
@@ -3181,6 +3184,10 @@ randgen LoadRNG();
  * Opens a free random number generator and returns it.
  * Be sure to '->Free()' it when you are done with it!
 
+stack LoadStack();
+ * Opens a free stack object and returns it.
+ * Be sure to '->Free()' it when you are done with it!
+
 genericdata LoadGenericData(int scriptslot);
  * Loads the 'genericdata' pointer referencing the specified generic script slot.
  * Note that '0' is invalid.
@@ -3753,6 +3760,57 @@ void Own();
  * When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
 
+
+/************************************************************************************************************/
+
+/////////////////
+///   Stack   ///
+/////////////////
+
+long Size;
+ * Read-only. The size of the stack, given as a LONG.
+ * This means that a stack with 5 items will have a size of '5L'.
+
+bool Full;
+ * Read-only. Returns true if the stack cannot hold any more elements.
+
+void Clear();
+ * Clears the stack of all elements.
+
+void PushBack(untyped val);
+void PushFront(untyped val);
+ * Pushes the given value to the back or front of the stack.
+ * If the stack is at max capacity, does nothing.
+
+untyped PopBack();
+untyped PopFront();
+ * Removes the back or front element of the stack, and returns it.
+ * If the stack is empty, '0' is returned.
+
+untyped PeekBack();
+untyped PeekFront();
+ * Returns the back or front element of the stack, without removing it.
+ * If the stack is empty, '0' is returned.
+
+untyped Get(long ind);
+ * Returns the element at the index 'ind', which is a LONG value.
+ * This means that '0L' is the first element, '1L' is the second, etc.
+ * If an invalid index is given, '0' is returned.
+
+void Set(long ind, untyped val);
+ * Overwrites the element at the index 'ind', which is a LONG value, with the value 'val'.
+ * This means that '0L' is the first element, '1L' is the second, etc.
+ * If an invalid index is given, nothing happens.
+
+void Free();
+ * This will deallocate the stack pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many stack pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+void Own();
+ * Grants 'Ownership' of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
 
 /************************************************************************************************************/
 

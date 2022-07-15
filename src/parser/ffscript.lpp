@@ -147,6 +147,7 @@ hero	TOKEN( LINK );
 itemsprite	TOKEN( ITEMSPRITE );
 file	TOKEN( FILE );
 directory	TOKEN( DIRECTORY );
+stack	TOKEN( STACK );
 randgen	TOKEN( RANDGEN );
 bottledata	TOKEN( BOTTLEDATA );
 bottleshopdata	TOKEN( BOTTLESHOPDATA );

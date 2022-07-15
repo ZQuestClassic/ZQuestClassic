@@ -1942,6 +1942,7 @@ string ZScript::VarToString(int32_t ID)
 	case ZSCRIPTVERSION: return "ZSCRIPTVERSION";
 	case REFFILE: return "REFFILE";
 	case REFDIRECTORY: return "REFDIRECTORY";
+	case REFSTACK: return "REFSTACK";
 	case REFSUBSCREEN: return "REFSUBSCREEN";
 	case REFRNG: return "REFRNG";
 	case LINKCLIMBING: return "LINKCLIMBING";
@@ -2038,6 +2039,8 @@ string ZScript::VarToString(int32_t ID)
 	case NPCFRAME: return "NPCFRAME";
 	
 	case DIRECTORYSIZE: return "DIRECTORYSIZE";
+	case STACKSIZE: return "STACKSIZE";
+	case STACKFULL: return "STACKFULL";
 	case LONGDISTANCE: return "LONGDISTANCE ";
 	case LONGDISTANCESCALE: return "LONGDISTANCESCALE";
 	case ACTIVESSSPEED: return "ACTIVESSSPEED";
@@ -2870,6 +2873,11 @@ string OLoadMessageDataRegister::toString()
 string OLoadDMapDataRegister::toString()
 {
     return "LOADDMAPDATAR " + getArgument()->toString();
+}
+
+string OLoadStack::toString()
+{
+    return "LOADSTACK";
 }
 
 string OLoadDirectoryRegister::toString()
@@ -5878,6 +5886,52 @@ string ODirectoryReload::toString()
 string ODirectoryFree::toString()
 {
 	return "DIRECTORYFREE";
+}
+
+string OStackFree::toString()
+{
+	return "STACKFREE";
+}
+string OStackOwn::toString()
+{
+	return "STACKOWN";
+}
+string OStackClear::toString()
+{
+	return "STACKCLEAR";
+}
+
+string OStackPopBack::toString()
+{
+	return "STACKPOPBACK " + getArgument()->toString();
+}
+string OStackPopFront::toString()
+{
+	return "STACKPOPFRONT " + getArgument()->toString();
+}
+string OStackPeekBack::toString()
+{
+	return "STACKPEEKBACK " + getArgument()->toString();
+}
+string OStackPeekFront::toString()
+{
+	return "STACKPEEKFRONT " + getArgument()->toString();
+}
+string OStackPushBack::toString()
+{
+	return "STACKPUSHBACK " + getArgument()->toString();
+}
+string OStackPushFront::toString()
+{
+	return "STACKPUSHFRONT " + getArgument()->toString();
+}
+string OStackGet::toString()
+{
+	return "STACKGET " + getArgument()->toString();
+}
+string OStackSet::toString()
+{
+    return "STACKSET " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OModuleGetIC::toString()

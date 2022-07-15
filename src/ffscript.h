@@ -5,6 +5,7 @@
 #include <utility>
 #include <string>
 #include <list>
+#include <deque>
 #include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
 
 #define ZS_BYTE 255
@@ -316,6 +317,11 @@ struct user_bitmap
 		if(owned_type == type && owned_i == i)
 			free();
 	}
+	void own_clear_any()
+	{
+		if(owned_type != -1 || owned_i != 0)
+			clear();
+	}
 };
 
 
@@ -428,6 +434,11 @@ struct user_file
 		if(owned_type == type && owned_i == i)
 			clear();
 	}
+	void own_clear_any()
+	{
+		if(owned_type != -1 || owned_i != 0)
+			clear();
+	}
 };
 
 #define MAX_USER_DIRS 256
@@ -468,6 +479,105 @@ struct user_dir
 	void own_clear(int32_t type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if(owned_type != -1 || owned_i != 0)
+			clear();
+	}
+};
+
+#define MAX_USER_STACKS 256
+#define USERSTACK_MAX_SIZE 2147483647
+struct user_stack
+{
+	bool reserved;
+	int32_t owned_type, owned_i;
+	std::deque<int32_t> theStack;
+	
+	user_stack() : reserved(false),
+		owned_type(-1), owned_i(0)
+	{}
+	
+	void clear()
+	{
+		clearStack();
+		owned_type = -1;
+		owned_i = 0;
+		reserved = false;
+	}
+	int32_t size()
+	{
+		return theStack.size();
+	}
+	bool full()
+	{
+		return theStack.size() == USERSTACK_MAX_SIZE;
+	}
+	int32_t get(int32_t index)
+	{
+		if(unsigned(index) >= theStack.size()) return 0;
+		return theStack[index];
+	}
+	void set(int32_t index, int32_t val)
+	{
+		if(unsigned(index) >= theStack.size()) return;
+		theStack[index] = val;
+	}
+	void push_back(int32_t val)
+	{
+		if(full()) return;
+		theStack.push_back(val);
+	}
+	void push_front(int32_t val)
+	{
+		if(full()) return;
+		theStack.push_front(val);
+	}
+	int32_t pop_back()
+	{
+		if(theStack.empty()) return 0;
+		int32_t val = theStack.back();
+		theStack.pop_back();
+		return val;
+	}
+	int32_t pop_front()
+	{
+		if(theStack.empty()) return 0;
+		int32_t val = theStack.front();
+		theStack.pop_front();
+		return val;
+	}
+	int32_t peek_back()
+	{
+		if(theStack.empty()) return 0;
+		return theStack.back();
+	}
+	int32_t peek_front()
+	{
+		if(theStack.empty()) return 0;
+		return theStack.front();
+	}
+	void clearStack()
+	{
+		theStack.clear();
+		theStack.shrink_to_fit();
+	}
+	
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if(owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if(owned_type != -1 || owned_i != 0)
 			clear();
 	}
 };
@@ -521,6 +631,11 @@ struct user_rng
 	void own_clear(int32_t type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if(owned_type != -1 || owned_i != 0)
 			clear();
 	}
 };
@@ -903,9 +1018,11 @@ bool warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDe
 
 void user_files_init();
 void user_dirs_init();
+void user_stacks_init();
 void user_rng_init();
 int32_t get_free_file(bool skipError = false);
 int32_t get_free_directory(bool skipError = false);
+int32_t get_free_stack(bool skipError = false);
 int32_t get_free_rng(bool skipError = false);
 
 bool get_scriptfile_path(char* buf, const char* path);
@@ -935,6 +1052,7 @@ void do_file_seek();
 void do_file_geterr();
 
 void do_loaddirectory();
+void do_loadstack();
 void do_loadrng();
 void do_directory_get();
 void do_directory_reload();
@@ -3154,7 +3272,20 @@ enum ASM_DEFINE
 	COMPAREV2,
 	MODV2,
 	
-	NUMCOMMANDS           //0x01C4
+	STACKFREE,
+	STACKOWN,
+	STACKGET,
+	STACKSET,
+	STACKPOPBACK,
+	STACKPOPFRONT,
+	STACKPEEKBACK,
+	STACKPEEKFRONT,
+	STACKPUSHBACK,
+	STACKPUSHFRONT,
+	LOADSTACK,
+	STACKCLEAR,
+	
+	NUMCOMMANDS           //0x01D0
 };
 
 
@@ -4635,8 +4766,11 @@ enum ASM_DEFINE
 #define MESSAGEDATATEXTLEN      0x1457
 #define LWPNFLAGS               0x1458
 #define EWPNFLAGS               0x1459
+#define REFSTACK                0x145A
+#define STACKSIZE               0x145B
+#define STACKFULL               0x145C
 
-#define NUMVARIABLES         	0x145A
+#define NUMVARIABLES         	0x145D
 
 //} End variables
 

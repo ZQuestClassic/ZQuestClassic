@@ -157,6 +157,7 @@ extern YYLTYPE noloc;
 %token ITEMSPRITE
 %token FILE
 %token DIRECTORY
+%token STACK
 %token RANDGEN
 %token BOTTLEDATA
 %token BOTTLESHOPDATA
@@ -558,6 +559,7 @@ DataType : ZCONST DataType {
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
 	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
 	| DIRECTORY {$$ = new ASTDataType(DataType::DIRECTORY, @$);}
+	| STACK {$$ = new ASTDataType(DataType::STACK, @$);}
 	| RANDGEN {$$ = new ASTDataType(DataType::RNG, @$);}
 	| BOTTLEDATA {$$ = new ASTDataType(DataType::BOTTLETYPE, @$);}
 	| BOTTLESHOPDATA {$$ = new ASTDataType(DataType::BOTTLESHOP, @$);}

@@ -1396,8 +1396,11 @@
 #define MESSAGEDATATEXTLEN      1313
 #define LWPNFLAGS               1314
 #define EWPNFLAGS               1315
+#define REFSTACK                1316
+#define STACKSIZE               1317
+#define STACKFULL               1318
 
-#define LAST_BYTECODE           1316
+#define LAST_BYTECODE           1319
 
 //} END OF BYTECODE
 
@@ -3126,6 +3129,16 @@ namespace ZScript
 		}
 	};
 
+	class OLoadStack : public Opcode
+	{
+	public:
+		OLoadStack() : Opcode() {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadStack();
+		}
+	};
 
 	class OLoadDirectoryRegister : public UnaryOpcode
 	{
@@ -3137,7 +3150,6 @@ namespace ZScript
 			return new OLoadDirectoryRegister(a->clone());
 		}
 	};
-
 
 	class OLoadRNG : public Opcode
 	{
@@ -10051,6 +10063,115 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new ODirectoryFree();
+		}
+	};
+	
+	class OStackFree : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackFree();
+		}
+	};
+	class OStackOwn : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackOwn();
+		}
+	};
+	class OStackClear : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackClear();
+		}
+	};
+	
+	class OStackPopBack : public UnaryOpcode
+	{
+	public:
+		OStackPopBack(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackPopBack(a->clone());
+		}
+	};
+	class OStackPopFront : public UnaryOpcode
+	{
+	public:
+		OStackPopFront(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackPopFront(a->clone());
+		}
+	};
+	class OStackPeekBack : public UnaryOpcode
+	{
+	public:
+		OStackPeekBack(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackPeekBack(a->clone());
+		}
+	};
+	class OStackPeekFront : public UnaryOpcode
+	{
+	public:
+		OStackPeekFront(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackPeekFront(a->clone());
+		}
+	};
+	class OStackPushBack : public UnaryOpcode
+	{
+	public:
+		OStackPushBack(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackPushBack(a->clone());
+		}
+	};
+	class OStackPushFront : public UnaryOpcode
+	{
+	public:
+		OStackPushFront(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackPushFront(a->clone());
+		}
+	};
+	class OStackGet : public UnaryOpcode
+	{
+	public:
+		OStackGet(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackGet(a->clone());
+		}
+	};
+	class OStackSet : public BinaryOpcode
+	{
+	public:
+		OStackSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStackSet(a->clone(), b->clone());
 		}
 	};
 	

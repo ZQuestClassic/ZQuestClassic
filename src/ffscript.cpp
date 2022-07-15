@@ -86,6 +86,7 @@ zcmodule moduledata;
 script_bitmaps scb;
 user_file script_files[MAX_USER_FILES];
 user_dir script_dirs[MAX_USER_DIRS];
+user_stack script_stacks[MAX_USER_STACKS];
 user_rng nulrng;
 user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
@@ -2453,6 +2454,10 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		script_dirs[q].own_clear(scriptType, UID);
 	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_stacks[q].own_clear(scriptType, UID);
+	}
 	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
@@ -2477,6 +2482,26 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 
 void FFScript::deallocateAllArrays()
 {
+	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	{
+		scb.script_created_bitmaps[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		script_rngs[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		script_dirs[q].own_clear_any();
+	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_stacks[q].own_clear_any();
+	}
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -2600,6 +2625,22 @@ user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
 	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
+{
+	if(ref > 0 && ref <= USERSTACK_MAX_SIZE)
+	{
+		user_stack* st = &script_stacks[ref-1];
+		if(st->reserved)
+		{
+			return st;
+		}
+	}
+	if(skipError) return NULL;
+	Z_scripterrlog("Script attempted to reference a nonexistent Stack!\n");
+	Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -11463,6 +11504,27 @@ int32_t get_register(const int32_t arg)
 		}
 		
 		///----------------------------------------------------------------------------------------------------//
+		//Stack->
+		case STACKSIZE:
+		{
+			if(user_stack* st = checkStack(ri->stackref, "Size", true))
+			{
+				ret = st->size(); //NOT *10000
+			}
+			else ret = -10000L;
+			break;
+		}
+		case STACKFULL:
+		{
+			if(user_stack* st = checkStack(ri->stackref, "Full", true))
+			{
+				ret = st->full() ? 10000L : 0L;
+			}
+			else ret = -10000L;
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
 		//Module->
 		
 		case MODULEGETINT:
@@ -11546,6 +11608,7 @@ int32_t get_register(const int32_t arg)
 		case REFCHEATS: ret = ri->cheatsref; break;
 		case REFFILE: ret = ri->fileref; break;
 		case REFDIRECTORY: ret = ri->directoryref; break;
+		case REFSTACK: ret = ri->stackref; break;
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
 		case REFRNG: ret = ri->rngref; break;
 		
@@ -20898,6 +20961,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFCHEATS:  ri->cheatsref = value; break;
 		case REFFILE: ri->fileref = value; break;
 		case REFDIRECTORY: ri->directoryref = value; break;
+		case REFSTACK: ri->stackref = value; break;
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
 		
@@ -23138,6 +23202,12 @@ void FFScript::do_loaddirectory()
 	Z_scripterrlog("Path '%s' empty or points to a file; must point to a directory!\n",path.c_str());
 	ri->directoryref = 0;
 	set_register(sarg1, 0);
+}
+
+void FFScript::do_loadstack()
+{
+	ri->stackref = get_free_stack();
+	ri->d[rEXP1] = ri->stackref;
 }
 
 void FFScript::do_loaddropset(const bool v)
@@ -27532,6 +27602,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFScript::do_loaddmapdata(true); break;
 			case LOADDIRECTORYR:
 				FFCore.do_loaddirectory(); break;
+			case LOADSTACK:
+				FFCore.do_loadstack(); break;
 			case LOADDROPSETR: //command
 				FFCore.do_loaddropset(false); break;
 			case LOADRNG: //command
@@ -29309,7 +29381,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFCore.do_file_geterr();
 				break;
 			}
-			
+			//Directory
 			case DIRECTORYGET:
 			{
 				FFCore.do_directory_get();
@@ -29333,7 +29405,107 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				}
 				break;
 			}
+			//Stack
+			case STACKFREE:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "Free()", true))
+				{
+					st->clear();
+				}
+				break;
+			}
+			case STACKOWN:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "Own()"))
+				{
+					st->own(type, i);
+				}
+				break;
+			}
+			case STACKCLEAR:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "Clear()"))
+				{
+					st->clearStack();
+				}
+				break;
+			}
+			case STACKGET:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "Get()", true))
+				{
+					int32_t indx = get_register(sarg1); //NOT /10000
+					set_register(sarg1, st->get(indx)); //NOT *10000
+				}
+				else set_register(sarg1, 0L);
+				break;
+			}
+			case STACKSET:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "Set()", true))
+				{
+					int32_t indx = get_register(sarg1); //NOT /10000
+					int32_t val = get_register(sarg2); //NOT /10000
+					st->set(indx, val); //NOT *10000
+				}
+				break;
+			}
+			case STACKPOPBACK:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "PopBack()", true))
+				{
+					set_register(sarg1, st->pop_back()); //NOT *10000
+				}
+				else set_register(sarg1, 0L);
+				break;
+			}
+			case STACKPOPFRONT:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "PopFront()", true))
+				{
+					set_register(sarg1, st->pop_front()); //NOT *10000
+				}
+				else set_register(sarg1, 0L);
+				break;
+			}
+			case STACKPEEKBACK:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "PeekBack()", true))
+				{
+					set_register(sarg1, st->peek_back()); //NOT *10000
+				}
+				else set_register(sarg1, 0L);
+				break;
+			}
+			case STACKPEEKFRONT:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "PeekFront()", true))
+				{
+					set_register(sarg1, st->peek_front()); //NOT *10000
+				}
+				else set_register(sarg1, 0L);
+				break;
+			}
+			case STACKPUSHBACK:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "PushBack()", true))
+				{
+					int32_t val = get_register(sarg1); //NOT /10000
+					st->push_back(val);
+				}
+				break;
+			}
+			case STACKPUSHFRONT:
+			{
+				if(user_stack* st = checkStack(ri->stackref, "PushFront()", true))
+				{
+					int32_t val = get_register(sarg1); //NOT /10000
+					st->push_front(val);
+				}
+				break;
+			}
 			
+			//Module
 			case MODULEGETIC:
 			{
 				
@@ -29927,6 +30099,14 @@ void FFScript::user_dirs_init()
 	}
 }
 
+void FFScript::user_stacks_init()
+{
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_stacks[q].clear();
+	}
+}
+
 void FFScript::user_rng_init()
 {
 	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
@@ -29974,6 +30154,20 @@ int32_t FFScript::get_free_rng(bool skipError)
 		}
 	}
 	if(!skipError) Z_scripterrlog("get_free_rng() could not find a valid free rng pointer!\n");
+	return 0;
+}
+
+int32_t FFScript::get_free_stack(bool skipError)
+{
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		if(!script_stacks[q].reserved)
+		{
+			script_stacks[q].reserved = true;
+			return q+1; //1-indexed; 0 is null value
+		}
+	}
+	if(!skipError) Z_scripterrlog("get_free_stack() could not find a valid free stack pointer!\n");
 	return 0;
 }
 #ifdef _WIN32
@@ -36150,6 +36344,18 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DIVV2",                2,   1,   0,   0},
 	{ "COMPAREV2",            2,   1,   0,   0},
 	{ "MODV2",                2,   1,   0,   0},
+	{ "STACKFREE",                0,   0,   0,   0},
+	{ "STACKOWN",         0,   0,   0,   0},
+	{ "STACKGET",         1,   0,   0,   0},
+	{ "STACKSET",         2,   0,   0,   0},
+	{ "STACKPOPBACK",         0,   0,   0,   0},
+	{ "STACKPOPFRONT",         0,   0,   0,   0},
+	{ "STACKPEEKBACK",         0,   0,   0,   0},
+	{ "STACKPEEKFRONT",         0,   0,   0,   0},
+	{ "STACKPUSHBACK",         1,   0,   0,   0},
+	{ "STACKPUSHFRONT",         1,   0,   0,   0},
+	{ "LOADSTACK",         0,   0,   0,   0},
+	{ "STACKCLEAR",         0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -37470,6 +37676,9 @@ script_variable ZASMVars[]=
 	{ "MESSAGEDATATEXTLEN", MESSAGEDATATEXTLEN, 0, 0 },
 	{ "LWPNFLAGS", LWPNFLAGS, 0, 0 },
 	{ "EWPNFLAGS", EWPNFLAGS, 0, 0 },
+	{ "REFSTACK", REFSTACK, 0, 0 },
+	{ "STACKSIZE", STACKSIZE, 0, 0 },
+	{ "STACKFULL", STACKFULL, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

@@ -1045,6 +1045,18 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "DIVV2",                2,   1,   0,   0},
 	{ "COMPAREV2",            2,   1,   0,   0},
 	{ "MODV2",                2,   1,   0,   0},
+	{ "STACKFREE",                0,   0,   0,   0},
+	{ "STACKOWN",         0,   0,   0,   0},
+	{ "STACKGET",         1,   0,   0,   0},
+	{ "STACKSET",         2,   0,   0,   0},
+	{ "STACKPOPBACK",         1,   0,   0,   0},
+	{ "STACKPOPFRONT",         1,   0,   0,   0},
+	{ "STACKPEEKBACK",         1,   0,   0,   0},
+	{ "STACKPEEKFRONT",         1,   0,   0,   0},
+	{ "STACKPUSHBACK",         1,   0,   0,   0},
+	{ "STACKPUSHFRONT",         1,   0,   0,   0},
+	{ "LOADSTACK",         0,   0,   0,   0},
+	{ "STACKCLEAR",         0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2377,6 +2389,9 @@ script_variable variable_list[]=
 	{ "MESSAGEDATATEXTLEN", MESSAGEDATATEXTLEN, 0, 0 },
 	{ "LWPNFLAGS", LWPNFLAGS, 0, 0 },
 	{ "EWPNFLAGS", EWPNFLAGS, 0, 0 },
+	{ "REFSTACK", REFSTACK, 0, 0 },
+	{ "STACKSIZE", STACKSIZE, 0, 0 },
+	{ "STACKFULL", STACKFULL, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };
