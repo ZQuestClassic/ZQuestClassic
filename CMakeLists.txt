@@ -504,7 +504,12 @@ if(Boost_FOUND)
 endif()
 
 if(WIN32)
-	set_source_files_properties(src/dialog/itemeditor.cpp PROPERTIES COMPILE_FLAGS "/bigobj")
+	set_source_files_properties(
+		src/dialog/itemeditor.cpp
+		src/dialog/init_data.cpp
+		src/parser/GlobalSymbols.cpp
+		PROPERTIES COMPILE_FLAGS "/bigobj"
+	)
 endif()
 
 #############################################################
@@ -595,9 +600,16 @@ endforeach()
 # Visual Studio
 #############################################################
 
-if (WIN32)
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	# "Edit and Continue" functionality
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
+
+	# Configure "Debug" option in VS to use the correct working directory, otherwise it fails to load zc configuration files
 	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
 
+	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
