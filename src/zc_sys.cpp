@@ -345,8 +345,8 @@ void load_game_configs()
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
    
     //default - scale x2, 640 x 480
-    resx = zc_get_config(cfg_sect,"resx",640);
-    resy = zc_get_config(cfg_sect,"resy",480);
+    window_width = resx = zc_get_config(cfg_sect,"resx",640);
+    window_height = resy = zc_get_config(cfg_sect,"resy",480);
     //screen_scale = zc_get_config(cfg_sect,"screen_scale",2);
    
     scanlines = zc_get_config(cfg_sect,"scanlines",0)!=0;
