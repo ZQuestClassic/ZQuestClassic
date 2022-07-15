@@ -325,7 +325,6 @@ bool zq_showpal=false;
 bool combo_cols=true;
 bool is_large = true;
 byte BMM = 3; // Big Minimap
-BITMAP *hw_screen;
 
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
@@ -29619,14 +29618,6 @@ void custom_vsync()
     
     while(!myvsync) rest(1);
     
-    if(zqwin_scale > 1)
-    {
-        stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-    }
-    else
-    {
-        blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-    }
     all_mark_screen_dirty();
     
     myvsync=0;
@@ -31195,8 +31186,6 @@ int32_t main(int32_t argc,char **argv)
 	{
 		int32_t t_time_v = FFCore.getTime(q);
 	}
-	hw_screen = screen;
-	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
@@ -32273,56 +32262,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
     rest(4);
     ret = jwin_menu_proc(msg,d,c);
     
-    /*
-        static int32_t counter=0;
-        // Copy allegro_screen to sdl_screen
-    
-        if ( SDL_LockSurface(sdl_screen) == 0 )
-        {
-          al_trace("Locking SDL surface! (%d)\n", counter);
-    //      Uint32 black;
-          Uint8 *pixels;
-    
-    //      black = SDL_MapRGB(sdl_screen->format, 0, 0, 0);
-          pixels = (Uint8 *)sdl_screen->pixels;
-          for ( int32_t y=0; y<sdl_screen->h; ++y )
-          {
-    //        memset(pixels, black, sdl_screen->w*sdl_screen->format->BytesPerPixel);
-            memcpy(pixels, screen->line[y], sdl_screen->w*sdl_screen->format->BytesPerPixel);
-            pixels += sdl_screen->pitch;
-          }
-          SDL_UnlockSurface(sdl_screen);
-          SDL_UpdateRect(sdl_screen, 0, 0, 0, 0);
-        }
-        else
-        {
-          al_trace("Unable to lock SDL surface! (%d)\n", counter);
-        }
-    
-        ++counter;
-        // Create a display surface with a grayscale palette
-        SDL_Color colors[256];
-        PALETTE tp;
-        get_palette(tp);
-        int32_t i;
-        // Fill colors with color information
-        for(i=0;i<256;i++){
-          colors[i].r=tp[i].r;
-          colors[i].g=tp[i].g;
-          colors[i].b=tp[i].b;
-        }
-    
-        // Set palette
-        SDL_SetColors(sdl_screen, colors, 0, 256);
-    */
-    //if(zqwin_scale > 1)
-    {
-        //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-    }
-    //else
-    {
-        //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-    }
     return ret;
 }
 
@@ -32491,28 +32430,12 @@ void dopreview()
             {
                 do_animations();
                 Map.set_prvadvance(0);
-                //if(zqwin_scale > 1)
-                {
-                    //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-                }
-                // else
-                {
-                    //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-                }
             }
         }
         else
         {
             do_animations();
             Map.set_prvadvance(0);
-            //if(zqwin_scale > 1)
-            {
-                //stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-            }
-            //else
-            {
-                //blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-            }
         }
         
         refresh(rALL);
@@ -33815,14 +33738,6 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		if(zqwin_scale > 1)
-		{
-			stretch_blit(screen, hw_screen, 0, 0, screen->w, screen->h, 0, 0, hw_screen->w, hw_screen->h);
-		}
-		else
-		{
-			blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
-		}
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
