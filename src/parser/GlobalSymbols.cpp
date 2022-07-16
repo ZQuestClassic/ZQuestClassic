@@ -2032,6 +2032,28 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//int32_t DegtoRad(int32_t val)
+	{
+		Function* function = getFunction("DegtoRad", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OEngineDegtoRad(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t RadtoDeg(int32_t val)
+	{
+		Function* function = getFunction("RadtoDeg", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OEngineRadtoDeg(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 FFCSymbols FFCSymbols::singleton = FFCSymbols();
