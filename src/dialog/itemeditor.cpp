@@ -211,8 +211,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_ladder:
 		{
-			_SET(power, "Four-Way:", "If >0, the player can exit the ladder in all 4 directions.\n"
-				"If ==0, the player can only exit parallel to the direction they entered from.");
+			_SET(power, "Four-Way:", "If >1, the player can exit the ladder in all 4 directions.\n"
+				"If <=1, the player can only exit parallel to the direction they entered from.");
 			_SET(flag[0], "Can Ladder Over Pitfalls", "Can be used to cross Pitfall combos");
 			break;
 		}
