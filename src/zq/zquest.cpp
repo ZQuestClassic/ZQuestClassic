@@ -7621,6 +7621,9 @@ void refresh(int32_t flags)
     
     unscare_mouse();
     SCRFIX();
+#ifdef __EMSCRIPTEN__
+    all_render_screen();
+#endif
 }
 
 void select_scr()
@@ -8332,8 +8335,20 @@ void draw(bool justcset)
             }
         }
         
-        do_animations();
-        refresh(rALL);
+#ifdef __EMSCRIPTEN__
+		// TODO: fix this!
+		// For some reason this loop (even if a rest(1) is added) prevents the
+		// mouse thread from consuming events (or maybe it prevents SDL on the main
+		// thread from creating mouse events?). Breaking after a single iteration prevents
+		// this from locking up.
+		// This drawing code functions similarly like this, except click-and-drag
+		// will create multiple separate single edits in the undo history, rather than
+		// combining all of them.
+		break;
+#else
+		do_animations();
+		refresh(rALL);
+#endif
     }
 
     Map.FinishListCommand();
@@ -30224,6 +30239,9 @@ void custom_vsync()
     while(!myvsync) rest(1);
     
     all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+    all_render_screen();
+#endif
     
     myvsync=0;
     
@@ -30558,14 +30576,22 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal("Failed al_init_image_addon");
 		quit_game();
 	}
-#endif
 
 	al5img_init();
+#endif
+
+#ifdef __EMSCRIPTEN__
+	all_disable_threaded_display();
+#endif
 	
 	//set_config_file("ag.cfg");
 	zc_set_config_standard();
+
+#ifdef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
+#endif
+
 	if(install_timer() < 0)
 	{
 		Z_error_fatal(allegro_error);
@@ -31719,7 +31745,9 @@ int32_t main(int32_t argc,char **argv)
 		allegro_init();
 		three_finger_flag=false;
 
+#ifndef __EMSCRIPTEN__
 		al5img_init();
+#endif
 		
 		//set_config_file("ag.cfg");
 		zc_set_config_standard();
@@ -34169,6 +34197,9 @@ void update_hw_screen(bool force)
 		}
 		myvsync=0;
 		all_mark_screen_dirty();
+#ifdef __EMSCRIPTEN__
+		all_render_screen();
+#endif
 	}
 }
 
