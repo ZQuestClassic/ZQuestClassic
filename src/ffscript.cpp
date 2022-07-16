@@ -33504,6 +33504,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 				{
 					item_doscript[q] = 2;
 				}
+				else item_doscript[q] = 0;
 			}
 			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
 			{

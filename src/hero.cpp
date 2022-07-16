@@ -2998,7 +2998,7 @@ void collectitem_script(int32_t id)
 		ri->Clear();
 		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id & 0xFFF)*-1));
 		
-		if ( id > 0 && !item_collect_doscript[id] ) //No collect script on item 0. 
+		if ( id > 0 && !(item_collect_doscript[id] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //No collect script on item 0. 
 		{
 			item_collect_doscript[id] = 1;
 			itemscriptInitialised[id] = 0;
@@ -3006,7 +3006,7 @@ void collectitem_script(int32_t id)
 			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 			FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id));
 		}
-		else if (id == 0 && !item_collect_doscript[id]) //item 0
+		else if (id == 0 && !(item_collect_doscript[id] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
 		{
 			item_collect_doscript[id] = 1;
 			itemscriptInitialised[id] = 0;
@@ -6768,7 +6768,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 			game->set_item(stompid,false);
 			
 		// Stomp Boots script
-		if(itemsbuf[stompid].script != 0 && !item_doscript[stompid])
+		if(itemsbuf[stompid].script != 0 && !(item_doscript[stompid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			//clear the item script stack for a new script
 			ri = &(itemScriptData[stompid]);
@@ -9688,7 +9688,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					sfx(QMisc.miscsfx[sfxERROR]);
 				return false;
 			}
-			if(itm.script!=0 && item_doscript[itemid])
+			if(itm.script!=0 && (item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 				return false;
 			
 			size_t bind = game->get_bottle_slot(itm.misc1);
@@ -11158,7 +11158,7 @@ void do_lens()
 			
 			paymagiccost(itemid, true); //Needs to ignore timer cause lensclk is our timer.
 			
-			if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !item_doscript[itemid])
+			if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				//clear the item script stack for a new script
 				//itemScriptData[(itemid & 0xFFF)].Clear();
@@ -11216,7 +11216,7 @@ void do_210_lens()
         
         paymagiccost(itemid, true);
         
-        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !item_doscript[itemid])
+        if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
         {
 		//clear the item script stack for a new script
 		//itemScriptData[(itemid & 0xFFF)].Clear();
@@ -12251,7 +12251,7 @@ void HeroClass::movehero()
 			attackclk=0;
 			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
-			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !item_doscript[dowpn])
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(!checkmagiccost(dowpn))
 				{
@@ -12456,7 +12456,7 @@ void HeroClass::movehero()
 			}
 		}
 		
-		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && !item_doscript[dowpn])
+		if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scriptb && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -17097,7 +17097,7 @@ bool usekey()
 		}
 		//zprint2("key_item is: %d\n",key_item);
 		//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-		if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+		if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 		{
 			ri = &(itemScriptData[key_item]);
 			for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -17129,7 +17129,7 @@ bool usekey()
 			}
 			//zprint2("key_item is: %d\n",key_item);
 			//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				ri = &(itemScriptData[key_item]);
 				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -17546,7 +17546,7 @@ void HeroClass::checkbosslockblock()
 			key_item = q; break;
 		}
 	}
-	if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+	if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 	{
 		ri = &(itemScriptData[key_item]);
 		for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -17675,7 +17675,7 @@ void HeroClass::oldcheckchest(int32_t type)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				ri = &(itemScriptData[key_item]);
 				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -17900,7 +17900,7 @@ void HeroClass::checkchest(int32_t type)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				ri = &(itemScriptData[key_item]);
 				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18228,7 +18228,7 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18287,7 +18287,7 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18344,7 +18344,7 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18405,7 +18405,7 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						ri = &(itemScriptData[key_item]);
 						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18472,7 +18472,7 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18539,7 +18539,7 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18604,7 +18604,7 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
@@ -18672,7 +18672,7 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !item_doscript[key_item] ) //
+						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //
 						{
 							ri = &(itemScriptData[key_item]);
 							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
