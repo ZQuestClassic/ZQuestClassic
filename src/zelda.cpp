@@ -3310,6 +3310,7 @@ void do_dcounters()
             {
 				sfx_to_use = QMisc.miscsfx[sfxREFILL];
                 int32_t drain = (i==4 ? game->get_mp_per_block()/4 : 1);
+				if(get_bit(quest_rules,qr_FASTCOUNTERDRAIN)) drain *= 4;
                 drain = zc_min(game->get_dcounter(i),drain);
                 
                 if(game->get_counter(i) < game->get_maxcounter(i))
@@ -3332,6 +3333,8 @@ void do_dcounters()
                     sfx_to_use = QMisc.miscsfx[sfxDRAIN];;
                     
                 int32_t drain = (i==4 ? 2*game->get_magicdrainrate() : 1);
+				if(get_bit(quest_rules,qr_FASTCOUNTERDRAIN)) drain *= 4;
+                drain = zc_min(-game->get_dcounter(i),drain);
                 
                 if(game->get_counter(i)>0)
                 {

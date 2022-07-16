@@ -1128,7 +1128,9 @@ static const GUI::ListData miscRulesList
 		" continue point, rather than the last entrance point." },
 	{ "Flip 'don't restart dmap script' script warp flag", qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
 		"If enabled, the warp flag to disable restarting the dmap script when warping to the same dmap will be flipped"
-		" so that having the flag on will restart the dmap script and having it off won't restart when warping to the same dmap."}
+		" so that having the flag on will restart the dmap script and having it off won't restart when warping to the same dmap."},
+	{ "Fast Counter Drain", qr_FASTCOUNTERDRAIN,
+		"If enabled, counters drain/refill at quadruple speed."}
 };
 
 static const GUI::ListData nesfixesRulesList
