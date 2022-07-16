@@ -269,10 +269,10 @@ static const GUI::ListData comboRulesList
 		" pressing down; only pressing up can grab sideview ladders." },
 	{ "Custom Combos Work On Layers 1 And 2", qr_CUSTOMCOMBOSLAYERS1AND2, 
 		"If enabled, Layers 1 and 2 will also be checked for custom"
-		" triggers ('Triggers' tab in the Combo Editor)."},
+		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
 	{ "Custom Combos Work On All Layers", qr_CUSTOMCOMBOS_EVERY_LAYER, 
 		"If enabled, all layers will also be checked for custom"
-		" triggers ('Triggers' tab in the Combo Editor)."},
+		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
 	{ "Slash Combos Work On Layers 1 And 2", qr_BUSHESONLAYERS1AND2, 
 		"If enabled, Bushes, Flowers, Tall Grass, Generic Combos, and"
 		" etc will work on Layers 1 and 2."},

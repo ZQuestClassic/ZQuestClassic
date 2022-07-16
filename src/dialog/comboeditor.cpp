@@ -1985,9 +1985,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 3)
 						)
 					)),
-					TabRef(name = "Triggers", Row(
-						Column(
-							padding = 0_px,
+					TabRef(name = "Triggers", Column(
+						Row(
 							Column(framed = true,
 								Row(
 									padding = 0_px,
@@ -2047,44 +2046,51 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(46,"Custom Weapon 10")
 								)
 							),
-							Rows<4>(
-								framed = true,
-								TRIGFLAG(48,"Triggers Secrets"),
-								TRIGFLAG(18,"->Next"),
-								TRIGFLAG(19,"->Prev")
+							Column(padding = 0_px,
+								Column(framed = true,
+									Row(padding = 0_px,
+										Label(text = "Buttons:"),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.triggerbtn,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.triggerbtn = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
+													"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+													"Buttons used while standing against the combo from a direction"
+													" with the 'Btn: [dir]' flag checked for that side"
+													" will trigger the combo.").show();
+											}
+										)
+									),
+									Column(
+										TRIGFLAG(20,"Btn: Top"),
+										TRIGFLAG(21,"Btn: Bottom"),
+										TRIGFLAG(22,"Btn: Left"),
+										TRIGFLAG(23,"Btn: Right")
+									)
+								),
+								Column(framed = true,
+									TRIGFLAG(47,"Always Triggered"),
+									TRIGFLAG(27,"Shutter->"),
+									TRIGFLAG(25,"Step->"),
+									TRIGFLAG(26,"Step-> (Sensitive)")
+								)
 							)
 						),
-						Column(framed = true,
-							Row(padding = 0_px,
-								Label(text = "Buttons:"),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_comboref.triggerbtn,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.triggerbtn = val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
-											"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-											"Buttons used while standing against the combo from a direction"
-											" with the 'Btn: [dir]' flag checked for that side"
-											" will trigger the combo.").show();
-									}
-								)
-							),
-							Column(
-								TRIGFLAG(20,"Btn: Top"),
-								TRIGFLAG(21,"Btn: Bottom"),
-								TRIGFLAG(22,"Btn: Left"),
-								TRIGFLAG(23,"Btn: Right"),
-								TRIGFLAG(47,"Always Triggered")
-							)
+						Rows<5>(
+							framed = true,
+							TRIGFLAG(48,"Triggers Secrets"),
+							TRIGFLAG(18,"->Next"),
+							TRIGFLAG(19,"->Prev")
 						)
 					)),
 					TabRef(name = "Script", Column(
@@ -2500,9 +2506,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(20,"Btn: Top"),
 									TRIGFLAG(21,"Btn: Bottom"),
 									TRIGFLAG(22,"Btn: Left"),
-									TRIGFLAG(23,"Btn: Right"),
-									TRIGFLAG(47,"Always Triggered")
+									TRIGFLAG(23,"Btn: Right")
 								)
+							),
+							Rows<2>(framed = true,
+								margins = DEFAULT_PADDING,
+								padding = DEFAULT_PADDING+2_px,
+								TRIGFLAG(47,"Always Triggered"),
+								TRIGFLAG(27,"Shutter->"),
+								TRIGFLAG(25,"Step->"),
+								TRIGFLAG(26,"Step-> (Sensitive)")
 							),
 							Row(
 								framed = true,

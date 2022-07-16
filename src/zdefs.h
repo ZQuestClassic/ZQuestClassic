@@ -1337,6 +1337,9 @@ enum
 #define combotriggerBTN_LEFT     0x00400000
 #define combotriggerBTN_RIGHT    0x00800000
 #define combotriggerINVERTMINMAX 0x01000000
+#define combotriggerSTEP         0x02000000
+#define combotriggerSTEPSENS     0x04000000
+#define combotriggerSHUTTER      0x08000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001

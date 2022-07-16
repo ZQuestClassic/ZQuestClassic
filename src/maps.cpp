@@ -4419,6 +4419,17 @@ void openshutters()
 			putdoor(scrollbuf,0,i,dOPENSHUTTER);
 			tmpscr->door[i]=dOPENSHUTTER;
 		}
+	
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(cmb.triggerflags[0] & combotriggerSHUTTER)
+				do_trigger_combo(lyr,pos);
+		}
+	}
 		
 	sfx(WAV_DOOR,128);
 }

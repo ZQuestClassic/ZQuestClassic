@@ -19954,6 +19954,28 @@ void HeroClass::checkspecial()
 	}
 }
 
+//Gets the 4 comboposes indicated by the coordinates, replacing duplicates with '-1'
+void getPoses(int32_t* poses, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+{
+	int32_t tmp;
+	poses[0] = COMBOPOS(x1,y1);
+	
+	tmp = COMBOPOS(x1,y2);
+	if(tmp == poses[0])
+		poses[1] = -1;
+	else poses[1] = tmp;
+	
+	tmp = COMBOPOS(x2,y1);
+	if(tmp == poses[0] || tmp == poses[1])
+		poses[2] = -1;
+	else poses[2] = tmp;
+	
+	tmp = COMBOPOS(x2,y2);
+	if(tmp == poses[0] || tmp == poses[1] || tmp == poses[2])
+		poses[3] = -1;
+	else poses[3] = tmp;
+}
+
 void HeroClass::checkspecial2(int32_t *ls)
 {
 	if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
@@ -20406,6 +20428,58 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
 			type = types[1];
+	}
+	
+	//Generic Step
+	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
+	{
+		int32_t poses[4];
+		int32_t sensPoses[4];
+		if(diagonalMovement||NO_GRIDLOCK)
+			getPoses(poses, tx+4, ty+4, tx+11, ty+11);
+		else getPoses(poses, tx, ty, tx+15, ty+15);
+		getPoses(sensPoses, tx, ty+(bigHitbox?0:8), tx+15, ty+15);
+		bool hasStep[4] = {false};
+		for(auto p = 0; p < 4; ++p)
+		{
+			for(auto lyr = 0; lyr < 7; ++lyr)
+			{
+				newcombo const* cmb = poses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[poses[p]]];
+				if((cmb && (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS)))
+					|| types[p] == cSTEP)
+				{
+					hasStep[p] = true;
+					break;
+				}
+			}
+		}
+		bool canNormalStep = true;
+		for(auto p = 0; p < 4; ++p)
+		{
+			if(poses[p] < 0) continue;
+			if(!hasStep[p])
+			{
+				canNormalStep = false;
+				break;
+			}
+		}
+		for(auto p = 0; p < 4; ++p)
+		{
+			for(auto lyr = 0; lyr < 7; ++lyr)
+			{
+				newcombo const* cmb = poses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[poses[p]]];
+				newcombo const* cmb_2 = sensPoses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[sensPoses[p]]];
+				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
+				{
+					do_trigger_combo(lyr,poses[p]);
+					if(poses[p] == sensPoses[p]) continue;
+				}
+				if(cmb_2 && (cmb_2->triggerflags[0] & combotriggerSTEPSENS))
+				{
+					do_trigger_combo(lyr,sensPoses[p]);
+				}
+			}
+		}
 	}
 	
 	//
