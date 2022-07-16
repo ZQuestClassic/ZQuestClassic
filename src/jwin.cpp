@@ -5471,6 +5471,7 @@ int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y)
     
     do
     {
+        rest(0);
     }
     while(gui_mouse_b());
     
@@ -6198,6 +6199,7 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
     
     do
     {
+        rest(0);
     }
     while(gui_mouse_b());
     
