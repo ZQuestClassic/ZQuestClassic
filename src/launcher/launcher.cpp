@@ -31,8 +31,7 @@ volatile int32_t myvsync=0;
 extern int32_t zqwin_scale;
 int32_t zq_screen_w=800;
 int32_t zq_screen_h=600;
-BITMAP *tmp_scr;
-BITMAP *hw_screen;
+BITMAP *tmp_scr;;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
 volatile bool close_button_quit = false;
@@ -193,7 +192,6 @@ int32_t main(int32_t argc, char* argv[])
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
 	mouse_bmp = create_bitmap_ex(8,16,16);
 	//{ Screen setup
-	hw_screen = screen;
 	screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	//}
 	
@@ -482,7 +480,6 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		blit(screen, hw_screen, 0, 0, 0, 0, screen->w, screen->h);
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
