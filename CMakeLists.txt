@@ -541,7 +541,7 @@ target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 # Allegro 5 Example
 #############################################################
 
-add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example_main.c)
+add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example/al5_example_main.c)
 target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
 target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
 target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
