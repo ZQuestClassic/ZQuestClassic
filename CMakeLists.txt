@@ -121,10 +121,6 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primi
 include_directories(./include/zlib123)
 include_directories(./src)
 
-if(MSVC)
-#   include_directories(./src/msvcCompat)
-endif()
-
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
 	src/zcmusicd.cpp
@@ -203,7 +199,6 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	# Many of these libraries are compiled for allegro 4, but they should still function thanks to allegro-legacy.
 	if("${vs_platform}" STREQUAL "win32")
 		set(IMAGELIBS "$<$<CONFIG:DEBUG>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib>"
 					  "$<$<CONFIG:RELEASE>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib>")
