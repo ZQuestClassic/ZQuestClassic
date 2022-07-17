@@ -81,21 +81,11 @@ namespace GUI::Lists
 		{ "4x", 4 }
 	};
 
-	static const ListData gfxCardList
+	static const ListData gfxDriverList
 	{
-		{ "[WINDOWS]", -1 },
-		{ "DirectDraw", 0 },
-		{ "DirectDraw No Accel", 1 },
-		{ "DirectDraw Safe", 2 },
-		{ "DirectDraw Windowed", 3 },
-		{ "DirectDraw Overlay", 4 },
-		{ "GDI (Slow)", 5 },
-		{ "[LINUX]", -1 },
-		{ "SVGA", 6 },
-		{ "ModeX", 7 },
-		{ "VGA", 8 },
-		{ "FBCon Device", 9 },
-		{ "VBE/AF", 10 }
+		{ "Default", 0 },
+		{ "Direct3D", 1 },
+		{ "OpenGL", 2 }
 	};
 	
 	static const ListData dxglList
@@ -225,18 +215,18 @@ Button(forceFitH = true, text = "?", \
 		InfoDialog("Info",info).show(); \
 	})
 //}
-//{ GFXCard
+//{ GFXDriver
 #define GFXCARD_DROPDOWN_MINWIDTH 7_em
 #define GFXCARD_DROPDOWN(name, file, head, subhead, def, list) \
 Label(text = name, hAlign = 1.0), \
 DropDownList(data = list, \
 	fitParent = true, \
 	minwidth = GFXCARD_DROPDOWN_MINWIDTH, \
-	selectedValue = getGFXCardID(zc_get_config(file,head,subhead,getGFXCardStr(def))), \
+	selectedValue = getGFXDriverID(zc_get_config(file,head,subhead,getGFXDriverStr(def))), \
 	onSelectFunc = [&](int32_t val) \
 	{ \
 		if(val > -1) \
-			zc_set_config(file,head,subhead,getGFXCardStr(val)); \
+			zc_set_config(file,head,subhead,getGFXDriverStr(val)); \
 	} \
 ), \
 DummyWidget()
@@ -246,11 +236,11 @@ Label(text = name, hAlign = 1.0), \
 DropDownList(data = list, \
 	fitParent = true, \
 	minwidth = GFXCARD_DROPDOWN_MINWIDTH, \
-	selectedValue = getGFXCardID(zc_get_config(file,head,subhead,getGFXCardStr(def))), \
+	selectedValue = getGFXDriverID(zc_get_config(file,head,subhead,getGFXDriverStr(def))), \
 	onSelectFunc = [&](int32_t val) \
 	{ \
 		if(val > -1) \
-			zc_set_config(file,head,subhead,getGFXCardStr(val)); \
+			zc_set_config(file,head,subhead,getGFXDriverStr(val)); \
 	} \
 ), \
 Button(forceFitH = true, text = "?", \
@@ -381,9 +371,26 @@ Button(forceFitH = true, text = "?", \
 
 //{ Helpers
 
+/* _al_stricmp:
+ *  Case-insensitive comparison of 7-bit ASCII strings.
+ */
+int _al_stricmp(const char *s1, const char *s2)
+{
+   int c1, c2;
+   ASSERT(s1);
+   ASSERT(s2);
+
+   do {
+      c1 = tolower(*(s1++));
+      c2 = tolower(*(s2++));
+   } while ((c1) && (c1 == c2));
+
+   return c1 - c2;
+}
+
 //{ Graphics Card
 #define CMP_GFX(str, val) \
-if(!strcmp(str,configstr)) \
+if(!_al_stricmp(str,configstr)) \
 	return val
 
 #define STR_GFX(str, val) \
@@ -391,38 +398,22 @@ case val: \
 	strcpy(gfx_card_buf, str); \
 	break
 
-int32_t getGFXCardID(char const* configstr)
+int32_t getGFXDriverID(char const* configstr)
 {
-	CMP_GFX("DXAC", 0);
-	CMP_GFX("DXSO", 1);
-	CMP_GFX("DXSA", 2);
-	CMP_GFX("DXWN", 3);
-	CMP_GFX("DXOV", 4);
-	CMP_GFX("GDIB", 5);
-	CMP_GFX("SVGA", 6);
-	CMP_GFX("MODX", 7);
-	CMP_GFX("VGA", 8);
-	CMP_GFX("FB", 9);
-	CMP_GFX("VBAF", 10);
+	CMP_GFX("Default", 0);
+	CMP_GFX("Direct3D", 1);
+	CMP_GFX("OpenGL", 2);
 	return 0;
 }
 
-static char gfx_card_buf[32] = {0};
-char const* getGFXCardStr(int32_t id)
+static char gfx_card_buf[10] = {0};
+char const* getGFXDriverStr(int32_t id)
 {
 	switch(id)
 	{
-		STR_GFX("DXAC", 0);
-		STR_GFX("DXSO", 1);
-		STR_GFX("DXSA", 2);
-		STR_GFX("DXWN", 3);
-		STR_GFX("DXOV", 4);
-		STR_GFX("GDIB", 5);
-		STR_GFX("SVGA", 6);
-		STR_GFX("MODX", 7);
-		STR_GFX("VGA", 8);
-		STR_GFX("FB", 9);
-		STR_GFX("VBAF", 10);
+		STR_GFX("Default", 0);
+		STR_GFX("Direct3D", 1);
+		STR_GFX("OpenGL", 2);
 		default: gfx_card_buf[0]=0; break;
 	}
 	return gfx_card_buf;
@@ -532,8 +523,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Screenshot Output:", "zc.cfg","zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", "zc.cfg","zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_DROPDOWN_I("Title Screen:", "zc.cfg","zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
-						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zc.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
-						GFXCARD_DROPDOWN("Graphics Driver (Fullscreen):", "zc.cfg", "graphics", "gfx_card", 0, gfxCardList),
+#ifndef _WIN32
+						// TODO: wgl crashes zc on al_resize_display, so no point in offering this configuration option yet.
+						GFXCARD_DROPDOWN("Graphics Driver:", "zc.cfg", "graphics", "driver", 0, gfxDriverList),
+#endif
 						DXGL_ENABLER(),
 						//
 						Button(hAlign = 1.0, forceFitH = true,
@@ -632,8 +625,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", "zquest.cfg", "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
 						CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
 						CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
-						GFXCARD_DROPDOWN("Graphics Driver (Windowed):", "zquest.cfg", "graphics", "gfx_cardw", 0, gfxCardList),
-						GFXCARD_DROPDOWN("Graphics Driver (Fullscreen):", "zquest.cfg", "graphics", "gfx_card", 0, gfxCardList),
+						GFXCARD_DROPDOWN("Graphics Driver:", "zquest.cfg", "graphics", "driver", 0, gfxDriverList),
 						DXGL_ENABLER(),
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()

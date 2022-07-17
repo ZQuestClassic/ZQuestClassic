@@ -4488,6 +4488,13 @@ int main(int argc, char **argv)
 		Z_error_fatal("Failed Init!");
 		quit_game();
 	}
+
+	// Merge old a4 config into a5 system config.
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(STANDARD_CFG);
+	if (tempcfg) {
+		al_merge_config_into(al_get_system_config(), tempcfg);
+		al_destroy_config(tempcfg);
+	}
 	
 	if(!al_init_image_addon())
 	{
