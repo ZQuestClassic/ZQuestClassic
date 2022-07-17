@@ -646,102 +646,11 @@ bool zqwin_set_scale(int32_t scale, bool defer)
     old_scale = zqwin_scale;
 
     all_set_scale(scale);
-    
-#ifndef ROMVIEW_SCALE
+
     zqwin_scale = (scale > 1) ? scale : 1;
 #ifndef COMPILE_FOR_LINUX
     gui_mouse_x=zqscale_mouse_x;
     gui_mouse_y=zqscale_mouse_y;
 #endif
     return true;
-#else
-    
-    if((!proxy_screen) && (scale > 1))
-    {
-        proxy_screen = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-        proxy_vtable = (GFX_VTABLE*)zc_malloc(sizeof(GFX_VTABLE));
-    
-        if(!proxy_screen || !proxy_vtable)
-        {
-            zqwin_scale = 1;
-            return false;
-        }
-    
-        orig_vtable = proxy_screen->vtable;
-        *proxy_vtable = *orig_vtable;
-        //FILL IT IN
-        proxy_vtable->acquire = zqwin_acquire;
-        proxy_vtable->release = zqwin_release;
-        proxy_vtable->set_clip = zqwin_set_clip;
-    
-        if(proxy_vtable->putpixel) proxy_vtable->putpixel = zqwin_putpixel;
-    
-        if(proxy_vtable->vline) proxy_vtable->vline = zqwin_vline;
-    
-        if(proxy_vtable->hline) proxy_vtable->hline = zqwin_hline;
-    
-        if(proxy_vtable->hfill) proxy_vtable->hfill = zqwin_hfill;
-    
-        if(proxy_vtable->line) proxy_vtable->line = zqwin_line;
-    
-        if(proxy_vtable->rectfill) proxy_vtable->rectfill = zqwin_rectfill;
-    
-        if(proxy_vtable->draw_sprite) proxy_vtable->draw_sprite = zqwin_draw_sprite;
-    
-        if(proxy_vtable->draw_256_sprite) proxy_vtable->draw_256_sprite = zqwin_draw_256_sprite;
-    
-        if(proxy_vtable->draw_character) proxy_vtable->draw_character = zqwin_draw_character;
-    
-        if(proxy_vtable->draw_glyph) proxy_vtable->draw_glyph = zqwin_draw_glyph;
-    
-        if(proxy_vtable->blit_from_memory) proxy_vtable->blit_from_memory = zqwin_blit_from_memory;
-    
-        if(proxy_vtable->blit_to_memory) proxy_vtable->blit_to_memory = zqwin_blit_to_memory;
-    
-        if(proxy_vtable->blit_from_system) proxy_vtable->blit_from_system = zqwin_blit_from_system;
-    
-        if(proxy_vtable->blit_to_system) proxy_vtable->blit_to_system = zqwin_blit_to_system;
-    
-        if(proxy_vtable->blit_to_self) proxy_vtable->blit_to_self = zqwin_blit_to_self;
-    
-        if(proxy_vtable->blit_to_self_forward) proxy_vtable->blit_to_self_forward = zqwin_blit_to_self_forward;
-    
-        if(proxy_vtable->blit_to_self_backward) proxy_vtable->blit_to_self_backward = zqwin_blit_to_self_backward;
-    
-        if(proxy_vtable->blit_between_formats) proxy_vtable->blit_between_formats = zqwin_blit_between_formats;
-    
-        if(proxy_vtable->masked_blit) proxy_vtable->masked_blit = zqwin_masked_blit;
-    
-        if(proxy_vtable->clear_to_color) proxy_vtable->clear_to_color = zqwin_clear_to_color;
-    
-        //THEN INTERJECT IT
-        proxy_screen->vtable = proxy_vtable;
-    }
-    
-    zqwin_scale = (scale > 1) ? scale : 1;
-    
-    if((!defer) && (zqwin_scale != old_scale))
-        //if (zqwin_scale != old_scale)
-    {
-        if(gfx_driver && gfx_driver->windowed)
-        {
-            if(zqwin_set_gfx_mode(gfx_driver->id,zq_screen_w,zq_screen_h,0,0))
-            {
-                zqwin_scale = old_scale;
-                return false;
-            }
-        }
-    }
-    
-    
-    // Mouse Scale Issue Fix Just commented these out and presto it works :-D
-#ifndef COMPILE_FOR_LINUX
-    gui_mouse_x=zqscale_mouse_x;
-    gui_mouse_y=zqscale_mouse_y;
-#endif
-    
-    return true;
-#endif
 }
-
-
