@@ -2090,7 +2090,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							framed = true,
 							TRIGFLAG(48,"Triggers Secrets"),
 							TRIGFLAG(18,"->Next"),
-							TRIGFLAG(19,"->Prev")
+							TRIGFLAG(19,"->Prev"),
+							TRIGFLAG(28,"ComboType Effects")
 						)
 					)),
 					TabRef(name = "Script", Column(
@@ -2523,7 +2524,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								padding = DEFAULT_PADDING+2_px,
 								TRIGFLAG(48,"Triggers Secrets"),
 								TRIGFLAG(18,"->Next"),
-								TRIGFLAG(19,"->Prev")
+								TRIGFLAG(19,"->Prev"),
+								TRIGFLAG(28,"ComboType Effects")
 							)
 						)
 					)),

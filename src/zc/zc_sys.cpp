@@ -9871,19 +9871,25 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 	return ret;
 }
 
-bool getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
+byte getIntBtnInput(byte intbtn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely)
 {
-	bool ret = false;
-	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable, eatEntirely);
-	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable, eatEntirely);
+	byte ret = 0;
+	if(intbtn & INT_BTN_A) ret |= getInput(btnA, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_A : 0;
+	if(intbtn & INT_BTN_B) ret |= getInput(btnB, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_B : 0;
+	if(intbtn & INT_BTN_L) ret |= getInput(btnL, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_L : 0;
+	if(intbtn & INT_BTN_R) ret |= getInput(btnR, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_R : 0;
+	if(intbtn & INT_BTN_EX1) ret |= getInput(btnEx1, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX1 : 0;
+	if(intbtn & INT_BTN_EX2) ret |= getInput(btnEx2, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX2 : 0;
+	if(intbtn & INT_BTN_EX3) ret |= getInput(btnEx3, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX3 : 0;
+	if(intbtn & INT_BTN_EX4) ret |= getInput(btnEx4, press, drunk, ignoreDisable, eatEntirely) ? INT_BTN_EX4 : 0;
 	return ret; //No early return, to make sure all button presses are eaten that should be! -Em
 }
+
+byte checkIntBtnVal(byte intbtn, byte vals)
+{
+	return intbtn&vals;
+}
+
 bool Up()
 {
     return getInput(btnUp);

@@ -7074,7 +7074,7 @@ int32_t getPushDir(int32_t flag)
 	return -1;
 }
 
-void do_trigger_combo(int32_t layer, int32_t pos); //weapons.cpp
+void do_trigger_combo(int32_t layer, int32_t pos, int32_t special); //weapons.cpp
 
 // returns true when game over
 bool HeroClass::animate(int32_t)
@@ -17935,6 +17935,27 @@ void HeroClass::checkchest(int32_t type)
 	}
 }
 
+void trigger_sign(newcombo const& cmb)
+{
+	int32_t str = cmb.attributes[0]/10000L;
+	switch(str)
+	{
+		case -1: //Special case: Use Screen String
+			str = tmpscr->str;
+			break;
+		case -2: //Special case: Use Screen Catchall
+			str = tmpscr->catchall;
+			break;
+		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
+			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			str = game->screen_d[di][abs(str)-10] / 10000L;
+			break;
+	}
+	if(unsigned(str) >= MAXMSGS)
+		str = 0;
+	if(str)
+		donewmsg(str);
+}
 void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
 	if(toogam || z>0 || fakez>0) return;
@@ -18065,96 +18086,82 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0) return;
 	newcombo const& cmb = combobuf[found];
-	if(cmb.type != cSIGNPOST)
+	
+	byte signInput = 0;
+	bool didsign = false;
+	if(cmb.type == cSIGNPOST)
 	{
 		switch(dir)
 		{
-			case down:
-				if(!(cmb.triggerflags[0] & combotriggerBTN_TOP))
-					return;
-				break;
 			case up:
-				if(!(cmb.triggerflags[0] & combotriggerBTN_BOTTOM))
-					return;
+				if(cmb.usrflags&cflag10)
+					goto endsigns;
 				break;
-			case right:
-				if(!(cmb.triggerflags[0] & combotriggerBTN_LEFT))
-					return;
+			case down:
+				if(cmb.usrflags&cflag9)
+					goto endsigns;
 				break;
 			case left:
-				if(!(cmb.triggerflags[0] & combotriggerBTN_RIGHT))
-					return;
+				if(cmb.usrflags&cflag12)
+					goto endsigns;
+				break;
+			case right:
+				if(cmb.usrflags&cflag11)
+					goto endsigns;
 				break;
 		}
-		if(!getIntBtnInput(cmb.triggerbtn, true, true, false, false))
+		int32_t intbtn = cmb.attribytes[2];
+		
+		if(intbtn) //
 		{
-			if(cmb.type == cBUTTONPROMPT)
+			signInput = getIntBtnInput(intbtn, true, true, false, false);
+			if(!signInput)
 			{
-				prompt_combo = cmb.attributes[0]/10000;
-				prompt_cset = cmb.attribytes[0];
-				prompt_x = cmb.attrishorts[0];
-				prompt_y = cmb.attrishorts[1];
+				if(cmb.usrflags & cflag13) //display prompt
+				{
+					prompt_combo = cmb.attributes[1]/10000;
+					prompt_cset = cmb.attribytes[4];
+					prompt_x = cmb.attrishorts[0];
+					prompt_y = cmb.attrishorts[1];
+				}
+				goto endsigns; //Button not pressed
 			}
-			return;
 		}
-		do_trigger_combo(found_lyr, COMBOPOS(fx,fy));
-		return;
+		else if(pushing < 8 || pushing%8) goto endsigns; //Not pushing against sign enough
+		
+		trigger_sign(cmb);
+		didsign = true;
 	}
+endsigns:
+	if(!cmb.triggerbtn) return;
 	switch(dir)
 	{
-		case up:
-			if(cmb.usrflags&cflag10)
-				return;
-			break;
 		case down:
-			if(cmb.usrflags&cflag9)
+			if(!(cmb.triggerflags[0] & combotriggerBTN_TOP))
 				return;
 			break;
-		case left:
-			if(cmb.usrflags&cflag12)
+		case up:
+			if(!(cmb.triggerflags[0] & combotriggerBTN_BOTTOM))
 				return;
 			break;
 		case right:
-			if(cmb.usrflags&cflag11)
+			if(!(cmb.triggerflags[0] & combotriggerBTN_LEFT))
+				return;
+			break;
+		case left:
+			if(!(cmb.triggerflags[0] & combotriggerBTN_RIGHT))
 				return;
 			break;
 	}
-	int32_t intbtn = cmb.attribytes[2];
-	
-	if(intbtn) //
+	if(getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput))
+		do_trigger_combo(found_lyr, COMBOPOS(fx,fy), didsign ? ctrigIGNORE_SIGN : 0);
+	else if(cmb.type == cBUTTONPROMPT)
 	{
-		if(!getIntBtnInput(intbtn, true, true, false, false))
-		{
-			if(cmb.usrflags & cflag13) //display prompt
-			{
-				prompt_combo = cmb.attributes[1]/10000;
-				prompt_cset = cmb.attribytes[4];
-				prompt_x = cmb.attrishorts[0];
-				prompt_y = cmb.attrishorts[1];
-			}
-			return; //Button not pressed
-		}
+		prompt_combo = cmb.attributes[0]/10000;
+		prompt_cset = cmb.attribytes[0];
+		prompt_x = cmb.attrishorts[0];
+		prompt_y = cmb.attrishorts[1];
 	}
-	else if(pushing < 8 || pushing%8) return; //Not pushing against sign enough
-	
-	int32_t str = cmb.attributes[0]/10000L;
-	switch(str)
-	{
-		case -1: //Special case: Use Screen String
-			str = tmpscr->str;
-			break;
-		case -2: //Special case: Use Screen Catchall
-			str = tmpscr->catchall;
-			break;
-		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
-			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			str = game->screen_d[di][abs(str)-10] / 10000L;
-			break;
-	}
-	if(unsigned(str) >= MAXMSGS)
-		str = 0;
-	if(str)
-		donewmsg(str);
 }
 
 void HeroClass::checklocked()

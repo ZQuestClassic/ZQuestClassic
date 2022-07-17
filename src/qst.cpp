@@ -17335,6 +17335,16 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 				return qe_invalid;
 			}
 		}
+		if(section_version < 23)
+		{
+			switch(temp_combo.type) //combotriggerCMBTYPEFX now required for combotype-specific effects
+			{
+				case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+				case cTRIGGERGENERIC: case cCSWITCH:
+					temp_combo.triggerflags[0] |= combotriggerCMBTYPEFX;
+			}
+		}
 		
 		if(section_version>=12) //combo label
 		{

@@ -264,7 +264,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          9
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS           22
+#define V_COMBOS          23
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -1340,6 +1340,7 @@ enum
 #define combotriggerSTEP         0x02000000
 #define combotriggerSTEPSENS     0x04000000
 #define combotriggerSHUTTER      0x08000000
+#define combotriggerCMBTYPEFX    0x10000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -1359,6 +1360,9 @@ enum
 #define combotriggerSCRIPT10     0x00004000
 #define combotriggerAUTOMATIC    0x00008000
 #define combotriggerSECRETS	     0x00010000
+
+#define ctrigNONE        0x00
+#define ctrigIGNORE_SIGN 0x01
 
 // weapon types in game engine
 enum

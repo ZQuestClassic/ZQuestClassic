@@ -760,8 +760,9 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, i
 	}
 }
 
+void trigger_sign(newcombo const& cmb);
 //Forcibly triggers a combo at a given position
-void do_trigger_combo(int32_t layer, int32_t pos)
+void do_trigger_combo(int32_t layer, int32_t pos, int32_t special)
 {
 	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
 	mapscr* tmp = FFCore.tempScreens[layer];
@@ -771,17 +772,24 @@ void do_trigger_combo(int32_t layer, int32_t pos)
 	newcombo const& cmb = combobuf[cid];
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
-	switch(cmb.type)
-	{
-		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
-		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
-		case cTRIGGERGENERIC:
-			do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
-			break;
-		case cCSWITCH:
-			do_cswitch_combo(cmb, layer, pos);
-			break;
-	}
+	if(cmb.triggerflags[0] & combotriggerCMBTYPEFX)
+		switch(cmb.type)
+		{
+			case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+			case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+			case cTRIGGERGENERIC:
+				do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
+				break;
+			case cCSWITCH:
+				do_cswitch_combo(cmb, layer, pos);
+				break;
+			case cSIGNPOST:
+				if(!(special & ctrigIGNORE_SIGN))
+				{
+					trigger_sign(cmb);
+				}
+				break;
+		}
 	if (cmb.triggerflags[1]&combotriggerSECRETS)
 	{
 		hidden_entrance(0, true, false, -6);

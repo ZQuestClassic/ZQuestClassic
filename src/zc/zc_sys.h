@@ -94,7 +94,8 @@ void load_control_state();
 extern int32_t sfx_voice[WAV_COUNT];
 
 bool getInput(int32_t btn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false);
-bool getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false);
+byte getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false);
+byte checkIntBtnVal(byte intbtn, byte vals);
 bool Up();
 bool Down();
 bool Left();
