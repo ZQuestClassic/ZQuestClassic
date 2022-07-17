@@ -1,7 +1,7 @@
 #include "size.h"
 #include "common.h"
 #include "../zc_alleg.h"
-#include "../zquest.h"
+#include "zquest.h"
 
 namespace GUI
 {

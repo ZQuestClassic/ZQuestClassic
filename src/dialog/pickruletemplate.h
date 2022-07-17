@@ -6,7 +6,7 @@
 #include "gui/label.h"
 #include <functional>
 #include <string_view>
-#include "../zq_files.h"
+#include "zq_files.h"
 
 void call_ruletemplate_dlg();
 

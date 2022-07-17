@@ -1,9 +1,9 @@
 #include "options.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include "../tiles.h"
-#include "../zq_misc.h"
+#include "zq_misc.h"
 
 void call_options_dlg()
 {

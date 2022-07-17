@@ -2,7 +2,7 @@
 #include "../zc_alleg.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include <utility>
 
 namespace GUI

@@ -1,7 +1,7 @@
 #include "zinfodlg.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include "dialog/alert.h"
 
 extern zquestheader header;

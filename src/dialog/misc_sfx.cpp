@@ -3,7 +3,7 @@
 #include "alert.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include "../zsys.h"
 #include "gui/use_size.h"
 using GUI::sized;

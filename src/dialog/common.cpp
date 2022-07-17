@@ -1,6 +1,6 @@
 #include "common.h"
-#include "../zq_misc.h"
-#include "../zquest.h"
+#include "zq_misc.h"
+#include "zquest.h"
 #include <boost/format.hpp>
 #include <algorithm>
 #include <array>

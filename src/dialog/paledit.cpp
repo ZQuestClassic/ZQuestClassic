@@ -3,9 +3,9 @@
 #include "../zsys.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include "../gui/use_size.h"
-#include "../zq_misc.h"
+#include "zq_misc.h"
 
 extern int32_t cset_count, cset_first;
 extern RGB** gUndoPal;

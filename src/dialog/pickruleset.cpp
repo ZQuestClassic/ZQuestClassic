@@ -1,8 +1,8 @@
 #include "pickruleset.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
-#include "../zq_files.h"
+#include "zquest.h"
+#include "zq_files.h"
 #include "info.h"
 
 void call_ruleset_dlg()

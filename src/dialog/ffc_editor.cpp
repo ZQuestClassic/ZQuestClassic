@@ -1,8 +1,8 @@
 #include "ffc_editor.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
-#include "../zq_class.h"
+#include "zquest.h"
+#include "zq_class.h"
 #include "alert.h"
  
 extern int32_t Combo, CSet;

@@ -9,7 +9,7 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "parserDefs.h"
-#include "../ffasmexport.h"
+#include "ffasmexport.h"
 
 #include <cstdio>
 #include <map>

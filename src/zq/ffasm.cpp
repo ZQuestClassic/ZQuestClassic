@@ -14,7 +14,6 @@
 #include "ffasm.h"
 
 #include "zc_malloc.h"
-//#include "ffasm.h"
 #include "zquest.h"
 #include "zsys.h"
 #include "util.h"

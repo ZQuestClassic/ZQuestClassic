@@ -47,7 +47,6 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
-#include "ffasm.h"
 #include "qst.h"
 #include "util.h"
 #include "drawing.h"

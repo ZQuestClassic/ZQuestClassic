@@ -7,10 +7,10 @@
 #include "alert.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include "../zsys.h"
 #include "gui/use_size.h"
-#include "../zq_files.h"
+#include "zq_files.h"
 using GUI::sized;
 
 bool mapcount_will_affect_layers(word newmapcount);

@@ -1,8 +1,8 @@
 #include "palconvert.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
-#include "../zq_files.h"
+#include "zquest.h"
+#include "zq_files.h"
 #include "info.h"
 
 int32_t onPalFix()

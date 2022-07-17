@@ -33,7 +33,6 @@
 #include "zc_custom.h"
 #include "questReport.h"
 #include "mem_debug.h"
-#include "ffasm.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
 

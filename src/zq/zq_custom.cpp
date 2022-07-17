@@ -30,7 +30,6 @@
 #include "zsys.h"
 #include "sfx.h"
 #include "init.h"
-#include "ffasm.h"
 #include "defdata.h"
 #include "zc_malloc.h"
 #include "ffscript.h"

@@ -120,6 +120,8 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primi
 
 include_directories(./include/zlib123)
 include_directories(./src)
+# TODO: remove
+include_directories(./src/zq)
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
@@ -484,6 +486,7 @@ if(Boost_FOUND)
 	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
 	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+	target_include_directories(zquest PRIVATE src/zq)
 
 	if(MSVC AND USE_PCH)
 		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")

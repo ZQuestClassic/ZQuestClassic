@@ -1,7 +1,7 @@
 #include "foodlg.h"
 #include <gui/builder.h>
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 
 void call_foo_dlg()
 {

@@ -4,7 +4,7 @@
 #include "dialog_runner.h"
 #include "size.h"
 #include "../jwin.h"
-#include "../zquest.h"
+#include "zquest.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"

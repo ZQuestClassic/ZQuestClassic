@@ -18,7 +18,6 @@
 #include <fstream>
 //
 
-#include "ffasm.h"
 #include "zc_sys.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
@@ -487,7 +486,7 @@ extern int32_t directItemY;
 
 #include "pal.h"
 #include "zdefs.h"
-#include "zq_class.h"
+#include "zc_malloc.h"
 #include "rendertarget.h" //Needed for LoadBitmap
 
 #include "zc_custom.h"
