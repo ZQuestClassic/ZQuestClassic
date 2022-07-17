@@ -2518,7 +2518,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(25,"Step->"),
 								TRIGFLAG(26,"Step-> (Sensitive)")
 							),
-							Row(
+							Rows<3>(
 								framed = true,
 								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
