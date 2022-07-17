@@ -92,6 +92,8 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Initializing Allegro... "); //{
 	allegro_init();
 
+	all_set_display_flags(ALLEGRO_NOFRAME);
+
 	zc_set_config_standard();
 
 	if(install_timer() < 0

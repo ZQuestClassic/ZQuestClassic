@@ -39,6 +39,7 @@ static int _a5_display_width = 0;
 static int _a5_display_height = 0;
 static int _a5_display_scale = 1;
 static bool _a5_display_fullscreen = false;
+static int _a5_display_flags = 0;
 static volatile int _a5_display_creation_done = 0;
 static ALLEGRO_EVENT_QUEUE * _a5_display_thread_event_queue = NULL;
 static ALLEGRO_TIMER * _a5_display_thread_timer = NULL;
@@ -69,16 +70,20 @@ static bool _a5_setup_screen(int w, int h)
 {
   ALLEGRO_STATE old_state;
   int pixel_format;
+
+  int flags = _a5_display_flags;
 #ifdef __APPLE__
   // https://www.allegro.cc/forums/thread/615982/1018935
-  if (_a5_display_fullscreen) al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+  if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN_WINDOW;
 #else
-  if (_a5_display_fullscreen) al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+  if (_a5_display_fullscreen) flags |= ALLEGRO_FULLSCREEN;
 #endif
 // TODO: currently broken on mac.
 #ifndef __APPLE__
-  else al_set_new_display_flags(ALLEGRO_RESIZABLE);
+  else flags |= ALLEGRO_RESIZABLE;
 #endif
+
+  al_set_new_display_flags(flags);
 
   _a5_display = al_create_display(w, h);
   if(!_a5_display)
@@ -632,6 +637,17 @@ void all_render_screen(void)
 void all_disable_threaded_display(void)
 {
   _a5_disable_threaded_display = true;
+}
+
+// local edit
+int all_get_display_flags()
+{
+  return _a5_display_flags;
+}
+
+void all_set_display_flags(int flags)
+{
+  _a5_display_flags = flags;
 }
 
 // local edit
