@@ -390,14 +390,15 @@ void Z_title(const char *format,...)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s\n", buf);
 }
 
-#if defined(IS_ZQUEST) || defined(IS_PLAYER)
-extern byte quest_rules[QUESTRULES_SIZE];
-#endif
+static std::function<bool()> should_zprint_cb = []() { return true; };
+void set_should_zprint_cb(std::function<bool()> cb)
+{
+    should_zprint_cb = cb;
+}
+
 void zprint(const char * const format,...)
 {
-	#if defined(IS_ZQUEST) || defined(IS_PLAYER)
-	if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
-	#endif
+	if(should_zprint_cb() || DEVLEVEL > 0)
 	{
 		char buf[2048];
 		

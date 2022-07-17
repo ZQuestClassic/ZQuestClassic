@@ -1,5 +1,6 @@
 #include "zdefs.h"
 #include "jwin.h"
+#include "zapp.h"
 
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
@@ -158,6 +159,16 @@ void save_themefile(char const* fpath, PALETTE pal)
 	pop_config_state();
 }
 
+const char* get_app_theme_filename()
+{
+	switch (get_app_id()) {
+		case App::zelda: return "_custom_zc.ztheme";
+		case App::zquest: return "_custom_zq.ztheme";
+		case App::launcher: return "_custom_zcl.ztheme";
+		default: return "_custom.ztheme";
+	}
+}
+
 void load_udef_colorset(char const* fpath)
 {
 	load_udef_colorset(fpath, RAMpal);
@@ -177,16 +188,8 @@ void load_udef_colorset(char const* fpath, PALETTE pal)
 		&& get_config_int("Theme","dvc1_r",4)==get_config_int("Theme","dvc1_r",5))
 	{
 		//Write these back to the custom theme file
-		#ifdef IS_ZQUEST
-		strcpy(tmp_themefile, "_custom_zq.ztheme");
-		#elif defined(IS_PLAYER)
-		strcpy(tmp_themefile, "_custom_zc.ztheme");
-		#elif defined(IS_LAUNCHER)
-		strcpy(tmp_themefile, "_custom_zcl.ztheme");
-		#else
-		strcpy(tmp_themefile, "_custom.ztheme");
-		#endif
-		load_themefile(STANDARD_CFG, pal);
+		strcpy(tmp_themefile, get_app_theme_filename());
+		load_themefile(zc_get_standard_config_name(), pal);
 		save_themefile(tmp_themefile, pal);
 	}
 	else load_themefile(tmp_themefile, pal);
@@ -437,7 +440,7 @@ void load_colorset(int32_t colorset, PALETTE pal)
 		case 99:  //User Defined
 		{
 			udef = true;
-			load_udef_colorset(STANDARD_CFG, pal);
+			load_udef_colorset(zc_get_standard_config_name(), pal);
 			strcpy(themefile, tmp_themefile);
 		}
 		break;

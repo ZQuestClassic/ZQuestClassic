@@ -46,8 +46,8 @@ src/gui/checkbox_qr.cpp
 src/gui/radio.cpp
 src/gui/radioset.cpp
 src/gui/colorsel.cpp
-src/gui/seltile_swatch.cpp
-src/gui/selcombo_swatch.cpp
+src/zq/gui/seltile_swatch.cpp
+src/zq/gui/selcombo_swatch.cpp
 src/gui/tileanim_frame.cpp
 src/gui/palette_frame.cpp
 src/gui/cornerselect.cpp

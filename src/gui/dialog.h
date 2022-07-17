@@ -7,13 +7,6 @@
 #include <dialog/common.h>
 #include <memory>
 
-#ifdef IS_PLAYER
-extern bool is_sys_pal;
-void system_pal();
-void game_pal();
-void update_hw_screen(bool force);
-#endif
-
 namespace GUI
 {
 
@@ -30,18 +23,8 @@ public:
 	
 	inline void show()
 	{
-		#ifdef IS_PLAYER
-		bool p = !is_sys_pal;
-		if(p) system_pal();
-		update_hw_screen();
-		#endif
-		
 		runner = DialogRunner();
 		runner.run(*static_cast<T*>(this));
-		
-		#ifdef IS_PLAYER
-		if(p) game_pal();
-		#endif
 		position_mouse_z(0);
 	}
 	

@@ -7,7 +7,6 @@ set(LAUNCHER_SOURCES
 src/launcher/launcher.cpp
 src/util.cpp
 src/random.cpp
-src/zinfo.cpp
 src/zsys.cpp
 src/zapp.cpp
 src/alleg_compat.cpp

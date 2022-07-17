@@ -1,30 +1,25 @@
-#ifndef ZC_GUI_SELTILE_SWATCH_H
-#define ZC_GUI_SELTILE_SWATCH_H
+#ifndef ZC_GUI_SELCOMBO_SWATCH_H
+#define ZC_GUI_SELCOMBO_SWATCH_H
 
-#include "widget.h"
-#include "dialog_ref.h"
+#include "gui/widget.h"
+#include "gui/dialog_ref.h"
 
 namespace GUI
 {
 
-class SelTileSwatch: public Widget
+class SelComboSwatch: public Widget
 {
 public:
-	SelTileSwatch();
+	SelComboSwatch();
 
-	void setTile(int32_t value);
+	void setCombo(int32_t value);
 	void setCSet(int32_t value);
-	void setFlip(int32_t value);
-	void setShowFlip(bool val);
 	void setShowVals(bool showVals);
-	
-	void click();
 
-	int32_t getTile();
+	int32_t getCombo();
 	int32_t getCSet();
-	int32_t getFlip();
 
-	void setOnSelectFunc(std::function<void(int32_t,int32_t,int32_t)> newOnSelect)
+	void setOnSelectFunc(std::function<void(int32_t,int32_t)> newOnSelect)
 	{
 		onSelectFunc = newOnSelect;
 	}
@@ -37,11 +32,10 @@ public:
 protected:
 	int32_t message;
 private:
-	int32_t tile, cset, flip;
-	bool showFlip;
+	int32_t combo, cset;
 	bool showsVals;
 	DialogRef alDialog;
-	std::function<void(int32_t,int32_t,int32_t)> onSelectFunc;
+	std::function<void(int32_t,int32_t)> onSelectFunc;
 	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

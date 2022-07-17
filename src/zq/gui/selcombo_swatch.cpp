@@ -1,23 +1,19 @@
 #include "selcombo_swatch.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "size.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "gui/size.h"
+#include "gui/use_size.h"
 #include "../jwin.h"
-#include "zquest.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"
 
-#ifdef IS_ZQUEST
+#include "zquest.h"
 #include "zq_tiles.h"
-extern int32_t Combo, CSet;
-#include "use_size.h"
-#endif
 
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 {
-#ifdef IS_ZQUEST
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -86,8 +82,6 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 			break;
 	}
-#endif
-	return D_O_K;
 }
 
 namespace GUI

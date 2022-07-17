@@ -11,6 +11,7 @@ src/zc/zelda.cpp
 src/defdata.cpp
 src/qst.cpp
 src/zc/zc_init.cpp
+src/zc/zc_module.cpp
 src/zc/zc_items.cpp
 src/init.cpp
 src/win32.cpp
@@ -18,7 +19,6 @@ src/alleg_compat.cpp
 src/util.cpp
 src/drawing.cpp
 src/random.cpp
-src/module.cpp
 src/fonts.cpp
 src/zinfo.cpp
 src/zdefs.cpp

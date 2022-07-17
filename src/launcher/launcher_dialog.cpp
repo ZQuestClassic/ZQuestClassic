@@ -2,9 +2,9 @@
 #include "dialog/common.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
-#include "dialog/theme_editor.h"
+#include "theme_editor.h"
 #include "launcher.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
 #include <boost/format.hpp>
 
 LauncherDialog::LauncherDialog(){}

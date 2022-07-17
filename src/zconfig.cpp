@@ -1,15 +1,27 @@
 #include "zc_alleg.h"
 #include "zconfig.h"
+#include "zapp.h"
+
+char const* zc_get_standard_config_name()
+{
+	switch (get_app_id()) {
+		case App::zelda: return "zc.cfg";
+		case App::zquest: return "zquest.cfg";
+		case App::launcher: return "zcl.cfg";
+		case App::zscript: return "zscript.cfg";
+		default: assert(false);
+	}
+}
 
 void zc_set_config_standard()
 {
 	flush_config_file();
-	set_config_file(STANDARD_CFG);
+	set_config_file(zc_get_standard_config_name());
 }
 
 bool zc_config_standard_exists()
 {
-	return exists(STANDARD_CFG);
+	return exists(zc_get_standard_config_name());
 }
 
 static char cfg_str[2048];

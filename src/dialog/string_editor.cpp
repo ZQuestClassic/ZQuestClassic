@@ -4,6 +4,7 @@
 #include "editbox.h"
 #include "EditboxNew.h"
 #include "info.h"
+#include "subscr.h"
 #include <gui/builder.h>
 
 extern bool saved;
@@ -28,11 +29,38 @@ void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter)
 	StringEditorDialog(ind, templateID, addAfter).show();
 }
 
+extern const char *msgfont_str[font_max];
+extern const char *shadowstyle_str[sstsMAX];
+
+GUI::ListData createFontsListData()
+{
+	std::vector<std::string> strings;
+
+	for(auto q = 0; q < font_max; ++q)
+	{
+		strings.push_back(msgfont_str[q]);
+	}
+
+	return GUI::ListData(strings);
+}
+
+GUI::ListData createShadowTypesListData()
+{
+	std::vector<std::string> strings;
+
+	for(auto q = 0; q < sstsMAX; ++q)
+	{
+		strings.push_back(shadowstyle_str[q]);
+	}
+
+	return GUI::ListData(strings);
+}
+
 StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t addAfter)
 	: strIndex(ind), tmpMsgStr(MsgStrings[ind]),
-	list_font(GUI::ListData::fonts()),
+	list_font(createFontsListData()),
 	list_nextstr(GUI::ListData::nullData()),
-	list_shtype(GUI::ListData::shadowtypes()),
+	list_shtype(createShadowTypesListData()),
 	addAfter(addAfter)
 {
 	::ListData msgs_list(msgslist, &font);

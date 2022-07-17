@@ -17,7 +17,7 @@ src/launcher/launcher_dialog.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
 src/dialog/alertfunc.cpp
-src/dialog/theme_editor.cpp
+src/launcher/theme_editor.cpp
 
 src/gui/button.cpp
 src/gui/checkbox.cpp

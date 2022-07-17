@@ -13,6 +13,7 @@
 #define __GTHREAD_HIDE_WIN32API 1
 
 #include "precompiled.h" //always first
+#include "zc_sys.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,6 @@
 #include <unistd.h>
 #endif
 
-#include "zdefs.h"
 #include "metadata/metadata.h"
 #include "zelda.h"
 #include "tiles.h"

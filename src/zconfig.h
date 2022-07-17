@@ -1,18 +1,7 @@
 #ifndef ZC_ZCONFIG_H
 #define ZC_ZCONFIG_H
 
-#ifdef IS_ZQUEST
-#define STANDARD_CFG "zquest.cfg"
-#elif defined IS_LAUNCHER
-#define STANDARD_CFG "zcl.cfg"
-#elif defined IS_PLAYER
-#define STANDARD_CFG "zc.cfg"
-#elif defined IS_PARSER
-#define STANDARD_CFG "zscript.cfg"
-#else
-#define STANDARD_CFG "ag.cfg"
-#endif
-
+char const* zc_get_standard_config_name();
 void zc_set_config_standard();
 bool zc_config_standard_exists();
 
@@ -31,4 +20,3 @@ void zc_set_config(char const* cfg_file, char const* header, char const* name, d
 void zc_set_config(char const* cfg_file, char const* header, char const* name, char const* val);
 
 #endif
-

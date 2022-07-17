@@ -24,12 +24,16 @@
 #include "text_field.h"
 #include "window.h"
 #include "widget.h"
-#include "seltile_swatch.h"
-#include "selcombo_swatch.h"
 #include "tileanim_frame.h"
 #include "palette_frame.h"
 #include "cornerselect.h"
 #include "msgstr_preview.h"
+
+#ifdef IS_ZQUEST
+#include "zq/gui/seltile_swatch.h"
+#include "zq/gui/selcombo_swatch.h"
+#endif
+
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -182,6 +186,7 @@ inline std::shared_ptr<DummyWidget> makeDummyWidget()
 	return std::make_shared<DummyWidget>();
 }
 
+#ifdef IS_ZQUEST
 inline std::shared_ptr<SelTileSwatch> makeSelTileSwatch()
 {
 	return std::make_shared<SelTileSwatch>();
@@ -191,6 +196,7 @@ inline std::shared_ptr<SelComboSwatch> makeSelComboSwatch()
 {
 	return std::make_shared<SelComboSwatch>();
 }
+#endif
 
 inline std::shared_ptr<CornerSwatch> makeCornerSwatch()
 {
@@ -410,6 +416,7 @@ ZCGUI_BUILDER_START(DummyWidget)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
 
+#ifdef IS_ZQUEST
 ZCGUI_BUILDER_START(SelTileSwatch)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
 	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
@@ -429,6 +436,7 @@ ZCGUI_BUILDER_START(SelComboSwatch)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(SelComboSwatch, SelComboSwatch, makeSelComboSwatch)
+#endif
 
 ZCGUI_BUILDER_START(CornerSwatch)
 	ZCGUI_ACCEPT_PROP(val, setVal, int32_t)

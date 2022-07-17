@@ -228,6 +228,8 @@ void throttleFPS()
     timeEndPeriod(1);
 #endif
 
+	all_mark_screen_dirty();
+
     logic_counter = 0;
 }
 
@@ -1895,7 +1897,7 @@ int32_t init_game()
 	*/
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
-	game->load_genscript();
+	load_genscript(*game);
 	genscript_timing = SCR_TIMING_START_FRAME;
 	timeExitAllGenscript(GENSCR_ST_RELOAD);
 	flushItemCache();
@@ -4397,7 +4399,10 @@ int32_t onFullscreen()
 
 int main(int argc, char **argv)
 {
-	common_main_setup(argc, argv);
+	common_main_setup(App::zelda, argc, argv);
+	set_should_zprint_cb([]() {
+		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+	});
 
 	bool onlyInstance=true;
 	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
@@ -4489,7 +4494,7 @@ int main(int argc, char **argv)
 	}
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(STANDARD_CFG);
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
@@ -6119,6 +6124,8 @@ void paymagiccost(int32_t itemid, bool ignoreTimer)
 		payCost(id.cost_counter[1], id.cost_amount[1], id.magiccosttimer[1], ignoreTimer);
 }
 
+std::string getComboTypeHelpText(int32_t id) { return ""; }
+std::string getMapFlagHelpText(int32_t id) { return ""; }
 
 /*** end of zelda.cc ***/
 

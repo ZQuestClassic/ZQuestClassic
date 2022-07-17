@@ -83,7 +83,7 @@ void hit_close_button()
 
 int32_t main(int32_t argc, char* argv[])
 {
-	common_main_setup(argc, argv);
+	common_main_setup(App::launcher, argc, argv);
 
 	set_uformat(U_ASCII);
 	zc_srand(time(0));
@@ -93,7 +93,7 @@ int32_t main(int32_t argc, char* argv[])
 	allegro_init();
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(STANDARD_CFG);
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);

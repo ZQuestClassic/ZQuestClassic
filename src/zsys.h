@@ -18,6 +18,8 @@
 #include "zdefs.h"
 #include "jwin.h"
 
+#include <functional>
+
 #define FILENAME8_3   0
 #define FILENAME8__   1
 #define FILENAMEALL   2
@@ -65,6 +67,7 @@ void Z_error_fatal(const char *format,...);
 void Z_error(const char *format,...);
 void Z_message(const char *format,...);
 void Z_title(const char *format,...);
+void set_should_zprint_cb(std::function<bool()> cb);
 void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
 
@@ -191,4 +194,3 @@ void sane_destroy_bitmap(BITMAP **bmp);
 extern bool zconsole;
 
 #endif                                                      // _ZSYS_H_
-

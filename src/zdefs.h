@@ -120,19 +120,6 @@
   GFX_QUARTZ_WINDOW
   */
 
-
-#ifdef IS_ZQUEST
-#define PROJECT_MAIN_HEADER "zquest.h"
-#elif defined IS_LAUNCHER
-#define PROJECT_MAIN_HEADER "launcher/launcher.h"
-#elif defined IS_PLAYER
-#define PROJECT_MAIN_HEADER "zelda.h"
-#elif defined IS_PARSER
-#define PROJECT_MAIN_HEADER "parser/parser.h"
-#else
-#define PROJECT_MAIN_HEADER "zdefs.h"
-#endif
-
 #include <cstdio>
 #include <math.h>
 #include <string.h>
@@ -4304,8 +4291,6 @@ struct gamedata
 	void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
 	void Copy(const gamedata& g);
 	void clear_genscript();
-	void load_genscript();
-	void save_genscript();
 	
 	gamedata &operator = (const gamedata& data)
 	{

@@ -47,6 +47,13 @@ public:
 
 	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
 	{}
+	ListData(std::vector<std::string> strings)
+	{
+		for(int i = 0; i < strings.size(); i++)
+		{
+			add(strings[i], i);
+		}
+	}
 	
 	ListData(::ListData const& jwinldata, int32_t valoffs = 0);
 
@@ -148,10 +155,6 @@ public:
 	static ListData ffc_script();
 	static ListData lweapon_script();
 	static ListData combodata_script();
-#endif
-#if IS_ZQUEST
-static ListData fonts();
-static ListData shadowtypes();
 #endif
 	
 	static ListData const& deftypes();

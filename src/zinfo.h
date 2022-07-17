@@ -14,16 +14,14 @@ struct zinfo
 	void clear_ctr_name();
 	void clear();
 	zinfo();
-#ifdef IS_ZQUEST
+
 	//ZQ Only
 	char *ic_help_string[itype_max];
 	char *ctype_name[cMAX];
 	char *ctype_help_string[cMAX];
 	char *mf_name[mfMAX];
 	char *mf_help_string[mfMAX];
-#else
-	//ZC Only
-#endif
+
 	//Shared
 	char *ic_name[itype_max];
 	char *ctr_name[MAX_COUNTERS];
@@ -46,9 +44,7 @@ struct zinfo
 
 extern zinfo ZI;
 
-#ifdef IS_ZQUEST
 int32_t writezinfo(PACKFILE *f, zinfo const& z);
-#endif
 int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr);
 
 #endif

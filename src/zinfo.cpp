@@ -1,3 +1,6 @@
+// TODO: this file could be split up between ZC and ZQ.
+
+#include "zapp.h"
 #include "zdefs.h"
 #include "zinfo.h"
 #include "jwin.h"
@@ -5,7 +8,6 @@
 #include "fonts.h"
 
 
-#ifdef IS_ZQUEST
 std::string getComboTypeHelpText(int32_t id);
 std::string getMapFlagHelpText(int32_t id);
 
@@ -228,8 +230,7 @@ const char map_flag_default_string[mfMAX][255] =
 	"-mf240","-mf241","-mf242","-mf243","-mf244","-mf245","-mf246","-mf247","-mf248","-mf249", "-mf250","-mf251","-mf252","-mf253","-mf254",
 	"-Extended (Extended Flag Editor)"
 };
-#else
-#endif
+
 const char default_itype_strings[itype_max][255] = 
 { 
 	"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
@@ -291,28 +292,23 @@ zinfo ZI;
 
 zinfo::zinfo()
 {
-#ifdef IS_ZQUEST
 	memset(ic_help_string, 0, sizeof(ic_help_string));
 	memset(ctype_name, 0, sizeof(ctype_name));
 	memset(ctype_help_string, 0, sizeof(ctype_help_string));
 	memset(mf_name, 0, sizeof(mf_name));
 	memset(mf_help_string, 0, sizeof(mf_help_string));
-#else
-#endif
 	memset(ic_name, 0, sizeof(ic_name));
 	memset(ctr_name, 0, sizeof(ctr_name));
 }
 
 void zinfo::clear_ic_help()
 {
-#ifdef IS_ZQUEST
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		if(ic_help_string[q])
 			zc_free(ic_help_string[q]);
 		ic_help_string[q] = nullptr;
 	}
-#endif
 }
 void zinfo::clear_ic_name()
 {
@@ -325,47 +321,39 @@ void zinfo::clear_ic_name()
 }
 void zinfo::clear_ctype_name()
 {
-#ifdef IS_ZQUEST
 	for(auto q = 0; q < cMAX; ++q)
 	{
 		if(ctype_name[q])
 			zc_free(ctype_name[q]);
 		ctype_name[q] = nullptr;
 	}
-#endif
 }
 void zinfo::clear_ctype_help()
 {
-#ifdef IS_ZQUEST
 	for(auto q = 0; q < cMAX; ++q)
 	{
 		if(ctype_help_string[q])
 			zc_free(ctype_help_string[q]);
 		ctype_help_string[q] = nullptr;
 	}
-#endif
 }
 void zinfo::clear_mf_name()
 {
-#ifdef IS_ZQUEST
 	for(auto q = 0; q < mfMAX; ++q)
 	{
 		if(mf_name[q])
 			zc_free(mf_name[q]);
 		mf_name[q] = nullptr;
 	}
-#endif
 }
 void zinfo::clear_mf_help()
 {
-#ifdef IS_ZQUEST
 	for(auto q = 0; q < mfMAX; ++q)
 	{
 		if(mf_help_string[q])
 			zc_free(mf_help_string[q]);
 		mf_help_string[q] = nullptr;
 	}
-#endif
 }
 void zinfo::clear_ctr_name()
 {
@@ -409,19 +397,11 @@ bool zinfo::isUsableItemclass(size_t q)
 }
 bool zinfo::isUsableComboType(size_t q)
 {
-#ifdef IS_ZQUEST
 	return valid_str(default_ctype_strings[q],'-');
-#else
-	return true;
-#endif
 }
 bool zinfo::isUsableMapFlag(size_t q)
 {
-#ifdef IS_ZQUEST
 	return valid_str(map_flag_default_string[q],'-');
-#else
-	return true;
-#endif
 }
 bool zinfo::isUsableCtr(int32_t q)
 {
@@ -439,56 +419,41 @@ char const* zinfo::getItemClassName(size_t q)
 }
 char const* zinfo::getItemClassHelp(size_t q)
 {
-#ifdef IS_ZQUEST
 	if(valid_str(ic_help_string[q]))
 		return ic_help_string[q];
 	if(valid_str(itemclass_help_string_defaults[q]))
 		return itemclass_help_string_defaults[q];
-#endif
-	return nilptr;
 }
 char const* zinfo::getComboTypeName(size_t q)
 {
-#ifdef IS_ZQUEST
 	if(valid_str(ctype_name[q]))
 		return ctype_name[q];
 	if(valid_str(default_ctype_strings[q]))
 		return default_ctype_strings[q];
-#endif
-	return nilptr;
 }
 static std::string ctype_help_buff;
 char const* zinfo::getComboTypeHelp(size_t q)
 {
-#ifdef IS_ZQUEST
 	if(valid_str(ctype_help_string[q]))
 		return ctype_help_string[q];
 	ctype_help_buff = getComboTypeHelpText(q);
 	if(ctype_help_buff.size())
 		return ctype_help_buff.c_str();
-#endif
-	return nilptr;
 }
 char const* zinfo::getMapFlagName(size_t q)
 {
-#ifdef IS_ZQUEST
 	if(valid_str(mf_name[q]))
 		return mf_name[q];
 	if(valid_str(map_flag_default_string[q]))
 		return map_flag_default_string[q];
-#endif
-	return nilptr;
 }
 char const* zinfo::getMapFlagHelp(size_t q)
 {
-#ifdef IS_ZQUEST
 	if(valid_str(mf_help_string[q]))
 		return mf_help_string[q];
 	std::string defstr = getMapFlagHelpText(q);
 	if(defstr.size())
 		return defstr.c_str();
-#endif
-	return nilptr;
 }
 char const* zinfo::getCtrName(int32_t q)
 {
@@ -513,11 +478,8 @@ void zinfo::copyFrom(zinfo const& other)
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		assignchar(ic_name+q, other.ic_name[q]);
-#ifdef IS_ZQUEST
 		assignchar(ic_help_string+q, other.ic_help_string[q]);
-#endif
 	}
-#ifdef IS_ZQUEST
 	for(auto q = 0; q < cMAX; ++q)
 	{
 		assignchar(ctype_name+q, other.ctype_name[q]);
@@ -528,10 +490,8 @@ void zinfo::copyFrom(zinfo const& other)
 		assignchar(mf_name+q, other.mf_name[q]);
 		assignchar(mf_help_string+q, other.mf_help_string[q]);
 	}
-#endif
 }
 
-#ifdef IS_ZQUEST
 int32_t writezinfo(PACKFILE *f, zinfo const& z)
 {
 	dword section_id=ID_ZINFO;
@@ -681,7 +641,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	
 	new_return(0);
 }
-#endif
+
 int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 {
 	int32_t dummy;
@@ -729,11 +689,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			if(!pfread(p,htxtsz,f,true))
 				return qe_invalid;
 			p[htxtsz] = 0;
-#ifdef IS_ZQUEST
 			z.ic_help_string[q] = p;
-#else
-			zc_free(p);
-#endif
 		}
 	}
 	
@@ -753,11 +709,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				if(!pfread(p,namesize,f,true))
 					return qe_invalid;
 				p[namesize] = 0;
-#ifdef IS_ZQUEST
 				z.ctype_name[q] = p;
-#else
-				zc_free(p);
-#endif
 			}
 			
 			word htxtsz;
@@ -769,11 +721,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				if(!pfread(p,htxtsz,f,true))
 					return qe_invalid;
 				p[htxtsz] = 0;
-#ifdef IS_ZQUEST
 				z.ctype_help_string[q] = p;
-#else
-				zc_free(p);
-#endif
 			}
 		}
 		
@@ -791,11 +739,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				if(!pfread(p,namesize,f,true))
 					return qe_invalid;
 				p[namesize] = 0;
-#ifdef IS_ZQUEST
 				z.mf_name[q] = p;
-#else
-				zc_free(p);
-#endif
 			}
 			
 			word htxtsz;
@@ -807,17 +751,12 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				if(!pfread(p,htxtsz,f,true))
 					return qe_invalid;
 				p[htxtsz] = 0;
-#ifdef IS_ZQUEST
 				z.mf_help_string[q] = p;
-#else
-				zc_free(p);
-#endif
 			}
 		}
 	}
-	else
+	else if (get_app_id() == App::zquest)
 	{
-#ifdef IS_ZQUEST
 		memset(z.ctype_name, 0, sizeof(z.ctype_name));
 		memset(z.ctype_help_string, 0, sizeof(z.ctype_help_string));
 		memset(z.mf_name, 0, sizeof(z.mf_name));
@@ -840,7 +779,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 					z.mf_help_string[q][namesize] = 0;
 				}
 			}
-#endif
 	}
 	
 	if(section_version > 1)
@@ -875,13 +813,11 @@ bool zinfo::isNull()
 	for(auto q = 0; q < itype_max; ++q)
 	{
 		if(ic_name[q]) return false;
-#ifdef IS_ZQUEST
 		if(ic_help_string[q]) return false;
 		if(ctype_name[q]) return false;
 		if(ctype_help_string[q]) return false;
 		if(mf_name[q]) return false;
 		if(mf_help_string[q]) return false;
-#endif
 	}
 	return true;
 }

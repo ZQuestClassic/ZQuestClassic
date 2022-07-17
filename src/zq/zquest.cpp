@@ -29774,10 +29774,14 @@ int32_t main(int32_t argc,char **argv)
 	//::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
+
+	common_main_setup(App::zquest, argc, argv);
+	set_should_zprint_cb([]() {
+		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+	});
+
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
 
-	common_main_setup(argc, argv);
-	
 	//InitCrtDebug();
 	
 	// Before anything else, let's register our custom trace handler:
@@ -29937,7 +29941,7 @@ int32_t main(int32_t argc,char **argv)
 	three_finger_flag=false;
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(STANDARD_CFG);
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);

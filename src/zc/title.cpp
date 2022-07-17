@@ -2652,7 +2652,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			new_return(71);
 		}
-		savedata[i].save_genscript(); //read the values into the save object
+		save_genscript(savedata[i]); //read the values into the save object
 		for(size_t q=0; q<NUMSCRIPTSGENERIC; q++)
         {
 			if(!p_putc(savedata[i].gen_doscript[q] ? 1 : 0,f))

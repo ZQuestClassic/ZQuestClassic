@@ -225,7 +225,7 @@ void updateIncludePaths()
 
 int32_t main(int32_t argc, char **argv)
 {
-	common_main_setup(argc, argv);
+	common_main_setup(App::zscript, argc, argv);
 	bool linked = true;
 	if (!used_switch(argc, argv, "-linked"))
 	{
@@ -298,7 +298,7 @@ int32_t main(int32_t argc, char **argv)
 	
 	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config(STANDARD_CFG,"Compiler","run_string","run");
+	char const* runstr = zc_get_config(zc_get_standard_config_name(),"Compiler","run_string","run");
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.

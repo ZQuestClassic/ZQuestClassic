@@ -14,6 +14,7 @@
 
 #include "zdefs.h"
 #include "jwinfsel.h"
+
 extern MENU the_player_menu[];
 extern MENU the_player_menu2[];
 extern bool is_sys_pal;

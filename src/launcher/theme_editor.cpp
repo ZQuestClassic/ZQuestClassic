@@ -4,7 +4,7 @@
 #include "jwinfsel.h"
 #include <gui/builder.h>
 #include <boost/format.hpp>
-#include PROJECT_MAIN_HEADER
+#include "launcher/launcher.h"
 
 extern int32_t zq_screen_w, zq_screen_h;
 extern PALETTE RAMpal;

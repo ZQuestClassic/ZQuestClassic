@@ -15,6 +15,8 @@ void sentry_atexit()
 }
 #endif
 
+static App app_id = App::undefined;
+
 bool is_in_osx_application_bundle()
 {
 #ifdef __APPLE__
@@ -24,8 +26,10 @@ bool is_in_osx_application_bundle()
 #endif
 }
 
-void common_main_setup(int argc, char **argv)
+void common_main_setup(App id, int argc, char **argv)
 {
+    app_id = id;
+
 #ifdef HAS_SENTRY
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
@@ -44,4 +48,9 @@ void common_main_setup(int argc, char **argv)
         chdir(std::filesystem::path(argv[0]).parent_path().c_str());
     }
 #endif
+}
+
+App get_app_id()
+{
+    return app_id;
 }

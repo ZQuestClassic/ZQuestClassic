@@ -3,8 +3,7 @@
 #include "zsys.h"
 
 extern zcmodule moduledata;
-//Don't define these for ZC here, that's in ffscript.cpp
-#ifndef IS_PLAYER
+
 const char CustomComboAttributeTypes[20][4][17] =
 {
 	{ "cCUSTOM1ATTRIB0", "cCUSTOM1ATTRIB1", "cCUSTOM1ATTRIB2", "cCUSTOM1ATTRIB3" }, 
@@ -746,5 +745,3 @@ bool ZModule::init(bool d) //bool default
 	zc_set_config_standard();
 	return true;
 }
-#endif
-
