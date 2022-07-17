@@ -16,7 +16,7 @@ src/particles.cpp
 src/qst.cpp
 src/sprite.cpp
 src/subscr.cpp
-src/zc_custom.cpp
+src/zc/zc_custom.cpp
 src/init.cpp
 src/alleg_compat.cpp
 src/util.cpp

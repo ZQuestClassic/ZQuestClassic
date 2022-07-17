@@ -5,13 +5,13 @@ set(ZELDA_CORE_SOURCES
 # Add or remove files here
 ################################
 src/zscriptversion.cpp
-src/ffscript.cpp
+src/zc/ffscript.cpp
 src/gamedata.cpp
-src/zelda.cpp
+src/zc/zelda.cpp
 src/defdata.cpp
 src/qst.cpp
-src/zc_init.cpp
-src/zc_items.cpp
+src/zc/zc_init.cpp
+src/zc/zc_items.cpp
 src/init.cpp
 src/win32.cpp
 src/alleg_compat.cpp

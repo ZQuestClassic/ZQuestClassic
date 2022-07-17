@@ -803,7 +803,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 
 	function->node = &host;
 }
-#include "../ffscript.h"
+#include "ffscript.h"
 extern FFScript FFCore;
 void SemanticAnalyzer::caseScript(ASTScript& host, void*)
 {

@@ -9,17 +9,17 @@ src/zapp.cpp
 src/aglogo.cpp
 src/colors.cpp
 src/debug.cpp
-src/decorations.cpp
+src/zc/decorations.cpp
 src/editbox.cpp
 src/EditboxModel.cpp
 src/EditboxView.cpp
-src/ending.cpp
-src/matrix.cpp
+src/zc/ending.cpp
+src/zc/matrix.cpp
 src/pal.cpp
 src/jwinfsel.cpp
 src/tab_ctl.cpp
-src/title.cpp
-src/zc_custom.cpp
+src/zc/title.cpp
+src/zc/zc_custom.cpp
 src/jwin.cpp
 
 src/gui/button.cpp
@@ -54,8 +54,6 @@ src/dialog/init_data.cpp
 src/dialog/cheat_dialog.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
-
-src/gui/zc_gui.cpp
 
 ## End of Zelda GUI module
 )

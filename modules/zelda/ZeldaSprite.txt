@@ -4,16 +4,16 @@ set(ZELDA_SPRITE_SOURCES
 ################################
 # Add or remove files here
 ################################
-src/zc_sprite.cpp
+src/zc/zc_sprite.cpp
 src/guys.cpp
 src/weapons.cpp
-src/hero.cpp
+src/zc/hero.cpp
 src/particles.cpp
 src/items.cpp
 src/sprite.cpp
 src/tiles.cpp
 src/maps.cpp
-src/script_drawing.cpp
+src/zc/script_drawing.cpp
 
 ## End of Zelda Sprite module
 )

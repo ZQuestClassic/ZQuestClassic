@@ -122,6 +122,7 @@ include_directories(./include/zlib123)
 include_directories(./src)
 # TODO: remove
 include_directories(./src/zq)
+include_directories(./src/zc)
 
 set(ZCSOUNDSOURCES
 	src/zcmusic.cpp
@@ -440,6 +441,7 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
+target_include_directories(zelda PRIVATE src/zc)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(WIN32)

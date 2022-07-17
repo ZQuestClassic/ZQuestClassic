@@ -1,4 +1,4 @@
-#include "../ffscript.h"
+#include "ffscript.h"
 #include "util.h"
 #include "parser/ZScript.h"
 #include "parser/parser.h"
