@@ -130,11 +130,6 @@ set(ZCSOUNDSOURCES
 	src/alleg_compat.cpp
 )
 
-set(ROMVIEW_MODULES
-	${CMAKE_SOURCE_DIR}/modules/romview/RomviewCore.txt
-	${CMAKE_SOURCE_DIR}/modules/romview/RomviewGUI.txt
-)
-
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaGUI.txt
@@ -158,7 +153,7 @@ set(LAUNCHER_MODULES
 	${CMAKE_SOURCE_DIR}/modules/launcher/LauncherGUI.txt
 )
 
-foreach(module ${ROMVIEW_MODULES} ${ZELDA_MODULES} ${ZQUEST_MODULES} ${LAUNCHER_MODULES} ${ZSCRIPT_MODULES})
+foreach(module ${ZELDA_MODULES} ${ZQUEST_MODULES} ${LAUNCHER_MODULES} ${ZSCRIPT_MODULES})
 	include(${module})
 	set_source_files_properties(${module} PROPERTIES HEADER_FILE_ONLY true)
 endforeach()
@@ -396,26 +391,6 @@ else()
 	include_directories(./include/almp3)
 	include_directories(./include/gme)
 endif()
-
-#############################################################
-# Romview
-#############################################################
-
-# if(MSVC)
-	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.rc)
-# elseif(LINUX)
-	# list(APPEND ROMVIEWEXTRASOURCES rv_icon.c)
-	# set(ROMVIEWLIBSEXTRA ${X11_LIBRARIES})
-# endif()
-
-# if(UNITY_BUILD)
-	# enable_unity_build(RomviewCore ROMVIEW_CORE_SOURCES)
-	# enable_unity_build(RomviewGUI ROMVIEW_GUI_SOURCES)
-# endif()
-
-# add_executable(romview ${ROMVIEW_CORE_SOURCES} ${ROMVIEW_GUI_SOURCES} ${ROMVIEWEXTRASOURCES} ${ROMVIEW_MODULES})
-
-# target_link_libraries(romview ${IMAGELIBS} ${ALLEGROLIB} ${SOUNDLIBS} ${ROMVIEWLIBSEXTRA})
 
 #############################################################
 # Zelda

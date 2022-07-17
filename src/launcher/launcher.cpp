@@ -256,7 +256,7 @@ END_OF_MAIN()
 
 //Things required to compile from shared files... le sigh -Em
 bool is_large = true; //scaling
-bool is_zquest() //Used for sizing purposes, romview and zquest both also return true.
+bool is_zquest() //Used for sizing purposes
 {
 	return true;
 }
