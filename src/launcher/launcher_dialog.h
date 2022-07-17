@@ -28,8 +28,6 @@ private:
 	std::shared_ptr<GUI::TextField> tf_theme, tf_module_zc, tf_module_zq, tf_module_zcl, tf_savefile;
 	std::shared_ptr<GUI::Label> lbl_theme_error;
 	std::shared_ptr<GUI::DropDownList> ddl_res;
-	WidgetSet<GUI::Button> dxglButtons;
-	WidgetSet<GUI::DropDownList> dxglDDLs;
 };
 
 #endif

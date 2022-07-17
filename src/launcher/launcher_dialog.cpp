@@ -88,13 +88,6 @@ namespace GUI::Lists
 		{ "OpenGL", 2 }
 	};
 	
-	static const ListData dxglList
-	{
-		{ "Stretch", 0 },
-		{ "Aspect Stretch", 1 },
-		{ "Correct Ratio", 2 }
-	};
-	
 	static const ListData nameEntryList
 	{
 		{ "Keyboard", 0 },
@@ -309,66 +302,6 @@ Button(forceFitH = true, text = "?", \
 		InfoDialog("Info",info).show(); \
 	})
 
-//}
-
-//{ DXGL
-#define DXGL_ENABLER() \
-dxglButtons.add(Button(hAlign = 1.0, forceFitH = true, \
-	text = std::string(fileexists("ddraw.dll")?"Disable":"Enable")+" DXGL", \
-	onPressFunc = [&]() \
-	{ \
-		if(fileexists("ddraw.dll")) \
-		{ \
-			if(!fileexists("dxgl.dll") && !rename("ddraw.dll","dxgl.dll")) \
-			{ \
-				dxglButtons.forEach([&](std::shared_ptr<GUI::Button>& btn){ \
-					btn->setText("Enable DXGL"); \
-				}); \
-				zc_set_config("ag.cfg","dxgl","use_dxgl",0); \
-				InfoDialog("DXGL", "DXGL Disabled").show(); \
-			} \
-			else \
-			{ \
-				InfoDialog("DXGL", "ERROR: Unknown?").show(); \
-			} \
-		} \
-		else \
-		{ \
-			if(fileexists("dxgl.dll") && !rename("dxgl.dll","ddraw.dll")) \
-			{ \
-				dxglButtons.forEach([&](std::shared_ptr<GUI::Button>& btn){ \
-					btn->setText("Disable DXGL"); \
-				}); \
-				zc_set_config("ag.cfg","dxgl","use_dxgl",1); \
-				InfoDialog("DXGL", "DXGL Enabled").show(); \
-			} \
-			else \
-			{ \
-				InfoDialog("DXGL", "ERROR: DXGL Libraries are missing!"); \
-			} \
-		} \
-	})), \
-dxglDDLs.add(DropDownList(data = dxglList, \
-	fitParent = true, \
-	minwidth = CONFIG_DROPDOWN_MINWIDTH, \
-	selectedValue = getDXGLID(zc_get_config("dxgl.cfg", "display","Include",getDXGLStr(0))), \
-	onSelectFunc = [&](int32_t val) \
-	{ \
-		dxglDDLs.forEach([&](std::shared_ptr<GUI::DropDownList>& ddl){ \
-			ddl->setSelectedValue(val); \
-		}); \
-		zc_set_config("dxgl.cfg", "display","Include",getDXGLStr(val)); \
-	} \
-)), \
-Button(forceFitH = true, text = "?", \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Info","DXGL settings are shared between ZC and ZQ.").show(); \
-	})
-//}
-
-//}
-
 //{ Helpers
 
 /* _al_stricmp:
@@ -414,26 +347,6 @@ char const* getGFXDriverStr(int32_t id)
 		STR_GFX("Default", 0);
 		STR_GFX("Direct3D", 1);
 		STR_GFX("OpenGL", 2);
-		default: gfx_card_buf[0]=0; break;
-	}
-	return gfx_card_buf;
-}
-
-int32_t getDXGLID(char const* configstr)
-{
-	CMP_GFX("dxgl-fullscreen.cfg",0);
-	CMP_GFX("dxgl-aspect.cfg",1);
-	CMP_GFX("dxgl-aspect-zc-43-scale.cfg",2);
-	return 0;
-}
-
-char const* getDXGLStr(int32_t id)
-{
-	switch(id)
-	{
-		STR_GFX("dxgl-fullscreen.cfg",0);
-		STR_GFX("dxgl-aspect.cfg",1);
-		STR_GFX("dxgl-aspect-zc-43-scale.cfg",2);
 		default: gfx_card_buf[0]=0; break;
 	}
 	return gfx_card_buf;
@@ -527,7 +440,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						// TODO: wgl crashes zc on al_resize_display, so no point in offering this configuration option yet.
 						GFXCARD_DROPDOWN("Graphics Driver:", "zc.cfg", "graphics", "driver", 0, gfxDriverList),
 #endif
-						DXGL_ENABLER(),
 						//
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()
@@ -626,7 +538,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Scale (Small Mode):", "zquest.cfg","zquest","scale",3,scaleList,"The scale multiplier for the default small mode resolution (320x240). If this scales larger than your monitor resolution, ZQ will fail to launch."),
 						CONFIG_DROPDOWN_I("Scale (Large Mode):", "zquest.cfg","zquest","scale_large",1,scaleList,"The scale multiplier for the default large mode resolution (800x600). If this scales larger than your monitor resolution, ZQ will fail to launch."),
 						GFXCARD_DROPDOWN("Graphics Driver:", "zquest.cfg", "graphics", "driver", 0, gfxDriverList),
-						DXGL_ENABLER(),
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()
 							{
