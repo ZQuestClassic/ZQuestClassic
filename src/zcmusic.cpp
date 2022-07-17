@@ -22,7 +22,6 @@
 #include "zsys.h"
 #include "zcmusic.h"
 #include "zc_malloc.h"
-#include "mutex.h"
 
 #ifndef SOUND_LIBS_BUILT_FROM_SOURCE
 //short of fixing gme, these warnings will always be there...
@@ -56,7 +55,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 int32_t zcmusic_bufsz = 64;
 static int32_t zcmusic_bufsz_private = 64;
 
-mutex playlistmutex;
+ALLEGRO_MUTEX* playlistmutex = NULL;
 
 typedef struct DUHFILE : public ZCMUSICBASE
 {
@@ -203,7 +202,7 @@ extern "C"
             libflags |= ZCMF_OGGEX;
         }
         
-        mutex_init(&playlistmutex);
+        if (!playlistmutex) playlistmutex = al_create_mutex();
         
         install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(25));
         return true;
@@ -211,8 +210,7 @@ extern "C"
     
     bool zcmusic_poll(int32_t flags)                              /* = -1 */
     {
-        //lock mutex
-        mutex_lock(&playlistmutex);
+        al_lock_mutex(playlistmutex);
         //do all kinds of gymnastics to get around Allegro stupidity
 //	char *oldpwd = getCurPackfilePassword();
 //	setPackfilePassword(NULL);
@@ -262,7 +260,7 @@ extern "C"
             }
         }
         
-        mutex_unlock(&playlistmutex);
+        al_unlock_mutex(playlistmutex);
 //	setPackfilePassword(oldpwd);
 //	if(oldpwd != NULL)
 //		delete[] oldpwd;
@@ -271,8 +269,7 @@ extern "C"
     
     void zcmusic_exit()
     {
-        //lock mutex
-        mutex_lock(&playlistmutex);
+        al_lock_mutex(playlistmutex);
         std::vector<ZCMUSIC*>::iterator b = playlist.begin();
         
         while(b != playlist.end())
@@ -282,7 +279,7 @@ extern "C"
         }
         
         playlist.clear();
-        mutex_unlock(&playlistmutex);
+        al_unlock_mutex(playlistmutex);
         
         if(libflags & ZCMF_DUH)
         {
@@ -671,9 +668,9 @@ error:
             {
                 zcm->position=0;
                 zcm->playing = ZCM_PLAYING;
-                mutex_lock(&playlistmutex);
+                al_lock_mutex(playlistmutex);
                 playlist.push_back(zcm);
-                mutex_unlock(&playlistmutex);
+                al_unlock_mutex(playlistmutex);
             }
         }
         
@@ -688,7 +685,7 @@ error:
         // toggle the current state; passing 1 will pause.
         if(zcm == NULL) return FALSE;
         
-        mutex_lock(&playlistmutex);
+        al_lock_mutex(playlistmutex);
         
         if(zcm->playing != ZCM_STOPPED)
         {
@@ -768,7 +765,7 @@ error:
             }
         }
         
-        mutex_unlock(&playlistmutex);
+        al_unlock_mutex(playlistmutex);
         return TRUE;
     }
     
@@ -778,7 +775,7 @@ error:
         // the stream position to the beginning.
         if(zcm == NULL) return FALSE;
         
-        mutex_lock(&playlistmutex);
+        al_lock_mutex(playlistmutex);
         
         switch(zcm->type & libflags)
         {
@@ -815,7 +812,7 @@ error:
             break;
         }
         
-        mutex_unlock(&playlistmutex);
+        al_unlock_mutex(playlistmutex);
         return TRUE;
     }
     
@@ -831,7 +828,7 @@ error:
         // don't want to leave an soon-to-be invalid pointers
         // lying around to cause crashes.
         {
-            mutex_lock(&playlistmutex);
+            al_lock_mutex(playlistmutex);
             std::vector<ZCMUSIC*>::iterator b = playlist.begin();
             
             while(b != playlist.end())
@@ -846,7 +843,7 @@ error:
                 }
             }
             
-            mutex_unlock(&playlistmutex);
+            al_unlock_mutex(playlistmutex);
         }
         
         switch(zcm->type & libflags)
@@ -934,7 +931,7 @@ error:
         case ZCMF_GME:
             if(((GMEFILE*)zcm)->emu != NULL)
             {
-                mutex_lock(&playlistmutex);
+                al_lock_mutex(playlistmutex);
                 int32_t t= gme_track_count(((GMEFILE*)zcm)->emu);
                 
                 if(tracknum<0 || tracknum>=t)
@@ -945,7 +942,7 @@ error:
                 gme_start_track(((GMEFILE*)zcm)->emu, tracknum);
 
                 zcm->track=tracknum;
-                mutex_unlock(&playlistmutex);
+                al_unlock_mutex(playlistmutex);
                 return tracknum;
             }
             else
