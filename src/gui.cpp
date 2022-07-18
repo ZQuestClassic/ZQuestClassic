@@ -25,7 +25,6 @@
 
 #include "zdefs.h"
 #include "zelda.h"
-#include "zquest.h"
 #include "tiles.h"
 #include "colors.h"
 #include "pal.h"

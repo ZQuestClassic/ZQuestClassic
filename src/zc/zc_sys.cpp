@@ -25,7 +25,7 @@
 #include "zc_alleg.h"
 #include "gamedata.h"
 #include "zc_init.h"
-#include "zquest.h"
+//#include "zquest.h"
 #include "init.h"
 
 #ifdef ALLEGRO_DOS
@@ -59,6 +59,7 @@ extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
+int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
@@ -88,6 +89,8 @@ byte pause_in_background = 0;
 bool is_sys_pal = false;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
+extern const char* dmaplist(int32_t index, int32_t* list_size);
+
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift

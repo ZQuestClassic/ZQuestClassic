@@ -47,8 +47,6 @@ extern int32_t RulesetDialog;
 extern bool disable_saving, OverwriteProtection;
 extern int32_t zq_scale, TileProtection;
 
-void setZScriptVersion(int32_t); //Intentionally does nothing >_<
-
 extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
 extern int32_t DMapEditorLastMaptileUsed;
 

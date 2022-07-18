@@ -121,7 +121,6 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primi
 include_directories(./include/zlib123)
 include_directories(./src)
 # TODO: remove
-include_directories(./src/zq)
 include_directories(./src/zc)
 
 set(ZCSOUNDSOURCES
@@ -530,6 +529,7 @@ endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
+	target_include_directories(zscript PRIVATE src/zq)
 	target_link_libraries(zscript allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()

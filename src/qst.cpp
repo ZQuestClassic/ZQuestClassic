@@ -32,7 +32,7 @@
 #include "tiles.h"
 #include "zsys.h"
 #include "qst.h"
-#include "zquest.h"
+//#include "zquest.h"
 #include "defdata.h"
 #include "subscr.h"
 #include "font.h"
@@ -49,6 +49,7 @@ extern zcmodule moduledata;
 extern uint8_t __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
+extern void setZScriptVersion(int32_t s_version);
 //FFSCript   FFEngine;
 
 int32_t temp_ffscript_version = 0;
