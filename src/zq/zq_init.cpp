@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 
-#include "gui.h"
+#include "base/gui.h"
 #include "init.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"

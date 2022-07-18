@@ -43,7 +43,7 @@
 #include "debug.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "gui.h"
+#include "base/gui.h"
 #include "midi.h"
 #include "subscr.h"
 #include "maps.h"

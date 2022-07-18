@@ -34,7 +34,7 @@
 #include "debug.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "gui.h"
+#include "base/gui.h"
 #include "mem_debug.h"
 
 /****************************/

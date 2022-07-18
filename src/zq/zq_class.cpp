@@ -25,7 +25,7 @@
 
 #include "metadata/metadata.h"
 
-#include "gui.h"
+#include "base/gui.h"
 #include "zq_class.h"
 #include "zq_misc.h"
 #include "zquest.h"

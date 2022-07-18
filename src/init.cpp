@@ -25,7 +25,7 @@
 #include "jwin.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "gui.h"
+#include "base/gui.h"
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"

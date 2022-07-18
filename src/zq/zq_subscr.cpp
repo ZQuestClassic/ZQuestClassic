@@ -14,7 +14,7 @@
 
 #include "precompiled.h" //always first
 
-#include "gui.h"
+#include "base/gui.h"
 #include "subscr.h"
 #include "zq_subscr.h"
 #include "jwin.h"

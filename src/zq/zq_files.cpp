@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "gui.h"
+#include "base/gui.h"
 #include "zq_files.h"
 #include "base/zdefs.h"
 #include "zq_misc.h"

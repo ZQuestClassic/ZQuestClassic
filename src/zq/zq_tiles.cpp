@@ -17,7 +17,7 @@
 #include <string.h>
 #include <cmath>
 
-#include "gui.h"
+#include "base/gui.h"
 #include "zquestdat.h"
 #include "zq_tiles.h"
 #include "zquest.h"

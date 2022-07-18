@@ -6,7 +6,7 @@
 
 #include "editbox.h"
 #include "EditboxNew.h"
-#include "gui.h"
+#include "base/gui.h"
 #include "jwin.h"
 #include "mem_debug.h"
 #include "tiles.h"

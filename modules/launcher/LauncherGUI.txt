@@ -9,7 +9,6 @@ src/editbox.cpp
 src/tab_ctl.cpp
 src/EditboxModel.cpp
 src/EditboxView.cpp
-src/gui.cpp
 
 src/launcher/launcher_dialog.cpp
 src/dialog/info.cpp

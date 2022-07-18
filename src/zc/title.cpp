@@ -23,7 +23,7 @@
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "gui.h"
+#include "base/gui.h"
 #include "sprite.h"
 #include "subscr.h"
 //#include "jwin.h"

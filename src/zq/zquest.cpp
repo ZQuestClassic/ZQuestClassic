@@ -53,7 +53,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
 
-#include "gui.h"
+#include "base/gui.h"
 #include "zc_list_data.h"
 #include "editbox.h"
 #include "zq_misc.h"
