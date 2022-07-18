@@ -393,6 +393,44 @@ else()
 endif()
 
 #############################################################
+# GUI
+#############################################################
+
+add_library(zcgui STATIC
+	src/gui/button.cpp
+	src/gui/checkbox_qr.cpp
+	src/gui/checkbox.cpp
+	src/gui/colorsel.cpp
+	src/gui/common.cpp
+	src/gui/cornerselect.cpp
+	src/gui/ddpanel.cpp
+	src/gui/dialog_ref.cpp
+	src/gui/dialog_runner.cpp
+	src/gui/drop_down_list.cpp
+	src/gui/frame.cpp
+	src/gui/grid.cpp
+	src/gui/label.cpp
+	src/gui/list_data.cpp
+	src/gui/list.cpp
+	src/gui/msgstr_preview.cpp
+	src/gui/palette_frame.cpp
+	src/gui/qrpanel.cpp
+	src/gui/radio.cpp
+	src/gui/radioset.cpp
+	src/gui/scrolling_pane.cpp
+	src/gui/size.cpp
+	src/gui/switcher.cpp
+	src/gui/tabpanel.cpp
+	src/gui/tabref.cpp
+	src/gui/text_field.cpp
+	src/gui/tileanim_frame.cpp
+	src/gui/top_level.cpp
+	src/gui/widget.cpp
+	src/gui/window.cpp
+)
+target_link_libraries(zcgui PUBLIC allegro_with_legacy)
+
+#############################################################
 # Zelda
 #############################################################
 
@@ -419,11 +457,11 @@ target_include_directories(zelda PRIVATE src/zc)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zelda PRIVATE zconsolelogger zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda PRIVATE zconsolelogger zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zelda PRIVATE zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda PRIVATE zconsolelogger zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(APPLE)
-	target_link_libraries(zelda PRIVATE zconsolelogger zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zelda PRIVATE zconsolelogger zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
@@ -461,7 +499,7 @@ if(Boost_FOUND)
 	add_definitions(-DHAS_BOOST)
 	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 
-	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 	target_include_directories(zquest PRIVATE src/zq)
 
 	if(MSVC AND USE_PCH)
@@ -514,8 +552,7 @@ endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
 target_include_directories(zlauncher PRIVATE src/launcher)
-target_link_libraries(zlauncher PRIVATE allegro_with_legacy zconsolelogger ${LAUNCHERLIBSEXTRA})
-target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
+target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################
 # Allegro 5 Example
@@ -530,7 +567,7 @@ target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font alleg
 # Misc.
 #############################################################
 
-set(zc_targets zquest zelda zlauncher zcsound zscript zconsolelogger)
+set(zc_targets zquest zelda zlauncher zcgui zcsound zscript zconsolelogger)
 set(zc_apps zquest zelda zlauncher)
 set(zc_warnings
 	-Werror=format
