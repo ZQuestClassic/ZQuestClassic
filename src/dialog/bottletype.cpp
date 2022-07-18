@@ -3,6 +3,7 @@
 #include "info.h"
 #include <gui/builder.h>
 #include <boost/format.hpp>
+#include "zc_list_data.h"
 
 extern bool saved;
 extern miscQdata misc;
@@ -16,7 +17,7 @@ void call_bottle_dlg(int32_t index)
 BottleTypeDialog::BottleTypeDialog(int32_t index):
 	index(index), sourceBottle(misc.bottle_types[index]),
 	tempBottle(misc.bottle_types[index]),
-	list_counters(GUI::ListData::counters(true))
+	list_counters(GUI::ZCListData::counters(true))
 {}
 
 #define NUM_FIELD(member,_min,_max) \

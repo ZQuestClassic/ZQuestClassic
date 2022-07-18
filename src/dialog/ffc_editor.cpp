@@ -4,6 +4,7 @@
 #include "zquest.h"
 #include "zq_class.h"
 #include "alert.h"
+#include "zc_list_data.h"
  
 extern int32_t Combo, CSet;
 static int32_t tCSet;
@@ -123,7 +124,7 @@ ffdata& ffdata::operator=(ffdata const& other)
 FFCDialog::FFCDialog(mapscr* scr, int32_t ffind) :
 	thescr(scr), ffind(ffind),
 	list_link(GUI::ListData::numbers(true, 1, 32)),
-	list_ffcscript(GUI::ListData::ffc_script())
+	list_ffcscript(GUI::ZCListData::ffc_script())
 {
 	ffc.load(scr, ffind);
 }

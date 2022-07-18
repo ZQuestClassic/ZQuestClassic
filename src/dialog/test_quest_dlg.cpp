@@ -2,7 +2,8 @@
 #include "alertfunc.h"
 #include "process_managment.h"
 #include "zq_class.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
+#include "zc_list_data.h"
 
 int32_t onSave();
 int32_t onSaveAs();
@@ -80,7 +81,7 @@ void call_testqst_dialog()
 	TestQstDialog().show();
 }
 
-TestQstDialog::TestQstDialog() : dmap_list(GUI::ListData::dmaps(true))
+TestQstDialog::TestQstDialog() : dmap_list(GUI::ZCListData::dmaps(true))
 {}
 
 std::shared_ptr<GUI::Widget> TestQstDialog::view()

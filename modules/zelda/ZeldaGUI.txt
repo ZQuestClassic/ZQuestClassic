@@ -48,6 +48,7 @@ src/gui/scrolling_pane.cpp
 src/gui/frame.cpp
 src/gui/list.cpp
 src/gui/tileanim_frame.cpp
+src/zc_list_data.cpp
 
 src/dialog/init_data.cpp
 src/dialog/cheat_dialog.cpp

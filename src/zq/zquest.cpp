@@ -54,6 +54,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/ffc_editor.h"
 
 #include "gui.h"
+#include "zc_list_data.h"
 #include "editbox.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"                                       // tile and combo code
@@ -11512,7 +11513,7 @@ int32_t select_cflag(const char *prompt,int32_t flag)
 {
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
-    GUI::ListData ld = GUI::ListData::mapflag(true);
+    GUI::ListData ld = GUI::ZCListData::mapflag(numericalFlags, true);
 	ListData select_cflag_list = ld.getJWin(&font);
     int32_t index = ld.findIndex(flag);
 	cflag_dlg[2].d1=index;
