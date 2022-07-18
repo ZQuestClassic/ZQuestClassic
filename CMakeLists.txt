@@ -273,6 +273,7 @@ add_library(zcbase STATIC
 	src/base/alleg_compat.cpp
 	src/base/colors.cpp
 	src/base/fonts.cpp
+	src/base/jwinfsel.cpp
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp

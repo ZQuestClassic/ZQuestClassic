@@ -27,7 +27,7 @@
 #include "sprite.h"
 #include "subscr.h"
 //#include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "title.h"
 #include "gamedata.h"
 #include "hero.h"

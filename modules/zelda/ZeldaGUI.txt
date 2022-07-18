@@ -13,7 +13,6 @@ src/EditboxView.cpp
 src/zc/ending.cpp
 src/zc/matrix.cpp
 src/pal.cpp
-src/jwinfsel.cpp
 src/tab_ctl.cpp
 src/zc/title.cpp
 src/zc/zc_custom.cpp

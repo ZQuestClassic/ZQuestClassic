@@ -2,7 +2,7 @@
 #define ZC_LAUNCHER_H
 
 #include "base/zdefs.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "base/zsys.h"
 
 extern volatile bool close_button_quit;

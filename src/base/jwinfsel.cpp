@@ -54,7 +54,7 @@
 #include <allegro/alcompat.h>
 
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "base/zsys.h"
 #include "zc_malloc.h"
 

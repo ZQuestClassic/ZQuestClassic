@@ -26,7 +26,7 @@
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "weapons.h"
 //#include "save_gif.h"
 #include "sprite.h"

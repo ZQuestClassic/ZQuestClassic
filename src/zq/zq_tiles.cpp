@@ -28,7 +28,7 @@
 #include "base/colors.h"
 #include "qst.h"
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "zqscale.h"
 #include "zc_custom.h"
 #include "questReport.h"

@@ -42,7 +42,7 @@
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "fontsdat.h"
 #include "particles.h"
 #include "gamedata.h"

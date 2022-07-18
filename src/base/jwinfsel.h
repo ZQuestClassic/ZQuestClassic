@@ -48,10 +48,10 @@ int32_t get_fs_size(FLIST* list);
 bool get_fs_file(FLIST* list, int32_t index, char* buf);
 void destroy_fs_flist(FLIST* list);
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+// #ifdef __cplusplus
+// extern "C"
+// {
+// #endif
 
 /* jwin_file_select:
   *  Displays the Allegro file selector, with the message as caption.
@@ -91,8 +91,8 @@ typedef struct EXT_LIST
 //int32_t jwin_file_browse(char *message, char *path, EXT_LIST *list, int32_t *list_sel);
 int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, int32_t *list_sel, int32_t size, int32_t width, int32_t height, FONT *title_font);
 
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 #endif                                                      // _JWIN_FSEL_H_
 

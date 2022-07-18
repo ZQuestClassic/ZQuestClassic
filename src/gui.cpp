@@ -33,7 +33,7 @@
 #include "zc_sys.h"
 #include "debug.h"
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "gui.h"
 #include "mem_debug.h"
 

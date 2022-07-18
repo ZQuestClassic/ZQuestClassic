@@ -76,7 +76,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "sprite.h"
 #include "items.h"
 #include "fontsdat.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "zq_class.h"
 #include "subscr.h"
 #include "zq_subscr.h"

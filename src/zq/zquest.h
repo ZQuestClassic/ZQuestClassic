@@ -5,7 +5,7 @@
 #include <vector>
 #include "midi.h"
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "zcmusic.h"
 #include "sprite.h"
 #include "gamedata.h"
