@@ -1,11 +1,11 @@
 #ifndef _PARSERDEFS_H_
 #define _PARSERDEFS_H_
 
-#include "../zdefs.h"
+#include "base/zdefs.h"
 #undef TEXT
 #undef VOID
 
-#include "../util.h"
+#include "base/util.h"
 using namespace util;
 
 //FUNCFLAG values, for `Function` and `ASTFuncDecl` objects.

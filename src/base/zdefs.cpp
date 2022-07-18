@@ -1,6 +1,6 @@
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "jwin.h"
-#include "zapp.h"
+#include "base/zapp.h"
 
 extern PALETTE RAMpal;
 extern bool update_hw_pal;

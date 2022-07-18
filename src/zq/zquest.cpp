@@ -34,7 +34,7 @@
 #endif
 
 #include "parser/Compiler.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "mem_debug.h"
 #include "particles.h"
 #include "dialog/alert.h"
@@ -64,12 +64,12 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "ffasm.h"
 
 // the following are used by both zelda.cc and zquest.cc
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "qst.h"
-#include "zsys.h"
-#include "zapp.h"
+#include "base/zsys.h"
+#include "base/zapp.h"
 #include "zcmusic.h"
 
 #include "midi.h"
@@ -137,7 +137,7 @@ static const char *qtname_name      = "macosx_qtname%d";
 static const char *qtpath_name      = "macosx_qtpath%d";
 #endif
 
-#include "win32.h" //win32 fixes
+#include "base/win32.h"
 
 #include "zq_init.h"
 #include "zq_doors.h"
@@ -168,7 +168,7 @@ uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
-#include "util.h"
+#include "base/util.h"
 using namespace util;
 
 using std::vector;

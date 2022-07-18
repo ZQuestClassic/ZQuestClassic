@@ -17,18 +17,18 @@
 #include <math.h>
 //#include <dir.h>
 #include <ctype.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
 #endif
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zelda.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "pal.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "qst.h"
 #include "zc_sys.h"
 #include "debug.h"

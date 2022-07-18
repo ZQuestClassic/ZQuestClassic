@@ -19,7 +19,7 @@
 #include "zc_custom.h"
 #include "zelda.h"
 #include "maps.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "hero.h"
 
 /***************************************/

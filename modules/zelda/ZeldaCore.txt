@@ -14,15 +14,8 @@ src/zc/zc_init.cpp
 src/zc/zc_module.cpp
 src/zc/zc_items.cpp
 src/init.cpp
-src/win32.cpp
-src/alleg_compat.cpp
-src/util.cpp
 src/drawing.cpp
-src/random.cpp
-src/fonts.cpp
 src/zinfo.cpp
-src/zdefs.cpp
-src/process_managment.cpp
 src/zconfig.cpp
 
 ## End of Zelda Core module

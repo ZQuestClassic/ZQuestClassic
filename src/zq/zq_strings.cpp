@@ -5,15 +5,15 @@
 #include "jwin.h"
 #include "qst.h"
 #include "tiles.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "zc_malloc.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zq_custom.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"
 #include "zqscale.h"
 #include "zquest.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include <map>
 #include <string>
 

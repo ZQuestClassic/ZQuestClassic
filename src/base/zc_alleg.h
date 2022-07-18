@@ -13,10 +13,10 @@
 
 #define DEBUGMODE
 #define ALLEGRO_NO_COMPATIBILITY
-#include "allegro_wrapper.h"
+#include "base/allegro_wrapper.h"
 #include <allegro/internal/aintern.h>
 #include <a5alleg.h>
-#include "alleg_compat.h"
+#include "base/alleg_compat.h"
 #include "zfix.h"
 
 #ifdef __cplusplus

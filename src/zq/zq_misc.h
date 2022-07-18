@@ -14,8 +14,8 @@
 #ifndef _ZQ_MISC_H_
 #define _ZQ_MISC_H_
 
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 #include "jwin.h"
 #include "sfx.h"
 

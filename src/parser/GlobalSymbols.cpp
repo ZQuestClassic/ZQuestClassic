@@ -4,7 +4,7 @@
 #include "../zsyssimple.h"
 #include "GlobalSymbols.h"
 #include "ByteCode.h"
-#include "../zdefs.h" //Putting this higher has issues?
+#include "base/zdefs.h" //Putting this higher has issues?
 #include "Scope.h"
 #include "ZScript.h"
 #include "CompilerUtils.h"

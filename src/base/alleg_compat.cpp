@@ -7,7 +7,7 @@
 //
 //--------------------------------------------------------
 
-#include "allegro_wrapper.h"
+#include "base/allegro_wrapper.h"
 
 PACKFILE *pack_fopen_password(const char *filename, const char *mode, const char *password)
 {

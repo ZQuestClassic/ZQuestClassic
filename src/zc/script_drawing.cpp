@@ -11,14 +11,14 @@
 #define LOG_BMPBLIT_LEVEL 0
 #include "precompiled.h" //always first
 
-#include "allegro_wrapper.h"
+#include "base/allegro_wrapper.h"
 #include "script_drawing.h"
 #include "rendertarget.h"
 #include "maps.h"
 #include "tiles.h"
 #include "zelda.h"
 #include "ffscript.h"
-#include "util.h"
+#include "base/util.h"
 #include "subscr.h"
 #include "drawing.h"
 using namespace util;

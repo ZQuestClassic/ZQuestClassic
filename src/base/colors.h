@@ -11,7 +11,7 @@
 #ifndef _ZC_COLORS_H_
 #define _ZC_COLORS_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 extern byte *colordata;
 extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t b);

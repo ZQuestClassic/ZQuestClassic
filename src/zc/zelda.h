@@ -16,19 +16,19 @@
 /*********************************/
 
 #include <vector>
-#include "zdefs.h"
-#include "zc_array.h"
+#include "base/zdefs.h"
+#include "base/zc_array.h"
 #include "zc_sys.h"
 #include "zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
 #include "gamedata.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "script_drawing.h"
 #include "zfix.h"
-#include "util.h"
-#include "fonts.h"
+#include "base/util.h"
+#include "base/fonts.h"
 
 class sprite;
 

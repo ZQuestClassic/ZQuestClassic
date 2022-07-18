@@ -19,7 +19,7 @@
 #include "zq_subscr.h"
 #include "jwin.h"
 #include "zquest.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zq_misc.h"
 #include "tiles.h"
 #include "qst.h"

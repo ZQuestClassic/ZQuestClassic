@@ -1,6 +1,6 @@
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "module.h"
-#include "zsys.h"
+#include "base/zsys.h"
 
 extern zcmodule moduledata;
 

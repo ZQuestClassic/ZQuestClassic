@@ -5,7 +5,7 @@
 
 #ifndef ZFIX_H
 #define ZFIX_H
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include <math.h>
 #include <limits>
 #define FIX_NAN 0

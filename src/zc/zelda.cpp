@@ -21,7 +21,7 @@
 #include <map>
 #include <vector>
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 #include <stdlib.h>
 
@@ -31,14 +31,14 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "zcmusic.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zelda.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "pal.h"
 #include "aglogo.h"
-#include "zsys.h"
-#include "zapp.h"
+#include "base/zsys.h"
+#include "base/zapp.h"
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"
@@ -48,7 +48,7 @@
 #include "gamedata.h"
 #include "ffscript.h"
 #include "qst.h"
-#include "util.h"
+#include "base/util.h"
 #include "drawing.h"
 #include "dialog/info.h"
 using namespace util;
@@ -90,10 +90,9 @@ extern CConsoleLoggerEx coloured_console;
 
 #include "init.h"
 #include <assert.h>
-#include "zc_array.h"
 #include "rendertarget.h"
 #include "zconsole.h"
-#include "win32.h"
+#include "base/win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
 #include "zeldadat.h"

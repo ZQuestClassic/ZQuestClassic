@@ -1,11 +1,11 @@
 // TODO: this file could be split up between ZC and ZQ.
 
-#include "zapp.h"
-#include "zdefs.h"
+#include "base/zapp.h"
+#include "base/zdefs.h"
 #include "zinfo.h"
 #include "jwin.h"
 #include "qst.h"
-#include "fonts.h"
+#include "base/fonts.h"
 
 
 std::string getComboTypeHelpText(int32_t id);

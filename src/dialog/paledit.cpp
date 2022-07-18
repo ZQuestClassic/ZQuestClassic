@@ -1,6 +1,6 @@
 #include "paledit.h"
 #include "info.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "zquest.h"

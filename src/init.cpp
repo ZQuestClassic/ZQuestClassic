@@ -21,15 +21,14 @@
 
 #include <stdio.h>
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "jwin.h"
-#include "zdefs.h"
-#include "zsys.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
 #include "gui.h"
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
-#include "zquest.h"
 //extern ZModule zcm;
 extern zcmodule moduledata;
 

@@ -15,7 +15,7 @@
 #ifndef _ZSYS_H_
 #define _ZSYS_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "jwin.h"
 
 #include <functional>

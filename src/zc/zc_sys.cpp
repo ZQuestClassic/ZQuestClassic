@@ -22,7 +22,7 @@
 #include <map>
 #include <ctype.h>
 #include <sstream>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "gamedata.h"
 #include "zc_init.h"
 //#include "zquest.h"
@@ -35,9 +35,9 @@
 #include "metadata/metadata.h"
 #include "zelda.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "pal.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "qst.h"
 #include "zc_sys.h"
 #include "debug.h"

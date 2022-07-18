@@ -15,7 +15,7 @@
 #ifndef _WEAPONS_H_
 #define _WEAPONS_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "sprite.h"
 #include "zfix.h"
 

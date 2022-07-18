@@ -13,11 +13,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include <string>
 #include <sstream>
-#include "util.h"
+#include "base/util.h"
 
 using namespace util;
 using std::string;
@@ -28,12 +28,12 @@ using std::getline;
 #include <conio.h>
 #endif
 
-#include "zdefs.h"
-#include "zsys.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
 #include "zc_sys.h"
 #include "jwin.h"
 #include "mem_debug.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 
 #ifdef _MSC_VER
 #define stricmp _stricmp

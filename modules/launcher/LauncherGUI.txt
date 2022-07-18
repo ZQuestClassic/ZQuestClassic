@@ -11,7 +11,6 @@ src/EditboxModel.cpp
 src/EditboxView.cpp
 src/gui.cpp
 src/jwinfsel.cpp
-src/fonts.cpp
 
 src/launcher/launcher_dialog.cpp
 src/dialog/info.cpp

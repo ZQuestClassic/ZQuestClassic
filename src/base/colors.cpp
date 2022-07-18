@@ -10,8 +10,8 @@
 
 #include "precompiled.h" //always first
 
-#include "zc_alleg.h"
-#include "colors.h"
+#include "base/zc_alleg.h"
+#include "base/colors.h"
 
 byte nes_pal[] =
 {

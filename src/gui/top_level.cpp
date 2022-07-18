@@ -2,7 +2,7 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <utility>
 
 void displayinfo(std::string, std::string);

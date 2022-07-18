@@ -1,6 +1,6 @@
 #include "size.h"
 #include "common.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 
 extern FONT* lfont_l;
 extern FONT* nfont;

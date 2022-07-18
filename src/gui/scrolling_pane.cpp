@@ -1,6 +1,6 @@
 #include "scrolling_pane.h"
 #include "dialog_runner.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "../jwin.h"
 #include <algorithm>
 

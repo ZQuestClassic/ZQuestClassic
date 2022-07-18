@@ -40,7 +40,7 @@
 #ifndef _JWIN_H_
 #define _JWIN_H_
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "tab_ctl.h"
 
 struct ListData

@@ -6,7 +6,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #define WIN32_EXTRA_LEAN
-#include "allegro_wrapper.h"
+#include "base/allegro_wrapper.h"
 #include <winalleg.h>
 #include <allegro5/allegro_windows.h>
 

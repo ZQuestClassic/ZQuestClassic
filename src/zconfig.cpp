@@ -1,6 +1,6 @@
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "zconfig.h"
-#include "zapp.h"
+#include "base/zapp.h"
 
 char const* zc_get_standard_config_name()
 {

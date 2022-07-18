@@ -17,8 +17,6 @@ src/zq/zq_subscr.cpp
 src/zq/zq_strings.cpp
 src/zq/zq_tiles.cpp
 src/zqscale.cpp
-src/zsys.cpp
-src/zapp.cpp
 src/jwin.cpp
 
 src/zq/gui/seltile_swatch.cpp

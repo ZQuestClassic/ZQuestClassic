@@ -32,7 +32,7 @@
 
 
 #include "midi.h"
-#include "zsys.h"
+#include "base/zsys.h"
 /* save_midi:
   *  Saves a standard MIDI file, returning 0 on success,
   *  or non-zero on error.

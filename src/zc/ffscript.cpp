@@ -5,7 +5,6 @@
 #include "precompiled.h" //always first
 
 #include <deque>
-//#include <algorithm>
 #include <string>
 #include <sstream>
 #include <math.h>
@@ -22,13 +21,12 @@
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 #include "zc_math.h"
-#include "zc_array.h"
+#include "base/zc_array.h"
 #include "ffscript.h"
 #include "zc_subscr.h"
 #include <time.h>
-//#include "zc_sys.h"
 #include "script_drawing.h"
-#include "util.h"
+#include "base/util.h"
 #include "ending.h"
 #include "zc_malloc.h"
 #include "module.h"
@@ -479,13 +477,13 @@ extern int32_t directItemY;
 //enemy enemyclass;
 #include "gamedata.h"
 #include "zc_init.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "title.h"
 #include "mem_debug.h"
 #include "zscriptversion.h"
 
 #include "pal.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zc_malloc.h"
 #include "rendertarget.h" //Needed for LoadBitmap
 

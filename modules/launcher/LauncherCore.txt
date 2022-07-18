@@ -5,14 +5,7 @@ set(LAUNCHER_SOURCES
 # Add or remove files here
 ################################
 src/launcher/launcher.cpp
-src/util.cpp
-src/random.cpp
-src/zsys.cpp
-src/zapp.cpp
-src/alleg_compat.cpp
 src/module.cpp
-src/zdefs.cpp
-src/process_managment.cpp
 src/zconfig.cpp
 src/zqscale.cpp
 

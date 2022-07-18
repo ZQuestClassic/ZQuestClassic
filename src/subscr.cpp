@@ -11,10 +11,10 @@
 #include "precompiled.h" //always first
 
 #include "subscr.h"
-#include "zapp.h"
+#include "base/zapp.h"
 #include "zelda.h"
 #include "tiles.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "guys.h"
 #include "hero.h"
 #include "gamedata.h"

@@ -37,7 +37,7 @@ ArrayIterator<*>{
 #endif
 
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 #ifndef __zc_array_h_
 #define __zc_array_h_

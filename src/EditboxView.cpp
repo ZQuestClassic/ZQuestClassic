@@ -7,7 +7,7 @@
 #include <assert.h>
 
 #include "EditboxNew.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "jwin.h"
 #include <map>
 #include <stdio.h>

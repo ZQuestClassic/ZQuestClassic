@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 static int32_t trace_y=0;
 

@@ -18,8 +18,8 @@
 
 #include "precompiled.h" //always first
 
-#include "zdefs.h"
-#include "zsys.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"

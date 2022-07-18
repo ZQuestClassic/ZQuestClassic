@@ -12,10 +12,10 @@
 
 #include <string.h>
 #include <stdio.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "guys.h"
 #include "zelda.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "maps.h"
 #include "hero.h"
 #include "subscr.h"

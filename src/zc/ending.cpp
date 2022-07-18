@@ -19,7 +19,7 @@
 
 #include "ending.h"
 #include "zelda.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"

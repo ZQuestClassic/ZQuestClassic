@@ -13,16 +13,16 @@
 #ifndef _HERO_H_
 #define _HERO_H_
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "zcmusic.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zelda.h"
 #include "maps.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "pal.h"
 #include "aglogo.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "qst.h"
 #include "matrix.h"
 #include "jwin.h"

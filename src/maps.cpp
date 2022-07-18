@@ -23,13 +23,12 @@
 #include <set>
 using std::set;
 
-//#include "zc_math.h"
 #include "maps.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "sprite.h"
 #include "jwin.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "subscr.h"
 #include "zc_subscr.h"
 #include "hero.h"

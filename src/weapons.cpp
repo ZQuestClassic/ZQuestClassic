@@ -23,7 +23,7 @@
 #include "weapons.h"
 #include "guys.h"
 #include "zelda.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "maps.h"
 #include "tiles.h"
 #include "pal.h"

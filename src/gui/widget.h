@@ -5,12 +5,12 @@
 #include "dialog_message.h"
 #include "dialog_ref.h"
 #include "size.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <any>
 #include <memory>
 #include <type_traits>
 #include <vector>
-#include "../fonts.h"
+#include "base/fonts.h"
 
 #define GUI_DEF_FONT_SMALL nfont
 #define GUI_DEF_FONT_LARGE lfont_l

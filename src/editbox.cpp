@@ -27,7 +27,7 @@
 #include "precompiled.h" //always first
 
 #include <string.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "jwin.h"
 #include <stdio.h>
 

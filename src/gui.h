@@ -12,7 +12,7 @@
 #ifndef _GUI_H_
 #define _GUI_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 extern DIALOG_PLAYER *player;
 

@@ -11,9 +11,9 @@
 #ifndef _ZQ_TILES_H_
 #define _ZQ_TILES_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 /*********************************/
 /*****    Tiles & Combos    ******/

@@ -1,9 +1,9 @@
 #ifndef ZC_LAUNCHER_H
 #define ZC_LAUNCHER_H
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "jwinfsel.h"
-#include "zsys.h"
+#include "base/zsys.h"
 
 extern volatile bool close_button_quit;
 extern int32_t zq_screen_w, zq_screen_h;

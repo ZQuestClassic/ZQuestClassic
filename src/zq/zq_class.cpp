@@ -30,10 +30,10 @@
 #include "zq_misc.h"
 #include "zquest.h"
 #include "qst.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "tiles.h"
 #include "zquestdat.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
 #include "maps.h"
@@ -45,7 +45,7 @@
 #include "zq_subscr.h"
 #include "mem_debug.h"
 #include "ffscript.h"
-#include "util.h"
+#include "base/util.h"
 using namespace util;
 extern FFScript FFCore;
 

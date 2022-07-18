@@ -4,7 +4,7 @@
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "gui/use_size.h"
 #include "zc_list_data.h"
 

@@ -2,10 +2,10 @@
 #include "grid.h"
 #include "drop_down_list.h"
 #include "label.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "dialog/info.h"
 #include <utility>
 

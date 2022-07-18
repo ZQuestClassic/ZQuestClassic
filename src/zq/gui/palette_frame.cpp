@@ -5,7 +5,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
 #include "../jwin.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"

@@ -1,12 +1,12 @@
 // Launcher executable main file
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "launcher.h"
 #include "module.h"
-#include "fonts.h"
+#include "base/fonts.h"
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
 #include "zqscale.h"
-#include "zapp.h"
+#include "base/zapp.h"
 
 #define QUICK_EXIT 0
 

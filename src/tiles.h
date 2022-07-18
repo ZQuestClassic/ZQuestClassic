@@ -15,8 +15,8 @@
 
 #define UNPACKSIZE 256
 
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 
 //extern byte *tilebuf;
 extern tiledata *newtilebuf, *grabtilebuf;

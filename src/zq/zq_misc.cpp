@@ -16,9 +16,9 @@
 #include "zq_misc.h"
 #include "zquestdat.h"
 #include "zquest.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "qst.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zq_class.h"
 #include "dialog/info.h"
 #include <string.h>

@@ -23,7 +23,7 @@
 #include "precompiled.h" //always first
 
 #include "zq_class.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "items.h"
 
 void movefairy(zfix&,zfix&,int32_t)

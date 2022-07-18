@@ -10,7 +10,7 @@
 
 #ifndef _MIDI_H_
 #define _MIDI_H_
-#include "zdefs.h"
+#include "base/zdefs.h"
 /*  Allegro MIDI struct
 
   typedef struct MIDI                    // a midi file

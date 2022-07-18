@@ -16,7 +16,7 @@
 
 #include "zc_custom.h"
 #include "zelda.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 //extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;

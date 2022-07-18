@@ -1,12 +1,12 @@
 #include "ffscript.h"
-#include "util.h"
+#include "base/util.h"
 #include "parser/ZScript.h"
 #include "parser/parser.h"
 #include <string>
 #include "zconfig.h"
 #include "ConsoleLogger.h"
 #include "zscrdata.h"
-#include "zapp.h"
+#include "base/zapp.h"
 
 FFScript FFCore;
 

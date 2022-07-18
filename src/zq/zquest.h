@@ -11,7 +11,7 @@
 #include "gamedata.h"
 #include "parser/parserDefs.h"
 #include "zfix.h"
-#include "fonts.h"
+#include "base/fonts.h"
 
 #define  INTERNAL_VERSION  0xA721
 

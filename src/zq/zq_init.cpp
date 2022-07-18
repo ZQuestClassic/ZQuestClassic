@@ -18,11 +18,11 @@
 
 #include "gui.h"
 #include "init.h"
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 #include "jwin.h"
 #include "zq_init.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zquest.h"
 
 #define zc_min(a,b)  ((a)<(b)?(a):(b))

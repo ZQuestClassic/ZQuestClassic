@@ -128,11 +128,13 @@
 #include <assert.h>
 #include <string>
 #include "metadata/metadata.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "gamedata.h"
-#include "zc_array.h"
-#include "random.h"
-#include "util.h"
+#include "base/zc_array.h"
+#include "base/random.h"
+#include "base/util.h"
+#include "base/process_management.h"
+#include "zconfig.h"
 
 
 
@@ -5319,8 +5321,6 @@ enum swStyle //Switchhook animation styles
 extern const char months[13][13];
 char *VerStr(int32_t version);
 
-#include "zconfig.h"
-
 RGB _RGB(byte *si);
 RGB _RGB(int32_t r,int32_t g,int32_t b);
 RGB invRGB(RGB s);
@@ -5338,8 +5338,6 @@ void load_udef_colorset(char const* fpath, PALETTE pal);
 void load_udef_colorset(char const* fpath);
 void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
-
-#include "process_managment.h"
 
 void update_hw_screen(bool force = false);
 

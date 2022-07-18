@@ -14,14 +14,14 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zelda.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "qst.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "pal.h"
 #include "gui.h"
 #include "sprite.h"

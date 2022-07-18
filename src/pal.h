@@ -11,9 +11,9 @@
 #ifndef _ZC_PAL_H_
 #define _ZC_PAL_H_
 
-#include "zc_alleg.h"
-#include "zdefs.h"
-#include "colors.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
+#include "base/colors.h"
 
 extern int32_t CSET_SIZE;                                       // this is only changed to 4 in the NES title screen
 extern int32_t CSET_SHFT;                                       // log2 of CSET_SIZE

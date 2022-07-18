@@ -3,7 +3,7 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "../zdefs.h"
+#include "base/zdefs.h"
 #include <algorithm>
 #include <cassert>
 #include <cstring>

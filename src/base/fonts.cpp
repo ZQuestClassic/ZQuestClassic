@@ -1,5 +1,5 @@
 
-#include "fonts.h"
+#include "base/fonts.h"
 #include "fontsdat.h"
 extern DATAFILE *fontsdata;
 FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,

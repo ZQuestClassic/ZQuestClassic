@@ -1,5 +1,5 @@
 #include "zc_list_data.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "qst.h"
 
 extern zcmodule moduledata;

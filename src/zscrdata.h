@@ -1,7 +1,7 @@
 #ifndef ZSCR_DATA_H
 #define ZSCR_DATA_H
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "ConsoleLogger.h"
 
 #ifndef IS_PARSER

@@ -49,13 +49,13 @@
 #include <string.h>
 #include <filesystem>
 
-#include "allegro_wrapper.h"
+#include "base/allegro_wrapper.h"
 #include <allegro/internal/aintern.h>
 #include <allegro/alcompat.h>
 
 #include "jwin.h"
 #include "jwinfsel.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zc_malloc.h"
 
 extern FONT *lfont_l;

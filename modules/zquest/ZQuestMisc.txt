@@ -12,7 +12,6 @@ src/gui.cpp
 src/jwinfsel.cpp
 src/tab_ctl.cpp
 src/tiles.cpp
-src/win32.cpp
 src/zq/ffasmexport.cpp
 src/drawing.cpp
 

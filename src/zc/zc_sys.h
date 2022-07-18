@@ -12,7 +12,7 @@
 #ifndef _ZC_SYS_H_
 #define _ZC_SYS_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "jwinfsel.h"
 
 extern MENU the_player_menu[];

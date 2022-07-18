@@ -13,12 +13,12 @@
 
 #include "gamedata.h"
 #include <stdio.h>
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 #include "zelda.h"
 #include "items.h"
 #include "pal.h"
-#include "util.h"
+#include "base/util.h"
 
 using namespace util;
 
