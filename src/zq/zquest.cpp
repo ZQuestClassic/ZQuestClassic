@@ -88,7 +88,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "questReport.h"
 #include "ffasmexport.h"
 #include <fstream>
-#include "module.h"
+#include "base/module.h"
 #include "zscrdata.h"
 #include "drawing.h"
 #include "ConsoleLogger.h"

@@ -643,7 +643,7 @@ struct user_rng
 
 //Module System.
 //Putting this here for now.
-#include "module.h"
+#include "base/module.h"
 
 typedef struct ZSCRIPT_CONFIG_ENTRY
 {

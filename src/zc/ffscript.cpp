@@ -29,7 +29,7 @@ uint8_t using_SRAM = 0;
 #include "base/util.h"
 #include "ending.h"
 #include "zc_malloc.h"
-#include "module.h"
+#include "base/module.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;

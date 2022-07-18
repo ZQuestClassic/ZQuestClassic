@@ -273,6 +273,7 @@ add_library(zcbase STATIC
 	src/base/alleg_compat.cpp
 	src/base/colors.cpp
 	src/base/fonts.cpp
+	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp
 	src/base/util.cpp
@@ -282,6 +283,11 @@ add_library(zcbase STATIC
 	src/base/zsys.cpp
 )
 target_link_libraries(zcbase PUBLIC allegro_with_legacy)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	target_link_options(zcbase PRIVATE "-force_load")
+endif()
 
 add_library(zcgui STATIC
 	src/gui/button.cpp

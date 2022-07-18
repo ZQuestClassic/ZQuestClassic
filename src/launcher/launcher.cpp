@@ -1,7 +1,7 @@
 // Launcher executable main file
 #include "base/zdefs.h"
 #include "launcher.h"
-#include "module.h"
+#include "base/module.h"
 #include "base/fonts.h"
 #include "dialog/alert.h"
 #include "launcher_dialog.h"

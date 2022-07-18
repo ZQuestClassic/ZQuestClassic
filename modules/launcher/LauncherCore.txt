@@ -5,7 +5,6 @@ set(LAUNCHER_SOURCES
 # Add or remove files here
 ################################
 src/launcher/launcher.cpp
-src/module.cpp
 src/zconfig.cpp
 src/zqscale.cpp
 

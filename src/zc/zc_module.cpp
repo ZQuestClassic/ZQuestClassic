@@ -1,5 +1,5 @@
 #include "ffscript.h"
-#include "module.h"
+#include "base/module.h"
 
 extern zcmodule moduledata;
 
