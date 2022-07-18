@@ -1,7 +1,9 @@
 #include "size.h"
 #include "common.h"
 #include "../zc_alleg.h"
-#include "zquest.h"
+
+extern FONT* lfont_l;
+extern FONT* nfont;
 
 namespace GUI
 {

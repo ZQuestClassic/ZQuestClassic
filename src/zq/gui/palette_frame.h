@@ -1,8 +1,8 @@
 #ifndef ZC_GUI_PALETTE_FRAME_H
 #define ZC_GUI_PALETTE_FRAME_H
 
-#include "widget.h"
-#include "dialog_ref.h"
+#include "gui/widget.h"
+#include "gui/dialog_ref.h"
 
 int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c);
 

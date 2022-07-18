@@ -1,8 +1,8 @@
 #ifndef ZC_GUI_MSGSTR_PREVIEW_H
 #define ZC_GUI_MSGSTR_PREVIEW_H
 
-#include "widget.h"
-#include "dialog_ref.h"
+#include "gui/widget.h"
+#include "gui/dialog_ref.h"
 #include <string>
 
 namespace GUI

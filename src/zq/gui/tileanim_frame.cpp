@@ -1,10 +1,10 @@
 #include "tileanim_frame.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "size.h"
-#include "../jwin.h"
 #include "zquest.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "gui/size.h"
+#include "../jwin.h"
 #include "../zsys.h"
 #include <cassert>
 #include <utility>

@@ -10,8 +10,8 @@
 #include <gui/list_data.h>
 #include <gui/seltile_swatch.h>
 #include <gui/selcombo_swatch.h>
-#include <gui/tileanim_frame.h>
-#include <gui/cornerselect.h>
+#include <zq/gui/tileanim_frame.h>
+#include <zq/gui/cornerselect.h>
 #include <functional>
 #include <string_view>
 #include <map>

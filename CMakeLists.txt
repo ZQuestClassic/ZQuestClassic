@@ -402,7 +402,6 @@ add_library(zcgui STATIC
 	src/gui/checkbox.cpp
 	src/gui/colorsel.cpp
 	src/gui/common.cpp
-	src/gui/cornerselect.cpp
 	src/gui/ddpanel.cpp
 	src/gui/dialog_ref.cpp
 	src/gui/dialog_runner.cpp
@@ -412,8 +411,6 @@ add_library(zcgui STATIC
 	src/gui/label.cpp
 	src/gui/list_data.cpp
 	src/gui/list.cpp
-	src/gui/msgstr_preview.cpp
-	src/gui/palette_frame.cpp
 	src/gui/qrpanel.cpp
 	src/gui/radio.cpp
 	src/gui/radioset.cpp
@@ -423,7 +420,6 @@ add_library(zcgui STATIC
 	src/gui/tabpanel.cpp
 	src/gui/tabref.cpp
 	src/gui/text_field.cpp
-	src/gui/tileanim_frame.cpp
 	src/gui/top_level.cpp
 	src/gui/widget.cpp
 	src/gui/window.cpp

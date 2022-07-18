@@ -4,7 +4,6 @@
 #include "dialog_runner.h"
 #include "../jwin.h"
 #include "../zdefs.h"
-#include "zquest.h"
 #include <algorithm>
 #include <cassert>
 #include <cstring>

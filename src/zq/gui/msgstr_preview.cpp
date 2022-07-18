@@ -1,14 +1,15 @@
 #include "msgstr_preview.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "../jwin.h"
 #include "zquest.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "../jwin.h"
 #include "subscr.h"
 #include "tiles.h"
 #include <utility>
 
 extern char namebuf[9];
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 void init_msgstr(MsgStr *str);
 FONT* getfont(int32_t fonta);

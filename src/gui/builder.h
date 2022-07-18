@@ -24,14 +24,14 @@
 #include "text_field.h"
 #include "window.h"
 #include "widget.h"
-#include "tileanim_frame.h"
-#include "palette_frame.h"
-#include "cornerselect.h"
-#include "msgstr_preview.h"
 
 #ifdef IS_ZQUEST
 #include "zq/gui/seltile_swatch.h"
 #include "zq/gui/selcombo_swatch.h"
+#include "zq/gui/tileanim_frame.h"
+#include "zq/gui/msgstr_preview.h"
+#include "zq/gui/palette_frame.h"
+#include "zq/gui/cornerselect.h"
 #endif
 
 #include <initializer_list>
@@ -196,7 +196,6 @@ inline std::shared_ptr<SelComboSwatch> makeSelComboSwatch()
 {
 	return std::make_shared<SelComboSwatch>();
 }
-#endif
 
 inline std::shared_ptr<CornerSwatch> makeCornerSwatch()
 {
@@ -217,6 +216,7 @@ inline std::shared_ptr<MsgPreview> makeMsgPreview()
 {
 	return std::make_shared<MsgPreview>();
 }
+#endif
 
 // Top-level widgets
 
@@ -436,7 +436,6 @@ ZCGUI_BUILDER_START(SelComboSwatch)
 	ZCGUI_ACCEPT_PROP(onSelectFunc, setOnSelectFunc, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(SelComboSwatch, SelComboSwatch, makeSelComboSwatch)
-#endif
 
 ZCGUI_BUILDER_START(CornerSwatch)
 	ZCGUI_ACCEPT_PROP(val, setVal, int32_t)
@@ -475,6 +474,7 @@ ZCGUI_BUILDER_START(MsgPreview)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MsgPreview, MsgPreview, makeMsgPreview)
+#endif
 
 } // namespace GUI::builder
 

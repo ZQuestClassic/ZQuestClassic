@@ -9,7 +9,7 @@
 #include <gui/window.h>
 #include <gui/list_data.h>
 #include <gui/switcher.h>
-#include <gui/tileanim_frame.h>
+#include <zq/gui/tileanim_frame.h>
 #include <functional>
 #include <string_view>
 #include <map>
