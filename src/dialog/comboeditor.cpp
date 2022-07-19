@@ -2681,6 +2681,8 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		case message::OK:
 			saved = false;
+			if(!hasCTypeEffects(local_comboref.type))
+				local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
 			memcpy(&combobuf[index], &local_comboref, sizeof(local_comboref));
 			edited = true;
 			return true;
