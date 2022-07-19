@@ -18,6 +18,32 @@ using std::to_string;
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0;
 
+bool hasCTypeEffects(int32_t type)
+{
+	switch(type)
+	{
+		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
+		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+		case cTRIGGERGENERIC:
+		case cCSWITCH:
+		case cSIGNPOST:
+		case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
+		case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
+		case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
+		case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		case cSTEP: case cSTEPSAME: case cSTEPALL:
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return true;
+	}
+	return false;
+}
+
 static bool edited = false, cleared = false;
 bool call_combo_editor(int32_t index)
 {
@@ -1535,6 +1561,7 @@ void ComboEditorDialog::loadComboType()
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		l_attributes[q]->setText(l_attribute[q]);
 	}
+	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
 	pendDraw();
 }
 void ComboEditorDialog::updateCSet()
@@ -2087,7 +2114,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(48,"Triggers Secrets"),
 							TRIGFLAG(18,"->Next"),
 							TRIGFLAG(19,"->Prev"),
-							TRIGFLAG(28,"ComboType Effects")
+							cteff_tflag = TRIGFLAG(28,"ComboType Effects")
 						)
 					)),
 					TabRef(name = "Script", Column(
@@ -2521,7 +2548,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(48,"Triggers Secrets"),
 								TRIGFLAG(18,"->Next"),
 								TRIGFLAG(19,"->Prev"),
-								TRIGFLAG(28,"ComboType Effects")
+								cteff_tflag = TRIGFLAG(28,"ComboType Effects")
 							)
 						)
 					)),

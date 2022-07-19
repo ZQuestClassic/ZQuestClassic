@@ -12,6 +12,16 @@ extern sprite_list items, decorations;
 extern FFScript FFCore;
 extern HeroClass Hero;
 
+bool alwaysCTypeEffects(int32_t type)
+{
+	switch(type)
+	{
+		case cCUSTOMBLOCK:
+			return true;
+	}
+	return false;
+}
+
 bool isNextType(int32_t type)
 {
 	switch(type)
@@ -35,6 +45,63 @@ bool isNextType(int32_t type)
 		}
 		default: return false;
 	}
+}
+
+bool isWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return true;
+	}
+	return false;
+}
+
+int32_t getWarpLetter(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSWIMWARP: case cDIVEWARP: case cPIT:
+		case cAWARPA: case cSWARPA:
+			return 0;
+		case cSTAIRB: case cSWIMWARPB: case cDIVEWARPB: case cPITB:
+		case cAWARPB: case cSWARPB:
+			return 1;
+		case cSTAIRC: case cSWIMWARPC: case cDIVEWARPC: case cPITC:
+		case cAWARPC: case cSWARPC:
+			return 2;
+		case cSTAIRD: case cSWIMWARPD: case cDIVEWARPD: case cPITD:
+		case cAWARPD: case cSWARPD:
+			return 3;
+		case cSTAIRR: case cPITR: case cAWARPR: case cSWARPR:
+			return 4;
+	}
+	return -1;
+}
+
+int32_t simplifyWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+			return cSTAIR;
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+			return cSWIMWARP;
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+			return cDIVEWARP;
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+			return cPIT;
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+			return cAWARPA;
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return cSWARPA;
+	}
+	return 0;
 }
 
 bool isStepType(int32_t type)
@@ -483,6 +550,55 @@ void trigger_sign(newcombo const& cmb)
 		donewmsg(str);
 }
 
+bool trigger_warp(newcombo const& cmb)
+{
+	if(!isWarpType(cmb.type)) return false;
+	mapscr* wscr = &tmpscr[(currscr<128)?0:1];
+	auto index = getWarpLetter(cmb.type);
+	if(index == 4) index = zc_oldrand()%4; //Random warp
+	auto wtype = wscr->tilewarptype[index];
+	if(wtype==wtNOWARP)
+		return false;
+	auto stype = simplifyWarpType(cmb.type);
+	auto wsfx = cmb.attribytes[0];
+	auto tdm = wscr->tilewarpdmap[index];
+	auto tscr = wscr->tilewarpscr[index];
+	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
+	auto wx = wscr->warpreturnx[wrindex];
+	auto wy = wscr->warpreturny[wrindex];
+	if(stype == cPIT)
+	{
+		wx = -1;
+		wy = -1;
+	}
+	auto weff = warpEffectNONE;
+	switch(wtype)
+	{
+		case wtIWARPZAP:
+			wtype = wtIWARP;
+			weff = warpEffectZap;
+			break;
+		case wtIWARPBLK:
+			wtype = wtIWARP;
+			weff = warpEffectInstant;
+			break;
+		case wtIWARPOPEN:
+			wtype = wtIWARP;
+			weff = warpEffectOpen;
+			break;
+		case wtIWARPWAVE:
+			wtype = wtIWARP;
+			weff = warpEffectWave;
+			break;
+	}
+	
+	auto wflag = 0;
+	if(tmpscr->flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
+	//Queue the warp for the next frame, as doing anything else breaks terribly
+	FFCore.queueWarp(wtype, tdm, tscr, wx, wy, weff, wsfx, wflag, -1);
+	return true;
+}
+
 //Forcibly triggers a combo at a given position
 void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 {
@@ -503,7 +619,7 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 		grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
 		check_bit = get_bit(grid,(((cx>>4) + cy)));
 	}
-	if(cmb.triggerflags[0] & combotriggerCMBTYPEFX)
+	if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 	{
 		switch(cmb.type)
 		{
@@ -550,6 +666,15 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 				case cSTEP: case cSTEPSAME: case cSTEPALL:
 					if(!trigger_step(layer,pos))
 						return;
+					break;
+				
+				case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+				case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+				case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+				case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+				case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+				case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+					trigger_warp(cmb);
 					break;
 					
 				default:

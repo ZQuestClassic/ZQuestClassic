@@ -1017,6 +1017,8 @@ int32_t getQuestHeaderInfo(int32_t type)
 //Script-only Warp, Hero->WarpEx(int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir)
 //Script-only Warp, Hero->WarpEx(int32_t array[])
 //{int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
+void queueWarp(int32_t wtype, int32_t tdm, int32_t tscr, int32_t wx, int32_t wy,
+	int32_t weff, int32_t wsfx, int32_t wflag, int32_t wdir);
 bool warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir);
 
 void user_files_init();

@@ -9,6 +9,7 @@ extern newcombo *combobuf;
 #define maxSECRET_TYPE 43
 
 bool isNextType(int32_t type);
+bool isWarpType(int32_t type);
 bool isStepType(int32_t type);
 
 void do_trigger_combo(int32_t layer, int32_t pos, int32_t special = 0, weapon* w = NULL);

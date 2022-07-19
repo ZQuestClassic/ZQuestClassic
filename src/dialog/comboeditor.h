@@ -40,6 +40,7 @@ private:
 	std::shared_ptr<GUI::Label> l_attribytes[8];
 	std::shared_ptr<GUI::Label> l_attrishorts[8];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
+	std::shared_ptr<GUI::Checkbox> cteff_tflag;
 	std::shared_ptr<GUI::Button> ib_attributes[4];
 	std::shared_ptr<GUI::Button> ib_attribytes[8];
 	std::shared_ptr<GUI::Button> ib_attrishorts[8];

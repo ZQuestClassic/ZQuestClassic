@@ -24632,6 +24632,21 @@ void doWarpEffect(int32_t warpEffect, bool out)
 	}
 }
 
+void FFScript::queueWarp(int32_t wtype, int32_t tdm, int32_t tscr, int32_t wx, int32_t wy,
+	int32_t weff, int32_t wsfx, int32_t wflag, int32_t wdir)
+{
+	warpex[wexActive] = 1;
+	warpex[wexType] = wtype;
+	warpex[wexDMap] = tdm;
+	warpex[wexScreen] = tscr;
+	warpex[wexX] = wx;
+	warpex[wexY] = wy;
+	warpex[wexEffect] = weff;
+	warpex[wexSound] = wsfx;
+	warpex[wexFlags] = wflag;
+	warpex[wexDir] = wdir;
+}
+
 bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir)
 {
 	if(DEVLOGGING)
