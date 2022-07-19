@@ -347,6 +347,7 @@ public:
 	void doHit(int32_t hitdir);
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
+	void check_scroll_direction(direction dir);
 	void checkscroll();
 	void checkspecial();
 	void checkspecial2(int32_t *ls);

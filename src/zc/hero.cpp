@@ -23035,268 +23035,97 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	return false;
 }
 
+void HeroClass::check_scroll_direction(direction dir)
+{
+	bool should_scroll = true;
+
+	if (dir == left || dir == right) x = CLAMP(0, 240, x);
+	if (dir == up || dir == down)    y = CLAMP(0, 160, y);
+
+	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+		should_scroll = false;
+
+	if(nextcombo_wf(dir))
+		should_scroll = false;
+	
+	int dir_flag;
+	if (dir == up) dir_flag = wfUP;
+	if (dir == down) dir_flag = wfDOWN;
+	if (dir == left) dir_flag = wfLEFT;
+	if (dir == right) dir_flag = wfRIGHT;
+
+	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(tmpscr->flags2&dir_flag))
+	{
+		if(nextcombo_solid(dir))
+			should_scroll = false;
+	}
+
+	if (should_scroll || action == inwind)
+	{
+		if(currscr>=128)
+		{
+			if(specialcave >= GUYCAVE)
+				exitcave();
+			else stepout();
+		}
+		else if(action==inwind)
+		{
+			if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
+			{
+				action=none; FFCore.setHeroAction(none);
+				restart_level();
+			}
+			else
+			{
+				dowarp(2,dir);
+			}
+		}
+		else if(tmpscr->flags2&dir_flag && (!(tmpscr->flags8&fMAZEvSIDEWARP) || checkmaze(tmpscr,false)))
+		{
+			sdir=dir;
+			dowarp(1,(tmpscr->sidewarpindex)&3);
+		}
+		else if(!edge_of_dmap(dir))
+		{
+			scrolling_map = currmap;
+			scrollscr(dir);
+			
+			if(tmpscr->flags4&fAUTOSAVE)
+			{
+				save_game(true,0);
+			}
+			
+			if(tmpscr->flags6&fCONTINUEHERE)
+			{
+				lastentrance_dmap = currdmap;
+				lastentrance = homescr;
+			}
+		}
+	}
+}
+
+// Checks if hero is beyond the bounds of the screen, and if so begins (and finishes) scrolling.
 void HeroClass::checkscroll()
 {
-    //DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
-    if(action == casting||action==sideswimcasting)
-        return;
-        
-    if(toogam)
-    {
-        if(x<0 && (currscr&15)==0) x=0;
-        
-        if(y<0 && currscr<16) y=0;
-        
-        if(x>240 && (currscr&15)==15) x=240;
-        
-        if(y>160 && currscr>=112) y=160;
-    }
-    
-    if(y<0)
-    {
-        bool doit=true;
-        y=0;
+	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
+	if(action == casting||action==sideswimcasting)
+		return;
+
+	if(toogam)
+	{
+		if(x<0 && (currscr&15)==0) x=0;
 		
-		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
-			doit = false;
+		if(y<0 && currscr<16) y=0;
 		
-        if(nextcombo_wf(up))
-            doit=false;
-            
-        if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(tmpscr->flags2&wfUP))
-        {
-            if(nextcombo_solid(up))
-                doit=false;
-        }
-        
-        if(doit || action==inwind)
-        {
-            if(currscr>=128)
-            {
-                if(specialcave >= GUYCAVE)
-                    exitcave();
-                else stepout();
-            }
-            else if(action==inwind)
-            {
-                if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
-                {
-                    action=none; FFCore.setHeroAction(none);
-                    restart_level();
-                }
-                else
-                {
-                    dowarp(2,up);
-                }
-            }
-            else if(tmpscr->flags2&wfUP && (!(tmpscr->flags8&fMAZEvSIDEWARP) || checkmaze(tmpscr,false)))
-            {
-                sdir=up;
-                dowarp(1,(tmpscr->sidewarpindex)&3);
-            }
-            else if(!edge_of_dmap(up))
-            {
-				scrolling_map = currmap;
-                scrollscr(up);
-                
-                if(tmpscr->flags4&fAUTOSAVE)
-                {
-                    save_game(true,0);
-                }
-                
-                if(tmpscr->flags6&fCONTINUEHERE)
-                {
-                    lastentrance_dmap = currdmap;
-                    lastentrance = homescr;
-                }
-            }
-        }
-    }
-    
-    if(y>160)
-    {
-        bool doit=true;
-        y=160;
+		if(x>240 && (currscr&15)==15) x=240;
 		
-		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
-			doit = false;
-		
-        if(nextcombo_wf(down))
-            doit=false;
-            
-        if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling &&!(tmpscr->flags2&wfDOWN))
-        {
-            if(nextcombo_solid(down))
-                doit=false;
-        }
-        
-        if(doit || action==inwind)
-        {
-            if(currscr>=128)
-            {
-                if(specialcave >= GUYCAVE)
-                    exitcave();
-                else stepout();
-            }
-            else if(action==inwind)
-            {
-                if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
-                {
-                    action=none; FFCore.setHeroAction(none);
-                    restart_level();
-                }
-                else
-                {
-                    dowarp(2,down);
-                }
-            }
-            else if(tmpscr->flags2&wfDOWN && (!(tmpscr->flags8&fMAZEvSIDEWARP) || checkmaze(tmpscr,false)))
-            {
-                sdir=down;
-                dowarp(1,(tmpscr->sidewarpindex>>2)&3);
-            }
-            else if(!edge_of_dmap(down))
-            {
-				scrolling_map = currmap;
-                scrollscr(down);
-                
-                if(tmpscr->flags4&fAUTOSAVE)
-                {
-                    save_game(true,0);
-                }
-                
-                if(tmpscr->flags6&fCONTINUEHERE)
-                {
-                    lastentrance_dmap = currdmap;
-                    lastentrance = homescr;
-                }
-            }
-        }
-    }
-    
-    if(x<0)
-    {
-        bool doit=true;
-        x=0;
-		
-		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
-			doit = false;
-		
-        if(nextcombo_wf(left))
-            doit=false;
-            
-        if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling &&!(tmpscr->flags2&wfLEFT))
-        {
-            if(nextcombo_solid(left))
-                doit=false;
-        }
-        
-        if(doit || action==inwind)
-        {
-            if(currscr>=128)
-            {
-                if(specialcave >= GUYCAVE)
-                    exitcave();
-                else stepout();
-            }
-            
-            if(action==inwind)
-            {
-                if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
-                {
-                    action=none; FFCore.setHeroAction(none);
-                    restart_level();
-                }
-                else
-                {
-                    dowarp(2,left);
-                }
-            }
-            else if(tmpscr->flags2&wfLEFT && (!(tmpscr->flags8&fMAZEvSIDEWARP) || checkmaze(tmpscr,false)))
-            {
-                sdir=left;
-                dowarp(1,(tmpscr->sidewarpindex>>4)&3);
-            }
-            else if(!edge_of_dmap(left))
-            {
-				scrolling_map = currmap;
-                scrollscr(left);
-                
-                if(tmpscr->flags4&fAUTOSAVE)
-                {
-                    save_game(true,0);
-                }
-                
-                if(tmpscr->flags6&fCONTINUEHERE)
-                {
-                    lastentrance_dmap = currdmap;
-                    lastentrance = homescr;
-                }
-            }
-        }
-    }
-    
-    if(x>240)
-    {
-        bool doit=true;
-        x=240;
-		
-		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
-			doit = false;
-		
-        if(nextcombo_wf(right))
-            doit=false;
-            
-        if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling &&!(tmpscr->flags2&wfRIGHT))
-        {
-            if(nextcombo_solid(right))
-                doit=false;
-        }
-        
-        if(doit || action==inwind)
-        {
-            if(currscr>=128)
-            {
-                if(specialcave >= GUYCAVE)
-                    exitcave();
-                else stepout();
-            }
-            
-            if(action==inwind)
-            {
-                if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
-                {
-                    action=none; FFCore.setHeroAction(none);
-                    restart_level();
-                }
-                else
-                {
-                    dowarp(2,right);
-                }
-            }
-            else if(tmpscr->flags2&wfRIGHT && (!(tmpscr->flags8&fMAZEvSIDEWARP) || checkmaze(tmpscr,false)))
-            {
-                sdir=right;
-                dowarp(1,(tmpscr->sidewarpindex>>6)&3);
-            }
-            else if(!edge_of_dmap(right))
-            {
-				scrolling_map = currmap;
-                scrollscr(right);
-                
-                if(tmpscr->flags4&fAUTOSAVE)
-                {
-                    save_game(true,0);
-                }
-                
-                if(tmpscr->flags6&fCONTINUEHERE)
-                {
-                    lastentrance_dmap = currdmap;
-                    lastentrance = homescr;
-                }
-            }
-        }
-    }
+		if(y>160 && currscr>=112) y=160;
+	}
+
+	if (x > 240) check_scroll_direction(right);
+	if (x < 0)   check_scroll_direction(left);
+	if (y > 160) check_scroll_direction(down);
+	if (y < 0)   check_scroll_direction(up);
 }
 
 // assumes current direction is in lastdir[3]
