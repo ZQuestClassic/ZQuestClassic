@@ -7047,8 +7047,6 @@ int32_t getPushDir(int32_t flag)
 	return -1;
 }
 
-void do_trigger_combo(int32_t layer, int32_t pos, int32_t special); //weapons.cpp
-
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {

@@ -596,12 +596,6 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[1] = "Item ID that must be owned in order to trigger. If '0', no item is required.";
 			break;
 		}
-		case cSTEPCOPY:
-		{
-			l_flag[0] = "Heavy";
-			h_flag[0] = "Requires Heavy Boots to trigger";
-			break;
-		}
 		case cWATER:
 		{
 			l_flag[0] = "Is Lava";

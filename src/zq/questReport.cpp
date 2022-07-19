@@ -35,7 +35,7 @@ char *palname_spaced(int32_t pal)
     return buf;
 }
 
-static int32_t isNextType(int32_t type)
+static bool isNextType(int32_t type)
 {
 	switch(type)
 	{

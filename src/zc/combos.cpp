@@ -10,8 +10,9 @@
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;
+extern HeroClass Hero;
 
-int32_t isNextType(int32_t type)
+bool isNextType(int32_t type)
 {
 	switch(type)
 	{
@@ -36,6 +37,16 @@ int32_t isNextType(int32_t type)
 	}
 }
 
+bool isStepType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTEP: case cSTEPSAME:
+		case cSTEPALL: case cSTEPCOPY:
+			return true;
+	}
+	return false;
+}
 
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer)
 {
@@ -191,7 +202,7 @@ bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* 
 	return true;
 }
 
-void runDecoration(newcombo const& cmb, int32_t pos)
+void spawn_decoration(newcombo const& cmb, int32_t pos)
 {
 	if(unsigned(pos) > 175) return;
 	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
@@ -212,7 +223,7 @@ void runDecoration(newcombo const& cmb, int32_t pos)
 	}
 }
 
-void triggerCuttable(int32_t lyr, int32_t pos)
+void trigger_cuttable(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
 	mapscr* tmp = FFCore.tempScreens[lyr];
@@ -328,7 +339,52 @@ void triggerCuttable(int32_t lyr, int32_t pos)
 			sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
 		}
 	}
-	runDecoration(cmb, pos);
+	spawn_decoration(cmb, pos);
+}
+
+bool trigger_step(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
+	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
+		return false; //lacking required item
+	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
+		return false;
+	if(cmb.attribytes[0])
+		sfx(cmb.attribytes[0], pan(COMBOX(pos)));
+	switch(cmb.type)
+	{
+		case cSTEP:
+			++tmp->data[pos]; break;
+		case cSTEPSAME:
+		{
+			int32_t id = tmp->data[pos];
+			for(auto q = 0; q < 176; ++q)
+			{
+				if(tmpscr->data[q] == id)
+				{
+					++tmpscr->data[q];
+				}
+			}
+			if(tmp != tmpscr) ++tmp->data[pos];
+			break;
+		}
+		case cSTEPALL:
+		{
+			for(auto q = 0; q < 176; ++q)
+			{
+				if(isStepType(combobuf[tmpscr->data[q]].type))
+				{
+					++tmpscr->data[q];
+				}
+			}
+			if(tmp != tmpscr) ++tmp->data[pos];
+			break;
+		}
+	}
+	return true;
 }
 
 bool can_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specifically
@@ -428,7 +484,7 @@ void trigger_sign(newcombo const& cmb)
 }
 
 //Forcibly triggers a combo at a given position
-void do_trigger_combo(int32_t layer, int32_t pos, int32_t special)
+void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
 	mapscr* tmp = FFCore.tempScreens[layer];
@@ -438,46 +494,95 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special)
 	newcombo const& cmb = combobuf[cid];
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
+	
+	byte* grid = nullptr;
+	bool check_bit = false;
+	bool used_bit = false;
+	if(w)
+	{
+		grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+		check_bit = get_bit(grid,(((cx>>4) + cy)));
+	}
 	if(cmb.triggerflags[0] & combotriggerCMBTYPEFX)
+	{
 		switch(cmb.type)
 		{
 			case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 			case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 			case cTRIGGERGENERIC:
-				do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
+				if(w)
+					do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
+				else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
 				break;
-			case cCSWITCH:
-				do_cswitch_combo(cmb, layer, pos);
-				break;
-			case cSIGNPOST:
-				if(!(special & ctrigIGNORE_SIGN))
-				{
-					trigger_sign(cmb);
-				}
-				break;
-			
-			case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
-			case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
-			case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
-			case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
-			case cBUSHNEXTTOUCHY:
-				triggerCuttable(layer, pos);
+			case cCUSTOMBLOCK:
+				if(!w) break;
+				killgenwpn(w);
+				if(cmb.attribytes[0])
+					sfx(cmb.attribytes[0]);
 				break;
 		}
-	if (cmb.triggerflags[1]&combotriggerSECRETS)
-	{
-		hidden_entrance(0, true, false, -6);
-		if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
-			setmapflag(mSECRET);
-		sfx(tmpscr->secretsfx);
+		if(!check_bit)
+		{
+			used_bit = true;
+			switch(cmb.type)
+			{
+				case cCSWITCH:
+					do_cswitch_combo(cmb, layer, pos, w);
+					break;
+				
+				case cSIGNPOST:
+				{
+					if(!(special & ctrigIGNORE_SIGN))
+					{
+						trigger_sign(cmb);
+					}
+					break;
+				}
+				
+				case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
+				case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
+				case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
+				case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
+				case cBUSHNEXTTOUCHY:
+					trigger_cuttable(layer, pos);
+					break;
+					
+				case cSTEP: case cSTEPSAME: case cSTEPALL:
+					if(!trigger_step(layer,pos))
+						return;
+					break;
+					
+				default:
+					used_bit = false;
+			}
+		}
 	}
-	if(cmb.triggerflags[0]&combotriggerNEXT)
+	
+	if(!check_bit)
 	{
-		tmp->data[pos] = cid+1;
+		if (cmb.triggerflags[1]&combotriggerSECRETS)
+		{
+			used_bit = true;
+			hidden_entrance(0, true, false, -6);
+			if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
+				setmapflag(mSECRET);
+			sfx(tmpscr->secretsfx);
+		}
+		
+		if(cmb.triggerflags[0]&combotriggerNEXT)
+		{
+			used_bit = true;
+			tmp->data[pos] = cid+1;
+		}
+		else if(cmb.triggerflags[0]&combotriggerPREV)
+		{
+			used_bit = true;
+			tmp->data[pos] = cid-1;
+		}
 	}
-	else if(cmb.triggerflags[0]&combotriggerPREV)
+	if(used_bit && grid)
 	{
-		tmp->data[pos] = cid-1;
+		set_bit(grid,(((cx>>4) + cy)),1);
 	}
 }
 
