@@ -629,6 +629,11 @@ foreach(target IN LISTS zc_targets)
 	endif()
 endforeach()
 
+if(WIN32)
+	# Disable warnings for generated file.
+	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS /W0)
+endif()
+
 #############################################################
 # Visual Studio
 #############################################################
