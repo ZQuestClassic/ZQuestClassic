@@ -7569,7 +7569,7 @@ int32_t onTryQuit(bool inMenu)
 		if(get_bit(quest_rules,qr_OLD_F6))
 		{
 			if(inMenu) onQuit();
-			else if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
+			else /*if(!get_bit(quest_rules, qr_NOCONTINUE))*/ f_Quit(qQUIT);
 		}
 		else
 		{

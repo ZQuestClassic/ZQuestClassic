@@ -32768,11 +32768,13 @@ void FFScript::runF6Engine()
 			//Restore script refinfo
 			pop_ri();
 			//
+			if(!Quit)
+			{
+				if(!get_bit(quest_rules, qr_NOCONTINUE))
+					f_Quit(qQUIT);
+			}
 		}
-		if(!Quit)
-		{
-			if(!get_bit(quest_rules, qr_NOCONTINUE)) f_Quit(qQUIT);
-		}
+		else f_Quit(qQUIT);
 		zc_readkey(KEY_F6);
 		GameFlags &= ~GAMEFLAG_TRYQUIT;
 	}

@@ -1038,7 +1038,9 @@ static const GUI::ListData miscRulesList
 		"If enabled, removes the 'Save' option from the Game Over screen. Saving must be done through other methods."},
 	{ "Return To File Select On Death/F6", qr_NOCONTINUE,
 		"If enabled, the Continue Screen is skipped, and the player is returned to the file select screen on Death or Game->End."
-		" Note that this means all progress is lost since last save."},
+		" Note that this means all progress is lost since last save."
+		"\nIf an 'onF6Menu' script is assigned, this prevents the"
+		" engine F6 menu from appearing after the scripted one is cancelled."},
 	{ "Instant Reload On Death", qr_INSTANT_RESPAWN,
 		"If enabled, dying will reload your last save immediately after the death animation finishes, losing all progress since the last save."
 		" Having both this and Instant Continue on Death enabled will cancel each other out."},
