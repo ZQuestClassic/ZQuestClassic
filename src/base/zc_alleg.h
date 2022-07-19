@@ -37,15 +37,6 @@ INLINE fix abs(fix f)
 }
 #endif
 
-#ifdef _ZQUEST_SCALE_
-#undef SCREEN_W
-#undef SCREEN_H
-#define SCREEN_W (screen ? screen->w : 0)
-#define SCREEN_H (screen ? screen->h : 0)
-#define popup_dialog popup_zqdialog
-#define do_dialog do_zqdialog
-#endif
-
 #ifdef ALLEGRO_WINDOWS
 #include <winalleg.h>
 #define YIELD() Sleep(10)

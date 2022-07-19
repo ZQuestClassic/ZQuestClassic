@@ -9,7 +9,7 @@ char const* zc_get_standard_config_name()
 		case App::zquest: return "zquest.cfg";
 		case App::launcher: return "zcl.cfg";
 		case App::zscript: return "zscript.cfg";
-		default: assert(false);
+		default: exit(1);
 	}
 }
 

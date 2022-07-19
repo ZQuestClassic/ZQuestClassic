@@ -58,7 +58,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 		// (you can modify it to use PID , zc_rand() ,...
 		uint32_t now = GetTickCount();
 		logger_name = m_name+ strlen(m_name);
-		sprintf((char*)logger_name,"logger%d_%lu",(int32_t)this,now);
+		sprintf((char*)logger_name,"logger%p_%lu",this,now);
 	}
 	else
 	{	// just use the given name
@@ -253,7 +253,7 @@ int32_t CConsoleLogger::printf(const char *format,...)
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLogger::SetAsDefaultOutput(void)
 {
-	int32_t hConHandle = _open_osfhandle(/*lStdHandle*/ (int32_t)m_hPipe, _O_TEXT);
+	int32_t hConHandle = _open_osfhandle(/*lStdHandle*/ (intptr_t)m_hPipe, _O_TEXT);
 	if (hConHandle==-1)
 		return -2;
 	FILE *fp = _fdopen( hConHandle, "w" );
@@ -268,8 +268,8 @@ int32_t CConsoleLogger::SetAsDefaultOutput(void)
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLogger::ResetDefaultOutput(void)
 {
-	int32_t lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
-	if (lStdHandle ==  (int32_t)INVALID_HANDLE_VALUE)
+	intptr_t lStdHandle = (intptr_t)GetStdHandle(STD_OUTPUT_HANDLE);
+	if (lStdHandle ==  (intptr_t)INVALID_HANDLE_VALUE)
 		return -1;
 	int32_t hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
 	if (hConHandle==-1)

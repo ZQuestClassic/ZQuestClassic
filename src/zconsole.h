@@ -67,21 +67,21 @@ public:
         
         
         // redirect unbuffered STDOUT to the console
-        lStdHandle = (int32_t)GetStdHandle(STD_OUTPUT_HANDLE);
+        lStdHandle = (intptr_t)GetStdHandle(STD_OUTPUT_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stdout = *_fdopen(hConHandle, "w");
         setvbuf(stdout, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDIN to the console
-        lStdHandle = (int32_t)GetStdHandle(STD_INPUT_HANDLE);
+        lStdHandle = (intptr_t)GetStdHandle(STD_INPUT_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stdin = *_fdopen(hConHandle, "r");
         setvbuf(stdin, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDERR to the console
-        lStdHandle = (int32_t)GetStdHandle(STD_ERROR_HANDLE);
+        lStdHandle = (intptr_t)GetStdHandle(STD_ERROR_HANDLE);
         hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
         *stderr = *_fdopen(hConHandle, "w");
         setvbuf(stderr, NULL, _IONBF, 0);
@@ -142,21 +142,21 @@ public:
         
         // redirect unbuffered STDOUT to the console
         lStdHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-        hConHandle = _open_osfhandle((long)lStdHandle, _O_TEXT);
+        hConHandle = _open_osfhandle((intptr_t)lStdHandle, _O_TEXT);
         *stdout = *_fdopen(hConHandle, "w");
         setvbuf(stdout, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDIN to the console
         lStdHandle = GetStdHandle(STD_INPUT_HANDLE);
-        hConHandle = _open_osfhandle((long)lStdHandle, _O_TEXT);
+        hConHandle = _open_osfhandle((intptr_t)lStdHandle, _O_TEXT);
         *stdin = *_fdopen(hConHandle, "r");
         setvbuf(stdin, NULL, _IONBF, 0);
         
         
         // redirect unbuffered STDERR to the console
         lStdHandle = GetStdHandle(STD_ERROR_HANDLE);
-        hConHandle = _open_osfhandle((long)lStdHandle, _O_TEXT);
+        hConHandle = _open_osfhandle((intptr_t)lStdHandle, _O_TEXT);
         *stderr = *_fdopen(hConHandle, "w");
         setvbuf(stderr, NULL, _IONBF, 0);
         

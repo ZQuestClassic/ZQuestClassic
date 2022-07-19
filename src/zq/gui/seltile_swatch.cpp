@@ -8,14 +8,10 @@
 #include <cassert>
 #include <utility>
 #include "tiles.h"
-
-#ifdef IS_ZQUEST
 #include "zq_tiles.h"
-#endif
 
 int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 {
-#ifdef IS_ZQUEST
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -64,7 +60,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 			break;
 	}
-#endif
+
 	return D_O_K;
 }
 

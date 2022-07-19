@@ -423,6 +423,7 @@ char const* zinfo::getItemClassHelp(size_t q)
 		return ic_help_string[q];
 	if(valid_str(itemclass_help_string_defaults[q]))
 		return itemclass_help_string_defaults[q];
+	return "";
 }
 char const* zinfo::getComboTypeName(size_t q)
 {
@@ -430,6 +431,7 @@ char const* zinfo::getComboTypeName(size_t q)
 		return ctype_name[q];
 	if(valid_str(default_ctype_strings[q]))
 		return default_ctype_strings[q];
+	return "";
 }
 static std::string ctype_help_buff;
 char const* zinfo::getComboTypeHelp(size_t q)
@@ -439,6 +441,7 @@ char const* zinfo::getComboTypeHelp(size_t q)
 	ctype_help_buff = getComboTypeHelpText(q);
 	if(ctype_help_buff.size())
 		return ctype_help_buff.c_str();
+	return "";
 }
 char const* zinfo::getMapFlagName(size_t q)
 {
@@ -446,6 +449,7 @@ char const* zinfo::getMapFlagName(size_t q)
 		return mf_name[q];
 	if(valid_str(map_flag_default_string[q]))
 		return map_flag_default_string[q];
+	return "";
 }
 char const* zinfo::getMapFlagHelp(size_t q)
 {
@@ -453,7 +457,8 @@ char const* zinfo::getMapFlagHelp(size_t q)
 		return mf_help_string[q];
 	std::string defstr = getMapFlagHelpText(q);
 	if(defstr.size())
-		return defstr.c_str();
+		return defstr.c_str(); // TODO: fix C26816
+	return "";
 }
 char const* zinfo::getCtrName(int32_t q)
 {
@@ -675,6 +680,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		if(namesize)
 		{
 			z.ic_name[q] = (char*)zc_malloc(namesize+1);
+			if (!z.ic_name[q]) return qe_nomem;
 			if(!pfread(z.ic_name[q],namesize,f,true))
 				return qe_invalid;
 			z.ic_name[q][namesize] = 0;
@@ -686,6 +692,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		if(htxtsz)
 		{
 			char* p = (char*)zc_malloc(htxtsz+1);
+			if (!p) return qe_nomem;
 			if(!pfread(p,htxtsz,f,true))
 				return qe_invalid;
 			p[htxtsz] = 0;
@@ -748,6 +755,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			if(htxtsz)
 			{
 				char* p = (char*)zc_malloc(htxtsz+1);
+				if (!p) return qe_nomem;
 				if(!pfread(p,htxtsz,f,true))
 					return qe_invalid;
 				p[htxtsz] = 0;
@@ -768,6 +776,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 				{
 					byte namesize = (byte)(vbound(strlen(old_mapflag_strings[q]),0,255));
 					z.mf_name[q] = (char*)zc_malloc(namesize+1);
+					if (!z.mf_name[q]) return qe_nomem;
 					memcpy(z.mf_name[q], old_mapflag_strings[q], namesize);
 					z.mf_name[q][namesize] = 0;
 					
@@ -775,6 +784,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 						" but can be given special significance with ZASM or ZScript.";
 					namesize = (byte)strlen(scrdesc);
 					z.mf_help_string[q] = (char*)zc_malloc(namesize+1);
+					if (!z.mf_help_string[q]) return qe_nomem;
 					memcpy(z.mf_help_string[q], scrdesc, namesize);
 					z.mf_help_string[q][namesize] = 0;
 				}
@@ -794,6 +804,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			if(namesize)
 			{
 				char* p = (char*)zc_malloc(namesize+1);
+				if (!p) return qe_nomem;
 				if(!pfread(p,namesize,f,true))
 					return qe_invalid;
 				p[namesize] = 0;

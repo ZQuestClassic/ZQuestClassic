@@ -90,7 +90,7 @@ typedef struct MP3FILE : public ZCMUSICBASE
 typedef struct GMEFILE : public ZCMUSICBASE
 {
     AUDIOSTREAM *stream;
-    class Music_Emu* emu;
+    struct Music_Emu* emu;
     int32_t samples;
 } GMEFILE;
 

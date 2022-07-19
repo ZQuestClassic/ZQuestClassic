@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
@@ -202,6 +202,8 @@ if(MSVC)
 
 	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
 	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
+	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
+	add_compile_options(/W0)
 
 	# REQUIRED or else MSVC throws internal compiler error(!)
 	add_compile_options("$<$<CONFIG:RELEASE>:/fp:fast>")
@@ -614,6 +616,8 @@ endif()
 foreach(target IN LISTS zc_targets)
 	if(WIN32)
 		target_compile_definitions(${target} PRIVATE __STDC_LIMIT_MACROS)
+		# TODO: set /W2 higher.
+		target_compile_options(${target} PRIVATE /W2 /WX)
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")

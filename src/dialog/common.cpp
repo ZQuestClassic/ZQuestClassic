@@ -46,7 +46,7 @@ GUI::ListData getStringListData()
 		},
 		[&msgMap](size_t index)
 		{
-			return msgMap[index];
+			return (int32_t)msgMap[index];
 		});
 }
 
@@ -61,7 +61,7 @@ GUI::ListData getShopListData()
 		},
 		[](size_t index)
 		{
-			return index;
+			return (int32_t)index;
 		});
 }
 
@@ -76,7 +76,7 @@ GUI::ListData getBShopListData()
 		},
 		[](size_t index)
 		{
-			return index;
+			return (int32_t)index;
 		});
 }
 
@@ -91,7 +91,8 @@ GUI::ListData getInfoShopListData()
 		},
 		[](size_t index)
 		{
-			return index;
+			// TODO: ListData should probably deal with size_t.
+			return (int32_t)index;
 		});
 }
 
