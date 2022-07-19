@@ -39,6 +39,13 @@ static int32_t isNextType(int32_t type)
 {
 	switch(type)
 	{
+		case cLIFTSLASHNEXT:
+		case cLIFTSLASHNEXTSPECITEM:
+		case cLIFTSLASHNEXTITEM:
+		case cDIGNEXT:
+		case cLIFTNEXT:
+		case cLIFTNEXTITEM:
+		case cLIFTNEXTSPECITEM:
 		case cSLASHNEXT:
 		case cBUSHNEXT:
 		case cTALLGRASSNEXT:

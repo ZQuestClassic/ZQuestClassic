@@ -16,6 +16,7 @@
 #define _DECORATIONS_H_
 
 #include "zfix.h"
+#include "sprite.h"
 /***************************************/
 /*******  Decoration Base Class  *******/
 /***************************************/

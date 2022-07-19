@@ -511,7 +511,7 @@ static const GUI::ListData compatRulesList
 	{ "Old String Frame Width/Height", qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 
 		"If enabled, all strings default to 25x4 as opposed to 26x5."
 		" Enabled by default for 2.50 quests and below."},
-	{ "Old Slash Combo Secret Flag Behavior", qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT, 
+	{ "Old Slash Combo Secret Flag Behavior", qr_OLD_SLASHNEXT_SECRETS, 
 		"This QR changes the behavior of Slash combos when they have a"
 		" secret combo on top of them. The old behavior (used when this"
 		" rule is enabled) is that when slashed, instead of becoming"

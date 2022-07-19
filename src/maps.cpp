@@ -36,6 +36,7 @@ using std::set;
 #include "guys.h"
 #include "ffscript.h"
 #include "drawing.h"
+#include "combos.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
 extern FFScript FFCore;
@@ -6264,30 +6265,30 @@ bool isTouchyType(int32_t type)
 
 bool isCuttableType(int32_t type)
 {
-    switch(type)
-    {
-    case cSLASH:
-    case cSLASHITEM:
-    case cBUSH:
-    case cFLOWERS:
-    case cTALLGRASS:
-    case cTALLGRASSNEXT:
-    case cSLASHNEXT:
-    case cSLASHNEXTITEM:
-    case cBUSHNEXT:
-    
-    case cSLASHTOUCHY:
-    case cSLASHITEMTOUCHY:
-    case cBUSHTOUCHY:
-    case cFLOWERSTOUCHY:
-    case cTALLGRASSTOUCHY:
-    case cSLASHNEXTTOUCHY:
-    case cSLASHNEXTITEMTOUCHY:
-    case cBUSHNEXTTOUCHY:
-        return true;
-    }
-    
-    return false;
+	switch(type)
+	{
+		case cSLASH:
+		case cSLASHITEM:
+		case cBUSH:
+		case cFLOWERS:
+		case cTALLGRASS:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXT:
+		case cSLASHNEXTITEM:
+		case cBUSHNEXT:
+		
+		case cSLASHTOUCHY:
+		case cSLASHITEMTOUCHY:
+		case cBUSHTOUCHY:
+		case cFLOWERSTOUCHY:
+		case cTALLGRASSTOUCHY:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+			return true;
+	}
+	
+	return false;
 }
 
 bool isCuttableItemType(int32_t type)

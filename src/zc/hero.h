@@ -584,6 +584,9 @@ int32_t touchcombo(int32_t x,int32_t y);
 extern bool did_secret;
 int32_t selectWlevel(int32_t d);
 void computeMaxArrows();
+bool usekey();
+bool canUseKey(int32_t num = 1);
+bool usekey(int32_t num);
 
 /************************************/
 /********  More Items Code  *********/

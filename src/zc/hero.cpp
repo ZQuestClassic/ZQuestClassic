@@ -32,6 +32,7 @@
 #include "title.h"
 #include "ffscript.h"
 #include "drawing.h"
+#include "combos.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
@@ -215,31 +216,6 @@ bool HeroClass::isStanding(bool forJump)
 	if(val == -2) return false;
 	if(val == -1) return true;
 	return forJump;
-}
-
-static int32_t isNextType(int32_t type)
-{
-	switch(type)
-	{
-		case cLIFTSLASHNEXT:
-		case cLIFTSLASHNEXTSPECITEM:
-		case cLIFTSLASHNEXTITEM:
-		case cDIGNEXT:
-		case cLIFTNEXT:
-		case cLIFTNEXTITEM:
-		case cLIFTNEXTSPECITEM:
-		case cSLASHNEXT:
-		case cBUSHNEXT:
-		case cTALLGRASSNEXT:
-		case cSLASHNEXTITEM:
-		case cSLASHNEXTTOUCHY:
-		case cSLASHNEXTITEMTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		{
-			return true;
-		}
-		default: return false;
-	}
 }
 
 static int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
@@ -3685,144 +3661,141 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	}
 }
 
-
-
-
 void HeroClass::check_slash_block(int32_t bx, int32_t by)
 {
-    //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
-    //first things first
-    if(attack!=wSword)
-        return;
-        
-    if(z>8||fakez>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
-            || (attackclk>SWORDTAPFRAME && tapping))
-        return;
-        
-    //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
-    
-    int32_t type = COMBOTYPE(bx,by);
-    int32_t type2 = FFCOMBOTYPE(fx,fy);
-    int32_t flag = MAPFLAG(bx,by);
-    int32_t flag2 = MAPCOMBOFLAG(bx,by);
-    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int32_t cid = MAPCOMBO(bx,by);
-    int32_t i = (bx>>4) + by;
-    
-    if(i > 175)
-        return;
-        
-    bool ignorescreen=false;
-    bool ignoreffc=false;
-    
-    if(get_bit(screengrid, i) != 0)
-    {
-        ignorescreen = true;
-    }
-    
-    int32_t current_ffcombo = getFFCAt(fx,fy);
-    
-    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
-    {
-        ignoreffc = true;
-    }
-    
-    if(!isCuttableType(type) &&
-            (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
-    {
-        ignorescreen = true;
-    }
-    
-    if(!isCuttableType(type2) &&
-            (flag3<mfSWORD || flag3>mfXSWORD) && flag3!=mfSTRIKE)
-    {
-        ignoreffc = true;
-    }
-    
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
-    
-    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
-    byte skipsecrets = 0;
-    
-    if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
-    {
-		if (get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT)) //Haha wow Zoria you really named it that huh -Dimi
+	//keep things inside the screen boundaries
+	bx=vbound(bx, 0, 255);
+	by=vbound(by, 0, 176);
+	int32_t fx=vbound(bx, 0, 255);
+	int32_t fy=vbound(by, 0, 176);
+	//first things first
+	if(attack!=wSword)
+		return;
+		
+	if(z>8||fakez>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
+			|| (attackclk>SWORDTAPFRAME && tapping))
+		return;
+		
+	//find out which combo row/column the coordinates are in
+	bx &= 0xF0;
+	by &= 0xF0;
+	
+	int32_t type = COMBOTYPE(bx,by);
+	int32_t type2 = FFCOMBOTYPE(fx,fy);
+	int32_t flag = MAPFLAG(bx,by);
+	int32_t flag2 = MAPCOMBOFLAG(bx,by);
+	int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+	int32_t cid = MAPCOMBO(bx,by);
+	int32_t i = (bx>>4) + by;
+	
+	if(i > 175)
+		return;
+		
+	bool ignorescreen=false;
+	bool ignoreffc=false;
+	
+	if(get_bit(screengrid, i) != 0)
+	{
+		ignorescreen = true;
+	}
+	
+	int32_t current_ffcombo = getFFCAt(fx,fy);
+	
+	if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+	{
+		ignoreffc = true;
+	}
+	
+	if(!isCuttableType(type) &&
+			(flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
+	{
+		ignorescreen = true;
+	}
+	
+	if(!isCuttableType(type2) &&
+			(flag3<mfSWORD || flag3>mfXSWORD) && flag3!=mfSTRIKE)
+	{
+		ignoreffc = true;
+	}
+	
+	mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+	
+	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
+	byte skipsecrets = 0;
+	
+	if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
+	{
+		if (get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS))
 		{
 			skipsecrets = 0;
 		}
 		else skipsecrets = 1; ;
-    }
-    
-    if(!ignorescreen && (!skipsecrets || !get_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS)))
-    {
-        if((flag >= 16)&&(flag <= 31) && !skipsecrets)
-        {  
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
-        }
-        else if(flag == mfARMOS_SECRET)
-        {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
-        }
-        else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
-        {
-            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
-            {
-                findentrance(bx,by,mfSWORD+i2,true);
-            }
-            
-            findentrance(bx,by,mfSTRIKE,true);
-        }
-        else if(((flag2 >= 16)&&(flag2 <= 31)))
-        { 
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
-        }
-        else if(flag2 == mfARMOS_SECRET)
-        {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
-        }
-        else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
-        {
-            for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
-            {
-                findentrance(bx,by,mfSWORD+i2,true);
-            }
-            
-            findentrance(bx,by,mfSTRIKE,true);
-        }
-        else
-        {
-            if(isCuttableNextType(type))
-            {
-                s->data[i]++;
-            }
-            else
-            {
-                s->data[i] = s->undercombo;
-                s->cset[i] = s->undercset;
-                s->sflag[i] = 0;
-            }
-            
-            //pausenow=true;
-        }
-    }
-    else if(!ignorescreen && skipsecrets)
-    {
+	}
+	
+	if(!ignorescreen && (!skipsecrets || !get_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS)))
+	{
+		if((flag >= 16)&&(flag <= 31) && !skipsecrets)
+		{  
+			s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+			s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+			s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+		}
+		else if(flag == mfARMOS_SECRET)
+		{
+			s->data[i] = s->secretcombo[sSTAIRS];
+			s->cset[i] = s->secretcset[sSTAIRS];
+			s->sflag[i] = s->secretflag[sSTAIRS];
+			sfx(tmpscr->secretsfx);
+		}
+		else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
+		{
+			for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
+			{
+				findentrance(bx,by,mfSWORD+i2,true);
+			}
+			
+			findentrance(bx,by,mfSTRIKE,true);
+		}
+		else if(((flag2 >= 16)&&(flag2 <= 31)))
+		{ 
+			s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+			s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+			s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+		}
+		else if(flag2 == mfARMOS_SECRET)
+		{
+			s->data[i] = s->secretcombo[sSTAIRS];
+			s->cset[i] = s->secretcset[sSTAIRS];
+			s->sflag[i] = s->secretflag[sSTAIRS];
+			sfx(tmpscr->secretsfx);
+		}
+		else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
+		{
+			for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
+			{
+				findentrance(bx,by,mfSWORD+i2,true);
+			}
+			
+			findentrance(bx,by,mfSTRIKE,true);
+		}
+		else
+		{
+			if(isCuttableNextType(type))
+			{
+				s->data[i]++;
+			}
+			else
+			{
+				s->data[i] = s->undercombo;
+				s->cset[i] = s->undercset;
+				s->sflag[i] = 0;
+			}
+			
+			//pausenow=true;
+		}
+	}
+	else if(!ignorescreen && skipsecrets)
+	{
 		if(isCuttableNextType(type))
 		{
 			s->data[i]++;
@@ -3833,41 +3806,41 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			s->cset[i] = s->undercset;
 			s->sflag[i] = 0;
 		}
-    }
-    
-    if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
-    {
-        for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
-        {
-            findentrance(bx,by,mfSWORD+i2,true);
-        }
-        
-        findentrance(fx,fy,mfSTRIKE,true);
-    }
-    else if(!ignoreffc)
-    {
-        if(isCuttableNextType(type2))
-        {
-            s->ffdata[current_ffcombo]++;
-        }
-        else
-        {
-            s->ffdata[current_ffcombo] = s->undercombo;
-            s->ffcset[current_ffcombo] = s->undercset;
-        }
-    }
-    
-    if(!ignorescreen)
-    {
-        if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
-        
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
-        {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
-        }
-        else if(isCuttableItemType(type))
-        {
+	}
+	
+	if(((flag3>=mfSWORD&&flag3<=mfXSWORD)||(flag3==mfSTRIKE)) && !ignoreffc)
+	{
+		for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
+		{
+			findentrance(bx,by,mfSWORD+i2,true);
+		}
+		
+		findentrance(fx,fy,mfSTRIKE,true);
+	}
+	else if(!ignoreffc)
+	{
+		if(isCuttableNextType(type2))
+		{
+			s->ffdata[current_ffcombo]++;
+		}
+		else
+		{
+			s->ffdata[current_ffcombo] = s->undercombo;
+			s->ffcset[current_ffcombo] = s->undercset;
+		}
+	}
+	
+	if(!ignorescreen)
+	{
+		if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
+		
+		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+		{
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+			sfx(tmpscr->secretsfx);
+		}
+		else if(isCuttableItemType(type))
+		{
 			int32_t it = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
@@ -3886,10 +3859,10 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			{
 				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 			}
-        }
-        
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-        
+		}
+		
+		putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+		
 		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
 			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
@@ -3922,15 +3895,15 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-    }
-    
-    if(!ignoreffc)
-    {
-        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
-        
-        if(isCuttableItemType(type2))
-        {
-            int32_t it=-1;
+	}
+	
+	if(!ignoreffc)
+	{
+		if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+		
+		if(isCuttableItemType(type2))
+		{
+			int32_t it=-1;
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
 				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
@@ -3948,13 +3921,13 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 					it=iRupy;                                 // 20%
 				}
 			}
-            
-            if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
-            {
-                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
-        }
-        
+			
+			if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
+			{
+				items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			}
+		}
+		
 		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
 			if (!isBushType(type2) && !isFlowersType(type2) && !isGrassType(type2))
@@ -3987,7 +3960,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
 			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
 		}
-    }
+	}
 }
 
 void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
@@ -4319,7 +4292,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     byte skipsecrets = 0;
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
-		if (get_bit(quest_rules,qr_IDIOTICSHASHNEXTSECRETBUGSUPPORT))
+		if (get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS))
 		{
 			skipsecrets = 0;
 		}
@@ -17077,58 +17050,25 @@ void HeroClass::checkpushblock()
 
 bool usekey()
 {
-    int32_t itemid = current_item_id(itype_magickey);
-    
-    if(itemid<0 ||
-            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
-             : itemsbuf[itemid].power!=dlevel))
-    {
-        if(game->lvlkeys[dlevel]!=0)
-        {
-            game->lvlkeys[dlevel]--;
-	    //run script for level key item
-		int32_t key_item = 0; //current_item_id(itype_lkey); //not possible
-		for ( int32_t q = 0; q < MAXITEMS; ++q )
-		{
-			if ( itemsbuf[q].family == itype_lkey )
-			{
-				key_item = q; break;
-			}
-		}
-		//zprint2("key_item is: %d\n",key_item);
-		//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-		if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-		{
-			ri = &(itemScriptData[key_item]);
-			for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-			ri->Clear();
-			item_doscript[key_item] = 1;
-			itemscriptInitialised[key_item] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-			FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
-		}
-		return true;
-        }
-        
-	else
+	int32_t itemid = current_item_id(itype_magickey);
+	
+	if(itemid<0 ||
+			(itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
+			 : itemsbuf[itemid].power!=dlevel))
 	{
-		if(game->get_keys()==0)
+		if(game->lvlkeys[dlevel]!=0)
 		{
-		    return false;
-		}
-		else 
-		{
-			//run script for key item
-			int32_t key_item = 0; //current_item_id(itype_key); //not possible
+			game->lvlkeys[dlevel]--;
+			//run script for level key item
+			int32_t key_item = 0; //current_item_id(itype_lkey); //not possible
 			for ( int32_t q = 0; q < MAXITEMS; ++q )
 			{
-				if ( itemsbuf[q].family == itype_key )
+				if ( itemsbuf[q].family == itype_lkey )
 				{
 					key_item = q; break;
 				}
 			}
-			//zprint2("key_item is: %d\n",key_item);
-			//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
+			
 			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				ri = &(itemScriptData[key_item]);
@@ -17139,9 +17079,54 @@ bool usekey()
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 			}
-			game->change_keys(-1);
+			return true;
+		}
+		else
+		{
+			if(game->get_keys()==0)
+			{
+				return false;
+			}
+			else 
+			{
+				//run script for key item
+				int32_t key_item = 0; //current_item_id(itype_key); //not possible
+				for ( int32_t q = 0; q < MAXITEMS; ++q )
+				{
+					if ( itemsbuf[q].family == itype_key )
+					{
+						key_item = q; break;
+					}
+				}
+				//zprint2("key_item is: %d\n",key_item);
+				//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
+				if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				{
+					ri = &(itemScriptData[key_item]);
+					for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+					ri->Clear();
+					item_doscript[key_item] = 1;
+					itemscriptInitialised[key_item] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+					FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+				}
+				game->change_keys(-1);
+			}
 		}
 	}
+	
+	return true;
+}
+
+bool canUseKey(int32_t num)
+{
+    int32_t itemid = current_item_id(itype_magickey);
+    
+    if(itemid<0 ||
+            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
+             : itemsbuf[itemid].power!=dlevel))
+    {
+        return game->lvlkeys[dlevel] + game->get_keys() >= num;
     }
     
     return true;
@@ -17149,47 +17134,14 @@ bool usekey()
 
 bool usekey(int32_t num)
 {
-    int32_t itemid = current_item_id(itype_magickey);
-    
-    if(itemid<0 ||
-            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
-             : itemsbuf[itemid].power!=dlevel))
-    {
-        if(game->lvlkeys[dlevel]>=num)
-        {
-            game->lvlkeys[dlevel]-=num;
-            return true;
-        }
-        
-        if(game->get_keys()<num)
-            return false;
-            
-        game->change_keys(-num);
-    }
-    
-    return true;
+	if(!canUseKey(num)) return false;
+	for(auto q = 0; q < num; ++q)
+	{
+		if(!usekey()) return false; //should never return false here, but, just to be safe....
+	}
+	return true;
 }
 
-bool canUseKey(int32_t num = 1)
-{
-    int32_t itemid = current_item_id(itype_magickey);
-    
-    if(itemid<0 ||
-            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
-             : itemsbuf[itemid].power!=dlevel))
-    {
-        if(game->lvlkeys[dlevel]>=num)
-        {
-            game->lvlkeys[dlevel]-=num;
-            return true;
-        }
-        
-        if(game->get_keys()<num)
-            return false;
-    }
-    
-    return true;
-}
 
 bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 {
@@ -17199,80 +17151,6 @@ bool islockeddoor(int32_t x, int32_t y, int32_t lock)
                 || ((mc==64||mc==65||mc==80||mc==81) && tmpscr->door[left]==lock)
                 || ((mc==78||mc==79||mc==94||mc==95) && tmpscr->door[right]==lock));
     return ret;
-}
-
-bool can_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specifically
-{
-	switch(cmb.type) //sanity check
-	{
-		case cLOCKBLOCK: case cLOCKEDCHEST:
-			break;
-		default: return false; //not a locked container?
-	}
-	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.attribytes[0] : 0;
-	int32_t itemonly = cmb.usrflags&cflag2;
-	int32_t thecounter = cmb.attribytes[1];
-	int32_t ctr_amount = cmb.attributes[0]/10000L;
-	if( requireditem && game->item[requireditem]) 
-	{
-		return true;
-	}
-	else if((cmb.usrflags&cflag1) && itemonly) return false; //Nothing but item works
-	else if ( (cmb.usrflags&cflag4) )
-	{
-		if ( game->get_counter(thecounter) >= ctr_amount )
-		{
-			return true;
-		}
-		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock
-		{
-			return false;
-		}
-	}
-	else if (ctr_amount && canUseKey(ctr_amount) ) return true;
-	else if(!ctr_amount && !requireditem && !itemonly && canUseKey() ) return true;
-	return false;
-}
-
-bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specifically
-{
-	switch(cmb.type) //sanity check
-	{
-		case cLOCKBLOCK: case cLOCKEDCHEST:
-			break;
-		default: return false; //not a locked container?
-	}
-	int32_t requireditem = cmb.usrflags&cflag1 ? cmb.attribytes[0] : 0;
-	int32_t itemonly = cmb.usrflags&cflag2;
-	int32_t thecounter = cmb.attribytes[1];
-	int32_t ctr_amount = cmb.attributes[0]/10000L;
-	if( requireditem && game->item[requireditem]) 
-	{
-		if ((cmb.usrflags&cflag5)) 
-		{
-			takeitem(requireditem);
-		}
-		return true;
-	}
-	else if((cmb.usrflags&cflag1) && itemonly) return false; //Nothing but item works
-	else if ( (cmb.usrflags&cflag4) )
-	{
-		if ( game->get_counter(thecounter) >= ctr_amount )
-		{
-			//flag 6 only checks the required count; it doesn't drain it
-			if (!(cmb.usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
-			return true;
-		}
-		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock
-		{
-			//shadowtiger requested this on 29th Dec, 2019 -Z
-			if (!(cmb.usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
-			return false;
-		}
-	}
-	else if (ctr_amount && usekey(ctr_amount) ) return true;
-	else if(!ctr_amount && !requireditem && !itemonly && usekey() ) return true;
-	return false;
 }
 
 void HeroClass::checklockblock()
@@ -17935,27 +17813,6 @@ void HeroClass::checkchest(int32_t type)
 	}
 }
 
-void trigger_sign(newcombo const& cmb)
-{
-	int32_t str = cmb.attributes[0]/10000L;
-	switch(str)
-	{
-		case -1: //Special case: Use Screen String
-			str = tmpscr->str;
-			break;
-		case -2: //Special case: Use Screen Catchall
-			str = tmpscr->catchall;
-			break;
-		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
-			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
-			str = game->screen_d[di][abs(str)-10] / 10000L;
-			break;
-	}
-	if(unsigned(str) >= MAXMSGS)
-		str = 0;
-	if(str)
-		donewmsg(str);
-}
 void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
 	if(toogam || z>0 || fakez>0) return;
