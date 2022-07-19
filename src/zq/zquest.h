@@ -5,13 +5,13 @@
 #include <vector>
 #include "midi.h"
 #include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "zcmusic.h"
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
 #include "zfix.h"
-#include "fonts.h"
+#include "base/fonts.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -46,8 +46,6 @@ extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
 extern int32_t zq_scale, TileProtection;
-
-void setZScriptVersion(int32_t); //Intentionally does nothing >_<
 
 extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
 extern int32_t DMapEditorLastMaptileUsed;

@@ -1,7 +1,7 @@
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "drawing.h"
 #include "zelda.h"
-#include "util.h"
+#include "base/util.h"
 #include <allegro/internal/aintern.h>
 
 using namespace util;

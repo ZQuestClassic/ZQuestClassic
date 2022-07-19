@@ -1,11 +1,10 @@
 #include "radioset.h"
 #include "radio.h"
 #include "grid.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include <utility>
 
 

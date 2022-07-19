@@ -1,6 +1,6 @@
 #include "cheat_dialog.h"
 #include "zc_sys.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include <gui/builder.h>
 
 extern ZCHEATS zcheats;

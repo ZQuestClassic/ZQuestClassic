@@ -14,20 +14,20 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zelda.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "qst.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "pal.h"
-#include "gui.h"
+#include "base/gui.h"
 #include "sprite.h"
 #include "subscr.h"
 //#include "jwin.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "title.h"
 #include "gamedata.h"
 #include "hero.h"
@@ -2652,7 +2652,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			new_return(71);
 		}
-		savedata[i].save_genscript(); //read the values into the save object
+		save_genscript(savedata[i]); //read the values into the save object
 		for(size_t q=0; q<NUMSCRIPTSGENERIC; q++)
         {
 			if(!p_putc(savedata[i].gen_doscript[q] ? 1 : 0,f))

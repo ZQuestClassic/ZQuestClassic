@@ -3,8 +3,9 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
 #include <utility>
+
+extern int32_t zq_screen_w, zq_screen_h;
 
 namespace GUI
 {

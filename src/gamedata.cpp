@@ -11,13 +11,14 @@
 
 #include "precompiled.h" //always first
 
+#include "gamedata.h"
 #include <stdio.h>
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 #include "zelda.h"
 #include "items.h"
 #include "pal.h"
-#include "util.h"
+#include "base/util.h"
 
 using namespace util;
 
@@ -212,40 +213,6 @@ void gamedata::clear_genscript()
 		gen_data[q].clear();
 		gen_data[q].resize(0);
 	}
-}
-#ifdef IS_PLAYER
-#include "ffscript.h"
-#endif
-void gamedata::load_genscript()
-{
-	#ifdef IS_PLAYER
-	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
-	{
-		user_genscript& gen = user_scripts[q];
-		gen.clear();
-		gen.doscript = gen_doscript[q];
-		gen.exitState = gen_exitState[q];
-		gen.reloadState = gen_reloadState[q];
-		memcpy(gen.initd, gen_initd[q], sizeof(gen.initd));
-		gen.dataResize(gen_dataSize[q]);
-		gen.data = gen_data[q];
-	}
-	#endif
-}
-void gamedata::save_genscript()
-{
-	#ifdef IS_PLAYER
-	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
-	{
-		user_genscript const& gen = user_scripts[q];
-		gen_doscript[q] = gen.doscript;
-		gen_exitState[q] = gen.exitState;
-		gen_reloadState[q] = gen.reloadState;
-		memcpy(gen_initd[q], gen.initd, sizeof(gen.initd));
-		gen_dataSize[q] = gen.dataSize();
-		gen_data[q] = gen.data;
-	}
-	#endif
 }
 
 char *gamedata::get_name()

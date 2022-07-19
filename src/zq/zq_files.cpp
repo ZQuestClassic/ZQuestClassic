@@ -17,13 +17,13 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "gui.h"
+#include "base/gui.h"
 #include "zq_files.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zq_misc.h"
 #include "zquest.h"
 #include "qst.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zq_class.h"
 #include "tiles.h"
 #include "zq_tiles.h"

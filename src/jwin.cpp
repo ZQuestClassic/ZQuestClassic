@@ -28,15 +28,15 @@
 
 #include <ctype.h>
 #include <string.h>
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include "jwin.h"
 #include "editbox.h"
 #include <iostream>
-#include "zsys.h"
+#include "base/zsys.h"
 #include <stdio.h>
 #include "mem_debug.h"
-#include "util.h"
+#include "base/util.h"
 #include "pal.h"
 #include "gui/tabpanel.h"
 #include "dialog/info.h"

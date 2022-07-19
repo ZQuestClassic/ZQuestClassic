@@ -40,7 +40,7 @@
 #include <vector>
 
 //allegro
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 //zc
 #include "zc_malloc.h"

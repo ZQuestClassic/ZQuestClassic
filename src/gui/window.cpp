@@ -3,12 +3,13 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
 #include <algorithm>
 #include <cassert>
 #include <utility>
 
 using std::max, std::shared_ptr;
+
+extern int32_t zq_screen_w, zq_screen_h;
 
 namespace GUI
 {

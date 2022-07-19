@@ -4,8 +4,10 @@
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "gui/use_size.h"
+#include "zc_list_data.h"
+
 using GUI::sized;
 
 static const GUI::ListData miscSFXList
@@ -23,7 +25,7 @@ static const GUI::ListData miscSFXList
 };
 
 MiscSFXDialog::MiscSFXDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
-	setVals(setVals), vals_per_tab(vals_per_tab), sfx_list(GUI::ListData::sfxnames())
+	setVals(setVals), vals_per_tab(vals_per_tab), sfx_list(GUI::ZCListData::sfxnames())
 {
 	for(auto q = 0; q < sfxMAX; ++q)
 	{

@@ -8,11 +8,8 @@ src/items.cpp
 src/zq/questReport.cpp
 src/zq/ffasm.cpp
 src/zq/zquest.cpp
-src/gui.cpp
-src/jwinfsel.cpp
 src/tab_ctl.cpp
 src/tiles.cpp
-src/win32.cpp
 src/zq/ffasmexport.cpp
 src/drawing.cpp
 

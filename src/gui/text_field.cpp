@@ -3,9 +3,8 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "../zdefs.h"
-#include "zquest.h"
-#include "../zsys.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
 #include <algorithm>
 #include <cassert>
 #include <cstring>

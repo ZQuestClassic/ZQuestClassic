@@ -24,7 +24,7 @@
 
 #include "zelda.h"
 #include "guys.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "maps.h"
 #include "items.h"
 #include "zscriptversion.h"

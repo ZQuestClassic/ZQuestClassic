@@ -12,11 +12,11 @@
 
 #include "precompiled.h" //always first
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <string.h>
 
-#include "zdefs.h"
-#include "zsys.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
 #include "tiles.h"
 #include "mem_debug.h"
 

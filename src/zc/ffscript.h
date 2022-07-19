@@ -1,6 +1,7 @@
 #ifndef _FFSCRIPT_H_
 #define _FFSCRIPT_H_
-#include "zdefs.h"
+
+#include "base/zdefs.h"
 #include "parser/parserDefs.h"
 #include <utility>
 #include <string>
@@ -642,7 +643,7 @@ struct user_rng
 
 //Module System.
 //Putting this here for now.
-#include "module.h"
+#include "base/module.h"
 
 typedef struct ZSCRIPT_CONFIG_ENTRY
 {
@@ -837,6 +838,8 @@ public:
 extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
 extern int32_t genscript_timing;
 void timeExitAllGenscript(byte exState);
+void load_genscript(const gamedata& gd);
+void save_genscript(gamedata& gd);
 
 class FFScript
 {

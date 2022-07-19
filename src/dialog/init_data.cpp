@@ -2,7 +2,8 @@
 #include "info.h"
 #include "gui/use_size.h"
 #include <gui/builder.h>
-#include "zsys.h"
+#include "base/zsys.h"
+#include "zc_list_data.h"
 
 using std::map;
 using std::vector;
@@ -24,7 +25,7 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 
 InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
 	local_zinit(start), setVals(setVals), levelsOffset(0), list_dmaps(dmap_list),
-	list_items(GUI::ListData::itemclass(false)), isZC(zc)
+	list_items(GUI::ZCListData::itemclass(false)), isZC(zc)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)

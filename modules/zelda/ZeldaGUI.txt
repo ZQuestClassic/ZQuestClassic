@@ -4,10 +4,7 @@ set(ZELDA_GUI_SOURCES
 ################################
 # Add or remove files here
 ################################
-src/zsys.cpp
-src/zapp.cpp
-src/aglogo.cpp
-src/colors.cpp
+src/zc/aglogo.cpp
 src/debug.cpp
 src/zc/decorations.cpp
 src/editbox.cpp
@@ -16,39 +13,12 @@ src/EditboxView.cpp
 src/zc/ending.cpp
 src/zc/matrix.cpp
 src/pal.cpp
-src/jwinfsel.cpp
 src/tab_ctl.cpp
 src/zc/title.cpp
 src/zc/zc_custom.cpp
 src/jwin.cpp
 
-src/gui/button.cpp
-src/gui/checkbox.cpp
-src/gui/common.cpp
-src/gui/dialog_ref.cpp
-src/gui/dialog_runner.cpp
-src/gui/drop_down_list.cpp
-src/gui/grid.cpp
-src/gui/label.cpp
-src/gui/list_data.cpp
-src/gui/size.cpp
-src/gui/switcher.cpp
-src/gui/text_field.cpp
-src/gui/top_level.cpp
-src/gui/widget.cpp
-src/gui/window.cpp
-src/gui/tabpanel.cpp
-src/gui/tabref.cpp
-src/gui/qrpanel.cpp
-src/gui/checkbox_qr.cpp
-src/gui/radio.cpp
-src/gui/radioset.cpp
-src/gui/colorsel.cpp
-src/gui/scrolling_pane.cpp
-src/gui/frame.cpp
-src/gui/list.cpp
-src/gui/seltile_swatch.cpp
-src/gui/tileanim_frame.cpp
+src/zc_list_data.cpp
 
 src/dialog/init_data.cpp
 src/dialog/cheat_dialog.cpp

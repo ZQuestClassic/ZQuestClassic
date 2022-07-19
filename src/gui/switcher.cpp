@@ -1,5 +1,5 @@
 #include "switcher.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <utility>
 
 namespace GUI

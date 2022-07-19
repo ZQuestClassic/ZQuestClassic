@@ -11,7 +11,7 @@
 #ifndef _ZC_QST_H_
 #define _ZC_QST_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "subscr.h"
 #include "zscriptversion.h"
 #include "zc_malloc.h"

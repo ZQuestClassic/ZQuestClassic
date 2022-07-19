@@ -27,7 +27,7 @@
 #ifndef _TAB_INTERN_H_
 #define _TAB_INTERN_H_
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 
 #ifdef __cplusplus

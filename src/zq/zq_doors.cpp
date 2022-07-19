@@ -17,11 +17,11 @@
 #include <string.h>
 #include <vector>
 
-#include "gui.h"
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/gui.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 #include "jwin.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zc_sys.h"
 #include "zq_misc.h"
 #include "tiles.h"

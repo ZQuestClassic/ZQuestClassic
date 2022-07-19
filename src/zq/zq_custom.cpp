@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "gui.h"
+#include "base/gui.h"
 #include "zc_custom.h"
 #include "zq_custom.h"
 #include "tiles.h"
@@ -27,7 +27,7 @@
 #include "zq_misc.h"
 #include "zquest.h"
 #include "items.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "sfx.h"
 #include "init.h"
 #include "defdata.h"

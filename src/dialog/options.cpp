@@ -4,6 +4,7 @@
 #include "zquest.h"
 #include "../tiles.h"
 #include "zq_misc.h"
+#include "zc_list_data.h"
 
 void call_options_dlg()
 {
@@ -103,7 +104,7 @@ void OptionsDialog::saveOptions()
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 }
 
-OptionsDialog::OptionsDialog() : sfx_list(GUI::ListData::sfxnames(true))
+OptionsDialog::OptionsDialog() : sfx_list(GUI::ZCListData::sfxnames(true))
 {
 	loadOptions();
 }

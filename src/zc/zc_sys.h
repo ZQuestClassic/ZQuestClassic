@@ -12,8 +12,9 @@
 #ifndef _ZC_SYS_H_
 #define _ZC_SYS_H_
 
-#include "zdefs.h"
-#include "jwinfsel.h"
+#include "base/zdefs.h"
+#include "base/jwinfsel.h"
+
 extern MENU the_player_menu[];
 extern MENU the_player_menu2[];
 extern bool is_sys_pal;

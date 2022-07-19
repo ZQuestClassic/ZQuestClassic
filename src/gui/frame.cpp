@@ -1,7 +1,11 @@
 #include "frame.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
+
+int32_t d_dummy_proc(int32_t, DIALOG*, int32_t)
+{
+	return D_O_K;
+}
 
 namespace GUI
 {

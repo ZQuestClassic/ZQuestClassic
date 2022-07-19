@@ -25,7 +25,7 @@
 #ifndef _EDITBOX_H_
 #define _EDITBOX_H_
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <string>
 //#ifdef __cplusplus
 //extern "C"

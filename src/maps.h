@@ -10,7 +10,7 @@
 
 #ifndef _MAPS_H_
 #define _MAPS_H_
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 int32_t COMBOPOS(int32_t x, int32_t y);

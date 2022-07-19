@@ -2,7 +2,7 @@
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "gui/use_size.h"
 
 static const GUI::ListData scriptRulesList

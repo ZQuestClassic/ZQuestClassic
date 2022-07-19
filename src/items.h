@@ -16,7 +16,7 @@
 #define _ITEMS_H_
 
 #include "sprite.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "zfix.h"
 
 class item;

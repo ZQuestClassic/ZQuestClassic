@@ -18,14 +18,14 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "gui.h"
-#include "zc_alleg.h"
-#include "zdefs.h"
-#include "colors.h"
+#include "base/gui.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
+#include "base/colors.h"
 #include "pal.h"
 #include "zquest.h"
 #include "jwin.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "zq_tiles.h"
 #include "zq_misc.h"
 #include "zq_cset.h"

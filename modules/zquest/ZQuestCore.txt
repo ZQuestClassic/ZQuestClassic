@@ -4,7 +4,6 @@ set(ZQUEST_CORE_SOURCES
 ################################
 # Add or remove files here
 ################################
-src/colors.cpp
 src/defdata.cpp
 src/editbox.cpp
 src/EditboxModel.cpp
@@ -18,14 +17,7 @@ src/sprite.cpp
 src/subscr.cpp
 src/zc/zc_custom.cpp
 src/init.cpp
-src/alleg_compat.cpp
-src/util.cpp
-src/random.cpp
-src/module.cpp
-src/fonts.cpp
 src/zinfo.cpp
-src/zdefs.cpp
-src/process_managment.cpp
 src/zconfig.cpp
 
 ## End of ZQuest Core module

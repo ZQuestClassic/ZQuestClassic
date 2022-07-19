@@ -11,7 +11,7 @@
 #ifndef _ZQ_CLASS_H_
 #define _ZQ_CLASS_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include <stdio.h>
 #include <string_view>
 

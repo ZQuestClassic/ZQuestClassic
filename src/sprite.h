@@ -15,8 +15,8 @@
 #ifndef _SPRITE_H_
 #define _SPRITE_H_
 
-#include "zc_alleg.h"
-#include "zdefs.h"
+#include "base/zc_alleg.h"
+#include "base/zdefs.h"
 #include <set>
 #include <map>
 #include "zfix.h"

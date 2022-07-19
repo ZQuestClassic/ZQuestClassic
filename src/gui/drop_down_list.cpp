@@ -3,7 +3,6 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
 #include <cassert>
 #include <cmath>
 

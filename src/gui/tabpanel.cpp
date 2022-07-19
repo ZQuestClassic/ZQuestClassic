@@ -1,8 +1,7 @@
 #include "tabpanel.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
 #include <utility>
 
 namespace GUI

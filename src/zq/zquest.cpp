@@ -34,7 +34,7 @@
 #endif
 
 #include "parser/Compiler.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "mem_debug.h"
 #include "particles.h"
 #include "dialog/alert.h"
@@ -53,7 +53,8 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
 
-#include "gui.h"
+#include "base/gui.h"
+#include "zc_list_data.h"
 #include "editbox.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"                                       // tile and combo code
@@ -63,19 +64,19 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "ffasm.h"
 
 // the following are used by both zelda.cc and zquest.cc
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "tiles.h"
-#include "colors.h"
+#include "base/colors.h"
 #include "qst.h"
-#include "zsys.h"
-#include "zapp.h"
+#include "base/zsys.h"
+#include "base/zapp.h"
 #include "zcmusic.h"
 
 #include "midi.h"
 #include "sprite.h"
 #include "items.h"
 #include "fontsdat.h"
-#include "jwinfsel.h"
+#include "base/jwinfsel.h"
 #include "zq_class.h"
 #include "subscr.h"
 #include "zq_subscr.h"
@@ -87,7 +88,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "questReport.h"
 #include "ffasmexport.h"
 #include <fstream>
-#include "module.h"
+#include "base/module.h"
 #include "zscrdata.h"
 #include "drawing.h"
 #include "ConsoleLogger.h"
@@ -136,7 +137,7 @@ static const char *qtname_name      = "macosx_qtname%d";
 static const char *qtpath_name      = "macosx_qtpath%d";
 #endif
 
-#include "win32.h" //win32 fixes
+#include "base/win32.h"
 
 #include "zq_init.h"
 #include "zq_doors.h"
@@ -167,7 +168,7 @@ uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
 #include "zqscale.h"
-#include "util.h"
+#include "base/util.h"
 using namespace util;
 
 using std::vector;
@@ -11512,7 +11513,7 @@ int32_t select_cflag(const char *prompt,int32_t flag)
 {
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
-    GUI::ListData ld = GUI::ListData::mapflag(true);
+    GUI::ListData ld = GUI::ZCListData::mapflag(numericalFlags, true);
 	ListData select_cflag_list = ld.getJWin(&font);
     int32_t index = ld.findIndex(flag);
 	cflag_dlg[2].d1=index;
@@ -29774,10 +29775,14 @@ int32_t main(int32_t argc,char **argv)
 	//::InitCrtDebug();
 #endif // (VLD_FORCE_ENABLE == 0)
 #endif // (defined(_DEBUG) && defined(_MSC_VER))
+
+	common_main_setup(App::zquest, argc, argv);
+	set_should_zprint_cb([]() {
+		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+	});
+
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
 
-	common_main_setup(argc, argv);
-	
 	//InitCrtDebug();
 	
 	// Before anything else, let's register our custom trace handler:
@@ -29937,7 +29942,7 @@ int32_t main(int32_t argc,char **argv)
 	three_finger_flag=false;
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(STANDARD_CFG);
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);

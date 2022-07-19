@@ -5,8 +5,8 @@
 #include <vector>
 
 //We need access to quest_rules, for option defaults. -V
-#include "../zdefs.h"
-#include "../zsys.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
 
 using std::map;
 using std::string;

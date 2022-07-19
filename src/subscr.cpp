@@ -11,9 +11,10 @@
 #include "precompiled.h" //always first
 
 #include "subscr.h"
+#include "base/zapp.h"
 #include "zelda.h"
 #include "tiles.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include "guys.h"
 #include "hero.h"
 #include "gamedata.h"
@@ -3348,13 +3349,11 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
             }
         }
     }
-    
+
     //Item Override stuff here
     if((itemtype & 0x8000) &&
-#ifdef IS_PLAYER
-		(game->item[itemtype&0xFFF]) &&
-#endif
-            !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
+		(get_app_id() == App::zelda ? game->item[itemtype&0xFFF] : true) &&
+        !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
     {
         if(overridecheck == 0xFFFF)
         {

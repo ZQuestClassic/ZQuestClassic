@@ -11,7 +11,7 @@
 #define _INIT_H_
 
 #include "tab_ctl.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 #define MAXINITTABS 5
 

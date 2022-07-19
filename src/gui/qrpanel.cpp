@@ -1,11 +1,10 @@
 #include "qrpanel.h"
 #include "grid.h"
 #include "checkbox_qr.h"
-#include "../zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "dialog_runner.h"
 #include "../jwin.h"
-#include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "dialog/info.h"
 #include <utility>
 

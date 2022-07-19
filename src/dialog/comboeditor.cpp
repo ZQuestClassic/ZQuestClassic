@@ -1,15 +1,17 @@
 #include "comboeditor.h"
 #include "info.h"
 #include "alert.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "../tiles.h"
-#include <gui/builder.h>
+#include "gui/builder.h"
+#include "zc_list_data.h"
 
 extern bool saved;
 extern zcmodule moduledata;
 extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
+extern int32_t numericalFlags;
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
@@ -33,13 +35,13 @@ bool call_combo_editor(int32_t index)
 
 ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd):
 	local_comboref(ref), index(index),
-	list_ctype(GUI::ListData::combotype(true)),
-	list_flag(GUI::ListData::mapflag(true)),
-	list_combscript(GUI::ListData::combodata_script()),
-	list_counters(GUI::ListData::counters(true)),
-	list_sprites(GUI::ListData::miscsprites()),
-	list_weaptype(GUI::ListData::lweaptypes()),
-	list_deftypes(GUI::ListData::deftypes())
+	list_ctype(GUI::ZCListData::combotype(true)),
+	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
+	list_combscript(GUI::ZCListData::combodata_script()),
+	list_counters(GUI::ZCListData::counters(true)),
+	list_sprites(GUI::ZCListData::miscsprites()),
+	list_weaptype(GUI::ZCListData::lweaptypes()),
+	list_deftypes(GUI::ZCListData::deftypes())
 {
 	if(clrd)
 	{

@@ -7,11 +7,11 @@
 #include <assert.h>
 
 #include "EditboxNew.h"
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "jwin.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "editbox.h"
-#include "gui.h"
+#include "base/gui.h"
 #include <stdio.h>
 
 extern FONT *lfont, *sfont3;

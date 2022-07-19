@@ -27,7 +27,7 @@
 #include "precompiled.h" //always first
 
 #define ALLEGRO_NO_COMPATIBILITY
-#include "allegro_wrapper.h"
+#include "base/allegro_wrapper.h"
 #include "tab_ctl.h"
 #include "jwin.h"
 #include "zc_malloc.h"

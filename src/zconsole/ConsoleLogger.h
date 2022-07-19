@@ -1,8 +1,8 @@
 #ifndef ZC_CONSOLE_LOGGER_H
 #define ZC_CONSOLE_LOGGER_H
 
-#include "zdefs.h"
-#include "process_managment.h"
+#include "base/zdefs.h"
+#include "base/process_management.h"
 #include <allegro5/allegro_native_dialog.h>
 
 #if !defined(AFX_CONSOLELOGGER_H__294FDF9B_F91E_4F6A_A953_700181DD1996__INCLUDED_)

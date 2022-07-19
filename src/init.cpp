@@ -21,15 +21,14 @@
 
 #include <stdio.h>
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include "jwin.h"
-#include "zdefs.h"
-#include "zsys.h"
-#include "gui.h"
+#include "base/zdefs.h"
+#include "base/zsys.h"
+#include "base/gui.h"
 #include "init.h"
 #include "zelda.h"
 #include "mem_debug.h"
-#include "zquest.h"
 //extern ZModule zcm;
 extern zcmodule moduledata;
 
@@ -1071,9 +1070,6 @@ const char *familylist(int32_t index, int32_t *list_size)
     return biic[listidx2biic[index]].s;
 }
 
-#ifdef IS_PLAYER
-extern word item_doscript[256];
-#endif
 // NOTE: This method has been severely hacked to fix an annoying problem at game start:
 // items (ie the Small Wallet) which modify max counter values need to be processed after
 // the values for those counters specified in init data, as the author expects these items

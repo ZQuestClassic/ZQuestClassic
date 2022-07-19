@@ -8,7 +8,7 @@
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "gui/use_size.h"
 #include "zq_files.h"
 using GUI::sized;

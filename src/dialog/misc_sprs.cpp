@@ -4,8 +4,10 @@
 #include <gui/builder.h>
 #include "../jwin.h"
 #include "zquest.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include "gui/use_size.h"
+#include "zc_list_data.h"
+
 using GUI::sized;
 
 static const GUI::ListData miscSprsList
@@ -17,7 +19,7 @@ static const GUI::ListData miscSprsList
 };
 
 MiscSprsDialog::MiscSprsDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
-	setVals(setVals), vals_per_tab(vals_per_tab), sprs_list(GUI::ListData::miscsprites())
+	setVals(setVals), vals_per_tab(vals_per_tab), sprs_list(GUI::ZCListData::miscsprites())
 {
 	for(auto q = 0; q < sfxMAX; ++q)
 	{

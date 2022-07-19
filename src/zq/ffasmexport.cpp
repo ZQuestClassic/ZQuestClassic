@@ -5,7 +5,7 @@
 
 #include "ffasmexport.h"
 #include "ffasm.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 using namespace std;
 

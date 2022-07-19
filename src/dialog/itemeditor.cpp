@@ -1,8 +1,9 @@
 #include "itemeditor.h"
 #include "info.h"
 #include "alert.h"
-#include "../zsys.h"
+#include "base/zsys.h"
 #include <gui/builder.h>
+#include "zc_list_data.h"
 
 void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);
@@ -849,15 +850,15 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 
 ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
 	local_itemref(ref), itemname(str), index(index),
-	list_items(GUI::ListData::itemclass(true)),
-	list_counters(GUI::ListData::counters(true)),
-	list_sprites(GUI::ListData::miscsprites()),
-	list_itemdatscript(GUI::ListData::itemdata_script()),
-	list_itemsprscript(GUI::ListData::itemsprite_script()),
-	list_weaponscript(GUI::ListData::lweapon_script()),
-	list_weaptype(GUI::ListData::lweaptypes()),
-	list_deftypes(GUI::ListData::deftypes()),
-	list_bottletypes(GUI::ListData::bottletype())
+	list_items(GUI::ZCListData::itemclass(true)),
+	list_counters(GUI::ZCListData::counters(true)),
+	list_sprites(GUI::ZCListData::miscsprites()),
+	list_itemdatscript(GUI::ZCListData::itemdata_script()),
+	list_itemsprscript(GUI::ZCListData::itemsprite_script()),
+	list_weaponscript(GUI::ZCListData::lweapon_script()),
+	list_weaptype(GUI::ZCListData::lweaptypes()),
+	list_deftypes(GUI::ZCListData::deftypes()),
+	list_bottletypes(GUI::ZCListData::bottletype())
 {}
 
 ItemEditorDialog::ItemEditorDialog(int32_t index):

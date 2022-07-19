@@ -15,8 +15,8 @@
 
 #include "zc_malloc.h"
 #include "zquest.h"
-#include "zsys.h"
-#include "util.h"
+#include "base/zsys.h"
+#include "base/util.h"
 using namespace util;
 
 #include <sstream>

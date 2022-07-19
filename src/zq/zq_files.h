@@ -11,7 +11,7 @@
 #ifndef _ZQ_FILES_H_
 #define _ZQ_FILES_H_
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 extern char qtbuf[31];
 

@@ -40,6 +40,7 @@ struct ListItem
 class ListData
 {
 public:
+	ListData() {}
 	ListData(const ListData& other) = default;
 	ListData(ListData&& other) = default;
 	ListData(std::initializer_list<ListItem> listItems): listItems(listItems)
@@ -47,6 +48,13 @@ public:
 
 	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
 	{}
+	ListData(std::vector<std::string> strings)
+	{
+		for(int i = 0; i < strings.size(); i++)
+		{
+			add(strings[i], i);
+		}
+	}
 	
 	ListData(::ListData const& jwinldata, int32_t valoffs = 0);
 
@@ -124,45 +132,20 @@ public:
 		}
 	}
 	
+	//Static constructors for specific lists
 	static ListData nullData()
 	{
 		return ListData();
 	}
-	//Static constructors for specific lists
 	static ListData numbers(bool none, int32_t start, uint32_t count);
-	
-#ifndef IS_LAUNCHER
-	static ListData itemclass(bool numbered = false);
-	static ListData combotype(bool numbered = false, bool skipNone = false);
-	static ListData mapflag(bool numbered = false, bool skipNone = false);
-	static ListData counters(bool numbered = false, bool skipNone = false);
-	static ListData miscsprites();
-	static ListData bottletype();
-	static ListData dmaps(bool numbered = false);
-	
-	static ListData lweaptypes();
-	static ListData sfxnames(bool numbered = false);
-	
-	static ListData itemdata_script();
-	static ListData itemsprite_script();
-	static ListData ffc_script();
-	static ListData lweapon_script();
-	static ListData combodata_script();
-#endif
-#if IS_ZQUEST
-static ListData fonts();
-static ListData shadowtypes();
-#endif
-	
-	static ListData const& deftypes();
-private:
-	std::vector<ListItem> listItems;
-	
-	ListData(){}
+
 	void add(ListItem item) {listItems.push_back(item);}
 	void add(std::string name, int32_t val) {listItems.emplace_back(name, val);};
 	void add(std::string name, int32_t val, std::string desc) {listItems.emplace_back(name, val,desc);};
 	void add(std::set<std::string> names, std::map<std::string, int32_t> vals);
+	
+private:
+	std::vector<ListItem> listItems;
 	
 	static const char* jwinWrapper(int32_t index, int32_t* size, void* owner);
 };
