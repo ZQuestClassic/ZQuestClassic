@@ -82,6 +82,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 			break;
 	}
+	return D_O_K;
 }
 
 namespace GUI
