@@ -172,6 +172,10 @@ bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
 
+extern bool global_z3_scrolling;
+extern int32_t global_viewport_x, global_viewport_y;
+extern int32_t global_z3_cur_scr_drawing;
+
 //extern bool FuckIAlreadyDrewThatAlready[ 7 ];
 #endif
 

@@ -1153,7 +1153,7 @@ void sprite::draw(BITMAP* dest)
 	int32_t sx = real_x(x+xofs);
 	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
 	sy -= fake_z(fakez);
-	
+	// TODO z3 scrolling ?
     
 	if(id<0)
 	{
@@ -1580,6 +1580,7 @@ void sprite::draw(BITMAP* dest)
 
 
 //Z1 bosses draw tiles from guys.cpp, direct to the 'dest'
+// ...but this also draws the hero ???
 void sprite::drawzcboss(BITMAP* dest)
 {
     if(!show_sprites)
@@ -1590,6 +1591,9 @@ void sprite::drawzcboss(BITMAP* dest)
     int32_t sx = real_x(x+xofs);
     int32_t sy = real_y(y+yofs)-real_z(z+zofs);
     sy -= fake_z(fakez);
+
+	sx -= global_viewport_x;
+	sy -= global_viewport_y;
     
     if(id<0)
         return;

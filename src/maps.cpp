@@ -3053,9 +3053,24 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
 
 void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
 {
+	x += global_viewport_x;
+	y += global_viewport_y;
+
 	mapscr const* tmp = (layer > 0 ? (&(tempscreen==2?tmpscr2[layer-1]:tmpscr3[layer-1]))
 		: (layer ? NULL : (tempscreen==2?0:1)+tmpscr));
 	bool over = true, transp = false;
+
+	if (global_z3_scrolling && global_z3_cur_scr_drawing != -1 && layer > 0)
+	{
+		mapscr& myscr = TheMaps[currmap*MAPSCRS+global_z3_cur_scr_drawing];
+		if (myscr.layermap[layer - 1] > 0)
+		{
+			tmp = &TheMaps[(myscr.layermap[layer - 1]-1)*MAPSCRS+myscr.layerscreen[layer - 1]];
+		} else
+		{
+			tmp = NULL;
+		}
+	}
 	
 	switch(type ? type : layer)
 	{
@@ -3553,6 +3568,10 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
+bool global_z3_scrolling = true;
+int32_t global_viewport_x = 0, global_viewport_y = 0;
+int32_t global_z3_cur_scr_drawing = -1;
+
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -3597,22 +3616,85 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//1. Draw some layers onto temp_buf
 	clear_bitmap(scrollbuf);
 	
-	if(XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+	if (!global_z3_scrolling)
 	{
-		do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true);
+		if(XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+		{
+			do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true);
+			
+			particles.draw(temp_buf, true, 1);
+		}
 		
-		particles.draw(temp_buf, true, 1);
+		if(XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+		{
+			do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2, false, true);
+			
+			particles.draw(temp_buf, true, 2);
+		}
+	}
+	else
+	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	{
+		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		{
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+
+			int scr = currscr + draw_dx + draw_dy * 16;
+			int offx = -draw_dx * 256;
+			int offy = -draw_dy * 176;
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			global_z3_cur_scr_drawing = scr;
+
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+			{
+				do_layer(scrollbuf, 0, 2, myscr, offx, offy, 2, false, true);
+				
+				// particles.draw(temp_buf, true, 1);
+			}
+			
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+			{
+				do_layer(scrollbuf, 0, 3, myscr, offx, offy, 2, false, true);
+				
+				// particles.draw(temp_buf, true, 2);
+			}
+		}
+	}
+	global_z3_cur_scr_drawing = -1;
+
+	if (global_z3_scrolling)
+	{
+		global_viewport_x = Hero.getX() - 256/2;
+		global_viewport_y = Hero.getY() - 176/2;
+	}
+	else
+	{
+		global_viewport_x = 0;
+		global_viewport_y = 0;
 	}
 	
-	if(XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+	if (!global_z3_scrolling)
 	{
-		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2, false, true);
-		
-		particles.draw(temp_buf, true, 2);
+		putscr(scrollbuf,0,playing_field_offset,this_screen);
 	}
-	
-	putscr(scrollbuf,0,playing_field_offset,this_screen);
-	
+	else
+	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	{
+		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		{
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+
+			int scr = currscr + draw_dx + draw_dy * 16;
+			int offx = draw_dx * 256;
+			int offy = draw_dy * 176;
+			mapscr& myscr = TheMaps[currmap*MAPSCRS+scr];
+			putscr(scrollbuf, offx, offy + playing_field_offset, &myscr);
+		}
+	}
+	rectfill(scrollbuf, 0, 0, 256, playing_field_offset, 0);
+
 	// Lens hints, then primitives, then particles.
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
 	{
@@ -3669,6 +3751,37 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		particles.draw(temp_buf, true, 1);
 	}
+
+	if (global_z3_scrolling)
+	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	{
+		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		{
+			if (draw_dx == 0 && draw_dy == 0) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+
+			int scr = currscr + draw_dx + draw_dy * 16;
+			int offx = -draw_dx * 256;
+			int offy = -draw_dy * 176;
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			global_z3_cur_scr_drawing = scr;
+
+			do_layer(scrollbuf, 0, 1, myscr, offx, offy, 2, false, true); // LAYER 1
+	
+			// particles.draw(temp_buf, true, 0);
+			
+			do_layer(scrollbuf, -3, 0, myscr, offx, offy, 2); // freeform combos!
+			
+			if(!XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+			{
+				do_layer(scrollbuf, 0, 2, myscr, offx, offy, 2, false, true); // LAYER 2
+
+				// particles.draw(temp_buf, true, 1);
+			}
+		}
+	}
+	global_z3_cur_scr_drawing = -1;
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
 	{
@@ -3707,6 +3820,31 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(scrollbuf, -2, 1, this_screen, 0, 0, 2); // push blocks!
 		do_layer(scrollbuf, -2, 2, this_screen, 0, 0, 2); // push blocks!
 	}
+
+	if (global_z3_scrolling)
+	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	{
+		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		{
+			if (draw_dx == 0 && draw_dy == 0) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+
+			int scr = currscr + draw_dx + draw_dy * 16;
+			int offx = -draw_dx * 256;
+			int offy = -draw_dy * 176;
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			global_z3_cur_scr_drawing = scr;
+
+			do_layer(scrollbuf, -2, 0, myscr, offx, offy, 2); // push blocks!
+			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(scrollbuf, -2, 1, myscr, offx, offy, 2); // push blocks!
+				do_layer(scrollbuf, -2, 2, myscr, offx, offy, 2); // push blocks!
+			}
+		}
+	}
+	global_z3_cur_scr_drawing = -1;
 	
 	//Show walkflags cheat
 	do_walkflags(temp_buf,this_screen,0,0,2);
@@ -3917,6 +4055,49 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(temp_buf, -1, 2, this_screen, 0, 0, 2);
 		do_layer(scrollbuf, -1, 2, this_screen, 0, 0, 2);
 	}
+
+	// TODO: combine with previous do_layers ??
+	if (global_z3_scrolling)
+	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	{
+		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		{
+			if (draw_dx == 0 && draw_dy == 0) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+
+			int scr = currscr + draw_dx + draw_dy * 16;
+			int offx = -draw_dx * 256;
+			int offy = -draw_dy * 176;
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			global_z3_cur_scr_drawing = scr;
+
+			if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+			{
+				do_layer(temp_buf, 0, 3, myscr, offx, offy, 2, false, true);
+				do_layer(scrollbuf, 0, 3, myscr, offx, offy, 2);
+				
+				// particles.draw(temp_buf, true, 2);
+			}
+			
+			do_layer(temp_buf, 0, 4, myscr, offx, offy, 2, false, true);
+			do_layer(scrollbuf, 0, 4, myscr, offx, offy, 2);
+			//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
+			
+			// particles.draw(temp_buf, true, 3);
+
+			do_layer(temp_buf, -1, 0, myscr, offx, offy, 2);
+			do_layer(scrollbuf, -1, 0, myscr, offx, offy, 2);
+			if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				do_layer(temp_buf, -1, 1, myscr, offx, offy, 2);
+				do_layer(scrollbuf, -1, 1, myscr, offx, offy, 2);
+				do_layer(temp_buf, -1, 2, myscr, offx, offy, 2);
+				do_layer(scrollbuf, -1, 2, myscr, offx, offy, 2);
+			}
+		}
+	}
+	global_z3_cur_scr_drawing = -1;
 	
 	particles.draw(temp_buf, true, -1);
 	
@@ -4004,6 +4185,32 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	do_layer(scrollbuf, 0, 6, this_screen, 0, 0, 2);
 	
 	particles.draw(temp_buf, true, 5);
+
+	if (global_z3_scrolling)
+	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
+	{
+		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		{
+			if (draw_dx == 0 && draw_dy == 0) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+
+			int scr = currscr + draw_dx + draw_dy * 16;
+			global_z3_cur_scr_drawing = scr;
+			int offx = -draw_dx * 256;
+			int offy = -draw_dy * 176;
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			do_layer(temp_buf, 0, 5, myscr, offx, offy, 2, false, true);
+			do_layer(scrollbuf, 0, 5, myscr, offx, offy, 2);
+			// overhead freeform combos!
+			do_layer(temp_buf, -4, 0, myscr, offx, offy, 2);
+			do_layer(scrollbuf, -4, 0, myscr, offx, offy, 2);
+			// ---
+			do_layer(temp_buf, 0, 6, this_screen, offx, offy, 2, false, true);
+			do_layer(scrollbuf, 0, 6, this_screen, offx, offy, 2);
+		}
+	}
+	global_z3_cur_scr_drawing = -1;
 	
 	//10. Blit temp_buf onto framebuf with clipping
 	
@@ -5158,6 +5365,9 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 {
+	x -= global_viewport_x;
+	y -= global_viewport_y;
+
 	if(scrn->valid==0||!show_layer_0||scrn->hidelayers & 1)
 	{
 		rectfill(dest,x,y,x+255,y+175,0);

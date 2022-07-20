@@ -652,3 +652,12 @@ int32_t Y_DIR(int32_t dir)
 	return yDir[dir];
 }
 
+direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy)
+{
+	if (dx == 0 && dy == 0) return dir_invalid;
+	if (dx == 1 && dy == 0) return right;
+	if (dx == -1 && dy == 0) return left;
+	if (dx == 0 && dy == 1) return down;
+	if (dx == 0 && dy == -1) return up;
+	return dir_invalid;
+}

@@ -1153,6 +1153,7 @@ const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,ri
 const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
 int32_t X_DIR(int32_t dir);
 int32_t Y_DIR(int32_t dir);
+direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
 
 // refill stuff

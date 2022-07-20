@@ -2134,7 +2134,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
-    if(x<0 || y<0)
+    if(x<-15 || y<-15)
         return;
         
     if(y > dest->h-16)
@@ -2158,6 +2158,10 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     
     unpack_tile(newtilebuf, tile, flip&5, false);
+
+    // 0: fast, 4 bytes at a time, no bounds checking
+    // 1: slow, 1 byte at a time, bounds checking
+    int draw_mode = x < 0 || y < 0 ? 1 : 0;
     
     switch(flip&2)
     {
@@ -2186,18 +2190,37 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           *(di++) = *(si++) + lcset;
           }
           */
-        qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
-        //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
-        qword *si = (qword*)unpackbuf;
         
-        for(int32_t dy=15; dy>=0; --dy)
+        if (draw_mode == 1)
         {
-            // 4 bytes at a time
-            //        qword *di=&((qword*)dest->line[y+dy])[x>>3];
-            qword *di=(qword*)(dest->line[y+dy]+x);
+            byte *si = unpackbuf;
             
-            for(int32_t i=0; i<16; i+=8)
-                *(di++) = *(si++) + llcset;
+            for(int32_t dy=0; dy<16; ++dy)
+            {
+                if (y+dy < 0) continue;
+
+                // 1 byte at a time
+                byte *di = &(dest->line[y+dy][x+15]);
+                
+                for(int32_t x=0; x<16; x++)
+                    *(di--) = *(si++) + cset;
+            }
+        }
+        else
+        {
+            qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
+            //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
+            qword *si = (qword*)unpackbuf;
+            
+            for(int32_t dy=15; dy>=0; --dy)
+            {
+                // 4 bytes at a time
+                //        qword *di=&((qword*)dest->line[y+dy])[x>>3];
+                qword *di=(qword*)(dest->line[y+dy]+x);
+                
+                for(int32_t i=0; i<16; i+=8)
+                    *(di++) = *(si++) + llcset;
+            }
         }
     }
     break;
@@ -2227,18 +2250,37 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           *(di++) = *(si++) + lcset;
           }
           */
-        qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
-        //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
-        qword *si = (qword*)unpackbuf;
         
-        for(int32_t dy=0; dy<16; ++dy)
+        if (draw_mode == 1)
         {
-            // 4 bytes at a time
-            //        qword *di=&((qword*)dest->line[y+dy])[x>>3];
-            qword *di=(qword*)(dest->line[y+dy]+x);
+            byte *si = unpackbuf;
             
-            for(int32_t i=0; i<16; i+=8)
-                *(di++) = *(si++) + llcset;
+            for(int32_t dy=0; dy<16; ++dy)
+            {
+                if (y+dy < 0) continue;
+
+                // 1 byte at a time
+                byte *di = &(dest->line[y+dy][x]);
+                
+                for(int32_t x=0; x<16; x++)
+                    *(di++) = *(si++) + cset;
+            }
+        }
+        else
+        {
+            qword llcset = (((qword)cset)<<56)+(((qword)cset)<<48)+(((qword)cset)<<40)+(((qword)cset)<<32)+(((qword)cset)<<24)+(cset<<16)+(cset<<8)+cset;
+            //      qword llcset = (((qword)cset)<<56)|(((qword)cset)<<48)|(((qword)cset)<<40)|(((qword)cset)<<32)|(((qword)cset)<<24)|(cset<<16)|(cset<<8)|cset;
+            qword *si = (qword*)unpackbuf;
+            
+            for(int32_t dy=0; dy<16; ++dy)
+            {
+                // 4 bytes at a time
+                //        qword *di=&((qword*)dest->line[y+dy])[x>>3];
+                qword *di=(qword*)(dest->line[y+dy]+x);
+                
+                for(int32_t i=0; i<16; i+=8)
+                    *(di++) = *(si++) + llcset;
+            }
         }
     }
     break;
