@@ -14217,6 +14217,8 @@ static DIALOG screen_pal_dlg[] =
 
 int32_t onScreenPalette()
 {
+	if(key[KEY_ALT]||key[KEY_ALTGR])
+		return D_O_K; //'Alt+F4' should not pop this up...
     restore_mouse();
     screen_pal_dlg[0].dp2=lfont;
     screen_pal_dlg[2].d1=Map.getcolor();
