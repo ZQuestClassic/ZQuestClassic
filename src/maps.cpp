@@ -3577,6 +3577,16 @@ bool global_z3_scrolling = true;
 int32_t global_viewport_x = 0, global_viewport_y = 0;
 int32_t global_z3_cur_scr_drawing = -1;
 
+int z3_get_currscr_dx()
+{
+	return currscr % 16 - z3_currscr % 16;
+}
+
+int z3_get_currscr_dy()
+{
+	return currscr / 16 - z3_currscr / 16;
+}
+
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -3623,8 +3633,15 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 	if (global_z3_scrolling)
 	{
-		global_viewport_x = Hero.getX() - 256/2;
-		global_viewport_y = Hero.getY() - 176/2;
+		global_viewport_x = Hero.getX().getTrunc() - 256/2;
+		global_viewport_y = Hero.getY().getTrunc() - 176/2;
+
+		int dx = Hero.getX().getTrunc() / 256;
+		int dy = Hero.getY().getTrunc() / 176;
+		if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16)
+		{
+			currscr = z3_currscr + dx + dy * 16;
+		}
 	}
 	else
 	{
@@ -3692,9 +3709,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
 			int scr = currscr + draw_dx + draw_dy * 16;
-			int offx = draw_dx * 256;
-			int offy = draw_dy * 176;
 			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			int offx = (draw_dx + z3_get_currscr_dx()) * 256;
+			int offy = (draw_dy + z3_get_currscr_dy()) * 176;
 			putscr(scrollbuf, offx, offy + playing_field_offset, myscr);
 		}
 	}

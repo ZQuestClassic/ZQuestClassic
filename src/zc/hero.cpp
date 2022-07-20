@@ -20140,6 +20140,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	
 	//Generic Step
+	if (!global_z3_scrolling) // TODO z3
 	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
 	{
 		int32_t poses[4];
@@ -21327,7 +21328,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		ringcolor(false);
 		loadlvlpal(DMaps[currdmap].color);
 		//lastentrance_dmap = currdmap;
-		homescr = currscr = wscr + DMaps[currdmap].xoff;
+		z3_currscr = homescr = currscr = wscr + DMaps[currdmap].xoff;
 		loadscr(0,currdmap,currscr,-1,overlay);
 		
 		if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
@@ -21548,7 +21549,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			currdmap = wdmap;
 			dlevel = DMaps[currdmap].level;
-			homescr = currscr = wscr + DMaps[wdmap].xoff;
+			z3_currscr = homescr = currscr = wscr + DMaps[wdmap].xoff;
 			init_dmap();
 			
 			int32_t wrx,wry;
@@ -21703,7 +21704,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(DMaps[currdmap].color != c)
 			loadlvlpal(DMaps[currdmap].color);
 			
-		homescr = currscr = wscr + DMaps[currdmap].xoff;
+		z3_currscr = homescr = currscr = wscr + DMaps[currdmap].xoff;
 		
 		lightingInstant(); // Also sets naturaldark
 		
@@ -21871,7 +21872,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			if(DMaps[currdmap].color != c)
 				loadlvlpal(DMaps[currdmap].color);
 				
-			homescr = currscr = wscr + DMaps[currdmap].xoff;
+			z3_currscr = homescr = currscr = wscr + DMaps[currdmap].xoff;
 			
 			lightingInstant(); // Also sets naturaldark
 			
@@ -23115,7 +23116,7 @@ void HeroClass::check_scroll_direction(direction dir)
 void HeroClass::checkscroll()
 {
 	// TODO
-	// if (global_z3_scrolling) return;
+	if (global_z3_scrolling) return;
 
 	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
 	if(action == casting||action==sideswimcasting)
@@ -23840,7 +23841,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	case up:
 	{
 		if(destscr != -1)
-			currscr = destscr;
+			z3_currscr = currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			currscr -= 16;
 			
@@ -23861,7 +23862,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	case down:
 	{
 		if(destscr != -1)
-			currscr = destscr;
+			z3_currscr = currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			currscr += 16;
 			
@@ -23881,7 +23882,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	case left:
 	{
 		if(destscr!=-1)
-			currscr = destscr;
+			z3_currscr = currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			--currscr;
 			
@@ -23898,7 +23899,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	case right:
 	{
 		if(destscr != -1)
-			currscr = destscr;
+			z3_currscr = currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			++currscr;
 			
