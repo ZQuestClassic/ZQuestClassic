@@ -12,7 +12,6 @@ bool isNextType(int32_t type);
 bool isWarpType(int32_t type);
 bool isStepType(int32_t type);
 
-void do_trigger_combo(int32_t layer, int32_t pos, int32_t special = 0, weapon* w = NULL);
 bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
 
@@ -24,6 +23,13 @@ bool try_locked_combo(newcombo const& cmb);
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(int32_t lyr, int32_t pos);
 bool trigger_step(int32_t lyr, int32_t pos);
+bool trigger_chest(int32_t lyr, int32_t pos);
+
+
+void do_trigger_combo(int32_t layer, int32_t pos, int32_t special = 0, weapon* w = NULL);
+
+void init_combo_timers();
+void update_combo_timers();
 
 #endif
 

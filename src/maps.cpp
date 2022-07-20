@@ -4439,6 +4439,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	if(!tmp)
 	{
 		triggered_screen_secrets = false; //Reset var
+		init_combo_timers();
 		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	}
 	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());

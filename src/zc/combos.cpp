@@ -11,6 +11,24 @@
 extern sprite_list items, decorations;
 extern FFScript FFCore;
 extern HeroClass Hero;
+extern refInfo *ri;
+extern refInfo itemScriptData[256];
+extern word item_doscript[256];
+extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
+extern byte itemscriptInitialised[256];
+
+struct cmbtimer
+{
+	int32_t data;
+	byte clk;
+	void clear()
+	{
+		data = 0;
+		clk = 0;
+	}
+	cmbtimer() : data(0), clk(0) {}
+};
+cmbtimer combo_trig_timers[7][176];
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -599,15 +617,81 @@ bool trigger_warp(newcombo const& cmb)
 	return true;
 }
 
-//Forcibly triggers a combo at a given position
-void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
+bool trigger_chest(int32_t lyr, int32_t pos)
 {
-	if(unsigned(layer) > 6 || unsigned(pos) > 175) return;
-	mapscr* tmp = FFCore.tempScreens[layer];
+	newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+	switch(cmb.type)
+	{
+		case cLOCKEDCHEST: //Special flags!
+			//if(!usekey()) return; //Old check
+			if(!try_locked_combo(cmb)) return false;
+			
+			setmapflag(mLOCKEDCHEST);
+			break;
+			
+		case cCHEST:
+			setmapflag(mCHEST);
+			break;
+			
+		case cBOSSCHEST:
+			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return false;
+			// Run Boss Key Script
+			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
+			for ( int32_t q = 0; q < MAXITEMS; ++q )
+			{
+				if ( itemsbuf[q].family == itype_bosskey )
+				{
+					key_item = q; break;
+				}
+			}
+			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			{
+				ri = &(itemScriptData[key_item]);
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			setmapflag(mBOSSCHEST);
+			break;
+	}
+	
+	sfx(cmb.attribytes[3]); //opening sfx
+	
+	bool itemflag = false;
+	for(int32_t i=0; i<3; i++)
+	{
+		if(FFCore.tempScreens[i]->sflag[pos]==mfARMOS_ITEM)
+		{
+			itemflag = true; break;
+		}
+		if(combobuf[FFCore.tempScreens[i]->data[pos]].flag==mfARMOS_ITEM)
+		{
+			itemflag = true; break;
+		}
+	}
+	
+	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
+	{
+		items.add(new item(Hero.getX(), Hero.getY(), 0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+	}
+	return true;
+}
+
+//Forcibly triggers a combo at a given position
+void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
+	mapscr* tmp = FFCore.tempScreens[lyr];
 	int32_t cid = tmp->data[pos];
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];
+	if(cmb.triggeritem && (!game->get_item(cmb.triggeritem)
+		|| item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
+		return;
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	
@@ -616,7 +700,7 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 	bool used_bit = false;
 	if(w)
 	{
-		grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
+		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
 		check_bit = get_bit(grid,(((cx>>4) + cy)));
 	}
 	if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
@@ -627,8 +711,8 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 			case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 			case cTRIGGERGENERIC:
 				if(w)
-					do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
-				else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, layer);
+					do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
+				else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
 				break;
 			case cCUSTOMBLOCK:
 				if(!w) break;
@@ -643,7 +727,7 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 			switch(cmb.type)
 			{
 				case cCSWITCH:
-					do_cswitch_combo(cmb, layer, pos, w);
+					do_cswitch_combo(cmb, lyr, pos, w);
 					break;
 				
 				case cSIGNPOST:
@@ -660,11 +744,11 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 				case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
 				case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
 				case cBUSHNEXTTOUCHY:
-					trigger_cuttable(layer, pos);
+					trigger_cuttable(lyr, pos);
 					break;
 					
 				case cSTEP: case cSTEPSAME: case cSTEPALL:
-					if(!trigger_step(layer,pos))
+					if(!trigger_step(lyr,pos))
 						return;
 					break;
 				
@@ -676,7 +760,12 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 				case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 					trigger_warp(cmb);
 					break;
-					
+				
+				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+					if(!trigger_chest(lyr,pos))
+						return;
+					break;
+				
 				default:
 					used_bit = false;
 			}
@@ -711,4 +800,43 @@ void do_trigger_combo(int32_t layer, int32_t pos, int32_t special, weapon* w)
 	}
 }
 
+void init_combo_timers()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			combo_trig_timers[lyr][pos].clear();
+		}
+	}
+}
 
+void update_combo_timers()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			cmbtimer& timer = combo_trig_timers[lyr][pos];
+			if(timer.data != scr->data[pos])
+			{
+				timer.data = scr->data[pos];
+				timer.clk = 0;
+			}
+			else
+			{
+				newcombo const& cmb = combobuf[timer.data];
+				if(cmb.trigtimer)
+				{
+					if(++timer.clk >= cmb.trigtimer)
+					{
+						timer.clk = 0;
+						do_trigger_combo(lyr, pos);
+						timer.data = scr->data[pos];
+					}
+				}
+			}
+		}
+	}
+}

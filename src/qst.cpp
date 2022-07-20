@@ -17346,6 +17346,17 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 					temp_combo.triggerflags[0] |= combotriggerCMBTYPEFX;
 			}
 		}
+		if(section_version >= 24)
+		{
+			if(!p_getc(&temp_combo.triggeritem,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.trigtimer,f,true))
+			{
+				return qe_invalid;
+			}
+		}
 		
 		if(section_version>=12) //combo label
 		{

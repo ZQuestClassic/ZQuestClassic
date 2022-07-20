@@ -47,6 +47,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+#include "combos.h"
 #include "qst.h"
 #include "base/util.h"
 #include "drawing.h"
@@ -3480,7 +3481,11 @@ void game_loop()
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "animate_combos()\n");
 		#endif
-		if ( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
+		if ( !FFCore.system_suspend[susptCOMBOANIM] )
+		{
+			animate_combos();
+			update_combo_timers();
+		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "load_control_state()\n");

@@ -17629,6 +17629,7 @@ void HeroClass::checkchest(int32_t type)
 	}
 	
 	int32_t found = -1;
+	int32_t foundlayer = 0;
 	
 	if(combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
 	{
@@ -17676,6 +17677,7 @@ void HeroClass::checkchest(int32_t type)
 			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
 			{
 				found = MAPCOMBO2(i,bx,by);
+				foundlayer = i+1;
 				fx = bx; fy = by;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
@@ -17692,6 +17694,7 @@ void HeroClass::checkchest(int32_t type)
 			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && _effectflag(bx2,by2,1, i))
 			{
 				found = MAPCOMBO2(i,bx2,by2);
+				foundlayer = i+1;
 				fx = bx2; fy = by2;
 				if (i == 0 && tmpscr2[1].valid!=0)
 				{
@@ -17752,63 +17755,10 @@ void HeroClass::checkchest(int32_t type)
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
 	
-	switch(type)
-	{
-		case cLOCKEDCHEST: //Special flags!
-			//if(!usekey()) return; //Old check
-			if(!try_locked_combo(cmb)) return;
-			
-			setmapflag(mLOCKEDCHEST);
-			break;
-			
-		case cCHEST:
-			setmapflag(mCHEST);
-			break;
-			
-		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return;
-			// Run Boss Key Script
-			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
-			for ( int32_t q = 0; q < MAXITEMS; ++q )
-			{
-				if ( itemsbuf[q].family == itype_bosskey )
-				{
-					key_item = q; break;
-				}
-			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
-			{
-				ri = &(itemScriptData[key_item]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
-			}
-			setmapflag(mBOSSCHEST);
-			break;
-	}
+	if(!trigger_chest(foundlayer, COMBOPOS(fx,fy))) return;
 	
 	if(intbtn && (cmb.usrflags & cflag13))
 		prompt_combo = 0;
-	sfx(cmb.attribytes[3]); //opening sfx
-	
-	bool itemflag = MAPCOMBOFLAG(fx,fy)==mfARMOS_ITEM;
-	itemflag |= MAPFLAG(fx,fy)==mfARMOS_ITEM;
-	if(!itemflag)
-	{
-		for(int32_t i=0; i<2; i++)
-		{
-			itemflag |= MAPFLAG2(i,fx,fy)==mfARMOS_ITEM;
-			itemflag |= MAPCOMBOFLAG2(i,fx,fy)==mfARMOS_ITEM;
-		}
-	}
-	
-	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
-	{
-		items.add(new item(x, y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-	}
 }
 
 void HeroClass::checksigns() //Also checks for generic trigger buttons

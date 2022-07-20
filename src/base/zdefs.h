@@ -253,7 +253,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS          9
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          23
+#define V_COMBOS          24
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -3138,6 +3138,8 @@ struct newcombo
 	int32_t triggerflags[3]; //96 bits
 	int32_t triggerlevel; //32 bits
 	byte triggerbtn; //8 bits
+	byte triggeritem; //8 bits
+	byte trigtimer; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3186,6 +3188,8 @@ struct newcombo
 			triggerflags[q] = 0;
 		triggerlevel = 0;
 		triggerbtn = 0;
+		triggeritem = 0;
+		trigtimer = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
 		for(int32_t q = 0; q < 8; ++q)
@@ -3227,6 +3231,8 @@ struct newcombo
 			if(triggerflags[q]) return false;
 		if(triggerlevel) return false;
 		if(triggerbtn) return false;
+		if(triggeritem) return false;
+		if(trigtimer) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

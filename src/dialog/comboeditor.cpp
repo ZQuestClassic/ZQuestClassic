@@ -16,7 +16,7 @@ char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
-static size_t cmb_tab1 = 0, cmb_tab2 = 0;
+static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 
 bool hasCTypeEffects(int32_t type)
 {
@@ -39,6 +39,7 @@ bool hasCTypeEffects(int32_t type)
 		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 			return true;
 	}
 	return false;
@@ -2008,8 +2009,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							CMB_ATTRIBUTE(3), DummyWidget(colSpan = 3)
 						)
 					)),
-					TabRef(name = "Triggers", Column(
-						Row(
+					TabRef(name = "Triggers", TabPanel(
+						ptr = &cmb_tab3,
+						TabRef(name = "Weapons", Row(
 							Column(framed = true,
 								Row(
 									padding = 0_px,
@@ -2068,54 +2070,98 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(45,"Custom Weapon 9"),
 									TRIGFLAG(46,"Custom Weapon 10")
 								)
-							),
-							Column(padding = 0_px,
-								Column(framed = true,
-									Row(padding = 0_px,
-										Label(text = "Buttons:"),
-										TextField(
-											fitParent = true,
-											vPadding = 0_px,
-											type = GUI::TextField::type::INT_DECIMAL,
-											low = 0, high = 255, val = local_comboref.triggerbtn,
-											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-											{
-												local_comboref.triggerbtn = val;
-											}),
-										Button(
-											width = 1.5_em, padding = 0_px, forceFitH = true,
-											text = "?", hAlign = 1.0, onPressFunc = [&]()
-											{
-												InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
-													"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-													"Buttons used while standing against the combo from a direction"
-													" with the 'Btn: [dir]' flag checked for that side"
-													" will trigger the combo.").show();
-											}
-										)
-									),
-									Column(
-										TRIGFLAG(20,"Btn: Top"),
-										TRIGFLAG(21,"Btn: Bottom"),
-										TRIGFLAG(22,"Btn: Left"),
-										TRIGFLAG(23,"Btn: Right")
+							)
+						)),
+						TabRef(name = "Other", Row(
+							Column(framed = true,
+								Row(padding = 0_px,
+									Label(text = "Buttons:"),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.triggerbtn,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggerbtn = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
+												"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+												"Buttons used while standing against the combo from a direction"
+												" with the 'Btn: [dir]' flag checked for that side"
+												" will trigger the combo.").show();
+										}
 									)
 								),
-								Column(framed = true,
-									TRIGFLAG(47,"Always Triggered"),
-									TRIGFLAG(27,"Shutter->"),
-									TRIGFLAG(25,"Step->"),
-									TRIGFLAG(26,"Step-> (Sensitive)")
+								Column(
+									TRIGFLAG(20,"Btn: Top"),
+									TRIGFLAG(21,"Btn: Bottom"),
+									TRIGFLAG(22,"Btn: Left"),
+									TRIGFLAG(23,"Btn: Right")
+								)
+							),
+							Column(framed = true,
+								TRIGFLAG(47,"Always Triggered"),
+								TRIGFLAG(27,"Shutter->"),
+								TRIGFLAG(25,"Step->"),
+								TRIGFLAG(26,"Step-> (Sensitive)")
+							),
+							Column(framed = true,
+								Row(padding = 0_px,
+									Label(text = "Item:"),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.triggeritem,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggeritem = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Item Requirement","If the value is >0, the item "
+												" id set here must be owned to trigger the combo.").show();
+										}
+									)
+								),
+								Row(padding = 0_px,
+									Label(text = "Timer:"),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.trigtimer,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigtimer = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Timed Trigger","If the value is >0, the combo will"
+												" trigger itself every 'n' frames.").show();
+										}
+									)
 								)
 							)
-						),
-						Rows<5>(
-							framed = true,
-							TRIGFLAG(48,"Triggers Secrets"),
-							TRIGFLAG(18,"->Next"),
-							TRIGFLAG(19,"->Prev"),
-							cteff_tflag = TRIGFLAG(28,"ComboType Effects")
-						)
+						)),
+						TabRef(name = "Effects", Row(
+							Columns<10>(
+								framed = true,
+								TRIGFLAG(48,"Triggers Secrets"),
+								TRIGFLAG(18,"->Next"),
+								TRIGFLAG(19,"->Prev"),
+								cteff_tflag = TRIGFLAG(28,"ComboType Effects")
+							)
+						))
 					)),
 					TabRef(name = "Script", Column(
 						INITD_ROW2(0, local_comboref.initd),
@@ -2499,38 +2545,85 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(46,"C. Weapon 10")
 								)
 							),
-							Column(
-								framed = true,
-								margins = DEFAULT_PADDING,
-								padding = DEFAULT_PADDING+2_px,
-								Row(padding = 0_px,
-									Label(text = "Buttons:"),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_comboref.triggerbtn,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_comboref.triggerbtn = val;
-										}),
-									Button(
-										width = 1.5_em, padding = 0_px, forceFitH = true,
-										text = "?", hAlign = 1.0, onPressFunc = [&]()
-										{
-											InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
-												"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-												"Buttons used while standing against the combo from a direction"
-												" with the 'Btn: [dir]' flag checked for that side"
-												" will trigger the combo.").show();
-										}
+							Row(
+								Column(
+									framed = true,
+									margins = DEFAULT_PADDING,
+									padding = DEFAULT_PADDING+2_px,
+									Row(padding = 0_px,
+										Label(text = "Buttons:"),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.triggerbtn,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.triggerbtn = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Button Triggers","Sum all the buttons you want to be usable:\n"
+													"(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+													"Buttons used while standing against the combo from a direction"
+													" with the 'Btn: [dir]' flag checked for that side"
+													" will trigger the combo.").show();
+											}
+										)
+									),
+									Rows<2>(
+										TRIGFLAG(20,"Btn: Top"),
+										TRIGFLAG(21,"Btn: Bottom"),
+										TRIGFLAG(22,"Btn: Left"),
+										TRIGFLAG(23,"Btn: Right")
 									)
 								),
-								Rows<2>(
-									TRIGFLAG(20,"Btn: Top"),
-									TRIGFLAG(21,"Btn: Bottom"),
-									TRIGFLAG(22,"Btn: Left"),
-									TRIGFLAG(23,"Btn: Right")
+								Column(
+									framed = true,
+									margins = DEFAULT_PADDING,
+									padding = DEFAULT_PADDING+2_px,
+									Row(padding = 0_px,
+										Label(text = "Item:"),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.triggeritem,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.triggeritem = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Item Requirement","If the value is >0, the item "
+													" id set here must be owned to trigger the combo.").show();
+											}
+										)
+									),
+									Row(padding = 0_px,
+										Label(text = "Timer:"),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 255, val = local_comboref.trigtimer,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigtimer = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Timed Trigger","If the value is >0, the combo will"
+													" trigger itself every 'n' frames.").show();
+											}
+										)
+									)
 								)
 							),
 							Rows<2>(framed = true,
