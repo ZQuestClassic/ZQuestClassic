@@ -12169,7 +12169,7 @@ int32_t onSecretCombo()
 static DIALOG under_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     72,   60,   176+1,120+1,vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "Under Combo", NULL, NULL },
+    { jwin_win_proc,     72,   60,   176+1,120+1,vc(14),  vc(1),  0,       D_EXIT,     0,             0, NULL, NULL, NULL },
     { jwin_text_proc,    115,  83,   20,   20,   vc(14),  vc(1),  0,       0,          0,             0, (void *) "Current", NULL, NULL },
     { d_comboframe_proc, 122,  92,   20,   20,   0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { d_combo_proc,      124,  94,   16,   16,   0,       0,      0,       D_NOCLICK,  0,             0,       NULL, NULL, NULL },
@@ -12186,43 +12186,58 @@ static DIALOG under_dlg[] =
 
 int32_t onUnderCombo()
 {
-    under_dlg[0].dp2 = lfont;
-    
-    under_dlg[3].d1=Map.CurrScr()->undercombo;
-    under_dlg[3].fg=Map.CurrScr()->undercset;
-    
-    under_dlg[6].d1=Combo;
-    under_dlg[6].fg=CSet;
-    
-    if(is_large)
-    {
-        large_dialog(under_dlg);
-        // Doesn't place "New" and "Current" text too well
-        under_dlg[1].x=342;
-        under_dlg[4].x=438;
-    }
-    
-    int32_t ret = zc_popup_dialog(under_dlg,-1);
-    
-    if(ret==7)
-    {
-        saved=false;
-        Map.CurrScr()->undercombo = under_dlg[6].d1;
-        Map.CurrScr()->undercset = under_dlg[6].fg;
-    }
-    
-    if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
-    {
-        saved=false;
-        
-        for(int32_t i=0; i<128; i++)
-        {
-            Map.Scr(i)->undercombo = under_dlg[6].d1;
-            Map.Scr(i)->undercset = under_dlg[6].fg;
-        }
-    }
-    
-    return D_O_K;
+	char titlebuf[64];
+	sprintf(titlebuf, "Under Combo (Layer %d)", CurrentLayer);
+	under_dlg[0].dp = titlebuf;
+	under_dlg[0].dp2 = lfont;
+	mapscr* scr;
+	if(CurrentLayer==0)
+	{
+		scr=Map.CurrScr();
+	}
+	else
+	{
+		auto map=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		auto screen=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		if(map < 0) return D_O_K;
+		scr = Map.AbsoluteScr(map,screen);
+	}
+	
+	under_dlg[3].d1=scr->undercombo;
+	under_dlg[3].fg=scr->undercset;
+	
+	under_dlg[6].d1=Combo;
+	under_dlg[6].fg=CSet;
+	
+	if(is_large)
+	{
+		large_dialog(under_dlg);
+		// Doesn't place "New" and "Current" text too well
+		under_dlg[1].x=342;
+		under_dlg[4].x=438;
+	}
+	
+	int32_t ret = zc_popup_dialog(under_dlg,-1);
+	
+	if(ret==7)
+	{
+		saved=false;
+		scr->undercombo = under_dlg[6].d1;
+		scr->undercset = under_dlg[6].fg;
+	}
+	
+	if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+	{
+		saved=false;
+		
+		for(int32_t i=0; i<128; i++)
+		{
+			Map.Scr(i)->undercombo = under_dlg[6].d1;
+			Map.Scr(i)->undercset = under_dlg[6].fg;
+		}
+	}
+	
+	return D_O_K;
 }
 
 static DIALOG list_dlg[] =
