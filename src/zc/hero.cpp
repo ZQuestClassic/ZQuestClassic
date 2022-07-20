@@ -19654,6 +19654,11 @@ void HeroClass::checkspecial()
 //Gets the 4 comboposes indicated by the coordinates, replacing duplicates with '-1'
 void getPoses(int32_t* poses, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
+	x1 %= 256;
+	y1 %= 176;
+	x2 %= 256;
+	y2 %= 176;
+
 	int32_t tmp;
 	poses[0] = COMBOPOS(x1,y1);
 	
@@ -23109,6 +23114,9 @@ void HeroClass::check_scroll_direction(direction dir)
 // Checks if hero is beyond the bounds of the screen, and if so begins (and finishes) scrolling.
 void HeroClass::checkscroll()
 {
+	// TODO
+	// if (global_z3_scrolling) return;
+
 	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
 	if(action == casting||action==sideswimcasting)
 		return;
@@ -24000,6 +24008,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if(action != rafting)  // Is this supposed to be here?!
 	
 		cx++; //This was the easiest way to re-arrange the loop so drawing is in the middle
+
+
+	
+	int z3_scrolling_mode = 0;
+	if (global_z3_scrolling) z3_scrolling_mode = 1;
+	// Enable to try the "z3" path even for non-scrolling screens.
+	// Once bugs are worked out this should become the only path (and delete the !z3_scrolling_mode paths).
+	// z3_scrolling_mode = 2;
 		
 	cx *= delay; //so we can have drawing re-done every frame,
 	//previously it was for(0 to delay) advanceframes at end of loop
@@ -24103,12 +24119,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		ty = sy;
 		tx2 = sx;
 		ty2 = sy;
-
-		int z3_scrolling_mode = 0;
-		if (global_z3_scrolling) z3_scrolling_mode = 1;
-		// Enable to try the "z3" path even for non-scrolling screens.
-		// Once bugs are worked out this should become the only path (and delete the !z3_scrolling_mode paths).
-		// z3_scrolling_mode = 2;
 		
 		switch(scrolldir)
 		{
@@ -24382,7 +24392,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			decorations.draw(framebuf,  true);
 		}
 		
-		if (!z3_scrolling_mode)
+		// TODO z3
+		if (!z3_scrolling_mode || 1)
 		{
 			if(!(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, oldscr, tx2, ty2, 3);
 			

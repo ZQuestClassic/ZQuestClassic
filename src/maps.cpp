@@ -3694,11 +3694,10 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			int scr = currscr + draw_dx + draw_dy * 16;
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			mapscr& myscr = TheMaps[currmap*MAPSCRS+scr];
-			putscr(scrollbuf, offx, offy + playing_field_offset, &myscr);
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			putscr(scrollbuf, offx, offy + playing_field_offset, myscr);
 		}
 	}
-	rectfill(scrollbuf, 0, 0, 256, playing_field_offset, 0);
 
 	// Lens hints, then primitives, then particles.
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
@@ -4103,6 +4102,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	global_z3_cur_scr_drawing = -1;
+	rectfill(temp_buf, 0, 0, 256, playing_field_offset, 0);
 	
 	particles.draw(temp_buf, true, -1);
 	
