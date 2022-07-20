@@ -59,7 +59,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	
 	zconsole_info("%s", "Pass 1: Parsing");
 
-	unique_ptr<ASTFile> root(parseFile(filename));
+	unique_ptr<ASTFile> root(parseFile(filename, true));
 	if (!root.get())
 	{
 		log_error(CompileError::CantOpenSource(NULL));

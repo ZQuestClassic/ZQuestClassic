@@ -71,7 +71,7 @@ extern YYLTYPE noloc;
 	namespace ZScript
 	{
 		class ASTFile;
-		std::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
+		std::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename, bool is_buf = false);
 	};
 }
 
@@ -1702,11 +1702,14 @@ Literal_Array_Body :
 
 /*        programs */
 
+static bool is_buffer_file = false;
 void yymsg(string const& message, int32_t row, int32_t col)
 {
 	ostringstream out;
 	out << message << " [";
-	if (curfilename != "tmp")
+	if (is_buffer_file)
+		out << "ZQ_BUFFER ";
+	else
 		out << curfilename << " ";
 	out << "Line " << yyrow << " "
 	    << "Column " << yycol;
@@ -1724,8 +1727,9 @@ void yyerror(std::unique_ptr<ASTFile>&, const char *s) {
 
 namespace ZScript
 {
-	std::unique_ptr<ASTFile> parseFile(std::string const& filename)
+	std::unique_ptr<ASTFile> parseFile(std::string const& filename, bool is_buf)
 	{
+		is_buffer_file = is_buf;
 		std::unique_ptr<ASTFile> result;
 
 		// Reset lexer.
