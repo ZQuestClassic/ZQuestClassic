@@ -1399,8 +1399,9 @@
 #define REFSTACK                1316
 #define STACKSIZE               1317
 #define STACKFULL               1318
+#define ITEMFORCEGRAB           1319
 
-#define LAST_BYTECODE           1319
+#define LAST_BYTECODE           1320
 
 //} END OF BYTECODE
 

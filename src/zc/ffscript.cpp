@@ -4262,6 +4262,12 @@ int32_t get_register(const int32_t arg)
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
+		case ITEMFORCEGRAB:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = ((item*)s)->force_grab ? 10000 : 0;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//Itemdata Variables
@@ -13755,6 +13761,12 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		case ITMSWHOOKED:
 			break; //read-only
+		case ITEMFORCEGRAB:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->force_grab = value!=0;
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//Itemdata Variables
@@ -37367,6 +37379,7 @@ script_variable ZASMVars[]=
 	{ "REFSTACK", REFSTACK, 0, 0 },
 	{ "STACKSIZE", STACKSIZE, 0, 0 },
 	{ "STACKFULL", STACKFULL, 0, 0 },
+	{ "ITEMFORCEGRAB", ITEMFORCEGRAB, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

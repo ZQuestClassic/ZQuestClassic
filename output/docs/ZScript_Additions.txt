@@ -4489,6 +4489,13 @@ void Remove();
 bool SwitchHooked;
  * READ-ONLY
  * Returns true if the object is currently grabbed by a switchhook effect
+ 
+bool ForceGrab;
+ * If true, the item is being forcibly picked up. This means that it will:
+ *  -not draw (invisible)
+ *  -immune to falling in pits/water
+ *  -will be picked up by the player as though they stepped on it as soon as possible
+ * Some engine effects may set this to true; this value is read/write to scripts.
 
 bool Switch(int effect);
  * Switch the player with this object

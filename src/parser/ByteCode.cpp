@@ -2057,6 +2057,7 @@ string ZScript::VarToString(int32_t ID)
 	case EWPNGLOWSHP: return "EWPNGLOWSHP";
 	
 	case ITEMDIR: return "ITEMDIR";
+	case ITEMFORCEGRAB: return "ITEMFORCEGRAB";
 	
 	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
 	case LWPNUNBL: return "LWPNUNBL";

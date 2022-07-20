@@ -4774,8 +4774,9 @@ enum ASM_DEFINE
 #define REFSTACK                0x145A
 #define STACKSIZE               0x145B
 #define STACKFULL               0x145C
+#define ITEMFORCEGRAB           0x145D
 
-#define NUMVARIABLES         	0x145D
+#define NUMVARIABLES         	0x145E
 
 //} End variables
 

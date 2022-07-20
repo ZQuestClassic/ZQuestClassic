@@ -2391,6 +2391,7 @@ script_variable variable_list[]=
 	{ "REFSTACK", REFSTACK, 0, 0 },
 	{ "STACKSIZE", STACKSIZE, 0, 0 },
 	{ "STACKFULL", STACKFULL, 0, 0 },
+	{ "ITEMFORCEGRAB", ITEMFORCEGRAB, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };
