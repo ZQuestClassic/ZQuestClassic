@@ -26413,7 +26413,7 @@ void HeroClass::checkitems(int32_t index)
 		for(auto ind = items.Count()-1; ind >= 0; --ind)
 		{
 			item* itm = (item*)items.spr(ind);
-			if(itm->force_grab)
+			if(itm->get_forcegrab())
 			{
 				checkitems(ind);
 			}
@@ -26749,6 +26749,7 @@ void HeroClass::checkitems(int32_t index)
 			sfx(tmpscr[0].holdupsfx);
 		}
 		
+		ptr->set_forcegrab(false);
 		items.del(index);
 		
 		for(int32_t i=0; i<Lwpns.Count(); i++)
@@ -26805,6 +26806,7 @@ void HeroClass::checkitems(int32_t index)
 	}
 	else
 	{
+		ptr->set_forcegrab(false);
 		items.del(index);
 		
 		for(int32_t i=0; i<Lwpns.Count(); i++)

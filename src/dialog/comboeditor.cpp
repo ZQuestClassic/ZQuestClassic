@@ -2078,7 +2078,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									Label(text = "Buttons:"),
 									TextField(
 										fitParent = true,
-										vPadding = 0_px,
+										bottomPadding = 0_px,
 										type = GUI::TextField::type::INT_DECIMAL,
 										low = 0, high = 255, val = local_comboref.triggerbtn,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -2112,7 +2112,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							Column(framed = true,
 								Row(padding = 0_px,
-									Label(text = "Item:"),
+									Label(text = "Item:", fitParent = true),
 									TextField(
 										fitParent = true,
 										vPadding = 0_px,
@@ -2132,7 +2132,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									)
 								),
 								Row(padding = 0_px,
-									Label(text = "Timer:"),
+									Label(text = "Timer:", fitParent = true),
 									TextField(
 										fitParent = true,
 										vPadding = 0_px,
@@ -2154,22 +2154,45 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)),
 						TabRef(name = "Effects", Row(
-							Columns<10>(
+							Rows<2>(
 								framed = true,
+								INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+									" unless 'Temporary Secrets' screen data flag is checked."),
 								TRIGFLAG(48,"Triggers Secrets"),
+								INFOBTN("Triggering the combo changes it to the next combo."),
 								TRIGFLAG(18,"->Next"),
+								INFOBTN("Triggering the combo changes it to the previous combo."
+									" Ignored if '->Next' is checked."),
 								TRIGFLAG(19,"->Prev"),
-								Row(
-									INFOBTN("Triggering the combo will cause it's inherent type-based effects to occur."
-										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-										" Not available for all combo types; will be greyed out when unavailable."),
-									cteff_tflag = TRIGFLAG(28,"ComboType Effects")
-								),
-								Row(
-									INFOBTN("The combo will ignore methods of triggering it's standard effects that"
-										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
-										" unless the 'Sword' weapon trigger is checked."),
-									TRIGFLAG(29,"Only Gen Triggers")
+								INFOBTN("Triggering the combo will cause it's inherent type-based effects to occur."
+									" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+									" Not available for all combo types; will be greyed out when unavailable."),
+								cteff_tflag = TRIGFLAG(28,"ComboType Effects"),
+								INFOBTN("The combo will ignore methods of triggering it's standard effects that"
+									" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+									" unless the 'Sword' weapon trigger is checked."),
+								TRIGFLAG(29,"Only Gen Triggers")
+							),
+							Column(framed = true,
+								Row(padding = 0_px,
+									Label(text = "SFX:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.trigsfx,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigsfx = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Trigger SFX","If the value is >0, the combo will"
+												" play the specified SFX when triggered.").show();
+										}
+									)
 								)
 							)
 						))
@@ -2591,49 +2614,63 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										TRIGFLAG(23,"Btn: Right")
 									)
 								),
-								Column(
+								Rows<3>(
 									framed = true,
 									margins = DEFAULT_PADDING,
 									padding = DEFAULT_PADDING+2_px,
-									Row(padding = 0_px,
-										Label(text = "Item:"),
-										TextField(
-											fitParent = true,
-											vPadding = 0_px,
-											type = GUI::TextField::type::INT_DECIMAL,
-											low = 0, high = 255, val = local_comboref.triggeritem,
-											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-											{
-												local_comboref.triggeritem = val;
-											}),
-										Button(
-											width = 1.5_em, padding = 0_px, forceFitH = true,
-											text = "?", hAlign = 1.0, onPressFunc = [&]()
-											{
-												InfoDialog("Item Requirement","If the value is >0, the item "
-													" id set here must be owned to trigger the combo.").show();
-											}
-										)
+									Label(text = "Item:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.triggeritem,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggeritem = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Item Requirement","If the value is >0, the item "
+												" id set here must be owned to trigger the combo.").show();
+										}
 									),
-									Row(padding = 0_px,
-										Label(text = "Timer:"),
-										TextField(
-											fitParent = true,
-											vPadding = 0_px,
-											type = GUI::TextField::type::INT_DECIMAL,
-											low = 0, high = 255, val = local_comboref.trigtimer,
-											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-											{
-												local_comboref.trigtimer = val;
-											}),
-										Button(
-											width = 1.5_em, padding = 0_px, forceFitH = true,
-											text = "?", hAlign = 1.0, onPressFunc = [&]()
-											{
-												InfoDialog("Timed Trigger","If the value is >0, the combo will"
-													" trigger itself every 'n' frames.").show();
-											}
-										)
+									Label(text = "Timer:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.trigtimer,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigtimer = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Timed Trigger","If the value is >0, the combo will"
+												" trigger itself every 'n' frames.").show();
+										}
+									),
+									Label(text = "SFX:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 255, val = local_comboref.trigsfx,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigsfx = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Trigger SFX","If the value is >0, the combo will"
+												" play the specified SFX when triggered.").show();
+										}
 									)
 								)
 							),
@@ -2645,14 +2682,32 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(25,"Step->"),
 								TRIGFLAG(26,"Step-> (Sensitive)")
 							),
-							Rows<3>(
+							Row(
 								framed = true,
 								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
-								TRIGFLAG(48,"Triggers Secrets"),
-								TRIGFLAG(18,"->Next"),
-								TRIGFLAG(19,"->Prev"),
-								cteff_tflag = TRIGFLAG(28,"ComboType Effects")
+								Rows<2>(
+									framed = true,
+									INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+										" unless 'Temporary Secrets' screen data flag is checked."),
+									TRIGFLAG(48,"Triggers Secrets"),
+									INFOBTN("Triggering the combo changes it to the next combo."),
+									TRIGFLAG(18,"->Next"),
+									INFOBTN("Triggering the combo changes it to the previous combo."
+										" Ignored if '->Next' is checked."),
+									TRIGFLAG(19,"->Prev")
+								),
+								Rows<2>(
+									framed = true,
+									INFOBTN("Triggering the combo will cause it's inherent type-based effects to occur."
+										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+										" Not available for all combo types; will be greyed out when unavailable."),
+									cteff_tflag = TRIGFLAG(28,"ComboType Effects"),
+									INFOBTN("The combo will ignore methods of triggering it's standard effects that"
+										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+										" unless the 'Sword' weapon trigger is checked."),
+									TRIGFLAG(29,"Only Gen Triggers")
+								)
 							)
 						)
 					)),

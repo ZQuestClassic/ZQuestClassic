@@ -4265,7 +4265,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMFORCEGRAB:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret = ((item*)s)->force_grab ? 10000 : 0;
+				ret = ((item*)s)->get_forcegrab() ? 10000 : 0;
 			}
 			break;
 			
@@ -13764,7 +13764,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case ITEMFORCEGRAB:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->force_grab = value!=0;
+				((item*)(s))->set_forcegrab(value!=0);
 			}
 			break;
 			
@@ -29095,10 +29095,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
 				if(type == SCRIPT_ITEMSPRITE && ri->itemref == i)
 				{
-					FFCore.do_itemsprite_delete();
-					return RUNSCRIPT_SELFDELETE;
+					if(FFCore.do_itemsprite_delete())
+						return RUNSCRIPT_SELFDELETE;
 				}
-				FFCore.do_itemsprite_delete();
+				else FFCore.do_itemsprite_delete();
 				break;
 			}
 			
@@ -33414,12 +33414,12 @@ void FFScript::do_eweapon_delete()
 	}
 }
 
-void FFScript::do_itemsprite_delete()
+bool FFScript::do_itemsprite_delete()
 {
 	if(0!=(s=checkItem(ri->itemref)))
 	{
 		auto ind = ItemH::getItemIndex(ri->itemref);
-		items.del(ind);
+		if(!items.del(ind)) return false;
 		for(int32_t i=0; i<Lwpns.Count(); i++)
 		{
 			weapon *w = (weapon*)Lwpns.spr(i);
@@ -33433,7 +33433,9 @@ void FFScript::do_itemsprite_delete()
 				w->dragging-=1;
 			}
 		}
+		return true;
 	}
+	return false;
 }
 
 void FFScript::updateIncludePaths()

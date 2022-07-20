@@ -1235,7 +1235,7 @@ void do_getnpcdata_getname();
 void do_npc_delete();
 void do_lweapon_delete();
 void do_eweapon_delete();
-void do_itemsprite_delete();
+bool do_itemsprite_delete();
 
 //int32_t do_get_internal_uid
 

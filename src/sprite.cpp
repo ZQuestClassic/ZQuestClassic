@@ -169,6 +169,7 @@ sprite::sprite()
 	glowRad = 0;
 	glowShape = 0;
 	switch_hooked = false;
+	ignore_delete = 0;
 	can_flicker = true;
 	spr_shadow = iwShadow;
 	spr_death = iwDeath;
@@ -251,6 +252,7 @@ do_animation(other.do_animation),
 glowRad(other.glowRad),
 glowShape(other.glowShape),
 switch_hooked(other.switch_hooked),
+ignore_delete(other.ignore_delete),
 spr_shadow(other.spr_shadow),
 spr_death(other.spr_death),
 spr_spawn(other.spr_spawn),
@@ -380,6 +382,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	glowRad = 0;
 	glowShape = 0;
 	switch_hooked = false;
+	ignore_delete = 0;
 	can_flicker = true;
 	
 	//Defaults for old hardcoded sprites
@@ -401,10 +404,15 @@ sprite::~sprite()
 	}
 }
 
+static int32_t nextid = 0;
 int32_t sprite::getNextUID()
 {
-    static int32_t nextid = 0;
-    return nextid++;
+	return nextid++;
+}
+void sprite::unget_UID()
+{
+	if(uid == nextid-1)
+		--nextid;
 }
 
 void sprite::draw2(BITMAP *)                            // top layer for special needs
@@ -2056,12 +2064,16 @@ int32_t sprite::run_script(int32_t mode)
 
 //class enemy;
 
-sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255) {}
-void sprite_list::clear()
+sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255),
+	lastUIDRequested(0), lastSpriteRequested(0) {}
+void sprite_list::clear(bool force)
 {
-    while(count>0) del(0);
-    lastUIDRequested=0;
-    lastSpriteRequested=0;
+	int32_t ind = 0;
+    while(count>ind)
+	{
+		if(!del(ind, force))
+			++ind;
+	}
 }
 
 sprite *sprite_list::spr(int32_t index)
@@ -2103,6 +2115,7 @@ bool sprite_list::add(sprite *s)
 bool sprite_list::remove(sprite *s)
 // removes pointer from list but doesn't delete it
 {
+	if(s->ignore_delete) return false;
     if(s==lastSpriteRequested)
     {
         lastUIDRequested=0;
@@ -2175,34 +2188,36 @@ int32_t sprite_list::getMisc(int32_t j)
     return sprites[j]->misc;
 }
 
-bool sprite_list::del(int32_t j)
+bool sprite_list::del(int32_t j, bool force)
 {
-    if(j<0||j>=count)
-        return false;
-        
-    map<int32_t, int32_t>::iterator it = containedUIDs.find(sprites[j]->getUID());
-    
-    if(it != containedUIDs.end())
-        containedUIDs.erase(it);
-    
-    if(sprites[j]==lastSpriteRequested)
-    {
-        lastUIDRequested=0;
-        lastSpriteRequested=0;
-    }
-    
-    delete sprites[j];
-    
-    for(int32_t i=j; i<count-1; i++)
-    {
-        sprites[i]=sprites[i+1];
-        containedUIDs[sprites[i]->getUID()] = i;
-    }
-    
-    --count;
+	if(j<0||j>=count)
+		return false;
+	
+	if(!force && sprites[j]->ignore_delete) return false;
+	
+	map<int32_t, int32_t>::iterator it = containedUIDs.find(sprites[j]->getUID());
+	
+	if(it != containedUIDs.end())
+		containedUIDs.erase(it);
+	
+	if(sprites[j]==lastSpriteRequested)
+	{
+		lastUIDRequested=0;
+		lastSpriteRequested=0;
+	}
+	
+	delete sprites[j];
+	
+	for(int32_t i=j; i<count-1; i++)
+	{
+		sprites[i]=sprites[i+1];
+		containedUIDs[sprites[i]->getUID()] = i;
+	}
+	
+	--count;
 	if(j<=active_iterator) --active_iterator;
-    //checkConsistency();
-    return true;
+	//checkConsistency();
+	return true;
 }
 
 void sprite_list::draw(BITMAP* dest,bool lowfirst)

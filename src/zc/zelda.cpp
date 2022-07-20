@@ -1328,7 +1328,7 @@ void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t pow
 	
 }
 
-void ALLOFF(bool messagesToo, bool decorationsToo)
+void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
 {
     if(messagesToo)
     {
@@ -1348,11 +1348,11 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
         loadlvlpal(DMaps[currdmap].color);
     }
     
-    items.clear();
-    guys.clear();
-    Lwpns.clear();
-    Ewpns.clear();
-    chainlinks.clear();
+    items.clear(force);
+    guys.clear(force);
+    Lwpns.clear(force);
+    Ewpns.clear(force);
+    chainlinks.clear(force);
 	if(mirror_portal)
 	{
 		delete mirror_portal;
@@ -1361,7 +1361,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo)
     clearScriptHelperData();
     
     if(decorationsToo)
-        decorations.clear();
+        decorations.clear(force);
         
     particles.clear();
     
@@ -2160,7 +2160,7 @@ int32_t init_game()
 	
 	game->lvlitems[9] &= ~liBOSS;
 	
-	ALLOFF();
+	ALLOFF(true,true,true);
 	whistleclk=-1;
 	clockclk=0;
 	currcset=DMaps[currdmap].color;

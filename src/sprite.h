@@ -58,6 +58,7 @@ private:
     int32_t uid;
     
 public:
+	void unget_UID();
     int32_t getUID()
     {
         return uid;
@@ -134,6 +135,8 @@ public:
 	
 	byte glowRad, glowShape;
 	bool switch_hooked;
+	
+	int32_t ignore_delete;
     
     sprite();
     sprite(sprite const & other);
@@ -205,7 +208,7 @@ public:
     sprite_list();
     
     sprite *getByUID(int32_t uid);
-    void clear();
+    void clear(bool force = false);
     sprite *spr(int32_t index);
     bool swap(int32_t a,int32_t b);
     bool add(sprite *s);
@@ -217,7 +220,7 @@ public:
     int32_t getMisc(int32_t j);
 	int32_t getMax() {return max_sprites;}
 	void setMax(int32_t max) {max_sprites = (max < SLMAX ? max : SLMAX);}
-    bool del(int32_t j);
+    bool del(int32_t j, bool force = false);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);
     void draw2(BITMAP* dest,bool lowfirst);

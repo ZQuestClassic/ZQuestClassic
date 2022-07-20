@@ -9739,7 +9739,11 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
 			}
 			if(!p_putc(combobuf[i].trigtimer,f))
 			{
-				new_return(35);
+				new_return(36);
+			}
+			if(!p_putc(combobuf[i].trigsfx,f))
+			{
+				new_return(37);
 			}
 			for ( int32_t q = 0; q < 11; q++ ) 
 			{

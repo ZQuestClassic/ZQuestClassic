@@ -54,7 +54,6 @@ public:
     byte lvl;
     int32_t linked_parent;
 	bool is_dragged;
-	bool force_grab;
     //int32_t weapoverrideFLAGS; 
     
     //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
@@ -72,6 +71,25 @@ public:
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
 	virtual int32_t run_script(int32_t mode);
+	
+	void set_forcegrab(bool val)
+	{
+		if(force_grab && !val)
+			--ignore_delete;
+		else if(!force_grab && val)
+			++ignore_delete;
+		force_grab = val;
+		if(val)
+		{
+			fallclk = 0;
+			drownclk = 0;
+		}
+	}
+	
+	bool get_forcegrab() {return force_grab;}
+	
+private:
+	bool force_grab;
 };
 
 // easy way to draw an item
