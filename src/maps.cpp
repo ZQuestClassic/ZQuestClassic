@@ -3691,9 +3691,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
-			// if (draw_dx == -1 && draw_dy == -1) continue;
-			// if (!(draw_dx == -1 && draw_dy == 0)) continue;
-
 			int scr = currscr + draw_dx + draw_dy * 16;
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
@@ -3746,25 +3743,26 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	do_layer(scrollbuf, 0, 1, this_screen, 0, 0, 2, false, true); // LAYER 1
-	
-	particles.draw(temp_buf, true, 0);
-	
-	do_layer(scrollbuf, -3, 0, this_screen, 0, 0, 2); // freeform combos!
-	
-	if(!XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+	if (!global_z3_scrolling)
 	{
-		do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true); // LAYER 2
+		do_layer(scrollbuf, 0, 1, this_screen, 0, 0, 2, false, true); // LAYER 1
 		
-		particles.draw(temp_buf, true, 1);
+		particles.draw(temp_buf, true, 0);
+		
+		do_layer(scrollbuf, -3, 0, this_screen, 0, 0, 2); // freeform combos!
+		
+		if(!XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+		{
+			do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true); // LAYER 2
+			
+			particles.draw(temp_buf, true, 1);
+		}
 	}
-
-	if (global_z3_scrolling)
+	else
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			if (draw_dx == 0 && draw_dy == 0) continue; // TODO z3 flag
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
@@ -3776,8 +3774,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 			do_layer(scrollbuf, 0, 1, myscr, offx, offy, 2, false, true); // LAYER 1
 	
-			// TODO z3
-			// particles.draw(temp_buf, true, 0);
+			if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 0);
 			
 			do_layer(scrollbuf, -3, 0, myscr, offx, offy, 2); // freeform combos!
 			
@@ -3785,7 +3782,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			{
 				do_layer(scrollbuf, 0, 2, myscr, offx, offy, 2, false, true); // LAYER 2
 
-				// particles.draw(temp_buf, true, 1);
+				if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 1);
 			}
 		}
 	}
@@ -4040,37 +4037,37 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//5. Draw some layers onto temp_buf and scrollbuf
 	
-	if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+	if (!global_z3_scrolling)
 	{
-		do_layer(temp_buf, 0, 3, this_screen, 0, 0, 2, false, true);
-		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
+		if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+		{
+			do_layer(temp_buf, 0, 3, this_screen, 0, 0, 2, false, true);
+			do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
+			
+			particles.draw(temp_buf, true, 2);
+		}
 		
-		particles.draw(temp_buf, true, 2);
+		do_layer(temp_buf, 0, 4, this_screen, 0, 0, 2, false, true);
+		do_layer(scrollbuf, 0, 4, this_screen, 0, 0, 2);
+		//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
+		
+		particles.draw(temp_buf, true, 3);
+		
+		do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
+		do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
+		if(get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			do_layer(temp_buf, -1, 1, this_screen, 0, 0, 2);
+			do_layer(scrollbuf, -1, 1, this_screen, 0, 0, 2);
+			do_layer(temp_buf, -1, 2, this_screen, 0, 0, 2);
+			do_layer(scrollbuf, -1, 2, this_screen, 0, 0, 2);
+		}
 	}
-	
-	do_layer(temp_buf, 0, 4, this_screen, 0, 0, 2, false, true);
-	do_layer(scrollbuf, 0, 4, this_screen, 0, 0, 2);
-	//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
-	
-	particles.draw(temp_buf, true, 3);
-	
-	do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
-	do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
-	if(get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
-	{
-		do_layer(temp_buf, -1, 1, this_screen, 0, 0, 2);
-		do_layer(scrollbuf, -1, 1, this_screen, 0, 0, 2);
-		do_layer(temp_buf, -1, 2, this_screen, 0, 0, 2);
-		do_layer(scrollbuf, -1, 2, this_screen, 0, 0, 2);
-	}
-
-	// TODO: combine with previous do_layers ??
-	if (global_z3_scrolling)
+	else
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			if (draw_dx == 0 && draw_dy == 0) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
@@ -4085,14 +4082,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 				do_layer(temp_buf, 0, 3, myscr, offx, offy, 2, false, true);
 				do_layer(scrollbuf, 0, 3, myscr, offx, offy, 2);
 				
-				// particles.draw(temp_buf, true, 2);
+				if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 2);
 			}
 			
 			do_layer(temp_buf, 0, 4, myscr, offx, offy, 2, false, true);
 			do_layer(scrollbuf, 0, 4, myscr, offx, offy, 2);
 			//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
 			
-			// particles.draw(temp_buf, true, 3);
+			if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 3);
 
 			do_layer(temp_buf, -1, 0, myscr, offx, offy, 2);
 			do_layer(scrollbuf, -1, 0, myscr, offx, offy, 2);
@@ -4181,26 +4178,27 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	else 
 		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
 	color_map = &trans_table;
-	
-	do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
-	do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
-	
-	particles.draw(temp_buf, true, 4);
-	
-	do_layer(temp_buf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
-	do_layer(scrollbuf, -4, 0, this_screen, 0, 0, 2);
-	
-	do_layer(temp_buf, 0, 6, this_screen, 0, 0, 2, false, true);
-	do_layer(scrollbuf, 0, 6, this_screen, 0, 0, 2);
-	
-	particles.draw(temp_buf, true, 5);
 
-	if (global_z3_scrolling)
+	if (!global_z3_scrolling)
+	{
+		do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
+		do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
+		
+		particles.draw(temp_buf, true, 4);
+		
+		do_layer(temp_buf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
+		do_layer(scrollbuf, -4, 0, this_screen, 0, 0, 2);
+		
+		do_layer(temp_buf, 0, 6, this_screen, 0, 0, 2, false, true);
+		do_layer(scrollbuf, 0, 6, this_screen, 0, 0, 2);
+		
+		particles.draw(temp_buf, true, 5);
+	}
+	else
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			if (draw_dx == 0 && draw_dy == 0) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
@@ -4211,12 +4209,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
 			do_layer(temp_buf, 0, 5, myscr, offx, offy, 2, false, true);
 			do_layer(scrollbuf, 0, 5, myscr, offx, offy, 2);
+			if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 4);
 			// overhead freeform combos!
 			do_layer(temp_buf, -4, 0, myscr, offx, offy, 2);
 			do_layer(scrollbuf, -4, 0, myscr, offx, offy, 2);
 			// ---
 			do_layer(temp_buf, 0, 6, this_screen, offx, offy, 2, false, true);
 			do_layer(scrollbuf, 0, 6, this_screen, offx, offy, 2);
+			if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 5);
 		}
 	}
 	global_z3_cur_scr_drawing = -1;
