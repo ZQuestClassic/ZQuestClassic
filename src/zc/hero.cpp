@@ -24234,32 +24234,20 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
 			}
 
-			int offx = 0;
-			int offy = 0;
+			int offx = draw_dx * 256;
+			int offy = draw_dy * 176;
 			switch(scrolldir)
 			{
 			case up:
-				offx = 0;
-				offy = 176;
-				break;
-			case down:
-				offx = 0;
-				offy = 0;
+				offy += 176;
 				break;
 			case left:
-				offx = 256;
-				offy = 0;
-				break;
-			case right:
-				offx = 0;
-				offy = 0;
+				offx += 256;
 				break;
 			}
-			offx += draw_dx * 256;
-			offy += draw_dy * 176;
 
-			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, -offx, -offy + playing_field_offset, 2);
-			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, -offx, -offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
 			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
 			{
 				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, myscr, sx, sy);			
