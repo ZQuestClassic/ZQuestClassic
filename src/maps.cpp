@@ -3691,6 +3691,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
+			// if (draw_dx == -1 && draw_dy == -1) continue;
+			// if (!(draw_dx == -1 && draw_dy == 0)) continue;
+
 			int scr = currscr + draw_dx + draw_dy * 16;
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
@@ -3761,7 +3764,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			if (draw_dx == 0 && draw_dy == 0) continue;
+			if (draw_dx == 0 && draw_dy == 0) continue; // TODO z3 flag
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
 			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 
@@ -3773,6 +3776,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 			do_layer(scrollbuf, 0, 1, myscr, offx, offy, 2, false, true); // LAYER 1
 	
+			// TODO z3
 			// particles.draw(temp_buf, true, 0);
 			
 			do_layer(scrollbuf, -3, 0, myscr, offx, offy, 2); // freeform combos!

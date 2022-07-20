@@ -2195,15 +2195,16 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         {
             byte *si = unpackbuf;
             
-            for(int32_t dy=0; dy<16; ++dy)
+            for(int32_t dy=15; dy>=0; --dy)
             {
-                if (y+dy < 0) continue;
-
-                // 1 byte at a time
-                byte *di = &(dest->line[y+dy][x+15]);
-                
-                for(int32_t x=0; x<16; x++)
-                    *(di--) = *(si++) + cset;
+                for(int32_t dx=0; dx<=15; ++dx)
+                {
+                    if (x+dx >= 0 && y+dy >= 0)
+                    {
+                        dest->line[y+dy][x+dx] = *si + cset;
+                    }
+                    si++;
+                }
             }
         }
         else
@@ -2391,6 +2392,9 @@ void oldputtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int
 
 void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows)
 {
+    if (tile == 8918 && (flip == 0 || flip == 1)) {
+        int lol = 1;
+    }
 	if(skiprows>0 && tile%TILES_PER_ROW+w>=TILES_PER_ROW)
 	{
 		byte w2=(tile+w)%TILES_PER_ROW;
@@ -2432,6 +2436,9 @@ void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t 
 }
 void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
+    if (tile == 8918 && (flip == 0 || flip == 1)) {
+        int lol = 1;
+    }
     if(x<-15 || y<-15)
         return;
         
@@ -2548,6 +2555,10 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
     int32_t t[4];
+
+    if (tile == 8918 && (flip == 0 || flip == 1)) {
+        int lol = 1;
+    }
     
     for(int32_t i=0; i<4; ++i)
         t[i]=tile+i;
@@ -2603,6 +2614,10 @@ void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int
 void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
     int32_t t[4];
+
+    if (tile == 8918 && (flip == 0 || flip == 1)) {
+        int lol = 1;
+    }
     
     for(int32_t i=0; i<4; ++i)
         t[i]=tile+i;
@@ -2656,6 +2671,10 @@ void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],
 
 void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
+    if (tile == 8918 && (flip == 0 || flip == 1)) {
+        int lol = 1;
+    }
+
     int32_t t[4];
     
     for(int32_t i=0; i<4; ++i)
@@ -2715,6 +2734,8 @@ void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
 {
     newcombo c = combobuf[cmbdat];
     int32_t drawtile=combo_tile(c, x, y);
+
+    
     
     if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
         puttile16(dest,drawtile,x,y,cset,c.flip);
