@@ -368,9 +368,12 @@ bool movingblock::animate(int32_t)
 				if((FFCore.tempScreens[lyr]->sflag[combopos]==mfBLOCKHOLE)
 					|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				{
-					m->data[combopos]+=1;
-					if(lyr != blockLayer)
-						FFCore.tempScreens[lyr]->data[combopos]+=1;
+					mapscr* m2 = FFCore.tempScreens[lyr];
+					m->data[combopos] = m->undercombo;
+					m->cset[combopos] = m->undercset;
+					m2->data[combopos] = bcombo+1;
+					m2->cset[combopos] = oldcset;
+					m2->sflag[combopos] = mfNONE;
 					bhole=true;
 					break;
 				}
@@ -404,29 +407,36 @@ bool movingblock::animate(int32_t)
 		if(fallclk||drownclk) return false;
 		
 		bool didtrigger = trigger;
-		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
+		if(didtrigger)
 		{
-			mapscr* tmp = FFCore.tempScreens[lyr];
-			for(int32_t pos=0; pos<176; pos++)
+			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
-				if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
-					continue;
-				if(tmp->sflag[pos]==mfBLOCKTRIGGER
-					|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
+				mapscr* tmp = FFCore.tempScreens[lyr];
+				for(int32_t pos=0; pos<176; pos++)
 				{
-					bool found = false;
-					if(no_trig_replace)
-						for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
-						{
-							if(is_push(FFCore.tempScreens[lyr2], pos))
+					if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
+						continue;
+					if(tmp->sflag[pos]==mfBLOCKTRIGGER
+						|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
+					{
+						bool found = false;
+						if(no_trig_replace)
+							for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								found = true;
-								break;
+								if(is_push(FFCore.tempScreens[lyr2], pos))
+								{
+									found = true;
+									break;
+								}
 							}
+						if(!found)
+						{
+							didtrigger=false;
+							break;
 						}
-					if(!found)
-						didtrigger=false;
+					}
 				}
+				if(!didtrigger) break;
 			}
 		}
 		
