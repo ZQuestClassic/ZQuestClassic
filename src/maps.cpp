@@ -3056,11 +3056,14 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	x += global_viewport_x;
 	y += global_viewport_y;
 
-	mapscr const* tmp = (layer > 0 ? (&(tempscreen==2?tmpscr2[layer-1]:tmpscr3[layer-1]))
-		: (layer ? NULL : (tempscreen==2?0:1)+tmpscr));
-	bool over = true, transp = false;
-
-	if (global_z3_scrolling && global_z3_cur_scr_drawing != -1 && layer > 0)
+	mapscr const* tmp = NULL;
+	if (!global_z3_scrolling || global_z3_cur_scr_drawing == -1)
+	{
+		tmp = layer > 0 ?
+			(&(tempscreen==2?tmpscr2[layer-1]:tmpscr3[layer-1])) :
+			(layer ? NULL : (tempscreen==2?0:1)+tmpscr);
+	}
+	else if (layer > 0)
 	{
 		mapscr& myscr = TheMaps[currmap*MAPSCRS+global_z3_cur_scr_drawing];
 		if (myscr.layermap[layer - 1] > 0)
@@ -3071,6 +3074,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 			tmp = NULL;
 		}
 	}
+
+	bool over = true, transp = false;
 	
 	switch(type ? type : layer)
 	{
@@ -3615,6 +3620,17 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}*/
 	//1. Draw some layers onto temp_buf
 	clear_bitmap(scrollbuf);
+
+	if (global_z3_scrolling)
+	{
+		global_viewport_x = Hero.getX() - 256/2;
+		global_viewport_y = Hero.getY() - 176/2;
+	}
+	else
+	{
+		global_viewport_x = 0;
+		global_viewport_y = 0;
+	}
 	
 	if (!global_z3_scrolling)
 	{
@@ -3650,29 +3666,18 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			{
 				do_layer(scrollbuf, 0, 2, myscr, offx, offy, 2, false, true);
 				
-				// particles.draw(temp_buf, true, 1);
+				if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 1);
 			}
 			
 			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 			{
 				do_layer(scrollbuf, 0, 3, myscr, offx, offy, 2, false, true);
 				
-				// particles.draw(temp_buf, true, 2);
+				if (draw_dx == 0 && draw_dy == 0) particles.draw(temp_buf, true, 2);
 			}
 		}
 	}
 	global_z3_cur_scr_drawing = -1;
-
-	if (global_z3_scrolling)
-	{
-		global_viewport_x = Hero.getX() - 256/2;
-		global_viewport_y = Hero.getY() - 176/2;
-	}
-	else
-	{
-		global_viewport_x = 0;
-		global_viewport_y = 0;
-	}
 	
 	if (!global_z3_scrolling)
 	{

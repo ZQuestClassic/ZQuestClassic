@@ -24103,6 +24103,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		ty = sy;
 		tx2 = sx;
 		ty2 = sy;
+
+		int z3_scrolling_mode = 0;
+		if (global_z3_scrolling) z3_scrolling_mode = 1;
+		// Enable to try the "z3" path even for non-scrolling screens.
+		// Once bugs are worked out this should become the only path (and delete the !z3_scrolling_mode paths).
+		// z3_scrolling_mode = 2;
 		
 		switch(scrolldir)
 		{
@@ -24138,7 +24144,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			ty2 -= 176;
 			break;
 		}
-		
+
 		//FFScript.OnWaitdraw()
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		
@@ -24146,15 +24152,80 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 
-		int z3_scrolling_mode = 0;
-		if (global_z3_scrolling) z3_scrolling_mode = 1;
-		// Enable to try the "z3" path even for non-scrolling screens.
-		// Once bugs are worked out this should become the only path (and delete the !z3_scrolling_mode paths).
-		// z3_scrolling_mode = 2;
-
 		if (!z3_scrolling_mode)
 		{
-			//....
+			switch(scrolldir)
+			{
+			case up:
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, -176+playing_field_offset, 3);
+				
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, -176+playing_field_offset, 3);
+				
+				// Draw both screens' background layer primitives together, after both layers' combos.
+				// Not ideal, but probably good enough for all realistic purposes.
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				
+				putscr(scrollbuf, 0, 0, newscr);
+				putscr(scrollbuf, 0, 176, oldscr);
+				break;
+				
+			case down:
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, -176+playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, playing_field_offset, 3);
+				
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, -176+playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, playing_field_offset, 3);
+				
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				
+				putscr(scrollbuf, 0, 0, oldscr);
+				putscr(scrollbuf, 0, 176, newscr);
+				break;
+				
+			case left:
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, -256, playing_field_offset, 3);
+				
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, -256, playing_field_offset, 3);
+				
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				
+				putscr(scrollbuf, 0, 0, newscr);
+				putscr(scrollbuf, 256, 0, oldscr);
+				break;
+				
+			case right:
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, -256, playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, playing_field_offset, 3);
+				
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, -256, playing_field_offset, 2);
+				
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, playing_field_offset, 3);
+				
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				
+				putscr(scrollbuf, 0, 0, oldscr);
+				putscr(scrollbuf, 256, 0, newscr);
+				break;
+			}
 		}
 		else
 		for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
@@ -24362,30 +24433,27 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 			if (is_old_scr || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)
 			{
-				global_z3_cur_scr_drawing = -1;
+				// global_z3_cur_scr_drawing = -1;
 			}
 			else
 			{
 				offx += -draw_dx * 256;
 				offy += -draw_dy * 176;
 			}
+			// if (draw_dy == 1) offy -= 176;
+			// if (draw_dx == -1) offx -= 256;
+
 			// switch(scrolldir)
 			// {
 			// case up:
-			// 	offx = 0;
-			// 	offy = 176;
+			// 	offy += 176;
 			// 	break;
 			// case down:
-			// 	offx = 0;
-			// 	offy = 0;
 			// 	break;
 			// case left:
-			// 	offx = 256;
-			// 	offy = 0;
+			// 	offx += 256;
 			// 	break;
 			// case right:
-			// 	offx = 0;
-			// 	offy = 0;
 			// 	break;
 			// }
 			// offx -= draw_dx * 256;
