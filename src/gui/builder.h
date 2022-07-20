@@ -551,7 +551,14 @@ DropDownList( \
 		mem = val; \
 	} \
 )
-		
+
+#define INFOBTN(inf) \
+Button(forceFitH = true, text = "?", \
+	disabled = (!inf || !inf[0]), \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",inf).show(); \
+	})
 //}
 
 #endif

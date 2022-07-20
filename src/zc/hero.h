@@ -318,6 +318,8 @@ public:
 	bool switchblock_offset;
 	byte hoverflags;
 	int32_t extra_jump_count;
+	
+	
 	// Methods below here.
 	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);

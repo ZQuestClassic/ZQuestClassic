@@ -159,14 +159,6 @@ Checkbox( \
 		set_bit(&(local_zinit.triforce),ind,state); \
 	} \
 )
-
-#define INFOBTN(inf) \
-Button(forceFitH = true, text = "?", \
-	disabled = (!inf || !inf[0]), \
-	onPressFunc = [&]() \
-	{ \
-		InfoDialog("Info",inf).show(); \
-	})
 //}
 
 std::shared_ptr<GUI::Widget> InitDataDialog::view()

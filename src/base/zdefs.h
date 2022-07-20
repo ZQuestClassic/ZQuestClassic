@@ -1330,6 +1330,7 @@ enum
 #define combotriggerSTEPSENS     0x04000000
 #define combotriggerSHUTTER      0x08000000
 #define combotriggerCMBTYPEFX    0x10000000
+#define combotriggerONLYGENTRIG  0x20000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -5348,6 +5349,24 @@ void load_colorset(int32_t colorset);
 void update_hw_screen(bool force = false);
 
 bool valid_str(char const* ptr, char cancel = 0);
+
+
+#undef cmb1
+#undef cmb2
+#undef cmb3
+#undef cmb4
+#undef cmb5
+#undef cmb6
+#undef cmb7
+#undef cmb8
+#undef cmb9
+#undef cmb10
+#undef cmb11
+#undef cmb12
+#undef cmb13
+#undef cmb14
+#undef cmb15
+#undef cmb16
 
 #endif                                                      //_ZDEFS_H_
 

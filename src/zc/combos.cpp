@@ -675,7 +675,9 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	
 	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
 	{
-		items.add(new item(Hero.getX(), Hero.getY(), 0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		item* itm = new item(Hero.getX(), Hero.getY(), 0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0);
+		itm->force_grab = true;
+		items.add(itm);
 	}
 	return true;
 }

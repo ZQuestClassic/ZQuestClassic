@@ -2159,7 +2159,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(48,"Triggers Secrets"),
 								TRIGFLAG(18,"->Next"),
 								TRIGFLAG(19,"->Prev"),
-								cteff_tflag = TRIGFLAG(28,"ComboType Effects")
+								Row(
+									INFOBTN("Triggering the combo will cause it's inherent type-based effects to occur."
+										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+										" Not available for all combo types; will be greyed out when unavailable."),
+									cteff_tflag = TRIGFLAG(28,"ComboType Effects")
+								),
+								Row(
+									INFOBTN("The combo will ignore methods of triggering it's standard effects that"
+										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+										" unless the 'Sword' weapon trigger is checked."),
+									TRIGFLAG(29,"Only Gen Triggers")
+								)
 							)
 						))
 					)),

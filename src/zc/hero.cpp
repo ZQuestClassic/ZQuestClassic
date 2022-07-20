@@ -2848,11 +2848,11 @@ attack:
 		{
 			if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
 			{
-				putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
 			}
 			else
 			{
-				putitem(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez,holditem);
+				putitem(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
 			}
 		}
 	}
@@ -2862,11 +2862,11 @@ attack:
 		{
 			if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
 			{
-				putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
 			}
 			else
 			{
-				putitem(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez,holditem);
+				putitem(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
 			}
 		}
 	}
@@ -2876,11 +2876,11 @@ attack:
 		{
 			if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
 			{
-				putitem2(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				putitem2(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
 			}
 			else
 			{
-				putitem(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez,holditem);
+				putitem(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
 			}
 		}
 	}
@@ -3579,6 +3579,8 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
     int32_t cid = MAPCOMBOL(layer,bx,by);
     int32_t type = combobuf[cid].type;
+	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+		type = cNONE;
     //zprint("cid is: %d\n", cid);
      //zprint("type is: %d\n", type);
     int32_t i = (bx>>4) + by;
@@ -3698,13 +3700,18 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		ignorescreen = true;
 	}
+	else if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+		ignorescreen = true;
 	
 	int32_t current_ffcombo = getFFCAt(fx,fy);
+	
 	
 	if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
 	{
 		ignoreffc = true;
 	}
+	else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+		ignoreffc = true;
 	
 	if(!isCuttableType(type) &&
 			(flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4113,6 +4120,8 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
     int32_t cid = MAPCOMBOL(layer,bx,by);
     int32_t type = combobuf[cid].type;
+	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+		type = cNONE;
     //zprint("cid is: %d\n", cid);
      //zprint("type is: %d\n", type);
     int32_t i = (bx>>4) + by;
@@ -4235,6 +4244,8 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
+	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+		type = cNONE;
     byte dontignore = 0;
     byte dontignoreffc = 0;
     
@@ -4273,7 +4284,8 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    
+    else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
     {
@@ -4662,6 +4674,8 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     bool ignoreffc=false;
     bool pound=false;
     
+	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+		type = cNONE;
     if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
         ignorescreen = true; // Affect only FFCs
         
@@ -4674,7 +4688,8 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     
     if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
         ignoreffc = true;
-        
+    else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+		type2 = cNONE;
     if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
         ignoreffc = true;
         
@@ -4809,13 +4824,15 @@ void HeroClass::check_slash_block(weapon *w)
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
     int32_t i = (bx>>4) + by;
-    
+		
     if(i > 175)
     {
 	    al_trace("check_slash_block(weapon *w): %s\n", "i > 175");
         return;
     }
         
+	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+		type = cNONE;
     bool ignorescreen=false;
     bool ignoreffc=false;
     
@@ -4830,7 +4847,8 @@ void HeroClass::check_slash_block(weapon *w)
     {
         ignoreffc = true;
     }
-    
+    else if(combobuf[tmpscr->ffdata[current_ffcombo]].triggerflags[0] & combotriggerONLYGENTRIG)
+		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
     {
@@ -6489,7 +6507,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[0] = cmb.attributes[0] / -10000L;
@@ -6501,7 +6519,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[1] = cmb.attributes[0] / -10000L;
@@ -6513,7 +6531,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[2] = cmb.attributes[0] / -10000L;
@@ -6525,7 +6543,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
 				hp_mod[3] = cmb.attributes[0] / -10000L;
@@ -6579,7 +6597,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[0] = cmb.attributes[0]/10000L;
@@ -6591,7 +6609,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[1] = cmb.attributes[0]/10000L;
@@ -6603,7 +6621,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy1)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[2] = cmb.attributes[0]/10000L;
@@ -6615,7 +6633,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy2)];
-		if ( combo_class_buf[cmb.type].modify_hp_amount)
+		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
 				hp_mod[3] = cmb.attributes[0]/10000L;
@@ -8893,6 +8911,61 @@ bool HeroClass::animate(int32_t)
 				}
 				
 				//AUTO WARP CODE
+				if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+				{
+					if(cmb.type==cAWARPA)
+					{
+						awarp=true;
+						ind=0;
+					}
+					else if(cmb.type==cAWARPB)
+					{
+						awarp=true;
+						ind=1;
+					}
+					else if(cmb.type==cAWARPC)
+					{
+						awarp=true;
+						ind=2;
+					}
+					else if(cmb.type==cAWARPD)
+					{
+						awarp=true;
+						ind=3;
+					}
+					else if(cmb.type==cAWARPR)
+					{
+						awarp=true;
+						ind=zc_oldrand()%4;
+					}
+				}
+				if(awarp)
+				{
+					if(tmpscr->flags5&fDIRECTAWARP)
+					{
+						didpit=true;
+						pitx=x;
+						pity=y;
+					}
+					
+					sdir = dir;
+					dowarp(1,ind);
+				}
+			}
+		}
+	}
+	
+	awarp=false;
+	
+	for(int32_t i=0; i<32; i++)
+	{
+		int32_t ind=0;
+		
+		if(!awarp)
+		{
+			newcombo const& cmb = combobuf[tmpscr->ffdata[i]];
+			if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+			{
 				if(cmb.type==cAWARPA)
 				{
 					awarp=true;
@@ -8918,55 +8991,6 @@ bool HeroClass::animate(int32_t)
 					awarp=true;
 					ind=zc_oldrand()%4;
 				}
-				
-				if(awarp)
-				{
-					if(tmpscr->flags5&fDIRECTAWARP)
-					{
-						didpit=true;
-						pitx=x;
-						pity=y;
-					}
-					
-					sdir = dir;
-					dowarp(1,ind);
-				}
-			}
-		}
-	}
-	
-	awarp=false;
-	
-	for(int32_t i=0; i<32; i++)
-	{
-		int32_t ind=0;
-		
-		if(!awarp)
-		{
-			if(combobuf[tmpscr->ffdata[i]].type==cAWARPA)
-			{
-				awarp=true;
-				ind=0;
-			}
-			else if(combobuf[tmpscr->ffdata[i]].type==cAWARPB)
-			{
-				awarp=true;
-				ind=1;
-			}
-			else if(combobuf[tmpscr->ffdata[i]].type==cAWARPC)
-			{
-				awarp=true;
-				ind=2;
-			}
-			else if(combobuf[tmpscr->ffdata[i]].type==cAWARPD)
-			{
-				awarp=true;
-				ind=3;
-			}
-			else if(combobuf[tmpscr->ffdata[i]].type==cAWARPR)
-			{
-				awarp=true;
-				ind=zc_oldrand()%4;
 			}
 			
 			if(awarp)
@@ -16770,7 +16794,10 @@ bool HeroClass::checksoliddamage()
 		
 		break;
 	}
-	int32_t t = combobuf[MAPCOMBO(bx,by)].type;
+	newcombo const& cmb = combobuf[MAPCOMBO(bx,by)];
+	int32_t t = cmb.type;
+	if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+		t = cNONE;
 	int32_t initbx = bx;
 	int32_t initby = by;
 	
@@ -16781,8 +16808,10 @@ bool HeroClass::checksoliddamage()
 		by = initby;
 		for (int32_t k = initk; k <= 2; k++)
 		{
-			t = COMBOTYPE2(i-1,bx,by);
-			
+			newcombo const& cmb = combobuf[FFCore.tempScreens[i]->data[COMBOPOS(bx,by)]];
+			t = cmb.type;
+			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+				t = cNONE;
 			// Solid damage combos use pushing>0, hence the code is here.
 			if (!get_bit(quest_rules, qr_LESS_AWFUL_SIDESPIKES) || !isSideViewHero() || (dir != down && (dir != up || getOnSideviewLadder())))
 			{
@@ -17198,13 +17227,15 @@ void HeroClass::checklockblock()
 	bool found2=false;
 	int32_t foundlayer = -1;
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
+	newcombo const& cmb = combobuf[cid1];
+	newcombo const& cmb2 = combobuf[cid2];
 	// Layer 0 is overridden by Locked Doors
-	if((combobuf[cid1].type==cLOCKBLOCK && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
+	if((cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
 	{
 		found1=true;
 		foundlayer = 0;
 	}
-	else if (combobuf[cid2].type==cLOCKBLOCK && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
+	else if (cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
 	{
 		found2=true;
 		foundlayer = 0;
@@ -17236,6 +17267,8 @@ void HeroClass::checklockblock()
 		{
 			cid1 = MAPCOMBO2(i, bx, by);
 			cid2 = MAPCOMBO2(i, bx2, by);
+			newcombo const& cmb = combobuf[cid1];
+			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
 				if(tmpscr2[1].valid!=0)
@@ -17252,14 +17285,14 @@ void HeroClass::checklockblock()
 					}
 				} 
 			}
-			if(combobuf[MAPCOMBO2(i,bx,by)].type==cLOCKBLOCK && _effectflag(bx,by,1, i))
+			if(cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
 			{
 				found1=true;
 				foundlayer = i;
 				//zprint("Found layer: %d \n", i);
 				break;
 			}
-			else if(combobuf[MAPCOMBO2(i,bx2,by)].type==cLOCKBLOCK && _effectflag(bx2,by,1, i))
+			else if(cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, i))
 			{
 				found2=true;
 				foundlayer = i;
@@ -17273,16 +17306,16 @@ void HeroClass::checklockblock()
 	{
 		return;
 	}
-	newcombo const& cmb = combobuf[found1 ? cid1 : cid2];
+	newcombo const& cmb3 = combobuf[found1 ? cid1 : cid2];
 	if(!try_locked_combo(cmb))
 		return;
 	
 	setmapflag(mLOCKBLOCK);
 	remove_lockblocks((currscr>=128)?1:0);
-	if ( cmb.usrflags&cflag3 )
+	if ( cmb3.usrflags&cflag3 )
 	{
-		if ( (cmb.attribytes[3]) )
-			sfx(cmb.attribytes[3]);
+		if ( (cmb3.attribytes[3]) )
+			sfx(cmb3.attribytes[3]);
 	}
 	else sfx(WAV_DOOR);
 }
@@ -17335,13 +17368,15 @@ void HeroClass::checkbosslockblock()
 	bool found2 = false;
 	int32_t foundlayer = -1;
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
+	newcombo const& cmb = combobuf[cid1];
+	newcombo const& cmb2 = combobuf[cid2];
 	// Layer 0 is overridden by Locked Doors
-	if ((combobuf[cid1].type == cBOSSLOCKBLOCK && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
+	if ((cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
 	{
 		found1 = true;
 		foundlayer = 0;
 	}
-	else if (combobuf[cid2].type == cBOSSLOCKBLOCK && _effectflag(bx2, by, 1, -1) && !islockeddoor(bx2, by, dLOCKED))
+	else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, -1) && !islockeddoor(bx2, by, dLOCKED))
 	{
 		found2 = true;
 		foundlayer = 0;
@@ -17373,6 +17408,8 @@ void HeroClass::checkbosslockblock()
 		{
 			cid1 = MAPCOMBO2(i, bx, by);
 			cid2 = MAPCOMBO2(i, bx2, by);
+			newcombo const& cmb = combobuf[cid1];
+			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
 				if (tmpscr2[1].valid != 0)
@@ -17389,13 +17426,13 @@ void HeroClass::checkbosslockblock()
 					}
 				}
 			}
-			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBOSSLOCKBLOCK && _effectflag(bx, by, 1, i))
+			if (cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, i))
 			{
 				found1 = true;
 				foundlayer = i;
 				break;
 			}
-			else if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBOSSLOCKBLOCK && _effectflag(bx2, by, 1, i))
+			else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, i))
 			{
 				found2 = true;
 				foundlayer = i;
@@ -17631,7 +17668,9 @@ void HeroClass::checkchest(int32_t type)
 	int32_t found = -1;
 	int32_t foundlayer = 0;
 	
-	if(combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
+	newcombo const* cmb = &combobuf[MAPCOMBO(bx,by)];
+	
+	if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1))
 	{
 		found = MAPCOMBO(bx,by);
 		fx = bx; fy = by;
@@ -17650,7 +17689,8 @@ void HeroClass::checkchest(int32_t type)
 			}
 		}
 	}
-	if(combobuf[MAPCOMBO(bx2,by2)].type==type && _effectflag(bx2,by2,1, -1))
+	cmb = &combobuf[MAPCOMBO(bx2,by2)];
+	if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, -1))
 	{
 		found = MAPCOMBO(bx2,by2);
 		fx = bx2; fy = by2;
@@ -17674,7 +17714,8 @@ void HeroClass::checkchest(int32_t type)
 	{
 		for(int32_t i=0; i<2; i++)
 		{
-			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
+			cmb = &combobuf[MAPCOMBO2(i,bx,by)];
+			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
 			{
 				found = MAPCOMBO2(i,bx,by);
 				foundlayer = i+1;
@@ -17691,7 +17732,8 @@ void HeroClass::checkchest(int32_t type)
 					}
 				}
 			}
-			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && _effectflag(bx2,by2,1, i))
+			cmb = &combobuf[MAPCOMBO2(i,bx2,by2)];
+			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, i))
 			{
 				found = MAPCOMBO2(i,bx2,by2);
 				foundlayer = i+1;
@@ -17713,40 +17755,40 @@ void HeroClass::checkchest(int32_t type)
 	}
 	
 	if(found<0) return;
-	newcombo const& cmb = combobuf[found];
+	cmb = &combobuf[found];
 	switch(dir)
 	{
 		case up:
-			if(cmb.usrflags&cflag10)
+			if(cmb->usrflags&cflag10)
 				return;
 			break;
 		case down:
-			if(cmb.usrflags&cflag9)
+			if(cmb->usrflags&cflag9)
 				return;
 			break;
 		case left:
-			if(cmb.usrflags&cflag12)
+			if(cmb->usrflags&cflag12)
 				return;
 			break;
 		case right:
-			if(cmb.usrflags&cflag11)
+			if(cmb->usrflags&cflag11)
 				return;
 			break;
 	}
-	int32_t intbtn = cmb.attribytes[2];
+	int32_t intbtn = cmb->attribytes[2];
 	
 	if(intbtn) //
 	{
-		if(cmb.usrflags & cflag13) //display prompt
+		if(cmb->usrflags & cflag13) //display prompt
 		{
-			int altcmb = cmb.attributes[2]/10000;
-			prompt_combo = cmb.attributes[1]/10000;
-			if(altcmb && ((type == cLOCKEDCHEST && !can_locked_combo(cmb))
+			int altcmb = cmb->attributes[2]/10000;
+			prompt_combo = cmb->attributes[1]/10000;
+			if(altcmb && ((type == cLOCKEDCHEST && !can_locked_combo(*cmb))
 				|| (type == cBOSSCHEST && !(game->lvlitems[dlevel]&liBOSSKEY))))
 				prompt_combo = altcmb;
-			prompt_cset = cmb.attribytes[4];
-			prompt_x = cmb.attrishorts[0];
-			prompt_y = cmb.attrishorts[1];
+			prompt_cset = cmb->attribytes[4];
+			prompt_x = cmb->attrishorts[0];
+			prompt_y = cmb->attrishorts[1];
 		}
 		if(!getIntBtnInput(intbtn, true, true, false, false))
 		{
@@ -17757,7 +17799,7 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(!trigger_chest(foundlayer, COMBOPOS(fx,fy))) return;
 	
-	if(intbtn && (cmb.usrflags & cflag13))
+	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
 }
 
@@ -17802,7 +17844,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx,by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
-	if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
+	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
+		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
 	{
 		found = tmp_cid;
 		fx = bx; fy = by;
@@ -17823,7 +17866,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	}
 	tmp_cid = MAPCOMBO(bx2,by2);
 	tmp_cmb = &combobuf[tmp_cid];
-	if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
+	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
+		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
 	{
 		found = tmp_cid;
 		fx = bx2; fy = by2;
@@ -17849,7 +17893,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
 			tmp_cmb = &combobuf[tmp_cid];
-			if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
+			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
+				|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
 			{
 				found = tmp_cid;
 				found_lyr = i+1;
@@ -17868,7 +17913,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 			}
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
-			if((tmp_cmb->type==cSIGNPOST || tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
+			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
+				|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
 			{
 				found = tmp_cid;
 				found_lyr = i+1;
@@ -17894,7 +17940,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	byte signInput = 0;
 	bool didsign = false;
-	if(cmb.type == cSIGNPOST)
+	if(cmb.type == cSIGNPOST && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 	{
 		switch(dir)
 		{
@@ -18657,7 +18703,10 @@ int32_t touchcombo(int32_t x,int32_t y)
 		}
 	}
 	if (!_effectflag(x,y,1, -1)) return 0;
-	switch(combobuf[MAPCOMBO(x,y)].type)
+	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
+	if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+		return 0;
+	switch(cmb.type)
 	{
 		case cBSGRAVE:
 		case cGRAVE:
@@ -18669,7 +18718,7 @@ int32_t touchcombo(int32_t x,int32_t y)
 			[[fallthrough]];
 		case cARMOS:
 		{
-			return combobuf[MAPCOMBO(x,y)].type;
+			return cmb.type;
 		}
 	}
     
@@ -19268,245 +19317,248 @@ void HeroClass::checktouchblk()
 				int32_t id2=0; 
 				int32_t cid = MAPCOMBO(tx,ty);
 				int32_t cpos = COMBOPOS(tx,ty);
-				switch(combobuf[MAPCOMBO(tx,ty)].type)
+				newcombo const& cmb = combobuf[cid];
+				if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 				{
-				case cARMOS: //id2=eARMOS; break;
-					if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
+					switch(cmb.type)
 					{
-						int32_t r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
-						id2 = combobuf[cid].attribytes[0+r];
-						//if(guysbuf[id2].family==eeWALK)
-						//{
-						//	eclk=0;
-						//}
-						
-						//! To-do Adjust for larger enemies, but we need it to be directional. 
-						int32_t ypos = 0; int32_t xpos = 0;
-						int32_t chy = 0; int32_t chx = 0;
-						//nmew idea = check while the upper-left corner combo is armos
-						///move up one and check if it is armos, check the next, and stop as soon as that is not armos
-						///then do the same going left
-						
-						int32_t searching = 1;
-						int32_t armosxsz = 1;
-						int32_t armosysz = 1;
-						switch(guysbuf[id2].family)
+					case cARMOS: //id2=eARMOS; break;
+						if ( combobuf[cid].usrflags&cflag1 ) //custom enemy ids
 						{
-							case eeGHOMA:
-								armosxsz = 3;
-								break;
-							case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
-							case eeDIG:
-								armosxsz = 2;
-								armosysz = 2;
-								break;
-							default:
-								break;
-						}
-						if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
-						if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
-						
-						if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
-						{
-							switch(dir)
-							{
-								case up: //touched armos from below
-								{
-									while(searching == 1) //find the top edge of an armos block
-									{
-										chy += 16;
-										if ( cpos - chy < 0 ) break; //don't go out of bounds
-										if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
-										{
-											ypos -=16;
-										}
-										else searching = 2;
-									}
-									while(searching == 2) //find the left edge of an armos block
-									{
-										if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
-										++chx;
-										if ( cpos - chx < 0 ) break; //don't go out of bounds
-										if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
-										{
-											xpos -=16;
-										}
-										else searching = 3;
-									}
-									
-									break;
-								}
-								case down: //touched armos from above
-								{
-									//zprint("touched armos from above\n");
-									//zprint("cpos: %d\n", cpos);
-									//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
-									//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
-									//tx2 = GridX(tx2);
-									//ty2 = GridY(ty2);
-									while(searching == 1) //find the left edge of an armos block
-									{
-										//zprint("searching\n");
-										if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
-										++chx;
-										
-										
-										//zprint("chx: %d\n", chx);
-										//zprint("tx2: %d\n", tx2);
-										//zprint("ty2: %d\n", ty2);
-										//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
-										//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
-										if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
-										{
-											//zprint("found match\n");
-											xpos -=16;
-										}
-										else searching = 3;
-									}
-									//zprint("xpos is: %d\n", xpos);
-								}
-								[[fallthrough]];
-								case left: //touched right edge of armos
-								{
-									while(searching == 1) //find the top edge of an armos block
-									{
-										chy += 16;
-										if ( cpos - chy < 0 ) break; //don't go out of bounds
-										if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
-										{
-											ypos -=16;
-										}
-										else searching = 2;
-									}
-									while(searching == 2) //find the left edge of an armos block
-									{
-										if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
-										++chx;
-										if ( cpos - chx < 0 ) break; //don't go out of bounds
-										if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
-										{
-											xpos -=16;
-										}
-										else searching = 3;
-									}
-									break;
-								}
-									
-								case right: //touched left edge of armos
-								{
-									//zprint("touched armos on left\n");
-									while(searching == 1) //find the top edge of an armos block
-									{
-										chy += 16;
-										if ( cpos - chy < 0 ) break; //don't go out of bounds
-										if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
-										{
-											//zprint("found match\n");
-											ypos -=16;
-										}
-										else searching = 2;
-									}
-									break;
-								}
+							int32_t r = (combobuf[cid].usrflags&cflag2) ? zc_oldrand()%2 : 0;
+							id2 = combobuf[cid].attribytes[0+r];
+							//if(guysbuf[id2].family==eeWALK)
+							//{
+							//	eclk=0;
+							//}
 							
+							//! To-do Adjust for larger enemies, but we need it to be directional. 
+							int32_t ypos = 0; int32_t xpos = 0;
+							int32_t chy = 0; int32_t chx = 0;
+							//nmew idea = check while the upper-left corner combo is armos
+							///move up one and check if it is armos, check the next, and stop as soon as that is not armos
+							///then do the same going left
+							
+							int32_t searching = 1;
+							int32_t armosxsz = 1;
+							int32_t armosysz = 1;
+							switch(guysbuf[id2].family)
+							{
+								case eeGHOMA:
+									armosxsz = 3;
+									break;
+								case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
+								case eeDIG:
+									armosxsz = 2;
+									armosysz = 2;
+									break;
+								default:
+									break;
+							}
+							if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+							if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
+							
+							if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
+							{
+								switch(dir)
+								{
+									case up: //touched armos from below
+									{
+										while(searching == 1) //find the top edge of an armos block
+										{
+											chy += 16;
+											if ( cpos - chy < 0 ) break; //don't go out of bounds
+											if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+											{
+												ypos -=16;
+											}
+											else searching = 2;
+										}
+										while(searching == 2) //find the left edge of an armos block
+										{
+											if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+											++chx;
+											if ( cpos - chx < 0 ) break; //don't go out of bounds
+											if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+											{
+												xpos -=16;
+											}
+											else searching = 3;
+										}
+										
+										break;
+									}
+									case down: //touched armos from above
+									{
+										//zprint("touched armos from above\n");
+										//zprint("cpos: %d\n", cpos);
+										//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
+										//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
+										//tx2 = GridX(tx2);
+										//ty2 = GridY(ty2);
+										while(searching == 1) //find the left edge of an armos block
+										{
+											//zprint("searching\n");
+											if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+											++chx;
+											
+											
+											//zprint("chx: %d\n", chx);
+											//zprint("tx2: %d\n", tx2);
+											//zprint("ty2: %d\n", ty2);
+											//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
+											//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
+											if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+											{
+												//zprint("found match\n");
+												xpos -=16;
+											}
+											else searching = 3;
+										}
+										//zprint("xpos is: %d\n", xpos);
+									}
+									[[fallthrough]];
+									case left: //touched right edge of armos
+									{
+										while(searching == 1) //find the top edge of an armos block
+										{
+											chy += 16;
+											if ( cpos - chy < 0 ) break; //don't go out of bounds
+											if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+											{
+												ypos -=16;
+											}
+											else searching = 2;
+										}
+										while(searching == 2) //find the left edge of an armos block
+										{
+											if ( (cpos % 16) == 0 || cpos == 0 ) break; //don't wrap rows
+											++chx;
+											if ( cpos - chx < 0 ) break; //don't go out of bounds
+											if ( ( combobuf[(tmpscr->data[cpos-chx])].type == cARMOS ) ) 
+											{
+												xpos -=16;
+											}
+											else searching = 3;
+										}
+										break;
+									}
+										
+									case right: //touched left edge of armos
+									{
+										//zprint("touched armos on left\n");
+										while(searching == 1) //find the top edge of an armos block
+										{
+											chy += 16;
+											if ( cpos - chy < 0 ) break; //don't go out of bounds
+											if ( ( combobuf[(tmpscr->data[cpos-chy])].type == cARMOS ) ) 
+											{
+												//zprint("found match\n");
+												ypos -=16;
+											}
+											else searching = 2;
+										}
+										break;
+									}
 								
+									
+								}
 							}
-						}
-						//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
-						//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
-						int32_t xpos2 = tx+xpos;
-						int32_t ypos2 = ty+ypos;
-						int32_t id3 = COMBOPOS(xpos2, ypos2);
-						for (int32_t n = 0; n < armosysz && id3 < 176; n++)
-						{
-							
-							for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
+							//if ( guysbuf[id2].txsz > 1 ) xpos -= guysbuf[id2].txsz*16;
+							//if ( guysbuf[id2].tysz > 1 ) ypos -= guysbuf[id2].tysz*16;
+							int32_t xpos2 = tx+xpos;
+							int32_t ypos2 = ty+ypos;
+							int32_t id3 = COMBOPOS(xpos2, ypos2);
+							for (int32_t n = 0; n < armosysz && id3 < 176; n++)
 							{
-								if (id3 + m < 176)
-									guygrid[(id3+m)]=61;
-								//zprint2("oof: %d\n", id3+m);
+								
+								for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
+								{
+									if (id3 + m < 176)
+										guygrid[(id3+m)]=61;
+									//zprint2("oof: %d\n", id3+m);
+								}
+								id3+=16;
 							}
-							id3+=16;
-						}
-						if (guysbuf[id2].family == eeGHOMA) 
-						{
-							if ( ( combobuf[(tmpscr->data[cpos-chx+1])].type == cARMOS ) ) xpos += 16;
-						}
-						addenemy(tx+xpos,ty+1+ypos,id2,0);
-						((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-						((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
-						((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
-						//((enemy*)guys.spr(guys.Count()-1))->dir = down;
-						//((enemy*)guys.spr(guys.Count()-1))->xofs = 0;
-						//((enemy*)guys.spr(guys.Count()-1))->yofs = 0;
-						/*
-						int32_t cd = (tx>>4)+ty;
-						int32_t f = MAPFLAG(tx,ty);
-						int32_t f2 = MAPCOMBOFLAG(tx,ty);
-						tmpscr->data[cd] = tmpscr->undercombo;
-						tmpscr->cset[cd] = tmpscr->undercset;
-						tmpscr->sflag[cd] = 0;
-							
-						if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
-						{
-							tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
-							tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
-							tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
-							sfx(tmpscr->secretsfx);
-						}
-							
-						if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
-						{
-							if(!getmapflag())
+							if (guysbuf[id2].family == eeGHOMA) 
 							{
-								additem(tx,ty,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
+								if ( ( combobuf[(tmpscr->data[cpos-chx+1])].type == cARMOS ) ) xpos += 16;
+							}
+							addenemy(tx+xpos,ty+1+ypos,id2,0);
+							((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+							((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
+							((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
+							//((enemy*)guys.spr(guys.Count()-1))->dir = down;
+							//((enemy*)guys.spr(guys.Count()-1))->xofs = 0;
+							//((enemy*)guys.spr(guys.Count()-1))->yofs = 0;
+							/*
+							int32_t cd = (tx>>4)+ty;
+							int32_t f = MAPFLAG(tx,ty);
+							int32_t f2 = MAPCOMBOFLAG(tx,ty);
+							tmpscr->data[cd] = tmpscr->undercombo;
+							tmpscr->cset[cd] = tmpscr->undercset;
+							tmpscr->sflag[cd] = 0;
+								
+							if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
+							{
+								tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
+								tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
+								tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
 								sfx(tmpscr->secretsfx);
 							}
-						}
-							
-						putcombo(scrollbuf,tx,ty,tmpscr->data[cd],tmpscr->cset[cd]);
-						return;
-						*/
-						return;
-					}
-			
-					for(int32_t i=0; i<eMAXGUYS; i++)
-					{
-						if(guysbuf[i].flags2&cmbflag_armos)
-						{
-							id2=i;
-							
-							// This is mostly for backwards-compatability
-							if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+								
+							if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 							{
-								eclk=0;
+								if(!getmapflag())
+								{
+									additem(tx,ty,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0));
+									sfx(tmpscr->secretsfx);
+								}
 							}
-							
-							break;
+								
+							putcombo(scrollbuf,tx,ty,tmpscr->data[cd],tmpscr->cset[cd]);
+							return;
+							*/
+							return;
 						}
-					}
-					
-					break;
-					
-				case cBSGRAVE:
-					tmpscr->data[di]++;
-
-					[[fallthrough]];
-				case cGRAVE:
-					for(int32_t i=0; i<eMAXGUYS; i++)
-					{
-						if(guysbuf[i].flags2&cmbflag_ghini)
-						{
-							id2=i;
-							eclk=0; // This is mostly for backwards-compatability
-							break;
-						}
-					}
-					
-					//id2=eGHINI2;
-					break;
-				}
 				
+						for(int32_t i=0; i<eMAXGUYS; i++)
+						{
+							if(guysbuf[i].flags2&cmbflag_armos)
+							{
+								id2=i;
+								
+								// This is mostly for backwards-compatability
+								if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+								{
+									eclk=0;
+								}
+								
+								break;
+							}
+						}
+						
+						break;
+						
+					case cBSGRAVE:
+						tmpscr->data[di]++;
+
+						[[fallthrough]];
+					case cGRAVE:
+						for(int32_t i=0; i<eMAXGUYS; i++)
+						{
+							if(guysbuf[i].flags2&cmbflag_ghini)
+							{
+								id2=i;
+								eclk=0; // This is mostly for backwards-compatability
+								break;
+							}
+						}
+						
+						//id2=eGHINI2;
+						break;
+					}
+				}
 				addenemy(tx,ty+3,id2,eclk);
 				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 			}
@@ -19807,9 +19859,11 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		for(int32_t j=0; j<16; j+=15) for(int32_t k=0; k<2; k++)
 		{
-			int32_t stype = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].type;
-		int32_t warpsound = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)].attribytes[0];
-			
+			newcombo const& cmb = combobuf[k>0 ? MAPFFCOMBO(x+j,y+i) : MAPCOMBO(x+j,y+i)];
+			int32_t stype = cmb.type;
+			int32_t warpsound = cmb.attribytes[0];
+			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
+				stype = cNONE;
 			if(stype==cSWARPA)
 			{
 				if(tmpscr->flags5&fDIRECTSWARP)
@@ -20074,6 +20128,11 @@ void HeroClass::checkspecial2(int32_t *ls)
 	// Change B, C and D warps into A, for the comparison below...
 	for(int32_t i=0; i<4; i++)
 	{
+		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
+		{
+			types[i] = cNONE;
+			continue;
+		}
 		if(types[i]==cCAVE)
 		{
 			index=0;
@@ -20280,13 +20339,13 @@ void HeroClass::checkspecial2(int32_t *ls)
 			for(auto lyr = 0; lyr < 7; ++lyr)
 			{
 				newcombo const* cmb = poses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[poses[p]]];
-				newcombo const* cmb_2 = sensPoses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[sensPoses[p]]];
+				newcombo const* cmb2 = sensPoses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[sensPoses[p]]];
 				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
 				{
 					do_trigger_combo(lyr,poses[p]);
 					if(poses[p] == sensPoses[p]) continue;
 				}
-				if(cmb_2 && (cmb_2->triggerflags[0] & combotriggerSTEPSENS))
+				if(cmb2 && (cmb2->triggerflags[0] & combotriggerSTEPSENS))
 				{
 					do_trigger_combo(lyr,sensPoses[p]);
 				}
@@ -20423,6 +20482,11 @@ void HeroClass::checkspecial2(int32_t *ls)
 		
 	for(int32_t i=0; i<4; i++)
 	{
+		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
+		{
+			types[i] = cNONE;
+			continue;
+		}
 		if(types[i]==cPIT) 
 		{
 			index=0;
@@ -20492,7 +20556,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	if(flag==mfZELDA||flag2==mfZELDA||flag3==mfZELDA || combo_class_buf[type].win_game)
 	{
-	attackclk = 0; //get rid of Hero's sword if it was stuck out, charged. 
+		attackclk = 0; //get rid of Hero's sword if it was stuck out, charged. 
 		saved_Zelda();
 		return;
 	}
@@ -26346,6 +26410,14 @@ void HeroClass::checkitems(int32_t index)
 	
 	if(index==-1)
 	{
+		for(auto ind = items.Count()-1; ind >= 0; --ind)
+		{
+			item* itm = (item*)items.spr(ind);
+			if(itm->force_grab)
+			{
+				checkitems(ind);
+			}
+		}
 		if(diagonalMovement)
 		{
 			index=items.hit(x,y+(bigHitbox?0:8)-fakez,z,6,6,1);
@@ -26429,8 +26501,8 @@ void HeroClass::checkitems(int32_t index)
 		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
 			return; //No picking these up unless you have a bottle to fill!
 		
-		if(((pickup&ipTIMER) && (((item*)items.spr(index))->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
-			if(items.spr(index)->id!=iFairyMoving)
+		if(((pickup&ipTIMER) && (ptr->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+			if(ptr->id!=iFairyMoving)
 				// wait for it to stop flashing, doesn't check for other items yet
 				return;
 				
