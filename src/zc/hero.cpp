@@ -17733,7 +17733,7 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(found<0)
 	{
-		for(int32_t i=0; i<2; i++)
+		for(int32_t i=0; i<6; i++)
 		{
 			cmb = &combobuf[MAPCOMBO2(i,bx,by)];
 			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
@@ -17916,7 +17916,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0)
 	{
-		for(int32_t i=0; i<2; i++)
+		for(int32_t i=0; i<6; i++)
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
 			tmp_cmb = &combobuf[tmp_cid];
