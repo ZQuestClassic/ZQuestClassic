@@ -619,6 +619,7 @@ bool trigger_warp(newcombo const& cmb)
 
 bool trigger_chest(int32_t lyr, int32_t pos)
 {
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
 	switch(cmb.type)
 	{
@@ -684,6 +685,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 
 bool trigger_lockblock(int32_t lyr, int32_t pos)
 {
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
 	switch(cmb.type)
 	{
@@ -725,6 +727,251 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 	
 	if(cmb.attribytes[3])
 		sfx(cmb.attribytes[3]); //opening sfx
+	return true;
+}
+
+bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if(lyr != 0) return false; //Currently cannot activate on layers >0!
+	//!TODO Expand 'guygrid' stuff to account for layers, so that layers >0 can be used
+	if(guygrid[pos]) return false; //Currently activating
+	int32_t gc = 0;
+	for(int32_t i=0; i<guys.Count(); ++i)
+	{
+		if(((enemy*)guys.spr(i))->mainguy)
+		{
+			++gc;
+		}
+	}
+	if(gc > 10) return false; //Unsure what this purpose is
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	int32_t eclk = -14;
+	int32_t id2 = 0;
+	int32_t tx = COMBOX(pos), ty = COMBOY(pos);
+	bool nextcmb = false;
+	switch(cmb.type)
+	{
+		case cARMOS:
+		{
+			if(cmb.usrflags&cflag1) //custom ID
+			{
+				int32_t r = (cmb.usrflags&cflag2) ? zc_oldrand()%2 : 0;
+				id2 = cmb.attribytes[0+r];
+			}
+			else //default ID
+			{
+				for(int32_t i=0; i<eMAXGUYS; i++)
+				{
+					if(guysbuf[i].flags2&cmbflag_armos)
+					{
+						id2=i;
+						
+						// This is mostly for backwards-compatability
+						if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+						{
+							eclk=0;
+						}
+						
+						break;
+					}
+				}
+			}
+			
+			if(cmb.usrflags&cflag3) //handle large enemy (EARLY RETURN)
+			{
+				guygrid[pos] = 61;
+				//! To-do Adjust for larger enemies, but we need it to be directional. 
+				int32_t ypos = 0; int32_t xpos = 0;
+				int32_t chy = 0; int32_t chx = 0;
+				//nmew idea = check while the upper-left corner combo is armos
+				///move up one and check if it is armos, check the next, and stop as soon as that is not armos
+				///then do the same going left
+				
+				int32_t searching = 1;
+				int32_t armosxsz = 1;
+				int32_t armosysz = 1;
+				switch(guysbuf[id2].family)
+				{
+					case eeGHOMA:
+						armosxsz = 3;
+						break;
+					case eeAQUA: //jesus christ I'm not considering the logistics of manhandlas and gleeoks
+					case eeDIG:
+						armosxsz = 2;
+						armosysz = 2;
+						break;
+					default:
+						break;
+				}
+				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
+				
+				if ( ( armosxsz > 1 ) || ( armosysz > 1 ) )
+				{
+					switch(trigdir)
+					{
+						case -1: //triggered not by touch
+							[[fallthrough]];
+						case up: //touched armos from below
+						{
+							while(searching == 1) //find the top edge of an armos block
+							{
+								chy += 16;
+								if ( pos - chy < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								{
+									ypos -=16;
+								}
+								else searching = 2;
+							}
+							while(searching == 2) //find the left edge of an armos block
+							{
+								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
+								++chx;
+								if ( pos - chx < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								{
+									xpos -=16;
+								}
+								else searching = 3;
+							}
+							
+							break;
+						}
+						case down: //touched armos from above
+						{
+							//zprint("touched armos from above\n");
+							//zprint("cpos: %d\n", cpos);
+							//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
+							//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
+							//tx2 = GridX(tx2);
+							//ty2 = GridY(ty2);
+							while(searching == 1) //find the left edge of an armos block
+							{
+								//zprint("searching\n");
+								if ( (pos % 16) == 0 ) break; //don't wrap rows
+								++chx;
+								
+								
+								//zprint("chx: %d\n", chx);
+								//zprint("tx2: %d\n", tx2);
+								//zprint("ty2: %d\n", ty2);
+								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
+								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
+								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								{
+									//zprint("found match\n");
+									xpos -=16;
+								}
+								else searching = 3;
+							}
+							//zprint("xpos is: %d\n", xpos);
+						}
+						[[fallthrough]];
+						case left: //touched right edge of armos
+						{
+							while(searching == 1) //find the top edge of an armos block
+							{
+								chy += 16;
+								if ( pos - chy < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								{
+									ypos -=16;
+								}
+								else searching = 2;
+							}
+							while(searching == 2) //find the left edge of an armos block
+							{
+								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
+								++chx;
+								if ( pos - chx < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								{
+									xpos -=16;
+								}
+								else searching = 3;
+							}
+							break;
+						}
+							
+						case right: //touched left edge of armos
+						{
+							//zprint("touched armos on left\n");
+							while(searching == 1) //find the top edge of an armos block
+							{
+								chy += 16;
+								if ( pos - chy < 0 ) break; //don't go out of bounds
+								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								{
+									//zprint("found match\n");
+									ypos -=16;
+								}
+								else searching = 2;
+							}
+							break;
+						}
+					
+						
+					}
+				}
+				
+				int32_t xpos2 = tx+xpos;
+				int32_t ypos2 = ty+ypos;
+				int32_t id3 = COMBOPOS(xpos2, ypos2);
+				for (int32_t n = 0; n < armosysz && id3 < 176; n++)
+				{
+					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
+					{
+						if (id3 + m < 176)
+							guygrid[(id3+m)]=61;
+					}
+					id3+=16;
+				}
+				if (guysbuf[id2].family == eeGHOMA) 
+				{
+					if ( ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) ) xpos += 16;
+				}
+				addenemy(tx+xpos,ty+1+ypos,id2,0);
+				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
+				((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
+				return true;
+			}
+			break;
+		}
+		case cBSGRAVE:
+			nextcmb = true;
+			[[fallthrough]];
+		case cGRAVE:
+		{
+			if(cmb.usrflags&cflag1) //Custom ID
+			{
+				int32_t r = (cmb.usrflags&cflag2) ? zc_oldrand()%2 : 0;
+				id2 = cmb.attribytes[0+r];
+			}
+			else //Default ID
+			{
+				for(int32_t i=0; i<eMAXGUYS; i++)
+				{
+					if(guysbuf[i].flags2&cmbflag_ghini)
+					{
+						id2=i;
+						eclk=0; // This is mostly for backwards-compatability
+						break;
+					}
+				}
+			}
+			if(nextcmb)
+				tmp->data[pos]++;
+			break;
+		}
+		default: return false;
+	}
+	guygrid[pos] = 61;
+	addenemy(tx,ty+3,id2,eclk);
+	((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 	return true;
 }
 
@@ -818,6 +1065,11 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 						return;
 					break;
 				
+				case cARMOS: case cBSGRAVE: case cGRAVE:
+					if(!trigger_armos_grave(lyr,pos))
+						return;
+					break;
+				
 				default:
 					used_bit = false;
 			}
@@ -895,3 +1147,4 @@ void update_combo_timers()
 		}
 	}
 }
+

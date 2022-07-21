@@ -25,6 +25,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos);
 bool trigger_step(int32_t lyr, int32_t pos);
 bool trigger_chest(int32_t lyr, int32_t pos);
 bool trigger_lockblock(int32_t lyr, int32_t pos);
+bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir = -1);
 
 void do_trigger_combo(int32_t layer, int32_t pos, int32_t special = 0, weapon* w = NULL);
 

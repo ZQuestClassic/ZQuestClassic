@@ -17379,6 +17379,14 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 					break;
 			}
 		}
+		if(section_version < 26)
+		{
+			if(temp_combo.type == cARMOS)
+			{
+				if(temp_combo.usrflags & cflag1)
+					temp_combo.usrflags |= cflag3;
+			}
+		}
 		
 		if(section_version>=12) //combo label
 		{

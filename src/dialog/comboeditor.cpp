@@ -41,6 +41,7 @@ bool hasCTypeEffects(int32_t type)
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+		case cARMOS: case cBSGRAVE: case cGRAVE:
 			return true;
 	}
 	return false;
@@ -90,8 +91,8 @@ static const char *combotype_help_string[cMAX] =
 	"The player is warped via Tile Warp A if they step on the bottom half of this combo.",
 	"The player marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
 	"Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it.",
-	"When touched, this combo produces an Armos and changes to the screen's Under Combo.",
-	"When touched, this combo produces one Ghini.",
+	"",
+	"",
 	"Raft paths must begin on a Dock-type combo. (Use the Raft combo flag to create raft paths.)",
 	"", //cUNDEF
 	"A Bracelet is not needed to push this combo, but it can't be pushed until the enemies are cleared from the screen.",
@@ -152,7 +153,7 @@ static const char *combotype_help_string[cMAX] =
 	"If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set.",
 	"Identical to Lock Block (Boss), but if any other Boss Lock Blocks are opened on the same screen, this changes to the next combo.",
 	"If this combo is solid, the Ladder can be used to cross over it. Only works on layer 0.",
-	"When touched, this combo produces a Ghini and changes to the next combo in the list.",
+	"",
 	//Chests
 	"", "", "", "", "", "",
 	"If the player touches this, the Screen States are cleared, and the player is re-warped back into the screen, effectively resetting the screen entirely.",
@@ -453,6 +454,18 @@ std::string getComboTypeHelpText(int32_t id)
 		case cCUSTOMBLOCK:
 			typehelp = "Blocks weapons denoted by the weapon triggerflags.";
 			break;
+		case cARMOS:
+			typehelp = "When touched, this combo produces an Armos and changes to the screen's Under Combo."
+				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+			break;
+		case cGRAVE:
+			typehelp = "When touched, this combo produces one Ghini."
+				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+			break;
+		case cBSGRAVE:
+			typehelp = "When touched, this combo produces a Ghini and changes to the next combo in the list."
+				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
 				typehelp = combotype_help_string[id];
@@ -688,6 +701,34 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Specify";
 			h_flag[0] = "If checked, attribytes are used to specify enemy IDs. Otherwise, the lowest"
 				" enemy ID with the armos flag checked will be spawned.";
+			if(FL(cflag1))
+			{
+				l_flag[1] = "Random";
+				h_flag[1] = "Randomly choose between two enemy IDs (50/50)";
+				if(FL(cflag2))
+				{
+					l_attribyte[0] = "Enemy 1:";
+					h_attribyte[0] = "The first enemy ID, 50% chance of being spawned";
+					l_attribyte[1] = "Enemy 2:";
+					h_attribyte[1] = "The second enemy ID, 50% chance of being spawned";
+				}
+				else
+				{
+					l_attribyte[0] = "Enemy:";
+					h_attribyte[0] = "The enemy ID to be spawned";
+				}
+			}
+			l_flag[2] = "Handle Large";
+			h_flag[2] = "If the specified enemy is larger than 1x1 tile, attempt to use armos combos that take up its' size";
+			break;
+		}
+		case cBSGRAVE:
+			[[fallthrough]];
+		case cGRAVE:
+		{
+			l_flag[0] = "Specify";
+			h_flag[0] = "If checked, attribytes are used to specify enemy IDs. Otherwise, the lowest"
+				" enemy ID with the grave flag checked will be spawned.";
 			if(FL(cflag1))
 			{
 				l_flag[1] = "Random";
