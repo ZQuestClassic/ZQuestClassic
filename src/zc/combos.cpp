@@ -1015,6 +1015,192 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 	return false;
 }
 
+bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	int32_t tx = COMBOX(pos)+8, ty = COMBOY(pos)+8;
+	int32_t thesfx = cmb.attribytes[0];
+	if ( thesfx > 0 && !sfx_allocated(thesfx))
+		sfx(thesfx,pan(COMBOX(pos)));
+	if ( cmb.usrflags&cflag1) //landmine
+	{
+		int32_t wpn = cmb.attribytes[1];
+		int32_t wpdir = cmb.attribytes[2];
+		if ( ((unsigned)wpdir) > r_down )
+		{
+			wpdir = zc_oldrand()&3;
+		}
+		int32_t damg = cmb.attributes[0]/10000L;
+		switch(wpn)
+		{
+			//eweapons
+			case ewFireball:
+			case ewArrow:
+			case ewBrang:
+			case ewSword:
+			case ewRock:
+			case ewMagic:
+			case ewBomb:
+			case ewSBomb:
+			case ewLitBomb:
+			case ewLitSBomb:
+			case ewFireTrail:
+			case ewFlame:
+			case ewWind:
+			case ewFlame2:
+			case ewFlame2Trail:
+			case ewIce:
+			case ewFireball2:
+			
+				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
+				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				{
+					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+					w->LOADGFX(cmb.attribytes[3]);
+				}
+				break;
+			
+			case wBeam:
+			case wBrang:
+			case wBomb:
+			case wSBomb:
+			case wLitBomb:
+			case wLitSBomb:
+			case wArrow:
+			
+			case wWhistle:
+			case wBait:
+			case wMagic:
+			case wWind:
+			case wRefMagic:
+			case wRefFireball:
+			case wRefRock:
+			case wRefBeam:
+			case wIce:
+			case wFlame: 
+			case wSound: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+			//case wThrowRock: 
+			//case wPot: //Thrown pot or rock -Z
+			//case wLit: //Lightning or Electric -Z
+			//case wBombos: 
+			//case wEther: 
+			//case wQuake:// -Z
+			//case wSword180: 
+			//case wSwordLA:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1,Hero.getUID(),false,0,1,0)); 
+				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				{
+					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+					w->LOADGFX(cmb.attribytes[3]);
+				}
+				break;
+			
+			case wFire:
+				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1, Hero.getUID(),false,0,1,0));
+				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				{
+					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+					w->LOADGFX(cmb.attribytes[3]);
+				}
+				break;
+				
+			case wScript1:
+			case wScript2: 
+			case wScript3:
+			case wScript4:
+			case wScript5:
+			case wScript6:
+			case wScript7:
+			case wScript8:
+			case wScript9:
+			case wScript10:
+				if (cmb.usrflags&cflag2) //wscript lwpn
+				{
+					if (cmb.usrflags&cflag4) //direct damage from custom/script lweapons
+					{
+						if(stepped)
+						{
+							Hero.hitdir = -1;
+							if (Hero.action != rafting && Hero.action != freeze && Hero.action!=sideswimfreeze && !Hero.hclk)
+							{
+								int32_t dmgamt = ((damg > 0) ? damg : 4);
+								game->set_life(game->get_life()- Hero.ringpower(dmgamt));
+								Hero.doHit(-1);
+							}
+						}
+					}
+					else
+					{
+						Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1, Hero.getUID(),false,0,1,0));
+						if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+						{
+							weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+							w->LOADGFX(cmb.attribytes[3]);
+						}
+					}
+					break;
+				}
+				else //wscript ewpn
+				{
+					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir, -1,-1,false)); 
+					if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+					{
+						weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+						w->LOADGFX(cmb.attribytes[3]);
+					}
+					break;
+				}
+				
+			case wSSparkle:
+			case wFSparkle:
+				if (cmb.usrflags&cflag4) //direct damage from custom/script lweapons
+				{
+					if(stepped)
+					{
+						Hero.hitdir = -1;
+						if (Hero.action != rafting && Hero.action != freeze && Hero.action != sideswimfreeze && !Hero.hclk)
+						{
+							Hero.doHit(-1);
+							int32_t dmgamt = ((damg > 0) ? damg : 4);
+							
+							game->set_life(game->get_life()- Hero.ringpower(dmgamt));
+						}
+					}
+				}
+				else
+				{
+					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,((damg > 0) ? damg : 4),wpdir,-1, Hero.getUID(),false,0,1,0));
+					if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+					{
+						weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+						w->LOADGFX(cmb.attribytes[3]);
+					}
+				}
+				break;
+			
+			default: //enemy bomb
+				//(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
+				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
+				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,((damg > 0) ? damg : 4),up, -1,-1,false)); 
+				if (cmb.attribytes[3] > 0 && cmb.attribytes[3] < 256 )
+				{
+					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+					w->LOADGFX(cmb.attribytes[3]);
+				}
+				break;
+			
+			//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
+		}
+		if (!(cmb.usrflags&cflag3) ) //Don't Advance
+		{
+			tmp->data[pos]++;
+		}
+	}
+	return true;
+}
+
 //Forcibly triggers a combo at a given position
 void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -1113,6 +1299,10 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 				case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 					trigger_damage_combo(lyr,pos);
+					break;
+				
+				case cSTEPSFX:
+					trigger_stepfx(lyr,pos);
 					break;
 				
 				default:

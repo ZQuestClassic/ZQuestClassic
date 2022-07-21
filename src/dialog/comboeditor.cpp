@@ -44,6 +44,7 @@ bool hasCTypeEffects(int32_t type)
 		case cARMOS: case cBSGRAVE: case cGRAVE:
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+		case cSTEPSFX:
 			return true;
 	}
 	return false;
@@ -1463,7 +1464,7 @@ void ComboEditorDialog::loadComboType()
 				l_flag[2] = "Don't Advance";
 				h_flag[2] = "If checked, the combo will not advance to the next combo when triggered."
 					" This may cause the landmine to trigger multiple times in a row.";
-				l_flag[3] = "Direct Damage from Script LWs & Sparkles";
+				l_flag[3] = "Direct Damage Script LW / Sparkles";
 				h_flag[3] = "If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
 					" a sparkle type, it will immediately damage the player (knocking them back none).";
 				l_attribute[0] = "Damage:";
