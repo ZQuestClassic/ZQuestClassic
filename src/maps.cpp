@@ -3843,17 +3843,17 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	do_layer(scrollbuf, -2, 0, this_screen, 0, 0, 2); // push blocks!
-	if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+	if (!global_z3_scrolling)
 	{
-		do_layer(scrollbuf, -2, 1, this_screen, 0, 0, 2); // push blocks!
-		do_layer(scrollbuf, -2, 2, this_screen, 0, 0, 2); // push blocks!
+		do_layer(scrollbuf, -2, 0, this_screen, 0, 0, 2); // push blocks!
+		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+		{
+			do_layer(scrollbuf, -2, 1, this_screen, 0, 0, 2); // push blocks!
+			do_layer(scrollbuf, -2, 2, this_screen, 0, 0, 2); // push blocks!
+		}
 	}
-
-	if (global_z3_scrolling)
+	else
 	for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
-		if (currscr_dx == 0 && currscr_dy == 0) return;
-
 		do_layer(scrollbuf, -2, 0, myscr, -offx, -offy, 2); // push blocks!
 		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 		{
