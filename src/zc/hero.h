@@ -344,6 +344,7 @@ public:
 	int32_t  lookaheadflag(int32_t d);
 	bool  lookaheadraftflag(int32_t d);
 	void checkhit();
+	void doHit(int32_t hitdir);
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
 	void checkscroll();
@@ -416,12 +417,12 @@ private:
 	void check_conveyor();
 	bool sideviewhammerpound();
 	bool agonyflag(int32_t flag);
-	int32_t ringpower(int32_t dmg, bool noPeril = false, bool noRing = false);
 	void addsparkle(int32_t wpn);
 	void addsparkle2(int32_t type1, int32_t type2);
 	void PhantomsCleanup();
 	
 public:
+	int32_t ringpower(int32_t dmg, bool noPeril = false, bool noRing = false);
 	void ganon_intro();
 	void checkitems(int32_t index = -1);
 	int32_t DrunkClock();

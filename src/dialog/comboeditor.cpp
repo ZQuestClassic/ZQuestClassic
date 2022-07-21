@@ -42,6 +42,8 @@ bool hasCTypeEffects(int32_t type)
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		case cARMOS: case cBSGRAVE: case cGRAVE:
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 			return true;
 	}
 	return false;
@@ -2242,7 +2244,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								INFOBTN("The combo will ignore methods of triggering it's standard effects that"
 									" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
 									" unless the 'Sword' weapon trigger is checked."),
-								TRIGFLAG(29,"Only Gen Triggers")
+								TRIGFLAG(29,"Only Gen Triggers"),
+								INFOBTN("If triggered by a weapon, the triggering weapon will be destroyed"),
+								TRIGFLAG(30, "Kill Triggering Weapon")
 							),
 							Column(framed = true,
 								Row(padding = 0_px,
@@ -2777,7 +2781,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									INFOBTN("The combo will ignore methods of triggering it's standard effects that"
 										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
 										" unless the 'Sword' weapon trigger is checked."),
-									TRIGFLAG(29,"Only Gen Triggers")
+									TRIGFLAG(29,"Only Gen Triggers"),
+									INFOBTN("If triggered by a weapon, the triggering weapon will be destroyed"),
+									TRIGFLAG(30, "Kill Triggering Weapon")
 								)
 							)
 						)

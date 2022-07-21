@@ -1331,6 +1331,7 @@ enum
 #define combotriggerSHUTTER      0x08000000
 #define combotriggerCMBTYPEFX    0x10000000
 #define combotriggerONLYGENTRIG  0x20000000
+#define combotriggerKILLWPN      0x40000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001

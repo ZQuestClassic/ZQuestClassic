@@ -975,6 +975,46 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 	return true;
 }
 
+bool trigger_damage_combo(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	if(Hero.hclk || Hero.superman || Hero.fallclk)
+		return false; //immune
+	int32_t dmg = 0;
+	if(cmb.usrflags & cflag1) //custom
+		dmg = cmb.attributes[0] / -10000L;
+	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
+	
+	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
+	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
+	
+	int32_t itemid = current_item_id(itype_boots);
+	
+	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
+	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & ITEM_FLAG3);
+	if(dmg < 0)
+	{
+		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
+			|| (4<<current_item_power(itype_boots)<(abs(dmg))) || ((cmb.walk&0xF) && bootsnosolid)
+			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
+		{
+			if(Hero.NayrusLoveShieldClk<=0)
+			{
+				int32_t ringpow = Hero.ringpower(-dmg, !global_perilring, !global_defring);
+				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-dmg),0));
+			}
+			Hero.doHit(-1); //set hit action, iframes, etc
+			return true;
+		}
+		else paymagiccost(itemid); //boots succeeded
+	}
+	return false;
+}
+
 //Forcibly triggers a combo at a given position
 void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -1070,6 +1110,11 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 						return;
 					break;
 				
+				case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+				case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+					trigger_damage_combo(lyr,pos);
+					break;
+				
 				default:
 					used_bit = false;
 			}
@@ -1105,6 +1150,8 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	{
 		set_bit(grid,(((cx>>4) + cy)),1);
 	}
+	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
+		killgenwpn(w);
 }
 
 void init_combo_timers()

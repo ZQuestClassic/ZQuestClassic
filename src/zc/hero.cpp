@@ -6497,6 +6497,38 @@ bool HeroClass::checkdamagecombos(int32_t dx, int32_t dy)
     return checkdamagecombos(dx,dx,dy,dy);
 }
 
+void HeroClass::doHit(int32_t hdir)
+{
+	hitdir = hdir;
+	
+	if (action != rafting && action != freeze && action != sideswimfreeze)
+	{
+		if (IsSideSwim())
+		{
+			action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
+		}
+		else if (action == swimming || hopclk == 0xFF)
+		{
+			action=swimhit; FFCore.setHeroAction(swimhit);
+		}
+		else
+		{
+			action=gothit; FFCore.setHeroAction(gothit);
+		}
+	}
+		
+	hclk=48;
+	
+	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+	{
+		spins = charging = attackclk = 0;
+		attack=none;
+		tapping = false;
+	}
+	
+	sfx(getHurtSFX(),pan(x.getInt()));
+}
+
 bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer, bool solid, bool do_health_check) //layer = -1, solid = false, do_health_check = true
 {
 	if(hclk || superman || fallclk)
@@ -6707,34 +6739,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				hitdir = (dir^1);
 			else
 				hitdir = -1;
-			
-			if (action != rafting && action != freeze && action != sideswimfreeze)
-			{
-				if (IsSideSwim())
-				{
-					action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-				}
-				else if (action == swimming || hopclk == 0xFF)
-				{
-					action=swimhit; FFCore.setHeroAction(swimhit);
-				}
-				else
-				{
-					action=gothit; FFCore.setHeroAction(gothit);
-				}
-			}
-				
-				
-			hclk=48;
-			
-			if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-			{
-				spins = charging = attackclk = 0;
-				attack=none;
-				tapping = false;
-			}
-			
-			sfx(getHurtSFX(),pan(x.getInt()));
+			doHit(hitdir);
 			return true;
 		}
 		else if (do_health_check) paymagiccost(itemid); // Boots are successful
