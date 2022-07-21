@@ -3615,6 +3615,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_SUBSCR_BACKWARDS_ID_ORDER,1);
 	}
+	if(compatrule_version < 29)
+	{
+		set_bit(quest_rules,qr_OLD_LOCKBLOCK_COLLISION,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
@@ -17362,6 +17366,17 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			if(!p_getc(&temp_combo.trigsfx,f,true))
 			{
 				return qe_invalid;
+			}
+		}
+		else
+		{
+			switch(temp_combo.type)
+			{
+				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+					if(!(temp_combo.usrflags & cflag3))
+						temp_combo.attribytes[3] = WAV_DOOR;
+					temp_combo.usrflags &= ~cflag3;
+					break;
 			}
 		}
 		

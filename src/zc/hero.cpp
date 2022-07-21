@@ -7293,12 +7293,19 @@ bool HeroClass::animate(int32_t)
 	}
 	
 	if(action!=inwind && action!=drowning && action!=lavadrowning && action!= sidedrowning)
+	{
 		if(!get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
 		{
 			checkchest(cCHEST);
 			checkchest(cLOCKEDCHEST);
 			checkchest(cBOSSCHEST);
 		}
+		if(!get_bit(quest_rules, qr_OLD_LOCKBLOCK_COLLISION))
+		{
+			checkchest(cLOCKBLOCK);
+			checkchest(cBOSSLOCKBLOCK);
+		}
+	}
 	checksigns();
 	
 	if(isStanding())
@@ -8838,8 +8845,11 @@ bool HeroClass::animate(int32_t)
 		checkspecial();
 		checkitems();
 		checklocked(); //This has issues if Hero's action is WALKING, in 8-way moveent. 
-		checklockblock();
-		checkbosslockblock();
+		if(get_bit(quest_rules, qr_OLD_LOCKBLOCK_COLLISION))
+		{
+			oldchecklockblock();
+			oldcheckbosslockblock();
+		}
 		if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
 		{
 			oldcheckchest(cCHEST);
@@ -17180,7 +17190,7 @@ bool islockeddoor(int32_t x, int32_t y, int32_t lock)
     return ret;
 }
 
-void HeroClass::checklockblock()
+void HeroClass::oldchecklockblock()
 {
 	if(toogam) return;
 	
@@ -17320,7 +17330,7 @@ void HeroClass::checklockblock()
 	else sfx(WAV_DOOR);
 }
 
-void HeroClass::checkbosslockblock()
+void HeroClass::oldcheckbosslockblock()
 {
 	if(toogam) return;
 	
@@ -17472,12 +17482,8 @@ void HeroClass::checkbosslockblock()
 	
 	setmapflag(mBOSSLOCKBLOCK);
 	remove_bosslockblocks((currscr>=128)?1:0);
-	if ( combobuf[cid].usrflags&cflag3 )
-	{
-		if ( (combobuf[cid].attribytes[3]) )
-			sfx(combobuf[cid].attribytes[3]);
-	}
-	else sfx(WAV_DOOR);
+	if ( (combobuf[cid].attribytes[3]) )
+		sfx(combobuf[cid].attribytes[3]);
 }
 
 void HeroClass::oldcheckchest(int32_t type)
@@ -17628,9 +17634,24 @@ void HeroClass::oldcheckchest(int32_t type)
 
 void HeroClass::checkchest(int32_t type)
 {
-	if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
+	bool ischest = type == cCHEST || type == cLOCKEDCHEST || type == cBOSSCHEST;
+	bool islockblock = type == cLOCKBLOCK || type == cBOSSLOCKBLOCK;
+	bool islocked = type == cLOCKBLOCK || type == cLOCKEDCHEST;
+	bool isbosslocked = type == cBOSSLOCKBLOCK || type == cBOSSCHEST;
+	if(ischest)
 	{
-		oldcheckchest(type);
+		if(get_bit(quest_rules,qr_OLD_CHEST_COLLISION))
+		{
+			oldcheckchest(type);
+			return;
+		}
+	}
+	if(islockblock && get_bit(quest_rules, qr_OLD_LOCKBLOCK_COLLISION))
+	{
+		if(type == cLOCKBLOCK)
+			oldchecklockblock();
+		else if(type == cBOSSLOCKBLOCK)
+			oldcheckbosslockblock();
 		return;
 	}
 	if(toogam || z>0 || fakez > 0) return;
@@ -17783,8 +17804,8 @@ void HeroClass::checkchest(int32_t type)
 		{
 			int altcmb = cmb->attributes[2]/10000;
 			prompt_combo = cmb->attributes[1]/10000;
-			if(altcmb && ((type == cLOCKEDCHEST && !can_locked_combo(*cmb))
-				|| (type == cBOSSCHEST && !(game->lvlitems[dlevel]&liBOSSKEY))))
+			if(altcmb && ((islocked && !can_locked_combo(*cmb))
+				|| (isbosslocked && !(game->lvlitems[dlevel]&liBOSSKEY))))
 				prompt_combo = altcmb;
 			prompt_cset = cmb->attribytes[4];
 			prompt_x = cmb->attrishorts[0];
@@ -17797,8 +17818,14 @@ void HeroClass::checkchest(int32_t type)
 	}
 	else if(pushing < 8) return; //Not pushing against chest enough
 	
-	if(!trigger_chest(foundlayer, COMBOPOS(fx,fy))) return;
-	
+	if(ischest)
+	{
+		if(!trigger_chest(foundlayer, COMBOPOS(fx,fy))) return;
+	}
+	else if(islockblock)
+	{
+		if(!trigger_lockblock(foundlayer, COMBOPOS(fx,fy))) return;
+	}
 	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
 }

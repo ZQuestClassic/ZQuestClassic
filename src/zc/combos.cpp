@@ -682,6 +682,52 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	return true;
 }
 
+bool trigger_lockblock(int32_t lyr, int32_t pos)
+{
+	newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+	switch(cmb.type)
+	{
+		case cLOCKBLOCK: //Special flags!
+			if(!try_locked_combo(cmb)) return false;
+			
+			setmapflag(mLOCKBLOCK);
+			remove_lockblocks((currscr>=128)?1:0);
+			break;
+			
+		case cBOSSLOCKBLOCK:
+		{
+			if (!(game->lvlitems[dlevel] & liBOSSKEY)) return false;
+			// Run Boss Key Script
+			int32_t key_item = 0;
+			for (int32_t q = 0; q < MAXITEMS; ++q)
+			{
+				if (itemsbuf[q].family == itype_bosskey)
+				{
+					key_item = q; break;
+				}
+			}
+			if (key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			{
+				ri = &(itemScriptData[key_item]);
+				for (int32_t q = 0; q < 1024; q++) item_stack[key_item][q] = 0xFFFF;
+				ri->Clear();
+				item_doscript[key_item] = 1;
+				itemscriptInitialised[key_item] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				FFCore.deallocateAllArrays(SCRIPT_ITEM, (key_item));
+			}
+			setmapflag(mBOSSLOCKBLOCK);
+			remove_bosslockblocks((currscr >= 128) ? 1 : 0);
+			break;
+		}
+		default: return false;
+	}
+	
+	if(cmb.attribytes[3])
+		sfx(cmb.attribytes[3]); //opening sfx
+	return true;
+}
+
 //Forcibly triggers a combo at a given position
 void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -765,6 +811,10 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 					if(!trigger_chest(lyr,pos))
+						return;
+					break;
+				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+					if(!trigger_lockblock(lyr,pos))
 						return;
 					break;
 				

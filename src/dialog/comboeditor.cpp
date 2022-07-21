@@ -40,6 +40,7 @@ bool hasCTypeEffects(int32_t type)
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 			return true;
 	}
 	return false;
@@ -912,30 +913,59 @@ void ComboEditorDialog::loadComboType()
 				else
 					h_attribute[0] = "The amount of keys required to open this block";
 			}
-			l_flag[3] = "Counter";
-			h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
-			if(FL(cflag4))
+			if(!(FL(cflag1)&&FL(cflag2)))
 			{
-				l_attribyte[1] = "Counter:";
-				h_attribyte[1] = "The counter to use to open this block";
-				l_flag[7] = "No Drain";
-				h_flag[7] = "Requires the counter have the amount, but do not consume from it";
-				if(!FL(cflag8))
+				l_flag[3] = "Counter";
+				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
+				if(FL(cflag4))
 				{
-					l_flag[5] = "Thief";
-					h_flag[5] = "Consumes from counter even if you don't have enough";
+					l_attribyte[1] = "Counter:";
+					h_attribyte[1] = "The counter to use to open this block";
+					l_flag[7] = "No Drain";
+					h_flag[7] = "Requires the counter have the amount, but do not consume from it";
+					if(!FL(cflag8))
+					{
+						l_flag[5] = "Thief";
+						h_flag[5] = "Consumes from counter even if you don't have enough";
+					}
 				}
 			}
 		}
 		[[fallthrough]];
 		case cBOSSLOCKBLOCK:
 		{
-			l_flag[2] = "Custom Unlock Sound";
-			h_flag[2] = "Play a custom sound when unlocked";
-			if(FL(cflag3))
+			l_flag[8] = "Can't use from top";
+			h_flag[8] = "Cannot be activated standing to the top side if checked";
+			l_flag[9] = "Can't use from bottom";
+			h_flag[9] = "Cannot be activated standing to the bottom side if checked";
+			l_flag[10] = "Can't use from left";
+			h_flag[10] = "Cannot be activated standing to the left side if checked";
+			l_flag[11] = "Can't use from right";
+			h_flag[11] = "Cannot be activated standing to the right side if checked";
+			l_flag[12] = "Display prompt combo";
+			h_flag[12] = "Displays a prompt combo when able to interact\n"
+				"Must set: Combo, Xoffset, Yoffset, CSet";
+			l_attribyte[2] = "Button:";
+			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
+				"If no buttons are selected, walking into the block will trigger it.";
+			if(FL(cflag13)) //Prompt flag
 			{
-				l_attribyte[3] = "Unlock Sound:";
-				h_attribyte[3] = "The sound to play when unlocking the block";
+				l_attribute[2] = "Locked Prompt Combo";
+				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
+					" open it. If 0, the normal prompt will be used instead.";
+			}
+			l_attribyte[3] = "Unlock Sound:";
+			h_attribyte[3] = "The sound to play when unlocking the block";
+			if(FL(cflag13))
+			{
+				l_attribute[1] = "Prompt Combo";
+				h_attribute[1] = "Combo to display as a 'prompt'";
+				l_attrishort[0] = "Prompt Xoffset";
+				h_attrishort[0] = "X offset from player's position for the prompt to display at";
+				l_attrishort[1] = "Prompt Yoffset";
+				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+				l_attribyte[4] = "Prompt CSet";
+				h_attribyte[4] = "CSet to draw the prompt in";
 			}
 			break;
 		}

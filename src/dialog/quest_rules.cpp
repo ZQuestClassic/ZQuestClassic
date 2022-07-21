@@ -564,6 +564,9 @@ static const GUI::ListData compatRulesList
 		" use a defined button to open the chest (or the old behavior of walking"
 		" into the chest if set). These new features are not available if this"
 		" rule is enabled."},
+	{ "Old Lockblock Collision", qr_OLD_LOCKBLOCK_COLLISION,
+		"Lockblocks behave as they used to if disabled; otherwise they operate"
+		" similarly to chests." },
 	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM, 
 		"In older versions, weapon types with different left/right facing tiles,"
 		" such as Arrows or the Sword, had a bug where if their sprite was animated,"

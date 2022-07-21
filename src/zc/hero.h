@@ -352,8 +352,8 @@ public:
 	void checkspecial3();
 	void checkpushblock();
 	bool checksoliddamage();
-	void checkbosslockblock();
-	void checklockblock();
+	void oldcheckbosslockblock();
+	void oldchecklockblock();
 	void checkswordtap();
 	void oldcheckchest(int32_t type);
 	void checkchest(int32_t type);
