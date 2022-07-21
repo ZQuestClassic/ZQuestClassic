@@ -1201,6 +1201,24 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 	return true;
 }
 
+bool trigger_switchhookblock(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if(Hero.switchhookclk) return false;
+	mapscr* tmp = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[tmp->data[pos]];
+	switching_object = NULL;
+	hooked_combopos = pos;
+	hooked_layerbits = 0;
+	Hero.doSwitchHook(game->get_switchhookstyle());
+	if(!hooked_layerbits) //failed
+	{
+		Hero.reset_hookshot();
+		return false;
+	}
+	return true;
+}
+
 //Forcibly triggers a combo at a given position
 void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -1303,6 +1321,11 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				
 				case cSTEPSFX:
 					trigger_stepfx(lyr,pos);
+					break;
+				
+				case cSWITCHHOOK:
+					if(!trigger_switchhookblock(lyr,pos))
+						return;
 					break;
 				
 				default:

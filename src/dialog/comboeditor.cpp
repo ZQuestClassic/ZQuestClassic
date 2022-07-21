@@ -24,15 +24,12 @@ bool hasCTypeEffects(int32_t type)
 	{
 		case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 		case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
-		case cTRIGGERGENERIC:
-		case cCSWITCH:
-		case cSIGNPOST:
+		case cTRIGGERGENERIC: case cCSWITCH: case cSIGNPOST:
 		case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS: case cTALLGRASS:
 		case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
 		case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
 		case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		case cSTEP: case cSTEPSAME: case cSTEPALL:
+		case cBUSHNEXTTOUCHY: case cSTEP: case cSTEPSAME: case cSTEPALL:
 		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
 		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
 		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
@@ -44,7 +41,7 @@ bool hasCTypeEffects(int32_t type)
 		case cARMOS: case cBSGRAVE: case cGRAVE:
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-		case cSTEPSFX:
+		case cSTEPSFX: case cSWITCHHOOK:
 			return true;
 	}
 	return false;
