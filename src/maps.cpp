@@ -4075,45 +4075,32 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	else
-	for (int currscr_dx = 1; currscr_dx >= -1; currscr_dx--)
-	{
-		for (int currscr_dy = -1; currscr_dy <= 1; currscr_dy++)
+	for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
+		if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(currscr_dx, 0))) continue;
-			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, currscr_dy))) continue;
-
-			int scr = currscr + currscr_dx + currscr_dy * 16;
-			int offx = -currscr_dx * 256;
-			int offy = -currscr_dy * 176;
-			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
-			global_z3_cur_scr_drawing = scr;
-
-			if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
-			{
-				do_layer(temp_buf, 0, 3, myscr, offx, offy, 2, false, true);
-				do_layer(scrollbuf, 0, 3, myscr, offx, offy, 2);
-				
-				if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 2);
-			}
+			do_layer(temp_buf, 0, 3, myscr, -offx, -offy, 2, false, true);
+			do_layer(scrollbuf, 0, 3, myscr, -offx, -offy, 2);
 			
-			do_layer(temp_buf, 0, 4, myscr, offx, offy, 2, false, true);
-			do_layer(scrollbuf, 0, 4, myscr, offx, offy, 2);
-			//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
-			
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 3);
-
-			do_layer(temp_buf, -1, 0, myscr, offx, offy, 2);
-			do_layer(scrollbuf, -1, 0, myscr, offx, offy, 2);
-			if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
-			{
-				do_layer(temp_buf, -1, 1, myscr, offx, offy, 2);
-				do_layer(scrollbuf, -1, 1, myscr, offx, offy, 2);
-				do_layer(temp_buf, -1, 2, myscr, offx, offy, 2);
-				do_layer(scrollbuf, -1, 2, myscr, offx, offy, 2);
-			}
+			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 2);
 		}
-	}
-	global_z3_cur_scr_drawing = -1;
+		
+		do_layer(temp_buf, 0, 4, myscr, -offx, -offy, 2, false, true);
+		do_layer(scrollbuf, 0, 4, myscr, -offx, -offy, 2);
+		//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
+		
+		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 3);
+
+		do_layer(temp_buf, -1, 0, myscr, -offx, -offy, 2);
+		do_layer(scrollbuf, -1, 0, myscr, -offx, -offy, 2);
+		if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
+		{
+			do_layer(temp_buf, -1, 1, myscr, -offx, -offy, 2);
+			do_layer(scrollbuf, -1, 1, myscr, -offx, -offy, 2);
+			do_layer(temp_buf, -1, 2, myscr, -offx, -offy, 2);
+			do_layer(scrollbuf, -1, 2, myscr, -offx, -offy, 2);
+		}
+	});
+	
 	rectfill(temp_buf, 0, 0, 256, playing_field_offset, 0);
 	
 	particles.draw(temp_buf, true, -1);
@@ -4206,31 +4193,18 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		particles.draw(temp_buf, true, 5);
 	}
 	else
-	for (int currscr_dx = 1; currscr_dx >= -1; currscr_dx--)
-	{
-		for (int currscr_dy = -1; currscr_dy <= 1; currscr_dy++)
-		{
-			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(currscr_dx, 0))) continue;
-			if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, currscr_dy))) continue;
-
-			int scr = currscr + currscr_dx + currscr_dy * 16;
-			global_z3_cur_scr_drawing = scr;
-			int offx = -currscr_dx * 256;
-			int offy = -currscr_dy * 176;
-			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
-			do_layer(temp_buf, 0, 5, myscr, offx, offy, 2, false, true);
-			do_layer(scrollbuf, 0, 5, myscr, offx, offy, 2);
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 4);
-			// overhead freeform combos!
-			do_layer(temp_buf, -4, 0, myscr, offx, offy, 2);
-			do_layer(scrollbuf, -4, 0, myscr, offx, offy, 2);
-			// ---
-			do_layer(temp_buf, 0, 6, this_screen, offx, offy, 2, false, true);
-			do_layer(scrollbuf, 0, 6, this_screen, offx, offy, 2);
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 5);
-		}
-	}
-	global_z3_cur_scr_drawing = -1;
+	for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
+		do_layer(temp_buf, 0, 5, myscr, -offx, -offy, 2, false, true);
+		do_layer(scrollbuf, 0, 5, myscr, -offx, -offy, 2);
+		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 4);
+		// overhead freeform combos!
+		do_layer(temp_buf, -4, 0, myscr, -offx, -offy, 2);
+		do_layer(scrollbuf, -4, 0, myscr, -offx, -offy, 2);
+		// ---
+		do_layer(temp_buf, 0, 6, this_screen, -offx, -offy, 2, false, true);
+		do_layer(scrollbuf, 0, 6, this_screen, -offx, -offy, 2);
+		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 5);
+	});
 	
 	//10. Blit temp_buf onto framebuf with clipping
 	
