@@ -23578,7 +23578,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	}
 }
 
-void for_every_nearby_screen(const std::function <void (mapscr*, int, int)>& fn)
+static void for_every_nearby_screen(const std::function <void (mapscr*, int, int)>& fn)
 {
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
