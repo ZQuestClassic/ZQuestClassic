@@ -1345,15 +1345,18 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			sfx(tmpscr->secretsfx);
 		}
 		
-		if(cmb.triggerflags[0]&combotriggerNEXT)
+		if(cmb.trigchange)
 		{
 			used_bit = true;
-			tmp->data[pos] = cid+1;
+			tmp->data[pos] = cid+cmb.trigchange;
 		}
-		else if(cmb.triggerflags[0]&combotriggerPREV)
+		
+		if(cmb.triggerflags[0] & combotriggerRESETANIM)
 		{
-			used_bit = true;
-			tmp->data[pos] = cid-1;
+			newcombo& rcmb = combobuf[tmp->data[pos]];
+            rcmb.tile = rcmb.o_tile;
+			rcmb.cur_frame=0;
+			rcmb.aclk = 0;
 		}
 		
 		if(cmb.trigsfx)
@@ -1391,17 +1394,14 @@ void update_combo_timers()
 				timer.data = scr->data[pos];
 				timer.clk = 0;
 			}
-			else
+			newcombo const& cmb = combobuf[timer.data];
+			if(cmb.trigtimer)
 			{
-				newcombo const& cmb = combobuf[timer.data];
-				if(cmb.trigtimer)
+				if(++timer.clk >= cmb.trigtimer)
 				{
-					if(++timer.clk >= cmb.trigtimer)
-					{
-						timer.clk = 0;
-						do_trigger_combo(lyr, pos);
-						timer.data = scr->data[pos];
-					}
+					timer.clk = 0;
+					do_trigger_combo(lyr, pos);
+					timer.data = scr->data[pos];
 				}
 			}
 		}

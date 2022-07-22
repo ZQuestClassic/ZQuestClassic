@@ -17387,6 +17387,22 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 					temp_combo.usrflags |= cflag3;
 			}
 		}
+		if(section_version >= 27)
+		{
+			if(!p_igetl(&temp_combo.trigchange,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			if(temp_combo.triggerflags[0] & 0x00040000) //'next'
+				temp_combo.trigchange = 1;
+			else if(temp_combo.triggerflags[0] & 0x00080000) //'prev'
+				temp_combo.trigchange = -1;
+			else temp_combo.trigchange = 0;
+			temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
+		}
 		
 		if(section_version>=12) //combo label
 		{

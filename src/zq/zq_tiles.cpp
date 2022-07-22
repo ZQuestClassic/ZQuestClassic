@@ -17148,6 +17148,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].triggeritem = combo.triggeritem;
 			combobuf[i].trigtimer = combo.trigtimer;
 			combobuf[i].trigsfx = combo.trigsfx;
+			combobuf[i].trigchange = combo.trigchange;
 		}
 		
 		if(advpaste_dlg[15].flags & D_SELECTED)   // script
@@ -18935,6 +18936,41 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite)
 						return 0;
 					}
 				}
+				else
+				{
+					switch(temp_combo.type)
+					{
+						case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+							if(!(temp_combo.usrflags & cflag3))
+								temp_combo.attribytes[3] = WAV_DOOR;
+							temp_combo.usrflags &= ~cflag3;
+							break;
+					}
+				}
+				if(section_version < 26)
+				{
+					if(temp_combo.type == cARMOS)
+					{
+						if(temp_combo.usrflags & cflag1)
+							temp_combo.usrflags |= cflag3;
+					}
+				}
+				if(section_version >= 27)
+				{
+					if(!p_igetl(&temp_combo.trigchange,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					if(temp_combo.triggerflags[0] & 0x00040000) //'next'
+						temp_combo.trigchange = 1;
+					else if(temp_combo.triggerflags[0] & 0x00080000) //'prev'
+						temp_combo.trigchange = -1;
+					else temp_combo.trigchange = 0;
+					temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
+				}
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
@@ -19181,6 +19217,41 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 						return 0;
 					}
 				}
+				else
+				{
+					switch(temp_combo.type)
+					{
+						case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+							if(!(temp_combo.usrflags & cflag3))
+								temp_combo.attribytes[3] = WAV_DOOR;
+							temp_combo.usrflags &= ~cflag3;
+							break;
+					}
+				}
+				if(section_version < 26)
+				{
+					if(temp_combo.type == cARMOS)
+					{
+						if(temp_combo.usrflags & cflag1)
+							temp_combo.usrflags |= cflag3;
+					}
+				}
+				if(section_version >= 27)
+				{
+					if(!p_igetl(&temp_combo.trigchange,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					if(temp_combo.triggerflags[0] & 0x00040000) //'next'
+						temp_combo.trigchange = 1;
+					else if(temp_combo.triggerflags[0] & 0x00080000) //'prev'
+						temp_combo.trigchange = -1;
+					else temp_combo.trigchange = 0;
+					temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
+				}
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
@@ -19375,6 +19446,10 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 			return 0;
 		}
 		if(!p_putc(combobuf[index+(tilect)].trigsfx,f))
+		{
+			return 0;
+		}
+		if(!p_iputl(combobuf[index+(tilect)].trigchange,f))
 		{
 			return 0;
 		}

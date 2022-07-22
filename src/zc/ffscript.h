@@ -4775,8 +4775,12 @@ enum ASM_DEFINE
 #define STACKSIZE               0x145B
 #define STACKFULL               0x145C
 #define ITEMFORCEGRAB           0x145D
+#define COMBODTRIGGERITEM       0x145E
+#define COMBODTRIGGERTIMER      0x145F
+#define COMBODTRIGGERSFX        0x1460
+#define COMBODTRIGGERCHANGECMB  0x1461
 
-#define NUMVARIABLES         	0x145E
+#define NUMVARIABLES         	0x1462
 
 //} End variables
 

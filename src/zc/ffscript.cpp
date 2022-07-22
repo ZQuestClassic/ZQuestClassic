@@ -10902,6 +10902,46 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case COMBODTRIGGERITEM:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerItem");
+			}
+			else ret = (combobuf[ri->combosref].triggeritem) * 10000;
+			break;
+		}
+		case COMBODTRIGGERTIMER:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
+			}
+			else ret = (combobuf[ri->combosref].trigtimer) * 10000;
+			break;
+		}
+		case COMBODTRIGGERSFX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerSFX");
+			}
+			else ret = (combobuf[ri->combosref].trigsfx) * 10000;
+			break;
+		}
+		case COMBODTRIGGERCHANGECMB:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
+			}
+			else ret = (combobuf[ri->combosref].trigchange) * 10000;
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
@@ -20328,6 +20368,42 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				SETFLAG(combobuf[ri->combosref].triggerbtn,1<<indx,value);
 			}
+			break;
+		}
+		case COMBODTRIGGERITEM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerItem");
+			}
+			else combobuf[ri->combosref].triggeritem = vbound(value/10000,0,255);
+			break;
+		}
+		case COMBODTRIGGERTIMER:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
+			}
+			else combobuf[ri->combosref].trigtimer = vbound(value/10000,0,255);
+			break;
+		}
+		case COMBODTRIGGERSFX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerSFX");
+			}
+			else combobuf[ri->combosref].trigsfx = vbound(value/10000,0,255);
+			break;
+		}
+		case COMBODTRIGGERCHANGECMB:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
+			}
+			else combobuf[ri->combosref].trigchange = vbound(value/10000,-65535,65535);
 			break;
 		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -37382,6 +37458,10 @@ script_variable ZASMVars[]=
 	{ "STACKSIZE", STACKSIZE, 0, 0 },
 	{ "STACKFULL", STACKFULL, 0, 0 },
 	{ "ITEMFORCEGRAB", ITEMFORCEGRAB, 0, 0 },
+	{ "COMBODTRIGGERITEM", COMBODTRIGGERITEM, 0, 0 },
+	{ "COMBODTRIGGERTIMER", COMBODTRIGGERTIMER, 0, 0 },
+	{ "COMBODTRIGGERSFX", COMBODTRIGGERSFX, 0, 0 },
+	{ "COMBODTRIGGERCHANGECMB", COMBODTRIGGERCHANGECMB, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

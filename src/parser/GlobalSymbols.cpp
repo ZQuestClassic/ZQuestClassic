@@ -10278,6 +10278,18 @@ static AccessorTable CombosTable[] =
 	{ "setGenFlags[]",            ZVARTYPEID_VOID,          SETTER,       COMBODGENFLAGARR,             2,             0,                                    3,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getTriggerLevel",          ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERLEVEL,           1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTriggerLevel",          ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERLEVEL,           1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerItem",           ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERITEM,            1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerItem",           ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERITEM,            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerTimer",          ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERTIMER,           1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerTimer",          ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERTIMER,           1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerSFX",            ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERSFX,             1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerSFX",            ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERSFX,             1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerChange",         ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERCHANGECMB,       1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerChange",         ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERCHANGECMB,       1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	
+	
+	
+	
 //	comboclass struct
 //	"Name" -> Needs to be a function, GetName(int32_t string[])
 	{ "getBlockNPC",              ZVARTYPEID_FLOAT,         GETTER,       COMBODBLOCKNPC,               1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },

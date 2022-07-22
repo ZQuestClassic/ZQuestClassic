@@ -1400,8 +1400,12 @@
 #define STACKSIZE               1317
 #define STACKFULL               1318
 #define ITEMFORCEGRAB           1319
+#define COMBODTRIGGERITEM       1320
+#define COMBODTRIGGERTIMER      1321
+#define COMBODTRIGGERSFX        1322
+#define COMBODTRIGGERCHANGECMB  1323
 
-#define LAST_BYTECODE           1320
+#define LAST_BYTECODE           1324
 
 //} END OF BYTECODE
 
