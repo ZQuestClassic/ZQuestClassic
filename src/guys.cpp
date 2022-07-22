@@ -16919,35 +16919,34 @@ bool eManhandla::animate(int32_t index)
 	// check arm status, move dead ones to end of group
 	for(int32_t i=0; i<armcnt; i++)
 	{
-		if(!adjusted)
-		{
-			if(!dmisc2)
-			{
-				((enemy*)guys.spr(index+i+1))->o_tile=o_tile+40;
-		enemy *s = ((enemy*)guys.spr(index+i+1));
-		s->parent_script_UID = this->script_UID;
-			}
-			else
-			{
-				((enemy*)guys.spr(index+i+1))->o_tile=o_tile+160;
-		enemy *s = ((enemy*)guys.spr(index+i+1));
-		s->parent_script_UID = this->script_UID;
-			}
-		}
-		
-		if(((enemy*)guys.spr(index+i+1))->dying)
+		enemy* cur_arm = ((enemy*)guys.spr(index+i+1));
+		if(!cur_arm || cur_arm->dying)
 		{
 			for(int32_t j=i; j<armcnt-1; j++)
 			{
 				zc_swap(arm[j],arm[j+1]);
 				guys.swap(index+j+1,index+j+2);
-				
 			}
 			if((editorflags & ENEMY_FLAG6)) //They only did this in 2.10
-		{
+			{
 				leave_item();
-		}
+			}
 			--armcnt;
+			--i;
+			continue;
+		}
+		if(!adjusted)
+		{
+			if(!dmisc2)
+			{
+				cur_arm->o_tile=o_tile+40;
+				cur_arm->parent_script_UID = this->script_UID;
+			}
+			else
+			{
+				cur_arm->o_tile=o_tile+160;
+				cur_arm->parent_script_UID = this->script_UID;
+			}
 		}
 	}
 	
