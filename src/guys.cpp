@@ -2869,22 +2869,24 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 		if(dx < 0)
 		{
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
+			int32_t tx = (bx+dx).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(bx+dx, by+ty, special, left, bx+dx, by, kb))
+				if(scr_walkflag(tx, by+ty, special, left, tx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(bx+dx, ry, special, left, bx+dx, by, kb))
+			if(scr_walkflag(tx, ry, special, left, tx, by, kb))
 				return false;
 		}
 		else
 		{
+			int32_t tx = (rx+dx).getCeil();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(rx+dx, by+ty, special, right, bx+dx, by, kb))
+				if(scr_walkflag(tx, by+ty, special, right, tx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(rx+dx, ry, special, right, bx+dx, by, kb))
+			if(scr_walkflag(tx, ry, special, right, tx, by, kb))
 				return false;
 		}
 	}
@@ -2893,28 +2895,29 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 		if(dy < 0)
 		{
 			special = (special==spw_clipbottomright)?spw_none:special;
+			int32_t ty = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, by+dy, special, up, bx, by+dy, kb))
+				if(scr_walkflag(bx+tx, ty, special, up, bx, ty, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, by+dy, special, up, bx, by+dy, kb))
+			if(scr_walkflag(rx, ty, special, up, bx, ty, kb))
 				return false;
 		}
 		else
 		{
+			int32_t ty = (ry+dy).getCeil();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ry+dy, special, down, bx, by+dy, kb))
+				if(scr_walkflag(bx+tx, ty, special, down, bx, ty, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ry+dy, special, down, bx, by+dy, kb))
+			if(scr_walkflag(rx, ty, special, down, bx, ty, kb))
 				return false;
 		}
 	}
 	else
 	{
-		//!No diagonal checks.... this is a placeholder that might work?
 		return scr_canmove(dx, 0, special, kb) && scr_canmove(dy, 0, special, kb);
 	}
 	return true;
@@ -2954,52 +2957,27 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 	{
 		if(abs(dx) > abs(dy))
 		{
-			if(dx < 0)
-			{
-				if(movexy(-8, 0, special, kb))
-					dx += 8;
-				else
-				{
-					dx = -8;
-					ret = false;
-				}
-			}
+			int32_t tdx = dx.sign() * 8;
+			if(movexy(tdx, 0, special, kb))
+				dx -= tdx;
 			else
 			{
-				if(movexy(8, 0, special, kb))
-					dx -= 8;
-				else
-				{
-					dx = 8;
-					ret = false;
-				}
+				dx = tdx;
+				ret = false;
 			}
 		}
 		else
 		{
-			if(dy < 0)
-			{
-				if(movexy(0, -8, special, kb))
-					dy += 8;
-				else
-				{
-					dy = -8;
-					ret = false;
-				}
-			}
+			int32_t tdy = dy.sign() * 8;
+			if(movexy(0, tdy, special, kb))
+				dy -= tdy;
 			else
 			{
-				if(movexy(0, 8, special, kb))
-					dy -= 8;
-				else
-				{
-					dy = 8;
-					ret = false;
-				}
+				dy = tdy;
+				ret = false;
 			}
 		}
 	}
-	
 	if(dx)
 	{
 		if(scr_canmove(dx, 0, special, kb))
@@ -3007,34 +2985,17 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 		else
 		{
 			ret = false;
-			x.doTrunc();
-			dx.doTrunc();
-			if(scr_canmove(dx/abs(dx), 0, special, kb)) //can move at all in the direction
+			int32_t xsign = dx.sign();
+			while(scr_canmove(xsign, 0, special, kb))
 			{
-				if(dx < 0)
-				{
-					while(dx < 0)
-					{
-						if(scr_canmove(dx, 0, special, kb))
-						{
-							x += dx;
-							break;
-						}
-						++dx;
-					}
-				}
-				else
-				{
-					while(dx > 0)
-					{
-						if(scr_canmove(dx, 0, special, kb))
-						{
-							x += dx;
-							break;
-						}
-						--dx;
-					}
-				}
+				x += xsign;
+				dx -= xsign;
+			}
+			if(scr_canmove(dx.decsign(), 0, special, kb)) //can move 0.0001 to 0.9999 px in this direction
+			{
+				if(dx > 0)
+					x.doCeil();
+				else x.doFloor();
 			}
 		}
 	}
@@ -3045,34 +3006,17 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 		else
 		{
 			ret = false;
-			y.doTrunc();
-			dy.doTrunc();
-			if(scr_canmove(0, dy/abs(dy), special, kb)) //can move at all in the direction
+			int32_t ysign = dy.sign();
+			while(scr_canmove(0, ysign, special, kb))
 			{
-				if(dy < 0)
-				{
-					while(dy < 0)
-					{
-						if(scr_canmove(0, dy, special, kb))
-						{
-							y += dy;
-							break;
-						}
-						++dy;
-					}
-				}
-				else
-				{
-					while(dy > 0)
-					{
-						if(scr_canmove(0, dy, special, kb))
-						{
-							y += dy;
-							break;
-						}
-						--dy;
-					}
-				}
+				y += ysign;
+				dy -= ysign;
+			}
+			if(scr_canmove(0, dy.decsign(), special, kb)) //can move 0.0001 to 0.9999 px in this direction
+			{
+				if(dy > 0)
+					y.doCeil();
+				else y.doFloor();
 			}
 		}
 	}
