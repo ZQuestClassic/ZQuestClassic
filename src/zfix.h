@@ -58,7 +58,18 @@ class zfix
 {
 public:
 	ZLong val;
-
+	
+	int32_t sign() const
+	{
+		if(val < 0) return -1;
+		if(val > 0) return 1;
+		return 0;
+	}
+	zfix decsign() const
+	{
+		return zslongToFix(sign());
+	}
+	
 	int32_t getInt() const
 	{
 		return val/10000L + zfixvbound((val%10000L)/5000L, (val < 0 ? -1 : 0),(val<0 ? 0 : 1));
@@ -78,26 +89,47 @@ public:
 	
 	
 	
-	zfix& doFloor()
-	{
-		val = (val / 10000) * 10000;
-		return *this;
-	}
 	int32_t getFloor() const
 	{
-		return val / 10000L;
+		int32_t v = val/10000L;
+		if(val%10000 && val < 0) --v;
+		return v;
 	}
-	
-	zfix& doRound()
+	zfix& doFloor()
 	{
-		if ((val % 10000) >= 5000) val = ((val / 10000)+1) * 10000;
-		else val = (val / 10000) * 10000;
+		val = getFloor() * 10000;
 		return *this;
 	}
+	int32_t getCeil() const
+	{
+		int32_t v = val/10000L;
+		if(val%10000 && val > 0) ++v;
+		return v;
+	}
+	zfix& doCeil()
+	{
+		val = getCeil() * 10000;
+		return *this;
+	}
+	
 	int32_t getRound() const
 	{
-		if ((val % 10000) >= 5000) return ((val / 10000)+1);
-		else return (val / 10000);
+		int32_t dpart = val%10000;
+		int32_t v = val/10000;
+		if(val < 0)
+		{
+			if(dpart <= -5000) --v;
+		}
+		else
+		{
+			if(dpart >= 5000) ++v;
+		}
+		return v;
+	}
+	zfix& doRound()
+	{
+		val = getRound() * 10000;
+		return *this;
 	}
 	
 	zfix& doAbs()
@@ -106,15 +138,30 @@ public:
 		return *this;
 	}
 	
-	zfix& doTrunc()
-	{
-		val /= 10000;
-		val *= 10000;
-		return *this;
-	}
+	
 	int32_t getTrunc() const
 	{
 		return val/10000;
+	}
+	zfix& doTrunc()
+	{
+		val = getTrunc() * 10000;
+		return *this;
+	}
+	
+	int32_t getRoundAway() const
+	{
+		int32_t v = val/10000;
+		if(val%10000)
+		{
+			v += sign();
+		}
+		return v;
+	}
+	zfix& doRoundAway()
+	{
+		val = getRoundAway() * 10000;
+		return *this;
 	}
 public:
 	
