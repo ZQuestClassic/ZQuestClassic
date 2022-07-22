@@ -3311,6 +3311,9 @@ item* get_subscreenitem(int32_t itemtype)
 
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
+    x += global_viewport_x;
+    y += global_viewport_y;
+    
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
     int32_t overridecheck = 0xFFFF;
     
