@@ -10,7 +10,9 @@
 
 #ifndef _MAPS_H_
 #define _MAPS_H_
+
 #include "base/zdefs.h"
+#include <functional>
 
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 int32_t COMBOPOS(int32_t x, int32_t y);
@@ -171,6 +173,8 @@ extern int32_t mapres;
 bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
+
+void for_every_screen_in_region(const std::function <void (mapscr*, unsigned int, unsigned int)>& fn);
 
 //extern bool FuckIAlreadyDrewThatAlready[ 7 ];
 #endif

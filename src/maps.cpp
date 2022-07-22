@@ -3658,6 +3658,31 @@ int z3_get_z3scr_dy()
 	return currscr / 16 - z3_currscr / 16;
 }
 
+static bool is_in_region(int scr)
+{
+	// TODO z3
+	return scr < 128;
+}
+
+void for_every_screen_in_region(const std::function <void (mapscr*, unsigned int, unsigned int)>& fn)
+{
+	int z3_scr_x = z3_currscr % 16;
+	int z3_scr_y = z3_currscr / 16;
+
+	for (int scr = 0; scr < 128; scr++)
+	{
+		if (is_in_region(scr))
+		{
+			int scr_x = z3_scr_x + scr % 16;
+			int scr_y = z3_scr_y + scr / 16;
+			unsigned int z3_scr_dx = scr_x - z3_scr_x;
+			unsigned int z3_scr_dy = scr_y - z3_scr_y;
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS + scr];
+			fn(myscr, z3_scr_dx, z3_scr_dy);
+		}
+	}
+}
+
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int, int)>& fn)
 {
 	int currscr_x = currscr % 16;
@@ -3678,7 +3703,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			}
 
 			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
-			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+			mapscr* myscr = &TheMaps[currmap*MAPSCRS + scr];
 			int offx = (currscr_dx + z3_get_z3scr_dx()) * 256;
 			int offy = (currscr_dy + z3_get_z3scr_dy()) * 176;
 			fn(myscr, currscr_dx, currscr_dy, offx, offy);
