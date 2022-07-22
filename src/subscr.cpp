@@ -4073,8 +4073,9 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						clear_bitmap(tmpbmp);
 						if(p!=-1)
 						{
-							tempsel->x=0;
-							tempsel->y=0;
+							// TODO z3
+							tempsel->x=global_viewport_x;
+							tempsel->y=global_viewport_y;
 							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
 							int32_t tmpy = css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
 							tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);

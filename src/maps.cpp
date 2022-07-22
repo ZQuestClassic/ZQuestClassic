@@ -79,7 +79,7 @@ int32_t mapind(int32_t map, int32_t scr)
 	return (map<<7)+scr;
 }
 
-// TODO z3
+// TODO z3 checklist
 // fix warp bug when going into castle armg quest
 // fix warp bug when OUCH building doing nothing
 // screen secrets (blow up the cave wall)
