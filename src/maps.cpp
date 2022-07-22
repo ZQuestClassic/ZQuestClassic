@@ -3735,11 +3735,11 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if (global_z3_scrolling)
 	{
 		// TODO z3 figure out region shit
-		global_viewport_x = CLAMP(0, 16*256, Hero.getX().getTrunc() - 256/2);
-		global_viewport_y = CLAMP(0, 8*176, Hero.getY().getTrunc() - 176/2);
+		global_viewport_x = CLAMP(0, 16*256, Hero.getX() - 256/2);
+		global_viewport_y = CLAMP(0, 8*176, Hero.getY() - 176/2);
 
-		int dx = Hero.getX().getTrunc() / 256;
-		int dy = Hero.getY().getTrunc() / 176;
+		int dx = Hero.getX().getFloor() / 256;
+		int dy = Hero.getY().getFloor() / 176;
 		if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16)
 		{
 			currscr = z3_currscr + dx + dy * 16;
