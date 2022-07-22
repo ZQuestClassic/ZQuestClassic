@@ -537,6 +537,7 @@ if(WIN32)
 	set_source_files_properties(
 		src/dialog/itemeditor.cpp
 		src/dialog/init_data.cpp
+		src/dialog/comboeditor.cpp
 		src/parser/GlobalSymbols.cpp
 		PROPERTIES COMPILE_FLAGS "/bigobj"
 	)
