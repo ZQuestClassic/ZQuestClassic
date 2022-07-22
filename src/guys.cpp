@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "guys.h"
+#include "maps.h"
 #include "zelda.h"
 #include "base/zsys.h"
 #include "maps.h"
@@ -49,8 +50,6 @@ char *guy_string[eMAXGUYS];
 void never_return(int32_t index);
 void playLevelMusic();
 
-// If an enemy is this far out of the playing field, just remove it.
-#define OUTOFBOUNDS ((int32_t)y>((isSideViewGravity() && canfall(id))?192:352) || y<-176 || x<-256 || x > 512)
 //#define NEWOUTOFBOUNDS ((int32_t)y>32767 || y<-32767 || x<-32767 || x > 32767)
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 #define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)
@@ -64,6 +63,21 @@ void do_fix(zfix& coord, int32_t val, bool nearest_half = false)
 	}
 	c -= c % val;
 	coord = c;
+}
+
+// If an enemy is this far out of the playing field, just remove it.
+bool OUTOFBOUNDS(int32_t id, zfix x, zfix y, zfix z)
+{
+	// TODO z3 region shit
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
+
+	// TODO z3
+	if ((int32_t)y > h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
+	if (y < -176) return true;
+	if (x < -256) return true;
+	if (x > w+256) return true;
+	return false;
 }
 
 bool NEWOUTOFBOUNDS(zfix x, zfix y, zfix z)
@@ -2731,6 +2745,9 @@ bool enemy::is_move_paused()
 
 bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
 {
+	// TODO z3
+	int active_scr = global_z3_cur_scr_drawing == -1 ? currscr : global_z3_cur_scr_drawing;
+
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
@@ -2775,13 +2792,29 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	if(!cansolid && groundblocked(dx,dy,kb)) return true;
 	
+	// TODO: could this reuse _walkflag?
 	//_walkflag code
-	mapscr *s1, *s2;
-	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
-	s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:NULL;
+	mapscr *s0, *s1, *s2;
+	if (global_z3_scrolling)
+	{
+		mapscr* z3scr = z3_get_scr_for_xy_offset(dx, dy);
+		s0 = z3scr;
+		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
+		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;
+		if (!s1 || !s1->valid) s1 = z3scr;
+		if (!s2 || !s2->valid) s2 = z3scr;
+		dx %= 256;
+		dy %= 176;
+	}
+	else
+	{
+		s0=tmpscr;
+		s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
+		s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:NULL;
+	}
 	
 	int32_t cpos=(dx>>4)+(dy&0xF0);
-	int32_t ci = tmpscr->data[cpos], ci1 = (s1?s1:tmpscr)->data[cpos], ci2 = (s2?s2:tmpscr)->data[cpos];
+	int32_t ci = s0->data[cpos], ci1 = (s1?s1:s0)->data[cpos], ci2 = (s2?s2:s0)->data[cpos];
 	newcombo c = combobuf[ci];
 	newcombo c1 = combobuf[ci1];
 	newcombo c2 = combobuf[ci2];
@@ -2792,9 +2825,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	#define iwtr(cmb, x, y, shallow) \
 		(shallow \
-			? iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, true, false) \
-				&& !iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false) \
-			: iswaterex(cmb, currmap, currscr, -1, dx, dy, false, false, false, false, false))
+			? iswaterex(cmb, currmap, active_scr, -1, dx, dy, false, false, false, true, false) \
+				&& !iswaterex(cmb, currmap, active_scr, -1, dx, dy, false, false, false, false, false) \
+			: iswaterex(cmb, currmap, active_scr, -1, dx, dy, false, false, false, false, false))
 	bool wtr = iwtr(ci, dx, dy, false);
 	bool shwtr = iwtr(ci, dx, dy, true);
 	bool pit = ispitfall(dx,dy);
@@ -3288,7 +3321,7 @@ bool enemy::animate(int32_t index)
 	{
 	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
 	}
-	else if ( (OUTOFBOUNDS) )
+	else if (OUTOFBOUNDS(id, x, y, z))
 	{
 		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
 	}
@@ -6517,19 +6550,23 @@ void enemy::fix_coords(bool bound)
 	
 	if(bound)
 	{
+		// TODO z3 region shit
+		int w = global_z3_scrolling ? 256*16 : 256;
+		int h = global_z3_scrolling ? 176*8  : 176;
+
 		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
-		x=vbound(x, 0, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256-((txsz-1)*16)) : 240));
-		y=vbound(y, 0,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176-((txsz-1)*16)) : 160));
+			x=vbound(x, 0, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (w-((txsz-1)*16)) : w-16));
+			y=vbound(y, 0,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (h-((txsz-1)*16)) : h-16));
 		}
 		else
 		{
-		   x=vbound(x, 0,240); 
-			y=vbound(y, 0,160);
+		    x=vbound(x, 0, w-16); 
+			y=vbound(y, 0, h-16);
 		}
 	}
 	
-	if(!OUTOFBOUNDS)
+	if(!OUTOFBOUNDS(id, x, y, z))
 	{
 		/*x=((int32_t(x)&0xF0)+((int32_t(x)&8)?16:0));
 		
@@ -7388,6 +7425,10 @@ bool enemy::fslide()
 		sclk=0;
 		return false;
 	}
+
+	// TODO z3 region shit
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
 	
 	--sclk;
 	
@@ -7403,7 +7444,7 @@ bool enemy::fslide()
 		break;
 		
 	case down:
-		if(y>=160)
+		if(y>=h-16)
 		{
 			sclk=0;
 			return false;
@@ -7421,7 +7462,7 @@ bool enemy::fslide()
 		break;
 		
 	case right:
-		if(x>=240)
+		if(x>=w-16)
 		{
 			sclk=0;
 			return false;
@@ -21013,18 +21054,18 @@ void activate_fireball_statues()
 	}
 }
 
-void load_default_enemies()
+void load_default_enemies(mapscr* scr)
 {
 	wallm_load_clk=frame-80;
 	int32_t Id=0;
 	
-	if(tmpscr->enemyflags&efZORA)
+	if(scr->enemyflags&efZORA)
 	{
 		if(zoraID>=0)
 			addenemy(-16, -16, zoraID, 0);
 	}
 	
-	if(tmpscr->enemyflags&efTRAP4)
+	if(scr->enemyflags&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
@@ -21076,12 +21117,12 @@ void load_default_enemies()
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
-				awaken_spinning_tile(tmpscr,COMBOPOS(x,y));
+				awaken_spinning_tile(scr,COMBOPOS(x,y));
 			}
 		}
 	}
 	
-	if(tmpscr->enemyflags&efTRAP2)
+	if(scr->enemyflags&efTRAP2)
 	{
 		if(centerTrapID>=-1)
 		{
@@ -21093,7 +21134,7 @@ void load_default_enemies()
 		}
 	}
 	
-	if(tmpscr->enemyflags&efROCKS)
+	if(scr->enemyflags&efROCKS)
 	{
 		if(rockID>=0)
 		{
@@ -21329,7 +21370,7 @@ void side_load_enemies()
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies();
+		load_default_enemies(tmpscr);
 		
 		for(int32_t i=0; i<6; i++)
 			if(visited[i]==s)
@@ -21525,8 +21566,11 @@ int32_t placeenemy(int32_t i)
 	return -1;
 }
 
-void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& guycnt, int& loadcnt)
+// TODO z3 rename to 'screen' everywhere
+void spawnEnemy(mapscr* screen, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
 {
+	int x = 0;
+	int y = 0;
 	bool placed=false;
 	int32_t t=-1;
 	
@@ -21535,20 +21579,22 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 	{
 		for(int32_t sx=0; sx<256; sx+=16)
 		{
-			int32_t cflag = MAPFLAG(sx, sy);
-			int32_t cflag_i = MAPCOMBOFLAG(sx, sy);
+			x = offx + sx;
+			y = offy + sy;
+			int32_t cflag = MAPFLAG(x, y);
+			int32_t cflag_i = MAPCOMBOFLAG(x, y);
 			
 			if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
 			{
-				if(!ok2add(tmpscr->enemy[i]))
+				if(!ok2add(screen->enemy[i]))
 				{
-					if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+					if (loadcnt < 10 && screen->enemy[i] > 0 && screen->enemy[i] < MAXGUYS) ++loadcnt;
 				}
 				else
 				{
-					addenemy(sx,
-					 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
-					 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+					addenemy(x,
+					 (is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+					 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],-15);
 					
 					++guycnt;
 						
@@ -21559,15 +21605,15 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 			
 			else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
 			{
-				if(!ok2add(tmpscr->enemy[i]))
+				if(!ok2add(screen->enemy[i]))
 				{
-					if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+					if (loadcnt < 10 && screen->enemy[i] > 0 && screen->enemy[i] < MAXGUYS) ++loadcnt;
 				}
 				else
 				{
-					addenemy(sx,
-					 (is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : sy,
-					 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],-15);
+					addenemy(x,
+					 (is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+					 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],-15);
 					
 					++guycnt;
 						
@@ -21579,15 +21625,15 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 	}
 	
 	// Next: enemy pattern
-	if((tmpscr->pattern==pRANDOM || tmpscr->pattern==pCEILING) && !(isSideViewGravity()) && ((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS)))
+	if((screen->pattern==pRANDOM || screen->pattern==pCEILING) && !(isSideViewGravity()) && ((screen->enemy[i]>0&&screen->enemy[i]<MAXGUYS)))
 	{
 		do
 		{
 
 			// NES positions
 			pos%=9;
-			x=stx[loadside][pos];
-			y=sty[loadside][pos];
+			x=offx+stx[loadside][pos];
+			y=offy+sty[loadside][pos];
 			++pos;
 			++t;
 		}
@@ -21603,6 +21649,8 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 		{
 			x=(randpos&15)<<4;
 			y= randpos&0xF0;
+			x += offx;
+			y += offy;
 		}
 		else // All opportunities failed - abort
 		{
@@ -21614,32 +21662,32 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 		int32_t c=0;
 		c=clk;
 		
-		if(!slowguy(tmpscr->enemy[i]))
+		if(!slowguy(screen->enemy[i]))
 			++fastguys;
 		else if(fastguys>0)
 			c=-15*(i-fastguys+2);
 		else
 			c=-15*(i+1);
 			
-		if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+		if(BSZ&&((screen->enemy[i]>0&&screen->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 		{
 			// Special case for blue leevers
-			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
+			if(guysbuf[screen->enemy[i]].family==eeLEV && guysbuf[screen->enemy[i]].misc1==1)
 				c=-15*(i+1);
 			else
 				c=-15;
 		}
 		
-		if(!ok2add(tmpscr->enemy[i]))
+		if(!ok2add(screen->enemy[i]))
 		{
-			if (loadcnt < 10 && tmpscr->enemy[i] > 0 && tmpscr->enemy[i] < MAXGUYS) ++loadcnt;
+			if (loadcnt < 10 && screen->enemy[i] > 0 && screen->enemy[i] < MAXGUYS) ++loadcnt;
 		}
 		else
 		{
-			if(((tmpscr->enemy[i]>0||tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
+			if(((screen->enemy[i]>0||screen->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 			{
-				addenemy(x,(is_ceiling_pattern(tmpscr->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
-				 (is_ceiling_pattern(tmpscr->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,tmpscr->enemy[i],c);
+				addenemy(x,(is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+				 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],c);
 				
 				++guycnt;
 			}
@@ -21658,14 +21706,14 @@ placed_enemy:
 	
 	if(placed)
 	{
-		if(i==0 && tmpscr->enemyflags&efLEADER)
+		if(i==0 && screen->enemyflags&efLEADER)
 		{
-			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
+			int32_t index = guys.idFirst(screen->enemy[i],0xFFF);
 			
 			if(index!=-1)
 			{
 				//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
-				if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(tmpscr->enemy[i], 2, 0xFFF); 
+				if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(screen->enemy[i], 2, 0xFFF); 
 				if(index!=-1)                                                                                                                                      
 				{
 					((enemy*)guys.spr(index))->leader = true;
@@ -21675,7 +21723,7 @@ placed_enemy:
 		
 		if(!foundCarrier && hasitem&(4|2))
 		{
-			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
+			int32_t index = guys.idFirst(screen->enemy[i],0xFFF);
 			
 			if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
 			{
@@ -21705,12 +21753,17 @@ bool scriptloadenemies()
 	
 	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
 	{
-		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(tmpscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		
 		--clk;
 	}
 	return true;
 }
+
+// static void loadenemies(mapscr* scr)
+// {
+
+// }
 
 void loadenemies()
 {
@@ -21739,7 +21792,8 @@ void loadenemies()
 	loaded_enemies=true;
 	
 	// do enemies that are always loaded
-	load_default_enemies();
+	// TODO z3
+	load_default_enemies(tmpscr);
 	
 	// dungeon basements
 	
@@ -21766,68 +21820,135 @@ void loadenemies()
 		return;
 	}
 	
-	// check if it's been long enough to reload all enemies
-	
-	int32_t loadcnt = 10;
-	int16_t s = (currmap<<7)+currscr;
-	bool beenhere = false;
-	bool reload = true;
-	bool unbeatablereload = true;
-	
-	for(int32_t i=0; i<6; i++)
-		if(visited[i]==s)
-			beenhere = true;
-			
-	if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+	if (!global_z3_scrolling)
 	{
-		visited[vhead]=s; //If not, it adds it to the array,
-		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-	}
-	else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
-	{
-		loadcnt = 0; //It will tell it not to load any enemies,
-		reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
-	}
-	
-	if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
-	{
-		loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+		// check if it's been long enough to reload all enemies
+		int32_t loadcnt = 10;
+		int16_t s = (currmap<<7)+currscr;
+		bool beenhere = false;
+		bool reload = true;
+		bool unbeatablereload = true;
 		
-		if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
-			(get_bit(quest_rules, qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
-				loadcnt = 10; //That means all enemies need to be respawned.
-		if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
+		for(int32_t i=0; i<6; i++)
+			if(visited[i]==s)
+				beenhere = true;
+				
+		if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 		{
-			for(int32_t i = 0; i<loadcnt && tmpscr->enemy[i]>0; i++)
+			visited[vhead]=s; //If not, it adds it to the array,
+			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+		}
+		else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		{
+			loadcnt = 0; //It will tell it not to load any enemies,
+			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
+		}
+		
+		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
+		{
+			loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+			
+			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
+				(get_bit(quest_rules, qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
+					loadcnt = 10; //That means all enemies need to be respawned.
+			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesntcount)) 
+				for(int32_t i = 0; i<loadcnt && tmpscr->enemy[i]>0; i++)
 				{
-					unbeatablereload = false;
+					if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesntcount)) 
+					{
+						unbeatablereload = false;
+					}
+				}
+				if (unbeatablereload)
+				{
+					loadcnt = 10;
 				}
 			}
-			if (unbeatablereload)
+		}
+		
+		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
+			loadcnt = 10; //All enemies also need to be respawned.
+			
+		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
+		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
+		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
+		
+		for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
+		{
+			spawnEnemy(tmpscr, pos, clk, 0, 0, fastguys, i, guycnt, loadcnt);
+			
+			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
+		}
+		
+		game->guys[s] = guycnt;
+		//} //if(true)
+	}
+	else
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		// check if it's been long enough to reload all enemies
+		int32_t loadcnt = 10;
+		int16_t s = (currmap<<7)+scr;
+		bool beenhere = false;
+		bool reload = true;
+		bool unbeatablereload = true;
+		
+		// TODO z3
+		// for(int32_t i=0; i<6; i++)
+		// 	if(visited[i]==s)
+		// 		beenhere = true;
+				
+		// if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+		// {
+		// 	visited[vhead]=s; //If not, it adds it to the array,
+		// 	vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+		// }
+		// else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		// {
+		// 	loadcnt = 0; //It will tell it not to load any enemies,
+		// 	reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
+		// }
+		
+		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
+		{
+			loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+			
+			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
+				(get_bit(quest_rules, qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
+					loadcnt = 10; //That means all enemies need to be respawned.
+			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				loadcnt = 10;
+				for(int32_t i = 0; i<loadcnt && z3_scr->enemy[i]>0; i++)
+				{
+					if (!(guysbuf[z3_scr->enemy[i]].flags & guy_doesntcount)) 
+					{
+						unbeatablereload = false;
+					}
+				}
+				if (unbeatablereload)
+				{
+					loadcnt = 10;
+				}
 			}
 		}
-	}
-	
-	if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
-		loadcnt = 10; //All enemies also need to be respawned.
 		
-	int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
-	int32_t clk=-15,x=0,y=0,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
-	int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
-	
-	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
-	{
-		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		if((get_bit(quest_rules,qr_ALWAYSRET)) || (z3_scr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
+			loadcnt = 10; //All enemies also need to be respawned.
+			
+		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
+		int32_t clk=-15,x=0,y=0,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
+		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		
-		--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
-	}
-	
-	game->guys[s] = guycnt;
-	//} //if(true)
+		for(; i<loadcnt && z3_scr->enemy[i]>0; i++)
+		{
+			spawnEnemy(z3_scr, pos, clk, z3_scr_dx*256, z3_scr_dy*176, fastguys, i, guycnt, loadcnt);
+			
+			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
+		}
+		
+		game->guys[s] = guycnt;
+		//} //if(true)
+	});
 }
 void moneysign()
 {

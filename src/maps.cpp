@@ -197,7 +197,8 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2 and loadscr
 {
-    if(scr < 0) scr=currscr;
+	// TODO z3 rename var
+    if(scr < 0) scr=global_z3_cur_scr_drawing == -1 ? currscr : global_z3_cur_scr_drawing;
     
     if(dmap < 0) dmap = currdmap;
     
@@ -392,6 +393,20 @@ int32_t MAPFLAG(int32_t x,int32_t y)
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
 {
+	int32_t b=1;
+	if(x&8) b<<=2;
+	if(y&8) b<<=1;
+
+	if (global_z3_scrolling)
+	{
+		// TODO z3
+		newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
+		if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
+		if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
+		return cmb.type;
+	}
+
+	// TODO z3
 	for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
@@ -406,11 +421,7 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
 			}
 		}
 	}
-	int32_t b=1;
-    
-	if(x&8) b<<=2;
-    
-	if(y&8) b<<=1;
+	
 	newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
 	if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
 	if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
@@ -3664,8 +3675,14 @@ static bool is_in_region(int scr)
 	return scr < 128;
 }
 
-void for_every_screen_in_region(const std::function <void (mapscr*, unsigned int, unsigned int)>& fn)
+void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn)
 {
+	if (!global_z3_scrolling)
+	{
+		fn(tmpscr, currscr, 0, 0);
+		return;
+	}
+
 	int z3_scr_x = z3_currscr % 16;
 	int z3_scr_y = z3_currscr / 16;
 
@@ -3673,14 +3690,19 @@ void for_every_screen_in_region(const std::function <void (mapscr*, unsigned int
 	{
 		if (is_in_region(scr))
 		{
-			int scr_x = z3_scr_x + scr % 16;
-			int scr_y = z3_scr_y + scr / 16;
+			int scr_x = scr % 16;
+			int scr_y = scr / 16;
+			if (scr_x < z3_scr_x || scr_y < z3_scr_y) continue;
+
 			unsigned int z3_scr_dx = scr_x - z3_scr_x;
 			unsigned int z3_scr_dy = scr_y - z3_scr_y;
-			mapscr* myscr = &TheMaps[currmap*MAPSCRS + scr];
-			fn(myscr, z3_scr_dx, z3_scr_dy);
+			mapscr* z3_scr = &TheMaps[currmap*MAPSCRS + scr];
+			global_z3_cur_scr_drawing = scr;
+			fn(z3_scr, scr, z3_scr_dx, z3_scr_dy);
 		}
 	}
+
+	global_z3_cur_scr_drawing = -1;
 }
 
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int, int)>& fn)
