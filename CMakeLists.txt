@@ -334,7 +334,7 @@ endif()
 
 add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
 target_include_directories(zconsolelogger INTERFACE src/zconsole)
-target_link_libraries(zconsolelogger allegro_with_legacy zcbase)
+target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 
 #############################################################
 # Sound Library
@@ -553,7 +553,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src/zq)
-	target_link_libraries(zscript allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 
@@ -603,7 +603,7 @@ if(WANT_SENTRY)
 	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
 	FetchContent_MakeAvailable(sentry)
 
-	foreach(target IN LISTS zc_apps)
+	foreach(target IN LISTS zc_targets)
 		target_link_libraries(${target} PRIVATE sentry)
 		target_compile_definitions(${target} PRIVATE HAS_SENTRY)
 		target_compile_definitions(${target} PRIVATE SENTRY_RELEASE_TAG="${SENTRY_RELEASE_TAG}")
