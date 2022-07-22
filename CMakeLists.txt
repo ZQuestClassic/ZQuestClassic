@@ -592,7 +592,7 @@ set(zc_warnings
 	-Werror=format
 )
 
-foreach(target IN LISTS zc_apps)
+foreach(target IN LISTS zc_targets)
 	target_compile_definitions(${target} PRIVATE ZC_APP_NAME="${target}")
 endforeach()
 
