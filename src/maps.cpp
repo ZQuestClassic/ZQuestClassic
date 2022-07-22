@@ -5478,12 +5478,18 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 {
 	if (global_z3_scrolling)
 	{
-		if(x<0||y<0) return false;
-
 		// TODO z3
-		// x %= cnt == 2 ? 248 : 256;
-		// y %= 176;
-		// ... TODO
+		int max_x = global_z3_scrolling ? 256 * 16 : 256;
+		int max_y = global_z3_scrolling ? 176 * 16 : 176;
+		if (!get_bit(quest_rules, qr_LTTPWALK))
+		{
+			max_x -= 7;
+			max_y -= 7;
+		}
+		if (x < 0 || y < 0) return false;
+		if (x >= max_x) return false;
+		if (x >= max_x && cnt == 2) return false;
+		if (y >= max_y) return false;
 	}
 	else if(get_bit(quest_rules,qr_LTTPWALK))
 	{
@@ -5760,8 +5766,18 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	if (global_z3_scrolling)
 	{
-		if(x<0||y<0) return false;
-		// ... TODO
+		// TODO z3
+		int max_x = global_z3_scrolling ? 256 * 16 : 256;
+		int max_y = global_z3_scrolling ? 176 * 16 : 176;
+		if (!get_bit(quest_rules, qr_LTTPWALK))
+		{
+			max_x -= 7;
+			max_y -= 7;
+		}
+		if (x < 0 || y < 0) return false;
+		if (x >= max_x) return false;
+		if (x >= max_x && cnt == 2) return false;
+		if (y >= max_y) return false;
 	}
 	else if(get_bit(quest_rules,qr_LTTPWALK))
 	{

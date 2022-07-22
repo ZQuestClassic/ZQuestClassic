@@ -4125,6 +4125,9 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 
 void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 {
+    x += global_viewport_x;
+    y += global_viewport_y;
+
     switch(button)
     {
     case 0:  //A button
