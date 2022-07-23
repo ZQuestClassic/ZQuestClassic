@@ -47,6 +47,8 @@ extern FFScript FFCore;
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 #define DegtoFix(d)     ((d)*0.71111111)
 
+extern HeroClass Hero;
+
 // TODO z3 checklist
 // fix warp bug when going into castle armg quest
 // fix warp bug when OUCH building doing nothing
@@ -57,12 +59,14 @@ extern FFScript FFCore;
 // push blocks
 
 // screen transitions
+// screen wipe in when spawning in middle of region
 // ffcs
 // define regions dynamically
 
 int viewport_x, viewport_y;
 int world_w, world_h;
-int z3_origin_scr;
+static int z3_origin_scr;
+int region_scr_dx, region_scr_dy;
 
 static const int hardcode_z3_regions[] = {
 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -95,9 +99,12 @@ void z3_set_currscr(int scr)
 		return;
 	}
 
+	int input_scr_x = scr % 16;
+	int input_scr_y = scr / 16;
+
 	// For the given screen, find the top-left corner of its region.
-	int origin_scr_x = scr % 16;
-	int origin_scr_y = scr / 16;
+	int origin_scr_x = input_scr_x;
+	int origin_scr_y = input_scr_y;
 	z3_origin_scr = scr;
 	while (origin_scr_x > 0)
 	{
@@ -127,6 +134,37 @@ void z3_set_currscr(int scr)
 
 	world_w = 256*(region_scr_right - origin_scr_x + 1);
 	world_h = 176*(region_scr_bottom - origin_scr_y + 1);
+	region_scr_dx = input_scr_x - origin_scr_x;
+	region_scr_dy = input_scr_y - origin_scr_y;
+
+	// Hero.x += 256*(region_scr_right - origin_scr_x);
+	// Hero.y += 176*(region_scr_bottom - origin_scr_y);
+}
+
+void z3_update_viewport()
+{
+	if (!global_z3_scrolling)
+	{
+		global_viewport_x = 0;
+		global_viewport_y = 0;
+		return;
+	}
+
+	global_viewport_x = CLAMP(0, world_w, Hero.getX() - 256/2);
+	global_viewport_y = CLAMP(0, world_h, Hero.getY() - 176/2);
+
+	int dx = Hero.getX().getFloor() / 256;
+	int dy = Hero.getY().getFloor() / 176;
+	// TODO z3 region check?
+	if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16)
+	{
+		region_scr_dx = dx;
+		region_scr_dy = dy;
+		currscr = z3_origin_scr + dx + dy * 16;
+
+		// TODO z3 hack to make warp work ... but then it crashes right away
+		tmpscr[0] = TheMaps[currmap*MAPSCRS+currscr];
+	}
 }
 
 bool edge_of_region(direction dir)
@@ -146,7 +184,7 @@ bool edge_of_region(direction dir)
 	return !is_in_region(scr_x + scr_y*16);
 }
 
-// x, y are screen coordinates (aka, where hero is in relation to origin screen)
+// x, y are world coordinates (aka, where hero is in relation to origin screen)
 int z3_get_scr_for_xy_offset(int x, int y)
 {
 	int dx = x / 256;
@@ -155,8 +193,7 @@ int z3_get_scr_for_xy_offset(int x, int y)
 	int origin_scr_y = z3_origin_scr / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
-	int scr = scr_x + scr_y * 16;
-	return scr;
+	return scr_xy_to_index(scr_x, scr_y);
 }
 
 mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
@@ -203,7 +240,6 @@ extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal* mirror_portal;
 extern zinitdata zinit;
-extern HeroClass Hero;
 int32_t current_ffcombo=-1;
 bool triggered_screen_secrets=false;
 
@@ -3850,27 +3886,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//1. Draw some layers onto temp_buf
 	clear_bitmap(scrollbuf);
 
-	if (global_z3_scrolling)
-	{
-		// TODO z3 figure out region shit
-		global_viewport_x = CLAMP(0, 16*256, Hero.getX() - 256/2);
-		global_viewport_y = CLAMP(0, 8*176, Hero.getY() - 176/2);
-
-		int dx = Hero.getX().getFloor() / 256;
-		int dy = Hero.getY().getFloor() / 176;
-		if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16)
-		{
-			currscr = z3_origin_scr + dx + dy * 16;
-
-			// TODO z3 hack to make warp work ... but then it crashes right away
-			tmpscr[0] = TheMaps[currmap*MAPSCRS+currscr];
-		}
-	}
-	else
-	{
-		global_viewport_x = 0;
-		global_viewport_y = 0;
-	}
+	// TODO z3 move to game loop?
+	z3_update_viewport();
 	
 	if (!global_z3_scrolling)
 	{

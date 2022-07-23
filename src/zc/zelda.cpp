@@ -2223,12 +2223,22 @@ int32_t init_game()
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
 	Hero.init();
+	// z3_update_viewport();
 	if(zqtesting_mode
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		if (!global_z3_scrolling)
+		{
+			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		}
+		else
+		{
+			mapscr* scr = &TheMaps[currmap*MAPSCRS+currscr];
+			Hero.setX(region_scr_dx*256 + scr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(region_scr_dy*176 + scr->warpreturny[testingqst_retsqr]);
+		}
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
