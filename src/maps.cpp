@@ -55,7 +55,7 @@ extern HeroClass Hero;
 // screen secrets (blow up the cave wall)
 // screen items
 // link animation sprites (on water) (on god)
-// enemies
+// sword beams / ewpns should only despawn when leaving viewport
 // push blocks
 
 // screen transitions
@@ -139,12 +139,6 @@ void z3_set_currscr(int scr)
 	world_h = 176*(region_scr_bottom - origin_scr_y + 1);
 	region_scr_dx = input_scr_x - origin_scr_x;
 	region_scr_dy = input_scr_y - origin_scr_y;
-
-	// Hero.setX(region_scr_dx*256 + Hero.getX().getFloor()%256);
-	// Hero.setY(region_scr_dy*176 + Hero.getY().getFloor()%176);
-
-	// Hero.x += 256*(region_scr_right - origin_scr_x);
-	// Hero.y += 176*(region_scr_bottom - origin_scr_y);
 }
 
 void z3_update_viewport()
@@ -156,13 +150,18 @@ void z3_update_viewport()
 		return;
 	}
 
-	global_viewport_x = CLAMP(0, world_w - 256, Hero.getX() - 256/2);
-	global_viewport_y = CLAMP(0, world_h - 176, Hero.getY() - 176/2);
+	int viewport_w = 256;
+	int viewport_h = 176;
+	global_viewport_x = CLAMP(0, world_w - viewport_w, Hero.getX() - viewport_w/2);
+	// TODO z3 this is quite a hack
+	if (global_z3_scrolling_extended_height_mode)
+		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - (viewport_h-64)/2);
+	else
+		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - viewport_h/2);
 
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
-	// TODO z3 region check?
-	if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16)
+	if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16 && is_in_region(z3_origin_scr + dx + dy * 16))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
@@ -4466,7 +4465,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	//13. Draw the subscreen, without clipping
-	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	// TODO z3
+	if(!global_z3_scrolling_extended_height_mode && get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
 		
@@ -5574,6 +5574,7 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 	bool over = XOR(scrn->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
 		|| XOR(scrn->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
 
+	// if (global_z3_scrolling_extended_height_mode)
 	for(int32_t i=0; i<176; ++i)
 	{
 		draw_cmb_pos(dest, x, y, i, scrn->data[i], scrn->cset[i], 0, over, false);
