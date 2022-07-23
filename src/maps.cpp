@@ -277,8 +277,8 @@ int32_t MAPCOMBO(int32_t x,int32_t y)
 	{
 		// TODO z3
 		//extend combos outwards if out of bounds -DD
-		x = vbound(x, 0, 16*(16*16)-1);
-		y = vbound(y, 0, 8*(11*16)-1);
+		x = vbound(x, 0, viewport_w-1);
+		y = vbound(y, 0, viewport_h-1);
 		int32_t combo = COMBOPOS(x % 255, y % 176);
 		if(combo>175 || combo < 0)
 			return 0;
@@ -5772,11 +5772,21 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 {
-	if (!global_z3_scrolling)
+	if (global_z3_scrolling)
 	{
-		if(x<0||y<0) return false;
-		// TODO z3 more
-		if(x>255*16) return false;
+		int max_x = viewport_w;
+		int max_y = viewport_h;
+		if (!get_bit(quest_rules, qr_LTTPWALK))
+		{
+			max_x -= 7;
+			max_y -= 7;
+		}
+		if (x < 0 || y < 0) return false;
+		if (x >= max_x) return false;
+		if (x >= max_x - 8 && cnt == 2) return false;
+		if (y >= max_y) return false;
+		// TODO z3
+		// return _walkflag_new(x, y, switchblockstate) || (cnt == 2 && _walkflag_new(x + 8, y, switchblockstate));
 	}
 	else
 	if(get_bit(quest_rules,qr_LTTPWALK))
