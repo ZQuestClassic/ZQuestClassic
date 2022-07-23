@@ -2793,7 +2793,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	mapscr *s0, *s1, *s2;
 	if (global_z3_scrolling)
 	{
-		mapscr* z3scr = z3_get_scr_for_xy_offset(dx, dy);
+		mapscr* z3scr = z3_get_mapscr_for_xy_offset(dx, dy);
 		s0 = z3scr;
 		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
 		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;

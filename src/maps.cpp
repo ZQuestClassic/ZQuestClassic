@@ -47,34 +47,6 @@ extern FFScript FFCore;
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 #define DegtoFix(d)     ((d)*0.71111111)
 
-int viewport_x, viewport_y, viewport_w, viewport_h;
-int z3_origin_scr;
-void z3_set_currscr(int scr)
-{
-	z3_origin_scr = scr;
-	viewport_w = global_z3_scrolling ? 256*16 : 256;
-	viewport_h = global_z3_scrolling ? 176*8  : 176;
-	// TODO z3 figure out regions stuff
-}
-
-int32_t COMBOPOS(int32_t x, int32_t y)
-{
-    return (((y) & 0xF0) + ((x) >> 4));
-}
-int32_t COMBOX(int32_t pos)
-{
-    return ((pos) % 16 * 16);
-}
-int32_t COMBOY(int32_t pos)
-{
-    return ((pos) & 0xF0);
-}
-
-int32_t mapind(int32_t map, int32_t scr)
-{
-	return (map<<7)+scr;
-}
-
 // TODO z3 checklist
 // fix warp bug when going into castle armg quest
 // fix warp bug when OUCH building doing nothing
@@ -94,8 +66,39 @@ int32_t mapind(int32_t map, int32_t scr)
 // 		3 3 3 3 3 2 2 2 4 4 4 .....
 // 		3 3 3 3 3 2 2 2 4 5 5 .....
 
+int viewport_x, viewport_y, viewport_w, viewport_h;
+int z3_origin_scr;
+void z3_set_currscr(int scr)
+{
+	z3_origin_scr = scr;
+	viewport_w = global_z3_scrolling ? 256*16 : 256;
+	viewport_h = global_z3_scrolling ? 176*8  : 176;
+	// TODO z3 figure out regions stuff
+}
+
+static bool is_in_region(int scr)
+{
+	// TODO z3
+	return scr < 128;
+}
+
+bool edge_of_region(direction dir)
+{
+	int scr_x = currscr % 16;
+	int scr_y = currscr / 16;
+	if (dir == up) scr_y -= 1;
+	if (dir == down) scr_y += 1;
+	if (dir == left) scr_x -= 1;
+	if (dir == right) scr_x += 1;
+	if (scr_x < 0 || scr_x > 16 || scr_y < 0 || scr_y > 8)
+	{
+		return true;
+	}
+	return !is_in_region(scr_x + scr_y*16);
+}
+
 // x, y are screen coordinates (aka, where hero is in relation to origin screen)
-mapscr* z3_get_scr_for_xy_offset(int x, int y)
+int z3_get_scr_for_xy_offset(int x, int y)
 {
 	int dx = x / 256;
 	int dy = y / 176;
@@ -104,7 +107,44 @@ mapscr* z3_get_scr_for_xy_offset(int x, int y)
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	int scr = scr_x + scr_y * 16;
-	return &TheMaps[currmap*MAPSCRS+scr];
+	return scr;
+}
+
+mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
+{
+	return &TheMaps[currmap*MAPSCRS+z3_get_scr_for_xy_offset(x, y)];
+}
+
+// z3_origin_scr TODO z3_origin_screen
+
+// TODO: replace this with current region data.
+// current_region_src_x, current_region_src_y
+int z3_get_z3scr_dx()
+{
+	return currscr % 16 - z3_origin_scr % 16;
+}
+
+int z3_get_z3scr_dy()
+{
+	return currscr / 16 - z3_origin_scr / 16;
+}
+
+int32_t COMBOPOS(int32_t x, int32_t y)
+{
+    return (((y) & 0xF0) + ((x) >> 4));
+}
+int32_t COMBOX(int32_t pos)
+{
+    return ((pos) % 16 * 16);
+}
+int32_t COMBOY(int32_t pos)
+{
+    return ((pos) & 0xF0);
+}
+
+int32_t mapind(int32_t map, int32_t scr)
+{
+	return (map<<7)+scr;
 }
 
 FONT *get_zc_font(int32_t index);
@@ -243,7 +283,7 @@ int32_t MAPCOMBO(int32_t x,int32_t y)
 		if(combo>175 || combo < 0)
 			return 0;
 
-		auto z3_scr = z3_get_scr_for_xy_offset(x, y);
+		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
 		return z3_scr->data[combo];
 	}
 }
@@ -381,7 +421,7 @@ int32_t MAPFLAG(int32_t x,int32_t y)
 		// TODO z3
 		if(x<0 || x>255*16 || y<0 || y>175*8)
 			return 0;
-		auto z3_scr = z3_get_scr_for_xy_offset(x, y);
+		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
 		int32_t combo = COMBOPOS(x%255,y%176);
 		return z3_scr->sflag[combo];
 	}
@@ -498,7 +538,7 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 		// TODO z3
 		if(x<0 || x>255*16 || y<0 || y>175*8)
 			return 0;
-		auto z3_scr = z3_get_scr_for_xy_offset(x, y);
+		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
 		int32_t combo = COMBOPOS(x%255,y%176);
 		return combobuf[tmpscr->data[combo]].flag;
 	}
@@ -561,7 +601,11 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 		return 0;
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	
+	return MAPCOMBO3(m, map, screen, layer, pos, secrets);
+}
+
+int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+{
 	if(m->data.empty()) return 0;
     
 	if(m->valid==0) return 0;
@@ -3651,26 +3695,6 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
-// z3_origin_scr TODO z3_origin_screen
-
-// TODO: replace this with current region data.
-// current_region_src_x, current_region_src_y
-int z3_get_z3scr_dx()
-{
-	return currscr % 16 - z3_origin_scr % 16;
-}
-
-int z3_get_z3scr_dy()
-{
-	return currscr / 16 - z3_origin_scr / 16;
-}
-
-static bool is_in_region(int scr)
-{
-	// TODO z3
-	return scr < 128;
-}
-
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn)
 {
 	if (!global_z3_scrolling)
@@ -5517,13 +5541,73 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt)
 {
 	return _walkflag(x,y,cnt,zfix(0));
 }
+
+// Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
+static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
+{
+	mapscr* s0 = z3_get_mapscr_for_xy_offset(x, y);
+	mapscr* s1 = s0->layermap[0] > 0 ? &TheMaps[(s0->layermap[0]-1)*MAPSCRS+s0->layerscreen[0]] : NULL;
+	mapscr* s2 = s0->layermap[1] > 0 ? &TheMaps[(s0->layermap[1]-1)*MAPSCRS+s0->layerscreen[1]] : NULL;
+	if (!s1 || !s1->valid) s1 = s0;
+	if (!s2 || !s2->valid) s2 = s0;
+
+	int32_t bx = COMBOPOS(x % 256, y % 176);
+	newcombo c = combobuf[s0->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				   (iswater_type(c2.type))) && DRIEDLAKE);
+	int32_t b=1;
+	if(x&8) b<<=2;
+	if(y&8) b<<=1;
+	
+	int32_t cwalkflag = c.walk;
+	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
+	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (s1 != s0)
+	{
+		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
+		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if (c1.type == cBRIDGE)
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c1.walk & 0xF0)>>4;
+				int newsolid = (c1.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c1.walk;
+		}
+		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
+		else cwalkflag |= c1.walk;
+	}
+	if (s2 != s0)
+	{
+		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
+		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if (c2.type == cBRIDGE)
+		{
+			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				int efflag = (c2.walk & 0xF0)>>4;
+				int newsolid = (c2.walk & 0xF);
+				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+			}
+			else cwalkflag &= c2.walk;
+		}
+		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
+		else cwalkflag |= c2.walk;
+	}
+	
+	return (cwalkflag&b) ? !dried : false;
+}
+
 bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 {
 	if (global_z3_scrolling)
 	{
-		// TODO z3
-		int max_x = global_z3_scrolling ? 256 * 16 : 256;
-		int max_y = global_z3_scrolling ? 176 * 16 : 176;
+		int max_x = viewport_w;
+		int max_y = viewport_h;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;
@@ -5533,6 +5617,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 		if (x >= max_x) return false;
 		if (x >= max_x - 8 && cnt == 2) return false;
 		if (y >= max_y) return false;
+		return _walkflag_new(x, y, switchblockstate) || (cnt == 2 && _walkflag_new(x + 8, y, switchblockstate));
 	}
 	else if(get_bit(quest_rules,qr_LTTPWALK))
 	{
@@ -5565,7 +5650,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	}
 	else
 	{
-		mapscr* z3scr = z3_get_scr_for_xy_offset(x, y);
+		mapscr* z3scr = z3_get_mapscr_for_xy_offset(x, y);
 		s0 = z3scr;
 		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
 		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;
@@ -5725,7 +5810,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	}
 	else
 	{
-		mapscr* z3scr = z3_get_scr_for_xy_offset(x, y);
+		mapscr* z3scr = z3_get_mapscr_for_xy_offset(x, y);
 		s0 = z3scr;
 		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
 		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;

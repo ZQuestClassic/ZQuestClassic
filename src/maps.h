@@ -23,6 +23,7 @@ int32_t mapind(int32_t map, int32_t scr);
 extern bool triggered_screen_secrets;
 extern int viewport_x, viewport_y, viewport_w, viewport_h;
 void z3_set_currscr(int scr);
+bool edge_of_region(direction dir);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
@@ -46,6 +47,7 @@ int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y);
 int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t x,int32_t y, bool secrets = false);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t pos, bool secrets = false);
+int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets = false);
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y);
@@ -176,7 +178,8 @@ bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
 
-mapscr* z3_get_scr_for_xy_offset(int x, int y);
+int z3_get_scr_for_xy_offset(int x, int y);
+mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
 
 //extern bool FuckIAlreadyDrewThatAlready[ 7 ];

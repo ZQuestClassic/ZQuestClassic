@@ -23112,7 +23112,7 @@ void HeroClass::check_scroll_direction(direction dir)
 			sdir=dir;
 			dowarp(1,(tmpscr->sidewarpindex)&3);
 		}
-		else if(!edge_of_dmap(dir))
+		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
 			scrolling_map = currmap;
 			scrollscr(dir);
@@ -23134,9 +23134,6 @@ void HeroClass::check_scroll_direction(direction dir)
 // Checks if hero is beyond the bounds of the screen, and if so begins (and finishes) scrolling.
 void HeroClass::checkscroll()
 {
-	// TODO
-	if (global_z3_scrolling) return;
-
 	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
 	if(action == casting||action==sideswimcasting)
 		return;
@@ -23147,15 +23144,15 @@ void HeroClass::checkscroll()
 		
 		if(y<0 && currscr<16) y=0;
 		
-		if(x>240 && (currscr&15)==15) x=240;
+		if(x>viewport_w-16 && (currscr&15)==15) x=viewport_w-16;
 		
-		if(y>160 && currscr>=112) y=160;
+		if(y>viewport_h-16 && currscr>=112) y=viewport_h-16;
 	}
 
-	if (x > 240) check_scroll_direction(right);
-	if (x < 0)   check_scroll_direction(left);
-	if (y > 160) check_scroll_direction(down);
-	if (y < 0)   check_scroll_direction(up);
+	if (x > viewport_w-16)	check_scroll_direction(right);
+	if (x < 0)				check_scroll_direction(left);
+	if (y > viewport_h-16)	check_scroll_direction(down);
+	if (y < 0)				check_scroll_direction(up);
 }
 
 // assumes current direction is in lastdir[3]
