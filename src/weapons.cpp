@@ -3112,18 +3112,18 @@ bool weapon::clip()
         if(dir==down || dir==l_down || dir==r_down)
             return true;
             
+	// TODO z3 region
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
+
     if(id>wEnemyWeapons)
     {
         if((x<(8-nb2) && dir==left)
                 || (y<(8-nb2) && dir==up)
-                || (x>(232+nb2) && dir==right)
-                || (y>(168+nb2) && dir==down))
+                || (x>(w-24+nb2) && dir==right)
+                || (y>(h-8+nb2) && dir==down))
             return true;
     }
-
-	// TODO z3 region
-	int w = global_z3_scrolling ? 256*16 : 256;
-	int h = global_z3_scrolling ? 176*8  : 176;
     
     if(x<0||y<0||x>w-16||y>h)
         return true;

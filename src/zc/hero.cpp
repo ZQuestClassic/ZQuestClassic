@@ -11127,16 +11127,20 @@ bool HeroClass::can_attack()
     
     int32_t r = (isdungeon()) ? 16 : 0;
     int32_t r2 = get_bit(quest_rules, qr_NOBORDER) ? 0 : 8;
+
+	// TODO z3 region
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
     
     if(!get_bit(quest_rules, qr_ITEMSONEDGES)) switch(dir)
         {
         case up:
         case down:
-            return !(y<(r2+r) || y>(160-r-r2));
+            return !(y<(r2+r) || y>(h-16-r-r2));
             
         case left:
         case right:
-            return !(x<(r2+r) || x>(240-r-r2));
+            return !(x<(r2+r) || x>(w-16-r-r2));
         }
         
     return true;
