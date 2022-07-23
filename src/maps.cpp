@@ -94,6 +94,9 @@ void z3_set_currscr(int scr)
 {
 	if (!global_z3_scrolling || hardcode_z3_regions[scr] == 0)
 	{
+		z3_origin_scr = scr;
+		region_scr_dx = 0;
+		region_scr_dy = 0;
 		world_w = 256;
 		world_h = 176;
 		return;
@@ -136,6 +139,9 @@ void z3_set_currscr(int scr)
 	world_h = 176*(region_scr_bottom - origin_scr_y + 1);
 	region_scr_dx = input_scr_x - origin_scr_x;
 	region_scr_dy = input_scr_y - origin_scr_y;
+
+	// Hero.setX(region_scr_dx*256 + Hero.getX().getFloor()%256);
+	// Hero.setY(region_scr_dy*176 + Hero.getY().getFloor()%176);
 
 	// Hero.x += 256*(region_scr_right - origin_scr_x);
 	// Hero.y += 176*(region_scr_bottom - origin_scr_y);

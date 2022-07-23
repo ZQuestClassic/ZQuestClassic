@@ -23872,7 +23872,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			sy+=3;
 			
 		cx=176/step;
-	FFCore.init_combo_doscript();
+		x = region_scr_dx*256 + fmod(x.getFloat(), 256);
+		y = world_h - 176;
+		FFCore.init_combo_doscript();
 	}
 	break;
 	
@@ -23893,7 +23895,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			sy+=3;
 			
 		cx = 176 / step;
-	FFCore.init_combo_doscript();
+		x = region_scr_dx*256 + fmod(x.getFloat(), 256);
+		y = 176;
+		FFCore.init_combo_doscript();
 	}
 	break;
 	
@@ -23911,7 +23915,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(scrollbuf,0,0,newscr);
 		sx = 256;
 		cx = 256 / step;
-	FFCore.init_combo_doscript();
+		x = world_w - 256;
+		y = region_scr_dy*176 + fmod(y.getFloat(), 176);
+		FFCore.init_combo_doscript();
 	}
 	break;
 	
@@ -23928,7 +23934,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(scrollbuf,256,0,tmpscr);
 		sx = 0;
 		cx = 256 / step;
-	FFCore.init_combo_doscript();
+		x = 256;
+		y = region_scr_dy*176 + fmod(y.getFloat(), 176);
+		FFCore.init_combo_doscript();
 	}
 	break;
 	}
@@ -24050,7 +24058,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			return;
 		}
 		
-		
+		if (!global_z3_scrolling)
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
 		
 		if(no_move > 0)
@@ -24110,16 +24118,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			if(y > 160) y = 160;
-			
-			if(y < 0)   y = 0;
-			
-			if(x > 240) x = 240;
-			
-			if(x < 0)   x = 0;
+			if(y > world_h - 16) y = world_h - 16;
+			if(y < 0)            y = 0;
+			if(x > world_w - 16) x = world_w - 16;
+			if(x < 0)            x = 0;
 
 			if (global_z3_scrolling)
 			{
+				// TODO z3 clamp?
 				global_viewport_x = Hero.getX() - 256/2;
 				global_viewport_y = Hero.getY() - 176/2;
 			}
@@ -24177,6 +24183,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 
 		//FFScript.OnWaitdraw()
+		if (!global_z3_scrolling)
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
