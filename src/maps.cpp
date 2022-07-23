@@ -66,13 +66,16 @@ extern FFScript FFCore;
 // 		3 3 3 3 3 2 2 2 4 4 4 .....
 // 		3 3 3 3 3 2 2 2 4 5 5 .....
 
-int viewport_x, viewport_y, viewport_w, viewport_h;
+int viewport_x, viewport_y;
+int world_w, world_h;
 int z3_origin_scr;
 void z3_set_currscr(int scr)
 {
 	z3_origin_scr = scr;
-	viewport_w = global_z3_scrolling ? 256*16 : 256;
-	viewport_h = global_z3_scrolling ? 176*8  : 176;
+	world_w = global_z3_scrolling ? 256*16 : 256;
+	world_h = global_z3_scrolling ? 176*8  : 176;
+	// world_w = global_z3_scrolling ? 256*1 : 256;
+	// world_h = global_z3_scrolling ? 176*1  : 176;
 	// TODO z3 figure out regions stuff
 }
 
@@ -84,6 +87,8 @@ static bool is_in_region(int scr)
 
 bool edge_of_region(direction dir)
 {
+	if (!global_z3_scrolling) return true;
+
 	int scr_x = currscr % 16;
 	int scr_y = currscr / 16;
 	if (dir == up) scr_y -= 1;
@@ -277,8 +282,8 @@ int32_t MAPCOMBO(int32_t x,int32_t y)
 	{
 		// TODO z3
 		//extend combos outwards if out of bounds -DD
-		x = vbound(x, 0, viewport_w-1);
-		y = vbound(y, 0, viewport_h-1);
+		x = vbound(x, 0, world_w-1);
+		y = vbound(y, 0, world_h-1);
 		int32_t combo = COMBOPOS(x % 255, y % 176);
 		if(combo>175 || combo < 0)
 			return 0;
@@ -435,7 +440,7 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
 
 	if (global_z3_scrolling)
 	{
-		// TODO z3
+		// TODO z3 b
 		newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
 		if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
 		if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
@@ -536,7 +541,7 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 	else
 	{
 		// TODO z3
-		if(x<0 || x>255*16 || y<0 || y>175*8)
+		if(x<0 || x>world_w || y<0 || y>world_h)
 			return 0;
 		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
 		int32_t combo = COMBOPOS(x%255,y%176);
@@ -1421,6 +1426,7 @@ bool ispitfall(int32_t x, int32_t y)
 		return ispitfall(c);
 	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
 	*/
+	// TODO z3 keese?
 	if(int32_t c = MAPFFCOMBO(x,y))
 	{
 		return ispitfall(c) ? true : false;
@@ -3695,6 +3701,7 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
+// TODO z3_scr_dx -> offset_x
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn)
 {
 	if (!global_z3_scrolling)
@@ -5606,8 +5613,8 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 {
 	if (global_z3_scrolling)
 	{
-		int max_x = viewport_w;
-		int max_y = viewport_h;
+		int max_x = world_w;
+		int max_y = world_h;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;
@@ -5774,8 +5781,8 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 {
 	if (global_z3_scrolling)
 	{
-		int max_x = viewport_w;
-		int max_y = viewport_h;
+		int max_x = world_w;
+		int max_y = world_h;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;

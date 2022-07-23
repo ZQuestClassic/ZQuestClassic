@@ -3116,12 +3116,12 @@ bool weapon::clip()
     {
         if((x<(8-nb2) && dir==left)
                 || (y<(8-nb2) && dir==up)
-                || (x>(viewport_w-24+nb2) && dir==right)
-                || (y>(viewport_h-8+nb2) && dir==down))
+                || (x>(world_w-24+nb2) && dir==right)
+                || (y>(world_h-8+nb2) && dir==down))
             return true;
     }
     
-    if(x<0||y<0||x>viewport_w-16||y>viewport_h)
+    if(x<0||y<0||x>world_w-16||y>world_h)
         return true;
         
     return false;

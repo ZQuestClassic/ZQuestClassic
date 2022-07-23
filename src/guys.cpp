@@ -69,10 +69,10 @@ void do_fix(zfix& coord, int32_t val, bool nearest_half = false)
 bool OUTOFBOUNDS(int32_t id, zfix x, zfix y, zfix z)
 {
 	// TODO z3
-	if ((int32_t)y > viewport_h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
+	if ((int32_t)y > world_h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
 	if (y < -176) return true;
 	if (x < -256) return true;
-	if (x > viewport_w+256) return true;
+	if (x > world_w+256) return true;
 	return false;
 }
 
@@ -3502,15 +3502,15 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 	bool kb = false;
 	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 	
-	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=viewport_w-16+nb || dy>=viewport_h-16+nb)
+	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
 	if(isdungeon())
 	{
-		if((dy<32) || (dy>=viewport_h-32))
+		if((dy<32) || (dy>=world_h-32))
 			return true;
 			
-		if((dx<32) || (dx>=viewport_w-32))
+		if((dx<32) || (dx>=world_w-32))
 			return true;
 	}
 	
@@ -3582,7 +3582,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	}
 	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
 	
-	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=viewport_w-16+nb || dy>=viewport_h-16+nb)
+	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
 	bool isInDungeon = isdungeon();
@@ -6548,8 +6548,8 @@ void enemy::fix_coords(bool bound)
 	
 	if(bound)
 	{
-		int w = viewport_w;
-		int h = viewport_h;
+		int w = world_w;
+		int h = world_h;
 
 		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
@@ -7118,6 +7118,7 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 	int32_t ndir=0;
 	
 	// can move straight, check if it wants to turn
+	// TODO z3 somthing wrong here for keese
 	if(canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 	{
 		if(grumble && (zc_oldrand()&4)<abs(grumble)) //Homing
@@ -7217,6 +7218,7 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 	// can't move straight, must turn
 	int32_t i=0;
 	
+	// TODO: speed this up!
 	for(; i<32; i++)  // Try random dir
 	{
 		ndir=(zc_oldrand()&7)+8;
@@ -7437,7 +7439,7 @@ bool enemy::fslide()
 		break;
 		
 	case down:
-		if(y>=viewport_h-16)
+		if(y>=world_h-16)
 		{
 			sclk=0;
 			return false;
@@ -7455,7 +7457,7 @@ bool enemy::fslide()
 		break;
 		
 	case right:
-		if(x>=viewport_w-16)
+		if(x>=world_w-16)
 		{
 			sclk=0;
 			return false;

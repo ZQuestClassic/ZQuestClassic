@@ -11132,11 +11132,11 @@ bool HeroClass::can_attack()
         {
         case up:
         case down:
-            return !(y<(r2+r) || y>(viewport_h-16-r-r2));
+            return !(y<(r2+r) || y>(world_h-16-r-r2));
             
         case left:
         case right:
-            return !(x<(r2+r) || x>(viewport_w-16-r-r2));
+            return !(x<(r2+r) || x>(world_w-16-r-r2));
         }
         
     return true;
@@ -16242,10 +16242,10 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 	}
 	else
 	{
-		wx = vbound(wx, -1, viewport_w);
-		wy = vbound(wy, -1, viewport_h);
+		wx = vbound(wx, -1, world_w);
+		wy = vbound(wy, -1, world_h);
 
-		if (wx < 0 || wx > viewport_w || wy < 0 || wy > viewport_h)
+		if (wx < 0 || wx > world_w || wy < 0 || wy > world_h)
 		{
 			ret.setUnwalkable(false);
 			return ret;
@@ -23066,8 +23066,8 @@ void HeroClass::check_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	if (dir == left || dir == right) x = CLAMP(0, viewport_w, x);
-	if (dir == up || dir == down)    y = CLAMP(0, viewport_h, y);
+	if (dir == left || dir == right) x = CLAMP(0, world_w, x);
+	if (dir == up || dir == down)    y = CLAMP(0, world_h, y);
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
@@ -23144,14 +23144,14 @@ void HeroClass::checkscroll()
 		
 		if(y<0 && currscr<16) y=0;
 		
-		if(x>viewport_w-16 && (currscr&15)==15) x=viewport_w-16;
+		if(x>world_w-16 && (currscr&15)==15) x=world_w-16;
 		
-		if(y>viewport_h-16 && currscr>=112) y=viewport_h-16;
+		if(y>world_h-16 && currscr>=112) y=world_h-16;
 	}
 
-	if (x > viewport_w-16)	check_scroll_direction(right);
+	if (x > world_w-16)	check_scroll_direction(right);
 	if (x < 0)				check_scroll_direction(left);
-	if (y > viewport_h-16)	check_scroll_direction(down);
+	if (y > world_h-16)	check_scroll_direction(down);
 	if (y < 0)				check_scroll_direction(up);
 }
 

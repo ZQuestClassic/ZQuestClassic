@@ -21,7 +21,14 @@ int32_t COMBOY(int32_t pos);
 int32_t mapind(int32_t map, int32_t scr);
 
 extern bool triggered_screen_secrets;
-extern int viewport_x, viewport_y, viewport_w, viewport_h;
+
+// How large the current region is. If not currently in z3 scrolling mode, this is just the size
+// of a single screen.
+extern int world_w, world_h;
+// The camera offset in the above world-space coordinates. If not currently in z3 scrolling mode,
+// this is just 0. Otherwise it attempts to center the hero in the middle of the camera, snapping
+// to the region edges.
+extern int viewport_x, viewport_y;
 void z3_set_currscr(int scr);
 bool edge_of_region(direction dir);
 
