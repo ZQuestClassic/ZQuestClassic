@@ -3120,8 +3120,12 @@ bool weapon::clip()
                 || (y>(168+nb2) && dir==down))
             return true;
     }
+
+	// TODO z3 region
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
     
-    if(x<0||y<0||x>240||y>176)
+    if(x<0||y<0||x>w-16||y>h)
         return true;
         
     return false;

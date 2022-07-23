@@ -3505,16 +3505,19 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 {
 	bool kb = false;
 	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
+	// TODO z3 region
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
 	
-	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=240+nb || dy>=160+nb)
+	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=w-16+nb || dy>=h-16+nb)
 		return true;
 		
 	if(isdungeon())
 	{
-		if((dy<32) || (dy>=144))
+		if((dy<32) || (dy>=h-32))
 			return true;
 			
-		if((dx<32) || (dx>=224))
+		if((dx<32) || (dx>=w-32))
 			return true;
 	}
 	
@@ -3539,6 +3542,7 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 	}
 }
 
+// returns true if cannot walk
 bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
 {
 	int32_t yg = (special==spw_floater)?8:0;
@@ -3584,11 +3588,16 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 		}
 	}
 	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
+
+	// TODO z3 region
+	int w = global_z3_scrolling ? 256*16 : 256;
+	int h = global_z3_scrolling ? 176*8  : 176;
 	
-	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=w-16+nb || dy>=h-16+nb)
 		return true;
 		
 	bool isInDungeon = isdungeon();
+	// TODO z3 ?
 	if(isInDungeon || special==spw_wizzrobe)
 	{
 		if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=144 && dy>=144))
@@ -3608,6 +3617,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	
 	switch(special)
 	{
+		// TODO z3 ? dodongo
 		case spw_clipbottomright:
 			if(dy>=128 || dx>=208) return true;
 			break;
@@ -3617,6 +3627,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
+				// TODO z3 ?
 				if(isInDungeon)
 				{
 					if(dy < 32-yg || dy >= 144) return true;

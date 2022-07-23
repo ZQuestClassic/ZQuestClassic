@@ -47,20 +47,6 @@ extern FFScript FFCore;
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 #define DegtoFix(d)     ((d)*0.71111111)
 
-
-//MSVC does not provide a log2 funcion in <cmath>
-// adjust version number as needed. MSVC 2015 (1900) does *not* need these functions
-#if defined _MSC_VER && _MSC_VER < 1900
-double log2(double n)
-{
-    return log(n) / log(2.0);
-}
-float log2(float n)
-{
-    return log(n) / log(2.f);
-}
-#endif
-
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
     return (((y) & 0xF0) + ((x) >> 4));
