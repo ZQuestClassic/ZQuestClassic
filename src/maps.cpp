@@ -150,8 +150,8 @@ void z3_update_viewport()
 		return;
 	}
 
-	global_viewport_x = CLAMP(0, world_w, Hero.getX() - 256/2);
-	global_viewport_y = CLAMP(0, world_h, Hero.getY() - 176/2);
+	global_viewport_x = CLAMP(0, world_w - 256, Hero.getX() - 256/2);
+	global_viewport_y = CLAMP(0, world_h - 176, Hero.getY() - 176/2);
 
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;

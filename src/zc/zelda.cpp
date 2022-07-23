@@ -2223,7 +2223,6 @@ int32_t init_game()
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
 	
 	Hero.init();
-	// z3_update_viewport();
 	if(zqtesting_mode
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
