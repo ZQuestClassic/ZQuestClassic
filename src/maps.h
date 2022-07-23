@@ -21,7 +21,7 @@ int32_t COMBOY(int32_t pos);
 int32_t mapind(int32_t map, int32_t scr);
 
 extern bool triggered_screen_secrets;
-extern int viewport_x, viewport_y, viewport_width, viewport_height;
+extern int viewport_x, viewport_y, viewport_w, viewport_h;
 void z3_set_currscr(int scr);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

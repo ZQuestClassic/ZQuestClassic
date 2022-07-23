@@ -11127,20 +11127,16 @@ bool HeroClass::can_attack()
     
     int32_t r = (isdungeon()) ? 16 : 0;
     int32_t r2 = get_bit(quest_rules, qr_NOBORDER) ? 0 : 8;
-
-	// TODO z3 region
-	int w = global_z3_scrolling ? 256*16 : 256;
-	int h = global_z3_scrolling ? 176*8  : 176;
     
     if(!get_bit(quest_rules, qr_ITEMSONEDGES)) switch(dir)
         {
         case up:
         case down:
-            return !(y<(r2+r) || y>(h-16-r-r2));
+            return !(y<(r2+r) || y>(viewport_h-16-r-r2));
             
         case left:
         case right:
-            return !(x<(r2+r) || x>(w-16-r-r2));
+            return !(x<(r2+r) || x>(viewport_w-16-r-r2));
         }
         
     return true;
@@ -16246,11 +16242,10 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 	}
 	else
 	{
-		// TODO z3 region
-		wx = vbound(wx, -1, 256*16);
-		wy = vbound(wy, -1, 176*8);
+		wx = vbound(wx, -1, viewport_w);
+		wy = vbound(wy, -1, viewport_h);
 
-		if (wx < 0 || wx > 256*16 || wy < 0 || wy > 176*8)
+		if (wx < 0 || wx > viewport_w || wy < 0 || wy > viewport_h)
 		{
 			ret.setUnwalkable(false);
 			return ret;
@@ -23071,8 +23066,8 @@ void HeroClass::check_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	if (dir == left || dir == right) x = CLAMP(0, 240, x);
-	if (dir == up || dir == down)    y = CLAMP(0, 160, y);
+	if (dir == left || dir == right) x = CLAMP(0, viewport_w, x);
+	if (dir == up || dir == down)    y = CLAMP(0, viewport_h, y);
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;

@@ -47,11 +47,13 @@ extern FFScript FFCore;
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 #define DegtoFix(d)     ((d)*0.71111111)
 
-int viewport_x, viewport_y, viewport_width, viewport_height;
+int viewport_x, viewport_y, viewport_w, viewport_h;
 int z3_origin_scr;
 void z3_set_currscr(int scr)
 {
 	z3_origin_scr = scr;
+	viewport_w = global_z3_scrolling ? 256*16 : 256;
+	viewport_h = global_z3_scrolling ? 176*8  : 176;
 	// TODO z3 figure out regions stuff
 }
 
