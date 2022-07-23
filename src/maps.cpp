@@ -59,28 +59,74 @@ extern FFScript FFCore;
 // screen transitions
 // ffcs
 // define regions dynamically
-// hard code region like this:
-// 		0 0 1 1 1 2 2 2 4 4 4 .....
-// 		0 0 1 1 1 2 2 2 4 4 4 .....
-// 		0 0 1 1 1 2 2 2 4 4 4 .....
-// 		3 3 3 3 3 2 2 2 4 4 4 .....
-// 		3 3 3 3 3 2 2 2 4 5 5 .....
 
 int viewport_x, viewport_y;
 int world_w, world_h;
 int z3_origin_scr;
-void z3_set_currscr(int scr)
-{
-	z3_origin_scr = scr;
-	world_w = global_z3_scrolling ? 256*16 : 256;
-	world_h = global_z3_scrolling ? 176*8  : 176;
-	// TODO z3 figure out regions stuff
+
+static const int hardcode_z3_regions[] = {
+	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+};
+
+static int scr_xy_to_index(int x, int y) {
+	return x + y*16;
 }
 
 static bool is_in_region(int scr)
 {
-	// TODO z3
-	return scr < 128;
+	if (scr >= 128) return false;
+	int region_id = hardcode_z3_regions[z3_origin_scr];
+	return region_id && region_id == hardcode_z3_regions[scr];
+}
+
+void z3_set_currscr(int scr)
+{
+	if (!global_z3_scrolling || hardcode_z3_regions[scr] == 0)
+	{
+		world_w = 256;
+		world_h = 176;
+		return;
+	}
+
+	// For the given screen, find the top-left corner of its region.
+	int origin_scr_x = scr % 16;
+	int origin_scr_y = scr / 16;
+	z3_origin_scr = scr;
+	while (origin_scr_x > 0)
+	{
+		if (!is_in_region(scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
+		origin_scr_x--;
+	}
+	while (origin_scr_y > 0)
+	{
+		if (!is_in_region(scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
+		origin_scr_y--;
+	}
+	z3_origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
+	
+	// Now find the bottom-right corner.
+	int region_scr_right = origin_scr_x;
+	while (region_scr_right < 16)
+	{
+		if (!is_in_region(scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
+		region_scr_right++;
+	}
+	int region_scr_bottom = origin_scr_y;
+	while (region_scr_bottom < 8)
+	{
+		if (!is_in_region(scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
+		region_scr_bottom++;
+	}
+
+	world_w = 256*(region_scr_right - origin_scr_x + 1);
+	world_h = 176*(region_scr_bottom - origin_scr_y + 1);
 }
 
 bool edge_of_region(direction dir)
