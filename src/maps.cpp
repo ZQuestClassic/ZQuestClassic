@@ -5521,7 +5521,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 		}
 		if (x < 0 || y < 0) return false;
 		if (x >= max_x) return false;
-		if (x >= max_x && cnt == 2) return false;
+		if (x >= max_x - 8 && cnt == 2) return false;
 		if (y >= max_y) return false;
 	}
 	else if(get_bit(quest_rules,qr_LTTPWALK))
@@ -5809,7 +5809,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 		}
 		if (x < 0 || y < 0) return false;
 		if (x >= max_x) return false;
-		if (x >= max_x && cnt == 2) return false;
+		if (x >= max_x - 8 && cnt == 2) return false;
 		if (y >= max_y) return false;
 	}
 	else if(get_bit(quest_rules,qr_LTTPWALK))
@@ -5931,6 +5931,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (cwalkflag&b) ? !dried : false;
 }
 
+// TODO z3 walk ????????????????
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
 	//  walkflagx=x; walkflagy=y;
@@ -6041,11 +6042,26 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	return (cwalkflag&b) ? !dried : false;
 }
 
+// TODO z3 walk verify this one in particular....later
 //Only check the given mapscr*, not it's layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
-	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if (global_z3_scrolling)
+	{
+		// TODO z3
+		int max_x = global_z3_scrolling ? 256 * 16 : 256;
+		int max_y = global_z3_scrolling ? 176 * 16 : 176;
+		if (!get_bit(quest_rules, qr_LTTPWALK))
+		{
+			max_x -= 7;
+			max_y -= 7;
+		}
+		if (x < 0 || y < 0) return false;
+		if (x >= max_x) return false;
+		if (x >= max_x - 8 && cnt == 2) return false;
+		if (y >= max_y) return false;
+	}
+	else if(get_bit(quest_rules,qr_LTTPWALK))
 	{
 		if(x<0||y<0) return false;
 		

@@ -1840,10 +1840,30 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 }
 
 //shnarf
+//narp?
+
+// An attempt to have a single function to handle tile draws.
+static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
+{
+    for (int32_t dy = 0; dy < 8; ++dy)
+    {
+        for (int32_t dx = 0; dx < 8; ++dx)
+        {
+            int destx = x + (flip&1 ? 7 - dx : dx);
+            int desty = y + (flip&2 ? 7 - dy : dy);
+            if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
+            {
+                if (!transparency || *si) dest->line[desty][destx] = *si + cset;
+            }
+            si++;
+        }
+        si += 8;
+    }
+}
 
 void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
-    if(x<-15 || y<-15)
+    if(x<-7 || y<-7)
         return;
         
     if(x >= dest->w || y >= dest->h)
@@ -1868,22 +1888,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     if (draw_mode == 1)
     {
         byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
-        
-        for(int32_t dy=0; dy<8; ++dy)
-        {
-            for(int32_t dx=0; dx<8; ++dx)
-            {
-                int destx = x + (flip&1 ? 8 - dx : dx);
-                int desty = y + (flip&2 ? 8 - dy : dy);
-                if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
-                {
-                    dest->line[desty][destx] = *si + cset;
-                }
-                si++;
-            }
-            si+=8;
-        }
-
+        draw_tile8_unified(dest, si, x, y, cset, flip, false);
         return;
     }
     
@@ -2048,9 +2053,9 @@ void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int3
     }
 }
 
-
 void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
+    // TODO
     if(x<-7 || y<-7)
         return;
         
@@ -2074,6 +2079,17 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     cset <<= CSET_SHFT;
     unpack_tile(newtilebuf, tile>>2, 0, false);
     byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+
+    // 0: fast, no bounds checking
+    // 1: slow, bounds checking
+    // TODO z3
+    int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 ? 1 : 0;
+
+    if (draw_mode == 1)
+    {
+        draw_tile8_unified(dest, si, x, y, cset, flip, true);
+        return;
+    }
     
     if(flip&1)
     {
@@ -2089,6 +2105,8 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         
         for(int32_t dy=(y<0 ? 0-y : 0); (dy<8)&&(dy+y<dest->h); ++dy)
         {
+            // the `x<0 ? 0 : x` 100% doesn't work as the author thought it did. combos get "pinned"
+            // to the edge of the screen when drawn like this (when x is negative). -connor
             byte* di = &(dest->line[y+dy][x<0 ? 0 : x]);
             
             for(int32_t i=0; i<8; ++i)
@@ -2461,9 +2479,6 @@ void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t 
 }
 void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
-    if (tile == 8918 && (flip == 0 || flip == 1)) {
-        int lol = 1;
-    }
     if(x<-15 || y<-15)
         return;
         
@@ -2688,10 +2703,6 @@ void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],
 
 void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
-    if (tile == 8918 && (flip == 0 || flip == 1)) {
-        int lol = 1;
-    }
-
     int32_t t[4];
     
     for(int32_t i=0; i<4; ++i)
