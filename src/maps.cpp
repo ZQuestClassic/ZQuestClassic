@@ -74,8 +74,6 @@ void z3_set_currscr(int scr)
 	z3_origin_scr = scr;
 	world_w = global_z3_scrolling ? 256*16 : 256;
 	world_h = global_z3_scrolling ? 176*8  : 176;
-	// world_w = global_z3_scrolling ? 256*1 : 256;
-	// world_h = global_z3_scrolling ? 176*1  : 176;
 	// TODO z3 figure out regions stuff
 }
 

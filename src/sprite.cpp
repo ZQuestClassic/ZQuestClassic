@@ -2038,8 +2038,8 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 	
 	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
 	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
-	x += global_viewport_x;
-	y += global_viewport_y;
+	sx -= global_viewport_x;
+	sy -= global_viewport_y;
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
