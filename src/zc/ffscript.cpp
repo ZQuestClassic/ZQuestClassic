@@ -24952,7 +24952,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if(DMaps[currdmap].color != c)
 				loadlvlpal(DMaps[currdmap].color);
 				
-			z3_currscr = homescr = currscr = scrID + DMaps[currdmap].xoff;
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			z3_set_currscr(currscr);
 			
 			lightingInstant(); // Also sets naturaldark
 			
@@ -25045,7 +25046,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			ringcolor(false);
 			loadlvlpal(DMaps[currdmap].color);
 			//lastentrance_dmap = currdmap;
-			z3_currscr =homescr = currscr = scrID + DMaps[currdmap].xoff;
+			homescr = currscr = scrID + DMaps[currdmap].xoff;
+			z3_set_currscr(currscr);
 			loadscr(0,currdmap,currscr,-1,overlay);
 			
 			if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
@@ -25183,7 +25185,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			{
 				currdmap = dmapID;
 				dlevel = DMaps[currdmap].level;
-				z3_currscr = homescr = currscr = scrID + DMaps[dmapID].xoff;
+				homescr = currscr = scrID + DMaps[dmapID].xoff;
+				z3_set_currscr(currscr);
 				init_dmap();
 				
 				

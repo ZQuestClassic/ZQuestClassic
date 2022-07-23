@@ -355,7 +355,7 @@ int32_t fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
 byte use_debug_console=0, console_on_top = 0, use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
-int32_t homescr,currscr,z3_currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
+int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = 0,hasitem = 0,whistleclk = 0,pan_style = 0;
@@ -2128,16 +2128,19 @@ int32_t init_game()
 		//if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			z3_currscr = homescr = currscr = DMaps[currdmap].cont;
+			homescr = currscr = DMaps[currdmap].cont;
+			z3_set_currscr(currscr);
 		}
 		else
 		{
-			z3_currscr = homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			z3_set_currscr(currscr);
 		}
 	}
 	else
 	{
-		z3_currscr = homescr = currscr = game->get_continue_scrn();
+		homescr = currscr = game->get_continue_scrn();
+		z3_set_currscr(currscr);
 	}
 	
 	lastentrance = currscr;
@@ -2527,7 +2530,8 @@ int32_t cont_game()
 	if(dlevel != DMaps[lastentrance_dmap].level)
 		timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	currdmap = lastentrance_dmap;
-	z3_currscr = homescr = currscr = lastentrance;
+	homescr = currscr = lastentrance;
+	z3_set_currscr(currscr);
 	currmap = DMaps[currdmap].map;
 	dlevel = DMaps[currdmap].level;
 	init_dmap();
@@ -2656,18 +2660,21 @@ void restart_level()
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 		currdmap = lastentrance_dmap;
 		dlevel = DMaps[currdmap].level;
-		z3_currscr = homescr = currscr = lastentrance;
+		homescr = currscr = lastentrance;
+		z3_set_currscr(currscr);
 		init_dmap();
 	}
 	else
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			z3_currscr = homescr = currscr = DMaps[currdmap].cont;
+			homescr = currscr = DMaps[currdmap].cont;
+			z3_set_currscr(currscr);
 		}
 		else
 		{
-			z3_currscr = homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			z3_set_currscr(currscr);
 		}
 	}
 	

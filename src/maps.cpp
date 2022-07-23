@@ -47,6 +47,14 @@ extern FFScript FFCore;
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 #define DegtoFix(d)     ((d)*0.71111111)
 
+int viewport_x, viewport_y, viewport_width, viewport_height;
+int z3_origin_scr;
+void z3_set_currscr(int scr)
+{
+	z3_origin_scr = scr;
+	// TODO z3 figure out regions stuff
+}
+
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
     return (((y) & 0xF0) + ((x) >> 4));
@@ -89,8 +97,8 @@ mapscr* z3_get_scr_for_xy_offset(int x, int y)
 {
 	int dx = x / 256;
 	int dy = y / 176;
-	int origin_scr_x = z3_currscr % 16;
-	int origin_scr_y = z3_currscr / 16;
+	int origin_scr_x = z3_origin_scr % 16;
+	int origin_scr_y = z3_origin_scr / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	int scr = scr_x + scr_y * 16;
@@ -3641,18 +3649,18 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
-// z3_currscr TODO z3_origin_screen
+// z3_origin_scr TODO z3_origin_screen
 
 // TODO: replace this with current region data.
 // current_region_src_x, current_region_src_y
 int z3_get_z3scr_dx()
 {
-	return currscr % 16 - z3_currscr % 16;
+	return currscr % 16 - z3_origin_scr % 16;
 }
 
 int z3_get_z3scr_dy()
 {
-	return currscr / 16 - z3_currscr / 16;
+	return currscr / 16 - z3_origin_scr / 16;
 }
 
 static bool is_in_region(int scr)
@@ -3669,8 +3677,8 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 		return;
 	}
 
-	int z3_scr_x = z3_currscr % 16;
-	int z3_scr_y = z3_currscr / 16;
+	int z3_scr_x = z3_origin_scr % 16;
+	int z3_scr_y = z3_origin_scr / 16;
 
 	for (int scr = 0; scr < 128; scr++)
 	{
@@ -3775,7 +3783,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		int dy = Hero.getY().getFloor() / 176;
 		if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16)
 		{
-			currscr = z3_currscr + dx + dy * 16;
+			currscr = z3_origin_scr + dx + dy * 16;
 
 			// TODO z3 hack to make warp work ... but then it crashes right away
 			tmpscr[0] = TheMaps[currmap*MAPSCRS+currscr];

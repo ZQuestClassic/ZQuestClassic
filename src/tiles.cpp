@@ -1842,7 +1842,7 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 //shnarf
 //narp?
 
-// An attempt to have a single function to handle tile draws.
+// A (slow) function to handle any tile8 draw.
 static void draw_tile8_unified(BITMAP* dest, byte *si, int32_t x, int32_t y, int32_t cset, int32_t flip, bool transparency)
 {
     for (int32_t dy = 0; dy < 8; ++dy)
@@ -2055,7 +2055,6 @@ void oldputtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int3
 
 void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
-    // TODO
     if(x<-7 || y<-7)
         return;
         
@@ -2082,7 +2081,6 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
-    // TODO z3
     int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 ? 1 : 0;
 
     if (draw_mode == 1)
