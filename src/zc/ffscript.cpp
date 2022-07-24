@@ -1552,6 +1552,21 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 	return f*10000;
 }
 
+int32_t get_mi(int32_t ref)
+{
+	if(ref >= 0)
+		return ref - (8*(ref / MAPSCRS));
+	switch(ref)
+	{
+		case MAPSCR_TEMP0: case MAPSCR_TEMP1: case MAPSCR_TEMP2: case MAPSCR_TEMP3: 
+		case MAPSCR_TEMP4: case MAPSCR_TEMP5: case MAPSCR_TEMP6:
+			return (currmap*MAPSCRSNORMAL)+homescr;
+		case MAPSCR_SCROLL0: case MAPSCR_SCROLL1: case MAPSCR_SCROLL2: case MAPSCR_SCROLL3:
+		case MAPSCR_SCROLL4: case MAPSCR_SCROLL5: case MAPSCR_SCROLL6:
+			return (scrolling_map*MAPSCRSNORMAL)+scrolling_scr;
+	}
+	return -1;
+}
 
 ///------------------------------------------------//
 //           Bounds Checking Functions             //
@@ -7382,8 +7397,16 @@ int32_t get_register(const int32_t arg)
 		
 		case SCREENSTATED:
 		{
-			int32_t mi =(currmap*MAPSCRSNORMAL)+currscr;
+			int32_t mi = get_mi(ri->mapsref);
+			if(mi<0) {ret = 0;break;}
 			ret=((game->maps[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
+		}
+		break;
+		case SCREENEXSTATED:
+		{
+			int32_t mi = get_mi(ri->mapsref);
+			if(mi<0) {ret = 0;break;}
+			ret=((game->xstates[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 		}
 		break;
 		
@@ -9563,8 +9586,8 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAMISCD:
 		{
 			int32_t indx = (ri->d[rINDEX])/10000;
-			int32_t mi = ri->mapsref;
-			mi -= 8*((ri->mapsref) / MAPSCRS);
+			int32_t mi = get_mi(ri->mapsref);
+			if(mi<0) {ret = 0;break;}
 			if( ((unsigned)indx) > 7 )
 			{
 				Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
@@ -9767,9 +9790,24 @@ int32_t get_register(const int32_t arg)
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				int32_t mi = ri->mapsref;
-				mi -= 8*((ri->mapsref) / MAPSCRS);
+				int32_t mi = get_mi(ri->mapsref);
+				if(mi<0) {ret = 0;break;}
 				ret=((game->maps[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
+			}
+			else
+			{
+				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
+				ret = 0;
+			}
+			break;
+		}
+		case MAPDATAEXSTATED:
+		{
+			if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				int32_t mi = get_mi(ri->mapsref);
+				if(mi<0) {ret = 0;break;}
+				ret=((game->xstates[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 			}
 			else
 			{
@@ -16876,6 +16914,12 @@ void set_register(const int32_t arg, const int32_t value)
 			(value)?setmapflag(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
+		case SCREENEXSTATED:
+		{
+			int32_t mi2 = (currmap*MAPSCRSNORMAL)+currscr;
+			(value)?setxmapflag(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+		}
+		break;
 		
 		case SCREENSTATEDD:
 		{
@@ -19087,8 +19131,8 @@ void set_register(const int32_t arg, const int32_t value)
 			if(mapscr* m = GetMapscr(ri->mapsref))
 			{
 				int32_t indx = (ri->d[rINDEX])/10000;
-				int32_t mi = ri->mapsref;
-				mi -= 8*((ri->mapsref) / MAPSCRS);
+				int32_t mi = get_mi(ri->mapsref);
+				if(mi<0) break;
 				if( ((unsigned)indx) > 7 )
 				{
 					Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
@@ -19318,9 +19362,23 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if(mapscr* m = GetMapscr(ri->mapsref))
 			{
-				int32_t mi = ri->mapsref;
-				mi -= 8*((ri->mapsref) / MAPSCRS);
+				int32_t mi = get_mi(ri->mapsref);
+				if(mi<0) break;
 				(value)?setmapflag(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
+			}
+		}
+		break;
+		case MAPDATAEXSTATED:
+		{
+			if(mapscr* m = GetMapscr(ri->mapsref))
+			{
+				int32_t mi = get_mi(ri->mapsref);
+				if(mi<0) break;
+				(value)?setxmapflag(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
 			}
 			else
 			{
@@ -25048,8 +25106,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				// reset enemy kill counts
 				for(int32_t i=0; i<128; i++)
 				{
-				game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
-				game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+					game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
+					game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
 				}
 			}
 			
@@ -37462,6 +37520,8 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERTIMER", COMBODTRIGGERTIMER, 0, 0 },
 	{ "COMBODTRIGGERSFX", COMBODTRIGGERSFX, 0, 0 },
 	{ "COMBODTRIGGERCHANGECMB", COMBODTRIGGERCHANGECMB, 0, 0 },
+	{ "SCREENEXSTATED", SCREENEXSTATED, 0, 0 },
+	{ "MAPDATAEXSTATED", MAPDATAEXSTATED, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
