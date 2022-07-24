@@ -5,6 +5,11 @@
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
+bool global_z3_scrolling = true;
+bool global_z3_scrolling_extended_height_mode = !true;
+int32_t global_viewport_x = 0, global_viewport_y = 0;
+int32_t global_z3_cur_scr_drawing = -1;
+
 const char months[13][13] =
 { 
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"

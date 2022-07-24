@@ -33843,7 +33843,3 @@ void paymagiccost(int32_t itemid, bool ignoreTimer)
 {
 	return;
 }
-
-bool global_z3_scrolling = false;
-bool global_z3_scrolling = false;
-int32_t global_viewport_x = 0, global_viewport_y = 0;

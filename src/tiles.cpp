@@ -1843,15 +1843,12 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 
 void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
-    if(x<0 || y<0)
+    if(x<-15 || y<-15)
         return;
         
-    if(y > dest->h-8)
+    if(x >= dest->w || y >= dest->h)
         return;
-        
-    if(y == dest->h-8 && x > dest->w-8)
-        return;
-        
+
     if(newtilebuf[tile>>2].format>tf4Bit)
     {
         cset=0;
@@ -1861,6 +1858,34 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     cset <<= CSET_SHFT;
     dword lcset = (cset<<24)+(cset<<16)+(cset<<8)+cset;
     unpack_tile(newtilebuf, tile>>2, 0, false);
+
+    // 0: fast, no bounds checking
+    // 1: slow, bounds checking
+    // TODO z3
+    // int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 ? 1 : 0;
+    int draw_mode = global_z3_scrolling ? 1 : 0;
+
+    if (draw_mode == 1)
+    {
+        byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
+        
+        for(int32_t dy=0; dy<8; ++dy)
+        {
+            for(int32_t dx=0; dx<8; ++dx)
+            {
+                int destx = x + (flip&1 ? 8 - dx : dx);
+                int desty = y + (flip&2 ? 8 - dy : dy);
+                if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
+                {
+                    dest->line[desty][destx] = *si + cset;
+                }
+                si++;
+            }
+            si+=8;
+        }
+
+        return;
+    }
     
     //  to go to 24-bit color, do this kind of thing...
     //  ((int32_t *)bmp->line[y])[x] = color;
@@ -2555,10 +2580,6 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
     int32_t t[4];
-
-    if (tile == 8918 && (flip == 0 || flip == 1)) {
-        int lol = 1;
-    }
     
     for(int32_t i=0; i<4; ++i)
         t[i]=tile+i;
@@ -2614,10 +2635,6 @@ void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int
 void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
     int32_t t[4];
-
-    if (tile == 8918 && (flip == 0 || flip == 1)) {
-        int lol = 1;
-    }
     
     for(int32_t i=0; i<4; ++i)
         t[i]=tile+i;

@@ -3644,11 +3644,6 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
-bool global_z3_scrolling = true;
-bool global_z3_scrolling_extended_height_mode = !true;
-int32_t global_viewport_x = 0, global_viewport_y = 0;
-int32_t global_z3_cur_scr_drawing = -1;
-
 // z3_currscr TODO z3_origin_screen
 
 // TODO: replace this with current region data.
