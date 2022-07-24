@@ -3037,7 +3037,7 @@ bool weapon::clip()
     if(id>wEnemyWeapons && id!=ewBrang)
     {
         c[0] = d2?32:(16-nb1);
-        c[1] = world_h - (d2?48:144-nb1);
+        c[1] = world_h - (d2?48:32-nb1);
         c[2] = d2?32:(16-nb1);
         c[3] = world_w - (d2?48:32-nb1);
     }

@@ -10297,6 +10297,14 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 	{
 		return;
 	}
+
+	mapscr* scr = tmpscr;
+	if (global_z3_scrolling)
+	{
+		scr = z3_get_mapscr_for_xy_offset(ax, ay);
+		ax %= 256;
+		ay %= 176;
+	}
 	
 	did_armos=true;
 	ax&=0xF0;
@@ -10305,33 +10313,33 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 	int32_t f = MAPFLAG(ax,ay);
 	int32_t f2 = MAPCOMBOFLAG(ax,ay);
 	
-	if(combobuf[tmpscr->data[cd]].type!=cARMOS)
+	if(combobuf[scr->data[cd]].type!=cARMOS)
 	{
 		return;
 	}
 	
-	tmpscr->data[cd] = tmpscr->undercombo;
-	tmpscr->cset[cd] = tmpscr->undercset;
-	tmpscr->sflag[cd] = 0;
+	scr->data[cd] = scr->undercombo;
+	scr->cset[cd] = scr->undercset;
+	scr->sflag[cd] = 0;
 	
 	if(f == mfARMOS_SECRET || f2 == mfARMOS_SECRET)
 	{
-		tmpscr->data[cd] = tmpscr->secretcombo[sSTAIRS];
-		tmpscr->cset[cd] = tmpscr->secretcset[sSTAIRS];
-		tmpscr->sflag[cd]=tmpscr->secretflag[sSTAIRS];
-		sfx(tmpscr->secretsfx);
+		scr->data[cd] = scr->secretcombo[sSTAIRS];
+		scr->cset[cd] = scr->secretcset[sSTAIRS];
+		scr->sflag[cd]=scr->secretflag[sSTAIRS];
+		sfx(scr->secretsfx);
 	}
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN))
+		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
-			additem(ax,ay,tmpscr->catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-			sfx(tmpscr->secretsfx);
+			additem(ax,ay,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+			sfx(scr->secretsfx);
 		}
 	}
 	
-	putcombo(scrollbuf,ax,ay,tmpscr->data[cd],tmpscr->cset[cd]);
+	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
 eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
@@ -10386,7 +10394,7 @@ bool eGhini::animate(int32_t index)
 			misc=1;
 			clk3=32;
 			fading=0;
-			guygrid[(int32_t(y)&0xF0)+(int32_t(x)>>4)]=0;
+			guygrid[((int32_t(y)&0xF0)+(int32_t(x)>>4))%176]=0;
 			removearmos(x,y);
 		}
 	}
@@ -21887,6 +21895,9 @@ void loadenemies()
 		bool beenhere = false;
 		bool reload = true;
 		bool unbeatablereload = true;
+
+		// TODO z3
+		if (scr != currscr) return;
 		
 		// TODO z3
 		// for(int32_t i=0; i<6; i++)

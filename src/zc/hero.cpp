@@ -19403,7 +19403,7 @@ void HeroClass::checktouchblk()
 	{
 		ty&=0xF0;
 		tx&=0xF0;
-		int32_t di = ty+(tx>>4);
+		int32_t di = (ty+(tx>>4))%176;
 		if((getAction() != hopping || isSideViewHero()))
 		{
 			trigger_armos_grave(0, di, dir);
