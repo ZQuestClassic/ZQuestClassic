@@ -16230,7 +16230,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 {
     WalkflagInfo ret;
     
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		wx = vbound(wx, -1, 256);
 		wy = vbound(wy, -1, 176);
@@ -16769,7 +16769,7 @@ bool HeroClass::checksoliddamage()
 {
 	if(toogam) return false;
 	// TODO z3
-	if (global_z3_scrolling) return false;
+	if (is_z3_scrolling_mode()) return false;
     
 	if(z!=0||fakez!=0) return false;
 	int32_t bx = x.getInt();
@@ -20155,7 +20155,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	
 	//Generic Step
-	if (!global_z3_scrolling) // TODO z3
+	if (!is_z3_scrolling_mode()) // TODO z3
 	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
 	{
 		int32_t poses[4];
@@ -24060,7 +24060,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	
 	int z3_scrolling_mode = 0;
-	if (global_z3_scrolling) z3_scrolling_mode = 1;
+	if (is_z3_scrolling_mode()) z3_scrolling_mode = 1;
 	// Enable to try the "z3" path even for non-scrolling screens.
 	// Once bugs are worked out this should become the only path (and delete the !z3_scrolling_mode paths).
 	// z3_scrolling_mode = 2;
@@ -24077,7 +24077,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			return;
 		}
 		
-		if (!global_z3_scrolling)
+		if (!is_z3_scrolling_mode())
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
 		
 		if(no_move > 0)
@@ -24142,7 +24142,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(x > world_w - 16) x = world_w - 16;
 			if(x < 0)            x = 0;
 
-			if (global_z3_scrolling)
+			if (is_z3_scrolling_mode())
 			{
 				// TODO z3 clamp?
 				global_viewport_x = Hero.getX() - 256/2;
@@ -24202,7 +24202,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 
 		//FFScript.OnWaitdraw()
-		if (!global_z3_scrolling)
+		if (!is_z3_scrolling_mode())
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);

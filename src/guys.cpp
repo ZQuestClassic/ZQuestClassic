@@ -26,6 +26,7 @@
 #include "mem_debug.h"
 #include "zscriptversion.h"
 #include "particles.h"
+
 extern particle_list particles;
 
 extern FFScript FFCore;
@@ -2791,7 +2792,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	// TODO: could this reuse _walkflag?
 	//_walkflag code
 	mapscr *s0, *s1, *s2;
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		mapscr* z3scr = z3_get_mapscr_for_xy_offset(dx, dy);
 		s0 = z3scr;
@@ -10299,7 +10300,7 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 	}
 
 	mapscr* scr = tmpscr;
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		scr = z3_get_mapscr_for_xy_offset(ax, ay);
 		ax %= 256;
@@ -21470,7 +21471,7 @@ void side_load_enemies()
 
 bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 { 
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
 		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
@@ -21823,7 +21824,7 @@ void loadenemies()
 		return;
 	}
 	
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		// check if it's been long enough to reload all enemies
 		int32_t loadcnt = 10;

@@ -71,9 +71,9 @@ static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -111,6 +111,7 @@ static bool is_in_region(int scr)
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
+static bool global_z3_scrolling = true;
 bool is_z3_scrolling_mode()
 {
 	return global_z3_scrolling;
