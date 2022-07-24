@@ -786,7 +786,9 @@ static const GUI::ListData compatRulesList
 		"If disabled, the subscreen selector will stretch to fit the item it is selecting." },
 	{ "Old Subscreen Item ID order", qr_SUBSCR_BACKWARDS_ID_ORDER,
 		"If enabled, the subscreen will prioritize lower-ID items when there is a 'Level' tie, instead"
-		" of prioritizing higher-ID items like everything else in the engine." }
+		" of prioritizing higher-ID items like everything else in the engine." },
+	{ "Decorations -2 yoffset", qr_DECO_2_YOFFSET,
+		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." }
 };
 
 static const GUI::ListData enemiesRulesList

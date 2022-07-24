@@ -3619,6 +3619,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_OLD_LOCKBLOCK_COLLISION,1);
 	}
+	if(compatrule_version < 30)
+	{
+		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

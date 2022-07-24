@@ -33,7 +33,8 @@ decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : s
 	id=Id;
 	clk=Clk;
 	misc = 0;
-	yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
+	yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	if(get_bit(quest_rules, qr_DECO_2_YOFFSET)) yofs -= 2;
 	the_deco_sprite = vbound(wpnSpr,0,255);
 }
 
@@ -162,9 +163,8 @@ dBushLeaves::dBushLeaves(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 	}
 }
 
-bool dBushLeaves::animate(int32_t index)
+bool dBushLeaves::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=24);
 }
 
@@ -211,7 +211,7 @@ comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 	spd = wpnsbuf[the_deco_sprite].speed;
 }
 
-bool comboSprite::animate(int32_t index)
+bool comboSprite::animate(int32_t)
 {
 	/*
 	clk++;
@@ -384,9 +384,8 @@ dFlowerClippings::dFlowerClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t
 	}
 }
 
-bool dFlowerClippings::animate(int32_t index)
+bool dFlowerClippings::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=24);
 }
 
@@ -489,9 +488,8 @@ dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t w
 	}
 }
 
-bool dGrassClippings::animate(int32_t index)
+bool dGrassClippings::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=12);
 }
 
@@ -570,9 +568,8 @@ dHammerSmack::dHammerSmack(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr)
 	wpnid=itemsbuf[current_item_id(itype_hammer)].wpn2;
 }
 
-bool dHammerSmack::animate(int32_t index)
+bool dHammerSmack::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	return (clk++>=12);
 }
 
@@ -603,10 +600,8 @@ dTallGrass::dTallGrass(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : d
 	clk=Clk;
 }
 
-bool dTallGrass::animate(int32_t index)
+bool dTallGrass::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
-	
 	if(HeroZ()>8 || HeroFakeZ()>8) return true;
 	bool g1 = isGrassType(COMBOTYPE(HeroX(),HeroY()+15)), g2 = isGrassType(COMBOTYPE(HeroX()+15,HeroY()+15));
 	if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
@@ -662,9 +657,8 @@ dRipples::dRipples(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decor
 	clk=Clk;
 }
 
-bool dRipples::animate(int32_t index)
+bool dRipples::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
 	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 	{
@@ -742,9 +736,8 @@ void dHover::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-bool dHover::animate(int32_t index)
+bool dHover::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
 	return HeroHoverClk()<=0;
 }
@@ -755,9 +748,8 @@ dNayrusLoveShield::dNayrusLoveShield(zfix X,zfix Y,int32_t Id,int32_t Clk) : dec
 	clk=Clk;
 }
 
-bool dNayrusLoveShield::animate(int32_t index)
+bool dNayrusLoveShield::animate(int32_t)
 {
-	index=index;  //this is here to bypass compiler warnings about unused arguments
 	clk++;
 	return HeroNayrusLoveShieldClk()<=0;
 }
