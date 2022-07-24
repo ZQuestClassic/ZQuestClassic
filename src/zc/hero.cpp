@@ -102,6 +102,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
 #define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fakez < 0 ? zslongToFix(2147483647) : switchblock_z+z+fakez))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_bit(quest_rules,qr_BROKEN_Z3_ANIMATION))
+#define CLEAR_LOW_BITS(x, b) ((x) & ~(1<<(b) - 1))
 
 static inline bool platform_fallthrough()
 {
@@ -21136,6 +21137,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				specialcave = STAIRCAVE;
 			}
 			else specialcave = GUYCAVE;
+			z3_set_currscr(currscr);
 			
 			//lighting(2,dir);
 			lighting(false, true);
@@ -21248,6 +21250,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
 		homescr=currscr;
 		currscr=0x81;
+		z3_set_currscr(currscr);
 		specialcave = PASSAGEWAY;
 		byte warpscr2 = wscr + DMaps[wdmap].xoff;
 		draw_screen(tmpscr,false);
@@ -22226,9 +22229,11 @@ void HeroClass::exitcave()
 {
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     currscr=homescr;
+	z3_set_currscr(currscr);
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
-    x = tmpscr->warpreturnx[0];
-    y = tmpscr->warpreturny[0];
+    x = region_scr_dx*256 + tmpscr->warpreturnx[0];
+    y = region_scr_dy*176 + tmpscr->warpreturny[0];
+	z3_update_currscr();
     
     if(didpit)
     {
@@ -22518,13 +22523,13 @@ void HeroClass::walkdown(bool opening) //entering cave
     clk=0;
     //  int32_t cmby=(y.getInt()&0xF0)+16;
     // Fix Hero's position to the grid
-    y=y.getInt()&0xF0;
+    y=CLEAR_LOW_BITS(y.getInt(), 4);
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=x.getInt()&0xF0;
-    climb_cover_y=(y.getInt()&0xF0)+16;
+    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
+    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4) + 16;
     
     guys.clear();
     chainlinks.clear();
@@ -22532,6 +22537,7 @@ void HeroClass::walkdown(bool opening) //entering cave
     Ewpns.clear();
     items.clear();
     
+	viewport_y_offset = 0;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -22540,14 +22546,18 @@ void HeroClass::walkdown(bool opening) //entering cave
             hero_count=(hero_count+1)%16;
             
         if((i&3)==3)
+		{
             ++y;
-            
+			--viewport_y_offset;
+		}
+
         draw_screen(tmpscr);
         advanceframe(true);
         
         if(Quit)
             break;
     }
+	viewport_y_offset = 0;
     
     action=none; FFCore.setHeroAction(none);
 }
@@ -22561,7 +22571,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         
     dir=down;
     // Fix Hero's position to the grid
-    y=y.getInt()&0xF0;
+    y=CLEAR_LOW_BITS(y.getInt(), 4);
     z=fakez=fall=fakefall=0;
     
     if(opening)
@@ -22578,8 +22588,8 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=x.getInt()&0xF0;
-    climb_cover_y=y.getInt()&0xF0;
+    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
+    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4);
     
     guys.clear();
     chainlinks.clear();
@@ -22587,6 +22597,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     Ewpns.clear();
     items.clear();
     
+	viewport_y_offset = 16;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -22595,7 +22606,10 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
             hero_count=(hero_count+1)%16;
             
         if((i&3)==3)
+		{
             ++y;
+			--viewport_y_offset;
+		}
             
         draw_screen(tmpscr);
         advanceframe(true);
@@ -22603,6 +22617,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if(Quit)
             break;
     }
+	viewport_y_offset = 0;
     
     action=none; FFCore.setHeroAction(none);
 }
@@ -22615,7 +22630,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         y+=16;
         
     // Fix Hero's position to the grid
-    y=y.getInt()&0xF0;
+	y=CLEAR_LOW_BITS(y.getInt(), 4);
     z=fakez=fall=fakefall=0;
     
     if(opening)
@@ -22633,8 +22648,8 @@ void HeroClass::walkup(bool opening) //exiting cave
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=x.getInt()&0xF0;
-    climb_cover_y=y.getInt()&0xF0;
+    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
+    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4);
     
     guys.clear();
     chainlinks.clear();
@@ -22642,6 +22657,7 @@ void HeroClass::walkup(bool opening) //exiting cave
     Ewpns.clear();
     items.clear();
     
+	viewport_y_offset = -16;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -22650,7 +22666,10 @@ void HeroClass::walkup(bool opening) //exiting cave
             hero_count=(hero_count+1)%16;
             
         if((i&3)==0)
+		{
             --y;
+			++viewport_y_offset;
+		}
             
         draw_screen(tmpscr);
         advanceframe(true);
@@ -22658,6 +22677,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         if(Quit)
             break;
     }
+	viewport_y_offset = 0;
     map_bkgsfx(true);
     loadside=dir^1;
     action=none; FFCore.setHeroAction(none);
@@ -22680,8 +22700,9 @@ void HeroClass::walkup2(bool opening) //entering cave2
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=x.getInt()&0xF0;
-    climb_cover_y=(y.getInt()&0xF0)-16;
+	CLEAR_LOW_BITS(x.getInt(), 4);
+    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
+    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4) - 16;
     
     guys.clear();
     chainlinks.clear();

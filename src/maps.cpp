@@ -64,6 +64,7 @@ extern HeroClass Hero;
 // define regions dynamically
 
 int viewport_x, viewport_y;
+int viewport_y_offset;
 int world_w, world_h;
 static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
@@ -73,9 +74,9 @@ int region_scr_dx, region_scr_dy;
 // 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 // 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 // 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+// 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 // 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 // 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 // };
@@ -167,20 +168,26 @@ void z3_update_viewport()
 	global_viewport_x = CLAMP(0, world_w - viewport_w, Hero.getX() - viewport_w/2);
 	// TODO z3 this is quite a hack
 	if (global_z3_scrolling_extended_height_mode)
-		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - (viewport_h-64)/2);
+		global_viewport_y = CLAMP(0, world_h - viewport_h, viewport_y_offset + Hero.getY() - (viewport_h-64)/2);
 	else
-		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - viewport_h/2);
+		global_viewport_y = CLAMP(0, world_h - viewport_h, viewport_y_offset + Hero.getY() - viewport_h/2);
+}
 
+void z3_update_currscr()
+{
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
 	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr + dx + dy * 16))
 	{
-		region_scr_dx = dx;
-		region_scr_dy = dy;
-		currscr = z3_origin_scr + dx + dy * 16;
+		if (z3_origin_scr + dx + dy * 16 != currscr)
+		{
+			region_scr_dx = dx;
+			region_scr_dy = dy;
+			currscr = z3_origin_scr + dx + dy * 16;
 
-		// TODO z3 hack to make warp work ... but then it crashes right away
-		tmpscr[0] = TheMaps[currmap*MAPSCRS+currscr];
+			// TODO z3 hack to make warp work ... but then it crashes right away
+			loadscr(0, currdmap, currscr, 0, false);
+		}
 	}
 }
 
@@ -381,7 +388,7 @@ int32_t MAPCOMBO(int32_t x,int32_t y)
 		//extend combos outwards if out of bounds -DD
 		x = vbound(x, 0, world_w-1);
 		y = vbound(y, 0, world_h-1);
-		int32_t combo = COMBOPOS(x % 255, y % 176);
+		int32_t combo = COMBOPOS(x % 256, y % 176);
 		if(combo>175 || combo < 0)
 			return 0;
 
@@ -502,11 +509,22 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 
 int32_t MAPCSET(int32_t x,int32_t y)
 {
-    if(x<0 || x>255 || y<0 || y>175)
-        return 0;
-        
-    int32_t combo = COMBOPOS(x,y);
-    return tmpscr->cset[combo];                               // entire combo code
+	if (!global_z3_scrolling)
+	{
+		if(x<0 || x>255 || y<0 || y>175)
+			return 0;
+			
+		int32_t combo = COMBOPOS(x,y);
+		return tmpscr->cset[combo];                               // entire combo code
+	}
+	else
+	{
+		if(x<0 || x>=world_w || y<0 || y>=world_h)
+			return 0;
+		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
+		int32_t combo = COMBOPOS(x%256,y%176);
+		return z3_scr->cset[combo];
+	}
 }
 
 int32_t MAPFLAG(int32_t x,int32_t y)
@@ -520,11 +538,10 @@ int32_t MAPFLAG(int32_t x,int32_t y)
 	}
 	else
 	{
-		// TODO z3
-		if(x<0 || x>255*16 || y<0 || y>175*8)
+		if(x<0 || x>=world_w || y<0 || y>=world_h)
 			return 0;
 		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
-		int32_t combo = COMBOPOS(x%255,y%176);
+		int32_t combo = COMBOPOS(x%256,y%176);
 		return z3_scr->sflag[combo];
 	}
 }
@@ -637,12 +654,11 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 	}
 	else
 	{
-		// TODO z3
-		if(x<0 || x>world_w || y<0 || y>world_h)
+		if(x<0 || x>=world_w || y<0 || y>=world_h)
 			return 0;
 		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
-		int32_t combo = COMBOPOS(x%255,y%176);
-		return combobuf[tmpscr->data[combo]].flag;
+		int32_t combo = COMBOPOS(x%256,y%176);
+		return combobuf[z3_scr->data[combo]].flag;
 	}
 }
 
@@ -3905,6 +3921,16 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 	// TODO z3 move to game loop?
 	z3_update_viewport();
+	// {
+	// 	int viewport_w = 256;
+	// 	int viewport_h = 176;
+	// 	global_viewport_x = CLAMP(0, world_w - viewport_w, Hero.getX() - viewport_w/2);
+	// 	// TODO z3 this is quite a hack
+	// 	if (global_z3_scrolling_extended_height_mode)
+	// 		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - (viewport_h-64)/2);
+	// 	else
+	// 		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - viewport_h/2);
+	// }
 	
 	if (!global_z3_scrolling)
 	{
@@ -3978,16 +4004,18 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			decorations.draw2(scrollbuf,true);
 			Hero.draw(scrollbuf);
 			decorations.draw(scrollbuf,true);
-			int32_t ccx = (int32_t)(Hero.getClimbCoverX());
-			int32_t ccy = (int32_t)(Hero.getClimbCoverY());
+			// int32_t ccx = Hero.getClimbCoverX() - global_viewport_x;
+			// int32_t ccy = Hero.getClimbCoverY() - global_viewport_y;
+			int32_t ccx = (int32_t)Hero.getClimbCoverX();
+			int32_t ccy = (int32_t)Hero.getClimbCoverY();
 			
-			overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
-			putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			overcombo(scrollbuf,ccx-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
 			
 			if(int32_t(Hero.getX())&15)
 			{
-				overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
-				putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+				overcombo(scrollbuf,ccx+16-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
 			}
 		}
 	}
@@ -6305,6 +6333,7 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (c.walk&b) ? !dried : false;
 }
 
+// TODO z3
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	//  walkflagx=x; walkflagy=y;

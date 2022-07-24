@@ -29,11 +29,13 @@ extern int world_w, world_h;
 // this is just 0. Otherwise it attempts to center the hero in the middle of the camera, snapping
 // to the region edges.
 extern int viewport_x, viewport_y;
+extern int viewport_y_offset;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;
 void z3_set_currscr(int scr);
 void z3_update_viewport();
+void z3_update_currscr();
 bool edge_of_region(direction dir);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

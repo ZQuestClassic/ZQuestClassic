@@ -3773,7 +3773,8 @@ void game_loop()
 		
 		
 		
-		
+		z3_update_viewport();
+		z3_update_currscr();
 		
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
