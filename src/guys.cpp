@@ -19579,6 +19579,7 @@ void killfairynew(item const &itemfairy)
 	if (fairy != NULL) guys.del(getGuyIndex(itemfairy.fairyUID));
 }
 
+//Should probably change this to return an 'enemy*', null on failure -Em
 int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk)
 {
 	return addenemy(x,y,0,id,clk);

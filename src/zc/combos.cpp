@@ -933,10 +933,13 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 				{
 					if ( ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) ) xpos += 16;
 				}
-				addenemy(tx+xpos,ty+1+ypos,id2,0);
-				((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-				((enemy*)guys.spr(guys.Count()-1))->fading=fade_flicker;
-				((enemy*)guys.spr(guys.Count()-1))->flags2 |= cmbflag_armos;
+				if(addenemy(tx+xpos,ty+1+ypos,id2,0))
+				{
+					enemy* en = ((enemy*)guys.spr(guys.Count()-1));
+					en->did_armos=false;
+					en->fading=fade_flicker;
+					en->flags2 |= cmbflag_armos;
+				}
 				return true;
 			}
 			break;
@@ -970,8 +973,9 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 		default: return false;
 	}
 	guygrid[pos] = 61;
-	addenemy(tx,ty+3,id2,eclk);
-	((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+	if(addenemy(tx,ty+3,id2,eclk))
+		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
+	else return false;
 	return true;
 }
 
