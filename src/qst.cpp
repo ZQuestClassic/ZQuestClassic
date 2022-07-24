@@ -17463,7 +17463,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			{
 				if(!p_igetl(&temp_combo.initd[q],f,true))
 				{
-				return qe_invalid;
+					return qe_invalid;
 				}
 			}
 			
@@ -17496,7 +17496,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			{
 				if(!p_getc(&temp_combo.attribytes[q],f,true))
 				{
-				return qe_invalid;
+					return qe_invalid;
 				}
 			}
 			for ( int32_t q = 0; q < 8; q++ ) //...and add attrishorts
@@ -17565,6 +17565,17 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 					temp_combo.tile = 131;
 					break;
 				}
+			}
+		}
+		
+		if(section_version < 28)
+		{
+			switch(temp_combo.type)
+			{
+				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+					temp_combo.attrishorts[2] = -1;
+					temp_combo.usrflags |= cflag7;
+					break;
 			}
 		}
 		

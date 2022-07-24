@@ -692,10 +692,32 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 			itemflag = true; break;
 		}
 	}
-	
-	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
+	bool itemstate = false;
+	int32_t ipflag = 0;
+	if(cmb.usrflags & cflag7)
 	{
-		item* itm = new item(Hero.getX(), Hero.getY(), 0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0);
+		itemstate = !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+	}
+	if(itemflag && !itemstate)
+	{
+		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0);
+		int32_t itid = cmb.attrishorts[2];
+		switch(itid)
+		{
+			case -10: case -11: case -12: case -13:
+			case -14: case -15: case -16: case -17:
+			{
+				int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+				itid = game->screen_d[di][abs(itid)-10] / 10000L;
+				break;
+			}
+			case -1:
+				itid = tmpscr->catchall;
+				break;
+		}
+		if(unsigned(itid) >= MAXITEMS) itid = 0;
+		item* itm = new item(Hero.getX(), Hero.getY(), 0, itid, pflags, 0);
 		itm->set_forcegrab(true);
 		items.add(itm);
 	}

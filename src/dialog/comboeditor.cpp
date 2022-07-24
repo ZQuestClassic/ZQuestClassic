@@ -1117,6 +1117,13 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
 			}
+			l_attrishort[2] = "Contained Item";
+			h_attrishort[2] = "The item contained by the chest."
+				"\n0-256: Use specified item ID\n"
+				"-1: Use screen special item (catchall)\n"
+				"-10 to -17: Use Screen->D[0] to [7] as item ID";
+			l_flag[6] = "Use SItem State";
+			h_flag[6] = "Link contained item to 'Special Item' screen state.";
 		}
 		[[fallthrough]];
 		case cCHEST2:
