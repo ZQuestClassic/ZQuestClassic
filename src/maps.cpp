@@ -68,15 +68,27 @@ int world_w, world_h;
 static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
 
+// majora's ALTTP test
+// static const int hardcode_z3_regions[] = {
+// 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+// 	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+// 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+// 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+// };
+// z1
 static const int hardcode_z3_regions[] = {
-	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
 static int scr_xy_to_index(int x, int y) {
@@ -123,13 +135,13 @@ void z3_set_currscr(int scr)
 	
 	// Now find the bottom-right corner.
 	int region_scr_right = origin_scr_x;
-	while (region_scr_right < 16)
+	while (region_scr_right < 15)
 	{
 		if (!is_in_region(scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
 		region_scr_right++;
 	}
 	int region_scr_bottom = origin_scr_y;
-	while (region_scr_bottom < 8)
+	while (region_scr_bottom < 7)
 	{
 		if (!is_in_region(scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
 		region_scr_bottom++;
@@ -161,7 +173,7 @@ void z3_update_viewport()
 
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
-	if (dx >= 0 && dy >= 0 && dx < 8 && dy < 16 && is_in_region(z3_origin_scr + dx + dy * 16))
+	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr + dx + dy * 16))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;

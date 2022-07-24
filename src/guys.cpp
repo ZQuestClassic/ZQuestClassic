@@ -21462,7 +21462,7 @@ void side_load_enemies()
 
 bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 { 
-	
+	if (!global_z3_scrolling)
 	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
 		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);

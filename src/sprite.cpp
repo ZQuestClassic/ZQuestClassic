@@ -2073,7 +2073,7 @@ int32_t sprite::run_script(int32_t mode)
 
 //class enemy;
 
-sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255),
+sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(global_z3_scrolling ? 255*15 : 255),
 	lastUIDRequested(0), lastSpriteRequested(0) {}
 void sprite_list::clear(bool force)
 {
