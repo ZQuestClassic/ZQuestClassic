@@ -2129,19 +2129,17 @@ int32_t init_game()
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
 			homescr = currscr = DMaps[currdmap].cont;
-			z3_set_currscr(currscr);
 		}
 		else
 		{
 			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-			z3_set_currscr(currscr);
 		}
 	}
 	else
 	{
 		homescr = currscr = game->get_continue_scrn();
-		z3_set_currscr(currscr);
 	}
+	z3_set_currscr(currscr);
 	
 	lastentrance = currscr;
 	game->set_continue_scrn(lastentrance);
@@ -2227,17 +2225,8 @@ int32_t init_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		if (!global_z3_scrolling)
-		{
-			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
-		}
-		else
-		{
-			mapscr* scr = &TheMaps[currmap*MAPSCRS+currscr];
-			Hero.setX(region_scr_dx*256 + scr->warpreturnx[testingqst_retsqr]);
-			Hero.setY(region_scr_dy*176 + scr->warpreturny[testingqst_retsqr]);
-		}
+		Hero.setX(region_scr_dx*256 + tmpscr->warpreturnx[testingqst_retsqr]);
+		Hero.setY(region_scr_dy*176 + tmpscr->warpreturny[testingqst_retsqr]);
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -2580,17 +2569,8 @@ int32_t cont_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		if (!global_z3_scrolling)
-		{
-			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
-		}
-		else
-		{
-			mapscr* scr = &TheMaps[currmap*MAPSCRS+currscr];
-			Hero.setX(region_scr_dx*256 + scr->warpreturnx[testingqst_retsqr]);
-			Hero.setY(region_scr_dy*176 + scr->warpreturny[testingqst_retsqr]);
-		}
+		Hero.setX(region_scr_dx*256 + tmpscr->warpreturnx[testingqst_retsqr]);
+		Hero.setY(region_scr_dy*176 + tmpscr->warpreturny[testingqst_retsqr]);
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -2679,7 +2659,6 @@ void restart_level()
 		currdmap = lastentrance_dmap;
 		dlevel = DMaps[currdmap].level;
 		homescr = currscr = lastentrance;
-		z3_set_currscr(currscr);
 		init_dmap();
 	}
 	else
@@ -2687,14 +2666,13 @@ void restart_level()
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
 			homescr = currscr = DMaps[currdmap].cont;
-			z3_set_currscr(currscr);
 		}
 		else
 		{
 			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
-			z3_set_currscr(currscr);
 		}
 	}
+	z3_set_currscr(currscr);
 	
 	currmap = DMaps[currdmap].map;
 	dlevel = DMaps[currdmap].level;

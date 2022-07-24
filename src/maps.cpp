@@ -71,18 +71,21 @@ static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
 
 // majora's ALTTP test
-// static const int hardcode_z3_regions[] = {
-// 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-// 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-// 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-// 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
-// };
+#define hardcode_regions_mode 0
 // z1
+// #define hardcode_regions_mode 1
+
 static const int hardcode_z3_regions[] = {
+#if hardcode_regions_mode == 0
+	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+#elif hardcode_regions_mode == 1
 	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -91,6 +94,7 @@ static const int hardcode_z3_regions[] = {
 	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+#endif
 };
 
 static int scr_xy_to_index(int x, int y) {
@@ -99,14 +103,29 @@ static int scr_xy_to_index(int x, int y) {
 
 static bool is_in_region(int scr)
 {
+#if hardcode_regions_mode == 1
+	if (currmap != 0) return false;
+#endif
 	if (scr >= 128) return false;
 	int region_id = hardcode_z3_regions[z3_origin_scr];
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
+bool is_z3_scrolling_mode()
+{
+	if (!global_z3_scrolling) return false;
+#if hardcode_regions_mode == 1
+	if (currmap != 0) return false;
+#endif
+	if (currscr >= 128) return false;
+	if (hardcode_z3_regions[currscr] == 0) return false;
+	return true;
+}
+
+// Assumes the currscr has already been set to scr. TODO z3 fix that
 void z3_set_currscr(int scr)
 {
-	if (!global_z3_scrolling || hardcode_z3_regions[scr] == 0)
+	if (!is_z3_scrolling_mode())
 	{
 		z3_origin_scr = scr;
 		region_scr_dx = 0;
@@ -157,7 +176,7 @@ void z3_set_currscr(int scr)
 
 void z3_update_viewport()
 {
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		global_viewport_x = 0;
 		global_viewport_y = 0;
@@ -194,7 +213,7 @@ void z3_update_currscr()
 
 bool edge_of_region(direction dir)
 {
-	if (!global_z3_scrolling) return true;
+	if (!is_z3_scrolling_mode()) return true;
 
 	int scr_x = currscr % 16;
 	int scr_y = currscr / 16;
@@ -371,7 +390,7 @@ bool canPermSecret(int32_t dmap, int32_t scr)
 
 int32_t MAPCOMBO(int32_t x,int32_t y)
 {
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		//extend combos outwards if out of bounds -DD
 		x = vbound(x, 0, (16*16)-1);
@@ -510,7 +529,7 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 
 int32_t MAPCSET(int32_t x,int32_t y)
 {
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		if(x<0 || x>255 || y<0 || y>175)
 			return 0;
@@ -530,7 +549,7 @@ int32_t MAPCSET(int32_t x,int32_t y)
 
 int32_t MAPFLAG(int32_t x,int32_t y)
 {
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		if(x<0 || x>255 || y<0 || y>175)
 			return 0;
@@ -553,7 +572,7 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
 	if(x&8) b<<=2;
 	if(y&8) b<<=1;
 
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		// TODO z3 b
 		newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
@@ -645,7 +664,7 @@ int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y)
 
 int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 {
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		if(x<0 || x>255 || y<0 || y>175)
 			return 0;
@@ -714,7 +733,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 { 
 	if (map < 0 || screen < 0) return 0;
 	
-	if (!global_z3_scrolling && map == currmap && screen == currscr) return MAPCOMBO2(layer,COMBOX(pos),COMBOY(pos));
+	if (!is_z3_scrolling_mode() && map == currmap && screen == currscr) return MAPCOMBO2(layer,COMBOX(pos),COMBOY(pos));
 	
 	if(pos>175 || pos < 0)
 		return 0;
@@ -3299,7 +3318,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	y += global_viewport_y;
 
 	mapscr const* tmp = NULL;
-	if (!global_z3_scrolling || global_z3_cur_scr_drawing == -1)
+	if (!is_z3_scrolling_mode() || global_z3_cur_scr_drawing == -1)
 	{
 		tmp = layer > 0 ?
 			(&(tempscreen==2?tmpscr2[layer-1]:tmpscr3[layer-1])) :
@@ -3818,7 +3837,7 @@ void calc_darkroom_combos(bool scrolling)
 // TODO z3_scr_dx -> offset_x
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn)
 {
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		fn(tmpscr, currscr, 0, 0);
 		return;
@@ -3933,7 +3952,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	// 		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - viewport_h/2);
 	// }
 	
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		if(XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
@@ -3966,7 +3985,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	});
 	
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		putscr(scrollbuf,0,playing_field_offset,this_screen);
 	}
@@ -4021,7 +4040,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		do_layer(scrollbuf, 0, 1, this_screen, 0, 0, 2, false, true); // LAYER 1
 		
@@ -4083,7 +4102,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		do_layer(scrollbuf, -2, 0, this_screen, 0, 0, 2); // push blocks!
 		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
@@ -4288,7 +4307,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//5. Draw some layers onto temp_buf and scrollbuf
 	
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
@@ -4420,7 +4439,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
 	color_map = &trans_table;
 
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
 		do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
@@ -5720,7 +5739,7 @@ static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 
 bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 {
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		int max_x = world_w;
 		int max_y = world_h;
@@ -5757,7 +5776,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	}
 	
 	mapscr *s0, *s1, *s2;
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		s0=tmpscr;
 		s1=(tmpscr2->valid)?tmpscr2:tmpscr;
@@ -5888,7 +5907,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 {
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		int max_x = world_w;
 		int max_y = world_h;
@@ -5927,7 +5946,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	}
 	
 	mapscr *s0, *s1, *s2;
-	if (!global_z3_scrolling)
+	if (!is_z3_scrolling_mode())
 	{
 		s0=tmpscr;
 		s1=(tmpscr2->valid)?tmpscr2:tmpscr;
@@ -6018,11 +6037,11 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 //used by mapdata->isSolid(x,y) in ZScript:
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		// TODO z3
-		int max_x = global_z3_scrolling ? 256 * 16 : 256;
-		int max_y = global_z3_scrolling ? 176 * 16 : 176;
+		int max_x = is_z3_scrolling_mode() ? 256 * 16 : 256;
+		int max_y = is_z3_scrolling_mode() ? 176 * 16 : 176;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;
@@ -6069,9 +6088,9 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	else s2 = m;
 	
 	int32_t bx=COMBOPOS(x, y);
-	newcombo c =  !global_z3_scrolling ? combobuf[m->data[bx]]  : combobuf[MAPCOMBO3(currmap, currscr, 0, bx, false)];
-	newcombo c1 = !global_z3_scrolling ? combobuf[s1->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 1, bx, false)];
-	newcombo c2 = !global_z3_scrolling ? combobuf[s2->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 2, bx, false)];
+	newcombo c =  !is_z3_scrolling_mode() ? combobuf[m->data[bx]]  : combobuf[MAPCOMBO3(currmap, currscr, 0, bx, false)];
+	newcombo c1 = !is_z3_scrolling_mode() ? combobuf[s1->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 1, bx, false)];
+	newcombo c2 = !is_z3_scrolling_mode() ? combobuf[s2->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 2, bx, false)];
 	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
 				   (iswater_type(c2.type))) && DRIEDLAKE);
 	int32_t b=1;
@@ -6267,11 +6286,11 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 //Only check the given mapscr*, not it's layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
-	if (global_z3_scrolling)
+	if (is_z3_scrolling_mode())
 	{
 		// TODO z3
-		int max_x = global_z3_scrolling ? 256 * 16 : 256;
-		int max_y = global_z3_scrolling ? 176 * 16 : 176;
+		int max_x = is_z3_scrolling_mode() ? 256 * 16 : 256;
+		int max_y = is_z3_scrolling_mode() ? 176 * 16 : 176;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;

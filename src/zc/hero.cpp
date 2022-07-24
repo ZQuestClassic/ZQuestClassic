@@ -21347,7 +21347,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//lastentrance_dmap = currdmap;
 		homescr = currscr = wscr + DMaps[currdmap].xoff;
 		z3_set_currscr(currscr);
-		z3_set_currscr(currscr);
 		loadscr(0,currdmap,currscr,-1,overlay);
 		
 		if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
@@ -21422,14 +21421,13 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		dir=down;
-		
 		if(x==0)   dir=right;
-		
 		if(x==240) dir=left;
-		
 		if(y==0)   dir=down;
-		
 		if(y==160) dir=up;
+
+		x += region_scr_dx * 256;
+		y += region_scr_dy * 176;
 		
 		if(dlevel)
 		{

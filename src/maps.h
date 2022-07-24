@@ -37,6 +37,7 @@ void z3_set_currscr(int scr);
 void z3_update_viewport();
 void z3_update_currscr();
 bool edge_of_region(direction dir);
+bool is_z3_scrolling_mode();
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
