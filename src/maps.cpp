@@ -113,6 +113,7 @@ static bool is_in_region(int scr)
 
 bool is_z3_scrolling_mode()
 {
+	return global_z3_scrolling;
 	if (!global_z3_scrolling) return false;
 #if hardcode_regions_mode == 1
 	if (currmap != 0) return false;
