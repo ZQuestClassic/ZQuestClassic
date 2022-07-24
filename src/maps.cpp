@@ -62,6 +62,7 @@ extern HeroClass Hero;
 // screen wipe in when spawning in middle of region
 // ffcs
 // define regions dynamically
+// scrolling mazes ?!?!
 
 int viewport_x, viewport_y;
 int viewport_y_offset;
