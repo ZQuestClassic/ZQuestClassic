@@ -59,11 +59,20 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 
 int32_t getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
+
 void setmapflag(int32_t mi2, int32_t flag);
 void setmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
 void unsetmapflag(int32_t flag = 32,bool anyflag = false);
 bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
+
+void setxmapflag(int32_t mi2, uint32_t flag);
+void setxmapflag(uint32_t flag);
+void unsetxmapflag(int32_t mi2, uint32_t flag);
+void unsetxmapflag(uint32_t flag);
+bool getxmapflag(int32_t mi2, uint32_t flag);
+bool getxmapflag(uint32_t flag);
+
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw);
 void update_combo_cycling();
 bool isSVLadder(int32_t x, int32_t y);
@@ -96,6 +105,16 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index of tmpscr[]
 bool hiddenstair2(mapscr *s, bool redraw);                      
 bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2);
+
+bool remove_xstatecombos(int32_t tmp, byte xflag);
+bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag);
+bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag);
+bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag);
+void clear_xstatecombos(int32_t tmp);
+void clear_xstatecombos(int32_t tmp, int32_t mi);
+void clear_xstatecombos2(mapscr *s, mapscr *t);
+void clear_xstatecombos2(mapscr *s, mapscr *t, int32_t mi);
+
 bool remove_lockblocks(int32_t tmp);                // tmp = index of tmpscr[]
 bool remove_bosslockblocks(int32_t tmp);            // tmp = index of tmpscr[]
 bool remove_chests(int32_t tmp);                    // tmp = index of tmpscr[]

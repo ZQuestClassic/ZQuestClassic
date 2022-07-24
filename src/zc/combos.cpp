@@ -627,10 +627,22 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 			//if(!usekey()) return; //Old check
 			if(!try_locked_combo(cmb)) return false;
 			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
 			setmapflag(mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
 			setmapflag(mCHEST);
 			break;
 			
@@ -654,6 +666,13 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 				itemscriptInitialised[key_item] = 0;
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+			}
+			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
 			}
 			setmapflag(mBOSSCHEST);
 			break;
@@ -691,7 +710,12 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 	{
 		case cLOCKBLOCK: //Special flags!
 			if(!try_locked_combo(cmb)) return false;
-			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
+			}
 			setmapflag(mLOCKBLOCK);
 			remove_lockblocks((currscr>=128)?1:0);
 			break;
@@ -717,6 +741,13 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 				itemscriptInitialised[key_item] = 0;
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM, (key_item));
+			}
+			
+			if(cmb.usrflags&cflag16)
+			{
+				setxmapflag(1<<cmb.attribytes[5]);
+				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				break;
 			}
 			setmapflag(mBOSSLOCKBLOCK);
 			remove_bosslockblocks((currscr >= 128) ? 1 : 0);

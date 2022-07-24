@@ -677,7 +677,8 @@ void eventlog_mapflag_line(word* g, word flag, int32_t ss_s_index)
 
 void eventlog_mapflags()
 {
-    word g = game->maps[(currmap*MAPSCRSNORMAL)+homescr] &0x3FFF;
+	int32_t mi = (currmap*MAPSCRSNORMAL)+homescr;
+    word g = game->maps[mi] &0x3FFF;
     word g2 = g;
     Z_eventlog("Screen (%d, %02x) %s", currmap+1, homescr, (g2) != 0 ? "[":"");
     // Print them in order of importance.
@@ -695,7 +696,22 @@ void eventlog_mapflags()
     eventlog_mapflag_line(&g, mDOOR_RIGHT,3);
     eventlog_mapflag_line(&g, mNEVERRET,6);
     eventlog_mapflag_line(&g, mTMPNORET,7);
-    Z_eventlog("%s\n",g2 != 0 ? "]":"");
+    if(g2) Z_eventlog("%s","]");
+	if(game->xstates[mi])
+	{
+		Z_eventlog(" Ex[");
+		bool comma = false;
+		for(byte fl = 0; fl < 32; ++fl)
+		{
+			if(game->xstates[mi] & (1<<fl))
+			{
+				Z_eventlog("%s%d", comma ? ", " : "", fl);
+				comma = true;
+			}
+		}
+		Z_eventlog("]");
+	}
+	Z_eventlog("\n");
 }
 
 // set specific flag
@@ -807,6 +823,49 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
 bool getmapflag(int32_t flag)
 {
     return (game->maps[(currmap*MAPSCRSNORMAL)+homescr] & flag) != 0;
+}
+
+void setxmapflag(int32_t mi2, uint32_t flag)
+{
+    byte cscr = mi2&((1<<7)-1);
+    byte cmap = (mi2>>7);
+    char buf[20];
+    sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
+    
+    byte temp=(byte)log2((double)flag);
+	Z_eventlog("%s's ExtraState was set: %d\n",
+		mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen", temp);
+	
+	game->xstates[mi2] |= flag;
+}
+void setxmapflag(uint32_t flag)
+{
+	setxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
+}
+void unsetxmapflag(int32_t mi2, uint32_t flag)
+{
+    byte cscr = mi2&((1<<7)-1);
+    byte cmap = (mi2>>7);
+    char buf[20];
+    sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
+    
+    byte temp=(byte)log2((double)flag);
+	Z_eventlog("%s's ExtraState was unset: %d\n",
+		mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen", temp);
+	
+	game->xstates[mi2] &= ~flag;
+}
+void unsetxmapflag(uint32_t flag)
+{
+	unsetxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
+}
+bool getxmapflag(int32_t mi2, uint32_t flag)
+{
+	return (game->xstates[mi2] & flag) != 0;
+}
+bool getxmapflag(uint32_t flag)
+{
+	return getxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
@@ -1480,37 +1539,134 @@ bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
 
 bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2)
 {
-    bool didit=false;
-    
-    for(int32_t i=0; i<176; i++)
-    {
-        if((combobuf[s->data[i]].type== what1) ||
-                (combobuf[s->data[i]].type== what2))
-        {
-            s->data[i]++;
-            didit=true;
-        }
-    }
-    
-    if(t)
-    {
-	    for(int32_t j=0; j<6; j++)
-	    {
-		if(t[j].data.empty()) continue;
-		
-		for(int32_t i=0; i<176; i++)
+	bool didit=false;
+	
+	for(int32_t i=0; i<176; i++)
+	{
+		newcombo const& cmb = combobuf[s->data[i]];
+		if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
+		if((cmb.type == what1) || (cmb.type== what2))
 		{
-		    if((combobuf[t[j].data[i]].type== what1) ||
-			    (combobuf[t[j].data[i]].type== what2))
-		    {
-			t[j].data[i]++;
+			s->data[i]++;
 			didit=true;
-		    }
 		}
-	    }
-    }
-    
-    return didit;
+	}
+	
+	if(t)
+	{
+		for(int32_t j=0; j<6; j++)
+		{
+			if(t[j].data.empty()) continue;
+			
+			for(int32_t i=0; i<176; i++)
+			{
+				newcombo const& cmb = combobuf[t[j].data[i]];
+				if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
+				if((cmb.type== what1) || (cmb.type== what2))
+				{
+					t[j].data[i]++;
+					didit=true;
+				}
+			}
+		}
+	}
+	
+	return didit;
+}
+
+bool remove_xstatecombos(int32_t tmp, byte xflag)
+{
+	return remove_xstatecombos(tmp, (currmap*MAPSCRSNORMAL)+homescr, xflag);
+}
+bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag)
+{
+	mapscr *s = tmpscr + tmp;
+	mapscr *t = tmpscr2;
+	return remove_xstatecombos2(s, t, mi, xflag);
+}
+bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag)
+{
+	return remove_xstatecombos2(s, t, (currmap*MAPSCRSNORMAL)+homescr, xflag);
+}
+bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag)
+{
+	bool didit=false;
+	
+	for(int32_t i=0; i<176; i++)
+	{
+		newcombo const& cmb = combobuf[s->data[i]];
+		if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+		switch(cmb.type)
+		{
+			case cLOCKBLOCK: case cLOCKBLOCK2:
+			case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+			case cCHEST: case cCHEST2:
+			case cLOCKEDCHEST: case cLOCKEDCHEST2:
+			case cBOSSCHEST: case cBOSSCHEST2:
+			{
+				if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
+				{
+					s->data[i]++;
+					didit=true;
+				}
+				break;
+			}
+		}
+	}
+	
+	if(t)
+	{
+		for(int32_t j=0; j<6; j++)
+		{
+			if(t[j].data.empty()) continue;
+			
+			for(int32_t i=0; i<176; i++)
+			{
+				newcombo const& cmb = combobuf[t[j].data[i]];
+				if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
+				switch(cmb.type)
+				{
+					case cLOCKBLOCK: case cLOCKBLOCK2:
+					case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
+					case cCHEST: case cCHEST2:
+					case cLOCKEDCHEST: case cLOCKEDCHEST2:
+					case cBOSSCHEST: case cBOSSCHEST2:
+					{
+						if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
+						{
+							t[j].data[i]++;
+							didit=true;
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	return didit;
+}
+
+void clear_xstatecombos(int32_t tmp)
+{
+	clear_xstatecombos(tmp, (currmap*MAPSCRSNORMAL)+homescr);
+}
+void clear_xstatecombos(int32_t tmp, int32_t mi)
+{
+	mapscr *s = tmpscr + tmp;
+	mapscr *t = tmpscr2;
+	clear_xstatecombos2(s, t, mi);
+}
+void clear_xstatecombos2(mapscr *s, mapscr *t)
+{
+	clear_xstatecombos2(s, t, (currmap*MAPSCRSNORMAL)+homescr);
+}
+void clear_xstatecombos2(mapscr *s, mapscr *t, int32_t mi)
+{
+	for(byte q = 0; q < 32; ++q)
+	{
+		remove_xstatecombos2(s,t,mi,q);
+	}
 }
 
 bool remove_lockblocks(int32_t tmp)
@@ -4713,6 +4869,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		remove_bosschests(tmp);
 	}
 	
+	clear_xstatecombos(tmp, (currmap*MAPSCRSNORMAL)+scr);
+	
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
@@ -4903,6 +5061,8 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	{
 		remove_bosschests(tmp);
 	}
+	
+	clear_xstatecombos(tmp, (currmap*MAPSCRSNORMAL)+scr);
 	
 	// check doors
 	if(isdungeon(scr))

@@ -2076,6 +2076,21 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			}
 		}
 		else savedata[i].clear_genscript();
+		
+		if(section_version >= 26)
+		{
+			for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+			{
+				if(!p_igetl(&(savedata[i].xstates[j]),f,true))
+				{
+					return 78;
+				}
+			}
+		}
+		else
+		{
+			std::fill(savedata[i].xstates, savedata[i].xstates+(MAXMAPS2*MAPSCRSNORMAL), 0);
+		}
 	}
 	
 	
@@ -2671,6 +2686,14 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 				if(!p_iputl(savedata[i].gen_data[q][ind],f))
 					return 77;
         }
+		
+		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+		{
+			if(!p_iputl(savedata[i].xstates[j],f))
+			{
+				return 78;
+			}
+		}
 	}
 	
 	return 0;

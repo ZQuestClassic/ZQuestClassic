@@ -1008,6 +1008,26 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
 			}
+		}
+		[[fallthrough]];
+		case cLOCKBLOCK2:
+		case cBOSSLOCKBLOCK2:
+		{
+			std::string ss_str;
+			switch(local_comboref.type)
+			{
+				case cLOCKBLOCK: case cLOCKBLOCK2: ss_str = "Lockblock"; break;
+				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2: ss_str = "Boss Lockblock"; break;
+			}
+			l_flag[15] = "Use ExtraState";
+			h_flag[15] = "If checked, the 'extra state' specified in the attribytes"
+				" will be used instead of the usual '" + ss_str + "' screen state.";
+			if(FL(cflag16))
+			{
+				l_attribyte[5] = "ExtraState";
+				h_attribyte[5] = "Which ExtraState (0 to 31) to use instead of the usual '"
+					+ ss_str + "' screen state.";
+			}
 			break;
 		}
 		case cLOCKEDCHEST:
@@ -1096,6 +1116,28 @@ void ComboEditorDialog::loadComboType()
 				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
+			}
+		}
+		[[fallthrough]];
+		case cCHEST2:
+		case cLOCKEDCHEST2:
+		case cBOSSCHEST2:
+		{
+			std::string ss_str;
+			switch(local_comboref.type)
+			{
+				case cCHEST: case cCHEST2: ss_str = "Chest"; break;
+				case cLOCKEDCHEST: case cLOCKEDCHEST2: ss_str = "Locked Chest"; break;
+				case cBOSSCHEST: case cBOSSCHEST2: ss_str = "Boss Chest"; break;
+			}
+			l_flag[15] = "Use ExtraState";
+			h_flag[15] = "If checked, the 'extra state' specified in the attribytes"
+				" will be used instead of the usual '" + ss_str + "' screen state.";
+			if(FL(cflag16))
+			{
+				l_attribyte[5] = "ExtraState";
+				h_attribyte[5] = "Which ExtraState (0 to 31) to use instead of the usual '"
+					+ ss_str + "' screen state.";
 			}
 			break;
 		}

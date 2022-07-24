@@ -17325,8 +17325,16 @@ void HeroClass::oldchecklockblock()
 	if(!try_locked_combo(cmb))
 		return;
 	
-	setmapflag(mLOCKBLOCK);
-	remove_lockblocks((currscr>=128)?1:0);
+	if(cmb.usrflags&cflag16)
+	{
+		setxmapflag(1<<cmb.attribytes[5]);
+		remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+	}
+	else
+	{
+		setmapflag(mLOCKBLOCK);
+		remove_lockblocks((currscr>=128)?1:0);
+	}
 	if ( cmb3.usrflags&cflag3 )
 	{
 		if ( (cmb3.attribytes[3]) )
@@ -17485,8 +17493,16 @@ void HeroClass::oldcheckbosslockblock()
 		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 	}
 	
-	setmapflag(mBOSSLOCKBLOCK);
-	remove_bosslockblocks((currscr>=128)?1:0);
+	if(cmb.usrflags&cflag16)
+	{
+		setxmapflag(1<<cmb.attribytes[5]);
+		remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+	}
+	else
+	{
+		setmapflag(mBOSSLOCKBLOCK);
+		remove_bosslockblocks((currscr>=128)?1:0);
+	}
 	if ( (combobuf[cid].attribytes[3]) )
 		sfx(combobuf[cid].attribytes[3]);
 }
@@ -17715,23 +17731,37 @@ void HeroClass::checkchest(int32_t type)
 			}
 		}
 	}
-	cmb = &combobuf[MAPCOMBO(bx2,by2)];
-	if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, -1))
+	if(found<0)
 	{
-		found = MAPCOMBO(bx2,by2);
-		fx = bx2; fy = by2;
-		for (int32_t i = 0; i <= 1; ++i)
+		cmb = &combobuf[MAPCOMBO(bx2,by2)];
+		if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, -1))
 		{
-			if(tmpscr2[i].valid!=0)
+			found = MAPCOMBO(bx2,by2);
+			for (int32_t i = 0; i <= 6; ++i)
 			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				if(tmpscr2[i].valid!=0)
 				{
-					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					{
+						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i])))
+						{
+							found = -1;
+							break;
+						}
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[i])))
+						{
+							found = -1;
+							break;
+						}
+					}
 				}
-				else
-				{
-					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
-				}
+			}
+			if(found != -1)
+			{
+				fx = bx2; fy = by2;
 			}
 		}
 	}
@@ -17744,39 +17774,68 @@ void HeroClass::checkchest(int32_t type)
 			if(combobuf[MAPCOMBO2(i,bx,by)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
 			{
 				found = MAPCOMBO2(i,bx,by);
-				foundlayer = i+1;
-				fx = bx; fy = by;
-				if (i == 0 && tmpscr2[1].valid!=0)
+				for(int32_t j = i+1; j < 6; ++j)
 				{
-					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (tmpscr2[j].valid!=0)
 					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+						if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+						{
+							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[j])))
+							{
+								found = -1;
+								break;
+							}
+						}
+						else
+						{
+							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[j])))
+							{
+								found = -1;
+								break;
+							}
+						}
 					}
-					else
-					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
-					}
+				}
+				if(found>-1)
+				{
+					foundlayer = i+1;
+					fx = bx; fy = by;
+					break;
 				}
 			}
 			cmb = &combobuf[MAPCOMBO2(i,bx2,by2)];
 			if(combobuf[MAPCOMBO2(i,bx2,by2)].type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, i))
 			{
 				found = MAPCOMBO2(i,bx2,by2);
-				foundlayer = i+1;
-				fx = bx2; fy = by2;
-				if (i == 0 && tmpscr2[1].valid!=0)
+				for(int32_t j = i+1; j < 6; ++j)
 				{
-					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (tmpscr2[j].valid!=0)
 					{
-						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
-					}
-					else
-					{
-						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+						if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+						{
+							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[j])))
+							{
+								found = -1;
+								break;
+							}
+						}
+						else
+						{
+							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[j])))
+							{
+								found = -1;
+								break;
+							}
+						}
 					}
 				}
+				if(found>-1)
+				{
+					foundlayer = i+1;
+					fx = bx2; fy = by2;
+					break;
+				}
 			}
-			if(found>-1) break;
 		}
 	}
 	
@@ -19570,6 +19629,8 @@ void HeroClass::checkspecial()
     {
         remove_bosschests((currscr>=128)?1:0);
     }
+	
+	clear_xstatecombos((currscr>=128)?1:0);
 	
 	if((hasitem&8) && triggered_screen_secrets)
 	{
