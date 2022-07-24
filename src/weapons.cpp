@@ -3037,31 +3037,31 @@ bool weapon::clip()
     if(id>wEnemyWeapons && id!=ewBrang)
     {
         c[0] = d2?32:(16-nb1);
-        c[1] = d2?128:(144+nb1);
+        c[1] = world_h - (d2?48:144-nb1);
         c[2] = d2?32:(16-nb1);
-        c[3] = d2?208:(224+nb1);
+        c[3] = world_w - (d2?48:32-nb1);
     }
     else if(id==wHookshot||id==wHSChain)
     {
         c[0] = d2?8:0;
-        c[1] = d2?152:160;
+        c[1] = world_h - (d2?24:16);
         c[2] = d2?8:0;
-        c[3] = d2?248:256;
+        c[3] = world_w - (d2?8:0);
     }
     else
     {
         c[0] = d2?18:2;
-        c[1] = d2?144:160;
+        c[1] = world_h - (d2?32:16);
         c[2] = d2?20:4;
-        c[3] = d2?220:236;
+        c[3] = world_w - (d2?36:20);
     }
     
     if(id==wSSparkle || id==wFSparkle)
     {
         c[0] = 0;
-        c[1] = 176;
+        c[1] = world_h;
         c[2] = 0;
-        c[3] = 256;
+        c[3] = world_w;
     }
     
     if(id==ewFlame)
@@ -7189,13 +7189,16 @@ void weapon::draw(BITMAP *dest)
 					if(type2==3 || type2 == 4 && (f&2))
 						++tile;
 				}
-				if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,0);
 				
-				if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset-2-ofs-(z+zofs)-fakez,cs,1);
+				int beam_x = x - global_viewport_x;
+				int beam_y = y + playing_field_offset - global_viewport_y;
+				if(!type2 || type2 == 4 || f==0 || (type2>1 && f==3)) overtile16(dest,tile,beam_x-2-ofs,beam_y-2-ofs-(z+zofs)-fakez,cs,0);
 				
-				if(!type2 || type2 == 4 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,x-2-ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,2);
+				if(!type2 || type2 == 4 || f==2 || (type2>1 && f==1)) overtile16(dest,tile,beam_x+2+ofs,beam_y-2-ofs-(z+zofs)-fakez,cs,1);
 				
-				if(!type2 || type2 == 4 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,x+2+ofs,y+playing_field_offset+2+ofs-(z+zofs)-fakez,cs,3);
+				if(!type2 || type2 == 4 || f==1 || (type2>1 && f==2)) overtile16(dest,tile,beam_x-2-ofs,beam_y+2+ofs-(z+zofs)-fakez,cs,2);
+				
+				if(!type2 || type2 == 4 || f==3 || (type2>1 && f==0)) overtile16(dest,tile,beam_x+2+ofs,beam_y+2+ofs-(z+zofs)-fakez,cs,3);
 			}
 		}
 		
