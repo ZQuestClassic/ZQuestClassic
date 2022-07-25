@@ -92,7 +92,7 @@ static const int hardcode_z3_regions[] = {
 	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 #endif
 };
@@ -114,7 +114,6 @@ static bool is_in_region(int scr)
 static bool global_z3_scrolling = true;
 bool is_z3_scrolling_mode()
 {
-	return global_z3_scrolling;
 	if (!global_z3_scrolling) return false;
 #if hardcode_regions_mode == 1
 	if (currmap != 0) return false;
