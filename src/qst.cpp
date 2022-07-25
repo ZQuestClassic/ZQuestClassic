@@ -3622,6 +3622,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(compatrule_version < 30)
 	{
 		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
+		set_bit(quest_rules,qr_SCREENSTATE_80s_BUG,1);
 	}
 	
 	//always set

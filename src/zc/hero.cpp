@@ -24123,6 +24123,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
 	//Preloaded ffc scripts
+	homescr=currscr;
 	if(destdmap >= 0)
 	{
 		int32_t dmap = currdmap; // Kludge
@@ -24633,7 +24634,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// NES behaviour: Fade to light after scrolling
 	lighting(false, false); // No, we don't need to set naturaldark...
 	
-	homescr=currscr;
 	init_dmap();
 	putscr(scrollbuf,0,0,newscr);
 	putscrdoors(scrollbuf,0,0,newscr);

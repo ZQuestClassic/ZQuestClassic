@@ -788,7 +788,9 @@ static const GUI::ListData compatRulesList
 		"If enabled, the subscreen will prioritize lower-ID items when there is a 'Level' tie, instead"
 		" of prioritizing higher-ID items like everything else in the engine." },
 	{ "Decorations -2 yoffset", qr_DECO_2_YOFFSET,
-		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." }
+		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." },
+	{ "Screen->State[] 0x80 bug", qr_SCREENSTATE_80s_BUG,
+		"If enabled, 'Screen->State[]' will use an old behavior that may read the wrong screen data." }
 };
 
 static const GUI::ListData enemiesRulesList
