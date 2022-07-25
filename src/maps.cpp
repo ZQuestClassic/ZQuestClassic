@@ -187,12 +187,22 @@ void z3_update_viewport()
 
 	int viewport_w = 256;
 	int viewport_h = 176;
-	global_viewport_x = CLAMP(0, world_w - viewport_w, Hero.getX() - viewport_w/2);
+	global_viewport_x = Hero.getX() - viewport_w/2;
 	// TODO z3 this is quite a hack
 	if (global_z3_scrolling_extended_height_mode)
-		global_viewport_y = CLAMP(0, world_h - viewport_h, viewport_y_offset + Hero.getY() - (viewport_h-64)/2);
+		global_viewport_y = viewport_y_offset + Hero.getY() - (viewport_h-64)/2;
 	else
-		global_viewport_y = CLAMP(0, world_h - viewport_h, viewport_y_offset + Hero.getY() - viewport_h/2);
+		global_viewport_y = viewport_y_offset + Hero.getY() - viewport_h/2;
+	
+	// If currently in a maze, force the viewport to always be in the center no matter what.
+	if (tmpscr->flags&fMAZE)
+	{
+		return;
+	}
+
+	// Clamp the viewport to the edges of the region.
+	global_viewport_x = CLAMP(0, world_w - viewport_w, global_viewport_x);
+	global_viewport_y = CLAMP(0, world_h - viewport_h, global_viewport_y);
 }
 
 void z3_update_currscr()
@@ -3878,6 +3888,11 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 		{
 			int scr_x = currscr_x + currscr_dx;
 			int scr_y = currscr_y + currscr_dy;
+			if (tmpscr->flags&fMAZE)
+			{
+				scr_x = currscr_x;
+				scr_y = currscr_y;
+			}
 			if (currscr_dx || currscr_dy)
 			{
 				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(currscr_dx, 0))) continue;

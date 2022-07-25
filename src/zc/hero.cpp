@@ -23150,7 +23150,8 @@ void HeroClass::check_scroll_direction(direction dir)
 	}
 }
 
-// Checks if hero is beyond the bounds of the screen, and if so begins (and finishes) scrolling.
+// Checks if hero is beyond the bounds of the screen, and if so begins scrolling.
+// Returns after scrolling is finished.
 void HeroClass::checkscroll()
 {
 	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
@@ -23168,10 +23169,45 @@ void HeroClass::checkscroll()
 		if(y>world_h-16 && currscr>=112) y=world_h-16;
 	}
 
-	if (x > world_w-16)	check_scroll_direction(right);
-	if (x < 0)				check_scroll_direction(left);
+	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
+	// been tested for non-scrolling mode.
+	if (is_z3_scrolling_mode() && tmpscr->flags&fMAZE)
+	{
+		// Only check the direction hero is currently facing.
+		direction advance_dir = dir_invalid;
+		int x0 = x.getInt();
+		int y0 = y.getInt();
+		if (dir == right && x0%256 > 256-16) advance_dir = right;
+		if (dir == left && x0 < 0)           advance_dir = left;
+		if (dir == down && y0%176 > 176-16)  advance_dir = down;
+		if (dir == up && y0 < 0)             advance_dir = up;
+
+		if (advance_dir != dir_invalid)
+		{
+			if (advance_dir == left)  x += 256;
+			if (advance_dir == right) x -= 256;
+			if (advance_dir == up)    y += 176;
+			if (advance_dir == down)  y -= 176;
+
+			if (maze_enabled_sizewarp(advance_dir)) return;
+			if (checkmaze(tmpscr, true))
+			{
+				int destscr = currscr;
+				if (advance_dir == left)  destscr--;
+				if (advance_dir == right) destscr++;
+				if (advance_dir == up)    destscr -= 16;
+				if (advance_dir == down)  destscr += 16;
+				scrollscr(advance_dir, destscr);
+			}
+		}
+		
+		return;
+	}
+
+	if (x > world_w-16) check_scroll_direction(right);
+	if (x < 0)          check_scroll_direction(left);
 	if (y > world_h-16)	check_scroll_direction(down);
-	if (y < 0)				check_scroll_direction(up);
+	if (y < 0)          check_scroll_direction(up);
 }
 
 // assumes current direction is in lastdir[3]
