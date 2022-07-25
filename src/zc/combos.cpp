@@ -696,7 +696,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
