@@ -7397,14 +7397,14 @@ int32_t get_register(const int32_t arg)
 		
 		case SCREENSTATED:
 		{
-			int32_t mi = get_mi(ri->mapsref);
+			int32_t mi = get_mi(MAPSCR_TEMP0);
 			if(mi<0) {ret = 0;break;}
 			ret=((game->maps[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 		}
 		break;
 		case SCREENEXSTATED:
 		{
-			int32_t mi = get_mi(ri->mapsref);
+			int32_t mi = get_mi(MAPSCR_TEMP0);
 			if(mi<0) {ret = 0;break;}
 			ret=((game->xstates[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 		}
@@ -9586,7 +9586,7 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAMISCD:
 		{
 			int32_t indx = (ri->d[rINDEX])/10000;
-			int32_t mi = get_mi(ri->mapsref);
+			int32_t mi = get_mi(MAPSCR_TEMP0);
 			if(mi<0) {ret = 0;break;}
 			if( ((unsigned)indx) > 7 )
 			{
