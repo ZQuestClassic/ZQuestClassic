@@ -3963,6 +3963,11 @@ bool SecretsTriggered();
 int ComboE[176];
  * The effect area bits of each of the 176 combos used on the screen.
 
+bool State[32];
+ * The 32 screen states used by this screen. Use the 'ST_' constants to access.
+bool ExState[32];
+ * The 'Extra States' used by this screen.
+
 int MovingBlockLayer;
  * The layer of a currently moving pushblock
  * Returns -1 and ignores writes if there is no pushblock currently moving
@@ -4494,6 +4499,7 @@ bool ForceGrab;
  * If true, the item is being forcibly picked up. This means that it will:
  *  -not draw (invisible)
  *  -immune to falling in pits/water
+ *  -immune to being deleted by any means (including scrolling, warps, etc)
  *  -will be picked up by the player as though they stepped on it as soon as possible
  * Some engine effects may set this to true; this value is read/write to scripts.
 
@@ -6482,8 +6488,10 @@ int ComboS[176];
 int ComboE[176];
  * The effect area bits of each of the 176 combos used on the screen.
 
-int State[32];
+bool State[32];
  * The screen states used by this screen. Identical to Screen->State[], but for mapdata screens.
+bool ExState[32];
+ * The 'Extra States' used by this screen. Identical to Screen->ExState[], but for mapdata screens.
 
 int EFlags[3];
  * The Screen Data E.Flags flagsets. 
@@ -6736,6 +6744,22 @@ bool TriggerButton[8];
 int TriggerLevel; 
  * Corresponds to the 'Minimum Level' field on the 'Triggers' tab of 
  *	the Combo Editor.
+
+int TriggerItem;
+ * The required item ID for triggering the combo.
+ * If 0, no item is required.
+
+int TriggerTimer;
+ * The timer for timed combo triggers. If 0, no timed trigger will occur.
+ * The combo will be triggered every 'n' frames, timer unique to each combo position.
+
+int TriggerSFX;
+ * The SFX to play when the combo is triggered. If 0, no SFX will be played.
+
+int TriggerChange;
+ * The amount the combo will change by when triggered.
+ * Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
+ * If '0', no change occurs.
 
 /* Combo Types
 *	These values contain data that is used by ZC to determine the Combo Type.
