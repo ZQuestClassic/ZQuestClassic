@@ -2990,7 +2990,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CLEAR:
 			AlertDialog("Are you sure?",
 				"Clearing the combo will reset all values",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					cleared = ret;
 				}).show();

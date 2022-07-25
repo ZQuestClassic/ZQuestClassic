@@ -1360,6 +1360,16 @@ static const GUI::ListData weaponsRulesList
 
 //}
 int32_t onStrFix(); //zquest.cpp
+bool hasCompatRulesEnabled()
+{
+	for(size_t q = 0; q < compatRulesList.size(); ++q)
+	{
+		auto rule = compatRulesList.getValue(q);
+		if(get_bit(quest_rules, rule))
+			return true;
+	}
+	return false;
+}
 void applyRuleTemplate(int32_t ruleTemplate)
 {
 	switch(ruleTemplate)
@@ -1616,7 +1626,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					"WARNING! Map Deletion",
 					"This action will delete " + std::to_string(map_count-new_map_count)
 					+ " maps from the end of your map list!",
-					[&new_map_count](bool ret)
+					[&new_map_count](bool ret,bool)
 					{
 						if(ret)
 						{
@@ -1626,7 +1636,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 									"WARNING! Layer Deletion!",
 									"Some of the maps being deleted are used as layermaps for screens that will remain!"
 									" If you continue, these screens will have their layermap set to 0!",
-									[&new_map_count](bool ret)
+									[&new_map_count](bool ret,bool)
 									{
 										if(ret) update_map_count(new_map_count);
 									}).show();

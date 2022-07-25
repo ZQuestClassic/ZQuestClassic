@@ -3689,7 +3689,7 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			AlertDialog(
 				"Reset itemdata?",
 				"Reset this item to default?",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					cancel = !ret;
 				}).show();

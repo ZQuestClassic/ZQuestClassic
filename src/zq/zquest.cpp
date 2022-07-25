@@ -1106,7 +1106,7 @@ int32_t onStrFix()
 		AlertDialog("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
 			" to instead be cut off. Are you sure?",
-			[&](bool ret)
+			[&](bool ret,bool)
 			{
 				if(ret)
 				{
@@ -1120,7 +1120,7 @@ int32_t onStrFix()
 		AlertDialog("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
 			" as the string width/height will be fixed, but the compat QR will also be unchecked.",
-			[&](bool ret)
+			[&](bool ret,bool)
 			{
 				if(ret)
 				{
@@ -25083,7 +25083,7 @@ int32_t onCompileScript()
 				if(code)
 					InfoDialog("ZScript Parser", buf).show();
 				else AlertDialog("ZScript Parser", buf,
-					[&](bool ret)
+					[&](bool ret,bool)
 					{
 						cancel = !ret;
 					}, "Continue", "Cancel").show();

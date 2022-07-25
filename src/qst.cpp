@@ -2867,7 +2867,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				" Attempting to load this quest may not work correctly; to"
 				" avoid issues, try loading this quest in at least '" + std::string(tempheader.getVerStr()) + "'"
 				"\n\nWould you like to continue loading anyway? (Not recommended)",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					r = ret;
 				}).show();
@@ -2884,7 +2884,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				"This quest was last saved in a newer build of ZQuest, and may have"
 				" issues loading in this build."
 				"\n\nWould you like to continue loading anyway?",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					r = ret;
 				}).show();

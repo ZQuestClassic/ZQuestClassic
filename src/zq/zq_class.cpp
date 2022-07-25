@@ -46,6 +46,8 @@
 #include "mem_debug.h"
 #include "ffscript.h"
 #include "base/util.h"
+#include "zq_files.h"
+#include "dialog/alert.h"
 using namespace util;
 extern FFScript FFCore;
 
@@ -6732,6 +6734,28 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 			refresh_pal();
 			set_rules(quest_rules);
 			saved = true;
+			if(hasCompatRulesEnabled() && !zc_get_config("zquest","dsa_compatrule",0))
+			{
+				AlertDialog("Apply New Bugfixes",
+					"New bugfixes found that can be applied to this quest!"
+					"\nWould you like to apply them?"
+					"\n(Applies 'Bugfix' rule template, un-checking compat rules)",
+					[&](bool ret,bool dsa)
+					{
+						if(ret)
+						{
+							applyRuleTemplate(ruletemplateCompat);
+						}
+						if(dsa)
+						{
+							zc_set_config("zquest","dsa_compatrule",1);
+						}
+					},
+					"Yes","No",
+					0,false, //timeout - none
+					true //"Don't show this again"
+				).show();
+			}
 			
 			if(bmap != NULL)
 			{

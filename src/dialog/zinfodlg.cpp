@@ -124,7 +124,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL itemclass names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -142,7 +142,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL itemclass helptext to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -231,7 +231,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL combo type names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -249,7 +249,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL combo type help text to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -338,7 +338,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL mapflag names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -356,7 +356,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL mapflag help text to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -414,7 +414,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL mapflag names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
