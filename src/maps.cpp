@@ -257,6 +257,15 @@ mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
 }
 
 // z3_origin_scr TODO z3_origin_screen
+int z3_get_region_relative_dx(int scr)
+{
+	return scr % 16 - z3_origin_scr % 16;
+}
+
+int z3_get_region_relative_dy(int scr)
+{
+	return scr / 16 - z3_origin_scr / 16;
+}
 
 // TODO: replace this with current region data.
 // current_region_src_x, current_region_src_y

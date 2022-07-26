@@ -23924,7 +23924,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			currscr += scroll_dir_to_scr_offset((direction)scrolldir);
 		}
-		z3_set_currscr(currscr);
+		// z3_set_currscr(currscr);
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
 
 		dx = 0;
@@ -23934,39 +23934,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (scrolldir == left) dx = -1;
 		if (scrolldir == right) dx = 1;
 	}
-
-	
-	// switch(scrolldir)
-	// {
-	// 	case up:
-	// 	{
-	// 		x = region_scr_dx*256 + fmod(x.getFloat(), 256);
-	// 		y = world_h - 176;
-	// 	}
-	// 	break;
-		
-	// 	case down:
-	// 	{
-	// 		x = region_scr_dx*256 + fmod(x.getFloat(), 256);
-	// 		y = 176;
-	// 	}
-	// 	break;
-		
-	// 	case left:
-	// 	{
-	// 		x = world_w - 256;
-	// 		y = region_scr_dy*176 + fmod(y.getFloat(), 176);
-	// 	}
-	// 	break;
-		
-	// 	case right:
-	// 	{
-	// 		x = 256;
-	// 		y = region_scr_dy*176 + fmod(y.getFloat(), 176);
-	// 	}
-	// 	break;
-	// }
-	
 
 	// ?????
 	// {
@@ -24074,6 +24041,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int move_counter = 0;
 	bool end_frames = 0;
 
+	double prev_x = x.getFloat();
+	double prev_y = y.getFloat();
+
 	scroll_counter *= delay;
 
 	bool is_smooth_vertical_scrolling =
@@ -24087,6 +24057,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			return;
 		}
 
+		int sx = step * move_counter * -dx;
+		int sy = step * move_counter * -dy;
+		if (is_smooth_vertical_scrolling) sy += 3;
+		
+		if (!is_z3_scrolling_mode())
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
+		
 		if(no_move > 0)
 			no_move--;
 			
@@ -24096,7 +24073,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			
 		if(scrolldir == up || scrolldir == down)
 		{
-			if(!is_smooth_vertical_scrolling)
+			if(!get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING))
 			{
 				//Add a few extra frames if on the second loop and cool scrolling is not set
 				if(i == 1)
@@ -24116,7 +24093,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				}
 			}
 		}
-
+		
 		//Move Hero and the scroll position
 		if(!no_move)
 		{
@@ -24142,109 +24119,224 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			// if(y > world_h - 16) y = world_h - 16;
-			// if(y < 0)            y = 0;
-			// if(x > world_w - 16) x = world_w - 16;
-			// if(x < 0)            x = 0;
+			if(y > world_h - 16) y = world_h - 16;
+			if(y < 0)            y = 0;
+			if(x > world_w - 16) x = world_w - 16;
+			if(x < 0)            x = 0;
 
 			if (is_z3_scrolling_mode())
 			{
-				// TODO z3 clamp?
-				global_viewport_x = Hero.getX() - 256/2;
-				global_viewport_y = Hero.getY() - 176/2;
-			}
+				// // TODO z3 clamp?
+				// global_viewport_x = Hero.getX() - 256/2;
+				// global_viewport_y = Hero.getY() - 176/2;
 
-			// if(ladderx > 0 || laddery > 0)
-			// {
-			// 	// If the ladder moves on both axes, the player can
-			// 	// gradually shift it by going back and forth
-			// 	if(scrolldir==up || scrolldir==down)
-			// 		laddery = y.getInt();
-			// 	else
-			// 		ladderx = x.getInt();
-			// }
+
+				
+
+			}
+			
+			if(ladderx > 0 || laddery > 0)
+			{
+				// If the ladder moves on both axes, the player can
+				// gradually shift it by going back and forth
+				if(scrolldir==up || scrolldir==down)
+					laddery = y.getInt();
+				else
+					ladderx = x.getInt();
+			}
 		}
 
+		//Drawing
+		int tx = sx;
+		int ty = sy;
+		int tx2 = sx;
+		int ty2 = sy;
+		
+		switch(scrolldir)
+		{
+		case right:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 256-tx2;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = -tx2;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			tx -= 256;
+			break;
+			
+		case down:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 176-ty2;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = -ty2;
+			ty -= 176;
+			break;
+			
+		case left:
+			FFCore.ScrollingData[SCROLLDATA_NX] = -tx2;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 256-tx2;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			tx2 -= 256;
+			break;
+			
+		case up:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = -ty2;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 176-ty2;
+			ty2 -= 176;
+			break;
+		}
+
+		//FFScript.OnWaitdraw()
+		if (!is_z3_scrolling_mode())
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
+		
+		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		clear_bitmap(bigscrollbuf);
 		clear_bitmap(framebuf);
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
 
-			int offx = (draw_dx + 1) * 256;
-			int offy = (draw_dy + 1) * 176;
-			// switch(scrolldir)
-			// {
-			// case up:
-			// 	offy += 176;
-			// 	break;
-			// case left:
-			// 	offx += 256;
-			// 	break;
-			// }
+			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
 
-			// if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(bigscrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
-			// if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
-			// if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
-			// {
-			// 	if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
-			// 	if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
-			// }
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(bigscrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
+			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
+			{
+				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
+				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
+			}
 
-			putscr(bigscrollbuf, offx, offy, myscr);
+			// {
+			// 	int viewport_w = 256;
+			// 	int viewport_h = 176;
+			// 	global_viewport_x = -sx + Hero.getX() - viewport_w/2;
+			// 	global_viewport_y = -sy + Hero.getY() - viewport_h/2;
+
+			// 	// Clamp the viewport to the edges of the region.
+			// 	global_viewport_x = CLAMP(0, world_w - viewport_w, global_viewport_x);
+			// 	global_viewport_y = CLAMP(0, world_h - viewport_h, global_viewport_y);
+			// }
+			int xxx = Hero.getX().getFloor();
+			int yyy = Hero.getY().getFloor();
+
+			putscr(bigscrollbuf, offx+sx, offy+sy, myscr);
+		});
+
+		// blit(bigscrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
+		blit(bigscrollbuf, framebuf, 0, 0, 0, playing_field_offset+1, 256, 168-1);
+		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
+		
+		/*
+		// TODO verify z3 scrolling code
+		if (0)
+		{
+			do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
+			
+			if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, tx2, ty2, 3);
+			
+			do_layer(framebuf, 0, 1, newscr, tx, ty, 2, false, true);
+			
+			if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
+		}
+		else
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			int offx = oldscr == myscr ? tx2 : tx;
+			int offy = oldscr == myscr ? ty2 : ty;
+			switch(scrolldir)
+			{
+			case up:
+				offx = 0;
+				offy = 176;
+				break;
+			case down:
+				offx = 0;
+				offy = 0;
+				break;
+			case left:
+				offx = 256;
+				offy = 0;
+				break;
+			case right:
+				offx = 0;
+				offy = 0;
+				break;
+			}
+			offx += draw_dx * 256;
+			offy += draw_dy * 176;
+
+			bool primitives = myscr != oldscr;
+			do_layer(framebuf, 0, 1, myscr, -offx, -offy, 2, false, primitives);
+
+			primitives = myscr != oldscr && !(oldscr->flags7&fLAYER2BG);
+			if(!(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, myscr, -offx, -offy, 2, false, primitives);
 		});
 		
 
-		int sx = step * move_counter * -dx;
-		int sy = step * move_counter * -dy;
-		if (is_smooth_vertical_scrolling)
-			sy += 3;
+		// TODO verify z3 scrolling code
+		if (0)
+		{	
+			//push blocks
+			do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
+			do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
+			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
+				do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
+				do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
+				do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+			}
+		}
+		else
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			int offx = 0;
+			int offy = 0;
+			switch(scrolldir)
+			{
+			case up:
+				offx = 0;
+				offy = 176;
+				break;
+			case down:
+				offx = 0;
+				offy = 0;
+				break;
+			case left:
+				offx = 256;
+				offy = 0;
+				break;
+			case right:
+				offx = 0;
+				offy = 0;
+				break;
+			}
+			offx += draw_dx * 256;
+			offy += draw_dy * 176;
 
-		// for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
-		// 	if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
-
-		// 	int offx = 256 + draw_dx * 256;
-		// 	int offy = 176 + draw_dy * 176;
-		// 	// switch(scrolldir)
-		// 	// {
-		// 	// case up:
-		// 	// 	offy += 176;
-		// 	// 	break;
-		// 	// case left:
-		// 	// 	offx += 256;
-		// 	// 	break;
-		// 	// }
-
-		// 	// if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(bigscrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
-		// 	// if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
-		// 	// if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
-		// 	// {
-		// 	// 	if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
-		// 	// 	if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
-		// 	// }
-
-		// 	putscr(bigscrollbuf, offx, offy, myscr);
-		// });
-
-		blit(bigscrollbuf, framebuf, 256 - sx, 176 - sy + 1, 0, playing_field_offset+1, 256, 168-1);
-
-
-
-		// ....
-		// do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-		// do_walkflags(framebuf, newscr, tx, ty,2);
+			do_layer(framebuf, -2, 0, myscr, -offx, -offy, 3);
+			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(framebuf, -2, 1, myscr, -offx, -offy, 3);
+				do_layer(framebuf, -2, 2, myscr, -offx, -offy, 3);
+			}
+		});
 		
-		// do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
-		// do_effectflags(framebuf, newscr, tx, ty,2);
+		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
+		do_walkflags(framebuf, newscr, tx, ty,2);
+		
+		do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
+		do_effectflags(framebuf, newscr, tx, ty,2);
 		
 		if(get_bit(quest_rules, qr_FFCSCROLL))
 		{
-			// do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
-			// do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
+			do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
+			do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
 		}
-		
-		// putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
-		// putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
+		*/
+		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
+		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
 		herostep();
 		
 		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
@@ -24259,35 +24351,216 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			draw(framebuf); //Hero
 			decorations.draw(framebuf,  true);
 		}
+		
+		// TODO z3
+		/*
+		if (0)
+		{
+			if(!(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, oldscr, tx2, ty2, 3);
+			
+			do_layer(framebuf, 0, 4, oldscr, tx2, ty2, 3); //layer 4
+			do_layer(framebuf, -1, 0, oldscr, tx2, ty2, 3); //overhead combos
+			if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				do_layer(framebuf, -1, 1, oldscr, tx2, ty2, 3); //overhead combos
+				do_layer(framebuf, -1, 2, oldscr, tx2, ty2, 3); //overhead combos
+			}
+			do_layer(framebuf, 0, 5, oldscr, tx2, ty2, 3); //layer 5
+			do_layer(framebuf, -4, 0, oldscr, tx2, ty2, 3, true); //overhead FFCs
+			do_layer(framebuf, 0, 6, oldscr, tx2, ty2, 3); //layer 6
+			
+			if(!(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, newscr, tx, ty, 2, false, !(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)));
+			
+			do_layer(framebuf, 0, 4, newscr, tx, ty, 2, false, true); //layer 4
+			do_layer(framebuf, -1, 0, newscr, tx, ty, 2); //overhead combos
+			if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				do_layer(framebuf, -1, 1, newscr, tx, ty, 2); //overhead combos
+				do_layer(framebuf, -1, 2, newscr, tx, ty, 2); //overhead combos
+			}
+			do_layer(framebuf, 0, 5, newscr, tx, ty, 2, false, true); //layer 5
+			do_layer(framebuf, -4, 0, newscr, tx, ty, 2, true); //overhead FFCs
+			do_layer(framebuf, 0, 6, newscr, tx, ty, 2, false, true); //layer 6
+		}
+		else
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
+			int offx = is_old_scr ? tx2 : tx;
+			int offy = is_old_scr ? ty2 : ty;
 
+			// TODO get this working for layer 3 corners
+			if (!(is_old_scr || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
 
-		// .....
+			if (is_old_scr || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)
+			{
+				// global_z3_cur_scr_drawing = -1;
+			}
+			else
+			{
+				offx += -draw_dx * 256;
+				offy += -draw_dy * 176;
+			}
+			// if (draw_dy == 1) offy -= 176;
+			// if (draw_dx == -1) offx -= 256;
 
+			// switch(scrolldir)
+			// {
+			// case up:
+			// 	offy += 176;
+			// 	break;
+			// case down:
+			// 	break;
+			// case left:
+			// 	offx += 256;
+			// 	break;
+			// case right:
+			// 	break;
+			// }
+			// offx -= draw_dx * 256;
+			// offy -= draw_dy * 176;
 
+			int tempscreen = is_old_scr ? 3 : 2;
 
-
-
-
+			if(!(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
+			{
+				bool primitives = !is_old_scr && !(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
+				do_layer(framebuf, 0, 3, myscr, offx, offy, tempscreen, false, primitives);
+			}
+			
+			do_layer(framebuf, 0, 4, myscr, offx, offy, tempscreen, false, !is_old_scr); //layer 4
+			do_layer(framebuf, -1, 0, myscr, offx, offy, tempscreen); //overhead combos
+			if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				do_layer(framebuf, -1, 1, myscr, offx, offy, tempscreen); //overhead combos
+				do_layer(framebuf, -1, 2, myscr, offx, offy, tempscreen); //overhead combos
+			}
+			do_layer(framebuf, 0, 5, myscr, offx, offy, tempscreen, false, !is_old_scr); //layer 5
+			do_layer(framebuf, -4, 0, myscr, offx, offy, tempscreen, true); //overhead FFCs
+			do_layer(framebuf, 0, 6, myscr, offx, offy, tempscreen, false, !is_old_scr); //layer 6
+		});
+		
+		
+		if(msg_bg_display_buf->clip == 0)
+		{
+			blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
+		if(msg_portrait_display_buf->clip == 0)
+		{
+			blit_msgstr_prt(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
+		if(msg_txt_display_buf->clip == 0)
+		{
+			blit_msgstr_fg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
+		}
+			
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
+		{
+			clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+			calc_darkroom_combos(true);
+			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+		}
+		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
+		*/
 		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
-
-
+		
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
+				
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
+		
 		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 		advanceframe(true/*,true,false*/);
 		script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
-		action = scrolling; FFCore.setHeroAction(scrolling);
+		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
 		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
-		action = lastaction;
-		FFCore.setHeroAction(lastaction);
-	}
+		action=lastaction; FFCore.setHeroAction(lastaction);
+	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 
 	clear_bitmap(msg_txt_display_buf);
 	set_clip_state(msg_txt_display_buf, 1);
@@ -24295,6 +24568,38 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	set_clip_state(msg_bg_display_buf, 1);
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
+
+	z3_set_currscr(currscr);
+	switch(scrolldir)
+	{
+		case up:
+		{
+			x = region_scr_dx*256 + fmod(prev_x, 256);
+			y = world_h - 16;
+		}
+		break;
+		
+		case down:
+		{
+			x = region_scr_dx*256 + fmod(prev_x, 256);
+			y = 0;
+		}
+		break;
+		
+		case left:
+		{
+			x = world_w - 16;
+			y = region_scr_dy*176 + fmod(prev_y, 176);
+		}
+		break;
+		
+		case right:
+		{
+			x = 0;
+			y = region_scr_dy*176 + fmod(prev_y, 176);
+		}
+		break;
+	}
 
 	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_bit(quest_rules, qr_NOSCROLL))
@@ -24462,10 +24767,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
 	// z3 SHORTCUT
 	// if (is_z3_scrolling_mode())
-	// {
-	// 	HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
-	// 	return;
-	// }
+	{
+		HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
+		return;
+	}
 
 	if(action==freeze||action==sideswimfreeze)
 	{

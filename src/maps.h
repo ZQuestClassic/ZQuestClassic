@@ -37,6 +37,11 @@ void z3_set_currscr(int scr);
 void z3_update_viewport();
 void z3_update_currscr();
 bool edge_of_region(direction dir);
+int z3_get_scr_for_xy_offset(int x, int y);
+mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
+void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
+int z3_get_region_relative_dx(int scr);
+int z3_get_region_relative_dy(int scr);
 bool is_z3_scrolling_mode();
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
@@ -191,10 +196,6 @@ extern int32_t mapres;
 bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
-
-int z3_get_scr_for_xy_offset(int x, int y);
-mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
-void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
 
 //extern bool FuckIAlreadyDrewThatAlready[ 7 ];
 #endif
