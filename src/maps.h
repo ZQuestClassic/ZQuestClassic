@@ -33,13 +33,19 @@ extern int viewport_y_offset;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;
+// The screens size of the region that the hero is currently standing in. If not currently
+// in z3 scrolling mode, this is just 1.
+extern int region_scr_width, region_scr_width;
+void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_set_currscr(int scr);
+void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);
 void z3_update_viewport();
 void z3_update_currscr();
 bool edge_of_region(direction dir);
 int z3_get_scr_for_xy_offset(int x, int y);
 mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
+int z3_get_origin_scr();
 int z3_get_region_relative_dx(int scr);
 int z3_get_region_relative_dy(int scr);
 bool is_z3_scrolling_mode();

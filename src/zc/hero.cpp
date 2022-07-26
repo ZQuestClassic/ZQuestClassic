@@ -23923,6 +23923,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		else if (checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 		{
 			currscr += scroll_dir_to_scr_offset((direction)scrolldir);
+			destscr = currscr;
 		}
 		// z3_set_currscr(currscr);
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
@@ -23933,6 +23934,92 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (scrolldir == down) dy = 1;
 		if (scrolldir == left) dx = -1;
 		if (scrolldir == right) dx = 1;
+	}
+
+	// Align to new region's viewport.
+
+	double prev_x = x.getFloat();
+	double prev_y = y.getFloat();
+	int axis_alignment_amount = 0;
+	int new_viewport_x, new_viewport_y;
+	double new_hero_x, new_hero_y; 
+	{
+		int new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h;
+		z3_calculate_region(destscr, new_origin_scr, new_region_scr_width, new_region_scr_height, new_region_scr_dx, new_region_scr_dy, new_world_w, new_world_h);
+		int new_origin_scr_x = new_origin_scr % 16;
+		int new_origin_scr_y = new_origin_scr / 16;
+
+		switch(scrolldir)
+		{
+			case up:
+			{
+				new_hero_x = new_region_scr_dx*256 + fmod(prev_x, 256);
+				new_hero_y = new_world_h - 16;
+			}
+			break;
+			
+			case down:
+			{
+				new_hero_x = new_region_scr_dx*256 + fmod(prev_x, 256);
+				new_hero_y = 0;
+			}
+			break;
+			
+			case left:
+			{
+				new_hero_x = new_world_w - 16;
+				new_hero_y = new_region_scr_dy*176 + fmod(prev_y, 176);
+			}
+			break;
+			
+			case right:
+			{
+				new_hero_x = 0;
+				new_hero_y = new_region_scr_dy*176 + fmod(prev_y, 176);
+			}
+			break;
+		}
+
+		int old_viewport_x = global_viewport_x;
+		int old_viewport_y = global_viewport_y;
+		int old_origin_scr = z3_get_origin_scr();
+		int old_origin_scr_x = old_origin_scr % 16;
+		int old_origin_scr_y = old_origin_scr / 16;
+
+		z3_calculate_viewport(tmpscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport_x, new_viewport_y);
+
+		axis_alignment_amount = 0;
+		
+		if (dy)
+		{
+			if (new_origin_scr_x + new_region_scr_dx < old_origin_scr_x + region_scr_width)
+			{
+				axis_alignment_amount = new_viewport_x - old_viewport_x;
+			}
+			if (new_origin_scr_x + new_region_scr_dx < old_origin_scr_x + region_scr_width)
+			{
+				axis_alignment_amount = new_viewport_x - old_viewport_x;
+			}
+		}
+
+		
+		// if (dy)
+		// {
+		// 	if (new_viewport_x + 256*dy >= new_world_w)
+		// 	{
+		// 		axis_alignment_amount = new_viewport_x - old_viewport_x;
+		// 	}
+		// }
+		
+		/*if (scrolldir == up || scrolldir == down) 
+		{
+			axis_alignment_amount = new_viewport_x - old_viewport_x;
+		}
+		else
+		{
+			axis_alignment_amount = new_viewport_y - old_viewport_y;
+		}*/
+		//axis_alignment_amount = 0;
 	}
 
 	// ?????
@@ -24039,10 +24126,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 	int no_move = 0;
 	int move_counter = 0;
+	int align_counter = abs(axis_alignment_amount);
 	bool end_frames = 0;
-
-	double prev_x = x.getFloat();
-	double prev_y = y.getFloat();
 
 	scroll_counter *= delay;
 
@@ -24067,9 +24152,21 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(no_move > 0)
 			no_move--;
 			
-		//Don't want to move things on the first or last iteration, or between delays
-		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0)
+		//Don't want to move things on the first or last iteration, or between delays, or while aligning
+		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || align_counter)
 			no_move++;
+		
+		if (align_counter > 0) 
+		{
+			align_counter--;
+			scroll_counter++;
+		}
+		if (axis_alignment_amount)
+		{
+			int delta = (abs(axis_alignment_amount) - align_counter) * (axis_alignment_amount > 0 ? 1 : -1);
+			if (scrolldir == up || scrolldir == down) sx -= delta;
+			else                                      sy -= delta;
+		}
 			
 		if(scrolldir == up || scrolldir == down)
 		{
@@ -24196,7 +24293,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		clear_bitmap(framebuf);
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
-			if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
+			//if (!is_z3_scrolling_mode() && !(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
 
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
@@ -24348,7 +24445,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
+			if (scrolldir == up || scrolldir == down) x += sx;
+			else                                      y += sy;
 			draw(framebuf); //Hero
+			if (scrolldir == up || scrolldir == down) x -= sx;
+			else                                      y -= sy;
 			decorations.draw(framebuf,  true);
 		}
 		
@@ -24570,36 +24671,39 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	set_clip_state(msg_portrait_display_buf, 1);
 
 	z3_set_currscr(currscr);
-	switch(scrolldir)
-	{
-		case up:
-		{
-			x = region_scr_dx*256 + fmod(prev_x, 256);
-			y = world_h - 16;
-		}
-		break;
+	x = new_hero_x;
+	y = new_hero_y;
+	// TODO ????
+	// switch(scrolldir)
+	// {
+	// 	case up:
+	// 	{
+	// 		x = region_scr_dx*256 + fmod(prev_x, 256);
+	// 		y = world_h - 16;
+	// 	}
+	// 	break;
 		
-		case down:
-		{
-			x = region_scr_dx*256 + fmod(prev_x, 256);
-			y = 0;
-		}
-		break;
+	// 	case down:
+	// 	{
+	// 		x = region_scr_dx*256 + fmod(prev_x, 256);
+	// 		y = 0;
+	// 	}
+	// 	break;
 		
-		case left:
-		{
-			x = world_w - 16;
-			y = region_scr_dy*176 + fmod(prev_y, 176);
-		}
-		break;
+	// 	case left:
+	// 	{
+	// 		x = world_w - 16;
+	// 		y = region_scr_dy*176 + fmod(prev_y, 176);
+	// 	}
+	// 	break;
 		
-		case right:
-		{
-			x = 0;
-			y = region_scr_dy*176 + fmod(prev_y, 176);
-		}
-		break;
-	}
+	// 	case right:
+	// 	{
+	// 		x = 0;
+	// 		y = region_scr_dy*176 + fmod(prev_y, 176);
+	// 	}
+	// 	break;
+	// }
 
 	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_bit(quest_rules, qr_NOSCROLL))

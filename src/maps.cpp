@@ -69,6 +69,7 @@ int viewport_y_offset;
 int world_w, world_h;
 static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
+int region_scr_width, region_scr_height;
 
 // majora's ALTTP test
 // #define hardcode_regions_mode 0
@@ -101,13 +102,13 @@ static int scr_xy_to_index(int x, int y) {
 	return x + y*16;
 }
 
-static bool is_in_region(int scr)
+static bool is_in_region(int region_origin_scr, int scr)
 {
 #if hardcode_regions_mode == 1
 	if (currmap != 0) return false;
 #endif
 	if (scr >= 128) return false;
-	int region_id = hardcode_z3_regions[z3_origin_scr];
+	int region_id = hardcode_z3_regions[region_origin_scr];
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
@@ -123,14 +124,15 @@ bool is_z3_scrolling_mode()
 	return true;
 }
 
-// Assumes the currscr has already been set to scr. TODO z3 fix that
-void z3_set_currscr(int scr)
+void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		z3_origin_scr = scr;
+		origin_scr = scr;
 		region_scr_dx = 0;
 		region_scr_dy = 0;
+		region_scr_width = 1;
+		region_scr_height = 1;
 		world_w = 256;
 		world_h = 176;
 		return;
@@ -142,73 +144,86 @@ void z3_set_currscr(int scr)
 	// For the given screen, find the top-left corner of its region.
 	int origin_scr_x = input_scr_x;
 	int origin_scr_y = input_scr_y;
-	z3_origin_scr = scr;
+	origin_scr = scr;
 	while (origin_scr_x > 0)
 	{
-		if (!is_in_region(scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
+		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
 		origin_scr_x--;
 	}
 	while (origin_scr_y > 0)
 	{
-		if (!is_in_region(scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
+		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
 		origin_scr_y--;
 	}
-	z3_origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
+	origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
 	
 	// Now find the bottom-right corner.
 	int region_scr_right = origin_scr_x;
 	while (region_scr_right < 15)
 	{
-		if (!is_in_region(scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
+		if (!is_in_region(origin_scr, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
 		region_scr_right++;
 	}
 	int region_scr_bottom = origin_scr_y;
 	while (region_scr_bottom < 7)
 	{
-		if (!is_in_region(scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
+		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
 		region_scr_bottom++;
 	}
 
-	world_w = 256*(region_scr_right - origin_scr_x + 1);
-	world_h = 176*(region_scr_bottom - origin_scr_y + 1);
+	region_scr_width = region_scr_right - origin_scr_x + 1;
+	region_scr_height = region_scr_bottom - origin_scr_y + 1;
+	world_w = 256*region_scr_width;
+	world_h = 176*region_scr_height;
 	region_scr_dx = input_scr_x - origin_scr_x;
 	region_scr_dy = input_scr_y - origin_scr_y;
 }
 
-void z3_update_viewport()
+// Assumes the currscr has already been set to scr. TODO z3 fix that
+void z3_set_currscr(int scr)
+{
+	z3_calculate_region(scr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+}
+
+void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		global_viewport_x = 0;
-		global_viewport_y = 0;
+		viewport_x = 0;
+		viewport_y = 0;
 		return;
 	}
 
 	int viewport_w = 256;
 	int viewport_h = 176;
-	global_viewport_x = Hero.getX() - viewport_w/2;
+	viewport_x = Hero.getX() - viewport_w/2;
 	// TODO z3 this is quite a hack
 	if (global_z3_scrolling_extended_height_mode)
-		global_viewport_y = viewport_y_offset + Hero.getY() - (viewport_h-64)/2;
+		viewport_y = viewport_y_offset + Hero.getY() - (viewport_h-64)/2;
 	else
-		global_viewport_y = viewport_y_offset + Hero.getY() - viewport_h/2;
+		viewport_y = viewport_y_offset + Hero.getY() - viewport_h/2;
 	
 	// If currently in a maze, force the viewport to always be in the center no matter what.
-	if (tmpscr->flags&fMAZE)
+	if (scr->flags&fMAZE)
 	{
 		return;
 	}
 
 	// Clamp the viewport to the edges of the region.
-	global_viewport_x = CLAMP(0, world_w - viewport_w, global_viewport_x);
-	global_viewport_y = CLAMP(0, world_h - viewport_h, global_viewport_y);
+	viewport_x = CLAMP(0, world_w - viewport_w, viewport_x);
+	viewport_y = CLAMP(0, world_h - viewport_h, viewport_y);
+}
+
+void z3_update_viewport()
+{
+	z3_calculate_viewport(tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), global_viewport_x, global_viewport_y);
 }
 
 void z3_update_currscr()
 {
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
-	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr + dx + dy * 16))
+	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr, z3_origin_scr + dx + dy * 16))
 	{
 		if (z3_origin_scr + dx + dy * 16 != currscr)
 		{
@@ -236,7 +251,7 @@ bool edge_of_region(direction dir)
 	{
 		return true;
 	}
-	return !is_in_region(scr_x + scr_y*16);
+	return !is_in_region(z3_origin_scr, scr_x + scr_y*16);
 }
 
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
@@ -254,6 +269,11 @@ int z3_get_scr_for_xy_offset(int x, int y)
 mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
 {
 	return &TheMaps[currmap*MAPSCRS+z3_get_scr_for_xy_offset(x, y)];
+}
+
+int z3_get_origin_scr()
+{
+	return z3_origin_scr;
 }
 
 // z3_origin_scr TODO z3_origin_screen
@@ -3868,7 +3888,7 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 
 	for (int scr = 0; scr < 128; scr++)
 	{
-		if (is_in_region(scr))
+		if (is_in_region(z3_origin_scr, scr))
 		{
 			int scr_x = scr % 16;
 			int scr_y = scr / 16;
