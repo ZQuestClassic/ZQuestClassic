@@ -30590,7 +30590,6 @@ int32_t main(int32_t argc,char **argv)
 		al_destroy_config(tempcfg);
 	}
 
-#ifndef __EMSCRIPTEN__
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
@@ -30598,7 +30597,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	al5img_init();
-#endif
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();

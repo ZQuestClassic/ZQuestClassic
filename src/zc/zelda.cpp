@@ -4725,7 +4725,6 @@ int main(int argc, char **argv)
 	em_init_fs();
 #endif
 	
-#ifndef __EMSCRIPTEN__
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
@@ -4733,7 +4732,6 @@ int main(int argc, char **argv)
 	}
 
 	al5img_init();
-#endif
 
 	three_finger_flag=false;
 	
