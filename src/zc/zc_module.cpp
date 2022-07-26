@@ -143,7 +143,7 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.quests[9],zc_get_config("QUESTS","tenth_qst","-"));
 
 #ifdef __EMSCRIPTEN__
-		strcpy(moduledata.quests[0],"_quests/classic/1st.qst");
+		strcpy(moduledata.quests[0],"_quests/7th/7th.qst");
 		strcpy(moduledata.quests[1],"_quests/classic/2nd.qst");
 		strcpy(moduledata.quests[2],"_quests/classic/3rd.qst");
 		strcpy(moduledata.quests[3],"_quests/classic/4th.qst");
