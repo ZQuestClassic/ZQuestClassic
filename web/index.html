@@ -89,11 +89,7 @@
         This panel is for web-specific settings.
       </div>
 
-      <!-- local/browser – indexeddb-->
-      <!-- local/filesystem – can swap out -->
-      <!-- where does zc.cfg go? -->
-
-      <!-- Chrome: open directory -> sync to local/filesystem -->
+      <!-- Chrome: open directory -> sync to /local -->
       <span class="settings__attach">
         <h3>Attach local filesystem folder</h3>
         <div>
@@ -104,7 +100,7 @@
         <button class="unattach">Unattach</button>
       </span>
 
-      <!-- FF: open directory -> write to local/browser -->
+      <!-- FF: open directory -> write to /local -->
       <span class="settings__copy">
         <h3>Copy local filesystem folder</h3>
         <div>
@@ -116,12 +112,11 @@
         <div>
           Note: Browsers that support the File System Access API (ex: Chrome, Edge) can attach
           a folder permanently, and data will be synchronized. This browser does not support that API, so
-          whenver you want to get these updated files back on your filesystem you need to download them from the
-          following section.
+          when you want these updated files back on your filesystem, use the following section.
         </div>
       </span>
 
-      <!-- Download any file in local/browser -->
+      <!-- FF: Download any file in /local -->
       <span class="settings__download">
         <h3>Download files stored in the browser</h3>
         <div>
@@ -134,16 +129,19 @@
   </div>
 
   <div class="permission hidden">
-    <div>
+    <div class="already-attached">
       The folder "<span class="folder-name"></span>" is attached. Press OK and approve
       the browser permission prompt to continue.
+    </div>
+    <div class="not-attached">
+      Press OK, select a folder and approve the browser permission prompt to continue.
     </div>
     <div>
       <div class="m5">
         <button class="ok">OK</button>
       </div>
       <div class="m5">
-        <button class="cancel">Unattach</button>
+        <button class="cancel">No (store data in browser instead)</button>
       </div>
     </div>
   </div>

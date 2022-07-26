@@ -5,46 +5,83 @@ import { createElement, fsReadAllFiles } from "./utils.js";
 /** @type {FileSystemDirectoryHandle} */
 let attachedDirHandle = null;
 
-async function requestPermission(dirHandle) {
-  const options = { mode: 'readwrite' };
-  if (await dirHandle.queryPermission(options) === 'granted') return true;
+export async function configureMount() {
+  let type = 'fs';
 
-  try {
-    if (await dirHandle.requestPermission(options) !== 'granted') {
-      return false;
+  attachedDirHandle = await kv.get('attached-dir');
+  if (!self.showDirectoryPicker || attachedDirHandle === false || !await requestPermission()) {
+    type = 'idb';
+  }
+
+  // Mount the persisted files (zc.sav and zc.cfg live here).
+  FS.mkdirTree('/local');
+  if (type === 'fs') {
+    await setAttachedDir(attachedDirHandle);
+  } else {
+    FS.mount(IDBFS, {}, '/local');
+  }
+  await ZC.fsSync(true);
+  if (!FS.analyzePath('/local/zc.cfg').exists) {
+    FS.writeFile('/local/zc.cfg', FS.readFile('/zc.cfg'));
+  }
+  if (!FS.analyzePath('/local/zquest.cfg').exists) {
+    FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest.cfg'));
+  }
+  renderSettingsPanel();
+}
+
+async function requestPermission() {
+  const options = { mode: 'readwrite' };
+
+  if (attachedDirHandle) {
+    if (await attachedDirHandle.queryPermission(options) === 'granted') return true;
+
+    try {
+      if (await attachedDirHandle.requestPermission(options) !== 'granted') {
+        return false;
+      }
+      return true;
+    } catch {
+      // ...
     }
-    return true;
-  } catch {
-    // ...
   }
 
   // User activation is required to request permissions
   document.querySelector('.content').classList.add('hidden');
   document.querySelector('.permission').classList.remove('hidden');
-  document.querySelector('.permission .folder-name').textContent = dirHandle.name;
+  document.querySelector('.permission .folder-name').textContent = attachedDirHandle?.name;
+  document.querySelector('.permission .already-attached').classList.toggle('hidden', !attachedDirHandle);
+  document.querySelector('.permission .not-attached').classList.toggle('hidden', !!attachedDirHandle);
 
   let result = await new Promise((resolve) => {
     document.querySelector('.permission .ok').addEventListener('click', () => {
       resolve(true);
     });
     document.querySelector('.permission .cancel').addEventListener('click', () => {
+      kv.set('attached-dir', false);
       resolve(false);
     });
   });
 
+  if (result && !attachedDirHandle) {
+    try {
+      attachedDirHandle = await self.showDirectoryPicker({
+        id: 'zc',
+      });
+    } catch { }
+  }
 
-  if (result) result = await dirHandle.requestPermission(options) === 'granted';
+  if (result) result = await attachedDirHandle.requestPermission(options) === 'granted';
   document.querySelector('.content').classList.remove('hidden');
   document.querySelector('.permission').classList.add('hidden');
   return result;
 }
 
 async function setAttachedDir(dirHandle) {
-  if (dirHandle && !await requestPermission(dirHandle)) {
-    dirHandle = null;
-  }
+  try {
+    FS.unmount('/local');
+  } catch { }
 
-  if (attachedDirHandle) FS.unmount('/local/filesystem');
   attachedDirHandle = dirHandle;
   if (dirHandle) {
     await kv.set('attached-dir', dirHandle);
@@ -52,13 +89,10 @@ async function setAttachedDir(dirHandle) {
     await kv.del('attached-dir');
   }
 
-  renderSettingsPanel();
-
   if (!dirHandle) return;
 
   await import('./fsfs.js');
-  FS.mkdirTree('/local/filesystem');
-  FS.mount(FSFS, { dirHandle: attachedDirHandle }, '/local/filesystem');
+  FS.mount(FSFS, { dirHandle: attachedDirHandle }, '/local');
   await new Promise((resolve, reject) => FS.syncfs(true, (err) => {
     if (err) return reject(err);
     resolve();
@@ -76,7 +110,7 @@ export function setupSettingsPanel() {
     const path = fileEl.getAttribute('data-path');
     const blob = new Blob([FS.readFile(path)]);
     await fileSave(blob, {
-      fileName: path.replace('/local/browser/', ''),
+      fileName: path.replace('/local/', ''),
     });
   });
 
@@ -85,14 +119,12 @@ export function setupSettingsPanel() {
       id: 'zc',
     });
     await setAttachedDir(dir);
+    renderSettingsPanel();
   });
   el.querySelector('.settings__attach button.unattach').addEventListener('click', async () => {
     await setAttachedDir(null);
+    renderSettingsPanel();
   });
-}
-
-export async function attachDir() {
-  await setAttachedDir(await kv.get('attached-dir'));
 }
 
 export function renderSettingsPanel() {
@@ -111,13 +143,17 @@ export function renderSettingsPanel() {
 
   el.querySelector('.settings__copy').classList.toggle('hidden', !!self.showDirectoryPicker);
 
-  const filesEl = el.querySelector('.settings__browser-files');
-  filesEl.innerHTML = '';
-  for (const { path, timestamp } of fsReadAllFiles('/local/browser')) {
-    const fileEl = createElement('div', 'file');
-    fileEl.append(createElement('div', '', path.replace('/local/browser/', '')));
-    fileEl.append(createElement('div', '', new Date(timestamp).toLocaleString()));
-    fileEl.setAttribute('data-path', path);
-    filesEl.append(fileEl);
+  if (!self.showDirectoryPicker) {
+    const filesEl = el.querySelector('.settings__browser-files');
+    filesEl.innerHTML = '';
+    for (const { path, timestamp } of fsReadAllFiles('/local')) {
+      const fileEl = createElement('div', 'file');
+      fileEl.append(createElement('div', '', path.replace('/local/', '')));
+      fileEl.append(createElement('div', '', new Date(timestamp).toLocaleString()));
+      fileEl.setAttribute('data-path', path);
+      filesEl.append(fileEl);
+    }
   }
+
+  el.querySelector('.settings__download').classList.toggle('hidden', !!attachedDirHandle);
 }

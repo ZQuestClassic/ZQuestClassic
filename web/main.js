@@ -1,4 +1,4 @@
-import { attachDir, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
+import { configureMount, renderSettingsPanel, setupSettingsPanel } from "./settings.js";
 import { createUrlString, fetchWithProgress } from "./utils.js";
 
 window.ZC = {
@@ -48,13 +48,13 @@ window.ZC = {
     window.open(url, '_blank');
   },
   async fsSync(populate) {
-    // Sync /local/browser to IndexedDB and /local/filesystem to attached folder.
+    // Sync /local to IndexedDB or to the attached folder.
     await new Promise((resolve, reject) => FS.syncfs(populate, (err) => {
       if (err) return reject(err);
       resolve();
     }));
   },
-  attachDir,
+  configureMount,
 };
 
 async function main() {
