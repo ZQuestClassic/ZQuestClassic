@@ -35,13 +35,14 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
   FS.mkdir('/local');
-  FS.mount(IDBFS, {}, '/local');
+  FS.mkdir('/local/browser');
+  FS.mount(IDBFS, {}, '/local/browser');
   await new Promise(resolve => FS.syncfs(true, resolve));
-  if (!FS.analyzePath('/local/zc.cfg').exists) {
-    FS.writeFile('/local/zc.cfg', FS.readFile('/zc.cfg'));
+  if (!FS.analyzePath('/local/browser/zc.cfg').exists) {
+    FS.writeFile('/local/browser/zc.cfg', FS.readFile('/zc.cfg'));
   }
-  if (!FS.analyzePath('/local/zquest.cfg').exists) {
-    FS.writeFile('/local/zquest.cfg', FS.readFile('/zquest.cfg'));
+  if (!FS.analyzePath('/local/browser/zquest.cfg').exists) {
+    FS.writeFile('/local/browser/zquest.cfg', FS.readFile('/zquest.cfg'));
   }
 });
 void em_init_fs() {
@@ -49,7 +50,7 @@ void em_init_fs() {
 }
 
 EM_ASYNC_JS(void, em_sync_fs_, (), {
-  await new Promise(resolve => FS.syncfs(false, resolve));
+  await ZC.fsSync();
 });
 void em_sync_fs() {
   em_sync_fs_();
@@ -84,6 +85,13 @@ bool em_is_lazy_file(const char *path) {
   return EM_ASM_INT({
     return ZC_Constants.files.includes(UTF8ToString($0));
   }, path);
+}
+
+std::string get_initial_file_dialog_folder() {
+  bool has_attached_folder = EM_ASM_INT({
+    return FS.analyzePath('/local/filesystem').exists;
+  });
+  return has_attached_folder ? "/local/filesystem/" : "/local/browser/";
 }
 
 EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {

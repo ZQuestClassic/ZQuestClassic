@@ -26,9 +26,10 @@
     <div class="panel-buttons">
       <button class="hidden panel-button button--testmode" data-panel=".testmode">Test Mode Active</button>
       <button class="panel-button" data-panel=".about">About</button>
+      <button class="panel-button" data-panel=".settings">Settings</button>
       <button class="panel-button" data-panel=".quest-list">Quest List</button>
       <button class="panel-button hidden button--copyurl">Copy URL</button>
-      <button class="panel-button hidden button--open-testmode">Open Test Mode</button>
+      <button class="panel-button hidden button--open-testmode">Test Mode</button>
     </div>
 
     <div class="emscripten">
@@ -44,6 +45,9 @@
     </div>
 
     <div class="hidden panel about">
+      <p>
+        <a href="https://hoten.cc/zc/play/">Quest Player</a> – <a href="https://hoten.cc/zc/create/">Quest Editor</a>
+      </p>
       <p>
         This is an alpha version of Zelda Classic for the browser. You can expect occasional sound hiccups, and
         other bugs.
@@ -62,9 +66,6 @@
         Default Controls: TODO
       </p>
       <p>
-        <a href="https://hoten.cc/zc/play/">Quest Player</a> – <a href="https://hoten.cc/zc/create/">Quest Editor</a>
-      </p>
-      <p>
         To report issues, contact Connor (discord connorclark#9300) or file an issue on the <a target="_blank"
           href="https://github.com/ArmageddonGames/ZeldaClassic">GitHub</a> issue tracker.
       </p>
@@ -80,6 +81,55 @@
         <div class="quest-list__entries-list"></div>
       </div>
       <div class="quest-list__current"></div>
+    </div>
+
+    <div class="hidden panel settings">
+      <div>
+        Most settings (such as controls) are configured in the Zelda Classic menu (click on game to open).
+        This panel is for web-specific settings.
+      </div>
+
+      <!-- local/browser – indexeddb-->
+      <!-- local/filesystem – can swap out -->
+      <!-- where does zc.cfg go? -->
+
+      <!-- Chrome: open directory -> sync to local/filesystem -->
+      <span class="settings__attach">
+        <h3>Attach local filesystem folder</h3>
+        <div>
+          Assign a folder to keep save files and quests. Choose an empty
+          folder or a folder with existing files (make sure to backup anything important!)
+        </div>
+        <button class="attach">Attach</button>
+        <button class="unattach">Unattach</button>
+      </span>
+
+      <!-- FF: open directory -> write to local/browser -->
+      <span class="settings__copy">
+        <h3>Copy local filesystem folder</h3>
+        <div>
+          Copy all files in a folder to the local browser storage. These files will then be
+          available to Zelda Classic. Any updates to these files by Zelda Classic will exist
+          only in the browser–the original folder will not be updated. In other words, this
+          is one-way.
+        </div>
+        <div>
+          Note: Browsers that support the File System Access API (ex: Chrome, Edge) can attach
+          a folder permanently, and data will be synchronized. This browser does not support that API, so
+          whenver you want to get these updated files back on your filesystem you need to download them from the
+          following section.
+        </div>
+      </span>
+
+      <!-- Download any file in local/browser -->
+      <span class="settings__download">
+        <h3>Download files stored in the browser</h3>
+        <div>
+          These files are stored in the browser. Click to download any of them.
+        </div>
+        <br>
+        <div class="settings__browser-files"></div>
+      </span>
     </div>
   </div>
 
