@@ -45,3 +45,52 @@ export function createUrlString(pathname, params) {
 
   return url.toString().replace(/%2F/g, '/');
 }
+
+export function fsReadAllFiles(folder) {
+  const files = [];
+  if (!FS.analyzePath(folder).exists) return files;
+
+  function impl(curFolder) {
+    for (const name of FS.readdir(curFolder)) {
+      if (name === '.' || name === '..') continue;
+
+      const path = `${curFolder}/${name}`;
+      const { mode, timestamp } = FS.lookupPath(path).node;
+      if (FS.isFile(mode)) {
+        files.push({ path, timestamp });
+      } else if (FS.isDir(mode)) {
+        impl(path);
+      }
+    }
+  }
+
+  impl(folder);
+  return files;
+}
+
+export function mkdirp(folderPath) {
+  const pathParts = folderPath.split('/')
+  let dirPath = '/'
+  for (let i = 0; i < pathParts.length; i++) {
+    const curPart = pathParts[i]
+    try {
+      FS.mkdir(`${dirPath}${curPart}`)
+    } catch (err) { }
+    dirPath += `${curPart}/`
+  }
+};
+
+export function ensureFolderExists(path) {
+  const folderPath = path
+    .split('/')
+    .slice(0, -1) // remove basename
+    .join('/');
+  mkdirp(folderPath);
+};
+
+export function createElement(tagName, className, textContent) {
+  const el = document.createElement(tagName);
+  if (className) el.className = className;
+  el.textContent = textContent;
+  return el;
+}

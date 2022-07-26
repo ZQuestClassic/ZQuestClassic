@@ -57,7 +57,7 @@ button:active {
   color: #36d23f;
 }
 
-.about {
+.about, .settings {
   margin: 0 5vw;
 }
 
@@ -160,4 +160,20 @@ canvas {
   padding: 0;
   width: 5vw;
   height: 5vw;
+}
+
+.settings__browser-files {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5px;
+  justify-items: center;
+}
+.file {
+  display: contents;
+  cursor: pointer;
+  user-select: none;
+  padding: 5px;
+}
+.file:hover {
+  color: gold;
 }

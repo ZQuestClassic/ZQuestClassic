@@ -1,4 +1,5 @@
-import { createUrlString, fetchWithProgress } from "./utils.js";
+import { renderSettingsPanel, setupSettingsPanel } from "./settings.js";
+import { createUrlString, ensureFolderExists, fetchWithProgress, mkdirp } from "./utils.js";
 
 window.ZC = {
   pathToUrl: {},
@@ -34,24 +35,8 @@ window.ZC = {
     const response = await ZC.fetch(url, opts);
     return new Uint8Array(await response.arrayBuffer());
   },
-  mkdirp(folderPath) {
-    const pathParts = folderPath.split('/')
-    let dirPath = '/'
-    for (let i = 0; i < pathParts.length; i++) {
-      const curPart = pathParts[i]
-      try {
-        FS.mkdir(`${dirPath}${curPart}`)
-      } catch (err) { }
-      dirPath += `${curPart}/`
-    }
-  },
-  ensureFolderExists(path) {
-    const folderPath = path
-      .split('/')
-      .slice(0, -1) // remove basename
-      .join('/');
-    ZC.mkdirp(folderPath);
-  },
+  mkdirp,
+  ensureFolderExists,
   url: '',
   setShareableUrl(params) {
     ZC.url = createUrlString('', params);
@@ -63,6 +48,13 @@ window.ZC = {
     if (retsquare !== -1) params.retsquare = retsquare;
     const url = createUrlString(ZC_Constants.zeldaUrl, params);
     window.open(url, '_blank');
+  },
+  async fsSync() {
+    // Sync /local/browser to IndexedDB.
+    await new Promise(resolve => FS.syncfs(false, resolve));
+
+    // Sync /local/filesystem to attached folder.
+    // TODO
   }
 };
 
@@ -99,6 +91,7 @@ async function main() {
       onRuntimeInitialized: () => {
         setupTouchControls();
         setupCopyUrl();
+        setupSettingsPanel();
         if (TARGET === 'zquest') setupOpenTestMode();
       },
       setStatus: function (text, percentProgress = null) {
@@ -167,6 +160,7 @@ async function main() {
           if (el === buttonEl) {
             buttonEl.classList.toggle('active');
             if (panelEl) panelEl.classList.toggle('hidden');
+            if (panelEl && buttonEl.getAttribute('data-panel') === '.settings') renderSettingsPanel();
           } else {
             buttonEl.classList.remove('active');
             if (panelEl) panelEl.classList.add('hidden');
