@@ -142,11 +142,18 @@ sed -i -e 's/(SDL_INIT_EVERYTHING)/(SDL_INIT_EVERYTHING-SDL_INIT_HAPTIC)/' _deps
 # This emscripten-specific timer code actually really messes up the framerate, making it go way too fast.
 sed -i -e 's/ _al_timer_thread_handle_tick/\/\/_al_timer_thread_handle_tick/' _deps/allegro5-src/src/sdl/sdl_system.c
 
-cmake --build . -t zelda
+cmake --build . -t $@
 
 # https://github.com/emscripten-core/emscripten/issues/11952
 HASH=$(shasum -a 256 zelda.data | awk '{print $1}')
-sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zelda.js
+if [ -f zelda.js ]
+then
+  sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zelda.js
+fi
+# if [ -f zquest.js ]
+# then
+#   sed -i -e "s/\"package_uuid\":\"[^\"]*\"/\"package_uuid\":\"$HASH\"/" zquest.js
+# fi
 
 cp ../../web/index.html .
 
