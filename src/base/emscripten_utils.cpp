@@ -33,18 +33,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
     writeFakeFile(file, 'files' + file);
   }
 
-  // Mount the persisted files (zc.sav and zc.cfg live here).
-  FS.mkdirTree('/local/browser');
-  FS.mount(IDBFS, {}, '/local/browser');
-  await ZC.fsSync(true);
-  if (!FS.analyzePath('/local/browser/zc.cfg').exists) {
-    FS.writeFile('/local/browser/zc.cfg', FS.readFile('/zc.cfg'));
-  }
-  if (!FS.analyzePath('/local/browser/zquest.cfg').exists) {
-    FS.writeFile('/local/browser/zquest.cfg', FS.readFile('/zquest.cfg'));
-  }
-
-  await ZC.attachDir();
+  await ZC.configureMount();
 });
 void em_init_fs() {
   em_init_fs_();
@@ -89,10 +78,7 @@ bool em_is_lazy_file(const char *path) {
 }
 
 std::string get_initial_file_dialog_folder() {
-  bool has_attached_folder = EM_ASM_INT({
-    return FS.analyzePath('/local/filesystem').exists;
-  });
-  return has_attached_folder ? "/local/filesystem/" : "/local/browser/";
+  return "/local/";
 }
 
 EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {
