@@ -21,6 +21,7 @@ GIT_CLEAN=true
 function apply_patch {
   cd "$1"
   echo "Applying patch: $2"
+  echo "            to: $1"
 
   if [ -d .git ]; then
     git restore --staged .
