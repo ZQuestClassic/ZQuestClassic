@@ -24158,7 +24158,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		if (align_counter > 0) 
 		{
-			align_counter--;
+			align_counter = MAX(0, align_counter - 4);
 			scroll_counter++;
 		}
 		if (axis_alignment_amount)
@@ -24434,7 +24434,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		*/
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
-		herostep();
+		if (!align_counter) herostep();
 		
 		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
 		{
