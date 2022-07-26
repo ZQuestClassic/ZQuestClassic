@@ -23649,7 +23649,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	}
 }
 
-static void for_every_nearby_screen(const std::function <void (mapscr*, int, int)>& fn)
+static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
 {
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
@@ -23657,22 +23657,816 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 		{
 			if (draw_dx || draw_dy)
 			{
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+				//if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+				//if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 			}
 
 			int scr = scrolling_scr + draw_dx + draw_dy * 16;
 			global_z3_cur_scr_drawing = scr;
 			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
-			fn(myscr, draw_dx, draw_dy);
+			fn(myscr, scr, draw_dx, draw_dy);
 		}
 	}
 
 	global_z3_cur_scr_drawing = -1;
 }
 
+static int scroll_dir_to_scr_offset(direction dir)
+{
+	if (dir == up) return -16;
+	if (dir == down) return 16;
+	if (dir == left) return -1;
+	if (dir == right) return 1;
+	return 0;
+}
+
+void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t destdmap)
+{
+	if(action==freeze||action==sideswimfreeze)
+	{
+		return;
+	}
+	
+	bool overlay = false;
+	if(scrolldir >= 0 && scrolldir <= 3)
+	{
+		overlay = get_bit(&tmpscr[(currscr < 128) ? 0 : 1].sidewarpoverlayflags, scrolldir) ? true : false;
+	}
+	
+	if(destdmap == -1)
+	{
+		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[currdmap].map].tileWidth
+				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[currdmap].map].tileHeight)
+			return;
+	}
+	else
+	{
+		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[destdmap].map].tileWidth
+				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[destdmap].map].tileHeight)
+			return;
+	}
+	
+	if (!is_z3_scrolling_mode() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
+		return;
+		
+	kill_enemy_sfx();
+	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
+	screenscrolling = true;
+	// FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
+	// switch(scrolldir)
+	// {
+	// 	case up:
+	// 		FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_NY] = -176;
+	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+	// 		break;
+	// 	case down:
+	// 		FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_NY] = 176;
+	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+	// 		break;
+	// 	case left:
+	// 		FFCore.ScrollingData[SCROLLDATA_NX] = -256;
+	// 		FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+	// 		break;
+	// 	case right:
+	// 		FFCore.ScrollingData[SCROLLDATA_NX] = 256;
+	// 		FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+	// 		break;
+	// }
+	// FFCore.init_combo_doscript();
+	
+	tmpscr[1] = tmpscr[0];
+	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
+	tmpscr[1].data.resize(_mapsSize, 0);
+	tmpscr[1].sflag.resize(_mapsSize, 0);
+	tmpscr[1].cset.resize(_mapsSize, 0);
+	
+	for(int32_t i = 0; i < 6; i++)
+	{
+		tmpscr3[i] = tmpscr2[i];
+		tmpscr3[1].data.resize(_mapsSize, 0);
+		tmpscr3[1].sflag.resize(_mapsSize, 0);
+		tmpscr3[1].cset.resize(_mapsSize, 0);
+	}
+
+	mapscr *newscr = &tmpscr[0];
+	mapscr *oldscr = &tmpscr[1];
+	conveyclk = 2;
+	scrolling_scr = currscr;
+
+	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
+	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
+		scx = 32; //for sideview very fast screolling.
+
+	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
+	actiontype lastaction = action;
+	{
+		ALLOFF(false, false);
+		// for now, restore Hero's previous action
+		if(!get_bit(quest_rules, qr_SCROLLING_KILLS_CHARGE))
+			attackclk = lastattackclk; spins = lastspins; charging = lastcharging; tapping = lasttapping;
+		action=lastaction; FFCore.setHeroAction(lastaction);
+		
+		lstep = (lstep + 6) % 12;
+		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
+		{
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
+		}
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			player_waitdraw = false;
+		}
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+			dmap_waitdraw = false;
+		}
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+			passive_subscreen_waitdraw = false;
+		}
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		{
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
+			tmpscr->screen_waitdraw = 0;		
+		}
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
+		
+		for ( int32_t q = 0; q < 32; ++q )
+		{
+			//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
+			if ( tmpscr->ffcswaitdraw&(1<<q) )
+			{
+				//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
+				if(tmpscr->ffscript[q] != 0)
+				{
+					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
+					tmpscr->ffcswaitdraw &= ~(1<<q);
+				}
+			}
+		}
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
+		//Waitdraw for item scripts. 
+		// FFCore.itemScriptEngineOnWaitdraw();
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEM_WAITDRAW);
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_WAITDRAW);
+		
+		//Sprite scripts on Waitdraw
+		// FFCore.eweaponScriptEngineOnWaitdraw();
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_WAITDRAW);
+		// FFCore.itemSpriteScriptEngineOnWaitdraw();
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
+		
+		//This is no longer a do-while, as the first iteration is now slightly different. -Em
+		draw_screen(tmpscr,true,true);
+		
+		// if(cx == scx)
+		// 	rehydratelake(false);
+			
+		// FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+	}
+	
+	advanceframe(true);
+	if(Quit)
+	{
+		screenscrolling = false;
+		return;
+	}
+
+	// Wait
+	{
+		int wait_counter = scx + 1;
+		while (wait_counter < 32)
+		{
+			if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+			{
+				script_drawing_commands.Clear();
+				FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+				// ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, sx, sy, end_frames, false); //Prewaitdraw
+				// ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, sx, sy, end_frames, true); //Waitdraw
+			}
+			else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+			draw_screen(tmpscr,true,true);
+			
+			if (wait_counter == scx)
+				rehydratelake(false);
+				
+			FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+			advanceframe(true);
+			
+			if(Quit)
+			{
+				screenscrolling = false;
+				return;
+			}
+			
+			++wait_counter;
+		}
+	}
+
+	script_drawing_commands.Clear();
+	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+	
+	//clear Hero's last hits 
+	//for ( int32_t q = 0; q < 4; q++ ) sethitHeroUID(q, 0);
+	
+	switch(DMaps[currdmap].type&dmfTYPE)
+	{
+		case dmDNGN:
+			if(!get_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING))
+			{
+				markBmap(scrolldir);
+			}
+			break;
+		case dmOVERW: case dmBSOVERW:
+			if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
+				break;
+			[[fallthrough]];
+		case dmCAVE:
+			markBmap(scrolldir);
+			break;
+	}
+
+	if(fixed_door)
+	{
+		unsetmapflag(mSECRET);
+		fixed_door = false;
+	}
+	//Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
+
+	int step, delay, scroll_counter, dx, dy;
+	{
+		step = get_scroll_step(scrolldir);
+		delay = get_scroll_delay(scrolldir);
+		scroll_counter = (scrolldir == up || scrolldir == down ? 176 : 256) / step;
+
+		if (destscr != -1)
+		{
+			currscr = destscr;
+		}
+		else if (checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
+		{
+			currscr += scroll_dir_to_scr_offset((direction)scrolldir);
+		}
+		z3_set_currscr(currscr);
+		loadscr(0,destdmap,currscr,scrolldir,overlay);
+
+		dx = 0;
+		dy = 0;
+		if (scrolldir == up) dy = -1;
+		if (scrolldir == down) dy = 1;
+		if (scrolldir == left) dx = -1;
+		if (scrolldir == right) dx = 1;
+	}
+
+	
+	// switch(scrolldir)
+	// {
+	// 	case up:
+	// 	{
+	// 		x = region_scr_dx*256 + fmod(x.getFloat(), 256);
+	// 		y = world_h - 176;
+	// 	}
+	// 	break;
+		
+	// 	case down:
+	// 	{
+	// 		x = region_scr_dx*256 + fmod(x.getFloat(), 256);
+	// 		y = 176;
+	// 	}
+	// 	break;
+		
+	// 	case left:
+	// 	{
+	// 		x = world_w - 256;
+	// 		y = region_scr_dy*176 + fmod(y.getFloat(), 176);
+	// 	}
+	// 	break;
+		
+	// 	case right:
+	// 	{
+	// 		x = 256;
+	// 		y = region_scr_dy*176 + fmod(y.getFloat(), 176);
+	// 	}
+	// 	break;
+	// }
+	
+
+	// ?????
+	// {
+		// change Hero's state if entering water
+		int32_t ahead = lookahead(scrolldir);
+		int32_t aheadflag = lookaheadflag(scrolldir);
+		int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+		int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
+			//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+			//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+			//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
+		switch(scrolldir)
+		{
+			case up:
+				lookaheady=160;
+				break;
+				
+			case down:
+				lookaheady=0;
+				break;
+				
+			case left:
+				lookaheadx=240;
+				break;
+				
+			case right:
+				lookaheadx=0;
+				break;
+		}
+	// }
+
+	
+	bool nowinwater = false;
+	{
+		if(lastaction != inwind)
+		{
+			if(lastaction == rafting ) //&& isRaftFlag(aheadflag))
+			{
+				if (lookaheadraftflag(scrolldir))
+				{
+					action=rafting; FFCore.setHeroAction(rafting);
+					raftclk=0;
+				}
+			}
+			else if(iswaterex(ahead, currmap, currscr, -1, lookaheadx,lookaheady) && (current_item(itype_flippers)))
+			{
+				if(lastaction==swimming || lastaction == sideswimming || lastaction == sideswimattacking || lastaction == sideswimhit || lastaction == swimhit || lastaction == sideswimcasting || lastaction == sidewaterhold1 || lastaction == sidewaterhold2)
+				{
+					SetSwim();
+					hopclk = 0xFF;
+					nowinwater = true;
+				}
+				else
+				{
+					action=hopping; FFCore.setHeroAction(hopping);
+					hopclk = 2;
+					nowinwater = true;
+				}
+			}
+			else if((lastaction == attacking || lastaction == sideswimattacking) && charging)
+			{
+				action = lastaction; FFCore.setHeroAction(lastaction);
+			}
+			else
+			{
+				action=none; FFCore.setHeroAction(none);
+			}
+		}
+		
+		// The naturaldark state can be read/set by an FFC script before
+		// fade() or lighting() is called.
+		naturaldark = ((TheMaps[currmap*MAPSCRS+currscr].flags & fDARK) != 0);
+		
+		if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
+		
+		if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
+		//Preloaded ffc scripts
+		if(destdmap >= 0)
+		{
+			int32_t dmap = currdmap; // Kludge
+			currdmap = destdmap;
+			ffscript_engine(true);
+			currdmap = dmap;
+		}
+		else
+			ffscript_engine(true);
+			
+		// There are two occasions when scrolling must be darkened:
+		// 1) When scrolling into a dark room.
+		// 2) When scrolling between DMaps of different colours.
+		if(destdmap != -1 && DMaps[destdmap].color != currcset)
+		{
+			fade((specialcave > 0) ? (specialcave >= GUYCAVE) ? 10 : 11 : currcset, true, false);
+			darkroom = true;
+		}
+		else if(!darkroom)
+			lighting(false, false); // NES behaviour: fade to dark before scrolling
+			
+		if(action != rafting)  // Is this supposed to be here?!
+			scroll_counter++; //This was the easiest way to re-arrange the loop so drawing is in the middle
+	}
+
+
+	int no_move = 0;
+	int move_counter = 0;
+	bool end_frames = 0;
+
+	scroll_counter *= delay;
+
+	bool is_smooth_vertical_scrolling =
+		(scrolldir == up || scrolldir == down) && get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0;
+	
+	for(word i = 0; scroll_counter >= 0 && delay != 0; i++, scroll_counter--) //Go!
+	{
+		if(Quit)
+		{
+			screenscrolling = false;
+			return;
+		}
+
+		if(no_move > 0)
+			no_move--;
+			
+		//Don't want to move things on the first or last iteration, or between delays
+		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0)
+			no_move++;
+			
+		if(scrolldir == up || scrolldir == down)
+		{
+			if(!is_smooth_vertical_scrolling)
+			{
+				//Add a few extra frames if on the second loop and cool scrolling is not set
+				if(i == 1)
+				{
+					scroll_counter += (scrolldir == down) ? 3 : 2;
+					no_move += (scrolldir == down) ? 3 : 2;
+				}
+			}
+			else
+			{
+				//4 frames after we've finished scrolling of being still
+				if(scroll_counter == 0 && !end_frames)
+				{
+					scroll_counter += 4;
+					no_move += 4;
+					end_frames = true;
+				}
+			}
+		}
+
+		//Move Hero and the scroll position
+		if(!no_move)
+		{
+			move_counter++;
+
+			switch(scrolldir)
+			{
+			case up:
+				y += step;
+				break;
+				
+			case down:
+				y -= step;
+				break;
+				
+			case left:
+				x += step;
+				break;
+				
+			case right:
+				x -= step;
+				break;
+			}
+			
+			//bound Hero when me move him off the screen in the last couple of frames of scrolling
+			// if(y > world_h - 16) y = world_h - 16;
+			// if(y < 0)            y = 0;
+			// if(x > world_w - 16) x = world_w - 16;
+			// if(x < 0)            x = 0;
+
+			if (is_z3_scrolling_mode())
+			{
+				// TODO z3 clamp?
+				global_viewport_x = Hero.getX() - 256/2;
+				global_viewport_y = Hero.getY() - 176/2;
+			}
+
+			// if(ladderx > 0 || laddery > 0)
+			// {
+			// 	// If the ladder moves on both axes, the player can
+			// 	// gradually shift it by going back and forth
+			// 	if(scrolldir==up || scrolldir==down)
+			// 		laddery = y.getInt();
+			// 	else
+			// 		ladderx = x.getInt();
+			// }
+		}
+
+		clear_bitmap(bigscrollbuf);
+		clear_bitmap(framebuf);
+
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
+
+			int offx = (draw_dx + 1) * 256;
+			int offy = (draw_dy + 1) * 176;
+			// switch(scrolldir)
+			// {
+			// case up:
+			// 	offy += 176;
+			// 	break;
+			// case left:
+			// 	offx += 256;
+			// 	break;
+			// }
+
+			// if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(bigscrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
+			// if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
+			// if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
+			// {
+			// 	if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
+			// 	if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
+			// }
+
+			putscr(bigscrollbuf, offx, offy, myscr);
+		});
+		
+
+		int sx = step * move_counter * -dx;
+		int sy = step * move_counter * -dy;
+		if (is_smooth_vertical_scrolling)
+			sy += 3;
+
+		// for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
+		// 	if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
+
+		// 	int offx = 256 + draw_dx * 256;
+		// 	int offy = 176 + draw_dy * 176;
+		// 	// switch(scrolldir)
+		// 	// {
+		// 	// case up:
+		// 	// 	offy += 176;
+		// 	// 	break;
+		// 	// case left:
+		// 	// 	offx += 256;
+		// 	// 	break;
+		// 	// }
+
+		// 	// if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(bigscrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
+		// 	// if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
+		// 	// if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
+		// 	// {
+		// 	// 	if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
+		// 	// 	if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
+		// 	// }
+
+		// 	putscr(bigscrollbuf, offx, offy, myscr);
+		// });
+
+		blit(bigscrollbuf, framebuf, 256 - sx, 176 - sy + 1, 0, playing_field_offset+1, 256, 168-1);
+
+
+
+		// ....
+		// do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
+		// do_walkflags(framebuf, newscr, tx, ty,2);
+		
+		// do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
+		// do_effectflags(framebuf, newscr, tx, ty,2);
+		
+		if(get_bit(quest_rules, qr_FFCSCROLL))
+		{
+			// do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
+			// do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
+		}
+		
+		// putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
+		// putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
+		herostep();
+		
+		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
+		{
+			drawshadow(framebuf, get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+		}
+		
+		if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
+		{
+			draw_under(framebuf); //draw the ladder or raft
+			decorations.draw2(framebuf, true);
+			draw(framebuf); //Hero
+			decorations.draw(framebuf,  true);
+		}
+
+
+		// .....
+
+
+
+
+
+
+		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
+		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
+
+
+
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
+		//end drawing
+		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		advanceframe(true/*,true,false*/);
+		script_drawing_commands.Clear();
+		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
+		actiontype lastaction = action;
+		action = scrolling; FFCore.setHeroAction(scrolling);
+		FFCore.runF6Engine();
+		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
+		action = lastaction;
+		FFCore.setHeroAction(lastaction);
+	}
+
+	clear_bitmap(msg_txt_display_buf);
+	set_clip_state(msg_txt_display_buf, 1);
+	clear_bitmap(msg_bg_display_buf);
+	set_clip_state(msg_bg_display_buf, 1);
+	clear_bitmap(msg_portrait_display_buf);
+	set_clip_state(msg_portrait_display_buf, 1);
+
+	//Move hero to the other side of the screen if scrolling's not turned on
+	if(get_bit(quest_rules, qr_NOSCROLL))
+	{
+		switch(scrolldir)
+		{
+		case up:
+			y = 160;
+			break;
+			
+		case down:
+			y = 0;
+			break;
+			
+		case left:
+			x = 240;
+			break;
+			
+		case right:
+			x = 0;
+			break;
+		}
+	}
+	
+	if((z > 0 || fakez > 0) && isSideViewHero())
+	{
+		y -= z;
+		y -= fakez;
+		z = 0;
+		fakez = 0;
+	}
+	
+	set_respawn_point(false);
+	trySideviewLadder();
+	warpx   = -1;
+	warpy   = -1;
+	
+	screenscrolling = false;
+	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
+	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+	
+	if(destdmap != -1)
+	{
+		if(currdmap != destdmap)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		if(dlevel != DMaps[destdmap].level)
+			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+		currdmap = destdmap;
+		dlevel = DMaps[destdmap].level;
+	}
+		
+	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now
+	//change it to swimming - since we have manually moved Hero onto the first tile, the hopping code
+	//will get confused and try to hop Hero onto the next (possibly nonexistant) water tile in his current
+	//direction. -DD
+	
+	/*if(nowinwater)
+	{
+		SetSwim();
+		hopclk = 0xFF;
+	}*/
+	
+	// NES behaviour: Fade to light after scrolling
+	lighting(false, false); // No, we don't need to set naturaldark...
+	
+	homescr=currscr;
+	init_dmap();
+	putscr(scrollbuf,0,0,newscr);
+	putscrdoors(scrollbuf,0,0,newscr);
+	
+	// Check for raft flags
+	if(action!=rafting && hopclk==0 && !toogam)
+	{
+		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
+		{
+			sfx(tmpscr->secretsfx);
+			action=rafting; FFCore.setHeroAction(rafting);
+			raftclk=0;
+		}
+		
+		// Half a tile off?
+		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
+		{
+			sfx(tmpscr->secretsfx);
+			action=rafting; FFCore.setHeroAction(rafting);
+			raftclk=0;
+		}
+	}
+	
+	opendoors=0;
+	markBmap(-1);
+	
+	if(isdungeon())
+	{
+		switch(tmpscr->door[scrolldir^1])
+		{
+		case dOPEN:
+		case dUNLOCKED:
+		case dOPENBOSS:
+			dir = scrolldir;
+			
+			if(action!=rafting)
+				stepforward(diagonalMovement?11:12, false);
+				
+			break;
+			
+		case dSHUTTER:
+		case d1WAYSHUTTER:
+			dir = scrolldir;
+			
+			if(action!=rafting)
+				stepforward(diagonalMovement?21:24, false);
+				
+			putdoor(scrollbuf,0,scrolldir^1,tmpscr->door[scrolldir^1]);
+			opendoors=-4;
+			sfx(WAV_DOOR);
+			break;
+			
+		default:
+			dir = scrolldir;
+			
+			if(action!=rafting)
+				stepforward(diagonalMovement?21:24, false);
+		}
+	}
+	
+	if(action == scrolling)
+	{
+		action=none; FFCore.setHeroAction(none);
+	}
+		
+	if(action != attacking && action != sideswimattacking)
+	{
+		charging = 0;
+		tapping = false;
+	}
+	
+	map_bkgsfx(true);
+	
+	if(newscr->flags2&fSECRET)
+	{
+		sfx(newscr->secretsfx);
+	}
+	
+	playLevelMusic();
+	
+	newscr_clk = frame;
+	activated_timed_warp=false;
+	loadside = scrolldir^1;
+	FFCore.init_combo_doscript();
+	eventlog_mapflags();
+	decorations.animate(); //continue to animate tall grass during scrolling
+	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+	{
+		//script_drawing_commands.Clear();
+		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
+		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
+	}
+}
+
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
+	// z3 SHORTCUT
+	// if (is_z3_scrolling_mode())
+	// {
+	// 	HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
+	// 	return;
+	// }
+
 	if(action==freeze||action==sideswimfreeze)
 	{
 		return;
@@ -24321,7 +25115,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 		else
-		for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			if (z3_scrolling_mode == 2)
 			{
 				if (!(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
@@ -24365,7 +25159,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
 		}
 		else
-		for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			int offx = oldscr == myscr ? tx2 : tx;
 			int offy = oldscr == myscr ? ty2 : ty;
 			switch(scrolldir)
@@ -24413,7 +25207,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 		else
-		for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			int offx = 0;
 			int offy = 0;
 			switch(scrolldir)
@@ -24505,7 +25299,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			do_layer(framebuf, 0, 6, newscr, tx, ty, 2, false, true); //layer 6
 		}
 		else
-		for_every_nearby_screen([&](mapscr* myscr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = is_old_scr ? tx2 : tx;
 			int offy = is_old_scr ? ty2 : ty;

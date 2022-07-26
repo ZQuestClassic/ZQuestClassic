@@ -272,7 +272,7 @@ int32_t curr_tb_page=0;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
+BITMAP     *framebuf, *scrollbuf, *bigscrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf, *hw_screen;
@@ -4775,6 +4775,7 @@ int main(int argc, char **argv)
 	framebuf  = create_bitmap_ex(8,256,224);
 	temp_buf  = create_bitmap_ex(8,256,224);
 	scrollbuf = create_bitmap_ex(8,512,406);
+	bigscrollbuf = create_bitmap_ex(8,512*2,406*2);
 	screen2   = create_bitmap_ex(8,320,240);
 	tmp_scr   = create_bitmap_ex(8,320,240);
 	tmp_bmp   = create_bitmap_ex(8,32,32);
