@@ -531,7 +531,7 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 		if ( game->get_counter(thecounter) >= ctr_amount )
 		{
 			//flag 6 only checks the required count; it doesn't drain it
-			if (!(cmb.usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
+			if (!(cmb.usrflags&cflag8)) game->change_counter(-(ctr_amount), thecounter);
 			return true;
 		}
 		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock

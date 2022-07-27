@@ -17573,6 +17573,15 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		{
 			switch(temp_combo.type)
 			{
+				case cLOCKBLOCK: case cLOCKEDCHEST:
+					if(temp_combo.usrflags & cflag7)
+						temp_combo.usrflags |= cflag8;
+					else temp_combo.usrflags &= ~cflag8;
+					temp_combo.usrflags &= ~cflag7;
+					break;
+			}
+			switch(temp_combo.type)
+			{
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 					temp_combo.attrishorts[2] = -1;
 					temp_combo.usrflags |= cflag7;
