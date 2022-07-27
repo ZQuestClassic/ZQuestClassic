@@ -301,6 +301,7 @@ int z3_get_scr_for_xy_offset(int x, int y)
 
 mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
 {
+	if (!is_z3_scrolling_mode()) return tmpscr;
 	return &TheMaps[currmap*MAPSCRS+z3_get_scr_for_xy_offset(x, y)];
 }
 
@@ -909,6 +910,15 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
     if(tmpscr2[layer].sflag.empty()) return 0;
     
     if(tmpscr2[layer].valid==0) return 0;
+
+	if (is_z3_scrolling_mode())
+	{
+		if(x<0 || x>=world_w || y<0 || y>=world_h)
+			return 0;
+		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
+		int32_t combo = COMBOPOS(x%256,y%176);
+		return z3_scr->sflag[combo];
+	}
     
     int32_t combo = COMBOPOS(x,y);
     
@@ -953,6 +963,15 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
     if(tmpscr2[layer].data.empty()) return 0;
     
     if(tmpscr2[layer].valid==0) return 0;
+
+	if (is_z3_scrolling_mode())
+	{
+		if(x<0 || x>=world_w || y<0 || y>=world_h)
+			return 0;
+		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
+		int32_t combo = COMBOPOS(x%256,y%176);
+		return combobuf[z3_scr->data[combo]].flag;
+	}
     
     int32_t combo = COMBOPOS(x,y);
     
@@ -2801,6 +2820,7 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
         {
             foundflag=true;
             foundnflag=true;
+			break;
         }
     }
     
@@ -2811,6 +2831,7 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
         {
             foundflag=true;
             foundcflag=true;
+			break;
         }
     }
     
@@ -2944,10 +2965,13 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
         checktrigger=true;
         hidden_entrance(0,true,single16,scombo);
     }
+
+	// TODO z3 this will not be able to trigger things on a different screen...
+	mapscr* scr = z3_get_mapscr_for_xy_offset(x, y);
     
-    sfx(tmpscr->secretsfx);
+    sfx(scr->secretsfx);
     
-    if(tmpscr->flags6&fTRIGGERFPERM)
+    if(scr->flags6&fTRIGGERFPERM)
     {
         int32_t tr = findtrigger(-1,false);  //Normal flags
         
@@ -2967,12 +2991,12 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
 		
 		if(!(tr||ftr) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
-			hidden_entrance(0,true,(tmpscr->flags6&fTRIGGERF1631));
+			hidden_entrance(0,true,(scr->flags6&fTRIGGERF1631));
 		}
     }
     
     if(setflag && canPermSecret())
-        if(!(tmpscr->flags5&fTEMPSECRETS))
+        if(!(scr->flags5&fTEMPSECRETS))
             setmapflag(mSECRET);
             
     return true;

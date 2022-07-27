@@ -7273,18 +7273,20 @@ void weapon::draw(BITMAP *dest)
 				}
 			}
 			
-			overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-fakez-13-(z+zofs),cs,0);
-			overtile16(dest,tile,x,y+yofs-fakez-(z+zofs),cs,0);
-			overtile16(dest,tile,x+((clk&1)?-14:14),y+yofs-fakez-(z+zofs),cs,0);
-			overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+14-fakez-(z+zofs),cs,0);
+			int x0 = x - global_viewport_x;
+			int y0 = y - global_viewport_y;
+			overtile16(dest,tile,x0+((clk&1)?7:-7),y0+yofs-fakez-13-(z+zofs),cs,0);
+			overtile16(dest,tile,x0,y0+yofs-fakez-(z+zofs),cs,0);
+			overtile16(dest,tile,x0+((clk&1)?-14:14),y0+yofs-fakez-(z+zofs),cs,0);
+			overtile16(dest,tile,x0+((clk&1)?-7:7),y0+yofs+14-fakez-(z+zofs),cs,0);
 			
 			if(id==wSBomb||id==ewSBomb)
 			{
-				overtile16(dest,tile,x+((clk&1)?7:-7),y+yofs-27-fakez-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?-21:21),y+yofs-13-fakez-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?-28:28),y+yofs-fakez-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?21:-21),y+yofs+14-fakez-(z+zofs),cs,0);
-				overtile16(dest,tile,x+((clk&1)?-7:7),y+yofs+28-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x0+((clk&1)?7:-7),y0+yofs-27-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x0+((clk&1)?-21:21),y0+yofs-13-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x0+((clk&1)?-28:28),y0+yofs-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x0+((clk&1)?21:-21),y0+yofs+14-fakez-(z+zofs),cs,0);
+				overtile16(dest,tile,x0+((clk&1)?-7:7),y0+yofs+28-fakez-(z+zofs),cs,0);
 			}
 			else
 			{
@@ -7292,8 +7294,8 @@ void weapon::draw(BITMAP *dest)
 			}
 			
 			if(get_debug() && zc_getkey(KEY_O))
-				rectfill(dest,x+hxofs,y+hyofs+yofs-(z+zofs)-fakez,
-						 x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs-fakez,vc(id));
+				rectfill(dest,x0+hxofs,y0+hyofs+yofs-(z+zofs)-fakez,
+						 x0+hxofs+hxsz-1,y0+hyofs+hysz-1+yofs-fakez,vc(id));
 						 
 			return;											   // don't draw bomb
 		}
