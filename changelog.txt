@@ -13,7 +13,7 @@ Fix manhandla crash
 	( EmilyV, 22th July, 2022 )
 
 More combo trigger stuff
-	( EmilyV, 21th July, 2022 )
+	( EmilyV, 21st July, 2022 )
 
 Stop 'Palette' dialog from popping up when 'Alt+F4' is used
 Undercombo dialog now edits undercombo for the current layer
