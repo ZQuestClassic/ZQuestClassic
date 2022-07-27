@@ -22,6 +22,23 @@ int32_t mapind(int32_t map, int32_t scr);
 
 extern bool triggered_screen_secrets;
 
+/*
+    Z3-style scrolling is implemented via "regions".
+    
+    Regions:
+
+        - are a NxM set of screens
+        - must be a rectangle (for now, at least)
+        - can border other regions or single screens, and supports scrolling
+          between them (including side warps)
+        - must be fully contained with a map
+        - can be 1x1, but this only has significance for maze screens which
+          will wrap the player around the screen
+        - when moving around a region with >1 screen width or height, the viewport
+          will keep the player centered in the screen. When moving close to the region
+          edge the camera bounds to the edges
+*/
+
 // How large the current region is. If not currently in z3 scrolling mode, this is just the size
 // of a single screen.
 extern int world_w, world_h;

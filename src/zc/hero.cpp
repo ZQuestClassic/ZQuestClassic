@@ -3667,10 +3667,10 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 void HeroClass::check_slash_block(int32_t bx, int32_t by)
 {
 	//keep things inside the screen boundaries
-	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
-	int32_t fx=vbound(bx, 0, 255);
-	int32_t fy=vbound(by, 0, 176);
+	bx=vbound(bx, 0, world_w-1);
+	by=vbound(by, 0, world_h);
+	int32_t fx=bx;
+	int32_t fy=by;
 	//first things first
 	if(attack!=wSword)
 		return;
@@ -3679,9 +3679,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			|| (attackclk>SWORDTAPFRAME && tapping))
 		return;
 		
-	//find out which combo row/column the coordinates are in
-	bx &= 0xF0;
-	by &= 0xF0;
+	// find out which combo row/column the coordinates are in
+	bx = CLEAR_LOW_BITS(bx, 4);
+	by = CLEAR_LOW_BITS(by, 4);
 	
 	int32_t type = COMBOTYPE(bx,by);
 	int32_t type2 = FFCOMBOTYPE(fx,fy);
@@ -3689,7 +3689,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	int32_t flag2 = MAPCOMBOFLAG(bx,by);
 	int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
 	int32_t cid = MAPCOMBO(bx,by);
-	int32_t i = (bx>>4) + by;
+
+	int32_t i = COMBOPOS(bx%256, by%176);
 	
 	if(i > 175)
 		return;
@@ -3704,6 +3705,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	else if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		ignorescreen = true;
 	
+	// TODO z3 ffc
 	int32_t current_ffcombo = getFFCAt(fx,fy);
 	
 	
@@ -3727,6 +3729,10 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	}
 	
 	mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+	if (is_z3_scrolling_mode())
+	{
+		s = z3_get_mapscr_for_xy_offset(bx, by);
+	}
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -3753,6 +3759,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			s->data[i] = s->secretcombo[sSTAIRS];
 			s->cset[i] = s->secretcset[sSTAIRS];
 			s->sflag[i] = s->secretflag[sSTAIRS];
+			// TODO z3
 			sfx(tmpscr->secretsfx);
 		}
 		else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
