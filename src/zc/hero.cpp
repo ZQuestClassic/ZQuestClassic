@@ -9634,6 +9634,9 @@ bool HeroClass::startwpn(int32_t itemid)
 	int32_t wy=y-fakez;
 	int32_t wz=z;
 	bool ret = true;
+
+	// wx -= global_viewport_x;
+	// wy -= global_viewport_y;
 	
 	switch(dir)
 	{

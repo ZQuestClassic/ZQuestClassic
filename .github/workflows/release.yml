@@ -37,7 +37,7 @@ jobs:
 
       - id: should_run
         continue-on-error: true
-        if: ${{ github.event_name == 'schedule' }}
+        if: github.event_name == 'schedule' && github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
         run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
   create-tag:
@@ -79,11 +79,13 @@ jobs:
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@1.2.0
+        if: github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli releases new ${{ steps.make-vars.outputs.release_tag_name }}
+        if: github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
 
   release-win:
     needs:
@@ -113,6 +115,7 @@ jobs:
       with:
         args: install .github/dependencies.config -y
     - name: Setup Sentry CLI
+      if: github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
       uses: mathieu-bour/setup-sentry-cli@1.2.0
       with:
         token: ${{ secrets.SENTRY_TOKEN }}
@@ -128,6 +131,7 @@ jobs:
     - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
 
     - name: Upload debugging symbols
+      if: github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
       run: sentry-cli upload-dif ${{ needs.create-tag.outputs.release_tag_name }} --include-sources --wait Release
 
     - name: Release
@@ -191,12 +195,14 @@ jobs:
       - name: git clone
         uses: actions/checkout@v2
       - name: Setup Sentry CLI
+        if: github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
         uses: mathieu-bour/setup-sentry-cli@1.2.0
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - name: Finalize sentry
+        if: github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZeldaClassic'
         run: |
           sentry-cli releases set-commits ${{ needs.create-tag.outputs.release_tag_name }} --auto
           sentry-cli releases finalize ${{ needs.create-tag.outputs.release_tag_name }}
