@@ -24460,9 +24460,10 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
+	set_config_file("zscript.cfg");
 	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",3);
-	
+	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1);
+	set_config_file("zquest.cfg");
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
 	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
@@ -24502,12 +24503,14 @@ int32_t onZScriptCompilerSettings()
 		al_trace("\n");
 		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 		strcpy(FFCore.includePathString,tempincludepath);
-		set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-		set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		set_config_file("zscript.cfg");
+		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		save_config_file();
+		set_config_file("zquest.cfg");
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
 		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
-		save_config_file();
 		FFCore.updateIncludePaths();
 		ZQincludePaths = FFCore.includePaths;
 		
