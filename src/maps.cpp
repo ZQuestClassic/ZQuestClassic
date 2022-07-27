@@ -87,14 +87,14 @@ static const int hardcode_z3_regions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 #elif hardcode_regions_mode == 1
-	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	3, 3, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	3, 3, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	0, 5, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	4, 4, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 #endif
 };
 
@@ -196,12 +196,12 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 
 	int viewport_w = 256;
 	int viewport_h = 176;
-	viewport_x = Hero.getX() - viewport_w/2;
+	viewport_x = hero_x - viewport_w/2;
 	// TODO z3 this is quite a hack
 	if (global_z3_scrolling_extended_height_mode)
-		viewport_y = viewport_y_offset + Hero.getY() - (viewport_h-64)/2;
+		viewport_y = viewport_y_offset + hero_y - (viewport_h-64)/2;
 	else
-		viewport_y = viewport_y_offset + Hero.getY() - viewport_h/2;
+		viewport_y = viewport_y_offset + hero_y - viewport_h/2;
 	
 	// If currently in a maze, force the viewport to always be in the center no matter what.
 	if (scr->flags&fMAZE)

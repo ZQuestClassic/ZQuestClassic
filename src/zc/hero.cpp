@@ -23936,8 +23936,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (scrolldir == right) dx = 1;
 	}
 
-	// Align to new region's viewport.
-
+	// Determine by how much we need to align to the new region's viewport.
+	// This sets `axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
+	// to move the old viewport to the new viewport.
 	double prev_x = x.getFloat();
 	double prev_y = y.getFloat();
 	int axis_alignment_amount = 0;
@@ -23985,41 +23986,17 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int old_origin_scr = z3_get_origin_scr();
 		int old_origin_scr_x = old_origin_scr % 16;
 		int old_origin_scr_y = old_origin_scr / 16;
-
 		z3_calculate_viewport(tmpscr, new_world_w, new_world_h, new_hero_x, new_hero_y, new_viewport_x, new_viewport_y);
 
-		axis_alignment_amount = 0;
-		
-		if (dy)
-		{
-			if (new_origin_scr_x + new_region_scr_dx < old_origin_scr_x + region_scr_width)
-			{
-				axis_alignment_amount = new_viewport_x - old_viewport_x;
-			}
-			if (new_origin_scr_x + new_region_scr_dx < old_origin_scr_x + region_scr_width)
-			{
-				axis_alignment_amount = new_viewport_x - old_viewport_x;
-			}
-		}
-
-		
-		// if (dy)
-		// {
-		// 	if (new_viewport_x + 256*dy >= new_world_w)
-		// 	{
-		// 		axis_alignment_amount = new_viewport_x - old_viewport_x;
-		// 	}
-		// }
-		
-		/*if (scrolldir == up || scrolldir == down) 
-		{
-			axis_alignment_amount = new_viewport_x - old_viewport_x;
-		}
-		else
-		{
-			axis_alignment_amount = new_viewport_y - old_viewport_y;
-		}*/
-		//axis_alignment_amount = 0;
+		int old_hero_screen_x = x.getInt() - old_viewport_x;
+		int old_hero_screen_y = y.getInt() - old_viewport_y;
+		int new_hero_screen_x = new_hero_x - new_viewport_x;
+		int new_hero_screen_y = new_hero_y - new_viewport_y;
+		// if (dx)      axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
+		// else if (dy) axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
+		if (dx)      axis_alignment_amount = old_hero_screen_y - new_hero_screen_y;
+		else if (dy) axis_alignment_amount = old_hero_screen_x - new_hero_screen_x;
+		else         axis_alignment_amount = 0;
 	}
 
 	// ?????

@@ -35,7 +35,7 @@ extern int viewport_y_offset;
 extern int region_scr_dx, region_scr_dy;
 // The screens size of the region that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 1.
-extern int region_scr_width, region_scr_width;
+extern int region_scr_width, region_scr_height;
 void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_set_currscr(int scr);
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);
