@@ -23690,8 +23690,6 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
 {
-	int scrolling_scr_x = scrolling_scr % 16;
-	int scrolling_scr_y = scrolling_scr / 16;
 	int old_region = z3_get_region_id(scrolling_scr);
 	int new_region = z3_get_region_id(currscr);
 
@@ -23699,8 +23697,22 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			int scr_x = scrolling_scr_x + draw_dx;
-			int scr_y = scrolling_scr_y + draw_dy;
+			// Whichever direction we are scrolling into, should load screens in the same map as the destination screen.
+			// Only relevant for side warps.
+			// TODO z3 what about side warps to the same map?!
+			bool use_dest_map = currmap != scrolling_map && XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir;
+			int base_map = use_dest_map ? currmap : scrolling_map;
+			int base_scr = use_dest_map ? currscr : scrolling_scr;
+			int base_scr_x = base_scr % 16;
+			int base_scr_y = base_scr / 16;
+			if (use_dest_map)
+			{
+				if (scrolling_dir == up || scrolling_dir == down) base_scr_y -= draw_dy;
+				else                                              base_scr_x -= draw_dy;
+			}
+
+			int scr_x = base_scr_x + draw_dx;
+			int scr_y = base_scr_y + draw_dy;
 			if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
 			
 			int scr = scr_x + scr_y * 16;
@@ -23709,7 +23721,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
 				global_z3_cur_scr_drawing = scr;
-				mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+				mapscr* myscr = &TheMaps[base_map*MAPSCRS+scr];
 				fn(myscr, scr, draw_dx, draw_dy);
 			}
 		}
@@ -23806,6 +23818,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	mapscr *newscr = &tmpscr[0];
 	mapscr *oldscr = &tmpscr[1];
 	conveyclk = 2;
+	scrolling_dir = (direction) dir;
+	scrolling_map = currmap;
 	scrolling_scr = currscr;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
@@ -24049,36 +24063,32 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		else         axis_alignment_amount = 0;
 	}
 
-	// ?????
-	// {
-		// change Hero's state if entering water
-		int32_t ahead = lookahead(scrolldir);
-		int32_t aheadflag = lookaheadflag(scrolldir);
-		int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-		int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
-			//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-			//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-			//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
-		switch(scrolldir)
-		{
-			case up:
-				lookaheady=160;
-				break;
-				
-			case down:
-				lookaheady=0;
-				break;
-				
-			case left:
-				lookaheadx=240;
-				break;
-				
-			case right:
-				lookaheadx=0;
-				break;
-		}
-	// }
-
+	// change Hero's state if entering water
+	int32_t ahead = lookahead(scrolldir);
+	int32_t aheadflag = lookaheadflag(scrolldir);
+	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
+		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+		//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
+	switch(scrolldir)
+	{
+		case up:
+			lookaheady=160;
+			break;
+			
+		case down:
+			lookaheady=0;
+			break;
+			
+		case left:
+			lookaheadx=240;
+			break;
+			
+		case right:
+			lookaheadx=0;
+			break;
+	}
 	
 	bool nowinwater = false;
 	{
@@ -24321,7 +24331,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		//FFScript.OnWaitdraw()
-		if (!is_z3_scrolling_mode())
+		//if (!is_z3_scrolling_mode())
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
@@ -24329,8 +24339,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		clear_bitmap(framebuf);
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
-			//if (!is_z3_scrolling_mode() && !(draw_dx == 0 && draw_dy == 0 || XY_DELTA_TO_DIR(draw_dx, draw_dy) == scrolldir)) return;
-
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176;
 
@@ -24345,47 +24353,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			putscr(bigscrollbuf, offx+sx, offy+sy, myscr);
 		});
 
-		// blit(bigscrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
 		blit(bigscrollbuf, framebuf, 0, 0, 0, playing_field_offset+1, 256, 168-1);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
-		
-		/*
-		// TODO verify z3 scrolling code
-		if (0)
-		{
-			do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
-			
-			if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, tx2, ty2, 3);
-			
-			do_layer(framebuf, 0, 1, newscr, tx, ty, 2, false, true);
-			
-			if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
-		}
-		else
+
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
-			int offx = oldscr == myscr ? tx2 : tx;
-			int offy = oldscr == myscr ? ty2 : ty;
-			switch(scrolldir)
-			{
-			case up:
-				offx = 0;
-				offy = 176;
-				break;
-			case down:
-				offx = 0;
-				offy = 0;
-				break;
-			case left:
-				offx = 256;
-				offy = 0;
-				break;
-			case right:
-				offx = 0;
-				offy = 0;
-				break;
-			}
-			offx += draw_dx * 256;
-			offy += draw_dy * 176;
+			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
 			bool primitives = myscr != oldscr;
 			do_layer(framebuf, 0, 1, myscr, -offx, -offy, 2, false, primitives);
@@ -24393,8 +24366,20 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			primitives = myscr != oldscr && !(oldscr->flags7&fLAYER2BG);
 			if(!(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, myscr, -offx, -offy, 2, false, primitives);
 		});
-		
 
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+
+			do_layer(framebuf, -2, 0, myscr, -offx, -offy, 3);
+			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(framebuf, -2, 1, myscr, -offx, -offy, 3);
+				do_layer(framebuf, -2, 2, myscr, -offx, -offy, 3);
+			}
+		});
+		
+		/*
 		// TODO verify z3 scrolling code
 		if (0)
 		{	
