@@ -24982,12 +24982,7 @@ int32_t onCompileScript()
 				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
 
-			std::string quest_rules_hex;
-			for (int i = 0; i < QUESTRULES_NEW_SIZE; i++) {
-				char hex_buf[3];
-				sprintf(hex_buf, "%02X", quest_rules[i]);
-				quest_rules_hex += hex_buf;
-			}
+			std::string quest_rules_hex = get_qr_hexstr();
 
 			clock_t start_compile_time = clock();
 			const char* argv[] = {
@@ -30508,10 +30503,10 @@ int32_t main(int32_t argc,char **argv)
 	
 	const char *default_path="";
 	
-	strcpy(datapath,get_config_string("zquest",data_path_name,default_path));
-	strcpy(midipath,get_config_string("zquest",midi_path_name,default_path));
-	strcpy(imagepath,get_config_string("zquest",image_path_name,default_path));
-	strcpy(tmusicpath,get_config_string("zquest",tmusic_path_name,default_path));
+	strcpy(datapath,zc_get_config("zquest",data_path_name,default_path));
+	strcpy(midipath,zc_get_config("zquest",midi_path_name,default_path));
+	strcpy(imagepath,zc_get_config("zquest",image_path_name,default_path));
+	strcpy(tmusicpath,zc_get_config("zquest",tmusic_path_name,default_path));
 	chop_path(datapath);
 	chop_path(midipath);
 	chop_path(imagepath);
@@ -30613,7 +30608,7 @@ int32_t main(int32_t argc,char **argv)
 	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
 	gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
-	strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
+	strcpy(last_timed_save,zc_get_config("zquest","last_timed_save",""));
 	
 	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
@@ -30955,7 +30950,7 @@ int32_t main(int32_t argc,char **argv)
 	if(used_switch(argc,argv,"-d"))
 	{
 		resolve_password(zquestpwd);
-		set_debug(!strcmp(zquestpwd,get_config_string("zquest","debug_this","")));
+		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
 	}
 	
 	char qtnametitle[20];
@@ -30965,8 +30960,8 @@ int32_t main(int32_t argc,char **argv)
 	{
 		sprintf(qtnametitle, "%s%d", qtname_name, x);
 		sprintf(qtpathtitle, "%s%d", qtpath_name, x);
-		strcpy(QuestTemplates[x].name,get_config_string("zquest",qtnametitle,""));
-		strcpy(QuestTemplates[x].path,get_config_string("zquest",qtpathtitle,""));
+		strcpy(QuestTemplates[x].name,zc_get_config("zquest",qtnametitle,""));
+		strcpy(QuestTemplates[x].path,zc_get_config("zquest",qtpathtitle,""));
 		
 		if(QuestTemplates[x].name[0]==0)
 		{
@@ -31391,7 +31386,7 @@ int32_t main(int32_t argc,char **argv)
 	//Display annoying beta warning message
 #if V_ZC_ALPHA
 	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
 	if(strcmp(curcontrol, oldcontrol))
 	{
@@ -31404,7 +31399,7 @@ int32_t main(int32_t argc,char **argv)
 	delete[] curcontrol;
 #elif V_ZC_BETA
 	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
 	if(strcmp(curcontrol, oldcontrol))
 	{
@@ -31456,7 +31451,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!load_last_timed_save)
 	{
-		strcpy(filepath,get_config_string("zquest",last_quest_name,""));
+		strcpy(filepath,zc_get_config("zquest",last_quest_name,""));
 		
 		if(argc>1 && argv[1][0]!='-')
 		{
@@ -32798,17 +32793,9 @@ int32_t save_config_file()
     set_config_string("zquest","auto_backup",NULL);
     
     //save the beta warning confirmation info
-    //10% chance of showing the warning again. heh -DD
-    if(zc_oldrand() % 10 < 9)
-    {
-        char *uniquestr = getBetaControlString();
-        set_config_string("zquest", "beta_warning", uniquestr);
-        delete[] uniquestr;
-    }
-    else
-    {
-        set_config_string("zquest", "beta_warning", "");
-    }
+	char *uniquestr = getBetaControlString();
+	set_config_string("zquest", "beta_warning", uniquestr);
+	delete[] uniquestr;
     
     set_config_int("zquest","fps",RequestedFPS);
     set_config_int("zquest","frameskip",Frameskip);
@@ -33301,7 +33288,7 @@ void ZQ_ClearQuestPath(){
 	//last_quest_name = "";
 	//SetAllegroString last_quest_name ""
 	set_config_string("zquest","win_last_quest",NULL);
-	strcpy(filepath,get_config_string("zquest","win_last_quest",""));
+	strcpy(filepath,zc_get_config("zquest","win_last_quest",""));
 	
 	
 	
@@ -33524,7 +33511,7 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
 	al_trace("Run is set to: %s \n",scriptRunString);
 }
 

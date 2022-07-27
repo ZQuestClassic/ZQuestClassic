@@ -21,6 +21,7 @@
 #include "base/zsys.h"
 #include "zq_class.h"
 #include "dialog/info.h"
+#include "dialog/about.h"
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
@@ -1223,17 +1224,7 @@ int32_t onAbout()
     }
     else
     {
-		std::ostringstream oss;
-		sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
-		oss << buf1 << '\n';
-		sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
-		oss << buf1 << '\n';
-		sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-		oss << buf1 << '\n';
-		sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
-		oss << buf1 << '\n';
-		
-        InfoDialog("About ZQuest", oss.str()).show();
+        AboutDialog("About ZQuest", generate_zq_about()).show();
     }
 
     return D_O_K;

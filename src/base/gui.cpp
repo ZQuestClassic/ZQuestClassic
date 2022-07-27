@@ -37,6 +37,40 @@
 #include "base/gui.h"
 #include "mem_debug.h"
 
+
+//Jank fuckery for old-style dialogs to use in some cases...
+//Really shouldn't need this in the long-term, but need to upgrade all dialogs
+//to the new gui system to avoid needing this....
+static size_t sp_acquire_ctr = 0;
+void sp_acquire_screen()
+{
+	++sp_acquire_ctr;
+	acquire_screen();
+}
+void sp_release_screen()
+{
+	if(sp_acquire_ctr)
+	{
+		--sp_acquire_ctr;
+		release_screen();
+	}
+}
+void sp_release_screen_all()
+{
+	while(sp_acquire_ctr)
+	{
+		--sp_acquire_ctr;
+		release_screen();
+	}
+}
+void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c)
+{
+	while(dialog->proc)
+	{
+		object_message(dialog++, msg, c);
+	}
+}
+
 /****************************/
 /**********  GUI  ***********/
 /****************************/
@@ -269,8 +303,10 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 		*allegro_errno=ENOMEM;
 	running=true;
 	int32_t ret=0;
+    broadcast_dialog_message(dialog, MSG_START, 0);
+    broadcast_dialog_message(dialog, MSG_DRAW, 0);
+	sp_release_screen_all();
 	while(!done && ret>=0)
-		// Not quite sure which one of these to use...
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;
 	if(backup)
@@ -282,39 +318,6 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	}
 }
 
-
-//Jank fuckery for old-style dialogs to use in some cases...
-//Really shouldn't need this in the long-term, but need to upgrade all dialogs
-//to the new gui system to avoid needing this....
-static size_t sp_acquire_ctr = 0;
-void sp_acquire_screen()
-{
-	++sp_acquire_ctr;
-	acquire_screen();
-}
-void sp_release_screen()
-{
-	if(sp_acquire_ctr)
-	{
-		--sp_acquire_ctr;
-		release_screen();
-	}
-}
-void sp_release_screen_all()
-{
-	while(sp_acquire_ctr)
-	{
-		--sp_acquire_ctr;
-		release_screen();
-	}
-}
-void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c)
-{
-	while(dialog->proc)
-	{
-		object_message(dialog++, msg, c);
-	}
-}
 int32_t popup_zqdialog_special(DIALOG *dialog, int32_t focus_obj)
 {
     BITMAP *bmp;
@@ -338,7 +341,7 @@ int32_t popup_zqdialog_special(DIALOG *dialog, int32_t focus_obj)
 	
     broadcast_dialog_message(dialog, MSG_START, 0);
     broadcast_dialog_message(dialog, MSG_DRAW, 0);
-	sp_release_screen();
+	sp_release_screen_all();
     ret = do_zqdialog(dialog, focus_obj);
     sp_acquire_screen();
     if(bmp)

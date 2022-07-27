@@ -5358,6 +5358,15 @@ void update_hw_screen(bool force = false);
 
 bool valid_str(char const* ptr, char cancel = 0);
 
+std::string get_dbreport_string();
+std::string get_qr_hexstr(byte* qrs = NULL, bool hash = false, bool disctags = true);
+bool clipboard_has_text();
+bool load_qr_hexstr(std::string hexstr);
+bool load_qr_hexstr_clipboard();
+bool load_dev_info(std::string const& devstr);
+bool load_dev_info_clipboard();
+std::string generate_zq_about();
+
 
 #undef cmb1
 #undef cmb2

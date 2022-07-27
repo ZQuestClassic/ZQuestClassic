@@ -33,6 +33,7 @@ src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
 src/dialog/common.cpp
 src/dialog/info.cpp
+src/dialog/about.cpp
 src/dialog/room.cpp
 src/dialog/foodlg.cpp
 src/dialog/quest_rules.cpp

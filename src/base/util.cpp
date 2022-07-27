@@ -47,7 +47,17 @@ namespace util
 				buf[i] = to;
 		}
 	}
-
+	
+	void removechar(std::string& str, char to_delete)
+	{
+		size_t pos = str.find_first_of(to_delete);
+		while(pos != std::string::npos)
+		{
+			str.erase(pos,1);
+			pos = str.find_first_of(to_delete);
+		}
+	}
+	
 	string get_ext(string const& path)
 	{
 		size_t dot_pos = path.find_last_of(".");
