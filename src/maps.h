@@ -42,6 +42,8 @@ extern int scrolling_maze_scr, scrolling_maze_state;
 // 0 to keep viewport frozen on maze screen and have hero appear to wrap around.
 // 1 to keep hero in the center.
 extern int scrolling_maze_mode;
+
+int z3_get_region_id(int scr);
 void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_set_currscr(int scr);
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);

@@ -23095,10 +23095,11 @@ void HeroClass::check_scroll_direction(direction dir)
 		should_scroll = false;
 	
 	int dir_flag;
-	if (dir == up) dir_flag = wfUP;
-	if (dir == down) dir_flag = wfDOWN;
-	if (dir == left) dir_flag = wfLEFT;
-	if (dir == right) dir_flag = wfRIGHT;
+	if (dir == up)         dir_flag = wfUP;
+	else if (dir == down)  dir_flag = wfDOWN;
+	else if (dir == left)  dir_flag = wfLEFT;
+	else if (dir == right) dir_flag = wfRIGHT;
+	else return; // TODO z3
 
 	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(tmpscr->flags2&dir_flag))
 	{
@@ -23691,6 +23692,8 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 {
 	int scrolling_scr_x = scrolling_scr % 16;
 	int scrolling_scr_y = scrolling_scr / 16;
+	int old_region = z3_get_region_id(scrolling_scr);
+	int new_region = z3_get_region_id(currscr);
 
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
@@ -23701,9 +23704,14 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
 			
 			int scr = scr_x + scr_y * 16;
-			global_z3_cur_scr_drawing = scr;
-			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
-			fn(myscr, scr, draw_dx, draw_dy);
+			int region = z3_get_region_id(scr);
+			// TODO z3
+			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
+			{
+				global_z3_cur_scr_drawing = scr;
+				mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
+				fn(myscr, scr, draw_dx, draw_dy);
+			}
 		}
 	}
 
@@ -24016,6 +24024,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				new_hero_y = new_region_scr_dy*176 + fmod(prev_y, 176);
 			}
 			break;
+
+			// Should never happen ...
+			default:
+			{
+				new_hero_x = x;
+				new_hero_y = y;
+			}
 		}
 
 		int old_viewport_x = global_viewport_x;

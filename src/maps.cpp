@@ -134,6 +134,11 @@ bool is_z3_scrolling_mode()
 	return true;
 }
 
+int z3_get_region_id(int scr)
+{
+	return hardcode_z3_regions[scr];
+}
+
 void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode())
