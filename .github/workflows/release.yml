@@ -24,6 +24,10 @@ on:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
         default: false
+      nightly_number:
+        type: string
+        description: Numbered nightly, in case multiple are released on the same date
+        default: 1
 
 jobs:
   check-date:
@@ -73,8 +77,13 @@ jobs:
             fi
           else
             # Nightly
-            echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
-            echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}"
+            if [ '${{ inputs.nightly_number }}' == '1' ]; then
+                echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}"
+                echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }}"
+            else
+                echo "::set-output name=release_tag_name::nightly-${{ steps.current-time.outputs.formattedTime }}-${{ inputs.nightly_number }}"
+                echo "::set-output name=release_name::Nightly ${{ steps.current-time.outputs.formattedTime }} (${{ inputs.nightly_number }})"
+            fi
           fi
 
       - name: Setup Sentry CLI
