@@ -24235,17 +24235,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				if(x > world_w - 16) x = world_w - 16;
 				if(x < 0)            x = 0;
 			}
-
-			if (is_z3_scrolling_mode())
-			{
-				// // TODO z3 clamp?
-				// global_viewport_x = Hero.getX() - 256/2;
-				// global_viewport_y = Hero.getY() - 176/2;
-
-
-				
-
-			}
 			
 			if(ladderx > 0 || laddery > 0)
 			{

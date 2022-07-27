@@ -2296,17 +2296,19 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         
         if (draw_mode == 1)
         {
+            // 1 byte at a time
             byte *si = unpackbuf;
-            
-            for(int32_t dy=0; dy<16; ++dy)
-            {
-                if (y+dy < 0) continue;
 
-                // 1 byte at a time
-                byte *di = &(dest->line[y+dy][x]);
-                
-                for(int32_t x=0; x<16; x++)
-                    *(di++) = *(si++) + cset;
+            for (int32_t dy=0; dy<16; ++dy)
+            {
+                for (int32_t dx=0; dx<16; ++dx)
+                {
+                    if (x+dx >= 0 && y+dy >= 0)
+                    {
+                        dest->line[y+dy][x+dx] = *si + cset;
+                    }
+                    si++;
+                }
             }
         }
         else
