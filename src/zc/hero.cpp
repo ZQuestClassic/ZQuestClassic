@@ -21750,6 +21750,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		if(y==0)   dir=down;
 		
 		if(y==160) dir=up;
+
+		x += region_scr_dx * 256;
+		y += region_scr_dy * 176;
 		
 		markBmap(dir^1);
 		
@@ -24187,7 +24190,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int sy = step * move_counter * -dy;
 		if (is_smooth_vertical_scrolling) sy += 3;
 		
-		if (!is_z3_scrolling_mode())
+		// if (!is_z3_scrolling_mode())
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
 		
 		if(no_move > 0)
@@ -24437,9 +24440,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		// TODO z3
 		/*
-		
-		
-		
 		if(msg_bg_display_buf->clip == 0)
 		{
 			blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
