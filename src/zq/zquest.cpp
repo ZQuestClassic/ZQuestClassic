@@ -24506,7 +24506,6 @@ int32_t onZScriptCompilerSettings()
 		set_config_file("zscript.cfg");
 		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
 		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
-		save_config_file();
 		set_config_file("zquest.cfg");
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
