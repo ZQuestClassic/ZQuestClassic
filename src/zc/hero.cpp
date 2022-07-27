@@ -23706,7 +23706,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			int scr = scr_x + scr_y * 16;
 			int region = z3_get_region_id(scr);
 			// TODO z3
-			if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
+			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
 				global_z3_cur_scr_drawing = scr;
 				mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
