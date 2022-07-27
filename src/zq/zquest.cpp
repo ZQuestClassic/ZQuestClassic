@@ -24290,6 +24290,7 @@ void resize_scriptinfo_dlg()
 
 void showScriptInfo(zasm_meta const* meta)
 {
+	sp_release_screen_all();
 	scriptinfo_dlg[3].dp = (void*)meta;
 	scriptinfo_dlg[0].dp2 = lfont;
 	if(is_large)
@@ -26881,7 +26882,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				clock_t end_assign_time = clock();
 				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				char buf[256] = {0};
-				sprintf(buf, "Assign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				sprintf(buf, "ZScripts successfully loaded into script slots"
+					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
@@ -26895,7 +26897,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
-				jwin_alert("Done!","ZScripts successfully loaded into script slots",buf,NULL,"O&K",NULL,'k',0,lfont);
+				sp_release_screen_all();
+				InfoDialog("Slots Assigned",buf).show();
 				if ( compile_finish_sample > 0 )
 				{
 					if(sfx_voice[compile_finish_sample]!=-1)
