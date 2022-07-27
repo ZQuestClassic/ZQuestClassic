@@ -77,6 +77,8 @@ int scrolling_maze_mode = 0;
 #define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
+// entire map is region
+// #define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -115,6 +117,15 @@ static const int hardcode_z3_regions[] = {
 	0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+#elif hardcode_regions_mode == 2
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 #endif
 };
 
@@ -3635,10 +3646,10 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		int32_t tx=((i&2)<<2)+xx;
-		int32_t ty=((i&1)<<3)+yy;
-		int32_t tx2=((i&2)<<2)+x;
-		int32_t ty2=((i&1)<<3)+y;
+		int32_t tx=((i&2)<<2)+xx - global_viewport_x;
+		int32_t ty=((i&1)<<3)+yy - global_viewport_y;
+		int32_t tx2=((i&2)<<2)+x - global_viewport_x;
+		int32_t ty2=((i&1)<<3)+y - global_viewport_y;
 		for (int32_t m = lyr-1; m <= 1; m++)
 		{
 			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
@@ -3706,7 +3717,11 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			for(int32_t k=0; k<16; k+=2)
 				for(int32_t j=0; j<16; j+=2)
 				if(((k+j)/2)%2)
-					rectfill(dest,x+k,y+j,x+k+1,y+j+1,color);
+				{
+					int32_t x0 = x - global_viewport_x;
+					int32_t y0 = y - global_viewport_y;
+					rectfill(dest,x0+k,y0+j,x0+k+1,y0+j+1,color);
+				}
 		}
 		else
 		{
@@ -3714,8 +3729,8 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			{
 				if (!(bridgedetected & (1<<i)))
 				{
-					int32_t tx=((i&2)<<2)+x;
-					int32_t ty=((i&1)<<3)+y;
+					int32_t tx=((i&2)<<2)+x - global_viewport_x;
+					int32_t ty=((i&1)<<3)+y - global_viewport_y;
 					for(int32_t k=0; k<8; k+=2)
 						for(int32_t j=0; j<8; j+=2)
 							if((k+j)%4 < 2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,color);
@@ -3734,11 +3749,10 @@ void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs,
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		int32_t tx=((i&2)<<2)+xx;
-		int32_t ty=((i&1)<<3)+yy;
-		int32_t tx2=((i&2)<<2)+x;
-		int32_t ty2=((i&1)<<3)+y;
-	
+		int32_t tx=((i&2)<<2)+xx - global_viewport_x;
+		int32_t ty=((i&1)<<3)+yy - global_viewport_y;
+		int32_t tx2=((i&2)<<2)+x - global_viewport_x;
+		int32_t ty2=((i&1)<<3)+y - global_viewport_y;
 	
 		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
 		{
@@ -4177,6 +4191,13 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			do_layer(scrollbuf, -2, 1, this_screen, 0, 0, 2); // push blocks!
 			do_layer(scrollbuf, -2, 2, this_screen, 0, 0, 2); // push blocks!
 		}
+
+		//Show walkflags cheat
+		do_walkflags(temp_buf,this_screen,0,0,2);
+		do_walkflags(scrollbuf,this_screen,0,0,2);
+		
+		do_effectflags(temp_buf,this_screen,0,0,2);
+		do_effectflags(scrollbuf,this_screen,0,0,2);
 	}
 	else
 	for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
@@ -4186,14 +4207,11 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			do_layer(scrollbuf, -2, 1, myscr, -offx, -offy, 2); // push blocks!
 			do_layer(scrollbuf, -2, 2, myscr, -offx, -offy, 2); // push blocks!
 		}
+
+		// Show walkflags cheat
+		do_walkflags(scrollbuf, myscr, -offx, -offy, 2);
+		do_effectflags(scrollbuf, myscr, -offx, -offy, 2);
 	});
-	
-	//Show walkflags cheat
-	do_walkflags(temp_buf,this_screen,0,0,2);
-	do_walkflags(scrollbuf,this_screen,0,0,2);
-	
-	do_effectflags(temp_buf,this_screen,0,0,2);
-	do_effectflags(scrollbuf,this_screen,0,0,2);
 	
 	putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
 	

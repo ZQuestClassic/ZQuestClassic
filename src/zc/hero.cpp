@@ -24368,6 +24368,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		});
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
 
@@ -24377,24 +24378,19 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				do_layer(framebuf, -2, 1, myscr, -offx, -offy, 3);
 				do_layer(framebuf, -2, 2, myscr, -offx, -offy, 3);
 			}
+
+			do_walkflags(framebuf, myscr, -offx, -offy, 3); // show walkflags if the cheat is on
+			do_effectflags(framebuf, myscr, -offx, -offy, 3); // show effectflags if the cheat is on
+			
+			if(get_bit(quest_rules, qr_FFCSCROLL))
+			{
+				do_layer(framebuf, -3, 0, myscr, -offx, -offy, is_old_scr ? 3 : 2, true); // ffcs
+			}
 		});
-		
-		/*
-		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-		do_walkflags(framebuf, newscr, tx, ty,2);
-		
-		do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
-		do_effectflags(framebuf, newscr, tx, ty,2);
-		
-		if(get_bit(quest_rules, qr_FFCSCROLL))
-		{
-			do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
-			do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
-		}
-		*/
 
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
+
 		if (!align_counter || scroll_counter) herostep();
 		
 		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
@@ -24415,9 +24411,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 		
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
-			bool is_old_scr = draw_dx == 0 && draw_dy == 0; // ?
 			// This only matters for overhead FFCs. See do_scrolling_layer.
 			int tempscreen = is_old_scr ? 3 : 2;
 
