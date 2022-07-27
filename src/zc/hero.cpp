@@ -24741,10 +24741,23 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
-	if (is_z3_scrolling_mode())
+	// Use new scrolling function if scrolling to/from a scrollable region.
 	{
-		HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
-		return;
+		int tempdestscr = destscr;
+		if (destscr != -1)
+		{
+			tempdestscr = destscr;
+		}
+		else if (checkmaze(tmpscr, true) && !edge_of_dmap(scrolldir))
+		{
+			tempdestscr = currscr + scroll_dir_to_scr_offset((direction)scrolldir);
+		}
+		
+		if (z3_get_region_id(currscr) || z3_get_region_id(tempdestscr))
+		{
+			HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
+			return;
+		}
 	}
 
 	if(action==freeze||action==sideswimfreeze)
