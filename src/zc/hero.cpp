@@ -23689,17 +23689,18 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
 {
+	int scrolling_scr_x = scrolling_scr % 16;
+	int scrolling_scr_y = scrolling_scr / 16;
+
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
 		{
-			if (draw_dx || draw_dy)
-			{
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
-			}
-
-			int scr = scrolling_scr + draw_dx + draw_dy * 16;
+			int scr_x = scrolling_scr_x + draw_dx;
+			int scr_y = scrolling_scr_y + draw_dy;
+			if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
+			
+			int scr = scr_x + scr_y * 16;
 			global_z3_cur_scr_drawing = scr;
 			mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
 			fn(myscr, scr, draw_dx, draw_dy);
