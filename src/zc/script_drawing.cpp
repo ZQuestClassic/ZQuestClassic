@@ -10971,8 +10971,8 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
 	int32_t xoffset=xoff, yoffset=yoff;
 
-	// xoffset += global_viewport_x;
-	// yoffset += global_viewport_y;
+	xoffset -= global_viewport_x;
+	yoffset -= global_viewport_y;
 
 	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
 	{

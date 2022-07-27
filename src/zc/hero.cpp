@@ -24334,7 +24334,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
-		clear_bitmap(bigscrollbuf);
+		clear_bitmap(bigscrollbuf); // TODO z3 just use normal scrollbuf
 		clear_bitmap(framebuf);
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
@@ -24345,9 +24345,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
 			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
 			{
-				// TODO z3 primitives
-				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
-				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
+				// TODO z3 primitives verify
+				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, offx, offy);			
+				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, offx, offy);
 			}
 
 			putscr(bigscrollbuf, offx, offy, myscr);
@@ -24358,7 +24358,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
 
 			bool primitives = myscr != oldscr;
 			do_layer(framebuf, 0, 1, myscr, -offx, -offy, 2, false, primitives);
@@ -24369,7 +24369,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
 
 			do_layer(framebuf, -2, 0, myscr, -offx, -offy, 3);
 			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
@@ -24416,7 +24416,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0; // ?
 			// This only matters for overhead FFCs. See do_scrolling_layer.
 			int tempscreen = is_old_scr ? 3 : 2;
