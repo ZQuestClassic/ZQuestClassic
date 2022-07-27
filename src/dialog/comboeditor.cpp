@@ -107,7 +107,7 @@ static const char *combotype_help_string[cMAX] =
 	"While the player is standing on top of this, they will be moved rightward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
 	"The player is warped via Tile Warp A if they swim on this combo. Otherwise, this is identical to Water.",
 	"The player is warped via Tile Warp A if they dive on this combo. Otherwise, this is identical to Water.",
-	"If this combo is solid, the Ladder and Hookshot can be used to cross over it. It only permits the Ladder if it's on Layer 0.",
+	"If this combo is solid, the Ladder and Hookshot can be used to cross over it. It only permits the Ladder if its on Layer 0.",
 	"This triggers Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
 	"This triggers Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
 	"", // Unused
@@ -2279,11 +2279,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 									" unless 'Temporary Secrets' screen data flag is checked."),
 								TRIGFLAG(48,"Triggers Secrets"),
-								INFOBTN("Triggering the combo will cause it's inherent type-based effects to occur."
+								INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
 									" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
 									" Not available for all combo types; will be greyed out when unavailable."),
 								cteff_tflag = TRIGFLAG(28,"ComboType Effects"),
-								INFOBTN("The combo will ignore methods of triggering it's standard effects that"
+								INFOBTN("The combo will ignore methods of triggering its standard effects that"
 									" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
 									" unless the 'Sword' weapon trigger is checked."),
 								TRIGFLAG(29,"Only Gen Triggers"),
@@ -2849,14 +2849,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 										" unless 'Temporary Secrets' screen data flag is checked."),
 									TRIGFLAG(48,"Triggers Secrets"),
-									INFOBTN("Triggering the combo will cause it's inherent type-based effects to occur."
+									INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
 										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
 										" Not available for all combo types; will be greyed out when unavailable."),
 									cteff_tflag = TRIGFLAG(28,"ComboType Effects")
 								),
 								Rows<2>(
 									framed = true,
-									INFOBTN("The combo will ignore methods of triggering it's standard effects that"
+									INFOBTN("The combo will ignore methods of triggering its standard effects that"
 										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
 										" unless the 'Sword' weapon trigger is checked."),
 									TRIGFLAG(29,"Only Gen Triggers"),
