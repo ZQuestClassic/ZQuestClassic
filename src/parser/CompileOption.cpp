@@ -138,7 +138,7 @@ void CompileOption::updateDefaults()
 				break;
 			
 			case OPTTYPE_CONFIG:
-				int32_t val = zc_get_config("Compiler", entries[i].name.c_str(), entries[i].defaultValue/10000L);
+				int32_t val = zc_get_config("Compiler", entries[i].name.c_str(), int32_t(entries[i].defaultValue/10000L));
 				entries[i].defaultValue = val * 10000L;
 				break;
 		}
