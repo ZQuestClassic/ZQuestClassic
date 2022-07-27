@@ -23706,7 +23706,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			int scr = scr_x + scr_y * 16;
 			int region = z3_get_region_id(scr);
 			// TODO z3
-			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
+			if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
 				global_z3_cur_scr_drawing = scr;
 				mapscr* myscr = &TheMaps[currmap*MAPSCRS+scr];
@@ -24161,7 +24161,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	bool is_smooth_vertical_scrolling =
 		(scrolldir == up || scrolldir == down) && get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0;
 	
-	for(word i = 0; scroll_counter >= 0 && delay != 0; i++, scroll_counter--) //Go!
+	// TODO z3
+	// 0 for align, then scroll.
+	// 1 for scroll, then align.
+	int align_mode = 1;
+	
+	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
 		if(Quit)
 		{
@@ -24180,14 +24185,26 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			no_move--;
 			
 		//Don't want to move things on the first or last iteration, or between delays, or while aligning
-		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || align_counter)
+		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || (align_mode == 0 && align_counter))
 			no_move++;
 		
-		if (align_counter > 0) 
+		if (align_mode == 0)
 		{
-			align_counter = MAX(0, align_counter - 4);
-			scroll_counter++;
+			if (align_counter > 0)
+			{
+				align_counter = MAX(0, align_counter - 4);
+				scroll_counter++;
+			}
 		}
+		else
+		{
+			if (align_counter > 0 && !(scroll_counter >= 0 && delay != 0)) 
+			{
+				align_counter = MAX(0, align_counter - 4);
+				no_move = 1;
+			}
+		}
+		
 		if (axis_alignment_amount)
 		{
 			int delta = (abs(axis_alignment_amount) - align_counter) * (axis_alignment_amount > 0 ? 1 : -1);
