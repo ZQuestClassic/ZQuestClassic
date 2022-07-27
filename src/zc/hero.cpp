@@ -23992,10 +23992,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int old_hero_screen_y = y.getInt() - old_viewport_y;
 		int new_hero_screen_x = new_hero_x - new_viewport_x;
 		int new_hero_screen_y = new_hero_y - new_viewport_y;
-		// if (dx)      axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
-		// else if (dy) axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
-		if (dx)      axis_alignment_amount = old_hero_screen_y - new_hero_screen_y;
-		else if (dy) axis_alignment_amount = old_hero_screen_x - new_hero_screen_x;
+		if (dx)      axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
+		else if (dy) axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         axis_alignment_amount = 0;
 	}
 
@@ -24141,8 +24139,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (axis_alignment_amount)
 		{
 			int delta = (abs(axis_alignment_amount) - align_counter) * (axis_alignment_amount > 0 ? 1 : -1);
-			if (scrolldir == up || scrolldir == down) sx -= delta;
-			else                                      sy -= delta;
+			if (scrolldir == up || scrolldir == down) sx += delta;
+			else                                      sy += delta;
 		}
 			
 		if(scrolldir == up || scrolldir == down)
