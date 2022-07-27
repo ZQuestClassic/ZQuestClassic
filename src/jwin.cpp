@@ -5805,37 +5805,67 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t lmindx = 0;
 			
 			bool foundmatch = false;
-			for ( int32_t listpos = 0; listpos < max; ++listpos )
+			bool numsearch = true;
+			for ( int32_t q = 0; q < 1023; ++q ) 
 			{
-				memset(tmp, 0, 1024);
-				memset(lsttmp, 0, 1024);
-				
-				strcpy(tmp, abc_keypresses);
-				strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
-				for ( int32_t w = 0; w < 1024; ++w )
+				if(!abc_keypresses[q]) break;
+				if(!isdigit(abc_keypresses[q]))
 				{
-					if ( zc_isalpha(tmp[w]) )
-					{
-						tmp[w] = toupper(tmp[w]);
-					}
-				}
-				for ( int32_t e = 0; e < 1024; ++e ) 
-				{
-					if ( zc_isalpha(lsttmp[e]) )
-					{
-						lsttmp[e] = toupper(lsttmp[e]);
-					}
-				}
-				
-				if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
-				{
-					d->d1 = listpos;
-					d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
-					foundmatch = true;
-					break;
+					numsearch = false;
+					break; 
 				}
 			}
-			
+			if(numsearch) //Indexed search, first
+			{
+				int32_t num = atoi(abc_keypresses);
+				//Find a different indexing type in the strings?
+				if(!foundmatch)
+				{
+					char buf[6];
+					sprintf(buf, "(%03d)", num);
+					std::string cmp = buf;
+					for(int32_t listpos = 0; listpos < max; ++listpos)
+					{
+						std::string str((data->listFunc(listpos,&dummy)));
+						size_t trimpos = str.find_last_not_of("(0123456789)");
+						if(trimpos != std::string::npos) ++trimpos;
+						str.erase(0, trimpos);
+						zprint2("checking '%s'\n", str.c_str());
+						if(cmp == str)
+						{
+							d->d1 = listpos;
+							d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+							foundmatch = true;
+							break;
+						}
+					}
+				}
+				//Read as just an index? //Not leaving this in, can enable if needed -Em
+				/*
+				if(!foundmatch && unsigned(num) < max)
+				{
+					d->d1 = num;
+					d->d2 = zc_max(zc_min(num-(h>>1), max-h), 0);
+					foundmatch = true;
+				}//*/
+			}
+			if(!foundmatch)
+			{
+				strcpy(tmp, abc_keypresses);
+				for ( int32_t listpos = 0; listpos < max; ++listpos )
+				{
+					memset(lsttmp, 0, 1024);
+					strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
+					
+					if ( !(strnicmp(lsttmp, tmp, strlen(tmp))))
+					{
+						d->d1 = listpos;
+						d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+						foundmatch = true;
+						break;
+					}
+				}
+			}
 			if(foundmatch)
 				GUI_EVENT(d, geCHANGE_SELECTION);
 			scare_mouse();
