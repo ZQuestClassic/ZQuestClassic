@@ -36,6 +36,12 @@ extern int region_scr_dx, region_scr_dy;
 // The screens size of the region that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 1.
 extern int region_scr_width, region_scr_height;
+// TODO z3
+extern int scrolling_maze_scr, scrolling_maze_state;
+// TODO z3: this only works in mode '0' and if the scrolling region is 1x1...
+// 0 to keep viewport frozen on maze screen and have hero appear to wrap around.
+// 1 to keep hero in the center.
+extern int scrolling_maze_mode;
 void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_set_currscr(int scr);
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);

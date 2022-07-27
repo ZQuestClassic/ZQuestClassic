@@ -70,6 +70,8 @@ int world_w, world_h;
 static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
+int scrolling_maze_scr, scrolling_maze_state;
+int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
 // #define hardcode_regions_mode 0
@@ -187,10 +189,11 @@ void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& r
 	region_scr_dy = input_scr_y - origin_scr_y;
 }
 
-// Assumes the currscr has already been set to scr. TODO z3 fix that
 void z3_set_currscr(int scr)
 {
 	z3_calculate_region(scr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	scrolling_maze_state = 0;
+	scrolling_maze_scr = 0;
 }
 
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y)
@@ -210,6 +213,8 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 		viewport_y = viewport_y_offset + hero_y - (viewport_h-64)/2;
 	else
 		viewport_y = viewport_y_offset + hero_y - viewport_h/2;
+	
+	// if (scr->flags&fMAZE) return;
 
 	// Clamp the viewport to the edges of the region.
 	viewport_x = CLAMP(0, world_w - viewport_w, viewport_x);
@@ -3918,7 +3923,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 		{
 			int scr_x = currscr_x + currscr_dx;
 			int scr_y = currscr_y + currscr_dy;
-			if (tmpscr->flags&fMAZE)
+			if (tmpscr->flags&fMAZE && !(XY_DELTA_TO_DIR(currscr_dx, 0) == tmpscr->exitdir || XY_DELTA_TO_DIR(0, currscr_dy) == tmpscr->exitdir))
 			{
 				scr_x = currscr_x;
 				scr_y = currscr_y;

@@ -23171,17 +23171,37 @@ void HeroClass::checkscroll()
 
 	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
 	// been tested for non-scrolling mode.
-	static int scrolling_maze_state = 0;
-	if (is_z3_scrolling_mode() && tmpscr->flags&fMAZE)
+	if (!scrolling_maze_state && is_z3_scrolling_mode() && tmpscr->flags&fMAZE)
 	{
-		// Only check the direction hero is currently facing.
-		direction advance_dir = dir_invalid;
+		scrolling_maze_scr = currscr;
+		scrolling_maze_state = 1;
+	}
+	int x0 = x.getInt();
+	int y0 = y.getInt();
+	// TODO z3
+
+	if (scrolling_maze_state && (scrolling_maze_mode == 0 || z3_get_scr_for_xy_offset(x0, y0) != scrolling_maze_scr))
+	{
+		mapscr* scrolling_scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
 		int x0 = x.getInt();
 		int y0 = y.getInt();
-		if (dir == right && x0%256 > 256-16) advance_dir = right;
-		if (dir == left && x0 < 0)           advance_dir = left;
-		if (dir == down && y0%176 > 176-16)  advance_dir = down;
-		if (dir == up && y0 < 0)             advance_dir = up;
+
+		direction advance_dir = dir_invalid;
+		if (scrolling_maze_mode == 0)
+		{
+			// Only check the direction hero is currently facing.
+			if (dir == right && x0%256 > 256-16) advance_dir = right;
+			if (dir == left && x0 < 0)           advance_dir = left;
+			if (dir == down && y0%176 > 176-16)  advance_dir = down;
+			if (dir == up && y0 < 0)             advance_dir = up;
+		}
+		else if (scrolling_maze_mode == 1)
+		{
+			if (dir == right) advance_dir = right;
+			if (dir == left)  advance_dir = left;
+			if (dir == down)  advance_dir = down;
+			if (dir == up)    advance_dir = up;
+		}
 
 		if (advance_dir != dir_invalid)
 		{
@@ -23191,17 +23211,22 @@ void HeroClass::checkscroll()
 				return;
 			}
 
-			if (checkmaze(tmpscr, true))
+			if (checkmaze(scrolling_scr, true))
 			{
-				int destscr = currscr;
-				if (advance_dir == left)  destscr--;
-				if (advance_dir == right) destscr++;
-				if (advance_dir == up)    destscr -= 16;
-				if (advance_dir == down)  destscr += 16;
-				scrollscr(advance_dir, destscr);
+				if (scrolling_maze_mode == 0)
+				{
+					int destscr = currscr;
+					if (advance_dir == left)  destscr--;
+					if (advance_dir == right) destscr++;
+					if (advance_dir == up)    destscr -= 16;
+					if (advance_dir == down)  destscr += 16;
+					scrollscr(advance_dir, destscr);
+				}
+
 				scrolling_maze_state = 0;
+				scrolling_maze_scr = 0;
 			}
-			else if (scrolling_maze_state)
+			else if (scrolling_maze_state == 2 || 1)
 			{
 				// Only adjust hero position if they didn't just enter the maze.
 				if (advance_dir == left)  x += 256;
@@ -23209,9 +23234,10 @@ void HeroClass::checkscroll()
 				if (advance_dir == up)    y += 176;
 				if (advance_dir == down)  y -= 176;
 			}
+
+			//scrolling_maze_state = 2;
 		}
 
-		scrolling_maze_state = 1;
 		return;
 	}
 	scrolling_maze_state = 0;
