@@ -23171,6 +23171,7 @@ void HeroClass::checkscroll()
 
 	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
 	// been tested for non-scrolling mode.
+	static int scrolling_maze_state = 0;
 	if (is_z3_scrolling_mode() && tmpscr->flags&fMAZE)
 	{
 		// Only check the direction hero is currently facing.
@@ -23184,12 +23185,12 @@ void HeroClass::checkscroll()
 
 		if (advance_dir != dir_invalid)
 		{
-			if (advance_dir == left)  x += 256;
-			if (advance_dir == right) x -= 256;
-			if (advance_dir == up)    y += 176;
-			if (advance_dir == down)  y -= 176;
+			if (maze_enabled_sizewarp(advance_dir))
+			{
+				scrolling_maze_state = 0;
+				return;
+			}
 
-			if (maze_enabled_sizewarp(advance_dir)) return;
 			if (checkmaze(tmpscr, true))
 			{
 				int destscr = currscr;
@@ -23198,11 +23199,22 @@ void HeroClass::checkscroll()
 				if (advance_dir == up)    destscr -= 16;
 				if (advance_dir == down)  destscr += 16;
 				scrollscr(advance_dir, destscr);
+				scrolling_maze_state = 0;
+			}
+			else if (scrolling_maze_state)
+			{
+				// Only adjust hero position if they didn't just enter the maze.
+				if (advance_dir == left)  x += 256;
+				if (advance_dir == right) x -= 256;
+				if (advance_dir == up)    y += 176;
+				if (advance_dir == down)  y -= 176;
 			}
 		}
-		
+
+		scrolling_maze_state = 1;
 		return;
 	}
+	scrolling_maze_state = 0;
 
 	if (x > world_w-16) check_scroll_direction(right);
 	if (x < 0)          check_scroll_direction(left);
@@ -23657,8 +23669,8 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 		{
 			if (draw_dx || draw_dy)
 			{
-				//if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
-				//if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
+				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(draw_dx, 0))) continue;
+				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, draw_dy))) continue;
 			}
 
 			int scr = scrolling_scr + draw_dx + draw_dy * 16;
@@ -23908,7 +23920,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		unsetmapflag(mSECRET);
 		fixed_door = false;
 	}
-	//Z_scripterrlog("Setting 'scrolling_scr' from %d to %d\n", scrolling_scr, currscr);
 
 	int step, delay, scroll_counter, dx, dy;
 	{
@@ -23925,7 +23936,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			currscr += scroll_dir_to_scr_offset((direction)scrolldir);
 			destscr = currscr;
 		}
-		// z3_set_currscr(currscr);
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
 
 		dx = 0;
@@ -24190,11 +24200,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				break;
 			}
 			
+			// TODO z3 do this in a better way that actually works
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			if(y > world_h - 16) y = world_h - 16;
-			if(y < 0)            y = 0;
-			if(x > world_w - 16) x = world_w - 16;
-			if(x < 0)            x = 0;
+			{
+				if(y > world_h - 16) y = world_h - 16;
+				if(y < 0)            y = 0;
+				if(x > world_w - 16) x = world_w - 16;
+				if(x < 0)            x = 0;
+			}
 
 			if (is_z3_scrolling_mode())
 			{
@@ -24280,19 +24293,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, sx, sy);			
 				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, sx, sy);
 			}
-
-			// {
-			// 	int viewport_w = 256;
-			// 	int viewport_h = 176;
-			// 	global_viewport_x = -sx + Hero.getX() - viewport_w/2;
-			// 	global_viewport_y = -sy + Hero.getY() - viewport_h/2;
-
-			// 	// Clamp the viewport to the edges of the region.
-			// 	global_viewport_x = CLAMP(0, world_w - viewport_w, global_viewport_x);
-			// 	global_viewport_y = CLAMP(0, world_h - viewport_h, global_viewport_y);
-			// }
-			int xxx = Hero.getX().getFloor();
-			int yyy = Hero.getY().getFloor();
 
 			putscr(bigscrollbuf, offx+sx, offy+sy, myscr);
 		});

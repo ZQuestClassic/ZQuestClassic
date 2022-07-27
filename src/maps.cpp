@@ -87,6 +87,14 @@ static const int hardcode_z3_regions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 #elif hardcode_regions_mode == 1
+	// 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	// 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -202,12 +210,6 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 		viewport_y = viewport_y_offset + hero_y - (viewport_h-64)/2;
 	else
 		viewport_y = viewport_y_offset + hero_y - viewport_h/2;
-	
-	// If currently in a maze, force the viewport to always be in the center no matter what.
-	if (scr->flags&fMAZE)
-	{
-		return;
-	}
 
 	// Clamp the viewport to the edges of the region.
 	viewport_x = CLAMP(0, world_w - viewport_w, viewport_x);
