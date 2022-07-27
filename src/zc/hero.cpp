@@ -24418,7 +24418,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0; // ?
-			int tempscreen = 0; // doesn't matter.
+			// This only matters for overhead FFCs. See do_scrolling_layer.
+			int tempscreen = is_old_scr ? 3 : 2;
 
 			if(!(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
 			{
@@ -24575,37 +24576,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	z3_set_currscr(currscr);
 	x = new_hero_x;
 	y = new_hero_y;
-	// TODO ????
-	// switch(scrolldir)
-	// {
-	// 	case up:
-	// 	{
-	// 		x = region_scr_dx*256 + fmod(prev_x, 256);
-	// 		y = world_h - 16;
-	// 	}
-	// 	break;
-		
-	// 	case down:
-	// 	{
-	// 		x = region_scr_dx*256 + fmod(prev_x, 256);
-	// 		y = 0;
-	// 	}
-	// 	break;
-		
-	// 	case left:
-	// 	{
-	// 		x = world_w - 16;
-	// 		y = region_scr_dy*176 + fmod(prev_y, 176);
-	// 	}
-	// 	break;
-		
-	// 	case right:
-	// 	{
-	// 		x = 0;
-	// 		y = region_scr_dy*176 + fmod(prev_y, 176);
-	// 	}
-	// 	break;
-	// }
 
 	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_bit(quest_rules, qr_NOSCROLL))
@@ -24771,8 +24741,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
-	// z3 SHORTCUT
-	// if (is_z3_scrolling_mode())
+	if (is_z3_scrolling_mode())
 	{
 		HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
 		return;
