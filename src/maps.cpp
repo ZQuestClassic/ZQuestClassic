@@ -74,9 +74,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0

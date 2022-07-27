@@ -1882,9 +1882,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
-    // TODO z3
-    int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 ? 1 : 0;
-    // int draw_mode = is_z3_scrolling_mode() ? 1 : 0;
+    int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 || x%8 || y%8 ? 1 : 0;
 
     if (draw_mode == 1)
     {
