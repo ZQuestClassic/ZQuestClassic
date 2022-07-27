@@ -26303,9 +26303,12 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	char slots_msg[SLOTMSG_SIZE] = {0};
 	byte slotflags = reload_scripts(scripts);
 	setup_scriptslot_dlg(slots_msg, slotflags);
+	bool retval = false;
+	
 	while(true)
 	{
-		ret = zc_popup_dialog(assignscript_dlg,ret);
+		slotflags = reload_scripts(scripts);
+		ret = popup_zqdialog_special(assignscript_dlg,ret);
 		
 		FILE* tempfile = NULL;
 		switch(ret)
@@ -26315,7 +26318,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				//Cancel
 				if(tempfile!=NULL) fclose(tempfile);
 				
-				return false;
+				//return false;
+				goto exit_do_slots;
 				
 			case 3:
 			{
@@ -26332,7 +26336,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26378,7 +26383,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26424,7 +26430,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26469,7 +26476,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26514,7 +26522,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26559,7 +26568,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26604,7 +26614,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26649,7 +26660,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26694,7 +26706,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26739,7 +26752,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26785,7 +26799,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26830,7 +26845,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26896,7 +26912,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				build_biffs_list();
 				build_biitems_list();
 				if(tempfile!=NULL) fclose(tempfile);
-				return true;
+				//return true;
+				retval = true;
+				goto exit_do_slots;
 			}
 			
 			case 6:
@@ -27395,8 +27413,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				break;
 			}
 		}
-		slotflags = reload_scripts(scripts);
 	}
+exit_do_slots:
+	sp_release_screen_all();
+	return retval;
 }
 
 static char slottype_str_buf[32];
