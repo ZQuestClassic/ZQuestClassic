@@ -27489,6 +27489,7 @@ static DIALOG clearslots_dlg[] =
 
 void doClearSlots(byte* flags)
 {
+	sp_release_screen_all();
 	//{ Setup
 	clearslots_dlg[0].dp2=lfont;
 	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
