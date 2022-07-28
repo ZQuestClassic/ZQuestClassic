@@ -2140,12 +2140,12 @@ int32_t init_game()
 	{
 		homescr = currscr = game->get_continue_scrn();
 	}
-	z3_set_currscr(currscr);
 	
 	lastentrance = currscr;
 	game->set_continue_scrn(lastentrance);
 	lastentrance_dmap = currdmap;
 	currmap = DMaps[currdmap].map;
+	z3_set_currscr(currscr);
 	dlevel = DMaps[currdmap].level;
 	sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
 	fadeclk=-1;

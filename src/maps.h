@@ -27,11 +27,10 @@ extern bool triggered_screen_secrets;
     
     Regions:
 
-        - are a NxM set of screens
+        - are a NxM set of screens within a single map
         - must be a rectangle (for now, at least)
         - can border other regions or single screens, and supports scrolling
           between them (including side warps)
-        - must be fully contained with a map
         - can be 1x1, but this only has significance for maze screens which
           will wrap the player around the screen
         - when moving around a region with >1 screen width or height, the viewport
@@ -178,8 +177,9 @@ bool remove_lockedchests(int32_t tmp);              // tmp = index of tmpscr[]
 bool remove_bosschests(int32_t tmp);                // tmp = index of tmpscr[]
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int32_t i);
-void hidden_entrance(int32_t tmp,bool refresh, bool high16only=false,int32_t single=-1);
-void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int32_t single=-1);
+void trigger_secrets_for_screen(int32_t screen, bool refresh, bool high16only=false, int32_t single=-1);
+void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t single=-1);
+void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, mapscr *layer_scrs, bool high16only=false, int32_t single=-1);
 void update_freeform_combos();
 bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype);
