@@ -74,9 +74,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -4169,11 +4169,19 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			}
 
 			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
+			if (!is_in_region(z3_origin_scr, scr)) continue;
+
 			mapscr* myscr = &TheMaps[currmap*MAPSCRS + scr];
 			if (!(myscr->valid & mVALID)) continue;
 
 			int offx = z3_get_region_relative_dx(scr) * 256;
 			int offy = z3_get_region_relative_dy(scr) * 176;
+
+			if (offx - global_viewport_x <= -256) continue;
+			if (offy - global_viewport_y <= -176) continue;
+			if (offx - global_viewport_x >= 256) continue;
+			if (offy - global_viewport_y >= 176) continue;
+
 			fn(myscr, currscr_dx, currscr_dy, offx, offy);
 		}
 	}
@@ -5925,9 +5933,19 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 		|| XOR(scrn->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
 
 	// if (global_z3_scrolling_extended_height_mode)
-	for(int32_t i=0; i<176; ++i)
+
+	int start_x = MAX(0, ceil((-15 - x) / 16.0));
+	int end_x   = MIN(16, (dest->w - 16 - x)/16);
+	int start_y = MAX(0, ceil((-15 - y) / 16.0));
+	int end_y   = MIN(11, (dest->h - 16 - y)/16);
+
+	for (int cy = start_y; cy < end_y; cy++)
 	{
-		draw_cmb_pos(dest, x, y, i, scrn->data[i], scrn->cset[i], 0, over, false);
+		for (int cx = start_x; cx < end_x; cx++)
+		{
+			int i = cx + cy*16;
+			draw_cmb_pos(dest, x, y, i, scrn->data[i], scrn->cset[i], 0, over, false);
+		}
 	}
 }
 

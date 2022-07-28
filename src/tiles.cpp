@@ -2174,10 +2174,13 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
-    if(x<-15 || y<-15)
+    if (x < -15 || y < -15)
         return;
         
-    if(y > dest->h-16)
+    // TODO z3 why -16???
+    if(y > dest->h - 16)
+        return;
+    if(x > dest->w - 16)
         return;
         
     if((y == dest->h-16) && (x > dest->w-16))
