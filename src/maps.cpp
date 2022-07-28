@@ -74,11 +74,11 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
-#define hardcode_regions_mode 2
+// #define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -4170,8 +4170,10 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 
 			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
 			mapscr* myscr = &TheMaps[currmap*MAPSCRS + scr];
-			int offx = (currscr_dx + z3_get_z3scr_dx()) * 256;
-			int offy = (currscr_dy + z3_get_z3scr_dy()) * 176;
+			if (!(myscr->valid & mVALID)) continue;
+
+			int offx = z3_get_region_relative_dx(scr) * 256;
+			int offy = z3_get_region_relative_dy(scr) * 176;
 			fn(myscr, currscr_dx, currscr_dy, offx, offy);
 		}
 	}

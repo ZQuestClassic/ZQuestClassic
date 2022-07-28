@@ -2530,8 +2530,8 @@ int32_t cont_game()
 		timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	currdmap = lastentrance_dmap;
 	homescr = currscr = lastentrance;
-	z3_set_currscr(currscr);
 	currmap = DMaps[currdmap].map;
+	z3_set_currscr(currscr);
 	dlevel = DMaps[currdmap].level;
 	init_dmap();
 	
@@ -2673,9 +2673,9 @@ void restart_level()
 			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
-	z3_set_currscr(currscr);
 	
 	currmap = DMaps[currdmap].map;
+	z3_set_currscr(currscr);
 	dlevel = DMaps[currdmap].level;
 	
 	for(int32_t i=0; i<6; i++)
