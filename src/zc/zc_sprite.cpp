@@ -216,8 +216,10 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     endy=y=by;
     dir=d2;
     oldflag=f;
-	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
-	mapscr *m = FFCore.tempScreens[blockLayer];
+	size_t combopos = COMBOPOS(x.getFloor()%256, y.getFloor()%176);
+	mapscr *m = is_z3_scrolling_mode() ?
+				z3_get_mapscr_layer_for_xy_offset_include_base(bx, by, blockLayer) :
+				FFCore.tempScreens[blockLayer];
     word *di = &(m->data[combopos]);
     byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
@@ -264,11 +266,14 @@ bool is_push(mapscr* m, int32_t pos)
 
 bool movingblock::animate(int32_t)
 {
-	mapscr* m = FFCore.tempScreens[blockLayer];
+	mapscr *m = is_z3_scrolling_mode() ?
+				// TODO z3 should blocks use flags of original screen, or new screen as pushed around?
+				z3_get_mapscr_layer_for_xy_offset_include_base(x, y, blockLayer) :
+				FFCore.tempScreens[blockLayer];
 	if(fallclk)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
-			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt())); // TODO z3 ???
 		if(!--fallclk)
 		{
 			blockmoving=false;
@@ -309,7 +314,7 @@ bool movingblock::animate(int32_t)
 			drownclk = WATER_DROWN_FRAMES;
 		}
 		*/
-		size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+		size_t combopos = COMBOPOS(x.getFloor()%256, y.getFloor()%176);
 		int32_t f1 = m->sflag[combopos];
 		int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
@@ -340,7 +345,9 @@ bool movingblock::animate(int32_t)
 						trig_is_layer = true;
 						if(!no_trig_replace)
 						{
-							mapscr* m2 = FFCore.tempScreens[lyr];
+							mapscr *m2 = is_z3_scrolling_mode() ?
+								z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr) :
+								FFCore.tempScreens[lyr];
 							m2->data[combopos] = m2->undercombo;
 							m2->cset[combopos] = m2->undercset;
 							m2->sflag[combopos] = 0;
@@ -365,10 +372,12 @@ bool movingblock::animate(int32_t)
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
 				if(lyr==blockLayer) continue;
-				if((FFCore.tempScreens[lyr]->sflag[combopos]==mfBLOCKHOLE)
+				mapscr *m2 = is_z3_scrolling_mode() ?
+					z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr) :
+					FFCore.tempScreens[lyr];
+				if((m2->sflag[combopos]==mfBLOCKHOLE)
 					|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				{
-					mapscr* m2 = FFCore.tempScreens[lyr];
 					m->data[combopos] = m->undercombo;
 					m->cset[combopos] = m->undercset;
 					m2->data[combopos] = bcombo+1;
@@ -411,7 +420,9 @@ bool movingblock::animate(int32_t)
 		{
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
-				mapscr* tmp = FFCore.tempScreens[lyr];
+				mapscr *tmp = is_z3_scrolling_mode() ?
+					z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr) :
+					FFCore.tempScreens[lyr];
 				for(int32_t pos=0; pos<176; pos++)
 				{
 					if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)

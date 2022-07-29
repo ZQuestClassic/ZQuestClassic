@@ -21899,7 +21899,7 @@ void loadenemies()
 		bool unbeatablereload = true;
 
 		// TODO z3
-		// if (scr != currscr) return;
+		if (scr != currscr) return;
 		
 		// TODO z3
 		// for(int32_t i=0; i<6; i++)

@@ -16917,8 +16917,8 @@ void HeroClass::checkpushblock()
 	// if(y<16) return;
 	if(isSideViewHero() && !on_sideview_solid(x,y)) return;
 	
-	int32_t bx = x.getInt()&0xF0;
-	int32_t by = (y.getInt()&0xF0);
+	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
+	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
 	
 	switch(dir)
 	{
@@ -16936,7 +16936,7 @@ void HeroClass::checkpushblock()
 		break;
 		
 	case down:
-		if(y>128)
+		if(y>world_h-48)
 		{
 			earlyReturn=true;
 			break;
@@ -16969,7 +16969,7 @@ void HeroClass::checkpushblock()
 		break;
 		
 	case right:
-		if(x>208)
+		if(x>world_w-48)
 		{
 			earlyReturn=true;
 			break;
@@ -16993,15 +16993,19 @@ void HeroClass::checkpushblock()
 		return;
 	
 	int32_t itemid=current_item_id(itype_bracelet);
-	size_t combopos = (by&0xF0)+(bx>>4);
+	size_t combopos = COMBOPOS(bx%256, by%176);
 	bool limitedpush = (itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1);
 	itemdata const* glove = itemid < 0 ? NULL : &itemsbuf[itemid];
-	for(int lyr = 2; lyr > -1; --lyr) //Top-down, in case of stacked push blocks
+	for(int lyr = 2; lyr >= 0; --lyr) //Top-down, in case of stacked push blocks
 	{
 		if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) break;
 		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			continue;
-		mapscr* m = FFCore.tempScreens[lyr];
+		mapscr* m = is_z3_scrolling_mode() ?
+			z3_get_mapscr_layer_for_xy_offset_include_base(bx, by, lyr) :
+			FFCore.tempScreens[lyr];
+		if (!m) continue;
+
 		int32_t f = MAPFLAG2(lyr-1,bx,by);
 		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
 		int32_t t = combobuf[MAPCOMBOL(lyr,bx,by)].type;
@@ -17046,22 +17050,22 @@ void HeroClass::checkpushblock()
 			switch(dir)
 			{
 			case up:
-				//if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
+				if (_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
 				
 				break;
 				
 			case down:
-				//if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
+				if (_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
 				
 				break;
 				
 			case left:
-				//if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
+				if (_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
 				
 				break;
 				
 			case right:
-				//if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
+				if (_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
 				
 				break;
 			}

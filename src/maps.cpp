@@ -74,9 +74,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -311,6 +311,17 @@ mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
 	return &TheMaps[currmap*MAPSCRS+z3_get_scr_for_xy_offset(x, y)];
 }
 
+mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
+{
+	return get_layer_scr(currmap, z3_get_scr_for_xy_offset(x, y), layer);
+}
+
+// TODO z3 consolidate these functions...
+mapscr* z3_get_mapscr_layer_for_xy_offset_include_base(int x, int y, int layer)
+{
+	return layer == 0 ? z3_get_mapscr_for_xy_offset(x, y) : z3_get_mapscr_layer_for_xy_offset(x, y, layer - 1);
+}
+
 int z3_get_origin_scr()
 {
 	return z3_origin_scr;
@@ -339,13 +350,13 @@ int z3_get_z3scr_dy()
 	return currscr / 16 - z3_origin_scr / 16;
 }
 
-static mapscr* get_scr(int map, int screen)
+mapscr* get_scr(int map, int screen)
 {
 	return &TheMaps[map*MAPSCRS + screen];
 }
 
 // Note: layer=0 does NOT return the base screen, but its first layer.
-static mapscr* get_layer_scr(int map, int screen, int layer)
+mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	mapscr* scr = &TheMaps[map*MAPSCRS + screen];
 	if (scr->layermap[layer] > 0)
@@ -932,18 +943,18 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
     if(layer==-1) return MAPFLAG(x,y);
     
-    if(tmpscr2[layer].sflag.empty()) return 0;
-    
-    if(tmpscr2[layer].valid==0) return 0;
-
 	if (is_z3_scrolling_mode())
 	{
 		if(x<0 || x>=world_w || y<0 || y>=world_h)
 			return 0;
-		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
+		auto z3_scr = z3_get_mapscr_layer_for_xy_offset(x, y, layer);
 		int32_t combo = COMBOPOS(x%256, y%176);
 		return z3_scr->sflag[combo];
 	}
+
+    if(tmpscr2[layer].sflag.empty()) return 0;
+    
+    if(tmpscr2[layer].valid==0) return 0;
     
     int32_t combo = COMBOPOS(x,y);
     
