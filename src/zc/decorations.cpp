@@ -191,8 +191,8 @@ void dBushLeaves::draw(BITMAP *dest)
 	
 	for(int32_t i=0; i<4; ++i)
 	{
-		x=ox+ft[i][int32_t(float(clk-1)/3)][0] - global_viewport_x;
-		y=oy+ft[i][int32_t(float(clk-1)/3)][1] - global_viewport_y;
+		x=ox+ft[i][int32_t(float(clk-1)/3)][0];
+		y=oy+ft[i][int32_t(float(clk-1)/3)][1];
 		flip=ft[i][int32_t(float(clk-1)/3)][2];
 		tile=t*4+i;
 		decoration::draw8(dest);

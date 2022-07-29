@@ -3666,9 +3666,9 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 
 void HeroClass::check_slash_block(int32_t bx, int32_t by)
 {
-	//keep things inside the screen boundaries
+	// keep things inside the screen boundaries
 	bx=vbound(bx, 0, world_w-1);
-	by=vbound(by, 0, world_h);
+	by=vbound(by, 0, world_h-1);
 	int32_t fx=bx;
 	int32_t fy=by;
 	//first things first
@@ -3728,11 +3728,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
-	if (is_z3_scrolling_mode())
-	{
-		s = z3_get_mapscr_for_xy_offset(bx, by);
-	}
+	mapscr *s = currscr >= 128 ? &tmpscr[1] : z3_get_mapscr_for_xy_offset(bx, by);
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -3876,7 +3872,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			}
 		}
 		
-		putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+		// TODO z3 currscr probably wrong
+		putcombo(scrollbuf, z3_get_world_x_from_combo_pos(currscr, i) - global_viewport_x, z3_get_world_y_from_combo_pos(currscr, i) - global_viewport_y, s->data[i], s->cset[i]);
 		
 		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{

@@ -328,12 +328,25 @@ mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
 // TODO z3 consolidate these functions...
 mapscr* z3_get_mapscr_layer_for_xy_offset_include_base(int x, int y, int layer)
 {
+	// DCHECK(layer >= 0 && layer <= 7);
 	return layer == 0 ? z3_get_mapscr_for_xy_offset(x, y) : z3_get_mapscr_layer_for_xy_offset(x, y, layer - 1);
 }
 
 int z3_get_origin_scr()
 {
 	return z3_origin_scr;
+}
+
+int z3_get_world_x_from_combo_pos(int scr, int pos)
+{
+	// DCHECK(pos >= 0 && pos < 176);
+	return z3_get_region_relative_dx(scr)*256 + COMBOX(pos);
+}
+
+int z3_get_world_y_from_combo_pos(int scr, int pos)
+{
+	// DCHECK(pos >= 0 && pos < 176);
+	return z3_get_region_relative_dy(scr)*256 + COMBOY(pos);
 }
 
 // z3_origin_scr TODO z3_origin_screen
@@ -383,7 +396,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 
 	auto it = temporary_screens.find(screen);
 	if (it != temporary_screens.end()) return &it->second[layer + 1];
-	temporary_screens[screen] = clone_mapscr(&TheMaps[map*MAPSCRS + screen]);
+	temporary_screens[screen] = clone_mapscr(get_canonical_scr(map, screen));
 	return &temporary_screens[screen][layer + 1];
 }
 
@@ -5429,7 +5442,7 @@ void openshutters()
 }
 
 // TODO z3
-std::vector<mapscr> clone_mapscr(mapscr* source)
+std::vector<mapscr> clone_mapscr(const mapscr* source)
 {
 	std::vector<mapscr> screens;
 
