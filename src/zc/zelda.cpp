@@ -4775,7 +4775,7 @@ int main(int argc, char **argv)
 	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	temp_buf  = create_bitmap_ex(8,256,224);
-	scrollbuf = create_bitmap_ex(8,512,406);
+	scrollbuf = create_bitmap_ex(8,256,176+playing_field_offset);
 	bigscrollbuf = create_bitmap_ex(8,512*2,406*2);
 	screen2   = create_bitmap_ex(8,320,240);
 	tmp_scr   = create_bitmap_ex(8,320,240);

@@ -74,9 +74,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -5934,10 +5934,22 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 
 	// if (global_z3_scrolling_extended_height_mode)
 
-	int start_x = MAX(0, ceil((-15 - x) / 16.0));
-	int end_x   = MIN(16, (dest->w - 16 - x)/16);
-	int start_y = MAX(0, ceil((-15 - y) / 16.0));
-	int end_y   = MIN(11, (dest->h - 16 - y)/16);
+	// `draw_cmb_pos` only does meaningful work if the combo being drawn is within the bounds of
+	// the `dest` bitmap. However, even getting to that point where `puttile16` (for example) knows
+	// to cull is somewhat expensive. Since it can only draw 16x16 pixels, we can do the equivalent
+	// culling here by only drawing the rows/columns that are within the bitmap bounds. This nets
+	// on the order of ~30 FPS in uncapped mode on my machine, depending on the viewport/region size.
+	//
+	// These two inequalities must be true for `draw_cmb_pos` to do anything useful:
+	//
+	//     -16 < comboPositionX*16 + x < bitmapWidth
+	//     -16 < comboPositionY*16 + y < bitmapHeight
+	//
+	// The following start/end values are derived directly from the above.
+	int start_x = MAX(0,  ceil((-15 - x)     / 16.0));
+	int end_x   = MIN(16, ceil((dest->w - x) / 16.0));
+	int start_y = MAX(0,  ceil((-15 - y)     / 16.0));
+	int end_y   = MIN(11, ceil((dest->h - y) / 16.0));
 
 	for (int cy = start_y; cy < end_y; cy++)
 	{

@@ -2174,16 +2174,9 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
-    if (x < -15 || y < -15)
+    if (x <= -16 || y <= -16)
         return;
-        
-    // TODO z3 why -16???
-    if(y > dest->h - 16)
-        return;
-    if(x > dest->w - 16)
-        return;
-        
-    if((y == dest->h-16) && (x > dest->w-16))
+    if (x >= dest->w || y >= dest->h)
         return;
         
     if(tile<0 || tile>=NEWMAXTILES)
@@ -2204,7 +2197,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
     // 0: fast, 4 bytes at a time, no bounds checking
     // 1: slow, 1 byte at a time, bounds checking
-    int draw_mode = x < 0 || y < 0 ? 1 : 0;
+    int draw_mode = x < 0 || y < 0 || x > dest->w-16 || y > dest->h-16 ? 1 : 0;
     
     switch(flip&2)
     {
@@ -2242,9 +2235,11 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
             {
                 for(int32_t dx=0; dx<=15; ++dx)
                 {
-                    if (x+dx >= 0 && y+dy >= 0)
+                    int destx = x+dx;
+                    int desty = y+dy;
+                    if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
                     {
-                        dest->line[y+dy][x+dx] = *si + cset;
+                        dest->line[desty][destx] = *si + cset;
                     }
                     si++;
                 }
@@ -2304,9 +2299,11 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
             {
                 for (int32_t dx=0; dx<16; ++dx)
                 {
-                    if (x+dx >= 0 && y+dy >= 0)
+                    int destx = x+dx;
+                    int desty = y+dy;
+                    if (destx >= 0 && desty >= 0 && destx < dest->w && desty < dest->h)
                     {
-                        dest->line[y+dy][x+dx] = *si + cset;
+                        dest->line[desty][destx] = *si + cset;
                     }
                     si++;
                 }
