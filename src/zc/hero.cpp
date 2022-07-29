@@ -24347,26 +24347,26 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
-		clear_bitmap(bigscrollbuf); // TODO z3 just use normal scrollbuf
+		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
-			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(bigscrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
-			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(bigscrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
 			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
 			{
 				// TODO z3 primitives verify
-				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(bigscrollbuf, 2, myscr, offx, offy);			
-				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(bigscrollbuf, 3, myscr, offx, offy);
+				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, myscr, offx, offy);			
+				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, myscr, offx, offy);
 			}
 
-			putscr(bigscrollbuf, offx, offy, myscr);
+			putscr(scrollbuf, offx, offy, myscr);
 		});
 
-		blit(bigscrollbuf, framebuf, 0, 0, 0, playing_field_offset+1, 256, 168-1);
+		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset+1, 256, 168-1);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
 		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
