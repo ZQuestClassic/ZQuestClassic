@@ -24354,8 +24354,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
-			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
-			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, -offx, -offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, -offx, -offy + playing_field_offset, 2);
 			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
 			{
 				// TODO z3 primitives verify

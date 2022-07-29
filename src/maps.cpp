@@ -4382,15 +4382,15 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	else
 	for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
-		do_layer(scrollbuf, 0, 1, myscr, offx, offy, 2, false, true); // LAYER 1
+		do_layer(scrollbuf, 0, 1, myscr, -offx, -offy, 2, false, true); // LAYER 1
 
 		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 0);
 		
-		do_layer(scrollbuf, -3, 0, myscr, offx, offy, 2); // freeform combos!
+		do_layer(scrollbuf, -3, 0, myscr, -offx, -offy, 2); // freeform combos!
 		
 		if(!XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
-			do_layer(scrollbuf, 0, 2, myscr, offx, offy, 2, false, true); // LAYER 2
+			do_layer(scrollbuf, 0, 2, myscr, -offx, -offy, 2, false, true); // LAYER 2
 			
 			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 1);
 		}
