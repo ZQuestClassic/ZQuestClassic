@@ -25011,9 +25011,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z3_set_currscr(currscr);
 			
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
-		blit(scrollbuf,scrollbuf,0,0,0,176,256,176);
-		putscr(scrollbuf,0,0,newscr);
-		putscrdoors(scrollbuf,0,0,newscr);
+		blit(scrollbuf_old,scrollbuf_old,0,0,0,176,256,176);
+		putscr(scrollbuf_old,0,0,newscr);
+		putscrdoors(scrollbuf_old,0,0,newscr);
 		sy=176;
 		
 		if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0)
@@ -25035,8 +25035,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z3_set_currscr(currscr);
 			
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
-		putscr(scrollbuf,0,176,newscr);
-		putscrdoors(scrollbuf,0,176,newscr);
+		putscr(scrollbuf_old,0,176,newscr);
+		putscrdoors(scrollbuf_old,0,176,newscr);
 		sy = 0;
 		
 		if(get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0)
@@ -25058,9 +25058,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z3_set_currscr(currscr);
 			
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
-		blit(scrollbuf,scrollbuf,0,0,256,0,256,176);
-		putscr(scrollbuf,0,0,newscr);
-		putscrdoors(scrollbuf,0,0,newscr);
+		blit(scrollbuf_old,scrollbuf_old,0,0,256,0,256,176);
+		putscr(scrollbuf_old,0,0,newscr);
+		putscrdoors(scrollbuf_old,0,0,newscr);
 		sx = 256;
 		cx = 256 / step;
 		x = world_w - 256;
@@ -25078,8 +25078,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z3_set_currscr(currscr);
 			
 		loadscr(0,destdmap,currscr,scrolldir,overlay);
-		putscr(scrollbuf,256,0,newscr);
-		putscrdoors(scrollbuf,256,0,tmpscr);
+		putscr(scrollbuf_old,256,0,newscr);
+		putscrdoors(scrollbuf_old,256,0,tmpscr);
 		sx = 0;
 		cx = 256 / step;
 		x = 256;
@@ -25335,7 +25335,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
-		clear_bitmap(scrollbuf);
+		clear_bitmap(scrollbuf_old);
 		clear_bitmap(framebuf);
 
 		if (!z3_scrolling_mode)
@@ -25343,73 +25343,73 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			switch(scrolldir)
 			{
 			case up:
-				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, newscr, 0, playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, -176+playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, oldscr, 0, -176+playing_field_offset, 3);
 				
-				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, newscr, 0, playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, -176+playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, oldscr, 0, -176+playing_field_offset, 3);
 				
 				// Draw both screens' background layer primitives together, after both layers' combos.
 				// Not ideal, but probably good enough for all realistic purposes.
-				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf_old, 2, newscr, sx, sy);
 				
-				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 				
-				putscr(scrollbuf, 0, 0, newscr);
-				putscr(scrollbuf, 0, 176, oldscr);
+				putscr(scrollbuf_old, 0, 0, newscr);
+				putscr(scrollbuf_old, 0, 176, oldscr);
 				break;
 				
 			case down:
-				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, -176+playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, newscr, 0, -176+playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, oldscr, 0, playing_field_offset, 3);
 				
-				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, -176+playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, newscr, 0, -176+playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, oldscr, 0, playing_field_offset, 3);
 				
-				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf_old, 2, newscr, sx, sy);
 				
-				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 				
-				putscr(scrollbuf, 0, 0, oldscr);
-				putscr(scrollbuf, 0, 176, newscr);
+				putscr(scrollbuf_old, 0, 0, oldscr);
+				putscr(scrollbuf_old, 0, 176, newscr);
 				break;
 				
 			case left:
-				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, 0, playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, newscr, 0, playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, -256, playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, oldscr, -256, playing_field_offset, 3);
 				
-				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, 0, playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, newscr, 0, playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, -256, playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, oldscr, -256, playing_field_offset, 3);
 				
-				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf_old, 2, newscr, sx, sy);
 				
-				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 				
-				putscr(scrollbuf, 0, 0, newscr);
-				putscr(scrollbuf, 256, 0, oldscr);
+				putscr(scrollbuf_old, 0, 0, newscr);
+				putscr(scrollbuf_old, 256, 0, oldscr);
 				break;
 				
 			case right:
-				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, newscr, -256, playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, newscr, -256, playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, oldscr, 0, playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, oldscr, 0, playing_field_offset, 3);
 				
-				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, newscr, -256, playing_field_offset, 2);
+				if(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, newscr, -256, playing_field_offset, 2);
 				
-				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, oldscr, 0, playing_field_offset, 3);
+				if(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, oldscr, 0, playing_field_offset, 3);
 				
-				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf_old, 2, newscr, sx, sy);
 				
-				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
+				if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 				
-				putscr(scrollbuf, 0, 0, oldscr);
-				putscr(scrollbuf, 256, 0, newscr);
+				putscr(scrollbuf_old, 0, 0, oldscr);
+				putscr(scrollbuf_old, 256, 0, newscr);
 				break;
 			}
 		}
@@ -25432,18 +25432,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				break;
 			}
 
-			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, offx, offy + playing_field_offset, 2);
-			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, myscr, offx, offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, myscr, offx, offy + playing_field_offset, 2);
 			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
 			{
-				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, myscr, sx, sy);			
-				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, myscr, sx, sy);
+				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf_old, 2, myscr, sx, sy);			
+				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, myscr, sx, sy);
 			}
 
-			putscr(scrollbuf, offx, offy, myscr);
+			putscr(scrollbuf_old, offx, offy, myscr);
 		});
 		
-		blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
+		blit(scrollbuf_old, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 		
 		// TODO verify z3 scrolling code
@@ -25853,8 +25853,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	homescr=currscr;
 	init_dmap();
-	putscr(scrollbuf,0,0,newscr);
-	putscrdoors(scrollbuf,0,0,newscr);
+	putscr(scrollbuf_old,0,0,newscr);
+	putscrdoors(scrollbuf_old,0,0,newscr);
 	
 	// Check for raft flags
 	if(action!=rafting && hopclk==0 && !toogam)
@@ -25899,7 +25899,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(action!=rafting)
 				stepforward(diagonalMovement?21:24, false);
 				
-			putdoor(scrollbuf,0,scrolldir^1,tmpscr->door[scrolldir^1]);
+			putdoor(scrollbuf_old,0,scrolldir^1,tmpscr->door[scrolldir^1]);
 			opendoors=-4;
 			sfx(WAV_DOOR);
 			break;
