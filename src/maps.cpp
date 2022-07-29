@@ -344,11 +344,10 @@ static mapscr* get_scr(int map, int screen)
 	return &TheMaps[map*MAPSCRS + screen];
 }
 
+// Note: layer=0 does NOT return the base screen, but its first layer.
 static mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	mapscr* scr = &TheMaps[map*MAPSCRS + screen];
-	if (layer == 0) return scr;
-
 	if (scr->layermap[layer] > 0)
 	{
 		return &TheMaps[(scr->layermap[layer]-1)*MAPSCRS + scr->layerscreen[layer]];
