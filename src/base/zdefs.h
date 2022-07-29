@@ -2708,6 +2708,8 @@ struct mapscr
 		cset.resize(176,0);
 		zero_memory();
 	}
+
+	mapscr(const mapscr&) = default;
 };
 
 //Build date info

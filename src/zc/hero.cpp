@@ -23710,6 +23710,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 	int old_region = z3_get_region_id(scrolling_scr);
 	int new_region = z3_get_region_id(currscr);
 
+	// TODO z3 is this odd ordering necessary still?
 	for (int draw_dx = 1; draw_dx >= -1; draw_dx--)
 	{
 		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
@@ -23737,7 +23738,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
 				global_z3_cur_scr_drawing = scr;
-				mapscr* myscr = &TheMaps[base_map*MAPSCRS+scr];
+				mapscr* myscr = get_scr(base_map, scr);
 				fn(myscr, scr, draw_dx, draw_dy);
 			}
 		}

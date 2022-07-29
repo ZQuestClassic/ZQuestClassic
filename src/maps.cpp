@@ -55,13 +55,13 @@ extern HeroClass Hero;
 //    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
 // sword beams / ewpns should only despawn when leaving viewport
-// copy region screens to a "tmpscr" like structure for transient changes
 
 // dark rooms, and transitions
 // screen wipe in when spawning in middle of region
 // ffcs
 // define regions dynamically
 
+static std::map<int, std::vector<mapscr>> temporary_screens;
 int viewport_x, viewport_y;
 int viewport_y_offset;
 int world_w, world_h;
@@ -72,11 +72,11 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
-#define hardcode_regions_mode 2
+// #define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -224,6 +224,11 @@ void z3_set_currscr(int scr)
 	z3_calculate_region(scr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
+
+	temporary_screens.clear();
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		temporary_screens[scr] = clone_mapscr(z3_scr);
+	});
 }
 
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y)
@@ -303,10 +308,16 @@ int z3_get_scr_for_xy_offset(int x, int y)
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
+// These functions all return _temporary_ screens. Any modifcations made to them (either by the engine
+// directly or via zscript) only last until the next screen (or region) is loaded.
+
+// Returns the screen containing the (x, y) world position.
+// TODO z3 rename 'get_mapscr_of_world_position'
 mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
 {
+	// Quick path, but should work the same without.
 	if (!is_z3_scrolling_mode()) return tmpscr;
-	return &TheMaps[currmap*MAPSCRS+z3_get_scr_for_xy_offset(x, y)];
+	return get_scr(currmap, z3_get_scr_for_xy_offset(x, y));
 }
 
 mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
@@ -348,18 +359,38 @@ int z3_get_z3scr_dy()
 	return currscr / 16 - z3_origin_scr / 16;
 }
 
+// TODO z3 use this.
+const mapscr* get_canonical_scr(int map, int screen)
+{
+	return &TheMaps[map*MAPSCRS + screen];
+}
+
 // TODO z3 copy all the screens to a new tmp scr shit and return that
 mapscr* get_scr(int map, int screen)
 {
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return tmpscr; // lol
-	return &TheMaps[map*MAPSCRS + screen];
+	// TODO z3 needed I think just for side warps during scrolling?
+	if (map != currmap) return &TheMaps[map*MAPSCRS + screen];
+
+	auto it = temporary_screens.find(screen);
+	if (it != temporary_screens.end()) return &it->second[0];
+	temporary_screens[screen] = clone_mapscr(&TheMaps[map*MAPSCRS + screen]);
+	return &temporary_screens[screen][0];
 }
 
 // Note: layer=0 does NOT return the base screen, but its first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return &tmpscr2[layer]; // lol
+	if (map == currmap)
+	{
+		auto it = temporary_screens.find(screen);
+		if (it != temporary_screens.end()) return &it->second[layer + 1];
+		temporary_screens[screen] = clone_mapscr(&TheMaps[map*MAPSCRS + screen]);
+		return &temporary_screens[screen][layer + 1];
+	}
 
+	// TODO z3 no ???
 	mapscr* scr = &TheMaps[map*MAPSCRS + screen];
 	if (scr->layermap[layer] > 0)
 	{
@@ -4185,7 +4216,7 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 
 			unsigned int z3_scr_dx = scr_x - z3_scr_x;
 			unsigned int z3_scr_dy = scr_y - z3_scr_y;
-			mapscr* z3_scr = &TheMaps[currmap*MAPSCRS + scr];
+			mapscr* z3_scr = get_scr(currmap, scr);
 			global_z3_cur_scr_drawing = scr;
 			fn(z3_scr, scr, z3_scr_dx, z3_scr_dy);
 		}
@@ -4227,7 +4258,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
 			if (!is_in_region(z3_origin_scr, scr)) continue;
 
-			mapscr* myscr = &TheMaps[currmap*MAPSCRS + scr];
+			mapscr* myscr = get_scr(currmap, scr);
 			if (!(myscr->valid & mVALID)) continue;
 
 			int offx = z3_get_region_relative_dx(scr) * 256;
@@ -5409,6 +5440,29 @@ void openshutters()
 	}
 		
 	sfx(WAV_DOOR,128);
+}
+
+// TODO z3
+std::vector<mapscr> clone_mapscr(mapscr* source)
+{
+	std::vector<mapscr> screens;
+
+	screens.push_back(mapscr(*source));
+
+	for (int i = 0; i < 6; i++)
+	{
+		if(source->layermap[i]>0 && (ZCMaps[source->layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
+					&& (ZCMaps[source->layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+		{
+			screens.push_back(mapscr(TheMaps[(source->layermap[i]-1)*MAPSCRS+source->layerscreen[i]]));
+		}
+		else
+		{
+			screens.push_back(mapscr());
+		}
+	}
+
+	return screens;
 }
 
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
