@@ -3595,6 +3595,28 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
 	draw_cmb(dest, COMBOX(pos)+x, COMBOY(pos)+y, cid, cset, over, transp);
 }
 
+// `draw_cmb_pos` only does meaningful work if the combo being drawn is within the bounds of
+// the `bmp` bitmap. However, even getting to that point where `puttile16` (for example) knows
+// to cull is somewhat expensive. Since it can only draw 16x16 pixels, we can do the equivalent
+// culling here by only drawing the rows/columns that are within the bitmap bounds. This nets
+// on the order of ~30 FPS in uncapped mode on my machine, depending on the viewport/region size.
+//
+// These two inequalities must be true for `draw_cmb_pos` to do anything useful:
+//
+//     -16 < comboPositionX*16 + x < bitmapWidth
+//     -16 < comboPositionY*16 + y < bitmapHeight
+//
+// The following start/end values are derived directly from the above.
+//
+// `x` and `y` are the offsets the combos will be drawn into the bitmap.
+static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_x, int& end_x, int& start_y, int& end_y)
+{
+	start_x = MAX(0,  ceil((-15 - x)    / 16.0));
+	end_x   = MIN(16, ceil((bmp->w - x) / 16.0));
+	start_y = MAX(0,  ceil((-15 - y)    / 16.0));
+	end_y   = MIN(11, ceil((bmp->h - y) / 16.0));
+}
+
 void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
 {
 	x += global_viewport_x;
@@ -3728,10 +3750,20 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 			}
 			return;
 	}
-	
-	for(int32_t i=0; i<176; i++)
+
+	// ?
+	x = -x;
+	y = -y+playing_field_offset;
+
+	int start_x, end_x, start_y, end_y;
+	get_bounds_for_draw_cmb_calls(bmp, x, y, start_x, end_x, start_y, end_y);
+	for (int cy = start_y; cy < end_y; cy++)
 	{
-		draw_cmb_pos(bmp, -x, playing_field_offset-y, i, tmp->data[i], tmp->cset[i], layer, over, transp);
+		for (int cx = start_x; cx < end_x; cx++)
+		{
+			int i = cx + cy*16;
+			draw_cmb_pos(bmp, x, y, i, tmp->data[i], tmp->cset[i], layer, over, transp);
+		}
 	}
 }
 
@@ -5915,7 +5947,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			}
 		}
 	}
-	
 }
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
@@ -5934,23 +5965,8 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 
 	// if (global_z3_scrolling_extended_height_mode)
 
-	// `draw_cmb_pos` only does meaningful work if the combo being drawn is within the bounds of
-	// the `dest` bitmap. However, even getting to that point where `puttile16` (for example) knows
-	// to cull is somewhat expensive. Since it can only draw 16x16 pixels, we can do the equivalent
-	// culling here by only drawing the rows/columns that are within the bitmap bounds. This nets
-	// on the order of ~30 FPS in uncapped mode on my machine, depending on the viewport/region size.
-	//
-	// These two inequalities must be true for `draw_cmb_pos` to do anything useful:
-	//
-	//     -16 < comboPositionX*16 + x < bitmapWidth
-	//     -16 < comboPositionY*16 + y < bitmapHeight
-	//
-	// The following start/end values are derived directly from the above.
-	int start_x = MAX(0,  ceil((-15 - x)     / 16.0));
-	int end_x   = MIN(16, ceil((dest->w - x) / 16.0));
-	int start_y = MAX(0,  ceil((-15 - y)     / 16.0));
-	int end_y   = MIN(11, ceil((dest->h - y) / 16.0));
-
+	int start_x, end_x, start_y, end_y;
+	get_bounds_for_draw_cmb_calls(dest, x, y, start_x, end_x, start_y, end_y);
 	for (int cy = start_y; cy < end_y; cy++)
 	{
 		for (int cx = start_x; cx < end_x; cx++)
