@@ -20849,7 +20849,9 @@ void loadguys()
 		addguy(120,62,gFAIRY,-14,false);
 	}
 	
-	loaditem();
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		loaditem(z3_scr, z3_get_region_relative_dx(scr)*256, z3_get_region_relative_dy(scr)*176);
+	});
 	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
@@ -20861,42 +20863,53 @@ void loadguys()
 	}
 }
 
-void loaditem()
+void loaditem(mapscr* scr, int offx, int offy)
 {
 	byte Item = 0;
 	
 	if(currscr<128)
 	{
-		Item=tmpscr->item;
+		Item=scr->item;
 		
-		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
+		if((!getmapflag(mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
-			if(tmpscr->flags8&fSECRETITEM)
+			if(scr->flags8&fSECRETITEM)
 				hasitem=8;
-			else if(tmpscr->flags&fITEM)
+			else if(scr->flags&fITEM)
 				hasitem=1;
-			else if(tmpscr->enemyflags&efCARRYITEM)
+			else if(scr->enemyflags&efCARRYITEM)
 				hasitem=4; // Will be set to 2 by roaming_item
 			else
-				items.add(new item((zfix)tmpscr->itemx,
-								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
-								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
+			{
+				int x = scr->itemx;
+				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
+					-170 :
+					scr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1);
+				items.add(new item(offx + x, offy + y,
+								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
 								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-										   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			}
 		}
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr[1].flags9&fBELOWRETURN)) && tmpscr[1].room==rSP_ITEM
+		scr = tmpscr; // TODO z3
+		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr[1].flags9&fBELOWRETURN)) && scr[1].room==rSP_ITEM
 				&& (currscr==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
 		{
-			Item=tmpscr[1].catchall;
+			Item=scr[1].catchall;
 			
 			if(Item)
-				items.add(new item((zfix)tmpscr->itemx,
-								   (tmpscr->flags7&fITEMFALLS && isSideViewGravity()) ? (zfix)-170 : (zfix)tmpscr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1),
-								   (tmpscr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
-								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			{
+				int x = scr->itemx;
+				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
+					-170 :
+					scr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1);
+				items.add(new item(offx + x, offy + y,
+								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
+								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			}
 		}
 	}
 }

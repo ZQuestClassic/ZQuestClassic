@@ -28553,7 +28553,7 @@ void HeroClass::heroDeathAnimation()
 	if ( dontdraw < 2 ) { dontdraw=0; }
 }
 
-
+// TODO z3
 void HeroClass::ganon_intro()
 {
     /*
@@ -28573,7 +28573,7 @@ void HeroClass::ganon_intro()
     271 GANON out, HERO face up
     */
     loaded_guys=true;
-    loaditem();
+    loaditem(tmpscr, 0, 0);
     
     if(game->lvlitems[dlevel]&liBOSS)
     {

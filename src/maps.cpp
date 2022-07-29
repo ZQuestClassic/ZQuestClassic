@@ -50,19 +50,17 @@ extern FFScript FFCore;
 extern HeroClass Hero;
 
 // TODO z3 checklist
-// fix warp bug when going into castle armg quest
-// fix warp bug when OUCH building doing nothing
-// screen secrets (blow up the cave wall)
-// screen items
+// screen secrets:
+//    - trigger all secrets in region
+//    - multiple triggers across many screens in a region (multi-block puzzle)
+//    - perm secrets
 // link animation sprites (on water) (on god)
 // sword beams / ewpns should only despawn when leaving viewport
-// push blocks
 
-// screen transitions
+// dark rooms, and transitions
 // screen wipe in when spawning in middle of region
 // ffcs
 // define regions dynamically
-// scrolling mazes ?!?!
 
 int viewport_x, viewport_y;
 int viewport_y_offset;
@@ -76,9 +74,9 @@ int scrolling_maze_mode = 0;
 // majora's ALTTP test
 // #define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
-// #define hardcode_regions_mode 2
+#define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -948,6 +946,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 		if(x<0 || x>=world_w || y<0 || y>=world_h)
 			return 0;
 		auto z3_scr = z3_get_mapscr_layer_for_xy_offset(x, y, layer);
+		if (!z3_scr) return 0;
 		int32_t combo = COMBOPOS(x%256, y%176);
 		return z3_scr->sflag[combo];
 	}
