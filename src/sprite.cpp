@@ -1950,8 +1950,8 @@ void sprite::drawzcboss(BITMAP* dest)
 
 void sprite::draw8(BITMAP* dest)
 {
-    int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+    int32_t sx = real_x(x+xofs) - global_viewport_x;
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs) - global_viewport_y;
 	sy -= fake_z(fakez);
     
     if(id<0)
