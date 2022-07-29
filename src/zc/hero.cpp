@@ -23835,7 +23835,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	mapscr *newscr = &tmpscr[0];
 	mapscr *oldscr = &tmpscr[1];
 	conveyclk = 2;
-	scrolling_dir = (direction) dir;
+	scrolling_dir = (direction) scrolldir;
 	scrolling_map = currmap;
 	scrolling_scr = currscr;
 

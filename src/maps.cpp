@@ -369,8 +369,6 @@ const mapscr* get_canonical_scr(int map, int screen)
 mapscr* get_scr(int map, int screen)
 {
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return tmpscr; // lol
-	// TODO z3 needed I think just for side warps during scrolling?
-	if (map != currmap) return &TheMaps[map*MAPSCRS + screen];
 
 	auto it = temporary_screens.find(screen);
 	if (it != temporary_screens.end()) return &it->second[0];
@@ -382,23 +380,11 @@ mapscr* get_scr(int map, int screen)
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return &tmpscr2[layer]; // lol
-	if (map == currmap)
-	{
-		auto it = temporary_screens.find(screen);
-		if (it != temporary_screens.end()) return &it->second[layer + 1];
-		temporary_screens[screen] = clone_mapscr(&TheMaps[map*MAPSCRS + screen]);
-		return &temporary_screens[screen][layer + 1];
-	}
 
-	// TODO z3 no ???
-	mapscr* scr = &TheMaps[map*MAPSCRS + screen];
-	if (scr->layermap[layer] > 0)
-	{
-		return &TheMaps[(scr->layermap[layer]-1)*MAPSCRS + scr->layerscreen[layer]];
-	} else
-	{
-		return NULL;
-	}
+	auto it = temporary_screens.find(screen);
+	if (it != temporary_screens.end()) return &it->second[layer + 1];
+	temporary_screens[screen] = clone_mapscr(&TheMaps[map*MAPSCRS + screen]);
+	return &temporary_screens[screen][layer + 1];
 }
 
 int32_t COMBOPOS(int32_t x, int32_t y)
@@ -4131,7 +4117,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
 	{
 		mapscr* layer_scr = get_layer_scr(currmap, screen, lyr);
-		if(!layer_scr || !layer_scr->valid) continue; //invalid layer
+		if(!layer_scr->valid) continue; //invalid layer
 		for(int32_t q = 0; q < 176; ++q)
 		{
 			newcombo const& cmb = combobuf[layer_scr->data[q]];
