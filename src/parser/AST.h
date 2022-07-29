@@ -1646,6 +1646,20 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope);
 	};
 
+	class ASTExprExpn : public ASTMultExpr
+	{
+	public:
+		ASTExprExpn(ASTExpr* left = NULL,
+		             ASTExpr* right = NULL,
+		             LocationData const& location = LOC_NONE);
+		ASTExprExpn* clone() const {return new ASTExprExpn(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+
+		optional<int32_t> getCompileTimeValue(
+				CompileErrorHandler* errorHandler, Scope* scope);
+	};
+
 	class ASTExprDivide : public ASTMultExpr
 	{
 	public:

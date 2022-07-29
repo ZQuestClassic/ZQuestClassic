@@ -1056,6 +1056,10 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "STACKPUSHFRONT",         1,   0,   0,   0},
 	{ "LOADSTACK",         0,   0,   0,   0},
 	{ "STACKCLEAR",         0,   0,   0,   0},
+	{ "POWERV2",         2,   1,   0,   0},
+	{ "LPOWERR",         2,   0,   0,   0},
+	{ "LPOWERV",         2,   0,   1,   0},
+	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

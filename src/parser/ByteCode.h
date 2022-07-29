@@ -2634,6 +2634,57 @@ namespace ZScript
 			return new OPowRegister(a->clone(), b->clone());
 		}
 	};
+	class OPowImmediate : public BinaryOpcode
+	{
+	public:
+		OPowImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPowImmediate(a->clone(), b->clone());
+		}
+	};
+	class OPowImmediate2 : public BinaryOpcode
+	{
+	public:
+		OPowImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OPowImmediate2(a->clone(), b->clone());
+		}
+	};
+
+	class OLPowRegister : public BinaryOpcode
+	{
+	public:
+		OLPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLPowRegister(a->clone(), b->clone());
+		}
+	};
+	class OLPowImmediate : public BinaryOpcode
+	{
+	public:
+		OLPowImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLPowImmediate(a->clone(), b->clone());
+		}
+	};
+	class OLPowImmediate2 : public BinaryOpcode
+	{
+	public:
+		OLPowImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLPowImmediate2(a->clone(), b->clone());
+		}
+	};
 
 	class OInvPowRegister : public BinaryOpcode
 	{

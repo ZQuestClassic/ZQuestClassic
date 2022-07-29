@@ -21780,19 +21780,38 @@ void do_factorial(const bool v)
 	set_register(sarg1, temp2 * 10000);
 }
 
-void do_power(const bool v)
+void do_power(bool v, const bool inv = false)
 {
+	bool v2 = false;
+	if(inv) zc_swap(v,v2);
+	auto destreg = (inv ? sarg2 : sarg1);
 	double temp = double(SH::get_arg(sarg2, v)) / 10000.0;
-	double temp2 = double(get_register(sarg1)) / 10000.0;
+	double temp2 = double(SH::get_arg(sarg1, v2)) / 10000.0;
 	
 	if(temp == 0 && temp2 == 0)
 	{
-		Z_scripterrlog("Script attempted to calculate 0 to the power 0!\n");
-		set_register(sarg1, 1);
+		set_register(destreg, 10000);
 		return;
 	}
 	
-	set_register(sarg1, int32_t(pow(temp2, temp) * 10000.0));
+	set_register(destreg, int32_t(pow(temp2, temp) * 10000.0));
+}
+
+void do_lpower(bool v, const bool inv = false)
+{
+	bool v2 = false;
+	if(inv) zc_swap(v,v2);
+	auto destreg = (inv ? sarg2 : sarg1);
+	int32_t temp = SH::get_arg(sarg2, v);
+	int32_t temp2 = SH::get_arg(sarg1, v2);
+	
+	if(temp == 0 && temp2 == 0)
+	{
+		set_register(destreg, 1);
+		return;
+	}
+	
+	set_register(destreg, int32_t(pow(temp2, temp)));
 }
 
 //could use recursion or something to avoid truncation.
@@ -27223,9 +27242,21 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			case POWERR:
 				do_power(false);
 				break;
-				
 			case POWERV:
 				do_power(true);
+				break;
+			case POWERV2:
+				do_power(true,true);
+				break;
+				
+			case LPOWERR:
+				do_lpower(false);
+				break;
+			case LPOWERV:
+				do_lpower(true);
+				break;
+			case LPOWERV2:
+				do_lpower(true,true);
 				break;
 				
 			case IPOWERR:
@@ -36192,6 +36223,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "STACKPUSHFRONT",         1,   0,   0,   0},
 	{ "LOADSTACK",         0,   0,   0,   0},
 	{ "STACKCLEAR",         0,   0,   0,   0},
+	{ "POWERV2",         2,   1,   0,   0},
+	{ "LPOWERR",         2,   0,   0,   0},
+	{ "LPOWERV",         2,   0,   1,   0},
+	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

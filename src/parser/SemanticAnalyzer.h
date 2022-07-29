@@ -73,6 +73,7 @@ namespace ZScript
 		void caseExprPlus(ASTExprPlus& host, void* = NULL);
 		void caseExprMinus(ASTExprMinus& host, void* = NULL);
 		void caseExprTimes(ASTExprTimes& host, void* = NULL);
+		void caseExprExpn(ASTExprExpn& host, void* = NULL);
 		void caseExprDivide(ASTExprDivide& host, void* = NULL);
 		void caseExprModulo(ASTExprModulo& host, void* = NULL);
 		void caseExprBitAnd(ASTExprBitAnd& host, void* = NULL);

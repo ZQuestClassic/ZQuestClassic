@@ -66,6 +66,7 @@ The ZScript parser supports the following standard and alternative tokens:
 -		: 	Subtraction
 *		:	Multiplication
 /		:	Division
+^^^     :   Exponentiation
 ++		: 	Increment (Pre, or Post)
 --		: 	Decrement (Pre, or Post)
 
@@ -1390,6 +1391,26 @@ for their order of operations.
 	
 	It is prudent therefore, to properly specify order of operations for this operation.
 
+////////////////////
+// Exponentiation //
+////////////////////
+
+ZScript now supports Exponentiation via the '^^^' operator. Use of this operator works identically to
+	calling the 'Pow()' function, except that the compiler can optimize constants at compile-time with
+	the operator, which the Pow() function cannot do.
+
+Note that '0^^^0' is defined to be '1'.
+
+In the case that an exponentiation results in too large an output value,
+	the minimum float value, '-214748.3648', will be returned.
+
+// Longs
+If either of the parameters to the '^^^' operator is of type 'long', a 'long exponentiation'
+	will be performed instead. The 'LPow()' function has been added to match this behavior.
+
+This means that '1L' will be treated as '1', meaning the full 32 bits can be used for the exponentiation,
+	allowing larger calculations to be returned.
+	Ex: '2L ^^^ 2L == 4L', 'LPow(0.0002, 0.0002) == 0.0004' (as 1L == 0.0001)
 
 ///////////////
 // NOT Token //
@@ -2896,7 +2917,15 @@ untyped Untype(any)
   
 bool IsValidArray(untyped[]);
  * Returns true if the passed array pointer is valid (usable), false if it is invalid (should not be used).
- 
+
+int Pow(int a, int b);
+ * Returns 'a^^^b' (a raised to the power of b)
+ * Ex: Pow(2,2) == 4
+
+long LPow(long a, long b);
+ * Returns 'a^^^b', using 'long', where 0.0001 is 1L.
+ * Ex: LPow(2L,2L) == 4L
+
 
 /************************************************************************************************************/
 

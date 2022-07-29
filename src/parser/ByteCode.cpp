@@ -2549,6 +2549,26 @@ string OPowRegister::toString()
 {
     return "POWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
+string OPowImmediate::toString()
+{
+    return "POWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OPowImmediate2::toString()
+{
+    return "POWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OLPowRegister::toString()
+{
+    return "LPOWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OLPowImmediate::toString()
+{
+    return "LPOWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OLPowImmediate2::toString()
+{
+    return "LPOWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 string OInvPowRegister::toString()
 {

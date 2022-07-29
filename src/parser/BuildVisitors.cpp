@@ -15,6 +15,8 @@ using std::vector;
 using std::list;
 using std::shared_ptr;
 
+#define CONST_VAL(val) addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
+
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
 
@@ -1823,6 +1825,82 @@ void BuildOpcodes::caseExprTimes(ASTExprTimes& host, void *param)
 		visit(host.right.get(), param);
 		addOpcode(new OPopRegister(new VarArgument(EXP2)));
 		addOpcode(new OMultRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+	}
+}
+
+void BuildOpcodes::caseExprExpn(ASTExprExpn& host, void *param)
+{
+	if (host.getCompileTimeValue(NULL, scope))
+	{
+		CONST_VAL(*host.getCompileTimeValue(this, scope));
+		return;
+	}
+	bool do_long = host.left.get()->isLong(scope, this) || host.right.get()->isLong(scope, this);
+	optional <int32_t> lval = host.left->getCompileTimeValue(NULL, scope);
+	optional <int32_t> rval = host.right->getCompileTimeValue(NULL, scope);
+	if(do_long)
+	{
+		if(lval)
+		{
+			if(*lval == 1) //1 ^ x? Always '1'
+			{
+				CONST_VAL(1);
+				return;
+			}
+			visit(host.right.get(), param);
+			addOpcode(new OLPowImmediate2(new LiteralArgument(*lval), new VarArgument(EXP1)));
+		}
+		if(rval)
+		{
+			if((*rval)==0) // x ^ 0? Always '1'. Yes even for 0^0, as we define it.
+			{
+				CONST_VAL(1);
+				return;
+			}
+			visit(host.left.get(), param);
+			addOpcode(new OLPowImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
+		}
+		else
+		{
+			// Compute both sides.
+			visit(host.right.get(), param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			visit(host.left.get(), param);
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+			addOpcode(new OLPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		}
+	}
+	else
+	{
+		if(lval)
+		{
+			if(*lval == 10000) //1 ^ x? Always '1'
+			{
+				CONST_VAL(10000);
+				return;
+			}
+			visit(host.right.get(), param);
+			addOpcode(new OPowImmediate2(new LiteralArgument(*lval), new VarArgument(EXP1)));
+		}
+		if(rval)
+		{
+			if((*rval)==0) // x ^ 0? Always '1'. Yes even for 0^0, as we define it.
+			{
+				CONST_VAL(10000);
+				return;
+			}
+			visit(host.left.get(), param);
+			addOpcode(new OPowImmediate(new VarArgument(EXP1), new LiteralArgument(*rval)));
+		}
+		else
+		{
+			// Compute both sides.
+			visit(host.right.get(), param);
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			visit(host.left.get(), param);
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+			addOpcode(new OPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+		}
 	}
 }
 
