@@ -2,10 +2,10 @@
 #include "dialog_runner.h"
 #include "../jwin.h"
 
-int32_t d_dummy_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
+// int32_t d_dummy_proc(int32_t, DIALOG*, int32_t)
+// {
+	// return D_O_K;
+// }
 
 namespace GUI
 {
@@ -110,15 +110,15 @@ void Frame::realize(DialogRunner& runner)
 	}
 	else // No title
 	{
-		runner.push(shared_from_this(), DIALOG {
-			d_dummy_proc,
-			0, 0, 0, 0,
-			0, 0,
-			0,
-			getFlags(),
-			0, 0,
-			nullptr, nullptr, nullptr
-		});
+		// runner.push(shared_from_this(), DIALOG {
+			// d_dummy_proc,
+			// 0, 0, 0, 0,
+			// 0, 0,
+			// 0,
+			// getFlags(),
+			// 0, 0,
+			// nullptr, nullptr, nullptr
+		// });
 	}
 
 	if(content)

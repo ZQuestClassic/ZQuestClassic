@@ -26,6 +26,8 @@
 #include "init.h"
 #include <assert.h>
 #include "mem_debug.h"
+#include "dialog/info.h"
+#include "dialog/subscr_props.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -4018,6 +4020,7 @@ int32_t sso_properties(subscreen_object *tempsso)
     //for(map<int32_t, char *>::iterator it = itemclassnames.begin(); it != itemclassnames.end(); it++)
     //  delete[] it->second;
     //itemclassnames.clear();
+	SubscrPropDialog(tempsso, curr_subscreen_object).show();
     return (ret==2) ? -1 : 0;
 }
 
@@ -5720,7 +5723,7 @@ static DIALOG sel_options_dlg[] =
 const char *sso_str[ssoMAX]=
 {
     "NULL", "(None)", "2x2 Frame", "Text", "Line", "Rectangle", "BS-Zelda Time", "Game Time", "Game Time (Quest Rule)", "Magic Meter", "Life Meter",
-    "Button Item", "-Icon (Not Implemented)", "Counter", "Counter Block", "Minimap Title", "Minimap", "Large Map", "Erase Subscreen", "Current Item", "-Item (Not Implemented)",
+    "Button Item", "-Icon (Not Implemented)", "Counter", "Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color", "Current Item", "-Item (Not Implemented)",
     "Triforce Frame", "Triforce Piece", "Tile Block", "Minitile", "Selector 1", "Selector 2", "Magic Gauge Piece", "Life Gauge Piece", "Text Box", "-Current Item -> Tile (Not Implemented)",
     "-Selected Item -> Tile (Not Implemented)", "-Current Item -> Text (Not Implemented)", "-Current Item Name (Not Implemented)", "Selected Item Name",
     "-Current Item Class -> Text (Not Implemented)", "-Current Item Class Name (Not Implemented)", "-Selected Item Class Name (Not Implemented)"
@@ -5802,12 +5805,112 @@ static DIALOG ssolist_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-int32_t onNewSubscreenObject()
+void doNewSubscreenObject(int32_t type)
 {
     subscreen_object tempsso;
+	memset(&tempsso,0,sizeof(subscreen_object));
+	//tempsso.dp1=(char *)zc_malloc(2);
+	tempsso.dp1 = new char[2];
+	((char *)tempsso.dp1)[0]=0;
+	tempsso.type=type;
+	tempsso.pos = sspUP | sspDOWN | sspSCROLLING;
+	tempsso.w=1;
+	tempsso.h=1;
+	
+	switch(tempsso.type)
+	{
+		case ssoCURRENTITEM:
+			tempsso.d2 = 1; // Should not be invisible!
+			break;
+		case ssoMAGICGAUGE:
+			tempsso.d9 = -1; // 'Always show' by default
+			break;
+	}
+		
+	int32_t temp_cso=curr_subscreen_object;
+	curr_subscreen_object=ss_objects(css);
+	
+	if(sso_properties(&tempsso)!=-1)
+	{
+		if(css->objects[curr_subscreen_object].dp1!=NULL)
+		{
+			delete [](char *)css->objects[curr_subscreen_object].dp1;
+			css->objects[curr_subscreen_object].dp1=NULL;
+		}
+		
+		css->objects[curr_subscreen_object]=tempsso;
+		update_sso_name();
+		update_up_dn_btns();
+	}
+	else
+	{
+		curr_subscreen_object=temp_cso;
+	}
+}
+
+std::string getssname(int32_t type)
+{
+	switch(type)
+	{
+		case ssoNULL: return "ssoNULL";
+		case ssoNONE: return "ssoNONE";
+		case sso2X2FRAME: return "sso2X2FRAME";
+		case ssoTEXT: return "ssoTEXT";
+		case ssoLINE: return "ssoLINE";
+		case ssoRECT: return "ssoRECT";
+		case ssoBSTIME: return "ssoBSTIME";
+		case ssoTIME: return "ssoTIME";
+		case ssoSSTIME: return "ssoSSTIME";
+		case ssoMAGICMETER: return "ssoMAGICMETER";
+		case ssoLIFEMETER: return "ssoLIFEMETER";
+		case ssoBUTTONITEM: return "ssoBUTTONITEM";
+		case ssoICON: return "ssoICON";
+		case ssoCOUNTER: return "ssoCOUNTER";
+		case ssoCOUNTERS: return "ssoCOUNTERS";
+		case ssoMINIMAPTITLE: return "ssoMINIMAPTITLE";
+		case ssoMINIMAP: return "ssoMINIMAP";
+		case ssoLARGEMAP: return "ssoLARGEMAP";
+		case ssoCLEAR: return "ssoCLEAR";
+		case ssoCURRENTITEM: return "ssoCURRENTITEM";
+		case ssoITEM: return "ssoITEM";
+		case ssoTRIFRAME: return "ssoTRIFRAME";
+		case ssoTRIFORCE: return "ssoTRIFORCE";
+		case ssoTILEBLOCK: return "ssoTILEBLOCK";
+		case ssoMINITILE: return "ssoMINITILE";
+		case ssoSELECTOR1: return "ssoSELECTOR1";
+		case ssoSELECTOR2: return "ssoSELECTOR2";
+		case ssoMAGICGAUGE: return "ssoMAGICGAUGE";
+		case ssoLIFEGAUGE: return "ssoLIFEGAUGE";
+		case ssoTEXTBOX: return "ssoTEXTBOX";
+		case ssoCURRENTITEMTILE: return "ssoCURRENTITEMTILE";
+		case ssoSELECTEDITEMTILE: return "ssoSELECTEDITEMTILE";
+		case ssoCURRENTITEMTEXT: return "ssoCURRENTITEMTEXT";
+		case ssoCURRENTITEMNAME: return "ssoCURRENTITEMNAME";
+		case ssoSELECTEDITEMNAME: return "ssoSELECTEDITEMNAME";
+		case ssoCURRENTITEMCLASSTEXT: return "ssoCURRENTITEMCLASSTEXT";
+		case ssoCURRENTITEMCLASSNAME: return "ssoCURRENTITEMCLASSNAME";
+		case ssoSELECTEDITEMCLASSNAME: return "ssoSELECTEDITEMCLASSNAME";
+		case ssoMAX: return "ssoMAX";
+	}
+	return "NIL_UNDEFINED_VAL";
+}
+
+int32_t onNewSubscreenObject()
+{
     int32_t ret=-1;
     ssolist_dlg[0].dp2=lfont;
     build_bisso_list();
+	//!TODO REMOVE TEMP TESTING
+	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+	{
+		for(auto q = 1; q < bisso_cnt; ++q)
+		{
+			zprint2("Testing sso type: %s\n", getssname(bisso[q].i).c_str());
+			doNewSubscreenObject(bisso[q].i);
+		}
+		return D_O_K;
+	}
+	//!
     
     if(is_large)
         large_dialog(ssolist_dlg);
@@ -5816,44 +5919,7 @@ int32_t onNewSubscreenObject()
     
     if(ret!=0&&ret!=4)
     {
-        memset(&tempsso,0,sizeof(subscreen_object));
-        //tempsso.dp1=(char *)zc_malloc(2);
-        tempsso.dp1 = new char[2];
-        ((char *)tempsso.dp1)[0]=0;
-        tempsso.type=bisso[ssolist_dlg[2].d1].i;
-        tempsso.pos = sspUP | sspDOWN | sspSCROLLING;
-        tempsso.w=1;
-        tempsso.h=1;
-        
-		switch(tempsso.type)
-		{
-			case ssoCURRENTITEM:
-				tempsso.d2 = 1; // Should not be invisible!
-				break;
-			case ssoMAGICGAUGE:
-				tempsso.d9 = -1; // 'Always show' by default
-				break;
-		}
-            
-        int32_t temp_cso=curr_subscreen_object;
-        curr_subscreen_object=ss_objects(css);
-        
-        if(sso_properties(&tempsso)!=-1)
-        {
-            if(css->objects[curr_subscreen_object].dp1!=NULL)
-            {
-                delete [](char *)css->objects[curr_subscreen_object].dp1;
-                css->objects[curr_subscreen_object].dp1=NULL;
-            }
-            
-            css->objects[curr_subscreen_object]=tempsso;
-            update_sso_name();
-            update_up_dn_btns();
-        }
-        else
-        {
-            curr_subscreen_object=temp_cso;
-        }
+		doNewSubscreenObject(bisso[ssolist_dlg[2].d1].i);
     }
     
     return D_O_K;
