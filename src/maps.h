@@ -197,7 +197,7 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t y);
 void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
-void calc_darkroom_combos(bool scrolling = false);
+void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling = false);
 void draw_screen(mapscr* this_screen, bool showhero=true, bool runGeneric = false);
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls=false);
 void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);

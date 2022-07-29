@@ -4280,6 +4280,10 @@ int32_t getTint(int32_t color)
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest)
 {
 	if(!glowRad) return;
+
+	cx -= global_viewport_x;
+	cy -= global_viewport_y;
+
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
@@ -4296,6 +4300,10 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest)
 {
 	if(!glowRad) return;
+
+	sx -= global_viewport_x;
+	sy -= global_viewport_y;
+
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;

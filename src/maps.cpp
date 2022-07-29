@@ -54,8 +54,8 @@ extern HeroClass Hero;
 //    - trigger all secrets in region
 //    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
-// link animation sprites (on water) (on god)
 // sword beams / ewpns should only despawn when leaving viewport
+// copy region screens to a "tmpscr" like structure for transient changes
 
 // dark rooms, and transitions
 // screen wipe in when spawning in middle of region
@@ -348,14 +348,18 @@ int z3_get_z3scr_dy()
 	return currscr / 16 - z3_origin_scr / 16;
 }
 
+// TODO z3 copy all the screens to a new tmp scr shit and return that
 mapscr* get_scr(int map, int screen)
 {
+	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return tmpscr; // lol
 	return &TheMaps[map*MAPSCRS + screen];
 }
 
 // Note: layer=0 does NOT return the base screen, but its first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
+	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return &tmpscr2[layer]; // lol
+
 	mapscr* scr = &TheMaps[map*MAPSCRS + screen];
 	if (scr->layermap[layer] > 0)
 	{
@@ -4062,8 +4066,10 @@ void doTorchCircle(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs 
 	doDarkroomCircle(COMBOX(pos)+8+xoffs, COMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
 }
 
-void calc_darkroom_combos(bool scrolling)
+void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 {
+	mapscr* scr = get_scr(currmap, screen);
+
 	int32_t scrolldir = get_bit(quest_rules, qr_NEWDARK_SCROLLEDGE) ? FFCore.ScrollingData[SCROLLDATA_DIR] : -1;
 	int32_t scrollxoffs = 0, scrollyoffs = 0;
 	switch(scrolldir)
@@ -4083,40 +4089,43 @@ void calc_darkroom_combos(bool scrolling)
 	}
 	for(int32_t q = 0; q < 176; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr->data[q]];
+		newcombo const& cmb = combobuf[scr->data[q]];
 		if(cmb.type == cTORCH)
 		{
-			doTorchCircle(darkscr_bmp_curscr, q, cmb);
+			doTorchCircle(darkscr_bmp_curscr, q, cmb, offx, offy);
 			if(scrolldir > -1)
-				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, offx + scrollxoffs, offy + scrollyoffs);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
 	{
-		if(!tmpscr2[lyr].valid) continue; //invalid layer
+		mapscr* layer_scr = get_layer_scr(currmap, screen, lyr);
+		if(!layer_scr || !layer_scr->valid) continue; //invalid layer
 		for(int32_t q = 0; q < 176; ++q)
 		{
-			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
+			newcombo const& cmb = combobuf[layer_scr->data[q]];
 			if(cmb.type == cTORCH)
 			{
-				doTorchCircle(darkscr_bmp_curscr, q, cmb);
+				doTorchCircle(darkscr_bmp_curscr, q, cmb, offx, offy);
 				if(scrolldir > -1)
-					doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+					doTorchCircle(darkscr_bmp_scrollscr, q, cmb, offx + scrollxoffs, offy + scrollyoffs);
 			}
 		}
 	}
 	for(int q = 0; q < 32; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr->ffdata[q]];
+		newcombo const& cmb = combobuf[scr->ffdata[q]];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+			doDarkroomCircle(offx+(scr->ffx[q]/10000)+(scr->ffEffectWidth(q)/2), offy+(scr->ffy[q]/10000)+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((tmpscr->ffx[q]/10000)+(tmpscr->ffEffectWidth(q)/2)+scrollxoffs, (tmpscr->ffy[q]/10000)+(tmpscr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
+				doDarkroomCircle(offx+(scr->ffx[q]/10000)+(scr->ffEffectWidth(q)/2)+scrollxoffs, offy+(scr->ffy[q]/10000)+(scr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
+
+	if (is_z3_scrolling_mode()) return; // todo z3 LOL
 	
 	for(int32_t q = 0; q < 176; ++q)
 	{
@@ -4187,6 +4196,12 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int, int)>& fn)
 {
+	if (!is_z3_scrolling_mode())
+	{
+		fn(tmpscr, 0, 0, 0, 0);
+		return;
+	}
+
 	int currscr_x = currscr % 16;
 	int currscr_y = currscr / 16;
 
@@ -4813,11 +4828,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	
 	//11. Handle low drawn darkness
-	if(get_bit(quest_rules, qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
+	if(get_bit(quest_rules, qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
-		calc_darkroom_combos();
+		for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
+			calc_darkroom_combos(currscr + currscr_dx + currscr_dy*16, offx, offy);
+		});
 		Hero.calc_darkroom_hero();
 	}
+	
 	//Darkroom if under the subscreen
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
