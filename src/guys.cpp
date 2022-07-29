@@ -14893,8 +14893,8 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//these are here to bypass compiler warnings about unused arguments
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = dmisc1 ? 64 : 176;
-		y = 64;
+		x = (x.getFloor()/256)*256 + (dmisc1 ? 64 : 176);
+		y = (y.getFloor()/176)*176 + 64;
 	}
 	else { x = X; y = Y; }
 	
@@ -14972,6 +14972,7 @@ bool eAquamentus::animate(int32_t index)
 		clk3=32;
 	}
 	
+	int screen_x = x.getFloor()%256;
 	if(!((clk4+1)&63))
 	{
 		int32_t d2=(zc_oldrand()%3)+1;
@@ -14983,24 +14984,24 @@ bool eAquamentus::animate(int32_t index)
 		
 		if(dmisc1)
 		{
-			if(x<=40)
+			if(screen_x<=40)
 			{
 				dir=right;
 			}
 			
-			if(x>=104)
+			if(screen_x>=104)
 			{
 				dir=left;
 			}
 		}
 		else
 		{
-			if(x<=136)
+			if(screen_x<=136)
 			{
 				dir=right;
 			}
 			
-			if(x>=200)
+			if(screen_x>=200)
 			{
 				dir=left;
 			}
@@ -21898,7 +21899,7 @@ void loadenemies()
 		bool unbeatablereload = true;
 
 		// TODO z3
-		if (scr != currscr) return;
+		// if (scr != currscr) return;
 		
 		// TODO z3
 		// for(int32_t i=0; i<6; i++)
