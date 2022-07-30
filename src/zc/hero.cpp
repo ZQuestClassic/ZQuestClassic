@@ -18882,8 +18882,9 @@ static const int32_t SPTYPE_SOLID = -1;
 #define SP_VISITED 0x1
 #define SPFLAG(dir) (0x2<<dir)
 #define BEAM_AGE_LIMIT 32
-void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
-{
+
+void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl, std::map<size_t, byte>& prism_dir_seen_map)
+{	
 	int map_size = region_scr_width * 16 * region_scr_height * 11;
 	int combos_wide = region_scr_width  * 16;
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
@@ -18983,29 +18984,34 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 				}
 				break;
 			case cMAGICPRISM:
+				if (prism_dir_seen_map[curpos] & (1<<spotdir)) return;
+				if (prism_dir_seen_map[curpos]) prism_dir_seen_map[curpos] = 0xF;
+				else                            prism_dir_seen_map[curpos] |= 1<<spotdir;
 				for(byte d = 0; d < 4; ++d)
 				{
 					if(d == oppositeDir[spotdir]) continue;
-					handleBeam(grid, age, d, curpos, set, block, refl);
+					handleBeam(grid, age, d, curpos, set, block, refl, prism_dir_seen_map);
 				}
 				return;
 			case cMAGICPRISM4:
+			{
+				if (prism_dir_seen_map[curpos]) return;
+				prism_dir_seen_map[curpos] = 0xF;
 				for(byte d = 0; d < 4; ++d)
 				{
-					handleBeam(grid, age, d, curpos, set, block, refl);
+					handleBeam(grid, age, d, curpos, set, block, refl, prism_dir_seen_map);
 				}
 				return;
+			}
 		}
 	}
 }
 
 void HeroClass::handleSpotlights()
 {
-	typeMap.clear();
-	istrig.clear();
 	int map_size = region_scr_width * 16 * region_scr_height * 11;
-	typeMap.resize(map_size);
-	istrig.resize(map_size);
+	typeMap.resize(16*16 * 11*8);
+	istrig.resize(16*16 * 11*8);
 
 	typedef byte spot_t;
 	//Store each different tile/color as grids
@@ -19015,15 +19021,21 @@ void HeroClass::handleSpotlights()
 	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
 	int32_t heropos = COMBOPOS_REGION_EXTENDED(x.getInt()+8,y.getInt()+8);
 	clear_bitmap(lightbeam_bmp);
+
+	bool foundany = false;
 	
 	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		bool pos_has_seen_cmb[176] = {0};
+		
 		for(int32_t lyr = 6; lyr >= 0; --lyr)
 		{
 			mapscr* layer_scr = get_layer_scr(currmap, scr, lyr - 1);
 
 			for(size_t pos = 0; pos < 176; ++pos)
 			{
-				int realpos = COMBOPOS_REGION_EXTENDED((pos%16)*16 + z3_scr_dx*16*16, (pos/16)*16 + z3_scr_dy*11*16);
+				if (pos_has_seen_cmb[pos]) continue;
+				
+				int realpos = COMBOPOS_REGION_EXTENDED(pos, z3_scr_dx, z3_scr_dy);
 				newcombo const* cmb = &combobuf[layer_scr->data[pos]];
 				switch(cmb->type)
 				{
@@ -19036,6 +19048,9 @@ void HeroClass::handleSpotlights()
 						// Even if solid, is always OK to pass through.
 						typeMap[realpos] = 0;
 						break;
+					case cSPOTLIGHT:
+						foundany = true;
+						[[fallthrough]];
 					default:
 					{
 						if(lyr < 3 && (cmb->walk & 0xF))
@@ -19045,10 +19060,14 @@ void HeroClass::handleSpotlights()
 						continue; //next layer
 					}
 				}
-				break; //hit a combo type
+
+				pos_has_seen_cmb[pos] = true;
 			}
 		}
 	});
+
+	// The world is dark and lacking of light.
+	if (!foundany) return;
 
 	switch(typeMap[heropos])
 	{
@@ -19056,6 +19075,7 @@ void HeroClass::handleSpotlights()
 			heropos = -1; //Blocked from hitting player
 	}
 
+	std::map<int32_t, std::map<size_t, byte>> MAPS_prism_dir_seen_map;
 	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
 		for(size_t layer = 0; layer < 7; ++layer)
 		{
@@ -19083,7 +19103,7 @@ void HeroClass::handleSpotlights()
 						maps[id] = grid;
 					}
 					byte spotdir = cmb.attribytes[0];
-					int32_t curpos = COMBOPOS_REGION_EXTENDED((pos%16)*16 + z3_scr_dx*16*16, (pos/16)*16 + z3_scr_dy*11*16);
+					int32_t curpos = COMBOPOS_REGION_EXTENDED(pos, z3_scr_dx, z3_scr_dy);
 					if(spotdir > 3)
 					{
 						grid[curpos] |= SP_VISITED;
@@ -19093,7 +19113,7 @@ void HeroClass::handleSpotlights()
 					{
 						spotdir = dir;
 					}
-					handleBeam(grid, 0, spotdir, curpos, cmb.attribytes[4], block, refl);
+					handleBeam(grid, 0, spotdir, curpos, cmb.attribytes[4], block, refl, MAPS_prism_dir_seen_map[id]);
 				}
 			}
 		}
@@ -19324,7 +19344,7 @@ void HeroClass::handleSpotlights()
 				{
 					int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
 					hastrigs = true;
-					bool trigged = (istrig[COMBOPOS_REGION_EXTENDED((pos%16)*16 + z3_scr_dx*16*16, (pos/16)*16 + z3_scr_dy*11*16)]&trigflag);
+					bool trigged = (istrig[COMBOPOS_REGION_EXTENDED(pos, z3_scr_dx, z3_scr_dy)]&trigflag);
 					if(cmb->usrflags&cflag2) //Invert
 						trigged = !trigged;
 					if(cmb->usrflags&cflag1) //Solved Version
@@ -19357,6 +19377,9 @@ void HeroClass::handleSpotlights()
 			setmapflag(mLIGHTBEAM);
 		}
 	}
+
+	typeMap.clear();
+	istrig.clear();
 }
 
 void HeroClass::checktouchblk()

@@ -401,20 +401,27 @@ mapscr* get_home_scr()
 	return get_scr(currmap, homescr);
 }
 
+int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy)
+{
+	int x = (pos%16) + scr_dx*16;
+	int y = (pos/16) + scr_dy*11;
+	int combos_wide = region_scr_width * 16;
+	return x + y * combos_wide;
+}
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y)
 {
-    int combos_wide = region_scr_width  * 16;
-    return x / 16 + y / 16 * combos_wide;
+	int combos_wide = region_scr_width  * 16;
+	return x / 16 + y / 16 * combos_wide;
 }
 int32_t COMBOX_REGION_EXTENDED(int32_t pos)
 {
-    int combos_wide = region_scr_width * 16;
-    return pos % combos_wide * 16;
+	int combos_wide = region_scr_width * 16;
+	return pos % combos_wide * 16;
 }
 int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 {
-    int combos_wide = region_scr_width * 16;
-    return pos / combos_wide * 16;
+	int combos_wide = region_scr_width * 16;
+	return pos / combos_wide * 16;
 }
 
 int32_t COMBOPOS(int32_t x, int32_t y)
