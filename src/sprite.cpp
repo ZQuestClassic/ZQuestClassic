@@ -1974,8 +1974,8 @@ void sprite::draw8(BITMAP* dest)
 
 void sprite::drawcloaked(BITMAP* dest)
 {
-    int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+    int32_t sx = real_x(x+xofs) - global_viewport_x;
+    int32_t sy = real_y(y+yofs)-real_z(z+zofs) - global_viewport_y;
     sy -= fake_z(fakez);
     
     if(id<0)
@@ -2036,10 +2036,8 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 		return;
 	}
 	
-	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
-	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
-	sx -= global_viewport_x;
-	sy -= global_viewport_y;
+	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8 - global_viewport_x;
+	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16 - global_viewport_y;
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z

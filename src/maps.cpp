@@ -4,7 +4,7 @@
 //
 //  maps.cc
 //
-//  Map and screen scrolling stuff for zelda.cc
+//  Map for zelda.cc
 //
 //--------------------------------------------------------
 
@@ -72,9 +72,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 

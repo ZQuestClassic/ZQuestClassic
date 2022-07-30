@@ -1600,12 +1600,12 @@ void HeroClass::draw_under(BITMAP* dest)
     {
         if(((dir==left) || (dir==right)) && (get_bit(quest_rules,qr_RLFIX)))
         {
-            overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
+            overtile16(dest, itemsbuf[c_raft].tile, x - global_viewport_x, y+playing_field_offset+4 - global_viewport_y,
                        itemsbuf[c_raft].csets&15, rotate_value((itemsbuf[c_raft].misc_flags>>2)&3)^3);
         }
         else
         {
-            overtile16(dest, itemsbuf[c_raft].tile, x, y+playing_field_offset+4,
+            overtile16(dest, itemsbuf[c_raft].tile, x - global_viewport_x, y+playing_field_offset+4 - global_viewport_y,
                        itemsbuf[c_raft].csets&15, (itemsbuf[c_raft].misc_flags>>2)&3);
         }
     }
@@ -1614,12 +1614,12 @@ void HeroClass::draw_under(BITMAP* dest)
     {
         if((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
         {
-            overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
+            overtile16(dest, itemsbuf[c_ladder].tile, ladderx - global_viewport_x, laddery+playing_field_offset - global_viewport_y,
                        itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc_flags>>2)&3)^3);
         }
         else
         {
-            overtile16(dest, itemsbuf[c_ladder].tile, ladderx, laddery+playing_field_offset,
+            overtile16(dest, itemsbuf[c_ladder].tile, ladderx - global_viewport_x, laddery+playing_field_offset - global_viewport_y,
                        itemsbuf[c_ladder].csets&15, (itemsbuf[c_ladder].misc_flags>>2)&3);
         }
     }
@@ -11679,7 +11679,7 @@ void HeroClass::do_rafting()
 					dir=right;
 				else if((isRaftFlag(nextflag(x,y,left,false))||isRaftFlag(nextflag(x,y,left,true))))
 					dir=left;
-				else if(y>0 && y<160) 
+				else if(y>0 && y<world_h-16) 
 				{
 					action=none; FFCore.setHeroAction(none);
 					x = x.getInt();
@@ -11692,7 +11692,7 @@ void HeroClass::do_rafting()
 					dir=down;
 				else if((isRaftFlag(nextflag(x,y,up,false))||isRaftFlag(nextflag(x,y,up,true))))
 					dir=up;
-				else if(x>0 && x<240)
+				else if(x>0 && x<world_w-16)
 				{
 					action=none; FFCore.setHeroAction(none);
 					x = x.getInt();
@@ -19507,7 +19507,8 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
     }
     
     // off the screen
-    if(cx<0 || cy<0 || cx>255 || cy>175)
+	// TODO z3
+    if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
         int32_t ns = nextscr(cdir);
         
@@ -19536,7 +19537,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
         }
         
         // from MAPCOMBO()
-        int32_t cmb = (cy&0xF0)+(cx>>4);
+        int32_t cmb = COMBOPOS(cx%256, cy%176);
         
         if(cmb>175)
             return 0;
@@ -23339,8 +23340,8 @@ bool HeroClass::lookaheadraftflag(int32_t d2)
     int32_t cx = x;
     int32_t cy = y + 8;
 	
-	bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
-	bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+	bound(cx, 0, world_w - 16); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
+	bound(cy, 0, world_h - 8);  //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168  //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
 	//Applying this here, too. -Z
     
@@ -23363,8 +23364,7 @@ bool HeroClass::lookaheadraftflag(int32_t d2)
         break;
     }
     
-    int32_t combo = (cy&0xF0)+(cx>>4);
-    
+    int32_t combo = COMBOPOS(cx, cy);
     if(combo>175)
         return 0;
     return ( isRaftFlag(combobuf[tmpscr[0].data[combo]].flag) || isRaftFlag(tmpscr[0].sflag[combo]));
