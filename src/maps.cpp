@@ -74,9 +74,9 @@ int scrolling_maze_mode = 0;
 // majora's ALTTP test
 // #define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
-// #define hardcode_regions_mode 2
+#define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -5515,7 +5515,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	reset_combo_animations2();
 	
 	
-	mapscr ffscr = tmp == 0 ? tmpscr[0] : special_warp_return_screen;
+	mapscr previous_scr = tmp == 0 ? tmpscr[0] : special_warp_return_screen;
 	mapscr& screen = tmp == 0 ? tmpscr[0] : special_warp_return_screen;
 	screen = TheMaps[currmap*MAPSCRS+scr];
 	
@@ -5565,18 +5565,18 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		{
 			if(screen.data[c]==0)
 			{
-				screen.data[c]=ffscr.data[c];
-				screen.sflag[c]=ffscr.sflag[c];
-				screen.cset[c]=ffscr.cset[c];
+				screen.data[c]=previous_scr.data[c];
+				screen.sflag[c]=previous_scr.sflag[c];
+				screen.cset[c]=previous_scr.cset[c];
 			}
 		}
 		
 		for(int32_t i=0; i<6; i++)
 		{
-			if(ffscr.layermap[i]>0 && screen.layermap[i]>0)
+			if(previous_scr.layermap[i]>0 && screen.layermap[i]>0)
 			{
 				int32_t lm = (screen.layermap[i]-1)*MAPSCRS+screen.layerscreen[i];
-				int32_t fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
+				int32_t fm = (previous_scr.layermap[i]-1)*MAPSCRS+previous_scr.layerscreen[i];
 				
 				if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
 				{
@@ -5594,13 +5594,15 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
-	if (!is_setting_special_warp_return_screeneen)
+	// Carry over FFCs from previous screen to the next. Only for the ones that have the carry over flag set, and if the previous
+	// screen has FF carryover enabled.
+	if (!is_setting_special_warp_return_screeneen && !is_z3_scrolling_mode())
 	{
 		// Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
 		
 		for(int32_t ffid = 0; ffid < 32; ++ffid)
 		{
-			if(!(ffscr.flags5&fNOFFCARRYOVER) && (ffscr.ffflags[ffid]&ffCARRYOVER)) continue;
+			if(!(previous_scr.flags5&fNOFFCARRYOVER) && (previous_scr.ffflags[ffid]&ffCARRYOVER)) continue;
 			FFCore.deallocateAllArrays(SCRIPT_FFC, ffid, false); //false means this does not require 'qr_ALWAYS_DEALLOCATE_ARRAYS' to be checked. -V
 		}
 		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
@@ -5613,37 +5615,37 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			ffprvx[i]=-10000000;
 			ffprvy[i]=-10000000;
 			
-			if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
+			if((previous_scr.ffflags[i]&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
-				screen.ffdata[i] = ffscr.ffdata[i];
-				screen.ffx[i] = ffscr.ffx[i];
-				screen.ffy[i] = ffscr.ffy[i];
-				screen.ffxdelta[i] = ffscr.ffxdelta[i];
-				screen.ffydelta[i] = ffscr.ffydelta[i];
-				screen.ffxdelta2[i] = ffscr.ffxdelta2[i];
-				screen.ffydelta2[i] = ffscr.ffydelta2[i];
-				screen.fflink[i] = ffscr.fflink[i];
-				screen.ffdelay[i] = ffscr.ffdelay[i];
-				screen.ffcset[i] = ffscr.ffcset[i];
-				screen.ffwidth[i] = ffscr.ffwidth[i];
-				screen.ffheight[i] = ffscr.ffheight[i];
-				screen.ffflags[i] = ffscr.ffflags[i];
-				screen.ffscript[i] = ffscr.ffscript[i];
+				screen.ffdata[i] = previous_scr.ffdata[i];
+				screen.ffx[i] = previous_scr.ffx[i];
+				screen.ffy[i] = previous_scr.ffy[i];
+				screen.ffxdelta[i] = previous_scr.ffxdelta[i];
+				screen.ffydelta[i] = previous_scr.ffydelta[i];
+				screen.ffxdelta2[i] = previous_scr.ffxdelta2[i];
+				screen.ffydelta2[i] = previous_scr.ffydelta2[i];
+				screen.fflink[i] = previous_scr.fflink[i];
+				screen.ffdelay[i] = previous_scr.ffdelay[i];
+				screen.ffcset[i] = previous_scr.ffcset[i];
+				screen.ffwidth[i] = previous_scr.ffwidth[i];
+				screen.ffheight[i] = previous_scr.ffheight[i];
+				screen.ffflags[i] = previous_scr.ffflags[i];
+				screen.ffscript[i] = previous_scr.ffscript[i];
 				
 				for(int32_t j=0; j<2; ++j)
 				{
-					screen.inita[i][j] = ffscr.inita[i][j];
+					screen.inita[i][j] = previous_scr.inita[i][j];
 				}
 				
 				for(int32_t j=0; j<8; ++j)
 				{
-					screen.initd[i][j] = ffscr.initd[i][j];
+					screen.initd[i][j] = previous_scr.initd[i][j];
 				}
 				
-				if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
+				if(!(previous_scr.ffflags[i]&ffSCRIPTRESET))
 				{
-					screen.ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
-					screen.initialized[i] = ffscr.initialized[i];
+					screen.ffscript[i] = previous_scr.ffscript[i]; // Restart script if it has halted.
+					screen.initialized[i] = previous_scr.initialized[i];
 				}
 				else
 				{
@@ -5703,6 +5705,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
+	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
@@ -5730,6 +5733,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
+	// TODO z3 switches
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen, tmpscr2);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
@@ -5762,6 +5766,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
+		CHECK(!is_z3_scrolling_mode());
 		for(int32_t i=0; i<4; i++)
 		{
 			int32_t door=screen.door[i];
@@ -5849,6 +5854,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			}
 		}
 	}
+	
 	game->load_portal();
 }
 
