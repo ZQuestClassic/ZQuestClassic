@@ -144,7 +144,7 @@ static bool is_in_region(int region_origin_scr, int scr)
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
-static bool global_z3_scrolling = true;
+static bool global_z3_scrolling = !true;
 bool is_z3_scrolling_mode()
 {
 	if (!global_z3_scrolling) return false;
@@ -227,7 +227,7 @@ void z3_set_currscr(int scr)
 
 	temporary_screens.clear();
 	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		temporary_screens[scr] = clone_mapscr(&TheMaps[currmap*MAPSCRS + scr]);
+		temporary_screens[currmap*MAPSCRS + scr] = clone_mapscr(&TheMaps[currmap*MAPSCRS + scr]);
 	});
 }
 
@@ -378,15 +378,15 @@ const mapscr* get_canonical_scr(int map, int screen)
 	return &TheMaps[map*MAPSCRS + screen];
 }
 
-// TODO z3 copy all the screens to a new tmp scr shit and return that
 mapscr* get_scr(int map, int screen)
 {
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return tmpscr; // lol
 
-	auto it = temporary_screens.find(screen);
+	int index = map*MAPSCRS + screen;
+	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return &it->second[0];
-	temporary_screens[screen] = clone_mapscr(&TheMaps[map*MAPSCRS + screen]);
-	return &temporary_screens[screen][0];
+	temporary_screens[index] = clone_mapscr(&TheMaps[index]);
+	return &temporary_screens[index][0];
 }
 
 // Note: layer=0 does NOT return the base screen, but its first layer.
@@ -394,15 +394,17 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return &tmpscr2[layer]; // lol
 
-	auto it = temporary_screens.find(screen);
+	int index = map*MAPSCRS + screen;
+	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return &it->second[layer + 1];
-	temporary_screens[screen] = clone_mapscr(get_canonical_scr(map, screen));
-	return &temporary_screens[screen][layer + 1];
+	temporary_screens[index] = clone_mapscr(&TheMaps[index]);
+	return &temporary_screens[index][layer + 1];
 }
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-    return (((y) & 0xF0) + ((x) >> 4));
+	// DCHECK(x >= 0 && x < 16 && y >= 0 && y < 11);
+	return (((y) & 0xF0) + ((x) >> 4));
 }
 int32_t COMBOX(int32_t pos)
 {
