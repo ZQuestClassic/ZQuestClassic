@@ -136,6 +136,12 @@
 #include "base/process_management.h"
 #include "zconfig.h"
 
+#ifdef _DEBUG
+#define DCHECK_IS_ON
+#endif
+#include "check.h"
+#include "dcheck.h"
+#include "notreached.h"
 
 
 #define ZELDA_VERSION       0x0255                         //version of the program

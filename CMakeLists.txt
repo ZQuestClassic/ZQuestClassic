@@ -287,6 +287,7 @@ add_library(zcbase STATIC
 	src/base/zsys.cpp
 )
 target_link_libraries(zcbase PUBLIC allegro_with_legacy)
+target_include_directories(zcbase PUBLIC include/check)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -321,7 +322,7 @@ add_library(zcgui STATIC
 	src/gui/widget.cpp
 	src/gui/window.cpp
 )
-target_link_libraries(zcgui PUBLIC allegro_with_legacy)
+target_link_libraries(zcgui PUBLIC zcbase allegro_with_legacy)
 
 #############################################################
 # ZConsole

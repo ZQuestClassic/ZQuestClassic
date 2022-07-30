@@ -181,11 +181,13 @@ bool item::animate(int32_t)
 		}
 	}
 	
+#ifndef IS_ZQUEST
 	// Maybe it fell off the bottom in sideview, or was moved by a script.
 	if(y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
 	{
 		return true;
 	}
+#endif
 	
 	if((++clk)>=0x8000)
 	{

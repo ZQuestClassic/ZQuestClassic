@@ -72,9 +72,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -144,7 +144,7 @@ static bool is_in_region(int region_origin_scr, int scr)
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
-static bool global_z3_scrolling = !true;
+static bool global_z3_scrolling = true;
 bool is_z3_scrolling_mode()
 {
 	if (!global_z3_scrolling) return false;
@@ -328,7 +328,7 @@ mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
 // TODO z3 consolidate these functions...
 mapscr* z3_get_mapscr_layer_for_xy_offset_include_base(int x, int y, int layer)
 {
-	// DCHECK(layer >= 0 && layer <= 7);
+	DCHECK(layer >= 0 && layer <= 7);
 	return layer == 0 ? z3_get_mapscr_for_xy_offset(x, y) : z3_get_mapscr_layer_for_xy_offset(x, y, layer - 1);
 }
 
@@ -339,13 +339,13 @@ int z3_get_origin_scr()
 
 int z3_get_world_x_from_combo_pos(int scr, int pos)
 {
-	// DCHECK(pos >= 0 && pos < 176);
+	DCHECK(pos >= 0 && pos < 176);
 	return z3_get_region_relative_dx(scr)*256 + COMBOX(pos);
 }
 
 int z3_get_world_y_from_combo_pos(int scr, int pos)
 {
-	// DCHECK(pos >= 0 && pos < 176);
+	DCHECK(pos >= 0 && pos < 176);
 	return z3_get_region_relative_dy(scr)*256 + COMBOY(pos);
 }
 
