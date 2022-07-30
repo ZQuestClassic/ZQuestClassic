@@ -227,7 +227,7 @@ void z3_set_currscr(int scr)
 
 	temporary_screens.clear();
 	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		temporary_screens[scr] = clone_mapscr(z3_scr);
+		temporary_screens[scr] = clone_mapscr(&TheMaps[currmap*MAPSCRS + scr]);
 	});
 }
 
