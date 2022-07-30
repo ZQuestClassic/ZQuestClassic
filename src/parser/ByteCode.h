@@ -1406,8 +1406,9 @@
 #define COMBODTRIGGERCHANGECMB  1323
 #define SCREENEXSTATED          1324
 #define MAPDATAEXSTATED         1325
+#define HEROSTANDING            1326
 
-#define LAST_BYTECODE           1326
+#define LAST_BYTECODE           1327
 
 //} END OF BYTECODE
 
@@ -8443,6 +8444,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OScreenDoSpawn();
+		}
+	};
+	class OScreenTriggerCombo : public BinaryOpcode
+	{
+	public:
+		OScreenTriggerCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OScreenTriggerCombo(a->clone(),b->clone());
 		}
 	};
 	

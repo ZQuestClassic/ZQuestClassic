@@ -1060,6 +1060,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LPOWERR",         2,   0,   0,   0},
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
+	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2402,6 +2403,7 @@ script_variable variable_list[]=
 	{ "COMBODTRIGGERCHANGECMB", COMBODTRIGGERCHANGECMB, 0, 0 },
 	{ "SCREENEXSTATED", SCREENEXSTATED, 0, 0 },
 	{ "MAPDATAEXSTATED", MAPDATAEXSTATED, 0, 0 },
+	{ "HEROSTANDING", HEROSTANDING, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };

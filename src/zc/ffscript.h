@@ -3293,8 +3293,9 @@ enum ASM_DEFINE
 	LPOWERR,
 	LPOWERV,
 	LPOWERV2,
+	SCRTRIGGERCOMBO,
 	
-	NUMCOMMANDS           //0x01D4
+	NUMCOMMANDS           //0x01D5
 };
 
 
@@ -4785,8 +4786,9 @@ enum ASM_DEFINE
 #define COMBODTRIGGERCHANGECMB  0x1461
 #define SCREENEXSTATED          0x1462
 #define MAPDATAEXSTATED         0x1463
+#define HEROSTANDING            0x1464
 
-#define NUMVARIABLES         	0x1464
+#define NUMVARIABLES         	0x1465
 
 //} End variables
 

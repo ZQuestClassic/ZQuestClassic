@@ -30,6 +30,7 @@ uint8_t using_SRAM = 0;
 #include "ending.h"
 #include "zc_malloc.h"
 #include "base/module.h"
+#include "combos.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;
@@ -3464,6 +3465,12 @@ int32_t get_register(const int32_t arg)
 		case HEROIMMORTAL:
 		{
 			ret = Hero.immortal * 10000;
+			break;
+		}
+		
+		case HEROSTANDING:
+		{
+			ret = Hero.isStanding(true) ? 10000 : 0;
 			break;
 		}
 		
@@ -28597,6 +28604,14 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				break;
 			}
 			
+			case SCRTRIGGERCOMBO:
+			{
+				int32_t lyr = get_register(sarg1) / 10000;
+				int32_t pos = get_register(sarg2) / 10000;
+				set_register(sarg1, do_trigger_combo(lyr,pos) ? 10000 : 0);
+				break;
+			}
+			
 			case SWITCHNPC:
 			{
 				byte effect = vbound(get_register(sarg1)/10000, 0, 255);
@@ -36227,6 +36242,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "LPOWERR",         2,   0,   0,   0},
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
+	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -37557,6 +37573,7 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERCHANGECMB", COMBODTRIGGERCHANGECMB, 0, 0 },
 	{ "SCREENEXSTATED", SCREENEXSTATED, 0, 0 },
 	{ "MAPDATAEXSTATED", MAPDATAEXSTATED, 0, 0 },
+	{ "HEROSTANDING", HEROSTANDING, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

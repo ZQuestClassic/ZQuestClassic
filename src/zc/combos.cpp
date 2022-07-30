@@ -1277,9 +1277,9 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 }
 
 //Forcibly triggers a combo at a given position
-void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
 	int32_t cid = tmp->data[pos];
 	int32_t cx = COMBOX(pos);
@@ -1287,7 +1287,7 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.triggeritem && (!game->get_item(cmb.triggeritem)
 		|| item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
-		return;
+		return false;
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	
@@ -1345,7 +1345,7 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					
 				case cSTEP: case cSTEPSAME: case cSTEPALL:
 					if(!trigger_step(lyr,pos))
-						return;
+						return false;
 					break;
 				
 				case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
@@ -1359,16 +1359,16 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 					if(!trigger_chest(lyr,pos))
-						return;
+						return false;
 					break;
 				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 					if(!trigger_lockblock(lyr,pos))
-						return;
+						return false;
 					break;
 				
 				case cARMOS: case cBSGRAVE: case cGRAVE:
 					if(!trigger_armos_grave(lyr,pos))
-						return;
+						return false;
 					break;
 				
 				case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
@@ -1382,7 +1382,7 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				
 				case cSWITCHHOOK:
 					if(!trigger_switchhookblock(lyr,pos))
-						return;
+						return false;
 					break;
 				
 				default:
@@ -1425,6 +1425,7 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	}
 	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
 		killgenwpn(w);
+	return true;
 }
 
 void init_combo_timers()

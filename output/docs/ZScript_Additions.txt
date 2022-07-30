@@ -3959,6 +3959,13 @@ bool SpawnScreenEnemies();
  * Fails if enemies are still entering from the sides,
  *     or if the pattern is 'PATTERN_NO_SPAWNING'.
 
+bool TriggerCombo(int layer, int pos);
+ * Attempts to trigger the combo at 'layer,pos'.
+ * Returns true on success, false on failure.
+ * Fails in special cases depending on the combo, as well as if either
+ *     layer or pos is invalid.
+ * If no 'Triggers' tab behaviors are set, won't do anything.
+
 npc LoadNPCByUID(int uid);
  * Returns an npc pointer to an npc on the screen if its UID matches
  * the input 'uid'.
@@ -5233,6 +5240,10 @@ bool ClockActive;
  * Writing to this acts like picking up a stopwatch/clock item, and sets the
  * duration of its effect based on ClockTimer. If ClockTimer is 0, the effect 
  * lasts until the player changes screens.
+
+bool Standing;
+ * Returns true if the hero is 'standing', as is used to check if they are capable
+ *     of jumping. Automatically accounts for sideview.
 
 int Steps[8];
  * The number of pixels that the player moves in a frame, based on
@@ -6789,75 +6800,6 @@ int TriggerChange;
  * The amount the combo will change by when triggered.
  * Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
  * If '0', no change occurs.
-
-/* Combo Types
-*	These values contain data that is used by ZC to determine the Combo Type.
-*	Using combodata in ZScript, it is possible to define wholly new types
-*	by combining sets of these values.
-*/
-
-int BlockNPC; 
-int BlockHole; 
-int BlockTrigger; 
-int BlockWeapon[32];
-int ConveyorSpeedX; 
-int ConveyorSpeedY; 
-int SpawnNPC; 
-int SpawnNPCWhen; 
-int SpawnNPCChange;
-int DirChange; 
-int DistanceChangeTiles; 
-int DiveItem; 
-int Dock; 
-int Fairy; 
-int FFCAttributeChange; 
-int DecorationTile; 
-int DecorationType; 
-int Hookshot;
-int Ladder; 
-int LockBlock; 
-int LockBlockChange; 
-int Mirror; 
-int DamageAmount; 
-int DamageDelay;
-int DamageType; 
-int MagicAmount; 
-int MagicDelay; 
-int MagicType; 
-int NoPushBlocks;
-int Overhead; 
-int PlaceNPC; 
-int PushDir; 
-int PushDelay; 
-int PushHeavy; 
-int Pushed; 
-int Raft;
-int ResetRoom; 
-int SavePoint; 
-int FreezeScreen; 
-int SecretCombo; 
-int Singular (self-only);
-int SlowWalk; 
-int Statue; 
-int Step; 
-int StepChange; 
-int Strike[32]; 
-int StrikeRemnants;
-int StrikeRemnantsType; 
-int StrikeChange; 
-int StrikeItem; 
-int TouchItem;	
-int TouchStairs; 
-int TriggerType; 
-int TriggerSensitivity; 
-int Warp; 
-int WarpSensitivity;
-int WarpDirect; 
-int WarpLocation; 
-int Water; 
-int Whistle; 
-int WinGame; 
-int BlockWeaponLevel;
 
 // t/b/a
 //void GetLabel() / GetName()

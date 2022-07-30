@@ -2064,6 +2064,7 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODTRIGGERCHANGECMB: return "COMBODTRIGGERCHANGECMB";
 	case SCREENEXSTATED: return "SCREENEXSTATED";
 	case MAPDATAEXSTATED: return "MAPDATAEXSTATED";
+	case HEROSTANDING: return "HEROSTANDING";
 	
 	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
 	case LWPNUNBL: return "LWPNUNBL";
@@ -5140,6 +5141,11 @@ string OKillPlayer::toString()
 string OScreenDoSpawn::toString()
 {
 	return "SCREENDOSPAWN";
+}
+
+string OScreenTriggerCombo::toString()
+{
+	return "SCRTRIGGERCOMBO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string ONPCMovePaused::toString()
