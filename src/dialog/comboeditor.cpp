@@ -1539,7 +1539,7 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[0] = "State Num:";
 			h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
 			l_attribyte[1] = "SFX:";
-			h_attribyte[2] = "SFX to play when triggered";
+			h_attribyte[1] = "SFX to play when triggered";
 			break;
 		}
 		case cCSWITCHBLOCK:
