@@ -79,8 +79,8 @@ public:
 	void lineUp();
 	void pageUp();
 	void pageDown();
-	void lineHome();
-	void lineEnd();
+	void lineHome(bool ctrl);
+	void lineEnd(bool ctrl);
 	void update();
 	virtual void scrollUp() {}
 	virtual void scrollDown() {}
@@ -171,7 +171,11 @@ private:
 class EditboxModel
 {
 public:
-	EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL) : helpfile(hf), lines(), buffer(Buffer), view(View), readonly(ReadOnly), cursor(*this), clipboard(""), s() {}
+	EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL)
+		: helpfile(hf), lines(), buffer(Buffer), view(View),
+		readonly(ReadOnly), cursor(*this), clipboard(""), s(),
+		undobuf(""), has_undo_point(false), undoindx(0)
+	{}
 	TextSelection &getSelection()
 	{
 		return s;
@@ -199,6 +203,7 @@ public:
 	CursorPos findCursor();
 	CursorPos findIndex(int32_t totalindex);
 	void markAsDirty(list<LineData>::iterator line);
+	void markAsDirty();
 	bool isReadonly()
 	{
 		return readonly;
@@ -208,11 +213,16 @@ public:
 	void cut();
 	void clear();
 	void paste();
+	void set_undo();
+	void undo();
 	void doHelp();
 private:
 	char *helpfile;
 	list<LineData> lines;
 	string &buffer;
+	string undobuf;
+	int32_t undoindx;
+	bool has_undo_point;
 	EditboxView *view;
 	bool readonly;
 	EditboxCursor cursor;

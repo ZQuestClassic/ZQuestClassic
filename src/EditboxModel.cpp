@@ -399,6 +399,25 @@ void EditboxModel::markAsDirty(list<LineData>::iterator line)
 	line->dirtyflag=true;
 }
 
+void EditboxModel::markAsDirty()
+{
+	for(auto it = lines.begin(); it != lines.end(); ++it)
+	{
+		markAsDirty(it);
+	}
+}
+
+static bool get_al_clipboard(std::string& clipboard)
+{
+	if(!clipboard_has_text()) return false;
+	clipboard = al_get_clipboard_text(all_get_display());
+	return true;
+}
+static void set_al_clipboard(std::string const& clipboard)
+{
+	al_set_clipboard_text(all_get_display(), clipboard.c_str());
+}
+
 void EditboxModel::copy()
 {
 	if(!getSelection().hasSelection())
@@ -406,6 +425,7 @@ void EditboxModel::copy()
 	
 	pair<int32_t,int32_t> sel = getSelection().getSelection();
 	Unicode::extractRange(getBuffer(), clipboard, sel.first, sel.second);
+	set_al_clipboard(clipboard);
 }
 
 void EditboxModel::cut()
@@ -489,12 +509,15 @@ void EditboxModel::paste()
 {
 	if(isReadonly())
 		return;
+	if(!get_al_clipboard(clipboard))
+		return;
+	util::removechar(clipboard, '\r');
 	
 	CursorPos cp = findCursor();
 	int32_t offset = Unicode::indexToOffset(getBuffer(), getCursor().getPosition());
 	buffer = buffer.substr(0,offset) + clipboard + buffer.substr(offset, buffer.size()-offset);
 	//nevermind, THIS is the ultimate annoying
-	//break up the lines int32_t he clipboard
+	//break up the lines in the clipboard
 	list<LineData> toinsert;
 	makeLines(toinsert,clipboard);
 	//now split up the line being pasted onto
@@ -537,6 +560,33 @@ void EditboxModel::paste()
 	//update cursor
 	getCursor().updateCursor(getCursor().getPosition()+Unicode::getLength(clipboard));
 	getView()->update();
+}
+
+void EditboxModel::set_undo()
+{
+	undobuf = buffer;
+	has_undo_point = true;
+	undoindx = getCursor().getPosition();
+}
+
+void EditboxModel::undo()
+{
+	if(isReadonly())
+		return;
+	if(has_undo_point)
+	{
+		auto oldind = getCursor().getPosition();
+		
+		//Swap the buffer
+		buffer.swap(undobuf);
+		makeLines(lines, buffer);
+		
+		//Move the cursor
+		getCursor().updateCursor(undoindx);
+		undoindx = oldind;
+		
+		getView()->update();
+	}
 }
 
 void EditboxModel::makeLines(list<LineData> &target, string &source)
