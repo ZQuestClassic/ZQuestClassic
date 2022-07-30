@@ -32522,7 +32522,7 @@ void FFScript::init()
 	initRunString();
 	//clearRunningItemScripts();
 	tempScreens[0] = tmpscr;
-	ScrollingScreens[0] = tmpscr+1;
+	ScrollingScreens[0] = &special_warp_return_screen;
 	for(int32_t q = 0; q < 6; ++q)
 	{
 		tempScreens[q+1] = tmpscr2+q;

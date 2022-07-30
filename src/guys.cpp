@@ -20747,7 +20747,7 @@ void loadguys()
 	{
 		if(DMaps[currdmap].flags&dmfCAVES)
 		{
-			Guy=tmpscr[1].guy;
+			Guy=special_warp_return_screen.guy;
 		}
 	}
 	else
@@ -22024,14 +22024,19 @@ void putprices(bool sign)
 void setupscreen()
 {
 	boughtsomething=false;
+
+	// Either the current screen, or if in a 0x80 room the screen player came from.
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
+	mapscr* cur_scr = get_scr(currmap, currscr);
+
 	int32_t t=currscr<128?0:1;
-	word str=tmpscr[t].str;
+	word str=base_scr->str;
 	
 	// Prices are already set to 0 in dowarp()
-	switch(tmpscr[t].room)
+	switch(base_scr->room)
 	{
 	case rSP_ITEM:                                          // special item
-		additem(120,89,tmpscr[t].catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+		additem(120,89,base_scr->catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((cur_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 		break;
 		
 	case rINFO:                                             // pay for info
@@ -22044,7 +22049,7 @@ void setupscreen()
 		
 		for(int32_t i=0; i<3; i++)
 		{
-			if(QMisc.info[tmpscr[t].catchall].str[i])
+			if(QMisc.info[base_scr->catchall].str[i])
 			{
 				++count;
 			}
@@ -22068,7 +22073,7 @@ void setupscreen()
 			{
 				additem((i << step)+base, 89, iRupy, ipMONEY + ipDUMMY);
 				((item*)items.spr(items.Count()-1))->PriceIndex = i;
-				prices[i] = -(QMisc.info[tmpscr[t].catchall].price[i]);
+				prices[i] = -(QMisc.info[base_scr->catchall].price[i]);
 				if(prices[i]==0)
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
@@ -22084,7 +22089,7 @@ void setupscreen()
 						prices[i]=100000;
 				}
 				
-				if((QMisc.info[tmpscr[t].catchall].price[i])>1 && prices[i]>-1 && prices[i]!=100000)
+				if((QMisc.info[base_scr->catchall].price[i])>1 && prices[i]>-1 && prices[i]!=100000)
 					prices[i]=-1;
 			}
 		}
@@ -22111,7 +22116,7 @@ void setupscreen()
 	case rREPAIR:                                           // door repair
 		setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		//  }
-		repaircharge=tmpscr[t].catchall;
+		repaircharge=base_scr->catchall;
 		break;
 		
 	case rMUPGRADE:                                         // upgrade magic
@@ -22144,13 +22149,13 @@ void setupscreen()
 		int32_t base  = 88;
 		int32_t step  = 5;
 		
-		if(tmpscr[t].room != rTAKEONE)
+		if(base_scr->room != rTAKEONE)
 			moneysign();
 			
 		//count and align the stuff
 		for(int32_t i=0; i<3; ++i)
 		{
-			if(QMisc.shop[tmpscr[t].catchall].hasitem[count] != 0)
+			if(QMisc.shop[base_scr->catchall].hasitem[count] != 0)
 			{
 				++count;
 			}
@@ -22172,12 +22177,12 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			additem((i<<step)+base, 89, QMisc.shop[tmpscr[t].catchall].item[i], ipHOLDUP+ipFADE+(tmpscr[t].room == rTAKEONE ? ipONETIME2 : ipCHECK));
+			additem((i<<step)+base, 89, QMisc.shop[base_scr->catchall].item[i], ipHOLDUP+ipFADE+(base_scr->room == rTAKEONE ? ipONETIME2 : ipCHECK));
 			((item*)items.spr(items.Count()-1))->PriceIndex = i;
 			
-			if(tmpscr[t].room != rTAKEONE)
+			if(base_scr->room != rTAKEONE)
 			{
-				prices[i] = QMisc.shop[tmpscr[t].catchall].price[i];
+				prices[i] = QMisc.shop[base_scr->catchall].price[i];
 				if(prices[i]==0)
 					prices[i]=100000; // So putprices() knows there's an item here and positions the price correctly
 				int32_t itemid = current_item_id(itype_wealthmedal);
@@ -22193,7 +22198,7 @@ void setupscreen()
 						prices[i]=100000;
 				}
 				
-				if((QMisc.shop[tmpscr[t].catchall].price[i])>1 && prices[i]<1)
+				if((QMisc.shop[base_scr->catchall].price[i])>1 && prices[i]<1)
 					prices[i]=1;
 			}
 		}
@@ -22207,7 +22212,7 @@ void setupscreen()
 		int32_t step  = 5;
 		
 		moneysign();
-		bottleshoptype const& bst = QMisc.bottle_shop_types[tmpscr[t].catchall];
+		bottleshoptype const& bst = QMisc.bottle_shop_types[base_scr->catchall];
 		//count and align the stuff
 		for(int32_t i=0; i<3; ++i)
 		{
@@ -22286,13 +22291,13 @@ void setupscreen()
 	case rBOMBS:                                            // more bombs
 		additem(120,89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		prices[0]=-tmpscr[t].catchall;
+		prices[0]=-base_scr->catchall;
 		break;
 		
 	case rARROWS:                                            // more arrows
 		additem(120,89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		prices[0]=-tmpscr[t].catchall;
+		prices[0]=-base_scr->catchall;
 		break;
 		
 	case rSWINDLE:                                          // leave heart container or money
@@ -22301,14 +22306,14 @@ void setupscreen()
 		prices[0]=-1;
 		additem(152,89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
-		prices[1]=-tmpscr[t].catchall;
+		prices[1]=-base_scr->catchall;
 		break;
 		
 	}
 	
-	if(tmpscr[t].room == rBOMBS || tmpscr[t].room == rARROWS)
+	if(base_scr->room == rBOMBS || base_scr->room == rARROWS)
 	{
-		int32_t i = (tmpscr[t].room == rSWINDLE ? 1 : 0);
+		int32_t i = (base_scr->room == rSWINDLE ? 1 : 0);
 		int32_t itemid = current_item_id(itype_wealthmedal);
 		
 		if(itemid >= 0)
@@ -22319,7 +22324,7 @@ void setupscreen()
 				prices[i]+=itemsbuf[itemid].misc1;
 		}
 		
-		if(tmpscr[t].catchall>1 && prices[i]>-1)
+		if(base_scr->catchall>1 && prices[i]>-1)
 			prices[i]=-1;
 	}
 	

@@ -421,7 +421,10 @@ char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
 int16_t  visited[6]={0};
 byte   guygrid[176]={0};
-mapscr tmpscr[2];
+// This is typically used as the previous screen before doing a warp to a special room,
+// but it is also used (by scripting) to hold the previous screen during scrolling.
+mapscr special_warp_return_screen;
+mapscr tmpscr[1]; // TODO z3
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
@@ -2169,7 +2172,7 @@ int32_t init_game()
 	darkroom=naturaldark=false;
 	
 	tmpscr[0].zero_memory();
-	tmpscr[1].zero_memory();
+	special_warp_return_screen.zero_memory();
 	//clear initialise dmap script 
 	dmapscriptInitialised = 0;
 	//Script-related nonsense
@@ -2550,7 +2553,7 @@ int32_t cont_game()
 	currcset=DMaps[currdmap].color;
 	darkroom=naturaldark=false;
 	tmpscr[0].zero_memory();
-	tmpscr[1].zero_memory();
+	special_warp_return_screen.zero_memory();
 	
 //loadscr(0,currscr,up);
 	loadscr(0,currdmap,currscr,-1,false);
@@ -2685,7 +2688,7 @@ void restart_level()
 	whistleclk=-1;
 	darkroom=naturaldark=false;
 	tmpscr[0].zero_memory();
-	tmpscr[1].zero_memory();
+	special_warp_return_screen.zero_memory();
 	
 	loadscr(0,currdmap,currscr,-1,false);
 	putscr(scrollbuf,0,0,&tmpscr[0]);
@@ -5878,9 +5881,12 @@ void quit_game()
 	//  dumb_exit();
 }
 
+// TODO z3
 bool isSideViewGravity(int32_t t)
 {
-	return (((tmpscr[t].flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	// TODO z3 tmpscr
+	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	return (((tmpscr->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)

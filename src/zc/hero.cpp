@@ -3728,7 +3728,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = currscr >= 128 ? &tmpscr[1] : z3_get_mapscr_for_xy_offset(bx, by);
+	mapscr *s = currscr >= 128 ? &special_warp_return_screen : z3_get_mapscr_for_xy_offset(bx, by);
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -4303,7 +4303,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
@@ -4611,7 +4611,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     if(i > 175)
         return;
         
-    //mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    //mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     //findentrance(bx,by,mfWAND,true);
     //findentrance(bx,by,mfSTRIKE,true);
@@ -4701,7 +4701,7 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     if(!ignorescreen || dontignore)
     {
@@ -4866,7 +4866,7 @@ void HeroClass::check_slash_block(weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
@@ -5120,7 +5120,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
     if(i > 175)
         return;
         
-    //mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    //mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     //findentrance(bx,by,mfWAND,true);
     //findentrance(bx,by,mfSTRIKE,true);
@@ -5183,7 +5183,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     if(!ignorescreen)
     {
@@ -5327,7 +5327,7 @@ void HeroClass::check_wand_block(weapon *w)
     if(i > 175)
         return;
         
-    //mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    //mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     //findentrance(bx,by,mfWAND,true);
     //findentrance(bx,by,mfSTRIKE,true);
@@ -5408,7 +5408,7 @@ void HeroClass::check_pound_block(weapon *w)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : tmpscr;
     
     if(!ignorescreen)
     {
@@ -20826,7 +20826,7 @@ RaftingStuff:
 	}
 	
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &tmpscr[1] : get_scr(currmap, currscr);
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
 	mapscr* cur_scr = get_scr(currmap, currscr);
 	
 	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
@@ -21066,7 +21066,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &tmpscr[1] : get_scr(currmap, currscr);
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
 	mapscr* cur_scr = get_scr(currmap, currscr);
 	
 	// Drawing commands probably shouldn't carry over...
@@ -22206,7 +22206,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	{
 		if(DMaps[currdmap].flags&dmfGUYCAVES)
 			Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
-					   (char *)moduledata.roomtype_names[tmpscr[1].room]);
+					   (char *)moduledata.roomtype_names[special_warp_return_screen.room]);
 		else
 			Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
 	}
@@ -23823,11 +23823,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// }
 	// FFCore.init_combo_doscript();
 	
-	tmpscr[1] = tmpscr[0];
+	// TODO z3 Just meant to expose previous screen to scriping.
+	special_warp_return_screen = tmpscr[0];
 	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
-	tmpscr[1].data.resize(_mapsSize, 0);
-	tmpscr[1].sflag.resize(_mapsSize, 0);
-	tmpscr[1].cset.resize(_mapsSize, 0);
+	special_warp_return_screen.data.resize(_mapsSize, 0);
+	special_warp_return_screen.sflag.resize(_mapsSize, 0);
+	special_warp_return_screen.cset.resize(_mapsSize, 0);
 	
 	for(int32_t i = 0; i < 6; i++)
 	{
@@ -23838,7 +23839,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	}
 
 	mapscr *newscr = &tmpscr[0];
-	mapscr *oldscr = &tmpscr[1];
+	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_map = currmap;
@@ -24836,12 +24837,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			break;
 	}
 	FFCore.init_combo_doscript();
-	tmpscr[1] = tmpscr[0];
+	// TODO z3 Just meant to expose previous screen to scriping.
+	special_warp_return_screen = tmpscr[0];
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
-	tmpscr[1].data.resize(_mapsSize, 0);
-	tmpscr[1].sflag.resize(_mapsSize, 0);
-	tmpscr[1].cset.resize(_mapsSize, 0);
+	special_warp_return_screen.data.resize(_mapsSize, 0);
+	special_warp_return_screen.sflag.resize(_mapsSize, 0);
+	special_warp_return_screen.cset.resize(_mapsSize, 0);
 	
 	for(int32_t i = 0; i < 6; i++)
 	{
@@ -24854,7 +24856,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	conveyclk = 2;
 	
 	mapscr *newscr = &tmpscr[0];
-	mapscr *oldscr = &tmpscr[1];
+	mapscr *oldscr = &special_warp_return_screen;
 	
 	//scroll x, scroll y, old screen x, old screen y, new screen x, new screen y
 	int32_t sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
@@ -26511,10 +26513,10 @@ bool canget(int32_t id)
 
 void dospecialmoney(int32_t index)
 {
-    int32_t tmp=currscr>=128?1:0;
+	mapscr& scr = currscr >= 128 ? special_warp_return_screen : tmpscr[0];
     int32_t priceindex = ((item*)items.spr(index))->PriceIndex;
     
-    switch(tmpscr[tmp].room)
+    switch(scr.room)
     {
     case rINFO:                                             // pay for info
         if(prices[priceindex]!=100000 ) // 100000 is a placeholder price for free items
@@ -26538,7 +26540,7 @@ void dospecialmoney(int32_t index)
         }
         rectfill(msg_bg_display_buf, 0, 0, msg_bg_display_buf->w, 80, 0);
         rectfill(msg_txt_display_buf, 0, 0, msg_txt_display_buf->w, 80, 0);
-        donewmsg(QMisc.info[tmpscr[tmp].catchall].str[priceindex]);
+        donewmsg(QMisc.info[scr.catchall].str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
@@ -26558,7 +26560,7 @@ void dospecialmoney(int32_t index)
     {
         ((item*)items.spr(0))->pickup = ipDUMMY;
 
-        prices[0] = tmpscr[tmp].catchall;
+        prices[0] = scr.catchall;
         if (!current_item_power(itype_wallet))
             game->change_drupy(prices[0]);
 	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
@@ -26587,10 +26589,10 @@ void dospecialmoney(int32_t index)
     
     case rBOMBS:
 	{
-        if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+        if(game->get_spendable_rupies()<abs(scr.catchall) && !current_item_power(itype_wallet))
             return;
             
-		int32_t price = -abs(tmpscr[tmp].catchall);
+		int32_t price = -abs(scr.catchall);
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
@@ -26633,10 +26635,10 @@ void dospecialmoney(int32_t index)
         
     case rARROWS:
 	{
-        if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+        if(game->get_spendable_rupies()<abs(scr.catchall) && !current_item_power(itype_wallet))
             return;
             
-        int32_t price = -abs(tmpscr[tmp].catchall);
+        int32_t price = -abs(scr.catchall);
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
@@ -26667,9 +26669,9 @@ void dospecialmoney(int32_t index)
     case rSWINDLE:
         if(items.spr(index)->id==iRupy)
         {
-            if(game->get_spendable_rupies()<abs(tmpscr[tmp].catchall) && !current_item_power(itype_wallet))
+            if(game->get_spendable_rupies()<abs(scr.catchall) && !current_item_power(itype_wallet))
                 return;
-	    int32_t tmpprice = -abs(tmpscr[tmp].catchall);
+	    int32_t tmpprice = -abs(scr.catchall);
 	    int32_t total = game->get_drupy()-tmpprice;
 	    total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	    game->set_drupy(game->get_drupy()-total);
@@ -27063,7 +27065,7 @@ void takeitem(int32_t id)
 // Attempt to pick up an item. (-1 = check items touching Hero.)
 void HeroClass::checkitems(int32_t index)
 {
-	int32_t tmp=currscr>=128?1:0;
+	mapscr& scr = currscr >= 128 ? special_warp_return_screen : tmpscr[0];
 	
 	if(index==-1)
 	{
@@ -27085,7 +27087,7 @@ void HeroClass::checkitems(int32_t index)
 	if(index==-1)
 		return;
 		
-	// if (tmpscr[tmp].room==rSHOP && boughtsomething==true)
+	// if (scr.room==rSHOP && boughtsomething==true)
 	//   return;
 	item* ptr = (item*)items.spr(index);
 	int32_t pickup = ptr->pickup;
@@ -27105,7 +27107,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 	}
 	
-	bool bottledummy = (pickup&ipCHECK) && tmpscr[tmp].room == rBOTTLESHOP;
+	bool bottledummy = (pickup&ipCHECK) && scr.room == rBOTTLESHOP;
 	
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	if(bottledummy) //Dummy bullshit! 
@@ -27135,7 +27137,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		for(int32_t i=0; i<3; i++)
 		{
-			if(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[i] != 0)
+			if(QMisc.bottle_shop_types[scr.catchall].fill[i] != 0)
 			{
 				++count;
 			}
@@ -27147,7 +27149,7 @@ void HeroClass::checkitems(int32_t index)
 				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
 		}
 		
-		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[tmpscr[tmp].catchall].fill[PriceIndex]);
+		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[scr.catchall].fill[PriceIndex]);
 		id2 = find_bottle_for_slot(slot);
 		ptr->id = id2;
 		pstr = 0;
@@ -27211,7 +27213,7 @@ void HeroClass::checkitems(int32_t index)
 		} while(nextitem > -1);
 		
 		if(pickup&ipCHECK)                                        // check restrictions
-			switch(tmpscr[tmp].room)
+			switch(scr.room)
 			{
 			case rSP_ITEM:                                        // special item
 				if(!canget(id2)) // These ones always need the Hearts Required check
@@ -27247,7 +27249,7 @@ void HeroClass::checkitems(int32_t index)
 				
 				for(int32_t i=0; i<3; i++)
 				{
-					if(QMisc.shop[tmpscr[tmp].catchall].hasitem[i] != 0)
+					if(QMisc.shop[scr.catchall].hasitem[i] != 0)
 					{
 						++count;
 					}
@@ -27317,8 +27319,8 @@ void HeroClass::checkitems(int32_t index)
 		
 		clear_bitmap(pricesdisplaybuf);
 		
-		if(get_bit(quest_rules, qr_OLDPICKUP) || ((tmpscr[tmp].room==rSP_ITEM || tmpscr[tmp].room==rRP_HC || tmpscr[tmp].room==rTAKEONE) && (pickup&ipONETIME2)) || 
-		(get_bit(quest_rules, qr_SHOP_ITEMS_VANISH) && (tmpscr[tmp].room==rBOTTLESHOP || tmpscr[tmp].room==rSHOP) && (pickup&ipCHECK)))
+		if(get_bit(quest_rules, qr_OLDPICKUP) || ((scr.room==rSP_ITEM || scr.room==rRP_HC || scr.room==rTAKEONE) && (pickup&ipONETIME2)) || 
+		(get_bit(quest_rules, qr_SHOP_ITEMS_VANISH) && (scr.room==rBOTTLESHOP || scr.room==rSHOP) && (pickup&ipCHECK)))
 		{
 			fadeclk=66;
 		}
@@ -27371,13 +27373,13 @@ void HeroClass::checkitems(int32_t index)
 			int32_t shop_pstr = 0;
 			if (PriceIndex > -1) 
 			{
-				switch(tmpscr[tmp].room)
+				switch(scr.room)
 				{
 					case rSHOP:
-						shop_pstr = QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex];
+						shop_pstr = QMisc.shop[scr.catchall].str[PriceIndex];
 						break;
 					case rBOTTLESHOP:
-						shop_pstr = QMisc.bottle_shop_types[tmpscr[tmp].catchall].str[PriceIndex];
+						shop_pstr = QMisc.bottle_shop_types[scr.catchall].str[PriceIndex];
 						break;
 				}
 			}
@@ -27489,7 +27491,7 @@ void HeroClass::checkitems(int32_t index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-		int32_t shop_pstr = ( tmpscr[tmp].room == rSHOP && PriceIndex>=0 && QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] > 0 ) ? QMisc.shop[tmpscr[tmp].catchall].str[PriceIndex] : 0;
+		int32_t shop_pstr = ( scr.room == rSHOP && PriceIndex>=0 && QMisc.shop[scr.catchall].str[PriceIndex] > 0 ) ? QMisc.shop[scr.catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )

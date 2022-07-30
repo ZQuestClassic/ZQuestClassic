@@ -144,7 +144,7 @@ static bool is_in_region(int region_origin_scr, int scr)
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
-static bool global_z3_scrolling = true;
+static bool global_z3_scrolling = !true;
 bool is_z3_scrolling_mode()
 {
 	if (!global_z3_scrolling) return false;
@@ -272,9 +272,6 @@ void z3_update_currscr()
 			region_scr_dx = dx;
 			region_scr_dy = dy;
 			currscr = z3_origin_scr + dx + dy * 16;
-
-			// TODO z3 hack to make warp work ...
-			// loadscr(0, currdmap, currscr, 0, false);
 		}
 	}
 }
@@ -396,6 +393,11 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	if (it != temporary_screens.end()) return &it->second[layer + 1];
 	temporary_screens[index] = clone_mapscr(&TheMaps[index]);
 	return &temporary_screens[index][layer + 1];
+}
+
+mapscr* get_home_scr()
+{
+	return get_scr(currmap, homescr);
 }
 
 int32_t COMBOPOS(int32_t x, int32_t y)
@@ -1929,7 +1931,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 
 bool hiddenstair(int32_t tmp,bool redraw)                       // tmp = index of tmpscr[]
 {
-    return hiddenstair2(tmpscr + tmp,redraw);
+    return hiddenstair2(tmp == 0 ? tmpscr : &special_warp_return_screen, redraw);
 }
 
 bool hiddenstair2(mapscr *s,bool redraw)                       // tmp = index of tmpscr[]
@@ -1953,7 +1955,7 @@ bool hiddenstair2(mapscr *s,bool redraw)                       // tmp = index of
 
 bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
 {
-	mapscr *s = tmpscr + tmp;
+	mapscr *s = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	mapscr *t = tmpscr2;
 	return remove_screenstatecombos2(s, t, what1, what2);
 }
@@ -2001,7 +2003,7 @@ bool remove_xstatecombos(int32_t tmp, byte xflag)
 }
 bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag)
 {
-	mapscr *s = tmpscr + tmp;
+	mapscr *s = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	mapscr *t = tmpscr2;
 	return remove_xstatecombos2(s, t, mi, xflag);
 }
@@ -2074,7 +2076,7 @@ void clear_xstatecombos(int32_t tmp)
 }
 void clear_xstatecombos(int32_t tmp, int32_t mi)
 {
-	mapscr *s = tmpscr + tmp;
+	mapscr *s = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	mapscr *t = tmpscr2;
 	clear_xstatecombos2(s, t, mi);
 }
@@ -2277,7 +2279,7 @@ void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single)
 	if(single < 0)
 		triggered_screen_secrets = true;
 	bool do_layers = true;
-	hidden_entrance2(-1, tmpscr + tmp, true, tmpscr2, high16only, single);
+	hidden_entrance2(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, tmpscr2, high16only, single);
 }
 
 void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, mapscr *layer_scrs, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
@@ -2299,7 +2301,7 @@ void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, mapscr *layer_s
 	}
 
 	/*
-	mapscr *s = tmpscr + tmp;
+	mapscr *s = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	mapscr *t = tmpscr2;
 	*/
 	int32_t ft=0; //Flag trigger?
@@ -3669,7 +3671,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	{
 		tmp = layer > 0 ?
 			(&(tempscreen==2?tmpscr2[layer-1]:tmpscr3[layer-1])) :
-			(layer ? NULL : (tempscreen==2?0:1)+tmpscr);
+			(layer ? NULL : (tempscreen==2 ? tmpscr : &special_warp_return_screen));
 	}
 	else if (layer > 0)
 	{
@@ -4158,7 +4160,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 	
 	for(int32_t q = 0; q < 176; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
+		newcombo const& cmb = combobuf[special_warp_return_screen.data[q]];
 		if(cmb.type == cTORCH)
 		{
 			doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
@@ -4182,12 +4184,12 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 	}
 	for(int q = 0; q < 32; ++q)
 	{
-		newcombo const& cmb = combobuf[tmpscr[1].ffdata[q]];
+		newcombo const& cmb = combobuf[special_warp_return_screen.ffdata[q]];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
+			doDarkroomCircle((special_warp_return_screen.ffx[q]/10000)+(special_warp_return_screen.ffEffectWidth(q)/2), (special_warp_return_screen.ffy[q]/10000)+(special_warp_return_screen.ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((tmpscr[1].ffx[q]/10000)+(tmpscr[1].ffEffectWidth(q)/2)-scrollxoffs, (tmpscr[1].ffy[q]/10000)+(tmpscr[1].ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
+				doDarkroomCircle((special_warp_return_screen.ffx[q]/10000)+(special_warp_return_screen.ffEffectWidth(q)/2)-scrollxoffs, (special_warp_return_screen.ffy[q]/10000)+(special_warp_return_screen.ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
 		}
 	}
 }
@@ -4947,8 +4949,10 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
 {
-	int32_t d=tmpscr[t].door_combo_set;
 	if (type > 8) return;
+
+	mapscr& screen = t == 0 ? tmpscr[0] : special_warp_return_screen;
+	int32_t d=screen.door_combo_set;
 	
 	switch(type)
 	{
@@ -4971,18 +4975,18 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 		switch(side)
 		{
 		case up:
-			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
-			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
-			tmpscr[t].sflag[pos]  = 0;
-			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
-			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
-			tmpscr[t].sflag[pos+1]  = 0;
-			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
-			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
-			tmpscr[t].sflag[pos+16]  = 0;
-			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
-			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
-			tmpscr[t].sflag[pos+16+1]  = 0;
+			screen.data[pos]   = DoorComboSets[d].doorcombo_u[type][0];
+			screen.cset[pos]   = DoorComboSets[d].doorcset_u[type][0];
+			screen.sflag[pos]  = 0;
+			screen.data[pos+1]   = DoorComboSets[d].doorcombo_u[type][1];
+			screen.cset[pos+1]   = DoorComboSets[d].doorcset_u[type][1];
+			screen.sflag[pos+1]  = 0;
+			screen.data[pos+16]   = DoorComboSets[d].doorcombo_u[type][2];
+			screen.cset[pos+16]   = DoorComboSets[d].doorcset_u[type][2];
+			screen.sflag[pos+16]  = 0;
+			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_u[type][3];
+			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_u[type][3];
+			screen.sflag[pos+16+1]  = 0;
 			
 			if(redraw)
 			{
@@ -4997,18 +5001,18 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 			
 		case down:
-			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
-			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
-			tmpscr[t].sflag[pos]  = 0;
-			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
-			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
-			tmpscr[t].sflag[pos+1]  = 0;
-			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
-			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
-			tmpscr[t].sflag[pos+16]  = 0;
-			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
-			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
-			tmpscr[t].sflag[pos+16+1]  = 0;
+			screen.data[pos]   = DoorComboSets[d].doorcombo_d[type][0];
+			screen.cset[pos]   = DoorComboSets[d].doorcset_d[type][0];
+			screen.sflag[pos]  = 0;
+			screen.data[pos+1]   = DoorComboSets[d].doorcombo_d[type][1];
+			screen.cset[pos+1]   = DoorComboSets[d].doorcset_d[type][1];
+			screen.sflag[pos+1]  = 0;
+			screen.data[pos+16]   = DoorComboSets[d].doorcombo_d[type][2];
+			screen.cset[pos+16]   = DoorComboSets[d].doorcset_d[type][2];
+			screen.sflag[pos+16]  = 0;
+			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_d[type][3];
+			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_d[type][3];
+			screen.sflag[pos+16+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5023,24 +5027,24 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 			
 		case left:
-			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
-			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
-			tmpscr[t].sflag[pos]  = 0;
-			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
-			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
-			tmpscr[t].sflag[pos+1]  = 0;
-			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
-			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
-			tmpscr[t].sflag[pos+16]  = 0;
-			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
-			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
-			tmpscr[t].sflag[pos+16+1]  = 0;
-			tmpscr[t].data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
-			tmpscr[t].cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
-			tmpscr[t].sflag[pos+32]  = 0;
-			tmpscr[t].data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
-			tmpscr[t].cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
-			tmpscr[t].sflag[pos+32+1]  = 0;
+			screen.data[pos]   = DoorComboSets[d].doorcombo_l[type][0];
+			screen.cset[pos]   = DoorComboSets[d].doorcset_l[type][0];
+			screen.sflag[pos]  = 0;
+			screen.data[pos+1]   = DoorComboSets[d].doorcombo_l[type][1];
+			screen.cset[pos+1]   = DoorComboSets[d].doorcset_l[type][1];
+			screen.sflag[pos+1]  = 0;
+			screen.data[pos+16]   = DoorComboSets[d].doorcombo_l[type][2];
+			screen.cset[pos+16]   = DoorComboSets[d].doorcset_l[type][2];
+			screen.sflag[pos+16]  = 0;
+			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_l[type][3];
+			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_l[type][3];
+			screen.sflag[pos+16+1]  = 0;
+			screen.data[pos+32]   = DoorComboSets[d].doorcombo_l[type][4];
+			screen.cset[pos+32]   = DoorComboSets[d].doorcset_l[type][4];
+			screen.sflag[pos+32]  = 0;
+			screen.data[pos+32+1]   = DoorComboSets[d].doorcombo_l[type][5];
+			screen.cset[pos+32+1]   = DoorComboSets[d].doorcset_l[type][5];
+			screen.sflag[pos+32+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5058,24 +5062,24 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 			
 		case right:
-			tmpscr[t].data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
-			tmpscr[t].cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
-			tmpscr[t].sflag[pos]  = 0;
-			tmpscr[t].data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
-			tmpscr[t].cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
-			tmpscr[t].sflag[pos+1]  = 0;
-			tmpscr[t].data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
-			tmpscr[t].cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
-			tmpscr[t].sflag[pos+16]  = 0;
-			tmpscr[t].data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
-			tmpscr[t].cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
-			tmpscr[t].sflag[pos+16+1]  = 0;
-			tmpscr[t].data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
-			tmpscr[t].cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
-			tmpscr[t].sflag[pos+32]  = 0;
-			tmpscr[t].data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
-			tmpscr[t].cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
-			tmpscr[t].sflag[pos+32+1]  = 0;
+			screen.data[pos]   = DoorComboSets[d].doorcombo_r[type][0];
+			screen.cset[pos]   = DoorComboSets[d].doorcset_r[type][0];
+			screen.sflag[pos]  = 0;
+			screen.data[pos+1]   = DoorComboSets[d].doorcombo_r[type][1];
+			screen.cset[pos+1]   = DoorComboSets[d].doorcset_r[type][1];
+			screen.sflag[pos+1]  = 0;
+			screen.data[pos+16]   = DoorComboSets[d].doorcombo_r[type][2];
+			screen.cset[pos+16]   = DoorComboSets[d].doorcset_r[type][2];
+			screen.sflag[pos+16]  = 0;
+			screen.data[pos+16+1]   = DoorComboSets[d].doorcombo_r[type][3];
+			screen.cset[pos+16+1]   = DoorComboSets[d].doorcset_r[type][3];
+			screen.sflag[pos+16+1]  = 0;
+			screen.data[pos+32]   = DoorComboSets[d].doorcombo_r[type][4];
+			screen.cset[pos+32]   = DoorComboSets[d].doorcset_r[type][4];
+			screen.sflag[pos+32]  = 0;
+			screen.data[pos+32+1]   = DoorComboSets[d].doorcombo_r[type][5];
+			screen.cset[pos+32+1]   = DoorComboSets[d].doorcset_r[type][5];
+			screen.sflag[pos+32+1]  = 0;
 			
 			if(redraw)
 			{
@@ -5102,7 +5106,8 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 
 void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
 {
-	int32_t d=tmpscr[t].door_combo_set;
+	mapscr& screen = t == 0 ? tmpscr[0] : special_warp_return_screen;
+	int32_t d=screen.door_combo_set;
 	int32_t x=(pos&15)<<4;
 	int32_t y=(pos&0xF0);
 	
@@ -5463,9 +5468,22 @@ std::vector<mapscr> clone_mapscr(const mapscr* source)
 	return screens;
 }
 
+// void loadscr_revamped()
+// {
+// 	// ...
+// }
+
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
-	if(!tmp)
+	// if (1)
+	// {
+	// 	loadscr_revamped(tmp, destdmap, scr, ldir, overlay);
+	// 	return;
+	// }
+
+	bool is_setting_special_warp_return_screeneen = tmp == 1;
+
+	if(!is_setting_special_warp_return_screeneen)
 	{
 		triggered_screen_secrets = false; //Reset var
 		init_combo_timers();
@@ -5497,14 +5515,15 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	reset_combo_animations2();
 	
 	
-	mapscr ffscr = tmpscr[tmp];
-	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+	mapscr ffscr = tmp == 0 ? tmpscr[0] : special_warp_return_screen;
+	mapscr& screen = tmp == 0 ? tmpscr[0] : special_warp_return_screen;
+	screen = TheMaps[currmap*MAPSCRS+scr];
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
-	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
-	tmpscr[tmp].data = TheMaps[currmap*MAPSCRS+scr].data;
-	tmpscr[tmp].sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
-	tmpscr[tmp].cset = TheMaps[currmap*MAPSCRS+scr].cset;
+	screen.valid |= mVALID; //layer 0 is always valid
+	screen.data = TheMaps[currmap*MAPSCRS+scr].data;
+	screen.sflag = TheMaps[currmap*MAPSCRS+scr].sflag;
+	screen.cset = TheMaps[currmap*MAPSCRS+scr].cset;
 	
 	//screen / screendata script
 	FFCore.clear_screen_stack();
@@ -5516,47 +5535,47 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	FFCore.init_combo_doscript();
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
 	{
-		tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
+		screen.script = TheMaps[currmap*MAPSCRS+scr].script;
 		al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
-		//if ( !tmpscr[tmp].screendatascriptInitialised )
+		//if ( !screen.screendatascriptInitialised )
 		//{
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
+			screen.screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
 			}
 		//}
-		tmpscr[tmp].screendatascriptInitialised = 0;
-		tmpscr[tmp].doscript = 1;
+		screen.screendatascriptInitialised = 0;
+		screen.doscript = 1;
 	}
 	else
 	{
-		tmpscr[tmp].script = 0;
-		tmpscr[tmp].screendatascriptInitialised = 0;
-		tmpscr[tmp].doscript = 0;
+		screen.script = 0;
+		screen.screendatascriptInitialised = 0;
+		screen.doscript = 0;
 	}
 	
 	
-	tmpscr[tmp].data.resize(_mapsSize, 0);
-	tmpscr[tmp].sflag.resize(_mapsSize, 0);
-	tmpscr[tmp].cset.resize(_mapsSize, 0);
+	screen.data.resize(_mapsSize, 0);
+	screen.sflag.resize(_mapsSize, 0);
+	screen.cset.resize(_mapsSize, 0);
 	
 	if(overlay)
 	{
 		for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
 		{
-			if(tmpscr[tmp].data[c]==0)
+			if(screen.data[c]==0)
 			{
-				tmpscr[tmp].data[c]=ffscr.data[c];
-				tmpscr[tmp].sflag[c]=ffscr.sflag[c];
-				tmpscr[tmp].cset[c]=ffscr.cset[c];
+				screen.data[c]=ffscr.data[c];
+				screen.sflag[c]=ffscr.sflag[c];
+				screen.cset[c]=ffscr.cset[c];
 			}
 		}
 		
 		for(int32_t i=0; i<6; i++)
 		{
-			if(ffscr.layermap[i]>0 && tmpscr[tmp].layermap[i]>0)
+			if(ffscr.layermap[i]>0 && screen.layermap[i]>0)
 			{
-				int32_t lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
+				int32_t lm = (screen.layermap[i]-1)*MAPSCRS+screen.layerscreen[i];
 				int32_t fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
 				
 				if(!TheMaps[lm].data.empty() && !TheMaps[fm].data.empty())
@@ -5575,7 +5594,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
-	if(tmp==0)
+	if (!is_setting_special_warp_return_screeneen)
 	{
 		// Before loading new FFCs, deallocate the arrays used by those that aren't carrying over
 		
@@ -5596,39 +5615,39 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			
 			if((ffscr.ffflags[i]&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
 			{
-				tmpscr[tmp].ffdata[i] = ffscr.ffdata[i];
-				tmpscr[tmp].ffx[i] = ffscr.ffx[i];
-				tmpscr[tmp].ffy[i] = ffscr.ffy[i];
-				tmpscr[tmp].ffxdelta[i] = ffscr.ffxdelta[i];
-				tmpscr[tmp].ffydelta[i] = ffscr.ffydelta[i];
-				tmpscr[tmp].ffxdelta2[i] = ffscr.ffxdelta2[i];
-				tmpscr[tmp].ffydelta2[i] = ffscr.ffydelta2[i];
-				tmpscr[tmp].fflink[i] = ffscr.fflink[i];
-				tmpscr[tmp].ffdelay[i] = ffscr.ffdelay[i];
-				tmpscr[tmp].ffcset[i] = ffscr.ffcset[i];
-				tmpscr[tmp].ffwidth[i] = ffscr.ffwidth[i];
-				tmpscr[tmp].ffheight[i] = ffscr.ffheight[i];
-				tmpscr[tmp].ffflags[i] = ffscr.ffflags[i];
-				tmpscr[tmp].ffscript[i] = ffscr.ffscript[i];
+				screen.ffdata[i] = ffscr.ffdata[i];
+				screen.ffx[i] = ffscr.ffx[i];
+				screen.ffy[i] = ffscr.ffy[i];
+				screen.ffxdelta[i] = ffscr.ffxdelta[i];
+				screen.ffydelta[i] = ffscr.ffydelta[i];
+				screen.ffxdelta2[i] = ffscr.ffxdelta2[i];
+				screen.ffydelta2[i] = ffscr.ffydelta2[i];
+				screen.fflink[i] = ffscr.fflink[i];
+				screen.ffdelay[i] = ffscr.ffdelay[i];
+				screen.ffcset[i] = ffscr.ffcset[i];
+				screen.ffwidth[i] = ffscr.ffwidth[i];
+				screen.ffheight[i] = ffscr.ffheight[i];
+				screen.ffflags[i] = ffscr.ffflags[i];
+				screen.ffscript[i] = ffscr.ffscript[i];
 				
 				for(int32_t j=0; j<2; ++j)
 				{
-					tmpscr[tmp].inita[i][j] = ffscr.inita[i][j];
+					screen.inita[i][j] = ffscr.inita[i][j];
 				}
 				
 				for(int32_t j=0; j<8; ++j)
 				{
-					tmpscr[tmp].initd[i][j] = ffscr.initd[i][j];
+					screen.initd[i][j] = ffscr.initd[i][j];
 				}
 				
 				if(!(ffscr.ffflags[i]&ffSCRIPTRESET))
 				{
-					tmpscr[tmp].ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
-					tmpscr[tmp].initialized[i] = ffscr.initialized[i];
+					screen.ffscript[i] = ffscr.ffscript[i]; // Restart script if it has halted.
+					screen.initialized[i] = ffscr.initialized[i];
 				}
 				else
 				{
-					tmpscr[tmp].initialized[i] = false;
+					screen.initialized[i] = false;
 					
 					ffcScriptData[i].pc = 0;
 					ffcScriptData[i].sp = 0;
@@ -5642,22 +5661,18 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				clear_ffc_stack(i);
 			}
 		}
-	}
-	
-	
-	if(tmp==0)
-	{
+
 		for(int32_t i=0; i<6; i++)
 		{
 			mapscr layerscr = tmpscr2[i];
 			
 			// Don't delete the old tmpscr2's data yet!
-			if(tmpscr[tmp].layermap[i]>0 && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
-					&& (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+			if(screen.layermap[i]>0 && (ZCMaps[screen.layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
+					&& (ZCMaps[screen.layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 			{
 				// const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 				
-				tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+				tmpscr2[i]=TheMaps[(screen.layermap[i]-1)*MAPSCRS+screen.layerscreen[i]];
 				
 				tmpscr2[i].data.resize(_mapsSize, 0);
 				tmpscr2[i].sflag.resize(_mapsSize, 0);
@@ -5715,7 +5730,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
-	toggle_switches(game->lvlswitches[destlvl], true, tmpscr + tmp, tmpscr2);
+	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen, tmpscr2);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -5749,7 +5764,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			int32_t door=tmpscr[tmp].door[i];
+			int32_t door=screen.door[i];
 			bool putit=true;
 			
 			switch(door)
@@ -5758,7 +5773,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			case dSHUTTER:
 				if((ldir^1)==i)
 				{
-					tmpscr[tmp].door[i]=dOPENSHUTTER;
+					screen.door[i]=dOPENSHUTTER;
 					//		  putit=false;
 				}
 				
@@ -5768,7 +5783,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			case dLOCKED:
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
-					tmpscr[tmp].door[i]=dUNLOCKED;
+					screen.door[i]=dUNLOCKED;
 					//		  putit=false;
 				}
 				
@@ -5777,7 +5792,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			case dBOSS:
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
-					tmpscr[tmp].door[i]=dOPENBOSS;
+					screen.door[i]=dOPENBOSS;
 					//		  putit=false;
 				}
 				
@@ -5786,7 +5801,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			case dBOMB:
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
-					tmpscr[tmp].door[i]=dBOMBED;
+					screen.door[i]=dBOMBED;
 				}
 				
 				break;
@@ -5794,12 +5809,12 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			
 			if(putit)
 			{
-				putdoor(scrollbuf,tmp,i,tmpscr[tmp].door[i],false);
+				putdoor(scrollbuf,tmp,i,screen.door[i],false);
 			}
 			
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
-				tmpscr[tmp].door[i]=door;
+				screen.door[i]=door;
 			}
 		}
 	}
@@ -5807,10 +5822,10 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		if(j<0 || ((screen.layermap[j]>0)&&(ZCMaps[screen.layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen.layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
 		{
-			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : !tmpscr2[j].data.empty() ? &tmpscr2[j] :
-								  &TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS]+tmpscr[tmp].layerscreen[j]);
+			mapscr *layerscreen= (j<0 ? &screen : !tmpscr2[j].data.empty() ? &tmpscr2[j] :
+								  &TheMaps[(screen.layermap[j]-1)*MAPSCRS]+screen.layerscreen[j]);
 								  
 			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
 			{
@@ -5818,7 +5833,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if(combobuf[c].nextcombo != 0 && (tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
+				if(combobuf[c].nextcombo != 0 && (screen.flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -5850,22 +5865,23 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 	
-	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
+	mapscr& screen = tmp == 0 ? tmpscr[0] : special_warp_return_screen;
+	screen = TheMaps[currmap*MAPSCRS+scr];
 	
-	tmpscr[tmp].data.resize(_mapsSize, 0);
-	tmpscr[tmp].sflag.resize(_mapsSize, 0);
-	tmpscr[tmp].cset.resize(_mapsSize, 0);
+	screen.data.resize(_mapsSize, 0);
+	screen.sflag.resize(_mapsSize, 0);
+	screen.cset.resize(_mapsSize, 0);
 	
 	if(tmp==0)
 	{
 		for(int32_t i=0; i<6; i++)
 		{
-			if(tmpscr[tmp].layermap[i]>0)
+			if(screen.layermap[i]>0)
 			{
 			
-				if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+				if((ZCMaps[screen.layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen.layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 				{
-					tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
+					tmpscr2[i]=TheMaps[(screen.layermap[i]-1)*MAPSCRS+screen.layerscreen[i]];
 					
 					tmpscr2[i].data.resize(_mapsSize, 0);
 					tmpscr2[i].sflag.resize(_mapsSize, 0);
@@ -5942,7 +5958,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			int32_t door=tmpscr[tmp].door[i];
+			int32_t door=screen.door[i];
 			bool putit=true;
 			
 			switch(door)
@@ -5952,7 +5968,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 				/*
 						if((ldir^1)==i)
 						{
-						  tmpscr[tmp].door[i]=dOPENSHUTTER;
+						  screen.door[i]=dOPENSHUTTER;
 						  //		  putit=false;
 						}
 				*/
@@ -5961,7 +5977,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			case dLOCKED:
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
-					tmpscr[tmp].door[i]=dUNLOCKED;
+					screen.door[i]=dUNLOCKED;
 					//		  putit=false;
 				}
 				
@@ -5970,7 +5986,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			case dBOSS:
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
-					tmpscr[tmp].door[i]=dOPENBOSS;
+					screen.door[i]=dOPENBOSS;
 					//		  putit=false;
 				}
 				
@@ -5979,7 +5995,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			case dBOMB:
 				if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&(1<<i))
 				{
-					tmpscr[tmp].door[i]=dBOMBED;
+					screen.door[i]=dBOMBED;
 				}
 				
 				break;
@@ -5987,22 +6003,22 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			
 			if(putit)
 			{
-				putdoor(scrollbuf,tmp,i,tmpscr[tmp].door[i],false);
+				putdoor(scrollbuf,tmp,i,screen.door[i],false);
 			}
 			
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
-				tmpscr[tmp].door[i]=door;
+				screen.door[i]=door;
 			}
 		}
 	}
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		if(j<0 || ((screen.layermap[j]>0)&&(ZCMaps[screen.layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen.layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
 		{
-			mapscr *layerscreen= (j<0 ? &tmpscr[tmp]
-								  : &(TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS+tmpscr[tmp].layerscreen[j]]));
+			mapscr *layerscreen= (j<0 ? &screen
+								  : &(TheMaps[(screen.layermap[j]-1)*MAPSCRS+screen.layerscreen[j]]));
 								  
 			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
 			{
@@ -6010,7 +6026,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if((tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
+				if((screen.flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -7115,9 +7131,9 @@ void ViewMap()
 			{
 				int32_t s = (y<<4) + x;
 				tmpscr[0].zero_memory();
-				tmpscr[1].zero_memory();
+				special_warp_return_screen.zero_memory();
 				loadscr2(1,s,-1);
-				tmpscr[0] = tmpscr[1];
+				tmpscr[0] = special_warp_return_screen;
 				if(tmpscr[0].valid&mVALID)
 				{
 					for(int32_t i=0; i<6; i++)

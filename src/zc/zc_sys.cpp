@@ -4061,7 +4061,8 @@ int32_t onSaveMapPic()
 	int32_t mapres2 = 0;
 	char buf[200];
 	int32_t num=0;
-	mapscr tmpscr_b[2];
+    mapscr tmpscr_a;
+	mapscr tmpscr_b;
 	mapscr tmpscr_c[6];
 	BITMAP* _screen_draw_buffer = NULL;
 	_screen_draw_buffer = create_bitmap_ex(8,256,224);
@@ -4071,15 +4072,11 @@ int32_t onSaveMapPic()
 	{
 		tmpscr_c[i] = tmpscr2[i];
 		tmpscr2[i].zero_memory();
-		
-		if(i>=2)
-		{
-			continue;
-		}
-		
-		tmpscr_b[i] = tmpscr[i];
-		tmpscr[i].zero_memory();
 	}
+    tmpscr_a = tmpscr[0];
+    tmpscr->zero_memory();
+    tmpscr_b = special_warp_return_screen;
+    special_warp_return_screen.zero_memory();
 	
 	do
 	{
@@ -4117,18 +4114,19 @@ int32_t onSaveMapPic()
 			{
 				int32_t s = (y<<4) + x;
 				loadscr2(1,s,-1);
+                mapscr* scr = &special_warp_return_screen;
 				
 				for(int32_t i=0; i<6; i++)
 				{
-					if(tmpscr[1].layermap[i]<=0)
+					if(special_warp_return_screen.layermap[i]<=0)
 						continue;
 					
-					if((ZCMaps[tmpscr[1].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-					   (ZCMaps[tmpscr[1].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+					if((ZCMaps[special_warp_return_screen.layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
+					   (ZCMaps[special_warp_return_screen.layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 					{
 						const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 						
-						tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
+						tmpscr2[i]=TheMaps[(special_warp_return_screen.layermap[i]-1)*MAPSCRS+special_warp_return_screen.layerscreen[i]];
 						
 						tmpscr2[i].data.resize(_mapsSize, 0);
 						tmpscr2[i].sflag.resize(_mapsSize, 0);
@@ -4136,35 +4134,35 @@ int32_t onSaveMapPic()
 					}
 				}
 				
-				if(XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, &special_warp_return_screen, -256, playing_field_offset, 2);
 				
-				if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
+				if(XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, &special_warp_return_screen, -256, playing_field_offset, 2);
 				
-				putscr(_screen_draw_buffer,256,0,tmpscr+1);
-				do_layer(_screen_draw_buffer, 0, 1, tmpscr+1, -256, playing_field_offset, 2);
+				putscr(_screen_draw_buffer,256,0,&special_warp_return_screen);
+				do_layer(_screen_draw_buffer, 0, 1, &special_warp_return_screen, -256, playing_field_offset, 2);
 				
-				if(!XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
+				if(!XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, &special_warp_return_screen, -256, playing_field_offset, 2);
 				
-				putscrdoors(_screen_draw_buffer,256,0,tmpscr+1);
-				do_layer(_screen_draw_buffer, -2, 0, tmpscr+1, -256, playing_field_offset, 2);
+				putscrdoors(_screen_draw_buffer,256,0,&special_warp_return_screen);
+				do_layer(_screen_draw_buffer, -2, 0, &special_warp_return_screen, -256, playing_field_offset, 2);
 				if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 				{
-					do_layer(_screen_draw_buffer, -2, 1, tmpscr+1, -256, playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -2, 2, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -2, 1, &special_warp_return_screen, -256, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -2, 2, &special_warp_return_screen, -256, playing_field_offset, 2);
 				}
-				do_layer(_screen_draw_buffer, -3, 0, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
+				do_layer(_screen_draw_buffer, -3, 0, &special_warp_return_screen, -256, playing_field_offset, 2); // Freeform combos!
 				
-				if(!XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
+				if(!XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, &special_warp_return_screen, -256, playing_field_offset, 2);
 				
-				do_layer(_screen_draw_buffer, 0, 4, tmpscr+1, -256, playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, -1, 0, tmpscr+1, -256, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, 0, 4, &special_warp_return_screen, -256, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, -1, 0, &special_warp_return_screen, -256, playing_field_offset, 2);
 				if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 				{
-					do_layer(_screen_draw_buffer, -1, 1, tmpscr+1, -256, playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -1, 2, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -1, 1, &special_warp_return_screen, -256, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -1, 2, &special_warp_return_screen, -256, playing_field_offset, 2);
 				}
-				do_layer(_screen_draw_buffer, 0, 5, tmpscr+1, -256, playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, 0, 6, tmpscr+1, -256, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, 0, 5, &special_warp_return_screen, -256, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, 0, 6, &special_warp_return_screen, -256, playing_field_offset, 2);
 				
 			}
 			
@@ -4174,15 +4172,10 @@ int32_t onSaveMapPic()
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		tmpscr2[i]=tmpscr_c[i];
-		
-		if(i>=2)
-		{
-			continue;
-		}
-		
-		tmpscr[i]=tmpscr_b[i];
+		tmpscr2[i]=tmpscr_c[i];		
 	}
+    tmpscr[0] = tmpscr_a;
+    special_warp_return_screen = tmpscr_b;
 	
 	save_bitmap(buf,mappic,RAMpal);
 	destroy_bitmap(mappic);
