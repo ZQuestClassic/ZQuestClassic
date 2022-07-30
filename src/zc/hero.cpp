@@ -18968,7 +18968,7 @@ void HeroClass::handleSpotlights()
 	typedef byte spot_t;
 	//Store each different tile/color as grids
 	std::map<int32_t, spot_t*> maps;
-	int32_t shieldid = getCurrentShield();
+	int32_t shieldid = getCurrentShield(false);
 	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
 	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
 	int32_t heropos = COMBOPOS(x.getInt()+8,y.getInt()+8);
