@@ -4721,25 +4721,20 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(temp_buf, 0, 3, this_screen, 0, 0, 2, false, true);
-			do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
 			
 			particles.draw(temp_buf, true, 2);
 		}
 		
 		do_layer(temp_buf, 0, 4, this_screen, 0, 0, 2, false, true);
-		do_layer(scrollbuf, 0, 4, this_screen, 0, 0, 2);
 		//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
 		
 		particles.draw(temp_buf, true, 3);
 		
 		do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
-		do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
 		if(get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
 		{
 			do_layer(temp_buf, -1, 1, this_screen, 0, 0, 2);
-			do_layer(scrollbuf, -1, 1, this_screen, 0, 0, 2);
 			do_layer(temp_buf, -1, 2, this_screen, 0, 0, 2);
-			do_layer(scrollbuf, -1, 2, this_screen, 0, 0, 2);
 		}
 	}
 	else
@@ -4747,25 +4742,20 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(temp_buf, 0, 3, myscr, -offx, -offy, 2, false, true);
-			do_layer(scrollbuf, 0, 3, myscr, -offx, -offy, 2);
 			
 			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 2);
 		}
 		
 		do_layer(temp_buf, 0, 4, myscr, -offx, -offy, 2, false, true);
-		do_layer(scrollbuf, 0, 4, myscr, -offx, -offy, 2);
 		//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
 		
 		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 3);
 
 		do_layer(temp_buf, -1, 0, myscr, -offx, -offy, 2);
-		do_layer(scrollbuf, -1, 0, myscr, -offx, -offy, 2);
 		if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
 		{
 			do_layer(temp_buf, -1, 1, myscr, -offx, -offy, 2);
-			do_layer(scrollbuf, -1, 1, myscr, -offx, -offy, 2);
 			do_layer(temp_buf, -1, 2, myscr, -offx, -offy, 2);
-			do_layer(scrollbuf, -1, 2, myscr, -offx, -offy, 2);
 		}
 	});
 	
@@ -4851,29 +4841,23 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if (!is_z3_scrolling_mode())
 	{
 		do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
-		do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
 		
 		particles.draw(temp_buf, true, 4);
 		
 		do_layer(temp_buf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
-		do_layer(scrollbuf, -4, 0, this_screen, 0, 0, 2);
 		
 		do_layer(temp_buf, 0, 6, this_screen, 0, 0, 2, false, true);
-		do_layer(scrollbuf, 0, 6, this_screen, 0, 0, 2);
 		
 		particles.draw(temp_buf, true, 5);
 	}
 	else
 	for_every_nearby_screen([&](mapscr* myscr, int currscr_dx, int currscr_dy, int offx, int offy) {
 		do_layer(temp_buf, 0, 5, myscr, -offx, -offy, 2, false, true);
-		do_layer(scrollbuf, 0, 5, myscr, -offx, -offy, 2);
 		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 4);
 		// overhead freeform combos!
 		do_layer(temp_buf, -4, 0, myscr, -offx, -offy, 2);
-		do_layer(scrollbuf, -4, 0, myscr, -offx, -offy, 2);
 		// ---
 		do_layer(temp_buf, 0, 6, myscr, -offx, -offy, 2, false, true);
-		do_layer(scrollbuf, 0, 6, myscr, -offx, -offy, 2);
 		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 5);
 	});
 	
@@ -4916,24 +4900,20 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//12. Draw some text on framebuf
 	
 	set_clip_rect(framebuf,0,0,256,224);
-	set_clip_rect(scrollbuf,0,0,256,224);
 	
 	if(!(msg_bg_display_buf->clip))
 	{
 		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
 		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
 		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
 	}
 	
 	//13. Draw the subscreen, without clipping
