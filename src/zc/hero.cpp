@@ -18862,28 +18862,35 @@ static int32_t GridY(int32_t y)
 
 int32_t grabComboFromPos(int32_t pos, int32_t type)
 {
-	for(int32_t lyr = 6; lyr > -1; --lyr)
+	int x = COMBOX_REGION_EXTENDED(pos);
+	int y = COMBOY_REGION_EXTENDED(pos);
+	int normalpos = COMBOPOS(x%256, y%176);
+	int scr = z3_get_scr_for_xy_offset(x, y);
+
+	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
-		int32_t id = FFCore.tempScreens[lyr]->data[pos];
+		int32_t id = get_layer_scr(currmap, scr, lyr - 1)->data[normalpos];
 		if(combobuf[id].type == type)
 			return id;
 	}
 	return -1;
 }
 
-static int32_t typeMap[176];
-static int32_t istrig[176];
+static std::vector<int32_t> typeMap;
+static std::vector<int32_t> istrig;
 static const int32_t SPTYPE_SOLID = -1;
 #define SP_VISITED 0x1
 #define SPFLAG(dir) (0x2<<dir)
 #define BEAM_AGE_LIMIT 32
 void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
 {
+	int map_size = region_scr_width * 16 * region_scr_height * 11;
+	int combos_wide = region_scr_width  * 16;
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
 	if(spotdir > 3) return; //invalid dir
 	bool doAge = true;
 	byte f = 0;
-	while(unsigned(curpos) < 176)
+	while(unsigned(curpos) < map_size)
 	{
 		bool block_light = false;
 		f = SPFLAG(spotdir);
@@ -18897,32 +18904,32 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 		switch(spotdir)
 		{
 			case up:
-				curpos -= 0x10;
+				curpos -= combos_wide;
 				break;
 			case down:
-				curpos += 0x10;
+				curpos += combos_wide;
 				break;
 			case left:
-				if(!(curpos%0x10))
+				if(!(curpos%combos_wide))
 					curpos = -1;
 				else --curpos;
 				break;
 			case right:
 				++curpos;
-				if(!(curpos%0x10))
+				if(!(curpos%combos_wide))
 					curpos = -1;
 				break;
 		}
-		if(unsigned(curpos) >= 176) break;
+		if(unsigned(curpos) >= map_size) break;
 		switch(typeMap[curpos])
 		{
 			case SPTYPE_SOLID: case cBLOCKALL:
 				curpos = -1;
 				break;
 		}
-		if((curpos==COMBOPOS(x.getInt()+8,y.getInt()+8)) && block && (spotdir == oppositeDir[dir]))
+		if((curpos==COMBOPOS_REGION_EXTENDED(x.getInt()+8,y.getInt()+8)) && block && (spotdir == oppositeDir[dir]))
 			curpos = -1;
-		if(unsigned(curpos) >= 176) break;
+		if(unsigned(curpos) >= map_size) break;
 		
 		f = SPFLAG(oppositeDir[spotdir]);
 		if((grid[curpos] & f) != f)
@@ -18939,7 +18946,7 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 		}
 		else doAge = true;
 		
-		if(curpos==COMBOPOS(x.getInt()+8,y.getInt() +8) && refl)
+		if(curpos==COMBOPOS_REGION_EXTENDED(x.getInt()+8,y.getInt() +8) && refl)
 			spotdir = dir;
 		else switch(typeMap[curpos])
 		{
@@ -18994,93 +19001,103 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 
 void HeroClass::handleSpotlights()
 {
+	typeMap.clear();
+	istrig.clear();
+	int map_size = region_scr_width * 16 * region_scr_height * 11;
+	typeMap.resize(map_size);
+	istrig.resize(map_size);
+
 	typedef byte spot_t;
 	//Store each different tile/color as grids
 	std::map<int32_t, spot_t*> maps;
-	int32_t shieldid = getCurrentShield();
+	int32_t shieldid = getCurrentShield(false);
 	bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
 	bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
-	int32_t heropos = COMBOPOS(x.getInt()+8,y.getInt()+8);
-	memset(istrig, 0, sizeof(istrig));
+	int32_t heropos = COMBOPOS_REGION_EXTENDED(x.getInt()+8,y.getInt()+8);
 	clear_bitmap(lightbeam_bmp);
 	
-	for(size_t pos = 0; pos < 176; ++pos)
-	{
-		typeMap[pos] = 0;
-		for(int32_t lyr = 6; lyr > -1; --lyr)
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		for(int32_t lyr = 6; lyr >= 0; --lyr)
 		{
-			newcombo const* cmb = &combobuf[FFCore.tempScreens[lyr]->data[pos]];
-			switch(cmb->type)
+			mapscr* layer_scr = get_layer_scr(currmap, scr, lyr - 1);
+
+			for(size_t pos = 0; pos < 176; ++pos)
 			{
-				case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
-				case cMAGICPRISM: case cMAGICPRISM4:
-				case cBLOCKALL: case cLIGHTTARGET:
-					typeMap[pos] = cmb->type;
-					break;
-				case cGLASS:
-					typeMap[pos] = 0;
-					break;
-				default:
+				int realpos = COMBOPOS_REGION_EXTENDED((pos%16)*16 + z3_scr_dx*16*16, (pos/16)*16 + z3_scr_dy*11*16);
+				newcombo const* cmb = &combobuf[layer_scr->data[pos]];
+				switch(cmb->type)
 				{
-					if(lyr < 3 && (cmb->walk & 0xF))
+					case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
+					case cMAGICPRISM: case cMAGICPRISM4:
+					case cBLOCKALL: case cLIGHTTARGET:
+						typeMap[realpos] = cmb->type;
+						break;
+					case cGLASS:
+						// Even if solid, is always OK to pass through.
+						typeMap[realpos] = 0;
+						break;
+					default:
 					{
-						typeMap[pos] = SPTYPE_SOLID;
+						if(lyr < 3 && (cmb->walk & 0xF))
+						{
+							typeMap[realpos] = SPTYPE_SOLID;
+						}
+						continue; //next layer
 					}
-					continue; //next layer
 				}
+				break; //hit a combo type
 			}
-			break; //hit a combo type
 		}
-	}
-	if(unsigned(heropos) < 176)
+	});
+
+	switch(typeMap[heropos])
 	{
-		switch(typeMap[heropos])
-		{
-			case SPTYPE_SOLID: case cBLOCKALL:
-				heropos = -1; //Blocked from hitting player
-		}
+		case SPTYPE_SOLID: case cBLOCKALL:
+			heropos = -1; //Blocked from hitting player
 	}
-	
-	for(size_t layer = 0; layer < 7; ++layer)
-	{
-		mapscr* curlayer = FFCore.tempScreens[layer];
-		for(size_t pos = 0; pos < 176; ++pos)
+
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		for(size_t layer = 0; layer < 7; ++layer)
 		{
-			//For each spotlight combo on each layer...
-			newcombo const& cmb = combobuf[curlayer->data[pos]];
-			if(cmb.type == cSPOTLIGHT)
+			mapscr* curlayer = get_layer_scr(currmap, scr, layer - 1);
+			for(size_t pos = 0; pos < 176; ++pos)
 			{
-				//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
-				int32_t id = (cmb.usrflags&cflag1)
-					? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
-					: -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
-				if(!id) continue;
-				// zprint2("ID = %ld\n", id);
-				//Get the grid array for this tile/color
-				spot_t* grid;
-				if(maps[id])
-					grid = maps[id];
-				else
+				//For each spotlight combo on each layer...
+				newcombo const& cmb = combobuf[curlayer->data[pos]];
+				if(cmb.type == cSPOTLIGHT)
 				{
-					grid = new spot_t[176];
-					memset(grid, 0, sizeof(spot_t)*176);
-					maps[id] = grid;
+					//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
+					int32_t id = (cmb.usrflags&cflag1)
+						? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
+						: -((cmb.attribytes[3]<<16)|(cmb.attribytes[2]<<8)|(cmb.attribytes[1]));
+					if(!id) continue;
+					// zprint2("ID = %ld\n", id);
+					//Get the grid array for this tile/color
+					spot_t* grid;
+					if(maps[id])
+						grid = maps[id];
+					else
+					{
+						grid = (spot_t*)malloc(sizeof(spot_t)*map_size);
+						memset(grid, 0, sizeof(spot_t)*map_size);
+						maps[id] = grid;
+					}
+					byte spotdir = cmb.attribytes[0];
+					int32_t curpos = COMBOPOS_REGION_EXTENDED((pos%16)*16 + z3_scr_dx*16*16, (pos/16)*16 + z3_scr_dy*11*16);
+					if(spotdir > 3)
+					{
+						grid[curpos] |= SP_VISITED;
+						istrig[curpos] |= cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
+					}
+					if(refl && curpos == heropos)
+					{
+						spotdir = dir;
+					}
+					handleBeam(grid, 0, spotdir, curpos, cmb.attribytes[4], block, refl);
 				}
-				byte spotdir = cmb.attribytes[0];
-				int32_t curpos = pos;
-				if(spotdir > 3)
-				{
-					grid[curpos] |= SP_VISITED;
-					istrig[curpos] |= cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
-				}
-				if(refl && curpos == heropos)
-				{
-					spotdir = dir;
-				}
-				handleBeam(grid, 0, spotdir, curpos, cmb.attribytes[4], block, refl);
 			}
 		}
-	}
+	});
 	
 	//Draw visuals
 	for(auto it = maps.begin(); it != maps.end();)
@@ -19219,7 +19236,7 @@ void HeroClass::handleSpotlights()
 		}
 		//}
 		//
-		for(size_t pos = 0; pos < 176; ++pos)
+		for(size_t pos = 0; pos < map_size; ++pos)
 		{
 			int32_t offs = -1;
 			switch(grid[pos]>>1)
@@ -19280,54 +19297,59 @@ void HeroClass::handleSpotlights()
 			if(id > 0) //tile
 			{
 				//Draw 'tile' at 'pos'
-				overtile16(lightbeam_bmp, tile+offs, COMBOX(pos), COMBOY(pos), cs, 0);
+				overtile16(lightbeam_bmp, tile+offs, COMBOX_REGION_EXTENDED(pos)-global_viewport_x, COMBOY_REGION_EXTENDED(pos)-global_viewport_y, cs, 0);
 			}
 			else //colors
 			{
-				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX(pos), COMBOY(pos), 16, 16);
+				masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX_REGION_EXTENDED(pos)-global_viewport_x, COMBOY_REGION_EXTENDED(pos)-global_viewport_y, 16, 16);
 			}
 		}
 		//
 		if(cbmp) destroy_bitmap(cbmp);
-		delete[] it->second;
+		free(it->second);
 		it = maps.erase(it);
 	}
+
 	//Check triggers
 	bool hastrigs = false, istrigged = true;
 	bool alltrig = getmapflag(mLIGHTBEAM);
-	for(size_t layer = 0; layer < 7; ++layer)
-	{
-		mapscr* curlayer = FFCore.tempScreens[layer];
-		for(size_t pos = 0; pos < 176; ++pos)
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		for(size_t layer = 0; layer < 7; ++layer)
 		{
-			newcombo const* cmb = &combobuf[curlayer->data[pos]];
-			if(cmb->type == cLIGHTTARGET)
+			mapscr* curlayer = get_layer_scr(currmap, scr, layer - 1);
+			for(size_t pos = 0; pos < 176; ++pos)
 			{
-				int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
-				hastrigs = true;
-				bool trigged = (istrig[pos]&trigflag);
-				if(cmb->usrflags&cflag2) //Invert
-					trigged = !trigged;
-				if(cmb->usrflags&cflag1) //Solved Version
+				newcombo const* cmb = &combobuf[curlayer->data[pos]];
+				if(cmb->type == cLIGHTTARGET)
 				{
-					if(!(alltrig || trigged)) //Revert
+					int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
+					hastrigs = true;
+					bool trigged = (istrig[COMBOPOS_REGION_EXTENDED((pos%16)*16 + z3_scr_dx*16*16, (pos/16)*16 + z3_scr_dy*11*16)]&trigflag);
+					if(cmb->usrflags&cflag2) //Invert
+						trigged = !trigged;
+					if(cmb->usrflags&cflag1) //Solved Version
 					{
-						curlayer->data[pos] -= 1;
-						istrigged = false;
+						if(!(alltrig || trigged)) //Revert
+						{
+							curlayer->data[pos] -= 1;
+							istrigged = false;
+						}
 					}
-				}
-				else //Unsolved version
-				{
-					if(alltrig || trigged) //Light
-						curlayer->data[pos] += 1;
-					else istrigged = false;
+					else //Unsolved version
+					{
+						if(alltrig || trigged) //Light
+							curlayer->data[pos] += 1;
+						else istrigged = false;
+					}
 				}
 			}
 		}
-	}
+	});
+
 	if(hastrigs && istrigged && !alltrig)
 	{
 		hidden_entrance(0,true,false,-7);
+		// TODO z3 main screen
 		sfx(tmpscr->secretsfx);
 		if(!(tmpscr->flags5&fTEMPSECRETS))
 		{

@@ -383,9 +383,10 @@ mapscr* get_scr(int map, int screen)
 	return &temporary_screens[index][0];
 }
 
-// Note: layer=0 does NOT return the base screen, but its first layer.
+// Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
+	if (layer == -1) return get_scr(map, screen);
 	if (!is_z3_scrolling_mode() && screen == currscr && map == currmap) return &tmpscr2[layer]; // lol
 
 	int index = map*MAPSCRS + screen;
@@ -398,6 +399,22 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 mapscr* get_home_scr()
 {
 	return get_scr(currmap, homescr);
+}
+
+int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y)
+{
+    int combos_wide = region_scr_width  * 16;
+    return x / 16 + y / 16 * combos_wide;
+}
+int32_t COMBOX_REGION_EXTENDED(int32_t pos)
+{
+    int combos_wide = region_scr_width * 16;
+    return pos % combos_wide * 16;
+}
+int32_t COMBOY_REGION_EXTENDED(int32_t pos)
+{
+    int combos_wide = region_scr_width * 16;
+    return pos / combos_wide * 16;
 }
 
 int32_t COMBOPOS(int32_t x, int32_t y)
