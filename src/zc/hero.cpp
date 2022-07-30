@@ -1615,7 +1615,7 @@ void HeroClass::draw_under(BITMAP* dest)
         if((ladderdir>=left) && (get_bit(quest_rules,qr_RLFIX)))
         {
             overtile16(dest, itemsbuf[c_ladder].tile, ladderx - global_viewport_x, laddery+playing_field_offset - global_viewport_y,
-                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[iRaft].misc_flags>>2)&3)^3);
+                       itemsbuf[c_ladder].csets&15, rotate_value((itemsbuf[c_ladder].misc_flags>>2)&3)^3);
         }
         else
         {
@@ -16319,11 +16319,11 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 {
                     if(wx<0||wy<0)
                         changehop = false;
-                    else if(wx>248)
+                    else if(wx>world_w - 8)
                         changehop = false;
-                    else if(wx>240&&cnt==2)
+                    else if(wx>world_w - 16&&cnt==2) // TODO z3 ladders
                         changehop = false;
-                    else if(wy>168)
+                    else if(wy>world_h - 8)
                         changehop = false;
                 }
 		if ((get_bit(quest_rules, qr_NO_HOPPING) || CanSideSwim()) && !isthissolid) changehop = false;
@@ -16388,6 +16388,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     }
                 }
                 
+				// TODO z3 ladders
                 if(wx<0||wy<0);
                 else if(wx>248);
                 else if(wx>240&&cnt==2);
@@ -16492,7 +16493,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 
 					[[fallthrough]];
                 case down:
-                    if((wy&0xF0)==laddery)
+                    if(CLEAR_LOW_BITS(wy, 4)==laddery)
                     {
                         ret.setUnwalkable(false);
                         return ret;
@@ -16501,7 +16502,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     break;
                     
                 default:
-                    if((wx&0xF0)==ladderx)
+                    if(CLEAR_LOW_BITS(wx, 4)==ladderx)
                     {
                         ret.setUnwalkable(false);
                         return ret;
@@ -16514,7 +16515,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     return ret;
                 }
                 
-                ret.setUnwalkable(_walkflag((wx&0xF0),wy,1,SWITCHBLOCK_STATE) || _walkflag((wx&0xF0)+8,wy,1,SWITCHBLOCK_STATE));
+                ret.setUnwalkable(_walkflag(CLEAR_LOW_BITS(wx, 4),wy,1,SWITCHBLOCK_STATE) || _walkflag(CLEAR_LOW_BITS(wx, 4)+8,wy,1,SWITCHBLOCK_STATE));
                 return ret;
             }
             
@@ -16680,7 +16681,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             // a good way to do this, but it's too risky
                             // to make big changes to this stuff.
                             bool deployLadder=true;
-                            int32_t lx=wx&0xF0;
+                            int32_t lx= CLEAR_LOW_BITS(wx, 4);
                             if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
                             {
                                 if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
@@ -16691,7 +16692,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             }
                             if(deployLadder)
                             {
-                                ladderx = wx&0xF0;
+                                ladderx = CLEAR_LOW_BITS(wx, 4);
                                 laddery = y;
                                 ladderdir = left;
                                 ladderstart = d2;
@@ -16706,7 +16707,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         if(abs((wx)-(int32_t(x+c)))<=(b) && wtrx)
                         {
                             ladderx = x;
-                            laddery = wy&0xF0;
+                            laddery = CLEAR_LOW_BITS(wy, 4);
                             ladderdir = up;
                             ladderstart = d2;
                             ret.setUnwalkable(ladderx!=x.getInt());
@@ -16718,7 +16719,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             if(abs((wx+8)-(int32_t(x+c)))<=(b) && wtrx8)
                             {
                                 ladderx = x;
-                                laddery = wy&0xF0;
+                                laddery = CLEAR_LOW_BITS(wy, 4);
                                 ladderdir = up;
                                 ladderstart = d2;
                                 ret.setUnwalkable(ladderx!=x.getInt());
@@ -16744,8 +16745,8 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         
                     if(ladderdir==up)
                     {
-                        ladderx = x.getInt()&0xF8;
-                        laddery = wy&0xF0;
+                        ladderx = CLEAR_LOW_BITS(x.getInt(), 3);
+                        laddery = CLEAR_LOW_BITS(wy, 4);
                     }
                     else
                     {
