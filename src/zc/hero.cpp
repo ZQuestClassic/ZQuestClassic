@@ -20825,10 +20825,11 @@ RaftingStuff:
 		}
 	}
 	
+	// Either the current screen, or if in a 0x80 room the screen player came from.
+	mapscr* base_scr = currscr >= 128 ? &tmpscr[1] : get_scr(currmap, currscr);
+	mapscr* cur_scr = get_scr(currmap, currscr);
 	
-	int32_t t=(currscr<128)?0:1;
-	
-	if((type==cCAVE || type==cCAVE2) && (tmpscr[t].tilewarptype[index]==wtNOWARP)) return;
+	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
 	
 	//don't do this for canceled warps -DD
 	//I have no idea why we do this skip, but I'll dutifully propagate it to all cases below...
@@ -20846,11 +20847,11 @@ RaftingStuff:
 		// * entering a Guy Cave
 		// * warping to a DMap whose music is different.
 		
-		int32_t tdm = tmpscr[t].tilewarpdmap[index];
+		int32_t tdm = base_scr->tilewarpdmap[index];
 		
-		if(tmpscr[t].tilewarptype[index]<=wtPASS)
+		if(base_scr->tilewarptype[index]<=wtPASS)
 		{
-			if((DMaps[currdmap].flags&dmfCAVES) && tmpscr[t].tilewarptype[index] == wtCAVE)
+			if((DMaps[currdmap].flags&dmfCAVES) && base_scr->tilewarptype[index] == wtCAVE)
 				music_stop();
 		}
 		else
@@ -20861,17 +20862,17 @@ RaftingStuff:
 						(zcmusic->type==ZCMF_GME && zcmusic->track!=DMaps[tdm].tmusictrack))
 					music_stop();
 			}
-			else if(DMaps[tmpscr->tilewarpdmap[index]].midi != (currmidi-ZC_MIDI_COUNT+4) &&
-					TheMaps[(DMaps[tdm].map*MAPSCRS + (tmpscr[t].tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi-ZC_MIDI_COUNT+4))
+			else if(DMaps[cur_scr->tilewarpdmap[index]].midi != (currmidi-ZC_MIDI_COUNT+4) &&
+					TheMaps[(DMaps[tdm].map*MAPSCRS + (base_scr->tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi-ZC_MIDI_COUNT+4))
 				music_stop();
 		}
 		
 		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-		bool opening = (tmpscr[t].tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && tmpscr[t].tilewarptype[index]==wtCAVE)
+		bool opening = (base_scr->tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && base_scr->tilewarptype[index]==wtCAVE)
 						? false : COOLSCROLL);
 						
 		FFCore.warpScriptCheck();
-		draw_screen(tmpscr);
+		draw_screen(cur_scr);
         advanceframe(true);
 		
 		skippedaframe=true;
@@ -20888,9 +20889,11 @@ RaftingStuff:
 	warp_sound = warpsfx2;
 	}
 	
-	if(DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
+	if (DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
 			&& tmpscr[specialcave > 0 && DMaps[currdmap].flags&dmfGUYCAVES ? 1:0].room==rWARP && type==cSTAIR)
 	{
+		CHECK(!is_z3_scrolling_mode()); // TODO z3
+
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
@@ -20928,37 +20931,37 @@ RaftingStuff:
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
-			draw_screen(tmpscr);
+			draw_screen(base_scr);
 			advanceframe(true);
 		}
 		
-		if(!(tmpscr->noreset&mSECRET)) unsetmapflag(mSECRET);
+		if(!(cur_scr->noreset&mSECRET)) unsetmapflag(mSECRET);
 		
-		if(!(tmpscr->noreset&mITEM)) unsetmapflag(mITEM);
+		if(!(cur_scr->noreset&mITEM)) unsetmapflag(mITEM);
 		
-		if(!(tmpscr->noreset&mSPECIALITEM)) unsetmapflag(mSPECIALITEM);
+		if(!(cur_scr->noreset&mSPECIALITEM)) unsetmapflag(mSPECIALITEM);
 		
-		if(!(tmpscr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
+		if(!(cur_scr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
 		
-		if(!(tmpscr->noreset&mCHEST)) unsetmapflag(mCHEST);
+		if(!(cur_scr->noreset&mCHEST)) unsetmapflag(mCHEST);
 		
-		if(!(tmpscr->noreset&mLOCKEDCHEST)) unsetmapflag(mLOCKEDCHEST);
+		if(!(cur_scr->noreset&mLOCKEDCHEST)) unsetmapflag(mLOCKEDCHEST);
 		
-		if(!(tmpscr->noreset&mBOSSCHEST)) unsetmapflag(mBOSSCHEST);
+		if(!(cur_scr->noreset&mBOSSCHEST)) unsetmapflag(mBOSSCHEST);
 		
-		if(!(tmpscr->noreset&mLOCKBLOCK)) unsetmapflag(mLOCKBLOCK);
+		if(!(cur_scr->noreset&mLOCKBLOCK)) unsetmapflag(mLOCKBLOCK);
 		
-		if(!(tmpscr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(mBOSSLOCKBLOCK);
+		if(!(cur_scr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(mBOSSLOCKBLOCK);
 		
 		if(isdungeon())
 		{
-			if(!(tmpscr->noreset&mDOOR_LEFT)) unsetmapflag(mDOOR_LEFT);
+			if(!(cur_scr->noreset&mDOOR_LEFT)) unsetmapflag(mDOOR_LEFT);
 			
-			if(!(tmpscr->noreset&mDOOR_RIGHT)) unsetmapflag(mDOOR_RIGHT);
+			if(!(cur_scr->noreset&mDOOR_RIGHT)) unsetmapflag(mDOOR_RIGHT);
 			
-			if(!(tmpscr->noreset&mDOOR_DOWN)) unsetmapflag(mDOOR_DOWN);
+			if(!(cur_scr->noreset&mDOOR_DOWN)) unsetmapflag(mDOOR_DOWN);
 			
-			if(!(tmpscr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
+			if(!(cur_scr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
 		}
 		
 		didpit=true;
@@ -20969,10 +20972,10 @@ RaftingStuff:
 	}
 	else
 	{
-		if(!skippedaframe && (tmpscr[t].tilewarptype[index]!=wtNOWARP))
+		if(!skippedaframe && (base_scr->tilewarptype[index]!=wtNOWARP))
 		{
 			FFCore.warpScriptCheck();
-			draw_screen(tmpscr);
+			draw_screen(cur_scr);
 			advanceframe(true);
 		}
 		
@@ -21059,7 +21062,12 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool overlay=false;
 	t=(currscr<128)?0:1;
 	int32_t wrindex = 0;
+	// TODO z3
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
+
+	// Either the current screen, or if in a 0x80 room the screen player came from.
+	mapscr* base_scr = currscr >= 128 ? &tmpscr[1] : get_scr(currmap, currscr);
+	mapscr* cur_scr = get_scr(currmap, currscr);
 	
 	// Drawing commands probably shouldn't carry over...
 	if ( !get_bit(quest_rules,qr_SCRIPTDRAWSINWARPS) )
@@ -21068,18 +21076,18 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	switch(type)
 	{
 		case 0:                                                 // tile warp
-			wtype = tmpscr[t].tilewarptype[index];
-			wdmap = tmpscr[t].tilewarpdmap[index];
-			wscr = tmpscr[t].tilewarpscr[index];
-			overlay = get_bit(&tmpscr[t].tilewarpoverlayflags,index)?1:0;
+			wtype = base_scr->tilewarptype[index];
+			wdmap = base_scr->tilewarpdmap[index];
+			wscr = base_scr->tilewarpscr[index];
+			overlay = get_bit(&base_scr->tilewarpoverlayflags,index)?1:0;
 			wrindex=(tmpscr->warpreturnc>>(index*2))&3;
 			break;
 			
 		case 1:                                                 // side warp
-			wtype = tmpscr[t].sidewarptype[index];
-			wdmap = tmpscr[t].sidewarpdmap[index];
-			wscr = tmpscr[t].sidewarpscr[index];
-			overlay = get_bit(&tmpscr[t].sidewarpoverlayflags,index)?1:0;
+			wtype = base_scr->sidewarptype[index];
+			wdmap = base_scr->sidewarpdmap[index];
+			wscr = base_scr->sidewarpscr[index];
+			overlay = get_bit(&base_scr->sidewarpoverlayflags,index)?1:0;
 			wrindex=(tmpscr->warpreturnc>>(8+(index*2)))&3;
 			//tmpscr->doscript = 0; //kill the currebt screen's script so that it does not continue to run during the scroll.
 			//there is no doscript for screen scripts. They run like ffcs. 
@@ -21142,7 +21150,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			music_stop();
 			kill_sfx();
 			
-			if(tmpscr->room==rWARP)
+			if(cur_scr->room==rWARP)
 			{
 				currscr=0x81;
 				specialcave = STAIRCAVE;
@@ -21163,8 +21171,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			loadscr(1,wdmap,homescr,up,false);
 			//preloaded freeform combos
 			ffscript_engine(true);
-			putscr(scrollbuf,0,0,tmpscr);
-			putscrdoors(scrollbuf,0,0,tmpscr);
+			putscr(scrollbuf,0,0,cur_scr);
+			putscrdoors(scrollbuf,0,0,cur_scr);
 			dir=up;
 			x=112;
 			y=160;
@@ -21199,7 +21207,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			specialcave = ITEMCELLAR;
 			map_bkgsfx(false);
 			kill_enemy_sfx();
-			draw_screen(tmpscr,false);
+			draw_screen(cur_scr,false);
 			
 			//unless the room is already dark, fade to black
 			if(!darkroom)
@@ -21212,7 +21220,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			loadscr(0,wdmap,currscr,down,false);
 			loadscr(1,wdmap,homescr,-1,false);
 			if ( dontdraw < 2 ) {  dontdraw=1; }
-			draw_screen(tmpscr);
+			draw_screen(cur_scr);
 			fade(11,true,true);
 			darkroom = false;
 			dir=down;
@@ -21264,7 +21272,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		z3_set_currscr(currscr);
 		specialcave = PASSAGEWAY;
 		byte warpscr2 = wscr + DMaps[wdmap].xoff;
-		draw_screen(tmpscr,false);
+		draw_screen(cur_scr,false);
 		
 		if(!get_bit(quest_rules, qr_NEW_DARKROOM))
 		{
@@ -21279,7 +21287,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//preloaded freeform combos
 		ffscript_engine(true);
 		if ( dontdraw < 2 ) { dontdraw=1; }
-		draw_screen(tmpscr);
+		draw_screen(cur_scr);
 		lighting(false, true);
 		dir=down;
 		x=48;

@@ -273,8 +273,8 @@ void z3_update_currscr()
 			region_scr_dy = dy;
 			currscr = z3_origin_scr + dx + dy * 16;
 
-			// TODO z3 hack to make warp work ... but then it crashes right away
-			loadscr(0, currdmap, currscr, 0, false);
+			// TODO z3 hack to make warp work ...
+			// loadscr(0, currdmap, currscr, 0, false);
 		}
 	}
 }
@@ -289,11 +289,8 @@ bool edge_of_region(direction dir)
 	if (dir == down) scr_y += 1;
 	if (dir == left) scr_x -= 1;
 	if (dir == right) scr_x += 1;
-	if (scr_x < 0 || scr_x > 16 || scr_y < 0 || scr_y > 8)
-	{
-		return true;
-	}
-	return !is_in_region(z3_origin_scr, scr_x + scr_y*16);
+	if (scr_x < 0 || scr_x > 16 || scr_y < 0 || scr_y > 8) return true;
+	return !is_in_region(z3_origin_scr, scr_xy_to_index(scr_x, scr_y));
 }
 
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
