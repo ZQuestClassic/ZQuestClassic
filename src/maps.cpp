@@ -72,9 +72,9 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -144,7 +144,7 @@ static bool is_in_region(int region_origin_scr, int scr)
 	return region_id && region_id == hardcode_z3_regions[scr];
 }
 
-static bool global_z3_scrolling = !true;
+static bool global_z3_scrolling = true;
 bool is_z3_scrolling_mode()
 {
 	if (!global_z3_scrolling) return false;
@@ -7120,13 +7120,16 @@ void ViewMap()
 	}
 	
 	// draw the map
-	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
+	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
+
+	global_viewport_x = 0;
+	global_viewport_y = 0;
 	
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
 		{
-			rectfill(scrollbuf, 256, 0, 511, 223, WHITE);
+			rectfill(scrollbuf_old, 256, 0, 511, 223, WHITE);
 			if(displayOnMap(x, y))
 			{
 				int32_t s = (y<<4) + x;
@@ -7155,39 +7158,39 @@ void ViewMap()
 						}
 					}
 					
-					if(XOR((tmpscr)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);
+					if(XOR((tmpscr)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, tmpscr, -256, playing_field_offset, 2);
 					
-					if(XOR((tmpscr)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, -256, playing_field_offset, 2);
+					if(XOR((tmpscr)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, tmpscr, -256, playing_field_offset, 2);
 					
-					putscr(scrollbuf,256,0,tmpscr);
-					do_layer(scrollbuf, 0, 1, tmpscr, -256, playing_field_offset, 2);
+					putscr(scrollbuf_old,256,0,tmpscr);
+					do_layer(scrollbuf_old, 0, 1, tmpscr, -256, playing_field_offset, 2);
 					
-					if(!XOR(((tmpscr)->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);
+					if(!XOR(((tmpscr)->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf_old, 0, 2, tmpscr, -256, playing_field_offset, 2);
 					
-					putscrdoors(scrollbuf,256,0,tmpscr);
-					do_layer(scrollbuf,-2, 0, tmpscr, -256, playing_field_offset, 2);
+					putscrdoors(scrollbuf_old,256,0,tmpscr);
+					do_layer(scrollbuf_old,-2, 0, tmpscr, -256, playing_field_offset, 2);
 					if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 					{
-						do_layer(scrollbuf,-2, 1, tmpscr, -256, playing_field_offset, 2);
-						do_layer(scrollbuf,-2, 2, tmpscr, -256, playing_field_offset, 2);
+						do_layer(scrollbuf_old,-2, 1, tmpscr, -256, playing_field_offset, 2);
+						do_layer(scrollbuf_old,-2, 2, tmpscr, -256, playing_field_offset, 2);
 					}
-					do_layer(scrollbuf,-3, 0, tmpscr, -256, playing_field_offset, 2); // Freeform combos!
+					do_layer(scrollbuf_old,-3, 0, tmpscr, -256, playing_field_offset, 2); // Freeform combos!
 					
-					if(!XOR(((tmpscr)->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, -256, playing_field_offset, 2);
+					if(!XOR(((tmpscr)->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf_old, 0, 3, tmpscr, -256, playing_field_offset, 2);
 					
-					do_layer(scrollbuf, 0, 4, tmpscr, -256, playing_field_offset, 2);
-					do_layer(scrollbuf,-1, 0, tmpscr, -256, playing_field_offset, 2);
+					do_layer(scrollbuf_old, 0, 4, tmpscr, -256, playing_field_offset, 2);
+					do_layer(scrollbuf_old,-1, 0, tmpscr, -256, playing_field_offset, 2);
 					if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 					{
-						do_layer(scrollbuf,-1, 1, tmpscr, -256, playing_field_offset, 2);
-						do_layer(scrollbuf,-1, 2, tmpscr, -256, playing_field_offset, 2);
+						do_layer(scrollbuf_old,-1, 1, tmpscr, -256, playing_field_offset, 2);
+						do_layer(scrollbuf_old,-1, 2, tmpscr, -256, playing_field_offset, 2);
 					}
-					do_layer(scrollbuf, 0, 5, tmpscr, -256, playing_field_offset, 2);
-					do_layer(scrollbuf, 0, 6, tmpscr, -256, playing_field_offset, 2);
+					do_layer(scrollbuf_old, 0, 5, tmpscr, -256, playing_field_offset, 2);
+					do_layer(scrollbuf_old, 0, 6, tmpscr, -256, playing_field_offset, 2);
 				}
 			}
 			
-			stretch_blit(scrollbuf, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+			stretch_blit(scrollbuf_old, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
 	}
 	

@@ -4098,6 +4098,9 @@ int32_t onSaveMapPic()
 		game_pal();
 		return D_O_K;;
 	}
+
+    global_viewport_x = 0;
+	global_viewport_y = 0;
 	
 	// draw the map
 	set_clip_rect(_screen_draw_buffer, 0, 0, _screen_draw_buffer->w, _screen_draw_buffer->h);
