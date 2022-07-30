@@ -709,6 +709,16 @@ bool clipboard_has_text()
 {
 	return al_clipboard_has_text(all_get_display());
 }
+bool get_al_clipboard(std::string& clipboard)
+{
+	if(!clipboard_has_text()) return false;
+	clipboard = al_get_clipboard_text(all_get_display());
+	return true;
+}
+void set_al_clipboard(std::string const& clipboard)
+{
+	al_set_clipboard_text(all_get_display(), clipboard.c_str());
+}
 
 bool load_qr_hexstr(string hexstr)
 {

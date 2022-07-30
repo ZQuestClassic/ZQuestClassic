@@ -407,17 +407,6 @@ void EditboxModel::markAsDirty()
 	}
 }
 
-static bool get_al_clipboard(std::string& clipboard)
-{
-	if(!clipboard_has_text()) return false;
-	clipboard = al_get_clipboard_text(all_get_display());
-	return true;
-}
-static void set_al_clipboard(std::string const& clipboard)
-{
-	al_set_clipboard_text(all_get_display(), clipboard.c_str());
-}
-
 void EditboxModel::copy()
 {
 	if(!getSelection().hasSelection())
