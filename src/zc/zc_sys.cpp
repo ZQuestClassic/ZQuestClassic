@@ -1821,6 +1821,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
     }
     
     black_opening_count = -66;
+
     black_opening_x = x - global_viewport_x;
     black_opening_y = y - global_viewport_y;
     lensclk = 0;

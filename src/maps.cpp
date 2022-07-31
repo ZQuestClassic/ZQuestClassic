@@ -74,9 +74,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -86,7 +86,7 @@ static const int hardcode_z3_regions[] = {
 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,

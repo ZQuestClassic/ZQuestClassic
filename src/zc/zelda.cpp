@@ -2446,6 +2446,7 @@ int32_t init_game()
 	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+	z3_update_viewport();
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
@@ -2621,6 +2622,7 @@ int32_t cont_game()
 	update_subscreens();
 	Playing=true;
 	map_bkgsfx(true);
+	z3_update_viewport();
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
@@ -2711,6 +2713,7 @@ void restart_level()
 	}
 	
 	currcset=DMaps[currdmap].color;
+	z3_update_viewport();
 	openscreen();
 	map_bkgsfx(true);
 	Hero.set_respawn_point();

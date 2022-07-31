@@ -21820,6 +21820,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
+
+		z3_update_viewport();
 		
 		markBmap(dir^1);
 		
