@@ -519,7 +519,7 @@ void dryuplake()
         
     if(whistleclk<88)
     {
-        if(tmpscr->flags7 & fWHISTLEPAL)
+        if(tmpscr.flags7 & fWHISTLEPAL)
         {
             if(!usingdrypal)
             {
@@ -534,11 +534,11 @@ void dryuplake()
     }
     else
     {
-        if(tmpscr->flags & fWHISTLE)
+        if(tmpscr.flags & fWHISTLE)
         {
             if(hiddenstair(0,true))
             {
-                sfx(tmpscr->secretsfx);
+                sfx(tmpscr.secretsfx);
             }
         }
     }

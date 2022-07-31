@@ -442,7 +442,7 @@ extern int16_t  visited[6];
 extern byte   guygrid[176];
 extern mapscr special_warp_return_screen;
 extern mapscr scrolling_screen;
-extern mapscr tmpscr[1];
+extern mapscr tmpscr;
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];

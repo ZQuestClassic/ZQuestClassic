@@ -265,7 +265,7 @@ void ending()
 			draw_screen_clip_rect_x2-=8;
 		}
 		adv:
-		draw_screen(tmpscr);
+		draw_screen(&tmpscr);
 		advanceframe(true,true,false);
 		
 		if(Quit) return;
@@ -273,7 +273,7 @@ void ending()
 	
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
-	draw_screen(tmpscr);
+	draw_screen(&tmpscr);
 	advanceframe(true);
 	
 	const EndingTextLine* endText;
@@ -692,7 +692,7 @@ void ending_scripted()
 			draw_screen_clip_rect_x2-=8;
 		}
         
-		draw_screen(tmpscr);
+		draw_screen(&tmpscr);
 		advanceframe(true);
         
 		if(Quit) return;
@@ -700,7 +700,7 @@ void ending_scripted()
     
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
-	draw_screen(tmpscr);
+	draw_screen(&tmpscr);
 	advanceframe(true);
     
 	draw_screen_clip_rect_x1=0;

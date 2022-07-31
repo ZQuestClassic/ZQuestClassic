@@ -161,9 +161,9 @@ int32_t random_layer_enemy()
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr->layermap[i]!=0)
+		if(tmpscr.layermap[i]!=0)
 		{
-			mapscr *layerscreen=&TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS]+tmpscr->layerscreen[i];
+			mapscr *layerscreen=&TheMaps[(tmpscr.layermap[i]-1)*MAPSCRS]+tmpscr.layerscreen[i];
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -189,9 +189,9 @@ int32_t count_layer_enemies()
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr->layermap[i]!=0)
+		if(tmpscr.layermap[i]!=0)
 		{
-			mapscr *layerscreen=&TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS]+tmpscr->layerscreen[i];
+			mapscr *layerscreen=&TheMaps[(tmpscr.layermap[i]-1)*MAPSCRS]+tmpscr.layerscreen[i];
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -2805,9 +2805,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	}
 	else
 	{
-		s0=tmpscr;
-		s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
-		s2=(((*tmpscr).layermap[1]-1)>=0)?tmpscr2+1:NULL;
+		s0=&tmpscr;
+		s1=((tmpscr.layermap[0]-1)>=0)?tmpscr2:NULL;
+		s2=((tmpscr.layermap[1]-1)>=0)?tmpscr2+1:NULL;
 	}
 	
 	int32_t cpos=(dx>>4)+(dy&0xF0);
@@ -3651,7 +3651,7 @@ bool enemy::isOnSideviewPlatform()
 {
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
-	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN)) return true; //Bottom of the map
 	for(int32_t nx = x+4; nx < x + usewid; nx+=16)
 	{
 		if(_walkflag(nx,y+usehei,0)) return true;
@@ -6073,7 +6073,7 @@ void enemy::draw(BITMAP *dest)
 		}	
 	}
 	//Room specific
-	if (tmpscr->flags3&fINVISROOM)
+	if (tmpscr.flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
 		!((itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
@@ -6283,7 +6283,7 @@ void enemy::drawzcboss(BITMAP *dest)
 			cs=(((hclk-1)>>1)&3)+6;
 	}
 	
-	if((tmpscr->flags3&fINVISROOM) &&
+	if((tmpscr.flags3&fINVISROOM) &&
 			!(current_item(itype_amulet)) &&
 			!(get_bit(quest_rules,qr_LENSSEESENEMIES) &&
 			  lensclk) && family!=eeGANON)
@@ -6392,7 +6392,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		return;
 	}
 	
-	if(((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
+	if(((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
 			(darkroom))
 	{
 		return;
@@ -10299,7 +10299,7 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 		return;
 	}
 
-	mapscr* scr = tmpscr;
+	mapscr* scr = &tmpscr;
 	if (is_z3_scrolling_mode())
 	{
 		scr = z3_get_mapscr_for_xy_offset(ax, ay);
@@ -11617,7 +11617,7 @@ bool eTrap::trapmove(int32_t ndir)
 {
 	if(get_bit(quest_rules,qr_MEANTRAPS))
 	{
-		if(tmpscr->flags2&fFLOATTRAPS)
+		if(tmpscr.flags2&fFLOATTRAPS)
 			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -11884,7 +11884,7 @@ bool eTrap2::animate(int32_t index)
 
 bool eTrap2::trapmove(int32_t ndir)
 {
-	if(tmpscr->flags2&fFLOATTRAPS)
+	if(tmpscr.flags2&fFLOATTRAPS)
 		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 		
 	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -12605,7 +12605,7 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	Clk=Clk;
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
-	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
+	/*if((x>-17 && x<0) && iswaterex(tmpscr.data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
 	{
 	  clk=1;
 	}*/
@@ -12709,7 +12709,7 @@ bool eZora::animate(int32_t index)
 		
 		while(!placed && t<160)
 		{
-			int32_t watertype = iswaterex(tmpscr->data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
+			int32_t watertype = iswaterex(tmpscr.data[pos2], currmap, currscr, -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
 			if(watertype && ((editorflags & ENEMY_FLAG6) || 
 			((combobuf[watertype].usrflags&cflag1) && (editorflags & ENEMY_FLAG5))
 			|| (!(combobuf[watertype].usrflags&cflag1) && !(editorflags & ENEMY_FLAG5))) && (pos2&15)>0 && (pos2&15)<15)
@@ -15942,7 +15942,7 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
+	mainguy=(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -16223,7 +16223,7 @@ void getBigTri(int32_t id2)
 	
 	setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 	
-	draw_screen(tmpscr);
+	draw_screen(&tmpscr);
 	
 	for(int32_t f=0; f<24*8 && !Quit; f++)
 	{
@@ -17684,7 +17684,7 @@ void eGleeok::draw2(BITMAP *dest)
 	
 	if(hp > 0 && !dont_draw())
 	{
-		if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+		if((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 			sprite::drawcloaked(dest);
 		else
 			sprite::draw(dest);
@@ -17973,14 +17973,14 @@ void esGleeok::draw(BITMAP *dest)
 			{
 				if(get_bit(quest_rules,qr_NEWENEMYTILES))
 				{
-					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+					if((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,0);
 					else
 						overtile16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,cs,0);
 				}
 				else
 				{
-					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+					if((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 						overtilecloaked16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,0);
 					else
 						overtile16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,cs,0);
@@ -20752,7 +20752,7 @@ void loadguys()
 	}
 	else
 	{
-		Guy=tmpscr->guy;
+		Guy=tmpscr.guy;
 		
 		if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
 			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
@@ -20761,7 +20761,7 @@ void loadguys()
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
 	if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
 	{
-		if(tmpscr->room==rZELDA)
+		if(tmpscr.room==rZELDA)
 		{
 			addguy(120,72,Guy,-15,true);
 			guys.spr(0)->hxofs=1000;
@@ -20776,10 +20776,10 @@ void loadguys()
 			addfires();
 			
 		if(currscr>=128)
-			if(getmapflag() && !(tmpscr->flags9&fBELOWRETURN))
+			if(getmapflag() && !(tmpscr.flags9&fBELOWRETURN))
 				Guy=0;
 				
-		switch(tmpscr->room)
+		switch(tmpscr.room)
 		{
 		case rSP_ITEM:
 		case rGRUMBLE:
@@ -20789,26 +20789,26 @@ void loadguys()
 		case rMUPGRADE:
 		case rLEARNSLASH:
 		case rTAKEONE:
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 			
 		case rREPAIR:
 			if (get_bit(quest_rules, qr_OLD_DOORREPAIR)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rRP_HC:
 			if (get_bit(quest_rules, qr_OLD_POTION_OR_HC)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rMONEY:
 			if (get_bit(quest_rules, qr_OLD_SECRETMONEY)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
@@ -20855,7 +20855,7 @@ void loadguys()
 	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
-	if(tmpscr->room==r10RUPIES && !getmapflag(mf))
+	if(tmpscr.room==r10RUPIES && !getmapflag(mf))
 	{
 		//setmapflag();
 		for(int32_t i=0; i<10; i++)
@@ -20894,7 +20894,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		scr = tmpscr; // TODO z3
+		scr = &tmpscr; // TODO z3
 		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr[1].flags9&fBELOWRETURN)) && scr[1].room==rSP_ITEM
 				&& (currscr==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
 		{
@@ -21007,7 +21007,7 @@ bool ok2add(int32_t id)
 
 void activate_fireball_statue(int32_t pos)
 {
-	if(!(tmpscr->enemyflags&efFIREBALLS) || statueID<0)
+	if(!(tmpscr.enemyflags&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}
@@ -21061,7 +21061,7 @@ void activate_fireball_statue(int32_t pos)
 
 void activate_fireball_statues()
 {
-	if(!(tmpscr->enemyflags&efFIREBALLS))
+	if(!(tmpscr.enemyflags&efFIREBALLS))
 	{
 		return;
 	}
@@ -21167,7 +21167,7 @@ void load_default_enemies(mapscr* scr)
 
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
-// There's 2 routines because it's unclear if combobuf or tmpscr->data gets modified. -L
+// There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
 {
 	delete_fireball_shooter(s, pos);
@@ -21369,10 +21369,10 @@ void script_side_load_enemies()
 {
 	if(script_sle || sle_clk) return;
 	sle_cnt = 0;
-	while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+	while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
 		++sle_cnt;
 	script_sle = true;
-	sle_pattern = tmpscr->pattern;
+	sle_pattern = tmpscr.pattern;
 	sle_clk = 0;
 }
 
@@ -21380,7 +21380,7 @@ void side_load_enemies()
 {
 	if(!script_sle && sle_clk==0)
 	{
-		sle_pattern = tmpscr->pattern;
+		sle_pattern = tmpscr.pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
 		int16_t s = (currmap<<7)+currscr;
@@ -21388,7 +21388,7 @@ void side_load_enemies()
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies(tmpscr);
+		load_default_enemies(&tmpscr);
 		
 		for(int32_t i=0; i<6; i++)
 			if(visited[i]==s)
@@ -21412,21 +21412,21 @@ void side_load_enemies()
 			if((get_bit(quest_rules, qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
 			{
-				while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+				while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
 					++sle_cnt;
 			}
 			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<sle_cnt && tmpscr->enemy[i]>0; i++)
+				for(int32_t i = 0; i<sle_cnt && tmpscr.enemy[i]>0; i++)
 				{
-					if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[tmpscr.enemy[i]].flags & guy_doesntcount)) 
 					{
 						unbeatablereload = false;
 					}
 				}
 				if (unbeatablereload)
 				{
-					while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+					while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
 					{
 						++sle_cnt;
 					}
@@ -21434,11 +21434,11 @@ void side_load_enemies()
 			}
 		}
 		
-		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN))
+		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr.flags3&fENEMIESRETURN))
 		{
 			sle_cnt = 0;
 			
-			while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+			while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
 				++sle_cnt;
 		}
 		
@@ -21459,12 +21459,12 @@ void side_load_enemies()
 		
 		int32_t enemy_slot=guys.Count();
 		
-		while(sle_cnt > 0 && !ok2add(tmpscr->enemy[sle_cnt-1]))
+		while(sle_cnt > 0 && !ok2add(tmpscr.enemy[sle_cnt-1]))
 			sle_cnt--;
 			
 		if(sle_cnt > 0)
 		{
-			if(addenemy(sle_x,sle_y,tmpscr->enemy[--sle_cnt],0))
+			if(addenemy(sle_x,sle_y,tmpscr.enemy[--sle_cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
 				{
@@ -21486,9 +21486,9 @@ void side_load_enemies()
 bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 { 
 	if (!is_z3_scrolling_mode())
-	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	if(tmpscr.enemy[i]<1||tmpscr.enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
-		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
+		//zprint2("is_starting_pos(), tmpscr.enemy[i] is: %d\n", tmpscr.enemy[i]);
 		return false; //never 0, never OoB.
 	}
 	// No corner enemies
@@ -21509,15 +21509,15 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	// Can't fly onto it?
-	if(isflier(tmpscr->enemy[i])&&
-			(flyerblocked(x+8,y+8,spw_floater,guysbuf[tmpscr->enemy[i]])||
+	if(isflier(tmpscr.enemy[i])&&
+			(flyerblocked(x+8,y+8,spw_floater,guysbuf[tmpscr.enemy[i]])||
 			 (_walkflag(x,y+8,2)&&!get_bit(quest_rules,qr_WALLFLIERS))))
 		return false;
 		
 	// Can't jump onto it?
 	if
 	(
-		guysbuf[tmpscr->enemy[i]].family==eeTEK 
+		guysbuf[tmpscr.enemy[i]].family==eeTEK 
 		
 		&&
 		(
@@ -21533,9 +21533,9 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 	}
 		
 	// Other off-limit combos
-	if((!isflier(tmpscr->enemy[i])&& guysbuf[tmpscr->enemy[i]].family!=eeTEK &&
-			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[tmpscr->enemy[i]]))) &&
-			guysbuf[tmpscr->enemy[i]].family!=eeZORA)
+	if((!isflier(tmpscr.enemy[i])&& guysbuf[tmpscr.enemy[i]].family!=eeTEK &&
+			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[tmpscr.enemy[i]]))) &&
+			guysbuf[tmpscr.enemy[i]].family!=eeZORA)
 		return false;
 		
 	// Don't ever generate enemies on these combos!
@@ -21543,7 +21543,7 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	//BS Dodongos need at least 2 spaces.
-	if((guysbuf[tmpscr->enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr->enemy[i]].misc10==1))
+	if((guysbuf[tmpscr.enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr.enemy[i]].misc10==1))
 	{
 		if(((x<16) ||_walkflag(x-16,y+8, 2))&&
 				((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -21756,9 +21756,9 @@ bool scriptloadenemies()
 {
 	loaded_enemies = true;
 	if(script_sle || sle_clk) return false;
-	if(tmpscr->pattern==pNOSPAWN) return false;
+	if(tmpscr.pattern==pNOSPAWN) return false;
 	
-	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
+	if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
 	{
 		script_side_load_enemies();
 		return true;
@@ -21769,9 +21769,9 @@ bool scriptloadenemies()
 	int32_t i=0,guycnt=0;
 	int32_t loadcnt = 10;
 	
-	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
+	for(; i<loadcnt && tmpscr.enemy[i]>0; i++)
 	{
-		spawnEnemy(tmpscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(&tmpscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		
 		--clk;
 	}
@@ -21790,18 +21790,18 @@ void loadenemies()
 		side_load_enemies();
 		return;
 	}
-	if(tmpscr->pattern==pNOSPAWN) return;
+	if(tmpscr.pattern==pNOSPAWN) return;
 	if(loaded_enemies)
 		return;
 		
 	// check if it's the dungeon boss and it has been beaten before
-	if(tmpscr->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+	if(tmpscr.enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
 	{
 		loaded_enemies = true;
 		return;
 	}
 	
-	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
+	if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
 	{
 		side_load_enemies();
 		return;
@@ -21811,7 +21811,7 @@ void loadenemies()
 	
 	// do enemies that are always loaded
 	// TODO z3
-	load_default_enemies(tmpscr);
+	load_default_enemies(&tmpscr);
 	
 	// dungeon basements
 	
@@ -21824,16 +21824,16 @@ void loadenemies()
 		{
 			for(int32_t i=0; i<10; i++)
 			{
-				if ( tmpscr->enemy[i] )
+				if ( tmpscr.enemy[i] )
 				{
-					addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i],-14-i);
+					addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i],-14-i);
 				}
 			}
 		}
 		else
 		{
 			for(int32_t i=0; i<4; i++)
-				addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int32_t)eKEESE1,-14-i);
+				addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
 		}
 		return;
 	}
@@ -21871,9 +21871,9 @@ void loadenemies()
 					loadcnt = 10; //That means all enemies need to be respawned.
 			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<loadcnt && tmpscr->enemy[i]>0; i++)
+				for(int32_t i = 0; i<loadcnt && tmpscr.enemy[i]>0; i++)
 				{
-					if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[tmpscr.enemy[i]].flags & guy_doesntcount)) 
 					{
 						unbeatablereload = false;
 					}
@@ -21885,16 +21885,16 @@ void loadenemies()
 			}
 		}
 		
-		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
+		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr.flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
 			loadcnt = 10; //All enemies also need to be respawned.
 			
 		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
 		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		
-		for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
+		for(; i<loadcnt && tmpscr.enemy[i]>0; i++)
 		{
-			spawnEnemy(tmpscr, pos, clk, 0, 0, fastguys, i, guycnt, loadcnt);
+			spawnEnemy(&tmpscr, pos, clk, 0, 0, fastguys, i, guycnt, loadcnt);
 			
 			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}
@@ -21984,7 +21984,7 @@ void putprices(bool sign)
 	if(fadeclk > 0) return;
 	// refresh what's under the prices
 	// for(int32_t i=5; i<12; i++)
-	//   putcombo(scrollbuf,i<<4,112,tmpscr->data[112+i],tmpscr->cpage);
+	//   putcombo(scrollbuf,i<<4,112,tmpscr.data[112+i],tmpscr.cpage);
 	
 	rectfill(pricesdisplaybuf, 72, 112, pricesdisplaybuf->w-1, pricesdisplaybuf->h-1, 0);
 	int32_t step=32;
@@ -22988,7 +22988,7 @@ void putmsg()
 					{
 						msgfont=zfont;
 						
-						if(tmpscr->room!=rGRUMBLE)
+						if(tmpscr.room!=rGRUMBLE)
 							blockpath=false;
 							
 						dismissmsg();
@@ -23378,7 +23378,7 @@ disappear:
 				//       if (get_bit(quest_rules,qr_REPAIRFIX)) {
 				//         fixed_door=true;
 				//       }
-				game->change_drupy(-tmpscr[currscr<128?0:1].catchall);
+				game->change_drupy(-(currscr >= 128 ? special_warp_return_screen : tmpscr).catchall);
 				repaircharge = 0;
 			}
 			
@@ -23702,14 +23702,14 @@ void roaming_item()
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
 		}                                                       //are not. Defer to HeroClass::checkspecial().
 		
-		int32_t Item=tmpscr->item;
+		int32_t Item=tmpscr.item;
 		
 		hasitem &= ~4;
 		
-		if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
+		if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
 		{
 			additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((tmpscr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
+					+ (((tmpscr.flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			hasitem |= 2;
 		}

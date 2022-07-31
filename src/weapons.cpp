@@ -148,7 +148,7 @@ int32_t AngleToDir(double ddir)
 
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
-	mapscr *s = tmpscr;
+	mapscr *s = &tmpscr;
 	int32_t ft=0, checkflag; //Flag trigger, checked flag temp. 
 	bool putit = true;  //Is set false with a mismatch (illegal value input).
 	//Convert a flag type to a secret type. -Z
@@ -451,18 +451,18 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			items.add(new item((zfix)COMBOX(scombo),
 				(zfix)COMBOY(scombo),
 				(zfix)0,
-				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
-				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				tmpscr.catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr.item].family==itype_triforcepiece ||
+				(tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_combo_modify_preroutine(tmpscr,scombo);
-			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
+			screen_combo_modify_preroutine(&tmpscr,scombo);
+			tmpscr.data[scombo] = tmpscr.secretcombo[ft];
+			tmpscr.cset[scombo] = tmpscr.secretcset[ft];
+			tmpscr.sflag[scombo] = tmpscr.secretflag[ft];
 			// newflag = s->secretflag[ft];
-			screen_combo_modify_postroutine(tmpscr,scombo);
+			screen_combo_modify_postroutine(&tmpscr,scombo);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 		}
@@ -477,14 +477,14 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				if (layer) 
 				{
 					
-					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(&tmpscr,scombo);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						FFCore.tempScreens[layer]->data[scombo] = tmpscr->undercombo;
-						FFCore.tempScreens[layer]->cset[scombo] = tmpscr->undercset;
+						FFCore.tempScreens[layer]->data[scombo] = tmpscr.undercombo;
+						FFCore.tempScreens[layer]->cset[scombo] = tmpscr.undercset;
 						FFCore.tempScreens[layer]->sflag[scombo] = 0;	
 					}
 					else
@@ -492,35 +492,35 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					screen_combo_modify_postroutine(tmpscr,scombo);
+					screen_combo_modify_postroutine(&tmpscr,scombo);
 				}
 				else
 				{
-					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(&tmpscr,scombo);
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						tmpscr->data[scombo] = tmpscr->undercombo;
-						tmpscr->cset[scombo] = tmpscr->undercset;
-						tmpscr->sflag[scombo] = 0;	
+						tmpscr.data[scombo] = tmpscr.undercombo;
+						tmpscr.cset[scombo] = tmpscr.undercset;
+						tmpscr.sflag[scombo] = 0;	
 					}
 					else
 					{
-						tmpscr->data[scombo]=vbound(tmpscr->data[scombo]+1,0,MAXCOMBOS);
-						//++tmpscr->data[scombo];
+						tmpscr.data[scombo]=vbound(tmpscr.data[scombo]+1,0,MAXCOMBOS);
+						//++tmpscr.data[scombo];
 					}
-					screen_combo_modify_postroutine(tmpscr,scombo);
+					screen_combo_modify_postroutine(&tmpscr,scombo);
 				}
 				
 				if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
-				//combobuf[tmpscr->data[cid]].cset;
-				//combobuf[tmpscr->data[cid]].cset;
+				//tmpscr.sflag[scombo] = combobuf[cid].sflag;
+				//combobuf[tmpscr.data[cid]].cset;
+				//combobuf[tmpscr.data[cid]].cset;
 				
-				//tmpscr->cset[scombo] = combobuf[cid].cset;
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
+				//tmpscr.cset[scombo] = combobuf[cid].cset;
+				//tmpscr.sflag[scombo] = combobuf[cid].sflag;
 				//zprint("++comboD\n");
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
@@ -3314,7 +3314,7 @@ bool weapon::animate(int32_t index)
 						
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if(tmpscr->flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+							if(tmpscr.flags9&fITEMSECRETPERM) setmapflag(mSECRET);
 							hidden_entrance(0, true, false, -5);
 						}
 						//!DIMI
@@ -4034,14 +4034,14 @@ bool weapon::animate(int32_t index)
 			int32_t wrx;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-				wrx=tmpscr->warpreturnx[0];
-			else wrx=tmpscr->warparrivalx;
+				wrx=tmpscr.warpreturnx[0];
+			else wrx=tmpscr.warparrivalx;
 			
 			int32_t wry;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-				wry=tmpscr->warpreturny[0];
-			else wry=tmpscr->warparrivaly;
+				wry=tmpscr.warpreturny[0];
+			else wry=tmpscr.warparrivaly;
 			
 			if(specialinfo==1 && dead==-1 && x==(int32_t)wrx && y==(int32_t)wry)
 			{
@@ -7166,7 +7166,7 @@ void weapon::draw(BITMAP *dest)
 		case wSword:
 		case wHammer:
 			if(get_bit(quest_rules,qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
-					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
+					Hero.getDontDraw() || tmpscr.flags3&fINVISHERO)
 				return;
 				
 		case wBeam:

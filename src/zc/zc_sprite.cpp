@@ -63,7 +63,7 @@ void sprite::check_conveyor()
 
 void sprite::handle_sprlighting()
 {
-	if(!(tmpscr->flags & fDARK)) return;
+	if(!(tmpscr.flags & fDARK)) return;
 	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
 	if(!glowRad) return;
 	switch(glowShape)
@@ -149,7 +149,7 @@ void sprite::check_conveyor()
 	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
 	bool custom_spd = (cmb->usrflags&cflag2);
-    if(((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
+    if(((z==0&&fakez==0) || (tmpscr.flags2&fAIRCOMBOS)))
     {
         int32_t ctype=(combobuf[cmbid].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;
@@ -508,7 +508,7 @@ bool movingblock::animate(int32_t)
 			
 			if(hiddenstair(0,true))
 			{
-				sfx(tmpscr->secretsfx);
+				sfx(tmpscr.secretsfx);
 			}
 			else
 			{
@@ -518,11 +518,11 @@ bool movingblock::animate(int32_t)
 						(combobuf[bcombo].type == cPUSH_HW) ||
 						(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 				{
-					sfx(tmpscr->secretsfx);
+					sfx(tmpscr.secretsfx);
 				}
 			}
 			
-			if(isdungeon() && tmpscr->flags&fSHUTTERS)
+			if(isdungeon() && tmpscr.flags&fSHUTTERS)
 			{
 				opendoors=8;
 			}
@@ -533,7 +533,7 @@ bool movingblock::animate(int32_t)
 					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 						|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 				{
-					if(!(tmpscr->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+					if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
 				}
 			}
 		}

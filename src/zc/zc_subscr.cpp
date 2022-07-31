@@ -45,7 +45,7 @@ void dosubscr(miscQdata *misc)
 {
     PALETTE temppal;
     
-    if(tmpscr->flags3&fNOSUBSCR)
+    if(tmpscr.flags3&fNOSUBSCR)
     {
         return;
     }
@@ -394,7 +394,7 @@ void markBmap(int32_t dir, int32_t sc)
 			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
-				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
+				code += tmpscr.door[i]&1; //Mark directions only for sides that have the door state set
 			}
 			
 			// mark the map

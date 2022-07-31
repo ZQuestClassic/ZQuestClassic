@@ -14,7 +14,7 @@
 #include "base/zdefs.h"
 #include <functional>
 
-#define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
+#define DRIEDLAKE ((tmpscr.flags7 & fWHISTLEWATER) && (whistleclk>=88))
 
 int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
@@ -41,6 +41,8 @@ extern bool triggered_screen_secrets;
         - when moving around a region with >1 screen width or height, the viewport
           will keep the player centered in the screen. When moving close to the region
           edge the camera bounds to the edges
+        - tmpscr points to the entrance screen
+        - currscr is the screen where the hero currently is
 */
 
 // How large the current region is. If not currently in z3 scrolling mode, this is just the size

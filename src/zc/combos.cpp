@@ -185,18 +185,18 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 			items.add(new item((zfix)COMBOX(scombo),
 				(zfix)COMBOY(scombo),
 				(zfix)0,
-				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
-				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				tmpscr.catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr.item].family==itype_triforcepiece ||
+				(tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_combo_modify_preroutine(tmpscr,scombo);
-			tmpscr->data[scombo] = tmpscr->secretcombo[ft];
-			tmpscr->cset[scombo] = tmpscr->secretcset[ft];
-			tmpscr->sflag[scombo] = tmpscr->secretflag[ft];
+			screen_combo_modify_preroutine(&tmpscr,scombo);
+			tmpscr.data[scombo] = tmpscr.secretcombo[ft];
+			tmpscr.cset[scombo] = tmpscr.secretcset[ft];
+			tmpscr.sflag[scombo] = tmpscr.secretflag[ft];
 			// newflag = s->secretflag[ft];
-			screen_combo_modify_postroutine(tmpscr,scombo);
+			screen_combo_modify_postroutine(&tmpscr,scombo);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 		}
@@ -211,14 +211,14 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 				if (layer) 
 				{
 					
-					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(&tmpscr,scombo);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						FFCore.tempScreens[layer]->data[scombo] = tmpscr->undercombo;
-						FFCore.tempScreens[layer]->cset[scombo] = tmpscr->undercset;
+						FFCore.tempScreens[layer]->data[scombo] = tmpscr.undercombo;
+						FFCore.tempScreens[layer]->cset[scombo] = tmpscr.undercset;
 						FFCore.tempScreens[layer]->sflag[scombo] = 0;	
 					}
 					else
@@ -226,35 +226,35 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
 					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					screen_combo_modify_postroutine(tmpscr,scombo);
+					screen_combo_modify_postroutine(&tmpscr,scombo);
 				}
 				else
 				{
-					screen_combo_modify_preroutine(tmpscr,scombo);
+					screen_combo_modify_preroutine(&tmpscr,scombo);
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						tmpscr->data[scombo] = tmpscr->undercombo;
-						tmpscr->cset[scombo] = tmpscr->undercset;
-						tmpscr->sflag[scombo] = 0;	
+						tmpscr.data[scombo] = tmpscr.undercombo;
+						tmpscr.cset[scombo] = tmpscr.undercset;
+						tmpscr.sflag[scombo] = 0;	
 					}
 					else
 					{
-						tmpscr->data[scombo]=vbound(tmpscr->data[scombo]+1,0,MAXCOMBOS);
-						//++tmpscr->data[scombo];
+						tmpscr.data[scombo]=vbound(tmpscr.data[scombo]+1,0,MAXCOMBOS);
+						//++tmpscr.data[scombo];
 					}
-					screen_combo_modify_postroutine(tmpscr,scombo);
+					screen_combo_modify_postroutine(&tmpscr,scombo);
 				}
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
 				//if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
-				//combobuf[tmpscr->data[cid]].cset;
-				//combobuf[tmpscr->data[cid]].cset;
+				//tmpscr.sflag[scombo] = combobuf[cid].sflag;
+				//combobuf[tmpscr.data[cid]].cset;
+				//combobuf[tmpscr.data[cid]].cset;
 				
-				//tmpscr->cset[scombo] = combobuf[cid].cset;
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
+				//tmpscr.cset[scombo] = combobuf[cid].cset;
+				//tmpscr.sflag[scombo] = combobuf[cid].sflag;
 				//zprint("++comboD\n");
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
@@ -276,7 +276,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 
 bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w)
 {
-	mapscr* scr = (layer ? &tmpscr2[layer] : tmpscr);
+	mapscr* scr = (layer ? &tmpscr2[layer] : &tmpscr);
 	byte pair = cmb.attribytes[0];
 	if(pair > 31) return false;
 	game->lvlswitches[dlevel] ^= (1 << pair);
@@ -335,7 +335,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
 			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
 			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmpscr->secretsfx);
+			sfx(tmpscr.secretsfx);
 		}
 		else if((flag>=mfSWORD && flag<=mfXSWORD) || flag==mfSTRIKE)
 		{
@@ -357,7 +357,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
 			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
 			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmpscr->secretsfx);
+			sfx(tmpscr.secretsfx);
 		}
 		else if((flag2>=mfSWORD && flag2<=mfXSWORD)|| flag2==mfSTRIKE)
 		{
@@ -384,10 +384,10 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 		}
 	}
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmpscr->secretsfx);
+		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr.catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(tmpscr.secretsfx);
 	}
 	else if(isCuttableItemType(type))
 	{
@@ -448,24 +448,24 @@ bool trigger_step(int32_t lyr, int32_t pos)
 			int32_t id = tmp->data[pos];
 			for(auto q = 0; q < 176; ++q)
 			{
-				if(tmpscr->data[q] == id)
+				if(tmpscr.data[q] == id)
 				{
-					++tmpscr->data[q];
+					++tmpscr.data[q];
 				}
 			}
-			if(tmp != tmpscr) ++tmp->data[pos];
+			if(tmp != &tmpscr) ++tmp->data[pos];
 			break;
 		}
 		case cSTEPALL:
 		{
 			for(auto q = 0; q < 176; ++q)
 			{
-				if(isStepType(combobuf[tmpscr->data[q]].type))
+				if(isStepType(combobuf[tmpscr.data[q]].type))
 				{
-					++tmpscr->data[q];
+					++tmpscr.data[q];
 				}
 			}
-			if(tmp != tmpscr) ++tmp->data[pos];
+			if(tmp != &tmpscr) ++tmp->data[pos];
 			break;
 		}
 	}
@@ -552,10 +552,10 @@ void trigger_sign(newcombo const& cmb)
 	switch(str)
 	{
 		case -1: //Special case: Use Screen String
-			str = tmpscr->str;
+			str = tmpscr.str;
 			break;
 		case -2: //Special case: Use Screen Catchall
-			str = tmpscr->catchall;
+			str = tmpscr.catchall;
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
 			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
@@ -571,7 +571,7 @@ void trigger_sign(newcombo const& cmb)
 bool trigger_warp(newcombo const& cmb)
 {
 	if(!isWarpType(cmb.type)) return false;
-	mapscr* wscr = &tmpscr[(currscr<128)?0:1];
+	mapscr* wscr = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
 	auto index = getWarpLetter(cmb.type);
 	if(index == 4) index = zc_oldrand()%4; //Random warp
 	auto wtype = wscr->tilewarptype[index];
@@ -611,7 +611,7 @@ bool trigger_warp(newcombo const& cmb)
 	}
 	
 	auto wflag = 0;
-	if(tmpscr->flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
+	if(tmpscr.flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
 	//Queue the warp for the next frame, as doing anything else breaks terribly
 	FFCore.queueWarp(wtype, tdm, tscr, wx, wy, weff, wsfx, wflag, -1);
 	return true;
@@ -701,7 +701,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	}
 	if(itemflag && !itemstate)
 	{
-		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0);
+		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0);
 		int32_t itid = cmb.attrishorts[2];
 		switch(itid)
 		{
@@ -713,7 +713,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 				break;
 			}
 			case -1:
-				itid = tmpscr->catchall;
+				itid = tmpscr.catchall;
 				break;
 		}
 		if(unsigned(itid) >= MAXITEMS) itid = 0;
@@ -873,7 +873,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								if ( ( combobuf[(tmpscr.data[pos-chy])].type == cARMOS ) ) 
 								{
 									ypos -=16;
 								}
@@ -884,7 +884,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
 								++chx;
 								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								if ( ( combobuf[(tmpscr.data[pos-chx])].type == cARMOS ) ) 
 								{
 									xpos -=16;
 								}
@@ -913,7 +913,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 								//zprint("ty2: %d\n", ty2);
 								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
 								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
-								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								if ( ( combobuf[(tmpscr.data[pos-chx])].type == cARMOS ) ) 
 								{
 									//zprint("found match\n");
 									xpos -=16;
@@ -929,7 +929,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								if ( ( combobuf[(tmpscr.data[pos-chy])].type == cARMOS ) ) 
 								{
 									ypos -=16;
 								}
@@ -940,7 +940,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
 								++chx;
 								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) ) 
+								if ( ( combobuf[(tmpscr.data[pos-chx])].type == cARMOS ) ) 
 								{
 									xpos -=16;
 								}
@@ -956,7 +956,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) ) 
+								if ( ( combobuf[(tmpscr.data[pos-chy])].type == cARMOS ) ) 
 								{
 									//zprint("found match\n");
 									ypos -=16;
@@ -984,7 +984,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 				}
 				if (guysbuf[id2].family == eeGHOMA) 
 				{
-					if ( ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) ) xpos += 16;
+					if ( ( combobuf[(tmpscr.data[pos-chx+1])].type == cARMOS ) ) xpos += 16;
 				}
 				if(addenemy(tx+xpos,ty+1+ypos,id2,0))
 				{
@@ -1047,7 +1047,7 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
 	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
-	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
+	bool current_ring = ((tmpscr.flags6&fTOGGLERINGDAMAGE) != 0);
 	
 	int32_t itemid = current_item_id(itype_boots);
 	
@@ -1055,7 +1055,7 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & ITEM_FLAG3);
 	if(dmg < 0)
 	{
-		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
+		if(itemid < 0 || ignoreBoots || (tmpscr.flags5&fDAMAGEWITHBOOTS)
 			|| (4<<current_item_power(itype_boots)<(abs(dmg))) || ((cmb.walk&0xF) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
@@ -1397,9 +1397,9 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		{
 			used_bit = true;
 			hidden_entrance(0, true, false, -6);
-			if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
+			if(canPermSecret() && !(tmpscr.flags5&fTEMPSECRETS))
 				setmapflag(mSECRET);
-			sfx(tmpscr->secretsfx);
+			sfx(tmpscr.secretsfx);
 		}
 		
 		if(cmb.trigchange)

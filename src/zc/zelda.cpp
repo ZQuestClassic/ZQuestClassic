@@ -424,7 +424,7 @@ byte   guygrid[176]={0};
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
 mapscr special_warp_return_screen;
-mapscr tmpscr[1]; // TODO z3
+mapscr tmpscr;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 gamedata *game=NULL;
@@ -2171,7 +2171,7 @@ int32_t init_game()
 	currcset=DMaps[currdmap].color;
 	darkroom=naturaldark=false;
 	
-	tmpscr[0].zero_memory();
+	tmpscr.zero_memory();
 	special_warp_return_screen.zero_memory();
 	//clear initialise dmap script 
 	dmapscriptInitialised = 0;
@@ -2218,8 +2218,8 @@ int32_t init_game()
 	}
 	//loadscr(0,currscr,up);
 	loadscr(0,currdmap,currscr,-1,false);
-	putscr(scrollbuf,0,0,&tmpscr[0]);
-	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	putscr(scrollbuf,0,0,&tmpscr);
+	putscrdoors(scrollbuf,0,0,&tmpscr);
 	
 	//preloaded freeform combos
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
@@ -2229,8 +2229,8 @@ int32_t init_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(region_scr_dx*256 + tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(region_scr_dy*176 + tmpscr->warpreturny[testingqst_retsqr]);
+		Hero.setX(region_scr_dx*256 + tmpscr.warpreturnx[testingqst_retsqr]);
+		Hero.setY(region_scr_dy*176 + tmpscr.warpreturny[testingqst_retsqr]);
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -2450,7 +2450,7 @@ int32_t init_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+		if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2466,7 +2466,7 @@ int32_t init_game()
 	
 	if(!Quit)
 	{
-		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2552,13 +2552,13 @@ int32_t cont_game()
 	whistleclk=-1;
 	currcset=DMaps[currdmap].color;
 	darkroom=naturaldark=false;
-	tmpscr[0].zero_memory();
+	tmpscr.zero_memory();
 	special_warp_return_screen.zero_memory();
 	
 //loadscr(0,currscr,up);
 	loadscr(0,currdmap,currscr,-1,false);
-	putscr(scrollbuf,0,0,&tmpscr[0]);
-	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	putscr(scrollbuf,0,0,&tmpscr);
+	putscrdoors(scrollbuf,0,0,&tmpscr);
 	script_drawing_commands.Clear();
 	
 	//preloaded freeform combos
@@ -2573,8 +2573,8 @@ int32_t cont_game()
 		&& currscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(region_scr_dx*256 + tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(region_scr_dy*176 + tmpscr->warpreturny[testingqst_retsqr]);
+		Hero.setX(region_scr_dx*256 + tmpscr.warpreturnx[testingqst_retsqr]);
+		Hero.setY(region_scr_dy*176 + tmpscr.warpreturny[testingqst_retsqr]);
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -2625,7 +2625,7 @@ int32_t cont_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2634,14 +2634,14 @@ int32_t cont_game()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2687,12 +2687,12 @@ void restart_level()
 	ALLOFF();
 	whistleclk=-1;
 	darkroom=naturaldark=false;
-	tmpscr[0].zero_memory();
+	tmpscr.zero_memory();
 	special_warp_return_screen.zero_memory();
 	
 	loadscr(0,currdmap,currscr,-1,false);
-	putscr(scrollbuf,0,0,&tmpscr[0]);
-	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	putscr(scrollbuf,0,0,&tmpscr);
+	putscrdoors(scrollbuf,0,0,&tmpscr);
 	//preloaded freeform combos
 	ffscript_engine(true);
 	
@@ -2717,7 +2717,7 @@ void restart_level()
 	Hero.trySideviewLadder();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
-	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2725,14 +2725,14 @@ void restart_level()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2838,9 +2838,9 @@ void show_ffscript_names()
     
     for(int32_t i=0; i< MAXFFCS; i++)
     {
-        if(tmpscr->ffscript[i])
+        if(tmpscr.ffscript[i])
         {
-            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffscript[i]-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+            textout_shadowed_ex(framebuf,font, ffcmap[tmpscr.ffscript[i]-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
             ypos+=12;
         }
     }
@@ -3463,16 +3463,16 @@ void game_loop()
 		
 		for(int32_t i=0; i<32; i++)
 		{
-			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZE) freeze=true;
+			if(combobuf[tmpscr.ffdata[i]].type==cSCREENFREEZE) freeze=true;
 			
-			if(combobuf[tmpscr->ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr.ffdata[i]].type==cSCREENFREEZEFF) freezeff=true;
 		}
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
+			if(combobuf[tmpscr.data[i]].type == cSCREENFREEZE) freeze=true;
 			
-			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr.data[i]].type == cSCREENFREEZEFF) freezeff=true;
 		}
 		
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
@@ -3711,23 +3711,23 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
 		
-		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr.script != 0 && tmpscr.doscript && tmpscr.screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-			tmpscr->screen_waitdraw = 0;	    
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
+			tmpscr.screen_waitdraw = 0;	    
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
 		for ( int32_t q = 0; q < 32; ++q )
 		{
-			//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
-			if ( tmpscr->ffcswaitdraw&(1<<q) )
+			//Z_scripterrlog("tmpscr.ffcswaitdraw is: %d\n", tmpscr.ffcswaitdraw);
+			if ( tmpscr.ffcswaitdraw&(1<<q) )
 			{
 				//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-				if(tmpscr->ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+				if(tmpscr.ffscript[q] != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffscript[q], q);
-					tmpscr->ffcswaitdraw &= ~(1<<q);
+					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr.ffscript[q], q);
+					tmpscr.ffcswaitdraw &= ~(1<<q);
 				}
 			}
 		}
@@ -3761,7 +3761,7 @@ void game_loop()
 		#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
 		#endif
-		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr,true,true);
+		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(&tmpscr,true,true);
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 		
 		//clear Hero's last hits 
@@ -4003,7 +4003,7 @@ int32_t get_bmaps(int32_t si)
 
 bool no_subscreen()
 {
-    return (tmpscr->flags3&fNOSUBSCR)!=0;
+    return (tmpscr.flags3&fNOSUBSCR)!=0;
 }
 
 bool isMonochrome(){
@@ -5490,7 +5490,7 @@ int main(int argc, char **argv)
 			//to read before or after waitdraw in scripts. 
 		}
 		
-		tmpscr->flags3=0;
+		tmpscr.flags3=0;
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
@@ -5886,7 +5886,7 @@ bool isSideViewGravity(int32_t t)
 {
 	// TODO z3 tmpscr
 	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
-	return (((tmpscr->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	return (((tmpscr.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)
