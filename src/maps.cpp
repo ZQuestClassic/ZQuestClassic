@@ -74,9 +74,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -4543,7 +4543,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	masked_blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
-	
+
+	// We no longer draw to the scrollbuf - so things like dosubscr have access to a "partially rendered" frame. 
+	// I think only used for COOLSCROLL=0? Seems like a silly feature...
 	
 	//3. Draw some sprites onto framebuf
 	set_clip_rect(framebuf,0,0,256,224);
