@@ -34,10 +34,20 @@ Frame( \
 	Label(text = "TODO: Implement Misc Color Selector") \
 )
 
-#define MISC_CSET_SEL(txt) \
+#define MISC_CSET_SEL(txt, mem1, mem2) \
 Frame( \
 	title = txt, \
-	Label(text = "TODO: Implement Misc CSet Selector") \
+	MiscCSetSel( \
+		c1 = (local_subref.mem1==ssctMISC ? 0 : local_subref.mem1+1), \
+		c2 = local_subref.mem2, \
+		onUpdate = [&](int32_t c1, int32_t c2) \
+		{ \
+			if(c1) \
+				local_subref.mem1 = c1-1; \
+			else \
+				local_subref.mem1 = ssctMISC; \
+			local_subref.mem2 = c2; \
+		}) \
 )
 
 static size_t sprop_tab = 0;
@@ -163,7 +173,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		{
 			case sso2X2FRAME:
 			{
-				g2->add(MISC_CSET_SEL("CSet"));
+				g2->add(MISC_CSET_SEL("CSet", colortype1, color1));
 				break;
 			}
 			case ssoBSTIME:
@@ -251,7 +261,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoMINITILE:
 			{
-				g2->add(MISC_CSET_SEL("CSet"));
+				g2->add(MISC_CSET_SEL("CSet", colortype1, color1));
 				break;
 			}
 			case ssoRECT:
@@ -269,12 +279,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoSELECTOR1:
 			{
-				g2->add(MISC_CSET_SEL("CSet"));
+				g2->add(MISC_CSET_SEL("CSet", colortype1, color1));
 				break;
 			}
 			case ssoSELECTOR2:
 			{
-				g2->add(MISC_CSET_SEL("CSet"));
+				g2->add(MISC_CSET_SEL("CSet", colortype1, color1));
 				break;
 			}
 			case ssoTEXT:
@@ -293,7 +303,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoTILEBLOCK:
 			{
-				g2->add(MISC_CSET_SEL("CSet"));
+				g2->add(MISC_CSET_SEL("CSet", colortype1, color1));
 				break;
 			}
 			case ssoTRIFRAME:
@@ -304,7 +314,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoTRIFORCE:
 			{
-				g2->add(MISC_CSET_SEL("CSet"));
+				g2->add(MISC_CSET_SEL("CSet", colortype1, color1));
 				break;
 			}
 		}

@@ -32,6 +32,7 @@
 #include "zq/gui/msgstr_preview.h"
 #include "zq/gui/palette_frame.h"
 #include "zq/gui/cornerselect.h"
+#include "zq/gui/misc_cset_sel.h"
 #endif
 
 #include <initializer_list>
@@ -216,6 +217,11 @@ inline std::shared_ptr<MsgPreview> makeMsgPreview()
 {
 	return std::make_shared<MsgPreview>();
 }
+
+inline std::shared_ptr<MiscCSetSel> makeMiscCSetSel()
+{
+	return std::make_shared<MiscCSetSel>();
+} 
 #endif
 
 // Top-level widgets
@@ -474,6 +480,13 @@ ZCGUI_BUILDER_START(MsgPreview)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MsgPreview, MsgPreview, makeMsgPreview)
+
+ZCGUI_BUILDER_START(MiscCSetSel)
+	ZCGUI_ACCEPT_PROP(c1, setC1, int32_t)
+	ZCGUI_ACCEPT_PROP(c2, setC2, int32_t)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(int32_t,int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(MiscCSetSel, MiscCSetSel, makeMiscCSetSel)
 #endif
 
 } // namespace GUI::builder

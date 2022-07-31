@@ -73,11 +73,8 @@ const char *colortypelist(int32_t index, int32_t *list_size)
     return colortype_str[index];
 }
 
-int32_t d_cs_color_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t d_cs_color_proc(int32_t msg,DIALOG *d,int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     int32_t w=(d->w-4)/16;
     
     switch(msg)
@@ -113,11 +110,8 @@ int32_t d_cs_color_proc(int32_t msg,DIALOG *d,int32_t c)
     return D_O_K;
 }
 
-int32_t d_sys_color_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t d_sys_color_proc(int32_t msg,DIALOG *d,int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     int32_t w=(d->w-4)/17;
     
     switch(msg)

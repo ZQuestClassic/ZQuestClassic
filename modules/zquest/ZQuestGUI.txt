@@ -25,6 +25,7 @@ src/zq/gui/tileanim_frame.cpp
 src/zq/gui/msgstr_preview.cpp
 src/zq/gui/palette_frame.cpp
 src/zq/gui/cornerselect.cpp
+src/zq/gui/misc_cset_sel.cpp
 
 src/zc_list_data.cpp
 
