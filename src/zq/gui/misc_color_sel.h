@@ -1,20 +1,22 @@
-#ifndef ZC_GUI_MISC_CSET_SEL_H
-#define ZC_GUI_MISC_CSET_SEL_H
+#ifndef ZC_GUI_MISC_COLOR_SEL_H
+#define ZC_GUI_MISC_COLOR_SEL_H
 
 #include "gui/widget.h"
 #include "gui/label.h"
+#include "gui/switcher.h"
 #include "gui/grid.h"
 #include "gui/drop_down_list.h"
+#include "misc_color_row.h"
 #include <vector>
 #include "gui/dialog_ref.h"
 
 namespace GUI
 {
 
-class MiscCSetSel: public Widget
+class MiscColorSel: public Widget
 {
 public:
-	MiscCSetSel();
+	MiscColorSel();
 	
 	void setC1(int32_t val);
 	void setC2(int32_t val);
@@ -26,12 +28,16 @@ private:
 	std::shared_ptr<Grid> internal_grid;
 	std::shared_ptr<Label> labels[2];
 	std::shared_ptr<DropDownList> sel_list;
+	std::shared_ptr<Switcher> sw;
 	std::shared_ptr<DropDownList> misc_sel_list;
+	std::shared_ptr<MiscColorRow> mc_sys_row;
+	std::shared_ptr<MiscColorRow> mc_cs_row;
 	
 	int32_t c1, c2;
+	int32_t c2s[11];
 	
-	void doVis(int32_t _c1);
-	void doUpdate(int32_t _c1, int32_t _c2);
+	void doUpdate1(int32_t val, bool func = true);
+	void doUpdate2(int32_t val, bool func = true);
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void calculateSize() override;

@@ -4,28 +4,25 @@
 #include "gui/list_data.h"
 #include "../jwin.h"
 #include <utility>
-
-//zq_subscr.cpp
-int32_t d_cs_color_proc(int32_t msg,DIALOG *d,int32_t);
-int32_t d_sys_color_proc(int32_t msg,DIALOG *d,int32_t);
+#include "subscr.h"
 
 namespace GUI
 {
 static const ListData csTyList
 {
-	{ "Misc. CSet", 0 },
-	{ "CSet 0", 1 },
-	{ "CSet 1", 2 },
-	{ "CSet 2", 3 },
-	{ "CSet 3", 4 },
-	{ "CSet 4", 5 },
-	{ "CSet 5", 6 },
-	{ "CSet 6", 7 },
-	{ "CSet 7", 8 },
-	{ "CSet 8", 9 },
-	{ "CSet 9", 10 },
-	{ "CSet 10", 11 },
-	{ "CSet 11", 12 }
+	{ "Misc. CSet", ssctMISC },
+	{ "CSet 0", 0 },
+	{ "CSet 1", 1 },
+	{ "CSet 2", 2 },
+	{ "CSet 3", 3 },
+	{ "CSet 4", 4 },
+	{ "CSet 5", 5 },
+	{ "CSet 6", 6 },
+	{ "CSet 7", 7 },
+	{ "CSet 8", 8 },
+	{ "CSet 9", 9 },
+	{ "CSet 10", 10 },
+	{ "CSet 11", 11 }
 };
 static const ListData miscCSList
 {
@@ -127,12 +124,12 @@ void MiscCSetSel::realize(DialogRunner& runner)
 
 void MiscCSetSel::doVis(int32_t _c1)
 {
-	if(_c1 && !c1)
+	if(_c1 == ssctMISC && c1 != ssctMISC)
 	{
 		labels[1]->setExposed(false);
 		misc_sel_list->setExposed(false);
 	}
-	else if(!_c1 && c1)
+	else if(_c1 != ssctMISC && c1 == ssctMISC)
 	{
 		labels[1]->setExposed(true);
 		misc_sel_list->setExposed(true);
@@ -146,14 +143,6 @@ void MiscCSetSel::doUpdate(int32_t _c1, int32_t _c2)
 	
 	if(onUpdate)
 		onUpdate(c1,c2);
-}
-int32_t MiscCSetSel::onEvent(int32_t event, MessageDispatcher& sendMessage)
-{
-	assert(event == geCHANGE_SELECTION);
-	
-	if(onUpdate)
-		onUpdate(c1,c2);
-	return -1;
 }
 
 void MiscCSetSel::setOnUpdate(std::function<void(int32_t,int32_t)> newOnUpdate)

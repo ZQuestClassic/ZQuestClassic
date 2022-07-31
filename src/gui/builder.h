@@ -33,6 +33,8 @@
 #include "zq/gui/palette_frame.h"
 #include "zq/gui/cornerselect.h"
 #include "zq/gui/misc_cset_sel.h"
+#include "zq/gui/misc_color_sel.h"
+#include "zq/gui/misc_color_row.h"
 #endif
 
 #include <initializer_list>
@@ -221,7 +223,17 @@ inline std::shared_ptr<MsgPreview> makeMsgPreview()
 inline std::shared_ptr<MiscCSetSel> makeMiscCSetSel()
 {
 	return std::make_shared<MiscCSetSel>();
-} 
+}
+
+inline std::shared_ptr<MiscColorSel> makeMiscColorSel()
+{
+	return std::make_shared<MiscColorSel>();
+}
+
+inline std::shared_ptr<MiscColorRow> makeMiscColorRow()
+{
+	return std::make_shared<MiscColorRow>();
+}
 #endif
 
 // Top-level widgets
@@ -487,6 +499,21 @@ ZCGUI_BUILDER_START(MiscCSetSel)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(int32_t,int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MiscCSetSel, MiscCSetSel, makeMiscCSetSel)
+
+ZCGUI_BUILDER_START(MiscColorSel)
+	ZCGUI_ACCEPT_PROP(c1, setC1, int32_t)
+	ZCGUI_ACCEPT_PROP(c2, setC2, int32_t)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(int32_t,int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(MiscColorSel, MiscColorSel, makeMiscColorSel)
+
+ZCGUI_BUILDER_START(MiscColorRow)
+	ZCGUI_ACCEPT_PROP(system, setSys, bool)
+	ZCGUI_ACCEPT_PROP(val, setVal, int32_t)
+	ZCGUI_ACCEPT_PROP(cset, setCS, int32_t)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(MiscColorRow, MiscColorRow, makeMiscColorRow)
 #endif
 
 } // namespace GUI::builder

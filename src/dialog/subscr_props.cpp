@@ -28,24 +28,28 @@ TextField( \
 		local_subref.member = val; \
 	})
 
-#define MISC_COLOR_SEL(txt) \
+#define MISC_COLOR_SEL(txt, mem1, mem2) \
 Frame( \
 	title = txt, \
-	Label(text = "TODO: Implement Misc Color Selector") \
+	MiscColorSel( \
+		c1 = local_subref.mem1, \
+		c2 = local_subref.mem2, \
+		onUpdate = [&](int32_t c1, int32_t c2) \
+		{ \
+			local_subref.mem1 = c1; \
+			local_subref.mem2 = c2; \
+		}) \
 )
 
 #define MISC_CSET_SEL(txt, mem1, mem2) \
 Frame( \
 	title = txt, \
 	MiscCSetSel( \
-		c1 = (local_subref.mem1==ssctMISC ? 0 : local_subref.mem1+1), \
+		c1 = local_subref.mem1, \
 		c2 = local_subref.mem2, \
 		onUpdate = [&](int32_t c1, int32_t c2) \
 		{ \
-			if(c1) \
-				local_subref.mem1 = c1-1; \
-			else \
-				local_subref.mem1 = ssctMISC; \
+			local_subref.mem1 = c1; \
 			local_subref.mem2 = c2; \
 		}) \
 )
@@ -178,9 +182,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoBSTIME:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoBUTTONITEM:
@@ -188,16 +192,16 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoCOUNTER:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoCOUNTERS:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoCURRENTITEM:
@@ -205,27 +209,27 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoCLEAR:
 			{
-				g2->add(MISC_COLOR_SEL("Subscreen Color"));
+				g2->add(MISC_COLOR_SEL("Subscreen Color", colortype1, color1));
 				break;
 			}
 			case ssoTIME:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoSSTIME:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoLARGEMAP:
 			{
-				g2->add(MISC_COLOR_SEL("Room Color"));
-				g2->add(MISC_COLOR_SEL("Player Color"));
+				g2->add(MISC_COLOR_SEL("Room Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Player Color", colortype2, color2));
 				break;
 			}
 			case ssoLIFEGAUGE:
@@ -236,7 +240,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoLINE:
 			{
-				g2->add(MISC_COLOR_SEL("Line Color"));
+				g2->add(MISC_COLOR_SEL("Line Color", colortype1, color1));
 				break;
 			}
 			case ssoMAGICGAUGE:
@@ -247,16 +251,16 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoMINIMAP:
 			{
-				g2->add(MISC_COLOR_SEL("Player Color"));
-				g2->add(MISC_COLOR_SEL("Compass Blink Color"));
-				g2->add(MISC_COLOR_SEL("Compass Const Color"));
+				g2->add(MISC_COLOR_SEL("Player Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Compass Blink Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Compass Const Color", colortype3, color3));
 				break;
 			}
 			case ssoMINIMAPTITLE:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoMINITILE:
@@ -266,15 +270,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoRECT:
 			{
-				g2->add(MISC_COLOR_SEL("Outline Color"));
-				g2->add(MISC_COLOR_SEL("Fill Color"));
+				g2->add(MISC_COLOR_SEL("Outline Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Fill Color", colortype2, color2));
 				break;
 			}
 			case ssoSELECTEDITEMNAME:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoSELECTOR1:
@@ -289,16 +293,16 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoTEXT:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoTEXTBOX:
 			{
-				g2->add(MISC_COLOR_SEL("Text Color"));
-				g2->add(MISC_COLOR_SEL("Shadow Color"));
-				g2->add(MISC_COLOR_SEL("Background Color"));
+				g2->add(MISC_COLOR_SEL("Text Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Shadow Color", colortype2, color2));
+				g2->add(MISC_COLOR_SEL("Background Color", colortype3, color3));
 				break;
 			}
 			case ssoTILEBLOCK:
@@ -308,8 +312,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoTRIFRAME:
 			{
-				g2->add(MISC_COLOR_SEL("Frame Outline Color"));
-				g2->add(MISC_COLOR_SEL("Number Color"));
+				g2->add(MISC_COLOR_SEL("Frame Outline Color", colortype1, color1));
+				g2->add(MISC_COLOR_SEL("Number Color", colortype2, color2));
 				break;
 			}
 			case ssoTRIFORCE:

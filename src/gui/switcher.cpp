@@ -46,10 +46,10 @@ void Switcher::calculateSize()
 	for(auto& child: children)
 	{
 		child->calculateSize();
-		int32_t w = child->getWidth(); // Should this be getTotalWidth()?
+		int32_t w = child->getTotalWidth();
 		if(w > maxW)
 			maxW = w;
-		int32_t h = child->getHeight(); // getTotalHeight()?
+		int32_t h = child->getTotalHeight();
 		if(w > maxH)
 			maxH = h;
 	}
