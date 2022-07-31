@@ -102,7 +102,7 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
 #define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fakez < 0 ? zslongToFix(2147483647) : switchblock_z+z+fakez))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_bit(quest_rules,qr_BROKEN_Z3_ANIMATION))
-#define CLEAR_LOW_BITS(x, b) ((x) & ~(1<<(b) - 1))
+#define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
 
 static inline bool platform_fallthrough()
 {
@@ -7206,16 +7206,22 @@ bool HeroClass::animate(int32_t)
 	{
 		if (z == 0 && fakez == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !toogam)
 		{
-			if (iswaterex(FFORCOMBO(x+11,y+15), currmap, currscr, -1, x+11,y+15, false, false, true, true)
-			&& iswaterex(FFORCOMBO(x+4,y+15), currmap, currscr, -1, x+4,y+15, false, false, true, true)
-			&& iswaterex(FFORCOMBO(x+11,y+9), currmap, currscr, -1, x+11,y+9, false, false, true, true)
-			&& iswaterex(FFORCOMBO(x+4,y+9), currmap, currscr, -1, x+4,y+9, false, false, true, true))
+			bool b1 = iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true);
+			bool b2 = iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true);
+			bool b3 = iswaterex_z3(FFORCOMBO(x+11,y+9), -1, x+11, y+9, false, false, true, true);
+			bool b4 = iswaterex_z3(FFORCOMBO(x+4,y+9), -1, x+4, y+9, false, false, true, true);
+
+			if (iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true)
+			&& iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true)
+			&& iswaterex_z3(FFORCOMBO(x+11,y+9), -1, x+11, y+9, false, false, true, true)
+			&& iswaterex_z3(FFORCOMBO(x+4,y+9), -1, x+4, y+9, false, false, true, true))
 			{
 				if(decorations.idCount(dRIPPLES)==0)
 				{
 					decorations.add(new dRipples(x, y, dRIPPLES, 0));
 				}
-				int32_t watercheck = iswaterex(FFORCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, false, false, true, true);
+				
+				int32_t watercheck = iswaterex_z3(FFORCOMBO(x.getInt()+7.5,y.getInt()+12), -1, x.getInt()+7.5,y.getInt()+12, false, false, true, true);
 				if (combobuf[watercheck].usrflags&cflag2)
 				{
 					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
@@ -7249,6 +7255,7 @@ bool HeroClass::animate(int32_t)
 					sfx(thesfx,pan((int32_t)x));
 			}
 		}
+		int lol = 1;
 	}
 	else
 	{
@@ -7406,7 +7413,11 @@ bool HeroClass::animate(int32_t)
 					info = walkflag(x,y+15+2,2,down);
 					execute(info);
 				}
-			        if(!info.isUnwalkable() && (game->get_watergrav() > 0 || iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)-2), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false))) y+=(game->get_watergrav()/10000.0);
+
+			    if(!info.isUnwalkable() && (game->get_watergrav() > 0 || iswaterex_z3(MAPCOMBO(x,y+8-(bigHitbox*8)-2), -1, x, y+8-(bigHitbox*8)-2, true, false)))
+				{
+					y += (game->get_watergrav()/10000.0);
+				}
 			}
 		}
 		// Stop hovering/falling if you land on something.
@@ -7418,6 +7429,7 @@ bool HeroClass::animate(int32_t)
 			fall = hoverclk = jumping = 0;
 			hoverflags = 0;
 			
+			// TODO z3
 			if(y>=160 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN))  // Landed on the bottommost screen.
 				y = 160;
 		}
@@ -7573,7 +7585,7 @@ bool HeroClass::animate(int32_t)
 			{
 				if(fall > 0)
 				{
-					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+					if((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
 						sfx(WAV_ZN1SPLASH,x.getInt());
 						
 					stomping = true;
@@ -7603,7 +7615,7 @@ bool HeroClass::animate(int32_t)
 			{
 				if(fakefall > 0)
 				{
-					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
+					if((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
 						sfx(WAV_ZN1SPLASH,x.getInt());
 						
 					stomping = true;
@@ -7725,6 +7737,7 @@ bool HeroClass::animate(int32_t)
 		lbunnyclock = 0;
 	}
 	
+	// TODO z3
 	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || fakefall==0 || z>0 || fakez>0) && charging==0 && spins<=5
 			&& action != gothit)
 	{
@@ -7765,6 +7778,7 @@ bool HeroClass::animate(int32_t)
 		}
 	}
 	
+	// TODO z3 switch hook
 	if(hookshot_frozen || switch_hooked)
 	{
 		if(hookshot_used || switch_hooked)
@@ -8201,6 +8215,7 @@ bool HeroClass::animate(int32_t)
 			reset_hookshot();
 		}
 		
+		// TODO z3
 		if(hs_fix)
 		{
 			if(dir==up)
@@ -19459,12 +19474,11 @@ void HeroClass::checktouchblk()
 	
 	if(ty>=0)
 	{
-		ty&=0xF0;
-		tx&=0xF0;
-		int32_t di = (ty+(tx>>4))%176;
+		tx = CLEAR_LOW_BITS(tx, 4);
+		ty = CLEAR_LOW_BITS(ty, 4);
 		if((getAction() != hopping || isSideViewHero()))
 		{
-			trigger_armos_grave(0, di, dir);
+			trigger_armos_grave(0, tx, ty, dir);
 		}
 	}
 }

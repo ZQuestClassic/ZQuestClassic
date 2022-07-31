@@ -783,9 +783,10 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
-bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
+bool trigger_armos_grave(int32_t lyr, int32_t x, int32_t y, int32_t trigdir)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if(unsigned(lyr) > 6 || x < 0 || y < 0 || x >= world_w || y >= world_h) return false;
+	int pos = COMBOPOS(x%256, y%176);
 	if(lyr != 0) return false; //Currently cannot activate on layers >0!
 	//!TODO Expand 'guygrid' stuff to account for layers, so that layers >0 can be used
 	if(guygrid[pos]) return false; //Currently activating
@@ -798,11 +799,11 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 		}
 	}
 	if(gc > 10) return false; //Unsure what this purpose is
-	mapscr* tmp = FFCore.tempScreens[lyr];
+	mapscr* tmp = get_layer_scr(currmap, z3_get_scr_for_xy_offset(x, y), lyr - 1);
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	int32_t eclk = -14;
 	int32_t id2 = 0;
-	int32_t tx = COMBOX(pos), ty = COMBOY(pos);
+	int32_t tx = x, ty = y;
 	bool nextcmb = false;
 	switch(cmb.type)
 	{
@@ -1367,7 +1368,8 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					break;
 				
 				case cARMOS: case cBSGRAVE: case cGRAVE:
-					if(!trigger_armos_grave(lyr,pos))
+					// TODO z3
+					if(!trigger_armos_grave(lyr, cx, cy))
 						return;
 					break;
 				

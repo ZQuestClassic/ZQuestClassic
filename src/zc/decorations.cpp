@@ -671,10 +671,10 @@ bool dRipples::animate(int32_t)
 			&& (FFORCOMBOTYPE(HeroX()+4,HeroY()+9)==cSHALLOWWATER || iswater_type(FFORCOMBOTYPE(HeroX()+4,HeroY()+9))));
 			*/
 			
-			return !(iswaterex(FFORCOMBO(HeroX()+11,HeroY()+15), currmap, currscr, -1, HeroX()+11,HeroY()+15, false, false, true, true)
-			&& iswaterex(FFORCOMBO(HeroX()+4,HeroY()+15), currmap, currscr, -1, HeroX()+4,HeroY()+15, false, false, true, true)
-			&& iswaterex(FFORCOMBO(HeroX()+11,HeroY()+9), currmap, currscr, -1, HeroX()+11,HeroY()+9, false, false, true, true)
-			&& iswaterex(FFORCOMBO(HeroX()+4,HeroY()+9), currmap, currscr, -1, HeroX()+4,HeroY()+9, false, false, true, true));
+			return !(iswaterex_z3(FFORCOMBO(HeroX()+11,HeroY()+15), -1, HeroX()+11,HeroY()+15, false, false, true, true)
+			&& iswaterex_z3(FFORCOMBO(HeroX()+4,HeroY()+15), -1, HeroX()+4,HeroY()+15, false, false, true, true)
+			&& iswaterex_z3(FFORCOMBO(HeroX()+11,HeroY()+9), -1, HeroX()+11,HeroY()+9, false, false, true, true)
+			&& iswaterex_z3(FFORCOMBO(HeroX()+4,HeroY()+9), -1, HeroX()+4,HeroY()+9, false, false, true, true));
 		}
 		return true;
 	}

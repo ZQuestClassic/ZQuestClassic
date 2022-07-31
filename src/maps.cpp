@@ -1615,6 +1615,17 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 {
 	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
 }
+
+// uses currmap and currscr and takes world coordinates
+// TODO z3 just make iswaterrex take world coords, then delete this one.
+int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
+{
+	int screen = z3_get_scr_for_xy_offset(x, y);
+	x %= 256;
+	y %= 176;
+	return iswaterex(combo, currmap, screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
+}
+
 int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
 	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
@@ -6325,6 +6336,40 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	return (cwalkflag&b) ? !dried : false;
 }
 
+bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
+{
+	mapscr* s0 = z3_get_mapscr_for_xy_offset(x, y);
+	mapscr* s1 = s0->layermap[0] > 0 ? &TheMaps[(s0->layermap[0]-1)*MAPSCRS+s0->layerscreen[0]] : NULL;
+	mapscr* s2 = s0->layermap[1] > 0 ? &TheMaps[(s0->layermap[1]-1)*MAPSCRS+s0->layerscreen[1]] : NULL;
+	if (!s1 || !s1->valid) s1 = s0;
+	if (!s2 || !s2->valid) s2 = s0;
+
+	int32_t bx = COMBOPOS(x % 256, y % 176);
+	newcombo c = combobuf[s0->data[bx]];
+	newcombo c1 = combobuf[s1->data[bx]];
+	newcombo c2 = combobuf[s2->data[bx]];
+	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
+				   (iswater_type(c2.type))) && DRIEDLAKE);
+	int32_t b=1;
+	if(x&8) b<<=2;
+	if(y&8) b<<=1;
+
+	int32_t cwalkflag = (c.walk>>4);
+	if (layer == 0) cwalkflag = (c1.walk>>4);
+	if (layer == 1) cwalkflag = (c2.walk>>4);
+	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	if (s1 != s0 && layer < 0)
+	{
+		if (c1.type == cBRIDGE) cwalkflag &= (~(c1.walk>>4));
+	}
+	if (s2 != s0 && layer < 1)
+	{
+		if (c2.type == cBRIDGE) cwalkflag &= (~(c2.walk>>4));
+	}
+	
+	return (cwalkflag&b) ? !dried : false;
+}
+
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 {
 	if (is_z3_scrolling_mode())
@@ -6340,30 +6385,20 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 		if (x >= max_x) return false;
 		if (x >= max_x - 8 && cnt == 2) return false;
 		if (y >= max_y) return false;
-		// TODO z3
-		// return _walkflag_new(x, y, switchblockstate) || (cnt == 2 && _walkflag_new(x + 8, y, switchblockstate));
+		return _effectflag_new(x, y, layer) || (cnt == 2 && _effectflag_new(x + 8, y, layer));
 	}
-	else
-	if(get_bit(quest_rules,qr_LTTPWALK))
+
+	int max_x = world_w;
+	int max_y = world_h;
+	if (!get_bit(quest_rules, qr_LTTPWALK))
 	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
+		max_x -= 7;
+		max_y -= 7;
 	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
+	if (x < 0 || y < 0) return false;
+	if (x >= max_x) return false;
+	if (x >= max_x - 8 && cnt == 2) return false;
+	if (y >= max_y) return false;
 	
 	mapscr *s0, *s1, *s2;
 	if (!is_z3_scrolling_mode())
@@ -6388,7 +6423,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	if (layer == 0 && (s1 == s0)) return false;
 	if (layer == 1 && (s2 == s0)) return false;
 	
-	int32_t bx=(x>>4)+(y&0xF0);
+	int32_t bx=COMBOPOS(x, y);
 	newcombo c = combobuf[s0->data[bx]];
 	newcombo c1 = combobuf[s1->data[bx]];
 	newcombo c2 = combobuf[s2->data[bx]];
