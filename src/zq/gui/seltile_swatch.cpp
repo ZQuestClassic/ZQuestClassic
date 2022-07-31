@@ -160,7 +160,7 @@ void SelTileSwatch::applyVisibility(bool visible)
 
 void SelTileSwatch::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

@@ -383,7 +383,7 @@ void MsgPreview::applyVisibility(bool visible)
 
 void MsgPreview::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

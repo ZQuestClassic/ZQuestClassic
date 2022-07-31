@@ -45,7 +45,7 @@ void Label::applyVisibility(bool visible)
 
 void Label::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
