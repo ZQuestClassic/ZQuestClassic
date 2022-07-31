@@ -72,11 +72,11 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
-#define hardcode_regions_mode 2
+// #define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -272,6 +272,7 @@ void z3_update_currscr()
 			region_scr_dx = dx;
 			region_scr_dy = dy;
 			currscr = z3_origin_scr + dx + dy * 16;
+			// tmpscr[0] = *get_scr(currmap, currscr);
 		}
 	}
 }
@@ -4346,16 +4347,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 
 	// TODO z3 move to game loop?
 	z3_update_viewport();
-	// {
-	// 	int viewport_w = 256;
-	// 	int viewport_h = 176;
-	// 	global_viewport_x = CLAMP(0, world_w - viewport_w, Hero.getX() - viewport_w/2);
-	// 	// TODO z3 this is quite a hack
-	// 	if (global_z3_scrolling_extended_height_mode)
-	// 		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - (viewport_h-64)/2);
-	// 	else
-	// 		global_viewport_y = CLAMP(0, world_h - viewport_h, Hero.getY() - viewport_h/2);
-	// }
 	
 	if (!is_z3_scrolling_mode())
 	{

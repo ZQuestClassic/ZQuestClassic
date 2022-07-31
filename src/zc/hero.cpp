@@ -19010,8 +19010,8 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 void HeroClass::handleSpotlights()
 {
 	int map_size = region_scr_width * 16 * region_scr_height * 11;
-	typeMap.resize(16*16 * 11*8);
-	istrig.resize(16*16 * 11*8);
+	typeMap.resize(map_size);
+	istrig.resize(map_size);
 
 	typedef byte spot_t;
 	//Store each different tile/color as grids
@@ -19066,7 +19066,7 @@ void HeroClass::handleSpotlights()
 		}
 	});
 
-	// The world is dark and lacking of light.
+	// The world is dark and full of terror.
 	if (!foundany) return;
 
 	switch(typeMap[heropos])
@@ -23170,7 +23170,9 @@ void HeroClass::check_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	else return; // TODO z3
 
-	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(tmpscr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(tmpscr->flags2&dir_flag))
+	mapscr* scr = z3_get_mapscr_for_xy_offset(x, y);
+
+	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
 		if(nextcombo_solid(dir))
 			should_scroll = false;
@@ -23196,10 +23198,10 @@ void HeroClass::check_scroll_direction(direction dir)
 				dowarp(2,dir);
 			}
 		}
-		else if(tmpscr->flags2&dir_flag && (!(tmpscr->flags8&fMAZEvSIDEWARP) || checkmaze(tmpscr,false)))
+		else if(scr->flags2&dir_flag && (!(scr->flags8&fMAZEvSIDEWARP) || checkmaze(scr,false)))
 		{
 			sdir=dir;
-			dowarp(1,(tmpscr->sidewarpindex)&3);
+			dowarp(1,(scr->sidewarpindex)&3);
 		}
 		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
