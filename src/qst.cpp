@@ -17373,25 +17373,6 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 				return qe_invalid;
 			}
 		}
-		else
-		{
-			switch(temp_combo.type)
-			{
-				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-					if(!(temp_combo.usrflags & cflag3))
-						temp_combo.attribytes[3] = WAV_DOOR;
-					temp_combo.usrflags &= ~cflag3;
-					break;
-			}
-		}
-		if(section_version < 26)
-		{
-			if(temp_combo.type == cARMOS)
-			{
-				if(temp_combo.usrflags & cflag1)
-					temp_combo.usrflags |= cflag3;
-			}
-		}
 		if(section_version >= 27)
 		{
 			if(!p_igetl(&temp_combo.trigchange,f,true))
@@ -17569,6 +17550,25 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			}
 		}
 		
+		if(section_version < 25)
+		{
+			switch(temp_combo.type)
+			{
+				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+					if(!(temp_combo.usrflags & cflag3))
+						temp_combo.attribytes[3] = WAV_DOOR;
+					temp_combo.usrflags &= ~cflag3;
+					break;
+			}
+		}
+		if(section_version < 26)
+		{
+			if(temp_combo.type == cARMOS)
+			{
+				if(temp_combo.usrflags & cflag1)
+					temp_combo.usrflags |= cflag3;
+			}
+		}
 		if(section_version < 28)
 		{
 			switch(temp_combo.type)

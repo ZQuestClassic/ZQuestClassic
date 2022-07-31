@@ -185,6 +185,7 @@ extern YYLTYPE noloc;
 %token ARROW
 %left INCREMENT DECREMENT
 %left NOT BITNOT
+%left EXPN
 %left TIMES DIVIDE MODULO
 %left PLUS MINUS
 %left LSHIFT RSHIFT
@@ -1458,7 +1459,10 @@ Expr_4 : Expr_3 {$$ = $1;}
 	| BITNOT Expr_4 {PREFIX(ASTExprBitNot, $$, $2, @$)}
 	;
 
-Expr_5 : Expr_4 {$$ = $1;} // None used.
+Expr_5 : Expr_4 {$$ = $1;}
+	// Exponentiation
+	| Expr_5 EXPN Expr_4 {BINARY(ASTExprExpn, $$, $1, $3, @$)}
+	;
 
 Expr_6 : Expr_5 {$$ = $1;}
 	// Multiplication

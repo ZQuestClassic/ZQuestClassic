@@ -1797,6 +1797,49 @@ optional<int32_t> ASTExprTimes::getCompileTimeValue(
 	return int32_t(*leftValue * (*rightValue / 10000.0));
 }
 
+// ASTExprExpn
+
+ASTExprExpn::ASTExprExpn(
+		ASTExpr* left, ASTExpr* right, LocationData const& location)
+	: ASTMultExpr(left, right, location)
+{}
+
+void ASTExprExpn::execute(ASTVisitor& visitor, void* param)
+{
+	visitor.caseExprExpn(*this, param);
+}
+
+optional<int32_t> ASTExprExpn::getCompileTimeValue(
+		CompileErrorHandler* errorHandler, Scope* scope)
+{
+	if (!left || !right) return nullopt;
+	optional<int32_t> leftValue = left->getCompileTimeValue(errorHandler, scope);
+	optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
+	bool is_long = left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler);
+	
+	if(rightValue && (*rightValue == 0)) return 10000; //x^0 == 1
+	if(leftValue) //1^x == 1
+	{
+		if(is_long)
+		{
+			if(*leftValue == 1) return 1;
+		}
+		else if(*leftValue == 10000) return 10000;
+	}
+	
+	if (!leftValue) return nullopt;
+	if (!rightValue) return nullopt;
+	if(*leftValue == 0) return 0;
+	if(is_long)
+		return int32_t(pow(*leftValue,*rightValue));
+	else
+	{
+		double temp_l = *leftValue / 10000.0;
+		double temp_r = *rightValue / 10000.0;
+		return int32_t(pow(temp_l, temp_r) * 10000.0);
+	}
+}
+
 // ASTExprDivide
 
 ASTExprDivide::ASTExprDivide(

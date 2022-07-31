@@ -1425,6 +1425,11 @@ void SemanticAnalyzer::caseExprTimes(ASTExprTimes& host, void*)
 	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
 }
 
+void SemanticAnalyzer::caseExprExpn(ASTExprExpn& host, void*)
+{
+	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);
+}
+
 void SemanticAnalyzer::caseExprDivide(ASTExprDivide& host, void*)
 {
 	analyzeBinaryExpr(host, DataType::FLOAT, DataType::FLOAT);

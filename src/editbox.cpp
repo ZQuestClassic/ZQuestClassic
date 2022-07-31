@@ -138,12 +138,12 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_HOME:
-			model->getView()->lineHome();
+			model->getView()->lineHome(key[KEY_LCONTROL]||key[KEY_RCONTROL]);
 			ret = D_USED_CHAR;
 			break;
 			
 		case KEY_END:
-			model->getView()->lineEnd();
+			model->getView()->lineEnd(key[KEY_LCONTROL]||key[KEY_RCONTROL]);
 			ret = D_USED_CHAR;
 			break;
 			
@@ -159,6 +159,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 		case KEY_ENTER:
 		case KEY_ENTER_PAD:
+			model->set_undo();
 			model->clear();
 			model->getCursor().insertNewline();
 			ret = D_USED_CHAR;
@@ -166,6 +167,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 		case KEY_TAB:
 		{
+			model->set_undo();
 			model->clear();
 			int32_t ch = Unicode::getCharAtOffset(uconvert_ascii("\t",NULL),0);
 			model->getCursor().insertChar(ch);
@@ -175,6 +177,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		
 		case KEY_DEL:
 		case KEY_DEL_PAD:
+			model->set_undo();
 			if(model->getSelection().hasSelection())
 				model->clear();
 			else
@@ -184,6 +187,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			break;
 			
 		case KEY_BACKSPACE:
+			model->set_undo();
 			if(model->getSelection().hasSelection())
 				model->clear();
 			else if(model->getCursor().getPosition() != 0)
@@ -193,6 +197,21 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			
 			ret = D_USED_CHAR;
+			break;
+			
+		case KEY_A:
+			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			{
+				model->getSelection().clearSelection();
+				model->getView()->lineHome(true);
+				model->getSelection().restartSelection(model->getCursor());
+				model->getView()->lineEnd(true);
+				model->getSelection().adjustSelection(model->getCursor());
+				ret = D_USED_CHAR;
+				break;
+			}
+			
+			ret = D_O_K;
 			break;
 			
 		case KEY_C:
@@ -209,6 +228,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		case KEY_X:
 			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 			{
+				model->set_undo();
 				model->cut();
 				ret = D_USED_CHAR;
 				break;
@@ -220,8 +240,19 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		case KEY_V:
 			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
 			{
+				model->set_undo();
 				model->clear();
 				model->paste();
+				ret = D_USED_CHAR;
+				break;
+			}
+			
+			ret = D_O_K;
+			break;
+		case KEY_Z:
+			if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
+			{
+				model->undo();
 				ret = D_USED_CHAR;
 				break;
 			}
@@ -261,10 +292,13 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 	
 	case MSG_UCHAR:
 	{
+		if(model->isReadonly())
+			break;
 		ret = D_USED_CHAR;
 		
 		if((c >= ' ') && (uisok(c)))
 		{
+			model->set_undo();
 			model->clear();
 			model->getCursor().insertChar(c);
 		}

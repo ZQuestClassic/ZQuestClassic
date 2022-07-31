@@ -617,6 +617,7 @@ static AccessorTable GlobalTable[] =
 	{ "Max",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Min",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Pow",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "LPow",                   ZVARTYPEID_LONG,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_LONG, ZVARTYPEID_LONG, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "InvPow",                 ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Factorial",              ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "Abs",                    ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -1179,6 +1180,18 @@ void GlobalSymbols::generateCode()
         LABELBACK(label);
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //int32_t LPow(int32_t first, int32_t second)
+    {
+	    Function* function = getFunction("Pow", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+        LABELBACK(label);
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        addOpcode2 (code, new OLPowRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
         RETURN();
         function->giveCode(code);
     }
@@ -2390,6 +2403,7 @@ static AccessorTable HeroSTable[] =
 	{ "setShadowXOffset",           ZVARTYPEID_VOID,          SETTER,       HEROSHADOWXOFS,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getShadowYOffset",           ZVARTYPEID_FLOAT,         GETTER,       HEROSHADOWYOFS,          1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setShadowYOffset",           ZVARTYPEID_VOID,          SETTER,       HEROSHADOWYOFS,          1,           0,                                    2,           { ZVARTYPEID_PLAYER, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getStanding",                ZVARTYPEID_BOOL,          GETTER,       HEROSTANDING,            1,           0,                                    1,           { ZVARTYPEID_PLAYER, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                       -1,                       -1,           -1,                   -1,          0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 };
@@ -3002,6 +3016,7 @@ static AccessorTable ScreenTable[] =
 	{ "SecretsTriggered",             ZVARTYPEID_BOOL,          GETTER,       SCREENSECRETSTRIGGERED,        1,            0,                                    1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "SpawnScreenEnemies",           ZVARTYPEID_BOOL,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_SCREEN, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "TriggerCombo",                 ZVARTYPEID_BOOL,          FUNCTION,     0,                             1,            FUNCFLAG_INLINE,                      3,           { ZVARTYPEID_SCREEN, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -4022,7 +4037,20 @@ void ScreenSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-          
+	//bool TriggerCombo(screen,lyr,pos)
+	{
+		Function* function = getFunction("TriggerCombo", 3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OScreenTriggerCombo(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 ItemSymbols ItemSymbols::singleton = ItemSymbols();

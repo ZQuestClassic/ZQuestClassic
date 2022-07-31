@@ -189,6 +189,25 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 									str_field->setText(outstr);
 									preview->setText(outstr);
 									tmpMsgStr.s = parse_msg_str(outstr);
+								}),
+							Button(text = "Copy Text",
+								forceFitH = true,
+								onPressFunc = [&]()
+								{
+									set_al_clipboard(preview->getText());
+								}),
+							Button(text = "Paste Text",
+								forceFitH = true,
+								onPressFunc = [&]()
+								{
+									std::string tmp;
+									if(get_al_clipboard(tmp))
+									{
+										str_field->setText(tmp);
+										preview->setText(tmp);
+										tmpMsgStr.s = parse_msg_str(tmp);
+									}
+									else InfoDialog("Error","No text found on clipboard").show();
 								})
 						),
 						Rows<2>(
@@ -390,6 +409,25 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 									str_field->setText(outstr);
 									preview->setText(outstr);
 									tmpMsgStr.s = parse_msg_str(outstr);
+								}),
+							Button(text = "Copy",
+								forceFitH = true,
+								onPressFunc = [&]()
+								{
+									set_al_clipboard(preview->getText());
+								}),
+							Button(text = "Paste",
+								forceFitH = true,
+								onPressFunc = [&]()
+								{
+									std::string tmp;
+									if(get_al_clipboard(tmp))
+									{
+										str_field->setText(tmp);
+										preview->setText(tmp);
+										tmpMsgStr.s = parse_msg_str(tmp);
+									}
+									else InfoDialog("Error","No text found on clipboard").show();
 								})
 						),
 						Rows<2>(
