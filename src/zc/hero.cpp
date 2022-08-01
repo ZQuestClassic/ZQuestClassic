@@ -23857,7 +23857,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
-	// FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
+	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	// switch(scrolldir)
 	// {
 	// 	case up:
@@ -23906,7 +23906,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
-	scrolling_map = currmap;
 	scrolling_scr = currscr;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;

@@ -391,6 +391,16 @@ const mapscr* get_canonical_scr(int map, int screen)
 
 mapscr* get_scr(int map, int screen)
 {
+	if (currmap != map)
+	{
+		// TODO: do we need to store temp maps from different maps?
+		//       if we did not we could just use a much quick array lookup
+		//       for temp screens.
+		// see: side warps.
+		// also why do side warps to different map flash black for a moment
+
+		int lol = 1;
+	}
 	if (screen == initial_region_scr && map == currmap) return &tmpscr;
 
 	int index = map*MAPSCRS + screen;
@@ -403,6 +413,10 @@ mapscr* get_scr(int map, int screen)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
+	if (currmap != map)
+	{
+		int lol = 1;
+	}
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
 
