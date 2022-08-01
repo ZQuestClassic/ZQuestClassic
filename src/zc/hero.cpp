@@ -8942,6 +8942,7 @@ bool HeroClass::animate(int32_t)
 				newcombo const& cmb = combobuf[cid];
 				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 				{
+					// TODO z3
 					do_trigger_combo(layer, i);
 				}
 				
@@ -16791,7 +16792,7 @@ HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 bool HeroClass::checksoliddamage()
 {
 	if(toogam) return false;
-	// TODO z3
+	// TODO z3 damage
 	if (is_z3_scrolling_mode()) return false;
     
 	if(z!=0||fakez!=0) return false;
@@ -17928,11 +17929,11 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(ischest)
 	{
-		if(!trigger_chest(foundlayer, COMBOPOS(fx,fy))) return;
+		if (!trigger_chest(z3_get_pos_handle(COMBOPOS_REGION(fx, fy), foundlayer))) return;
 	}
 	else if(islockblock)
 	{
-		if(!trigger_lockblock(foundlayer, COMBOPOS(fx,fy))) return;
+		if (!trigger_lockblock(z3_get_pos_handle(COMBOPOS_REGION(fx, fy), foundlayer))) return;
 	}
 	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
@@ -19474,11 +19475,9 @@ void HeroClass::checktouchblk()
 	
 	if(ty>=0)
 	{
-		tx = CLEAR_LOW_BITS(tx, 4);
-		ty = CLEAR_LOW_BITS(ty, 4);
-		if((getAction() != hopping || isSideViewHero()))
+		if (getAction() != hopping || isSideViewHero())
 		{
-			trigger_armos_grave(0, tx, ty, dir);
+			trigger_armos_grave(z3_get_pos_handle(COMBOPOS_REGION(tx, ty), 0), dir);
 		}
 	}
 }
@@ -20615,7 +20614,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	else if(type==cSTEPSFX && action == walking)
 	{
-		trigger_stepfx(0, COMBOPOS(tx+8,ty+8), true);
+		trigger_stepfx(z3_get_pos_handle(COMBOPOS_REGION(tx + 8, ty + 8), 0), true);
 	}
 	else stepnext = -1;
 	

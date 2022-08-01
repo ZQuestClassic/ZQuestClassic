@@ -274,7 +274,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 	//if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-bool do_cswitch_combo(newcombo const& cmb, int32_t layer, int32_t cpos, weapon* w)
+bool do_cswitch_combo(newcombo const& cmb, int32_t layer, weapon* w)
 {
 	mapscr* scr = (layer ? &tmpscr2[layer] : &tmpscr);
 	byte pair = cmb.attribytes[0];
@@ -308,16 +308,20 @@ void spawn_decoration(newcombo const& cmb, int32_t pos)
 	}
 }
 
-void trigger_cuttable(int32_t lyr, int32_t pos)
+void trigger_cuttable(const pos_handle& pos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
-	mapscr* tmp = FFCore.tempScreens[lyr];
+	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return;
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	mapscr* tmp = pos_handle.screen;
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	auto type = cmb.type;
 	if(!isCuttableType(type)) return;
 	auto flag = tmp->sflag[pos];
 	auto flag2 = cmb.flag;
-	auto x = COMBOX(pos), y = COMBOY(pos);
+
+	int32_t x, y;
+	COMBOXY_REGION(pos_handle.rpos, x, y);
 	
 	bool skipSecrets = isNextType(type) && !get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
@@ -384,6 +388,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 		}
 	}
 	
+	// TODO z3 tmpscr
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr.catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
@@ -427,10 +432,12 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 	spawn_decoration(cmb, pos);
 }
 
-bool trigger_step(int32_t lyr, int32_t pos)
+bool trigger_step(const pos_handle& pos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
+	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+
+	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
+	mapscr* tmp = pos_handle.screen;
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
@@ -448,6 +455,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 			int32_t id = tmp->data[pos];
 			for(auto q = 0; q < 176; ++q)
 			{
+				// TODO z3 tmpscr
 				if(tmpscr.data[q] == id)
 				{
 					++tmpscr.data[q];
@@ -617,10 +625,12 @@ bool trigger_warp(newcombo const& cmb)
 	return true;
 }
 
-bool trigger_chest(int32_t lyr, int32_t pos)
+bool trigger_chest(const pos_handle& pos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos) > region_max_rpos) return false;
+
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
@@ -724,10 +734,14 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	return true;
 }
 
-bool trigger_lockblock(int32_t lyr, int32_t pos)
+// TODO z3 test
+bool trigger_lockblock(const pos_handle& pos_handle)
 {
+	int lyr = pos_handle.layer;
+	int pos = (int)pos_handle.rpos;
+
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
@@ -783,11 +797,12 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
-bool trigger_armos_grave(int32_t lyr, int32_t x, int32_t y, int32_t trigdir)
+bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir)
 {
-	if(unsigned(lyr) > 6 || x < 0 || y < 0 || x >= world_w || y >= world_h) return false;
-	int pos = COMBOPOS(x%256, y%176);
-	if(lyr != 0) return false; //Currently cannot activate on layers >0!
+	if (pos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	
+	int pos = RPOS_TO_POS(pos_handle.rpos);
 	//!TODO Expand 'guygrid' stuff to account for layers, so that layers >0 can be used
 	if(guygrid[pos]) return false; //Currently activating
 	int32_t gc = 0;
@@ -799,11 +814,12 @@ bool trigger_armos_grave(int32_t lyr, int32_t x, int32_t y, int32_t trigdir)
 		}
 	}
 	if(gc > 10) return false; //Unsure what this purpose is
-	mapscr* tmp = get_layer_scr(currmap, z3_get_scr_for_xy_offset(x, y), lyr - 1);
+	mapscr* tmp = pos_handle.screen;
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	int32_t eclk = -14;
 	int32_t id2 = 0;
-	int32_t tx = x, ty = y;
+	int32_t tx, ty;
+	COMBOXY_REGION(pos_handle.rpos, tx, ty);
 	bool nextcmb = false;
 	switch(cmb.type)
 	{
@@ -1033,11 +1049,12 @@ bool trigger_armos_grave(int32_t lyr, int32_t x, int32_t y, int32_t trigdir)
 	return true;
 }
 
-bool trigger_damage_combo(int32_t lyr, int32_t pos)
+bool trigger_damage_combo(const pos_handle& pos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	// TODO z3 region_max_rpos -> region_num_combos?
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	if(Hero.hclk || Hero.superman || Hero.fallclk)
 		return false; //immune
 	int32_t dmg = 0;
@@ -1045,6 +1062,7 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 		dmg = cmb.attributes[0] / -10000L;
 	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
 	
+	// TODO z3 tmpscr?
 	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
 	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
@@ -1073,12 +1091,18 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 	return false;
 }
 
-bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
+bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[tmp->data[pos]];
-	int32_t tx = COMBOX(pos)+8, ty = COMBOY(pos)+8;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+
+	int32_t tx, ty;
+	COMBOXY_REGION(pos_handle.rpos, tx, ty);
+	tx += 8;
+	ty += 8;
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
+
 	int32_t thesfx = cmb.attribytes[0];
 	if ( thesfx > 0 && !sfx_allocated(thesfx))
 		sfx(thesfx,pan(COMBOX(pos)));
@@ -1253,18 +1277,19 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 		}
 		if (!(cmb.usrflags&cflag3) ) //Don't Advance
 		{
-			tmp->data[pos]++;
+			pos_handle.screen->data[pos]++;
 		}
 	}
 	return true;
 }
 
-bool trigger_switchhookblock(int32_t lyr, int32_t pos)
+bool trigger_switchhookblock(const pos_handle& pos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
 	if(Hero.switchhookclk) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switching_object = NULL;
 	hooked_combopos = pos;
 	hooked_layerbits = 0;
@@ -1277,19 +1302,32 @@ bool trigger_switchhookblock(int32_t lyr, int32_t pos)
 	return true;
 }
 
-//Forcibly triggers a combo at a given position
-void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
+// TODO z3 remove
+void do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	int32_t cid = tmp->data[pos];
+	if (unsigned(pos) > 175) return;
+	do_trigger_combo(z3_get_pos_handle((rpos_t)pos, layer), special, w);
+}
+
+// Forcibly triggers a combo at a given position
+void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
+{
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return;
+
+	int lyr = pos_handle.layer;
+	// TODO z3 remove
+	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
+	int32_t cid = pos_handle.screen->data[pos];
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];
-	if(cmb.triggeritem && (!game->get_item(cmb.triggeritem)
-		|| item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
+	if(cmb.triggeritem &&
+		(!game->get_item(cmb.triggeritem) || item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
+	{
 		return;
-	int32_t flag = tmp->sflag[pos];
+	}
+
+	int32_t flag = pos_handle.screen->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	
 	byte* grid = nullptr;
@@ -1324,7 +1362,7 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			switch(cmb.type)
 			{
 				case cCSWITCH:
-					do_cswitch_combo(cmb, lyr, pos, w);
+					do_cswitch_combo(cmb, lyr, w);
 					break;
 				
 				case cSIGNPOST:
@@ -1341,11 +1379,11 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
 				case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
 				case cBUSHNEXTTOUCHY:
-					trigger_cuttable(lyr, pos);
+					trigger_cuttable(pos_handle);
 					break;
 					
 				case cSTEP: case cSTEPSAME: case cSTEPALL:
-					if(!trigger_step(lyr,pos))
+					if (!trigger_step(pos_handle))
 						return;
 					break;
 				
@@ -1359,31 +1397,30 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					break;
 				
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-					if(!trigger_chest(lyr,pos))
+					if (!trigger_chest(pos_handle))
 						return;
 					break;
 				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-					if(!trigger_lockblock(lyr,pos))
+					if (!trigger_lockblock(pos_handle))
 						return;
 					break;
 				
 				case cARMOS: case cBSGRAVE: case cGRAVE:
-					// TODO z3
-					if(!trigger_armos_grave(lyr, cx, cy))
+					if (!trigger_armos_grave(pos_handle))
 						return;
 					break;
 				
 				case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 				case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-					trigger_damage_combo(lyr,pos);
+					trigger_damage_combo(pos_handle);
 					break;
 				
 				case cSTEPSFX:
-					trigger_stepfx(lyr,pos);
+					trigger_stepfx(pos_handle);
 					break;
 				
 				case cSWITCHHOOK:
-					if(!trigger_switchhookblock(lyr,pos))
+					if (!trigger_switchhookblock(pos_handle))
 						return;
 					break;
 				
@@ -1407,12 +1444,12 @@ void do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		if(cmb.trigchange)
 		{
 			used_bit = true;
-			tmp->data[pos] = cid+cmb.trigchange;
+			pos_handle.screen->data[pos] = cid+cmb.trigchange;
 		}
 		
 		if(cmb.triggerflags[0] & combotriggerRESETANIM)
 		{
-			newcombo& rcmb = combobuf[tmp->data[pos]];
+			newcombo& rcmb = combobuf[pos_handle.screen->data[pos]];
             rcmb.tile = rcmb.o_tile;
 			rcmb.cur_frame=0;
 			rcmb.aclk = 0;
@@ -1442,28 +1479,35 @@ void init_combo_timers()
 
 void update_combo_timers()
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		for(auto pos = 0; pos < 176; ++pos)
+	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		pos_handle pos_handle;
+		for (auto lyr = 0; lyr < 7; ++lyr)
 		{
-			cmbtimer& timer = combo_trig_timers[lyr][pos];
-			if(timer.data != scr->data[pos])
+			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+			pos_handle.screen = scr;
+			pos_handle.screen_index = screen_index;
+			pos_handle.layer = lyr;
+
+			for (auto pos = 0; pos < 176; ++pos)
 			{
-				timer.data = scr->data[pos];
-				timer.clk = 0;
-			}
-			newcombo const& cmb = combobuf[timer.data];
-			if(cmb.trigtimer)
-			{
-				if(++timer.clk >= cmb.trigtimer)
+				cmbtimer& timer = combo_trig_timers[lyr][pos];
+				if (timer.data != scr->data[pos])
 				{
-					timer.clk = 0;
-					do_trigger_combo(lyr, pos);
 					timer.data = scr->data[pos];
+					timer.clk = 0;
+				}
+				newcombo const& cmb = combobuf[timer.data];
+				if (cmb.trigtimer)
+				{
+					if (++timer.clk >= cmb.trigtimer)
+					{
+						timer.clk = 0;
+						pos_handle.rpos = POS_TO_RPOS(pos, z3_scr_dx, z3_scr_dy);
+						do_trigger_combo(pos_handle);
+						timer.data = scr->data[pos];
+					}
 				}
 			}
 		}
-	}
+	});
 }
-

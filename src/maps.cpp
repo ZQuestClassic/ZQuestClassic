@@ -68,6 +68,7 @@ int world_w, world_h;
 static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
+int region_max_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
@@ -226,6 +227,7 @@ static int initial_region_scr = 0;
 void z3_set_currscr(int scr)
 {
 	z3_calculate_region(scr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	region_max_rpos = region_scr_width*region_scr_height*176 - 1;
 	initial_region_scr = scr;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
@@ -298,6 +300,23 @@ int z3_get_scr_for_xy_offset(int x, int y)
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	return scr_xy_to_index(scr_x, scr_y);
+}
+
+int z3_get_scr_for_rpos(rpos_t rpos)
+{
+	int origin_scr_x = z3_origin_scr % 16;
+	int origin_scr_y = z3_origin_scr / 16;
+	int scr_index = static_cast<int32_t>(rpos) / 176;
+	int scr_x = origin_scr_x + scr_index%region_scr_width;
+	int scr_y = origin_scr_y + scr_index/region_scr_width;
+	return scr_xy_to_index(scr_x, scr_y);
+}
+
+pos_handle z3_get_pos_handle(rpos_t rpos, int layer)
+{
+	int screen_index = z3_get_scr_for_rpos(rpos);
+	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
+	return {screen, screen_index, layer, rpos};
 }
 
 // These functions all return _temporary_ screens. Any modifcations made to them (either by the engine
@@ -424,6 +443,7 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
+	// TODO z3
 	// DCHECK(x >= 0 && x < 16 && y >= 0 && y < 11);
 	return (((y) & 0xF0) + ((x) >> 4));
 }
@@ -434,6 +454,44 @@ int32_t COMBOX(int32_t pos)
 int32_t COMBOY(int32_t pos)
 {
     return ((pos) & 0xF0);
+}
+
+rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
+{
+	int scr_dx = x / (16*16);
+	int scr_dy = y / (11*16);
+	int pos = COMBOPOS(x%256, y%176);
+	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+}
+int32_t RPOS_TO_POS(rpos_t rpos)
+{
+	return static_cast<int32_t>(rpos)%176;
+}
+rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
+{
+	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+}
+void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
+{
+	int scr_index = static_cast<int32_t>(rpos) / 176;
+	int scr_dx = scr_index % region_scr_width;
+	int scr_dy = scr_index / region_scr_width;
+    int pos = RPOS_TO_POS(rpos);
+	out_x = scr_dx*16*16 + COMBOX(pos);
+	out_y = scr_dy*11*16 + COMBOY(pos);
+}
+// TODO z3 "COMBOX" and overload?
+int32_t COMBOX_REGION(rpos_t rpos)
+{
+	int x, y;
+	COMBOXY_REGION(rpos, x, y);
+	return x;
+}
+int32_t COMBOY_REGION(rpos_t rpos)
+{
+	int x, y;
+	COMBOXY_REGION(rpos, x, y);
+	return y;
 }
 
 int32_t mapind(int32_t map, int32_t scr)
@@ -5436,18 +5494,27 @@ void openshutters()
 			tmpscr.door[i]=dOPENSHUTTER;
 		}
 	
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		for(auto pos = 0; pos < 176; ++pos)
+	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		pos_handle pos_handle;
+		for (auto lyr = 0; lyr < 7; ++lyr)
 		{
-			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(cmb.triggerflags[0] & combotriggerSHUTTER)
-				do_trigger_combo(lyr,pos);
+			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
+			pos_handle.screen = scr;
+			pos_handle.screen_index = screen_index;
+			pos_handle.layer = lyr; // TODO z3 work out if this is -1 or 0 indexed
+			for (auto pos = 0; pos < 176; ++pos)
+			{
+				newcombo const& cmb = combobuf[scr->data[pos]];
+				if(cmb.triggerflags[0] & combotriggerSHUTTER)
+				{
+					pos_handle.rpos = POS_TO_RPOS(pos, z3_scr_dx, z3_scr_dy);
+					do_trigger_combo(pos_handle);
+				}
+			}
 		}
-	}
-		
-	sfx(WAV_DOOR,128);
+	});
+	
+	sfx(WAV_DOOR, 128);
 }
 
 // TODO z3

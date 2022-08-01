@@ -23,6 +23,14 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos);
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
+
+rpos_t COMBOPOS_REGION(int32_t x, int32_t y);
+int32_t RPOS_TO_POS(rpos_t rpos);
+rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy);
+void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y);
+int32_t COMBOX_REGION(rpos_t rpos);
+int32_t COMBOY_REGION(rpos_t rpos);
+
 int32_t mapind(int32_t map, int32_t scr);
 
 extern bool triggered_screen_secrets;
@@ -59,6 +67,9 @@ extern int region_scr_dx, region_scr_dy;
 // The screens size of the region that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 1.
 extern int region_scr_width, region_scr_height;
+// Maximum value for 'rpos' in a region. Number of combo positions in a region, minus 1. If not currently
+// in z3 scrolling mode, this is just 175.
+extern int region_max_rpos;
 // TODO z3
 extern int scrolling_maze_scr, scrolling_maze_state;
 // TODO z3: this only works in mode '0' and if the scrolling region is 1x1...
@@ -74,6 +85,8 @@ void z3_update_viewport();
 void z3_update_currscr();
 bool edge_of_region(direction dir);
 int z3_get_scr_for_xy_offset(int x, int y);
+int z3_get_scr_for_rpos(rpos_t rpos);
+pos_handle z3_get_pos_handle(rpos_t rpos, int layer);
 mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
 mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer);
 mapscr* z3_get_mapscr_layer_for_xy_offset_include_base(int x, int y, int layer);

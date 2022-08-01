@@ -254,6 +254,7 @@ bool enemy::overpit(enemy *e)
 	return false;
 }
 
+// TODO z3 is slow
 bool enemy::shadow_overpit(enemy *e)
 {
 	for ( int32_t q = 0; q < hxsz; ++q )

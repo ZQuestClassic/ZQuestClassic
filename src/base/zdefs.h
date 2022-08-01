@@ -5314,6 +5314,18 @@ extern void removeFromItemCache(int32_t itemid);
 #define unless(n) if(!(n))
 #define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
 
+// TODO z3 uint32_t ?
+enum class rpos_t : int32_t {};
+
+struct pos_handle
+{
+	mapscr* screen;
+	int32_t screen_index;
+	// 0 = base screen, 1 = first layer, etc.
+	int32_t layer;
+	rpos_t rpos;
+};
+
 enum //Mapscr hardcodes for temp mapscrs
 {
 	MAPSCR_SCROLL6 = -14,
