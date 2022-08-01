@@ -3043,7 +3043,7 @@ void _jwin_draw_listbox(DIALOG *d)
             x += 8;
             len = (int32_t)strlen(s);
             
-            while(text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
+            while(len > 0 && text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
             {
                 len--;
                 s[len] = 0;
@@ -4942,6 +4942,29 @@ const char* rowpref(int32_t row)
 	}
 }
 
+byte getHighlightColor(int32_t c)
+{
+	RGB col;
+	get_color(c, &col);
+	return getHighlightColor(col);
+}
+
+byte getHighlightColor(RGB const& col)
+{
+	byte bright = (col.r >= 32) + (col.g >= 32) + (col.b >= 32);
+	byte sbright = (col.r >= 48) + (col.g >= 48) + (col.b >= 48);
+	byte highlightColor = vc(7); //sysgray
+	if(bright >= 2)
+	{
+		if(sbright >= 2)
+			highlightColor = vc(0); //sysblack
+		else highlightColor = vc(8); //sysdarkgray
+	}
+	else if(!bright)
+		highlightColor = vc(15); //syswhite
+	return highlightColor;
+}
+
 int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	int32_t ret = D_O_K;
@@ -4966,14 +4989,7 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 				rectfill(screen, d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1, c);
 				if(c == d->d1)
 				{
-					RGB foo;
-					get_color(c, &foo);
-					byte bright = (foo.r >= 32) + (foo.g >= 32) + (foo.b >= 32);
-					byte highlightColor = vc(7); //sysgray
-					if(bright >= 2)
-						highlightColor = vc(0); //sysblack
-					else if(!bright)
-						highlightColor = vc(15);
+					byte highlightColor = getHighlightColor(c);
 					rect(screen, d->x+x+0, d->y+y+0, d->x+x+csz-1, d->y+y+csz-1, highlightColor);
 					rect(screen, d->x+x+1, d->y+y+1, d->x+x+csz-2, d->y+y+csz-2, highlightColor);
 				}

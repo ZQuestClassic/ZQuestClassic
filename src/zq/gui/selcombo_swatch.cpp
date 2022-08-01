@@ -144,7 +144,7 @@ void SelComboSwatch::applyVisibility(bool visible)
 
 void SelComboSwatch::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

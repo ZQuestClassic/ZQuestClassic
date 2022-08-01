@@ -72,6 +72,9 @@ struct ListData
     void* owner;
 };
 
+byte getHighlightColor(int32_t c);
+byte getHighlightColor(RGB const& col);
+
 #ifdef __cplusplus
 extern "C"
 {

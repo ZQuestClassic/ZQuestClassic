@@ -5,6 +5,11 @@
 
 namespace GUI::ZCListData
 {
+    GUI::ListData fonts(bool ss_fonts = false);
+    GUI::ListData shadow_types();
+    GUI::ListData const& alignments();
+    GUI::ListData const& buttons();
+	GUI::ListData items(bool numbered = false);
     GUI::ListData itemclass(bool numbered = false);
 	GUI::ListData combotype(bool numbered = false, bool skipNone = false);
 	GUI::ListData mapflag(int32_t numericalFlags, bool numbered = false, bool skipNone = false);

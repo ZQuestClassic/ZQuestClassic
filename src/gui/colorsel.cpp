@@ -61,7 +61,7 @@ void ColorSel::applyVisibility(bool visible)
 
 void ColorSel::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

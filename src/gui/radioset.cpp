@@ -52,7 +52,7 @@ void RadioSet::applyVisibility(bool visible)
 
 void RadioSet::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if (content) content->setDisabled(dis);
 }
 

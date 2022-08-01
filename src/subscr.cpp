@@ -3662,6 +3662,152 @@ FONT *ss_font(int32_t fontnum)
     return tempfont;
 }
 
+
+int32_t to_real_font(int32_t ss_font)
+{
+	switch(ss_font)
+	{
+		case ssfSMALL: return font_sfont;
+		case ssfSMALLPROP: return font_spfont;
+		case ssfSS1: return font_ssfont1;
+		case ssfSS2: return font_ssfont2;
+		case ssfSS3: return font_ssfont3;
+		case ssfSS4: return font_ssfont4;
+		case ssfZTIME: return font_ztfont;
+		case ssfZELDA: return font_zfont;
+		case ssfZ3: return font_z3font;
+		case ssfZ3SMALL: return font_z3smallfont;
+		case ssfGBLA: return font_gblafont;
+		case ssfGORON: return font_goronfont;
+		case ssfZORAN: return font_zoranfont;
+		case ssfHYLIAN1: return font_hylian1font;
+		case ssfHYLIAN2: return font_hylian2font;
+		case ssfHYLIAN3: return font_hylian3font;
+		case ssfHYLIAN4: return font_hylian4font;
+		case ssfGBORACLE: return font_gboraclefont;
+		case ssfGBORACLEP: return font_gboraclepfont;
+		case ssfDSPHANTOM: return font_dsphantomfont;
+		case ssfDSPHANTOMP: return font_dsphantompfont;
+		case ssfAT800: return font_atari800font;
+		case ssfACORN: return font_acornfont;
+		case ssADOS: return font_adosfont;
+		case ssfALLEG: return font_baseallegrofont;
+		case ssfAPL2: return font_apple2font;
+		case ssfAPL280: return font_apple280colfont;
+		case ssfAPL2GS: return font_apple2gsfont;
+		case ssfAQUA: return font_aquariusfont;
+		case ssfAT400: return font_atari400font;
+		case ssfC64: return font_c64font;
+		case ssfC64HR: return font_c64hiresfont;
+		case ssfCGA: return font_cgafont;
+		case ssfCOCO: return font_cocofont;
+		case ssfCOCO2: return font_coco2font;
+		case ssfCOUPE: return font_coupefon;
+		case ssfCPC: return font_cpcfon;
+		case ssfFANTASY: return font_fantasyfon;
+		case ssfFDSKANA: return font_fdskanafon;
+		case ssfFDSLIKE: return font_fdslikefon;
+		case ssfFDSROM: return font_fdsromanfon;
+		case ssfFF: return font_finalffont;
+		case ssfFUTHARK: return font_futharkfont;
+		case ssfGAIA: return font_gaiafont;
+		case ssfHIRA: return font_hirafont;
+		case ssfJP: return font_jpfont;
+		case ssfKONG: return font_kongfont;
+		case ssfMANA: return font_manafont;
+		case ssfML: return font_mlfont;
+		case ssfMOT: return font_motfont;
+		case ssfMSX0: return font_msxmode0font;
+		case ssfMSX1: return font_msxmode1font;
+		case ssfPET: return font_petfont;
+		case ssfPSTART: return font_pstartfont;
+		case ssfSATURN: return font_saturnfont;
+		case ssfSCIFI: return font_scififont;
+		case ssfSHERW: return font_sherwoodfont;
+		case ssfSINQL: return font_sinqlfont;
+		case ssfSPEC: return font_spectrumfont;
+		case ssfSPECLG: return font_speclgfont;
+		case ssfTI99: return font_ti99font;
+		case ssfTRS: return font_trsfont;
+		case ssfZ2: return font_z2font;
+		case ssfZX: return font_zxfont;
+		case ssfLISA: return font_lisafont;
+	}
+	return font_zfont;
+} 
+int32_t to_ss_font(int32_t real_font)
+{
+	switch(real_font)
+	{
+		case font_sfont: return ssfSMALL;
+		case font_spfont: return ssfSMALLPROP;
+		case font_ssfont1: return ssfSS1;
+		case font_ssfont2: return ssfSS2;
+		case font_ssfont3: return ssfSS3;
+		case font_ssfont4: return ssfSS4;
+		case font_ztfont: return ssfZTIME;
+		case font_zfont: return ssfZELDA;
+		case font_z3font: return ssfZ3;
+		case font_z3smallfont: return ssfZ3SMALL;
+		case font_gblafont: return ssfGBLA;
+		case font_goronfont: return ssfGORON;
+		case font_zoranfont: return ssfZORAN;
+		case font_hylian1font: return ssfHYLIAN1;
+		case font_hylian2font: return ssfHYLIAN2;
+		case font_hylian3font: return ssfHYLIAN3;
+		case font_hylian4font: return ssfHYLIAN4;
+		case font_gboraclefont: return ssfGBORACLE;
+		case font_gboraclepfont: return ssfGBORACLEP;
+		case font_dsphantomfont: return ssfDSPHANTOM;
+		case font_dsphantompfont: return ssfDSPHANTOMP;
+		case font_atari800font: return ssfAT800;
+		case font_acornfont: return ssfACORN;
+		case font_adosfont: return ssADOS;
+		case font_baseallegrofont: return ssfALLEG;
+		case font_apple2font: return ssfAPL2;
+		case font_apple280colfont: return ssfAPL280;
+		case font_apple2gsfont: return ssfAPL2GS;
+		case font_aquariusfont: return ssfAQUA;
+		case font_atari400font: return ssfAT400;
+		case font_c64font: return ssfC64;
+		case font_c64hiresfont: return ssfC64HR;
+		case font_cgafont: return ssfCGA;
+		case font_cocofont: return ssfCOCO;
+		case font_coco2font: return ssfCOCO2;
+		case font_coupefon: return ssfCOUPE;
+		case font_cpcfon: return ssfCPC;
+		case font_fantasyfon: return ssfFANTASY;
+		case font_fdskanafon: return ssfFDSKANA;
+		case font_fdslikefon: return ssfFDSLIKE;
+		case font_fdsromanfon: return ssfFDSROM;
+		case font_finalffont: return ssfFF;
+		case font_futharkfont: return ssfFUTHARK;
+		case font_gaiafont: return ssfGAIA;
+		case font_hirafont: return ssfHIRA;
+		case font_jpfont: return ssfJP;
+		case font_kongfont: return ssfKONG;
+		case font_manafont: return ssfMANA;
+		case font_mlfont: return ssfML;
+		case font_motfont: return ssfMOT;
+		case font_msxmode0font: return ssfMSX0;
+		case font_msxmode1font: return ssfMSX1;
+		case font_petfont: return ssfPET;
+		case font_pstartfont: return ssfPSTART;
+		case font_saturnfont: return ssfSATURN;
+		case font_scififont: return ssfSCIFI;
+		case font_sherwoodfont: return ssfSHERW;
+		case font_sinqlfont: return ssfSINQL;
+		case font_spectrumfont: return ssfSPEC;
+		case font_speclgfont: return ssfSPECLG;
+		case font_ti99font: return ssfTI99;
+		case font_trsfont: return ssfTRS;
+		case font_z2font: return ssfZ2;
+		case font_zxfont: return ssfZX;
+		case font_lisafont: return ssfLISA;
+	}
+	return ssfZELDA;
+} 
+
 item *sel_a=NULL, *sel_b=NULL;
 
 
@@ -4747,14 +4893,12 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
     if(triframetile==0)
     {
         triframetile=misc->colors.triframe_tile;
-	if(triframetile==0) triframetile = misc->colors.triframe_tile;
         triframecset=misc->colors.triframe_cset;
     }
     
     if(triforcetile==0)
     {
         triforcetile=misc->colors.triforce_tile;
-	if(triforcetile==0) triforcetile = misc->colors.triforce_tile;
         triforcecset=misc->colors.triforce_cset;
     }
     
@@ -4919,27 +5063,34 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
     if(tile==0)
     {
         tile=misc->colors.triforce_tile;
-	if (tile == 0) tile=misc->colors.triforce_tile;
+        cset=misc->colors.triforce_cset;
     }
     
-    for(int32_t i=0; i<8; i++)
-    {
-        int32_t lvl = i+1;
-        
-        if(get_bit(quest_rules,qr_4TRI) && lvl>4)
-            lvl -= 4;
-            
-        if(lvl==trinum && has_item(itype_triforcepiece, lvl))
-        {
-            int32_t tp=0;
-            
-            for(; tp<8; tp++)
-                if(misc->triforce[tp] == i+1)
-                    break;
-                    
-            draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
-        }
-    }
+	if(trinum <= 8)
+	{
+		for(int32_t i=0; i<8; i++)
+		{
+			int32_t lvl = i+1;
+			
+			if(get_bit(quest_rules,qr_4TRI) && lvl>4)
+				lvl -= 4;
+				
+			if(lvl==trinum && has_item(itype_triforcepiece, lvl))
+			{
+				int32_t tp=0;
+				
+				for(; tp<8; tp++)
+					if(misc->triforce[tp] == i+1)
+						break;
+						
+				draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
+			}
+		}
+	}
+	else if(has_item(itype_triforcepiece, trinum))
+	{
+		draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
+	}
 }
 
 /*

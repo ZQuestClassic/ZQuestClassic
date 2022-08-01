@@ -105,7 +105,7 @@ void DropDownList::applyVisibility(bool visible)
 
 void DropDownList::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

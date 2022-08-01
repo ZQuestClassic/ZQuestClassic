@@ -100,7 +100,7 @@ void List::applyVisibility(bool visible)
 
 void List::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
