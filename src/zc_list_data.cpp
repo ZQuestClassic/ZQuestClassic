@@ -5,11 +5,148 @@
 extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
+extern char *item_string[];
 extern miscQdata QMisc;
+
+const char *msgfont_str[font_max] =
+{
+	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
+	"S. Proportional", "SS 1 (Numerals)", "SS 2 (Incomplete)", "SS 3", "SS 4 (Numerals)", "Link's Awakening", "Goron", "Zoran", "Hylian 1", "Hylian 2",
+	"Hylian 3", "Hylian 4", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
+	"Atari 800", 
+	"Acorn",
+	"ADOS",
+	"Allegro",
+	"Apple II",
+	"Apple II 80 Column",
+	"Apple IIgs",
+	"Aquarius",
+	"Atari 400",
+	"C64",
+	"C64 HiRes",
+	"IBM CGA",
+	"COCO Mode I",
+	"COCO Mode II",
+	"Coupe",
+	"Amstrad CPC",
+	"Fantasy Letters",
+	"FDS Katakana",
+	"FDSesque",
+	"FDS Roman",
+	"FF",
+	"Elder Futhark",
+	"Gaia",
+	"Hira",
+	"JP Unsorted",
+	"Kong",
+	"Mana",
+	"Mario",
+	"Mot CPU",
+	"MSX Mode 0",
+	"MSX Mode 1",
+	"PET",
+	"Homebrew",
+	"Mr. Saturn",
+	"Sci-Fi",
+	"Sherwood",
+	"Sinclair QL",
+	"Spectrum",
+	"Spectrum Large",
+	"TI99",
+	"TRS",
+	"Zelda 2",
+	"ZX",
+	"Lisa"
+};
+
+const char *shadowstyle_str[sstsMAX] =
+{
+    "None", "Shadow", "Shadow (U)", "Shadow (O)", "Shadow (+)", "Shadow (X)", "Shadowed", "Shadowed (U)", "Shadowed (O)", "Shadowed (+)", "Shadowed (X)"
+};
 
 static bool skipchar(char c)
 {
 	return c == 0 || c == '-';
+}
+
+GUI::ListData GUI::ZCListData::fonts()
+{
+	std::vector<std::string> strings;
+
+	for(auto q = 0; q < font_max; ++q)
+	{
+		strings.push_back(msgfont_str[q]);
+	}
+
+	return GUI::ListData(strings);
+}
+
+GUI::ListData GUI::ZCListData::shadow_types()
+{
+	std::vector<std::string> strings;
+
+	for(auto q = 0; q < sstsMAX; ++q)
+	{
+		strings.push_back(shadowstyle_str[q]);
+	}
+
+	return GUI::ListData(strings);
+}
+
+static const GUI::ListData aligns
+{
+	{ "Left", 0 },
+	{ "Center", 1 },
+	{ "Right", 2 }
+};
+
+GUI::ListData const& GUI::ZCListData::alignments()
+{
+	return aligns;
+}
+
+static const GUI::ListData button
+{
+	{ "A", 0 },
+	{ "B", 1 },
+	{ "X", 2 },
+	{ "Y", 3 }
+};
+
+GUI::ListData const& GUI::ZCListData::buttons()
+{
+	return button;
+}
+
+GUI::ListData GUI::ZCListData::items(bool numbered)
+{
+	map<std::string, int32_t> ids;
+	std::set<std::string> names;
+	
+	for(int32_t q=0; q < MAXITEMS; ++q)
+	{
+		char const* itname = item_string[q];
+		if(numbered)
+		{
+			char* name = new char[strlen(itname) + 7];
+			sprintf(name, "%s (%03d)", itname, q);
+			itname = name;
+		}
+		std::string sname(itname);
+		
+		ids[sname] = q;
+		names.insert(sname);
+		if(numbered)
+			delete[] itname;
+	}
+	
+	GUI::ListData ls;
+	ls.add("(None)", -1);
+	for(auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, ids[*it]);
+	}
+	return ls;
 }
 
 GUI::ListData GUI::ZCListData::itemclass(bool numbered)

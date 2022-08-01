@@ -1962,7 +1962,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									flip = local_comboref.flip,
 									showFlip = true,
 									showvals = false,
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t f)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
 									{
 										local_comboref.tile = t;
 										local_comboref.o_tile = t;
@@ -2481,7 +2481,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									flip = local_comboref.flip,
 									showFlip = true,
 									showvals = false,
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t f)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
 									{
 										local_comboref.tile = t;
 										local_comboref.o_tile = t;

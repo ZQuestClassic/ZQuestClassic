@@ -396,10 +396,7 @@ const char *ssfontlist(int32_t index, int32_t *list_size)
     return ssfont_str[index];
 }
 
-const char *shadowstyle_str[sstsMAX] =
-{
-    "None", "Shadow", "Shadow (U)", "Shadow (O)", "Shadow (+)", "Shadow (X)", "Shadowed", "Shadowed (U)", "Shadowed (O)", "Shadowed (+)", "Shadowed (X)"
-};
+extern const char *shadowstyle_str[sstsMAX];
 
 const char *shadowstylelist(int32_t index, int32_t *list_size)
 {
@@ -5818,6 +5815,9 @@ void doNewSubscreenObject(int32_t type)
 			break;
 		case ssoMAGICGAUGE:
 			tempsso.d9 = -1; // 'Always show' by default
+			break;
+		case ssoCOUNTER:
+			tempsso.d10 = -1; //(None) inf item
 			break;
 	}
 		

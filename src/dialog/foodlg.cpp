@@ -37,7 +37,7 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 					val = v,
 					focused = true),
 				SelTileSwatch(tile = 1, cset = 8,
-					onSelectFunc = [&](int32_t t, int32_t c, int32_t)
+					onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 					{
 						setVal(t,c);
 					})

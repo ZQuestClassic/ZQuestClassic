@@ -35,7 +35,7 @@ static const ListData miscCSList
 	{ "SS Vine", 6 }
 };
 
-MiscCSetSel::MiscCSetSel(): onUpdate(NULL), c1(0), c2(0)
+MiscCSetSel::MiscCSetSel(): onUpdate(NULL), c1(ssctMISC), c2(0)
 {
 	setFitParent(true);
 	
@@ -126,13 +126,13 @@ void MiscCSetSel::doVis(int32_t _c1)
 {
 	if(_c1 == ssctMISC && c1 != ssctMISC)
 	{
-		labels[1]->setExposed(false);
-		misc_sel_list->setExposed(false);
+		labels[1]->setExposed(true);
+		misc_sel_list->setExposed(true);
 	}
 	else if(_c1 != ssctMISC && c1 == ssctMISC)
 	{
-		labels[1]->setExposed(true);
-		misc_sel_list->setExposed(true);
+		labels[1]->setExposed(false);
+		misc_sel_list->setExposed(false);
 	}
 	c1 = _c1;
 }

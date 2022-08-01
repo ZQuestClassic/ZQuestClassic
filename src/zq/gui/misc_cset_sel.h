@@ -18,6 +18,8 @@ public:
 	
 	void setC1(int32_t val);
 	void setC2(int32_t val);
+	int32_t getC1() const {return c1;}
+	int32_t getC2() const {return c2;}
 	void setOnUpdate(std::function<void(int32_t,int32_t)> newOnUpdate);
 
 private:

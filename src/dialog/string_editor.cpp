@@ -6,6 +6,7 @@
 #include "info.h"
 #include "subscr.h"
 #include <gui/builder.h>
+#include "zc_list_data.h"
 
 extern bool saved;
 extern MsgStr* MsgStrings;
@@ -32,18 +33,6 @@ void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter)
 extern const char *msgfont_str[font_max];
 extern const char *shadowstyle_str[sstsMAX];
 
-GUI::ListData createFontsListData()
-{
-	std::vector<std::string> strings;
-
-	for(auto q = 0; q < font_max; ++q)
-	{
-		strings.push_back(msgfont_str[q]);
-	}
-
-	return GUI::ListData(strings);
-}
-
 GUI::ListData createShadowTypesListData()
 {
 	std::vector<std::string> strings;
@@ -58,7 +47,7 @@ GUI::ListData createShadowTypesListData()
 
 StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t addAfter)
 	: strIndex(ind), tmpMsgStr(MsgStrings[ind]),
-	list_font(createFontsListData()),
+	list_font(GUI::ZCListData::fonts()),
 	list_nextstr(GUI::ListData::nullData()),
 	list_shtype(createShadowTypesListData()),
 	addAfter(addAfter)
@@ -116,7 +105,7 @@ ColorSel(fitParent = true, \
 SelTileSwatch( \
 	tile = tmpMsgStr.memTile, \
 	cset = (tmpMsgStr.memCSet & 0x0F), \
-	onSelectFunc = [&](int32_t t, int32_t c, int32_t) \
+	onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t) \
 	{ \
 		tmpMsgStr.memTile = t; \
 		tmpMsgStr.memCSet &= 0xF0; \
