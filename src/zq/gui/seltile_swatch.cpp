@@ -25,6 +25,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			if(gui_mouse_b()&1) //leftmouse
 			{
+				if(ptr->getIsMini() && ptr->getMiniOnly()) break;
 				int32_t f = d->fg;
 				int32_t t = d->d1;
 				int32_t cs = d->d2;
@@ -43,13 +44,19 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			else if(gui_mouse_b()&2) //right mouse
 			{
 				if(!ptr->getIsMini()) break;
+				int32_t tw = (ptr ? ptr->getTileWid() : 1);
+				int32_t th = (ptr ? ptr->getTileHei() : 1);
+				int32_t old = ptr->getMiniCrn();
 				int32_t mx=vbound(gui_mouse_x()-d->x,0,d->w-1);
 				int32_t my=vbound(gui_mouse_y()-d->y,0,d->h-1);
-				mx = (mx*2)/d->w; //0 or 1
-				my = (my*2)/d->h; //0 or 1
-				int32_t old = ptr->getMiniCrn();
-				ptr->setMiniCrn((my<<1) | mx);
-				if(old != ptr->getMiniCrn())
+				mx = (mx*2*tw)/d->w; //0 to tw-1
+				my = (my*2*th)/d->h; //0 to th-1
+				int32_t crn = ((my&1)<<1) | (mx&1);
+				if(tw > 1 || th > 1)
+					crn += ((mx/2)+((my/2)*tw))<<2;
+				
+				ptr->setMiniCrn(crn);
+				if(old != crn)
 				{
 					ptr->calc_selcolor();
 					GUI_EVENT(d, geCHANGE_SELECTION);
@@ -63,33 +70,33 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			int32_t tw = (ptr ? ptr->getTileWid() : 1);
 			int32_t th = (ptr ? ptr->getTileHei() : 1);
-			if(ptr->getIsMini())
-			{
-				tw = th = 1;
-			}
 			BITMAP *buf = create_bitmap_ex(8,16*tw+4,16*th+4);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
 			
 			if(buf && bigbmp)
 			{
 				clear_bitmap(buf);
-				
-				if(d->d1)
+				int32_t tile = (d->d1 ? d->d1 : ptr->getDefTile());
+				int32_t cset = (d->d1 ? d->d2 : ptr->getDefCS());
+				if(tile || ptr->getShowT0())
 				{
 					if(tw > 1 || th > 1)
-						overtileblock16(buf,d->d1,2,2,tw,th,d->d2,d->fg);
-					else overtile16(buf,d->d1,2,2,d->d2,d->fg);
+						overtileblock16(buf,tile,2,2,tw,th,cset,d->fg);
+					else overtile16(buf,tile,2,2,cset,d->fg);
 				}
 				
 				if(ptr->getIsMini()) //Minitile corner
 				{
-					int32_t crn = vbound(ptr->getMiniCrn(),0,3);
+					int32_t crn = ptr->getMiniCrn()% 4;
 					int32_t cx = (2+((crn&1)?8:0));
 					int32_t cy = (2+((crn&2)?8:0));
+					int32_t toffs = (ptr->getMiniCrn() / 4);
+					cx += (toffs%tw) * 16;
+					cy += (toffs/tw) * 16;
 					rect(buf,cx,cy,cx+7,cy+7,ptr->sel_color);
 				}
 				
-				stretch_blit(buf, bigbmp, 2,2, (16*tw), (16*th), 2, 2, d->h-4, d->h-4);
+				stretch_blit(buf, bigbmp, 2,2, (16*tw), (16*th), 2, 2, d->w-4, d->h-4);
 				destroy_bitmap(buf);
 				jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
 				blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
@@ -117,7 +124,8 @@ namespace GUI
 SelTileSwatch::SelTileSwatch(): tile(0), cset(0), flip(0),
 	tw(1), th(1), isMini(false), mini_crn(0),
 	showFlip(false), showsVals(true),
-	alDialog(), message(-1)
+	alDialog(), message(-1), showT0(false),
+	minionly(false), deftile(0)
 {
 	sel_color = jwin_pal[jcTITLER];
 	Size s = sized(16_px,32_px)+4_px;
@@ -152,6 +160,7 @@ void SelTileSwatch::setCSet(int32_t value)
 	if(alDialog)
 	{
 		alDialog->d2 = value;
+		calc_selcolor();
 		pendDraw();
 	}
 }
@@ -169,6 +178,38 @@ void SelTileSwatch::setFlip(int32_t value)
 void SelTileSwatch::setIsMini(bool val)
 {
 	isMini = val;
+	if(val) calc_selcolor();
+}
+void SelTileSwatch::setShowT0(bool val)
+{
+	showT0 = val;
+	if(alDialog && !alDialog->d1)
+		calc_selcolor();
+}
+
+void SelTileSwatch::setMiniCrn(int32_t val)
+{
+	mini_crn = vbound(val,0,(4*tw*th)-1);
+}
+void SelTileSwatch::setTileWid(int32_t val)
+{
+	tw = std::max(1,val);
+	if(alDialog)
+	{
+		int32_t wid = (tw*sized(16,32))+4;
+		alDialog->w = wid;
+		mini_crn %= (4*tw*th);
+	}
+}
+void SelTileSwatch::setTileHei(int32_t val)
+{
+	th = std::max(1,val);
+	if(alDialog)
+	{
+		int32_t hei = (th*sized(16,32))+4;
+		alDialog->h = hei;
+		mini_crn %= (4*tw*th);
+	}
 }
 
 void SelTileSwatch::setShowFlip(bool val)
@@ -232,10 +273,10 @@ void SelTileSwatch::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	int32_t wid = (tw*sized(16,32))+4;
-	if(getWidth() < wid) wid = getWidth();
+	int32_t hei = (th*sized(16,32))+4;
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<newg_seltile_proc>,
-		x, y, wid, getHeight(),
+		x, y, wid, hei,
 		flip, (showsVals?0b1:0) | (showFlip?0b10:0),
 		0,
 		getFlags(),
@@ -257,32 +298,44 @@ void SelTileSwatch::calculateSize()
 void SelTileSwatch::calc_selcolor()
 {
 	if(!alDialog) return;
+	if(!isMini) return;
 	BITMAP* buf = create_bitmap_ex(8,8,8);
 	
-	int32_t cx = (mini_crn&1) ? -8 : 0;
-	int32_t cy = (mini_crn&2) ? -8 : 0;
-	overtile16(buf,alDialog->d1,cx,cy,alDialog->d2,alDialog->fg);
-	
-	int32_t r = 0, g = 0, b = 0, count = 0;
-	for(int32_t ty = 1; ty < 7; ++ty)
-	{
-		uintptr_t read_addr = bmp_read_line(buf, ty);
-		for(int32_t tx = 1; tx < 7; ++tx)
-		{
-			RGB foo;
-			get_color(bmp_read8(read_addr+tx), &foo);
-			r += foo.r;
-			b += foo.b;
-			g += foo.g;
-			++count;
-		}
-	}
-	bmp_unwrite_line(buf);
-	
 	RGB col;
-	col.r = r/count;
-	col.g = g/count;
-	col.b = b/count;
+	int32_t tile = (alDialog->d1 ? alDialog->d1 : deftile);
+	int32_t cset = (alDialog->d1 ? alDialog->d2 : defcs);
+	if(tile || showT0)
+	{
+		
+		int32_t crn = mini_crn % 4;
+		int32_t cx = (2+((crn&1)?8:0));
+		int32_t cy = (2+((crn&2)?8:0));
+		int32_t toffs = (mini_crn / 4);
+		cx += (toffs%tw) * 16;
+		cy += (toffs/tw) * 16;
+		if(tw > 1 || th > 1)
+			overtileblock16(buf,tile,-cx,-cy,tw,th,cset,alDialog->fg);
+		else overtile16(buf,tile,-cx,-cy,cset,alDialog->fg);
+		int32_t r = 0, g = 0, b = 0, count = 0;
+		for(int32_t ty = 1; ty < 7; ++ty)
+		{
+			uintptr_t read_addr = bmp_read_line(buf, ty);
+			for(int32_t tx = 1; tx < 7; ++tx)
+			{
+				RGB foo;
+				get_color(bmp_read8(read_addr+tx), &foo);
+				r += foo.r;
+				b += foo.b;
+				g += foo.g;
+				++count;
+			}
+		}
+		bmp_unwrite_line(buf);
+		col.r = r/count;
+		col.g = g/count;
+		col.b = b/count;
+	}
+	else get_color(0, &col);
 	
 	sel_color = getHighlightColor(col);
 }

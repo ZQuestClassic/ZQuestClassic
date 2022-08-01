@@ -58,6 +58,17 @@ const char *msgfont_str[font_max] =
 	"ZX",
 	"Lisa"
 };
+const char *ssfont2_str[] =
+{
+	"Zelda NES", "SS 1", "SS 2", "SS 3", "SS 4", "BS Time", "Small", "Small Prop.", "LttP Small", "Link's Awakening", "Link to the Past",
+	"Goron", "Zoran", "Hylian 1", "Hylian 2", "Hylian 3", "Hylian 4", "Proportional", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
+	"Atari 800", "Acorn", "ADOS", "Allegro", "Apple II", "Apple II 80 Column", "Apple IIgs", "Aquarius",
+	"Atari 400", "C64", "C64 HiRes", "IBM CGA", "COCO Mode I", "COCO Mode II", "Coupe", "Amstrad CPC",
+	"Fantasy Letters", "FDS Katakana", "FDSesque", "FDS Roman", "FF", "Elder Futhark", "Gaia", "Hira",
+	"JP Unsorted", "Kong", "Mana", "Mario", "Mot CPU", "MSX Mode 0", "MSX Mode 1", "PET", "Homebrew",
+	"Mr. Saturn", "Sci-Fi", "Sherwood", "Sinclair QL", "Spectrum", "Spectrum Large", "TI99", "TRS",
+	"Zelda 2", "ZX", "Lisa", ""
+};
 
 const char *shadowstyle_str[sstsMAX] =
 {
@@ -69,11 +80,18 @@ static bool skipchar(char c)
 	return c == 0 || c == '-';
 }
 
-GUI::ListData GUI::ZCListData::fonts()
+GUI::ListData GUI::ZCListData::fonts(bool ss_fonts)
 {
 	std::vector<std::string> strings;
 
-	for(auto q = 0; q < font_max; ++q)
+	if(ss_fonts)
+	{
+		for(auto q = 0; ssfont2_str[q][0]; ++q)
+		{
+			strings.push_back(ssfont2_str[q]);
+		}
+	}
+	else for(auto q = 0; q < font_max; ++q)
 	{
 		strings.push_back(msgfont_str[q]);
 	}

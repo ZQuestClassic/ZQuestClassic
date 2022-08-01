@@ -336,53 +336,14 @@ const char *spectilelist(int32_t index, int32_t *list_size)
 
 const char *ssfont_str[ssfMAX] =
 {
-    "Zelda NES", "SS 1", "SS 2", "SS 3", "SS 4", "BS Time", "Small", "Small Prop.", "LttP Small", "Link's Awakening", "Link to the Past",
-    "Goron", "Zoran", "Hylian 1", "Hylian 2", "Hylian 3", "Hylian 4", "Proportional", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
-
-	"Atari 800", 
-	"Acorn",
-	"ADOS",
-	"Allegro",
-	"Apple II",
-	"Apple II 80 Column",
-	"Apple IIgs",
-	"Aquarius",
-	"Atari 400",
-	"C64",
-	"C64 HiRes",
-	"IBM CGA",
-	"COCO Mode I",
-	"COCO Mode II",
-	"Coupe",
-	"Amstrad CPC",
-	"Fantasy Letters",
-	"FDS Katakana",
-	"FDSesque",
-	"FDS Roman",
-	"FF",
-	"Elder Futhark",
-	"Gaia",
-	"Hira",
-	"JP Unsorted",
-	"Kong",
-	"Mana",
-	"Mario",
-	"Mot CPU",
-	"MSX Mode 0",
-	"MSX Mode 1",
-	"PET",
-	"Homebrew",
-	"Mr. Saturn",
-	"Sci-Fi",
-	"Sherwood",
-	"Sinclair QL",
-	"Spectrum",
-	"Spectrum Large",
-	"TI99",
-	"TRS",
-	"Zelda 2",
-	"ZX",	
-	"Lisa"
+	"Zelda NES", "SS 1", "SS 2", "SS 3", "SS 4", "BS Time", "Small", "Small Prop.", "LttP Small", "Link's Awakening", "Link to the Past",
+	"Goron", "Zoran", "Hylian 1", "Hylian 2", "Hylian 3", "Hylian 4", "Proportional", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
+	"Atari 800", "Acorn", "ADOS", "Allegro", "Apple II", "Apple II 80 Column", "Apple IIgs", "Aquarius",
+	"Atari 400", "C64", "C64 HiRes", "IBM CGA", "COCO Mode I", "COCO Mode II", "Coupe", "Amstrad CPC",
+	"Fantasy Letters", "FDS Katakana", "FDSesque", "FDS Roman", "FF", "Elder Futhark", "Gaia", "Hira",
+	"JP Unsorted", "Kong", "Mana", "Mario", "Mot CPU", "MSX Mode 0", "MSX Mode 1", "PET", "Homebrew",
+	"Mr. Saturn", "Sci-Fi", "Sherwood", "Sinclair QL", "Spectrum", "Spectrum Large", "TI99", "TRS",
+	"Zelda 2", "ZX", "Lisa"
 };
 
 const char *ssfontlist(int32_t index, int32_t *list_size)
@@ -5818,6 +5779,13 @@ void doNewSubscreenObject(int32_t type)
 			break;
 		case ssoCOUNTER:
 			tempsso.d10 = -1; //(None) inf item
+            tempsso.colortype1 = ssctMISC; //Default text color
+			break;
+		
+		case ssoBSTIME: case ssoCOUNTERS: case ssoSSTIME:
+        case ssoTIME: case ssoMINIMAPTITLE: case ssoSELECTEDITEMNAME:
+        case ssoTEXT: case ssoTEXTBOX:
+			tempsso.colortype1 = ssctMISC; //Default text color
 			break;
 	}
 		
@@ -5897,7 +5865,7 @@ int32_t onNewSubscreenObject()
 	//!TODO REMOVE TEMP TESTING
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 	{
-		for(auto q = 1; q < bisso_cnt; ++q)
+		for(auto q = 23; q < bisso_cnt; ++q)
 		{
 			zprint2("Testing sso type: %s\n", getssname(bisso[q].i).c_str());
 			doNewSubscreenObject(bisso[q].i);

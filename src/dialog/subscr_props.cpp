@@ -2,15 +2,21 @@
 #include <gui/builder.h>
 #include "info.h"
 #include <utility>
+#include <sstream>
 #include "zq/zq_subscr.h"
 #include "zc_list_data.h"
-
+#include "gui/use_size.h"
+#include "gui/common.h"
+using GUI::sized;
 extern miscQdata misc;
 #define QMisc misc
 
+//zq_strings.cpp
+FONT* getfont(int32_t fonta);
+
 SubscrPropDialog::SubscrPropDialog(subscreen_object *ref, int32_t obj_ind) :
 	local_subref(*ref), subref(ref), index(obj_ind),
-	list_font(GUI::ZCListData::fonts()),
+	list_font(GUI::ZCListData::fonts(true)),
 	list_shadtype(GUI::ZCListData::shadow_types()),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
@@ -23,23 +29,24 @@ static const GUI::ListData two_three_rows
 {
 	{ "Two", 0 },
 	{ "Three", 1 }
-}
+};
+static const GUI::ListData special_tile_list
+{
+	{ "None", -1 },
+	{ "SS Vine", 0 },
+	{ "Magic Meter", 1 }
+};
+static const GUI::ListData wrapping_type_list
+{
+	{ "Character", 0 },
+	{ "Word", 1 }
+};
 
 #define NUM_FIELD(member,_min,_max) \
 TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = local_subref.member, \
-	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		local_subref.member = val; \
-	})
-
-#define NUM_FIELD2(member,sval,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = sval, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_subref.member = val; \
@@ -93,6 +100,16 @@ DropDownList(data = lister, \
 		local_subref.member = val; \
 	} \
 )
+#define DDL_FONT(member) \
+DropDownList(data = list_font, \
+	fitParent = true, \
+	selectedValue = local_subref.member, \
+	onSelectFunc = [&](int32_t val) \
+	{ \
+		local_subref.member = val; \
+		if(fonttf) fonttf->setFont(ss_font(val)); \
+	} \
+)
 #define DDL_MW(member, lister, maxwid) \
 DropDownList(data = lister, \
 	fitParent = true, \
@@ -124,12 +141,78 @@ Frame(fitParent = true, Column(fitParent = true, \
 	CBOX(mem3,bit,"Mod",1) \
 ))
 
+//Tile block max preview tiledim
+#define TB_SM 4
+#define TB_LA 12
+
+char* repl_escchar(char* buf, char const* ptr, bool compact)
+{
+	size_t len = strlen(ptr);
+	size_t pos = 0;
+	if(compact) // "\\n" -> '\n', etc
+	{
+		if(!buf) buf = new char[len+1];
+		for(size_t q = 0; q < len; ++q)
+		{
+			if(q+1 < len)
+			{
+				if(ptr[q] == '\\')
+				{
+					switch(ptr[q+1])
+					{
+						case 't':
+							buf[pos++] = '\t';
+							++q;
+							continue;
+						case 'n':
+							buf[pos++] = '\n';
+							++q;
+							continue;
+						case '\\':
+							buf[pos++] = '\\';
+							++q;
+							continue;
+					}
+				}
+				buf[pos++] = ptr[q];
+			}
+		}
+		return buf;
+	}
+	else // '\n' -> "\\n", etc
+	{
+		std::ostringstream tmp;
+		for(size_t q = 0; q < len; ++q)
+		{
+			switch(ptr[q])
+			{
+				case '\n':
+					tmp << "\\n";
+					break;
+				case '\t':
+					tmp << "\\t";
+					break;
+				case '\\':
+					tmp << "\\\\";
+					break;
+				default:
+					tmp << ptr[q];
+					break;
+			}
+		}
+		std::string str = tmp.str();
+		if(!buf) buf = new char[str.size()+1];
+		strcpy(buf, str.c_str());
+		return buf;
+	}
+}
+
 static size_t sprop_tab = 0;
+static char tbuf[1025] = {0};
 std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	
 	char titlebuf[512];
 	sprintf(titlebuf, "%s Properties (Object #%d)", sso_name(local_subref.type), index);
 	zprint2("Opening: '%s'\n", titlebuf);
@@ -172,7 +255,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case ssoCURRENTITEM:
 			case ssoTRIFORCE:
 			case ssoTILEBLOCK:
-			case ssoMINITILE:
 			case ssoTEXTBOX:
 				loadw = local_subref.w;
 				loadh = local_subref.h;
@@ -183,6 +265,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case ssoLARGEMAP:
 			case ssoSELECTOR1:
 			case ssoSELECTOR2:
+			case ssoMINITILE:
+			case ssoTRIFRAME:
 				show_wh = false;
 				break;
 			case ssoCLEAR:
@@ -232,9 +316,25 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		if(show_wh)
 		{
 			g1->add(Label(text = "W:"));
-			g1->add(NUM_FIELD2(w,loadw,0,999));
+			g1->add(TextField(
+				fitParent = true,
+				type = GUI::TextField::type::INT_DECIMAL,
+				low = 0, high = 999, val = loadw,
+				onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+				{
+					local_subref.w = val;
+					update_wh();
+				}));
 			g1->add(Label(text = "H:"));
-			g1->add(NUM_FIELD2(h,loadh,0,999));
+			g1->add(TextField(
+				fitParent = true,
+				type = GUI::TextField::type::INT_DECIMAL,
+				low = 0, high = 999, val = loadh,
+				onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+				{
+					local_subref.h = val;
+					update_wh();
+				}));
 		}
 		else if(!show_xy)
 		{
@@ -400,7 +500,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	
 	std::shared_ptr<GUI::Grid> attrib_grid;
 	bool addattrib = true;
-	bool force_tabs = false;
+	enum { mtNONE, mtFORCE_TAB, mtLOCTOP };
+	int32_t mergetype = is_large ? mtNONE : mtFORCE_TAB;
 	//Generate 'attributes' grid
 	{
 		switch(local_subref.type)
@@ -408,7 +509,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case sso2X2FRAME:
 			{
 				attrib_grid = Column(
-					tswatch = SelTileSwatch(
+					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = local_subref.d1,
 						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
@@ -450,7 +551,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d1, list_font),
+					DDL_FONT(d1),
 					DDL(d3, list_shadtype),
 					DDL(d2, list_aligns)
 				);
@@ -474,7 +575,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoCOUNTER:
 			{
-				force_tabs = true; //too wide to fit!
+				mergetype = mtFORCE_TAB; //too wide to fit!
 				attrib_grid = Columns<6>(
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
@@ -482,7 +583,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Item 1:", hAlign = 1.0),
 					Label(text = "Item 2:", hAlign = 1.0),
 					Label(text = "Item 3:", hAlign = 1.0),
-					DDL(d1, list_font),
+					DDL_FONT(d1),
 					DDL(d3, list_shadtype),
 					DDL(d2, list_aligns),
 					DDL(d7, list_counters),
@@ -529,7 +630,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
-					DDL(d1, list_font),
+					DDL_FONT(d1),
 					Label(text = "Style:", hAlign = 1.0),
 					DDL(d3, list_shadtype),
 					Label(text = "Digits:", hAlign = 1.0),
@@ -607,7 +708,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d1, list_font),
+					DDL_FONT(d1),
 					DDL(d3, list_shadtype),
 					DDL(d2, list_aligns)
 				);
@@ -619,7 +720,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d1, list_font),
+					DDL_FONT(d1),
 					DDL(d3, list_shadtype),
 					DDL(d2, list_aligns)
 				);
@@ -740,66 +841,370 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
-					DDL(d1, list_font),
+					DDL_FONT(d1),
 					Label(text = "Style:", hAlign = 1.0),
 					DDL(d3, list_shadtype),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d2, list_aligns)
+					DDL(d2, list_aligns),
 					CBOX(d4, 0b1, "Invisible w/o Map item", 2)
 				);
 				break;
 			}
-			/*case ssoMINITILE:
+			case ssoMINITILE:
 			{
+				mergetype = mtLOCTOP; //too wide to fit all 3 horiz, but has vert room
+				int32_t tl, tw = 1, crn;
+				if(local_subref.d1 == -1)
+				{
+					switch(local_subref.d2)
+					{
+						case ssmstSSVINETILE:
+							tl = wpnsbuf[iwSubscreenVine].newtile;
+							tw = 3;
+							crn = local_subref.d3;
+							break;
+						case ssmstMAGICMETER:
+							tl = wpnsbuf[iwMMeter].newtile;
+							tw = 9;
+							crn = local_subref.d3;
+							break;
+					}
+				}
+				else
+				{
+					tl = local_subref.d1 >> 2;
+					crn = (local_subref.d1 & 0b11);
+				}
 				attrib_grid = Rows<2>(
-					Label(text = txt),
-					SelTileSwatch(
+					Label(text = "Tile:", hAlign = 1.0),
+					tswatches[0] = SelTileSwatch(
+						width = 4_px + (sized(16_px,32_px)*9),
 						hAlign = 0.0,
-						tile = local_subref.mem1>>2,
-						cset = local_subref.mem2,
+						tile = tl,
+						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(),cs_sel[0]->getC2()),
+						tilewid = tw,
+						minionly = local_subref.d2 != -1,
 						mini = true,
-						minicorner = local_subref.mem1 %4,
+						minicorner = crn,
 						showvals = false,
+						showT0 = true,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t crn)
 						{
-							local_subref.mem1 = t<<2;
-							local_subref.mem2 = c;
-							local_subref.mem1 |= crn;
+							if(local_subref.d2 != -1)
+							{
+								local_subref.d3 = crn;
+								return;
+							}
+							
+							if(local_subref.colortype1 != ssctMISC)
+							{
+								local_subref.colortype1 = c;
+								cs_sel[0]->setC1(c);
+							}
+							local_subref.d1 = t<<2;
+							local_subref.d1 |= crn&0b11;
+						}
+					),
+					Label(text = "Special Tile:", hAlign = 1.0),
+					ddl = DropDownList(data = special_tile_list,
+						fitParent = true,
+						selectedValue = local_subref.d2-1,
+						onSelectFunc = [&](int32_t val)
+						{
+							if(val == local_subref.d2-1) return;
+							local_subref.d2 = val+1;
+							switch(val)
+							{
+								case -1:
+									tswatches[0]->setTileWid(1);
+									tswatches[0]->setTile(std::max(0,local_subref.d1));
+									tswatches[0]->setMiniOnly(false);
+									break;
+								case 0:
+									tswatches[0]->setTileWid(3);
+									tswatches[0]->setTile(wpnsbuf[iwSubscreenVine].newtile);
+									tswatches[0]->setMiniOnly(true);
+									break;
+								case 1:
+									tswatches[0]->setTileWid(9);
+									tswatches[0]->setTile(wpnsbuf[iwMMeter].newtile);
+									tswatches[0]->setMiniOnly(true);
+									break;
+							}
+						}
+					),
+					CBOX(d5, 0b1, "Overlay", 2),
+					CBOX(d6, 0b1, "Transparent", 2)
+				);
+				break;
+			}
+			case ssoRECT:
+			{
+				attrib_grid = Column(
+					CBOX(d1, 0b1, "Filled", 1),
+					CBOX(d2, 0b1, "Transparent", 1)
+				);
+				break;
+			}
+			case ssoSELECTEDITEMNAME:
+			{
+				attrib_grid = Rows<2>(
+					Label(text = "Font:", hAlign = 1.0),
+					DDL_FONT(d1),
+					Label(text = "Style:", hAlign = 1.0),
+					DDL(d3, list_shadtype),
+					Label(text = "Alignment:", hAlign = 1.0),
+					DDL(d2, list_aligns),
+					Label(text = "Wrapping:", hAlign = 1.0),
+					DDL(d4, wrapping_type_list),
+					Label(text = "Tab Size:", hAlign = 1.0),
+					NUM_FIELD(d5,0,99)
+				);
+				break;
+			}
+			case ssoSELECTOR1:
+			case ssoSELECTOR2:
+			{
+				attrib_grid = Rows<2>(
+					Label(text = "Tile:", hAlign = 1.0),
+					tswatches[0] = SelTileSwatch(
+						hAlign = 0.0,
+						tile = local_subref.d1,
+						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						flip = local_subref.d2,
+						showvals = false,
+						showFlip = true,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
+						{
+							local_subref.d1 = t;
+							local_subref.d2 = f;
+							if(local_subref.colortype1 != ssctMISC)
+							{
+								local_subref.colortype1 = c;
+								cs_sel[0]->setC1(c);
+							}
+						}
+					),
+					CBOX(d3, 0b1, "Overlay", 2),
+					CBOX(d4, 0b1, "Transparent", 2),
+					CBOX(d5, 0b1, "Large", 2)
+				);
+				break;
+			}
+			case ssoTEXT:
+			{
+				if(local_subref.dp1) //needs deep copy, not shallow
+				{
+					strcpy(tbuf, (char const*)local_subref.dp1);
+				}
+				attrib_grid = Rows<2>(
+					Label(text = "Font:", hAlign = 1.0),
+					DDL_FONT(d1),
+					Label(text = "Style:", hAlign = 1.0),
+					DDL(d3, list_shadtype),
+					Label(text = "Alignment:", hAlign = 1.0),
+					DDL(d2, list_aligns),
+					Label(text = "Text:", hAlign = 0.0),
+					DummyWidget(),
+					fonttf = TextField(
+						maxLength = 256,
+						colSpan = 2,
+						text = tbuf,
+						width = 200_spx,
+						minheight = 15_px,
+						fitParent = true,
+						useFont = ss_font(local_subref.d1),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string txt(str);
+							strcpy(tbuf, txt.c_str());
+						})
+				);
+				break;
+			}
+			case ssoTEXTBOX:
+			{
+				if(local_subref.dp1) //needs deep copy, not shallow
+				{
+					char const* dp1 = (char const*)local_subref.dp1;
+					repl_escchar(tbuf, dp1, false);
+				}
+				attrib_grid = Rows<2>(
+					Label(text = "Font:", hAlign = 1.0),
+					DDL_FONT(d1),
+					Label(text = "Style:", hAlign = 1.0),
+					DDL(d3, list_shadtype),
+					Label(text = "Alignment:", hAlign = 1.0),
+					DDL(d2, list_aligns),
+					Label(text = "Text:", hAlign = 0.0),
+					DummyWidget(),
+					fonttf = TextField(
+						maxLength = 1024,
+						colSpan = 2,
+						text = (local_subref.dp1 ? (char*)local_subref.dp1 : ""),
+						width = 200_spx,
+						minheight = 15_px,
+						fitParent = true,
+						useFont = ss_font(local_subref.d1),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string txt(str);
+							if(local_subref.dp1)
+								delete[] local_subref.dp1;
+							local_subref.dp1 = new char[txt.size()+1];
+							strcpy((char*)local_subref.dp1, txt.c_str());
+						})
+				);
+				break;
+			}
+			case ssoTILEBLOCK:
+			{
+				mergetype = mtLOCTOP; //too wide to fit all 3 horiz, but has vert room
+				attrib_grid = Column(
+					tswatches[0] = SelTileSwatch(
+						hAlign = 0.0,
+						minwidth = sized(16_px,32_px)*sized(TB_SM,TB_LA)+4_px,
+						minheight = sized(16_px,32_px)*sized(TB_SM,TB_LA)+4_px,
+						tile = local_subref.d1,
+						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						showvals = false,
+						tilewid = std::min(local_subref.w, (word)sized(TB_SM,TB_LA)),
+						tilehei = std::min(local_subref.h, (word)sized(TB_SM,TB_LA)),
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+						{
+							local_subref.d1 = t;
+							if(local_subref.colortype1 != ssctMISC)
+							{
+								local_subref.colortype1 = c;
+								cs_sel[0]->setC1(c);
+							}
+						}
+					),
+					Label(text = "Note: Preview max size is " + std::to_string(sized(TB_SM,TB_LA)) + "x" + std::to_string(sized(TB_SM,TB_LA))),
+					Checkbox(
+						text = "Overlay", hAlign = 0.0,
+						checked = local_subref.d3,
+						onToggleFunc = [&](bool state)
+						{
+							local_subref.d3 = (state?1:0);
+						}
+					),
+					Checkbox(
+						text = "Transparent", hAlign = 0.0,
+						checked = local_subref.d4,
+						onToggleFunc = [&](bool state)
+						{
+							local_subref.d4 = (state?1:0);
 						}
 					)
 				);
 				break;
-			}*/
-			// case ssoRECT:
-			// case ssoSELECTEDITEMNAME:
-			// case ssoSELECTOR1:
-			// case ssoSELECTOR2:
-			// case ssoTEXT:
-			// case ssoTEXTBOX:
-			// case ssoTILEBLOCK:
-			// case ssoTRIFRAME:
+			}
+			case ssoTRIFRAME:
+			{
+				mergetype = mtFORCE_TAB; //Way too wide to fit
+				attrib_grid = Columns<3>(padding = 0_px,
+					Label(text = "Frame Tileblock"),
+					tswatches[0] = SelTileSwatch(
+						hAlign = 0.0,
+						rowSpan = 2,
+						minwidth = sized(16_px,32_px)*7+4_px,
+						minheight = sized(16_px,32_px)*7+4_px,
+						tile = local_subref.d1,
+						cset = local_subref.d2,
+						showvals = false,
+						tilewid = local_subref.d7 ? 7 : 6,
+						tilehei = local_subref.d7 ? 7 : 3,
+						deftile = QMisc.colors.triframe_tile,
+						defcs = QMisc.colors.triframe_cset,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+						{
+							local_subref.d1 = t;
+							local_subref.d2 = c;
+						}
+					),
+					Label(text = "Piece Tile"),
+					tswatches[1] = SelTileSwatch(
+						hAlign = 0.0,
+						minwidth = sized(16_px,32_px)*2+4_px,
+						minheight = sized(16_px,32_px)*3+4_px,
+						tile = local_subref.d3,
+						cset = local_subref.d4,
+						showvals = false,
+						tilewid = local_subref.d7 ? 2 : 1,
+						tilehei = local_subref.d7 ? 3 : 1,
+						deftile = QMisc.colors.triforce_tile,
+						defcs = QMisc.colors.triforce_cset,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+						{
+							local_subref.d3 = t;
+							local_subref.d4 = c;
+						}
+					),
+					Column(padding = 0_px,
+						colSpan = 2,
+						labels[0] = Label(text = "Tile 0 uses a preset from"
+							"\n'Quest->Graphics->Map Styles'"),
+						CBOX(d5,0b1,"Show Frame",1),
+						CBOX(d6,0b1,"Show Pieces",1),
+						Checkbox(
+							text = "Large Pieces", hAlign = 0.0,
+							checked = local_subref.d7 & 0b1,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_subref.d7, 0b1, state);
+								tswatches[0]->setTileWid(state ? 7 : 6);
+								tswatches[0]->setTileHei(state ? 7 : 3);
+								tswatches[1]->setTileWid(state ? 2 : 1);
+								tswatches[1]->setTileHei(state ? 3 : 1);
+							}
+						)
+					)
+				);
+				break;
+			}
 			// case ssoTRIFORCE:
 			default: attrib_grid = Column(Label(text = "WIP!!!")); break;
 		}
 	}
-	if(is_large && !force_tabs)
+	if(!is_large) mergetype = mtFORCE_TAB;
+	switch(mergetype)
 	{
-		windowRow->add(Frame(title = "Location", fitParent = true, loc_grid));
-		if(addcolor)
-			windowRow->add(Frame(title = "Color", fitParent = true, col_grid));
-		if(addattrib)
-			windowRow->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
-	}
-	else
-	{
-		std::shared_ptr<GUI::TabPanel> tp;
-		windowRow->add(
-			tp = TabPanel(
-				ptr = &sprop_tab
-			));
-		tp->add(TabRef(name = "Location", loc_grid));
-		if(addcolor) tp->add(TabRef(name = "Color", col_grid));
-		if(addattrib) tp->add(TabRef(name = "Attributes", attrib_grid));
+		default:
+		case mtNONE: //3 in horz row
+		{
+			windowRow->add(Frame(title = "Location", fitParent = true, loc_grid));
+			if(addcolor)
+				windowRow->add(Frame(title = "Color", fitParent = true, col_grid));
+			if(addattrib)
+				windowRow->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
+			break;
+		}
+		case mtFORCE_TAB: //3 separate tabs
+		{
+			std::shared_ptr<GUI::TabPanel> tp;
+			windowRow->add(
+				tp = TabPanel(
+					ptr = &sprop_tab
+				));
+			tp->add(TabRef(name = "Location", loc_grid));
+			if(addcolor) tp->add(TabRef(name = "Color", col_grid));
+			if(addattrib) tp->add(TabRef(name = "Attributes", attrib_grid));
+			break;
+		}
+		case mtLOCTOP:
+		{
+			if(addcolor)
+			{
+				windowRow->add(Column(padding = 0_px,
+					Frame(title = "Location", fitParent = true, loc_grid),
+					Frame(title = "Color", fitParent = true, col_grid)));
+			}
+			else windowRow->add(Frame(title = "Location", fitParent = true, loc_grid));
+			if(addattrib)
+				windowRow->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
+			break;
+		}
 	}
 	return window;
 }
@@ -809,16 +1214,63 @@ void SubscrPropDialog::updateColors()
 	switch(local_subref.type)
 	{
 		case sso2X2FRAME:
+		case ssoMINITILE:
+		case ssoTILEBLOCK:
 		{
-			tswatch->setCSet(subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()));
+			tswatches[0]->setCSet(subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()));
 			break;
 		}
 	}
 }
 
+void SubscrPropDialog::update_wh()
+{
+	switch(local_subref.type)
+	{
+		case ssoTILEBLOCK:
+			tswatches[0]->setTileWid(std::min(local_subref.w, (word)sized(TB_SM,TB_LA)));
+			tswatches[0]->setTileHei(std::min(local_subref.h, (word)sized(TB_SM,TB_LA)));
+			break;
+	}
+}
+
 void save_sso(subscreen_object const& src, subscreen_object* dest)
 {
-	memcpy(dest, &src, sizeof(subscreen_object));
+	switch(src.type) //Special closing handling
+	{
+		case ssoMINITILE:
+		{
+			memcpy(dest, &src, sizeof(subscreen_object));
+			if(dest->d2 == -1)
+				dest->d1 = -1;
+			else
+			{
+				dest->d1 &= ~0b11;
+				dest->d1 |= dest->d3 & 0b11;
+			}
+			break;
+		}
+		case ssoTEXT:
+		{
+			if(dest->dp1)
+				delete[] dest->dp1;
+			memcpy(dest, &src, sizeof(subscreen_object));
+			dest->dp1 = new char[strlen(tbuf)+1];
+			strcpy((char*)dest->dp1, tbuf);
+			break;
+		}
+		case ssoTEXTBOX:
+		{
+			if(dest->dp1)
+				delete[] dest->dp1;
+			memcpy(dest, &src, sizeof(subscreen_object));
+			dest->dp1 = repl_escchar(nullptr, tbuf, true);
+			break;
+		}
+		default:
+			memcpy(dest, &src, sizeof(subscreen_object));
+			break;
+	}
 }
 
 bool SubscrPropDialog::handleMessage(const GUI::DialogMessage<message>& msg)

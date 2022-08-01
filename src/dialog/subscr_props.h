@@ -32,9 +32,10 @@ protected:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::MiscColorSel> col_sel[3];
 	std::shared_ptr<GUI::MiscCSetSel> cs_sel[3];
-	std::shared_ptr<GUI::SelTileSwatch> tswatch;
+	std::shared_ptr<GUI::SelTileSwatch> tswatches[2];
 	std::shared_ptr<GUI::DropDownList> ddl;
-	std::shared_ptr<GUI::Label> labels[1];
+	std::shared_ptr<GUI::TextField> fonttf;
+	std::shared_ptr<GUI::Label> labels[2];
 	subscreen_object *subref;
 	subscreen_object local_subref;
 	int32_t index;
@@ -43,6 +44,7 @@ protected:
 		list_counters, list_itemclass;
 	
 	void updateColors();
+	void update_wh();
 };
 
 #endif

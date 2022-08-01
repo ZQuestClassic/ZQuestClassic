@@ -178,15 +178,14 @@ void MiscColorSel::realize(DialogRunner& runner)
 
 void MiscColorSel::doUpdate1(int32_t val, bool func)
 {
+	switch(val)
+	{
+		case ssctMISC: sw->switchTo(0); break;
+		case ssctSYSTEM: sw->switchTo(1); break;
+		default: sw->switchTo(2); break;
+	}
 	if(val != c1)
 	{
-		if( !(isCSet(val) && isCSet(c1))) //change switcher
-			switch(val)
-			{
-				case ssctMISC: sw->switchTo(0); break;
-				case ssctSYSTEM: sw->switchTo(1); break;
-				default: sw->switchTo(2); break;
-			}
 		c1 = val;
 		if(isCSet(val)) //update color
 		{
