@@ -14,6 +14,13 @@ extern miscQdata misc;
 //zq_strings.cpp
 FONT* getfont(int32_t fonta);
 
+static bool dlg_retval = false;
+bool call_subscrprop_dialog(subscreen_object *ref, int32_t obj_ind)
+{
+	SubscrPropDialog(ref,obj_ind).show();
+	return dlg_retval;
+}
+
 SubscrPropDialog::SubscrPropDialog(subscreen_object *ref, int32_t obj_ind) :
 	local_subref(*ref), subref(ref), index(obj_ind),
 	list_font(GUI::ZCListData::fonts(true)),
@@ -1163,8 +1170,41 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			// case ssoTRIFORCE:
-			default: attrib_grid = Column(Label(text = "WIP!!!")); break;
+			case ssoTRIFORCE:
+			{
+				mergetype = mtLOCTOP;
+				attrib_grid = Rows<2>(padding = 0_px,
+					Label(text = "Tile:", hAlign = 1.0),
+					tswatches[0] = SelTileSwatch(
+						hAlign = 0.0,
+						// minwidth = sized(16_px,32_px)*2+4_px,
+						// minheight = sized(16_px,32_px)*3+4_px,
+						tile = local_subref.d1,
+						cset = local_subref.d2,
+						showvals = false,
+						// tilewid = local_subref.d7 ? 2 : 1,
+						// tilehei = local_subref.d7 ? 3 : 1,
+						deftile = QMisc.colors.triforce_tile,
+						defcs = QMisc.colors.triforce_cset,
+						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+						{
+							local_subref.d1 = t;
+							local_subref.d2 = c;
+						}
+					),
+					Column(padding = 0_px,
+						colSpan = 2,
+						labels[0] = Label(text = "Tile 0 uses a preset from"
+							"\n'Quest->Graphics->Map Styles'"),
+						CBOX(d3,0b1,"Overlay",1),
+						CBOX(d4,0b1,"Transparent",1)
+					),
+					Label(text = "Piece #:", hAlign = 1.0),
+					NUM_FIELD(d5,0,999)
+				);
+				break;
+			}
+			default: attrib_grid = Column(Label(text = "ERROR")); break;
 		}
 	}
 	if(!is_large) mergetype = mtFORCE_TAB;
@@ -1279,8 +1319,10 @@ bool SubscrPropDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			save_sso(local_subref, subref);
+			dlg_retval = true;
 			return true;
 		case message::CANCEL:
+			dlg_retval = false;
 			return true;
 	}
 	return false;

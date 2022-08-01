@@ -5063,27 +5063,34 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
     if(tile==0)
     {
         tile=misc->colors.triforce_tile;
-	if (tile == 0) tile=misc->colors.triforce_tile;
+        cset=misc->colors.triforce_cset;
     }
     
-    for(int32_t i=0; i<8; i++)
-    {
-        int32_t lvl = i+1;
-        
-        if(get_bit(quest_rules,qr_4TRI) && lvl>4)
-            lvl -= 4;
-            
-        if(lvl==trinum && has_item(itype_triforcepiece, lvl))
-        {
-            int32_t tp=0;
-            
-            for(; tp<8; tp++)
-                if(misc->triforce[tp] == i+1)
-                    break;
-                    
-            draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
-        }
-    }
+	if(trinum <= 8)
+	{
+		for(int32_t i=0; i<8; i++)
+		{
+			int32_t lvl = i+1;
+			
+			if(get_bit(quest_rules,qr_4TRI) && lvl>4)
+				lvl -= 4;
+				
+			if(lvl==trinum && has_item(itype_triforcepiece, lvl))
+			{
+				int32_t tp=0;
+				
+				for(; tp<8; tp++)
+					if(misc->triforce[tp] == i+1)
+						break;
+						
+				draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
+			}
+		}
+	}
+	else if(has_item(itype_triforcepiece, trinum))
+	{
+		draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
+	}
 }
 
 /*

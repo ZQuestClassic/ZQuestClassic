@@ -14,6 +14,8 @@
 #include <string_view>
 #include "subscr.h"
 
+bool call_subscrprop_dialog(subscreen_object *ref, int32_t obj_ind);
+
 // A basic dialog that just shows some lines of text and a close button.
 class SubscrPropDialog: public GUI::Dialog<SubscrPropDialog>
 {
