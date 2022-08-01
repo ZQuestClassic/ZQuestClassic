@@ -30567,7 +30567,7 @@ int32_t main(int32_t argc,char **argv)
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
 	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
-	
+	zc_get_config("zquest","auto_filenew_bugfixes",1);
 	
 	//This is too much work to fix for 2.5. :| -Gleeok
 	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);

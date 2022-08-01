@@ -6410,6 +6410,7 @@ bool setMapCount2(int32_t c)
 
 extern BITMAP *bmap;
 
+static bool loading_file_new = false;
 int32_t init_quest(const char *)
 {
 	char qstdat_string[2048];
@@ -6417,9 +6418,13 @@ int32_t init_quest(const char *)
 	strcat(qstdat_string,"#NESQST_NEW_QST");
 
     char buf[2048];
-    //load_quest("qst.dat#NESQST_NEW_QST",true,true);
+    
+	loading_file_new = true;
+	//load_quest("qst.dat#NESQST_NEW_QST",true,true);
     load_quest(qstdat_string,true,true);
-    sprintf(buf,"ZQuest - Untitled Quest");
+    loading_file_new = false;
+	
+	sprintf(buf,"ZQuest - Untitled Quest");
     set_window_title(buf);
     zinit.last_map = 0;
     zinit.last_screen = 0;
@@ -6760,7 +6765,8 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 			refresh_pal();
 			set_rules(quest_rules);
 			saved = true;
-			popup_bugfix_dlg("dsa_compatrule");
+			if(!(loading_file_new && zc_get_config("zquest","auto_filenew_bugfixes",1)))
+				popup_bugfix_dlg("dsa_compatrule");
 			
 			if(bmap != NULL)
 			{

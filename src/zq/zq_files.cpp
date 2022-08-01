@@ -839,6 +839,10 @@ int32_t onNew()
 		PickRuleset();
 		PickRuleTemplate();
 	}
+	if(zc_get_config("zquest","auto_filenew_bugfixes",1))
+	{
+		applyRuleTemplate(ruletemplateCompat);
+	}
 	return D_O_K;
 }
 
