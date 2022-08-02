@@ -19,6 +19,9 @@ src/zq/zq_tiles.cpp
 src/zqscale.cpp
 src/jwin.cpp
 
+src/zq/mainscreen/mainscreen.cpp
+src/zq/mainscreen/toolbox.cpp
+
 src/zq/gui/seltile_swatch.cpp
 src/zq/gui/selcombo_swatch.cpp
 src/zq/gui/tileanim_frame.cpp

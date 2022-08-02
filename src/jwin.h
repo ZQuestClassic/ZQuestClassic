@@ -201,6 +201,7 @@ void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state);
 void draw_question_button(BITMAP *dest, int32_t x, int32_t y, int32_t state);
 char *shorten_string(char *dest, char const* src, FONT *usefont, int32_t maxchars, int32_t maxwidth);
 void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn = false);
+void jwin_textout(BITMAP* dest, int32_t x, int32_t y, char const* str, int32_t flags, bool center);
 void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
 void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, BITMAP *bmp, BITMAP *bmp2, int32_t flags, bool show_dotted_rect, bool overlay);
 
@@ -274,7 +275,8 @@ int32_t short_bmp_avg(BITMAP *bmp, int32_t i);
 void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                  int32_t src_color1, int32_t src_color2, uint8_t dest_color1,
                  uint8_t dest_color2);
-bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
+bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,BITMAP* dest = nullptr);
+bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,BITMAP* dest = nullptr);
 void jwin_center_dialog(DIALOG *dialog);
 void jwin_ulalign_dialog(DIALOG *dialog);
 

@@ -92,6 +92,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zscrdata.h"
 #include "drawing.h"
 #include "ConsoleLogger.h"
+#include "mainscreen/mainscreen.h"
 
 //Windows mmemory tools
 #ifdef _WIN32
@@ -31572,6 +31573,7 @@ int32_t main(int32_t argc,char **argv)
 	else dialogs[0].dp = (void *) the_menu_large;
 	*/
 	
+	load_mainscreen_configs();
 	call_foo_dlg();
 	while(!quit)
 	{
@@ -31603,6 +31605,8 @@ int32_t main(int32_t argc,char **argv)
 		*/
 		++alignment_arrow_timer;
 		
+		if(key[KEY_G])
+			test_mainscreen_gui();
 		if(alignment_arrow_timer>63)
 		{
 			alignment_arrow_timer=0;
@@ -31702,6 +31706,7 @@ int32_t main(int32_t argc,char **argv)
 		
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
 		
+		object_message(&dialogs[0], MSG_DRAW, 0);
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -32819,6 +32824,8 @@ int32_t save_config_file()
     zc_free(midipath2);
     zc_free(imagepath2);
     zc_free(tmusicpath2);
+	
+	save_mainscreen_configs();
     return 0;
 }
 

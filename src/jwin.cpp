@@ -441,8 +441,8 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
     {
         while(length>w-20 && len>1)
         {
-            buf[len-4] = '.';
-            buf[len-3] = '.';
+            if (len > 3) buf[len-4] = '.';
+            if (len > 2) buf[len-3] = '.';
             buf[len-2] = '.';
             buf[len-1] = 0;
             len--;
@@ -1024,6 +1024,20 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
         dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
+}
+
+void jwin_textout(BITMAP* dest, int32_t x, int32_t y, char const* str, int32_t flags, bool center)
+{
+	int32_t xoffs = center ? -text_length(font,str)/2 : 0;
+	int32_t yoffs = center ? -text_height(font)/2 : 0;
+	
+    if(!(flags & D_DISABLED))
+        gui_textout_ex(dest, str, x+xoffs, y+yoffs, palette_color[scheme[jcBOXFG]], -1, center);
+    else
+    {
+        gui_textout_ex(dest, str, x+xoffs+1,y+yoffs+1, palette_color[scheme[jcLIGHT]], -1, center);
+        gui_textout_ex(dest, str, x+xoffs,  y+yoffs,   palette_color[scheme[jcDISABLED_FG]], -1, center);
+    }
 }
 
 /* draw_graphics_button:
@@ -6787,8 +6801,9 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
     return;
 }
 
-bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
+bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,BITMAP* dest)
 {
+	if(!dest) dest = screen;
     bool over=false;
     
     while(gui_mouse_b())
@@ -6800,7 +6815,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
             {
                 vsync();
                 scare_mouse();
-                jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
+                jwin_draw_text_button(dest, x, y, w, h, text, D_SELECTED, true);
                 unscare_mouse();
                 over=true;
                 
@@ -6813,7 +6828,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
             {
                 vsync();
                 scare_mouse();
-                jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
+                jwin_draw_text_button(dest, x, y, w, h, text, 0, true);
                 unscare_mouse();
                 over=false;
                 
@@ -6825,8 +6840,9 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
     return over;
 }
 
-bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
+bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,BITMAP* dest)
 {
+	if(!dest) dest = screen;
     bool over=false;
     
     while(gui_mouse_b())
@@ -6838,7 +6854,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             {
                 vsync();
                 scare_mouse();
-                jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
+                jwin_draw_text_button(dest, x, y, w, h, text, D_SELECTED, true);
                 unscare_mouse();
                 over=true;
                 
@@ -6851,7 +6867,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             {
                 vsync();
                 scare_mouse();
-                jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
+                jwin_draw_text_button(dest, x, y, w, h, text, 0, true);
                 unscare_mouse();
                 over=false;
                 
@@ -6865,7 +6881,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
     {
         vsync();
         scare_mouse();
-        jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
+        jwin_draw_text_button(dest, x, y, w, h, text, 0, true);
         unscare_mouse();
         
 		update_hw_screen();
