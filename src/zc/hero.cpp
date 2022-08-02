@@ -5139,28 +5139,30 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
 void HeroClass::check_pound_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w);
+    int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8||fakez>8) return;
     
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+	bx = CLEAR_LOW_BITS(bx, 4);
+	by = CLEAR_LOW_BITS(by, 4);
     
     int32_t type = COMBOTYPE(bx,by);
     int32_t type2 = FFCOMBOTYPE(fx,fy);
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int32_t i = (bx>>4) + by;
-    
-    if(i > 175)
+
+    rpos_t rpos = COMBOPOS_REGION(bx, by);
+    int32_t pos = RPOS_TO_POS(rpos);
+    if (unsigned(rpos) > region_max_rpos)
         return;
+	pos_handle pos_handle = z3_get_pos_handle(rpos, 0);
         
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -5168,8 +5170,9 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     
     if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
         ignorescreen = true; // Affect only FFCs
-        
-    if(get_bit(screengrid, i) != 0)
+    
+	// TODO z3
+    if(get_bit(screengrid, pos) != 0)
         ignorescreen = true;
         
     int32_t current_ffcombo = getFFCAt(fx,fy);
@@ -5183,7 +5186,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : z3_get_mapscr_for_xy_offset(bx, by);
     
     if(!ignorescreen)
     {
@@ -5199,28 +5202,28 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         }
         else if((flag >= 16)&&(flag <= 31))
         {
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+            s->data[pos] = s->secretcombo[(s->sflag[pos])-16+4];
+            s->cset[pos] = s->secretcset[(s->sflag[pos])-16+4];
+            s->sflag[pos] = s->secretflag[(s->sflag[pos])-16+4];
         }
         else if(flag == mfARMOS_SECRET)
         {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
+            s->data[pos] = s->secretcombo[sSTAIRS];
+            s->cset[pos] = s->secretcset[sSTAIRS];
+            s->sflag[pos] = s->secretflag[sSTAIRS];
             sfx(tmpscr.secretsfx);
         }
         else if((flag2 >= 16)&&(flag2 <= 31))
         {
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+            s->data[pos] = s->secretcombo[(s->sflag[pos])-16+4];
+            s->cset[pos] = s->secretcset[(s->sflag[pos])-16+4];
+            s->sflag[pos] = s->secretflag[(s->sflag[pos])-16+4];
         }
         else if(flag2 == mfARMOS_SECRET)
         {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
+            s->data[pos] = s->secretcombo[sSTAIRS];
+            s->cset[pos] = s->secretcset[sSTAIRS];
+            s->sflag[pos] = s->secretflag[sSTAIRS];
             sfx(tmpscr.secretsfx);
         }
         else pound = true;
@@ -5242,9 +5245,10 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     if(!ignorescreen)
     {
         if(pound)
-            s->data[i]+=1;
-            
-        set_bit(screengrid,i,1);
+            s->data[pos]+=1;
+        
+		// TODO z3
+        set_bit(screengrid,pos,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
         {
@@ -5254,8 +5258,12 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
             sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
-            
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+        
+		// int x, y;
+		// COMBOXY_REGION(rpos, x, y);
+		// x -= global_viewport_x;
+		// y -= global_viewport_y;
+        putcombo(scrollbuf, bx - global_viewport_x, by - global_viewport_y, s->data[pos], s->cset[pos]);
     }
     
     if(!ignoreffc)
