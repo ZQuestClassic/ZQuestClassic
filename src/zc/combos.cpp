@@ -274,9 +274,8 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 	//if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-bool do_cswitch_combo(newcombo const& cmb, int32_t layer, weapon* w)
+bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 {
-	mapscr* scr = (layer ? &tmpscr2[layer] : &tmpscr);
 	byte pair = cmb.attribytes[0];
 	if(pair > 31) return false;
 	game->lvlswitches[dlevel] ^= (1 << pair);
@@ -1362,7 +1361,7 @@ void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 			switch(cmb.type)
 			{
 				case cCSWITCH:
-					do_cswitch_combo(cmb, lyr, w);
+					do_cswitch_combo(cmb, w);
 					break;
 				
 				case cSIGNPOST:

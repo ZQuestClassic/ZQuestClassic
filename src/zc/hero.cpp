@@ -102,7 +102,6 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define NO_GRIDLOCK		(get_bit(quest_rules, qr_DISABLE_4WAY_GRIDLOCK))
 #define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fakez < 0 ? zslongToFix(2147483647) : switchblock_z+z+fakez))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_bit(quest_rules,qr_BROKEN_Z3_ANIMATION))
-#define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
 
 static inline bool platform_fallthrough()
 {
@@ -6494,6 +6493,7 @@ killweapon:
 	//else { sethitHeroUID(HIT_BY_EWEAPON,(0)); } //fails to clear
 	
 	// The rest of this method deals with damage combos, which can be jumped over.
+	// TODO z3
 	if((z>0 || fakez>0) && !(tmpscr.flags2&fAIRCOMBOS)) return;
 	
 	int32_t dx1 = (int32_t)x+8-(tmpscr.csensitive);
@@ -8330,12 +8330,14 @@ bool HeroClass::animate(int32_t)
 	{
 		int32_t tx = x.getInt()+8,
 		    ty = y.getInt()+8;//(bigHitbox?8:12);
-		if(!(unsigned(ty)>175 || unsigned(tx) > 255))
+		if (unsigned(ty) <= world_h && unsigned(tx) <= world_w)
 		{
 			for(int32_t q = 0; q < 3; ++q)
 			{
-				if(q && !tmpscr2[q-1].valid) continue;
-				newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[COMBOPOS(tx,ty)]];
+				mapscr* s = get_layer_scr_for_xy(tx, ty, q - 1);
+				if (q && !s->valid) continue;
+
+				newcombo const& cmb = combobuf[s->data[COMBOPOS(tx%256,ty%176)]];
 				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
 				int32_t b = 1;
 				if(tx&8) b <<= 2;

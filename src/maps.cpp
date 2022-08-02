@@ -435,11 +435,32 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
 
+	if (map == currmap)
+	{
+		int index = screen*7;
+		if (!temporary_screens_currmap[index])
+		{
+			auto screens = clone_mapscr_2(&TheMaps[map*MAPSCRS + screen]);
+			DCHECK(screens.size() == 7);
+			for (int i = 0; i < 7; i++)
+			{
+				temporary_screens_currmap[index+i] = screens[i];
+			}
+		}
+		return temporary_screens_currmap[index+layer+1];
+	}
+
 	int index = map*MAPSCRS + screen;
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return &it->second[layer + 1];
 	temporary_screens[index] = clone_mapscr(&TheMaps[index]);
 	return &temporary_screens[index][layer + 1];
+}
+
+// Note: layer=-1 returns the base screen, layer=0 returns the first layer.
+mapscr* get_layer_scr_for_xy(int x, int y, int layer)
+{
+	return get_layer_scr(currmap, z3_get_scr_for_xy_offset(x, y), layer);
 }
 
 mapscr* get_home_scr()
@@ -5845,8 +5866,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
-	// TODO z3 switches
-	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmpscr2);
+	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? currscr : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -7108,15 +7128,19 @@ void map_bkgsfx(bool on)
 void toggle_switches(dword flags, bool entry)
 {
 	if(!flags) return; //No flags to toggle
-	toggle_switches(flags,entry,&tmpscr,tmpscr2);
+
+	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		mapscr* screen = get_layer_scr(currmap, screen_index, -1);
+		toggle_switches(flags, entry, screen, screen_index);
+	});
 }
-void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
+void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 {
 	if(!flags) return; //No flags to toggle
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = (lyr ? &t[lyr-1] : m);
+		mapscr* scr = lyr ? get_layer_scr(currmap, screen_index, lyr - 1) : m;
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
@@ -7157,7 +7181,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 						if(lyr==lyr2) continue;
 						if(!(cmb.usrflags&(1<<lyr2))) continue;
 						if(togglegrid[pos]&(1<<lyr2)) continue;
-						mapscr* scr_2 = (lyr2 ? &t[lyr2-1] : m);
+						mapscr* scr_2 = (lyr2 ? get_layer_scr(currmap, screen_index, lyr2 - 1) : m);
 						if(!scr_2->data[pos]) //Don't increment empty space
 							continue;
 						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];

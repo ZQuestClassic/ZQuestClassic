@@ -343,7 +343,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZITEM -1
 #define V_ZWPNSPR -1
 
-
 void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
 
@@ -416,6 +415,7 @@ extern bool fake_pack_writing;
 #define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
 
 #define XOR(a,b) (!(a) != !(b))
+#define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
 
 //#define MAGICDRAINRATE  2
 

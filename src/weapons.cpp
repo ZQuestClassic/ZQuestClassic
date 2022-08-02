@@ -544,13 +544,16 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
     //find out which combo row/column the coordinates are in
-    bx=vbound(bx, 0, 255) & 0xF0; // TODO z3
-    by=vbound(by, 0, 175) & 0xF0;
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h-1);
+	bx=CLEAR_LOW_BITS(bx, 4);
+	by=CLEAR_LOW_BITS(by, 4);
 	if(screenIsScrolling()) return;
 	int32_t cid = ( layer ) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
 	if(!MatchComboTrigger(w, c, cid)) return;
 	if(w->weapon_dying_frame) return;
-	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
+
+	do_trigger_combo(z3_get_pos_handle(COMBOPOS_REGION(bx, by), layer), 0, w);
 }
 
 /**************************************/

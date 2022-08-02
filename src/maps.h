@@ -100,6 +100,7 @@ int z3_get_region_relative_dy(int scr);
 bool is_z3_scrolling_mode();
 mapscr* get_scr(int map, int screen);
 mapscr* get_layer_scr(int map, int screen, int layer);
+mapscr* get_layer_scr_for_xy(int x, int y, int layer);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
@@ -245,7 +246,7 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
-void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t);
+void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index);
 
 //
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
