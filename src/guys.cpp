@@ -250,6 +250,11 @@ bool enemy::overpit(enemy *e)
 				return true;
 			}
 		}
+
+		break; // LOL this is just because the code was written in a bad way (see same variable being
+				// used in both loops), and this function showed up as pretty expensive when profiling.
+				// So instead of wasting a ton of work .... or fixing this function .... let's just make
+				// is not take at least 16x longer than it should.
 	}
 	return false;
 }
@@ -268,6 +273,11 @@ bool enemy::shadow_overpit(enemy *e)
 				return true;
 			}
 		}
+
+		break; // LOL this is just because the code was written in a bad way (see same variable being
+				// used in both loops), and this function showed up as pretty expensive when profiling.
+				// So instead of wasting a ton of work .... or fixing this function .... let's just make
+				// is not take at least 16x longer than it should.
 	}
 	return false;
 }
