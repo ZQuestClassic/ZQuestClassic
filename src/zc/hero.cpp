@@ -23831,6 +23831,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	{
 		return;
 	}
+
+	// Calling functions are responsible for setting currmap (but not currscr...), but before we _actually_
+	// start to scroll we draw a few frames of the current screen (draw_screen). So we need currmap to be the
+	// old value initially. Callers also set the old map value to `scrolling_map`, so we can use that.
+	int destmap = currmap;
+	currmap = scrolling_map;
 	
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
@@ -24062,22 +24068,32 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		delay = get_scroll_delay(scrolldir);
 		scroll_counter = (scrolldir == up || scrolldir == down ? 176 : 256) / step;
 
-		if (destscr != -1)
-		{
-			currscr = destscr;
-		}
-		else if (checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
-		{
-			currscr += scroll_dir_to_scr_offset((direction)scrolldir);
-			destscr = currscr;
-		}
-
 		dx = 0;
 		dy = 0;
 		if (scrolldir == up) dy = -1;
 		if (scrolldir == down) dy = 1;
 		if (scrolldir == left) dx = -1;
 		if (scrolldir == right) dx = 1;
+	}
+
+	if (destscr != -1)
+	{
+		currscr = destscr;
+	}
+	else if (checkmaze(oldscr, true) && !edge_of_dmap(scrolldir))
+	{
+		currscr += scroll_dir_to_scr_offset((direction)scrolldir);
+		destscr = currscr;
+	}
+	currmap = destmap;
+
+	// When scrolling to a new map, currmap has already been set (by callers) to the destination map.
+	// So we need to clear the temporary cache lookup, since it keeps temporary screens of the "currmap"
+	// in a quick lookup table. Otherwise we'd draw the wrong screens during side warps (if drawing the same
+	// screen indices in different maps).
+	if (currmap != scrolling_map)
+	{
+		z3_clear_temporary_screens();
 	}
 
 	// Determine by how much we need to align to the new region's viewport.
@@ -24273,7 +24289,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int sy = step * move_counter * -dy;
 		if (is_smooth_vertical_scrolling) sy += 3;
 		
-		// if (!is_z3_scrolling_mode())
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
 		
 		if(no_move > 0)
@@ -24416,7 +24431,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		//FFScript.OnWaitdraw()
-		//if (!is_z3_scrolling_mode())
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
@@ -24653,7 +24667,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	set_clip_state(msg_portrait_display_buf, 1);
 
 	loadscr(0, destdmap, currscr, scrolldir, overlay);
-	// currscr = destscr;
 	z3_set_currscr(currscr);
 	x = new_hero_x;
 	y = new_hero_y;
@@ -24822,6 +24835,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
+	if (action==freeze||action==sideswimfreeze)
+	{
+		return;
+	}
+
 	// Use new scrolling function if scrolling to/from a scrollable region.
 	{
 		int tempdestscr = destscr;
@@ -24839,11 +24857,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			HeroClass::scrollscr_butgood(scrolldir, destscr, destdmap);
 			return;
 		}
-	}
-
-	if(action==freeze||action==sideswimfreeze)
-	{
-		return;
 	}
 	
 	bool overlay = false;
@@ -24872,7 +24885,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
-	scrolling_map = currmap;
 	scrolling_scr = currscr;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	switch(scrolldir)

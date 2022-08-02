@@ -80,6 +80,7 @@ extern int scrolling_maze_mode;
 int z3_get_region_id(int scr);
 void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_set_currscr(int scr);
+void z3_clear_temporary_screens();
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);
 void z3_update_viewport();
 void z3_update_currscr();
@@ -228,6 +229,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,b
 void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();
 std::vector<mapscr> clone_mapscr(const mapscr* source);
+std::vector<mapscr*> clone_mapscr_2(const mapscr* source);
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay);
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);

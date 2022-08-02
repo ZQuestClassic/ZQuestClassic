@@ -62,6 +62,7 @@ extern HeroClass Hero;
 // define regions dynamically
 
 static std::map<int, std::vector<mapscr>> temporary_screens;
+static mapscr* temporary_screens_currmap[136*7] = {nullptr};
 int viewport_x, viewport_y;
 int viewport_y_offset;
 int world_w, world_h;
@@ -231,7 +232,20 @@ void z3_set_currscr(int scr)
 	initial_region_scr = scr;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
+	z3_clear_temporary_screens();
+}
+
+void z3_clear_temporary_screens()
+{
 	temporary_screens.clear();
+	for (int i = 0; i < 136*7; i++)
+	{
+		if (temporary_screens_currmap[i])
+		{
+			free(temporary_screens_currmap[i]);
+			temporary_screens_currmap[i] = NULL;
+		}
+	}
 }
 
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y)
@@ -391,17 +405,22 @@ const mapscr* get_canonical_scr(int map, int screen)
 
 mapscr* get_scr(int map, int screen)
 {
-	if (currmap != map)
-	{
-		// TODO: do we need to store temp maps from different maps?
-		//       if we did not we could just use a much quick array lookup
-		//       for temp screens.
-		// see: side warps.
-		// also why do side warps to different map flash black for a moment
-
-		int lol = 1;
-	}
 	if (screen == initial_region_scr && map == currmap) return &tmpscr;
+
+	if (map == currmap)
+	{
+		int index = screen*7;
+		if (!temporary_screens_currmap[index])
+		{
+			auto screens = clone_mapscr_2(&TheMaps[map*MAPSCRS + screen]);
+			DCHECK(screens.size() == 7);
+			for (int i = 0; i < 7; i++)
+			{
+				temporary_screens_currmap[index+i] = screens[i];
+			}
+		}
+		return temporary_screens_currmap[index];
+	}
 
 	int index = map*MAPSCRS + screen;
 	auto it = temporary_screens.find(index);
@@ -413,10 +432,6 @@ mapscr* get_scr(int map, int screen)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
-	if (currmap != map)
-	{
-		int lol = 1;
-	}
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
 
@@ -5548,6 +5563,28 @@ std::vector<mapscr> clone_mapscr(const mapscr* source)
 		else
 		{
 			screens.push_back(mapscr());
+		}
+	}
+
+	return screens;
+}
+
+std::vector<mapscr*> clone_mapscr_2(const mapscr* source)
+{
+	std::vector<mapscr*> screens;
+
+	screens.push_back(new mapscr(*source));
+
+	for (int i = 0; i < 6; i++)
+	{
+		if(source->layermap[i]>0 && (ZCMaps[source->layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
+					&& (ZCMaps[source->layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+		{
+			screens.push_back(new mapscr(TheMaps[(source->layermap[i]-1)*MAPSCRS+source->layerscreen[i]]));
+		}
+		else
+		{
+			screens.push_back(new mapscr());
 		}
 	}
 
