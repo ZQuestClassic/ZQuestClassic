@@ -3,14 +3,16 @@
 #include "jwin.h"
 #include "zquest.h"
 #include "base/gui.h"
+#include "zq_misc.h"
 
+using namespace std;
 #define RESZ_MARGIN 5
 
 Toolbox::Toolbox() : x(0), y(0),
 	w(64), h(64), flags(0), intbmp(nullptr),
 	minw(32), minh(32), refbmp(nullptr),
 	zoomfactor(1), title("UNSET_TITLE"),
-	scrollfactor(1)
+	scrollfactor(1), rcmenu_finalized(false)
 {
 	memset(dx, 0, sizeof(dx));
 	memset(dy, 0, sizeof(dy));
@@ -26,6 +28,71 @@ Toolbox::~Toolbox()
 		destroy_bitmap(refbmp);
 }
 
+vector<string> Toolbox::basercmenu;
+void Toolbox::add_to_rcmenu(std::string const& name)
+{
+	if(rcmenu_finalized) return;
+	rcmenu.push_back(name);
+}
+void Toolbox::finish_rcmenu()
+{
+	if(rcmenu_finalized) return;
+	baserc_len = rcmenu.size();
+	rcmenu.insert(rcmenu.end(), basercmenu.begin(), basercmenu.end());
+	rcmenu_finalized = true;
+}
+#define BASEMENU_PIN 0
+#define BASEMENU_CLOSE 1
+void Toolbox::init_base_rcmenu()
+{
+	basercmenu.clear();
+	basercmenu.push_back("Pin");
+	basercmenu.push_back("Close");
+}
+
+int32_t Toolbox::popup_rclick_menu()
+{
+	if(!rcmenu_finalized) return -1;
+	int32_t m = -1;
+	//Open menu
+	{
+		MENU *menu = populate_menu_from_vec(rcmenu);
+		dp = (void*)menu;
+		msg(MG_MSG_MANAGE_MENU);
+		dp = nullptr;
+		BGLOOP_START();
+		BGLOOP_DRAW();
+		cache_tb_cursor();
+		FONT* of = font;
+		font = lfont_l;
+		m = popup_menu(menu, gui_mouse_x(), gui_mouse_y(), 20);
+		font = of;
+		restore_tb_cursor();
+		BGLOOP_END();
+		delete[] menu;
+	}
+	if(m < 0) return -1;
+	int32_t sysval = m - baserc_len;
+	if(sysval > -1)
+	{
+		switch(sysval)
+		{
+			case BASEMENU_PIN:
+			{
+				flags ^= TBF_PINNED;
+				break;
+			}
+			case BASEMENU_CLOSE:
+			{
+				flags &= ~(TBF_VISIBLE|TBF_PINNED);
+				break;
+			}
+			default: return -1;
+		}
+		return m;
+	}
+	return m;
+}
 int32_t Toolbox::mouse_in_d()
 {
 	for(auto q = 0; q < 10; ++q)
@@ -188,10 +255,24 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 			if(!vis) break;
 			uint32_t mx = gui_mouse_x();
 			uint32_t my = gui_mouse_y();
-			
-			if(getResizeDir(mx,my) != -1)
-				ret = MG_RET_CANRESIZE;
-			else if(!dis && hovering(mx,my))
+			int32_t rd = getResizeDir(mx,my);
+			if(rd != -1)
+			{
+				if(flags&TBF_PINNED)
+				{
+					if(rd == -2)
+					{
+						ret = MG_RET_PINNEDMENU;
+						break;
+					}
+				}
+				else
+				{
+					ret = MG_RET_CANRESIZE;
+					break;
+				}
+			}
+			if(!dis && hovering(mx,my))
 				ret = MG_RET_CANCLICK;
 			break;
 		}
@@ -219,6 +300,25 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 		case MG_MSG_RESZ_UP: case MG_MSG_RESZ_DOWN:
 		case MG_MSG_RESZ_LEFT: case MG_MSG_RESZ_RIGHT:
 			return c;
+		case MG_MSG_BUILD_RCMENU:
+		{
+			finish_rcmenu();
+			break;
+		}
+		case MG_MSG_OPEN_RCMENU:
+		{
+			popup_rclick_menu();
+			break;
+		}
+		case MG_MSG_MANAGE_MENU:
+		{
+			MENU* menu = (MENU*)dp;
+			if(menu)
+			{
+				SETFLAG(menu[baserc_len+BASEMENU_PIN].flags, D_SELECTED, flags&TBF_PINNED);
+			}
+			break;
+		}
 		//Debug Behavior
 		#if MAINSCREEN_DEBUG > 0
 		case MG_MSG_RCLICK:

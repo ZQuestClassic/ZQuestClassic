@@ -1396,20 +1396,22 @@ MENU the_menu[] =
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
     { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
 
+    {  NULL,                                NULL,                      NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 MENU the_menu_large[] =
 {
-    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
-    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
-    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
-    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
-    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
-    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"Et&C",                       NULL, (MENU *) etc_menu_smallmode,        0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+    { (char *)"&File",                      NULL, (MENU *) file_menu,           0,            NULL   },
+    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,          0,            NULL   },
+    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,           0,            NULL   },
+    { (char *)"&View",                      NULL, (MENU *) view_menu,           0,            NULL   },
+    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,           0,            NULL   },
+    { (char *)"&Screen",                    NULL, (MENU *) data_menu,           0,            NULL   },
+    { (char *)"&ZScript",                   NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"Et&C",                       NULL, (MENU *) etc_menu_smallmode,  0,            NULL   },
+    { (char *)"Toolboxes",                  NULL,  NULL,                        0,            NULL   },
+    {  NULL,                                NULL,  NULL,                        0,            NULL   }
 };
 
 MENU the_menu_small[] =
@@ -1788,7 +1790,10 @@ static DIALOG dialogs[] =
     { NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,              0,       NULL, NULL, NULL }
 };
 
-
+void draw_the_menu()
+{
+	object_message(&dialogs[0], MSG_DRAW, 0);
+}
 int32_t onDecColour()
 {
 	if ( key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL] )
@@ -29812,7 +29817,7 @@ int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 int32_t exittimer = 10000, exittimer2 = 100;
 
-
+DIALOG_PLAYER* main_dl_player;
 int32_t main(int32_t argc,char **argv)
 {
 #if (defined(_DEBUG) && defined(_MSC_VER))
@@ -31526,6 +31531,7 @@ int32_t main(int32_t argc,char **argv)
 	clear_to_color(menu1,vc(0));
 	refresh(rALL);
 	DIALOG_PLAYER *player2=init_dialog(dialogs,-1);
+	main_dl_player = player2;
 	
 	get_palette(RAMpal);
 	
@@ -31712,7 +31718,7 @@ int32_t main(int32_t argc,char **argv)
 		
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
 		
-		object_message(&dialogs[0], MSG_DRAW, 0);
+		draw_the_menu();
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -32298,10 +32304,13 @@ void do_previewtext()
     textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+90+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
 }
 
-
-
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
+	if(IS_MSGUI_MODE)
+	{
+		auto ret = jwin_menu_proc(msg,d,c);
+		return ret;
+	}
     static int32_t ret=D_O_K;
     domouse();
     do_animations();
@@ -32322,7 +32331,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
     //YIELD();
     rest(4);
     ret = jwin_menu_proc(msg,d,c);
-    
     return ret;
 }
 

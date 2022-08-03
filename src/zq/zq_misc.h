@@ -52,14 +52,14 @@
 
 #define C(x)   ((x)-'a'+1)
 
-INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
+INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y,int32_t mw = 0, int32_t mh = 0)
 {
     while(gui_mouse_b())
     {
         /* do nothing */
     }
     
-    return jwin_do_menu(menu,x,y);
+    return jwin_do_menu(menu,x,y,mw,mh);
 }
 
 INLINE int32_t bit(int32_t val,int32_t b)

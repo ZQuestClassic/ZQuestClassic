@@ -23,6 +23,13 @@ public:
 	int32_t minw, minh;
 	BITMAP* refbmp;
 	std::string title;
+	void* dp;
+	
+	//RClick Menu
+	void add_to_rcmenu(std::string const& name);
+	void finish_rcmenu();
+	static void init_base_rcmenu();
+	int32_t popup_rclick_menu();
 	
 	//Default behavior functions
 	int32_t mouse_in_d();
@@ -48,6 +55,11 @@ public:
 private:
 	BITMAP* intbmp;
 	
+	static std::vector<std::string> basercmenu;
+	std::vector<std::string> rcmenu;
+	int32_t baserc_len;
+	bool rcmenu_finalized;
+	
 	int32_t call(int32_t m, int32_t c = 0);
 };
 
@@ -55,6 +67,7 @@ private:
 #define TBF_VISIBLE  0x00000001
 #define TBF_DIRTY    0x00000002
 #define TBF_DISABLED 0x00000004
+#define TBF_PINNED   0x00000008
 
 
 #define BGLOOP_START()\

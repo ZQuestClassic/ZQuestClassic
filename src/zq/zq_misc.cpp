@@ -142,7 +142,6 @@ void zq_set_mouse_focus(int32_t x, int32_t y)
 	int32_t fx = int32_t(x*scale);
 	int32_t fy = int32_t(y*scale);
 	set_mouse_sprite_focus(fx,fy);
-	zprint2("Scale focus %d,%d\n",fx,fy);
 }
 
 void load_icons()

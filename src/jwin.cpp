@@ -57,6 +57,7 @@ extern int32_t joystick_index;
 extern bool is_zquest();
 
 int32_t abc_patternmatch = 1;
+int32_t jwin_menu_selection = -1;
 
 char abc_keypresses[1024] = {0};
 void wipe_abc_keypresses() { memset(abc_keypresses, 0, 1024); }
@@ -4828,7 +4829,7 @@ getout:
         active_menu = &m.menu[ret];
         m.proc = active_menu->proc;
     }
-    
+	
     if(ret >= 0)
     {
         if(parent)
@@ -4846,6 +4847,7 @@ getout:
             }
         }
     }
+    jwin_menu_selection = ret;
     
     /* restore screen */
     if(m.saved)
@@ -4864,9 +4866,9 @@ getout:
   *  returning the index of the item that was selected, or -1 if it was
   *  dismissed. If the menu crosses the edge of the screen it will be moved.
   */
-int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y)
+int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y, int32_t mw, int32_t mh)
 {
-    int32_t ret = _jwin_do_menu(menu, NULL, FALSE, x, y, TRUE, NULL, 0, 0);
+    int32_t ret = _jwin_do_menu(menu, NULL, FALSE, x, y, TRUE, NULL, mw, mh);
     
     do
     {
@@ -4924,7 +4926,7 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
         
     case MSG_GOTMOUSE:
     case MSG_CLICK:
-        _jwin_do_menu((MENU*)d->dp, NULL, TRUE, d->x-1, d->y-1, FALSE, &x, d->w+2, d->h+2);
+        jwin_menu_selection = _jwin_do_menu((MENU*)d->dp, NULL, TRUE, d->x-1, d->y-1, FALSE, &x, d->w+2, d->h+2);
         ret |= x;
         
         do

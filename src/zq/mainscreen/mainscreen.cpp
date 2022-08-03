@@ -21,6 +21,10 @@ extern int32_t current_combolist;
 void animate_combos();
 //A replacement for the old main UI, with re-organizable features
 
+////////////////
+// Misc Stuff //
+////////////////
+
 void save_mainscreen_configs()
 {
 	
@@ -29,7 +33,43 @@ void load_mainscreen_configs()
 {
 	init_toolboxes();
 }
-
+MENU* populate_menu_from_vec(vector<string> const& mnu)
+{
+	MENU* ret = new MENU[mnu.size()+1];
+	size_t q;
+	for(q = 0; q < mnu.size(); ++q)
+	{
+		ret[q].text = const_cast<char*>(mnu[q].c_str());
+		ret[q].proc = nullptr;
+		ret[q].child = nullptr;
+		ret[q].flags = 0;
+		ret[q].dp = nullptr;
+	}
+	//terminator
+	ret[q].text = nullptr;
+	ret[q].proc = nullptr;
+	ret[q].child = nullptr;
+	ret[q].flags = 0;
+	ret[q].dp = nullptr;
+	return ret;
+}
+int32_t popup_menu_from_vec(vector<string> const& mnu, int32_t x, int32_t y, int32_t minw, int32_t minh)
+{
+	if(x < 0) x = gui_mouse_x();
+	if(y < 0) y = gui_mouse_y();
+	MENU *menu = populate_menu_from_vec(mnu);
+	BGLOOP_START();
+	BGLOOP_DRAW();
+	cache_tb_cursor();
+	FONT* of = font;
+	font = lfont_l;
+	int32_t m = popup_menu(menu, x, y, minw, minh);
+	font = of;
+	restore_tb_cursor();
+	BGLOOP_END();
+	delete[] menu;
+	return m;
+}
 /////////////////////////
 // Constants / Globals //
 /////////////////////////
@@ -44,7 +84,7 @@ enum
 Toolbox boxes[NUM_TB];
 static std::deque<int32_t> focusOrder;
 static int32_t mx, my, mb;
-static bool m_can_resize;
+static int32_t m_curs_flags;
 static int32_t cursor_dir = -1;
 static int32_t lhov_id = -1;
 static int32_t last_combolist = -1;
@@ -56,8 +96,9 @@ void init_static_vars()
 	mx = gui_mouse_x();
 	my = gui_mouse_y();
 	mb = 0;
-	m_can_resize = false;
+	m_curs_flags = 0;
 	cursor_dir = -1;
+	lhov_id = -1;
 	position_mouse_z(0);
 	tb_vsync = clock();
 }
@@ -73,17 +114,34 @@ void broadcast_tb_message(int32_t msg, int32_t c)
 		boxes[q].msg(msg,c);
 	}
 }
+#define MCFLAG_RESIZE_OR_MOVE 0x1
+#define MCFLAG_DISABLED_CLICK 0x2
 int32_t broadcast_mousefind()
 {
-	m_can_resize = false;
+	m_curs_flags = 0;
 	for(auto it = focusOrder.rbegin(); it != focusOrder.rend(); ++it)
 	{
 		int32_t q = *it;
 		auto ret = boxes[q].msg(MG_MSG_FIND_MOUSE_HOVER);
 		switch(ret)
 		{
-			case MG_RET_CANRESIZE: m_can_resize = true; return q;
+			case MG_RET_CANRESIZE: m_curs_flags |= MCFLAG_RESIZE_OR_MOVE; return q;
 			case MG_RET_CANCLICK: return q;
+			case MG_RET_PINNEDMENU: //On a pinned menu's move area
+			{
+				if((gui_mouse_b()&3) == 2)
+				{
+					m_curs_flags |= MCFLAG_RESIZE_OR_MOVE;
+					return q;
+				}
+				m_curs_flags |= MCFLAG_DISABLED_CLICK;
+				return q;
+			}
+			case MG_RET_DISCLICK:
+			{
+				m_curs_flags |= MCFLAG_DISABLED_CLICK;
+				return q;
+			}
 		}
 	}
 	return -1;
@@ -129,6 +187,17 @@ bool tb_draw_vsync()
 ////////////////
 // COMBOBOXES //
 ////////////////
+
+int32_t cheap_getnum(char const* ptr, int32_t defval)
+{
+	cache_tb_cursor();
+	BGLOOP_START();
+	BGLOOP_DRAW();
+	defval = getnumber(ptr,defval);
+	BGLOOP_END();
+	restore_tb_cursor();
+	return defval;
+}
 
 void run_combosel_rc(int32_t x, int32_t y);
 void draw_combo_pane(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t list, bool thick)
@@ -266,6 +335,41 @@ int32_t _combobox_proc(Toolbox* tb, int32_t msg, int32_t c, int32_t listnum)
 			tb->flags |= TBF_DIRTY;
 			break;
 		}
+		case MG_MSG_BUILD_RCMENU:
+		{
+			tb->add_to_rcmenu("Resize");
+			tb->add_to_rcmenu("");
+			tb->baseproc(msg,c);
+			break;
+		}
+		case MG_MSG_OPEN_RCMENU:
+		{
+			int32_t m = tb->popup_rclick_menu();
+			switch(m)
+			{
+				case 0: //Resize
+				{
+					tb->zoomfactor = zf = vbound(cheap_getnum("Zoom (1x-4x)", zf), 1, 4);
+					tb->w = (8 + (16*4*zf));
+					tb->flags |= TBF_DIRTY;
+					auto oldrows = int32_t(round((tb->h - 24)/(16.0*zf)));
+					auto minrows = int32_t(round((tb->minh - 24)/(16.0*zf)));
+					auto maxrows = int32_t(round((zq_screen_h - 24)/(16.0*zf)));
+					char buf[32];
+					sprintf(buf, "Tiles Tall (%d-%d)", minrows, maxrows);
+					auto newrows = vbound(cheap_getnum(buf, oldrows),minrows,maxrows);
+					if(oldrows == newrows) break;
+					tb->h = (16*zf*newrows)+24;
+					if(tb->y + tb->h >= zq_screen_h)
+					{
+						tb->y = zq_screen_h-tb->h;
+					}
+					tb->flags |= TBF_DIRTY;
+					break;
+				}
+			}
+			break;
+		}
 		default: ret = tb->baseproc(msg,c);
 	}
 	return ret;
@@ -278,7 +382,7 @@ void _init_combobox(int32_t listnum)
 	box.pos(zq_screen_w-(def_box_w*(1+listnum)),0,def_box_w,16*24+24);
 	box.minsz((16*4)+8,16*12+24);
 	box.refbmp = create_bitmap_ex(8,4*16,36*16);
-	box.title = "Combos " + to_string(listnum);
+	box.title = "Combos " + to_string(listnum+1);
 	box.scrollfactor = 5;
 	box.proc = [&,listnum](Toolbox* tb,int32_t msg,int32_t c)
 	{
@@ -292,9 +396,28 @@ void init_combobox()
 }
 
 //Main initializer
+MENU* tbmenu = nullptr;
+extern MENU the_menu[];
 
+extern int32_t jwin_menu_selection;
+void update_tb_menu()
+{
+	for(auto tb = 0; tb < NUM_TB; ++tb)
+	{
+		SETFLAG(tbmenu[tb].flags, D_SELECTED, boxes[tb].flags&TBF_VISIBLE);
+	}
+}
+int32_t update_toolbox()
+{
+	if(unsigned(jwin_menu_selection) >= NUM_TB) return D_O_K;
+	auto tb = jwin_menu_selection;
+	boxes[tb].flags ^= TBF_VISIBLE;
+	update_tb_menu();
+	return D_O_K;
+}
 void init_toolboxes()
 {
+	Toolbox::init_base_rcmenu();
 	focusOrder.clear();
 	for(auto q = 0; q < NUM_TB; ++q)
 		focusOrder.push_back(q);
@@ -303,6 +426,26 @@ void init_toolboxes()
 	Toolbox& box = boxes[TB_TEST];
 	box.flags |= TBF_VISIBLE;
 	box.pos(200,200,64,64);
+	
+	
+	// Finalizing code
+	broadcast_tb_message(MG_MSG_BUILD_RCMENU);
+	
+	static vector<string> names;
+	static bool menu_init = false;
+	if(menu_init) return;
+	menu_init = true;
+	for(auto& box : boxes)
+	{
+		names.push_back(box.title);
+	}
+	if(tbmenu) delete[] tbmenu;
+	tbmenu = populate_menu_from_vec(names);
+	for(auto q = 0; q < NUM_TB; ++q)
+	{
+		tbmenu[q].proc = update_toolbox;
+	}
+	the_menu[8].child = tbmenu;
 }
 
 ////////////////
@@ -341,6 +484,17 @@ void setcurs(int32_t cdir, bool force = false)
 			zq_set_mouse_focus(1,1);
 			break;
 	}
+}
+
+static int32_t cached_cursordir = -1;
+void cache_tb_cursor()
+{
+	cached_cursordir = cursor_dir;
+	setcurs(CDIR_BASIC);
+}
+void restore_tb_cursor()
+{
+	setcurs(cached_cursordir);
 }
 
 ///////////////////
@@ -440,17 +594,19 @@ void runToolboxes()
 		mb = gui_mouse_b();
 		//Mouse movement
 		auto id = broadcast_mousefind();
+		bool rsz = m_curs_flags & MCFLAG_RESIZE_OR_MOVE;
+		bool dis = m_curs_flags & MCFLAG_DISABLED_CLICK;
 		bool samehov = lhov_id == id;
 		if(!samehov)
 		{
 			position_mouse_z(0);
 			lhov_id = id;
 		}
-		if(id < 0)
+		if(dis || id < 0)
 		{
 			setcurs(CDIR_BASIC);
 		}
-		else if(m_can_resize)
+		else if(rsz)
 		{
 			setcurs(dir_to_cdir(boxes[id].getResizeDir()));
 			if(gui_mouse_b()&1) //lclick
@@ -460,6 +616,13 @@ void runToolboxes()
 				position_mouse_z(0);
 				runToolboxes();
 				return;
+			}
+			else if(gui_mouse_b()&2) //rclick
+			{
+				if(boxes[id].getResizeDir() == CDIR_MOVE)
+				{
+					boxes[id].msg(MG_MSG_OPEN_RCMENU);
+				}
 			}
 		}
 		else
@@ -492,20 +655,31 @@ void runToolboxes()
 //!///////////
 //! Testing //
 //!///////////
+bool IS_MSGUI_MODE = false;
 extern bool close_button_quit;
-
+extern DIALOG_PLAYER* main_dl_player;
+void draw_the_menu();
 void test_mainscreen_gui()
 {
+	IS_MSGUI_MODE = true;
 	while(key[KEY_G]);
 	broadcast_tb_message(MG_MSG_REDRAW_SELF);
 	while(true)
 	{
 		if(key[KEY_G]) break;
-		BGLOOP_DRAW1();
+		sp_acquire_screen();
+		scare_mouse();
 		clear_to_color(screen, vc(0));
+		draw_the_menu();
 		tb_draw_vsync();
 		runToolboxes();
-		BGLOOP_DRAW3();
+		unscare_mouse();
+		if(lhov_id == -1)
+		{
+			update_tb_menu();
+			if(!update_dialog(main_dl_player)) break;
+		}
+		sp_release_screen();
 		do_sleep(1);
 		if(close_button_quit)
 		{
@@ -516,5 +690,6 @@ void test_mainscreen_gui()
 	clear_to_color(screen, vc(0));
 	while(key[KEY_G]);
 	sp_release_screen_all();
+	IS_MSGUI_MODE = false;
 }
 
