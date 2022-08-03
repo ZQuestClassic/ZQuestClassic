@@ -21213,21 +21213,19 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	{
 		// cave/item room
 		ALLOFF();
-		homescr=currscr;
-		currscr=0x80;
 		
 		if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
 		{
 			music_stop();
 			kill_sfx();
 			
+			int destscr = 0x80;
 			if(cur_scr->room==rWARP)
 			{
-				currscr=0x81;
+				destscr=0x81;
 				specialcave = STAIRCAVE;
 			}
 			else specialcave = GUYCAVE;
-			z3_set_currscr(currscr);
 			
 			//lighting(2,dir);
 			lighting(false, true);
@@ -21238,9 +21236,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
 			blackscr(30,b2?false:true);
-			// loadscr_new(wdmap, currscr, up, false);
-			loadscr(0,wdmap,currscr,up,false);
-			loadscr(1,wdmap,homescr,up,false);
+			loadscr(wdmap, destscr, up, false);
 			//preloaded freeform combos
 			ffscript_engine(true);
 			putscr(scrollbuf,0,0,&tmpscr);
@@ -21281,7 +21277,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			kill_enemy_sfx();
 			draw_screen(&tmpscr, false);
 
-			z3_set_currscr(currscr);
+			// z3_set_currscr(currscr);
 			
 			//unless the room is already dark, fade to black
 			if(!darkroom)
@@ -21291,9 +21287,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			blackscr(30,true);
-			loadscr_new(wdmap, currscr, down, false);
-			// loadscr(0,wdmap,currscr,down,false);
-			// loadscr(1,wdmap,homescr,-1,false);
+			bool no_x80_dir = true; // TODO: is this necessary?
+			loadscr(wdmap, 0x80, down, false, no_x80_dir);
 			if ( dontdraw < 2 ) {  dontdraw=1; }
 			draw_screen(&tmpscr);
 			fade(11,true,true);
@@ -21342,9 +21337,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		ALLOFF();
 		//play sound
 		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
-		homescr=currscr;
-		currscr=0x81;
-		z3_set_currscr(currscr);
 		specialcave = PASSAGEWAY;
 		byte warpscr2 = wscr + DMaps[wdmap].xoff;
 		draw_screen(cur_scr,false);
@@ -21357,9 +21349,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			darkroom=true;
 		}
 		blackscr(30,true);
-		// load_x80_scr(wdmap, );
-		loadscr(0,wdmap,currscr,down,false);
-		loadscr(1,wdmap,homescr,-1,false);
+		bool no_x80_dir = true; // TODO: is this necessary?
+		loadscr(wdmap, 0x81, down, false, no_x80_dir);
 		//preloaded freeform combos
 		ffscript_engine(true);
 		if ( dontdraw < 2 ) { dontdraw=1; }
@@ -21440,9 +21431,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		ringcolor(false);
 		loadlvlpal(DMaps[currdmap].color);
 		//lastentrance_dmap = currdmap;
-		homescr = currscr = wscr + DMaps[currdmap].xoff;
-		z3_set_currscr(currscr);
-		loadscr(0,currdmap,currscr,-1,overlay);
+		int destscr = wscr + DMaps[currdmap].xoff;
+		loadscr(currdmap, destscr, -1, overlay);
 		
 		if((tmpscr.flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
 		{
@@ -21822,7 +21812,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		lightingInstant(); // Also sets naturaldark
 		
-		loadscr(0,currdmap,currscr,-1,overlay);
+		loadscr_old(0,currdmap,currscr,-1,overlay);
 		
 		x = tmpscr.warpreturnx[wrindex];
 		y = tmpscr.warpreturny[wrindex];
@@ -21996,7 +21986,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			
 			lightingInstant(); // Also sets naturaldark
 			
-			loadscr(0,currdmap,currscr,-1,overlay);
+			loadscr_old(0,currdmap,currscr,-1,overlay);
 			
 			x = tmpscr.warpreturnx[wrindex];
 			y = tmpscr.warpreturny[wrindex];
@@ -22326,12 +22316,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 void HeroClass::exitcave()
 {
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-    currscr=homescr;
-	z3_set_currscr(currscr);
-    loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
+    loadscr(currdmap, homescr, 255, false);                                   // bogus direction
     x = region_scr_dx*256 + tmpscr.warpreturnx[0];
     y = region_scr_dy*176 + tmpscr.warpreturny[0];
-	z3_update_currscr();
     
     if(didpit)
     {
@@ -22854,9 +22841,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
         homescr=stepoutscr;
     }
     
-    currscr=homescr;
-	z3_set_currscr(currscr);
-    loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
+    loadscr(currdmap, homescr, 255, false);                                   // bogus direction
     draw_screen(&tmpscr,false);
     
     if(get_bit(quest_rules, qr_NEW_DARKROOM) || !(tmpscr.flags&fDARK))
@@ -24682,8 +24667,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
 
-	loadscr(0, destdmap, currscr, scrolldir, overlay);
-	z3_set_currscr(currscr);
+	loadscr(destdmap, currscr, scrolldir, overlay);
 	x = new_hero_x;
 	y = new_hero_y;
 
@@ -25116,7 +25100,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			currscr -= 16;
 		z3_set_currscr(currscr);
 			
-		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		blit(scrollbuf_old,scrollbuf_old,0,0,0,176,256,176);
 		putscr(scrollbuf_old,0,0,newscr);
 		putscrdoors(scrollbuf_old,0,0,newscr);
@@ -25138,7 +25122,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			currscr += 16;
 		z3_set_currscr(currscr);
 			
-		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		putscr(scrollbuf_old,0,176,newscr);
 		putscrdoors(scrollbuf_old,0,176,newscr);
 		sy = 0;
@@ -25159,13 +25143,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			--currscr;
 		z3_set_currscr(currscr);
 			
-		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		blit(scrollbuf_old,scrollbuf_old,0,0,256,0,256,176);
 		putscr(scrollbuf_old,0,0,newscr);
 		putscrdoors(scrollbuf_old,0,0,newscr);
 		sx = 256;
 		cx = 256 / step;
-	FFCore.init_combo_doscript();
+		FFCore.init_combo_doscript();
 	}
 	break;
 	
@@ -25177,7 +25161,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			++currscr;
 		z3_set_currscr(currscr);
 			
-		loadscr(0,destdmap,currscr,scrolldir,overlay);
+		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		putscr(scrollbuf_old,256,0,newscr);
 		putscrdoors(scrollbuf_old,256,0,&tmpscr);
 		sx = 0;

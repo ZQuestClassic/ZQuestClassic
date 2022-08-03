@@ -76,9 +76,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -5612,16 +5612,32 @@ std::vector<mapscr*> clone_mapscr_2(const mapscr* source)
 	return screens;
 }
 
-void loadscr_new(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay)
+// Sets `currscr` to `scr` and loads new screens into temporary memory.
+// Called anytime a player moves to a new screen (either via warping, scrolling, continue,
+// starting the game, etc...)
+// Note: for regions, on the initial screen load calls this function. Simply walking between screens
+// in the same region does not use this.
+// If scr >= 0x80, `currscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
+void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
-	loadscr(0, destdmap, scr, ldir, overlay);
 	if (scr >= 0x80)
 	{
-		loadscr(1, destdmap, homescr, ldir, overlay);
+		loadscr_old(1, destdmap, currscr, no_x80_dir ? -1 : ldir, overlay);
+		homescr = currscr;
 	}
+	else
+	{
+		homescr = scr;
+	}
+
+	loadscr_old(0, destdmap, scr, ldir, overlay);
+	currscr = scr;
+
+	z3_set_currscr(scr);
 }
 
-void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
+// Don't use this directly!
+void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
 
@@ -5907,7 +5923,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
-		CHECK(!is_z3_scrolling_mode());
+		// CHECK(!is_z3_scrolling_mode());
 		for(int32_t i=0; i<4; i++)
 		{
 			int32_t door=screen.door[i];

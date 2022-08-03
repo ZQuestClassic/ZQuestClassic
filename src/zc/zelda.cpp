@@ -2148,7 +2148,6 @@ int32_t init_game()
 	game->set_continue_scrn(lastentrance);
 	lastentrance_dmap = currdmap;
 	currmap = DMaps[currdmap].map;
-	z3_set_currscr(currscr);
 	dlevel = DMaps[currdmap].level;
 	sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
 	fadeclk=-1;
@@ -2216,8 +2215,8 @@ int32_t init_game()
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
-	//loadscr(0,currscr,up);
-	loadscr(0,currdmap,currscr,-1,false);
+	
+	loadscr(currdmap, currscr, -1, false);
 	putscr(scrollbuf,0,0,&tmpscr);
 	putscrdoors(scrollbuf,0,0,&tmpscr);
 	
@@ -2533,9 +2532,7 @@ int32_t cont_game()
 	if(dlevel != DMaps[lastentrance_dmap].level)
 		timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	currdmap = lastentrance_dmap;
-	homescr = currscr = lastentrance;
 	currmap = DMaps[currdmap].map;
-	z3_set_currscr(currscr);
 	dlevel = DMaps[currdmap].level;
 	init_dmap();
 	
@@ -2556,8 +2553,7 @@ int32_t cont_game()
 	tmpscr.zero_memory();
 	special_warp_return_screen.zero_memory();
 	
-//loadscr(0,currscr,up);
-	loadscr(0,currdmap,currscr,-1,false);
+	loadscr(currdmap, lastentrance, -1, false);
 	putscr(scrollbuf,0,0,&tmpscr);
 	putscrdoors(scrollbuf,0,0,&tmpscr);
 	script_drawing_commands.Clear();
@@ -2680,7 +2676,6 @@ void restart_level()
 	}
 	
 	currmap = DMaps[currdmap].map;
-	z3_set_currscr(currscr);
 	dlevel = DMaps[currdmap].level;
 	
 	for(int32_t i=0; i<6; i++)
@@ -2692,7 +2687,7 @@ void restart_level()
 	tmpscr.zero_memory();
 	special_warp_return_screen.zero_memory();
 	
-	loadscr(0,currdmap,currscr,-1,false);
+	loadscr(currdmap, currscr, -1, false);
 	putscr(scrollbuf,0,0,&tmpscr);
 	putscrdoors(scrollbuf,0,0,&tmpscr);
 	//preloaded freeform combos

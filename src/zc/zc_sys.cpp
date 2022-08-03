@@ -4234,7 +4234,7 @@ int32_t onSaveMapPic()
             }
             else
             {
-                loadscr(TEMPSCR_FUNCTION_SWAP_SPACE,currdmap,s,-1,false);
+                loadscr_old(TEMPSCR_FUNCTION_SWAP_SPACE,currdmap,s,-1,false);
                 putscr(_screen_draw_buffer, 0, 0, tmpscr+1);
                 
                 for(int32_t k=0; k<4; k++)
