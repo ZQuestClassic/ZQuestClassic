@@ -109,42 +109,42 @@ void Toolbox::rsz_left(int32_t px)
 	if(w+px < minw)
 	{
 		px = minw-w;
-		x -= px;
-		w = minw;
-		return;
 	}
+	px = msg(MG_MSG_RESZ_LEFT,px);
 	x -= px;
 	w += px;
+	sanity();
 }
 void Toolbox::rsz_right(int32_t px)
 {
 	if(w+px < minw)
 	{
-		w = minw;
-		return;
+		px = minw-w;
 	}
+	px = msg(MG_MSG_RESZ_RIGHT,px);
 	w += px;
+	sanity();
 }
 void Toolbox::rsz_up(int32_t px)
 {
 	if(h+px < minh)
 	{
 		px = minh-h;
-		y -= px;
-		h = minh;
-		return;
 	}
+	px = msg(MG_MSG_RESZ_UP,px);
 	y -= px;
 	h += px;
+	sanity();
 }
 void Toolbox::rsz_down(int32_t px)
 {
 	if(h+px < minh)
 	{
-		h = minh;
-		return;
+		px = minh-h;
 	}
+	px = msg(MG_MSG_RESZ_DOWN,px);
 	h += px;
+	sanity();
 }
 //private
 int32_t Toolbox::call(int32_t m,int32_t c)
@@ -181,6 +181,7 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 		case MG_MSG_CLICK:
 		case MG_MSG_IDLE:
 			break; //No default behavior
+		//Complex default behavior
 		case MG_MSG_FIND_MOUSE_HOVER:
 		{
 			if(!vis) break;
@@ -207,12 +208,16 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 			masked_stretch_blit(intbmp, screen, 0, 0, intbmp->w, intbmp->h, x, y, w, h);
 			break;
 		}
+		//Basic default behavior
 		case MG_MSG_SCROLL:
 		{
 			//Eat the scroll input
 			position_mouse_z(0);
 			break;
 		}
+		case MG_MSG_RESZ_UP: case MG_MSG_RESZ_DOWN:
+		case MG_MSG_RESZ_LEFT: case MG_MSG_RESZ_RIGHT:
+			return c;
 		//Debug Behavior
 		#if MAINSCREEN_DEBUG > 0
 		case MG_MSG_RCLICK:

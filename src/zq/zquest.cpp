@@ -9503,6 +9503,50 @@ static char paste_ffc_menu_text2[21];
 static char follow_warp_menu_text[21];
 static char follow_warp_menu_text2[21];
 
+void run_combosel_rc(int32_t x, int32_t y)
+{
+    all_mark_screen_dirty();
+	int32_t m = popup_menu(combosel_rc_menu,x,y);
+	
+	switch(m)
+	{
+		case 0:
+			reset_combo_animations();
+			reset_combo_animations2();
+			edit_combo(Combo,true,CSet);
+			setup_combo_animations();
+			setup_combo_animations2();
+			// redraw|=rALL;
+			break;
+			
+		case 1:
+			combo_screen(Combo>>8,Combo);
+			// redraw|=rALL;
+			break;
+			
+		case 2:
+		{
+			int32_t t = combobuf[Combo].tile;
+			int32_t f = 0;
+			select_tile(t,f,0,CSet,true);
+			// redraw|=rALL;
+			break;
+		}
+		
+		case 3:
+			onComboLocationReport();
+			break;
+			
+		case 5:
+		{
+			onGotoPage();
+			// redraw|=rALL;
+			break;
+		}
+		break;
+	}
+}
+
 void domouse()
 {
 	static bool mouse_down = false;
@@ -10661,45 +10705,7 @@ void domouse()
 						
 						if(isinRect(gui_mouse_x(),gui_mouse_y(),combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
 						{
-							int32_t m = popup_menu(combosel_rc_menu,x,y);
-							
-							switch(m)
-							{
-							case 0:
-								reset_combo_animations();
-								reset_combo_animations2();
-								edit_combo(Combo,true,CSet);
-								setup_combo_animations();
-								setup_combo_animations2();
-								redraw|=rALL;
-								break;
-								
-							case 1:
-								combo_screen(Combo>>8,Combo);
-								redraw|=rALL;
-								break;
-								
-							case 2:
-							{
-								int32_t t = combobuf[Combo].tile;
-								int32_t f = 0;
-								select_tile(t,f,0,CSet,true);
-								redraw|=rALL;
-								break;
-							}
-							
-							case 3:
-								onComboLocationReport();
-								break;
-								
-							case 5:
-							{
-								onGotoPage();
-								redraw|=rALL;
-								break;
-							}
-							break;
-							}
+							run_combosel_rc(x,y);
 						}
 					}
 				}

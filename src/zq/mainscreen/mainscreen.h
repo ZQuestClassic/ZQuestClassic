@@ -20,6 +20,11 @@ void test_mainscreen_gui();
 #define MG_MSG_REDRAW_BOX             4 //Redraw the proc to the screen
 #define MG_MSG_SCROLL                 5 //Scrollwheeled
 #define MG_MSG_IDLE                   6 //Idling
+#define MG_MSG_RESZ_UP                7 //Resizing (top handle)
+#define MG_MSG_RESZ_DOWN              8 //Resizing (bottom handle)
+#define MG_MSG_RESZ_LEFT              9 //Resizing (left handle)
+#define MG_MSG_RESZ_RIGHT            10 //Resizing (right handle)
+#define MG_MSG_VSYNC                 11 //Sent approx. 60 times per second
 
 #define MG_RET_OK                     0
 #define MG_RET_CANRESIZE              1

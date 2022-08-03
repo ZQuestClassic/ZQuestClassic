@@ -72,6 +72,7 @@ do{\
 	blit(restore_bg,screen,0,0,0,0,screen->w,screen->h);\
 	broadcast_tb_message(MG_MSG_REDRAW_BOX);\
 	unscare_mouse();\
+	all_mark_screen_dirty();\
 	sp_release_screen();\
 }while(false)
 	
@@ -88,6 +89,7 @@ do{\
 #define BGLOOP_DRAW3()\
 do{\
 	unscare_mouse();\
+	all_mark_screen_dirty();\
 	sp_release_screen();\
 }while(false)
 
