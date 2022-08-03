@@ -21238,12 +21238,13 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVEC)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2C)||
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
 			blackscr(30,b2?false:true);
+			// loadscr_new(wdmap, currscr, up, false);
 			loadscr(0,wdmap,currscr,up,false);
 			loadscr(1,wdmap,homescr,up,false);
 			//preloaded freeform combos
 			ffscript_engine(true);
-			putscr(scrollbuf,0,0,cur_scr);
-			putscrdoors(scrollbuf,0,0,cur_scr);
+			putscr(scrollbuf,0,0,&tmpscr);
+			putscrdoors(scrollbuf,0,0,&tmpscr);
 			dir=up;
 			x=112;
 			y=160;
@@ -21278,7 +21279,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			specialcave = ITEMCELLAR;
 			map_bkgsfx(false);
 			kill_enemy_sfx();
-			draw_screen(cur_scr,false);
+			draw_screen(&tmpscr, false);
+
+			z3_set_currscr(currscr);
 			
 			//unless the room is already dark, fade to black
 			if(!darkroom)
@@ -21288,10 +21291,11 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			blackscr(30,true);
-			loadscr(0,wdmap,currscr,down,false);
-			loadscr(1,wdmap,homescr,-1,false);
+			loadscr_new(wdmap, currscr, down, false);
+			// loadscr(0,wdmap,currscr,down,false);
+			// loadscr(1,wdmap,homescr,-1,false);
 			if ( dontdraw < 2 ) {  dontdraw=1; }
-			draw_screen(cur_scr);
+			draw_screen(&tmpscr);
 			fade(11,true,true);
 			darkroom = false;
 			dir=down;
@@ -21353,12 +21357,13 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			darkroom=true;
 		}
 		blackscr(30,true);
+		// load_x80_scr(wdmap, );
 		loadscr(0,wdmap,currscr,down,false);
 		loadscr(1,wdmap,homescr,-1,false);
 		//preloaded freeform combos
 		ffscript_engine(true);
 		if ( dontdraw < 2 ) { dontdraw=1; }
-		draw_screen(cur_scr);
+		draw_screen(&tmpscr);
 		lighting(false, true);
 		dir=down;
 		x=48;
@@ -22850,6 +22855,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     }
     
     currscr=homescr;
+	z3_set_currscr(currscr);
     loadscr(0,currdmap,currscr,255,false);                                   // bogus direction
     draw_screen(&tmpscr,false);
     
@@ -27153,6 +27159,7 @@ void takeitem(int32_t id)
 // Attempt to pick up an item. (-1 = check items touching Hero.)
 void HeroClass::checkitems(int32_t index)
 {
+	// TODO z3
 	mapscr& scr = currscr >= 128 ? special_warp_return_screen : tmpscr;
 	
 	if(index==-1)

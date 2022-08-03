@@ -231,6 +231,7 @@ void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();
 std::vector<mapscr> clone_mapscr(const mapscr* source);
 std::vector<mapscr*> clone_mapscr_2(const mapscr* source);
+void loadscr_new(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay=false);
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay);
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);

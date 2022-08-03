@@ -20904,11 +20904,10 @@ void loaditem(mapscr* scr, int offx, int offy)
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		scr = &tmpscr; // TODO z3
-		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr[1].flags9&fBELOWRETURN)) && scr[1].room==rSP_ITEM
+		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
 				&& (currscr==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
 		{
-			Item=scr[1].catchall;
+			Item = special_warp_return_screen.catchall;
 			
 			if(Item)
 			{

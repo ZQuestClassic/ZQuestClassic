@@ -76,9 +76,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -5610,6 +5610,15 @@ std::vector<mapscr*> clone_mapscr_2(const mapscr* source)
 	}
 
 	return screens;
+}
+
+void loadscr_new(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay)
+{
+	loadscr(0, destdmap, scr, ldir, overlay);
+	if (scr >= 0x80)
+	{
+		loadscr(1, destdmap, homescr, ldir, overlay);
+	}
 }
 
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
