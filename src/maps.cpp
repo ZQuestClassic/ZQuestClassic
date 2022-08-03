@@ -1053,18 +1053,16 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 {
-	if(layer==-1) return MAPCSET(x,y);
-	
-	if(tmpscr2[layer].cset.empty()) return 0;
-	
-	if(tmpscr2[layer].valid==0) return 0;
-	
-	int32_t combo = COMBOPOS(x,y);
-	
-	if(combo>175 || combo < 0)
+	DCHECK(layer >= -1);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
-		
-	return tmpscr2[layer].cset[combo];						// entire combo code
+    if (layer == -1) return MAPCSET(x, y);
+
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	if (pos_handle.screen->valid == 0) return 0;
+	if (pos_handle.screen->cset.empty()) return 0;
+	
+	return pos_handle.screen->cset[RPOS_TO_POS(pos_handle.rpos)];
 }
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
@@ -1075,8 +1073,8 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
     if (layer == -1) return MAPFLAG(x, y);
 
 	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
-	if (pos_handle.screen->sflag.empty()) return 0;
 	if (pos_handle.screen->valid == 0) return 0;
+	if (pos_handle.screen->sflag.empty()) return 0;
 
 	return pos_handle.screen->sflag[RPOS_TO_POS(pos_handle.rpos)];
 }
