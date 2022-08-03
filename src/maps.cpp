@@ -525,7 +525,8 @@ int32_t RPOS_TO_POS(rpos_t rpos)
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
+	// TODO z3 abs is needed because of layers during scrolling between regions ... do_scrolling_layer
+	return static_cast<rpos_t>(abs(scr_dx + scr_dy * region_scr_width)*176 + pos);
 }
 void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
 {
