@@ -7,12 +7,16 @@
 
 using namespace std;
 #define RESZ_MARGIN 5
-
+#define ZQ_SCREENW 800
+#define ZQ_SCREENH 600
+#define TB_MAX_WID ZQ_SCREENW
+#define TB_MAX_HEI (ZQ_SCREENH - THEMENU_HEI)
 Toolbox::Toolbox() : x(0), y(0),
 	w(64), h(64), flags(0), intbmp(nullptr),
 	minw(32), minh(32), refbmp(nullptr),
 	zoomfactor(1), title("UNSET_TITLE"),
-	scrollfactor(1), rcmenu_finalized(false)
+	scrollfactor(1), rcmenu_finalized(false),
+	maxw(TB_MAX_WID), maxh(TB_MAX_HEI)
 {
 	memset(dx, 0, sizeof(dx));
 	memset(dy, 0, sizeof(dy));
@@ -110,32 +114,35 @@ int32_t Toolbox::getResizeDir()
 }
 int32_t Toolbox::getResizeDir(int32_t mx, int32_t my)
 {
-	bool tmar = abs(my-y) < RESZ_MARGIN;
-	bool dmar = abs(my-(y+h-1)) < RESZ_MARGIN;
-	bool lmar = abs(mx-x) < RESZ_MARGIN;
-	bool rmar = abs(mx-(x+w-1)) < RESZ_MARGIN;
-	if(tmar)
+	if(!(flags&(TBF_NO_RESIZE|TBF_PINNED)))
 	{
-		if(lmar)
-			return l_up;
-		else if(rmar)
-			return r_up;
-		else if(!(mx < x || mx > (x+w-1)))
-			return up;
+		bool tmar = abs(my-y) < RESZ_MARGIN;
+		bool dmar = abs(my-(y+h-1)) < RESZ_MARGIN;
+		bool lmar = abs(mx-x) < RESZ_MARGIN;
+		bool rmar = abs(mx-(x+w-1)) < RESZ_MARGIN;
+		if(tmar)
+		{
+			if(lmar)
+				return l_up;
+			else if(rmar)
+				return r_up;
+			else if(!(mx < x || mx > (x+w-1)))
+				return up;
+		}
+		if(dmar)
+		{
+			if(lmar)
+				return l_down;
+			else if(rmar)
+				return r_down;
+			else if(!(mx < x || mx > (x+w-1)))
+				return down;
+		}
+		if(lmar && !(my < y || my > (y+h-1)))
+			return left;
+		if(rmar && !(my < y || my > (y+h-1)))
+			return right;
 	}
-	if(dmar)
-	{
-		if(lmar)
-			return l_down;
-		else if(rmar)
-			return r_down;
-		else if(!(mx < x || mx > (x+w-1)))
-			return down;
-	}
-	if(lmar && !(my < y || my > (y+h-1)))
-		return left;
-	if(rmar && !(my < y || my > (y+h-1)))
-		return right;
 	auto dy = my-y;
 	if(dy > 0 && dy < 18 && !(mx < x || mx > (x+w-1)))
 		return -2;
@@ -160,8 +167,8 @@ void Toolbox::pos(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
 {
 	x = nx;
 	y = ny;
-	w = std::max(minw,nw);
-	h = std::max(minh,nh);
+	w = vbound(nw,minw,maxw);
+	h = vbound(nh,minh,maxh);
 }
 void Toolbox::minsz(int32_t mw, int32_t mh)
 {
@@ -171,12 +178,24 @@ void Toolbox::minsz(int32_t mw, int32_t mh)
 	if(h < minh) h = minh;
 	flags |= TBF_DIRTY;
 }
+void Toolbox::maxsz(int32_t mw, int32_t mh)
+{
+	maxw = std::min(TB_MAX_WID,mw);
+	maxh = std::min(TB_MAX_HEI,mh);
+	if(w > maxw) w = maxw;
+	if(h > maxh) h = maxh;
+	flags |= TBF_DIRTY;
+}
 
 void Toolbox::rsz_left(int32_t px)
 {
 	if(w+px < minw)
 	{
 		px = minw-w;
+	}
+	else if(w+px > maxw)
+	{
+		px = maxw-w;
 	}
 	px = msg(MG_MSG_RESZ_LEFT,px);
 	x -= px;
@@ -189,6 +208,10 @@ void Toolbox::rsz_right(int32_t px)
 	{
 		px = minw-w;
 	}
+	else if(w+px > maxw)
+	{
+		px = maxw-w;
+	}
 	px = msg(MG_MSG_RESZ_RIGHT,px);
 	w += px;
 	sanity();
@@ -198,6 +221,14 @@ void Toolbox::rsz_up(int32_t px)
 	if(h+px < minh)
 	{
 		px = minh-h;
+	}
+	else if(h+px > maxh)
+	{
+		px = maxh-h;
+	}
+	if(y-px < THEMENU_HEI)
+	{
+		px = THEMENU_HEI-y;
 	}
 	px = msg(MG_MSG_RESZ_UP,px);
 	y -= px;
@@ -209,6 +240,10 @@ void Toolbox::rsz_down(int32_t px)
 	if(h+px < minh)
 	{
 		px = minh-h;
+	}
+	else if(h+px > maxh)
+	{
+		px = maxh-h;
 	}
 	px = msg(MG_MSG_RESZ_DOWN,px);
 	h += px;
@@ -281,7 +316,10 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 			newBitmap();
 			set_clip_rect(intbmp, 0, 0, w, h);
 			jwin_draw_win(intbmp,0,0,w,h,FR_WIN);
+			FONT* ofont = font;
+			font = lfont;
 			jwin_draw_titlebar(intbmp, 3, 3, zc_max(0,w-6), zc_min(h,18), title.c_str(), false, false);
+			font = ofont;
 			set_clip_rect(intbmp, 4, 20, w-4, h-4);
 			break;
 		}
@@ -373,10 +411,17 @@ void Toolbox::sanity()
 		newBitmap();
 		flags |= TBF_DIRTY;
 	}
+	
+	if(minw > maxw) maxw = minw;
+	if(minh > maxh) maxh = minh;
+	w = vbound(w, minw, maxw);
+	h = vbound(h, minh, maxh);
 	if(x+w > zq_screen_w)
 		x = zq_screen_w - w;
 	if(y+h > zq_screen_h)
 		y = zq_screen_h - h;
+	if(y < THEMENU_HEI)
+		y = THEMENU_HEI;
 }
 void Toolbox::newBitmap()
 {

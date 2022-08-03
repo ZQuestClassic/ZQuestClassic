@@ -1400,6 +1400,7 @@ MENU the_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+extern MENU toolboxes_menu[];
 MENU the_menu_large[] =
 {
     { (char *)"&File",                      NULL, (MENU *) file_menu,           0,            NULL   },
@@ -1410,7 +1411,7 @@ MENU the_menu_large[] =
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,           0,            NULL   },
     { (char *)"&ZScript",                   NULL, (MENU *) zscript_menu,        0,            NULL   },
     { (char *)"Et&C",                       NULL, (MENU *) etc_menu_smallmode,  0,            NULL   },
-    { (char *)"Toolboxes",                  NULL,  NULL,                        0,            NULL   },
+    { (char *)"Toolbo&xes",                 NULL, (MENU *) toolboxes_menu,      0,            NULL   },
     {  NULL,                                NULL,  NULL,                        0,            NULL   }
 };
 

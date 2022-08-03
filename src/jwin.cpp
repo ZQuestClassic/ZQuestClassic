@@ -436,11 +436,13 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
     strncpy(buf,str,len);
     buf[len]=0;
     
-    // this part needs work
+	int32_t max_len = w-4;
+	if(draw_button) max_len -= 16;
+	if(helpbtn) max_len -= 16;
     
-    if(length>w-20)
+    if(length>max_len)
     {
-        while(length>w-20 && len>1)
+        while(length>max_len && len>1)
         {
             if (len > 3) buf[len-4] = '.';
             if (len > 2) buf[len-3] = '.';
@@ -4494,6 +4496,7 @@ int32_t menu_alt_key(int32_t k, MENU *m)
   */
 int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int32_t y, int32_t repos, int32_t *dret, int32_t minw, int32_t minh)
 {
+    jwin_menu_selection = -1;
     MENU_INFO m;
     MENU_INFO *i;
     int32_t c, c2;
@@ -4798,7 +4801,6 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
                 }
                 
                 c = _jwin_do_menu(m.menu[ret].child, &m, FALSE, _x, _y, TRUE, NULL, 0, 0);
-                
                 if(c < 0)
                 {
                     ret = -1;
@@ -4832,9 +4834,13 @@ getout:
 	
     if(ret >= 0)
     {
+		if(jwin_menu_selection < 0)
+			jwin_menu_selection = ret;
         if(parent)
+		{
             parent->proc = m.proc;
-        else
+        }
+		else
         {
             if(m.proc)
             {
@@ -4847,7 +4853,6 @@ getout:
             }
         }
     }
-    jwin_menu_selection = ret;
     
     /* restore screen */
     if(m.saved)

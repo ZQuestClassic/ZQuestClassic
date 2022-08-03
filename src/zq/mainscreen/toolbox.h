@@ -20,7 +20,7 @@ public:
 	uint32_t scrollfactor;
 	//Unsavables
 	int32_t dx[10], dy[10], dw[10], dh[10];
-	int32_t minw, minh;
+	int32_t minw, minh, maxw, maxh;
 	BITMAP* refbmp;
 	std::string title;
 	void* dp;
@@ -39,6 +39,7 @@ public:
 	void pos(int32_t nx, int32_t ny);
 	void pos(int32_t nx, int32_t ny, int32_t nw, int32_t nh);
 	void minsz(int32_t mw, int32_t mh);
+	void maxsz(int32_t mw, int32_t mh);
 	int32_t baseproc(int32_t msg,int32_t c = 0);
 	void sanity();
 	//Resizing
@@ -64,10 +65,12 @@ private:
 };
 
 
-#define TBF_VISIBLE  0x00000001
-#define TBF_DIRTY    0x00000002
-#define TBF_DISABLED 0x00000004
-#define TBF_PINNED   0x00000008
+#define TBF_VISIBLE    0x00000001
+#define TBF_DIRTY      0x00000002
+#define TBF_DISABLED   0x00000004
+#define TBF_PINNED     0x00000008
+#define TBF_NO_REORDER 0x00000010
+#define TBF_NO_RESIZE  0x00000020
 
 
 #define BGLOOP_START()\
