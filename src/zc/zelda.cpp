@@ -403,7 +403,8 @@ bool Udown= false,Ddown= false,Ldown= false,Rdown= false,Adown= false,Bdown= fal
      cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
-int32_t hooked_combopos = -1, switchhook_cost_item = -1;
+rpos_t hooked_comborpos = rpos_t::NONE;
+int32_t switchhook_cost_item = -1;
 int32_t is_conveyor_stunned = 0;
 uint16_t hooked_layerbits = 0;
 int32_t hooked_undercombos[14] = {0};

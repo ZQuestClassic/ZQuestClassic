@@ -28572,7 +28572,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				if(GuyH::loadNPC(ri->guyref, "npc->Switch()") == SH::_NoError)
 				{
 					switching_object = guys.spr(GuyH::getNPCIndex(ri->guyref));
-					hooked_combopos = -1;
+					hooked_comborpos = rpos_t::NONE;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -28589,7 +28589,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				if(ItemH::loadItem(ri->itemref, "item->Switch()") == SH::_NoError)
 				{
 					switching_object = items.spr(ItemH::getItemIndex(ri->itemref));
-					hooked_combopos = -1;
+					hooked_comborpos = rpos_t::NONE;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -28606,7 +28606,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Switch()") == SH::_NoError)
 				{
 					switching_object = Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn));
-					hooked_combopos = -1;
+					hooked_comborpos = rpos_t::NONE;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -28623,7 +28623,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Switch()") == SH::_NoError)
 				{
 					switching_object = Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn));
-					hooked_combopos = -1;
+					hooked_comborpos = rpos_t::NONE;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -28640,7 +28640,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				if(unsigned(pos) > 176)
 					break;
 				switching_object = NULL;
-				hooked_combopos = pos;
+				// TODO z3
+				hooked_comborpos = (rpos_t)pos;
 				hooked_layerbits = 0;
 				Hero.doSwitchHook(get_register(sarg2)/10000);
 				if(!hooked_layerbits) //failed

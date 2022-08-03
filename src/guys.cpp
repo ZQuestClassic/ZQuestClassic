@@ -5176,7 +5176,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
 					return 0;
 			}
-			hooked_combopos = -1;
+			hooked_comborpos = rpos_t::NONE;
 			hooked_layerbits = 0;
 			switching_object = this;
 			switch_hooked = true;
@@ -23556,7 +23556,7 @@ void check_collisions()
 							{
 								if(!Hero.switchhookclk)
 								{
-									hooked_combopos = -1;
+									hooked_comborpos = rpos_t::NONE;
 									hooked_layerbits = 0;
 									switching_object = theItem;
 									theItem->switch_hooked = true;

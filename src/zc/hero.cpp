@@ -5159,7 +5159,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
 
     rpos_t rpos = COMBOPOS_REGION(bx, by);
     int32_t pos = RPOS_TO_POS(rpos);
-    if (unsigned(rpos) > region_max_rpos)
+    if (unsigned(rpos) > unsigned(region_max_rpos))
         return;
 	pos_handle pos_handle = z3_get_pos_handle(rpos, 0);
         
@@ -7811,21 +7811,32 @@ bool HeroClass::animate(int32_t)
 								weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
 									*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
 								
-								if(hooked_combopos > -1) //Switching combos
+								if(hooked_comborpos != rpos_t::NONE) //Switching combos
 								{
-									uint16_t targpos = hooked_combopos, plpos = COMBOPOS(x+8,y+8);
-									if(targpos < 176 && plpos < 176 && hooked_layerbits)
+									rpos_t targrpos = hooked_comborpos, plrpos = COMBOPOS_REGION(x+8,y+8);
+									int32_t target_pos = RPOS_TO_POS(targrpos);
+									int32_t player_pos = RPOS_TO_POS(plrpos);
+
+									if (targrpos < region_max_rpos && plrpos < region_max_rpos && hooked_layerbits)
 									{
 										int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 										for(int q = max_layer; q > -1; --q)
 										{
 											if(!(hooked_layerbits & (1<<q)))
 												continue; //non-switching layer
-											mapscr* scr = FFCore.tempScreens[q];
-											newcombo const& cmb = combobuf[scr->data[targpos]];
-											int32_t srcfl = scr->sflag[targpos];
-											newcombo const& comb2 = combobuf[scr->data[plpos]];
-											int32_t c = scr->data[plpos], cs = scr->cset[plpos], fl = scr->sflag[plpos];
+											
+											auto target_pos_handle = z3_get_pos_handle(targrpos, q);
+											auto player_pos_handle = z3_get_pos_handle(plrpos, q);
+											
+											mapscr* player_scr = player_pos_handle.screen;
+											mapscr* target_scr = target_pos_handle.screen;
+
+											newcombo const& cmb = combobuf[target_scr->data[target_pos]];
+											int32_t srcfl = target_scr->sflag[target_pos];
+											newcombo const& comb2 = combobuf[player_scr->data[player_pos]];
+											int32_t c = player_scr->data[player_pos],
+													cs = player_scr->cset[player_pos],
+													fl = player_scr->sflag[player_pos];
 											//{Check push status
 											bool isFakePush = false;
 											if(cmb.type == cSWITCHHOOK)
@@ -7865,11 +7876,11 @@ bool HeroClass::animate(int32_t)
 													int32_t it = -1;
 													if(cmb.usrflags&cflag4) //drop item
 													{
-														int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+														it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
 													}
 													
 													breakable* br = new breakable(x, y, zfix(0),
-														cmb, scr->cset[targpos], it, cmb.attribytes[2],
+														cmb, target_scr->cset[target_pos], it, cmb.attribytes[2],
 														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
 													br->switch_hooked = true;
 													decorations.add(br);
@@ -7878,14 +7889,14 @@ bool HeroClass::animate(int32_t)
 													
 													if(cmb.usrflags&cflag6)
 													{
-														scr->data[targpos]++;
+														target_scr->data[target_pos]++;
 													}
 													else
 													{
-														scr->data[targpos] =  scr->undercombo;
-														scr->cset[targpos] =  scr->undercset;
+														target_scr->data[target_pos] = target_scr->undercombo;
+														target_scr->cset[target_pos] = target_scr->undercset;
 														if(cmb.usrflags&cflag2)
-															scr->sflag[targpos] = 0;
+															target_scr->sflag[target_pos] = 0;
 													}
 												}
 												else if(isPush)
@@ -7893,8 +7904,12 @@ bool HeroClass::animate(int32_t)
 													//Simulate a block clicking into place
 													movingblock mtemp;
 													mtemp.clear();
-													mtemp.set(COMBOX(plpos),COMBOY(plpos),scr->data[targpos],scr->cset[targpos],q,scr->sflag[targpos]);
-													mtemp.dir = getPushDir(scr->sflag[targpos]);
+
+													int mx, my;
+													COMBOXY_REGION(plrpos, mx, my);
+
+													mtemp.set(mx,my,target_scr->data[target_pos],target_scr->cset[target_pos],q,target_scr->sflag[target_pos]);
+													mtemp.dir = getPushDir(target_scr->sflag[target_pos]);
 													if(mtemp.dir < 0)
 														mtemp.dir = getPushDir(cmb.flag);
 													mtemp.clk = 1;
@@ -7906,44 +7921,44 @@ bool HeroClass::animate(int32_t)
 															|| comb2.flag == mfBLOCKTRIGGER
 															|| comb2.flag == mfBLOCKHOLE))
 													{
-														scr->data[targpos] = scr->undercombo;
-														scr->cset[targpos] = scr->undercset;
-														scr->sflag[targpos] = 0;
+														target_scr->data[target_pos] = target_scr->undercombo;
+														target_scr->cset[target_pos] = target_scr->undercset;
+														target_scr->sflag[target_pos] = 0;
 													}
 													else
 													{
-														scr->data[targpos] =  c;
-														scr->cset[targpos] =  cs;
+														target_scr->data[target_pos] =  c;
+														target_scr->cset[target_pos] =  cs;
 														if(cmb.usrflags&cflag2)
-															scr->sflag[targpos] = fl;
+															target_scr->sflag[target_pos] = fl;
 														else
-															scr->sflag[targpos] = 0;
+															target_scr->sflag[target_pos] = 0;
 													}
 												}
 												else
 												{
-													scr->data[plpos] = scr->data[targpos];
-													scr->cset[plpos] = scr->cset[targpos];
+													player_scr->data[player_pos] = target_scr->data[target_pos];
+													player_scr->cset[player_pos] = target_scr->cset[target_pos];
 													if(cmb.usrflags&cflag2)
-														scr->sflag[plpos] = scr->sflag[targpos];
-													scr->data[targpos] =  c;
-													scr->cset[targpos] =  cs;
+														player_scr->sflag[player_pos] = target_scr->sflag[target_pos];
+													target_scr->data[target_pos] =  c;
+													target_scr->cset[target_pos] =  cs;
 													if(cmb.usrflags&cflag2)
-														scr->sflag[targpos] = fl;
+														target_scr->sflag[target_pos] = fl;
 												}
 											}
 											else if(isCuttableType(cmb.type)) //Break and drop effects
 											{
-												int32_t breakcs = scr->cset[targpos];
+												int32_t breakcs = target_scr->cset[target_pos];
 												if(isCuttableNextType(cmb.type)) //next instead of undercmb
 												{
-													scr->data[targpos]++;
+													target_scr->data[target_pos]++;
 												}
 												else
 												{
-													scr->data[targpos] = scr->undercombo;
-													scr->cset[targpos] = scr->undercset;
-													scr->sflag[targpos] = 0;
+													target_scr->data[target_pos] = target_scr->undercombo;
+													target_scr->cset[target_pos] = target_scr->undercset;
+													target_scr->sflag[target_pos] = 0;
 												}
 												
 												int32_t it = -1;
@@ -8002,31 +8017,35 @@ bool HeroClass::animate(int32_t)
 													//Simulate a block clicking into place
 													movingblock mtemp;
 													mtemp.clear();
-													mtemp.set(COMBOX(plpos),COMBOY(plpos),scr->data[targpos],scr->cset[targpos],q,scr->sflag[targpos]);
-													mtemp.dir = getPushDir(scr->sflag[targpos]);
+
+													int mx, my;
+													COMBOXY_REGION(plrpos, mx, my);
+
+													mtemp.set(mx,my,target_scr->data[target_pos],target_scr->cset[target_pos],q,target_scr->sflag[target_pos]);
+													mtemp.dir = getPushDir(target_scr->sflag[target_pos]);
 													if(mtemp.dir < 0)
 														mtemp.dir = getPushDir(cmb.flag);
 													mtemp.clk = 1;
 													mtemp.animate(0);
 													if(mtemp.bhole || mtemp.trigger)
 													{
-														scr->data[targpos] = scr->undercombo;
-														scr->cset[targpos] = scr->undercset;
-														scr->sflag[targpos] = 0;
+														target_scr->data[target_pos] = target_scr->undercombo;
+														target_scr->cset[target_pos] = target_scr->undercset;
+														target_scr->sflag[target_pos] = 0;
 													}
 													else
 													{
-														scr->data[targpos] =  c;
-														scr->cset[targpos] =  cs;
-														scr->sflag[targpos] = 0;
+														target_scr->data[target_pos] =  c;
+														target_scr->cset[target_pos] =  cs;
+														target_scr->sflag[target_pos] = 0;
 													}
 												}
 												else
 												{
-													scr->data[plpos] = scr->data[targpos];
-													scr->cset[plpos] = scr->cset[targpos];
-													scr->data[targpos] = c;
-													scr->cset[targpos] = cs;
+													player_scr->data[player_pos] = target_scr->data[target_pos];
+													player_scr->cset[player_pos] = target_scr->cset[target_pos];
+													target_scr->data[target_pos] = c;
+													target_scr->cset[target_pos] = cs;
 												}
 											}
 										}
@@ -8034,8 +8053,14 @@ bool HeroClass::animate(int32_t)
 											paymagiccost(switchhook_cost_item);
 										zfix tx = x, ty = y;
 										//Position the player at the combo
-										x = COMBOX(targpos);
-										y = COMBOY(targpos);
+
+										{
+											int hx, hy;
+											COMBOXY_REGION(targrpos, hx, hy);
+											x = hx;
+											y = hy;
+										}
+
 										dir = oppositeDir[dir];
 										if(w && hw)
 										{
@@ -8068,7 +8093,7 @@ bool HeroClass::animate(int32_t)
 												chainlinks.spr(j)->y += dy;
 											}
 										}
-										hooked_combopos = plpos; //flip positions
+										hooked_comborpos = plrpos; //flip positions
 									}
 									else reset_hookshot();
 								}
@@ -8223,27 +8248,16 @@ bool HeroClass::animate(int32_t)
 			reset_hookshot();
 		}
 		
-		// TODO z3
 		if(hs_fix)
 		{
-			if(dir==up)
+			if(dir==up || dir==down)
 			{
-				y=int32_t(y+7)&0xF0;
+				y = CLEAR_LOW_BITS(int32_t(y+7), 4);
 			}
 			
-			if(dir==down)
+			if(dir==left || dir==right)
 			{
-				y=int32_t(y+7)&0xF0;
-			}
-			
-			if(dir==left)
-			{
-				x=int32_t(x+7)&0xF0;
-			}
-			
-			if(dir==right)
-			{
-				x=int32_t(x+7)&0xF0;
+				x = CLEAR_LOW_BITS(int32_t(x+7), 4);
 			}
 			
 			hs_fix=false;
@@ -9492,26 +9506,35 @@ void HeroClass::doSwitchHook(byte style)
 		chainlinks.spr(j)->switch_hooked = true;
 	}
 	//}
-	if(hooked_combopos > -1)
+	if(hooked_comborpos != rpos_t::NONE)
 	{
+		rpos_t plrpos = COMBOPOS_REGION(x+8, y+8);
 		int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 		hooked_layerbits = 0;
 		for(auto q = 0; q < 7; ++q)
 			hooked_undercombos[q] = -1;
-		uint16_t plpos = COMBOPOS(x+8,y+8);
+		
+		byte target_pos = RPOS_TO_POS(hooked_comborpos);
+		byte player_pos = RPOS_TO_POS(plrpos);
+		
 		for(auto q = max_layer; q > -1; --q)
 		{
-			newcombo const& cmb = combobuf[FFCore.tempScreens[q]->data[hooked_combopos]];
-			newcombo const& comb2 = combobuf[FFCore.tempScreens[q]->data[plpos]];
-			int32_t fl1 = FFCore.tempScreens[q]->sflag[hooked_combopos],
-				fl2 = FFCore.tempScreens[q]->sflag[plpos];
+			auto target_pos_handle = z3_get_pos_handle(hooked_comborpos, q);
+			auto player_pos_handle = z3_get_pos_handle(plrpos, q);
+			
+			mapscr* player_scr = player_pos_handle.screen;
+			mapscr* target_scr = target_pos_handle.screen;
+
+			newcombo const& cmb = combobuf[target_scr->data[target_pos]];
+			newcombo const& comb2 = combobuf[player_scr->data[player_pos]];
+			int32_t fl1 = target_scr->sflag[target_pos],
+					fl2 = player_scr->sflag[player_pos];
 			bool isPush = false;
 			if(isSwitchHookable(cmb))
 			{
 				if(cmb.type == cSWITCHHOOK)
 				{
-					uint16_t plpos = COMBOPOS(x+8,y+8);
-					if((cmb.usrflags&cflag1) && FFCore.tempScreens[q]->data[plpos])
+					if((cmb.usrflags&cflag1) && player_scr->data[player_pos])
 						continue; //don't swap with non-zero combo
 					if(zc_max(1,itemsbuf[(w && w->parentitem>-1) ? w->parentitem : current_item_id(itype_switchhook)].fam_type) < cmb.attribytes[0])
 						continue; //too low a switchhook level
@@ -9520,13 +9543,13 @@ void HeroClass::doSwitchHook(byte style)
 					{
 						if(cmb.usrflags&cflag6)
 						{
-							hooked_undercombos[q] = FFCore.tempScreens[q]->data[hooked_combopos]+1;
-							hooked_undercombos[q+7] = FFCore.tempScreens[q]->cset[hooked_combopos];
+							hooked_undercombos[q] = target_scr->data[target_pos]+1;
+							hooked_undercombos[q+7] = target_scr->cset[target_pos];
 						}
 						else
 						{
-							hooked_undercombos[q] = FFCore.tempScreens[q]->undercombo;
-							hooked_undercombos[q+7] = FFCore.tempScreens[q]->undercset;
+							hooked_undercombos[q] = target_scr->undercombo;
+							hooked_undercombos[q+7] = target_scr->undercset;
 						}
 					}
 					else
@@ -9540,13 +9563,13 @@ void HeroClass::doSwitchHook(byte style)
 				{
 					if(isCuttableNextType(cmb.type))
 					{
-						hooked_undercombos[q] = FFCore.tempScreens[q]->data[hooked_combopos]+1;
-						hooked_undercombos[q+7] = FFCore.tempScreens[q]->cset[hooked_combopos];
+						hooked_undercombos[q] = target_scr->data[target_pos]+1;
+						hooked_undercombos[q+7] = target_scr->cset[target_pos];
 					}
 					else
 					{
-						hooked_undercombos[q] = FFCore.tempScreens[q]->undercombo;
-						hooked_undercombos[q+7] = FFCore.tempScreens[q]->undercset;
+						hooked_undercombos[q] = target_scr->undercombo;
+						hooked_undercombos[q+7] = target_scr->undercset;
 					}
 					hooked_layerbits |= 1<<q; //Swapping
 				}
@@ -9604,14 +9627,14 @@ void HeroClass::doSwitchHook(byte style)
 						for(auto lyr = 0; lyr < maxLayer; ++lyr)
 						{
 							if(lyr == q) continue;
-							switch(FFCore.tempScreens[q]->sflag[plpos])
+							switch(player_scr->sflag[player_pos])
 							{
 								case mfBLOCKHOLE: case mfBLOCKTRIGGER:
 									hooked_layerbits &= ~(1<<(q+8)); //Don't swap the hole/trigger back
 									lyr=7;
 									break;
 							}
-							switch(combobuf[FFCore.tempScreens[q]->data[plpos]].flag)
+							switch(combobuf[player_scr->data[player_pos]].flag)
 							{
 								case mfBLOCKHOLE: case mfBLOCKTRIGGER:
 									hooked_layerbits &= ~(1<<(q+8)); //Don't swap the hole/trigger back
@@ -9633,8 +9656,12 @@ void HeroClass::doSwitchHook(byte style)
 			wpndata const& spr = wpnsbuf[QMisc.sprites[sprSWITCHPOOF]];
 			switchhookmaxtime = switchhookclk = zc_max(spr.frames,1) * zc_max(spr.speed,1);
 			decorations.add(new comboSprite(x, y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
-			if(hooked_combopos > -1)
-				decorations.add(new comboSprite((zfix)COMBOX(hooked_combopos), (zfix)COMBOY(hooked_combopos), 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			if(hooked_comborpos != rpos_t::NONE)
+			{
+				int decx, decy;
+				COMBOXY_REGION(hooked_comborpos, decx, decy);
+				decorations.add(new comboSprite(decx, decy, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			}
 			else if(switching_object)
 				decorations.add(new comboSprite(switching_object->x, switching_object->y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
 			break;
@@ -10396,56 +10423,56 @@ bool HeroClass::startwpn(int32_t itemid)
 			bool use_hookshot=true;
 			bool hit_hs = false, hit_solid = false, insta_switch = false;
 			int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
-			int32_t cpos = -1;
+			rpos_t cpos = rpos_t::NONE;
 			for(int32_t i=0; i<=max_layer && !hit_hs; ++i)
 			{
 				if(dir==up)
 				{
 					cpos = check_hshot(i,x+2,y-7,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				else if(dir==down)
 				{
 					cpos = check_hshot(i,x+12,y+23,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				else if(dir==left)
 				{
 					cpos = check_hshot(i,x-7,y+12,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				else if(dir==right)
 				{
 					cpos = check_hshot(i,x+23,y+12,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				//Diagonal Hookshot (6)
 				else if(dir==r_down)
 				{
 					cpos = check_hshot(i,x+9,y+13,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				else if(dir==l_down)
 				{
 					cpos = check_hshot(i,x+6,y+13,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				else if(dir==r_up)
 				{
 					cpos = check_hshot(i,x+9,y+13,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 				else if(dir==l_up)
 				{
 					cpos = check_hshot(i,x+6,y+13,sw);
-					if(cpos > -1)
+					if(cpos != rpos_t::NONE)
 						hit_hs = true;
 				}
 			}
@@ -10605,7 +10632,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(insta_switch)
 			{
 				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
-				hooked_combopos = cpos;
+				hooked_comborpos = cpos;
 				w->misc=2;
 				w->step=0;
 				doSwitchHook(itm.misc5);
@@ -17019,7 +17046,8 @@ void HeroClass::checkpushblock()
 		return;
 	
 	int32_t itemid=current_item_id(itype_bracelet);
-	size_t combopos = COMBOPOS(bx%256, by%176);
+	rpos_t rpos = COMBOPOS_REGION(bx, by);
+	size_t combopos = RPOS_TO_POS(rpos);
 	bool limitedpush = (itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1);
 	itemdata const* glove = itemid < 0 ? NULL : &itemsbuf[itemid];
 	for(int lyr = 2; lyr >= 0; --lyr) //Top-down, in case of stacked push blocks
@@ -17027,10 +17055,13 @@ void HeroClass::checkpushblock()
 		if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) break;
 		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			continue;
-		mapscr* m = is_z3_scrolling_mode() ?
-			z3_get_mapscr_layer_for_xy_offset_include_base(bx, by, lyr) :
-			FFCore.tempScreens[lyr];
-		if (!m) continue;
+		// mapscr* m = is_z3_scrolling_mode() ?
+		// 	z3_get_mapscr_layer_for_xy_offset_include_base(bx, by, lyr) :
+		// 	FFCore.tempScreens[lyr];
+		auto pos_handle = z3_get_pos_handle(rpos, lyr);
+		mapscr* m = pos_handle.screen;
+		// TODO z3
+		// if (!m) continue;
 
 		int32_t f = MAPFLAG2(lyr-1,bx,by);
 		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
@@ -28797,7 +28828,7 @@ void HeroClass::reset_hookshot()
 	if(switching_object)
 		switching_object->switch_hooked = false;
 	switching_object = NULL;
-	hooked_combopos = -1;
+	hooked_comborpos = rpos_t::NONE;
 	switchhook_cost_item = -1;
 	hooked_layerbits = 0;
 	for(auto q = 0; q < 7; ++q)

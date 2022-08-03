@@ -421,7 +421,8 @@ extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, chea
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
-extern int32_t hooked_combopos, switchhook_cost_item;
+extern rpos_t hooked_comborpos;
+extern int32_t switchhook_cost_item;
 extern int32_t is_conveyor_stunned;
 extern uint16_t hooked_layerbits;
 extern int32_t hooked_undercombos[14];

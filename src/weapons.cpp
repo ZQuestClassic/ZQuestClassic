@@ -4892,7 +4892,7 @@ bool weapon::animate(int32_t index)
 			// Hookshot grab and retract code 
 			//Diagonal Hookshot (2)
 			
-			int32_t hookedpos = -1;
+			rpos_t hookedrpos = rpos_t::NONE;
 			
 			if(misc==0)
 			{
@@ -4911,16 +4911,16 @@ bool weapon::animate(int32_t index)
 				//Look for grab combos based on direction.
 				if(dir==up)
 				{
-					hookedpos = check_hshot(-1,x+2,y+7,sw);
+					hookedrpos = check_hshot(0,x+2,y+7,sw);
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+2,y+7,sw);
+							hookedrpos = check_hshot(lyr,x+2,y+7,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 						
 					if(!hooked && _walkflag(x+2,y+7,1) && !ishookshottable((int32_t)x+2,(int32_t)y+7))
 					{
@@ -4930,16 +4930,16 @@ bool weapon::animate(int32_t index)
 				
 				if(dir==down)
 				{
-					hookedpos = check_hshot(-1,x+12,y+12,sw);
+					hookedrpos = check_hshot(0,x+12,y+12,sw);
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+12,y+12,sw);
+							hookedrpos = check_hshot(lyr,x+12,y+12,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					if(!hooked && _walkflag(x+12,y+12,1) && !ishookshottable((int32_t)x+12,(int32_t)y+12))
 					{
@@ -4951,18 +4951,18 @@ bool weapon::animate(int32_t index)
 				{
 					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						hookedpos = check_hshot(-1,x+6,y+7,sw);
+						hookedrpos = check_hshot(0,x+6,y+7,sw);
 					}
-					else hookedpos = check_hshot(-1,x+6,y+13,sw);
+					else hookedrpos = check_hshot(0,x+6,y+13,sw);
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+6,y+13,sw);
+							hookedrpos = check_hshot(lyr,x+6,y+13,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					if(!hooked && _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13))
 					{
@@ -4974,18 +4974,18 @@ bool weapon::animate(int32_t index)
 				{
 					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						hookedpos = check_hshot(-1,x+9,y+7,sw);
+						hookedrpos = check_hshot(0,x+9,y+7,sw);
 					}
-					else hookedpos = check_hshot(-1,x+9,y+13,sw);
+					else hookedrpos = check_hshot(0,x+9,y+13,sw);
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+9,y+13,sw);
+							hookedrpos = check_hshot(lyr,x+9,y+13,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					if(!hooked && _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13))
 					{
@@ -4999,27 +4999,27 @@ bool weapon::animate(int32_t index)
 				{
 					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						hookedpos = check_hshot(-1,x+9,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
+						hookedrpos = check_hshot(0,x+9,y+7,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+12,y+12,sw);
 					}
 					else
 					{
-						hookedpos = check_hshot(-1,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
+						hookedrpos = check_hshot(0,x+9,y+13,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+12,y+12,sw);
 					}
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+9,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+12,y+12,sw);
+							hookedrpos = check_hshot(lyr,x+9,y+13,sw);
+							if(hookedrpos == rpos_t::NONE)
+								hookedrpos = check_hshot(lyr,x+12,y+12,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					//right
 					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
@@ -5033,27 +5033,27 @@ bool weapon::animate(int32_t index)
 				{
 					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						hookedpos = check_hshot(-1,x+6,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
+						hookedrpos = check_hshot(0,x+6,y+7,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+12,y+12,sw);
 					}
 					else
 					{
-						hookedpos = check_hshot(-1,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+12,y+12,sw);
+						hookedrpos = check_hshot(0,x+6,y+13,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+12,y+12,sw);
 					}
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+6,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+12,y+12,sw);
+							hookedrpos = check_hshot(lyr,x+6,y+13,sw);
+							if(hookedrpos == rpos_t::NONE)
+								hookedrpos = check_hshot(lyr,x+12,y+12,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
 						//down
@@ -5066,27 +5066,27 @@ bool weapon::animate(int32_t index)
 				{
 					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						hookedpos = check_hshot(-1,x+9,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
+						hookedrpos = check_hshot(0,x+9,y+7,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+2,y+7,sw);
 					}
 					else
 					{
-						hookedpos = check_hshot(-1,x+9,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
+						hookedrpos = check_hshot(0,x+9,y+13,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+2,y+7,sw);
 					}
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+9,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+2,y+7,sw);
+							hookedrpos = check_hshot(lyr,x+9,y+13,sw);
+							if(hookedrpos == rpos_t::NONE)
+								hookedrpos = check_hshot(lyr,x+2,y+7,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					if(!hooked &&  ( ( ( _walkflag(x+9,y+13,1) && !ishookshottable((int32_t)x+9,(int32_t)y+13)) ) ||
 						//up
@@ -5099,27 +5099,27 @@ bool weapon::animate(int32_t index)
 				{
 					if(get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw)
 					{
-						hookedpos = check_hshot(-1,x+6,y+7,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
+						hookedrpos = check_hshot(0,x+6,y+7,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+2,y+7,sw);
 					}
 					else
 					{
-						hookedpos = check_hshot(-1,x+6,y+13,sw);
-						if(hookedpos<0)
-							hookedpos = check_hshot(-1,x+2,y+7,sw);
+						hookedrpos = check_hshot(0,x+6,y+13,sw);
+						if(hookedrpos == rpos_t::NONE)
+							hookedrpos = check_hshot(0,x+2,y+7,sw);
 					}
 					
 					if(get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) || get_bit(quest_rules, qr_HOOKSHOTALLLAYER))
 					{
-						for(auto lyr = 1; hookedpos < 0 && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
+						for(auto lyr = 1; hookedrpos == rpos_t::NONE && lyr <= (get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : 2); ++lyr)
 						{
-							hookedpos = check_hshot(lyr,x+6,y+13,sw);
-							if(hookedpos<0)
-								hookedpos = check_hshot(lyr,x+2,y+7,sw);
+							hookedrpos = check_hshot(lyr,x+6,y+13,sw);
+							if(hookedrpos == rpos_t::NONE)
+								hookedrpos = check_hshot(lyr,x+2,y+7,sw);
 						}
 					}
-					if(hookedpos>-1) hooked = true;
+					if(hookedrpos != rpos_t::NONE) hooked = true;
 					
 					if(!hooked && ( ( ( _walkflag(x+6,y+13,1) && !ishookshottable((int32_t)x+6,(int32_t)y+13)) ) ||
 						//up
@@ -5132,7 +5132,7 @@ bool weapon::animate(int32_t index)
 			
 			if(hooked)
 			{
-				hooked_combopos = hookedpos;
+				hooked_comborpos = hookedrpos;
 				misc=sw?2:1;
 				step=0;
 				pull_hero=true;
@@ -6924,7 +6924,7 @@ offscreenCheck:
 					if(switching_object)
 					{
 						switching_object->switch_hooked = true;
-						hooked_combopos = -1;
+						hooked_comborpos = rpos_t::NONE;
 						hooked_layerbits = 0;
 						misc=2;
 						step=0;

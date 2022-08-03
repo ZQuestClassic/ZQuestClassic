@@ -309,7 +309,7 @@ void spawn_decoration(newcombo const& cmb, int32_t pos)
 
 void trigger_cuttable(const pos_handle& pos_handle)
 {
-	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return;
+	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	mapscr* tmp = pos_handle.screen;
@@ -433,7 +433,7 @@ void trigger_cuttable(const pos_handle& pos_handle)
 
 bool trigger_step(const pos_handle& pos_handle)
 {
-	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
 	mapscr* tmp = pos_handle.screen;
@@ -627,7 +627,7 @@ bool trigger_warp(newcombo const& cmb)
 bool trigger_chest(const pos_handle& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos) > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos) > unsigned(region_max_rpos)) return false;
 
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switch(cmb.type)
@@ -799,7 +799,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir)
 {
 	if (pos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 	
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	//!TODO Expand 'guygrid' stuff to account for layers, so that layers >0 can be used
@@ -1052,7 +1052,7 @@ bool trigger_damage_combo(const pos_handle& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	// TODO z3 region_max_rpos -> region_num_combos?
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	if(Hero.hclk || Hero.superman || Hero.fallclk)
 		return false; //immune
@@ -1092,7 +1092,7 @@ bool trigger_damage_combo(const pos_handle& pos_handle)
 
 bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 
 	int32_t tx, ty;
 	COMBOXY_REGION(pos_handle.rpos, tx, ty);
@@ -1284,13 +1284,13 @@ bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
 
 bool trigger_switchhookblock(const pos_handle& pos_handle)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 	if(Hero.switchhookclk) return false;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switching_object = NULL;
-	hooked_combopos = pos;
+	hooked_comborpos = pos_handle.rpos;
 	hooked_layerbits = 0;
 	Hero.doSwitchHook(game->get_switchhookstyle());
 	if(!hooked_layerbits) //failed
@@ -1311,7 +1311,7 @@ void do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 // Forcibly triggers a combo at a given position
 void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > region_max_rpos) return;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return;
 
 	int lyr = pos_handle.layer;
 	// TODO z3 remove

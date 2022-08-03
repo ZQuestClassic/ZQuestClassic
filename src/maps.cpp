@@ -69,7 +69,7 @@ int world_w, world_h;
 static int z3_origin_scr;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
-int region_max_rpos;
+rpos_t region_max_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
@@ -88,7 +88,7 @@ static const int hardcode_z3_regions[] = {
 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3,
@@ -227,7 +227,7 @@ static int initial_region_scr = 0;
 void z3_load_region()
 {
 	z3_calculate_region(currscr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
-	region_max_rpos = region_scr_width*region_scr_height*176 - 1;
+	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
@@ -325,8 +325,14 @@ int z3_get_scr_for_rpos(rpos_t rpos)
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
+mapscr* z3_get_mapscr_for_rpos(rpos_t rpos)
+{
+	return get_scr(currmap, z3_get_scr_for_rpos(rpos));
+}
+
 pos_handle z3_get_pos_handle(rpos_t rpos, int layer)
 {
+	DCHECK(layer >= 0);
 	int screen_index = z3_get_scr_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 	return {screen, screen_index, layer, rpos};
@@ -696,7 +702,7 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
-    
+    // TODO z3 blocks
     if(tmpscr2[layer-1].data.empty()) return 0;
     
     if(tmpscr2[layer-1].valid==0) return 0;
@@ -953,7 +959,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
     if (layer <= -1) return MAPCOMBO(x, y);
     
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
 	if (pos_handle.screen->data.empty()) return 0;
 	if (pos_handle.screen->valid == 0) return 0;
 
@@ -1057,7 +1063,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCSET(x, y);
 
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->cset.empty()) return 0;
 	
@@ -1071,7 +1077,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
 
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->sflag.empty()) return 0;
 
@@ -1108,27 +1114,17 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 {
-    if(layer==-1) return MAPCOMBOFLAG(x,y);
-    
-    if(tmpscr2[layer].data.empty()) return 0;
-    
-    if(tmpscr2[layer].valid==0) return 0;
+	DCHECK(layer >= -1);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+    if (layer == -1) return MAPCOMBOFLAG(x, y);
 
-	if (is_z3_scrolling_mode())
-	{
-		if(x<0 || x>=world_w || y<0 || y>=world_h)
-			return 0;
-		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
-		int32_t combo = COMBOPOS(x%256,y%176);
-		return combobuf[z3_scr->data[combo]].flag;
-	}
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return combobuf[tmpscr2[layer].data[combo]].flag;                        // entire combo code
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
+	if (pos_handle.screen->valid == 0) return 0;
+	if (pos_handle.screen->data.empty()) return 0;
+
+	int cid = pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
+	return combobuf[cid].flag;
 }
 
 bool HASFLAG(int32_t flag, int32_t layer, int32_t pos)
@@ -1946,12 +1942,12 @@ bool isSwitchHookable(newcombo const& cmb)
 	return cmb.genflags & cflag2;
 }
 
-int32_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook)
+rpos_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook)
 {
 	int32_t id = MAPCOMBO2(layer-1,x,y);
-	if(id < 1) return -1; //Never hook combo 0
+	if (id <= 0) return rpos_t::NONE; // Never hook combo 0
 	newcombo const& cmb = combobuf[id];
-	return (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS(x,y) : -1;
+	return (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS_REGION(x, y) : rpos_t::NONE;
 }
 
 bool ishookshottable(int32_t bx, int32_t by)
@@ -3689,12 +3685,13 @@ void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 	}
 	else putcombo(dest, x, y, cid, cset);
 }
-void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
+void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 	int32_t cset, byte layer, bool over, bool transp)
 {
-	byte plpos = COMBOPOS(Hero.x+8, Hero.y+8);
+	byte pos = RPOS_TO_POS(rpos);
+	rpos_t plrpos = COMBOPOS_REGION(Hero.x+8, Hero.y+8);
 	bool dosw = false;
-	if(pos == hooked_combopos && (hooked_layerbits & (1<<layer)))
+	if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
 	{
 		if(hooked_undercombos[layer] > -1)
 		{
@@ -3703,7 +3700,7 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, byte pos, int32_t cid,
 		}
 		dosw = true;
 	}
-	else if(pos == plpos && (hooked_layerbits & (1<<(layer+8))))
+	else if(rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
 	{
 		dosw = true;
 	}
@@ -3818,7 +3815,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						draw_cmb_pos(bmp, -x, playing_field_offset-y, i, tmp->data[i], tmp->cset[i], layer, true, false);
+						auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, tmp->data[i], tmp->cset[i], layer, true, false);
 					}
 				}
 			}
@@ -3831,7 +3829,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 				{
 					if(combo_class_buf[combobuf[tmp->data[i]].type].overhead)
 					{
-						draw_cmb_pos(bmp, -x, playing_field_offset-y, i, tmp->data[i], tmp->cset[i], layer, true, false);
+						auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, tmp->data[i], tmp->cset[i], layer, true, false);
 					}
 				}
 			}
@@ -3897,7 +3896,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			draw_cmb_pos(bmp, x, y, i, tmp->data[i], tmp->cset[i], layer, over, transp);
+			auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+			draw_cmb_pos(bmp, x, y, rpos, tmp->data[i], tmp->cset[i], layer, over, transp);
 		}
 	}
 }
@@ -4377,7 +4377,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 // TODO z3 remove this_screen
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
-	DCHECK(this_screen == &tmpscr);
+	// DCHECK(this_screen == &tmpscr);
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
@@ -5449,6 +5449,14 @@ std::vector<mapscr> clone_mapscr(const mapscr* source)
 		}
 	}
 
+	// const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
+	// for (int i = 0; i < 7; i++)
+	// {
+	// 	screens[i].data.resize(_mapsSize, 0);
+	// 	screens[i].sflag.resize(_mapsSize, 0);
+	// 	screens[i].cset.resize(_mapsSize, 0);
+	// }
+
 	return screens;
 }
 
@@ -5470,6 +5478,14 @@ std::vector<mapscr*> clone_mapscr_2(const mapscr* source)
 			screens.push_back(new mapscr());
 		}
 	}
+
+	// const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
+	// for (int i = 0; i < 7; i++)
+	// {
+	// 	screens[i]->data.resize(_mapsSize, 0);
+	// 	screens[i]->sflag.resize(_mapsSize, 0);
+	// 	screens[i]->cset.resize(_mapsSize, 0);
+	// }
 
 	return screens;
 }
@@ -6069,19 +6085,20 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	}
 }
 
-void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
+void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 {
+	int scr = z3_get_scr_for_xy_offset(x, y);
 	x -= global_viewport_x;
 	y -= global_viewport_y;
 
-	if(scrn->valid==0||!show_layer_0||scrn->hidelayers & 1)
+	if(screen->valid==0||!show_layer_0||screen->hidelayers & 1)
 	{
 		rectfill(dest,x,y,x+255,y+175,0);
 		return;
 	}
 	
-	bool over = XOR(scrn->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
-		|| XOR(scrn->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
+	bool over = XOR(screen->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
+		|| XOR(screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
 
 	// if (global_z3_scrolling_extended_height_mode)
 
@@ -6092,7 +6109,8 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			draw_cmb_pos(dest, x, y, i, scrn->data[i], scrn->cset[i], 0, over, false);
+			auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+			draw_cmb_pos(dest, x, y, rpos, screen->data[i], screen->cset[i], 0, over, false);
 		}
 	}
 }
