@@ -4323,11 +4323,11 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 	global_z3_cur_scr_drawing = -1;
 }
 
-static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int, int, int)>& fn)
+static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		fn(&tmpscr, currscr, 0, 0, 0, 0);
+		fn(&tmpscr, currscr, 0, 0);
 		return;
 	}
 
@@ -4367,7 +4367,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			if (offx - global_viewport_x >= 256) continue;
 			if (offy - global_viewport_y >= 176) continue;
 
-			fn(myscr, scr, currscr_dx, currscr_dy, offx, offy);
+			fn(myscr, scr, offx, offy);
 		}
 	}
 
@@ -4376,6 +4376,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
+	DCHECK(this_screen == &tmpscr);
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
@@ -4421,45 +4422,21 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	// TODO z3 move to game loop?
 	z3_update_viewport();
 	
-	if (!is_z3_scrolling_mode())
-	{
-		if(XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
-		{
-			do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true);
-			
-			particles.draw(temp_buf, true, 1);
-		}
-		
-		if(XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
-		{
-			do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2, false, true);
-			
-			particles.draw(temp_buf, true, 2);
-		}
-	}
-	else
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, currmap, scr, 2, myscr, -offx, -offy, 2, false, true);
-			
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 1);
+			if (scr == currscr) particles.draw(temp_buf, true, 1);
 		}
 		
 		if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(scrollbuf, 0, currmap, scr,  3, myscr, -offx, -offy, 2, false, true);
-			
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 2);
+			if (scr == currscr) particles.draw(temp_buf, true, 2);
 		}
 	});
 	
-	if (!is_z3_scrolling_mode())
-	{
-		putscr(scrollbuf,0,playing_field_offset,this_screen);
-	}
-	else
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		putscr(scrollbuf, offx, offy + playing_field_offset, myscr);
 	});
 
@@ -4509,34 +4486,16 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	if (!is_z3_scrolling_mode())
-	{
-		do_layer(scrollbuf, 0, 1, this_screen, 0, 0, 2, false, true); // LAYER 1
-		
-		particles.draw(temp_buf, true, 0);
-		
-		do_layer(scrollbuf, -3, 0, this_screen, 0, 0, 2); // freeform combos!
-		
-		if(!XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
-		{
-			do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true); // LAYER 2
-			
-			particles.draw(temp_buf, true, 1);
-		}
-	}
-	else
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		do_layer(scrollbuf, 0, currmap, scr, 1, myscr, -offx, -offy, 2, false, true); // LAYER 1
-
-		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 0);
+		if (scr == currscr) particles.draw(temp_buf, true, 0);
 		
 		do_layer(scrollbuf, -3, currmap, scr, 0, myscr, -offx, -offy, 2); // freeform combos!
-		
+
 		if(!XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, currmap, scr, 2, myscr, -offx, -offy, 2, false, true); // LAYER 2
-			
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 1);
+			if (scr == currscr) particles.draw(temp_buf, true, 1);
 		}
 	});
 	
@@ -4571,24 +4530,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	if (!is_z3_scrolling_mode())
-	{
-		do_layer(scrollbuf, -2, 0, this_screen, 0, 0, 2); // push blocks!
-		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
-		{
-			do_layer(scrollbuf, -2, 1, this_screen, 0, 0, 2); // push blocks!
-			do_layer(scrollbuf, -2, 2, this_screen, 0, 0, 2); // push blocks!
-		}
-
-		//Show walkflags cheat
-		do_walkflags(temp_buf,this_screen,0,0,2);
-		do_walkflags(scrollbuf,this_screen,0,0,2);
-		
-		do_effectflags(temp_buf,this_screen,0,0,2);
-		do_effectflags(scrollbuf,this_screen,0,0,2);
-	}
-	else
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		do_layer(scrollbuf, -2, currmap, scr, 0, myscr, -offx, -offy, 2); // push blocks!
 		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 		{
@@ -4782,40 +4724,17 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//5. Draw some layers onto temp_buf and scrollbuf
 	
-	if (!is_z3_scrolling_mode())
-	{
-		if(!XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
-		{
-			do_layer(temp_buf, 0, 3, this_screen, 0, 0, 2, false, true);
-			
-			particles.draw(temp_buf, true, 2);
-		}
-		
-		do_layer(temp_buf, 0, 4, this_screen, 0, 0, 2, false, true);
-		//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
-		
-		particles.draw(temp_buf, true, 3);
-		
-		do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
-		if(get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
-		{
-			do_layer(temp_buf, -1, 1, this_screen, 0, 0, 2);
-			do_layer(temp_buf, -1, 2, this_screen, 0, 0, 2);
-		}
-	}
-	else
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(temp_buf, 0, currmap, scr, 3, myscr, -offx, -offy, 2, false, true);
-			
-			if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 2);
+			if (scr == currscr) particles.draw(temp_buf, true, 2);
 		}
 		
 		do_layer(temp_buf, 0, currmap, scr, 4, myscr, -offx, -offy, 2, false, true);
 		//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
 		
-		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 3);
+		if (scr == currscr) particles.draw(temp_buf, true, 3);
 
 		do_layer(temp_buf, -1, currmap, scr, 0, myscr, -offx, -offy, 2);
 		if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
@@ -4917,14 +4836,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		particles.draw(temp_buf, true, 5);
 	}
 	else
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		do_layer(temp_buf, 0, currmap, scr, 5, myscr, -offx, -offy, 2, false, true);
-		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 4);
+		if (scr == currscr) particles.draw(temp_buf, true, 4);
 		// overhead freeform combos!
 		do_layer(temp_buf, -4, currmap, scr, 0, myscr, -offx, -offy, 2);
 		// ---
 		do_layer(temp_buf, 0, currmap, scr, 6, myscr, -offx, -offy, 2, false, true);
-		if (currscr_dx == 0 && currscr_dy == 0) particles.draw(temp_buf, true, 5);
+		if (scr == currscr) particles.draw(temp_buf, true, 5);
 	});
 	
 	//10. Blit temp_buf onto framebuf with clipping
@@ -4935,8 +4854,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//11. Handle low drawn darkness
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
-		for_every_nearby_screen([&](mapscr* myscr, int scr, int currscr_dx, int currscr_dy, int offx, int offy) {
-			calc_darkroom_combos(currscr + currscr_dx + currscr_dy*16, offx, offy);
+		for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
+			calc_darkroom_combos(scr, offx, offy);
 		});
 		Hero.calc_darkroom_hero();
 	}
