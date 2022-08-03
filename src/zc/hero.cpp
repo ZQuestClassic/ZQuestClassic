@@ -21276,8 +21276,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			map_bkgsfx(false);
 			kill_enemy_sfx();
 			draw_screen(&tmpscr, false);
-
-			// z3_set_currscr(currscr);
 			
 			//unless the room is already dark, fade to black
 			if(!darkroom)
@@ -21806,13 +21804,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		if(DMaps[currdmap].color != c)
 			loadlvlpal(DMaps[currdmap].color);
-			
-		homescr = currscr = wscr + DMaps[currdmap].xoff;
-		z3_set_currscr(currscr);
 		
+		loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 		lightingInstant(); // Also sets naturaldark
-		
-		loadscr_old(0,currdmap,currscr,-1,overlay);
 		
 		x = tmpscr.warpreturnx[wrindex];
 		y = tmpscr.warpreturny[wrindex];
@@ -21980,13 +21974,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			
 			if(DMaps[currdmap].color != c)
 				loadlvlpal(DMaps[currdmap].color);
-				
-			homescr = currscr = wscr + DMaps[currdmap].xoff;
-			z3_set_currscr(currscr);
 			
+			loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 			lightingInstant(); // Also sets naturaldark
-			
-			loadscr_old(0,currdmap,currscr,-1,overlay);
 			
 			x = tmpscr.warpreturnx[wrindex];
 			y = tmpscr.warpreturny[wrindex];
