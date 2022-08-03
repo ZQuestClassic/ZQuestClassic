@@ -332,7 +332,6 @@ mapscr* z3_get_mapscr_for_rpos(rpos_t rpos)
 
 pos_handle z3_get_pos_handle(rpos_t rpos, int layer)
 {
-	DCHECK(layer >= 0);
 	int screen_index = z3_get_scr_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 	return {screen, screen_index, layer, rpos};
@@ -410,6 +409,7 @@ const mapscr* get_canonical_scr(int map, int screen)
 
 mapscr* get_scr(int map, int screen)
 {
+	DCHECK(screen >= 0 && screen < 136);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr;
 
 	if (map == currmap)
@@ -437,6 +437,7 @@ mapscr* get_scr(int map, int screen)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
+	DCHECK(layer >= -1 && layer < 6);
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
 
@@ -3751,6 +3752,7 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 
 void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
 {
+	DCHECK(layer >= 0 && layer <= 6);
 	x += global_viewport_x;
 	y += global_viewport_y;
 
