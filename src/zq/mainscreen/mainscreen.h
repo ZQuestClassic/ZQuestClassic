@@ -43,6 +43,7 @@ void test_mainscreen_gui();
 #define MG_RET_PINNEDMENU             3 //In the move area, but move handler is disabled
 #define MG_RET_DISCLICK               4 //Eat mouse inputs, but no click event
 #define MG_RET_USECHAR                5 //Eat key input
+#define MG_RET_CHAR_WANTSMORE         6 //Eat key input, but get the next 'type' of input too
 
 
 extern bool IS_MSGUI_MODE;

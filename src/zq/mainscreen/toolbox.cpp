@@ -16,12 +16,14 @@ Toolbox::Toolbox() : x(0), y(0),
 	minw(32), minh(32), refbmp(nullptr),
 	zoomfactor(1), title("UNSET_TITLE"),
 	scrollfactor(1), rcmenu_finalized(false),
-	maxw(TB_MAX_WID), maxh(TB_MAX_HEI)
+	maxw(TB_MAX_WID), maxh(TB_MAX_HEI),
+	dp(nullptr), dp2(nullptr)
 {
 	memset(dx, 0, sizeof(dx));
 	memset(dy, 0, sizeof(dy));
 	memset(dw, 0, sizeof(dw));
 	memset(dh, 0, sizeof(dh));
+	memset(data, 0, sizeof(data));
 }
 
 Toolbox::~Toolbox()
@@ -283,6 +285,8 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 	{
 		case MG_MSG_CLICK:
 		case MG_MSG_IDLE:
+		case MG_MSG_KEY:
+		case MG_MSG_CHAR:
 			break; //No default behavior
 		//Complex default behavior
 		case MG_MSG_FIND_MOUSE_HOVER:

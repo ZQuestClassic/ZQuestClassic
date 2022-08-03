@@ -1679,6 +1679,12 @@ void onSKey()
 	to adjust hardcoded values to indices of dialogs[] in main(). 
 */
 
+int32_t msguikillproc(int32_t,DIALOG* d,int32_t)
+{
+	if(IS_MSGUI_MODE) 
+		return D_USED_CHAR;
+	return D_O_K;
+}
 static DIALOG dialogs[] =
 {
     // still unused:  jm
@@ -1686,7 +1692,7 @@ static DIALOG dialogs[] =
     // { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, ((is_large) ? (void *) the_menu_large : (void *) the_menu), NULL, NULL },
     { d_nbmenu_proc,     0,    0,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
-    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
+    { msguikillproc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
@@ -5818,6 +5824,7 @@ bool isFavCmdSelected(int32_t cmd)
 
 void refresh(int32_t flags)
 {
+	if(IS_MSGUI_MODE) return;
     // CPage = Map.CurrScr()->cpage;
     
     if(flags&rCLEAR)

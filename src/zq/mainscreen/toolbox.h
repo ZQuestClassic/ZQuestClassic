@@ -23,7 +23,8 @@ public:
 	int32_t minw, minh, maxw, maxh;
 	BITMAP* refbmp;
 	std::string title;
-	void* dp;
+	void *dp, *dp2;
+	int32_t data[10];
 	
 	//RClick Menu
 	void add_to_rcmenu(std::string const& name);

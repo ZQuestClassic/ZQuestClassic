@@ -181,12 +181,23 @@ int32_t broadcast_tb_message(int32_t msg, int32_t c)
 {
 	switch(msg)
 	{
-		case MG_MSG_CHAR: case MG_MSG_KEY:
+		case MG_MSG_KEY:
+		case MG_MSG_CHAR:
 		{
 			for(int32_t q : focusOrder)
 			{
-				if(boxes[q].msg(msg,c) == MG_RET_USECHAR)
+				static int32_t char_force_q = -1;
+				if(char_force_q > -1 && q != char_force_q)
+					continue;
+				char_force_q = -1;
+				auto ret = boxes[q].msg(msg,c);
+				if(ret == MG_RET_USECHAR)
 					return q;
+				if(ret == MG_RET_CHAR_WANTSMORE)
+				{
+					char_force_q = q;
+					return -1;
+				}
 			}
 			return -1;
 		}
@@ -497,7 +508,7 @@ void init_devkit()
 {
 	Toolbox& box = boxes[TB_DEV_DEBUG];
 	box.title = "DevKit";
-	box.pos(0,0,200,64);
+	box.pos(0,0,200,80);
 	box.flags |= TBF_NO_RESIZE | TBF_NO_REORDER | TBF_VISIBLE;
 	box.proc = [&](Toolbox* tb, int32_t msg, int32_t c)
 	{
@@ -508,9 +519,14 @@ void init_devkit()
 				tb->baseproc(msg,c);
 				char buf[2048] = { 0 };
 					Toolbox const& f_box = boxes[focusOrder.back()];
+				char cbuf[4];
+				if(tb->data[0])
+					sprintf(cbuf,"'%c'",tb->data[0]);
+				else strcpy(cbuf, "NUL");
 				sprintf(buf, "GridSize: %d :: Mouse %03d,%03d"
-					"\nFocused: %s, (%d,%d) (%d,%d)", gridsize, mx, my,
-					f_box.title.c_str(), f_box.x, f_box.y, f_box.w, f_box.h);
+					"\nFocused: %s, (%d,%d) (%d,%d)\n'%s' %s", gridsize, mx, my,
+					f_box.title.c_str(), f_box.x, f_box.y, f_box.w, f_box.h,
+					tb->dp ? (char*)tb->dp : "", cbuf);
 				int32_t px = gui_textout_ln(tb->getBitmap(), lfont_l, (unsigned char*)buf,
 					tb->w / 2, 26, vc(15), -1, 1);
 				if(tb->w < 8+px)
@@ -525,6 +541,16 @@ void init_devkit()
 			case MG_MSG_VSYNC:
 				tb->flags |= TBF_DIRTY;
 				break;
+			case MG_MSG_KEY:
+			{
+				tb->dp = (void*)scancode_to_name(c);
+				return MG_RET_CHAR_WANTSMORE;
+			}
+			case MG_MSG_CHAR:
+			{
+				tb->data[0] = c;
+				return MG_RET_USECHAR;
+			}
 			default: return tb->baseproc(msg, c);
 		}
 		return MG_RET_OK;
@@ -774,6 +800,16 @@ void runToolboxes()
 			}
 		}
 	}
+	if(keypressed())
+	{
+		int32_t scancode;
+		auto ascii = ureadkey(&scancode);
+		auto ind = broadcast_tb_message(MG_MSG_KEY, scancode);
+		if(ind < 0)
+		{
+			ind = broadcast_tb_message(MG_MSG_CHAR, ascii);
+		}
+	}
 	broadcast_tb_message(MG_MSG_IDLE);
 	broadcast_tb_message(MG_MSG_REDRAW_BOX);
 	all_mark_screen_dirty();
@@ -825,7 +861,7 @@ void test_mainscreen_gui()
 	broadcast_tb_message(MG_MSG_REDRAW_SELF);
 	while(true)
 	{
-		if(key[KEY_G]) break;
+		if(key[KEY_ESC]) break;
 		sp_acquire_screen();
 		scare_mouse();
 		clear_to_color(screen, vc(0));
@@ -848,7 +884,7 @@ void test_mainscreen_gui()
 		}
 	}
 	clear_to_color(screen, vc(0));
-	while(key[KEY_G]);
+	while(key[KEY_ESC]);
 	sp_release_screen_all();
 	IS_MSGUI_MODE = false;
 }
