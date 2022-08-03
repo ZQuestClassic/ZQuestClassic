@@ -23767,7 +23767,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	}
 }
 
-static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
+static void for_every_nearby_screen_during_scroll(const std::function <void (mapscr*, int, int, int, int)>& fn)
 {
 	int old_region = z3_get_region_id(scrolling_scr);
 	int new_region = z3_get_region_id(currscr);
@@ -23799,15 +23799,14 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			// TODO z3
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
-				global_z3_cur_map_drawing = base_map;
 				global_z3_cur_scr_drawing = scr;
 				mapscr* myscr = get_scr(base_map, scr);
-				fn(myscr, scr, draw_dx, draw_dy);
+				fn(myscr, base_map, scr, draw_dx, draw_dy);
 			}
 		}
 	}
 
-	global_z3_cur_map_drawing = global_z3_cur_scr_drawing = -1;
+	global_z3_cur_scr_drawing = -1;
 }
 
 static int scroll_dir_to_scr_offset(direction dir)
@@ -24431,12 +24430,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 
-		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
-			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, myscr, -offx, -offy + playing_field_offset, 2);
-			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, myscr, -offx, -offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, map, scr, 2, myscr, -offx, -offy + playing_field_offset, 2);
+			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, map, scr, 3, myscr, -offx, -offy + playing_field_offset, 2);
 			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
 			{
 				// TODO z3 primitives verify
@@ -24450,27 +24449,27 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset+1, 256, 168-1);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
-		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
 
 			bool primitives = myscr != oldscr;
-			do_layer(framebuf, 0, 1, myscr, -offx, -offy, 2, false, primitives);
+			do_layer(framebuf, 0, map, scr, 1, myscr, -offx, -offy, 2, false, primitives);
 
 			primitives = myscr != oldscr && !(oldscr->flags7&fLAYER2BG);
-			if(!(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, myscr, -offx, -offy, 2, false, primitives);
+			if(!(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, map, scr, 2, myscr, -offx, -offy, 2, false, primitives);
 		});
 
-		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
 
-			do_layer(framebuf, -2, 0, myscr, -offx, -offy, 3);
+			do_layer(framebuf, -2, map, scr, 0, myscr, -offx, -offy, 3);
 			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			{
-				do_layer(framebuf, -2, 1, myscr, -offx, -offy, 3);
-				do_layer(framebuf, -2, 2, myscr, -offx, -offy, 3);
+				do_layer(framebuf, -2, map, scr, 1, myscr, -offx, -offy, 3);
+				do_layer(framebuf, -2, map, scr, 2, myscr, -offx, -offy, 3);
 			}
 
 			do_walkflags(framebuf, myscr, -offx, -offy, 3); // show walkflags if the cheat is on
@@ -24478,7 +24477,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			
 			if(get_bit(quest_rules, qr_FFCSCROLL))
 			{
-				do_layer(framebuf, -3, 0, myscr, -offx, -offy, is_old_scr ? 3 : 2, true); // ffcs
+				do_layer(framebuf, -3, map, scr, 0, myscr, -offx, -offy, is_old_scr ? 3 : 2, true); // ffcs
 			}
 		});
 
@@ -24504,7 +24503,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			decorations.draw(framebuf,  true);
 		}
 		
-		for_every_nearby_screen([&](mapscr* myscr, int scr, int draw_dx, int draw_dy) {
+		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
@@ -24514,19 +24513,19 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			if(!(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
 			{
 				bool primitives = !is_old_scr && !(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
-				do_layer(framebuf, 0, 3, myscr, -offx, -offy, tempscreen, false, primitives);
+				do_layer(framebuf, 0, map, scr, 3, myscr, -offx, -offy, tempscreen, false, primitives);
 			}
 			
-			do_layer(framebuf, 0, 4, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 4
-			do_layer(framebuf, -1, 0, myscr, -offx, -offy, tempscreen); //overhead combos
+			do_layer(framebuf, 0, map, scr, 4, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 4
+			do_layer(framebuf, -1, map, scr, 0, myscr, -offx, -offy, tempscreen); //overhead combos
 			if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 			{
-				do_layer(framebuf, -1, 1, myscr, -offx, -offy, tempscreen); //overhead combos
-				do_layer(framebuf, -1, 2, myscr, -offx, -offy, tempscreen); //overhead combos
+				do_layer(framebuf, -1, map, scr, 1, myscr, -offx, -offy, tempscreen); //overhead combos
+				do_layer(framebuf, -1, map, scr, 2, myscr, -offx, -offy, tempscreen); //overhead combos
 			}
-			do_layer(framebuf, 0, 5, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 5
-			do_layer(framebuf, -4, 0, myscr, -offx, -offy, tempscreen, true); //overhead FFCs
-			do_layer(framebuf, 0, 6, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 6
+			do_layer(framebuf, 0, map, scr, 5, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 5
+			do_layer(framebuf, -4, map, scr, 0, myscr, -offx, -offy, tempscreen, true); //overhead FFCs
+			do_layer(framebuf, 0, map, scr, 6, myscr, -offx, -offy, tempscreen, false, !is_old_scr); //layer 6
 		});
 		
 		// TODO z3
