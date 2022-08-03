@@ -840,31 +840,24 @@ int32_t MAPFLAG(int32_t x,int32_t y)
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
 {
+	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
+
 	int32_t b=1;
 	if(x&8) b<<=2;
 	if(y&8) b<<=1;
 
-	if (is_z3_scrolling_mode())
-	{
-		// TODO z3 b
-		newcombo const& cmb = combobuf[MAPCOMBO(x,y)];
-		if (cmb.type == cWATER && (cmb.usrflags&cflag4) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cSHALLOWWATER;
-		if (cmb.type == cWATER && (cmb.usrflags&cflag3) && (cmb.walk&b) && ((cmb.walk>>4)&b)) return cNONE;
-		return cmb.type;
-	}
-
-	// TODO z3
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		mapscr* m = get_layer_scr(currmap, currscr, i);
+		if (m->valid != 0)
 		{
 			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x, y, 1, m)) return cNONE;
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
+				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x, y, 1, m)) return cNONE;
 			}
 		}
 	}
@@ -980,20 +973,24 @@ int32_t getFFCAt(int32_t x, int32_t y)
     return -1;
 }
 
-int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y)
+int32_t MAPCOMBO(const pos_handle& pos_handle)
 {
-    if(layer<=-1) return MAPCOMBO(x,y);
+	if (pos_handle.screen->data.empty()) return 0;
+	if (pos_handle.screen->valid == 0) return 0;
+	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
+}
+
+int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
+{
+	DCHECK(layer >= -1);
+	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
+    if (layer <= -1) return MAPCOMBO(x, y);
     
-    if(tmpscr2[layer].data.empty()) return 0;
-    
-    if(tmpscr2[layer].valid==0) return 0;
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer].data[combo];                        // entire combo code
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	if (pos_handle.screen->data.empty()) return 0;
+	if (pos_handle.screen->valid == 0) return 0;
+
+	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
 }
 
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y, bool secrets)
@@ -6900,15 +6897,13 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	return (cwalkflag&b) ? !dried : false;
 }
 
-// TODO z3 walk verify this one in particular....later
 //Only check the given mapscr*, not it's layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	if (is_z3_scrolling_mode())
 	{
-		// TODO z3
-		int max_x = is_z3_scrolling_mode() ? 256 * 16 : 256;
-		int max_y = is_z3_scrolling_mode() ? 176 * 16 : 176;
+		int max_x = world_w;
+		int max_y = world_h;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;
