@@ -8330,7 +8330,7 @@ bool HeroClass::animate(int32_t)
 	{
 		int32_t tx = x.getInt()+8,
 		    ty = y.getInt()+8;//(bigHitbox?8:12);
-		if (unsigned(ty) <= world_h && unsigned(tx) <= world_w)
+		if (unsigned(ty) < world_h && unsigned(tx) < world_w)
 		{
 			for(int32_t q = 0; q < 3; ++q)
 			{
@@ -16802,8 +16802,6 @@ HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 bool HeroClass::checksoliddamage()
 {
 	if(toogam) return false;
-	// TODO z3 damage
-	if (is_z3_scrolling_mode()) return false;
     
 	if(z!=0||fakez!=0) return false;
 	int32_t bx = x.getInt();
@@ -16824,7 +16822,7 @@ bool HeroClass::checksoliddamage()
 	case down:
 		
 		by+=20;
-		if(by>175)
+		if (by >= world_h)
 		{
 			return false;
 		}
@@ -16853,14 +16851,15 @@ bool HeroClass::checksoliddamage()
 			by+=8;
 			initk = 1;
 		}
-		if(bx>255)
+		if (bx >= world_w)
 		{
 			return false;
 		}
 		
 		break;
 	}
-	newcombo const& cmb = combobuf[MAPCOMBO(bx,by)];
+
+	newcombo const& cmb = combobuf[MAPCOMBO(bx, by)];
 	int32_t t = cmb.type;
 	if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 		t = cNONE;
@@ -16874,7 +16873,10 @@ bool HeroClass::checksoliddamage()
 		by = initby;
 		for (int32_t k = initk; k <= 2; k++)
 		{
-			newcombo const& cmb = combobuf[FFCore.tempScreens[i]->data[COMBOPOS(bx,by)]];
+			if (bx >= world_w || by >= world_h) break;
+
+			auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(bx, by), i);
+			newcombo const& cmb = combobuf[pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)]];
 			t = cmb.type;
 			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 				t = cNONE;
