@@ -799,43 +799,22 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
     return 0;
 }
 
-int32_t MAPCSET(int32_t x,int32_t y)
+int32_t MAPCSET(int32_t x, int32_t y)
 {
-	if (!is_z3_scrolling_mode())
-	{
-		if(x<0 || x>255 || y<0 || y>175)
-			return 0;
-			
-		int32_t combo = COMBOPOS(x,y);
-		return tmpscr.cset[combo];                               // entire combo code
-	}
-	else
-	{
-		if(x<0 || x>=world_w || y<0 || y>=world_h)
-			return 0;
-		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
-		int32_t combo = COMBOPOS(x%256,y%176);
-		return z3_scr->cset[combo];
-	}
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+	mapscr* scr = z3_get_mapscr_for_xy_offset(x, y);
+	int32_t combo = COMBOPOS(x%256, y%176);
+	return scr->cset[combo];
 }
 
-int32_t MAPFLAG(int32_t x,int32_t y)
+int32_t MAPFLAG(int32_t x, int32_t y)
 {
-	if (!is_z3_scrolling_mode())
-	{
-		if(x<0 || x>255 || y<0 || y>175)
-			return 0;
-		int32_t combo = COMBOPOS(x,y);
-		return tmpscr.sflag[combo];                              // flag
-	}
-	else
-	{
-		if(x<0 || x>=world_w || y<0 || y>=world_h)
-			return 0;
-		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
-		int32_t combo = COMBOPOS(x%256,y%176);
-		return z3_scr->sflag[combo];
-	}
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+	mapscr* scr = z3_get_mapscr_for_xy_offset(x, y);
+	int32_t combo = COMBOPOS(x%256, y%176);
+	return scr->sflag[combo];
 }
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
@@ -929,22 +908,11 @@ int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y)
 
 int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 {
-	if (!is_z3_scrolling_mode())
-	{
-		if(x<0 || x>255 || y<0 || y>175)
-			return 0;
-		
-		int32_t combo = COMBOPOS(x,y);
-		return combobuf[tmpscr.data[combo]].flag;                               // entire combo code
-	}
-	else
-	{
-		if(x<0 || x>=world_w || y<0 || y>=world_h)
-			return 0;
-		auto z3_scr = z3_get_mapscr_for_xy_offset(x, y);
-		int32_t combo = COMBOPOS(x%256,y%176);
-		return combobuf[z3_scr->data[combo]].flag;
-	}
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+	mapscr* scr = z3_get_mapscr_for_xy_offset(x, y);
+	int32_t combo = COMBOPOS(x%256, y%176);
+	return combobuf[scr->data[combo]].flag;
 }
 
 int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
@@ -1101,28 +1069,16 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
-    if(layer==-1) return MAPFLAG(x,y);
-    
-	if (is_z3_scrolling_mode())
-	{
-		if(x<0 || x>=world_w || y<0 || y>=world_h)
-			return 0;
-		auto z3_scr = z3_get_mapscr_layer_for_xy_offset(x, y, layer);
-		if (!z3_scr) return 0;
-		int32_t combo = COMBOPOS(x%256, y%176);
-		return z3_scr->sflag[combo];
-	}
+	DCHECK(layer >= -1);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+    if (layer == -1) return MAPFLAG(x, y);
 
-    if(tmpscr2[layer].sflag.empty()) return 0;
-    
-    if(tmpscr2[layer].valid==0) return 0;
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer].sflag[combo];                       // flag
+	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	if (pos_handle.screen->sflag.empty()) return 0;
+	if (pos_handle.screen->valid == 0) return 0;
+
+	return pos_handle.screen->sflag[RPOS_TO_POS(pos_handle.rpos)];
 }
 
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
