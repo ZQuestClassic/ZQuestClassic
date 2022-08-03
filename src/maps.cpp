@@ -4822,19 +4822,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
 	color_map = &trans_table;
 
-	if (!is_z3_scrolling_mode())
-	{
-		do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
-		
-		particles.draw(temp_buf, true, 4);
-		
-		do_layer(temp_buf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
-		
-		do_layer(temp_buf, 0, 6, this_screen, 0, 0, 2, false, true);
-		
-		particles.draw(temp_buf, true, 5);
-	}
-	else
 	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		do_layer(temp_buf, 0, currmap, scr, 5, myscr, -offx, -offy, 2, false, true);
 		if (scr == currscr) particles.draw(temp_buf, true, 4);
