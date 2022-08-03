@@ -136,6 +136,15 @@ void load_mice()
 	unscare_mouse();
 }
 
+void zq_set_mouse_focus(int32_t x, int32_t y)
+{
+	double scale = vbound((is_large ? get_config_float("zquest","cursor_scale_large",1.5) : get_config_float("zquest","cursor_scale_small",1)),1.0,5.0);
+	int32_t fx = int32_t(x*scale);
+	int32_t fy = int32_t(y*scale);
+	set_mouse_sprite_focus(fx,fy);
+	zprint2("Scale focus %d,%d\n",fx,fy);
+}
+
 void load_icons()
 {
     for(int32_t i=0; i<ICON_BMP_MAX; i++)

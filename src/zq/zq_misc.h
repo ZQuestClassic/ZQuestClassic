@@ -100,6 +100,7 @@ extern const char *eweapon_string[wMax-wEnemyWeapons];
 extern int32_t gocnt;
 
 int32_t filetype(const char *path);
+void zq_set_mouse_focus(int32_t x, int32_t y);
 void load_mice();
 void load_icons();
 void load_panel_button_icons();

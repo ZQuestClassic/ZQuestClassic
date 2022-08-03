@@ -1351,15 +1351,15 @@ void update_tool_cursor()
 			switch(tool)
 			{
 			case t_fill:
-				set_mouse_sprite_focus(1, 14);
+				zq_set_mouse_focus(1, 14);
 				break;
 				
 			case t_move:
-				set_mouse_sprite_focus(8, 8);
+				zq_set_mouse_focus(8, 8);
 				break;
 				
 			default:
-				set_mouse_sprite_focus(1, 1);
+				zq_set_mouse_focus(1, 1);
 				break;
 			}
 		}
@@ -2633,12 +2633,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					if(tool==t_fill)
 					{
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-						set_mouse_sprite_focus(1, 14);
+						zq_set_mouse_focus(1, 14);
 					}
 					else
 					{
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
-						set_mouse_sprite_focus(8, 8);
+						zq_set_mouse_focus(8, 8);
 					}
 					
 					unscare_mouse();
@@ -2774,12 +2774,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					if(tool==t_fill)
 					{
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-						set_mouse_sprite_focus(1, 14);
+						zq_set_mouse_focus(1, 14);
 					}
 					else
 					{
 						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
-						set_mouse_sprite_focus(8, 8);
+						zq_set_mouse_focus(8, 8);
 					}
 					
 					unscare_mouse();
@@ -2850,11 +2850,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					
 					if(tool==t_fill)
 					{
-						set_mouse_sprite_focus(1, 14);
+						zq_set_mouse_focus(1, 14);
 					}
 					else
 					{
-						set_mouse_sprite_focus(8, 8);
+						zq_set_mouse_focus(8, 8);
 					}
 					
 					unscare_mouse();

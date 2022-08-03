@@ -138,16 +138,16 @@ void setcurs(int32_t cdir, bool force = false)
 	{
 		case CDIR_MOVE:
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][1]);
-			set_mouse_sprite_focus(8,8);
+			zq_set_mouse_focus(8,8);
 			break;
 		case CDIR_L_R: case CDIR_U_D:
 		case CDIR_UL_DR: case CDIR_UR_DL:
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_RESIZE][cdir]);
-			set_mouse_sprite_focus(8,8);
+			zq_set_mouse_focus(8,8);
 			break;
 		case CDIR_BASIC: default:
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-			set_mouse_sprite_focus(1,1);
+			zq_set_mouse_focus(1,1);
 			break;
 	}
 }
