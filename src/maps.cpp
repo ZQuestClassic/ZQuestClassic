@@ -4374,6 +4374,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 	global_z3_cur_scr_drawing = -1;
 }
 
+// TODO z3 remove this_screen
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
 	DCHECK(this_screen == &tmpscr);
@@ -4431,7 +4432,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			do_layer(scrollbuf, 0, currmap, scr,  3, myscr, -offx, -offy, 2, false, true);
+			do_layer(scrollbuf, 0, currmap, scr, 3, myscr, -offx, -offy, 2, false, true);
 			if (scr == currscr) particles.draw(temp_buf, true, 2);
 		}
 	});
@@ -4446,6 +4447,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		draw_lens_under(scrollbuf, false);
 	}
 	
+	// TODO z3
 	if(show_layer_0)
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
@@ -4470,8 +4472,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			decorations.draw2(scrollbuf,true);
 			Hero.draw(scrollbuf);
 			decorations.draw(scrollbuf,true);
-			// int32_t ccx = Hero.getClimbCoverX() - global_viewport_x;
-			// int32_t ccy = Hero.getClimbCoverY() - global_viewport_y;
 			int32_t ccx = (int32_t)Hero.getClimbCoverX();
 			int32_t ccy = (int32_t)Hero.getClimbCoverY();
 			
@@ -4519,13 +4519,13 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			int32_t ccx = (int32_t)(Hero.getClimbCoverX());
 			int32_t ccy = (int32_t)(Hero.getClimbCoverY());
 			
-			overcombo(scrollbuf,ccx,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
-			putcombo(scrollbuf,ccx,ccy+playing_field_offset,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
+			overcombo(scrollbuf,ccx-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy+cmby2),MAPCSET(ccx,ccy+cmby2));
+			putcombo(scrollbuf,ccx-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx,ccy),MAPCSET(ccx,ccy));
 			
 			if(int32_t(Hero.getX())&15)
 			{
-				overcombo(scrollbuf,ccx+16,ccy+cmby2+playing_field_offset,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
-				putcombo(scrollbuf,ccx+16,ccy+playing_field_offset,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
+				overcombo(scrollbuf,ccx+16-global_viewport_x,ccy+cmby2+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy+cmby2),MAPCSET(ccx+16,ccy+cmby2));
+				putcombo(scrollbuf,ccx+16-global_viewport_x,ccy+playing_field_offset-global_viewport_y,MAPCOMBO(ccx+16,ccy),MAPCSET(ccx+16,ccy));
 			}
 		}
 	}
@@ -4557,7 +4557,6 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	//2. Blit those layers onto framebuf
-	
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	masked_blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
