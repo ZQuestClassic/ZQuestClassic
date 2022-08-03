@@ -25181,7 +25181,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				currdmap = dmapID;
 				dlevel = DMaps[currdmap].level;
 				homescr = currscr = scrID + DMaps[dmapID].xoff;
-				z3_set_currscr(currscr);
+				z3_load_region();
 				init_dmap();
 				
 				

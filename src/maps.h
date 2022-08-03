@@ -79,7 +79,7 @@ extern int scrolling_maze_mode;
 
 int z3_get_region_id(int scr);
 void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
-void z3_set_currscr(int scr);
+void z3_load_region();
 void z3_clear_temporary_screens();
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);
 void z3_update_viewport();

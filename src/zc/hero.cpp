@@ -21650,7 +21650,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			currdmap = wdmap;
 			dlevel = DMaps[currdmap].level;
 			homescr = currscr = wscr + DMaps[wdmap].xoff;
-			z3_set_currscr(currscr);
+			z3_load_region();
 			init_dmap();
 			
 			int32_t wrx,wry;
@@ -25088,7 +25088,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			currscr -= 16;
-		z3_set_currscr(currscr);
+		z3_load_region();
 			
 		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		blit(scrollbuf_old,scrollbuf_old,0,0,0,176,256,176);
@@ -25110,7 +25110,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			currscr += 16;
-		z3_set_currscr(currscr);
+		z3_load_region();
 			
 		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		putscr(scrollbuf_old,0,176,newscr);
@@ -25131,7 +25131,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			--currscr;
-		z3_set_currscr(currscr);
+		z3_load_region();
 			
 		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		blit(scrollbuf_old,scrollbuf_old,0,0,256,0,256,176);
@@ -25149,7 +25149,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			currscr = destscr;
 		else if(checkmaze(oldscr,true) && !edge_of_dmap(scrolldir))
 			++currscr;
-		z3_set_currscr(currscr);
+		z3_load_region();
 			
 		loadscr_old(0,destdmap,currscr,scrolldir,overlay);
 		putscr(scrollbuf_old,256,0,newscr);

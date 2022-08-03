@@ -225,11 +225,11 @@ void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& r
 }
 
 static int initial_region_scr = 0;
-void z3_set_currscr(int scr)
+void z3_load_region()
 {
-	z3_calculate_region(scr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	z3_calculate_region(currscr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = region_scr_width*region_scr_height*176 - 1;
-	initial_region_scr = scr;
+	initial_region_scr = currscr;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
 	z3_clear_temporary_screens();
@@ -5633,7 +5633,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	loadscr_old(0, destdmap, scr, ldir, overlay);
 	currscr = scr;
 
-	z3_set_currscr(scr);
+	z3_load_region();
 }
 
 // Don't use this directly!
