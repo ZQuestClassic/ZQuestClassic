@@ -15,11 +15,12 @@ public:
 	std::function<int32_t(Toolbox* tb,int32_t msg,int32_t c)> proc;
 	//Saveables
 	int32_t x, y, w, h;
-	int32_t minw, minh;
 	uint32_t flags;
 	uint32_t zoomfactor;
+	uint32_t scrollfactor;
 	//Unsavables
 	int32_t dx[10], dy[10], dw[10], dh[10];
+	int32_t minw, minh;
 	BITMAP* refbmp;
 	std::string title;
 	

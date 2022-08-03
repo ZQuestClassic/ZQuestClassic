@@ -9,6 +9,7 @@
 #include "base/gui.h"
 #include <deque>
 
+using namespace std;
 #include <chrono>
 #include <thread>
 void do_sleep(int32_t ms)
@@ -29,8 +30,9 @@ void load_mainscreen_configs()
 	init_toolboxes();
 }
 
-void draw_combo_pane(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t list, bool thick);
-
+/////////////////////////
+// Constants / Globals //
+/////////////////////////
 enum
 {
 	TB_COMBO_COL1,
@@ -48,6 +50,22 @@ static int32_t lhov_id = -1;
 static int32_t last_combolist = -1;
 static clock_t tb_vsync = 0;
 enum {CDIR_MOVE = -2, CDIR_BASIC = -1, CDIR_UL_DR, CDIR_UR_DL, CDIR_L_R, CDIR_U_D};
+
+void init_static_vars()
+{
+	mx = gui_mouse_x();
+	my = gui_mouse_y();
+	mb = 0;
+	m_can_resize = false;
+	cursor_dir = -1;
+	position_mouse_z(0);
+	tb_vsync = clock();
+}
+
+//////////////////////////
+// Broadcasting / Focus //
+//////////////////////////
+
 void broadcast_tb_message(int32_t msg, int32_t c)
 {
 	for(int32_t q : focusOrder)
@@ -55,7 +73,6 @@ void broadcast_tb_message(int32_t msg, int32_t c)
 		boxes[q].msg(msg,c);
 	}
 }
-
 int32_t broadcast_mousefind()
 {
 	m_can_resize = false;
@@ -85,6 +102,10 @@ void focus(int32_t id)
 	focusOrder.push_back(id);
 }
 
+///////////
+// VSync //
+///////////
+
 bool run_tb_vsync()
 {
 	if(clock() > tb_vsync)
@@ -95,7 +116,6 @@ bool run_tb_vsync()
 	}
 	return false;
 }
-
 bool tb_draw_vsync()
 {
 	if(run_tb_vsync())
@@ -106,16 +126,187 @@ bool tb_draw_vsync()
 	return false;
 }
 
-void init_static_vars()
+////////////////
+// COMBOBOXES //
+////////////////
+
+void run_combosel_rc(int32_t x, int32_t y);
+void draw_combo_pane(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t list, bool thick)
 {
-	mx = gui_mouse_x();
-	my = gui_mouse_y();
-	mb = 0;
-	m_can_resize = false;
-	cursor_dir = -1;
-	position_mouse_z(0);
-	tb_vsync = clock();
+	for(int32_t i=0; i<(w*h); i++)
+	{
+		put_combo(dest,(i%w)*16+x,(i/w)*16+y,i+First[list],CSet,Flags&(cFLAGS|cWALK),0);
+	}
+	if(list != current_combolist) return;
+	
+	int32_t rect_pos=Combo-First[list];
+	
+	if((rect_pos>=0)&&(rect_pos<(First[list]+(w*h))))
+	{
+		int32_t rx = (rect_pos & (w - 1)) * 16 + x;
+		int32_t ry = (rect_pos / w) * 16 + y;
+		safe_rect(dest, rx + 0, ry + 0, rx + 15, ry + 15, 255);
+		if(thick) safe_rect(dest, rx + 1, ry + 1, rx + 14, ry + 14, 255);
+	}
 }
+void dirty_comboboxes()
+{
+	if(current_combolist != last_combolist)
+	{
+		boxes[TB_COMBO_COL1].flags |= TBF_DIRTY;
+		boxes[TB_COMBO_COL2].flags |= TBF_DIRTY;
+		last_combolist = current_combolist;
+	}
+}
+
+int32_t _combobox_proc(Toolbox* tb, int32_t msg, int32_t c, int32_t listnum)
+{
+	tb->sanity();
+	int32_t ret = MG_RET_OK;
+	//zoomfactor: 2 to 4, inclusive
+	int32_t zf = vbound(tb->zoomfactor,1,4);
+	switch(msg)
+	{
+		case MG_MSG_CLICK:
+		{
+			if(!tb->mouse_in_d())
+			{
+				current_combolist = listnum;
+				dirty_comboboxes();
+				BGLOOP_START();
+				int32_t offsx, offsy;
+				while(gui_mouse_b()&1)
+				{
+					do_sleep(1);
+					offsx = gui_mouse_x()-(tb->x+tb->dx[0]);
+					offsy = gui_mouse_y()-(tb->y+tb->dy[0]);
+					if(unsigned(offsx) >= tb->dw[0]) continue;
+					if(unsigned(offsy) >= tb->dh[0]) continue;
+					int32_t pos_clicked = (offsx/(16*zf))+((offsy/(16*zf))*4);
+					if(Combo == First[listnum]+pos_clicked) continue;
+					Combo = First[listnum]+pos_clicked;
+					tb->msg(MG_MSG_REDRAW_SELF);
+					BGLOOP_DRAW();
+				}
+				BGLOOP_END();
+			}
+			break;
+		}
+		case MG_MSG_RCLICK:
+		{
+			if(!tb->mouse_in_d())
+			{
+				current_combolist = listnum;
+				dirty_comboboxes();
+				int32_t offsx = gui_mouse_x()-(tb->x+tb->dx[0]);
+				int32_t offsy = gui_mouse_y()-(tb->y+tb->dy[0]);
+				int32_t pos_clicked = (offsx/(16*zf))+((offsy/(16*zf))*4);
+				Combo = First[listnum]+pos_clicked;
+				BGLOOP_START();
+				tb->msg(MG_MSG_REDRAW_SELF);
+				BGLOOP_DRAW();
+				run_combosel_rc(gui_mouse_x(),gui_mouse_y());
+				BGLOOP_END();
+			}
+			break;
+		}
+		case MG_MSG_SCROLL:
+		{
+			auto mz = gui_mouse_z();
+			int32_t c_per_pg = 4 * (36/zf);
+			auto hei = tb->h - tb->dy[0] - 2;
+			auto rows = hei/(16*zf);
+			if(rows < 36/zf)
+				c_per_pg = 4 * rows;
+			if(tb->scrollfactor < rows)
+				rows = tb->scrollfactor;
+			int32_t coffs = 4*rows;
+			First[listnum] = vbound(First[listnum]+(coffs * -mz),0,MAXCOMBOS-c_per_pg);
+			tb->flags |= TBF_DIRTY;
+			position_mouse_z(0);
+			break;
+		}
+		case MG_MSG_REDRAW_SELF:
+		{
+			tb->baseproc(msg,c);
+			int32_t cw = 4, ch = 36/zf;
+			int32_t sw = 16*cw, sh = 16*ch;
+			tb->dw[0] = sw*zf;
+			tb->dh[0] = 16*36;
+			
+			tb->dx[0] = 4;
+			tb->dy[0] = 22;
+			
+			auto rows = (tb->h - 24)/(16*zf);
+			if(rows<36/zf)
+			{
+				ch = rows;
+				sh = 16*ch;
+				tb->dh[0] = zf*sh;
+			}
+			clear_bitmap(tb->refbmp);
+			draw_combo_pane(tb->refbmp, 0, 0, cw, ch, listnum, zf<3);
+			stretch_blit(tb->refbmp, tb->getBitmap(), 0, 0, sw, sh, tb->dx[0], tb->dy[0], tb->dw[0], tb->dh[0]);
+			break;
+		}
+		case MG_MSG_RESZ_UP: case MG_MSG_RESZ_DOWN:
+		{
+			auto rows = int32_t(round((tb->h+c - 24)/(16.0*zf)));
+			return (rows * (16*zf))+24-tb->h;
+		}
+		case MG_MSG_RESZ_LEFT: case MG_MSG_RESZ_RIGHT:
+		{
+			int32_t scale = round(double(tb->w - 8 + c) / (16.0*4));
+			scale = vbound(scale,1,4);
+			tb->zoomfactor = scale;
+			return (8 + (16*4*scale)) - tb->w;
+		}
+		case MG_MSG_VSYNC:
+		{
+			tb->flags |= TBF_DIRTY;
+			break;
+		}
+		default: ret = tb->baseproc(msg,c);
+	}
+	return ret;
+}
+void _init_combobox(int32_t listnum)
+{
+	static const int def_box_w = (16*4)+8;
+	Toolbox& box = boxes[TB_COMBO_COL1+listnum];
+	box.flags |= TBF_VISIBLE;
+	box.pos(zq_screen_w-(def_box_w*(1+listnum)),0,def_box_w,16*24+24);
+	box.minsz((16*4)+8,16*12+24);
+	box.refbmp = create_bitmap_ex(8,4*16,36*16);
+	box.title = "Combos " + to_string(listnum);
+	box.scrollfactor = 5;
+	box.proc = [&,listnum](Toolbox* tb,int32_t msg,int32_t c)
+	{
+		return _combobox_proc(tb,msg,c,listnum);
+	};
+}
+void init_combobox()
+{
+	_init_combobox(0);
+	_init_combobox(1);
+}
+
+//Main initializer
+
+void init_toolboxes()
+{
+	focusOrder.clear();
+	for(auto q = 0; q < NUM_TB; ++q)
+		focusOrder.push_back(q);
+	init_static_vars();
+	init_combobox();
+	Toolbox& box = boxes[TB_TEST];
+	box.flags |= TBF_VISIBLE;
+	box.pos(200,200,64,64);
+}
+
+////////////////
+////////////////
 
 int32_t dir_to_cdir(int32_t dir)
 {
@@ -152,261 +343,9 @@ void setcurs(int32_t cdir, bool force = false)
 	}
 }
 
-void run_combosel_rc(int32_t x, int32_t y);
-void dirty_comboboxes()
-{
-	if(current_combolist != last_combolist)
-	{
-		boxes[TB_COMBO_COL1].flags |= TBF_DIRTY;
-		boxes[TB_COMBO_COL2].flags |= TBF_DIRTY;
-		last_combolist = current_combolist;
-	}
-}
-void init_combobox()
-{
-	static const int def_box_w = (16*4)+8;
-	Toolbox& box = boxes[TB_COMBO_COL1];
-	box.flags |= TBF_VISIBLE;
-	box.pos(zq_screen_w-def_box_w,0,def_box_w,16*24+24);
-	box.minsz((16*4)+8,16*12+24);
-	box.refbmp = create_bitmap_ex(8,4*16,36*16);
-	box.title = "Combos 1";
-	box.proc = [&](Toolbox* tb,int32_t msg,int32_t c)
-	{
-		tb->sanity();
-		int32_t ret = MG_RET_OK;
-		//zoomfactor: 2 to 4, inclusive
-		int32_t zf = vbound(tb->zoomfactor,1,4);
-		switch(msg)
-		{
-			case MG_MSG_CLICK:
-			{
-				if(!tb->mouse_in_d())
-				{
-					current_combolist = 0;
-					dirty_comboboxes();
-					BGLOOP_START();
-					int32_t offsx, offsy;
-					while(gui_mouse_b()&1)
-					{
-						do_sleep(1);
-						offsx = gui_mouse_x()-(tb->x+tb->dx[0]);
-						offsy = gui_mouse_y()-(tb->y+tb->dy[0]);
-						if(unsigned(offsx) >= tb->dw[0]) continue;
-						if(unsigned(offsy) >= tb->dh[0]) continue;
-						int32_t pos_clicked = (offsx/(16*zf))+((offsy/(16*zf))*4);
-						if(Combo == First[0]+pos_clicked) continue;
-						Combo = First[0]+pos_clicked;
-						tb->msg(MG_MSG_REDRAW_SELF);
-						BGLOOP_DRAW();
-					}
-					BGLOOP_END();
-				}
-				break;
-			}
-			case MG_MSG_RCLICK:
-			{
-				if(!tb->mouse_in_d())
-				{
-					current_combolist = 0;
-					dirty_comboboxes();
-					int32_t offsx = gui_mouse_x()-(tb->x+tb->dx[0]);
-					int32_t offsy = gui_mouse_y()-(tb->y+tb->dy[0]);
-					int32_t pos_clicked = (offsx/(16*zf))+((offsy/(16*zf))*4);
-					Combo = First[0]+pos_clicked;
-					BGLOOP_START();
-					tb->msg(MG_MSG_REDRAW_SELF);
-					BGLOOP_DRAW();
-					run_combosel_rc(gui_mouse_x(),gui_mouse_y());
-					BGLOOP_END();
-				}
-				break;
-			}
-			case MG_MSG_SCROLL:
-			{
-				auto mz = gui_mouse_z();
-				int32_t c_per_pg = 4 * (36/zf);
-				auto hei = tb->h - tb->dy[0] - 2;
-				auto rows = hei/(16*zf);
-				if(rows < 36/zf)
-					c_per_pg = 4 * rows;
-				First[0] = vbound(First[0]+(c_per_pg * -mz),0,MAXCOMBOS-c_per_pg);
-				tb->flags |= TBF_DIRTY;
-				position_mouse_z(0);
-				break;
-			}
-			case MG_MSG_REDRAW_SELF:
-			{
-				tb->baseproc(msg,c);
-				int32_t cw = 4, ch = 36/zf;
-				int32_t sw = 16*cw, sh = 16*ch;
-				tb->dw[0] = sw*zf;
-				tb->dh[0] = 16*36;
-				
-				tb->dx[0] = 4;
-				tb->dy[0] = 22;
-				
-				auto rows = (tb->h - 24)/(16*zf);
-				if(rows<36/zf)
-				{
-					ch = rows;
-					sh = 16*ch;
-					tb->dh[0] = zf*sh;
-				}
-				clear_bitmap(tb->refbmp);
-				draw_combo_pane(tb->refbmp, 0, 0, cw, ch, 0, zf<3);
-				stretch_blit(tb->refbmp, tb->getBitmap(), 0, 0, sw, sh, tb->dx[0], tb->dy[0], tb->dw[0], tb->dh[0]);
-				break;
-			}
-			case MG_MSG_RESZ_UP: case MG_MSG_RESZ_DOWN:
-			{
-				auto rows = int32_t(round((tb->h+c - 24)/(16.0*zf)));
-				return (rows * (16*zf))+24-tb->h;
-			}
-			case MG_MSG_RESZ_LEFT: case MG_MSG_RESZ_RIGHT:
-			{
-				int32_t scale = (tb->w - 8 + c) / (16*4);
-				scale = vbound(scale,1,4);
-				tb->zoomfactor = scale;
-				return (8 + (16*4*scale)) - tb->w;
-			}
-			case MG_MSG_VSYNC:
-			{
-				tb->flags |= TBF_DIRTY;
-				break;
-			}
-			default: ret = tb->baseproc(msg,c);
-		}
-		return ret;
-	};
-
-	Toolbox& box2 = boxes[TB_COMBO_COL2];
-	box2.flags |= TBF_VISIBLE;
-	box2.pos(zq_screen_w-(def_box_w*2),0,def_box_w,16*24+24);
-	box2.minsz((16*4)+8,16*12+24);
-	box2.refbmp = create_bitmap_ex(8,4*16,36*16);
-	box2.title = "Combos 2";
-	box2.proc = [&](Toolbox* tb,int32_t msg,int32_t c)
-	{
-		tb->sanity();
-		int32_t ret = MG_RET_OK;
-		//zoomfactor: 2 to 4, inclusive
-		int32_t zf = vbound(tb->zoomfactor,1,4);
-		switch(msg)
-		{
-			case MG_MSG_CLICK:
-			{
-				if(!tb->mouse_in_d())
-				{
-					current_combolist = 1;
-					dirty_comboboxes();
-					BGLOOP_START();
-					int32_t offsx, offsy;
-					while(gui_mouse_b()&1)
-					{
-						do_sleep(1);
-						offsx = gui_mouse_x()-(tb->x+tb->dx[0]);
-						offsy = gui_mouse_y()-(tb->y+tb->dy[0]);
-						if(unsigned(offsx) >= tb->dw[0]) continue;
-						if(unsigned(offsy) >= tb->dh[0]) continue;
-						int32_t pos_clicked = (offsx/(16*zf))+((offsy/(16*zf))*4);
-						if(Combo == First[0]+pos_clicked) continue;
-						Combo = First[0]+pos_clicked;
-						tb->msg(MG_MSG_REDRAW_SELF);
-						BGLOOP_DRAW();
-					}
-					BGLOOP_END();
-				}
-				break;
-			}
-			case MG_MSG_RCLICK:
-			{
-				if(!tb->mouse_in_d())
-				{
-					current_combolist = 1;
-					dirty_comboboxes();
-					int32_t offsx = gui_mouse_x()-(tb->x+tb->dx[0]);
-					int32_t offsy = gui_mouse_y()-(tb->y+tb->dy[0]);
-					int32_t pos_clicked = (offsx/(16*zf))+((offsy/(16*zf))*4);
-					Combo = First[0]+pos_clicked;
-					BGLOOP_START();
-					tb->msg(MG_MSG_REDRAW_SELF);
-					BGLOOP_DRAW();
-					run_combosel_rc(gui_mouse_x(),gui_mouse_y());
-					BGLOOP_END();
-				}
-				break;
-			}
-			case MG_MSG_SCROLL:
-			{
-				auto mz = gui_mouse_z();
-				int32_t c_per_pg = 4 * (36/zf);
-				auto hei = tb->h - tb->dy[0] - 2;
-				auto rows = hei/(16*zf);
-				if(rows < 36/zf)
-					c_per_pg = 4 * rows;
-				First[1] = vbound(First[1]+(c_per_pg * -mz),0,MAXCOMBOS-c_per_pg);
-				tb->flags |= TBF_DIRTY;
-				position_mouse_z(0);
-				break;
-			}
-			case MG_MSG_REDRAW_SELF:
-			{
-				tb->baseproc(msg,c);
-				int32_t cw = 4, ch = 36/zf;
-				int32_t sw = 16*cw, sh = 16*ch;
-				tb->dw[0] = sw*zf;
-				tb->dh[0] = 16*36;
-				
-				tb->dx[0] = 4;
-				tb->dy[0] = 22;
-				
-				auto rows = (tb->h - 24)/(16*zf);
-				if(rows<36/zf)
-				{
-					ch = rows;
-					sh = 16*ch;
-					tb->dh[0] = zf*sh;
-				}
-				clear_bitmap(tb->refbmp);
-				draw_combo_pane(tb->refbmp, 0, 0, cw, ch, 1, zf<3);
-				stretch_blit(tb->refbmp, tb->getBitmap(), 0, 0, sw, sh, tb->dx[0], tb->dy[0], tb->dw[0], tb->dh[0]);
-				break;
-			}
-			case MG_MSG_RESZ_UP: case MG_MSG_RESZ_DOWN:
-			{
-				auto rows = int32_t(round((tb->h+c - 24)/(16.0*zf)));
-				return (rows * (16*zf))+24-tb->h;
-			}
-			case MG_MSG_RESZ_LEFT: case MG_MSG_RESZ_RIGHT:
-			{
-				int32_t scale = (tb->w - 8 + c) / (16*4);
-				scale = vbound(scale,1,4);
-				tb->zoomfactor = scale;
-				return (8 + (16*4*scale)) - tb->w;
-			}
-			case MG_MSG_VSYNC:
-			{
-				tb->flags |= TBF_DIRTY;
-				break;
-			}
-			default: ret = tb->baseproc(msg,c);
-		}
-		return ret;
-	};
-}
-void init_toolboxes()
-{
-	focusOrder.clear();
-	for(auto q = 0; q < NUM_TB; ++q)
-		focusOrder.push_back(q);
-	init_static_vars();
-	init_combobox();
-	Toolbox& box = boxes[TB_TEST];
-	box.flags |= TBF_VISIBLE;
-	box.pos(200,200,64,64);
-}
-
+///////////////////
+// Move / Resize //
+///////////////////
 void move_tb(int32_t id)
 {
 	Toolbox& box = boxes[id];
@@ -486,6 +425,10 @@ void resize(int32_t id)
 	}
 	BGLOOP_END();
 }
+
+//////////////////
+// Main Handler //
+//////////////////
 void runToolboxes()
 {
 	sp_acquire_screen();
@@ -546,6 +489,9 @@ void runToolboxes()
 }
 
 
+//!///////////
+//! Testing //
+//!///////////
 extern bool close_button_quit;
 
 void test_mainscreen_gui()
@@ -570,24 +516,5 @@ void test_mainscreen_gui()
 	clear_to_color(screen, vc(0));
 	while(key[KEY_G]);
 	sp_release_screen_all();
-}
-
-void draw_combo_pane(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t list, bool thick)
-{
-	for(int32_t i=0; i<(w*h); i++)
-	{
-		put_combo(dest,(i%w)*16+x,(i/w)*16+y,i+First[list],CSet,Flags&(cFLAGS|cWALK),0);
-	}
-	if(list != current_combolist) return;
-	
-	int32_t rect_pos=Combo-First[list];
-	
-	if((rect_pos>=0)&&(rect_pos<(First[list]+(w*h))))
-	{
-		int32_t rx = (rect_pos & (w - 1)) * 16 + x;
-		int32_t ry = (rect_pos / w) * 16 + y;
-		safe_rect(dest, rx + 0, ry + 0, rx + 15, ry + 15, 255);
-		if(thick) safe_rect(dest, rx + 1, ry + 1, rx + 14, ry + 14, 255);
-	}
 }
 

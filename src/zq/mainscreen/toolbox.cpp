@@ -9,7 +9,8 @@
 Toolbox::Toolbox() : x(0), y(0),
 	w(64), h(64), flags(0), intbmp(nullptr),
 	minw(32), minh(32), refbmp(nullptr),
-	zoomfactor(1), title("UNSET_TITLE")
+	zoomfactor(1), title("UNSET_TITLE"),
+	scrollfactor(1)
 {
 	memset(dx, 0, sizeof(dx));
 	memset(dy, 0, sizeof(dy));
