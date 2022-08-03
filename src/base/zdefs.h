@@ -5383,6 +5383,7 @@ bool valid_str(char const* ptr, char cancel = 0);
 extern bool global_z3_scrolling_extended_height_mode;
 extern int32_t global_viewport_x, global_viewport_y;
 extern int32_t global_z3_cur_scr_drawing;
+extern int32_t global_z3_cur_map_drawing;
 
 #undef cmb1
 #undef cmb2

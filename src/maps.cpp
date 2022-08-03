@@ -3767,7 +3767,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	}
 	else if (layer > 0)
 	{
-		tmp = get_layer_scr(currmap, global_z3_cur_scr_drawing, layer - 1);
+		// TODO z3
+		tmp = get_layer_scr(global_z3_cur_map_drawing == -1 ? currmap : global_z3_cur_map_drawing, global_z3_cur_scr_drawing, layer - 1);
 	}
 
 	bool over = true, transp = false;

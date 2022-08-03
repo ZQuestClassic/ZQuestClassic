@@ -23799,6 +23799,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			// TODO z3
 			// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 			{
+				global_z3_cur_map_drawing = base_map;
 				global_z3_cur_scr_drawing = scr;
 				mapscr* myscr = get_scr(base_map, scr);
 				fn(myscr, scr, draw_dx, draw_dy);
@@ -23806,7 +23807,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 		}
 	}
 
-	global_z3_cur_scr_drawing = -1;
+	global_z3_cur_map_drawing = global_z3_cur_scr_drawing = -1;
 }
 
 static int scroll_dir_to_scr_offset(direction dir)
