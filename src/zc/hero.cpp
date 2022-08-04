@@ -21164,8 +21164,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
-	mapscr* cur_scr = get_scr(currmap, currscr);
+	mapscr* cur_scr = z3_get_mapscr_for_xy_offset(x.getInt(), y.getInt());
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
 	
 	// Drawing commands probably shouldn't carry over...
 	if ( !get_bit(quest_rules,qr_SCRIPTDRAWSINWARPS) )
@@ -21178,7 +21178,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			wdmap = base_scr->tilewarpdmap[index];
 			wscr = base_scr->tilewarpscr[index];
 			overlay = get_bit(&base_scr->tilewarpoverlayflags,index)?1:0;
-			wrindex=(tmpscr.warpreturnc>>(index*2))&3;
+			wrindex=(cur_scr->warpreturnc>>(index*2))&3;
 			break;
 			
 		case 1:                                                 // side warp
@@ -21186,7 +21186,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			wdmap = base_scr->sidewarpdmap[index];
 			wscr = base_scr->sidewarpscr[index];
 			overlay = get_bit(&base_scr->sidewarpoverlayflags,index)?1:0;
-			wrindex=(tmpscr.warpreturnc>>(8+(index*2)))&3;
+			wrindex=(cur_scr->warpreturnc>>(8+(index*2)))&3;
 			//tmpscr.doscript = 0; //kill the currebt screen's script so that it does not continue to run during the scroll.
 			//there is no doscript for screen scripts. They run like ffcs. 
 
