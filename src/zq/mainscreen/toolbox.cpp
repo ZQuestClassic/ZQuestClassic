@@ -5,7 +5,9 @@
 #include "base/gui.h"
 #include "zq_misc.h"
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::to_string;
 #define RESZ_MARGIN 5
 #define ZQ_SCREENW 800
 #define ZQ_SCREENH 600

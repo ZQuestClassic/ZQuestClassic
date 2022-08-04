@@ -7,6 +7,16 @@
 #define THEMENU_WID 360
 #define THEMENU_HEI 16
 
+enum
+{
+	TB_DEV_DEBUG,
+	TB_COMBO_COL1,
+	TB_COMBO_COL2,
+	TB_TEST,
+	NUM_TB
+};
+extern Toolbox boxes[NUM_TB];
+
 void do_sleep(int32_t ms);
 void save_mainscreen_configs();
 void load_mainscreen_configs();

@@ -45,7 +45,8 @@ static int32_t cursor_dir = -1;
 static int32_t lhov_id = -1;
 static int32_t last_combolist = -1;
 static clock_t tb_vsync = 0;
-static int32_t gridsize = 8;
+static int32_t gridsize = 16;
+static bool show_grid = false;
 enum {CDIR_MOVE = -2, CDIR_BASIC = -1, CDIR_UL_DR, CDIR_UR_DL, CDIR_L_R, CDIR_U_D};
 
 void init_static_vars()
@@ -554,6 +555,38 @@ void init_devkit()
 				tb->data[0] = c;
 				return MG_RET_USECHAR;
 			}
+			case MG_MSG_BUILD_RCMENU:
+			{
+				tb->add_to_rcmenu("Grid Size");
+				tb->add_to_rcmenu("Toggle Grid");
+				tb->add_to_rcmenu("");
+				tb->baseproc(msg,c);
+				break;
+			}
+			case MG_MSG_MANAGE_MENU:
+			{
+				MENU* m = (MENU*)tb->dp;
+				SETFLAG(m[1].flags, D_SELECTED, show_grid);
+				break;
+			}
+			case MG_MSG_OPEN_RCMENU:
+			{
+				int32_t m = tb->popup_rclick_menu();
+				switch(m)
+				{
+					case 0: //Gridsize
+					{
+						gridsize = vbound(cheap_getnum("Gridsize (8-50)", gridsize), 8, 50);
+						break;
+					}
+					case 1: //Grid
+					{
+						show_grid = !show_grid;
+						break;
+					}
+				}
+				break;
+			}
 			default: return tb->baseproc(msg, c);
 		}
 		return MG_RET_OK;
@@ -840,6 +873,7 @@ void draw_grid(int32_t wid, int32_t hei, int32_t offsx, int32_t offsy, int32_t c
 }
 void test_grid()
 {
+	if(!show_grid) return;
 	sp_acquire_screen();
 	const auto gs_thresh = 32;
 	if(gridsize >= gs_thresh)
