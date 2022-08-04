@@ -16297,27 +16297,13 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 {
     WalkflagInfo ret;
     
-	if (!is_z3_scrolling_mode())
-	{
-		wx = vbound(wx, -1, 256);
-		wy = vbound(wy, -1, 176);
+	wx = vbound(wx, -1, world_w);
+	wy = vbound(wy, -1, world_h);
 
-		if (wx < 0 || wx > 255 || wy < 0 || wy > 175)
-		{
-			ret.setUnwalkable(false);
-			return ret;
-		}
-	}
-	else
+	if (wx < 0 || wx >= world_w || wy < 0 || wy >= world_h)
 	{
-		wx = vbound(wx, -1, world_w);
-		wy = vbound(wy, -1, world_h);
-
-		if (wx < 0 || wx > world_w || wy < 0 || wy > world_h)
-		{
-			ret.setUnwalkable(false);
-			return ret;
-		}
+		ret.setUnwalkable(false);
+		return ret;
 	}
     
     if(toogam)
@@ -16381,7 +16367,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         changehop = false;
                     else if(wx>world_w - 8)
                         changehop = false;
-                    else if(wx>world_w - 16&&cnt==2) // TODO z3 ladders
+                    else if(wx>world_w - 16&&cnt==2)
                         changehop = false;
                     else if(wy>world_h - 8)
                         changehop = false;
@@ -16450,9 +16436,9 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                 
 				// TODO z3 ladders
                 if(wx<0||wy<0);
-                else if(wx>248);
-                else if(wx>240&&cnt==2);
-                else if(wy>168);
+                else if(wx > world_w - 8);
+                else if(wx > world_w - 16 &&cnt==2);
+                else if(wy > world_h - 8);
                 else if(get_bit(quest_rules, qr_DROWN) && !ilswim);
 		//if(iswaterex(MAPCOMBO(wx,wy)) && iswaterex(MAPCOMBO(wx,wy)))
                 else if(iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
@@ -16810,8 +16796,9 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     }
                     else
                     {
-                        ladderx = wx&0xF0;
-                        laddery = y.getInt()&0xF8;
+                        ladderx = CLEAR_LOW_BITS(wx, 4);
+                        laddery = CLEAR_LOW_BITS(y.getInt(), 3);
+						
                     }
                     
                     ret.setUnwalkable(false);
