@@ -6541,11 +6541,9 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 //used by mapdata->isSolid(x,y) in ZScript:
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
-	if (is_z3_scrolling_mode())
 	{
-		// TODO z3
-		int max_x = is_z3_scrolling_mode() ? 256 * 16 : 256;
-		int max_y = is_z3_scrolling_mode() ? 176 * 16 : 176;
+		int max_x = world_w;
+		int max_y = world_h;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;
@@ -6556,41 +6554,23 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 		if (x >= max_x - 8 && cnt == 2) return false;
 		if (y >= max_y) return false;
 	}
-	else if(get_bit(quest_rules,qr_LTTPWALK))
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
-	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
 	
-	mapscr *s1, *s2;
+	const mapscr *s1, *s2;
 	
 	if ( m->layermap[0] > 0 )
 	{
-		s1 = &TheMaps[(m->layermap[0]*MAPSCRS + m->layerscreen[0])];
+		s1 = get_canonical_scr(m->layermap[0], m->layerscreen[0]);
 	}
 	else s1 = m;
 	
 	if ( m->layermap[1] > 0 )
 	{
-		s2 = &TheMaps[(m->layermap[1]*MAPSCRS + m->layerscreen[1])];
+		s2 = get_canonical_scr(m->layermap[1], m->layerscreen[1]);
 	}
 	else s2 = m;
 	
+	// TODO z3 script
+	// rpos_t rpos = COMBOPOS_REGION(bx, by);
 	int32_t bx=COMBOPOS(x, y);
 	newcombo c =  !is_z3_scrolling_mode() ? combobuf[m->data[bx]]  : combobuf[MAPCOMBO3(currmap, currscr, 0, bx, false)];
 	newcombo c1 = !is_z3_scrolling_mode() ? combobuf[s1->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 1, bx, false)];
@@ -6675,31 +6655,23 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (cwalkflag&b) ? !dried : false;
 }
 
-// TODO z3 walk ????????????????
+// TODO z3 script
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
-	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
 	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
+		int max_x = world_w;
+		int max_y = world_h;
+		if (!get_bit(quest_rules, qr_LTTPWALK))
+		{
+			max_x -= 7;
+			max_y -= 7;
+		}
+		if (x < 0 || y < 0) return false;
+		if (x >= max_x) return false;
+		if (x >= max_x - 8 && cnt == 2) return false;
+		if (y >= max_y) return false;
 	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
-	
+
 	if(!s1) s1 = m;
 	if(!s2) s2 = m;
 	
