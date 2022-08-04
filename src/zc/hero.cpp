@@ -17979,11 +17979,11 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(ischest)
 	{
-		if (!trigger_chest(z3_get_pos_handle(COMBOPOS_REGION(fx, fy), foundlayer))) return;
+		if (!trigger_chest(z3_get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
 	}
 	else if(islockblock)
 	{
-		if (!trigger_lockblock(z3_get_pos_handle(COMBOPOS_REGION(fx, fy), foundlayer))) return;
+		if (!trigger_lockblock(z3_get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
 	}
 	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
@@ -19527,7 +19527,7 @@ void HeroClass::checktouchblk()
 	{
 		if (getAction() != hopping || isSideViewHero())
 		{
-			trigger_armos_grave(z3_get_pos_handle(COMBOPOS_REGION(tx, ty), 0), dir);
+			trigger_armos_grave(z3_get_pos_handle_for_world_xy(tx, ty, 0), dir);
 		}
 	}
 }
@@ -20664,7 +20664,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	else if(type==cSTEPSFX && action == walking)
 	{
-		trigger_stepfx(z3_get_pos_handle(COMBOPOS_REGION(tx + 8, ty + 8), 0), true);
+		trigger_stepfx(z3_get_pos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
 	}
 	else stepnext = -1;
 	

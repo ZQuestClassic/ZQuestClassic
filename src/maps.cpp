@@ -132,6 +132,10 @@ static const int hardcode_z3_regions[] = {
 };
 
 static int scr_xy_to_index(int x, int y) {
+	// TODO can't do this check, because some code expected to be able to go slightly out of bounds
+	// DCHECK(x >= 0 && x < 16 && y >= 0 && y < 8);
+	x = CLAMP(0, x, 15);
+	y = CLAMP(0, y, 7);
 	return x + y*16;
 }
 
@@ -281,11 +285,12 @@ void z3_update_currscr()
 {
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
-	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr, z3_origin_scr + dx + dy * 16))
+	int newscr = z3_origin_scr + dx + dy * 16;
+	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr, newscr))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
-		currscr = z3_origin_scr + dx + dy * 16;
+		currscr = newscr;
 	}
 }
 
@@ -336,6 +341,12 @@ pos_handle z3_get_pos_handle(rpos_t rpos, int layer)
 	int screen_index = z3_get_scr_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 	return {screen, screen_index, layer, rpos};
+}
+
+pos_handle z3_get_pos_handle_for_world_xy(int x, int y, int layer)
+{
+	DCHECK_LAYER_ZERO_INDEX(layer);
+	return z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
 // These functions all return _temporary_ screens. Any modifcations made to them (either by the engine
@@ -952,7 +963,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
     if (layer <= -1) return MAPCOMBO(x, y);
     
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
+	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->data.empty()) return 0;
 	if (pos_handle.screen->valid == 0) return 0;
 
@@ -1057,7 +1068,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCSET(x, y);
 
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
+	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->cset.empty()) return 0;
 	
@@ -1071,7 +1082,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
 
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
+	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->sflag.empty()) return 0;
 
@@ -1113,7 +1124,7 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCOMBOFLAG(x, y);
 
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), layer + 1);
+	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->data.empty()) return 0;
 

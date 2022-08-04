@@ -267,7 +267,7 @@ bool is_push(mapscr* m, int32_t pos)
 
 bool movingblock::animate(int32_t)
 {
-	auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(x, y), blockLayer);
+	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, blockLayer);
 	mapscr* m = pos_handle.screen;
 
 	if(fallclk)

@@ -553,7 +553,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, i
 	if(!MatchComboTrigger(w, c, cid)) return;
 	if(w->weapon_dying_frame) return;
 
-	do_trigger_combo(z3_get_pos_handle(COMBOPOS_REGION(bx, by), layer), 0, w);
+	do_trigger_combo(z3_get_pos_handle_for_world_xy(bx, by, layer), 0, w);
 }
 
 /**************************************/
