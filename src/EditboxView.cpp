@@ -87,16 +87,28 @@ void EditboxView::lineDown()
 	}
 }
 
-void EditboxView::lineHome()
+void EditboxView::lineHome(bool ctrl)
 {
+	if(ctrl)
+	{
+		model->getCursor().updateCursor(0);
+		model->getCursor().setPreferredX();
+		return;
+	}
 	CursorPos cp = model->findCursor();
 	int32_t newindex = model->getCursor().getPosition()-cp.index;
 	model->getCursor().updateCursor(newindex);
 	model->getCursor().setPreferredX();
 }
 
-void EditboxView::lineEnd()
+void EditboxView::lineEnd(bool ctrl)
 {
+	if(ctrl)
+	{
+		model->getCursor().updateCursor(model->getBuffer().size()-1);
+		model->getCursor().setPreferredX();
+		return;
+	}
 	CursorPos cp = model->findCursor();
 	int32_t newindex = model->getCursor().getPosition()-cp.index+cp.it->numchars-1;
 	model->getCursor().updateCursor(newindex);

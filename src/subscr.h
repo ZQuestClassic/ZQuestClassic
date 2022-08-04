@@ -74,54 +74,18 @@ enum { ssoNULL, ssoNONE, sso2X2FRAME, ssoTEXT,
 enum { sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX, sstsMAX };
 
 //subscreen fonts
-enum { ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL, ssfGBLA, ssfZ3,
-       ssfGORON, ssfZORAN, ssfHYLIAN1, ssfHYLIAN2, ssfHYLIAN3, ssfHYLIAN4, ssfPROP, ssfGBORACLE, ssfGBORACLEP,
-       ssfDSPHANTOM, ssfDSPHANTOMP, ssfAT800, 
-	ssfACORN, 
-	ssADOS,
-	ssfALLEG, 
-	ssfAPL2, 
-	ssfAPL280, 
-	ssfAPL2GS, 
-	ssfAQUA, 
-	ssfAT400, 
-	ssfC64, 
-	ssfC64HR,
-	ssfCGA, 
-	ssfCOCO, 
-	ssfCOCO2, 
-	ssfCOUPE, 
-	ssfCPC, 
-	ssfFANTASY, 
-	ssfFDSKANA, 
-	ssfFDSLIKE, 
-	ssfFDSROM, 
-	ssfFF,
-	ssfFUTHARK, 
-	ssfGAIA, 
-	ssfHIRA, 
-	ssfJP, 
-	ssfKONG, 
-	ssfMANA, 
-	ssfML, 
-	ssfMOT, 
-	ssfMSX0, 
-	ssfMSX1, 
-	ssfPET,
-	ssfPSTART, 
-	ssfSATURN, 
-	ssfSCIFI, 
-	ssfSHERW, 
-	ssfSINQL, 
-	ssfSPEC, 
-	ssfSPECLG, 
-	ssfTI99, 
-	ssfTRS, 
-	ssfZ2, 
-	ssfZX,
-	ssfLISA,
+enum
+{ 
+	ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL,
+	ssfGBLA, ssfZ3, ssfGORON, ssfZORAN, ssfHYLIAN1, ssfHYLIAN2, ssfHYLIAN3, ssfHYLIAN4,
+	ssfPROP, ssfGBORACLE, ssfGBORACLEP, ssfDSPHANTOM, ssfDSPHANTOMP, ssfAT800, ssfACORN,
+	ssADOS, ssfALLEG, ssfAPL2, ssfAPL280, ssfAPL2GS, ssfAQUA, ssfAT400, ssfC64, ssfC64HR,
+	ssfCGA, ssfCOCO, ssfCOCO2, ssfCOUPE, ssfCPC, ssfFANTASY, ssfFDSKANA, ssfFDSLIKE,
+	ssfFDSROM, ssfFF, ssfFUTHARK, ssfGAIA, ssfHIRA, ssfJP, ssfKONG, ssfMANA, ssfML, ssfMOT,
+	ssfMSX0, ssfMSX1, ssfPET, ssfPSTART, ssfSATURN, ssfSCIFI, ssfSHERW, ssfSINQL, ssfSPEC,
+	ssfSPECLG, ssfTI99, ssfTRS, ssfZ2, ssfZX, ssfLISA,
 	ssfMAX
-     };
+};
 
 // subscreen color types
 enum { ssctSYSTEM=0xFE, ssctMISC=0xFF };
@@ -312,6 +276,8 @@ void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
 void update_subscreens(int32_t dmap=-1);
 void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
 FONT *ss_font(int32_t fontnum);
+int32_t to_real_font(int32_t ss_font);
+int32_t to_ss_font(int32_t real_font);
 int32_t ss_objects(subscreen_group *tempss);
 void purge_blank_subscreen_objects(subscreen_group *tempss);
 int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2);

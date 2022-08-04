@@ -374,7 +374,7 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(ffc.script && !ffc.data)
 			{
 				AlertDialog("Inactive FFC","FFCs that use Combo 0 cannot run scripts! Continue?",
-					[&](bool ret)
+					[&](bool ret,bool)
 					{
 						m = ret;
 					}).show();

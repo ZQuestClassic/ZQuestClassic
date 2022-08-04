@@ -194,7 +194,7 @@ void TileFrame::applyVisibility(bool visible)
 
 void TileFrame::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

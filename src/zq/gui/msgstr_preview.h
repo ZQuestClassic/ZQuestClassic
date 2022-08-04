@@ -17,6 +17,11 @@ public:
 	void setIndex(int32_t ind);
 	void setData(MsgStr const* data);
 	
+	std::string const& getText()
+	{
+		return text;
+	}
+	
 	int32_t getIndex() const
 	{
 		return index;

@@ -1761,7 +1761,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SelTileSwatch(
 									tile = local_itemref.tile,
 									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 									{
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
@@ -3083,7 +3083,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								SelTileSwatch(
 									tile = local_itemref.tile,
 									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t)
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 									{
 										local_itemref.tile = t;
 										local_itemref.csets &= 0xF0;
@@ -3689,7 +3689,7 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			AlertDialog(
 				"Reset itemdata?",
 				"Reset this item to default?",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					cancel = !ret;
 				}).show();

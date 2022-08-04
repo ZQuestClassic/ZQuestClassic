@@ -14,8 +14,9 @@ void call_zinf_dlg();
 class ZInfoDialog: public GUI::Dialog<ZInfoDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { OK, CANCEL, SAVE, LOAD };
 
+	ZInfoDialog(zinfo const& cpyfrom);
 	ZInfoDialog();
 
 	std::shared_ptr<GUI::Widget> view() override;

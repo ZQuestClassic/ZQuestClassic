@@ -3043,7 +3043,7 @@ void _jwin_draw_listbox(DIALOG *d)
             x += 8;
             len = (int32_t)strlen(s);
             
-            while(text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
+            while(len > 0 && text_length(*data->font, s) >= d->w - (bar ? 26 : 10))
             {
                 len--;
                 s[len] = 0;
@@ -4942,6 +4942,29 @@ const char* rowpref(int32_t row)
 	}
 }
 
+byte getHighlightColor(int32_t c)
+{
+	RGB col;
+	get_color(c, &col);
+	return getHighlightColor(col);
+}
+
+byte getHighlightColor(RGB const& col)
+{
+	byte bright = (col.r >= 32) + (col.g >= 32) + (col.b >= 32);
+	byte sbright = (col.r >= 48) + (col.g >= 48) + (col.b >= 48);
+	byte highlightColor = vc(7); //sysgray
+	if(bright >= 2)
+	{
+		if(sbright >= 2)
+			highlightColor = vc(0); //sysblack
+		else highlightColor = vc(8); //sysdarkgray
+	}
+	else if(!bright)
+		highlightColor = vc(15); //syswhite
+	return highlightColor;
+}
+
 int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	int32_t ret = D_O_K;
@@ -4966,14 +4989,7 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 				rectfill(screen, d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1, c);
 				if(c == d->d1)
 				{
-					RGB foo;
-					get_color(c, &foo);
-					byte bright = (foo.r >= 32) + (foo.g >= 32) + (foo.b >= 32);
-					byte highlightColor = vc(7); //sysgray
-					if(bright >= 2)
-						highlightColor = vc(0); //sysblack
-					else if(!bright)
-						highlightColor = vc(15);
+					byte highlightColor = getHighlightColor(c);
 					rect(screen, d->x+x+0, d->y+y+0, d->x+x+csz-1, d->y+y+csz-1, highlightColor);
 					rect(screen, d->x+x+1, d->y+y+1, d->x+x+csz-2, d->y+y+csz-2, highlightColor);
 				}
@@ -5805,37 +5821,67 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t lmindx = 0;
 			
 			bool foundmatch = false;
-			for ( int32_t listpos = 0; listpos < max; ++listpos )
+			bool numsearch = true;
+			for ( int32_t q = 0; q < 1023; ++q ) 
 			{
-				memset(tmp, 0, 1024);
-				memset(lsttmp, 0, 1024);
-				
-				strcpy(tmp, abc_keypresses);
-				strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
-				for ( int32_t w = 0; w < 1024; ++w )
+				if(!abc_keypresses[q]) break;
+				if(!isdigit(abc_keypresses[q]))
 				{
-					if ( zc_isalpha(tmp[w]) )
-					{
-						tmp[w] = toupper(tmp[w]);
-					}
-				}
-				for ( int32_t e = 0; e < 1024; ++e ) 
-				{
-					if ( zc_isalpha(lsttmp[e]) )
-					{
-						lsttmp[e] = toupper(lsttmp[e]);
-					}
-				}
-				
-				if ( !(strncmp(lsttmp, tmp, strlen(tmp))))
-				{
-					d->d1 = listpos;
-					d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
-					foundmatch = true;
-					break;
+					numsearch = false;
+					break; 
 				}
 			}
-			
+			if(numsearch) //Indexed search, first
+			{
+				int32_t num = atoi(abc_keypresses);
+				//Find a different indexing type in the strings?
+				if(!foundmatch)
+				{
+					char buf[6];
+					sprintf(buf, "(%03d)", num);
+					std::string cmp = buf;
+					for(int32_t listpos = 0; listpos < max; ++listpos)
+					{
+						std::string str((data->listFunc(listpos,&dummy)));
+						size_t trimpos = str.find_last_not_of("(0123456789)");
+						if(trimpos != std::string::npos) ++trimpos;
+						str.erase(0, trimpos);
+						zprint2("checking '%s'\n", str.c_str());
+						if(cmp == str)
+						{
+							d->d1 = listpos;
+							d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+							foundmatch = true;
+							break;
+						}
+					}
+				}
+				//Read as just an index? //Not leaving this in, can enable if needed -Em
+				/*
+				if(!foundmatch && unsigned(num) < max)
+				{
+					d->d1 = num;
+					d->d2 = zc_max(zc_min(num-(h>>1), max-h), 0);
+					foundmatch = true;
+				}//*/
+			}
+			if(!foundmatch)
+			{
+				strcpy(tmp, abc_keypresses);
+				for ( int32_t listpos = 0; listpos < max; ++listpos )
+				{
+					memset(lsttmp, 0, 1024);
+					strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
+					
+					if ( !(strnicmp(lsttmp, tmp, strlen(tmp))))
+					{
+						d->d1 = listpos;
+						d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+						foundmatch = true;
+						break;
+					}
+				}
+			}
 			if(foundmatch)
 				GUI_EVENT(d, geCHANGE_SELECTION);
 			scare_mouse();

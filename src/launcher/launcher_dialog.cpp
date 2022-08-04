@@ -19,7 +19,7 @@ int32_t LauncherDialog::launcher_on_tick()
 		bool r = false;
 		AlertDialog("Exit",
 			"Are you sure?",
-			[&](bool ret)
+			[&](bool ret,bool)
 			{
 				r = ret;
 			}).show();
@@ -35,7 +35,7 @@ int32_t LauncherDialog::launcher_on_tick()
 		{
 			AlertDialog("Theme Check",
 				"Would you like to revert?",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					if(ret)
 					{

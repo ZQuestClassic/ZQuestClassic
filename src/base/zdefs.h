@@ -1099,7 +1099,7 @@ enum
 	
 	//50
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
-	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET,
+	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG,
 	//60
 	
 	//70
@@ -5383,6 +5383,17 @@ void load_colorset(int32_t colorset);
 void update_hw_screen(bool force = false);
 
 bool valid_str(char const* ptr, char cancel = 0);
+
+std::string get_dbreport_string();
+std::string get_qr_hexstr(byte* qrs = NULL, bool hash = false, bool disctags = true);
+bool clipboard_has_text();
+bool get_al_clipboard(std::string& clipboard);
+void set_al_clipboard(std::string const& clipboard);
+bool load_qr_hexstr(std::string hexstr);
+bool load_qr_hexstr_clipboard();
+bool load_dev_info(std::string const& devstr);
+bool load_dev_info_clipboard();
+std::string generate_zq_about();
 
 
 extern bool global_z3_scrolling_extended_height_mode;

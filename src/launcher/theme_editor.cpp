@@ -27,7 +27,7 @@ int32_t ThemeEditor::theme_edit_on_tick()
 		{
 			AlertDialog("Theme Check",
 				"Would you like to revert?",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					if(ret)
 					{

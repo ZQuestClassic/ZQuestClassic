@@ -2064,6 +2064,7 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODTRIGGERCHANGECMB: return "COMBODTRIGGERCHANGECMB";
 	case SCREENEXSTATED: return "SCREENEXSTATED";
 	case MAPDATAEXSTATED: return "MAPDATAEXSTATED";
+	case HEROSTANDING: return "HEROSTANDING";
 	
 	case ITEMENGINEANIMATE: return "ITEMENGINEANIMATE";
 	case LWPNUNBL: return "LWPNUNBL";
@@ -2548,6 +2549,26 @@ string OMaxRegister::toString()
 string OPowRegister::toString()
 {
     return "POWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OPowImmediate::toString()
+{
+    return "POWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OPowImmediate2::toString()
+{
+    return "POWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OLPowRegister::toString()
+{
+    return "LPOWERR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OLPowImmediate::toString()
+{
+    return "LPOWERV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OLPowImmediate2::toString()
+{
+    return "LPOWERV2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OInvPowRegister::toString()
@@ -5120,6 +5141,11 @@ string OKillPlayer::toString()
 string OScreenDoSpawn::toString()
 {
 	return "SCREENDOSPAWN";
+}
+
+string OScreenTriggerCombo::toString()
+{
+	return "SCRTRIGGERCOMBO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string ONPCMovePaused::toString()

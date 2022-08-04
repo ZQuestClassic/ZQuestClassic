@@ -2867,7 +2867,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				" Attempting to load this quest may not work correctly; to"
 				" avoid issues, try loading this quest in at least '" + std::string(tempheader.getVerStr()) + "'"
 				"\n\nWould you like to continue loading anyway? (Not recommended)",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					r = ret;
 				}).show();
@@ -2884,7 +2884,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				"This quest was last saved in a newer build of ZQuest, and may have"
 				" issues loading in this build."
 				"\n\nWould you like to continue loading anyway?",
-				[&](bool ret)
+				[&](bool ret,bool)
 				{
 					r = ret;
 				}).show();
@@ -3622,6 +3622,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(compatrule_version < 30)
 	{
 		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
+		set_bit(quest_rules,qr_SCREENSTATE_80s_BUG,1);
 	}
 	
 	//always set
@@ -17372,25 +17373,6 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 				return qe_invalid;
 			}
 		}
-		else
-		{
-			switch(temp_combo.type)
-			{
-				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-					if(!(temp_combo.usrflags & cflag3))
-						temp_combo.attribytes[3] = WAV_DOOR;
-					temp_combo.usrflags &= ~cflag3;
-					break;
-			}
-		}
-		if(section_version < 26)
-		{
-			if(temp_combo.type == cARMOS)
-			{
-				if(temp_combo.usrflags & cflag1)
-					temp_combo.usrflags |= cflag3;
-			}
-		}
 		if(section_version >= 27)
 		{
 			if(!p_igetl(&temp_combo.trigchange,f,true))
@@ -17568,8 +17550,36 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			}
 		}
 		
+		if(section_version < 25)
+		{
+			switch(temp_combo.type)
+			{
+				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+					if(!(temp_combo.usrflags & cflag3))
+						temp_combo.attribytes[3] = WAV_DOOR;
+					temp_combo.usrflags &= ~cflag3;
+					break;
+			}
+		}
+		if(section_version < 26)
+		{
+			if(temp_combo.type == cARMOS)
+			{
+				if(temp_combo.usrflags & cflag1)
+					temp_combo.usrflags |= cflag3;
+			}
+		}
 		if(section_version < 28)
 		{
+			switch(temp_combo.type)
+			{
+				case cLOCKBLOCK: case cLOCKEDCHEST:
+					if(temp_combo.usrflags & cflag7)
+						temp_combo.usrflags |= cflag8;
+					else temp_combo.usrflags &= ~cflag8;
+					temp_combo.usrflags &= ~cflag7;
+					break;
+			}
 			switch(temp_combo.type)
 			{
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:

@@ -4,7 +4,7 @@ X(	NO_LOGGING,                                      qr_PARSER_NO_LOGGING,       
 X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,               qr_PARSER_250DIVISION,            OPTTYPE_QR,                         0)
 X(	SHORT_CIRCUIT,                                qr_PARSER_SHORT_CIRCUIT,            OPTTYPE_QR,                         0)
 X(	BOOL_TRUE_RETURN_DECIMAL,                 qr_PARSER_BOOL_TRUE_DECIMAL,            OPTTYPE_QR,                         0)
-X(	HEADER_GUARD,                                                       0,        OPTTYPE_CONFIG,                     30000)
+X(	HEADER_GUARD,                                                       0,        OPTTYPE_CONFIG,                     10000)
 X(	NO_ERROR_HALT,                                                      0,        OPTTYPE_CONFIG,                         0)
 X(	TRUE_INT_SIZE,                                qr_PARSER_TRUE_INT_SIZE,            OPTTYPE_QR,                     10000)
 X(	FORCE_INLINE,                                  qr_PARSER_FORCE_INLINE,            OPTTYPE_QR,                         0)

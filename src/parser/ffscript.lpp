@@ -257,6 +257,7 @@ appx_equal	TOKEN( APPXEQUAL );
 "@"		TOKEN (HANDLE);
 "@@"		TOKEN (HANDLETOHANDLE);
 "$"		TOKEN (ADDR);
+"^^^"		TOKEN( EXPN );
  /*	cast	TOKEN( CAST );	*/
  /*	static_cast		TOKEN( CAST );	*/
  /* "*"+IDENTIFIER how do we segregate from multiply? */

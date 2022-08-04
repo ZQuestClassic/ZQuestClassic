@@ -26,6 +26,7 @@ int32_t NewQuestFile(int32_t template_slot);
 int32_t onNew();
 void applyRuleset(int32_t ruleset);
 void applyRuleTemplate(int32_t ruleTemplate);
+bool hasCompatRulesEnabled();
 int32_t PickRuleset();
 int32_t PickRuleTemplate();
 int32_t onSave();

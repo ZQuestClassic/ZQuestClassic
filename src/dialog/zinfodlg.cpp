@@ -1,5 +1,6 @@
 #include "zinfodlg.h"
 #include <gui/builder.h>
+#include <base/gui.h>
 #include "../jwin.h"
 #include "zquest.h"
 #include "dialog/alert.h"
@@ -7,19 +8,38 @@
 
 extern zquestheader header;
 
+static zinfo tmp_zinfo;
+static bool reload_zi_dlg = false;
 void call_zinf_dlg()
 {
 	ZInfoDialog().show();
+	if(reload_zi_dlg)
+	{
+		while(reload_zi_dlg)
+		{
+			reload_zi_dlg = false;
+			ZInfoDialog(tmp_zinfo).show();
+		}
+		tmp_zinfo.clear();
+	}
+	sp_release_screen_all();
+}
+void do_reload_zidlg()
+{
+	sp_acquire_screen();
+	reload_zi_dlg = true;
 }
 
-ZInfoDialog::ZInfoDialog(): lzinfo(),
+ZInfoDialog::ZInfoDialog(zinfo const& cpyfrom): lzinfo(),
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_combotype(GUI::ZCListData::combotype(true, true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true))
 {
-	lzinfo.copyFrom(ZI);
+	lzinfo.copyFrom(cpyfrom);
 }
+
+ZInfoDialog::ZInfoDialog() : ZInfoDialog(ZI) {}
 
 static bool extzinf;
 static size_t zinftab = 0;
@@ -124,7 +144,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL itemclass names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -142,7 +162,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL itemclass helptext to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -231,7 +251,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL combo type names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -249,7 +269,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL combo type help text to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -338,7 +358,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL mapflag names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -356,7 +376,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL mapflag help text to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -414,7 +434,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							{
 								AlertDialog("Are you sure?",
 									"This will clear ALL mapflag names to default!",
-									[&](bool ret)
+									[&](bool ret,bool)
 									{
 										if(ret)
 										{
@@ -428,12 +448,22 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					)
 				))
 			),
-			Checkbox(text = "External ZInfo",
-				checked = extzinf,
-				onToggleFunc = [&](bool state)
-				{
-					extzinf = state;
-				}
+			Row(padding = 0_px,
+				Checkbox(text = "External ZInfo",
+					checked = extzinf,
+					onToggleFunc = [&](bool state)
+					{
+						extzinf = state;
+					}
+				),
+				Button(
+					text = "Save ZInfo",
+					minwidth = 40_lpx,
+					onClick = message::SAVE),
+				Button(
+					text = "Load ZInfo",
+					minwidth = 40_lpx,
+					onClick = message::LOAD)
 			),
 			Row(
 				topPadding = 0.5_em,
@@ -478,6 +508,48 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	return window;
 }
 
+bool load_zi(zinfo& tzi)
+{
+	static EXT_LIST extlist[] =
+	{
+		{ "ZInfo Files (*.zinfo)", "zinfo" },
+		// { "Quest Files (*.qst)", "qst" }, //! Maybe todo? bleh
+		{ NULL, NULL }
+	};
+	
+	if(!getname("Load File",NULL,extlist,filepath,true))
+		return false;
+	PACKFILE *inf=pack_fopen_password(temppath, F_READ, "");
+	if(!inf) return false;
+	bool fail = readzinfo(inf, tzi, header)!=0;
+	pack_fclose(inf);
+	return !fail;
+}
+
+bool save_zi(zinfo const& tzi)
+{
+	if(!getname("Save ZInfo (.zinfo)","zinfo",NULL,filepath,true))
+        return false;
+        
+    if(exists(temppath))
+    {
+        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
+        {
+            return false;
+        }
+    }
+    
+	PACKFILE *inf = pack_fopen_password(temppath, F_WRITE, "");
+	if(!inf) return false;
+	if(writezinfo(inf,tzi)!=0)
+	{
+		pack_fclose(inf);
+		return false;
+	}
+	pack_fclose(inf);
+	return true;
+}
+
 bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
@@ -491,6 +563,30 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		default:
 			lzinfo.clear(); //ensure memory cleared
 			return true;
+		case message::SAVE:
+		{
+			save_zi(lzinfo);
+			return false;
+		}
+		case message::LOAD:
+		{
+			bool r = false;
+			AlertDialog("Are you sure?",
+				"This will overwrite all info fields!",
+				[&](bool ret,bool)
+				{
+					r = ret;
+				}).show();
+			if(r)
+			{
+				if(load_zi(tmp_zinfo))
+				{
+					do_reload_zidlg();
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 }
 

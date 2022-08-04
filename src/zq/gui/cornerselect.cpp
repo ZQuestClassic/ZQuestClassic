@@ -125,7 +125,7 @@ void CornerSwatch::applyVisibility(bool visible)
 
 void CornerSwatch::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

@@ -9,6 +9,7 @@
 #include "../jwin.h"
 #include "zquest.h"
 #include "base/zsys.h"
+#include "base/gui.h"
 #include "gui/use_size.h"
 #include "zq_files.h"
 using GUI::sized;
@@ -19,12 +20,17 @@ void update_map_count(word newmapcount);
 static bool reload_qr_dlg = false;
 void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs)
 {
-	do
+	QRDialog(quest_rules, qrs_per_tab, setQRs).show();
+	while(reload_qr_dlg)
 	{
 		reload_qr_dlg = false;
 		QRDialog(quest_rules, qrs_per_tab, setQRs).show();
 	}
-	while(reload_qr_dlg);
+}
+void do_reload_qrdlg()
+{
+	sp_acquire_screen();
+	reload_qr_dlg = true;
 }
 
 //{
@@ -788,7 +794,9 @@ static const GUI::ListData compatRulesList
 		"If enabled, the subscreen will prioritize lower-ID items when there is a 'Level' tie, instead"
 		" of prioritizing higher-ID items like everything else in the engine." },
 	{ "Decorations -2 yoffset", qr_DECO_2_YOFFSET,
-		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." }
+		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." },
+	{ "Screen->State[] 0x80 bug", qr_SCREENSTATE_80s_BUG,
+		"If enabled, 'Screen->State[]' will use an old behavior that may read the wrong screen data." }
 };
 
 static const GUI::ListData enemiesRulesList
@@ -1360,6 +1368,17 @@ static const GUI::ListData weaponsRulesList
 
 //}
 int32_t onStrFix(); //zquest.cpp
+void popup_bugfix_dlg(char* cfg); //zq_class.cpp
+bool hasCompatRulesEnabled()
+{
+	for(size_t q = 0; q < compatRulesList.size(); ++q)
+	{
+		auto rule = compatRulesList.getValue(q);
+		if(get_bit(quest_rules, rule))
+			return true;
+	}
+	return false;
+}
 void applyRuleTemplate(int32_t ruleTemplate)
 {
 	switch(ruleTemplate)
@@ -1454,7 +1473,13 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 							Button(
 								text = "&Pick Rule Templates",
 								onClick = message::RULETMP
-							)
+							),
+							Button(
+								text = "Copy QR String",
+								onClick = message::QRSTR_CPY),
+							Button(
+								text = "Load QR String",
+								onClick = message::QRSTR_LOAD)
 						),
 						Row(
 							Label(text = "Map Count:"),
@@ -1595,16 +1620,28 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();
-			reload_qr_dlg = true;
+			do_reload_qrdlg();
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
-			reload_qr_dlg = true;
+			do_reload_qrdlg();
 			return true;
 		case message::CHEATS:
 			call_cheats_dlg();
 			return false;
-		
+		case message::QRSTR_CPY:
+			al_set_clipboard_text(all_get_display(), get_qr_hexstr(local_qrs, true).c_str());
+			InfoDialog("Copied", "QR String copied to clipboard!").show();
+			return false;
+		case message::QRSTR_LOAD:
+			if(load_qr_hexstr_clipboard())
+			{
+				popup_bugfix_dlg("dsa_compatrule2");
+				do_reload_qrdlg();
+				return true;
+			}
+			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
+			return false;
 		//Closing buttons
 		case message::OK:
 		{
@@ -1616,7 +1653,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					"WARNING! Map Deletion",
 					"This action will delete " + std::to_string(map_count-new_map_count)
 					+ " maps from the end of your map list!",
-					[&new_map_count](bool ret)
+					[&new_map_count](bool ret,bool)
 					{
 						if(ret)
 						{
@@ -1626,7 +1663,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 									"WARNING! Layer Deletion!",
 									"Some of the maps being deleted are used as layermaps for screens that will remain!"
 									" If you continue, these screens will have their layermap set to 0!",
-									[&new_map_count](bool ret)
+									[&new_map_count](bool ret,bool)
 									{
 										if(ret) update_map_count(new_map_count);
 									}).show();

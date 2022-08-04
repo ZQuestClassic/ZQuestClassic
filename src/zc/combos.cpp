@@ -538,7 +538,7 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 		if ( game->get_counter(thecounter) >= ctr_amount )
 		{
 			//flag 6 only checks the required count; it doesn't drain it
-			if (!(cmb.usrflags&cflag7)) game->change_counter(-(ctr_amount), thecounter);
+			if (!(cmb.usrflags&cflag8)) game->change_counter(-(ctr_amount), thecounter);
 			return true;
 		}
 		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock
@@ -705,7 +705,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
@@ -1302,16 +1302,16 @@ bool trigger_switchhookblock(const pos_handle& pos_handle)
 }
 
 // TODO z3 remove
-void do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
+bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
-	if (unsigned(pos) > 175) return;
-	do_trigger_combo(z3_get_pos_handle((rpos_t)pos, layer), special, w);
+	if (unsigned(pos) > 175) return false;
+	return do_trigger_combo(z3_get_pos_handle((rpos_t)pos, layer), special, w);
 }
 
 // Forcibly triggers a combo at a given position
-void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
+bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return;
+	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 
 	int lyr = pos_handle.layer;
 	// TODO z3 remove
@@ -1323,7 +1323,7 @@ void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 	if(cmb.triggeritem &&
 		(!game->get_item(cmb.triggeritem) || item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
 	{
-		return;
+		return false;
 	}
 
 	int32_t flag = pos_handle.screen->sflag[pos];
@@ -1383,7 +1383,7 @@ void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 					
 				case cSTEP: case cSTEPSAME: case cSTEPALL:
 					if (!trigger_step(pos_handle))
-						return;
+						return false;
 					break;
 				
 				case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
@@ -1397,16 +1397,16 @@ void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 				
 				case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 					if (!trigger_chest(pos_handle))
-						return;
+						return false;
 					break;
 				case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 					if (!trigger_lockblock(pos_handle))
-						return;
+						return false;
 					break;
 				
 				case cARMOS: case cBSGRAVE: case cGRAVE:
 					if (!trigger_armos_grave(pos_handle))
-						return;
+						return false;
 					break;
 				
 				case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
@@ -1420,7 +1420,7 @@ void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 				
 				case cSWITCHHOOK:
 					if (!trigger_switchhookblock(pos_handle))
-						return;
+						return false;
 					break;
 				
 				default:
@@ -1463,6 +1463,7 @@ void do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 	}
 	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
 		killgenwpn(w);
+	return true;
 }
 
 void init_combo_timers()

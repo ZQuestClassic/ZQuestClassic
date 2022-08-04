@@ -46,6 +46,8 @@
 #include "mem_debug.h"
 #include "ffscript.h"
 #include "base/util.h"
+#include "zq_files.h"
+#include "dialog/alert.h"
 using namespace util;
 extern FFScript FFCore;
 
@@ -6408,6 +6410,7 @@ bool setMapCount2(int32_t c)
 
 extern BITMAP *bmap;
 
+static bool loading_file_new = false;
 int32_t init_quest(const char *)
 {
 	char qstdat_string[2048];
@@ -6415,9 +6418,13 @@ int32_t init_quest(const char *)
 	strcat(qstdat_string,"#NESQST_NEW_QST");
 
     char buf[2048];
-    //load_quest("qst.dat#NESQST_NEW_QST",true,true);
+    
+	loading_file_new = true;
+	//load_quest("qst.dat#NESQST_NEW_QST",true,true);
     load_quest(qstdat_string,true,true);
-    sprintf(buf,"ZQuest - Untitled Quest");
+    loading_file_new = false;
+	
+	sprintf(buf,"ZQuest - Untitled Quest");
     set_window_title(buf);
     zinit.last_map = 0;
     zinit.last_screen = 0;
@@ -6691,6 +6698,32 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 }
 
 void set_rules(byte* newrules);
+void popup_bugfix_dlg(char* cfg)
+{
+	bool dont_show_again = zc_get_config("zquest",cfg,0);
+	if(!dont_show_again && hasCompatRulesEnabled())
+	{
+		AlertDialog("Apply New Bugfixes",
+			"New bugfixes found that can be applied to this quest!"
+			"\nWould you like to apply them?"
+			"\n(Applies 'Bugfix' rule template, un-checking compat rules)",
+			[&](bool ret,bool dsa)
+			{
+				if(ret)
+				{
+					applyRuleTemplate(ruletemplateCompat);
+				}
+				if(dsa)
+				{
+					zc_set_config("zquest","dsa_compatrule",1);
+				}
+			},
+			"Yes","No",
+			0,false, //timeout - none
+			true //"Don't show this again"
+		).show();
+	}
+}
 // wrapper to reinitialize everything on an error
 int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 {
@@ -6732,6 +6765,8 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 			refresh_pal();
 			set_rules(quest_rules);
 			saved = true;
+			if(!(loading_file_new && zc_get_config("zquest","auto_filenew_bugfixes",1)))
+				popup_bugfix_dlg("dsa_compatrule");
 			
 			if(bmap != NULL)
 			{

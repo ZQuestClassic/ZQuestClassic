@@ -1106,7 +1106,7 @@ int32_t onStrFix()
 		AlertDialog("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
 			" to instead be cut off. Are you sure?",
-			[&](bool ret)
+			[&](bool ret,bool)
 			{
 				if(ret)
 				{
@@ -1120,7 +1120,7 @@ int32_t onStrFix()
 		AlertDialog("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
 			" as the string width/height will be fixed, but the compat QR will also be unchecked.",
-			[&](bool ret)
+			[&](bool ret,bool)
 			{
 				if(ret)
 				{
@@ -24290,6 +24290,7 @@ void resize_scriptinfo_dlg()
 
 void showScriptInfo(zasm_meta const* meta)
 {
+	sp_release_screen_all();
 	scriptinfo_dlg[3].dp = (void*)meta;
 	scriptinfo_dlg[0].dp2 = lfont;
 	if(is_large)
@@ -24459,9 +24460,10 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
+	set_config_file("zscript.cfg");
 	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",3);
-	
+	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1);
+	set_config_file("zquest.cfg");
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
 	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
@@ -24501,12 +24503,13 @@ int32_t onZScriptCompilerSettings()
 		al_trace("\n");
 		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 		strcpy(FFCore.includePathString,tempincludepath);
-		set_config_int("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-		set_config_int("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		set_config_file("zscript.cfg");
+		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
+		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		set_config_file("zquest.cfg");
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
 		al_trace("Run string set to: %s\n",FFCore.scriptRunString);
-		save_config_file();
 		FFCore.updateIncludePaths();
 		ZQincludePaths = FFCore.includePaths;
 		
@@ -24982,12 +24985,7 @@ int32_t onCompileScript()
 				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
 
-			std::string quest_rules_hex;
-			for (int i = 0; i < QUESTRULES_NEW_SIZE; i++) {
-				char hex_buf[3];
-				sprintf(hex_buf, "%02X", quest_rules[i]);
-				quest_rules_hex += hex_buf;
-			}
+			std::string quest_rules_hex = get_qr_hexstr();
 
 			clock_t start_compile_time = clock();
 			const char* argv[] = {
@@ -25083,7 +25081,7 @@ int32_t onCompileScript()
 				if(code)
 					InfoDialog("ZScript Parser", buf).show();
 				else AlertDialog("ZScript Parser", buf,
-					[&](bool ret)
+					[&](bool ret,bool)
 					{
 						cancel = !ret;
 					}, "Continue", "Cancel").show();
@@ -26303,9 +26301,12 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	char slots_msg[SLOTMSG_SIZE] = {0};
 	byte slotflags = reload_scripts(scripts);
 	setup_scriptslot_dlg(slots_msg, slotflags);
+	bool retval = false;
+	
 	while(true)
 	{
-		ret = zc_popup_dialog(assignscript_dlg,ret);
+		slotflags = reload_scripts(scripts);
+		ret = popup_zqdialog_special(assignscript_dlg,ret);
 		
 		FILE* tempfile = NULL;
 		switch(ret)
@@ -26315,7 +26316,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				//Cancel
 				if(tempfile!=NULL) fclose(tempfile);
 				
-				return false;
+				//return false;
+				goto exit_do_slots;
 				
 			case 3:
 			{
@@ -26332,7 +26334,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26378,7 +26381,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26424,7 +26428,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26469,7 +26474,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26514,7 +26520,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26559,7 +26566,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26604,7 +26612,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26649,7 +26658,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26694,7 +26704,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26739,7 +26750,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26785,7 +26797,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26830,7 +26843,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						if(!tempfile)
 						{
 							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-							return false;
+							//return false;
+							goto exit_do_slots;
 						}
 						
 						string meta_str = get_meta(scripts[it->second.scriptname].first);
@@ -26870,7 +26884,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				clock_t end_assign_time = clock();
 				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				char buf[256] = {0};
-				sprintf(buf, "Assign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
+				sprintf(buf, "ZScripts successfully loaded into script slots"
+					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,end_assign_time-start_assign_time);
 				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",34),0,255);
 				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
@@ -26884,7 +26899,8 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					//kill_sfx();
 					voice_start(sfx_voice[compile_finish_sample]);
 				}
-				jwin_alert("Done!","ZScripts successfully loaded into script slots",buf,NULL,"O&K",NULL,'k',0,lfont);
+				sp_release_screen_all();
+				InfoDialog("Slots Assigned",buf).show();
 				if ( compile_finish_sample > 0 )
 				{
 					if(sfx_voice[compile_finish_sample]!=-1)
@@ -26896,7 +26912,9 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				build_biffs_list();
 				build_biitems_list();
 				if(tempfile!=NULL) fclose(tempfile);
-				return true;
+				//return true;
+				retval = true;
+				goto exit_do_slots;
 			}
 			
 			case 6:
@@ -27395,8 +27413,10 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				break;
 			}
 		}
-		slotflags = reload_scripts(scripts);
 	}
+exit_do_slots:
+	sp_release_screen_all();
+	return retval;
 }
 
 static char slottype_str_buf[32];
@@ -27471,6 +27491,7 @@ static DIALOG clearslots_dlg[] =
 
 void doClearSlots(byte* flags)
 {
+	sp_release_screen_all();
 	//{ Setup
 	clearslots_dlg[0].dp2=lfont;
 	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
@@ -30488,10 +30509,10 @@ int32_t main(int32_t argc,char **argv)
 	
 	const char *default_path="";
 	
-	strcpy(datapath,get_config_string("zquest",data_path_name,default_path));
-	strcpy(midipath,get_config_string("zquest",midi_path_name,default_path));
-	strcpy(imagepath,get_config_string("zquest",image_path_name,default_path));
-	strcpy(tmusicpath,get_config_string("zquest",tmusic_path_name,default_path));
+	strcpy(datapath,zc_get_config("zquest",data_path_name,default_path));
+	strcpy(midipath,zc_get_config("zquest",midi_path_name,default_path));
+	strcpy(imagepath,zc_get_config("zquest",image_path_name,default_path));
+	strcpy(tmusicpath,zc_get_config("zquest",tmusic_path_name,default_path));
 	chop_path(datapath);
 	chop_path(midipath);
 	chop_path(imagepath);
@@ -30546,7 +30567,7 @@ int32_t main(int32_t argc,char **argv)
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
 	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
-	
+	zc_get_config("zquest","auto_filenew_bugfixes",1);
 	
 	//This is too much work to fix for 2.5. :| -Gleeok
 	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);
@@ -30593,7 +30614,7 @@ int32_t main(int32_t argc,char **argv)
 	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
 	gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
-	strcpy(last_timed_save,get_config_string("zquest","last_timed_save",""));
+	strcpy(last_timed_save,zc_get_config("zquest","last_timed_save",""));
 	
 	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
@@ -30935,7 +30956,7 @@ int32_t main(int32_t argc,char **argv)
 	if(used_switch(argc,argv,"-d"))
 	{
 		resolve_password(zquestpwd);
-		set_debug(!strcmp(zquestpwd,get_config_string("zquest","debug_this","")));
+		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
 	}
 	
 	char qtnametitle[20];
@@ -30945,8 +30966,8 @@ int32_t main(int32_t argc,char **argv)
 	{
 		sprintf(qtnametitle, "%s%d", qtname_name, x);
 		sprintf(qtpathtitle, "%s%d", qtpath_name, x);
-		strcpy(QuestTemplates[x].name,get_config_string("zquest",qtnametitle,""));
-		strcpy(QuestTemplates[x].path,get_config_string("zquest",qtpathtitle,""));
+		strcpy(QuestTemplates[x].name,zc_get_config("zquest",qtnametitle,""));
+		strcpy(QuestTemplates[x].path,zc_get_config("zquest",qtpathtitle,""));
 		
 		if(QuestTemplates[x].name[0]==0)
 		{
@@ -31371,7 +31392,7 @@ int32_t main(int32_t argc,char **argv)
 	//Display annoying beta warning message
 #if V_ZC_ALPHA
 	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
 	if(strcmp(curcontrol, oldcontrol))
 	{
@@ -31384,7 +31405,7 @@ int32_t main(int32_t argc,char **argv)
 	delete[] curcontrol;
 #elif V_ZC_BETA
 	char *curcontrol = getBetaControlString();
-	const char *oldcontrol = get_config_string("zquest", "beta_warning", "");
+	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
 	if(strcmp(curcontrol, oldcontrol))
 	{
@@ -31436,7 +31457,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!load_last_timed_save)
 	{
-		strcpy(filepath,get_config_string("zquest",last_quest_name,""));
+		strcpy(filepath,zc_get_config("zquest",last_quest_name,""));
 		
 		if(argc>1 && argv[1][0]!='-')
 		{
@@ -32778,17 +32799,9 @@ int32_t save_config_file()
     set_config_string("zquest","auto_backup",NULL);
     
     //save the beta warning confirmation info
-    //10% chance of showing the warning again. heh -DD
-    if(zc_oldrand() % 10 < 9)
-    {
-        char *uniquestr = getBetaControlString();
-        set_config_string("zquest", "beta_warning", uniquestr);
-        delete[] uniquestr;
-    }
-    else
-    {
-        set_config_string("zquest", "beta_warning", "");
-    }
+	char *uniquestr = getBetaControlString();
+	set_config_string("zquest", "beta_warning", uniquestr);
+	delete[] uniquestr;
     
     set_config_int("zquest","fps",RequestedFPS);
     set_config_int("zquest","frameskip",Frameskip);
@@ -33281,7 +33294,7 @@ void ZQ_ClearQuestPath(){
 	//last_quest_name = "";
 	//SetAllegroString last_quest_name ""
 	set_config_string("zquest","win_last_quest",NULL);
-	strcpy(filepath,get_config_string("zquest","win_last_quest",""));
+	strcpy(filepath,zc_get_config("zquest","win_last_quest",""));
 	
 	
 	
@@ -33504,7 +33517,7 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	strcpy(scriptRunString,get_config_string("Compiler","run_string","run"));
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
 	al_trace("Run is set to: %s \n",scriptRunString);
 }
 

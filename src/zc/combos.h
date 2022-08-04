@@ -28,8 +28,8 @@ bool trigger_lockblock(const pos_handle& pos_handle);
 bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir = -1);
 bool trigger_stepfx(const pos_handle& pos_handle, bool stepped = false);
 
-void do_trigger_combo(int layer, int pos, int32_t special = 0, weapon* w = NULL);
-void do_trigger_combo(const pos_handle& pos_handle, int32_t special = 0, weapon* w = NULL);
+bool do_trigger_combo(int layer, int pos, int32_t special = 0, weapon* w = NULL);
+bool do_trigger_combo(const pos_handle& pos_handle, int32_t special = 0, weapon* w = NULL);
 
 void init_combo_timers();
 void update_combo_timers();

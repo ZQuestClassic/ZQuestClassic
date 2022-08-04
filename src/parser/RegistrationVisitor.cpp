@@ -956,6 +956,11 @@ void RegistrationVisitor::caseExprTimes(ASTExprTimes& host, void* param)
 	analyzeBinaryExpr(host);
 }
 
+void RegistrationVisitor::caseExprExpn(ASTExprExpn& host, void* param)
+{
+	analyzeBinaryExpr(host);
+}
+
 void RegistrationVisitor::caseExprDivide(ASTExprDivide& host, void* param)
 {
 	analyzeBinaryExpr(host);

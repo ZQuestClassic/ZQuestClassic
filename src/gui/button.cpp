@@ -32,7 +32,7 @@ void Button::applyVisibility(bool visible)
 
 void Button::applyDisabled(bool dis)
 {
-	Widget::applyVisibility(dis);
+	Widget::applyDisabled(dis);
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 

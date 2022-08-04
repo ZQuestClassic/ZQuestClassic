@@ -1,6 +1,13 @@
 #include "base/zdefs.h"
 #include "jwin.h"
 #include "base/zapp.h"
+#include "dialog/info.h"
+#include <sstream>
+
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
+
+using std::string;
+using namespace util;
 
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
@@ -664,4 +671,148 @@ direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy)
 	if (dx == 0 && dy == 1) return down;
 	if (dx == 0 && dy == -1) return up;
 	return dir_invalid;
+}
+
+string get_dbreport_string()
+{
+	std::stringstream oss;
+	
+	char buf[256];
+	
+	oss << "```\n"
+		<< ZQ_EDITOR_NAME
+		<< "\nVersion: " << ZQ_EDITOR_V << " " << ALPHA_VER_STR
+		<< "\nBuild: " << VERSION_BUILD;
+		
+	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
+		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+	
+	oss << "\n" << buf
+		<< "\nDev Signoff: " << DEV_SIGNOFF
+		<< "\nQR:" << get_qr_hexstr(quest_rules, true, false)
+		<< "```";
+	return oss.str();
+}
+
+string get_qr_hexstr(byte* qrs, bool hash, bool disctags)
+{
+	if(!qrs) qrs = quest_rules;
+	std::ostringstream oss;
+	if(hash)
+	{
+		if(disctags)
+			oss << "`";
+		oss << "##";
+	}
+	for (size_t i = 0; i < QUESTRULES_NEW_SIZE; ++i)
+	{
+		char hex_buf[3];
+		sprintf(hex_buf, "%02X", qrs[i]);
+		oss << hex_buf;
+	}
+	if(hash)
+	{
+		oss << "##";
+		if(disctags)
+			oss << "`";
+	}
+	return oss.str();
+}
+
+bool clipboard_has_text()
+{
+	return al_clipboard_has_text(all_get_display());
+}
+bool get_al_clipboard(std::string& clipboard)
+{
+	if(!clipboard_has_text()) return false;
+	clipboard = al_get_clipboard_text(all_get_display());
+	return true;
+}
+void set_al_clipboard(std::string const& clipboard)
+{
+	al_set_clipboard_text(all_get_display(), clipboard.c_str());
+}
+
+bool load_qr_hexstr(string hexstr)
+{
+	//Strings with '##' delimiting start/end of substring are valid
+	size_t startpos = hexstr.find("##");
+	if(startpos != string::npos)
+	{
+		startpos += 2; //cut out the '##'
+		size_t endpos = hexstr.find("##", startpos); //find an end terminator
+		if(endpos == string::npos)
+			hexstr = hexstr.substr(startpos);
+		else hexstr = hexstr.substr(startpos, endpos-startpos);
+	}
+	if(hexstr.size() != QUESTRULES_NEW_SIZE*2)
+	{
+		if(hexstr.find_first_not_of("0123456789ABCDEFabcdef") != string::npos)
+		{
+			return false;
+		}
+		else zprint2("Detected bad hexstr length '%d != %d'!\n", hexstr.size(), QUESTRULES_NEW_SIZE * 2);
+	}
+	size_t len = hexstr.size() / 2;
+	if(len > QUESTRULES_NEW_SIZE) len = QUESTRULES_NEW_SIZE;
+	for(size_t i = 0; i < len; ++i)
+	{
+		char hex_buf[3];
+		sprintf(hex_buf, "%s", hexstr.substr(i*2,2).c_str());
+		quest_rules[i] = (byte)zc_xtoi(hex_buf);
+	}
+	InfoDialog("QRs Loaded", "Quest Rules have been loaded from the clipboard").show();
+	return true;
+}
+bool load_qr_hexstr_clipboard()
+{
+	if(!clipboard_has_text()) return false;
+	char* clipboardstr = al_get_clipboard_text(all_get_display());
+	if(!clipboardstr) return false;
+	string str(clipboardstr);
+	bool ret = load_qr_hexstr(str);
+	al_free(clipboardstr);
+	return true;
+}
+
+bool load_dev_info(string& devstr)
+{
+	if(devstr.empty())
+		return false;
+	if(!load_qr_hexstr(devstr))
+		return false;
+	removechar(devstr, '\r');
+	size_t startchop = devstr.find("```\n");
+	if(startchop == string::npos)
+		startchop = 0;
+	size_t endchop = devstr.find("\nQR:", startchop);
+	InfoDialog("DEV About Data", devstr.substr(startchop,endchop-startchop)).show();
+	return true;
+}
+bool load_dev_info_clipboard()
+{
+	if(!clipboard_has_text()) return false;
+	char* clipboardstr = al_get_clipboard_text(all_get_display());
+	if(!clipboardstr) return false;
+	string str(clipboardstr);
+	bool ret = load_dev_info(str);
+	al_free(clipboardstr);
+	return true;
+}
+
+string generate_zq_about()
+{
+	char buf1[256];
+	std::ostringstream oss;
+	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
+	oss << buf1 << '\n';
+	sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+	oss << buf1 << '\n';
+	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
+	oss << buf1 << '\n';
+	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
+	oss << buf1 << '\n';
+	
+	return oss.str();
 }

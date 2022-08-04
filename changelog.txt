@@ -1,5 +1,79 @@
 // 2.55 Change Log
-// Updated 1st July, 2022
+// Updated 25th July, 2022
+
+Fix decorations -2 yoffset (compat qr)
+Add 'ExtraStates' to screens, usable by chests/lockblocks to have >1 per screen
+Add custom item contents for chests
+Add 'Bugfix' popup when loading a quest with compat rules checked
+	( EmilyV, 24th July, 2022 )
+
+Fix rounding issues
+Fix scripted internal ghost-based movement functions
+Fix manhandla crash
+	( EmilyV, 22th July, 2022 )
+
+More combo trigger stuff
+	( EmilyV, 21st July, 2022 )
+
+Stop 'Palette' dialog from popping up when 'Alt+F4' is used
+Undercombo dialog now edits undercombo for the current layer
+Fix pushblock layer behavior
+Add 'itemsprite->ForceGrab' to allow scripts (and chest combos)
+	to force an item to be picked up by the player.
+Combo trigger SFX
+	( EmilyV, 20th July, 2022 )
+
+Fix 'Return To File Select On Death/F6' qr
+More combo trigger stuff
+	( EmilyV, 19th July, 2022 )
+
+More Combo Trigger stuff
+	( EmilyV, 18th July, 2022 )
+
+Fix small mode dialog cutoff
+	( EmilyV, 17th July, 2022 )
+
+Add 'stack' type to ZScript
+Fix std_zh angle issues
+Begin work on new combo TriggerFlags stuff
+QR for fast counter drain
+Fix item scripts behaving wrongly when the 'run for multiple frames' rule is off
+	( EmilyV, 16th July, 2022 )
+
+Add 'No Damage Protection' boots flag
+Fix subscreens using the wrong item IDs when multiple items of the same 'Level' are owned
+	( EmilyV, 13th July, 2022 )
+
+Add automatic crash reporting
+	( connorjclark, 11th July, 2022 )
+
+Fix warps not properly deallocating owned script objects for dmap scripts
+	( EmilyV, 11th July, 2022 )
+
+Fix subscreen editor default value of magic gauge pieces 'Show:'
+	( EmilyV, 10th July, 2022 )
+
+Keyboard sticking fixes
+Exporting image palette fixes
+Fix scrollpane crashes
+FPS optimizations
+	( connorjclark, 9th July, 2022 )
+
+Fix FFC editor changing combo placement cset
+	( EmilyV, 8th July, 2022 )
+
+Image loading fixes
+Window Resizing improvements
+	( connorjclark, 8th July, 2022 )
+
+Add '-unlinked' mode for zscript parser
+	( EmilyV, 4th July, 2022 )
+
+Rename 'OceanSFX' to 'Ambient SFX' (ZScript)
+	( EmilyV, 3rd July, 2022 )
+
+Mac (OSX) fixes
+	( connorjclark, 2nd July, 2022 )
 
 Update 'std_zh'; add 'ghostBasedMovement.zh'
 	( EmilyV, 30th June, 2022 )
