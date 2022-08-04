@@ -357,7 +357,7 @@ mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
 // TODO z3 consolidate these functions...
 mapscr* z3_get_mapscr_layer_for_xy_offset_include_base(int x, int y, int layer)
 {
-	DCHECK(layer >= 0 && layer <= 7);
+	DCHECK_LAYER_ZERO_INDEX(layer);
 	return layer == 0 ? z3_get_mapscr_for_xy_offset(x, y) : z3_get_mapscr_layer_for_xy_offset(x, y, layer - 1);
 }
 
@@ -437,7 +437,7 @@ mapscr* get_scr(int map, int screen)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {
-	DCHECK(layer >= -1 && layer < 6);
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
 
@@ -527,6 +527,10 @@ rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
 	// TODO z3 abs is needed because of layers during scrolling between regions ... do_scrolling_layer
 	return static_cast<rpos_t>(abs(scr_dx + scr_dy * region_scr_width)*176 + pos);
+}
+rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
+{
+	return POS_TO_RPOS(pos, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
 }
 void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
 {
@@ -3818,7 +3822,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+						auto rpos = POS_TO_RPOS(i, scr);
 						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, tmp->data[i], tmp->cset[i], layer, true, false);
 					}
 				}
@@ -3832,7 +3836,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 				{
 					if(combo_class_buf[combobuf[tmp->data[i]].type].overhead)
 					{
-						auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+						auto rpos = POS_TO_RPOS(i, scr);
 						draw_cmb_pos(bmp, -x, playing_field_offset-y, rpos, tmp->data[i], tmp->cset[i], layer, true, false);
 					}
 				}
@@ -3899,7 +3903,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+			auto rpos = POS_TO_RPOS(i, scr);
 			draw_cmb_pos(bmp, x, y, rpos, tmp->data[i], tmp->cset[i], layer, over, transp);
 		}
 	}
@@ -6112,7 +6116,7 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = POS_TO_RPOS(i, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+			auto rpos = POS_TO_RPOS(i, scr);
 			draw_cmb_pos(dest, x, y, rpos, screen->data[i], screen->cset[i], 0, over, false);
 		}
 	}

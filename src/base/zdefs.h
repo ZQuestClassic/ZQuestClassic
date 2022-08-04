@@ -175,6 +175,9 @@
 #define MAX_SCRIPT_REGISTERS (1<<BITS_SP)
 #define MAX_SCRIPT_REGISTERS_250 256
 
+#define DCHECK_LAYER_ZERO_INDEX(l) DCHECK(l >= 0 && l < 7)
+#define DCHECK_LAYER_NEG1_INDEX(l) DCHECK(l >= -1 && l < 6)
+
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
 //Moved these OS-dependent defs from 'ffasm.cpp', to be global.
