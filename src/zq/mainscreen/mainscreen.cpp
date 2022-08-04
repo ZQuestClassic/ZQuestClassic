@@ -9,7 +9,10 @@
 #include "base/gui.h"
 #include <deque>
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::deque;
+using std::to_string;
 #include <chrono>
 #include <thread>
 void do_sleep(int32_t ms)
