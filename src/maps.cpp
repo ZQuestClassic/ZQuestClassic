@@ -332,6 +332,7 @@ mapscr* z3_get_mapscr_for_rpos(rpos_t rpos)
 
 pos_handle z3_get_pos_handle(rpos_t rpos, int layer)
 {
+	DCHECK_LAYER_ZERO_INDEX(layer);
 	int screen_index = z3_get_scr_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 	return {screen, screen_index, layer, rpos};
@@ -349,16 +350,13 @@ mapscr* z3_get_mapscr_for_xy_offset(int x, int y)
 	return get_scr(currmap, z3_get_scr_for_xy_offset(x, y));
 }
 
+// Note: layer=0 is the base screen, 1 is the first layer, etc.
 mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
 {
-	return get_layer_scr(currmap, z3_get_scr_for_xy_offset(x, y), layer);
-}
-
-// TODO z3 consolidate these functions...
-mapscr* z3_get_mapscr_layer_for_xy_offset_include_base(int x, int y, int layer)
-{
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return layer == 0 ? z3_get_mapscr_for_xy_offset(x, y) : z3_get_mapscr_layer_for_xy_offset(x, y, layer - 1);
+	return layer == 0 ?
+		z3_get_mapscr_for_xy_offset(x, y) :
+		get_layer_scr(currmap, z3_get_scr_for_xy_offset(x, y), layer - 1);
 }
 
 int z3_get_origin_scr()
@@ -708,6 +706,7 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
+	DCHECK_LAYER_ZERO_INDEX(layer);
     // TODO z3 blocks
     if(tmpscr2[layer-1].data.empty()) return 0;
     
@@ -961,7 +960,7 @@ int32_t MAPCOMBO(const pos_handle& pos_handle)
 
 int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 {
-	DCHECK(layer >= -1);
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
     if (layer <= -1) return MAPCOMBO(x, y);
     
@@ -979,6 +978,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t 
 
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
 { 
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (map < 0 || screen < 0) return 0;
 	
 	if (!is_z3_scrolling_mode() && map == currmap && screen == currscr) return MAPCOMBO2(layer,COMBOX(pos),COMBOY(pos));
@@ -1064,7 +1064,7 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 {
-	DCHECK(layer >= -1);
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
     if (layer == -1) return MAPCSET(x, y);
@@ -1078,7 +1078,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
-	DCHECK(layer >= -1);
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
@@ -1120,7 +1120,7 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 {
-	DCHECK(layer >= -1);
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
     if (layer == -1) return MAPCOMBOFLAG(x, y);

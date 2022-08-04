@@ -339,7 +339,7 @@ bool movingblock::animate(int32_t)
 				{
 					if(lyr==blockLayer) continue;
 
-					mapscr* m0 = z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr);
+					mapscr* m0 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
 					if (m0->sflag[combopos] == mfBLOCKTRIGGER
 						|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 					{
@@ -347,7 +347,7 @@ bool movingblock::animate(int32_t)
 						trig_is_layer = true;
 						if(!no_trig_replace)
 						{
-							mapscr* m2 = z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr);
+							mapscr* m2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
 							m2->data[combopos] = m2->undercombo;
 							m2->cset[combopos] = m2->undercset;
 							m2->sflag[combopos] = 0;
@@ -372,7 +372,7 @@ bool movingblock::animate(int32_t)
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
 				if(lyr==blockLayer) continue;
-				mapscr* m2 = z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr);
+				mapscr* m2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
 				if((m2->sflag[combopos]==mfBLOCKHOLE)
 					|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				{
@@ -419,7 +419,7 @@ bool movingblock::animate(int32_t)
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
 				mapscr *tmp = is_z3_scrolling_mode() ?
-					z3_get_mapscr_layer_for_xy_offset_include_base(x, y, lyr) :
+					z3_get_mapscr_layer_for_xy_offset(x, y, lyr) :
 					FFCore.tempScreens[lyr];
 				for(int32_t pos=0; pos<176; pos++)
 				{

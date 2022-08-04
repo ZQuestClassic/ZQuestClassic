@@ -17056,7 +17056,7 @@ void HeroClass::checkpushblock()
 		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			continue;
 		// mapscr* m = is_z3_scrolling_mode() ?
-		// 	z3_get_mapscr_layer_for_xy_offset_include_base(bx, by, lyr) :
+		// 	z3_get_mapscr_layer_for_xy_offset(bx, by, lyr) :
 		// 	FFCore.tempScreens[lyr];
 		auto pos_handle = z3_get_pos_handle(rpos, lyr);
 		mapscr* m = pos_handle.screen;
