@@ -6160,11 +6160,11 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt)
 // Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
 static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 {
-	mapscr* s0 = z3_get_mapscr_for_xy_offset(x, y);
-	mapscr* s1 = s0->layermap[0] > 0 ? &TheMaps[(s0->layermap[0]-1)*MAPSCRS+s0->layerscreen[0]] : NULL;
-	mapscr* s2 = s0->layermap[1] > 0 ? &TheMaps[(s0->layermap[1]-1)*MAPSCRS+s0->layerscreen[1]] : NULL;
-	if (!s1 || !s1->valid) s1 = s0;
-	if (!s2 || !s2->valid) s2 = s0;
+	mapscr* s0 = z3_get_mapscr_layer_for_xy_offset(x, y, 0);
+	mapscr* s1 = z3_get_mapscr_layer_for_xy_offset(x, y, 1);
+	mapscr* s2 = z3_get_mapscr_layer_for_xy_offset(x, y, 2);
+	if (!s1->valid) s1 = s0;
+	if (!s2->valid) s2 = s0;
 
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	newcombo c = combobuf[s0->data[bx]];
@@ -6256,24 +6256,10 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	}
 	
 	mapscr *s0, *s1, *s2;
-	if (!is_z3_scrolling_mode())
-	{
-		s0=&tmpscr;
-		s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-		s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
-		//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
-	}
-	else
-	{
-		mapscr* z3scr = z3_get_mapscr_for_xy_offset(x, y);
-		s0 = z3scr;
-		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
-		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;
-		if (!s1 || !s1->valid) s1 = z3scr;
-		if (!s2 || !s2->valid) s2 = z3scr;
-		x %= 256;
-		y %= 176;
-	}
+	s0=&tmpscr;
+	s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
+	s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
+	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
 	
 	int32_t bx=(x>>4)+(y&0xF0);
 	newcombo c = combobuf[s0->data[bx]];
@@ -6388,10 +6374,10 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 {
 	mapscr* s0 = z3_get_mapscr_for_xy_offset(x, y);
-	mapscr* s1 = s0->layermap[0] > 0 ? &TheMaps[(s0->layermap[0]-1)*MAPSCRS+s0->layerscreen[0]] : NULL;
-	mapscr* s2 = s0->layermap[1] > 0 ? &TheMaps[(s0->layermap[1]-1)*MAPSCRS+s0->layerscreen[1]] : NULL;
-	if (!s1 || !s1->valid) s1 = s0;
-	if (!s2 || !s2->valid) s2 = s0;
+	mapscr* s1 = z3_get_mapscr_layer_for_xy_offset(x, y, 1);
+	mapscr* s2 = z3_get_mapscr_layer_for_xy_offset(x, y, 2);
+	if (!s1->valid) s1 = s0;
+	if (!s2->valid) s2 = s0;
 
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	newcombo c = combobuf[s0->data[bx]];
@@ -6450,24 +6436,10 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 	if (y >= max_y) return false;
 	
 	mapscr *s0, *s1, *s2;
-	if (!is_z3_scrolling_mode())
-	{
-		s0=&tmpscr;
-		s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-		s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
-		//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
-	}
-	else
-	{
-		mapscr* z3scr = z3_get_mapscr_for_xy_offset(x, y);
-		s0 = z3scr;
-		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
-		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;
-		if (!s1 || !s1->valid) s1 = z3scr;
-		if (!s2 || !s2->valid) s2 = z3scr;
-		x %= 256;
-		y %= 176;
-	}
+	s0=&tmpscr;
+	s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
+	s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
+	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
 	
 	if (layer == 0 && (s1 == s0)) return false;
 	if (layer == 1 && (s2 == s0)) return false;
