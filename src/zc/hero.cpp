@@ -3689,14 +3689,17 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
 	int32_t cid = MAPCOMBO(bx,by);
 
-	int32_t i = COMBOPOS(bx%256, by%176);
+	rpos_t rpos = COMBOPOS_REGION(bx, by);
+	auto pos_handle = z3_get_pos_handle(rpos, 0);
+	int32_t i = RPOS_TO_POS(rpos);
 	
-	if(i > 175)
+	if (rpos > region_max_rpos)
 		return;
 		
 	bool ignorescreen=false;
 	bool ignoreffc=false;
 	
+	// TODO z3
 	if(get_bit(screengrid, i) != 0)
 	{
 		ignorescreen = true;
@@ -3727,7 +3730,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = currscr >= 128 ? &special_warp_return_screen : z3_get_mapscr_for_xy_offset(bx, by);
+	mapscr *s = currscr >= 128 ? &special_warp_return_screen : pos_handle.screen;
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -3738,7 +3741,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			skipsecrets = 0;
 		}
-		else skipsecrets = 1; ;
+		else skipsecrets = 1;
 	}
 	
 	if(!ignorescreen && (!skipsecrets || !get_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS)))
@@ -3872,7 +3875,11 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		}
 		
 		// TODO z3 currscr probably wrong
-		putcombo(scrollbuf, z3_get_world_x_from_combo_pos(currscr, i) - global_viewport_x, z3_get_world_y_from_combo_pos(currscr, i) - global_viewport_y, s->data[i], s->cset[i]);
+		{
+			int x, y;
+			COMBOXY_REGION(rpos, x, y);
+			putcombo(scrollbuf, x - global_viewport_x, y - global_viewport_y, s->data[i], s->cset[i]);
+		}
 		
 		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{

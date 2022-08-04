@@ -364,18 +364,6 @@ int z3_get_origin_scr()
 	return z3_origin_scr;
 }
 
-int z3_get_world_x_from_combo_pos(int scr, int pos)
-{
-	DCHECK(pos >= 0 && pos < 176);
-	return z3_get_region_relative_dx(scr)*256 + COMBOX(pos);
-}
-
-int z3_get_world_y_from_combo_pos(int scr, int pos)
-{
-	DCHECK(pos >= 0 && pos < 176);
-	return z3_get_region_relative_dy(scr)*256 + COMBOY(pos);
-}
-
 // z3_origin_scr TODO z3_origin_screen
 int z3_get_region_relative_dx(int scr)
 {

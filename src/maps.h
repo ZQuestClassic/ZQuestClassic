@@ -94,8 +94,6 @@ mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
 mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
 int z3_get_origin_scr();
-int z3_get_world_x_from_combo_pos(int scr, int pos);
-int z3_get_world_y_from_combo_pos(int scr, int pos);
 int z3_get_region_relative_dx(int scr);
 int z3_get_region_relative_dy(int scr);
 bool is_z3_scrolling_mode();
