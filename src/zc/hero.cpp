@@ -17819,13 +17819,14 @@ void HeroClass::checkchest(int32_t type)
 		if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, -1))
 		{
 			found = MAPCOMBO(bx2,by2);
-			for (int32_t i = 0; i <= 6; ++i)
+			for (int32_t i = 0; i < 6; ++i)
 			{
-				if(tmpscr2[i].valid!=0)
+				mapscr* layer_scr = get_layer_scr_for_xy(bx2, by2, i - 1);
+				if (layer_scr->valid!=0)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i])))
+						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, layer_scr))
 						{
 							found = -1;
 							break;
@@ -17833,7 +17834,7 @@ void HeroClass::checkchest(int32_t type)
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[i])))
+						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, layer_scr))
 						{
 							found = -1;
 							break;
@@ -17858,11 +17859,12 @@ void HeroClass::checkchest(int32_t type)
 				found = MAPCOMBO2(i,bx,by);
 				for(int32_t j = i+1; j < 6; ++j)
 				{
-					if (tmpscr2[j].valid!=0)
+					mapscr* layer_scr = get_layer_scr_for_xy(bx, by, j);
+					if (layer_scr->valid!=0)
 					{
 						if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 						{
-							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[j])))
+							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, layer_scr))
 							{
 								found = -1;
 								break;
@@ -17870,7 +17872,7 @@ void HeroClass::checkchest(int32_t type)
 						}
 						else
 						{
-							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[j])))
+							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, layer_scr))
 							{
 								found = -1;
 								break;
@@ -17891,11 +17893,12 @@ void HeroClass::checkchest(int32_t type)
 				found = MAPCOMBO2(i,bx2,by2);
 				for(int32_t j = i+1; j < 6; ++j)
 				{
-					if (tmpscr2[j].valid!=0)
+					mapscr* layer_scr = get_layer_scr_for_xy(bx2, by2, i);
+					if (layer_scr->valid!=0)
 					{
 						if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 						{
-							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[j])))
+							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, layer_scr))
 							{
 								found = -1;
 								break;
@@ -17903,7 +17906,7 @@ void HeroClass::checkchest(int32_t type)
 						}
 						else
 						{
-							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[j])))
+							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, layer_scr))
 							{
 								found = -1;
 								break;
@@ -29107,9 +29110,9 @@ void HeroClass::check_conveyor()
 				}
 			}
 			if(deltax && !movedx)
-				y = CLEAR_LOW_BITS(y.getInt(), 4);
+				y = CLEAR_LOW_BITS(y.getInt() + (bigHitbox?8:12), 4);
 			if(deltay && !movedy)
-				x = CLEAR_LOW_BITS(x.getInt(), 4);
+				x = CLEAR_LOW_BITS(x.getInt() + 7, 4);
 		}
 		if(!movedy)
 		{
