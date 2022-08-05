@@ -1332,6 +1332,11 @@ bool getmapflag(int32_t flag)
     return (game->maps[(currmap*MAPSCRSNORMAL)+homescr] & flag) != 0;
 }
 
+void setxmapflag2(int32_t screen, int32_t flag)
+{
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	setxmapflag(mi, flag);
+}
 void setxmapflag(int32_t mi2, uint32_t flag)
 {
     byte cscr = mi2&((1<<7)-1);
@@ -1365,6 +1370,12 @@ void unsetxmapflag(int32_t mi2, uint32_t flag)
 void unsetxmapflag(uint32_t flag)
 {
 	unsetxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
+}
+// TODO z3
+bool getxmapflag2(int32_t screen_index, uint32_t flag)
+{
+	int mi = (currmap * MAPSCRSNORMAL) + (screen_index >= 0x80 ? homescr : screen_index);
+	return getxmapflag(mi, flag);
 }
 bool getxmapflag(int32_t mi2, uint32_t flag)
 {
@@ -2105,42 +2116,21 @@ bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag)
 }
 bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag)
 {
-	return remove_xstatecombos2(s, scr, (currmap*MAPSCRSNORMAL)+homescr, xflag);
+	int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
+	return remove_xstatecombos2(s, scr, mi, xflag);
 }
 bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag)
 {
 	bool didit=false;
 	
-	for(int32_t i=0; i<176; i++)
+	for(int32_t j=-1; j<6; j++)
 	{
-		newcombo const& cmb = combobuf[s->data[i]];
-		if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-		switch(cmb.type)
-		{
-			case cLOCKBLOCK: case cLOCKBLOCK2:
-			case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
-			case cCHEST: case cCHEST2:
-			case cLOCKEDCHEST: case cLOCKEDCHEST2:
-			case cBOSSCHEST: case cBOSSCHEST2:
-			{
-				if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
-				{
-					s->data[i]++;
-					didit=true;
-				}
-				break;
-			}
-		}
-	}
-	
-	for(int32_t j=0; j<6; j++)
-	{
-		mapscr* layer_scr = get_layer_scr(currmap, scr, j);
-		if(layer_scr->data.empty()) continue;
+		if (j != -1) s = get_layer_scr(currmap, scr, j);
+		if (s->data.empty()) continue;
 		
 		for (int32_t i=0; i<176; i++)
 		{
-			newcombo const& cmb = combobuf[layer_scr->data[i]];
+			newcombo const& cmb = combobuf[s->data[i]];
 			if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 			switch(cmb.type)
 			{
@@ -2152,7 +2142,7 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag)
 				{
 					if(cmb.attribytes[5] == xflag && getxmapflag(mi, 1<<xflag))
 					{
-						layer_scr->data[i]++;
+						s->data[i]++;
 						didit=true;
 					}
 					break;
@@ -2183,6 +2173,7 @@ void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi)
 	}
 }
 
+// TODO z3 refactor all this :)
 bool remove_lockblocks(int32_t tmp)
 {
     return remove_screenstatecombos(tmp, cLOCKBLOCK, cLOCKBLOCK2);

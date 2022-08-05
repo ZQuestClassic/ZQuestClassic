@@ -17407,14 +17407,16 @@ void HeroClass::oldchecklockblock()
 	if(!try_locked_combo(cmb))
 		return;
 	
+	auto pos_handle = found1 ? z3_get_pos_handle_for_world_xy(bx, by, 0) : z3_get_pos_handle_for_world_xy(bx2, by, 0);
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag(1<<cmb.attribytes[5]);
-		remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+		setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+		remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
 	}
 	else
 	{
-		setmapflag(mLOCKBLOCK);
+		setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
+		// TODO z3
 		remove_lockblocks((currscr>=128)?1:0);
 	}
 	if ( cmb3.usrflags&cflag3 )
@@ -17800,15 +17802,16 @@ void HeroClass::checkchest(int32_t type)
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
+			mapscr* layer_scr = get_layer_scr_for_xy(bx, by, i);
 			if(tmpscr2[i].valid!=0)
 			{
 				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, layer_scr)) found = -1;
 				}
 				else
 				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, layer_scr)) found = -1;
 				}
 			}
 		}
@@ -17821,7 +17824,7 @@ void HeroClass::checkchest(int32_t type)
 			found = MAPCOMBO(bx2,by2);
 			for (int32_t i = 0; i < 6; ++i)
 			{
-				mapscr* layer_scr = get_layer_scr_for_xy(bx2, by2, i - 1);
+				mapscr* layer_scr = get_layer_scr_for_xy(bx2, by2, i);
 				if (layer_scr->valid!=0)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
@@ -19772,7 +19775,11 @@ void HeroClass::checkspecial()
         remove_bosschests((currscr>=128)?1:0);
     }
 	
-	clear_xstatecombos_old((currscr>=128)?1:0);
+	// TODO z3 actually need to do this for all the above too.
+	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
+		clear_xstatecombos2(z3_scr, scr, mi);
+	});
 	
 	if((hasitem&8) && triggered_screen_secrets)
 	{

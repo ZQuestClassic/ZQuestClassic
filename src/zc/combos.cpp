@@ -644,7 +644,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				// remove_xstatecombos_old((currscr>=128)?1:0, cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mLOCKEDCHEST);
@@ -653,11 +653,11 @@ bool trigger_chest(const pos_handle& pos_handle)
 		case cCHEST:
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				// remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mCHEST);
+			setmapflag2(pos_handle.screen, pos_handle.screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -685,7 +685,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				// remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mBOSSCHEST);
@@ -697,11 +697,12 @@ bool trigger_chest(const pos_handle& pos_handle)
 	bool itemflag = false;
 	for(int32_t i=0; i<3; i++)
 	{
-		if(FFCore.tempScreens[i]->sflag[pos]==mfARMOS_ITEM)
+		mapscr* layer_scr = get_layer_scr(currmap, pos_handle.screen_index, i - 1);
+		if(layer_scr->sflag[pos]==mfARMOS_ITEM)
 		{
 			itemflag = true; break;
 		}
-		if(combobuf[FFCore.tempScreens[i]->data[pos]].flag==mfARMOS_ITEM)
+		if(combobuf[layer_scr->data[pos]].flag==mfARMOS_ITEM)
 		{
 			itemflag = true; break;
 		}
@@ -710,24 +711,24 @@ bool trigger_chest(const pos_handle& pos_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+		itemstate = getmapflag((pos_handle.screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (pos_handle.screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
 	{
-		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0);
+		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((pos_handle.screen->flags8&fITEMSECRET) ? ipSECRETS : 0);
 		int32_t itid = cmb.attrishorts[2];
 		switch(itid)
 		{
 			case -10: case -11: case -12: case -13:
 			case -14: case -15: case -16: case -17:
 			{
-				int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+				int32_t di = ((currdmap)<<7) + pos_handle.screen_index-(DMaps[currdmap].type==dmOVERW ? 0 : DMaps[currdmap].xoff);
 				itid = game->screen_d[di][abs(itid)-10] / 10000L;
 				break;
 			}
 			case -1:
-				itid = tmpscr.catchall;
+				itid = pos_handle.screen->catchall;
 				break;
 		}
 		if(unsigned(itid) >= MAXITEMS) itid = 0;
