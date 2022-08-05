@@ -639,7 +639,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mLOCKEDCHEST);
@@ -649,7 +649,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mCHEST);
@@ -680,7 +680,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mBOSSCHEST);
@@ -748,7 +748,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mLOCKBLOCK);
@@ -781,7 +781,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(mBOSSLOCKBLOCK);

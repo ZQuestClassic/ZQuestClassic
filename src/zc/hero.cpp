@@ -17410,7 +17410,7 @@ void HeroClass::oldchecklockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(1<<cmb.attribytes[5]);
-		remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+		remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 	}
 	else
 	{
@@ -17578,7 +17578,7 @@ void HeroClass::oldcheckbosslockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(1<<cmb.attribytes[5]);
-		remove_xstatecombos((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+		remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 	}
 	else
 	{
@@ -19755,7 +19755,7 @@ void HeroClass::checkspecial()
         remove_bosschests((currscr>=128)?1:0);
     }
 	
-	clear_xstatecombos((currscr>=128)?1:0);
+	clear_xstatecombos_old((currscr>=128)?1:0);
 	
 	if((hasitem&8) && triggered_screen_secrets)
 	{

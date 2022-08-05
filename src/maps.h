@@ -144,6 +144,8 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 int32_t getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
 
+void setmapflag2(mapscr* scr, int32_t screen, int32_t flag);
+void setmapflag(mapscr* scr, int32_t mi2, int32_t flag);
 void setmapflag(int32_t mi2, int32_t flag);
 void setmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
@@ -191,14 +193,14 @@ bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index 
 bool hiddenstair2(mapscr *s, bool redraw);                      
 bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2);
 
-bool remove_xstatecombos(int32_t tmp, byte xflag);
-bool remove_xstatecombos(int32_t tmp, int32_t mi, byte xflag);
-bool remove_xstatecombos2(mapscr *s, mapscr *t, byte xflag);
-bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag);
-void clear_xstatecombos(int32_t tmp);
-void clear_xstatecombos(int32_t tmp, int32_t mi);
-void clear_xstatecombos2(mapscr *s, mapscr *t);
-void clear_xstatecombos2(mapscr *s, mapscr *t, int32_t mi);
+bool remove_xstatecombos_old(int32_t tmp, byte xflag);
+bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag);
+bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag);
+bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag);
+void clear_xstatecombos_old(int32_t tmp);
+void clear_xstatecombos_old(int32_t tmp, int32_t mi);
+// void clear_xstatecombos2(mapscr *s, int32_t scr);
+void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi);
 
 bool remove_lockblocks(int32_t tmp);                // tmp = index of tmpscr[]
 bool remove_bosslockblocks(int32_t tmp);            // tmp = index of tmpscr[]
@@ -207,9 +209,9 @@ bool remove_lockedchests(int32_t tmp);              // tmp = index of tmpscr[]
 bool remove_bosschests(int32_t tmp);                // tmp = index of tmpscr[]
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int32_t i);
-void trigger_secrets_for_screen(int32_t screen, bool refresh, bool high16only=false, int32_t single=-1);
+void trigger_secrets_for_screen(int32_t screen, bool high16only=false, int32_t single=-1);
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t single=-1);
-void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, mapscr *layer_scrs, bool high16only=false, int32_t single=-1);
+void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only=false, int32_t single=-1);
 void update_freeform_combos();
 bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype);
@@ -231,8 +233,7 @@ void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);
 void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();
-std::vector<mapscr> clone_mapscr(const mapscr* source);
-std::vector<mapscr*> clone_mapscr_2(const mapscr* source);
+void load_a_screen_and_layers(int dmap, int map, int screen);
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay);
