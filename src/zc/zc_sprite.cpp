@@ -95,12 +95,13 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	if(get_bit(quest_rules, qr_CONVEYORS_L1_L2))
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			if(!tmpscr2[i].valid) continue;
+			mapscr* layer_scr = get_layer_scr_for_xy(x, y, i);
+			if (!layer_scr->valid) continue;
 			
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(is_conveyor(combobuf[tcid].type))
 			{
-				if (_effectflag_layer(x,y,1,&(tmpscr2[i])))
+				if (_effectflag_layer(x,y,1,layer_scr))
 				{
 					cmbid = tcid;
 					cmb = &combobuf[tcid];

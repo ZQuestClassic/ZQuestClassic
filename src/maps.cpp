@@ -6818,30 +6818,24 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 // TODO z3
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
-	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	int max_x = world_w;
+	int max_y = world_h;
+	if (!get_bit(quest_rules, qr_LTTPWALK))
 	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
+		max_x -= 7;
+		max_y -= 7;
 	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
-	if(!m) return true;
+	if (x < 0 || y < 0) return false;
+	if (x >= max_x) return false;
+	if (x >= max_x - 8 && cnt == 2) return false;
+	if (y >= max_y) return false;
+
+	if (!m) return true;
+
+	// TODO z3 should just rewrite this function to not take an m*
+	if (is_z3_scrolling_mode()) m = z3_get_mapscr_for_xy_offset(x, y);
 	
-	int32_t bx=(x>>4)+(y&0xF0);
+	int32_t bx = COMBOPOS(x%256, y%176);
 	newcombo c = combobuf[m->data[bx]];
 	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
 	int32_t b=1;

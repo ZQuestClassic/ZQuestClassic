@@ -28881,7 +28881,6 @@ void HeroClass::check_conveyor()
 	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
 	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
-	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
 	{
@@ -29108,9 +29107,9 @@ void HeroClass::check_conveyor()
 				}
 			}
 			if(deltax && !movedx)
-				y = COMBOY(pos);
+				y = CLEAR_LOW_BITS(y.getInt(), 4);
 			if(deltay && !movedy)
-				x = COMBOX(pos);
+				x = CLEAR_LOW_BITS(x.getInt(), 4);
 		}
 		if(!movedy)
 		{
