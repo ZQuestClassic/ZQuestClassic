@@ -18016,48 +18016,55 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	}
 	
 	int32_t found = -1;
+	int32_t found_scr = -1;
 	int32_t found_lyr = 0;
 	bool found_sign = false;
-	int32_t tmp_cid = MAPCOMBO(bx,by);
+	int32_t tmp_cid = MAPCOMBO(bx, by);
+	int32_t scr = z3_get_scr_for_xy_offset(bx, by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
 	{
 		found = tmp_cid;
+		found_scr = scr;
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			if(tmpscr2[i].valid!=0)
+			mapscr* layer_scr = get_layer_scr(currmap, scr, i);
+			if(layer_scr->valid!=0)
 			{
 				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, layer_scr)) found = -1;
 				}
 				else
 				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found = -1;
+					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, layer_scr)) found = -1;
 				}
 			}
 		}
 	}
 	tmp_cid = MAPCOMBO(bx2,by2);
+	scr = z3_get_scr_for_xy_offset(bx2, by2);
 	tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
 	{
 		found = tmp_cid;
+		found_scr = scr;
 		fx = bx2; fy = by2;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			if(tmpscr2[i].valid!=0)
+			mapscr* layer_scr = get_layer_scr(currmap, scr, i);
+			if(layer_scr->valid!=0)
 			{
 				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, layer_scr)) found = -1;
 				}
 				else
 				{
-					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[i]))) found = -1;
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, layer_scr)) found = -1;
 				}
 			}
 		}
@@ -18065,6 +18072,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0)
 	{
+		scr = z3_get_scr_for_xy_offset(bx, by);
 		for(int32_t i=0; i<6; i++)
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
@@ -18073,37 +18081,42 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
 			{
 				found = tmp_cid;
+				found_scr = scr;
 				found_lyr = i+1;
 				fx = bx; fy = by;
-				if (i == 0 && tmpscr2[1].valid!=0)
+				mapscr* layer_scr = get_layer_scr(currmap, scr, 1); // seems weird but ok..
+				if (i == 0 && layer_scr->valid!=0)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1,layer_scr)) found = -1;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1,layer_scr)) found = -1;
 					}
 				}
 			}
+			scr = z3_get_scr_for_xy_offset(bx2, by2);
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
 			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 				|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
 			{
 				found = tmp_cid;
+				found_scr = scr;
 				found_lyr = i+1;
 				fx = bx2; fy = by2;
-				if (i == 0 && tmpscr2[1].valid!=0)
+				mapscr* layer_scr = get_layer_scr(currmap, scr, 1); // seems weird but ok..
+				if (i == 0 && layer_scr->valid!=0)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1,layer_scr)) found = -1;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, &(tmpscr2[1]))) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1,layer_scr)) found = -1;
 					}
 				}
 			}
@@ -18156,7 +18169,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 		else if(pushing < 8 || pushing%8) goto endsigns; //Not pushing against sign enough
 		
-		trigger_sign(cmb);
+		trigger_sign(cmb, found_scr);
 		didsign = true;
 	}
 endsigns:
@@ -18180,8 +18193,9 @@ endsigns:
 				return;
 			break;
 	}
+	
 	if(getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput))
-		do_trigger_combo(found_lyr, COMBOPOS(fx,fy), didsign ? ctrigIGNORE_SIGN : 0);
+		do_trigger_combo(z3_get_pos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	else if(cmb.type == cBUTTONPROMPT)
 	{
 		prompt_combo = cmb.attributes[0]/10000;

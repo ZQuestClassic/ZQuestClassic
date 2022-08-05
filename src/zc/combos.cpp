@@ -553,19 +553,19 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 	return false;
 }
 
-void trigger_sign(newcombo const& cmb)
+void trigger_sign(newcombo const& cmb, int screen_index)
 {
 	int32_t str = cmb.attributes[0]/10000L;
 	switch(str)
 	{
 		case -1: //Special case: Use Screen String
-			str = tmpscr.str;
+			str = get_scr(currmap, screen_index)->str;
 			break;
 		case -2: //Special case: Use Screen Catchall
-			str = tmpscr.catchall;
+			str = get_scr(currmap, screen_index)->catchall;
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
-			int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+			int32_t di = (currdmap<<7) + screen_index-(DMaps[currdmap].type==dmOVERW ? 0 : DMaps[currdmap].xoff);
 			str = game->screen_d[di][abs(str)-10] / 10000L;
 			break;
 	}
@@ -573,6 +573,11 @@ void trigger_sign(newcombo const& cmb)
 		str = 0;
 	if(str)
 		donewmsg(str);
+}
+
+void trigger_sign(newcombo const& cmb)
+{
+	trigger_sign(cmb, currscr);
 }
 
 bool trigger_warp(newcombo const& cmb)

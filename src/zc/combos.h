@@ -20,6 +20,7 @@ void spawn_decoration(newcombo const& cmb, int32_t pos);
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
 
+void trigger_sign(newcombo const& cmb, int screen_index);
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(const pos_handle& pos_handle);
 bool trigger_step(const pos_handle& pos_handle);
