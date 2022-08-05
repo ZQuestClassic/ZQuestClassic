@@ -2335,6 +2335,7 @@ int32_t findtrigger(int32_t scombo, bool ff)
 // -4: Screen->TriggerSecrets()
 // -5: triggered by Items->Secret
 // -5: triggered by Generic Combo
+// TODO z3 take pos_handle or a new screen_handle ???
 void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0

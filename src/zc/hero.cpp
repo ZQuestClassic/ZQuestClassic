@@ -1540,7 +1540,7 @@ void HeroClass::init()
     drawstyle=3;
     ffwarp = false;
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
-    stepnext=stepsecret=-1;
+    stepnext=stepsecret=rpos_t::NONE;
     ffpit = false;
     respawn_x=x;
     respawn_y=y;
@@ -19895,23 +19895,24 @@ void HeroClass::checkspecial2(int32_t *ls)
 				return;
 			}
 			
-			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
+			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=COMBOPOS_REGION(x+j,y+i))
 			{
 				// zprint("Step Secs\n");
 				if(stype==cSTRIGFLAG && canPermSecret())
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
+						stepsecret = COMBOPOS_REGION(x+j, y+i);
+						auto pos_handle = z3_get_pos_handle(stepsecret, 0);
 						
-						if(!(tmpscr.flags5&fTEMPSECRETS))
+						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
 						{
-							setmapflag(mSECRET);
+							setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
 						}
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 						//zprint("Step Secrets SFX: %d\n", thesfx);
 						sfx(warpsound,pan((int32_t)x));
-						hidden_entrance(0,true,false); 
+						trigger_secrets_for_screen(pos_handle.screen_index, false);
 						didstrig = true;
 					}
 				}
@@ -19919,9 +19920,11 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
-						bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-						hidden_entrance(0,true,only16_31); 
+						stepsecret = COMBOPOS_REGION(x+j, y+i);
+						auto pos_handle = z3_get_pos_handle(stepsecret, 0);
+
+						bool high16only = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
+						trigger_secrets_for_screen(pos_handle.screen_index, high16only);
 						didstrig = true;
 						//play trigger sound
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
@@ -20528,29 +20531,29 @@ void HeroClass::checkspecial2(int32_t *ls)
 		
 	if((type==cTRIGNOFLAG || type==cTRIGFLAG))
 	{ 
-	
-		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
+		if (COMBOPOS_REGION(tx+8, ty+8)!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
 		{
-			stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
-			sfx(combobuf[tmpscr.data[stepsecret]].attribytes[0],pan((int32_t)x));
+			stepsecret = COMBOPOS_REGION(tx+8, ty+8);
+			auto pos_handle = z3_get_pos_handle(stepsecret, 0);
+			sfx(combobuf[MAPCOMBO(pos_handle)].attribytes[0],pan((int32_t)x));
 			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr.data[stepsecret]].attribytes[0]);
 			
 			if(type==cTRIGFLAG && canPermSecret())
 			{ 
-				if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
 				
-				hidden_entrance(0,true,false);
+				trigger_secrets_for_screen(pos_handle.screen_index, false);
 			}
 			else 
 			{
 				bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-				hidden_entrance(0,true,only16_31);
+				trigger_secrets_for_screen(pos_handle.screen_index, only16_31);
 			}
 		}
 	}
 	else if(!didstrig)
 	{
-		stepsecret = -1; 
+		stepsecret = rpos_t::NONE; 
 	}
 	
 	//Better? Dock collision
@@ -20588,39 +20591,40 @@ void HeroClass::checkspecial2(int32_t *ls)
 	if(type==cSTEP)
 	{ 
 	//zprint2("Hero.HasHeavyBoots(): is: %s\n", ( (Hero.HasHeavyBoots()) ? "true" : "false" ));
-		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
+
+		if (COMBOPOS_REGION(tx+8, ty+8) != stepnext)
 		{
-			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
+			stepnext = COMBOPOS_REGION(tx+8, ty+8);
+			auto pos_handle = z3_get_pos_handle(stepnext, 0);
+			int cid = MAPCOMBO(pos_handle);
+			int pos = RPOS_TO_POS(stepnext);
 			
 			if
 		(
-		COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
-			(!combobuf[tmpscr.data[stepnext]].attribytes[1] || (combobuf[tmpscr.data[stepnext]].attribytes[1] && game->item[combobuf[tmpscr.data[stepnext]].attribytes[1]]) )
+			COMBOTYPE(tx+8,ty+8)==cSTEP && /*required item*/
+			(!combobuf[cid].attribytes[1] || (combobuf[cid].attribytes[1] && game->item[combobuf[cid].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !(combobuf[tmpscr.data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr.data[stepnext]].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
+			( ( !(combobuf[cid].usrflags&cflag1) ) || ((combobuf[cid].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
 		)
-		
 		{
-		sfx(combobuf[tmpscr.data[stepnext]].attribytes[0],pan((int32_t)x));
-				tmpscr.data[stepnext]++;
-		
-			}
+			sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
+			pos_handle.screen->data[pos]++;
+		}
 			
 			if
 		(
-		COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
-			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
+			COMBOTYPE(tx+8,ty+8)==cSTEPSAME && /*required item*/
+			(!combobuf[cid].attribytes[1] || (combobuf[cid].attribytes[1] && game->item[combobuf[cid].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !(combobuf[tmpscr.data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr.data[stepnext]].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
+			( ( !(combobuf[cid].usrflags&cflag1) ) || ((combobuf[cid].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
 		)
 			{
-				int32_t stepc = tmpscr.data[stepnext];
-				sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int32_t)x));
+				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
 				for(int32_t k=0; k<176; k++)
 				{
-					if(tmpscr.data[k]==stepc)
+					if(pos_handle.screen->data[k]==cid)
 					{
-						tmpscr.data[k]++;
+						pos_handle.screen->data[k]++;
 					}
 				}
 			}
@@ -20628,22 +20632,23 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if
 		(
 			COMBOTYPE(tx+8,ty+8)==cSTEPALL && /*required item*/
-			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] && game->item[combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1]]) )
+			(!combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[1] || (combobuf[cid].attribytes[1] && game->item[combobuf[cid].attribytes[1]]) )
 			&& /*HEAVY*/
-			( ( !(combobuf[tmpscr.data[stepnext]].usrflags&cflag1) ) || ((combobuf[tmpscr.data[stepnext]].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
+			( ( !(combobuf[cid].usrflags&cflag1) ) || ((combobuf[cid].usrflags&cflag1) && Hero.HasHeavyBoots() ) )
 		)
 			{
-		sfx(combobuf[MAPCOMBO(tx+8,ty+8)].attribytes[0],pan((int32_t)x));
+				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
+				// TODO z3 for every screen in region ?
 				for(int32_t k=0; k<176; k++)
 				{
 					if(
-						(combobuf[tmpscr.data[k]].type==cSTEP)||
-						(combobuf[tmpscr.data[k]].type==cSTEPSAME)||
-						(combobuf[tmpscr.data[k]].type==cSTEPALL)||
-						(combobuf[tmpscr.data[k]].type==cSTEPCOPY)
+						(combobuf[pos_handle.screen->data[k]].type==cSTEP)||
+						(combobuf[pos_handle.screen->data[k]].type==cSTEPSAME)||
+						(combobuf[pos_handle.screen->data[k]].type==cSTEPALL)||
+						(combobuf[pos_handle.screen->data[k]].type==cSTEPCOPY)
 					)
 					{
-						tmpscr.data[k]++;
+						pos_handle.screen->data[k]++;
 					}
 				}
 			}
@@ -20653,7 +20658,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		trigger_stepfx(z3_get_pos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
 	}
-	else stepnext = -1;
+	else stepnext = rpos_t::NONE;
 	
 	detail_int[0]=tx;
 	detail_int[1]=ty;
