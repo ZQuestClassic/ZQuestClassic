@@ -6729,44 +6729,21 @@ bool _walkflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
 //Only check the given mapscr*, not it's layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
-	// TODO z3
-	if (is_z3_scrolling_mode())
+	int max_x = world_w;
+	int max_y = world_h;
+	if (!get_bit(quest_rules, qr_LTTPWALK))
 	{
-		int max_x = world_w;
-		int max_y = world_h;
-		if (!get_bit(quest_rules, qr_LTTPWALK))
-		{
-			max_x -= 7;
-			max_y -= 7;
-		}
-		if (x < 0 || y < 0) return false;
-		if (x >= max_x) return false;
-		if (x >= max_x - 8 && cnt == 2) return false;
-		if (y >= max_y) return false;
+		max_x -= 7;
+		max_y -= 7;
 	}
-	else if(get_bit(quest_rules,qr_LTTPWALK))
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
-	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
+	if (x < 0 || y < 0) return false;
+	if (x >= max_x) return false;
+	if (x >= max_x - 8 && cnt == 2) return false;
+	if (y >= max_y) return false;
+
 	if(!m) return true;
 	
-	int32_t bx=(x>>4)+(y&0xF0);
+	int32_t bx = COMBOPOS(x%256, y%176);
 	newcombo c = combobuf[m->data[bx]];
 	bool dried = ((iswater_type(c.type)) && DRIEDLAKE);
 	int32_t b=1;
