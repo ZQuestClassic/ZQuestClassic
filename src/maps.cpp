@@ -709,58 +709,55 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 {
+	DCHECK(layer >= 1 && layer <= 6);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
     
-    if(tmpscr2[layer-1].cset.empty()) return 0;
+	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+    if(m->cset.empty()) return 0;
+    if(m->valid==0) return 0;
     
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer-1].cset[combo];
+    int32_t combo = COMBOPOS(x%256, y%176);
+    return m->cset[combo];
 }
 
 int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 {
+	DCHECK(layer >= 1 && layer <= 6);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
     
-    if(tmpscr2[layer-1].sflag.empty()) return 0;
+	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+    if(m->cset.empty()) return 0;
+    if(m->valid==0) return 0;
     
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer-1].sflag[combo];                       // flag
+    int32_t combo = COMBOPOS(x%256, y%176);
+    return m->sflag[combo];
 }
 
 int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 {
-    if(!layer || tmpscr2[layer-1].valid==0)
-    {
-        return 0;
-    }
-    
+	DCHECK(layer >= 1 && layer <= 6);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+	
+	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+    if (!layer || m->valid == 0) return 0;
+
     return combobuf[MAPCOMBO2(layer-1,x,y)].type;
 }
 
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 {
-    if(layer==-1) return MAPCOMBOFLAG(x,y);
-    
-    if(tmpscr2[layer-1].data.empty()) return 0;
-    
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return combobuf[tmpscr2[layer-1].data[combo]].flag;                        // entire combo code
+	DCHECK(layer >= 1 && layer <= 6);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+	
+	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+    if (m->valid == 0) return 0;
+	
+    int32_t combo = COMBOPOS(x%256, y%176);
+    return combobuf[tmpscr2[layer-1].data[combo]].flag;
 }
 
 
