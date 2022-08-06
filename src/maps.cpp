@@ -3727,9 +3727,18 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 	mapscr const* tmp = NULL;
 	if (!is_z3_scrolling_mode())
 	{
-		tmp = layer > 0 ?
-			(&(tempscreen==2?tmpscr2[layer-1]:tmpscr3[layer-1])) :
-			(layer ? NULL : (tempscreen==2 ? &tmpscr : &special_warp_return_screen));
+		if (tempscreen == 2)
+		{
+			tmp = get_layer_scr(map, scr, layer - 1);
+		}
+		else
+		{
+			// TODO z3
+			// tmp = get_layer_scr(map, homescr, layer - 1);
+			tmp = layer > 0 ?
+				(&tmpscr3[layer-1]) :
+				(layer ? NULL : &special_warp_return_screen);
+		}
 	}
 	else if (layer > 0)
 	{
