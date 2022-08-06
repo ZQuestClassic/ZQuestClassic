@@ -695,9 +695,7 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
-	// TODO z3 wtf?! layer = 0 is passed in sometimes ... did old code expect this to wrap
-	// into tmpscr[1]?
-	// DCHECK(layer >= 1 && layer <= 6);
+	DCHECK(layer >= 1 && layer <= 6);
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
 	
