@@ -695,18 +695,18 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
-	DCHECK_LAYER_ZERO_INDEX(layer);
-    // TODO z3 blocks
-    if(tmpscr2[layer-1].data.empty()) return 0;
+	// TODO z3 wtf?! layer = 0 is passed in sometimes ... did old code expect this to wrap
+	// into tmpscr[1]?
+	// DCHECK(layer >= 1 && layer <= 6);
+	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		return 0;
+	
+	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+    if (m->data.empty()) return 0;
+    if (m->valid==0) return 0;
     
-    if(tmpscr2[layer-1].valid==0) return 0;
-    
-    int32_t combo = COMBOPOS(x,y);
-    
-    if(combo>175 || combo < 0)
-        return 0;
-        
-    return tmpscr2[layer-1].data[combo];                        // entire combo code
+    int32_t combo = COMBOPOS(x%256, y%176);
+    return m->data[combo];
 }
 
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
@@ -721,7 +721,7 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
     if(combo>175 || combo < 0)
         return 0;
         
-    return tmpscr2[layer-1].cset[combo];                        // entire combo code
+    return tmpscr2[layer-1].cset[combo];
 }
 
 int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
@@ -953,26 +953,31 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
 }
 
-int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y, bool secrets)
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
 {
-	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y), secrets);
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	DCHECK(map >= 0 && screen >= 0);
+	if (map < 0 || screen < 0) return 0; // TODO z3 rm
+	if (map == currmap && is_in_region(z3_origin_scr, screen)) return MAPCOMBO2(layer, x, y);
+	return MAPCOMBO3(map, screen, layer, COMBOPOS_REGION(x, y), secrets);
 }
 
-int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets)
 { 
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (map < 0 || screen < 0) return 0;
+	DCHECK(map >= 0 && screen >= 0);
+	DCHECK((!(rpos > region_max_rpos || (int)rpos < 0)));
+	if (map < 0 || screen < 0) return 0; // TODO z3 rm
 	
-	// TODO z3 this should run even in scrolling mode, if screen is in region
-	if (!is_z3_scrolling_mode() && map == currmap && screen == currscr) return MAPCOMBO2(layer,COMBOX(pos),COMBOY(pos));
+	if (map == currmap && is_in_region(z3_origin_scr, screen)) return MAPCOMBO2(layer, COMBOX_REGION(rpos), COMBOY_REGION(rpos));
 	
 	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
 
-	if(pos>175 || pos < 0)
+	if (rpos > region_max_rpos || (int)rpos < 0)
 		return 0;
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	return MAPCOMBO3(m, map, screen, layer, pos, secrets);
+	return MAPCOMBO3(m, map, screen, layer, RPOS_TO_POS(rpos), secrets);
 }
 
 int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
