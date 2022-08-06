@@ -120,18 +120,16 @@ int32_t get_conveyor(int32_t x, int32_t y)
 		int32_t ctype=cmb->type;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			if(!tmpscr2[i].valid) continue;
-			
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(combobuf[tcid].type == cBRIDGE)
 			{
 				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (!_walkflag_layer(x,y,1,&(tmpscr2[i]))) return -1;
+					if (!_walkflag_layer(x,y,i)) return -1;
 				}
 				else
 				{
-					if (_effectflag_layer(x,y,1,&(tmpscr2[i]))) return -1;
+					if (_effectflag_layer(x,y,i)) return -1;
 				}
 			}
 		}

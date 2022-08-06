@@ -826,17 +826,13 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
 
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		mapscr* m = get_layer_scr(currmap, currscr, i);
-		if (m->valid != 0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x, y, 1, m)) return cNONE;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x, y, 1, m)) return cNONE;
-			}
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x, y, i)) return cNONE;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x, y, i)) return cNONE;
 		}
 	}
 	
@@ -866,16 +862,13 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 {
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
-			}
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return cNONE;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
 		}
 	}
 	int32_t b=1;
@@ -1090,16 +1083,13 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
     {
 	for (int32_t i = layer+1; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
-			}
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return cNONE;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return cNONE;
 		}
 	}
     }
@@ -1835,29 +1825,24 @@ bool ispitfall(int32_t x, int32_t y)
 	}
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(ispitfall(c)) return true;
-	if(tmpscr2[1].valid!=0)
+	if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return false;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return false;
-		}
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1)) return false;
+	}
+	else
+	{
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1)) return false;
 	}
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return true;
-	if(tmpscr2[0].valid!=0)
+
+	if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return false;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return false;
-		}
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,0)) return false;
+	}
+	else
+	{
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,0)) return false;
 	}
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return true;
@@ -1872,29 +1857,25 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	}
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(ispitfall(c)) return c;
-	if(tmpscr2[1].valid!=0)
+
+	if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
-		}
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1)) return 0;
+	}
+	else
+	{
+		if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1)) return 0;
 	}
 	c = MAPCOMBOL(1,x,y);
 	if(ispitfall(c)) return c;
-	if(tmpscr2[0].valid!=0)
+
+	if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
-		}
-		else
-		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
-		}
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,0)) return 0;
+	}
+	else
+	{
+		if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,0)) return 0;
 	}
 	c = MAPCOMBO(x,y);
 	if(ispitfall(c)) return c;
@@ -2130,6 +2111,7 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag)
 		
 		for (int32_t i=0; i<176; i++)
 		{
+			// TODO z3 very slow! prob best to figure out how to not call this function so much.
 			newcombo const& cmb = combobuf[s->data[i]];
 			if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 			switch(cmb.type)
@@ -4014,18 +3996,18 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		int32_t ty=((i&1)<<3)+yy - global_viewport_y;
 		int32_t tx2=((i&2)<<2)+x - global_viewport_x;
 		int32_t ty2=((i&1)<<3)+y - global_viewport_y;
-		for (int32_t m = lyr-1; m <= 1; m++)
+		for (int32_t j = lyr-1; j <= 1; j++)
 		{
 			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				if (combobuf[MAPCOMBO2(j,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,j)) 
 				{
 					bridgedetected |= (1<<i);
 				}
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				if (combobuf[MAPCOMBO2(j,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,j)) 
 				{
 					bridgedetected |= (1<<i);
 				}
@@ -6737,9 +6719,17 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	return (cwalkflag&b) ? !dried : false;
 }
 
+bool _walkflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
+{
+	mapscr* m = get_layer_scr_for_xy(x, y, layer);
+	if (m->valid == 0) return false;
+	return _walkflag_layer(x, y, cnt, m);
+}
+
 //Only check the given mapscr*, not it's layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
+	// TODO z3
 	if (is_z3_scrolling_mode())
 	{
 		int max_x = world_w;
@@ -6806,7 +6796,13 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (c.walk&b) ? !dried : false;
 }
 
-// TODO z3
+bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
+{
+	mapscr* m = get_layer_scr_for_xy(x, y, layer);
+	if (m->valid == 0) return false;
+	return _effectflag_layer(x, y, cnt, m);
+}
+
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	int max_x = world_w;
@@ -6822,9 +6818,6 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	if (y >= max_y) return false;
 
 	if (!m) return true;
-
-	// TODO z3 should just rewrite this function to not take an m*
-	if (is_z3_scrolling_mode()) m = z3_get_mapscr_for_xy_offset(x, y);
 	
 	int32_t bx = COMBOPOS(x%256, y%176);
 	newcombo c = combobuf[m->data[bx]];

@@ -22216,6 +22216,7 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
+			// TODO z3
 			switch(ri->mapsref)
 			{
 				case MAPSCR_TEMP0:

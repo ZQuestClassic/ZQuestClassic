@@ -6615,22 +6615,19 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
-				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
-				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
-			}
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,i)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,i)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,i)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,i)) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,i)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,i)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,i)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,i)) {hp_mod[3] = 0; hasKB &= ~(1<<3);}
 		}
 	}
 	
@@ -6700,22 +6697,19 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
-				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,1, &(tmpscr2[i]))) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
-				if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,1, &(tmpscr2[i]))) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,1, &(tmpscr2[i]))) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
-				if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,1, &(tmpscr2[i]))) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
-			}
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,i,1)) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,i,1)) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,i,1)) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,i,1)) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,i,1)) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,i,1)) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,i,1)) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,i,1)) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
 		}
 	}
 	
@@ -15699,16 +15693,13 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
 		     //!DIMITODO: add QR for slow combos under hero
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
-			}
+			if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,i)) slowcombo = false;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,i)) slowcombo = false;
 		}
 	}
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
@@ -16694,18 +16685,15 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             
 	     for (int32_t i = 0; i <= 1; ++i)
 		{
-			if(tmpscr2[i].valid!=0)
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-				{
-					if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && !_walkflag_layer(wx,wy,1, &(tmpscr2[i]))) wtrx = false;
-					if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && !_walkflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
-				}
-				else
-				{
-					if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && _effectflag_layer(wx,wy,1, &(tmpscr2[i]))) wtrx = false;
-					if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && _effectflag_layer(wx+8,wy,1, &(tmpscr2[i]))) wtrx8 = false;
-				}
+				if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && !_walkflag_layer(wx,wy,i)) wtrx = false;
+				if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && !_walkflag_layer(wx+8,wy,i)) wtrx8 = false;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,wx,wy)].type == cBRIDGE && _effectflag_layer(wx,wy,i)) wtrx = false;
+				if (combobuf[MAPCOMBO2(i,wx+8,wy)].type == cBRIDGE && _effectflag_layer(wx+8,wy,i)) wtrx8 = false;
 			}
 		}
             bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy));
@@ -17340,18 +17328,15 @@ void HeroClass::oldchecklockblock()
 	
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found1 = false;
-				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found2 = false;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found1 = false;
-				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[i]))) found2 = false;
-			}
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,i)) found1 = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,i)) found2 = false;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,i)) found1 = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,i)) found2 = false;
 		}
 	}
 	
@@ -17368,19 +17353,16 @@ void HeroClass::oldchecklockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if(tmpscr2[1].valid!=0)
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-					{
-						if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue; //Continue, because It didn't find any on layer 0, and if you're checking
-						if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue; //layer 1 and there's a bridge on layer 2, stop checking layer 1.
-					}
-					else
-					{
-						if (combobuf[cid1].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-						if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
-					}
-				} 
+					if (combobuf[cid1].type == cBRIDGE && !_walkflag_layer(bx,by,1)) continue; //Continue, because It didn't find any on layer 0, and if you're checking
+					if (combobuf[cid2].type == cBRIDGE && !_walkflag_layer(bx2,by,1)) continue; //layer 1 and there's a bridge on layer 2, stop checking layer 1.
+				}
+				else
+				{
+					if (combobuf[cid1].type == cBRIDGE && _effectflag_layer(bx,by,1)) continue;
+					if (combobuf[cid2].type == cBRIDGE && _effectflag_layer(bx2,by,1)) continue;
+				}
 			}
 			if(cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
 			{
@@ -17491,18 +17473,15 @@ void HeroClass::oldcheckbosslockblock()
 
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (tmpscr2[i].valid != 0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, 1, &(tmpscr2[i]))) found1 = false;
-				if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, 1, &(tmpscr2[i]))) found2 = false;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && _effectflag_layer(bx, by, 1, &(tmpscr2[i]))) found1 = false;
-				if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && _effectflag_layer(bx2, by, 1, &(tmpscr2[i]))) found2 = false;
-			}
+			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, i, 1)) found1 = false;
+			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, i, 1)) found2 = false;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && _effectflag_layer(bx, by, i, 1)) found1 = false;
+			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && _effectflag_layer(bx2, by, i, 1)) found2 = false;
 		}
 	}
 
@@ -17627,18 +17606,15 @@ void HeroClass::oldcheckchest(int32_t type)
 	}
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
-				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[i]))) found = false;
-				if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[i]))) found = false;
-			}
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,i)) found = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,i)) found = false;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,i)) found = false;
+			if (combobuf[MAPCOMBO2(i,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,i)) found = false;
 		}
 	}
 	
@@ -17648,19 +17624,16 @@ void HeroClass::oldcheckchest(int32_t type)
 		{
 			if (i == 0)
 			{
-				if(tmpscr2[1].valid!=0)
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-						if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
-					}
-					else
-					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, &(tmpscr2[1]))) continue;
-						if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1, &(tmpscr2[1]))) continue;
-					}
-				}    
+					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1)) continue;
+					if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && !_walkflag_layer(bx2,by,1)) continue;
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1)) continue;
+					if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1)) continue;
+				}
 			}
 			if((combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))||
 					(combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i)))
@@ -17802,17 +17775,13 @@ void HeroClass::checkchest(int32_t type)
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			mapscr* layer_scr = get_layer_scr_for_xy(bx, by, i);
-			if(tmpscr2[i].valid!=0)
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, layer_scr)) found = -1;
-				}
-				else
-				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, layer_scr)) found = -1;
-				}
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1)) found = -1;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1)) found = -1;
 			}
 		}
 	}
@@ -17824,24 +17793,20 @@ void HeroClass::checkchest(int32_t type)
 			found = MAPCOMBO(bx2,by2);
 			for (int32_t i = 0; i < 6; ++i)
 			{
-				mapscr* layer_scr = get_layer_scr_for_xy(bx2, by2, i);
-				if (layer_scr->valid!=0)
+				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 				{
-					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,i))
 					{
-						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, layer_scr))
-						{
-							found = -1;
-							break;
-						}
+						found = -1;
+						break;
 					}
-					else
+				}
+				else
+				{
+					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,i))
 					{
-						if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, layer_scr))
-						{
-							found = -1;
-							break;
-						}
+						found = -1;
+						break;
 					}
 				}
 			}
@@ -17862,24 +17827,20 @@ void HeroClass::checkchest(int32_t type)
 				found = MAPCOMBO2(i,bx,by);
 				for(int32_t j = i+1; j < 6; ++j)
 				{
-					mapscr* layer_scr = get_layer_scr_for_xy(bx, by, j);
-					if (layer_scr->valid!=0)
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+						if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,j))
 						{
-							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, layer_scr))
-							{
-								found = -1;
-								break;
-							}
+							found = -1;
+							break;
 						}
-						else
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,j))
 						{
-							if (combobuf[MAPCOMBO2(j,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, layer_scr))
-							{
-								found = -1;
-								break;
-							}
+							found = -1;
+							break;
 						}
 					}
 				}
@@ -17896,24 +17857,20 @@ void HeroClass::checkchest(int32_t type)
 				found = MAPCOMBO2(i,bx2,by2);
 				for(int32_t j = i+1; j < 6; ++j)
 				{
-					mapscr* layer_scr = get_layer_scr_for_xy(bx2, by2, i);
-					if (layer_scr->valid!=0)
+					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+						if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,j))
 						{
-							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, layer_scr))
-							{
-								found = -1;
-								break;
-							}
+							found = -1;
+							break;
 						}
-						else
+					}
+					else
+					{
+						if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,j))
 						{
-							if (combobuf[MAPCOMBO2(j,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, layer_scr))
-							{
-								found = -1;
-								break;
-							}
+							found = -1;
+							break;
 						}
 					}
 				}
@@ -18033,17 +17990,13 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			mapscr* layer_scr = get_layer_scr(currmap, scr, i);
-			if(layer_scr->valid!=0)
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1, layer_scr)) found = -1;
-				}
-				else
-				{
-					if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1, layer_scr)) found = -1;
-				}
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,i)) found = -1;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,i)) found = -1;
 			}
 		}
 	}
@@ -18058,17 +18011,13 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		fx = bx2; fy = by2;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
-			mapscr* layer_scr = get_layer_scr(currmap, scr, i);
-			if(layer_scr->valid!=0)
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-				{
-					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1, layer_scr)) found = -1;
-				}
-				else
-				{
-					if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1, layer_scr)) found = -1;
-				}
+				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,i)) found = -1;
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,i)) found = -1;
 			}
 		}
 	}
@@ -18087,16 +18036,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				found_scr = scr;
 				found_lyr = i+1;
 				fx = bx; fy = by;
-				mapscr* layer_scr = get_layer_scr(currmap, scr, 1); // seems weird but ok..
-				if (i == 0 && layer_scr->valid!=0)
+				if (i == 0)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1,layer_scr)) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && !_walkflag_layer(bx,by,1)) found = -1;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1,layer_scr)) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx,by)].type == cBRIDGE && _effectflag_layer(bx,by,1)) found = -1;
 					}
 				}
 			}
@@ -18110,16 +18058,15 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				found_scr = scr;
 				found_lyr = i+1;
 				fx = bx2; fy = by2;
-				mapscr* layer_scr = get_layer_scr(currmap, scr, 1); // seems weird but ok..
-				if (i == 0 && layer_scr->valid!=0)
+				if (i == 0)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1,layer_scr)) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && !_walkflag_layer(bx2,by2,1)) found = -1;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1,layer_scr)) found = -1;
+						if (combobuf[MAPCOMBO2(1,bx2,by2)].type == cBRIDGE && _effectflag_layer(bx2,by2,1)) found = -1;
 					}
 				}
 			}
@@ -18883,16 +18830,13 @@ int32_t touchcombo(int32_t x,int32_t y)
 {
 	for (int32_t i = 0; i <= 1; ++i)
 	{
-		if(tmpscr2[i].valid!=0)
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
-			}
-			else
-			{
-				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[i]))) return 0;
-			}
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,i)) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && _effectflag_layer(x,y,i)) return 0;
 		}
 	}
 	if (!_effectflag(x,y,1, -1)) return 0;
