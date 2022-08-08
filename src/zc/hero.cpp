@@ -17269,9 +17269,12 @@ void HeroClass::oldchecklockblock()
 {
 	if(toogam) return;
 	
-	int32_t bx = x.getInt()&0xF0;
-	int32_t bx2 = int32_t(x+8)&0xF0;
-	int32_t by = y.getInt()&0xF0;
+	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
+	int32_t bx2 = CLEAR_LOW_BITS(x.getInt() + 8, 4);
+	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
+	// int32_t bx = x.getInt()&0xF0;
+	// int32_t bx2 = int32_t(x+8)&0xF0;
+	// int32_t by = y.getInt()&0xF0;
 	
 	switch(dir)
 	{
@@ -17413,9 +17416,9 @@ void HeroClass::oldcheckbosslockblock()
 {
 	if(toogam) return;
 	
-	int32_t bx = x.getInt()&0xF0;
-	int32_t bx2 = int32_t(x+8)&0xF0;
-	int32_t by = y.getInt()&0xF0;
+	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
+	int32_t bx2 = CLEAR_LOW_BITS(x.getInt()+8, 4);
+	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
 	
 	switch(dir)
 	{
@@ -17575,9 +17578,10 @@ void HeroClass::oldcheckchest(int32_t type)
 	// chests aren't affected by tmpscr.flags2&fAIRCOMBOS
 	if(toogam || z>0 || fakez > 0) return;
 	if(pushing<8) return;
-	int32_t bx = x.getInt()&0xF0;
-	int32_t bx2 = int32_t(x+8)&0xF0;
-	int32_t by = y.getInt()&0xF0;
+
+	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
+	int32_t bx2 = CLEAR_LOW_BITS(x.getInt()+8, 4);
+	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
 	
 	switch(dir)
 	{
@@ -18862,9 +18866,6 @@ int32_t touchcombo(int32_t x,int32_t y)
 	return 0;
 }
 
-//static int32_t COMBOX(int32_t pos) { return ((pos)%16*16); }
-//static int32_t COMBOY(int32_t pos) { return ((pos)&0xF0); }
-
 static int32_t GridX(int32_t x) 
 {
 	return (x >> 4) << 4;
@@ -19505,7 +19506,7 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
     }
     
     // off the screen
-    if(cx<0 || cy<0 || cx>255 || cy>175)
+    if(cx<0 || cy<0 || cx>=world_w || cy>=world_h)
     {
         int32_t ns = nextscr(cdir);
         
@@ -19532,14 +19533,12 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
             cx=0;
             break;
         }
-        
-        // from MAPCOMBO()
-        int32_t cmb = (cy&0xF0)+(cx>>4);
-        
-        if(cmb>175)
-            return 0;
-            
-        return TheMaps[ns].data[cmb];                           // entire combo code
+
+		if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+			return 0;
+		
+		int32_t cmb = COMBOPOS(cx%256, cy%176);
+		return TheMaps[ns].data[cmb];
     }
     
     return MAPCOMBO(cx,cy);
@@ -19595,20 +19594,18 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             cx=0;
             break;
         }
-        
-        // from MAPCOMBO()
-        int32_t cmb = COMBOPOS(cx%256, cy%176);
-        
-        if(cmb>175)
-            return 0;
-            
-        if(!comboflag)
+
+		if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+			return 0;
+		
+		int32_t cmb = COMBOPOS(cx%256, cy%176);
+		if (!comboflag)
         {
-            return TheMaps[ns].sflag[cmb];                          // flag
+            return TheMaps[ns].sflag[cmb];
         }
         else
         {
-            return combobuf[TheMaps[ns].data[cmb]].flag;                          // flag
+            return combobuf[TheMaps[ns].data[cmb]].flag;
         }
     }
     
@@ -23807,7 +23804,7 @@ static void for_every_nearby_screen_during_scroll(const std::function <void (map
 	global_z3_cur_scr_drawing = -1;
 }
 
-static int scroll_dir_to_scr_offset(direction dir)
+static int dir_to_scr_offset(direction dir)
 {
 	if (dir == up) return -16;
 	if (dir == down) return 16;
@@ -24073,7 +24070,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	}
 	else if (checkmaze(oldscr, true) && !edge_of_dmap(scrolldir))
 	{
-		currscr += scroll_dir_to_scr_offset((direction)scrolldir);
+		currscr += dir_to_scr_offset((direction)scrolldir);
 		destscr = currscr;
 	}
 	currmap = destmap;
@@ -24839,7 +24836,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 		else if (checkmaze(&tmpscr, true) && !edge_of_dmap(scrolldir))
 		{
-			tempdestscr = currscr + scroll_dir_to_scr_offset((direction)scrolldir);
+			tempdestscr = currscr + dir_to_scr_offset((direction)scrolldir);
 		}
 		
 		if (z3_get_region_id(currscr) || z3_get_region_id(tempdestscr))
