@@ -5460,6 +5460,31 @@ void load_a_screen_and_layers(int dmap, int map, int screen)
 
 	// TODO z3 get parity with loadscr_old
 
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKBLOCK)
+	{
+		remove_lockblocks(base_screen, screen);
+	}
+	
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSLOCKBLOCK)
+	{
+		remove_bosslockblocks(base_screen, screen);
+	}
+	
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mCHEST)
+	{
+		remove_chests(base_screen, screen);
+	}
+	
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKEDCHEST)
+	{
+		remove_lockedchests(base_screen, screen);
+	}
+	
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSCHEST)
+	{
+		remove_bosschests(base_screen, screen);
+	}
+
 	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
 	clear_xstatecombos2(base_screen, screen, mi);
 
