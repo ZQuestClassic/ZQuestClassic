@@ -7220,10 +7220,7 @@ bool HeroClass::animate(int32_t)
 			bool b3 = iswaterex_z3(FFORCOMBO(x+11,y+9), -1, x+11, y+9, false, false, true, true);
 			bool b4 = iswaterex_z3(FFORCOMBO(x+4,y+9), -1, x+4, y+9, false, false, true, true);
 
-			if (iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true)
-			&& iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true)
-			&& iswaterex_z3(FFORCOMBO(x+11,y+9), -1, x+11, y+9, false, false, true, true)
-			&& iswaterex_z3(FFORCOMBO(x+4,y+9), -1, x+4, y+9, false, false, true, true))
+			if (b1 && b2 && b3 && b4)
 			{
 				if(decorations.idCount(dRIPPLES)==0)
 				{

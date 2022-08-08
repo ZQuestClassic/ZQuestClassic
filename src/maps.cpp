@@ -1662,13 +1662,11 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 	return iswaterex(combo, map, screen, layer, x, y, secrets, fullcheck, LayerCheck);
 }
 
-// uses currmap and currscr and takes world coordinates
+// (x, y) are world coordinates
 // TODO z3 just make iswaterrex take world coords, then delete this one.
 int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
 	int screen = z3_get_scr_index_for_xy_offset(x, y);
-	x %= 256;
-	y %= 176;
 	return iswaterex(combo, currmap, screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
 }
 
