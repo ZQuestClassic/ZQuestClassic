@@ -86,12 +86,12 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 void z3_update_viewport();
 void z3_update_currscr();
 bool edge_of_region(direction dir);
-int z3_get_scr_for_xy_offset(int x, int y);
-int z3_get_scr_for_rpos(rpos_t rpos);
+int z3_get_scr_index_for_xy_offset(int x, int y);
+int z3_get_scr_index_for_rpos(rpos_t rpos);
 mapscr* z3_get_mapscr_for_rpos(rpos_t rpos);
 pos_handle z3_get_pos_handle(rpos_t rpos, int layer);
 pos_handle z3_get_pos_handle_for_world_xy(int x, int y, int layer);
-mapscr* z3_get_mapscr_for_xy_offset(int x, int y);
+mapscr* z3_get_scr_for_world_xy(int x, int y);
 mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
 int z3_get_origin_scr();

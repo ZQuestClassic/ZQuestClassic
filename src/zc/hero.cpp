@@ -5192,7 +5192,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : z3_get_mapscr_for_xy_offset(bx, by);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : z3_get_scr_for_world_xy(bx, by);
     
     if(!ignorescreen)
     {
@@ -17980,7 +17980,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	int32_t found_lyr = 0;
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx, by);
-	int32_t scr = z3_get_scr_for_xy_offset(bx, by);
+	int32_t scr = z3_get_scr_index_for_xy_offset(bx, by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
@@ -18001,7 +18001,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	tmp_cid = MAPCOMBO(bx2,by2);
-	scr = z3_get_scr_for_xy_offset(bx2, by2);
+	scr = z3_get_scr_index_for_xy_offset(bx2, by2);
 	tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
@@ -18024,7 +18024,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0)
 	{
-		scr = z3_get_scr_for_xy_offset(bx, by);
+		scr = z3_get_scr_index_for_xy_offset(bx, by);
 		for(int32_t i=0; i<6; i++)
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
@@ -18048,7 +18048,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					}
 				}
 			}
-			scr = z3_get_scr_for_xy_offset(bx2, by2);
+			scr = z3_get_scr_index_for_xy_offset(bx2, by2);
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
 			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
@@ -18882,7 +18882,7 @@ int32_t grabComboFromPos(int32_t pos, int32_t type)
 	int x = COMBOX_REGION_EXTENDED(pos);
 	int y = COMBOY_REGION_EXTENDED(pos);
 	int normalpos = COMBOPOS(x%256, y%176);
-	int scr = z3_get_scr_for_xy_offset(x, y);
+	int scr = z3_get_scr_index_for_xy_offset(x, y);
 
 	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
@@ -21137,7 +21137,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* cur_scr = z3_get_mapscr_for_xy_offset(x.getInt(), y.getInt());
+	mapscr* cur_scr = z3_get_scr_for_world_xy(x.getInt(), y.getInt());
 	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
 	
 	// Drawing commands probably shouldn't carry over...
@@ -23177,7 +23177,7 @@ void HeroClass::check_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	else return; // TODO z3
 
-	mapscr* scr = z3_get_mapscr_for_xy_offset(x, y);
+	mapscr* scr = z3_get_scr_for_world_xy(x, y);
 
 	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -23259,7 +23259,7 @@ void HeroClass::checkscroll()
 	int y0 = y.getInt();
 	// TODO z3
 
-	if (scrolling_maze_state && (scrolling_maze_mode == 0 || z3_get_scr_for_xy_offset(x0, y0) != scrolling_maze_scr))
+	if (scrolling_maze_state && (scrolling_maze_mode == 0 || z3_get_scr_index_for_xy_offset(x0, y0) != scrolling_maze_scr))
 	{
 		mapscr* scrolling_scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
 		int x0 = x.getInt();
