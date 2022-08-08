@@ -1000,30 +1000,30 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 	}
 	if(flags&mLOCKBLOCK)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cLOCKBLOCK, cLOCKBLOCK2);
+	    remove_screenstatecombos2(&scr, screen, false, cLOCKBLOCK, cLOCKBLOCK2);
 	}
 
 	if(flags&mBOSSLOCKBLOCK)          // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+	    remove_screenstatecombos2(&scr, screen, false, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 	}
 
 	if(flags&mCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cCHEST, cCHEST2);
+	    remove_screenstatecombos2(&scr, screen, false, cCHEST, cCHEST2);
 	}
 
 	if(flags&mCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cLOCKEDCHEST, cLOCKEDCHEST2);
+	    remove_screenstatecombos2(&scr, screen, false, cLOCKEDCHEST, cLOCKEDCHEST2);
 	}
 
 	if(flags&mBOSSCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, (mapscr*)NULL, cBOSSCHEST, cBOSSCHEST2);
+	    remove_screenstatecombos2(&scr, screen, false, cBOSSCHEST, cBOSSCHEST2);
 	}
 	
-	return scr.data[pos];						// entire combo code
+	return scr.data[pos];
 }
 
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
@@ -1297,6 +1297,11 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
 bool getmapflag(int32_t flag)
 {
     return (game->maps[(currmap*MAPSCRSNORMAL)+homescr] & flag) != 0;
+}
+bool getmapflag(int32_t screen, int32_t flag)
+{
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+    return (game->maps[mi] & flag) != 0;
 }
 
 void setxmapflag2(int32_t screen, int32_t flag)
@@ -2021,13 +2026,13 @@ bool hiddenstair2(mapscr *s,bool redraw)                       // tmp = index of
 bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
 {
 	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	mapscr *t = tmpscr2;
-	return remove_screenstatecombos2(s, t, what1, what2);
+	return remove_screenstatecombos2(s, tmp == 0 ? currscr : homescr, true, what1, what2);
 }
 
-// TODO z3 state
-bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2)
+bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2)
 {
+	if (screen_index >= 128) s = &special_warp_return_screen;
+	
 	bool didit=false;
 	
 	for(int32_t i=0; i<176; i++)
@@ -2041,19 +2046,20 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 		}
 	}
 	
-	if(t)
+	if (do_layers)
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			if(t[j].data.empty()) continue;
+			mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
+			if(layer_scr->data.empty()) continue;
 			
 			for(int32_t i=0; i<176; i++)
 			{
-				newcombo const& cmb = combobuf[t[j].data[i]];
+				newcombo const& cmb = combobuf[layer_scr->data[i]];
 				if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 				if((cmb.type== what1) || (cmb.type== what2))
 				{
-					t[j].data[i]++;
+					layer_scr->data[i]++;
 					didit=true;
 				}
 			}
@@ -2133,30 +2139,29 @@ void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi)
 	}
 }
 
-// TODO z3 refactor all this :)
-bool remove_lockblocks(int32_t tmp)
+bool remove_lockblocks(mapscr* s, int32_t screen_index)
 {
-    return remove_screenstatecombos(tmp, cLOCKBLOCK, cLOCKBLOCK2);
+    return remove_screenstatecombos2(s, screen_index, true, cLOCKBLOCK, cLOCKBLOCK2);
 }
 
-bool remove_bosslockblocks(int32_t tmp)
+bool remove_bosslockblocks(mapscr* s, int32_t screen_index)
 {
-    return remove_screenstatecombos(tmp, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+    return remove_screenstatecombos2(s, screen_index, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 }
 
-bool remove_chests(int32_t tmp)                 // tmp = index of tmpscr[]
+bool remove_chests(mapscr* s, int32_t screen_index)
 {
-    return remove_screenstatecombos(tmp, cCHEST, cCHEST2);
+    return remove_screenstatecombos2(s, screen_index, true, cCHEST, cCHEST2);
 }
 
-bool remove_lockedchests(int32_t tmp)                 // tmp = index of tmpscr[]
+bool remove_lockedchests(mapscr* s, int32_t screen_index)
 {
-    return remove_screenstatecombos(tmp, cLOCKEDCHEST, cLOCKEDCHEST2);
+    return remove_screenstatecombos2(s, screen_index, true, cLOCKEDCHEST, cLOCKEDCHEST2);
 }
 
-bool remove_bosschests(int32_t tmp)                 // tmp = index of tmpscr[]
+bool remove_bosschests(mapscr* s, int32_t screen_index)
 {
-    return remove_screenstatecombos(tmp, cBOSSCHEST, cBOSSCHEST2);
+    return remove_screenstatecombos2(s, screen_index, true, cBOSSCHEST, cBOSSCHEST2);
 }
 
 
@@ -5755,27 +5760,27 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
-		remove_lockblocks(tmp);
+		remove_lockblocks(screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
-		remove_bosslockblocks(tmp);
+		remove_bosslockblocks(screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)			  // if special stuff done before
 	{
-		remove_chests(tmp);
+		remove_chests(screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)			  // if special stuff done before
 	{
-		remove_lockedchests(tmp);
+		remove_lockedchests(screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)			  // if special stuff done before
 	{
-		remove_bosschests(tmp);
+		remove_bosschests(screen, scr);
 	}
 	
 	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+scr);
@@ -5951,27 +5956,27 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
-		remove_lockblocks(tmp);
+		remove_lockblocks(&screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
-		remove_bosslockblocks(tmp);
+		remove_bosslockblocks(&screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mCHEST)			  // if special stuff done before
 	{
-		remove_chests(tmp);
+		remove_chests(&screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKEDCHEST)			  // if special stuff done before
 	{
-		remove_lockedchests(tmp);
+		remove_lockedchests(&screen, scr);
 	}
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mBOSSCHEST)			  // if special stuff done before
 	{
-		remove_bosschests(tmp);
+		remove_bosschests(&screen, scr);
 	}
 	
 	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+scr);

@@ -151,6 +151,7 @@ void setmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
 void unsetmapflag(int32_t flag = 32,bool anyflag = false);
 bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
+bool getmapflag(int32_t screen, int32_t flag);
 
 void setxmapflag2(int32_t screen, int32_t flag);
 void setxmapflag(int32_t mi2, uint32_t flag);
@@ -193,7 +194,7 @@ bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair(int32_t tmp, bool redraw);                      // tmp = index of tmpscr[]
 bool hiddenstair2(mapscr *s, bool redraw);                      
-bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2);
+bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2);
 
 bool remove_xstatecombos_old(int32_t tmp, byte xflag);
 bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag);
@@ -204,11 +205,12 @@ void clear_xstatecombos_old(int32_t tmp, int32_t mi);
 // void clear_xstatecombos2(mapscr *s, int32_t scr);
 void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi);
 
-bool remove_lockblocks(int32_t tmp);                // tmp = index of tmpscr[]
-bool remove_bosslockblocks(int32_t tmp);            // tmp = index of tmpscr[]
-bool remove_chests(int32_t tmp);                    // tmp = index of tmpscr[]
-bool remove_lockedchests(int32_t tmp);              // tmp = index of tmpscr[]
-bool remove_bosschests(int32_t tmp);                // tmp = index of tmpscr[]
+bool remove_lockblocks(mapscr* s, int32_t screen_index);
+bool remove_bosslockblocks(mapscr* s, int32_t screen_index);
+bool remove_chests(mapscr* s, int32_t screen_index);
+bool remove_lockedchests(mapscr* s, int32_t screen_index);
+bool remove_bosschests(mapscr* s, int32_t screen_index);
+
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int32_t i);
 void trigger_secrets_for_screen(int32_t screen, bool high16only=false, int32_t single=-1);

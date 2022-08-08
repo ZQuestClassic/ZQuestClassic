@@ -17397,7 +17397,7 @@ void HeroClass::oldchecklockblock()
 	else
 	{
 		setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
-		remove_lockblocks((currscr>=128)?1:0);
+		remove_lockblocks(pos_handle.screen, pos_handle.screen_index);
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
@@ -17561,8 +17561,9 @@ void HeroClass::oldcheckbosslockblock()
 	}
 	else
 	{
+		// TODO z3
 		setmapflag(mBOSSLOCKBLOCK);
-		remove_bosslockblocks((currscr>=128)?1:0);
+		remove_bosslockblocks(&tmpscr, currscr);
 	}
 	if ( (combobuf[cid].attribytes[3]) )
 		sfx(combobuf[cid].attribytes[3]);
@@ -19696,23 +19697,23 @@ void HeroClass::checkspecial()
         stop_sfx(tmpscr.bosssfx);
     }
     
-    if(getmapflag(mCHEST))              // if special stuff done before
-    {
-        remove_chests((currscr>=128)?1:0);
-    }
-    
-    if(getmapflag(mLOCKEDCHEST))              // if special stuff done before
-    {
-        remove_lockedchests((currscr>=128)?1:0);
-    }
-    
-    if(getmapflag(mBOSSCHEST))              // if special stuff done before
-    {
-        remove_bosschests((currscr>=128)?1:0);
-    }
-	
 	// TODO z3 actually need to do this for all the above too.
 	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		if (getmapflag(scr, mCHEST))              // if special stuff done before
+		{
+			remove_chests(z3_scr, scr);
+		}
+		
+		if(getmapflag(scr, mLOCKEDCHEST))              // if special stuff done before
+		{
+			remove_lockedchests(z3_scr, scr);
+		}
+		
+		if(getmapflag(scr, mBOSSCHEST))              // if special stuff done before
+		{
+			remove_bosschests(z3_scr, scr);
+		}
+
 		int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
 		clear_xstatecombos2(z3_scr, scr, mi);
 	});

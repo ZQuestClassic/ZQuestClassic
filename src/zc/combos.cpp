@@ -758,7 +758,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 				break;
 			}
 			setmapflag(mLOCKBLOCK);
-			remove_lockblocks((currscr>=128)?1:0);
+			remove_lockblocks(pos_handle.screen, pos_handle.screen_index);
 			break;
 			
 		case cBOSSLOCKBLOCK:
@@ -791,7 +791,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 				break;
 			}
 			setmapflag(mBOSSLOCKBLOCK);
-			remove_bosslockblocks((currscr >= 128) ? 1 : 0);
+			remove_bosslockblocks(pos_handle.screen, pos_handle.screen_index);
 			break;
 		}
 		default: return false;
