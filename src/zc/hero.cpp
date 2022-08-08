@@ -19534,7 +19534,7 @@ int32_t HeroClass::nextcombo(int32_t cx, int32_t cy, int32_t cdir)
             break;
         }
 
-		if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
 			return 0;
 		
 		int32_t cmb = COMBOPOS(cx%256, cy%176);
@@ -19595,7 +19595,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             break;
         }
 
-		if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+		if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
 			return 0;
 		
 		int32_t cmb = COMBOPOS(cx%256, cy%176);
@@ -22948,13 +22948,11 @@ bool HeroClass::nextcombo_wf(int32_t d2)
     
     // check lower half of combo
     cy += 8;
+
+	if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
+		return 0;
     
-    // from MAPCOMBO()
-    int32_t cmb = (cy&0xF0)+(cx>>4);
-    
-    if(cmb>175)
-        return true;
-        
+    int32_t cmb = COMBOPOS(cx%256, cy%176);    
     newcombo c = combobuf[TheMaps[ns].data[cmb]];
     bool dried = iswater_type(c.type) && DRIEDLAKE;
     bool swim = iswater_type(c.type) && (current_item(itype_flippers)) && !dried;
@@ -23035,12 +23033,12 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	int32_t initcy = cy;
 	// from MAPCOMBO()
 	
-	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < 176; cy+=(cy%2)?7:8,i++)
+	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < world_h; cy+=(cy%2)?7:8,i++)
 	{
 		cx = initcx;
-		for(int32_t k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((initcx&7)?2:1):0) && cx < 256; cx+=(cx%2)?7:8,k++)
+		for(int32_t k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((initcx&7)?2:1):0) && cx < world_w; cx+=(cx%2)?7:8,k++)
 		{
-			int32_t cmb = (cy&0xF0)+(cx>>4);
+			int32_t cmb = COMBOPOS(cx%256, cy%176);
 			
 			if(cmb>175)
 			{
@@ -23076,13 +23074,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 					else walk |= cmb.walk;
 				}
 			}
-			/*
-			if (bridgedetected)
-			{
-				continue;
-			}*/
-			
-			//bool swim = iswater_type(c.type) && (current_item(itype_flippers) || action==rafting);
+
 			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
 			
 			if((walk&b) && !swim)
@@ -23090,65 +23082,6 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 				return true;
 			}
 		}
-		
-		/*
-		#if 0
-		
-		//
-		// next block (i.e. cnt==2)
-		if(!(cx&8))
-		{
-			b<<=2;
-		}
-		else
-		{
-			c = combobuf[TheMaps[ns].data[++cmb]];
-			dried = iswater_type(c.type) && DRIEDLAKE;
-			//swim = iswater_type(c.type) && (current_item(itype_flippers));
-			b=1;
-			
-			if(cy&8)
-			{
-				b<<=1;
-			}
-		}
-	
-		swim = iswaterex(c, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
-		
-		if((c.walk&b) && !dried && !swim)
-		{
-			return true;
-		}
-		
-		cx+=8;
-		
-		if(cx&7)
-		{
-			if(!(cx&8))
-			{
-				b<<=2;
-			}
-			else
-			{
-				c = combobuf[TheMaps[ns].data[++cmb]];
-				dried = iswater_type(c.type) && DRIEDLAKE;
-				//swim = iswaterex(cmb, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
-				b=1;
-				
-				if(cy&8)
-				{
-					b<<=1;
-				}
-			}
-		
-		swim = iswaterex(c, map, screen, -1, cx+8, cy, true, false, true) && current_item(itype_flippers);
-			
-			if((c.walk&b) && !dried && !swim)
-				return true;
-		}
-			
-		#endif
-		*/
 	}
 	
 	return false;
@@ -23158,8 +23091,8 @@ void HeroClass::check_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	if (dir == left || dir == right) x = CLAMP(0, world_w, x);
-	if (dir == up  || dir == down)   y = CLAMP(0, world_h, y);
+	if (dir == left || dir == right) x = CLAMP(0, world_w-16, x);
+	if (dir == up  || dir == down)   y = CLAMP(0, world_h-16, y);
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
