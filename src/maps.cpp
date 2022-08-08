@@ -5458,6 +5458,11 @@ void load_a_screen_and_layers(int dmap, int map, int screen)
 		}
 	}
 
+	// TODO z3 get parity with loadscr_old
+
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	clear_xstatecombos2(base_screen, screen, mi);
+
 	if (map != currmap) temporary_screens[map*MAPSCRS + screen] = screens;
 }
 
