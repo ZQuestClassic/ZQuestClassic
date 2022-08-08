@@ -23392,14 +23392,15 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
     return tmpscr.data[combo];            // entire combo code
 }
 
+// TODO some duplication w/ nextcombo ...
 int32_t HeroClass::lookaheadflag(int32_t d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int32_t cx = vbound(x,0,240);
-    int32_t cy = vbound(y + 8,0,160);
+    int32_t cx = vbound(x,0,world_w-16);
+    int32_t cy = vbound(y + 8,0,world_h-16);
 	
 	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
@@ -23424,12 +23425,14 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
         cx=0;
         break;
     }
+
+	if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
+	{
+		return 0;
+	}
     
-    int32_t combo = (cy&0xF0)+(cx>>4);
+    int32_t combo = COMBOPOS(cx%256, cy%176);
     
-    if(combo>175)
-        return 0;
-        
     if(!tmpscr.sflag[combo])
     {
         return combobuf[tmpscr.data[combo]].flag;           // flag
