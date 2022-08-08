@@ -436,8 +436,7 @@ bool trigger_step(const pos_handle& pos_handle)
 	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
 
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
-	mapscr* tmp = pos_handle.screen;
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
@@ -448,31 +447,36 @@ bool trigger_step(const pos_handle& pos_handle)
 	switch(cmb.type)
 	{
 		case cSTEP:
-			++tmp->data[pos]; break;
+			++pos_handle.screen->data[pos]; break;
 		case cSTEPSAME:
 		{
-			int32_t id = tmp->data[pos];
-			for(auto q = 0; q < 176; ++q)
-			{
-				// TODO z3 tmpscr
-				if(tmpscr.data[q] == id)
+			// Increment all combos of the same id as the triggered combo on the base screen.
+			// If the trigger is on a layer screen, that will be the only combo on that layer incremented.
+			int32_t id = pos_handle.screen->data[pos];
+			for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+				for(auto q = 0; q < 176; ++q)
 				{
-					++tmpscr.data[q];
+					if (z3_scr->data[q] == id)
+					{
+						++z3_scr->data[q];
+					}
 				}
-			}
-			if(tmp != &tmpscr) ++tmp->data[pos];
+			});
+			if (pos_handle.layer > 0) ++pos_handle.screen->data[pos];
 			break;
 		}
 		case cSTEPALL:
 		{
-			for(auto q = 0; q < 176; ++q)
-			{
-				if(isStepType(combobuf[tmpscr.data[q]].type))
+			for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+				for(auto q = 0; q < 176; ++q)
 				{
-					++tmpscr.data[q];
+					if (isStepType(combobuf[z3_scr->data[q]].type))
+					{
+						++z3_scr->data[q];
+					}
 				}
-			}
-			if(tmp != &tmpscr) ++tmp->data[pos];
+			});
+			if (pos_handle.layer > 0) ++pos_handle.screen->data[pos];
 			break;
 		}
 	}

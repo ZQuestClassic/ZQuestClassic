@@ -20609,19 +20609,16 @@ void HeroClass::checkspecial2(int32_t *ls)
 		)
 			{
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
-				// TODO z3 for every screen in region ?
-				for(int32_t k=0; k<176; k++)
-				{
-					if(
-						(combobuf[pos_handle.screen->data[k]].type==cSTEP)||
-						(combobuf[pos_handle.screen->data[k]].type==cSTEPSAME)||
-						(combobuf[pos_handle.screen->data[k]].type==cSTEPALL)||
-						(combobuf[pos_handle.screen->data[k]].type==cSTEPCOPY)
-					)
+
+				for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+					for(int32_t k=0; k<176; k++)
 					{
-						pos_handle.screen->data[k]++;
+						if (isStepType(combobuf[z3_scr->data[k]].type))
+						{
+							z3_scr->data[k]++;
+						}
 					}
-				}
+				});				
 			}
 		}
 	}
