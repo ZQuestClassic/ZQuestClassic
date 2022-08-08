@@ -21,6 +21,7 @@ src/jwin.cpp
 
 src/zq/mainscreen/mainscreen.cpp
 src/zq/mainscreen/toolbox.cpp
+src/zq/mainscreen/tooldock.cpp
 
 src/zq/gui/seltile_swatch.cpp
 src/zq/gui/selcombo_swatch.cpp

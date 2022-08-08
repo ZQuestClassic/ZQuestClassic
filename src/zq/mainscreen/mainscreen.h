@@ -3,9 +3,17 @@
 #define ZQ_MAINSCREEN_H
 #include "base/zdefs.h"
 
-#define MAINSCREEN_DEBUG 1
-#define THEMENU_WID 360
-#define THEMENU_HEI 16
+#define MAINSCREEN_DEBUG      1
+#define THEMENU_WID           360
+#define THEMENU_HEI           16
+#define MAINSCR_WID           800
+#define MAINSCR_HEI           (600-THEMENU_HEI)
+#define MAINSCR_X             0
+#define MAINSCR_Y             THEMENU_HEI
+#define MAINSCR_CENTER_X      (MAINSCR_X + MAINSCR_WID/2)
+#define MAINSCR_CENTER_Y      (MAINSCR_Y + MAINSCR_HEI/2)
+#define MAINSCR_END_X         (MAINSCR_X + MAINSCR_WID-1)
+#define MAINSCR_END_Y         (MAINSCR_Y + MAINSCR_HEI-1)
 
 enum
 {
@@ -13,8 +21,12 @@ enum
 	TB_COMBO_COL1,
 	TB_COMBO_COL2,
 	TB_TEST,
+	TB_TEST2,
+	TB_TEST3,
+	TB_TEST4,
 	NUM_TB
 };
+class Toolbox;
 extern Toolbox boxes[NUM_TB];
 
 void do_sleep(int32_t ms);
@@ -33,7 +45,7 @@ void test_mainscreen_gui();
 #define MG_MSG_RCLICK                 1 //RClicked inside the proc
 #define MG_MSG_FIND_MOUSE_HOVER       2 //Check if mouse can click/resize the proc
 #define MG_MSG_REDRAW_SELF            3 //Redraw the personal internal bitmap
-#define MG_MSG_REDRAW_BOX             4 //Redraw the proc to the screen
+#define MG_MSG_REDRAW_BOX             4 //Redraw the proc to the screen, if not docked
 #define MG_MSG_SCROLL                 5 //Scrollwheeled
 #define MG_MSG_IDLE                   6 //Idling
 #define MG_MSG_RESZ_UP                7 //Resizing (top handle)
@@ -46,6 +58,7 @@ void test_mainscreen_gui();
 #define MG_MSG_MANAGE_MENU           14 //A signal to manage a MENU* object (stored in dp)
 #define MG_MSG_KEY                   15 //A signal to indicate a key was pressed
 #define MG_MSG_CHAR                  16 //A signal to indicate a char was typed
+#define MG_MSG_REDRAW_DOCKED         17 //Redraw the proc to the screen, if docked
 
 #define MG_RET_OK                     0
 #define MG_RET_CANRESIZE              1 //Resize/move handler needed

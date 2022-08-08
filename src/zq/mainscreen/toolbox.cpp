@@ -1,5 +1,6 @@
 
 #include "toolbox.h"
+#include "tooldock.h"
 #include "jwin.h"
 #include "zquest.h"
 #include "base/gui.h"
@@ -9,10 +10,8 @@ using std::string;
 using std::vector;
 using std::to_string;
 #define RESZ_MARGIN 5
-#define ZQ_SCREENW 800
-#define ZQ_SCREENH 600
-#define TB_MAX_WID ZQ_SCREENW
-#define TB_MAX_HEI (ZQ_SCREENH - THEMENU_HEI)
+#define TB_MAX_WID MAINSCR_WID
+#define TB_MAX_HEI (MAINSCR_HEI - THEMENU_HEI)
 Toolbox::Toolbox() : x(0), y(0),
 	w(64), h(64), flags(0), intbmp(nullptr),
 	minw(32), minh(32), refbmp(nullptr),
@@ -299,7 +298,7 @@ int32_t Toolbox::baseproc(int32_t msg,int32_t c)
 			int32_t rd = getResizeDir(mx,my);
 			if(rd != -1)
 			{
-				if(flags&TBF_PINNED)
+				if(flags&(TBF_PINNED|TBF_DOCKED))
 				{
 					if(rd == -2)
 					{

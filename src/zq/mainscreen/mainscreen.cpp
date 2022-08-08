@@ -6,6 +6,7 @@
 #include "base/zsys.h"
 #include "mainscreen.h"
 #include "toolbox.h"
+#include "tooldock.h"
 #include "base/gui.h"
 #include <deque>
 
@@ -27,14 +28,6 @@ void animate_combos();
 /////////////////////////
 // Constants / Globals //
 /////////////////////////
-enum
-{
-	TB_DEV_DEBUG,
-	TB_COMBO_COL1,
-	TB_COMBO_COL2,
-	TB_TEST,
-	NUM_TB
-};
 
 Toolbox boxes[NUM_TB];
 static std::deque<int32_t> focusOrder;
@@ -206,43 +199,69 @@ int32_t broadcast_tb_message(int32_t msg, int32_t c)
 			return -1;
 		}
 		default:
+		{
+			vector<int32_t> delay;
 			for(int32_t q : drawOrder)
+			{
+				if (!(boxes[q].flags & TBF_DOCKED))
+					delay.push_back(q);
+				else boxes[q].msg(msg,c);
+			}
+			for(int32_t q : delay)
 			{
 				boxes[q].msg(msg,c);
 			}
 			break;
+		}
 	}
 	return 1;
 }
 #define MCFLAG_RESIZE_OR_MOVE 0x1
 #define MCFLAG_DISABLED_CLICK 0x2
+int32_t handle_mousefind(int32_t bind)
+{
+	auto ret = boxes[bind].msg(MG_MSG_FIND_MOUSE_HOVER);
+	switch(ret)
+	{
+		case MG_RET_CANRESIZE: m_curs_flags |= MCFLAG_RESIZE_OR_MOVE; return bind;
+		case MG_RET_CANCLICK: return bind;
+		case MG_RET_PINNEDMENU: //On a pinned menu's move area
+		{
+			if((gui_mouse_b()&3) == 2)
+			{
+				m_curs_flags |= MCFLAG_RESIZE_OR_MOVE;
+				return bind;
+			}
+			m_curs_flags |= MCFLAG_DISABLED_CLICK;
+			return bind;
+		}
+		case MG_RET_DISCLICK:
+		{
+			m_curs_flags |= MCFLAG_DISABLED_CLICK;
+			return bind;
+		}
+	}
+	return -1;
+}
 int32_t broadcast_mousefind()
 {
 	m_curs_flags = 0;
+	vector<int32_t> delay;
 	for(auto it = drawOrder.rbegin(); it != drawOrder.rend(); ++it)
 	{
 		int32_t q = *it;
-		auto ret = boxes[q].msg(MG_MSG_FIND_MOUSE_HOVER);
-		switch(ret)
+		if(boxes[q].flags & TBF_DOCKED)
 		{
-			case MG_RET_CANRESIZE: m_curs_flags |= MCFLAG_RESIZE_OR_MOVE; return q;
-			case MG_RET_CANCLICK: return q;
-			case MG_RET_PINNEDMENU: //On a pinned menu's move area
-			{
-				if((gui_mouse_b()&3) == 2)
-				{
-					m_curs_flags |= MCFLAG_RESIZE_OR_MOVE;
-					return q;
-				}
-				m_curs_flags |= MCFLAG_DISABLED_CLICK;
-				return q;
-			}
-			case MG_RET_DISCLICK:
-			{
-				m_curs_flags |= MCFLAG_DISABLED_CLICK;
-				return q;
-			}
+			delay.push_back(q);
+			continue;
 		}
+		auto ret = handle_mousefind(q);
+		if(ret > -1) return ret;
+	}
+	for(auto q : delay)
+	{
+		auto ret = handle_mousefind(q);
+		if(ret > -1) return ret;
 	}
 	return -1;
 }
@@ -513,7 +532,7 @@ void init_devkit()
 	Toolbox& box = boxes[TB_DEV_DEBUG];
 	box.title = "DevKit";
 	box.pos(0,0,200,80);
-	box.flags |= TBF_NO_RESIZE | TBF_NO_REORDER | TBF_VISIBLE;
+	box.flags |= TBF_NO_DOCKING | TBF_NO_RESIZE | TBF_NO_REORDER | TBF_VISIBLE;
 	box.proc = [&](Toolbox* tb, int32_t msg, int32_t c)
 	{
 		switch (msg)
@@ -615,6 +634,7 @@ void init_toolboxes()
 	// Finalizing code
 	broadcast_tb_message(MG_MSG_BUILD_RCMENU);
 	init_tbmenu();
+	Tooldock::set_align();
 }
 
 ////////////////
@@ -680,9 +700,10 @@ void move_tb(int32_t id)
 	mx = gui_mouse_x();
 	my = gui_mouse_y();
 	int32_t dx = mx - box.x, dy = my - box.y;
+	bool points = !(box.flags & TBF_NO_DOCKING);
 	BGLOOP_START();
-	bool dirty = false;
-	while(gui_mouse_b()&1) //while holding resize
+	if(points) calculate_points();
+	while(gui_mouse_b()&1) //while holding move
 	{
 		if(mx != gui_mouse_x() || my != gui_mouse_y())
 		{
@@ -702,10 +723,17 @@ void move_tb(int32_t id)
 		}
 		if(tb_draw_vsync() || (box.flags&TBF_DIRTY))
 		{
-			BGLOOP_DRAW();
-			dirty = false;
+			BGLOOP_DRAW1();
+			BGLOOP_DRAW2();
+			if(points)
+			{
+				draw_points(vc(7));
+				draw_point_outline(mx, my);
+			}
+			BGLOOP_DRAW3();
 		}
 	}
+	if(points) click_into_point(id, mx, my);
 	BGLOOP_END();
 }
 void resize(int32_t id)
@@ -847,6 +875,7 @@ void runToolboxes()
 		}
 	}
 	broadcast_tb_message(MG_MSG_IDLE);
+	draw_docks();
 	broadcast_tb_message(MG_MSG_REDRAW_BOX);
 	all_mark_screen_dirty();
 	sp_release_screen_all();

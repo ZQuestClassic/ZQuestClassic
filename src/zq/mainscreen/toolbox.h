@@ -72,6 +72,8 @@ private:
 #define TBF_PINNED     0x00000008
 #define TBF_NO_REORDER 0x00000010
 #define TBF_NO_RESIZE  0x00000020
+#define TBF_DOCKED     0x00000040
+#define TBF_NO_DOCKING 0x00000080
 
 
 #define BGLOOP_START()\
@@ -79,6 +81,7 @@ BITMAP* restore_bg = create_bitmap_ex(8,screen->w,screen->h);\
 do{\
 	blit(screen,restore_bg,0,0,0,0,screen->w,screen->h);\
 	sp_acquire_screen();\
+	draw_docks();\
 	broadcast_tb_message(MG_MSG_REDRAW_BOX);\
 	sp_release_screen_all();\
 	unscare_mouse();\
@@ -88,6 +91,7 @@ do{\
 	sp_acquire_screen();\
 	scare_mouse();\
 	blit(restore_bg,screen,0,0,0,0,screen->w,screen->h);\
+	draw_docks();\
 	broadcast_tb_message(MG_MSG_REDRAW_BOX);\
 	unscare_mouse();\
 	all_mark_screen_dirty();\
@@ -102,6 +106,7 @@ do{\
 #define BGLOOP_DRAW2()\
 do{\
 	blit(restore_bg,screen,0,0,0,0,screen->w,screen->h);\
+	draw_docks();\
 	broadcast_tb_message(MG_MSG_REDRAW_BOX);\
 }while(false)
 #define BGLOOP_DRAW3()\
