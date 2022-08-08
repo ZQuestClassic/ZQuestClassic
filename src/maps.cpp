@@ -925,6 +925,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
 }
 
+// TODO z3 seems bad to take a screen index, but also take (x, y) in world coordinates...
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);

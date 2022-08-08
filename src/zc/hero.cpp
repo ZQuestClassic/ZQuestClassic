@@ -17593,12 +17593,18 @@ void HeroClass::oldcheckchest(int32_t type)
 	}
 	
 	bool found=false;
+	int found_screen_index=0;
 	bool itemflag=false;
 	
-	if((combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))||
-			(combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1)))
+	if (combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
 	{
 		found=true;
+		found_screen_index=z3_get_scr_index_for_xy_offset(bx, by);
+	}
+	else if (combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1))
+	{
+		found=true;
+		found_screen_index=z3_get_scr_index_for_xy_offset(bx2, by);
 	}
 	for (int32_t i = 0; i <= 1; ++i)
 	{
@@ -17631,10 +17637,16 @@ void HeroClass::oldcheckchest(int32_t type)
 					if (combobuf[MAPCOMBO2(1,bx2,by)].type == cBRIDGE && _effectflag_layer(bx2,by,1)) continue;
 				}
 			}
-			if((combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))||
-					(combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i)))
+			if (combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
 			{
 				found=true;
+				found_screen_index=z3_get_scr_index_for_xy_offset(bx, by);
+				break;
+			}
+			else if (combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i))
+			{
+				found=true;
+				found_screen_index=z3_get_scr_index_for_xy_offset(bx2, by);
 				break;
 			}
 		}
@@ -17644,17 +17656,19 @@ void HeroClass::oldcheckchest(int32_t type)
 	{
 		return;
 	}
+
+	mapscr* screen = get_scr(currmap, found_screen_index);
 	
 	switch(type)
 	{
 		case cLOCKEDCHEST:
 			if(!usekey()) return;
 			
-			setmapflag(mLOCKEDCHEST);
+			setmapflag(screen, found_screen_index, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
-			setmapflag(mCHEST);
+			setmapflag(screen, found_screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -17678,7 +17692,7 @@ void HeroClass::oldcheckchest(int32_t type)
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 			}
-			setmapflag(mBOSSCHEST);
+			setmapflag(screen, found_screen_index, mBOSSCHEST);
 			break;
 	}
 	
@@ -17700,9 +17714,9 @@ void HeroClass::oldcheckchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
+	if(itemflag && !getmapflag((found_screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
 	{
-		items.add(new item(x, y,(zfix)0, tmpscr.catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		items.add(new item(x, y,(zfix)0, screen->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
 }
 

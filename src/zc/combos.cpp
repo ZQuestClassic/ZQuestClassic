@@ -634,6 +634,8 @@ bool trigger_chest(const pos_handle& pos_handle)
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	if (unsigned(pos_handle.layer) > 6 || unsigned(pos) > unsigned(region_max_rpos)) return false;
 
+	mapscr* base_screen = pos_handle.layer == 0 ? pos_handle.screen : get_scr(currmap, pos_handle.screen_index);
+
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switch(cmb.type)
 	{
@@ -716,7 +718,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 	}
 	if(itemflag && !itemstate)
 	{
-		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((pos_handle.screen->flags8&fITEMSECRET) ? ipSECRETS : 0);
+		int32_t pflags = ipflag | ipBIGRANGE | ipHOLDUP | ((base_screen->flags8&fITEMSECRET) ? ipSECRETS : 0);
 		int32_t itid = cmb.attrishorts[2];
 		switch(itid)
 		{
@@ -728,7 +730,7 @@ bool trigger_chest(const pos_handle& pos_handle)
 				break;
 			}
 			case -1:
-				itid = pos_handle.screen->catchall;
+				itid = base_screen->catchall;
 				break;
 		}
 		if(unsigned(itid) >= MAXITEMS) itid = 0;
