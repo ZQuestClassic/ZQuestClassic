@@ -485,8 +485,7 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-	// TODO z3
-	// DCHECK(x >= 0 && x < 16 && y >= 0 && y < 11);
+	DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (((y) & 0xF0) + ((x) >> 4));
 }
 int32_t COMBOX(int32_t pos)
@@ -527,7 +526,6 @@ void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
 	out_x = scr_dx*16*16 + COMBOX(pos);
 	out_y = scr_dy*11*16 + COMBOY(pos);
 }
-// TODO z3 "COMBOX" and overload?
 int32_t COMBOX_REGION(rpos_t rpos)
 {
 	int x, y;
@@ -657,33 +655,13 @@ bool canPermSecret(int32_t dmap, int32_t scr)
 	return (!isdungeon(dmap, scr) || get_bit(quest_rules,qr_DUNGEON_DMAPS_PERM_SECRETS));
 }
 
-int32_t MAPCOMBO(int32_t x,int32_t y)
+int32_t MAPCOMBO(int32_t x, int32_t y)
 {
-	if (!is_z3_scrolling_mode())
-	{
-		//extend combos outwards if out of bounds -DD
-		x = vbound(x, 0, (16*16)-1);
-		y = vbound(y, 0, (11*16)-1);
-		int32_t combo = COMBOPOS(x,y);
-		
-		if(combo>175 || combo < 0)
-			return 0;
-			
-		return tmpscr.data[combo];                               // entire combo code
-	}
-	else
-	{
-		// TODO z3
-		//extend combos outwards if out of bounds -DD
-		x = vbound(x, 0, world_w-1);
-		y = vbound(y, 0, world_h-1);
-		int32_t combo = COMBOPOS(x % 256, y % 176);
-		if(combo>175 || combo < 0)
-			return 0;
-
-		auto z3_scr = z3_get_scr_for_world_xy(x, y);
-		return z3_scr->data[combo];
-	}
+	x = vbound(x, 0, world_w-1);
+	y = vbound(y, 0, world_h-1);
+	int32_t combo = COMBOPOS(x%256, y%176);
+	auto scr = z3_get_scr_for_world_xy(x, y);
+	return scr->data[combo];
 }
 
 int32_t MAPCOMBOzq(int32_t x,int32_t y)
