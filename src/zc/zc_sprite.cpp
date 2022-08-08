@@ -308,7 +308,7 @@ bool movingblock::animate(int32_t)
 		}
 		/*
 		//!TODO: Moving Block Drowning
-		if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
+		if(drownCombo = iswaterex_z3(MAPCOMBO(x+8,y+8), -1, x+8,y+8, false, false, true))
 		{
 			drownclk = WATER_DROWN_FRAMES;
 		}

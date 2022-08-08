@@ -4011,7 +4011,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			else continue;
 		}
 		bool doladdercheck = true;
-		//if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
+		//if ( iswaterex_z3(cmbdat, lyr, tx2, ty2, true, false, false)!=0 )
 		if (iswater_type(c.type) && !DRIEDLAKE) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
 		{
 			if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
