@@ -2025,6 +2025,7 @@ bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
 	return remove_screenstatecombos2(s, t, what1, what2);
 }
 
+// TODO z3 state
 bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what2)
 {
 	bool didit=false;

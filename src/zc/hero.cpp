@@ -16425,7 +16425,6 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     }
                 }
                 
-				// TODO z3 ladders
                 if(wx<0||wy<0);
                 else if(wx > world_w - 8);
                 else if(wx > world_w - 16 &&cnt==2);
@@ -17037,13 +17036,10 @@ void HeroClass::checkpushblock()
 		if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) break;
 		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			continue;
-		// mapscr* m = is_z3_scrolling_mode() ?
-		// 	z3_get_mapscr_layer_for_xy_offset(bx, by, lyr) :
-		// 	FFCore.tempScreens[lyr];
+
 		auto pos_handle = z3_get_pos_handle(rpos, lyr);
 		mapscr* m = pos_handle.screen;
-		// TODO z3
-		// if (!m) continue;
+
 
 		int32_t f = MAPFLAG2(lyr-1,bx,by);
 		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
@@ -17401,7 +17397,6 @@ void HeroClass::oldchecklockblock()
 	else
 	{
 		setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
-		// TODO z3
 		remove_lockblocks((currscr>=128)?1:0);
 	}
 	if ( cmb3.usrflags&cflag3 )
@@ -23392,7 +23387,6 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
     return tmpscr.data[combo];            // entire combo code
 }
 
-// TODO some duplication w/ nextcombo ...
 int32_t HeroClass::lookaheadflag(int32_t d2)
 {
     // Helper for scrollscr that gets next combo on next screen.
