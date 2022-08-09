@@ -17303,14 +17303,14 @@ void HeroClass::oldchecklockblock()
 			if(cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
 			{
 				found1=true;
-				foundlayer = i;
+				foundlayer = i+1;
 				//zprint("Found layer: %d \n", i);
 				break;
 			}
 			else if(cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, i))
 			{
 				found2=true;
-				foundlayer = i;
+				foundlayer = i+1;
 				//zprint("Found layer: %d \n", i);
 				break;
 			}
@@ -17322,7 +17322,7 @@ void HeroClass::oldchecklockblock()
 		return;
 	}
 	newcombo const& cmb3 = combobuf[found1 ? cid1 : cid2];
-	if(!try_locked_combo(cmb))
+	if(!try_locked_combo(cmb3))
 		return;
 	
 	if(cmb.usrflags&cflag16)
