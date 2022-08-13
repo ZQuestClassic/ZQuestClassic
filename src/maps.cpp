@@ -3553,6 +3553,29 @@ void calc_darkroom_combos(bool scrolling)
 	}
 }
 
+void draw_msgstr(byte layer, bool tempb = false)
+{
+	if(layer != msgstr_layer) return;
+	BITMAP* b1 = tempb ? temp_buf : framebuf;
+	if(!(msg_bg_display_buf->clip))
+	{
+		blit_msgstr_bg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(!(msg_portrait_display_buf->clip))
+	{
+		blit_msgstr_prt(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(!(msg_txt_display_buf->clip))
+	{
+		blit_msgstr_fg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+}
+
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -3602,6 +3625,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true);
 		
 		particles.draw(temp_buf, true, 1);
+		draw_msgstr(2);
 	}
 	
 	if(XOR(this_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
@@ -3609,6 +3633,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2, false, true);
 		
 		particles.draw(temp_buf, true, 2);
+		draw_msgstr(3);
 	}
 	
 	putscr(scrollbuf,0,playing_field_offset,this_screen);
@@ -3623,6 +3648,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
 	particles.draw(temp_buf, true, -3);
+	draw_msgstr(0, true);
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -3660,6 +3686,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	do_layer(scrollbuf, 0, 1, this_screen, 0, 0, 2, false, true); // LAYER 1
 	
 	particles.draw(temp_buf, true, 0);
+	draw_msgstr(1, true);
 	
 	do_layer(scrollbuf, -3, 0, this_screen, 0, 0, 2); // freeform combos!
 	
@@ -3668,6 +3695,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(scrollbuf, 0, 2, this_screen, 0, 0, 2, false, true); // LAYER 2
 		
 		particles.draw(temp_buf, true, 1);
+		draw_msgstr(2, true);
 	}
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
@@ -3900,6 +3928,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_layer(scrollbuf, 0, 3, this_screen, 0, 0, 2);
 		
 		particles.draw(temp_buf, true, 2);
+		draw_msgstr(3, true);
 	}
 	
 	do_layer(temp_buf, 0, 4, this_screen, 0, 0, 2, false, true);
@@ -3907,6 +3936,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//do_primitives(temp_buf, 3, this_screen, 0,playing_field_offset);//don't uncomment me
 	
 	particles.draw(temp_buf, true, 3);
+	draw_msgstr(4, true);
 	
 	do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
 	do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
@@ -3996,6 +4026,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);
 	
 	particles.draw(temp_buf, true, 4);
+	draw_msgstr(5, true);
 	
 	do_layer(temp_buf, -4, 0, this_screen, 0, 0, 2); // overhead freeform combos!
 	do_layer(scrollbuf, -4, 0, this_screen, 0, 0, 2);
@@ -4043,23 +4074,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	set_clip_rect(framebuf,0,0,256,224);
 	set_clip_rect(scrollbuf,0,0,256,224);
 	
-	if(!(msg_bg_display_buf->clip))
-	{
-		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
-	}
-	
-	if(!(msg_portrait_display_buf->clip))
-	{
-		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
-	}
-	
-	if(!(msg_txt_display_buf->clip))
-	{
-		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
-		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
-	}
+	draw_msgstr(6);
 	
 	//13. Draw the subscreen, without clipping
 	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
@@ -4090,6 +4105,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}
+	
+	draw_msgstr(7);
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);

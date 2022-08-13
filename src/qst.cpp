@@ -3665,6 +3665,7 @@ void init_msgstr(MsgStr *str)
 	str->portrait_th = 1;
 	str->shadow_type = 0;
 	str->shadow_color = 0;
+	str->drawlayer = 6;
 }
 
 void init_msgstrings(int32_t start, int32_t end)
@@ -4033,6 +4034,14 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					}
 					
 					if(!p_getc(&tempMsgString.shadow_color,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				
+				if(s_version >= 10)
+				{
+					if(!p_getc(&tempMsgString.drawlayer,f,true))
 					{
 						return qe_invalid;
 					}

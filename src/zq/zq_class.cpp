@@ -10234,6 +10234,11 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
 			{
 				return qe_invalid;
 			}
+			
+			if(!p_putc(MsgStrings[i].drawlayer,f))
+			{
+				return qe_invalid;
+			}
             
             if(!p_putc(MsgStrings[i].sfx,f))
             {

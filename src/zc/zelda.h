@@ -353,6 +353,7 @@ extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolo
        cursor_y;
 extern byte msg_margins[4];
 extern int32_t prt_tile;
+extern byte msgstr_layer;
 extern byte prt_cset, prt_x, prt_y, prt_tw, prt_th, msg_shdtype, msg_shdcol;
 extern bool msg_onscreen, msg_active,msgspace;
 extern FONT	*msgfont;

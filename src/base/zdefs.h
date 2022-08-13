@@ -250,7 +250,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           7
 #define V_RULES           17
-#define V_STRINGS          9
+#define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          28
@@ -3631,6 +3631,7 @@ struct MsgStr
 	byte portrait_th;
 	byte shadow_type;
 	byte shadow_color;
+	byte drawlayer;
 	
 	// Copy everything except listpos
 	MsgStr& operator=(MsgStr const& other);
