@@ -1311,7 +1311,8 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		}
 	}
 	word ctramnt = game->get_counter(cmb.trigctr);
-	if(cmb.triggerflags[1] & combotriggerCOUNTEREAT)
+	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
+	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
 		if(ctramnt >= cmb.trigctramnt)
 		{
@@ -1462,6 +1463,13 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
 		{
 			takeitem(cmb.triggeritem);
+		}
+		if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+		{
+			if(ctramnt >= cmb.trigctramnt)
+			{
+				game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+			}
 		}
 	}
 	if(used_bit && grid)

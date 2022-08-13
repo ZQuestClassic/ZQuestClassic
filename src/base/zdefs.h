@@ -1357,6 +1357,7 @@ enum
 #define combotriggerCOUNTERGE    0x00080000
 #define combotriggerCOUNTERLT    0x00100000
 #define combotriggerCOUNTEREAT   0x00200000
+#define combotriggerCTRNONLYTRIG 0x00400000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
