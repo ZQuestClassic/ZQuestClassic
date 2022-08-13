@@ -1,4 +1,4 @@
-//--------------------------------------------------------
+\//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -5364,10 +5364,10 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	return (cwalkflag&b) ? !dried : false;
 }
 
-bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
+bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_bit(quest_rules,qr_LTTPWALK) || notLink)
 	{
 		if(x<0||y<0) return false;
 		
@@ -5750,10 +5750,10 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (c.walk&b) ? !dried : false;
 }
 
-bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
+bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_bit(quest_rules,qr_LTTPWALK) || notLink)
 	{
 		if(x<0||y<0) return false;
 		

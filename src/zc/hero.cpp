@@ -14599,8 +14599,8 @@ void HeroClass::movehero()
 	if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
 	{
 		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
-			goto LEFTRIGHT_OLDMOVE;
-		else goto LEFTRIGHT_NEWMOVE;
+			goto LEFTRIGHT_NEWMOVE;
+		else goto LEFTRIGHT_OLDMOVE;
 	}
 	
 	// make it easier to get in left & right doors
@@ -15467,9 +15467,6 @@ LEFTRIGHT_OLDMOVE:
 			{
 				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
 					   walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(isSideViewHero() ?0:8), 1,left);
-					   
-				if(y.getInt() & 7)
-					info = info || walkflag(x-int32_t(lsteps[x.getInt()&7]),y+16,1,left);
 				
 				execute(info);
 				
@@ -15559,9 +15556,6 @@ LEFTRIGHT_OLDMOVE:
 			{
 				info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right)
 					|| walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(isSideViewHero()?0:8),1,right);
-				
-				if(y.getInt() & 7)
-					info = info || walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+16,1,right);
 				
 				execute(info);
 				
@@ -27738,7 +27732,11 @@ void HeroClass::check_conveyor()
 	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
 	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
-	if(cmbid < 0) return;
+	if(cmbid < 0) 
+	{
+		if (conveyclk <= 0) is_on_conveyor=false;
+		return;
+	}
 	newcombo const* cmb = &combobuf[cmbid];
 	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
