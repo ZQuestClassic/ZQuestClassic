@@ -1354,6 +1354,9 @@ enum
 #define combotriggerSECRETS	     0x00010000
 #define combotriggerINVERTITEM   0x00020000
 #define combotriggerCONSUMEITEM  0x00040000
+#define combotriggerCOUNTERGE    0x00080000
+#define combotriggerCOUNTERLT    0x00100000
+#define combotriggerCOUNTEREAT   0x00200000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -3148,6 +3151,8 @@ struct newcombo
 	byte trigsfx; //8 bits
 	int32_t trigchange; //32 bits
 	word trigprox; //16 bits
+	byte trigctr; //8 bits
+	int32_t trigctramnt; //32 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3200,6 +3205,8 @@ struct newcombo
 		trigtimer = 0;
 		trigsfx = 0;
 		trigprox = 0;
+		trigctr = 0;
+		trigctramnt = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3247,6 +3254,8 @@ struct newcombo
 		if(trigsfx) return false;
 		if(trigchange) return false;
 		if(trigprox) return false;
+		if(trigctr) return false;
+		if(trigctramnt) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

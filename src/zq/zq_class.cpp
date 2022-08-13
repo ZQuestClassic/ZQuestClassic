@@ -9788,6 +9788,14 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
 			{
 				new_return(39);
 			}
+			if(!p_putc(combobuf[i].trigctr,f))
+			{
+				new_return(40);
+			}
+			if(!p_iputl(combobuf[i].trigctramnt,f))
+			{
+				new_return(41);
+			}
 			for ( int32_t q = 0; q < 11; q++ ) 
 			{
 				if(!p_putc(combobuf[i].label[q],f))

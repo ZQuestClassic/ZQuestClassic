@@ -67,7 +67,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_ctype(GUI::ZCListData::combotype(true)),
 	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
 	list_combscript(GUI::ZCListData::combodata_script()),
-	list_counters(GUI::ZCListData::counters(true)),
+	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_weaptype(GUI::ZCListData::lweaptypes()),
 	list_deftypes(GUI::ZCListData::deftypes())
@@ -2360,6 +2360,52 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										}
 									)
 								)
+							)
+						)),
+						TabRef(name = "Counters", Row(
+							Rows<3>(
+								Label(text = "Counter:", fitParent = true),
+								DropDownList(data = list_counters_nn,
+									fitParent = true,
+									selectedValue = local_comboref.trigctr,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.trigctr = val;
+									}
+								),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Counter","Which counter to use for the various counter effects").show();
+									}
+								),
+								Label(text = "Amount:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = -65535, high = 65535, val = local_comboref.trigctramnt,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.trigctramnt = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Counter Amount","The amount of the counter to use for the various counter effects").show();
+									}
+								)
+							),
+							Rows<2>(
+								INFOBTN("Only trigger if the specified counter has at least the specified amount."),
+								TRIGFLAG(51,"Require >="),
+								INFOBTN("Only trigger if the specified counter has less than the specified amount."),
+								TRIGFLAG(52,"Require <"),
+								INFOBTN("If the counter has the specified amount, consume it (regardless of trigger)."
+									" Negative amount will add to the counter."),
+								TRIGFLAG(53,"Consume amount")
 							)
 						))
 					)),

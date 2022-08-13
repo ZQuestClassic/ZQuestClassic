@@ -1310,6 +1310,24 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				return false;
 		}
 	}
+	word ctramnt = game->get_counter(cmb.trigctr);
+	if(cmb.triggerflags[1] & combotriggerCOUNTEREAT)
+	{
+		if(ctramnt >= cmb.trigctramnt)
+		{
+			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+		}
+	}
+	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
+	{
+		if(ctramnt < cmb.trigctramnt)
+			return false;
+	}
+	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
+	{
+		if(ctramnt >= cmb.trigctramnt)
+			return false;
+	}
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	

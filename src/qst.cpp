@@ -17404,10 +17404,20 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			{
 				return qe_invalid;
 			}
+			if(!p_getc(&temp_combo.trigctr,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&temp_combo.trigctramnt,f,true))
+			{
+				return qe_invalid;
+			}
 		}
 		else
 		{
 			temp_combo.trigprox = 0;
+			temp_combo.trigctr = 0;
+			temp_combo.trigctramnt = 0;
 		}
 		
 		if(section_version>=12) //combo label
