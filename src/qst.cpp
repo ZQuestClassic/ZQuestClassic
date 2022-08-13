@@ -17398,6 +17398,17 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			else temp_combo.trigchange = 0;
 			temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
 		}
+		if(section_version >= 29)
+		{
+			if(!p_igetw(&temp_combo.trigprox,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			temp_combo.trigprox = 0;
+		}
 		
 		if(section_version>=12) //combo label
 		{

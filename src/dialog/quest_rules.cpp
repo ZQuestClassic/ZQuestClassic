@@ -286,6 +286,8 @@ static const GUI::ListData comboRulesList
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 1." },
 	{ "Auto Combos Work On Layer 2", qr_AUTOCOMBO_LAYER_2, 
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 2." },
+	{ "Auto Combos Work On All Layers", qr_AUTOCOMBO_ANY_LAYER, 
+		"If enabled, Autowarps and Automatic Triggers will work on any layer." },
 	{ "Overhead Combos work on Layers 1 and 2", qr_OVERHEAD_COMBOS_L1_L2, 
 		"If enabled, Overhead Combos placed on Layers 1 and 2 will still"
 		" draw over Layer 4." },

@@ -8907,65 +8907,67 @@ bool HeroClass::animate(int32_t)
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
-	for(int32_t i=0; i<176; i++)
+	for(int32_t i=0; i<176; ++i)
 	{
-		for(int32_t layer=0; layer<=2; layer++)
+		for(int32_t layer=0; layer<7; ++layer)
 		{
-			if (layer == 1 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_1)) continue;
-			if (layer == 2 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_2)) continue;
+			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
+			{
+				if(layer > 2) break;
+				if (layer == 1 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_1)) continue;
+				if (layer == 2 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_2)) continue;
+			}
 			int32_t ind=0;
 			
-			if(!awarp) //Putting stuff in here so it doesn't activate after an autowarp happens.
+			//AUTOMATIC TRIGGER CODE
+			int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
+			newcombo const& cmb = combobuf[cid];
+			if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 			{
-				//AUTOMATIC TRIGGER CODE
-				int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
-				newcombo const& cmb = combobuf[cid];
-				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+				do_trigger_combo(layer, i);
+			}
+			
+			//AUTO WARP CODE
+			if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+			{
+				if(cmb.type==cAWARPA)
 				{
-					do_trigger_combo(layer, i);
+					awarp=true;
+					ind=0;
+				}
+				else if(cmb.type==cAWARPB)
+				{
+					awarp=true;
+					ind=1;
+				}
+				else if(cmb.type==cAWARPC)
+				{
+					awarp=true;
+					ind=2;
+				}
+				else if(cmb.type==cAWARPD)
+				{
+					awarp=true;
+					ind=3;
+				}
+				else if(cmb.type==cAWARPR)
+				{
+					awarp=true;
+					ind=zc_oldrand()%4;
+				}
+			}
+			if(awarp)
+			{
+				if(tmpscr->flags5&fDIRECTAWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
 				}
 				
-				//AUTO WARP CODE
-				if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
-				{
-					if(cmb.type==cAWARPA)
-					{
-						awarp=true;
-						ind=0;
-					}
-					else if(cmb.type==cAWARPB)
-					{
-						awarp=true;
-						ind=1;
-					}
-					else if(cmb.type==cAWARPC)
-					{
-						awarp=true;
-						ind=2;
-					}
-					else if(cmb.type==cAWARPD)
-					{
-						awarp=true;
-						ind=3;
-					}
-					else if(cmb.type==cAWARPR)
-					{
-						awarp=true;
-						ind=zc_oldrand()%4;
-					}
-				}
-				if(awarp)
-				{
-					if(tmpscr->flags5&fDIRECTAWARP)
-					{
-						didpit=true;
-						pitx=x;
-						pity=y;
-					}
-					
-					sdir = dir;
-					dowarp(1,ind);
-				}
+				sdir = dir;
+				dowarp(1,ind);
+				break;
 			}
 		}
 	}

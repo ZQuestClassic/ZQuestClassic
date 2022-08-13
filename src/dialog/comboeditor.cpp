@@ -2234,7 +2234,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								INFOBTN("Triggers when stepped on by even a pixel"),
 								TRIGFLAG(26,"Step-> (Sensitive)"),
 								INFOBTN("'Item:' must NOT be owned to trigger"),
-								TRIGFLAG(49,"Invert Item Req")
+								TRIGFLAG(49,"Invert Item Req"),
+								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
+								TRIGFLAG(19,"Invert Proximity Req")
 							),
 							Rows<3>(framed = true,
 								Label(text = "Item:", fitParent = true),
@@ -2255,6 +2257,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 											" id set here must be owned to trigger the combo."
 											"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
 											"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering.").show();
+									}
+								),
+								Label(text = "Proximity:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 5000, val = local_comboref.trigprox,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.trigprox = (word)val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Proximity Requirement","If the value is >0, the combo "
+											" will only trigger if the player is within that number of pixels of the combo."
+											"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
 									}
 								),
 								Label(text = "Timer:", fitParent = true),
@@ -2778,7 +2799,28 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										text = "?", hAlign = 1.0, onPressFunc = [&]()
 										{
 											InfoDialog("Item Requirement","If the value is >0, the item "
-												" id set here must be owned to trigger the combo.").show();
+												" id set here must be owned to trigger the combo."
+												"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
+												"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering.").show();
+										}
+									),
+									Label(text = "Proximity:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 5000, val = local_comboref.trigprox,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigprox = (word)val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Proximity Requirement","If the value is >0, the combo "
+												" will only trigger if the player is within that number of pixels of the combo."
+												"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
 										}
 									),
 									Label(text = "Timer:", fitParent = true),
@@ -2850,7 +2892,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								INFOBTN("Triggers when stepped on by even a pixel"),
 								TRIGFLAG(26,"Step-> (Sensitive)"),
 								INFOBTN("'Item:' must NOT be owned to trigger"),
-								TRIGFLAG(49,"Invert Item Req")
+								TRIGFLAG(49,"Invert Item Req"),
+								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
+								TRIGFLAG(19,"Invert Proximity Req")
 							),
 							Row(
 								framed = true,

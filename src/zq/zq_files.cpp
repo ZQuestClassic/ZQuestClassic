@@ -791,6 +791,7 @@ void applyRuleset(int32_t newRuleset)
 			set_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2, 1);
 			set_bit(quest_rules, qr_AUTOCOMBO_LAYER_1, 1);
 			set_bit(quest_rules, qr_AUTOCOMBO_LAYER_2, 1);
+			set_bit(quest_rules, qr_AUTOCOMBO_ANY_LAYER, 1);
 			set_bit(quest_rules, qr_NEW_DARKROOM, 1);
 			set_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2, 1);
 			set_bit(quest_rules, qr_HOOKSHOTALLLAYER, 1);

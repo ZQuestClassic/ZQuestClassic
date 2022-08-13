@@ -39,8 +39,10 @@ inline ZLong toZLong(float val);
 inline ZLong toZLong(double val);
 inline ZLong toZLong(int32_t val);
 inline ZLong toZLong(int32_t val);
-inline zfix floor(zfix fx);
-inline zfix abs(zfix fx);
+inline zfix floor(zfix const& fx);
+inline zfix abs(zfix const& fx);
+inline zfix pow(zfix const& fx, int exp);
+inline zfix dist(zfix const& x1, zfix const& y1, zfix const& x2, zfix const& y2);
 
 static int32_t zfixvbound(ZLong x, int32_t low, int32_t high)
 {

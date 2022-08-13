@@ -1284,20 +1284,30 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	int32_t cid = tmp->data[pos];
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
-	newcombo const& cmb = combobuf[cid];
-	if(cmb.triggeritem)
+	newcombo const& cmb = combobuf[cid];	
+	bool hasitem = false;
+	if(cmb.triggeritem) //Item requirement
 	{
-		bool hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
+		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
 			&& checkbunny(cmb.triggeritem);
 		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
 		{
 			if(hasitem) return false;
 		}
 		else if(!hasitem) return false;
-		
-		if(hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
+	}
+	if(cmb.trigprox) //Proximity requirement
+	{
+		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
+		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
 		{
-			takeitem(cmb.triggeritem);
+			if(d < cmb.trigprox) //inside, cancel
+				return false;
+		}
+		else //trigger inside the radius
+		{
+			if(d >= cmb.trigprox) //outside, cancel
+				return false;
 		}
 	}
 	int32_t flag = tmp->sflag[pos];
@@ -1430,6 +1440,11 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		
 		if(cmb.trigsfx)
 			sfx(cmb.trigsfx, pan(COMBOX(pos)));
+		
+		if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
+		{
+			takeitem(cmb.triggeritem);
+		}
 	}
 	if(used_bit && grid)
 	{

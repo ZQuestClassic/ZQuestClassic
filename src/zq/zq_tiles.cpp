@@ -17149,6 +17149,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].trigtimer = combo.trigtimer;
 			combobuf[i].trigsfx = combo.trigsfx;
 			combobuf[i].trigchange = combo.trigchange;
+			combobuf[i].trigprox = combo.trigprox;
 		}
 		
 		if(advpaste_dlg[15].flags & D_SELECTED)   // script
@@ -18971,6 +18972,17 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite)
 					else temp_combo.trigchange = 0;
 					temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
 				}
+				if(section_version >= 29)
+				{
+					if(!p_igetw(&temp_combo.trigprox,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					temp_combo.trigprox = 0;
+				}
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
@@ -19252,6 +19264,17 @@ int32_t readcombofile_to_location(PACKFILE *f, int32_t start, byte nooverwrite, 
 					else temp_combo.trigchange = 0;
 					temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
 				}
+				if(section_version >= 29)
+				{
+					if(!p_igetw(&temp_combo.trigprox,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				else
+				{
+					temp_combo.trigprox = 0;
+				}
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
 					if(!p_getc(&temp_combo.label[q],f,true))
@@ -19450,6 +19473,10 @@ int32_t writecombofile(PACKFILE *f, int32_t index, int32_t count)
 			return 0;
 		}
 		if(!p_iputl(combobuf[index+(tilect)].trigchange,f))
+		{
+			return 0;
+		}
+		if(!p_iputw(combobuf[index+(tilect)].trigprox,f))
 		{
 			return 0;
 		}

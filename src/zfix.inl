@@ -24,17 +24,38 @@ inline zfix zslongToFix(ZLong val)
 	t.val = val;
 	return t;
 }
-inline zfix floor(zfix fx)
+inline zfix floor(zfix const& fx)
 {
 	zfix t(fx);
 	t.doFloor();
 	return t;
 }
-inline zfix abs(zfix fx)
+inline zfix abs(zfix const& fx)
 {
 	zfix t(fx);
 	t.doAbs();
 	return t;
+}
+inline zfix pow(zfix const& fx, int exp)
+{
+	if(!exp) return zfix(1);
+	zfix t(fx);
+	for(auto q = 1; q < exp; ++q)
+	{
+		t *= fx;
+	}
+	return t;
+}
+inline zfix sqrt(zfix const& fx) //rounding error... unavoidable?
+{
+	return zfix(sqrt(fx.getFloat()));
+}
+inline zfix dist(zfix const& x1, zfix const& y1, zfix const& x2, zfix const& y2)
+{
+	zfix xd = x2-x1;
+	zfix yd = y2-y1;
+	zfix d = pow(xd,2) + pow(yd, 2);
+	return sqrt(d);
 }
 
 inline zfix operator +  (const zfix fx, const zfix fx2)
