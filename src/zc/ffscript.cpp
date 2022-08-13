@@ -34962,12 +34962,12 @@ void FFScript::do_itoacat()
 	int32_t arrayptr_a = get_register(sarg1) / 10000;
 	int32_t number = get_register(sarg2) / 10000;
 	
-	zprint2("itoacat arrayptr_a is: %d\n",arrayptr_a);
-	zprint2("itoacat number is: %d\n",number);
+	// zprint2("itoacat arrayptr_a is: %d\n",arrayptr_a);
+	// zprint2("itoacat number is: %d\n",number);
 		
 	double num = number;
 	int32_t digits = FFCore.numDigits(number); //int32_t(log10(temp) * 10000.0)
-	zprint2("itoacat, digits is: %d\n",digits);
+	// zprint2("itoacat, digits is: %d\n",digits);
 	int32_t pos = 0;
 	int32_t ret = 0;
 	string strA;
