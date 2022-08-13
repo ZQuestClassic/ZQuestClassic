@@ -1285,9 +1285,21 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];
-	if(cmb.triggeritem && (!game->get_item(cmb.triggeritem)
-		|| item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
-		return false;
+	if(cmb.triggeritem)
+	{
+		bool hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
+			&& checkbunny(cmb.triggeritem);
+		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
+		{
+			if(hasitem) return false;
+		}
+		else if(!hasitem) return false;
+		
+		if(hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
+		{
+			takeitem(cmb.triggeritem);
+		}
+	}
 	int32_t flag = tmp->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	

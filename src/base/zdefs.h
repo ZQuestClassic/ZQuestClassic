@@ -1332,6 +1332,7 @@ enum
 #define combotriggerCMBTYPEFX    0x10000000
 #define combotriggerONLYGENTRIG  0x20000000
 #define combotriggerKILLWPN      0x40000000
+//#define combotriggerSOMETHING    0x80000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -1351,6 +1352,8 @@ enum
 #define combotriggerSCRIPT10     0x00004000
 #define combotriggerAUTOMATIC    0x00008000
 #define combotriggerSECRETS	     0x00010000
+#define combotriggerINVERTITEM   0x00020000
+#define combotriggerCONSUMEITEM  0x00040000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01

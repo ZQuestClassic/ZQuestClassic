@@ -2224,52 +2224,56 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									TRIGFLAG(23,"Btn: Right")
 								)
 							),
-							Column(framed = true,
+							Rows<2>(framed = true,
+								INFOBTN("Triggers every frame automatically"),
 								TRIGFLAG(47,"Always Triggered"),
+								INFOBTN("Triggers when room shutters would open"),
 								TRIGFLAG(27,"Shutter->"),
+								INFOBTN("Triggers when stepped on"),
 								TRIGFLAG(25,"Step->"),
-								TRIGFLAG(26,"Step-> (Sensitive)")
+								INFOBTN("Triggers when stepped on by even a pixel"),
+								TRIGFLAG(26,"Step-> (Sensitive)"),
+								INFOBTN("'Item:' must NOT be owned to trigger"),
+								TRIGFLAG(49,"Invert Item Req")
 							),
-							Column(framed = true,
-								Row(padding = 0_px,
-									Label(text = "Item:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_comboref.triggeritem,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_comboref.triggeritem = val;
-										}),
-									Button(
-										width = 1.5_em, padding = 0_px, forceFitH = true,
-										text = "?", hAlign = 1.0, onPressFunc = [&]()
-										{
-											InfoDialog("Item Requirement","If the value is >0, the item "
-												" id set here must be owned to trigger the combo.").show();
-										}
-									)
+							Rows<3>(framed = true,
+								Label(text = "Item:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.triggeritem,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.triggeritem = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Item Requirement","If the value is >0, the item "
+											" id set here must be owned to trigger the combo."
+											"\nIf 'Invert Item Req' is checked, the item must NOT be owned instead."
+											"\nIf 'Consume Item Req' is checked, the item will be removed upon triggering.").show();
+									}
 								),
-								Row(padding = 0_px,
-									Label(text = "Timer:", fitParent = true),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 255, val = local_comboref.trigtimer,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_comboref.trigtimer = val;
-										}),
-									Button(
-										width = 1.5_em, padding = 0_px, forceFitH = true,
-										text = "?", hAlign = 1.0, onPressFunc = [&]()
-										{
-											InfoDialog("Timed Trigger","If the value is >0, the combo will"
-												" trigger itself every 'n' frames.").show();
-										}
-									)
+								Label(text = "Timer:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 255, val = local_comboref.trigtimer,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.trigtimer = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Timed Trigger","If the value is >0, the combo will"
+											" trigger itself every 'n' frames.").show();
+									}
 								)
 							)
 						)),
@@ -2291,7 +2295,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(30, "Kill Triggering Weapon"),
 								INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
 									" (by any trigger effect), the new combo is the one that resets."),
-								TRIGFLAG(18,"Reset Anim")
+								TRIGFLAG(18,"Reset Anim"),
+								INFOBTN("'Item:' will be taken when triggering"),
+								TRIGFLAG(50,"Consume Item Req")
 							),
 							Column(framed = true,
 								Rows<3>(padding = 0_px,
@@ -2832,13 +2838,19 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									)
 								)
 							),
-							Rows<2>(framed = true,
+							Rows<4>(framed = true,
 								margins = DEFAULT_PADDING,
 								padding = DEFAULT_PADDING+2_px,
+								INFOBTN("Triggers every frame automatically"),
 								TRIGFLAG(47,"Always Triggered"),
+								INFOBTN("Triggers when room shutters would open"),
 								TRIGFLAG(27,"Shutter->"),
+								INFOBTN("Triggers when stepped on"),
 								TRIGFLAG(25,"Step->"),
-								TRIGFLAG(26,"Step-> (Sensitive)")
+								INFOBTN("Triggers when stepped on by even a pixel"),
+								TRIGFLAG(26,"Step-> (Sensitive)"),
+								INFOBTN("'Item:' must NOT be owned to trigger"),
+								TRIGFLAG(49,"Invert Item Req")
 							),
 							Row(
 								framed = true,
@@ -2852,19 +2864,21 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
 										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
 										" Not available for all combo types; will be greyed out when unavailable."),
-									cteff_tflag = TRIGFLAG(28,"ComboType Effects")
-								),
-								Rows<2>(
-									framed = true,
+									cteff_tflag = TRIGFLAG(28,"ComboType Effects"),
 									INFOBTN("The combo will ignore methods of triggering its standard effects that"
 										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
 										" unless the 'Sword' weapon trigger is checked."),
-									TRIGFLAG(29,"Only Gen Triggers"),
+									TRIGFLAG(29,"Only Gen Triggers")
+								),
+								Rows<2>(
+									framed = true,
 									INFOBTN("If triggered by a weapon, the triggering weapon will be destroyed"),
 									TRIGFLAG(30, "Kill Triggering Weapon"),
 									INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
 										" (by any trigger effect), the new combo is the one that resets."),
-									TRIGFLAG(18,"Reset Anim")
+									TRIGFLAG(18,"Reset Anim"),
+									INFOBTN("'Item:' will be taken when triggering"),
+									TRIGFLAG(50,"Consume Item Req")
 								)
 							)
 						)
