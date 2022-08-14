@@ -3014,10 +3014,10 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, int32_t& out_sc
 	return found_nflag || found_cflag || MAPFFCOMBOFLAG(x,y) == flag;
 }
 
-// TODO: rename to 'trigger_secrets_if_flag'
-bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
+bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 {
-	if (is_z3_scrolling_mode())
+	// TODO z3
+	// if (is_z3_scrolling_mode())
 	{
 		if (x < -16 || y < -16 || x >= world_w || y >= world_h) return false;
 
@@ -3087,6 +3087,8 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
 
 		return true;
 	}
+	return false;
+	// TODO delete
 	// TODO z3 reduce code
 
     bool foundflag=false;

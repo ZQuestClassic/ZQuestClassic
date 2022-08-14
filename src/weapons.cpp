@@ -3692,7 +3692,7 @@ bool weapon::animate(int32_t index)
 		{
 			for(int32_t i2=0; i2<=zc_min(type-1,3) && dead!=23; i2++)
 			{
-				if(findentrance(x,y,mfSWORDBEAM+i2,true)) dead=23;
+				if(trigger_secrets_if_flag(x,y,mfSWORDBEAM+i2,true)) dead=23;
 			}
 			
 			if(blocked())
@@ -4111,16 +4111,16 @@ bool weapon::animate(int32_t index)
 				
 				if(clk==94 || get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfBCANDLE,true);
 					
 					if(type>1) //red candle 
 					{
-						findentrance(x,y,mfRCANDLE,true);
+						trigger_secrets_if_flag(x,y,mfRCANDLE,true);
 					}
 					
 					if(linked_parent == itype_dinsfire)
 					{
-						findentrance(x,y,mfDINSFIRE,true);
+						trigger_secrets_if_flag(x,y,mfDINSFIRE,true);
 					}
 				}
 			}                                                     //wand fire
@@ -4142,9 +4142,9 @@ bool weapon::animate(int32_t index)
 				if(clk==80)
 				{
 					dead=1;
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					trigger_secrets_if_flag(x,y,mfBCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfRCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfWANDFIRE,true);
 					
 					if(((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>-1&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 					{
@@ -4237,14 +4237,14 @@ bool weapon::animate(int32_t index)
 							
 						for(int32_t ty=-f2; ty<=f2; ty+=32)
 						{
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
+							trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
 							
 							if(id==wSBomb || id==wLitSBomb)
 							{
-								findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
+								trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
 							}
 							
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
+							trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
 						}
 					}
 				}
@@ -4373,14 +4373,14 @@ bool weapon::animate(int32_t index)
 							
 						for(int32_t ty=-f2; ty<=f2; ty+=32)
 						{
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
+							trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
 							
 							if(id==wSBomb || id==wLitSBomb)
 							{
-								findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
+								trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
 							}
 							
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
+							trigger_secrets_if_flag(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
 						}
 					}
 				}
@@ -4468,19 +4468,19 @@ bool weapon::animate(int32_t index)
 				dead=4;
 			}
 			
-			if(findentrance(x,y,mfSTRIKE,true))
+			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true))
 			{
 				dead=4;
 			}
 			
-			if(findentrance(x,y,mfARROW,true))
+			if(trigger_secrets_if_flag(x,y,mfARROW,true))
 			{
 				dead=4;
 			}
 			
 			if(current_item(itype_arrow)>1)
 			{
-				if(findentrance(x,y,mfSARROW,true))
+				if(trigger_secrets_if_flag(x,y,mfSARROW,true))
 				{
 					dead=4;
 				}
@@ -4488,7 +4488,7 @@ bool weapon::animate(int32_t index)
 			
 			if(current_item(itype_arrow)>=3)
 			{
-				if(findentrance(x,y,mfGARROW,true))
+				if(trigger_secrets_if_flag(x,y,mfGARROW,true))
 				{
 					dead=4;
 				}
@@ -4601,7 +4601,7 @@ bool weapon::animate(int32_t index)
 			// e.g., a brang with a level of 5 would trigger mfBRANG through mfGARROW! -Z
 				for(int32_t i=0; i<current_item(itype_brang); i++)
 				{
-					if(findentrance(x,y,mfBRANG+i,true)) dead=deadval;
+					if(trigger_secrets_if_flag(x,y,mfBRANG+i,true)) dead=deadval;
 				}
 			*/
 			
@@ -4612,12 +4612,12 @@ bool weapon::animate(int32_t index)
 				case 0:
 				case 1:
 				{
-					if(findentrance(x,y,mfBRANG,true)) dead=deadval; break;
+					if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval; break;
 				}
 				case 2: 
 				{
-					if(findentrance(x,y,mfBRANG,true)) dead=deadval;
-					if(findentrance(x,y,mfMBRANG,true)) dead=deadval;
+					if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval;
+					if(trigger_secrets_if_flag(x,y,mfMBRANG,true)) dead=deadval;
 					break;
 				}
 				case 3:
@@ -4630,16 +4630,16 @@ bool weapon::animate(int32_t index)
 				}
 				brang_level_3_or_higher: 
 				{
-					if(findentrance(x,y,mfBRANG,true)) dead=deadval;
-					if(findentrance(x,y,mfMBRANG,true)) dead=deadval;
-					if(findentrance(x,y,mfFBRANG,true)) dead=deadval;
+					if(trigger_secrets_if_flag(x,y,mfBRANG,true)) dead=deadval;
+					if(trigger_secrets_if_flag(x,y,mfMBRANG,true)) dead=deadval;
+					if(trigger_secrets_if_flag(x,y,mfFBRANG,true)) dead=deadval;
 					break;
 				}
 			}
 			
 			
-			if(findentrance(x,y,mfSTRIKE,true)) dead=deadval;
-			if((itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG8) && findentrance(x,y,mfBCANDLE,true)) dead=deadval;
+			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=deadval;
+			if((itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG8) && trigger_secrets_if_flag(x,y,mfBCANDLE,true)) dead=deadval;
 			
 			if(blocked())
 			{
@@ -4904,9 +4904,9 @@ bool weapon::animate(int32_t index)
 					dead=1;
 				}
 				//If it hits a block object, retract it.
-				if(findentrance(x,y,mfSTRIKE,true)) dead=1;
+				if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=1;
 				
-				if(findentrance(x,y,mfHOOKSHOT,true)) dead=1;
+				if(trigger_secrets_if_flag(x,y,mfHOOKSHOT,true)) dead=1;
 			
 				//Look for grab combos based on direction.
 				if(dir==up)
@@ -5583,11 +5583,11 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
+			if((id==wMagic)&&(trigger_secrets_if_flag(x,y,mfWANDMAGIC,true))) dead=0;
 			
-			if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
+			if((id==wRefMagic)&&(trigger_secrets_if_flag(x,y,mfREFMAGIC,true))) dead=0;
 			
-			if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
+			if((id!=ewMagic)&&(trigger_secrets_if_flag(x,y,mfSTRIKE,true))) dead=0;
 		   
 			//Create an ER to use this in older quests -V
 			if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
@@ -5597,9 +5597,9 @@ bool weapon::animate(int32_t index)
 				if((id==wMagic && current_item(itype_book) &&
 					itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					trigger_secrets_if_flag(x,y,mfBCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfRCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfWANDFIRE,true);
 				}
 			}
 			else
@@ -5608,9 +5608,9 @@ bool weapon::animate(int32_t index)
 				 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
 						itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					trigger_secrets_if_flag(x,y,mfBCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfRCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfWANDFIRE,true);
 				}
 			}
 			
@@ -5944,11 +5944,11 @@ bool weapon::animate(int32_t index)
 		break;
 		case ewMagic:
 		{
-			if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
+			if((id==wMagic)&&(trigger_secrets_if_flag(x,y,mfWANDMAGIC,true))) dead=0;
 			
-			if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
+			if((id==wRefMagic)&&(trigger_secrets_if_flag(x,y,mfREFMAGIC,true))) dead=0;
 			
-			if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
+			if((id!=ewMagic)&&(trigger_secrets_if_flag(x,y,mfSTRIKE,true))) dead=0;
 			
 			//Create an ER to use this in older quests -V
 			if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
@@ -5958,9 +5958,9 @@ bool weapon::animate(int32_t index)
 				if((id==wMagic && current_item(itype_book) &&
 					itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					trigger_secrets_if_flag(x,y,mfBCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfRCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfWANDFIRE,true);
 				}
 			}
 			else
@@ -5969,9 +5969,9 @@ bool weapon::animate(int32_t index)
 				 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
 						itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					trigger_secrets_if_flag(x,y,mfBCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfRCANDLE,true);
+					trigger_secrets_if_flag(x,y,mfWANDFIRE,true);
 				}
 			}
 			
@@ -6346,9 +6346,9 @@ bool weapon::animate(int32_t index)
 		case wRefFireball:
 		case ewFireball:
 		{
-			if((id==wRefFireball)&&(findentrance(x,y,mfREFFIREBALL,true))) dead=0;
+			if((id==wRefFireball)&&(trigger_secrets_if_flag(x,y,mfREFFIREBALL,true))) dead=0;
 			
-			if((id==wRefFireball)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
+			if((id==wRefFireball)&&(trigger_secrets_if_flag(x,y,mfSTRIKE,true))) dead=0;
 			
 			if(blocked())
 			{
@@ -6850,7 +6850,7 @@ offscreenCheck:
         
     case wArrow:
         dead=4;
-        break;                           //findentrance(x,y,mfARROW,true); break;
+        break;                           //trigger_secrets_if_flag(x,y,mfARROW,true); break;
         
     case ewArrow:
         dead=clipped?4:1;

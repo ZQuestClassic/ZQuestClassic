@@ -22411,7 +22411,7 @@ void do_triggersecrets()
 {
 	hidden_entrance(0, true, false, -4);
 	//hidden_entrance(0,true,single16,scombo); 
-	//bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
+	//bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	//We need a variation on these that triggers any combos with a given flag. -Z
 }
 

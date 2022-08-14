@@ -3764,10 +3764,10 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
 			{
-				findentrance(bx,by,mfSWORD+i2,true);
+				trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
 			}
 			
-			findentrance(bx,by,mfSTRIKE,true);
+			trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
 		}
 		else if(((flag2 >= 16)&&(flag2 <= 31)))
 		{ 
@@ -3786,10 +3786,10 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
 			{
-				findentrance(bx,by,mfSWORD+i2,true);
+				trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
 			}
 			
-			findentrance(bx,by,mfSTRIKE,true);
+			trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
 		}
 		else
 		{
@@ -3825,10 +3825,10 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
 		{
-			findentrance(bx,by,mfSWORD+i2,true);
+			trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
 		}
 		
-		findentrance(fx,fy,mfSTRIKE,true);
+		trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
 	}
 	else if(!ignoreffc)
 	{
@@ -4004,50 +4004,50 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 	switch(w->useweapon)
 	{
 		case wArrow:
-			findentrance(bx,by,mfARROW,true);
-			findentrance(bx,by,mfSARROW,true);
-			findentrance(bx,by,mfGARROW,true);
+			trigger_secrets_if_flag(bx,by,mfARROW,true);
+			trigger_secrets_if_flag(bx,by,mfSARROW,true);
+			trigger_secrets_if_flag(bx,by,mfGARROW,true);
 			break;
 		case wBeam:
-			for(int32_t i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
+			for(int32_t i = 0; i <4; i++) trigger_secrets_if_flag(bx,by,mfSWORDBEAM+i,true);
 			break;
 		case wHookshot:
-			findentrance(bx,by,mfHOOKSHOT,true);
+			trigger_secrets_if_flag(bx,by,mfHOOKSHOT,true);
 			break;
 		case wBrang:
-			for(int32_t i = 0; i <3; i++) findentrance(bx,by,mfBRANG+i,true);
+			for(int32_t i = 0; i <3; i++) trigger_secrets_if_flag(bx,by,mfBRANG+i,true);
 			break;
 		case wMagic:
-			findentrance(bx,by,mfWANDMAGIC,true);
+			trigger_secrets_if_flag(bx,by,mfWANDMAGIC,true);
 			break;
 		case wRefMagic:
-			findentrance(bx,by,mfWANDMAGIC,true);
+			trigger_secrets_if_flag(bx,by,mfWANDMAGIC,true);
 			break;
 		case wRefBeam:
-			for(int32_t i = 0; i <4; i++) findentrance(bx,by,mfSWORDBEAM+i,true);
+			for(int32_t i = 0; i <4; i++) trigger_secrets_if_flag(bx,by,mfSWORDBEAM+i,true);
 			break;
 		//reflected magic needs to happen in mirrors:
 		//
-		//findentrance(bx,by,mfREFMAGIC,true)
+		//trigger_secrets_if_flag(bx,by,mfREFMAGIC,true)
 		case wRefFireball:
-			findentrance(bx,by,mfREFFIREBALL,true);
+			trigger_secrets_if_flag(bx,by,mfREFFIREBALL,true);
 			break;
 		case wBomb:
-			findentrance(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfBOMB,true);
+			trigger_secrets_if_flag(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfBOMB,true);
 			break;
 		
 		case wSBomb:
-			findentrance(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfSBOMB,true);
+			trigger_secrets_if_flag(bx+w->txsz,by+tysz+(isSideViewGravity()?2:-3),mfSBOMB,true);
 			break;
 			
 		case wFire:
-			findentrance(bx,by,mfBCANDLE,true);
-			findentrance(bx,by,mfRCANDLE,true);
-			findentrance(bx,by,mfWANDFIRE,true);
+			trigger_secrets_if_flag(bx,by,mfBCANDLE,true);
+			trigger_secrets_if_flag(bx,by,mfRCANDLE,true);
+			trigger_secrets_if_flag(bx,by,mfWANDFIRE,true);
 		/* if we want the weapon to die
-		if (findentrance(bx,by,mfBCANDLE,true) ) dead = 1;
-			if (findentrance(bx,by,mfRCANDLE,true) ) dead = 1;
-			if (findentrance(bx,by,mfWANDFIRE,true)) dead = 1;
+		if (trigger_secrets_if_flag(bx,by,mfBCANDLE,true) ) dead = 1;
+			if (trigger_secrets_if_flag(bx,by,mfRCANDLE,true) ) dead = 1;
+			if (trigger_secrets_if_flag(bx,by,mfWANDFIRE,true)) dead = 1;
 		*/
 			break;
 		
@@ -4340,10 +4340,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         {
             for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
-                findentrance(bx,by,mfSWORD+i2,true);
+                trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
             }
             
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if(((flag2 >= 16)&&(flag2 <= 31)))
         {
@@ -4362,10 +4362,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         {
             for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
-                findentrance(bx,by,mfSWORD+i2,true);
+                trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
             }
             
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else
         {
@@ -4401,10 +4401,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
         {
-            findentrance(bx,by,mfSWORD+i2,true);
+            trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
         }
         
-        findentrance(fx,fy,mfSTRIKE,true);
+        trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
     }
     else if(!ignoreffc)
     {
@@ -4619,18 +4619,18 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
         
     //mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
     
-    //findentrance(bx,by,mfWAND,true);
-    //findentrance(bx,by,mfSTRIKE,true);
-    if((findentrance(bx,by,mfWAND,true)==false)&&(findentrance(bx,by,mfSTRIKE,true)==false))
+    //trigger_secrets_if_flag(bx,by,mfWAND,true);
+    //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
+    if((trigger_secrets_if_flag(bx,by,mfWAND,true)==false)&&(trigger_secrets_if_flag(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
         {
-            findentrance(fx,fy,mfWAND,true);
-            findentrance(fx,fy,mfSTRIKE,true);
+            trigger_secrets_if_flag(fx,fy,mfWAND,true);
+            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
     }
     
-    if(dontignore) { findentrance(bx,by,mfWAND,true); }
+    if(dontignore) { trigger_secrets_if_flag(bx,by,mfWAND,true); }
     
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
@@ -4713,13 +4713,13 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
         {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if(flag2==mfHAMMER||flag2==mfSTRIKE)
         {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if((flag >= 16)&&(flag <= 31))
         {
@@ -4754,8 +4754,8 @@ void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(flag3==mfHAMMER||flag3==mfSTRIKE)
         {
-            findentrance(fx,fy,mfHAMMER,true);
-            findentrance(fx,fy,mfSTRIKE,true);
+            trigger_secrets_if_flag(fx,fy,mfHAMMER,true);
+            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
         else
         {
@@ -4895,10 +4895,10 @@ void HeroClass::check_slash_block(weapon *w)
         {
             for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
-                findentrance(bx,by,mfSWORD+i2,true);
+                trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
             }
             
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if(((flag2 >= 16)&&(flag2 <= 31)))
         {
@@ -4917,10 +4917,10 @@ void HeroClass::check_slash_block(weapon *w)
         {
             for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
             {
-                findentrance(bx,by,mfSWORD+i2,true);
+                trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
             }
             
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else
         {
@@ -4943,10 +4943,10 @@ void HeroClass::check_slash_block(weapon *w)
     {
         for(int32_t i2=0; i2<=zc_min(sworditem-1,3); i2++)
         {
-            findentrance(bx,by,mfSWORD+i2,true);
+            trigger_secrets_if_flag(bx,by,mfSWORD+i2,true);
         }
         
-        findentrance(fx,fy,mfSTRIKE,true);
+        trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
     }
     else if(!ignoreffc)
     {
@@ -5128,14 +5128,14 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
         
     //mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
     
-    //findentrance(bx,by,mfWAND,true);
-    //findentrance(bx,by,mfSTRIKE,true);
-    if((findentrance(bx,by,mfWAND,true)==false)&&(findentrance(bx,by,mfSTRIKE,true)==false))
+    //trigger_secrets_if_flag(bx,by,mfWAND,true);
+    //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
+    if((trigger_secrets_if_flag(bx,by,mfWAND,true)==false)&&(trigger_secrets_if_flag(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
         {
-            findentrance(fx,fy,mfWAND,true);
-            findentrance(fx,fy,mfSTRIKE,true);
+            trigger_secrets_if_flag(fx,fy,mfWAND,true);
+            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
     }
     
@@ -5198,13 +5198,13 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     {
         if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
         {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if(flag2==mfHAMMER||flag2==mfSTRIKE)
         {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if((flag >= 16)&&(flag <= 31))
         {
@@ -5239,8 +5239,8 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     {
         if(flag3==mfHAMMER||flag3==mfSTRIKE)
         {
-            findentrance(fx,fy,mfHAMMER,true);
-            findentrance(fx,fy,mfSTRIKE,true);
+            trigger_secrets_if_flag(fx,fy,mfHAMMER,true);
+            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
         else
         {
@@ -5343,14 +5343,14 @@ void HeroClass::check_wand_block(weapon *w)
         
     //mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
     
-    //findentrance(bx,by,mfWAND,true);
-    //findentrance(bx,by,mfSTRIKE,true);
-    if((findentrance(bx,by,mfWAND,true)==false)&&(findentrance(bx,by,mfSTRIKE,true)==false))
+    //trigger_secrets_if_flag(bx,by,mfWAND,true);
+    //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
+    if((trigger_secrets_if_flag(bx,by,mfWAND,true)==false)&&(trigger_secrets_if_flag(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
         {
-            findentrance(fx,fy,mfWAND,true);
-            findentrance(fx,fy,mfSTRIKE,true);
+            trigger_secrets_if_flag(fx,fy,mfWAND,true);
+            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
     }
     
@@ -5428,13 +5428,13 @@ void HeroClass::check_pound_block(weapon *w)
     {
         if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
         {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if(flag2==mfHAMMER||flag2==mfSTRIKE)
         {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
+            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
+            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
         }
         else if((flag >= 16)&&(flag <= 31))
         {
@@ -5469,8 +5469,8 @@ void HeroClass::check_pound_block(weapon *w)
     {
         if(flag3==mfHAMMER||flag3==mfSTRIKE)
         {
-            findentrance(fx,fy,mfHAMMER,true);
-            findentrance(fx,fy,mfSTRIKE,true);
+            trigger_secrets_if_flag(fx,fy,mfHAMMER,true);
+            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
         else
         {
@@ -9993,7 +9993,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			Lwpns.add(new weapon(x,y-fakez,z,wWhistle,0,0,dir,itemid,getUID(),false,0,1,0));
 			
-			if(whistleflag=findentrance(x,y,mfWHISTLE,get_bit(quest_rules, qr_PERMANENT_WHISTLE_SECRETS)))
+			if(whistleflag=trigger_secrets_if_flag(x,y,mfWHISTLE,get_bit(quest_rules, qr_PERMANENT_WHISTLE_SECRETS)))
 				didstuff |= did_whistle;
 				
 			if((didstuff&did_whistle && itm.flags&ITEM_FLAG1) || currscr>=128)

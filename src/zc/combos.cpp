@@ -344,10 +344,10 @@ void trigger_cuttable(const pos_handle& pos_handle)
 		{
 			for(int32_t i=0; i <= 3; ++i)
 			{
-				findentrance(x,y,mfSWORD+i,true);
+				trigger_secrets_if_flag(x,y,mfSWORD+i,true);
 			}
 			
-			findentrance(x,y,mfSTRIKE,true);
+			trigger_secrets_if_flag(x,y,mfSTRIKE,true);
 		}
 		else if(flag2 >= 16 && flag2 <= 31)
 		{ 
@@ -366,10 +366,10 @@ void trigger_cuttable(const pos_handle& pos_handle)
 		{
 			for(int32_t i=0; i <= 3; i++)
 			{
-				findentrance(x,y,mfSWORD+i,true);
+				trigger_secrets_if_flag(x,y,mfSWORD+i,true);
 			}
 			
-			findentrance(x,y,mfSTRIKE,true);
+			trigger_secrets_if_flag(x,y,mfSTRIKE,true);
 		}
 		else done = false;
 	}

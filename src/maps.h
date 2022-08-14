@@ -217,7 +217,7 @@ void trigger_secrets_for_screen(int32_t screen, bool high16only=false, int32_t s
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t single=-1);
 void hidden_entrance2(int32_t screen_index, mapscr *s, bool do_layers, bool high16only=false, int32_t single=-1);
 void update_freeform_combos();
-bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag);
+bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype);
 int32_t nextscr(int32_t dir);
