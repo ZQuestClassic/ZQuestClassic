@@ -23094,8 +23094,8 @@ void HeroClass::check_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	if (dir == left || dir == right) x = CLAMP(0, world_w-16, x);
-	if (dir == up  || dir == down)   y = CLAMP(0, world_h-16, y);
+	if (dir == left || dir == right) x = CLAMP(0, world_w-16, (float)x);
+	if (dir == up  || dir == down)   y = CLAMP(0, world_h-16, (float)y);
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
