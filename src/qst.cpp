@@ -3624,6 +3624,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
 		set_bit(quest_rules,qr_SCREENSTATE_80s_BUG,1);
 	}
+	if(compatrule_version < 31)
+	{
+		set_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
