@@ -3277,17 +3277,19 @@ bool HeroClass::checkstab()
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
 					{
+						int screen_index = z3_get_scr_index_for_xy_offset(wx, wy);
+						mapscr* screen = z3_get_scr_for_world_xy(wx, wy);
 						int32_t pickup = ptr->pickup;
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag(mITEM);
+							setmapflag2(screen, screen_index, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag2(screen, screen_index, (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if(tmpscr.flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-							hidden_entrance(0, true, false, -5);
+							if (screen->flags9&fITEMSECRETPERM) setmapflag2(screen, screen_index, mSECRET);
+							trigger_secrets_for_screen(screen_index, false, -5);
 						}
 						//!DIMI
 						
@@ -19392,8 +19394,8 @@ void HeroClass::handleSpotlights()
 
 	if(hastrigs && istrigged && !alltrig)
 	{
+		// TODO z3 what screen? main screen?
 		hidden_entrance(0,true,false,-7);
-		// TODO z3 main screen
 		sfx(tmpscr.secretsfx);
 		if(!(tmpscr.flags5&fTEMPSECRETS))
 		{

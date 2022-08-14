@@ -417,9 +417,7 @@ bool movingblock::animate(int32_t)
 		{
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
-				mapscr *tmp = is_z3_scrolling_mode() ?
-					z3_get_mapscr_layer_for_xy_offset(x, y, lyr) :
-					FFCore.tempScreens[lyr];
+				mapscr *tmp = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
 				for(int32_t pos=0; pos<176; pos++)
 				{
 					if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
@@ -431,7 +429,8 @@ bool movingblock::animate(int32_t)
 						if(no_trig_replace)
 							for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								if(is_push(FFCore.tempScreens[lyr2], pos))
+								mapscr *tmp2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr2);
+								if (is_push(tmp2, pos))
 								{
 									found = true;
 									break;
@@ -481,7 +480,7 @@ bool movingblock::animate(int32_t)
 				// happening as each combo is placed.
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
-					mapscr* tmp = FFCore.tempScreens[lyr];
+					mapscr* tmp = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
 					for(int32_t pos=0; pos<176; pos++)
 					{
 						if(tmp->sflag[pos]==mfBLOCKTRIGGER
@@ -490,9 +489,11 @@ bool movingblock::animate(int32_t)
 							for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
 								if(lyr2 == lyr) continue;
-								if(is_push(FFCore.tempScreens[lyr2], pos))
+
+								mapscr* tmp2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr2);
+								if (is_push(tmp2, pos))
 								{
-									FFCore.tempScreens[lyr2]->sflag[pos] = mfPUSHED;
+									tmp2->sflag[pos] = mfPUSHED;
 								}
 							}
 							tmp->data[pos] = tmp->undercombo;
@@ -505,32 +506,33 @@ bool movingblock::animate(int32_t)
 			
 			if(hiddenstair(0,true))
 			{
-				sfx(tmpscr.secretsfx);
+				sfx(pos_handle.screen->secretsfx);
 			}
 			else
 			{
-				hidden_entrance(0,true,true);
+				trigger_secrets_for_screen(pos_handle.screen_index, true);
 				
 				if((combobuf[bcombo].type == cPUSH_WAIT) ||
 						(combobuf[bcombo].type == cPUSH_HW) ||
 						(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 				{
-					sfx(tmpscr.secretsfx);
+					sfx(pos_handle.screen->secretsfx);
 				}
 			}
 			
-			if(isdungeon() && tmpscr.flags&fSHUTTERS)
+			if (isdungeon() && pos_handle.screen->flags&fSHUTTERS)
 			{
 				opendoors=8;
 			}
 			
+			// TODO z3 permSecret
 			if(canPermSecret())
 			{
 				if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 						|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 				{
-					if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+					if (!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
 				}
 			}
 		}

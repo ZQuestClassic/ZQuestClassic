@@ -364,6 +364,7 @@ mapscr* z3_get_mapscr_for_rpos(rpos_t rpos)
 mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
+	if (!is_z3_scrolling_mode()) return FFCore.tempScreens[layer];
 	return layer == 0 ?
 		z3_get_scr_for_world_xy(x, y) :
 		get_layer_scr(currmap, z3_get_scr_index_for_xy_offset(x, y), layer - 1);
@@ -1999,6 +2000,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	return ret;
 }
 
+// TODO z3 ! remove
 bool hiddenstair(int32_t tmp,bool redraw)                       // tmp = index of tmpscr[]
 {
     return hiddenstair2(tmp == 0 ? &tmpscr : &special_warp_return_screen, redraw);
