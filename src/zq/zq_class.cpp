@@ -2647,397 +2647,373 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 	}
 }
 
+void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, int32_t flags,
+	int32_t sflag, bool over = true, bool transp = false)
+{
+	newcombo const& cmb = combobuf[cid];
+	if(cmb.animflags & AF_TRANSPARENT) transp = !transp;
+	if(over)
+	{
+		if(transp)
+			overcombotranslucent(dest,x,y,cid,cset,0);
+		else overcombo(dest,x,y,cid,cset);
+	}
+	else
+	{
+		put_combo(dest,x,y,cid,cset,flags,sflag);
+	}
+}
+
 void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr)
 {
-    int32_t antiflags=(flags&~cFLAGS)&~cWALK;
-    
-    if(map<0)
-        map=currmap;
-        
-    if(scr<0)
-        scr=currscr;
-        
-    mapscr *layer;
-    
-    if(prv_mode)
-    {
-        layer=get_prvscr();
-    }
-    else
-    {
-        layer=AbsoluteScr(map,scr);
-    }
-    
-    int32_t layermap, layerscreen;
-    layermap=layer->layermap[CurrentLayer-1]-1;
-    
-    if(layermap<0)
-    {
-        CurrentLayer=0;
-    }
-    
-    if(!(layer->valid&mVALID))
-    {
-        //  rectfill(dest,x,y,x+255,y+175,dvc(0+1));
-        rectfill(dest,x,y,x+255,y+175,vc(1));
-        
-        if(ShowMisalignments)
-        {
-            check_alignments(dest,x,y,scr);
-        }
-        
-        return;
-    }
-    
-    if(LayerMaskInt[0]==0)
-    {
-        rectfill(dest,x,y,x+255,y+175,0);
-    }
+	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
 	
-    resize_mouse_pos=true;
-    
-    for(int32_t k=1; k<3; k++)
-    {
-        if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
-        {
-            if(LayerMaskInt[k+1]!=0)
-            {
-                layermap=layer->layermap[k]-1;
-                
-                if(layermap>-1 && layermap<map_count)
-                {
-                    layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
-                    if(layer->layeropacity[k]==255)
+	if(map<0)
+		map=currmap;
+		
+	if(scr<0)
+		scr=currscr;
+		
+	mapscr *layer;
+	
+	if(prv_mode)
+	{
+		layer=get_prvscr();
+	}
+	else
+	{
+		layer=AbsoluteScr(map,scr);
+	}
+	
+	int32_t layermap, layerscreen;
+	layermap=layer->layermap[CurrentLayer-1]-1;
+	
+	if(layermap<0)
+	{
+		CurrentLayer=0;
+	}
+	
+	if(!(layer->valid&mVALID))
+	{
+		//  rectfill(dest,x,y,x+255,y+175,dvc(0+1));
+		rectfill(dest,x,y,x+255,y+175,vc(1));
+		
+		if(ShowMisalignments)
+		{
+			check_alignments(dest,x,y,scr);
+		}
+		
+		return;
+	}
+	
+	if(LayerMaskInt[0]==0)
+	{
+		rectfill(dest,x,y,x+255,y+175,0);
+	}
+	
+	resize_mouse_pos=true;
+	
+	for(int32_t k=1; k<3; k++)
+	{
+		if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+
+                    for (int32_t i = 0; i < 176; i++)
                     {
-                        for(int32_t i=0; i<176; i++)
-                        {
-                            put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
-                        }
+                        drawcombo(dest, ((i & 15) << 4) + x, (i & 0xF0) + y, prv_mode ? prvlayers[k].data[i] : TheMaps[layerscreen].data[i], prv_mode ? prvlayers[k].cset[i] : TheMaps[layerscreen].cset[i], antiflags, 0, false);
                     }
-                    else
-                    {
-                        for(int32_t i=0; i<176; i++)
-                        {
-                            put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
-                        }
-                    }
-                }
-            }
-        }
-        
-        if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG))
-        {
-            if(LayerMaskInt[k+1]!=0)
-            {
-                layermap=layer->layermap[k]-1;
-                
-                if(layermap>-1 && layermap<map_count)
-                {
-                    layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
-                    if(layer->layeropacity[k]==255)
-                    {
-                        for(int32_t i=0; i<176; i++)
-                        {
-                            if(!XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
-                                put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
-                            else overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
-                        }
-                    }
-                    else
-                    {
-                        for(int32_t i=0; i<176; i++)
-                        {
-                            if(!XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
-                                put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],antiflags,0);
-                            else overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int32_t i=0; i<176; i++)
-        {
-            word cmbdat = layer->data[i];
-            byte cmbcset = layer->cset[i];
-            int32_t cmbflag = layer->sflag[i];
-            
-            if(XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)||XOR(layer->flags7&fLAYER3BG,ViewLayer3BG))
-                overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset);
-            else put_combo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag);
-        }
-    }
-    
-    // int32_t cs=2;
-    
-    for(int32_t k=0; k<2; k++)
-    {
-        if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)) continue;
-        
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                if(layer->layeropacity[k]==255)
-                {
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
-                    }
-                }
-                else
-                {
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                }
-            }
-        }
-        
-        if(k==0)
-        {
-            for(int32_t i=31; i>=0; i--)
-            {
-                if(layer->ffdata[i])
-                {
-                    if(!(layer->ffflags[i]&ffCHANGER))
-                    {
-                        if(!(layer->ffflags[i]&ffOVERLAY))
-                        {
-                            int32_t tx=(layer->ffx[i]/10000)+x;
-                            int32_t ty=(layer->ffy[i]/10000)+y;
-                            
-                            if(layer->ffflags[i]&ffTRANS)
-                            {
-                                overcomboblocktranslucent(dest, tx, ty, layer->ffdata[i], layer->ffcset[i],1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
-                                //overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-                            }
-                            else
-                            {
-                                overcomboblock(dest, tx, ty, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
-                                //overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    int32_t doortype[4];
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        switch(layer->door[i])
-        {
-        case dOPEN:
-            doortype[i]=dt_pass;
-            break;
-            
-        case dLOCKED:
-            doortype[i]=dt_lock;
-            break;
-            
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-            doortype[i]=dt_shut;
-            break;
-            
-        case dBOSS:
-            doortype[i]=dt_boss;
-            break;
-            
-        case dBOMB:
-            doortype[i]=dt_bomb;
-            break;
-        }
-    }
-    
-    switch(layer->door[up])
-    {
-    case dBOMB:
-        over_door(dest,39,up,x,y,false, scr);
-        [[fallthrough]];
-    case dOPEN:
-    case dLOCKED:
-    case d1WAYSHUTTER:
-    case dSHUTTER:
-    case dBOSS:
-        put_door(dest,7,up,doortype[up],x,y,false,scr);
-        break;
-        
-    case dWALK:
-        if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
-        {
-            overcombo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0]);
-        }
-        else
-        
-        {
-            put_combo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0],0,0);
-        }
-        
-        break;
-    }
-    
-    switch(layer->door[down])
-    {
-    case dBOMB:
-        over_door(dest,135,down,x,y,false,scr);
-        [[fallthrough]];
-    case dOPEN:
-    case dLOCKED:
-    case d1WAYSHUTTER:
-    case dSHUTTER:
-    case dBOSS:
-        put_door(dest,151,down,doortype[down],x,y,false,scr);
-        break;
-        
-    case dWALK:
-        if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
-        {
-            overcombo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1]);
-        }
-        else
-        {
-            put_combo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1],0,0);
-        }
-        
-        break;
-    }
-    
-    switch(layer->door[left])
-    {
-    case dBOMB:
-        over_door(dest,66,left,x,y,false,scr);
-        [[fallthrough]];
-    case dOPEN:
-    case dLOCKED:
-    case d1WAYSHUTTER:
-    case dSHUTTER:
-    case dBOSS:
-        put_door(dest,64,left,doortype[left],x,y,false,scr);
-        break;
-        
-    case dWALK:
-        if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
-        {
-            overcombo(dest,((81&15)<<4)+x,(81&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2]);
-        }
-        else
-        {
-            put_combo(dest,((81&15)<<4)+x,(81&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2],0,0);
-        }
-        
-        break;
-    }
-    
-    switch(layer->door[right])
-    {
-    
-    case dBOMB:
-        over_door(dest,77,right,x,y,false,scr);
-        [[fallthrough]];
-    case dOPEN:
-    case dLOCKED:
-    case d1WAYSHUTTER:
-    case dSHUTTER:
-    case dBOSS:
-        put_door(dest,78,right,doortype[right],x,y,false,scr);
-        break;
-        
-    case dWALK:
-        if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
-        {
-            overcombo(dest,((94&15)<<4)+x,(94&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3]);
-        }
-        else
-        {
-            put_combo(dest,((94&15)<<4)+x,(94&0xF0)+y,
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
-                      DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3],0,0);
-        }
-        
-        break;
-    }
-    
-    if((layer->hasitem != 0) && !(flags&cNOITEM))
-    {
-        frame=0;
-        putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_bit(quest_rules, qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
-    }
-    
-    for(int32_t k=2; k<4; k++)
-    {
-        if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG)) continue;
-        
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                if(layer->layeropacity[k]==255)
-                {
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
-                    }
-                }
-                else
-                {
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                }
-            }
-        }
-    }
-    
+				}
+			}
+		}
+		
+		if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG))
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					for(int32_t i=0; i<176; i++)
+					{
+						auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
+						auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
+						drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,antiflags,0,
+							XOR(layer->flags7&fLAYER2BG,ViewLayer2BG),layer->layeropacity[k]!=255);
+					}
+				}
+			}
+		}
+	}
+	
+	if(LayerMaskInt[0]!=0)
+	{
+		for(int32_t i=0; i<176; i++)
+		{
+			word cmbdat = layer->data[i];
+			byte cmbcset = layer->cset[i];
+			int32_t cmbflag = layer->sflag[i];
+			
+			drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag,
+				(XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)||XOR(layer->flags7&fLAYER3BG,ViewLayer3BG)));
+		}
+	}
+	
+	// int32_t cs=2;
+	
+	for(int32_t k=0; k<2; k++)
+	{
+		if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)) continue;
+		
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				for(int32_t i=0; i<176; i++)
+				{
+					auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
+					auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
+					drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+		
+		if(k==0)
+		{
+			for(int32_t i=31; i>=0; i--)
+			{
+				if(layer->ffdata[i])
+				{
+					if(!(layer->ffflags[i]&ffCHANGER))
+					{
+						if(!(layer->ffflags[i]&ffOVERLAY))
+						{
+							int32_t tx=(layer->ffx[i]/10000)+x;
+							int32_t ty=(layer->ffy[i]/10000)+y;
+							
+							if(layer->ffflags[i]&ffTRANS)
+							{
+								overcomboblocktranslucent(dest, tx, ty, layer->ffdata[i], layer->ffcset[i],1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
+								//overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+							}
+							else
+							{
+								overcomboblock(dest, tx, ty, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
+								//overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	int32_t doortype[4];
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		switch(layer->door[i])
+		{
+		case dOPEN:
+			doortype[i]=dt_pass;
+			break;
+			
+		case dLOCKED:
+			doortype[i]=dt_lock;
+			break;
+			
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+			doortype[i]=dt_shut;
+			break;
+			
+		case dBOSS:
+			doortype[i]=dt_boss;
+			break;
+			
+		case dBOMB:
+			doortype[i]=dt_bomb;
+			break;
+		}
+	}
+	
+	switch(layer->door[up])
+	{
+	case dBOMB:
+		over_door(dest,39,up,x,y,false, scr);
+		[[fallthrough]];
+	case dOPEN:
+	case dLOCKED:
+	case d1WAYSHUTTER:
+	case dSHUTTER:
+	case dBOSS:
+		put_door(dest,7,up,doortype[up],x,y,false,scr);
+		break;
+		
+	case dWALK:
+		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		{
+			overcombo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0]);
+		}
+		else
+		
+		{
+			put_combo(dest,((23&15)<<4)+8+x,(23&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[0],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[0],0,0);
+		}
+		
+		break;
+	}
+	
+	switch(layer->door[down])
+	{
+	case dBOMB:
+		over_door(dest,135,down,x,y,false,scr);
+		[[fallthrough]];
+	case dOPEN:
+	case dLOCKED:
+	case d1WAYSHUTTER:
+	case dSHUTTER:
+	case dBOSS:
+		put_door(dest,151,down,doortype[down],x,y,false,scr);
+		break;
+		
+	case dWALK:
+		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		{
+			overcombo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1]);
+		}
+		else
+		{
+			put_combo(dest,((151&15)<<4)+8+x,(151&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[1],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[1],0,0);
+		}
+		
+		break;
+	}
+	
+	switch(layer->door[left])
+	{
+	case dBOMB:
+		over_door(dest,66,left,x,y,false,scr);
+		[[fallthrough]];
+	case dOPEN:
+	case dLOCKED:
+	case d1WAYSHUTTER:
+	case dSHUTTER:
+	case dBOSS:
+		put_door(dest,64,left,doortype[left],x,y,false,scr);
+		break;
+		
+	case dWALK:
+		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		{
+			overcombo(dest,((81&15)<<4)+x,(81&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2]);
+		}
+		else
+		{
+			put_combo(dest,((81&15)<<4)+x,(81&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[2],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[2],0,0);
+		}
+		
+		break;
+	}
+	
+	switch(layer->door[right])
+	{
+	
+	case dBOMB:
+		over_door(dest,77,right,x,y,false,scr);
+		[[fallthrough]];
+	case dOPEN:
+	case dLOCKED:
+	case d1WAYSHUTTER:
+	case dSHUTTER:
+	case dBOSS:
+		put_door(dest,78,right,doortype[right],x,y,false,scr);
+		break;
+		
+	case dWALK:
+		if(get_bit(DoorComboSets[screens[currscr].door_combo_set].flags,df_walktrans))
+		{
+			overcombo(dest,((94&15)<<4)+x,(94&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3]);
+		}
+		else
+		{
+			put_combo(dest,((94&15)<<4)+x,(94&0xF0)+y,
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcombo[3],
+					  DoorComboSets[screens[currscr].door_combo_set].walkthroughcset[3],0,0);
+		}
+		
+		break;
+	}
+	
+	if((layer->hasitem != 0) && !(flags&cNOITEM))
+	{
+		frame=0;
+		putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_bit(quest_rules, qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
+	}
+	
+	for(int32_t k=2; k<4; k++)
+	{
+		if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG)) continue;
+		
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				for(int32_t i=0; i<176; i++)
+				{
+					auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
+					auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
+					drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
 	//Overhead L0
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int32_t i=0; i<176; i++)
-        {
-            int32_t ct1=layer->data[i];
-            // int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int32_t ct3=combobuf[ct1].type;
-            
+	if(LayerMaskInt[0]!=0)
+	{
+		for(int32_t i=0; i<176; i++)
+		{
+			int32_t ct1=layer->data[i];
+			// int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
+			int32_t ct3=combobuf[ct1].type;
+			
 			// if (ct3==cOLD_OVERHEAD)
-            if(combo_class_buf[ct3].overhead)
-            {
-                overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i]);
-            }
-        }
-    }
-    //Overhead L1/2
+			if(combo_class_buf[ct3].overhead)
+			{
+				drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i],0,0);
+			}
+		}
+	}
+	//Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
@@ -3049,21 +3025,137 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-					mapscr const& tmp = prv_mode?prvlayers[k]:TheMaps[layerscreen];
-					if(layer->layeropacity[k]==255)
+					for(int32_t i=0; i<176; i++)
 					{
-						for(int32_t i=0; i<176; i++)
+						auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
+						if(!combo_class_buf[combobuf[data].type].overhead) continue;
+						auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
+						drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+					}
+				}
+			}
+		}
+	}
+	
+	for(int32_t k=4; k<6; k++)
+	{
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				for(int32_t i=0; i<176; i++)
+				{
+					auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
+					auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
+					drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+		
+		if(k==4)
+		{
+			for(int32_t i=31; i>=0; i--)
+			{
+				if(layer->ffdata[i])
+				{
+					if(!(layer->ffflags[i]&ffCHANGER))
+					{
+						if(layer->ffflags[i]&ffOVERLAY)
 						{
-							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-								overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
+							//overcombo(framebuf,(int32_t)layer->ffx[i],(int32_t)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
+							int32_t tx=(layer->ffx[i]/10000)+x;
+							int32_t ty=(layer->ffy[i]/10000)+y;
+							
+							if(layer->ffflags[i]&ffTRANS)
+							{
+								//overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
+								overcomboblocktranslucent(dest,tx,ty,layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
+							}
+							else
+							{
+								//overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
+								overcomboblock(dest, tx, ty, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
+							}
 						}
+					}
+				}
+			}
+		}
+		
+		if(k==5)
+		{
+			for(int32_t i=31; i>=0; i--)
+			{
+				if(layer->ffdata[i])
+				{
+					if(layer->ffflags[i]&ffCHANGER)
+					{
+						putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(zc_oldrand()%16));
+					}
+				}
+			}
+		}
+	}
+	
+	if(flags&cWALK)
+	{
+		if(LayerMaskInt[0]!=0)
+		{
+			for(int32_t i=0; i<176; i++)
+			{
+				//put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
+				put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
+			}
+		}
+		
+		for(int32_t k=0; k<2; k++)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				layermap=layer->layermap[k]-1;
+				
+				if(layermap>-1 && layermap<map_count)
+				{
+					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					
+					for(int32_t i=0; i<176; i++)
+					{
+						put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
+					}
+				}
+			}
+		}
+	}
+	
+	if(flags&cFLAGS)
+	{
+		if(LayerMaskInt[CurrentLayer]!=0)
+		{
+			for(int32_t i=0; i<176; i++)
+			{
+				if(CurrentLayer==0)
+				{
+					put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags,layer->sflag[i]);
+				}
+				else
+				{
+					if(prv_mode)
+					{
+						put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,prvlayers[CurrentLayer-1].data[i],prvlayers[CurrentLayer-1].cset[i],flags,prvlayers[CurrentLayer-1].sflag[i]);
 					}
 					else
 					{
-						for(int32_t i=0; i<176; i++)
+						int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+						
+						if(_lscr>-1 && _lscr<map_count*MAPSCRS)
 						{
-							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-								overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+							put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,
+									  TheMaps[_lscr].data[i],
+									  TheMaps[_lscr].cset[i], flags,
+									  TheMaps[_lscr].sflag[i]);
 						}
 					}
 				}
@@ -3071,360 +3163,212 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	
-    for(int32_t k=4; k<6; k++)
-    {
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                if(layer->layeropacity[k]==255)
-                {
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        overcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i]);
-                    }
-                }
-                else
-                {
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,(i&0xF0)+y,prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i],prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                }
-            }
-        }
-        
-        if(k==4)
-        {
-            for(int32_t i=31; i>=0; i--)
-            {
-                if(layer->ffdata[i])
-                {
-                    if(!(layer->ffflags[i]&ffCHANGER))
-                    {
-                        if(layer->ffflags[i]&ffOVERLAY)
-                        {
-                            //overcombo(framebuf,(int32_t)layer->ffx[i],(int32_t)layer->ffy[i]+56,layer->ffdata[i],layer->ffcset[i]);
-                            int32_t tx=(layer->ffx[i]/10000)+x;
-                            int32_t ty=(layer->ffy[i]/10000)+y;
-                            
-                            if(layer->ffflags[i]&ffTRANS)
-                            {
-                                //overtiletranslucent16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip, 128);
-                                overcomboblocktranslucent(dest,tx,ty,layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6),128);
-                            }
-                            else
-                            {
-                                //overtile16(dest, combo_tile(layer->ffdata[i],tx,ty)+(j*20)+(l), tx, ty, layer->ffcset[i], combobuf[layer->ffdata[i]].flip);
-                                overcomboblock(dest, tx, ty, layer->ffdata[i], layer->ffcset[i], 1+(layer->ffwidth[i]>>6), 1+(layer->ffheight[i]>>6));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        if(k==5)
-        {
-            for(int32_t i=31; i>=0; i--)
-            {
-                if(layer->ffdata[i])
-                {
-                    if(layer->ffflags[i]&ffCHANGER)
-                    {
-                        putpixel(dest,(layer->ffx[i]/10000)+x,(layer->ffy[i]/10000)+y,vc(zc_oldrand()%16));
-                    }
-                }
-            }
-        }
-    }
-    
-    if(flags&cWALK)
-    {
-        if(LayerMaskInt[0]!=0)
-        {
-            for(int32_t i=0; i<176; i++)
-            {
-                //put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
-				put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
-            }
-        }
-        
-        for(int32_t k=0; k<2; k++)
-        {
-            if(LayerMaskInt[k+1]!=0)
-            {
-                layermap=layer->layermap[k]-1;
-                
-                if(layermap>-1 && layermap<map_count)
-                {
-                    layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                    
-                    for(int32_t i=0; i<176; i++)
-                    {
-                        put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
-                    }
-                }
-            }
-        }
-    }
-    
-    if(flags&cFLAGS)
-    {
-        if(LayerMaskInt[CurrentLayer]!=0)
-        {
-            for(int32_t i=0; i<176; i++)
-            {
-                if(CurrentLayer==0)
-                {
-                    put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags,layer->sflag[i]);
-                }
-                else
-                {
-                    if(prv_mode)
-                    {
-                        put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,prvlayers[CurrentLayer-1].data[i],prvlayers[CurrentLayer-1].cset[i],flags,prvlayers[CurrentLayer-1].sflag[i]);
-                    }
-                    else
-                    {
-                        int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                        
-                        if(_lscr>-1 && _lscr<map_count*MAPSCRS)
-                        {
-                            put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,
-                                      TheMaps[_lscr].data[i],
-                                      TheMaps[_lscr].cset[i], flags,
-                                      TheMaps[_lscr].sflag[i]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    
-    int32_t dark = layer->flags&cDARK;
-    
-    if(dark && !(flags&cNODARK)
+	
+	int32_t dark = layer->flags&cDARK;
+	
+	if(dark && !(flags&cNODARK)
 		&& !((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM)))
-    {
-        for(int32_t j=0; j<80; j++)
-        {
-            for(int32_t i=0; i<(80)-j; i++)
-            {
-                if(((i^j)&1)==0)
-                {
-                    putpixel(dest,x+i,y+j,vc(blackout_color));
-                }
-            }
-        }
-    }
-    
-    if(ShowMisalignments)
-    {
-        check_alignments(dest,x,y,scr);
-    }
-    
-    resize_mouse_pos=false;
+	{
+		for(int32_t j=0; j<80; j++)
+		{
+			for(int32_t i=0; i<(80)-j; i++)
+			{
+				if(((i^j)&1)==0)
+				{
+					putpixel(dest,x+i,y+j,vc(blackout_color));
+				}
+			}
+		}
+	}
+	
+	if(ShowMisalignments)
+	{
+		check_alignments(dest,x,y,scr);
+	}
+	
+	resize_mouse_pos=false;
 }
 
 void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
 {
-    if(map<0)
-        map=currmap;
-        
-    if(scr<0)
-        scr=currscr;
-        
-    mapscr* layer=AbsoluteScr(map,scr);
-    int32_t layermap=0, layerscreen=0;
-    
-    if(!(layer->valid&mVALID))
-    {
-        //  rectfill(dest,x,y,x+255,y+15,dvc(0+1));
-        rectfill(dest,x,y,x+255,y+15,vc(1));
-        return;
-    }
-    
-    int32_t dark = layer->flags&4;
-    
-    resize_mouse_pos=true;
-    
-    if(LayerMaskInt[0]==0)
-    {
-        rectfill(dest,x,y,x+255,y+15,0);
-    }
-    
-    // int32_t cs=2;
-    
-    for(int32_t k=1; k<3; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
-                
-                for(int32_t i=c; i<(c&0xF0)+16; i++)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
+	if(map<0)
+		map=currmap;
+		
+	if(scr<0)
+		scr=currscr;
+		
+	mapscr* layer=AbsoluteScr(map,scr);
+	int32_t layermap=0, layerscreen=0;
+	
+	if(!(layer->valid&mVALID))
+	{
+		//  rectfill(dest,x,y,x+255,y+15,dvc(0+1));
+		rectfill(dest,x,y,x+255,y+15,vc(1));
+		return;
+	}
+	
+	int32_t dark = layer->flags&4;
+	
+	resize_mouse_pos=true;
+	
+	if(LayerMaskInt[0]==0)
+	{
+		rectfill(dest,x,y,x+255,y+15,0);
+	}
+	
+	// int32_t cs=2;
+	
+	for(int32_t k=1; k<3; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
+				
+				for(int32_t i=c; i<(c&0xF0)+16; i++)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,((i&15)<<4)+x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
 	
 	if(LayerMaskInt[0]!=0)
-    {
-        for(int32_t i=c; i<(c&0xF0)+16; i++)
-        {
-            word cmbdat = (i < (int32_t)layer->data.size() ? layer->data[i] : 0);
-            byte cmbcset = (i < (int32_t)layer->data.size() ? layer->cset[i] : 0);
-            int32_t cmbflag = (i < (int32_t)layer->data.size() ? layer->sflag[i] : 0);
-			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
-				overcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset);
-			else put_combo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
-        }
-    }
-    
-    for(int32_t k=0; k<2; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                for(int32_t i=c; i<(c&0xF0)+16; i++)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    int32_t doortype[4];
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        switch(layer->door[i])
-        {
-        case dOPEN:
-            doortype[i]=dt_pass;
-            break;
-            
-        case dLOCKED:
-            doortype[i]=dt_lock;
-            break;
-            
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-            doortype[i]=dt_shut;
-            break;
-            
-        case dBOSS:
-            doortype[i]=dt_boss;
-            break;
-            
-        case dBOMB:
-            doortype[i]=dt_bomb;
-            break;
-        }
-    }
-    
-    if(c<16)
-    {
-        switch(layer->door[up])
-        {
-        case dBOMB:
-        case dOPEN:
-        case dLOCKED:
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-        case dBOSS:
-            put_door(dest,7,up,doortype[up],x,y+176,true,scr);
-            break;
-        }
-    }
-    else if(c>159)
-    {
-        switch(layer->door[down])
-        {
-        case dBOMB:
-        case dOPEN:
-        case dLOCKED:
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-        case dBOSS:
-            put_door(dest,151,down,doortype[down],x,y-16,true,scr);
-            break;
-        }
-    }
-    
-    for(int32_t k=2; k<4; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                for(int32_t i=c; i<(c&0xF0)+16; i++)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
+	{
+		for(int32_t i=c; i<(c&0xF0)+16; i++)
+		{
+			word cmbdat = (i < (int32_t)layer->data.size() ? layer->data[i] : 0);
+			byte cmbcset = (i < (int32_t)layer->data.size() ? layer->cset[i] : 0);
+			int32_t cmbflag = (i < (int32_t)layer->data.size() ? layer->sflag[i] : 0);
+			drawcombo(dest,((i&15)<<4)+x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),
+				cmbflag,(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+		}
+	}
+	
+	for(int32_t k=0; k<2; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				for(int32_t i=c; i<(c&0xF0)+16; i++)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,((i&15)<<4)+x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
+	int32_t doortype[4];
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		switch(layer->door[i])
+		{
+		case dOPEN:
+			doortype[i]=dt_pass;
+			break;
+			
+		case dLOCKED:
+			doortype[i]=dt_lock;
+			break;
+			
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+			doortype[i]=dt_shut;
+			break;
+			
+		case dBOSS:
+			doortype[i]=dt_boss;
+			break;
+			
+		case dBOMB:
+			doortype[i]=dt_bomb;
+			break;
+		}
+	}
+	
+	if(c<16)
+	{
+		switch(layer->door[up])
+		{
+		case dBOMB:
+		case dOPEN:
+		case dLOCKED:
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+		case dBOSS:
+			put_door(dest,7,up,doortype[up],x,y+176,true,scr);
+			break;
+		}
+	}
+	else if(c>159)
+	{
+		switch(layer->door[down])
+		{
+		case dBOMB:
+		case dOPEN:
+		case dLOCKED:
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+		case dBOSS:
+			put_door(dest,151,down,doortype[down],x,y-16,true,scr);
+			break;
+		}
+	}
+	
+	for(int32_t k=2; k<4; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				for(int32_t i=c; i<(c&0xF0)+16; i++)
+				{
+					if(layer->layeropacity[k]<255)
+					{
+						overcombotranslucent(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
+					}
+					else
+					{
+						overcombo(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
+					}
+				}
+			}
+		}
+	}
+	
 	//Overhead L0
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int32_t i=c; i<(c&0xF0)+16; i++)
-        {
-            int32_t ct1=layer->data[i];
-            //     int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int32_t ct3=combobuf[ct1].type;
-            
-//      if (ct3==cOLD_OVERHEAD)
-            if(combo_class_buf[ct3].overhead)
-            {
-                overcombo(dest,((i&15)<<4)+x,y,layer->data[i],layer->cset[i]);
-            }
-        }
-    }
-    
-    //Overhead L1/2
+	if(LayerMaskInt[0]!=0)
+	{
+		for(int32_t i=c; i<(c&0xF0)+16; i++)
+		{
+			int32_t ct1=layer->data[i];
+			int32_t ct3=combobuf[ct1].type;
+			
+			if(combo_class_buf[ct3].overhead)
+			{
+				drawcombo(dest,((i&15)<<4)+x,y,layer->data[i],layer->cset[i],0,0);
+			}
+		}
+	}
+	
+	//Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
@@ -3436,327 +3380,291 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-					mapscr const& tmp = TheMaps[layerscreen];
-					if(layer->layeropacity[k]==255)
+					for(int32_t i=c; i<(c&0xF0)+16; i++)
 					{
-						for(int32_t i=c; i<(c&0xF0)+16; i++)
-						{
-							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-								overcombo(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i]);
-						}
-					}
-					else
-					{
-						for(int32_t i=c; i<(c&0xF0)+16; i++)
-						{
-							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-								overcombotranslucent(dest,((i&15)<<4)+x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
-						}
+						auto data = TheMaps[layerscreen].data[i];
+						if(!combo_class_buf[combobuf[data].type].overhead) continue;
+						auto cs = TheMaps[layerscreen].cset[i];
+						drawcombo(dest,((i&15)<<4)+x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
 					}
 				}
 			}
 		}
 	}
 	
-    for(int32_t k=4; k<6; k++)
-    {
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                for(int32_t i=c; i<(c&0xF0)+16; i++)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,((i&15)<<4)+x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    if(flags&cWALK)
-    {
-        if(LayerMaskInt[0]!=0)
-        {
-            for(int32_t i=c; i<(c&0xF0)+16; i++)
-            {
-                put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, -1, map,scr);
-            }
-        }
-        
-        for(int32_t k=0; k<2; k++)
-        {
-            if(LayerMaskInt[k+1]!=0)
-            { 
-                for(int32_t i=c; i<(c&0xF0)+16; i++)
-                {
-			put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, k, map,scr);
-                }
-            }
-        }
-    }
-    
-    if(flags&cFLAGS)
-    {
-        if(LayerMaskInt[CurrentLayer]!=0)
-        {
-            for(int32_t i=c; i<(c&0xF0)+16; i++)
-            {
-                if(CurrentLayer==0)
-                {
-                    put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
-                }
-                else
-                {
-                    int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                    
-                    if(_lscr>-1 && _lscr<map_count*MAPSCRS)
-                    {
-                        if(i < (int32_t)TheMaps[_lscr].data.size())
-                        {
-                            put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,
-                                      TheMaps[_lscr].data[i],
-                                      TheMaps[_lscr].cset[i], flags|dark,
-                                      TheMaps[_lscr].sflag[i]);
-                        }
-                        else
-                        {
-                            put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,0,0, flags|dark,0);
-                        }
-                    }
-                }
-            }
-        }
-        
-        /*
-          if (LayerMaskInt[0]!=0) {
-          for(int32_t i=c; i<(c&0xF0)+16; i++) {
-          put_flags(dest,((i&15)<<4)+x,y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
-          }
-          }
-          */
-    }
-    
-    if(ShowMisalignments)
-    {
-        if(c<16)
-        {
-            check_alignments(dest,x,y,scr);
-        }
-        else if(c>159)
-        {
-            check_alignments(dest,x,y-160,scr);
-        }
-    }
-    
-    resize_mouse_pos=false;
-    
+	for(int32_t k=4; k<6; k++)
+	{
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				for(int32_t i=c; i<(c&0xF0)+16; i++)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,((i&15)<<4)+x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
+	if(flags&cWALK)
+	{
+		if(LayerMaskInt[0]!=0)
+		{
+			for(int32_t i=c; i<(c&0xF0)+16; i++)
+			{
+				put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, -1, map,scr);
+			}
+		}
+		
+		for(int32_t k=0; k<2; k++)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{ 
+				for(int32_t i=c; i<(c&0xF0)+16; i++)
+				{
+					put_walkflags_layered_external(dest,((i&15)<<4)+x,y,i, k, map,scr);
+				}
+			}
+		}
+	}
+	
+	if(flags&cFLAGS)
+	{
+		if(LayerMaskInt[CurrentLayer]!=0)
+		{
+			for(int32_t i=c; i<(c&0xF0)+16; i++)
+			{
+				if(CurrentLayer==0)
+				{
+					put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
+				}
+				else
+				{
+					int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+					
+					if(_lscr>-1 && _lscr<map_count*MAPSCRS)
+					{
+						if(i < (int32_t)TheMaps[_lscr].data.size())
+						{
+							put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,
+									  TheMaps[_lscr].data[i],
+									  TheMaps[_lscr].cset[i], flags|dark,
+									  TheMaps[_lscr].sflag[i]);
+						}
+						else
+						{
+							put_flags(dest,((i&15)<<4)+x,/*(i&0xF0)+*/y,0,0, flags|dark,0);
+						}
+					}
+				}
+			}
+		}
+		
+		/*
+		  if (LayerMaskInt[0]!=0) {
+		  for(int32_t i=c; i<(c&0xF0)+16; i++) {
+		  put_flags(dest,((i&15)<<4)+x,y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
+		  }
+		  }
+		  */
+	}
+	
+	if(ShowMisalignments)
+	{
+		if(c<16)
+		{
+			check_alignments(dest,x,y,scr);
+		}
+		else if(c>159)
+		{
+			check_alignments(dest,x,y-160,scr);
+		}
+	}
+	
+	resize_mouse_pos=false;
+	
 }
 
 void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
 {
-    if(map<0)
-        map=currmap;
-        
-    if(scr<0)
-        scr=currscr;
-        
-    mapscr* layer=AbsoluteScr(map,scr);
-    int32_t layermap=0, layerscreen=0;
-    
-    if(!(layer->valid&mVALID))
-    {
-        //  rectfill(dest,x,y,x+15,y+175,dvc(0+1));
-        rectfill(dest,x,y,x+15,y+175,vc(1));
-        return;
-    }
-    
-    int32_t dark = layer->flags&4;
-    
-    resize_mouse_pos=true;
-    
-    
-    if(LayerMaskInt[0]==0)
-    {
-        rectfill(dest,x,y,x+15,y+175,0);
-    }
-    
-    // int32_t cs=2;
-    
-    for(int32_t k=1; k<3; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
-                
-                for(int32_t i=c; i<176; i+=16)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int32_t i=c; i<176; i+=16)
-        {
-            word cmbdat = layer->data[i];
-            byte cmbcset = layer->cset[i];
-            int32_t cmbflag = layer->sflag[i];
-			if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
-				overcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset);
-            else put_combo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
-        }
-    }
-    
-    for(int32_t k=0; k<2; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                for(int32_t i=c; i<176; i+=16)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    int32_t doortype[4];
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        switch(layer->door[i])
-        {
-        case dOPEN:
-            doortype[i]=dt_pass;
-            break;
-            
-        case dLOCKED:
-            doortype[i]=dt_lock;
-            break;
-            
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-            doortype[i]=dt_shut;
-            break;
-            
-        case dBOSS:
-            doortype[i]=dt_boss;
-            break;
-            
-        case dBOMB:
-            doortype[i]=dt_bomb;
-            break;
-        }
-    }
-    
-    if((c&0x0F)==0)
-    {
-        switch(layer->door[left])
-        {
-        
-        case dBOMB:
-        case dOPEN:
-        case dLOCKED:
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-        case dBOSS:
-            //       put_door(dest,64,left,doortype[left],x+256,y,true);
-            put_door(dest,64,left,doortype[left],x,y,true,scr);
-            break;
-        }
-    }
-    else if((c&0x0F)==15)
-    {
-        switch(layer->door[right])
-        {
-        case dBOMB:
-        case dOPEN:
-        case dLOCKED:
-        case d1WAYSHUTTER:
-        case dSHUTTER:
-        case dBOSS:
-            put_door(dest,78,right,doortype[right],x-16,y,true,scr);
-            break;
-        }
-    }
-    
-    for(int32_t k=2; k<4; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                for(int32_t i=c; i<176; i+=16)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
+	if(map<0)
+		map=currmap;
+		
+	if(scr<0)
+		scr=currscr;
+		
+	mapscr* layer=AbsoluteScr(map,scr);
+	int32_t layermap=0, layerscreen=0;
+	
+	if(!(layer->valid&mVALID))
+	{
+		//  rectfill(dest,x,y,x+15,y+175,dvc(0+1));
+		rectfill(dest,x,y,x+15,y+175,vc(1));
+		return;
+	}
+	
+	int32_t dark = layer->flags&4;
+	
+	resize_mouse_pos=true;
+	
+	
+	if(LayerMaskInt[0]==0)
+	{
+		rectfill(dest,x,y,x+15,y+175,0);
+	}
+	
+	// int32_t cs=2;
+	
+	for(int32_t k=1; k<3; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
+				
+				for(int32_t i=c; i<176; i+=16)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
+	if(LayerMaskInt[0]!=0)
+	{
+		for(int32_t i=c; i<176; i+=16)
+		{
+			word cmbdat = layer->data[i];
+			byte cmbcset = layer->cset[i];
+			int32_t cmbflag = layer->sflag[i];
+			drawcombo(dest,x,(i&0xF0)+y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag,
+				(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+		}
+	}
+	
+	for(int32_t k=0; k<2; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && !(k==1 && layer->flags7&fLAYER2BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				for(int32_t i=c; i<176; i+=16)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
+	int32_t doortype[4];
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		switch(layer->door[i])
+		{
+		case dOPEN:
+			doortype[i]=dt_pass;
+			break;
+			
+		case dLOCKED:
+			doortype[i]=dt_lock;
+			break;
+			
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+			doortype[i]=dt_shut;
+			break;
+			
+		case dBOSS:
+			doortype[i]=dt_boss;
+			break;
+			
+		case dBOMB:
+			doortype[i]=dt_bomb;
+			break;
+		}
+	}
+	
+	if((c&0x0F)==0)
+	{
+		switch(layer->door[left])
+		{
+		
+		case dBOMB:
+		case dOPEN:
+		case dLOCKED:
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+		case dBOSS:
+			//       put_door(dest,64,left,doortype[left],x+256,y,true);
+			put_door(dest,64,left,doortype[left],x,y,true,scr);
+			break;
+		}
+	}
+	else if((c&0x0F)==15)
+	{
+		switch(layer->door[right])
+		{
+		case dBOMB:
+		case dOPEN:
+		case dLOCKED:
+		case d1WAYSHUTTER:
+		case dSHUTTER:
+		case dBOSS:
+			put_door(dest,78,right,doortype[right],x-16,y,true,scr);
+			break;
+		}
+	}
+	
+	for(int32_t k=2; k<4; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && !(k==2 && layer->flags7&fLAYER3BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				for(int32_t i=c; i<176; i+=16)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
 	//Overhead L0
-    if(LayerMaskInt[0]!=0)
-    {
-        for(int32_t i=c; i<176; i+=16)
-        {
-            int32_t ct1=layer->data[i];
-            //     int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-            int32_t ct3=combobuf[ct1].type;
-            
-//      if (ct3==cOLD_OVERHEAD)
-            if(combo_class_buf[ct3].overhead)
-            {
-                overcombo(dest,x,(i&0xF0)+y,layer->data[i],layer->cset[i]);
-            }
-        }
-    }
-    //Overhead L1/2
+	if(LayerMaskInt[0]!=0)
+	{
+		for(int32_t i=c; i<176; i+=16)
+		{
+			auto data = TheMaps[layerscreen].data[i];
+			if(!combo_class_buf[combobuf[data].type].overhead) continue;
+			auto cs = TheMaps[layerscreen].cset[i];
+			drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0);
+		}
+	}
+	//Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
@@ -3768,248 +3676,201 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-					mapscr const& tmp = TheMaps[layerscreen];
-					if(layer->layeropacity[k]==255)
+					for(int32_t i=c; i<176; i+=16)
 					{
-						for(int32_t i=c; i<176; i+=16)
-						{
-							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-								overcombo(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i]);
-						}
-					}
-					else
-					{
-						for(int32_t i=c; i<176; i+=16)
-						{
-							if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-								overcombotranslucent(dest,x,(i&0xF0)+y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
-						}
+						auto data = TheMaps[layerscreen].data[i];
+						if(!combo_class_buf[combobuf[data].type].overhead) continue;
+						auto cs = TheMaps[layerscreen].cset[i];
+						drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
 					}
 				}
 			}
 		}
 	}
 	
-    
-    for(int32_t k=4; k<6; k++)
-    {
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                for(int32_t i=c; i<176; i+=16)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    
-                    else
-                    {
-                        overcombo(dest,x,(i&0xF0)+y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    if(flags&cWALK)
-    {
-        if(LayerMaskInt[0]!=0)
-        {
-            for(int32_t i=c&0xF; i<176; i+=16)
-            {
-                put_walkflags_layered_external(dest,x,y+(i&0xF0),i, -1, map,scr);
-            }
-        }
-        
-        for(int32_t k=0; k<2; k++)
-        {
-            if(LayerMaskInt[k+1]!=0)
-            {
-                for(int32_t i=c&0xF; i<176; i+=16)
-                {
-			put_walkflags_layered_external(dest,x,y+(i&0xF0),i, k, map,scr);
-                        //put_walkflags_layered(dest,x,(i&0xF0)+y,i, k);
-                }
-            }
-        }
-    }
-    
-    if(flags&cFLAGS)
-    {
-        if(LayerMaskInt[CurrentLayer]!=0)
-        {
-            for(int32_t i=c; i<176; i+=16)
-            {
-                if(CurrentLayer==0)
-                {
-                    put_flags(dest,/*((i&15)<<4)+*/x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
-                }
-                else
-                {
-                    int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                    
-                    if(_lscr>-1 && _lscr<map_count*MAPSCRS)
-                    {
-                        put_flags(dest,/*((i&15)<<4)+*/x,(i&0xF0)+y,
-                                  TheMaps[_lscr].data[i],
-                                  TheMaps[_lscr].cset[i], flags|dark,
-                                  TheMaps[_lscr].sflag[i]);
-                    }
-                }
-            }
-        }
-        
-        /*
-          if (LayerMaskInt[0]!=0) {
-          for(int32_t i=c; i<176; i+=16) {
-          put_flags(dest,x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
-          }
-          }
-          */
-    }
-    
-    if(ShowMisalignments)
-    {
-        if((c&0x0F)==0)
-        {
-            check_alignments(dest,x,y,scr);
-        }
-        else if((c&0x0F)==15)
-        {
-            check_alignments(dest,x-240,y,scr);
-        }
-    }
-    
-    resize_mouse_pos=false;
+	
+	for(int32_t k=4; k<6; k++)
+	{
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				for(int32_t i=c; i<176; i+=16)
+				{
+					auto data = TheMaps[layerscreen].data[i];
+					auto cs = TheMaps[layerscreen].cset[i];
+					drawcombo(dest,x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
+	if(flags&cWALK)
+	{
+		if(LayerMaskInt[0]!=0)
+		{
+			for(int32_t i=c&0xF; i<176; i+=16)
+			{
+				put_walkflags_layered_external(dest,x,y+(i&0xF0),i, -1, map,scr);
+			}
+		}
+		
+		for(int32_t k=0; k<2; k++)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				for(int32_t i=c&0xF; i<176; i+=16)
+				{
+					put_walkflags_layered_external(dest,x,y+(i&0xF0),i, k, map,scr);
+				}
+			}
+		}
+	}
+	
+	if(flags&cFLAGS)
+	{
+		if(LayerMaskInt[CurrentLayer]!=0)
+		{
+			for(int32_t i=c; i<176; i+=16)
+			{
+				if(CurrentLayer==0)
+				{
+					put_flags(dest,/*((i&15)<<4)+*/x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
+				}
+				else
+				{
+					int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+					
+					if(_lscr>-1 && _lscr<map_count*MAPSCRS)
+					{
+						put_flags(dest,/*((i&15)<<4)+*/x,(i&0xF0)+y,
+								  TheMaps[_lscr].data[i],
+								  TheMaps[_lscr].cset[i], flags|dark,
+								  TheMaps[_lscr].sflag[i]);
+					}
+				}
+			}
+		}
+	}
+	
+	if(ShowMisalignments)
+	{
+		if((c&0x0F)==0)
+		{
+			check_alignments(dest,x,y,scr);
+		}
+		else if((c&0x0F)==15)
+		{
+			check_alignments(dest,x-240,y,scr);
+		}
+	}
+	
+	resize_mouse_pos=false;
 }
 
 void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
 {
-    if(map<0)
-        map=currmap;
-        
-    if(scr<0)
-        scr=currscr;
-        
-    mapscr* layer=AbsoluteScr(map,scr);
-    int32_t layermap=0, layerscreen=0;
-    
-    if(!(layer->valid&mVALID))
-    {
-        //  rectfill(dest,x,y,x+15,y+15,dvc(0+1));
-        rectfill(dest,x,y,x+15,y+15,vc(1));
-        return;
-    }
-    
-    int32_t dark = layer->flags&4;
-    
-    resize_mouse_pos=true;
-    
-    if(LayerMaskInt[0]!=0)
-    {
-        rectfill(dest,x,y,x+15,y+15,0);
-    }
-    
-    for(int32_t k=1; k<3; k++)
-    {
-        if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
-                
-                for(int32_t i=c; i<176; i+=16)
-                {
-                    if(layer->layeropacity[k]<255)
-                    {
-                        overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],layer->layeropacity[k]);
-                    }
-                    else
-                    {
-                        overcombo(dest,x,y,TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-                    }
-                }
-            }
-        }
-    }
-    
-    // int32_t cs=2;
-    if(LayerMaskInt[0]!=0)
-    {
-        word cmbdat = layer->data[c];
-        byte cmbcset = layer->cset[c];
-        int32_t cmbflag = layer->sflag[c];
-        if(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG)
-			overcombo(dest,x,y,cmbdat,cmbcset);
-		else put_combo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag);
-    }
-    
-    
-    for(int32_t k=0; k<2; k++)
-    {
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                if(layer->layeropacity[k]<255)
-                {
-                    overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c],layer->layeropacity[k]);
-                }
-                else
-                {
-                    overcombo(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c]);
-                }
-            }
-        }
-    }
+	if(map<0)
+		map=currmap;
+		
+	if(scr<0)
+		scr=currscr;
+		
+	mapscr* layer=AbsoluteScr(map,scr);
+	int32_t layermap=0, layerscreen=0;
 	
-    for(int32_t k=2; k<4; k++)
-    {
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                if(layer->layeropacity[k]<255)
-                {
-                    overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c],layer->layeropacity[k]);
-                }
-                else
-                {
-                    overcombo(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c]);
-                }
-            }
-        }
-    }
-    
+	if(!(layer->valid&mVALID))
+	{
+		//  rectfill(dest,x,y,x+15,y+15,dvc(0+1));
+		rectfill(dest,x,y,x+15,y+15,vc(1));
+		return;
+	}
+	
+	int32_t dark = layer->flags&4;
+	
+	resize_mouse_pos=true;
+	
+	if(LayerMaskInt[0]!=0)
+	{
+		rectfill(dest,x,y,x+15,y+15,0);
+	}
+	
+	for(int32_t k=1; k<3; k++)
+	{
+		if(LayerMaskInt[k+1]!=0 && (k==1)?(layer->flags7&fLAYER2BG):(layer->flags7&fLAYER3BG))
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[2-1];
+				
+				auto data = TheMaps[layerscreen].data[c];
+				auto cs = TheMaps[layerscreen].cset[c];
+				drawcombo(dest,x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+			}
+		}
+	}
+	
+	// int32_t cs=2;
+	if(LayerMaskInt[0]!=0)
+	{
+		word cmbdat = layer->data[c];
+		byte cmbcset = layer->cset[c];
+		int32_t cmbflag = layer->sflag[c];
+		drawcombo(dest,x,y,cmbdat,cmbcset,((flags|dark)&~cWALK),cmbflag,
+			(layer->flags7&fLAYER3BG||layer->flags7&fLAYER2BG));
+	}
+	
+	
+	for(int32_t k=0; k<2; k++)
+	{
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				
+				auto data = TheMaps[layerscreen].data[c];
+				auto cs = TheMaps[layerscreen].cset[c];
+				drawcombo(dest,x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+			}
+		}
+	}
+	
+	for(int32_t k=2; k<4; k++)
+	{
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				auto data = TheMaps[layerscreen].data[c];
+				auto cs = TheMaps[layerscreen].cset[c];
+				drawcombo(dest,x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+			}
+		}
+	}
+	
 	//Overhead L0
-    if(LayerMaskInt[0]!=0)
-    {
-        int32_t ct1=layer->data[c];
-        int32_t ct3=combobuf[ct1].type;
-        
-//    if (ct3==cOLD_OVERHEAD)
-        if(combo_class_buf[ct3].overhead)
-        {
-            overcombo(dest,x,y,layer->data[c],layer->cset[c]);
-        }
-    }
-    //Overhead L1/2
+	if(LayerMaskInt[0]!=0)
+	{
+		auto data = TheMaps[layerscreen].data[c];
+		if(combo_class_buf[combobuf[data].type].overhead)
+		{
+			auto cs = TheMaps[layerscreen].cset[c];
+			drawcombo(dest,x,y,data,cs,0,0);
+		}
+	}
+	//Overhead L1/2
 	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
@@ -4021,120 +3882,99 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 				if(layermap>-1 && layermap<map_count)
 				{
 					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-					mapscr const& tmp = TheMaps[layerscreen];
-					int32_t i = c;
-					if(layer->layeropacity[k]==255)
+					auto data = TheMaps[layerscreen].data[c];
+					if(!combo_class_buf[combobuf[data].type].overhead) continue;
+					auto cs = TheMaps[layerscreen].cset[c];
+					drawcombo(dest,x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+				}
+			}
+		}
+	}
+	
+	
+	for(int32_t k=4; k<6; k++)
+	{
+		if(LayerMaskInt[k+1]!=0)
+		{
+			layermap=layer->layermap[k]-1;
+			
+			if(layermap>-1 && layermap<map_count)
+			{
+				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+				auto data = TheMaps[layerscreen].data[c];
+				auto cs = TheMaps[layerscreen].cset[c];
+				drawcombo(dest,x,y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+			}
+		}
+	}
+	
+	if(flags&cWALK)
+	{
+		if(LayerMaskInt[0]!=0)
+		{
+			put_walkflags_layered_external(dest,x,y,c,-1, map,scr);
+		}
+		
+		for(int32_t k=0; k<2; k++)
+		{
+			if(LayerMaskInt[k+1]!=0)
+			{
+				put_walkflags_layered_external(dest,x,y,c,k, map,scr);
+			}
+		}
+	}
+	
+	if(flags&cFLAGS)
+	{
+		if(LayerMaskInt[CurrentLayer]!=0)
+		{
+			int32_t i = c;
+			//for(int32_t i=c; i==c; i++)
+			{
+				if(CurrentLayer==0)
+				{
+					put_flags(dest,/*((i&15)<<4)+*/x,/*(i&0xF0)+*/y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
+				}
+				else
+				{
+					int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+					
+					if(_lscr>-1 && _lscr<map_count*MAPSCRS)
 					{
-						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-							overcombo(dest,x,y,tmp.data[i],tmp.cset[i]);
-					}
-					else
-					{
-						if(combo_class_buf[combobuf[tmp.data[i]].type].overhead)
-							overcombotranslucent(dest,x,y,tmp.data[i],tmp.cset[i],layer->layeropacity[k]);
+						put_flags(dest,/*((i&15)<<4)+*/x,/*(i&0xF0)+*/y,
+								  TheMaps[_lscr].data[i],
+								  TheMaps[_lscr].cset[i], flags|dark,
+								  TheMaps[_lscr].sflag[i]);
 					}
 				}
 			}
 		}
 	}
 	
-    
-    for(int32_t k=4; k<6; k++)
-    {
-        if(LayerMaskInt[k+1]!=0)
-        {
-            layermap=layer->layermap[k]-1;
-            
-            if(layermap>-1 && layermap<map_count)
-            {
-                layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-                
-                if(layer->layeropacity[k]<255)
-                {
-                    overcombotranslucent(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c],layer->layeropacity[k]);
-                }
-                else
-                {
-                    overcombo(dest,x,y,TheMaps[layerscreen].data[c],TheMaps[layerscreen].cset[c]);
-                }
-            }
-        }
-    }
-    
-    if(flags&cWALK)
-    {
-        if(LayerMaskInt[0]!=0)
-        {
-            put_walkflags_layered_external(dest,x,y,c,-1, map,scr);
-        }
-        
-        for(int32_t k=0; k<2; k++)
-        {
-            if(LayerMaskInt[k+1]!=0)
-            {
-                    //put_walkflags_layered(dest,x,y,c,k);
-		put_walkflags_layered_external(dest,x,y,c,k, map,scr);
-            }
-        }
-    }
-    
-    if(flags&cFLAGS)
-    {
-        if(LayerMaskInt[CurrentLayer]!=0)
-        {
-            int32_t i = c;
-            //for(int32_t i=c; i==c; i++)
-            {
-                if(CurrentLayer==0)
-                {
-                    put_flags(dest,/*((i&15)<<4)+*/x,/*(i&0xF0)+*/y,layer->data[i],layer->cset[i],flags|dark,layer->sflag[i]);
-                }
-                else
-                {
-                    int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
-                    
-                    if(_lscr>-1 && _lscr<map_count*MAPSCRS)
-                    {
-                        put_flags(dest,/*((i&15)<<4)+*/x,/*(i&0xF0)+*/y,
-                                  TheMaps[_lscr].data[i],
-                                  TheMaps[_lscr].cset[i], flags|dark,
-                                  TheMaps[_lscr].sflag[i]);
-                    }
-                }
-            }
-        }
-        
-        /*
-          if (LayerMaskInt[0]!=0) {
-          put_flags(dest,x,y,layer->data[c],layer->cset[c],flags|dark,layer->sflag[c]);
-          }
-          */
-    }
-    
-    if(ShowMisalignments)
-    {
-        switch(c)
-        {
-        case 0:
-            check_alignments(dest,x,y,scr);
-            break;
-            
-        case 15:
-            check_alignments(dest,x-240,y,scr);
-            break;
-            
-        case 160:
-            check_alignments(dest,x,y-160,scr);
-            break;
-            
-        case 175:
-            check_alignments(dest,x-240,y-160,scr);
-            break;
-        }
-    }
-    
-    resize_mouse_pos=false;
-    
+	if(ShowMisalignments)
+	{
+		switch(c)
+		{
+		case 0:
+			check_alignments(dest,x,y,scr);
+			break;
+			
+		case 15:
+			check_alignments(dest,x-240,y,scr);
+			break;
+			
+		case 160:
+			check_alignments(dest,x,y-160,scr);
+			break;
+			
+		case 175:
+			check_alignments(dest,x-240,y-160,scr);
+			break;
+		}
+	}
+	
+	resize_mouse_pos=false;
+	
 }
 
 void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
@@ -9784,6 +9624,22 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
 			{
 				new_return(38);
 			}
+			if(!p_iputw(combobuf[i].trigprox,f))
+			{
+				new_return(39);
+			}
+			if(!p_putc(combobuf[i].trigctr,f))
+			{
+				new_return(40);
+			}
+			if(!p_iputl(combobuf[i].trigctramnt,f))
+			{
+				new_return(41);
+			}
+			if(!p_putc(combobuf[i].triglbeam,f))
+			{
+				new_return(42);
+			}
 			for ( int32_t q = 0; q < 11; q++ ) 
 			{
 				if(!p_putc(combobuf[i].label[q],f))
@@ -10231,6 +10087,11 @@ int32_t writestrings(PACKFILE *f, word version, word build, word start_msgstr, w
 			}
 			
 			if(!p_putc(MsgStrings[i].shadow_color,f))
+			{
+				return qe_invalid;
+			}
+			
+			if(!p_putc(MsgStrings[i].drawlayer,f))
 			{
 				return qe_invalid;
 			}

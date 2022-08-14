@@ -14,6 +14,21 @@ extern miscQdata misc;
 //zq_strings.cpp
 FONT* getfont(int32_t fonta);
 
+void printobj(subscreen_object const& obj)
+{
+	zprint2("PRINTOUT--:\n");
+	zprint2("d1: %d\n", obj.d1);
+	zprint2("d2: %d\n", obj.d2);
+	zprint2("d3: %d\n", obj.d3);
+	zprint2("d4: %d\n", obj.d4);
+	zprint2("d5: %d\n", obj.d5);
+	zprint2("d6: %d\n", obj.d6);
+	zprint2("d7: %d\n", obj.d7);
+	zprint2("d8: %d\n", obj.d8);
+	zprint2("d9: %d\n", obj.d9);
+	zprint2("d10: %d\n", obj.d10);
+}
+
 static bool dlg_retval = false;
 bool call_subscrprop_dialog(subscreen_object *ref, int32_t obj_ind)
 {
@@ -28,7 +43,7 @@ SubscrPropDialog::SubscrPropDialog(subscreen_object *ref, int32_t obj_ind) :
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
 	list_items(GUI::ZCListData::items(true)),
-	list_counters(GUI::ZCListData::counters(true)),
+	list_counters(GUI::ZCListData::ss_counters()),
 	list_itemclass(GUI::ZCListData::itemclass(true))
 {}
 
@@ -582,6 +597,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoCOUNTER:
 			{
+				printobj(local_subref);
 				mergetype = mtFORCE_TAB; //too wide to fit!
 				attrib_grid = Columns<6>(
 					Label(text = "Font:", hAlign = 1.0),
@@ -881,6 +897,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				{
 					tl = local_subref.d1 >> 2;
 					crn = (local_subref.d1 & 0b11);
+					local_subref.d2 = -1;
 				}
 				attrib_grid = Rows<2>(
 					Label(text = "Tile:", hAlign = 1.0),
@@ -915,29 +932,41 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Special Tile:", hAlign = 1.0),
 					ddl = DropDownList(data = special_tile_list,
 						fitParent = true,
-						selectedValue = local_subref.d2-1,
+						selectedValue = local_subref.d2,
 						onSelectFunc = [&](int32_t val)
 						{
-							if(val == local_subref.d2-1) return;
-							local_subref.d2 = val+1;
+							if(val == local_subref.d2) return;
+							auto oldval = local_subref.d2;
+							local_subref.d2 = val;
+							int32_t newtile = 0, crn = 0;
 							switch(val)
 							{
 								case -1:
 									tswatches[0]->setTileWid(1);
-									tswatches[0]->setTile(std::max(0,local_subref.d1));
 									tswatches[0]->setMiniOnly(false);
+									newtile = std::max(0,local_subref.d1>>2);
+									crn = local_subref.d3&0b11;
+									local_subref.d1 = (newtile<<2) | crn;
 									break;
 								case 0:
 									tswatches[0]->setTileWid(3);
-									tswatches[0]->setTile(wpnsbuf[iwSubscreenVine].newtile);
 									tswatches[0]->setMiniOnly(true);
+									newtile = wpnsbuf[iwSubscreenVine].newtile;
+									crn = (oldval==-1 ? local_subref.d1&0b11 : local_subref.d3);
+									local_subref.d1 = (newtile<<2);
+									local_subref.d3 = crn;
 									break;
 								case 1:
 									tswatches[0]->setTileWid(9);
-									tswatches[0]->setTile(wpnsbuf[iwMMeter].newtile);
 									tswatches[0]->setMiniOnly(true);
+									newtile = wpnsbuf[iwMMeter].newtile;
+									crn = (oldval==-1 ? local_subref.d1&0b11 : local_subref.d3);
+									local_subref.d1 = (newtile<<2);
+									local_subref.d3 = crn;
 									break;
 							}
+							tswatches[0]->setTile(newtile);
+							tswatches[0]->setMiniCrn(crn);
 						}
 					),
 					CBOX(d5, 0b1, "Overlay", 2),
@@ -1276,18 +1305,17 @@ void SubscrPropDialog::update_wh()
 
 void save_sso(subscreen_object const& src, subscreen_object* dest)
 {
+	printobj(src);
 	switch(src.type) //Special closing handling
 	{
 		case ssoMINITILE:
 		{
 			memcpy(dest, &src, sizeof(subscreen_object));
-			if(dest->d2 == -1)
-				dest->d1 = -1;
-			else
+			if(dest->d2 != -1)
 			{
-				dest->d1 &= ~0b11;
-				dest->d1 |= dest->d3 & 0b11;
+				dest->d1 = -1;
 			}
+			else dest->d2 = 0;
 			break;
 		}
 		case ssoTEXT:

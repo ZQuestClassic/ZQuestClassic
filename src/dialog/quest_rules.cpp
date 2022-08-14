@@ -286,6 +286,8 @@ static const GUI::ListData comboRulesList
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 1." },
 	{ "Auto Combos Work On Layer 2", qr_AUTOCOMBO_LAYER_2, 
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 2." },
+	{ "Auto Combos Work On All Layers", qr_AUTOCOMBO_ANY_LAYER, 
+		"If enabled, Autowarps and Automatic Triggers will work on any layer." },
 	{ "Overhead Combos work on Layers 1 and 2", qr_OVERHEAD_COMBOS_L1_L2, 
 		"If enabled, Overhead Combos placed on Layers 1 and 2 will still"
 		" draw over Layer 4." },
@@ -796,7 +798,9 @@ static const GUI::ListData compatRulesList
 	{ "Decorations -2 yoffset", qr_DECO_2_YOFFSET,
 		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." },
 	{ "Screen->State[] 0x80 bug", qr_SCREENSTATE_80s_BUG,
-		"If enabled, 'Screen->State[]' will use an old behavior that may read the wrong screen data." }
+		"If enabled, 'Screen->State[]' will use an old behavior that may read the wrong screen data." },
+	{ "Undamaged Gohma can be hit on any side", qr_GOHMA_UNDAMAGED_BUG,
+		"If enabled, the first weapon to hit a Gohma will not be blocked, regardless of where it hits." }
 };
 
 static const GUI::ListData enemiesRulesList

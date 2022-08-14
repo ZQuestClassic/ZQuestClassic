@@ -3449,6 +3449,8 @@ void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 {
 	if(over)
 	{
+		if(combobuf[cid].animflags & AF_TRANSPARENT)
+			transp = !transp;
 		if(transp)
 			overcombotranslucent(dest, x, y, cid, cset, 128);
 		else overcombo(dest, x, y, cid, cset);
@@ -4154,6 +4156,29 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 	global_z3_cur_scr_drawing = -1;
 }
 
+void draw_msgstr(byte layer, bool tempb = false)
+{
+	if(layer != msgstr_layer) return;
+	BITMAP* b1 = tempb ? temp_buf : framebuf;
+	if(!(msg_bg_display_buf->clip))
+	{
+		blit_msgstr_bg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(!(msg_portrait_display_buf->clip))
+	{
+		blit_msgstr_prt(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+	
+	if(!(msg_txt_display_buf->clip))
+	{
+		blit_msgstr_fg(b1,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(scrollbuf,0,0,0,playing_field_offset,256,168);
+	}
+}
+
 // TODO z3 remove this_screen
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
@@ -4208,12 +4233,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		{
 			do_layer(scrollbuf, 0, currmap, scr, 2, myscr, -offx, -offy, 2, false, true);
 			if (scr == currscr) particles.draw(temp_buf, true, 1);
+			if (scr == currscr) draw_msgstr(2);
 		}
 		
 		if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(scrollbuf, 0, currmap, scr, 3, myscr, -offx, -offy, 2, false, true);
 			if (scr == currscr) particles.draw(temp_buf, true, 2);
+			if (scr == currscr) draw_msgstr(3);
 		}
 	});
 	
@@ -4232,6 +4259,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
 	particles.draw(temp_buf, true, -3);
+	draw_msgstr(0, true);
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -4269,6 +4297,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		do_layer(scrollbuf, 0, currmap, scr, 1, myscr, -offx, -offy, 2, false, true); // LAYER 1
 		if (scr == currscr) particles.draw(temp_buf, true, 0);
+		if (scr == currscr) draw_msgstr(1, true);
 		
 		do_layer(scrollbuf, -3, currmap, scr, 0, myscr, -offx, -offy, 2); // freeform combos!
 
@@ -4276,6 +4305,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		{
 			do_layer(scrollbuf, 0, currmap, scr, 2, myscr, -offx, -offy, 2, false, true); // LAYER 2
 			if (scr == currscr) particles.draw(temp_buf, true, 1);
+			if (scr == currscr) draw_msgstr(2, true);
 		}
 	});
 	
@@ -4508,12 +4538,14 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		{
 			do_layer(temp_buf, 0, currmap, scr, 3, myscr, -offx, -offy, 2, false, true);
 			if (scr == currscr) particles.draw(temp_buf, true, 2);
+			if (scr == currscr) draw_msgstr(3, true);
 		}
 		
 		do_layer(temp_buf, 0, currmap, scr, 4, myscr, -offx, -offy, 2, false, true);
 		//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
 		
 		if (scr == currscr) particles.draw(temp_buf, true, 3);
+		if (scr == currscr) draw_msgstr(4, true);
 
 		do_layer(temp_buf, -1, currmap, scr, 0, myscr, -offx, -offy, 2);
 		if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
@@ -4605,6 +4637,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
 		do_layer(temp_buf, 0, currmap, scr, 5, myscr, -offx, -offy, 2, false, true);
 		if (scr == currscr) particles.draw(temp_buf, true, 4);
+		if (scr == currscr) draw_msgstr(5, true);
 		// overhead freeform combos!
 		do_layer(temp_buf, -4, currmap, scr, 0, myscr, -offx, -offy, 2);
 		// ---
@@ -4652,20 +4685,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	set_clip_rect(framebuf,0,0,256,224);
 	
-	if(!(msg_bg_display_buf->clip))
-	{
-		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
-	}
-	
-	if(!(msg_portrait_display_buf->clip))
-	{
-		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
-	}
-	
-	if(!(msg_txt_display_buf->clip))
-	{
-		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
-	}
+	draw_msgstr(6);
 	
 	//13. Draw the subscreen, without clipping
 	// TODO z3
@@ -4697,6 +4717,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 	}
+	
+	draw_msgstr(7);
 	
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
@@ -6235,13 +6257,13 @@ bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 	return (cwalkflag&b) ? !dried : false;
 }
 
-bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
+bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
 	if (is_z3_scrolling_mode())
 	{
 		int max_x = world_w;
 		int max_y = world_h;
-		if (!get_bit(quest_rules, qr_LTTPWALK))
+		if (!get_bit(quest_rules, qr_LTTPWALK) && !notLink)
 		{
 			max_x -= 7;
 			max_y -= 7;
@@ -6255,7 +6277,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer)
 
 	int max_x = world_w;
 	int max_y = world_h;
-	if (!get_bit(quest_rules, qr_LTTPWALK))
+	if (!get_bit(quest_rules, qr_LTTPWALK) && !notLink)
 	{
 		max_x -= 7;
 		max_y -= 7;
@@ -6614,18 +6636,18 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (c.walk&b) ? !dried : false;
 }
 
-bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
+bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool notLink)
 {
 	mapscr* m = get_layer_scr_for_xy(x, y, layer);
 	if (m->valid == 0) return false;
-	return _effectflag_layer(x, y, cnt, m);
+	return _effectflag_layer(x, y, cnt, m, notLink);
 }
 
-bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
+bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 {
 	int max_x = world_w;
 	int max_y = world_h;
-	if (!get_bit(quest_rules, qr_LTTPWALK))
+	if (!get_bit(quest_rules, qr_LTTPWALK) && !notLink)
 	{
 		max_x -= 7;
 		max_y -= 7;

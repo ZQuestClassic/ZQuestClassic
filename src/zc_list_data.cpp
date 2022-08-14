@@ -69,6 +69,15 @@ const char *ssfont2_str[] =
 	"Mr. Saturn", "Sci-Fi", "Sherwood", "Sinclair QL", "Spectrum", "Spectrum Large", "TI99", "TRS",
 	"Zelda 2", "ZX", "Lisa", ""
 };
+const char *icounter_str2[sscMAX]=
+{
+    "Rupees", "Bombs", "Super Bombs", "Arrows", "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
+    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Custom 1", "Custom 2", "Custom 3", "Custom 4",
+    "Custom 5", "Custom 6", "Custom 7", "Custom 8", "Custom 9", "Custom 10", "Custom 11", "Custom 12", "Custom 13",
+    "Custom 14", "Custom 15", "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20", "Custom 21",
+    "Custom 22", "Custom 23", "Custom 24", "Custom 25", "Life", "Magic", "Max Life", "Max Magic"
+};
+
 
 const char *shadowstyle_str[sstsMAX] =
 {
@@ -97,6 +106,21 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts)
 	}
 
 	return GUI::ListData(strings);
+}
+
+GUI::ListData GUI::ZCListData::ss_counters()
+{
+	GUI::ListData ls;
+	
+	ls.add("(None)", -1);
+	for(int32_t q = 0; q < sscMAX; ++q)
+	{
+		char const* module_str = icounter_str2[q];
+		std::string name(module_str);
+		ls.add(name, q);
+	}
+	
+	return ls;
 }
 
 GUI::ListData GUI::ZCListData::shadow_types()

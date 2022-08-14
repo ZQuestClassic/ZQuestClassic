@@ -604,6 +604,7 @@ void MsgStr::copyStyle(MsgStr const& other)
 	portrait_th=other.portrait_th;
 	shadow_type=other.shadow_type;
 	shadow_color=other.shadow_color;
+	drawlayer=other.drawlayer;
 }
 
 void MsgStr::copyAll(MsgStr const& other)
@@ -643,6 +644,7 @@ void MsgStr::clear()
 	shadow_type=0;
 	shadow_color=0;
 	listpos=0;
+	drawlayer=6;
 }
 
 bool valid_str(char const* ptr, char cancel)

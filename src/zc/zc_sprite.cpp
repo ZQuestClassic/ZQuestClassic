@@ -87,7 +87,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 {
 	int32_t cmbid = MAPCOMBO(x,y);
 	newcombo const* cmb = &combobuf[cmbid];
-	if (!_effectflag(x,y,1,-1))
+	if (!_effectflag(x,y,1,-1, true))
 	{
 		cmbid = -1;
 		cmb = NULL;
@@ -101,7 +101,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(is_conveyor(combobuf[tcid].type))
 			{
-				if (_effectflag_layer(x,y,1,layer_scr))
+				if (_effectflag_layer(x,y,1,layer_scr,true))
 				{
 					cmbid = tcid;
 					cmb = &combobuf[tcid];
@@ -129,7 +129,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 				}
 				else
 				{
-					if (_effectflag_layer(x,y,i)) return -1;
+					if (_effectflag_layer(x,y,i,1,true)) return -1;
 				}
 			}
 		}

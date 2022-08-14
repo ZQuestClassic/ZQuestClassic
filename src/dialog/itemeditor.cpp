@@ -430,10 +430,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->misc[0] = "Lens Width:";
 			inf->flag[0] = "Show Hints";
-			inf->flag[1] = "Hide Secret Combos";
-			inf->flag[2] = "No X-Ray for Items";
+			_SET(flag[1], "Hide Secret Combos", "Does not reveal 'Secret Combos' if checked");
+			_SET(flag[2], "No X-Ray for Items", "Will not show items hidden under armos/dive flags/inside chests");
 			inf->flag[3] = "Show Raft Paths";
 			inf->flag[4] = "Show Invis. Enemies";
+			_SET(flag[5], "Triggers Lens Trigflag", "Interacts with the 'Lens On->' and 'Lens Off->' combo trigger flags");
 			inf->actionsnd[0] = "Activation Sound:";
 			break;
 		}
@@ -1280,7 +1281,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								TextField(
 									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
+									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
@@ -2612,7 +2613,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								TextField(
 									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
+									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;

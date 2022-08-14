@@ -7332,6 +7332,7 @@ bool HeroClass::animate(int32_t)
 		}
 	}
 	checksigns();
+	checkgenpush();
 	
 	if(isStanding())
 	{
@@ -8951,66 +8952,69 @@ bool HeroClass::animate(int32_t)
 	
 	bool awarp = false;
 	//!DIMI: Global Combo Effects (AUTO STUFF)
-	for(int32_t i=0; i<176; i++)
+	for(int32_t i=0; i<176; ++i)
 	{
-		for(int32_t layer=0; layer<=2; layer++)
+		for(int32_t layer=0; layer<7; ++layer)
 		{
-			if (layer == 1 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_1)) continue;
-			if (layer == 2 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_2)) continue;
+			if(!get_bit(quest_rules,qr_AUTOCOMBO_ANY_LAYER))
+			{
+				if(layer > 2) break;
+				if (layer == 1 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_1)) continue;
+				if (layer == 2 && !get_bit(quest_rules,qr_AUTOCOMBO_LAYER_2)) continue;
+			}
 			int32_t ind=0;
 			
-			if(!awarp) //Putting stuff in here so it doesn't activate after an autowarp happens.
+			//AUTOMATIC TRIGGER CODE
+			int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
+			newcombo const& cmb = combobuf[cid];
+			if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 			{
-				//AUTOMATIC TRIGGER CODE
-				int32_t cid = ( layer ) ? MAPCOMBOL(layer,COMBOX(i),COMBOY(i)) : MAPCOMBO(COMBOX(i),COMBOY(i));
-				newcombo const& cmb = combobuf[cid];
-				if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
+				// TODO z3
+				do_trigger_combo(layer, i);
+			}
+			
+			//AUTO WARP CODE
+			if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
+			{
+				if(cmb.type==cAWARPA)
 				{
-					// TODO z3
-					do_trigger_combo(layer, i);
+					awarp=true;
+					ind=0;
+				}
+				else if(cmb.type==cAWARPB)
+				{
+					awarp=true;
+					ind=1;
+				}
+				else if(cmb.type==cAWARPC)
+				{
+					awarp=true;
+					ind=2;
+				}
+				else if(cmb.type==cAWARPD)
+				{
+					awarp=true;
+					ind=3;
+				}
+				else if(cmb.type==cAWARPR)
+				{
+					awarp=true;
+					ind=zc_oldrand()%4;
+				}
+			}
+			if(awarp)
+			{
+				// TODO z3
+				if(tmpscr.flags5&fDIRECTAWARP)
+				{
+					didpit=true;
+					pitx=x;
+					pity=y;
 				}
 				
-				//AUTO WARP CODE
-				if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
-				{
-					if(cmb.type==cAWARPA)
-					{
-						awarp=true;
-						ind=0;
-					}
-					else if(cmb.type==cAWARPB)
-					{
-						awarp=true;
-						ind=1;
-					}
-					else if(cmb.type==cAWARPC)
-					{
-						awarp=true;
-						ind=2;
-					}
-					else if(cmb.type==cAWARPD)
-					{
-						awarp=true;
-						ind=3;
-					}
-					else if(cmb.type==cAWARPR)
-					{
-						awarp=true;
-						ind=zc_oldrand()%4;
-					}
-				}
-				if(awarp)
-				{
-					if(tmpscr.flags5&fDIRECTAWARP)
-					{
-						didpit=true;
-						pitx=x;
-						pity=y;
-					}
-					
-					sdir = dir;
-					dowarp(1,ind);
-				}
+				sdir = dir;
+				dowarp(1,ind);
+				break;
 			}
 		}
 	}
@@ -11205,14 +11209,36 @@ bool isRaftFlag(int32_t flag)
     return (flag==mfRAFT || flag==mfRAFT_BRANCH || flag==mfRAFT_BOUNCE);
 }
 
+void handle_lens_triggers(int32_t l_id)
+{
+	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & ITEM_FLAG6);
+	for(auto layer = 0; layer < 7; ++layer)
+	{
+		mapscr* tmp = FFCore.tempScreens[layer];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[tmp->data[pos]];
+			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
+				: (cmb.triggerflags[1] & combotriggerLENSOFF))
+			{
+				do_trigger_combo(layer, pos);
+			}
+		}
+	}
+}
+
 void do_lens()
 {
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 ) //2.10 or earlier
 	{
-		int32_t wpnPressed = getWpnPressed(itype_lens);
-		int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
-		if(itemid<0)
-			return;
+		do_210_lens();
+		return;
+	}
+	
+	int32_t wpnPressed = getWpnPressed(itype_lens);
+	int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
+	if(itemid >= 0)
+	{
 		//HeroItemClk is the item jinx.
 		if(isWpnPressed(itype_lens) && !HeroItemClk() && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
 		{
@@ -11260,10 +11286,7 @@ void do_lens()
 			}
 		}
 	}
-	else //2.10 or earlier
-	{
-		do_210_lens();
-	}
+	handle_lens_triggers(lensid);
 }
 //Add 2.10 version check to call this
 void do_210_lens()
@@ -14655,8 +14678,8 @@ void HeroClass::movehero()
 	if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
 	{
 		if(get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) || IsSideSwim())
-			goto LEFTRIGHT_OLDMOVE;
-		else goto LEFTRIGHT_NEWMOVE;
+			goto LEFTRIGHT_NEWMOVE;
+		else goto LEFTRIGHT_OLDMOVE;
 	}
 	
 	// make it easier to get in left & right doors
@@ -15523,9 +15546,6 @@ LEFTRIGHT_OLDMOVE:
 			{
 				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) ||
 					   walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(isSideViewHero() ?0:8), 1,left);
-					   
-				if(y.getInt() & 7)
-					info = info || walkflag(x-int32_t(lsteps[x.getInt()&7]),y+16,1,left);
 				
 				execute(info);
 				
@@ -15615,9 +15635,6 @@ LEFTRIGHT_OLDMOVE:
 			{
 				info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right)
 					|| walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(isSideViewHero()?0:8),1,right);
-				
-				if(y.getInt() & 7)
-					info = info || walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+16,1,right);
 				
 				execute(info);
 				
@@ -17361,14 +17378,14 @@ void HeroClass::oldchecklockblock()
 			if(cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, i))
 			{
 				found1=true;
-				foundlayer = i;
+				foundlayer = i+1;
 				//zprint("Found layer: %d \n", i);
 				break;
 			}
 			else if(cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, i))
 			{
 				found2=true;
-				foundlayer = i;
+				foundlayer = i+1;
 				//zprint("Found layer: %d \n", i);
 				break;
 			}
@@ -17380,7 +17397,7 @@ void HeroClass::oldchecklockblock()
 		return;
 	}
 	newcombo const& cmb3 = combobuf[found1 ? cid1 : cid2];
-	if(!try_locked_combo(cmb))
+	if(!try_locked_combo(cmb3))
 		return;
 	
 	auto pos_handle = found1 ? z3_get_pos_handle_for_world_xy(bx, by, 0) : z3_get_pos_handle_for_world_xy(bx2, by, 0);
@@ -17946,6 +17963,56 @@ void HeroClass::checkchest(int32_t type)
 	}
 	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
+}
+
+void HeroClass::checkgenpush()
+{
+	if(pushing < 8 || pushing % 8) return;
+	zfix bx, by;
+	zfix bx2, by2;
+	switch(dir)
+	{
+		case up:
+			by = y + (bigHitbox ? -2 : 6);
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case down:
+			by = y + 17;
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case left:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x - 2;
+			bx2 = x - 2;
+			break;
+		case right:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x + 17;
+			bx2 = x + 17;
+			break;
+	}
+	auto pos1 = COMBOPOS(bx,by);
+	auto pos2 = COMBOPOS(bx2,by2);
+	for(auto layer = 0; layer < 7; ++layer)
+	{
+		mapscr* tmp = FFCore.tempScreens[layer];
+		
+		newcombo const& cmb1 = combobuf[tmp->data[pos1]];
+		if(cmb1.triggerflags[1] & combotriggerPUSH)
+			do_trigger_combo(layer,pos1);
+		
+		if(pos1==pos2) continue;
+		
+		newcombo const& cmb2 = combobuf[tmp->data[pos2]];
+		if(cmb2.triggerflags[1] & combotriggerPUSH)
+			do_trigger_combo(layer,pos2);
+	}
 }
 
 void HeroClass::checksigns() //Also checks for generic trigger buttons
@@ -19383,6 +19450,17 @@ void HeroClass::handleSpotlights()
 						if(alltrig || trigged) //Light
 							curlayer->data[pos] += 1;
 						else istrigged = false;
+					}
+				}
+				else if(cmb->triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+				{
+					int32_t trigflag = cmb->triglbeam ? (1 << (cmb->triglbeam-1)) : ~0;
+					bool trigged = (istrig[pos]&trigflag);
+					if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
+						: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
+					{
+						// TODO z3
+						do_trigger_combo(layer, pos);
 					}
 				}
 			}
@@ -28789,7 +28867,11 @@ void HeroClass::check_conveyor()
 	int32_t xoff,yoff;
 	zfix deltax(0), deltay(0);
 	int32_t cmbid = get_conveyor(x+7,y+(bigHitbox?8:12));
-	if(cmbid < 0) return;
+	if(cmbid < 0) 
+	{
+		if (conveyclk <= 0) is_on_conveyor=false;
+		return;
+	}
 	newcombo const* cmb = &combobuf[cmbid];
 	bool custom_spd = (cmb->usrflags&cflag2);
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once

@@ -2531,6 +2531,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		moveflags &= ~FLAG_CAN_PITFALL;
 		moveflags &= ~FLAG_CAN_WATERDROWN;
 	}
+
+	shieldCanBlock = get_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG)?true:false;
 }
 
 //base clone constructor

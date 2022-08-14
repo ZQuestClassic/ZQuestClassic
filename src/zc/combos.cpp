@@ -1331,13 +1331,52 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 	int32_t cid = pos_handle.screen->data[pos];
 	int32_t cx = COMBOX(pos);
 	int32_t cy = COMBOY(pos);
-	newcombo const& cmb = combobuf[cid];
-	if(cmb.triggeritem &&
-		(!game->get_item(cmb.triggeritem) || item_disabled(cmb.triggeritem) || !checkbunny(cmb.triggeritem)))
-	{
-		return false;
-	}
 
+	newcombo const& cmb = combobuf[cid];	
+	bool hasitem = false;
+	if(cmb.triggeritem) //Item requirement
+	{
+		hasitem = game->get_item(cmb.triggeritem) && !item_disabled(cmb.triggeritem)
+			&& checkbunny(cmb.triggeritem);
+		if(cmb.triggerflags[1] & combotriggerINVERTITEM)
+		{
+			if(hasitem) return false;
+		}
+		else if(!hasitem) return false;
+	}
+	if(cmb.trigprox) //Proximity requirement
+	{
+		word d = word(dist(Hero.getX(), Hero.getY(), zfix(cx), zfix(cy)).getInt());
+		if(cmb.triggerflags[0] & combotriggerINVERTPROX) //trigger outside the radius
+		{
+			if(d < cmb.trigprox) //inside, cancel
+				return false;
+		}
+		else //trigger inside the radius
+		{
+			if(d >= cmb.trigprox) //outside, cancel
+				return false;
+		}
+	}
+	word ctramnt = game->get_counter(cmb.trigctr);
+	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
+	if(!onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+	{
+		if(ctramnt >= cmb.trigctramnt)
+		{
+			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+		}
+	}
+	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
+	{
+		if(ctramnt < cmb.trigctramnt)
+			return false;
+	}
+	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
+	{
+		if(ctramnt >= cmb.trigctramnt)
+			return false;
+	}
 	int32_t flag = pos_handle.screen->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	
@@ -1468,6 +1507,18 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 		
 		if(cmb.trigsfx)
 			sfx(cmb.trigsfx, pan(COMBOX(pos)));
+		
+		if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
+		{
+			takeitem(cmb.triggeritem);
+		}
+		if(onlytrigctr && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+		{
+			if(ctramnt >= cmb.trigctramnt)
+			{
+				game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+			}
+		}
 	}
 	if(used_bit && grid)
 	{

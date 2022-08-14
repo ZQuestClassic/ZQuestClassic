@@ -3624,6 +3624,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
 		set_bit(quest_rules,qr_SCREENSTATE_80s_BUG,1);
 	}
+	if(compatrule_version < 31)
+	{
+		set_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
@@ -3665,6 +3669,7 @@ void init_msgstr(MsgStr *str)
 	str->portrait_th = 1;
 	str->shadow_type = 0;
 	str->shadow_color = 0;
+	str->drawlayer = 6;
 }
 
 void init_msgstrings(int32_t start, int32_t end)
@@ -4033,6 +4038,14 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					}
 					
 					if(!p_getc(&tempMsgString.shadow_color,f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				
+				if(s_version >= 10)
+				{
+					if(!p_getc(&tempMsgString.drawlayer,f,true))
 					{
 						return qe_invalid;
 					}
@@ -6953,7 +6966,24 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					}
 				}
 			}
-			if ( s_version >= 44 )  //! cost counter
+			else
+			{
+				switch(tempitem.family)
+				{
+					case itype_arrow:
+						tempitem.cost_counter[1] = crARROWS;
+						break;
+					case itype_bomb:
+						tempitem.cost_counter[1] = crBOMBS;
+						break;
+					case itype_sbomb:
+						tempitem.cost_counter[1] = crSBOMBS;
+						break;
+					default:
+						tempitem.cost_counter[1] = crNONE;
+				}
+			}
+			if ( s_version >= 44 )  //! sprite scripts
 			{
 				for ( int32_t q = 0; q < 8; q++ )
 				{
@@ -17389,6 +17419,35 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			else temp_combo.trigchange = 0;
 			temp_combo.triggerflags[0] &= ~(0x00040000|0x00080000);
 		}
+		if(section_version >= 29)
+		{
+			if(!p_igetw(&temp_combo.trigprox,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_getc(&temp_combo.trigctr,f,true))
+			{
+				return qe_invalid;
+			}
+			if(!p_igetl(&temp_combo.trigctramnt,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			temp_combo.trigprox = 0;
+			temp_combo.trigctr = 0;
+			temp_combo.trigctramnt = 0;
+		}
+		if(section_version >= 30)
+		{
+			if(!p_getc(&temp_combo.triglbeam,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+		else temp_combo.triglbeam = 0;
 		
 		if(section_version>=12) //combo label
 		{

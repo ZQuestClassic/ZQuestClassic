@@ -259,10 +259,10 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 //Version number of the different section types
 #define V_HEADER           7
 #define V_RULES           17
-#define V_STRINGS          9
+#define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          28
+#define V_COMBOS          30
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -285,7 +285,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       30
+#define V_COMPATRULE       31
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -1099,9 +1099,9 @@ enum
 	
 	//50
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
-	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG,
+	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
-	
+	qr_GOHMA_UNDAMAGED_BUG,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1330,7 +1330,7 @@ enum
 #define combotriggerREFROCK      0x00010000
 #define combotriggerHAMMER       0x00020000
 #define combotriggerRESETANIM    0x00040000
-//#define combotriggerPREV         0x00080000
+#define combotriggerINVERTPROX   0x00080000
 #define combotriggerBTN_TOP      0x00100000
 #define combotriggerBTN_BOTTOM   0x00200000
 #define combotriggerBTN_LEFT     0x00400000
@@ -1342,6 +1342,7 @@ enum
 #define combotriggerCMBTYPEFX    0x10000000
 #define combotriggerONLYGENTRIG  0x20000000
 #define combotriggerKILLWPN      0x40000000
+//#define combotriggerSOMETHING    0x80000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -1361,6 +1362,17 @@ enum
 #define combotriggerSCRIPT10     0x00004000
 #define combotriggerAUTOMATIC    0x00008000
 #define combotriggerSECRETS	     0x00010000
+#define combotriggerINVERTITEM   0x00020000
+#define combotriggerCONSUMEITEM  0x00040000
+#define combotriggerCOUNTERGE    0x00080000
+#define combotriggerCOUNTERLT    0x00100000
+#define combotriggerCOUNTEREAT   0x00200000
+#define combotriggerCTRNONLYTRIG 0x00400000
+#define combotriggerLIGHTON      0x00800000
+#define combotriggerLIGHTOFF     0x01000000
+#define combotriggerPUSH         0x02000000
+#define combotriggerLENSON       0x04000000
+#define combotriggerLENSOFF      0x08000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -3156,6 +3168,10 @@ struct newcombo
 	byte trigtimer; //8 bits
 	byte trigsfx; //8 bits
 	int32_t trigchange; //32 bits
+	word trigprox; //16 bits
+	byte trigctr; //8 bits
+	int32_t trigctramnt; //32 bits
+	byte triglbeam; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3207,6 +3223,10 @@ struct newcombo
 		triggeritem = 0;
 		trigtimer = 0;
 		trigsfx = 0;
+		trigprox = 0;
+		trigctr = 0;
+		trigctramnt = 0;
+		triglbeam = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3253,6 +3273,10 @@ struct newcombo
 		if(trigtimer) return false;
 		if(trigsfx) return false;
 		if(trigchange) return false;
+		if(trigprox) return false;
+		if(trigctr) return false;
+		if(trigctramnt) return false;
+		if(triglbeam) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
@@ -3271,6 +3295,7 @@ struct newcombo
 #define AF_FRESH          0x01
 #define AF_CYCLE          0x02
 #define AF_CYCLENOCSET    0x04
+#define AF_TRANSPARENT    0x08
 
 struct tiletype
 {
@@ -3643,6 +3668,7 @@ struct MsgStr
 	byte portrait_th;
 	byte shadow_type;
 	byte shadow_color;
+	byte drawlayer;
 	
 	// Copy everything except listpos
 	MsgStr& operator=(MsgStr const& other);

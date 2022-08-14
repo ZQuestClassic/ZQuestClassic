@@ -318,6 +318,7 @@ word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msg_ypos=0,
          msgorig=0;
 byte msg_margins[4] = {0};
+byte msgstr_layer = 6;
 int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
@@ -1044,6 +1045,7 @@ void donewmsg(int32_t str)
     msgfont = setmsgfont();
     msgcolour=QMisc.colors.msgtext;
     msgspeed=zinit.msg_speed;
+	msgstr_layer=MsgStrings[msgstr].drawlayer;
     
     if(introclk==0 || (introclk>=72 && dmapmsgclk==0))
 	{
