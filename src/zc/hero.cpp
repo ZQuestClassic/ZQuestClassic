@@ -23956,6 +23956,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			passive_subscreen_waitdraw = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
+		// TODO z3 tmpscr
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
@@ -24457,12 +24458,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			putscr(scrollbuf, offx, offy, myscr);
 		});
 
-		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset+1, 256, 168-1);
+		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
 			bool primitives = myscr != oldscr;
 			do_layer(framebuf, 0, map, scr, 1, myscr, -offx, -offy, 2, false, primitives);
@@ -24474,7 +24475,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
 			do_layer(framebuf, -2, map, scr, 0, myscr, -offx, -offy, 3);
 			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
@@ -24517,7 +24518,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			bool is_old_scr = draw_dx == 0 && draw_dy == 0;
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
-			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + 1;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 			// This only matters for overhead FFCs. See do_scrolling_layer.
 			int tempscreen = is_old_scr ? 3 : 2;
 

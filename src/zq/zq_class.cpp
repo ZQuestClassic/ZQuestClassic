@@ -6357,6 +6357,7 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 {
+    // return 1; // TODO z3 remove
     //Protection against compiling a release version with password protection off.
     static bool passguard = false;
     
