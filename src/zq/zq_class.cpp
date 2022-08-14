@@ -9796,6 +9796,10 @@ int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, wor
 			{
 				new_return(41);
 			}
+			if(!p_putc(combobuf[i].triglbeam,f))
+			{
+				new_return(42);
+			}
 			for ( int32_t q = 0; q < 11; q++ ) 
 			{
 				if(!p_putc(combobuf[i].label[q],f))

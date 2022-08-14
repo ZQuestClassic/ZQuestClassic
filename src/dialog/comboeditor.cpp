@@ -2233,6 +2233,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(25,"Step->"),
 								INFOBTN("Triggers when stepped on by even a pixel"),
 								TRIGFLAG(26,"Step-> (Sensitive)"),
+								INFOBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
+								TRIGFLAG(55,"Light On->"),
+								INFOBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
+								TRIGFLAG(56,"Light Off->"),
+								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
+									+ " with 'Triggers Lens Trigflag' checked is activated."),
+								TRIGFLAG(58,"Lens On->"),
+								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
+									+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
+								TRIGFLAG(59,"Lens Off->"),
+								INFOBTN("Triggered when the player pushes against the combo"),
+								TRIGFLAG(57,"Push->"),
 								INFOBTN("'Item:' must NOT be owned to trigger"),
 								TRIGFLAG(49,"Invert Item Req"),
 								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
@@ -2276,6 +2288,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										InfoDialog("Proximity Requirement","If the value is >0, the combo "
 											" will only trigger if the player is within that number of pixels of the combo."
 											"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
+									}
+								),
+								Label(text = "LightBeam:", fitParent = true),
+								TextField(
+									fitParent = true,
+									vPadding = 0_px,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 0, high = 32, val = local_comboref.triglbeam,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_comboref.triglbeam = (byte)val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("LightBeam Requirement","Interacts with the 'Light On' / 'Light Off' flags."
+											" If '0', any light beam counts for those flags."
+											"\nIf '1-32', only a matching light beam counts for those flags.").show();
 									}
 								),
 								Label(text = "Timer:", fitParent = true),
@@ -2871,6 +2902,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 												"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead.").show();
 										}
 									),
+									Label(text = "LightBeam:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 32, val = local_comboref.triglbeam,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triglbeam = (byte)val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("LightBeam Requirement","Interacts with the 'Light On' / 'Light Off' flags."
+												" If '0', any light beam counts for those flags."
+												"\nIf '1-32', only a matching light beam counts for those flags.").show();
+										}
+									),
 									Label(text = "Timer:", fitParent = true),
 									TextField(
 										fitParent = true,
@@ -2939,6 +2989,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(25,"Step->"),
 								INFOBTN("Triggers when stepped on by even a pixel"),
 								TRIGFLAG(26,"Step-> (Sensitive)"),
+								INFOBTN("Triggered when hit by a Light Beam matching the 'LightBeam' value"),
+								TRIGFLAG(55,"Light On->"),
+								INFOBTN("Triggered when NOT hit by a Light Beam matching the 'LightBeam' value"),
+								TRIGFLAG(56,"Light Off->"),
+								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
+									+ " with 'Triggers Lens Trigflag' checked is activated."),
+								TRIGFLAG(58,"Lens On->"),
+								INFOBTN("Triggered when a " + std::string(ZI.getItemClassName(itype_lens))
+									+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
+								TRIGFLAG(59,"Lens Off->"),
+								INFOBTN("Triggered when the player pushes against the combo"),
+								TRIGFLAG(57,"Push->"),
 								INFOBTN("'Item:' must NOT be owned to trigger"),
 								TRIGFLAG(49,"Invert Item Req"),
 								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),

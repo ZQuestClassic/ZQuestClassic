@@ -253,7 +253,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          29
+#define V_COMBOS          30
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -1358,6 +1358,11 @@ enum
 #define combotriggerCOUNTERLT    0x00100000
 #define combotriggerCOUNTEREAT   0x00200000
 #define combotriggerCTRNONLYTRIG 0x00400000
+#define combotriggerLIGHTON      0x00800000
+#define combotriggerLIGHTOFF     0x01000000
+#define combotriggerPUSH         0x02000000
+#define combotriggerLENSON       0x04000000
+#define combotriggerLENSOFF      0x08000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -3154,6 +3159,7 @@ struct newcombo
 	word trigprox; //16 bits
 	byte trigctr; //8 bits
 	int32_t trigctramnt; //32 bits
+	byte triglbeam; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3208,6 +3214,7 @@ struct newcombo
 		trigprox = 0;
 		trigctr = 0;
 		trigctramnt = 0;
+		triglbeam = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3257,6 +3264,7 @@ struct newcombo
 		if(trigprox) return false;
 		if(trigctr) return false;
 		if(trigctramnt) return false;
+		if(triglbeam) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

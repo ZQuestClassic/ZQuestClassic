@@ -7312,6 +7312,7 @@ bool HeroClass::animate(int32_t)
 		}
 	}
 	checksigns();
+	checkgenpush();
 	
 	if(isStanding())
 	{
@@ -11149,14 +11150,36 @@ bool isRaftFlag(int32_t flag)
     return (flag==mfRAFT || flag==mfRAFT_BRANCH || flag==mfRAFT_BOUNCE);
 }
 
+void handle_lens_triggers(int32_t l_id)
+{
+	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & ITEM_FLAG6);
+	for(auto layer = 0; layer < 7; ++layer)
+	{
+		mapscr* tmp = FFCore.tempScreens[layer];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			newcombo const& cmb = combobuf[tmp->data[pos]];
+			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
+				: (cmb.triggerflags[1] & combotriggerLENSOFF))
+			{
+				do_trigger_combo(layer, pos);
+			}
+		}
+	}
+}
+
 void do_lens()
 {
-	if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x250 )
+	if ( FFCore.getQuestHeaderInfo(vZelda) < 0x250 ) //2.10 or earlier
 	{
-		int32_t wpnPressed = getWpnPressed(itype_lens);
-		int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
-		if(itemid<0)
-			return;
+		do_210_lens();
+		return;
+	}
+	
+	int32_t wpnPressed = getWpnPressed(itype_lens);
+	int32_t itemid = lensid >= 0 ? lensid : wpnPressed>0 ? wpnPressed : Hero.getLastLensID()>0 ? Hero.getLastLensID() : current_item_id(itype_lens);
+	if(itemid >= 0)
+	{
 		//HeroItemClk is the item jinx.
 		if(isWpnPressed(itype_lens) && !HeroItemClk() && !lensclk && checkbunny(itemid) && checkmagiccost(itemid))
 		{
@@ -11204,10 +11227,7 @@ void do_lens()
 			}
 		}
 	}
-	else //2.10 or earlier
-	{
-		do_210_lens();
-	}
+	handle_lens_triggers(lensid);
 }
 //Add 2.10 version check to call this
 void do_210_lens()
@@ -17890,6 +17910,56 @@ void HeroClass::checkchest(int32_t type)
 		prompt_combo = 0;
 }
 
+void HeroClass::checkgenpush()
+{
+	if(pushing < 8 || pushing % 8) return;
+	zfix bx, by;
+	zfix bx2, by2;
+	switch(dir)
+	{
+		case up:
+			by = y + (bigHitbox ? -2 : 6);
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case down:
+			by = y + 17;
+			by2 = by;
+			bx = x + 4;
+			bx2 = bx + 8;
+			break;
+		case left:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x - 2;
+			bx2 = x - 2;
+			break;
+		case right:
+			by = y + (bigHitbox ? 0 : 8);
+			by2 = y + 8;
+			bx = x + 17;
+			bx2 = x + 17;
+			break;
+	}
+	auto pos1 = COMBOPOS(bx,by);
+	auto pos2 = COMBOPOS(bx2,by2);
+	for(auto layer = 0; layer < 7; ++layer)
+	{
+		mapscr* tmp = FFCore.tempScreens[layer];
+		
+		newcombo const& cmb1 = combobuf[tmp->data[pos1]];
+		if(cmb1.triggerflags[1] & combotriggerPUSH)
+			do_trigger_combo(layer,pos1);
+		
+		if(pos1==pos2) continue;
+		
+		newcombo const& cmb2 = combobuf[tmp->data[pos2]];
+		if(cmb2.triggerflags[1] & combotriggerPUSH)
+			do_trigger_combo(layer,pos2);
+	}
+}
+
 void HeroClass::checksigns() //Also checks for generic trigger buttons
 {
 	if(toogam || z>0 || fakez>0) return;
@@ -19288,6 +19358,16 @@ void HeroClass::handleSpotlights()
 					if(alltrig || trigged) //Light
 						curlayer->data[pos] += 1;
 					else istrigged = false;
+				}
+			}
+			else if(cmb->triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+			{
+				int32_t trigflag = cmb->triglbeam ? (1 << (cmb->triglbeam-1)) : ~0;
+				bool trigged = (istrig[pos]&trigflag);
+				if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
+					: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
+				{
+					do_trigger_combo(layer, pos);
 				}
 			}
 		}
