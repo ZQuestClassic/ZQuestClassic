@@ -422,9 +422,9 @@ char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
 int16_t  visited[6]={0};
 byte   guygrid[176]={0};
+mapscr tmpscr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
-mapscr tmpscr;
 mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];

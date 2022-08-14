@@ -763,6 +763,7 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 {
     for(int32_t i=0; i<32; i++)
     {
+		// TODO z3
         if(ffcIsAt(i, x, y))
             return tmpscr.ffdata[i];
     }
@@ -1799,7 +1800,6 @@ bool ispitfall(int32_t x, int32_t y)
 		return ispitfall(c);
 	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
 	*/
-	// TODO z3 keese?
 	if(int32_t c = MAPFFCOMBO(x,y))
 	{
 		return ispitfall(c) ? true : false;
@@ -2214,31 +2214,39 @@ void delete_fireball_shooter(mapscr *s, int32_t i)
     }
 }
 
-int32_t findtrigger(int32_t scombo, bool ff)
+// TODO z3
+int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 {
     int32_t checkflag=0;
     int32_t iter;
     int32_t ret = 0;
+
+	mapscr* screens[7];
+	for (int32_t j = 0; j < 7; j++)
+	{
+		screens[j] = get_layer_scr(currmap, screen_index, j - 1);
+	}
     
     for(int32_t j=0; j<(ff?32:176); j++)
     {
         if(ff)
         {
-            checkflag=combobuf[tmpscr.ffdata[j]].flag;
+            checkflag=combobuf[screens[0]->ffdata[j]].flag;
             iter=1;
         }
         else iter=2;
         
         for(int32_t layer=-1; !ff && layer<6; layer++)
         {
-            if(layer>-1 && tmpscr2[layer].valid==0) continue;
+			mapscr* screen = screens[layer+1];
+            if (layer>-1 && screen->valid==0) continue;
             
             for(int32_t i=0; i<iter; i++)
             {
                 if(i==0&&!ff)
-                    checkflag = (layer>-1 ? combobuf[tmpscr2[layer].data[j]].flag : combobuf[tmpscr.data[j]].flag);
+                    checkflag = combobuf[screen->data[j]].flag;
                 else if(i==1&&!ff)
-                    checkflag = (layer>-1 ? tmpscr2[layer].sflag[j] : tmpscr.sflag[j]);
+                    checkflag = screen->sflag[j];
                     
                 switch(checkflag)
                 {
@@ -2330,16 +2338,12 @@ void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single)
 	hidden_entrance2(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, do_layers, high16only, single);
 }
 
-void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
+void hidden_entrance2(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
 {
-	DCHECK(screen != -1 || s);
-	if (!s) s = get_scr(currmap, screen);
-	if (screen == -1) screen = currscr;
+	DCHECK(screen_index != -1 || s);
+	if (!s) s = get_scr(currmap, screen_index);
+	if (screen_index == -1) screen_index = currscr;
 
-	/*
-	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	mapscr *t = tmpscr2;
-	*/
 	int32_t ft=0; //Flag trigger?
 	int32_t msflag=0; // Misc. secret flag
 	
@@ -2515,7 +2519,7 @@ void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					mapscr* layer_scr = get_layer_scr(currmap, screen, j);
+					mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
 					if (layer_scr->data.empty() || layer_scr->cset.empty()) continue; //If layer isn't used
 					
 					if (single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
@@ -2839,9 +2843,9 @@ void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only
 	{
 		checktrigger=false;
 		
-		if(tmpscr.flags6&fTRIGGERF1631)
+		if(s->flags6&fTRIGGERF1631)
 		{
-			int32_t tr = findtrigger(-1,false);  //Normal flags
+			int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
 			
 			if(tr)
 			{
@@ -2849,7 +2853,7 @@ void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only
 				goto endhe;
 			}
 			
-			int32_t ftr = findtrigger(-1,true); //FFCs
+			int32_t ftr = findtrigger(screen_index, -1, true); //FFCs
 			
 			if(ftr)
 			{
@@ -2890,7 +2894,7 @@ void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only
 			{
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
-					mapscr* layer_scr = get_layer_scr(currmap, screen, j);
+					mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
 					if (layer_scr->data.empty() || layer_scr->cset.empty()) continue; //If layer is not valid (surely checking for 'valid' would be better?)
 					
 					int32_t newflag2 = -1;
@@ -2940,6 +2944,7 @@ void hidden_entrance2(int32_t screen, mapscr *s, bool do_layers, bool high16only
 	
 endhe:
 
+	// TODO z3
 	if(tmpscr.flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
 	{
 		activated_timed_warp=true;
@@ -3017,45 +3022,44 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
 		if (x < -16 || y < -16 || x >= world_w || y >= world_h) return false;
 
 		mapscr* scr = NULL;
-		int32_t screen = -1;
+		int32_t screen_index = -1;
 		int32_t scombo = -1;
 		bool single16 = false;
 		if (has_flag_trigger(x, y, flag, scombo, single16))
 		{
-			screen = z3_get_scr_index_for_xy_offset(x, y);
+			screen_index = z3_get_scr_index_for_xy_offset(x, y);
 		}
 		else if (has_flag_trigger(x + 15, y, flag, scombo, single16))
 		{
-			screen = z3_get_scr_index_for_xy_offset(x + 15, y);
+			screen_index = z3_get_scr_index_for_xy_offset(x + 15, y);
 		}
 		else if (has_flag_trigger(x, y + 15, flag, scombo, single16))
 		{
-			screen = z3_get_scr_index_for_xy_offset(x, y + 15);
+			screen_index = z3_get_scr_index_for_xy_offset(x, y + 15);
 		}
 		else if (has_flag_trigger(x + 15, y + 15, flag, scombo, single16))
 		{
-			screen = z3_get_scr_index_for_xy_offset(x + 15, y + 15);
+			screen_index = z3_get_scr_index_for_xy_offset(x + 15, y + 15);
 		}
-		if (screen != -1) scr = get_scr(currmap, screen);
+		if (screen_index != -1) scr = get_scr(currmap, screen_index);
 		if (!scr) return false;
 
 		if (scombo < 0)
 		{
 			checktrigger = true;
-			trigger_secrets_for_screen(screen);
+			trigger_secrets_for_screen(screen_index);
 		}
 		else
 		{
 			checktrigger = true;
-			trigger_secrets_for_screen(screen, single16, scombo);
+			trigger_secrets_for_screen(screen_index, single16, scombo);
 		}
 		
 		sfx(scr->secretsfx);
 		
 		if(scr->flags6&fTRIGGERFPERM)
 		{
-			// TODO z3 findtrigger
-			int32_t tr = findtrigger(-1, false);  //Normal flags
+			int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
 			
 			if(tr)
 			{
@@ -3063,7 +3067,7 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
 				setflag=false;
 			}
 			
-			int32_t ftr = findtrigger(-1, true); //FFCs
+			int32_t ftr = findtrigger(screen_index, -1, true); //FFCs
 			
 			if(ftr)
 			{
@@ -3073,13 +3077,13 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
 			
 			if(!(tr||ftr) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
 			{
-				trigger_secrets_for_screen(screen, true, scr->flags6&fTRIGGERF1631);
+				trigger_secrets_for_screen(screen_index, true, scr->flags6&fTRIGGERF1631);
 			}
 		}
 		
 		if(setflag && canPermSecret())
 			if(!(scr->flags5&fTEMPSECRETS))
-				setmapflag2(scr, screen, mSECRET);
+				setmapflag2(scr, screen_index, mSECRET);
 
 		return true;
 	}
@@ -3241,7 +3245,7 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
     
     if(tmpscr.flags6&fTRIGGERFPERM)
     {
-        int32_t tr = findtrigger(-1,false);  //Normal flags
+        int32_t tr = findtrigger(currscr, -1, false);  //Normal flags
         
         if(tr)
         {
@@ -3249,7 +3253,7 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
             setflag=false;
         }
         
-        int32_t ftr = findtrigger(-1,true); //FFCs
+        int32_t ftr = findtrigger(currscr, -1, true); //FFCs
         
         if(ftr)
         {
