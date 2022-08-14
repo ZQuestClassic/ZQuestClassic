@@ -10318,7 +10318,14 @@ static AccessorTable CombosTable[] =
 	{ "setTriggerSFX",            ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERSFX,             1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getTriggerChange",         ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERCHANGECMB,       1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setTriggerChange",         ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERCHANGECMB,       1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	
+	{ "getTriggerProximity",      ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERPROX,            1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerProximity",      ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERPROX,            1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerLightBeam",      ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERLIGHTBEAM,       1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerLightBeam",      ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERLIGHTBEAM,       1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerCounter",        ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERCTR,             1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerCounter",        ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERCTR,             1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getTriggerCtrAmount",      ZVARTYPEID_FLOAT,         GETTER,       COMBODTRIGGERCTRAMNT,         1,             0,                                    1,           { ZVARTYPEID_COMBOS, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setTriggerCtrAmount",      ZVARTYPEID_VOID,          SETTER,       COMBODTRIGGERCTRAMNT,         1,             0,                                    2,           { ZVARTYPEID_COMBOS, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	
 	

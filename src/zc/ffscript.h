@@ -4787,8 +4787,12 @@ enum ASM_DEFINE
 #define SCREENEXSTATED          0x1462
 #define MAPDATAEXSTATED         0x1463
 #define HEROSTANDING            0x1464
+#define COMBODTRIGGERPROX       0x1465
+#define COMBODTRIGGERLIGHTBEAM  0x1466
+#define COMBODTRIGGERCTR        0x1467
+#define COMBODTRIGGERCTRAMNT    0x1468
 
-#define NUMVARIABLES         	0x1465
+#define NUMVARIABLES         	0x1469
 
 //} End variables
 

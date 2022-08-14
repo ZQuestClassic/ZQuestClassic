@@ -10987,6 +10987,46 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].trigchange) * 10000;
 			break;
 		}
+		case COMBODTRIGGERPROX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+			}
+			else ret = (combobuf[ri->combosref].trigprox) * 10000;
+			break;
+		}
+		case COMBODTRIGGERLIGHTBEAM:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+			}
+			else ret = (combobuf[ri->combosref].triglbeam) * 10000;
+			break;
+		}
+		case COMBODTRIGGERCTR:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+			}
+			else ret = (combobuf[ri->combosref].trigctr) * 10000;
+			break;
+		}
+		case COMBODTRIGGERCTRAMNT:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+			}
+			else ret = (combobuf[ri->combosref].trigctramnt) * 10000;
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
@@ -20469,6 +20509,42 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerChange");
 			}
 			else combobuf[ri->combosref].trigchange = vbound(value/10000,-65535,65535);
+			break;
+		}
+		case COMBODTRIGGERPROX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+			}
+			else combobuf[ri->combosref].trigprox = vbound(value/10000,0,65535);
+			break;
+		}
+		case COMBODTRIGGERLIGHTBEAM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+			}
+			else combobuf[ri->combosref].triglbeam = vbound(value/10000,0,32);
+			break;
+		}
+		case COMBODTRIGGERCTR:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+			}
+			else combobuf[ri->combosref].trigctr = vbound(value/10000,0,crMAX-1);
+			break;
+		}
+		case COMBODTRIGGERCTRAMNT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+			}
+			else combobuf[ri->combosref].trigctramnt = vbound(value/10000, -65535, 65535);
 			break;
 		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -37574,6 +37650,10 @@ script_variable ZASMVars[]=
 	{ "SCREENEXSTATED", SCREENEXSTATED, 0, 0 },
 	{ "MAPDATAEXSTATED", MAPDATAEXSTATED, 0, 0 },
 	{ "HEROSTANDING", HEROSTANDING, 0, 0 },
+	{ "COMBODTRIGGERPROX", COMBODTRIGGERPROX, 0, 0 },
+	{ "COMBODTRIGGERLIGHTBEAM", COMBODTRIGGERLIGHTBEAM, 0, 0 },
+	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
+	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
