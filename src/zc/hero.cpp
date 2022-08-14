@@ -23936,8 +23936,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			{
 				script_drawing_commands.Clear();
 				FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
-				// ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, sx, sy, end_frames, false); //Prewaitdraw
-				// ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, sx, sy, end_frames, true); //Waitdraw
+				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, false); // Prewaitdraw
+				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, true); // Waitdraw
 			}
 			else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 			draw_screen(&tmpscr,true,true);
@@ -24092,6 +24092,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir);
 	int32_t aheadflag = lookaheadflag(scrolldir);
+	// TODO z3
 	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
 	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
@@ -24190,7 +24191,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int no_move = 0;
 	int move_counter = 0;
 	int align_counter = abs(axis_alignment_amount);
-	bool end_frames = 0;
+	bool end_frames = false;
 
 	scroll_counter *= delay;
 
@@ -24653,11 +24654,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	//will get confused and try to hop Hero onto the next (possibly nonexistant) water tile in his current
 	//direction. -DD
 	
-	/*if(nowinwater)
+	if(nowinwater)
 	{
 		SetSwim();
 		hopclk = 0xFF;
-	}*/
+	}
 	
 	// NES behaviour: Fade to light after scrolling
 	lighting(false, false); // No, we don't need to set naturaldark...
@@ -24673,7 +24674,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
 			sfx(tmpscr.secretsfx);
-			action=rafting; FFCore.setHeroAction(rafting);
+			action=rafting;
+			FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
 		
@@ -24681,7 +24683,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
 		{
 			sfx(tmpscr.secretsfx);
-			action=rafting; FFCore.setHeroAction(rafting);
+			action=rafting;
+			FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
 	}
@@ -24689,6 +24692,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	opendoors=0;
 	markBmap(-1);
 	
+	// TODO z3
 	if(isdungeon())
 	{
 		switch(tmpscr.door[scrolldir^1])
@@ -24751,9 +24755,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
+		int sx = step * move_counter * -dx;
+		int sy = step * move_counter * -dy;
+		if (is_smooth_vertical_scrolling) sy += 3;
 		//script_drawing_commands.Clear();
-		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
-		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
+		//ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 	}
 }
 
@@ -24765,6 +24772,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	// Use new scrolling function if scrolling to/from a scrollable region.
+	// TODO z3 use this for all scrolling
 	{
 		int tempdestscr = destscr;
 		if (destscr != -1)
