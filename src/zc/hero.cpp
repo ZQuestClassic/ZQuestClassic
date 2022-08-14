@@ -9683,17 +9683,14 @@ bool HeroClass::startwpn(int32_t itemid)
 {
 	if(itemid < 0) return false;
 	itemdata const& itm = itemsbuf[itemid];
-	if(((dir==up && y<24) || (dir==down && y>128) ||
-			(dir==left && x<32) || (dir==right && x>208)) && !(get_bit(quest_rules,qr_ITEMSONEDGES) || inlikelike))
+	if(((dir==up && y<24) || (dir==down && y>world_h-48) ||
+			(dir==left && x<32) || (dir==right && x>world_w-48)) && !(get_bit(quest_rules,qr_ITEMSONEDGES) || inlikelike))
 		return false;
 		
 	int32_t wx=x;
 	int32_t wy=y-fakez;
 	int32_t wz=z;
 	bool ret = true;
-
-	// wx -= global_viewport_x;
-	// wy -= global_viewport_y;
 	
 	switch(dir)
 	{
