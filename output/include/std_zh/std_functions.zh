@@ -1335,7 +1335,7 @@ int GetHighestLevelItem(item i)
 
 /**
  * Faster than the old function; this now works
- * exactly how the engine handles it. -V
+ * exactly how the engine handles it. -Em
  */
 int GetHighestLevelItemOwned(int itemclass)
 {
