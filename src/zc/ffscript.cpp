@@ -20535,7 +20535,7 @@ void set_register(const int32_t arg, const int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
 			}
-			else combobuf[ri->combosref].trigctr = vbound(value/10000,0,crMAX-1);
+			else combobuf[ri->combosref].trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
 			break;
 		}
 		case COMBODTRIGGERCTRAMNT:
