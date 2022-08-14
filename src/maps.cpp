@@ -3004,6 +3004,8 @@ void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 {
 	if(over)
 	{
+		if(combobuf[cid].animflags & AF_TRANSPARENT)
+			transp = !transp;
 		if(transp)
 			overcombotranslucent(dest, x, y, cid, cset, 128);
 		else overcombo(dest, x, y, cid, cset);

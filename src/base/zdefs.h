@@ -3283,6 +3283,7 @@ struct newcombo
 #define AF_FRESH          0x01
 #define AF_CYCLE          0x02
 #define AF_CYCLENOCSET    0x04
+#define AF_TRANSPARENT    0x08
 
 struct tiletype
 {

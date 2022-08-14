@@ -2063,6 +2063,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									SETFLAG(local_comboref.animflags,AF_CYCLENOCSET,state);
 									updateCSet();
 								}
+							),
+							Checkbox(
+								text = "Toggle Transparent", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_TRANSPARENT,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_TRANSPARENT,state);
+								}
 							)
 						)
 					)),
@@ -2687,6 +2695,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									SETFLAG(local_comboref.animflags,AF_CYCLENOCSET,state);
 									updateCSet();
+								}
+							),
+							Checkbox(
+								text = "Toggle Transparent", hAlign = 0.0,
+								checked = local_comboref.animflags & AF_TRANSPARENT,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_comboref.animflags,AF_TRANSPARENT,state);
 								}
 							)
 						)
