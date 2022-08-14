@@ -388,7 +388,7 @@ extern bool usebombpal;
 extern int32_t slot_arg, slot_arg2;
 extern char *SAVE_FILE;
 
-extern int32_t homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
+extern int32_t homescr,currscr,initial_region_scr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
 extern direction scrolling_dir;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;

@@ -5028,7 +5028,8 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 		case edTRIGGERSECRETS:
 		{
-			hidden_entrance(0, true, false, -4);
+			// TODO z3 what screen?
+			trigger_secrets_for_screen(initial_region_scr, false, -4);
 			return -1;
 		}
 		
@@ -5332,7 +5333,8 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		sfx(WAV_CHINK,pan(int32_t(x)));
 		return 1;
 	case edTRIGGERSECRETS:
-		hidden_entrance(0, true, false, -4);
+		// TODO z3 what screen?
+		trigger_secrets_for_screen(initial_region_scr, false, -4);
 		break;
 		
 	case edIGNOREL1:
@@ -22847,7 +22849,8 @@ bool parsemsgcode()
 		case MSGC_TRIGSECRETS:
 		{
 			bool perm = (bool)grab_next_argument();
-			hidden_entrance(0, true, false, -8);
+			// TODO z3 get screen that msg came from
+			trigger_secrets_for_screen(currscr, false, -8);
 			if(perm)
 				setmapflag(mSECRET);
 			return true;

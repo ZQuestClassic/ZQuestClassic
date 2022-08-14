@@ -1446,10 +1446,10 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 		if (cmb.triggerflags[1]&combotriggerSECRETS)
 		{
 			used_bit = true;
-			hidden_entrance(0, true, false, -6);
-			if(canPermSecret() && !(tmpscr.flags5&fTEMPSECRETS))
-				setmapflag(mSECRET);
-			sfx(tmpscr.secretsfx);
+			trigger_secrets_for_screen(pos_handle.screen_index, false, -6);
+			if (canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
+				setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
+			sfx(pos_handle.screen->secretsfx);
 		}
 		
 		if(cmb.trigchange)

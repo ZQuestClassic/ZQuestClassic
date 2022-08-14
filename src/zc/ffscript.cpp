@@ -22406,7 +22406,7 @@ void do_layermap()
 
 
 	
-
+// TODO z3 what screen?
 void do_triggersecrets()
 {
 	hidden_entrance(0, true, false, -4);

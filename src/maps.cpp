@@ -227,7 +227,6 @@ void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& r
 	region_scr_dy = input_scr_y - origin_scr_y;
 }
 
-static int initial_region_scr = 0;
 void z3_load_region()
 {
 	z3_calculate_region(currscr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
@@ -309,6 +308,7 @@ bool edge_of_region(direction dir)
 }
 
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
+// TODO z3 rename get_screen_index_for_world_xy
 int z3_get_scr_index_for_xy_offset(int x, int y)
 {
 	int dx = x / 256;
@@ -650,6 +650,7 @@ int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2
     return 0;
 }
 
+// TODO z3 remove -1 defaults
 bool canPermSecret(int32_t dmap, int32_t scr)
 {
 	return (!isdungeon(dmap, scr) || get_bit(quest_rules,qr_DUNGEON_DMAPS_PERM_SECRETS));
@@ -2343,7 +2344,7 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 {
 	DCHECK(screen_index != -1 || s);
 	if (!s) s = get_scr(currmap, screen_index);
-	if (screen_index == -1) screen_index = currscr;
+	if (screen_index == -1) screen_index = initial_region_scr;
 
 	int32_t ft=0; //Flag trigger?
 	int32_t msflag=0; // Misc. secret flag
