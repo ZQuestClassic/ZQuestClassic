@@ -1280,7 +1280,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								TextField(
 									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
+									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
@@ -2612,7 +2612,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								TextField(
 									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*(local_itemref.amount & 0x3FFF),
 									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
+									fitParent = true, low = -9999, high = 16383,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.amount &= 0x8000;
