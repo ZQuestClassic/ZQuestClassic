@@ -76,9 +76,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -2322,6 +2322,7 @@ void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
+	DCHECK(tmp == 0);
 	Z_eventlog("%sScreen Secrets triggered%s.\n",
 			   single>-1? "Restricted ":"",
 			   single==-2? " by the 'Enemies->Secret' screen flag":
@@ -3016,264 +3017,73 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, int32_t& out_sc
 
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 {
-	// TODO z3
-	// if (is_z3_scrolling_mode())
+	if (x < -16 || y < -16 || x >= world_w || y >= world_h) return false;
+
+	mapscr* scr = NULL;
+	int32_t screen_index = -1;
+	int32_t scombo = -1;
+	bool single16 = false;
+	if (has_flag_trigger(x, y, flag, scombo, single16))
 	{
-		if (x < -16 || y < -16 || x >= world_w || y >= world_h) return false;
-
-		mapscr* scr = NULL;
-		int32_t screen_index = -1;
-		int32_t scombo = -1;
-		bool single16 = false;
-		if (has_flag_trigger(x, y, flag, scombo, single16))
-		{
-			screen_index = z3_get_scr_index_for_xy_offset(x, y);
-		}
-		else if (has_flag_trigger(x + 15, y, flag, scombo, single16))
-		{
-			screen_index = z3_get_scr_index_for_xy_offset(x + 15, y);
-		}
-		else if (has_flag_trigger(x, y + 15, flag, scombo, single16))
-		{
-			screen_index = z3_get_scr_index_for_xy_offset(x, y + 15);
-		}
-		else if (has_flag_trigger(x + 15, y + 15, flag, scombo, single16))
-		{
-			screen_index = z3_get_scr_index_for_xy_offset(x + 15, y + 15);
-		}
-		if (screen_index != -1) scr = get_scr(currmap, screen_index);
-		if (!scr) return false;
-
-		if (scombo < 0)
-		{
-			checktrigger = true;
-			trigger_secrets_for_screen(screen_index);
-		}
-		else
-		{
-			checktrigger = true;
-			trigger_secrets_for_screen(screen_index, single16, scombo);
-		}
-		
-		sfx(scr->secretsfx);
-		
-		if(scr->flags6&fTRIGGERFPERM)
-		{
-			int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
-			
-			if(tr)
-			{
-				Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
-				setflag=false;
-			}
-			
-			int32_t ftr = findtrigger(screen_index, -1, true); //FFCs
-			
-			if(ftr)
-			{
-				Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
-				setflag=false;
-			}
-			
-			if(!(tr||ftr) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
-			{
-				trigger_secrets_for_screen(screen_index, true, scr->flags6&fTRIGGERF1631);
-			}
-		}
-		
-		if(setflag && canPermSecret())
-			if(!(scr->flags5&fTEMPSECRETS))
-				setmapflag2(scr, screen_index, mSECRET);
-
-		return true;
+		screen_index = z3_get_scr_index_for_xy_offset(x, y);
 	}
-	return false;
-	// TODO delete
-	// TODO z3 reduce code
-
-    bool foundflag=false;
-    bool foundcflag=false;
-    bool foundnflag=false;
-    bool foundfflag=false;
-    bool single16=false;
-    int32_t scombo=-1;
-    
-    for(int32_t i=-1; i<6; i++)  // Layers. -1 = screen.
-    {
-        if(MAPFLAG2(i,x,y)==flag || MAPFLAG2(i,x+15,y)==flag ||
-                MAPFLAG2(i,x,y+15)==flag || MAPFLAG2(i,x+15,y+15)==flag)
-        {
-            foundflag=true;
-            foundnflag=true;
-			break;
-        }
-    }
-    
-    for(int32_t i=-1; i<6; i++)  // Layers. -1 = screen.
-    {
-        if(MAPCOMBOFLAG2(i,x,y)==flag || MAPCOMBOFLAG2(i,x+15,y)==flag ||
-                MAPCOMBOFLAG2(i,x,y+15)==flag || MAPCOMBOFLAG2(i,x+15,y+15)==flag)
-        {
-            foundflag=true;
-            foundcflag=true;
-			break;
-        }
-    }
-    
-    if(MAPFFCOMBOFLAG(x,y)==flag)
-    {
-        foundflag=true;
-        foundfflag=true;
-    }
-        
-    if(MAPFFCOMBOFLAG(x+15,y)==flag)
-    {
-        foundflag=true;
-        foundfflag=true;
-    }
-        
-    if(MAPFFCOMBOFLAG(x,y+15)==flag)
-    {
-        foundflag=true;
-        foundfflag=true;
-    }
-        
-    if(MAPFFCOMBOFLAG(x+15,y+15)==flag)
-    {
-        foundflag=true;
-        foundfflag=true;
-    }
-        
-    if(!foundflag)
-    {
-        return false;
-    }
-    
-    for(int32_t i=-1; i<6; i++)  // Look for Trigger->Self on all layers
-    {
-        if(foundnflag) // Trigger->Self (a.k.a Singular) is inherent
-        {
-            if((MAPCOMBOFLAG2(i,x,y)==mfSINGLE)&&(MAPFLAG2(i,x,y)==flag))
-            {
-                scombo=COMBOPOS(x,y);
-            }
-            else if((MAPCOMBOFLAG2(i,x,y)==mfSINGLE16)&&(MAPFLAG2(i,x,y)==flag))
-            {
-                scombo=COMBOPOS(x,y);
-                single16=true;
-            }
-            else if((MAPCOMBOFLAG2(i,x+15,y)==mfSINGLE)&&(MAPFLAG2(i,x+15,y)==flag))
-            {
-                scombo=COMBOPOS(x+15,y);
-            }
-            else if((MAPCOMBOFLAG2(i,x+15,y)==mfSINGLE16)&&(MAPFLAG2(i,x+15,y)==flag))
-            {
-                scombo=COMBOPOS(x+15,y);
-                single16=true;
-            }
-            else if((MAPCOMBOFLAG2(i,x,y+15)==mfSINGLE)&&(MAPFLAG2(i,x,y+15)==flag))
-            {
-                scombo=COMBOPOS(x,y+15);
-            }
-            else if((MAPCOMBOFLAG2(i,x,y+15)==mfSINGLE16)&&(MAPFLAG2(i,x,y+15)==flag))
-            {
-                scombo=COMBOPOS(x,y+15);
-                single16=true;
-            }
-            else if((MAPCOMBOFLAG2(i,x+15,y+15)==mfSINGLE)&&(MAPFLAG2(i,x+15,y+15)==flag))
-            {
-                scombo=COMBOPOS(x+15,y+15);
-            }
-            else if((MAPCOMBOFLAG2(i,x+15,y+15)==mfSINGLE16)&&(MAPFLAG2(i,x+15,y+15)==flag))
-            {
-                scombo=COMBOPOS(x+15,y+15);
-                single16=true;
-            }
-        }
-        
-        if(foundcflag) // Trigger->Self (a.k.a Singular) is non-inherent
-        {
-            if((MAPFLAG2(i,x,y)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x,y)==flag))
-            {
-                scombo=COMBOPOS(x,y);
-            }
-            else if((MAPFLAG2(i,x,y)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x,y)==flag))
-            {
-                scombo=COMBOPOS(x,y);
-                single16=true;
-            }
-            else if((MAPFLAG2(i,x+15,y)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x+15,y)==flag))
-            {
-                scombo=COMBOPOS(x+15,y);
-            }
-            else if((MAPFLAG2(i,x+15,y)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x+15,y)==flag))
-            {
-                scombo=COMBOPOS(x+15,y);
-                single16=true;
-            }
-            else if((MAPFLAG2(i,x,y+15)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x,y+15)==flag))
-            {
-                scombo=COMBOPOS(x,y+15);
-            }
-            else if((MAPFLAG2(i,x,y+15)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x,y+15)==flag))
-            {
-                scombo=COMBOPOS(x,y+15);
-                single16=true;
-            }
-            else if((MAPFLAG2(i,x+15,y+15)==mfSINGLE)&&(MAPCOMBOFLAG2(i,x+15,y+15)==flag))
-            {
-                scombo=COMBOPOS(x+15,y+15);
-            }
-            else if((MAPFLAG2(i,x+15,y+15)==mfSINGLE16)&&(MAPCOMBOFLAG2(i,x+15,y+15)==flag))
-            {
-                scombo=COMBOPOS(x+15,y+15);
-                single16=true;
-            }
-        }
-    }
-    
-	if(scombo<0)
+	else if (has_flag_trigger(x + 15, y, flag, scombo, single16))
 	{
-		checktrigger=true;
-		hidden_entrance(0,true);
+		screen_index = z3_get_scr_index_for_xy_offset(x + 15, y);
+	}
+	else if (has_flag_trigger(x, y + 15, flag, scombo, single16))
+	{
+		screen_index = z3_get_scr_index_for_xy_offset(x, y + 15);
+	}
+	else if (has_flag_trigger(x + 15, y + 15, flag, scombo, single16))
+	{
+		screen_index = z3_get_scr_index_for_xy_offset(x + 15, y + 15);
+	}
+	if (screen_index != -1) scr = get_scr(currmap, screen_index);
+	if (!scr) return false;
+
+	if (scombo < 0)
+	{
+		checktrigger = true;
+		trigger_secrets_for_screen(screen_index);
 	}
 	else
 	{
-		checktrigger=true;
-		hidden_entrance(0,true,single16,scombo);
+		checktrigger = true;
+		trigger_secrets_for_screen(screen_index, single16, scombo);
 	}
-    
-    sfx(tmpscr.secretsfx);
-    
-    if(tmpscr.flags6&fTRIGGERFPERM)
-    {
-        int32_t tr = findtrigger(currscr, -1, false);  //Normal flags
-        
-        if(tr)
-        {
-            Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
-            setflag=false;
-        }
-        
-        int32_t ftr = findtrigger(currscr, -1, true); //FFCs
-        
-        if(ftr)
-        {
-            Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
-            setflag=false;
-        }
+	
+	sfx(scr->secretsfx);
+	
+	if(scr->flags6&fTRIGGERFPERM)
+	{
+		int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
+		
+		if(tr)
+		{
+			Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
+			setflag=false;
+		}
+		
+		int32_t ftr = findtrigger(screen_index, -1, true); //FFCs
+		
+		if(ftr)
+		{
+			Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
+			setflag=false;
+		}
 		
 		if(!(tr||ftr) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
-			hidden_entrance(0,true,(tmpscr.flags6&fTRIGGERF1631));
+			trigger_secrets_for_screen(screen_index, true, scr->flags6&fTRIGGERF1631);
 		}
-    }
-    
-    if(setflag && canPermSecret())
-        if(!(tmpscr.flags5&fTEMPSECRETS))
-            setmapflag(mSECRET);
-            
-    return true;
+	}
+	
+	if(setflag && canPermSecret())
+		if(!(scr->flags5&fTEMPSECRETS))
+			setmapflag2(scr, screen_index, mSECRET);
+
+	return true;
 }
 
 void update_freeform_combos()
@@ -3708,7 +3518,7 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 
 void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen)
 {
-	DCHECK(layer >= 0 && layer <= 6);
+	DCHECK_LAYER_ZERO_INDEX(layer);
 	x += global_viewport_x;
 	y += global_viewport_y;
 
