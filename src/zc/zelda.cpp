@@ -2440,6 +2440,7 @@ int32_t init_game()
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	FFCore.runOnLaunchEngine();
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
+	if(!get_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);
 	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
@@ -5440,7 +5441,11 @@ int main(int argc, char **argv)
 			Quit = 0;
 			if(q==qCONT)
 				cont_game();
-			else init_game();
+			else if(init_game())
+			{
+				//Failed initializing? Keep trying.
+				do Quit = 0; while(init_game());
+			}
 			Quit = 0;
 		}
 		else titlescreen(load_save);

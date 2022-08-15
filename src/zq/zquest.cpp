@@ -33791,7 +33791,6 @@ void update_hw_screen(bool force)
 	}
 }
 
-
 bool checkCost(int32_t ctr, int32_t amnt)
 {
 	if(!game) return true;
@@ -33856,4 +33855,7 @@ void paymagiccost(int32_t itemid, bool ignoreTimer)
 {
 	return;
 }
+
+void enter_sys_pal(){}
+void exit_sys_pal(){}
 

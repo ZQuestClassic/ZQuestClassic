@@ -1092,7 +1092,7 @@ enum
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
-	qr_GOHMA_UNDAMAGED_BUG,
+	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -5395,6 +5395,8 @@ bool load_dev_info(std::string const& devstr);
 bool load_dev_info_clipboard();
 std::string generate_zq_about();
 
+void enter_sys_pal();
+void exit_sys_pal();
 
 #undef cmb1
 #undef cmb2
