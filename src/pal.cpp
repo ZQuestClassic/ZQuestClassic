@@ -509,6 +509,7 @@ void lightingInstant()
 
 byte drycolors[11] = {0x12,0x11,0x22,0x21,0x31,0x32,0x33,0x35,0x34,0x36,0x37};
 
+// TODO z3
 void dryuplake()
 {
     if(whistleclk<0 || whistleclk>=88)
@@ -536,7 +537,7 @@ void dryuplake()
     {
         if(tmpscr.flags & fWHISTLE)
         {
-            if(hiddenstair(0,true))
+            if(hiddenstair2(&tmpscr,true))
             {
                 sfx(tmpscr.secretsfx);
             }

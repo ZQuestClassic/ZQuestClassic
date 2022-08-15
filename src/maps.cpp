@@ -5268,13 +5268,13 @@ void openshutters()
 	sfx(WAV_DOOR, 128);
 }
 
-void load_a_screen_and_layers(int dmap, int map, int screen)
+void load_a_screen_and_layers(int dmap, int map, int screen_index)
 {
 	std::vector<mapscr*> screens;
 
-	const mapscr* source = get_canonical_scr(map, screen);
+	const mapscr* source = get_canonical_scr(map, screen_index);
 	mapscr* base_screen = new mapscr(*source);
-	if (map == currmap) temporary_screens_currmap[screen*7] = base_screen;
+	if (map == currmap) temporary_screens_currmap[screen_index*7] = base_screen;
 	screens.push_back(base_screen);
 
 	base_screen->valid |= mVALID; // layer 0 is always valid
@@ -5302,19 +5302,19 @@ void load_a_screen_and_layers(int dmap, int map, int screen)
 		{
 			screens.push_back(new mapscr());
 		}
-		if (map == currmap) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
+		if (map == currmap) temporary_screens_currmap[screen_index*7+i+1] = screens[i+1];
 	}
 
 	// Apply perm secrets, if applicable.
-	if (canPermSecret(dmap, screen))
+	if (canPermSecret(dmap, screen_index))
 	{
-		if(game->maps[map*MAPSCRSNORMAL + screen] & mSECRET)    // if special stuff done before
+		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mSECRET)    // if special stuff done before
 		{
-			// hiddenstair(screen, false);
+			hiddenstair2(base_screen, false);
 			bool do_layers = true;
-			trigger_secrets_for_screen(screen, NULL, do_layers, false, -3);
+			trigger_secrets_for_screen(screen_index, NULL, do_layers, false, -3);
 		}
-		if(game->maps[map*MAPSCRSNORMAL + screen] & mLIGHTBEAM) // if special stuff done before
+		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mLIGHTBEAM) // if special stuff done before
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
@@ -5338,35 +5338,35 @@ void load_a_screen_and_layers(int dmap, int map, int screen)
 
 	// TODO z3 get parity with loadscr_old
 
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKBLOCK)
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mLOCKBLOCK)
 	{
-		remove_lockblocks(base_screen, screen);
+		remove_lockblocks(base_screen, screen_index);
 	}
 	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSLOCKBLOCK)
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mBOSSLOCKBLOCK)
 	{
-		remove_bosslockblocks(base_screen, screen);
+		remove_bosslockblocks(base_screen, screen_index);
 	}
 	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mCHEST)
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mCHEST)
 	{
-		remove_chests(base_screen, screen);
+		remove_chests(base_screen, screen_index);
 	}
 	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKEDCHEST)
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mLOCKEDCHEST)
 	{
-		remove_lockedchests(base_screen, screen);
+		remove_lockedchests(base_screen, screen_index);
 	}
 	
-	if (game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSCHEST)
+	if (game->maps[(currmap*MAPSCRSNORMAL)+screen_index]&mBOSSCHEST)
 	{
-		remove_bosschests(base_screen, screen);
+		remove_bosschests(base_screen, screen_index);
 	}
 
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
-	clear_xstatecombos2(base_screen, screen, mi);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen_index >= 0x80 ? homescr : screen_index);
+	clear_xstatecombos2(base_screen, screen_index, mi);
 
-	if (map != currmap) temporary_screens[map*MAPSCRS + screen] = screens;
+	if (map != currmap) temporary_screens[map*MAPSCRS + screen_index] = screens;
 }
 
 // Sets `currscr` to `scr` and loads new screens into temporary memory.

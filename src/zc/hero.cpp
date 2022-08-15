@@ -19820,31 +19820,31 @@ void HeroClass::checkspecial()
 	}
 }
 
-//Gets the 4 comboposes indicated by the coordinates, replacing duplicates with '-1'
-void getPoses(int32_t* poses, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+//Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with '-1'
+void getRposes(rpos_t* rposes, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-	x1 %= 256;
-	y1 %= 176;
-	x2 %= 256;
-	y2 %= 176;
+	x1 %= world_w;
+	y1 %= world_h;
+	x2 %= world_w;
+	y2 %= world_h;
 
-	int32_t tmp;
-	poses[0] = COMBOPOS(x1,y1);
+	rpos_t tmp;
+	rposes[0] = COMBOPOS_REGION(x1,y1);
 	
-	tmp = COMBOPOS(x1,y2);
-	if(tmp == poses[0])
-		poses[1] = -1;
-	else poses[1] = tmp;
+	tmp = COMBOPOS_REGION(x1,y2);
+	if(tmp == rposes[0])
+		rposes[1] = rpos_t::NONE;
+	else rposes[1] = tmp;
 	
-	tmp = COMBOPOS(x2,y1);
-	if(tmp == poses[0] || tmp == poses[1])
-		poses[2] = -1;
-	else poses[2] = tmp;
+	tmp = COMBOPOS_REGION(x2,y1);
+	if(tmp == rposes[0] || tmp == rposes[1])
+		rposes[2] = rpos_t::NONE;
+	else rposes[2] = tmp;
 	
-	tmp = COMBOPOS(x2,y2);
-	if(tmp == poses[0] || tmp == poses[1] || tmp == poses[2])
-		poses[3] = -1;
-	else poses[3] = tmp;
+	tmp = COMBOPOS_REGION(x2,y2);
+	if(tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
+		rposes[3] = rpos_t::NONE;
+	else rposes[3] = tmp;
 }
 
 void HeroClass::checkspecial2(int32_t *ls)
@@ -20315,18 +20315,18 @@ void HeroClass::checkspecial2(int32_t *ls)
 	if (!is_z3_scrolling_mode()) // TODO z3
 	if(action!=freeze&&action!=sideswimfreeze&&(!msg_active || !get_bit(quest_rules,qr_MSGFREEZE)))
 	{
-		int32_t poses[4];
-		int32_t sensPoses[4];
+		rpos_t rposes[4];
+		rpos_t sensRposes[4];
 		if(diagonalMovement||NO_GRIDLOCK)
-			getPoses(poses, tx+4, ty+4, tx+11, ty+11);
-		else getPoses(poses, tx, ty, tx+15, ty+15);
-		getPoses(sensPoses, tx, ty+(bigHitbox?0:8), tx+15, ty+15);
+			getRposes(rposes, tx+4, ty+4, tx+11, ty+11);
+		else getRposes(rposes, tx, ty, tx+15, ty+15);
+		getRposes(sensRposes, tx, ty+(bigHitbox?0:8), tx+15, ty+15);
 		bool hasStep[4] = {false};
 		for(auto p = 0; p < 4; ++p)
 		{
 			for(auto lyr = 0; lyr < 7; ++lyr)
 			{
-				newcombo const* cmb = poses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[poses[p]]];
+				newcombo const* cmb = rposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
 				if((cmb && (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS)))
 					|| types[p] == cSTEP)
 				{
@@ -20338,7 +20338,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		bool canNormalStep = true;
 		for(auto p = 0; p < 4; ++p)
 		{
-			if(poses[p] < 0) continue;
+			if(rposes[p] == rpos_t::NONE) continue;
 			if(!hasStep[p])
 			{
 				canNormalStep = false;
@@ -20349,16 +20349,16 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			for(auto lyr = 0; lyr < 7; ++lyr)
 			{
-				newcombo const* cmb = poses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[poses[p]]];
-				newcombo const* cmb2 = sensPoses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[sensPoses[p]]];
+				newcombo const* cmb = rposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
+				newcombo const* cmb2 = sensRposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(sensRposes[p])]];
 				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
 				{
-					do_trigger_combo(lyr,poses[p]);
-					if(poses[p] == sensPoses[p]) continue;
+					do_trigger_combo(z3_get_pos_handle(rposes[p], lyr));
+					if(rposes[p] == sensRposes[p]) continue;
 				}
 				if(cmb2 && (cmb2->triggerflags[0] & combotriggerSTEPSENS))
 				{
-					do_trigger_combo(lyr,sensPoses[p]);
+					do_trigger_combo(z3_get_pos_handle(sensRposes[p], lyr));
 				}
 			}
 		}

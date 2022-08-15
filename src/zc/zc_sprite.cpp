@@ -504,7 +504,7 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			if(hiddenstair(0,true))
+			if(hiddenstair2(pos_handle.screen,true))
 			{
 				sfx(pos_handle.screen->secretsfx);
 			}

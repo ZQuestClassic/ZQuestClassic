@@ -3618,9 +3618,8 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	
 	switch(special)
 	{
-		// TODO z3 ? dodongo
 		case spw_clipbottomright:
-			if(dy>=128 || dx>=208) return true;
+			if(dy>=world_h-48 || dx>=world_w-48) return true;
 			break;
 		case spw_clipright:
 			break; //if(input_x>=208) return true; break;
@@ -3628,11 +3627,10 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
-				// TODO z3 ?
 				if(isInDungeon)
 				{
-					if(dy < 32-yg || dy >= 144) return true;
-					if(dx < 32 || dx >= 224) return true;
+					if(dy < 32-yg || dy >= world_h-32) return true;
+					if(dx < 32 || dx >= world_w-32) return true;
 				}
 				return false;
 			}
