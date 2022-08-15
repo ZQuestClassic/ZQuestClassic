@@ -1,5 +1,20 @@
 // 2.55 Change Log
-// Updated 13th Aug, 2022
+// Updated 15th Aug, 2022
+
+--Aug 15th Nightly
+
+EWeapon combo triggers
+	( EmilyV, 15th Aug, 2022 )
+
+Fix bugged cost counters
+Fix item 'pickup amount' bounding
+Add new combo trigger options (Lens, Light Beam, Push)
+'Toggle Transparent' combo flag
+Fix FFC 'Run at screen init' not working immediately after loading from save select screen
+	( EmilyV, 14th Aug, 2022 )
+
+Fix undamaged ghoma not blocking properly
+	( Deedee, 14th Aug, 2022 )
 
 --Aug 13th Nightly
 
