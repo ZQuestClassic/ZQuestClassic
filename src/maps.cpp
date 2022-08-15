@@ -1673,6 +1673,7 @@ int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool se
 
 int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
+	DCHECK_LAYER_NEG1_INDEX(layer);
 	//Honestly, fullcheck is kinda useless... I made this function back when I thought it was checking the entire combo and not just a glorified x/y value.
 	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
 	

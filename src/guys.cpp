@@ -2753,9 +2753,6 @@ bool enemy::is_move_paused()
 
 bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
 {
-	// TODO z3
-	int active_scr = global_z3_cur_scr_drawing == -1 ? currscr : global_z3_cur_scr_drawing;
-
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 	//Z_eventlog("Checking x,y %d,%d\n",dx,dy);
@@ -2802,26 +2799,13 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	// TODO: could this reuse _walkflag?
 	//_walkflag code
-	mapscr *s0, *s1, *s2;
-	if (is_z3_scrolling_mode())
-	{
-		mapscr* z3scr = get_screen_for_world_xy(dx, dy);
-		s0 = z3scr;
-		s1 = z3scr->layermap[0] > 0 ? &TheMaps[(z3scr->layermap[0]-1)*MAPSCRS+z3scr->layerscreen[0]] : NULL;
-		s2 = z3scr->layermap[1] > 0 ? &TheMaps[(z3scr->layermap[1]-1)*MAPSCRS+z3scr->layerscreen[1]] : NULL;
-		if (!s1 || !s1->valid) s1 = z3scr;
-		if (!s2 || !s2->valid) s2 = z3scr;
-		dx %= 256;
-		dy %= 176;
-	}
-	else
-	{
-		s0=&tmpscr;
-		s1=((tmpscr.layermap[0]-1)>=0)?tmpscr2:NULL;
-		s2=((tmpscr.layermap[1]-1)>=0)?tmpscr2+1:NULL;
-	}
+	mapscr* s0 = get_layer_scr_for_xy(dx, dy, -1);
+	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_layer_scr_for_xy(dx, dy, 0) : nullptr;
+	mapscr* s2 = s0->layermap[1]-1 >= 0 ? get_layer_scr_for_xy(dx, dy, 1) : nullptr;
+	if (!s1 || !s1->valid) s1 = s0;
+	if (!s2 || !s2->valid) s2 = s0;
 	
-	int32_t cpos=(dx>>4)+(dy&0xF0);
+	int32_t cpos = COMBOPOS(dx%256, dy%176);
 	int32_t ci = s0->data[cpos], ci1 = (s1?s1:s0)->data[cpos], ci2 = (s2?s2:s0)->data[cpos];
 	newcombo c = combobuf[ci];
 	newcombo c1 = combobuf[ci1];
@@ -2833,9 +2817,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	#define iwtr(cmb, x, y, shallow) \
 		(shallow \
-			? iswaterex(cmb, currmap, active_scr, -1, dx, dy, false, false, false, true, false) \
-				&& !iswaterex(cmb, currmap, active_scr, -1, dx, dy, false, false, false, false, false) \
-			: iswaterex(cmb, currmap, active_scr, -1, dx, dy, false, false, false, false, false))
+			? iswaterex_z3(cmb, -1, dx, dy, false, false, false, true, false) \
+				&& !iswaterex_z3(cmb, -1, dx, dy, false, false, false, false, false) \
+			: iswaterex_z3(cmb, -1, dx, dy, false, false, false, false, false))
 	bool wtr = iwtr(ci, dx, dy, false);
 	bool shwtr = iwtr(ci, dx, dy, true);
 	bool pit = ispitfall(dx,dy);
@@ -21576,6 +21560,7 @@ bool is_ceiling_pattern(int32_t i)
 	return (i==pCEILING || i==pCEILINGR);
 }
 
+// TODO z3 enemy
 int32_t placeenemy(int32_t i)
 {
 	std::map<int32_t, int32_t> freeposcache;
