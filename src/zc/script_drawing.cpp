@@ -1597,11 +1597,13 @@ void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     /* layer, x, y, tile, color opacity */
     
     int32_t opacity = sdci[6]/10000;
+	int x = xoffset+(sdci[2]/10000)-global_viewport_x;
+	int y = yoffset+(sdci[3]/10000)-global_viewport_y;
     
     if(opacity < 128)
-        overtiletranslucent16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
+        overtiletranslucent16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
     else
-        overtile16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
+        overtile16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0);
 }
 
 void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -1632,9 +1634,9 @@ void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     {
 	    
 	    if(v.at(q+4) < 128)
-		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0, v.at(q+4));
+		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1))-global_viewport_x, yoffset+(v.at(q+2))-global_viewport_y, v.at(q+3), 0, v.at(q+4));
 	    else
-		overtile16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0);
+		overtile16(bmp, v.at(q), xoffset+(v.at(q+1))-global_viewport_x, yoffset+(v.at(q+2))-global_viewport_y, v.at(q+3), 0);
     }
 }
 
@@ -1663,17 +1665,20 @@ void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     else
         overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
+
+	int x = xoffset+x1-global_viewport_x;
+	int y = yoffset+y1-global_viewport_y;
 	
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
-		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
+		overcomboblocktranslucent(bmp, x, y, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
 		//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
-		overcomboblock(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
+		overcomboblock(bmp, x, y, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
@@ -5086,11 +5091,14 @@ void bmp_do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	if ( refbmp == NULL ) return;
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
+
+	int x = xoffset+(sdci[2]/10000) - global_viewport_x;
+	int y = yoffset+(sdci[3]/10000) - global_viewport_y;
     
     if(opacity < 128)
-        overtiletranslucent16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
+        overtiletranslucent16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
     else
-        overtile16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
+        overtile16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0);
 }
 
 void do_bmpwritetile(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -5271,17 +5279,20 @@ void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     else
         overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
+
+	int x = xoffset+x1-global_viewport_x;
+	int y = yoffset+y1-global_viewport_y;
 	
 	if(opacity < 128)
 	{
 		//void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
-		overcomboblocktranslucent(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
+		overcomboblocktranslucent(refbmp, x, y, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
 		//overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
-		overcomboblock(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
+		overcomboblock(refbmp, x, y, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
