@@ -76,9 +76,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
-// #define hardcode_regions_mode 1
+#define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 
@@ -4036,7 +4036,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
 
-	if (is_z3_scrolling_mode()) return; // todo z3 LOL
+	if (is_z3_scrolling_mode()) return; // TODO z3 LOL
 	
 	for(int32_t q = 0; q < 176; ++q)
 	{
@@ -4070,6 +4070,43 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 			doDarkroomCircle((special_warp_return_screen.ffx[q]/10000)+(special_warp_return_screen.ffEffectWidth(q)/2), (special_warp_return_screen.ffy[q]/10000)+(special_warp_return_screen.ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
 			if(scrolldir > -1)
 				doDarkroomCircle((special_warp_return_screen.ffx[q]/10000)+(special_warp_return_screen.ffEffectWidth(q)/2)-scrollxoffs, (special_warp_return_screen.ffy[q]/10000)+(special_warp_return_screen.ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
+		}
+	}
+}
+
+// Only used for z3 scrolling mode, during screen scrolling.
+// TODO z3 delete the old version
+void calc_darkroom_combos2(int screen, int offx, int offy)
+{
+	mapscr* scr = get_scr(currmap, screen);
+
+	for(int32_t q = 0; q < 176; ++q)
+	{
+		newcombo const& cmb = combobuf[scr->data[q]];
+		if(cmb.type == cTORCH)
+		{
+			doTorchCircle(darkscr_bmp_curscr, q, cmb, offx, offy);
+		}
+	}
+	for(int32_t lyr = 0; lyr < 6; ++lyr)
+	{
+		mapscr* layer_scr = get_layer_scr(currmap, screen, lyr);
+		if(!layer_scr->valid) continue; //invalid layer
+		for(int32_t q = 0; q < 176; ++q)
+		{
+			newcombo const& cmb = combobuf[layer_scr->data[q]];
+			if(cmb.type == cTORCH)
+			{
+				doTorchCircle(darkscr_bmp_curscr, q, cmb, offx, offy);
+			}
+		}
+	}
+	for(int q = 0; q < 32; ++q)
+	{
+		newcombo const& cmb = combobuf[scr->ffdata[q]];
+		if(cmb.type == cTORCH)
+		{
+			doDarkroomCircle(offx+(scr->ffx[q]/10000)+(scr->ffEffectWidth(q)/2), offy+(scr->ffy[q]/10000)+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
 		}
 	}
 }
