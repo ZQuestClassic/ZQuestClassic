@@ -2795,8 +2795,8 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 			}
 	}
 	
-	dx &= ~7;
-	dy &= ~7;
+	dx = CLEAR_LOW_BITS(dx, 3);
+	dy = CLEAR_LOW_BITS(dy, 3);
 	
 	if(!cansolid && groundblocked(dx,dy,kb)) return true;
 	
@@ -3498,9 +3498,9 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 			return false;
 		}
 	}
-	
-	dx&=(special==spw_halfstep)?(~7):(~15);
-	dy&=(special==spw_halfstep || isSideViewGravity())?(~7):(~15);
+
+	dx = CLEAR_LOW_BITS(dx, special == spw_halfstep ? 3 : 4);
+	dy = CLEAR_LOW_BITS(dy, special == spw_halfstep || isSideViewGravity() ? 3 : 4);
 	
 	if(special==spw_water)
 		return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
@@ -3638,8 +3638,8 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 			}
 	}
 	
-	dx&=(special==spw_halfstep)?(~7):(~15);
-	dy&=(special==spw_halfstep || isSideViewGravity())?(~7):(~15);
+	dx = CLEAR_LOW_BITS(dx, special == spw_halfstep ? 3 : 4);
+	dy = CLEAR_LOW_BITS(dy, special == spw_halfstep || isSideViewGravity() ? 3 : 4);
 	
 	if(special==spw_water)
 		return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));

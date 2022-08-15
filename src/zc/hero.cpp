@@ -3709,7 +3709,6 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	else if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		ignorescreen = true;
 	
-	// TODO z3 ffc
 	int32_t current_ffcombo = getFFCAt(fx,fy);
 	
 	
@@ -3876,7 +3875,6 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			}
 		}
 		
-		// TODO z3 currscr probably wrong
 		{
 			int x, y;
 			COMBOXY_REGION(rpos, x, y);
