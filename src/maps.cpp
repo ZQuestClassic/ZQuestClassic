@@ -4981,6 +4981,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	game->load_portal();
+	if(!tmp) throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
 }
 
 // Screen is being viewed by the Overworld Map viewer.

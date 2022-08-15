@@ -3548,6 +3548,7 @@ enum miscSFX
 
 enum scr_timing
 {
+	SCR_TIMING_INIT = -1,
 	//0
 	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
 	SCR_TIMING_POST_FFCS, SCR_TIMING_POST_GLOBAL_ACTIVE,
@@ -3575,14 +3576,27 @@ enum scr_timing
 	SCR_TIMING_PRE_DRAW, SCR_TIMING_POST_DRAW, SCR_TIMING_POST_STRINGS, SCR_TIMING_END_FRAME,
 	SCR_NUM_TIMINGS
 };
+//Generic Script States, for 'ExitState[]'/'ReloadState[]'
 enum
 {
-	GENSCR_ST_RELOAD,
-	GENSCR_ST_CONTINUE,
-	GENSCR_ST_CHANGE_SCREEN,
-	GENSCR_ST_CHANGE_DMAP,
-	GENSCR_ST_CHANGE_LEVEL,
+	GENSCR_ST_RELOAD, //When reloading from save select screen
+	GENSCR_ST_CONTINUE, //When F6->Continue
+	GENSCR_ST_CHANGE_SCREEN, //When screen changes
+	GENSCR_ST_CHANGE_DMAP, //When dmap changes
+	GENSCR_ST_CHANGE_LEVEL, //When level changes
 	GENSCR_NUMST
+};
+//Generic Script events, for 'WaitEvent()'
+enum
+{
+	GENSCR_EVENT_NIL, //N/A (error value)
+	GENSCR_EVENT_INIT, //When loading in from a save/new quest
+	GENSCR_EVENT_CONTINUE, //When F6->Continue
+	GENSCR_EVENT_FFC_PRELOAD, //When FFCs run 'on screen init'
+	GENSCR_EVENT_CHANGE_SCREEN, //When the screen changes
+	GENSCR_EVENT_CHANGE_DMAP, //When the dmap changes
+	GENSCR_EVENT_CHANGE_LEVEL, //When the level changes
+	GENSCR_NUMEVENT
 };
 
 enum //*weapon->Flags[] indexes

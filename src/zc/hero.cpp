@@ -6715,7 +6715,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
 	
 	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
-	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
 	
@@ -20946,12 +20946,29 @@ RaftingStuff:
 		
 		if(code>-1)
 		{
-			if(currdmap != (code>>8))
+			bool changedlevel = false;
+			bool changeddmap = false;
+			if(currdmap != code>>8)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
-			currdmap = code>>8;
-			if(dlevel != DMaps[currdmap].level)
+				changeddmap = true;
+			}
+			if(dlevel != DMaps[code>>8].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-			dlevel  = DMaps[currdmap].level;
+				changedlevel = true;
+			}
+			currdmap = code>>8;
+			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
+			
 			currmap = DMaps[currdmap].map;
 			homescr = (code&0xFF) + DMaps[currdmap].xoff;
 			init_dmap();
@@ -21383,12 +21400,29 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		music_stop();
 		kill_sfx();
 		blackscr(30,false);
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != wdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[wdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+			changedlevel = true;
+		}
+		dlevel = DMaps[wdmap].level;
 		currdmap = wdmap;
-		dlevel=DMaps[currdmap].level;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
+		
 		currmap=DMaps[currdmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
@@ -21611,12 +21645,29 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		if(!intradmap)
 		{
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != wdmap)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[wdmap].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[wdmap].level;
 			currdmap = wdmap;
-			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
+			
 			homescr = currscr = wscr + DMaps[wdmap].xoff;
 			init_dmap();
 			
@@ -21757,12 +21808,29 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 		
 		int32_t c = DMaps[currdmap].color;
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != wdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[wdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+			changedlevel = true;
+		}
+		dlevel = DMaps[wdmap].level;
 		currdmap = wdmap;
-		dlevel = DMaps[currdmap].level;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
+
 		currmap = DMaps[currdmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
@@ -21925,12 +21993,28 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			int32_t c = DMaps[currdmap].color;
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != wdmap)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[wdmap].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[wdmap].level;
 			currdmap = wdmap;
-			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			currmap = DMaps[currdmap].map;
 			init_dmap();
 			update_subscreens(wdmap);
@@ -24688,12 +24772,28 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(destdmap != -1)
 	{
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != destdmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[destdmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-		currdmap = destdmap;
+			changedlevel = true;
+		}
 		dlevel = DMaps[destdmap].level;
+		currdmap = destdmap;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
 	}
 		
 	//if Hero is going from non-water to water, and we set his animation to "hopping" above, we must now

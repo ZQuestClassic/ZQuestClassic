@@ -1061,6 +1061,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
+	{ "WAITEVENT",         0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

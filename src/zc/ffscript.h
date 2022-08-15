@@ -731,6 +731,7 @@ void clearConsole();
 
 enum scr_timing
 {
+	SCR_TIMING_INIT = -1,
 	//0
 	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
 	SCR_TIMING_POST_FFCS, SCR_TIMING_POST_GLOBAL_ACTIVE,
@@ -767,6 +768,17 @@ enum
 	GENSCR_ST_CHANGE_LEVEL,
 	GENSCR_NUMST
 };
+enum
+{
+	GENSCR_EVENT_NIL,
+	GENSCR_EVENT_INIT,
+	GENSCR_EVENT_CONTINUE,
+	GENSCR_EVENT_FFC_PRELOAD,
+	GENSCR_EVENT_CHANGE_SCREEN,
+	GENSCR_EVENT_CHANGE_DMAP,
+	GENSCR_EVENT_CHANGE_LEVEL,
+	GENSCR_NUMEVENT
+};
 
 struct user_genscript
 {
@@ -782,6 +794,7 @@ public:
 	//Temp Vars
 	bool initialized;
 	bool wait_atleast;
+	bool waitevent;
 	scr_timing waituntil;
 	refInfo ri;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
@@ -793,6 +806,7 @@ public:
 		initialized = false;
 		wait_atleast = true;
 		waituntil = SCR_TIMING_START_FRAME;
+		waitevent = false;
 		exitState = 0;
 		reloadState = 0;
 		ri.Clear();
@@ -808,6 +822,7 @@ public:
 		initialized = false;
 		wait_atleast = true;
 		waituntil = SCR_TIMING_START_FRAME;
+		waitevent = false;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
 	}
@@ -837,7 +852,9 @@ public:
 };
 extern user_genscript user_scripts[NUMSCRIPTSGENERIC];
 extern int32_t genscript_timing;
+void countGenScripts();
 void timeExitAllGenscript(byte exState);
+void throwGenScriptEvent(int32_t event);
 void load_genscript(const gamedata& gd);
 void save_genscript(gamedata& gd);
 
@@ -3294,8 +3311,9 @@ enum ASM_DEFINE
 	LPOWERV,
 	LPOWERV2,
 	SCRTRIGGERCOMBO,
+	WAITEVENT,
 	
-	NUMCOMMANDS           //0x01D5
+	NUMCOMMANDS           //0x01D6
 };
 
 

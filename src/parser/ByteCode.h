@@ -1963,6 +1963,16 @@ namespace ZScript
 		}
 	};
 	
+	class OWaitEvent : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWaitEvent();
+		}
+	};
+	
 	class ONoOp : public Opcode
 	{
 	public:

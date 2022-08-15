@@ -2346,6 +2346,11 @@ string OWaitTo::toString()
     return "WAITTO " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OWaitEvent::toString()
+{
+    return "WAITEVENT";
+}
+
 string ONoOp::toString()
 {
 	return "NOP";

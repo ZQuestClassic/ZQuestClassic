@@ -145,9 +145,12 @@ void zconsole_info(const char *format,...)
 	else printf("%s\n", tmp);
 }
 
+static bool linked = true;
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 {
-	zconsole_info("Compiling '%s'", script_path.c_str());
+	if(linked)
+		zconsole_info("Compiling the ZQuest buffer...");
+	else zconsole_info("Compiling '%s'", script_path.c_str());
 
 	// copy to tmp file
 	std::string zScript;
@@ -226,7 +229,7 @@ void updateIncludePaths()
 int32_t main(int32_t argc, char **argv)
 {
 	common_main_setup(App::zscript, argc, argv);
-	bool linked = true;
+	linked = true;
 	if (!used_switch(argc, argv, "-linked"))
 	{
 		if(used_switch(argc, argv, "-unlinked"))

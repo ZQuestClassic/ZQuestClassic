@@ -657,6 +657,21 @@ void timeExitAllGenscript(byte exState)
 	for(user_genscript& g : user_scripts)
 		g.timeExit(exState);
 }
+void throwGenScriptEvent(int32_t event)
+{
+	for(auto q = 1; q <= max_valid_genscript; ++q)
+	{
+		user_genscript& scr = user_scripts[q];
+		if(!scr.doscript) continue;
+		if(!genericscripts[q]->valid()) continue;
+		if(!scr.waitevent) continue;
+		scr.ri.d[rEXP1] = event*10000;
+		scr.waitevent = false;
+		
+		//Run the script!
+		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+	}
+}
 
 void load_genscript(const gamedata& gd)
 {
@@ -690,24 +705,30 @@ void save_genscript(gamedata& gd)
 void FFScript::runGenericPassiveEngine(int32_t scrtm)
 {
 	if(!max_valid_genscript) return; //No generic scripts in the quest!
-	if(genscript_timing != scrtm)
+	//zprint2("Processing timing %d\n", scrtm);
+	bool init = (scrtm == SCR_TIMING_INIT);
+	if(!init)
 	{
-		//zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
-		while(genscript_timing != scrtm)
-			runGenericPassiveEngine(genscript_timing);
+		if(genscript_timing != scrtm)
+		{
+			//zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
+			while(genscript_timing != scrtm)
+				runGenericPassiveEngine(genscript_timing);
+		}
 	}
 	for(auto q = 1; q <= max_valid_genscript; ++q)
 	{
 		user_genscript& scr = user_scripts[q];
 		if(!scr.doscript) continue;
 		if(!genericscripts[q]->valid()) continue;
-		if(scr.waituntil > scrtm || (!scr.wait_atleast && scr.waituntil != scrtm))
+		if(scr.waitevent) continue;
+		if(!init && (scr.waituntil > scrtm || (!scr.wait_atleast && scr.waituntil != scrtm)))
 			continue;
 		
 		//Run the script!
 		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
 	}
-	if(genscript_timing >= SCR_TIMING_END_FRAME)
+	if(init || genscript_timing >= SCR_TIMING_END_FRAME)
 		genscript_timing = SCR_TIMING_START_FRAME;
 	else ++genscript_timing;
 }
@@ -25039,12 +25060,28 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			doWarpEffect(warpEffect, true);
 			//zprint("FFCore.warp_player reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != dmapID)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[dmapID].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[dmapID].level;
 			currdmap = dmapID;
-			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			currmap = DMaps[currdmap].map;
 			init_dmap();
 			update_subscreens(dmapID);
@@ -25134,12 +25171,28 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != dmapID)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[dmapID].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[dmapID].level;
 			currdmap = dmapID;
-			dlevel=DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			currmap=DMaps[currdmap].map;
 			init_dmap();
 			update_subscreens(dmapID);
@@ -25273,11 +25326,28 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			
 			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != dmapID)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[dmapID].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
+				changedlevel = true;
+			}
+			dlevel = DMaps[dmapID].level;
+			currdmap = dmapID;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			
 			Hero.reset_hookshot();
 			
@@ -26317,6 +26387,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri = &scr.ri;
 			ri->genericdataref = script;
 			curscript = genericscripts[script];
+			scr.waitevent = false;
 			if(!scr.initialized)
 			{
 				scr.initialized = true;
@@ -26524,7 +26595,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	}
 	
 	while(scommand != 0xFFFF && scommand != WAITFRAME
-		&& scommand != WAITDRAW && scommand != WAITTO)
+		&& scommand != WAITDRAW && scommand != WAITTO
+		&& scommand != WAITEVENT)
 	{
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -30027,6 +30099,26 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 					break;
 			}
 		}
+		else if(scommand == WAITEVENT)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC_FROZEN:
+					scommand = WAITFRAME;
+					ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
+					break;
+				case SCRIPT_GENERIC:
+				{
+					user_genscript& scr = user_scripts[script];
+					scr.waitevent = true;
+					break;
+				}
+				default:
+					Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
+					scommand = NOP;
+					break;
+			}
+		}
 		else if(scommand == WAITFRAME)
 		{
 			switch(type)
@@ -30353,6 +30445,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 //This keeps ffc scripts running beyond the first frame. 
 int32_t ffscript_engine(const bool preload)
 {
+	if(preload)
+	{
+		throwGenScriptEvent(GENSCR_EVENT_FFC_PRELOAD);
+	}
 	if (!FFCore.system_suspend[susptFFCSCRIPTS])
 	{
 		//run screen script, first
@@ -36319,6 +36415,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
+	{ "WAITEVENT",			   0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
