@@ -23218,7 +23218,7 @@ void HeroClass::check_scroll_direction(direction dir)
 		else if(scr->flags2&dir_flag && (!(scr->flags8&fMAZEvSIDEWARP) || checkmaze(scr,false)))
 		{
 			sdir=dir;
-			dowarp(1,(scr->sidewarpindex)&3);
+			dowarp(1, (scr->sidewarpindex >> (sdir*2))&3);
 		}
 		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
