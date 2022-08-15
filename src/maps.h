@@ -78,8 +78,8 @@ extern int scrolling_maze_scr, scrolling_maze_state;
 // 1 to keep hero in the center.
 extern int scrolling_maze_mode;
 
-int z3_get_region_id(int scr);
-void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
+int z3_get_region_id(int screen_index);
+void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
 void z3_load_region();
 void z3_clear_temporary_screens();
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, int& viewport_x, int& viewport_y);
@@ -95,11 +95,11 @@ mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
 int z3_get_origin_scr();
-int z3_get_region_relative_dx(int scr);
-int z3_get_region_relative_dy(int scr);
+int z3_get_region_relative_dx(int screen_index);
+int z3_get_region_relative_dy(int screen_index);
 bool is_z3_scrolling_mode();
-mapscr* get_scr(int map, int screen);
-mapscr* get_layer_scr(int map, int screen, int layer);
+mapscr* get_scr(int map, int screen_index);
+mapscr* get_layer_scr(int map, int screen_index, int layer);
 mapscr* get_layer_scr_for_xy(int x, int y, int layer);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

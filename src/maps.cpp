@@ -163,18 +163,17 @@ bool is_z3_scrolling_mode()
 	return is_a_region(currmap, currscr) || (screenscrolling && is_a_region(scrolling_map, scrolling_scr));
 }
 
-// TODO z3 map
-int z3_get_region_id(int scr)
+int z3_get_region_id(int screen_index)
 {
 	if (!global_z3_scrolling) return 0;
-	return hardcode_z3_regions[scr];
+	return hardcode_z3_regions[screen_index];
 }
 
-void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
+void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		origin_scr = scr;
+		origin_scr = screen_index;
 		region_scr_dx = 0;
 		region_scr_dy = 0;
 		region_scr_width = 1;
@@ -184,13 +183,13 @@ void z3_calculate_region(int scr, int& origin_scr, int& region_scr_width, int& r
 		return;
 	}
 
-	int input_scr_x = scr % 16;
-	int input_scr_y = scr / 16;
+	int input_scr_x = screen_index % 16;
+	int input_scr_y = screen_index / 16;
 
 	// For the given screen, find the top-left corner of its region.
 	int origin_scr_x = input_scr_x;
 	int origin_scr_y = input_scr_y;
-	origin_scr = scr;
+	origin_scr = screen_index;
 	while (origin_scr_x > 0)
 	{
 		if (!is_in_region(origin_scr, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
@@ -4263,23 +4262,23 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	// TODO z3 move to game loop?
 	z3_update_viewport();
 	
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
 		if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
-			do_layer(scrollbuf, 0, currmap, scr, 2, myscr, -offx, -offy, 2, false, true);
-			if (scr == currscr) particles.draw(temp_buf, true, 1);
-			if (scr == currscr) draw_msgstr(2);
+			do_layer(scrollbuf, 0, currmap, screen_index, 2, myscr, -offx, -offy, 2, false, true);
+			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
+			if (screen_index == currscr) draw_msgstr(2);
 		}
 		
 		if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			do_layer(scrollbuf, 0, currmap, scr, 3, myscr, -offx, -offy, 2, false, true);
-			if (scr == currscr) particles.draw(temp_buf, true, 2);
-			if (scr == currscr) draw_msgstr(3);
+			do_layer(scrollbuf, 0, currmap, screen_index, 3, myscr, -offx, -offy, 2, false, true);
+			if (screen_index == currscr) particles.draw(temp_buf, true, 2);
+			if (screen_index == currscr) draw_msgstr(3);
 		}
 	});
 	
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
 		putscr(scrollbuf, offx, offy + playing_field_offset, myscr);
 	});
 
@@ -4329,18 +4328,18 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
-		do_layer(scrollbuf, 0, currmap, scr, 1, myscr, -offx, -offy, 2, false, true); // LAYER 1
-		if (scr == currscr) particles.draw(temp_buf, true, 0);
-		if (scr == currscr) draw_msgstr(1, true);
+	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
+		do_layer(scrollbuf, 0, currmap, screen_index, 1, myscr, -offx, -offy, 2, false, true); // LAYER 1
+		if (screen_index == currscr) particles.draw(temp_buf, true, 0);
+		if (screen_index == currscr) draw_msgstr(1, true);
 		
-		do_layer(scrollbuf, -3, currmap, scr, 0, myscr, -offx, -offy, 2); // freeform combos!
+		do_layer(scrollbuf, -3, currmap, screen_index, 0, myscr, -offx, -offy, 2); // freeform combos!
 
 		if(!XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
-			do_layer(scrollbuf, 0, currmap, scr, 2, myscr, -offx, -offy, 2, false, true); // LAYER 2
-			if (scr == currscr) particles.draw(temp_buf, true, 1);
-			if (scr == currscr) draw_msgstr(2, true);
+			do_layer(scrollbuf, 0, currmap, screen_index, 2, myscr, -offx, -offy, 2, false, true); // LAYER 2
+			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
+			if (screen_index == currscr) draw_msgstr(2, true);
 		}
 	});
 	
@@ -4375,12 +4374,12 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
-		do_layer(scrollbuf, -2, currmap, scr, 0, myscr, -offx, -offy, 2); // push blocks!
+	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
+		do_layer(scrollbuf, -2, currmap, screen_index, 0, myscr, -offx, -offy, 2); // push blocks!
 		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 		{
-			do_layer(scrollbuf, -2, currmap, scr, 1, myscr, -offx, -offy, 2); // push blocks!
-			do_layer(scrollbuf, -2, currmap, scr, 2, myscr, -offx, -offy, 2); // push blocks!
+			do_layer(scrollbuf, -2, currmap, screen_index, 1, myscr, -offx, -offy, 2); // push blocks!
+			do_layer(scrollbuf, -2, currmap, screen_index, 2, myscr, -offx, -offy, 2); // push blocks!
 		}
 
 		// Show walkflags cheat
@@ -4568,25 +4567,25 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//5. Draw some layers onto temp_buf and scrollbuf
 	
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
+	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
 		if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			do_layer(temp_buf, 0, currmap, scr, 3, myscr, -offx, -offy, 2, false, true);
-			if (scr == currscr) particles.draw(temp_buf, true, 2);
-			if (scr == currscr) draw_msgstr(3, true);
+			do_layer(temp_buf, 0, currmap, screen_index, 3, myscr, -offx, -offy, 2, false, true);
+			if (screen_index == currscr) particles.draw(temp_buf, true, 2);
+			if (screen_index == currscr) draw_msgstr(3, true);
 		}
 		
-		do_layer(temp_buf, 0, currmap, scr, 4, myscr, -offx, -offy, 2, false, true);
+		do_layer(temp_buf, 0, currmap, screen_index, 4, myscr, -offx, -offy, 2, false, true);
 		//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
 		
-		if (scr == currscr) particles.draw(temp_buf, true, 3);
-		if (scr == currscr) draw_msgstr(4, true);
+		if (screen_index == currscr) particles.draw(temp_buf, true, 3);
+		if (screen_index == currscr) draw_msgstr(4, true);
 
-		do_layer(temp_buf, -1, currmap, scr, 0, myscr, -offx, -offy, 2);
+		do_layer(temp_buf, -1, currmap, screen_index, 0, myscr, -offx, -offy, 2);
 		if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
 		{
-			do_layer(temp_buf, -1, currmap, scr, 1, myscr, -offx, -offy, 2);
-			do_layer(temp_buf, -1, currmap, scr, 2, myscr, -offx, -offy, 2);
+			do_layer(temp_buf, -1, currmap, screen_index, 1, myscr, -offx, -offy, 2);
+			do_layer(temp_buf, -1, currmap, screen_index, 2, myscr, -offx, -offy, 2);
 		}
 	});
 	
@@ -4669,15 +4668,15 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
 	color_map = &trans_table;
 
-	for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
-		do_layer(temp_buf, 0, currmap, scr, 5, myscr, -offx, -offy, 2, false, true);
-		if (scr == currscr) particles.draw(temp_buf, true, 4);
-		if (scr == currscr) draw_msgstr(5, true);
+	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
+		do_layer(temp_buf, 0, currmap, screen_index, 5, myscr, -offx, -offy, 2, false, true);
+		if (screen_index == currscr) particles.draw(temp_buf, true, 4);
+		if (screen_index == currscr) draw_msgstr(5, true);
 		// overhead freeform combos!
-		do_layer(temp_buf, -4, currmap, scr, 0, myscr, -offx, -offy, 2);
+		do_layer(temp_buf, -4, currmap, screen_index, 0, myscr, -offx, -offy, 2);
 		// ---
-		do_layer(temp_buf, 0, currmap, scr, 6, myscr, -offx, -offy, 2, false, true);
-		if (scr == currscr) particles.draw(temp_buf, true, 5);
+		do_layer(temp_buf, 0, currmap, screen_index, 6, myscr, -offx, -offy, 2, false, true);
+		if (screen_index == currscr) particles.draw(temp_buf, true, 5);
 	});
 	
 	//10. Blit temp_buf onto framebuf with clipping
@@ -4688,8 +4687,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//11. Handle low drawn darkness
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
-		for_every_nearby_screen([&](mapscr* myscr, int scr, int offx, int offy) {
-			calc_darkroom_combos(scr, offx, offy);
+		for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
+			calc_darkroom_combos(screen_index, offx, offy);
 		});
 		Hero.calc_darkroom_hero();
 	}
