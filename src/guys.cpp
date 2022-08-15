@@ -3598,13 +3598,12 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 		return true;
 		
 	bool isInDungeon = isdungeon();
-	// TODO z3 ?
 	if(isInDungeon || special==spw_wizzrobe)
 	{
-		if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=144 && dy>=144))
+		if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=world_h-32 && dy>=world_h-32))
 			return true;
 			
-		if((input_x>=32 && dx<32) || (input_x>-1000 && input_x<224 && dx>=224))
+		if((input_x>=32 && dx<32) || (input_x>-1000 && input_x<world_w-32 && dx>=world_w-32))
 			if(special!=spw_door) // walk in door way
 				return true;
 	}
