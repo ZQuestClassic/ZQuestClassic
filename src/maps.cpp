@@ -5306,7 +5306,6 @@ void load_a_screen_and_layers(int dmap, int map, int screen)
 	}
 
 	// Apply perm secrets, if applicable.
-	// TODO z3
 	if (canPermSecret(dmap, screen))
 	{
 		if(game->maps[map*MAPSCRSNORMAL + screen] & mSECRET)    // if special stuff done before

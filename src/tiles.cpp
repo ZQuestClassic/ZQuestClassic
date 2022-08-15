@@ -2760,10 +2760,7 @@ void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],in
 void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
 {
     newcombo c = combobuf[cmbdat];
-    int32_t drawtile=combo_tile(c, x, y);
-
-    // TODO z3 blocks
-    
+    int32_t drawtile=combo_tile(c, x, y);    
     
     if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
         puttile16(dest,drawtile,x,y,cset,c.flip);

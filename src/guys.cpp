@@ -69,7 +69,6 @@ void do_fix(zfix& coord, int32_t val, bool nearest_half = false)
 // If an enemy is this far out of the playing field, just remove it.
 bool OUTOFBOUNDS(int32_t id, zfix x, zfix y, zfix z)
 {
-	// TODO z3
 	if ((int32_t)y > world_h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
 	if (y < -176) return true;
 	if (x < -256) return true;
