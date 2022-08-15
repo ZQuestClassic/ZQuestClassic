@@ -1332,7 +1332,7 @@ enum
 #define combotriggerCMBTYPEFX    0x10000000
 #define combotriggerONLYGENTRIG  0x20000000
 #define combotriggerKILLWPN      0x40000000
-//#define combotriggerSOMETHING    0x80000000
+#define combotriggerEWFIREBALL   0x80000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -1363,6 +1363,31 @@ enum
 #define combotriggerPUSH         0x02000000
 #define combotriggerLENSON       0x04000000
 #define combotriggerLENSOFF      0x08000000
+#define combotriggerEWARROW      0x10000000
+#define combotriggerEWBRANG      0x20000000
+#define combotriggerEWSWORD      0x40000000
+#define combotriggerEWROCK       0x80000000
+
+//triggerflags[2]
+#define combotriggerEWSCRIPT01   0x00000001
+#define combotriggerEWSCRIPT02   0x00000002
+#define combotriggerEWSCRIPT03   0x00000004
+#define combotriggerEWSCRIPT04   0x00000008
+#define combotriggerEWSCRIPT05   0x00000010
+#define combotriggerEWSCRIPT06   0x00000020
+#define combotriggerEWSCRIPT07   0x00000040
+#define combotriggerEWSCRIPT08   0x00000080
+#define combotriggerEWSCRIPT09   0x00000100
+#define combotriggerEWSCRIPT10   0x00000200
+#define combotriggerEWMAGIC      0x00000400
+#define combotriggerEWBBLAST     0x00000800
+#define combotriggerEWSBBLAST    0x00001000
+#define combotriggerEWLITBOMB    0x00002000
+#define combotriggerEWLITSBOMB   0x00004000
+#define combotriggerEWFIRETRAIL  0x00008000
+#define combotriggerEWFLAME      0x00010000
+#define combotriggerEWWIND       0x00020000
+#define combotriggerEWFLAME2     0x00040000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
