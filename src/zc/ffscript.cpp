@@ -665,11 +665,14 @@ void throwGenScriptEvent(int32_t event)
 		if(!scr.doscript) continue;
 		if(!genericscripts[q]->valid()) continue;
 		if(!scr.waitevent) continue;
-		scr.ri.d[rEXP1] = event*10000;
-		scr.waitevent = false;
-		
-		//Run the script!
-		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+		if(scr.eventstate & (1<<event))
+		{
+			scr.ri.d[rEXP1] = event*10000;
+			scr.waitevent = false;
+			
+			//Run the script!
+			ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+		}
 	}
 }
 
@@ -682,6 +685,7 @@ void load_genscript(const gamedata& gd)
 		gen.doscript = gd.gen_doscript[q];
 		gen.exitState = gd.gen_exitState[q];
 		gen.reloadState = gd.gen_reloadState[q];
+		gen.eventstate = gd.gen_eventstate[q];
 		memcpy(gen.initd, gd.gen_initd[q], sizeof(gen.initd));
 		gen.dataResize(gd.gen_dataSize[q]);
 		gen.data = gd.gen_data[q];
@@ -696,6 +700,7 @@ void save_genscript(gamedata& gd)
 		gd.gen_doscript[q] = gen.doscript;
 		gd.gen_exitState[q] = gen.exitState;
 		gd.gen_reloadState[q] = gen.reloadState;
+		gd.gen_eventstate[q] = gen.eventstate;
 		memcpy(gd.gen_initd[q], gen.initd, sizeof(gen.initd));
 		gd.gen_dataSize[q] = gen.dataSize();
 		gd.gen_data[q] = gen.data;
@@ -11867,6 +11872,21 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case GENDATAEVENTSTATE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "EventListen"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMEVENT)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->EventListen[]: %d\n", indx);
+					break;
+				}
+				ret = (scr->eventstate & (1<<indx)) ? 10000L : 0;
+			}
+			break;
+		}
 		case GENDATADATA:
 		{
 			ret = 0;
@@ -21284,6 +21304,20 @@ void set_register(const int32_t arg, const int32_t value)
 					break;
 				}
 				SETFLAG(scr->reloadState, (1<<indx), value);
+			}
+			break;
+		}
+		case GENDATAEVENTSTATE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "EventListen"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMEVENT)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->EventListen[]: %d\n", indx);
+					break;
+				}
+				SETFLAG(scr->eventstate, (1<<indx), value);
 			}
 			break;
 		}
@@ -37751,6 +37785,7 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERLIGHTBEAM", COMBODTRIGGERLIGHTBEAM, 0, 0 },
 	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
 	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
+	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

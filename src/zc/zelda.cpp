@@ -1900,7 +1900,6 @@ int32_t init_game()
 	//Copy saved data to RAM data (but not global arrays)
 	game->Copy(saves[currgame]);
 	load_genscript(*game);
-	countGenScripts();
 	genscript_timing = SCR_TIMING_START_FRAME;
 	timeExitAllGenscript(GENSCR_ST_RELOAD);
 	flushItemCache();
@@ -1911,6 +1910,7 @@ int32_t init_game()
 	//Load the quest
 	//setPackfilePassword(datapwd);
 	int32_t ret = load_quest(game);
+	countGenScripts();
 	
 	if(ret != qe_OK)
 	{

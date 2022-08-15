@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        26 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        27
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
@@ -4345,6 +4345,7 @@ struct gamedata
 	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
+	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
 	// member functions
 	// public:

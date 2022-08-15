@@ -7857,6 +7857,18 @@ bool ReloadState[GENSCR_NUMST];
  * GENSCR_ST_CHANGE_DMAP: Exits/Reloads upon loading a new dmap
  * GENSCR_ST_CHANGE_LEVEL: Exits/Reloads upon loading a new dmap level
 
+bool EventListen[GENSCR_NUMEVENT];
+ * An array of event listen states. Each state, if true, specifies an event that 'WaitEvent()'
+ *     will respond to for this script.
+ * All states default to 'false'
+ * GENSCR_EVENT_NIL:            N/A (error value)
+ * GENSCR_EVENT_INIT:           When loading in from a save/new quest
+ * GENSCR_EVENT_CONTINUE:       When F6->Continue
+ * GENSCR_EVENT_FFC_PRELOAD:    When FFCs run 'on screen init'
+ * GENSCR_EVENT_CHANGE_SCREEN:  When the screen changes (before opening wipe)
+ * GENSCR_EVENT_CHANGE_DMAP:    When the dmap changes
+ * GENSCR_EVENT_CHANGE_LEVEL:   When the level changes
+
 int DataSize;
  * Represents the size of the 'Data[]' array.
  * Read/Write, result saves to the save file.

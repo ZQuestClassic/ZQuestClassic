@@ -3589,7 +3589,7 @@ enum
 //Generic Script events, for 'WaitEvent()'
 enum
 {
-	GENSCR_EVENT_NIL, //N/A (error value)
+	GENSCR_EVENT_NIL = -1, //N/A (error value)
 	GENSCR_EVENT_INIT, //When loading in from a save/new quest
 	GENSCR_EVENT_CONTINUE, //When F6->Continue
 	GENSCR_EVENT_FFC_PRELOAD, //When FFCs run 'on screen init'

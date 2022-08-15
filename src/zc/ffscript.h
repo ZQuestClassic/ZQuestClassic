@@ -770,7 +770,7 @@ enum
 };
 enum
 {
-	GENSCR_EVENT_NIL,
+	GENSCR_EVENT_NIL = -1,
 	GENSCR_EVENT_INIT,
 	GENSCR_EVENT_CONTINUE,
 	GENSCR_EVENT_FFC_PRELOAD,
@@ -787,6 +787,7 @@ struct user_genscript
 	std::vector<int32_t> data;
 	word exitState;
 	word reloadState;
+	uint32_t eventstate;
 	int32_t initd[8];
 private:
 	size_t _dataSize;
@@ -809,6 +810,7 @@ public:
 		waitevent = false;
 		exitState = 0;
 		reloadState = 0;
+		eventstate = 0;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
 		memset(initd, 0, sizeof(initd));
@@ -4809,8 +4811,9 @@ enum ASM_DEFINE
 #define COMBODTRIGGERLIGHTBEAM  0x1466
 #define COMBODTRIGGERCTR        0x1467
 #define COMBODTRIGGERCTRAMNT    0x1468
+#define GENDATAEVENTSTATE       0x1469
 
-#define NUMVARIABLES         	0x1469
+#define NUMVARIABLES         	0x146A
 
 //} End variables
 
