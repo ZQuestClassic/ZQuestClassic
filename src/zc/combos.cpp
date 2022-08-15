@@ -748,10 +748,9 @@ bool trigger_chest(const pos_handle& pos_handle)
 // TODO z3 test
 bool trigger_lockblock(const pos_handle& pos_handle)
 {
-	int lyr = pos_handle.layer;
-	int pos = (int)pos_handle.rpos;
-
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
+	DCHECK(pos_handle.rpos <= region_max_rpos);
+	
+	int pos = RPOS_TO_POS(pos_handle.rpos);
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	switch(cmb.type)
 	{
@@ -759,11 +758,11 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 			if(!try_locked_combo(cmb)) return false;
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mLOCKBLOCK);
+			setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
 			remove_lockblocks(pos_handle.screen, pos_handle.screen_index);
 			break;
 			
@@ -792,11 +791,11 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mBOSSLOCKBLOCK);
+			setmapflag2(pos_handle.screen, pos_handle.screen_index, mBOSSLOCKBLOCK);
 			remove_bosslockblocks(pos_handle.screen, pos_handle.screen_index);
 			break;
 		}
