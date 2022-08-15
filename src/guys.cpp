@@ -20727,9 +20727,11 @@ void addfires()
 {
 	if(!get_bit(quest_rules,qr_NOGUYFIRES))
 	{
+		int dy = z3_get_region_relative_dy(currscr)*176;
+		int dx = z3_get_region_relative_dx(currscr)*256;
 		int32_t bs = get_bit(quest_rules,qr_BSZELDA);
-		addguy(bs? 64: 72,64,gFIRE,-17,false);
-		addguy(bs?176:168,64,gFIRE,-18,false);
+		addguy(dx+(bs? 64: 72),dy+64,gFIRE,-17,false);
+		addguy(dx+(bs?176:168),dy+64,gFIRE,-18,false);
 	}
 }
 
@@ -20772,17 +20774,20 @@ void loadguys()
 			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
 	}
 	
+	int dx = z3_get_region_relative_dx(currscr)*256;
+	int dy = z3_get_region_relative_dy(currscr)*176;
+
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
 	if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
 	{
 		if(tmpscr.room==rZELDA)
 		{
-			addguy(120,72,Guy,-15,true);
+			addguy(dx+120,dy+72,Guy,-15,true);
 			guys.spr(0)->hxofs=1000;
-			addenemy(128,96,eFIRE,-15);
-			addenemy(112,96,eFIRE,-15);
-			addenemy(96,120,eFIRE,-15);
-			addenemy(144,120,eFIRE,-15);
+			addenemy(dx+128,dy+96,eFIRE,-15);
+			addenemy(dx+112,dy+96,eFIRE,-15);
+			addenemy(dx+96,dy+20,eFIRE,-15);
+			addenemy(dx+144,dy+120,eFIRE,-15);
 			return;
 		}
 		
@@ -20853,18 +20858,18 @@ void loadguys()
 			if(currscr<128)
 				sfx(WAV_SCALE);
 				
-			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
+			addguy(dx+120,dy+64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
 			Hero.Freeze();
 		}
 	}
 	else if(Guy==gFAIRY)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
 	{
 		sfx(WAV_SCALE);
-		addguy(120,62,gFAIRY,-14,false);
+		addguy(dx+120,dy+62,gFAIRY,-14,false);
 	}
 	
 	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		loaditem(z3_scr, z3_get_region_relative_dx(scr)*256, z3_get_region_relative_dy(scr)*176);
+		loaditem(z3_scr, z3_scr_dx*256, z3_scr_dy*176);
 	});
 	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
@@ -20873,7 +20878,7 @@ void loadguys()
 	{
 		//setmapflag();
 		for(int32_t i=0; i<10; i++)
-			additem(ten_rupies_x[i],ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
+			additem(dx+ten_rupies_x[i],dy+ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
 	}
 }
 
@@ -21832,6 +21837,9 @@ void loadenemies()
 	
 	if(currscr>=128)
 	{
+		int dx = z3_get_region_relative_dx(currscr)*256;
+		int dy = z3_get_region_relative_dy(currscr)*176;
+
 		if(DMaps[currdmap].flags&dmfCAVES) return;
 		if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
 		{
@@ -21839,14 +21847,14 @@ void loadenemies()
 			{
 				if ( tmpscr.enemy[i] )
 				{
-					addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i],-14-i);
+					addenemy(dx+dngn_enemy_x[i],dy+96,tmpscr.enemy[i],-14-i);
 				}
 			}
 		}
 		else
 		{
 			for(int32_t i=0; i<4; i++)
-				addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
+				addenemy(dx+dngn_enemy_x[i],dy+96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
 		}
 		return;
 	}
@@ -21986,7 +21994,10 @@ void loadenemies()
 }
 void moneysign()
 {
-	additem(48,108,iRupy,ipDUMMY);
+	int dx = z3_get_region_relative_dx(currscr)*256;
+	int dy = z3_get_region_relative_dy(currscr)*176;
+
+	additem(dx+48,dy+108,iRupy,ipDUMMY);
 	//  textout(scrollbuf,zfont,"X",64,112,CSET(0)+1);
 	set_clip_state(pricesdisplaybuf, 0);
 	textout_ex(pricesdisplaybuf,zfont,"X",64,112,CSET(0)+1,-1);
@@ -22044,12 +22055,15 @@ void setupscreen()
 
 	int32_t t=currscr<128?0:1;
 	word str=base_scr->str;
+
+	int dx = z3_get_region_relative_dx(currscr)*256;
+	int dy = z3_get_region_relative_dy(currscr)*176;
 	
 	// Prices are already set to 0 in dowarp()
 	switch(base_scr->room)
 	{
 	case rSP_ITEM:                                          // special item
-		additem(120,89,base_scr->catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((cur_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+		additem(dx+120,dy+89,base_scr->catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((cur_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 		break;
 		
 	case rINFO:                                             // pay for info
@@ -22111,18 +22125,18 @@ void setupscreen()
 	}
 	
 	case rMONEY:                                            // secret money
-		additem(120,89,iRupy,ipONETIME+ipDUMMY+ipMONEY);
+		additem(dx+120,dy+89,iRupy,ipONETIME+ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
 		break;
 		
 	case rGAMBLE:                                           // gambling
 		prices[0]=prices[1]=prices[2]=-10;
 		moneysign();
-		additem(88,89,iRupy,ipMONEY+ipDUMMY);
+		additem(dx+88,dy+89,iRupy,ipMONEY+ipDUMMY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		additem(120,89,iRupy,ipMONEY+ipDUMMY);
+		additem(dx+120,dy+89,iRupy,ipMONEY+ipDUMMY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
-		additem(152,89,iRupy,ipMONEY+ipDUMMY);
+		additem(dx+152,dy+89,iRupy,ipMONEY+ipDUMMY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 2;
 		break;
 		
@@ -22141,9 +22155,9 @@ void setupscreen()
 		break;
 		
 	case rRP_HC:                                            // heart container or red potion
-		additem(88,89,iRPotion,ipONETIME2+ipHOLDUP+ipFADE);
+		additem(dx+88,dy+89,iRPotion,ipONETIME2+ipHOLDUP+ipFADE);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
-		additem(152,89,iHeartC,ipONETIME2+ipHOLDUP+ipFADE);
+		additem(dx+152,dy+89,iHeartC,ipONETIME2+ipHOLDUP+ipFADE);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
 		break;
 		
@@ -22190,7 +22204,7 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			additem((i<<step)+base, 89, QMisc.shop[base_scr->catchall].item[i], ipHOLDUP+ipFADE+(base_scr->room == rTAKEONE ? ipONETIME2 : ipCHECK));
+			additem(dx+(i<<step)+base, dy+89, QMisc.shop[base_scr->catchall].item[i], ipHOLDUP+ipFADE+(base_scr->room == rTAKEONE ? ipONETIME2 : ipCHECK));
 			((item*)items.spr(items.Count()-1))->PriceIndex = i;
 			
 			if(base_scr->room != rTAKEONE)
@@ -22251,7 +22265,7 @@ void setupscreen()
 		
 		for(int32_t i=0; i<count; i++)
 		{
-			adddummyitem((i<<step)+base, 89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
+			adddummyitem(dx+(i<<step)+base, dy+89, /*Use item 0 as a dummy...*/0, ipHOLDUP+ipFADE+ipCHECK);
 			//{ Setup dummy item
 			item* curItem = ((item*)items.spr(items.Count()-1));
 			curItem->PriceIndex = i;
@@ -22302,22 +22316,22 @@ void setupscreen()
 	}
 	
 	case rBOMBS:                                            // more bombs
-		additem(120,89,iRupy,ipDUMMY+ipMONEY);
+		additem(dx+120,dy+89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
 		prices[0]=-base_scr->catchall;
 		break;
 		
 	case rARROWS:                                            // more arrows
-		additem(120,89,iRupy,ipDUMMY+ipMONEY);
+		additem(dx+120,dy+89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
 		prices[0]=-base_scr->catchall;
 		break;
 		
 	case rSWINDLE:                                          // leave heart container or money
-		additem(88,89,iHeartC,ipDUMMY+ipMONEY);
+		additem(dx+88,dy+89,iHeartC,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 0;
 		prices[0]=-1;
-		additem(152,89,iRupy,ipDUMMY+ipMONEY);
+		additem(dx+152,dy+89,iRupy,ipDUMMY+ipMONEY);
 		((item*)items.spr(items.Count()-1))->PriceIndex = 1;
 		prices[1]=-base_scr->catchall;
 		break;
