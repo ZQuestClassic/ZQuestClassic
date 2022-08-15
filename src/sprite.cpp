@@ -1156,7 +1156,11 @@ void sprite::draw(BITMAP* dest)
 	
 	sx -= global_viewport_x;
 	sy -= global_viewport_y;
-	// TODO z3 don't draw if not in screen view
+
+	// TODO get actual size
+	int width = 64;
+	int height = 64;
+	if (sx + width < 0 || height + 64 < 0 || sx - width >= world_w || height - 64 >= world_h) return;
     
 	if(id<0)
 	{
