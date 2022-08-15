@@ -553,7 +553,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *c, i
 	if(!MatchComboTrigger(w, c, cid)) return;
 	if(w->weapon_dying_frame) return;
 
-	do_trigger_combo(z3_get_pos_handle_for_world_xy(bx, by, layer), 0, w);
+	do_trigger_combo(get_pos_handle_for_world_xy(bx, by, layer), 0, w);
 }
 
 /**************************************/
@@ -3310,8 +3310,8 @@ bool weapon::animate(int32_t index)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1))
 					{
-						int screen_index = z3_get_scr_index_for_xy_offset(wx, wy);
-						mapscr* screen = z3_get_scr_for_world_xy(wx, wy);
+						int screen_index = get_screen_index_for_world_xy(wx, wy);
+						mapscr* screen = get_screen_for_world_xy(wx, wy);
 
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag2(screen, screen_index, mITEM);

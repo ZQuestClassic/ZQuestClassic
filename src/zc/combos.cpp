@@ -1317,7 +1317,7 @@ bool trigger_switchhookblock(const pos_handle& pos_handle)
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
 	if (unsigned(pos) > 175) return false;
-	return do_trigger_combo(z3_get_pos_handle((rpos_t)pos, layer), special, w);
+	return do_trigger_combo(get_pos_handle((rpos_t)pos, layer), special, w);
 }
 
 // Forcibly triggers a combo at a given position

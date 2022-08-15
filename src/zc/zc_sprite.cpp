@@ -217,7 +217,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     oldflag=f;
 	rpos_t rpos = COMBOPOS_REGION(x.getFloor(), y.getFloor());
 	size_t combopos = RPOS_TO_POS(rpos);
-	auto pos_handle = z3_get_pos_handle(rpos, blockLayer);
+	auto pos_handle = get_pos_handle(rpos, blockLayer);
 	mapscr *m = pos_handle.screen;
     word *di = &(m->data[combopos]);
     byte *ci = &(m->cset[combopos]);
@@ -266,7 +266,7 @@ bool is_push(mapscr* m, int32_t pos)
 
 bool movingblock::animate(int32_t)
 {
-	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, blockLayer);
+	auto pos_handle = get_pos_handle_for_world_xy(x, y, blockLayer);
 	mapscr* m = pos_handle.screen;
 
 	if(fallclk)
@@ -338,7 +338,7 @@ bool movingblock::animate(int32_t)
 				{
 					if(lyr==blockLayer) continue;
 
-					mapscr* m0 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
+					mapscr* m0 = get_screen_layer_for_xy_offset(x, y, lyr);
 					if (m0->sflag[combopos] == mfBLOCKTRIGGER
 						|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 					{
@@ -346,7 +346,7 @@ bool movingblock::animate(int32_t)
 						trig_is_layer = true;
 						if(!no_trig_replace)
 						{
-							mapscr* m2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
+							mapscr* m2 = get_screen_layer_for_xy_offset(x, y, lyr);
 							m2->data[combopos] = m2->undercombo;
 							m2->cset[combopos] = m2->undercset;
 							m2->sflag[combopos] = 0;
@@ -371,7 +371,7 @@ bool movingblock::animate(int32_t)
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
 				if(lyr==blockLayer) continue;
-				mapscr* m2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
+				mapscr* m2 = get_screen_layer_for_xy_offset(x, y, lyr);
 				if((m2->sflag[combopos]==mfBLOCKHOLE)
 					|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				{
@@ -417,7 +417,7 @@ bool movingblock::animate(int32_t)
 		{
 			for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 			{
-				mapscr *tmp = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
+				mapscr *tmp = get_screen_layer_for_xy_offset(x, y, lyr);
 				for(int32_t pos=0; pos<176; pos++)
 				{
 					if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
@@ -429,7 +429,7 @@ bool movingblock::animate(int32_t)
 						if(no_trig_replace)
 							for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								mapscr *tmp2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr2);
+								mapscr *tmp2 = get_screen_layer_for_xy_offset(x, y, lyr2);
 								if (is_push(tmp2, pos))
 								{
 									found = true;
@@ -480,7 +480,7 @@ bool movingblock::animate(int32_t)
 				// happening as each combo is placed.
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
-					mapscr* tmp = z3_get_mapscr_layer_for_xy_offset(x, y, lyr);
+					mapscr* tmp = get_screen_layer_for_xy_offset(x, y, lyr);
 					for(int32_t pos=0; pos<176; pos++)
 					{
 						if(tmp->sflag[pos]==mfBLOCKTRIGGER
@@ -490,7 +490,7 @@ bool movingblock::animate(int32_t)
 							{
 								if(lyr2 == lyr) continue;
 
-								mapscr* tmp2 = z3_get_mapscr_layer_for_xy_offset(x, y, lyr2);
+								mapscr* tmp2 = get_screen_layer_for_xy_offset(x, y, lyr2);
 								if (is_push(tmp2, pos))
 								{
 									tmp2->sflag[pos] = mfPUSHED;

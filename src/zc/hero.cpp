@@ -3277,8 +3277,8 @@ bool HeroClass::checkstab()
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
 					{
-						int screen_index = z3_get_scr_index_for_xy_offset(wx, wy);
-						mapscr* screen = z3_get_scr_for_world_xy(wx, wy);
+						int screen_index = get_screen_index_for_world_xy(wx, wy);
+						mapscr* screen = get_screen_for_world_xy(wx, wy);
 						int32_t pickup = ptr->pickup;
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
@@ -3692,7 +3692,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	int32_t cid = MAPCOMBO(bx,by);
 
 	rpos_t rpos = COMBOPOS_REGION(bx, by);
-	auto pos_handle = z3_get_pos_handle(rpos, 0);
+	auto pos_handle = get_pos_handle(rpos, 0);
 	int32_t i = RPOS_TO_POS(rpos);
 	
 	if (rpos > region_max_rpos)
@@ -5168,7 +5168,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     int32_t pos = RPOS_TO_POS(rpos);
     if (unsigned(rpos) > unsigned(region_max_rpos))
         return;
-	pos_handle pos_handle = z3_get_pos_handle(rpos, 0);
+	pos_handle pos_handle = get_pos_handle(rpos, 0);
         
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -5192,7 +5192,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : z3_get_scr_for_world_xy(bx, by);
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : get_screen_for_world_xy(bx, by);
     
     if(!ignorescreen)
     {
@@ -7824,8 +7824,8 @@ bool HeroClass::animate(int32_t)
 											if(!(hooked_layerbits & (1<<q)))
 												continue; //non-switching layer
 											
-											auto target_pos_handle = z3_get_pos_handle(targrpos, q);
-											auto player_pos_handle = z3_get_pos_handle(plrpos, q);
+											auto target_pos_handle = get_pos_handle(targrpos, q);
+											auto player_pos_handle = get_pos_handle(plrpos, q);
 											
 											mapscr* player_scr = player_pos_handle.screen;
 											mapscr* target_scr = target_pos_handle.screen;
@@ -9521,8 +9521,8 @@ void HeroClass::doSwitchHook(byte style)
 		
 		for(auto q = max_layer; q > -1; --q)
 		{
-			auto target_pos_handle = z3_get_pos_handle(hooked_comborpos, q);
-			auto player_pos_handle = z3_get_pos_handle(plrpos, q);
+			auto target_pos_handle = get_pos_handle(hooked_comborpos, q);
+			auto player_pos_handle = get_pos_handle(plrpos, q);
 			
 			mapscr* player_scr = player_pos_handle.screen;
 			mapscr* target_scr = target_pos_handle.screen;
@@ -16893,7 +16893,7 @@ bool HeroClass::checksoliddamage()
 		{
 			if (bx >= world_w || by >= world_h) break;
 
-			auto pos_handle = z3_get_pos_handle(COMBOPOS_REGION(bx, by), i);
+			auto pos_handle = get_pos_handle(COMBOPOS_REGION(bx, by), i);
 			newcombo const& cmb = combobuf[pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)]];
 			t = cmb.type;
 			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
@@ -17047,7 +17047,7 @@ void HeroClass::checkpushblock()
 		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			continue;
 
-		auto pos_handle = z3_get_pos_handle(rpos, lyr);
+		auto pos_handle = get_pos_handle(rpos, lyr);
 		mapscr* m = pos_handle.screen;
 
 
@@ -17398,7 +17398,7 @@ void HeroClass::oldchecklockblock()
 	if(!try_locked_combo(cmb3))
 		return;
 	
-	auto pos_handle = found1 ? z3_get_pos_handle_for_world_xy(bx, by, 0) : z3_get_pos_handle_for_world_xy(bx2, by, 0);
+	auto pos_handle = found1 ? get_pos_handle_for_world_xy(bx, by, 0) : get_pos_handle_for_world_xy(bx2, by, 0);
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
@@ -17613,12 +17613,12 @@ void HeroClass::oldcheckchest(int32_t type)
 	if (combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
 	{
 		found=true;
-		found_screen_index=z3_get_scr_index_for_xy_offset(bx, by);
+		found_screen_index=get_screen_index_for_world_xy(bx, by);
 	}
 	else if (combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1))
 	{
 		found=true;
-		found_screen_index=z3_get_scr_index_for_xy_offset(bx2, by);
+		found_screen_index=get_screen_index_for_world_xy(bx2, by);
 	}
 	for (int32_t i = 0; i <= 1; ++i)
 	{
@@ -17654,13 +17654,13 @@ void HeroClass::oldcheckchest(int32_t type)
 			if (combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
 			{
 				found=true;
-				found_screen_index=z3_get_scr_index_for_xy_offset(bx, by);
+				found_screen_index=get_screen_index_for_world_xy(bx, by);
 				break;
 			}
 			else if (combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i))
 			{
 				found=true;
-				found_screen_index=z3_get_scr_index_for_xy_offset(bx2, by);
+				found_screen_index=get_screen_index_for_world_xy(bx2, by);
 				break;
 			}
 		}
@@ -17953,11 +17953,11 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(ischest)
 	{
-		if (!trigger_chest(z3_get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
+		if (!trigger_chest(get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
 	}
 	else if(islockblock)
 	{
-		if (!trigger_lockblock(z3_get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
+		if (!trigger_lockblock(get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
 	}
 	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
@@ -18054,7 +18054,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	int32_t found_lyr = 0;
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx, by);
-	int32_t scr = z3_get_scr_index_for_xy_offset(bx, by);
+	int32_t scr = get_screen_index_for_world_xy(bx, by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
@@ -18075,7 +18075,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	tmp_cid = MAPCOMBO(bx2,by2);
-	scr = z3_get_scr_index_for_xy_offset(bx2, by2);
+	scr = get_screen_index_for_world_xy(bx2, by2);
 	tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
@@ -18098,7 +18098,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0)
 	{
-		scr = z3_get_scr_index_for_xy_offset(bx, by);
+		scr = get_screen_index_for_world_xy(bx, by);
 		for(int32_t i=0; i<6; i++)
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
@@ -18122,7 +18122,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					}
 				}
 			}
-			scr = z3_get_scr_index_for_xy_offset(bx2, by2);
+			scr = get_screen_index_for_world_xy(bx2, by2);
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
 			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
@@ -18219,7 +18219,7 @@ endsigns:
 	}
 	
 	if(getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput))
-		do_trigger_combo(z3_get_pos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
+		do_trigger_combo(get_pos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	else if(cmb.type == cBUTTONPROMPT)
 	{
 		prompt_combo = cmb.attributes[0]/10000;
@@ -18953,7 +18953,7 @@ int32_t grabComboFromPos(int32_t pos, int32_t type)
 	int x = COMBOX_REGION_EXTENDED(pos);
 	int y = COMBOY_REGION_EXTENDED(pos);
 	int normalpos = COMBOPOS(x%256, y%176);
-	int scr = z3_get_scr_index_for_xy_offset(x, y);
+	int scr = get_screen_index_for_world_xy(x, y);
 
 	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
@@ -19560,7 +19560,7 @@ void HeroClass::checktouchblk()
 	{
 		if (getAction() != hopping || isSideViewHero())
 		{
-			trigger_armos_grave(z3_get_pos_handle_for_world_xy(tx, ty, 0), dir);
+			trigger_armos_grave(get_pos_handle_for_world_xy(tx, ty, 0), dir);
 		}
 	}
 }
@@ -19949,7 +19949,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 					if(!didstrig)
 					{
 						stepsecret = COMBOPOS_REGION(x+j, y+i);
-						auto pos_handle = z3_get_pos_handle(stepsecret, 0);
+						auto pos_handle = get_pos_handle(stepsecret, 0);
 						
 						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
 						{
@@ -19967,7 +19967,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 					if(!didstrig)
 					{
 						stepsecret = COMBOPOS_REGION(x+j, y+i);
-						auto pos_handle = z3_get_pos_handle(stepsecret, 0);
+						auto pos_handle = get_pos_handle(stepsecret, 0);
 
 						bool high16only = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
 						trigger_secrets_for_screen(pos_handle.screen_index, high16only);
@@ -20353,12 +20353,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 				newcombo const* cmb2 = sensRposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(sensRposes[p])]];
 				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
 				{
-					do_trigger_combo(z3_get_pos_handle(rposes[p], lyr));
+					do_trigger_combo(get_pos_handle(rposes[p], lyr));
 					if(rposes[p] == sensRposes[p]) continue;
 				}
 				if(cmb2 && (cmb2->triggerflags[0] & combotriggerSTEPSENS))
 				{
-					do_trigger_combo(z3_get_pos_handle(sensRposes[p], lyr));
+					do_trigger_combo(get_pos_handle(sensRposes[p], lyr));
 				}
 			}
 		}
@@ -20580,7 +20580,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		if (COMBOPOS_REGION(tx+8, ty+8)!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
 		{
 			stepsecret = COMBOPOS_REGION(tx+8, ty+8);
-			auto pos_handle = z3_get_pos_handle(stepsecret, 0);
+			auto pos_handle = get_pos_handle(stepsecret, 0);
 			sfx(combobuf[MAPCOMBO(pos_handle)].attribytes[0],pan((int32_t)x));
 			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr.data[stepsecret]].attribytes[0]);
 			
@@ -20641,7 +20641,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		if (COMBOPOS_REGION(tx+8, ty+8) != stepnext)
 		{
 			stepnext = COMBOPOS_REGION(tx+8, ty+8);
-			auto pos_handle = z3_get_pos_handle(stepnext, 0);
+			auto pos_handle = get_pos_handle(stepnext, 0);
 			int cid = MAPCOMBO(pos_handle);
 			int pos = RPOS_TO_POS(stepnext);
 			
@@ -20699,7 +20699,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	else if(type==cSTEPSFX && action == walking)
 	{
-		trigger_stepfx(z3_get_pos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
+		trigger_stepfx(get_pos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
 	}
 	else stepnext = rpos_t::NONE;
 	
@@ -21212,7 +21212,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* cur_scr = z3_get_scr_for_world_xy(x.getInt(), y.getInt());
+	mapscr* cur_scr = get_screen_for_world_xy(x.getInt(), y.getInt());
 	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
 	
 	// Drawing commands probably shouldn't carry over...
@@ -23185,7 +23185,7 @@ void HeroClass::check_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	else return; // TODO z3
 
-	mapscr* scr = z3_get_scr_for_world_xy(x, y);
+	mapscr* scr = get_screen_for_world_xy(x, y);
 
 	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -23267,7 +23267,7 @@ void HeroClass::checkscroll()
 	int y0 = y.getInt();
 	// TODO z3
 
-	if (scrolling_maze_state && (scrolling_maze_mode == 0 || z3_get_scr_index_for_xy_offset(x0, y0) != scrolling_maze_scr))
+	if (scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_index_for_world_xy(x0, y0) != scrolling_maze_scr))
 	{
 		mapscr* scrolling_scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
 		int x0 = x.getInt();

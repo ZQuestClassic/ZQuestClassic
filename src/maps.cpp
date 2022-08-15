@@ -56,8 +56,6 @@ extern HeroClass Hero;
 //    - perm secrets
 // sword beams / ewpns should only despawn when leaving viewport
 
-// dark rooms, and transitions
-// screen wipe in when spawning in middle of region
 // ffcs
 // define regions dynamically
 
@@ -308,8 +306,7 @@ bool edge_of_region(direction dir)
 }
 
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
-// TODO z3 rename get_screen_index_for_world_xy
-int z3_get_scr_index_for_xy_offset(int x, int y)
+int get_screen_index_for_world_xy(int x, int y)
 {
 	int dx = x / 256;
 	int dy = y / 176;
@@ -320,7 +317,7 @@ int z3_get_scr_index_for_xy_offset(int x, int y)
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
-int z3_get_scr_index_for_rpos(rpos_t rpos)
+int get_screen_index_for_rpos(rpos_t rpos)
 {
 	int origin_scr_x = z3_origin_scr % 16;
 	int origin_scr_y = z3_origin_scr / 16;
@@ -330,44 +327,44 @@ int z3_get_scr_index_for_rpos(rpos_t rpos)
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
-pos_handle z3_get_pos_handle(rpos_t rpos, int layer)
+pos_handle get_pos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	int screen_index = z3_get_scr_index_for_rpos(rpos);
+	int screen_index = get_screen_index_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 	return {screen, screen_index, layer, rpos};
 }
 
-pos_handle z3_get_pos_handle_for_world_xy(int x, int y, int layer)
+pos_handle get_pos_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	return z3_get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	return get_pos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
 // These functions all return _temporary_ screens. Any modifcations made to them (either by the engine
 // directly or via zscript) only last until the next screen (or region) is loaded.
 
 // Returns the screen containing the (x, y) world position.
-mapscr* z3_get_scr_for_world_xy(int x, int y)
+mapscr* get_screen_for_world_xy(int x, int y)
 {
 	// Quick path, but should work the same without.
 	if (!is_z3_scrolling_mode()) return &tmpscr;
-	return get_scr(currmap, z3_get_scr_index_for_xy_offset(x, y));
+	return get_scr(currmap, get_screen_index_for_world_xy(x, y));
 }
 
-mapscr* z3_get_mapscr_for_rpos(rpos_t rpos)
+mapscr* get_screen_for_rpos(rpos_t rpos)
 {
-	return get_scr(currmap, z3_get_scr_index_for_rpos(rpos));
+	return get_scr(currmap, get_screen_index_for_rpos(rpos));
 }
 
 // Note: layer=0 is the base screen, 1 is the first layer, etc.
-mapscr* z3_get_mapscr_layer_for_xy_offset(int x, int y, int layer)
+mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode()) return FFCore.tempScreens[layer];
 	return layer == 0 ?
-		z3_get_scr_for_world_xy(x, y) :
-		get_layer_scr(currmap, z3_get_scr_index_for_xy_offset(x, y), layer - 1);
+		get_screen_for_world_xy(x, y) :
+		get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer - 1);
 }
 
 int z3_get_origin_scr()
@@ -453,7 +450,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr_for_xy(int x, int y, int layer)
 {
-	return get_layer_scr(currmap, z3_get_scr_index_for_xy_offset(x, y), layer);
+	return get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer);
 }
 
 mapscr* get_home_scr()
@@ -662,7 +659,7 @@ int32_t MAPCOMBO(int32_t x, int32_t y)
 	x = vbound(x, 0, world_w-1);
 	y = vbound(y, 0, world_h-1);
 	int32_t combo = COMBOPOS(x%256, y%176);
-	auto scr = z3_get_scr_for_world_xy(x, y);
+	auto scr = get_screen_for_world_xy(x, y);
 	return scr->data[combo];
 }
 
@@ -777,7 +774,7 @@ int32_t MAPCSET(int32_t x, int32_t y)
 {
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
-	mapscr* scr = z3_get_scr_for_world_xy(x, y);
+	mapscr* scr = get_screen_for_world_xy(x, y);
 	int32_t combo = COMBOPOS(x%256, y%176);
 	return scr->cset[combo];
 }
@@ -786,7 +783,7 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 {
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
-	mapscr* scr = z3_get_scr_for_world_xy(x, y);
+	mapscr* scr = get_screen_for_world_xy(x, y);
 	int32_t combo = COMBOPOS(x%256, y%176);
 	return scr->sflag[combo];
 }
@@ -877,7 +874,7 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 {
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
-	mapscr* scr = z3_get_scr_for_world_xy(x, y);
+	mapscr* scr = get_screen_for_world_xy(x, y);
 	int32_t combo = COMBOPOS(x%256, y%176);
 	return combobuf[scr->data[combo]].flag;
 }
@@ -921,7 +918,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
     if (layer <= -1) return MAPCOMBO(x, y);
     
-	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
+	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->data.empty()) return 0;
 	if (pos_handle.screen->valid == 0) return 0;
 
@@ -1037,7 +1034,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCSET(x, y);
 
-	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
+	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->cset.empty()) return 0;
 	
@@ -1051,7 +1048,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
 
-	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
+	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->sflag.empty()) return 0;
 
@@ -1090,7 +1087,7 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCOMBOFLAG(x, y);
 
-	auto pos_handle = z3_get_pos_handle_for_world_xy(x, y, layer + 1);
+	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
 	if (pos_handle.screen->valid == 0) return 0;
 	if (pos_handle.screen->data.empty()) return 0;
 
@@ -1670,7 +1667,7 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 // TODO z3 just make iswaterrex take world coords, then delete this one.
 int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
-	int screen = z3_get_scr_index_for_xy_offset(x, y);
+	int screen = get_screen_index_for_world_xy(x, y);
 	return iswaterex(combo, currmap, screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
 }
 
@@ -3028,19 +3025,19 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	bool single16 = false;
 	if (has_flag_trigger(x, y, flag, scombo, single16))
 	{
-		screen_index = z3_get_scr_index_for_xy_offset(x, y);
+		screen_index = get_screen_index_for_world_xy(x, y);
 	}
 	else if (has_flag_trigger(x + 15, y, flag, scombo, single16))
 	{
-		screen_index = z3_get_scr_index_for_xy_offset(x + 15, y);
+		screen_index = get_screen_index_for_world_xy(x + 15, y);
 	}
 	else if (has_flag_trigger(x, y + 15, flag, scombo, single16))
 	{
-		screen_index = z3_get_scr_index_for_xy_offset(x, y + 15);
+		screen_index = get_screen_index_for_world_xy(x, y + 15);
 	}
 	else if (has_flag_trigger(x + 15, y + 15, flag, scombo, single16))
 	{
-		screen_index = z3_get_scr_index_for_xy_offset(x + 15, y + 15);
+		screen_index = get_screen_index_for_world_xy(x + 15, y + 15);
 	}
 	if (screen_index != -1) scr = get_scr(currmap, screen_index);
 	if (!scr) return false;
@@ -5981,7 +5978,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 {
-	int scr = z3_get_scr_index_for_xy_offset(x, y);
+	int scr = get_screen_index_for_world_xy(x, y);
 	x -= global_viewport_x;
 	y -= global_viewport_y;
 
@@ -6048,9 +6045,9 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt)
 // Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
 static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 {
-	mapscr* s0 = z3_get_mapscr_layer_for_xy_offset(x, y, 0);
-	mapscr* s1 = z3_get_mapscr_layer_for_xy_offset(x, y, 1);
-	mapscr* s2 = z3_get_mapscr_layer_for_xy_offset(x, y, 2);
+	mapscr* s0 = get_screen_layer_for_xy_offset(x, y, 0);
+	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
+	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
 	if (!s1->valid) s1 = s0;
 	if (!s2->valid) s2 = s0;
 
@@ -6261,9 +6258,9 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 
 bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 {
-	mapscr* s0 = z3_get_scr_for_world_xy(x, y);
-	mapscr* s1 = z3_get_mapscr_layer_for_xy_offset(x, y, 1);
-	mapscr* s2 = z3_get_mapscr_layer_for_xy_offset(x, y, 2);
+	mapscr* s0 = get_screen_for_world_xy(x, y);
+	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
+	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
 	if (!s1->valid) s1 = s0;
 	if (!s2->valid) s2 = s0;
 
