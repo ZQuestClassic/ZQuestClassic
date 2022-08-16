@@ -64,7 +64,7 @@ static mapscr* temporary_screens_currmap[136*7] = {nullptr};
 int viewport_x, viewport_y;
 int viewport_y_offset;
 int world_w, world_h;
-static int z3_origin_scr;
+static int z3_origin_screen_index;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
 rpos_t region_max_rpos;
@@ -226,7 +226,7 @@ void z3_calculate_region(int screen_index, int& origin_scr, int& region_scr_widt
 
 void z3_load_region()
 {
-	z3_calculate_region(currscr, z3_origin_scr, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	z3_calculate_region(currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	initial_region_scr = currscr;
 	scrolling_maze_state = 0;
@@ -281,8 +281,8 @@ void z3_update_currscr()
 {
 	int dx = Hero.getX().getFloor() / 256;
 	int dy = Hero.getY().getFloor() / 176;
-	int newscr = z3_origin_scr + dx + dy * 16;
-	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_scr, newscr))
+	int newscr = z3_origin_screen_index + dx + dy * 16;
+	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_region(z3_origin_screen_index, newscr))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
@@ -301,7 +301,7 @@ bool edge_of_region(direction dir)
 	if (dir == left) scr_x -= 1;
 	if (dir == right) scr_x += 1;
 	if (scr_x < 0 || scr_x > 16 || scr_y < 0 || scr_y > 8) return true;
-	return !is_in_region(z3_origin_scr, scr_xy_to_index(scr_x, scr_y));
+	return !is_in_region(z3_origin_screen_index, scr_xy_to_index(scr_x, scr_y));
 }
 
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
@@ -309,8 +309,8 @@ int get_screen_index_for_world_xy(int x, int y)
 {
 	int dx = x / 256;
 	int dy = y / 176;
-	int origin_scr_x = z3_origin_scr % 16;
-	int origin_scr_y = z3_origin_scr / 16;
+	int origin_scr_x = z3_origin_screen_index % 16;
+	int origin_scr_y = z3_origin_screen_index / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	return scr_xy_to_index(scr_x, scr_y);
@@ -318,8 +318,8 @@ int get_screen_index_for_world_xy(int x, int y)
 
 int get_screen_index_for_rpos(rpos_t rpos)
 {
-	int origin_scr_x = z3_origin_scr % 16;
-	int origin_scr_y = z3_origin_scr / 16;
+	int origin_scr_x = z3_origin_screen_index % 16;
+	int origin_scr_y = z3_origin_screen_index / 16;
 	int scr_index = static_cast<int32_t>(rpos) / 176;
 	int scr_x = origin_scr_x + scr_index%region_scr_width;
 	int scr_y = origin_scr_y + scr_index/region_scr_width;
@@ -368,33 +368,19 @@ mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer)
 
 int z3_get_origin_scr()
 {
-	return z3_origin_scr;
+	return z3_origin_screen_index;
 }
 
-// z3_origin_scr TODO z3_origin_screen
-int z3_get_region_relative_dx(int scr)
+int z3_get_region_relative_dx(int screen_index)
 {
-	return scr % 16 - z3_origin_scr % 16;
+	return screen_index % 16 - z3_origin_screen_index % 16;
 }
 
-int z3_get_region_relative_dy(int scr)
+int z3_get_region_relative_dy(int screen_index)
 {
-	return scr / 16 - z3_origin_scr / 16;
+	return screen_index / 16 - z3_origin_screen_index / 16;
 }
 
-// TODO: replace this with current region data.
-// current_region_src_x, current_region_src_y
-int z3_get_z3scr_dx()
-{
-	return currscr % 16 - z3_origin_scr % 16;
-}
-
-int z3_get_z3scr_dy()
-{
-	return currscr / 16 - z3_origin_scr / 16;
-}
-
-// TODO z3 use this.
 const mapscr* get_canonical_scr(int map, int screen)
 {
 	return &TheMaps[map*MAPSCRS + screen];
@@ -930,7 +916,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
 	if (map < 0 || screen < 0) return 0; // TODO z3 rm
-	if (map == currmap && is_in_region(z3_origin_scr, screen)) return MAPCOMBO2(layer, x, y);
+	if (map == currmap && is_in_region(z3_origin_screen_index, screen)) return MAPCOMBO2(layer, x, y);
 	return MAPCOMBO3(map, screen, layer, COMBOPOS_REGION(x, y), secrets);
 }
 
@@ -941,7 +927,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 	DCHECK((!(rpos > region_max_rpos || (int)rpos < 0)));
 	if (map < 0 || screen < 0) return 0; // TODO z3 rm
 	
-	if (map == currmap && is_in_region(z3_origin_scr, screen)) return MAPCOMBO2(layer, COMBOX_REGION(rpos), COMBOY_REGION(rpos));
+	if (map == currmap && is_in_region(z3_origin_screen_index, screen)) return MAPCOMBO2(layer, COMBOX_REGION(rpos), COMBOY_REGION(rpos));
 	
 	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
 
@@ -4117,12 +4103,12 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 		return;
 	}
 
-	int z3_scr_x = z3_origin_scr % 16;
-	int z3_scr_y = z3_origin_scr / 16;
+	int z3_scr_x = z3_origin_screen_index % 16;
+	int z3_scr_y = z3_origin_screen_index / 16;
 
 	for (int scr = 0; scr < 128; scr++)
 	{
-		if (is_in_region(z3_origin_scr, scr))
+		if (is_in_region(z3_origin_screen_index, scr))
 		{
 			int scr_x = scr % 16;
 			int scr_y = scr / 16;
@@ -4170,7 +4156,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			}
 
 			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
-			if (!is_in_region(z3_origin_scr, scr)) continue;
+			if (!is_in_region(z3_origin_screen_index, scr)) continue;
 
 			mapscr* myscr = get_scr(currmap, scr);
 			if (!(myscr->valid & mVALID)) continue;
@@ -5393,7 +5379,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
-		if (screen_index != scr && is_in_region(z3_origin_scr, screen_index))
+		if (screen_index != scr && is_in_region(z3_origin_screen_index, screen_index))
 		{
 			load_a_screen_and_layers(destdmap, currmap, screen_index);
 		}
