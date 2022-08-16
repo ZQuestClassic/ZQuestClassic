@@ -387,11 +387,10 @@ void trigger_cuttable(const pos_handle& pos_handle)
 		}
 	}
 	
-	// TODO z3 tmpscr
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((pos_handle.screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmp->flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr.catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmpscr.secretsfx);
+		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmp->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmp->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(tmp->secretsfx);
 	}
 	else if(isCuttableItemType(type))
 	{
@@ -1062,8 +1061,7 @@ bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir)
 bool trigger_damage_combo(const pos_handle& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);
-	// TODO z3 region_max_rpos -> region_num_combos?
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 	if(Hero.hclk || Hero.superman || Hero.fallclk)
 		return false; //immune
@@ -1072,11 +1070,10 @@ bool trigger_damage_combo(const pos_handle& pos_handle)
 		dmg = cmb.attributes[0] / -10000L;
 	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
 	
-	// TODO z3 tmpscr?
 	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
 	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
-	bool current_ring = ((tmpscr.flags6&fTOGGLERINGDAMAGE) != 0);
+	bool current_ring = ((pos_handle.screen->flags6&fTOGGLERINGDAMAGE) != 0);
 	
 	int32_t itemid = current_item_id(itype_boots);
 	
@@ -1084,7 +1081,7 @@ bool trigger_damage_combo(const pos_handle& pos_handle)
 	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & ITEM_FLAG3);
 	if(dmg < 0)
 	{
-		if(itemid < 0 || ignoreBoots || (tmpscr.flags5&fDAMAGEWITHBOOTS)
+		if(itemid < 0 || ignoreBoots || (pos_handle.screen->flags5&fDAMAGEWITHBOOTS)
 			|| (4<<current_item_power(itype_boots)<(abs(dmg))) || ((cmb.walk&0xF) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{

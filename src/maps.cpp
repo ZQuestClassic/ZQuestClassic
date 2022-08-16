@@ -2930,11 +2930,10 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 	
 endhe:
 
-	// TODO z3
-	if(tmpscr.flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
+	if (s->flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
 	{
-		activated_timed_warp=true;
-		tmpscr.timedwarptics = 0;
+		activated_timed_warp = true;
+		s->timedwarptics = 0;
 	}
 }
 
@@ -4017,8 +4016,6 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
-
-	if (is_z3_scrolling_mode()) return; // TODO z3 LOL
 	
 	for(int32_t q = 0; q < 176; ++q)
 	{
