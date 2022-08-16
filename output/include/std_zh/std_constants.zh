@@ -3599,6 +3599,8 @@ enum
 	GENSCR_EVENT_HERO_HIT_1, //Player is hit, before ring applied
 	GENSCR_EVENT_HERO_HIT_2, //Player is hit, after ring applied
 	GENSCR_EVENT_COLLECT_ITEM, //Item is collected
+	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created)
+	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created)
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -3622,14 +3624,27 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_COLLECT_ITEM'
 	GENEV_ITEMCOL_TYPE, //Type of hit; see GENEVT_ICTYPE_
 	GENEV_ITEMCOL_WPNPTR //'lweapon' object pointer, or 'NULL' if no weapon is available
 };
-enum
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_1'
+{
+	GENEV_EDI1_NPC, //the npc pointer
+	GENEV_EDI1_ITEMID, //the chosen item ID
+	GENEV_EDI1_DROPSET //the dropset the ID was chosen from
+	//If the ITEMID is set to '-2', the dropset will be rolled automatically.
+	//ITEMID of -1 means no item will be dropped.
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_2'
+{
+	GENEV_EDI2_NPC, //the npc pointer
+	GENEV_EDI2_ITM //the itemsprite pointer
+};
+
+enum //constants for 'GENEV_ITEMCOL_TYPE'
 {
 	GENEVT_ICTYPE_COLLECT, //Hero collected the item
 	GENEVT_ICTYPE_MELEE, //Melee weapon collected the item
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag //Only 'NULLIFY' can be edited here
 };
-
-enum
+enum //constants for 'GENEV_HEROHIT_HITTYPE'
 {
 	OBJTYPE_NPC, OBJTYPE_LWPN, OBJTYPE_EWPN, OBJTYPE_ITSPR, OBJTYPE_COMBODATA,
 	NUM_OBJTYPE

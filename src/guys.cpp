@@ -3696,8 +3696,24 @@ void enemy::move(zfix s)
 void enemy::leave_item()
 {
 	int32_t drop_item = select_dropitem(item_set, x, y);
+	int32_t thedropset = item_set;
 	
-	if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	ev.push_back(getUID());
+	ev.push_back(drop_item*10000);
+	ev.push_back(thedropset*10000);
+	
+	throwGenScriptEvent(GENSCR_EVENT_ENEMY_DROP_ITEM_1);
+	drop_item = vbound(ev[1] / 10000,-2,255);
+	thedropset = ev[2] / 10000;
+	ev.clear();
+	if(drop_item == -2)
+	{
+		drop_item = select_dropitem(thedropset,x,y);
+	}
+	
+	if(drop_item>=0&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
 		item* itm;
 		if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
@@ -3709,8 +3725,14 @@ void enemy::leave_item()
 			if(extend >= 3) itm = (new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 			else itm = (new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
-		itm->from_dropset = item_set;
+		itm->from_dropset = thedropset;
 		items.add(itm);
+		
+		ev.push_back(getUID());
+		ev.push_back(itm->getUID());
+		
+		throwGenScriptEvent(GENSCR_EVENT_ENEMY_DROP_ITEM_2);
+		ev.clear();
 	}
 }
 
