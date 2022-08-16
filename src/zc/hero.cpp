@@ -28657,9 +28657,11 @@ void HeroClass::heroDeathAnimation()
 	if ( dontdraw < 2 ) { dontdraw=0; }
 }
 
-// TODO z3
 void HeroClass::ganon_intro()
 {
+	int offx = z3_get_region_relative_dx(initial_region_scr)*256;
+	int offy = z3_get_region_relative_dy(initial_region_scr)*176;
+
     /*
     ************************
     * GANON INTRO SEQUENCE *
@@ -28677,7 +28679,7 @@ void HeroClass::ganon_intro()
     271 GANON out, HERO face up
     */
     loaded_guys=true;
-    loaditem(&tmpscr, 0, 0);
+    loaditem(&tmpscr, offx, offy);
     
     if(game->lvlitems[dlevel]&liBOSS)
     {
@@ -28718,11 +28720,11 @@ void HeroClass::ganon_intro()
             
             if(current_item(itype_ring))
             {
-                addenemy(160,96,Id,0);
+                addenemy(offx+160,offy+96,Id,0);
             }
             else
             {
-                addenemy(80,32,Id,0);
+                addenemy(offx+80,offy+32,Id,0);
             }
         }
         

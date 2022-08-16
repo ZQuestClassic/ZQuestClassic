@@ -5885,7 +5885,6 @@ void quit_game()
 // TODO z3
 bool isSideViewGravity(int32_t t)
 {
-	// TODO z3 tmpscr
 	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 	return (((tmpscr.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
