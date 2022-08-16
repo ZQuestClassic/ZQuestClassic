@@ -782,12 +782,14 @@ enum
 	GENSCR_EVENT_COLLECT_ITEM,
 	GENSCR_EVENT_ENEMY_DROP_ITEM_1,
 	GENSCR_EVENT_ENEMY_DROP_ITEM_2,
+	GENSCR_EVENT_ENEMY_DEATH,
 	GENSCR_NUMEVENT
 };
 enum
 {
 	GENEVT_ICTYPE_COLLECT, //Hero collected the item
-	GENEVT_ICTYPE_MELEE, //Melee weapon collected the item
+	GENEVT_ICTYPE_MELEE, //Melee lweapon collected the item
+	GENEVT_ICTYPE_MELEE_EW, //Melee eweapon collected the item
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag
 };
 enum

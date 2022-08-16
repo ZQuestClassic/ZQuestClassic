@@ -6469,6 +6469,16 @@ void enemy::try_death(bool force_kill)
 {
 	if(!dying && (force_kill || (hp<=0 && !immortal)))
 	{
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back(10000);
+		ev.push_back(getUID());
+		
+		throwGenScriptEvent(GENSCR_EVENT_ENEMY_DEATH);
+		bool isSaved = !ev[0];
+		ev.clear();
+		if(isSaved) return;
+		
 		if(itemguy && (hasitem&2)!=0)
 		{
 			for(int32_t i=0; i<items.Count(); i++)

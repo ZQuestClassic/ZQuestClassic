@@ -3429,7 +3429,7 @@ bool weapon::animate(int32_t index)
 						ev.push_back(pstr_flags*10000);
 						ev.push_back(0);
 						ev.push_back(ptr->getUID());
-						ev.push_back(GENEVT_ICTYPE_MELEE*10000);
+						ev.push_back((isLWeapon ? GENEVT_ICTYPE_MELEE : GENEVT_ICTYPE_MELEE_EW)*10000);
 						ev.push_back(getUID());
 						
 						throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);

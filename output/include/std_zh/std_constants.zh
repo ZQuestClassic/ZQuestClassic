@@ -3601,6 +3601,7 @@ enum
 	GENSCR_EVENT_COLLECT_ITEM, //Item is collected
 	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created)
 	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created)
+	GENSCR_EVENT_ENEMY_DEATH, //Enemy dying
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -3637,11 +3638,17 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_2'
 	GENEV_EDI2_NPC, //the npc pointer
 	GENEV_EDI2_ITM //the itemsprite pointer
 };
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DEATH'
+{
+	GENEV_EDEATH_DYING, //Bool: if the enemy is dying, or not (set false to cancel death)
+	GENEV_EDEATH_NPC //the npc pointer
+};
 
 enum //constants for 'GENEV_ITEMCOL_TYPE'
 {
 	GENEVT_ICTYPE_COLLECT, //Hero collected the item
 	GENEVT_ICTYPE_MELEE, //Melee weapon collected the item
+	GENEVT_ICTYPE_MELEE_EW, //Melee weapon collected the item
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag //Only 'NULLIFY' can be edited here
 };
 enum //constants for 'GENEV_HEROHIT_HITTYPE'
