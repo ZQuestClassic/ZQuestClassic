@@ -5473,6 +5473,7 @@ int main(int argc, char **argv)
 		set_keyboard_rate(250,33);
 		toogam = false;
 		ignoreSideview=false;
+		clear_bitmap(lightbeam_bmp);
 		if(zqtesting_mode)
 		{
 			int32_t q = Quit;
@@ -5493,7 +5494,6 @@ int main(int argc, char **argv)
 		setup_combo_animations();
 		setup_combo_animations2();
 		
-		clear_bitmap(lightbeam_bmp);
 		while(Quit<=0)
 		{
 #ifdef _WIN32
