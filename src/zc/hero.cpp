@@ -8272,7 +8272,6 @@ bool HeroClass::animate(int32_t)
 												{
 													if ( (cmb.usrflags&cflag2) )
 													{
-														it =
 														if(cmb.usrflags&cflag11)
 															it = cmb.attribytes[1];
 														else
