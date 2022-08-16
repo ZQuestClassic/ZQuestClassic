@@ -3758,8 +3758,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			s->data[i] = s->secretcombo[sSTAIRS];
 			s->cset[i] = s->secretcset[sSTAIRS];
 			s->sflag[i] = s->secretflag[sSTAIRS];
-			// TODO z3
-			sfx(tmpscr.secretsfx);
+			sfx(s->secretsfx);
 		}
 		else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
 		{
@@ -7785,7 +7784,6 @@ bool HeroClass::animate(int32_t)
 		}
 	}
 	
-	// TODO z3 switch hook
 	if(hookshot_frozen || switch_hooked)
 	{
 		if(hookshot_used || switch_hooked)
@@ -21209,11 +21207,10 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	bool overlay=false;
 	t=(currscr<128)?0:1;
 	int32_t wrindex = 0;
-	// TODO z3
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
-	// Either the current screen, or if in a 0x80 room the screen player came from.
 	mapscr* cur_scr = get_screen_for_world_xy(x.getInt(), y.getInt());
+	// Either the current screen, or if in a 0x80 room the screen player came from.
 	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
 	
 	// Drawing commands probably shouldn't carry over...

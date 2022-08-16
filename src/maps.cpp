@@ -443,6 +443,7 @@ mapscr* get_home_scr()
 	return get_scr(currmap, homescr);
 }
 
+// TODO z3: remove, just use rpos?
 int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
 	int x = (pos%16) + scr_dx*16;
