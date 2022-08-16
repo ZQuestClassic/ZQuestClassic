@@ -3409,6 +3409,30 @@ bool weapon::animate(int32_t index)
 				{
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1))
 					{
+						int32_t pickup = ptr->pickup;
+						int32_t id2 = ptr->id;
+						int32_t pstr = ptr->pstring;
+						int32_t pstr_flags = ptr->pickup_string_flags;
+						
+						std::vector<int32_t> &ev = FFCore.eventData;
+						ev.clear();
+						ev.push_back(id2*10000);
+						ev.push_back(pickup*10000);
+						ev.push_back(pstr*10000);
+						ev.push_back(pstr_flags*10000);
+						ev.push_back(0);
+						ev.push_back(ptr->getUID());
+						ev.push_back(GENEVT_ICTYPE_MELEE*10000);
+						ev.push_back(getUID());
+						
+						throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+						bool nullify = ev[4] != 0;
+						if(nullify) continue;
+						id2 = ev[0]/10000;
+						pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+						pstr = ev[2] / 10000;
+						pstr_flags = ev[3] / 10000;
+						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
@@ -3421,9 +3445,9 @@ bool weapon::animate(int32_t index)
 						}
 						//!DIMI
 						
-						collectitem_script(ptr->id);
+						collectitem_script(id2);
 						
-						getitem(ptr->id, false, true);
+						getitem(id2, false, true);
 						
 						items.del(j);
 						
@@ -3438,6 +3462,17 @@ bool weapon::animate(int32_t index)
 							else if(w2->dragging>j)
 							{
 								w2->dragging-=1;
+							}
+						}
+						
+						if ( (pstr > 0 && pstr < msg_count) )
+						{
+							if ( ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
+							{
+								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
+									FFCore.SetItemMessagePlayed(id2);
+								donewmsg(pstr);
+								break;
 							}
 						}
 						

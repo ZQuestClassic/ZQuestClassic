@@ -3030,7 +3030,7 @@ bool HeroClass::checkstab()
     bool found = false;
     int32_t melee_weapon_index = 0;
 	int32_t parentitem=-1;
-    
+    weapon* meleeweap = nullptr;
     for(int32_t i=0; i<Lwpns.Count(); i++)
     {
         w = (weapon*)Lwpns.spr(i);
@@ -3039,6 +3039,7 @@ bool HeroClass::checkstab()
         {
             found = true;
             melee_weapon_index = i+1;
+			meleeweap = w;
             // Position the sword as Hero slashes with it.
             if(w->id!=wHammer&&w->id!=wBugNet)
                 positionSword(w,w->parentitem);
@@ -3278,6 +3279,30 @@ bool HeroClass::checkstab()
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
 					{
 						int32_t pickup = ptr->pickup;
+						int32_t id2 = ptr->id;
+						int32_t pstr = ptr->pstring;
+						int32_t pstr_flags = ptr->pickup_string_flags;
+						if(!dofairy)
+						{
+							std::vector<int32_t> &ev = FFCore.eventData;
+							ev.clear();
+							ev.push_back(id2*10000);
+							ev.push_back(pickup*10000);
+							ev.push_back(pstr*10000);
+							ev.push_back(pstr_flags*10000);
+							ev.push_back(0);
+							ev.push_back(ptr->getUID());
+							ev.push_back(GENEVT_ICTYPE_MELEE*10000);
+							ev.push_back(w->getUID());
+							
+							throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+							bool nullify = ev[4] != 0;
+							if(nullify) continue;
+							id2 = ev[0]/10000;
+							pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+							pstr = ev[2] / 10000;
+							pstr_flags = ev[3] / 10000;
+						}
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(mITEM);
@@ -3297,9 +3322,9 @@ bool HeroClass::checkstab()
 						}
 						else
 						{
-							collectitem_script(ptr->id);
+							collectitem_script(id2);
 							
-							getitem(ptr->id, false, true);
+							getitem(id2, false, true);
 						}
 						items.del(j);
 						
@@ -3314,6 +3339,17 @@ bool HeroClass::checkstab()
 							else if(w2->dragging>j)
 							{
 								w2->dragging-=1;
+							}
+						}
+						
+						if ( (pstr > 0 && pstr < msg_count) )
+						{
+							if ( ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
+							{
+								if ( (!(pstr_flags&itemdataPSTRING_NOMARK)) )
+									FFCore.SetItemMessagePlayed(id2);
+								donewmsg(pstr);
+								break;
 							}
 						}
 						
@@ -26451,6 +26487,7 @@ void HeroClass::checkitems(int32_t index)
 	int32_t id2 = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
+	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
 	{
@@ -26465,7 +26502,6 @@ void HeroClass::checkitems(int32_t index)
 	
 	bool bottledummy = (pickup&ipCHECK) && tmpscr[tmp].room == rBOTTLESHOP;
 	
-	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	if(bottledummy) //Dummy bullshit! 
 	{
 		if(!game->canFillBottle())
@@ -26513,10 +26549,29 @@ void HeroClass::checkitems(int32_t index)
 	}
 	else
 	{
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back(id2*10000);
+		ev.push_back(pickup*10000);
+		ev.push_back(pstr*10000);
+		ev.push_back(pstr_flags*10000);
+		ev.push_back(0);
+		ev.push_back(ptr->getUID());
+		ev.push_back(GENEVT_ICTYPE_COLLECT*10000);
+		ev.push_back(0);
+		
+		throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+		bool nullify = ev[4] != 0;
+		if(nullify) return;
+		id2 = ev[0]/10000;
+		pickup = (pickup&(ipCHECK|ipDUMMY)) | (ev[1]/10000);
+		pstr = ev[2] / 10000;
+		pstr_flags = ev[3] / 10000;
+		
 		if(itemsbuf[id2].family == itype_bottlefill && !game->canFillBottle())
 			return; //No picking these up unless you have a bottle to fill!
 		
-		if(((pickup&ipTIMER) && (ptr->clk2 < 32))&& !(ptr->pickup & ipCANGRAB))
+		if(((pickup&ipTIMER) && (ptr->clk2 < 32))&& !(pickup & ipCANGRAB))
 			if(ptr->id!=iFairyMoving)
 				// wait for it to stop flashing, doesn't check for other items yet
 				return;

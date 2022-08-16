@@ -3598,6 +3598,7 @@ enum
 	GENSCR_EVENT_CHANGE_LEVEL, //When the level changes
 	GENSCR_EVENT_HERO_HIT_1, //Player is hit, before ring applied
 	GENSCR_EVENT_HERO_HIT_2, //Player is hit, after ring applied
+	GENSCR_EVENT_COLLECT_ITEM, //Item is collected
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -3609,6 +3610,23 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT
 	GENEV_HEROHIT_IFRAMES, //Number of IFrames to have after hit, if not nullified
 	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ('OBJTYPE_')
 	GENEV_HEROHIT_HITOBJ //The pointer to that object
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_COLLECT_ITEM'
+{
+	GENEV_ITEMCOL_ID, //Item ID to be gained
+	GENEV_ITEMCOL_PICKUP, //Pickup flags for the item pickup
+	GENEV_ITEMCOL_PSTR, //Pickup string to be displayed
+	GENEV_ITEMCOL_PSTRFLAGS, //Pickup string flags
+	GENEV_ITEMCOL_NULLIFY, //Bool: to nullify the item pickup, or not
+	GENEV_ITEMCOL_ITEMPTR, //'itemsprite' object pointer
+	GENEV_ITEMCOL_TYPE, //Type of hit; see GENEVT_ICTYPE_
+	GENEV_ITEMCOL_WPNPTR //'lweapon' object pointer, or 'NULL' if no weapon is available
+};
+enum
+{
+	GENEVT_ICTYPE_COLLECT, //Hero collected the item
+	GENEVT_ICTYPE_MELEE, //Melee weapon collected the item
+	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag //Only 'NULLIFY' can be edited here
 };
 
 enum

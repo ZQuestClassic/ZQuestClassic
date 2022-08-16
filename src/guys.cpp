@@ -23451,6 +23451,25 @@ void check_collisions()
 							if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
 								|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 							{
+								int32_t pickup = theItem->pickup;
+								int32_t id2 = theItem->id;
+								int32_t pstr = theItem->pstring;
+								int32_t pstr_flags = theItem->pickup_string_flags;
+								
+								std::vector<int32_t> &ev = FFCore.eventData;
+								ev.clear();
+								ev.push_back(id2*10000);
+								ev.push_back(pickup*10000);
+								ev.push_back(pstr*10000);
+								ev.push_back(pstr_flags*10000);
+								ev.push_back(0);
+								ev.push_back(theItem->getUID());
+								ev.push_back(GENEVT_ICTYPE_RANGED_DRAG*10000);
+								ev.push_back(w->getUID());
+								
+								throwGenScriptEvent(GENSCR_EVENT_COLLECT_ITEM);
+								bool nullify = ev[4] != 0;
+								if(nullify) continue;
 								if(w->id == wBrang)
 								{
 									w->onhit(false);

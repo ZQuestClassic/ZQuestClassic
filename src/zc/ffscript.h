@@ -779,7 +779,14 @@ enum
 	GENSCR_EVENT_CHANGE_LEVEL,
 	GENSCR_EVENT_HERO_HIT_1,
 	GENSCR_EVENT_HERO_HIT_2,
+	GENSCR_EVENT_COLLECT_ITEM,
 	GENSCR_NUMEVENT
+};
+enum
+{
+	GENEVT_ICTYPE_COLLECT, //Hero collected the item
+	GENEVT_ICTYPE_MELEE, //Melee weapon collected the item
+	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag
 };
 enum
 {
