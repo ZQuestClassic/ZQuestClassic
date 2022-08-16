@@ -615,6 +615,8 @@ string ZScript::VarToString(int32_t ID)
 		return "GAMEMISCSPR";
 	case GAMEMISCSFX:
 		return "GAMEMISCSFX";
+	case GAMEEVENTDATA:
+		return "GAMEEVENTDATA";
 		
 	case SCREENSTATED:
 		return "SCREENSTATED";

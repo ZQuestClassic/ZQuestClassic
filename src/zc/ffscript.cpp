@@ -7384,6 +7384,16 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case GAMEEVENTDATA:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			ret = 0;
+			if ( ((unsigned)inx) < FFCore.eventData.size() )
+			{
+				ret = FFCore.eventData[inx];
+			}
+			break;
+		}
 		
 		case GAMEGRAVITY:
 		{
@@ -16963,6 +16973,15 @@ void set_register(const int32_t arg, const int32_t value)
 			else
 			{
 				QMisc.miscsfx[inx] = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case GAMEEVENTDATA:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			if ( ((unsigned)inx) < FFCore.eventData.size() )
+			{
+				FFCore.eventData[inx] = value;
 			}
 			break;
 		}
@@ -32703,6 +32722,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	eventData.clear();
 	countGenScripts();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
@@ -37786,6 +37806,7 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
 	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
 	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
+	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

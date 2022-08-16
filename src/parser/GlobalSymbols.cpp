@@ -4810,6 +4810,8 @@ static AccessorTable gameTable[] =
 	{ "setMiscSprites[]",              ZVARTYPEID_VOID,          SETTER,       GAMEMISCSPR,          256,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "getMiscSFX[]",                  ZVARTYPEID_FLOAT,         GETTER,       GAMEMISCSFX,          256,            0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setMiscSFX[]",                  ZVARTYPEID_VOID,          SETTER,       GAMEMISCSFX,          256,            0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getEventData[]",                ZVARTYPEID_UNTYPED,       GETTER,       GAMEEVENTDATA,        214748,         0,                                    2,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setEventData[]",                ZVARTYPEID_VOID,          SETTER,       GAMEEVENTDATA,        214748,         0,                                    3,           { ZVARTYPEID_GAME, ZVARTYPEID_FLOAT, ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
 	{ "",                              -1,                       -1,           -1,                   -1,             0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };

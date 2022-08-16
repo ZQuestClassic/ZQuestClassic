@@ -6172,28 +6172,54 @@ void HeroClass::checkhit()
 			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
 						(itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
 			{
-				if(NayrusLoveShieldClk<=0)
+				std::vector<int32_t> &ev = FFCore.eventData;
+				ev.clear();
+				ev.push_back(lwpn_dp(i)*10000);
+				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+				ev.push_back(0);
+				ev.push_back(NayrusLoveShieldClk>0?10000:0);
+				ev.push_back(48*10000);
+				ev.push_back(ZSD_LWPN*10000);
+				ev.push_back(s->getUID());
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+				int32_t dmg = ev[0]/10000;
+				bool nullhit = ev[2] != 0;
+				
+				if(nullhit) {ev.clear(); return;}
+				
+				//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+				ev[0] = ringpower(dmg)*10000;
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+				dmg = ev[0]/10000;
+				int32_t hdir = ev[1]/10000;
+				nullhit = ev[2] != 0;
+				bool nayrulove = ev[3] != 0;
+				int32_t iframes = ev[4] / 10000;
+				ev.clear();
+				if(nullhit) return;
+				if(!nayrulove)
 				{
-					int32_t ringpow = ringpower(lwpn_dp(i));
-					game->set_life(zc_max(game->get_life()-ringpow,0));
+					game->set_life(zc_max(game->get_life()-dmg,0));
 				}
 				
-				hitdir = s->hitdir(x,y,16,16,dir);
+				hitdir = hdir;
 				
 				if (action != rafting && action != freeze && action != sideswimfreeze)
 				{
-			if (IsSideSwim())
-			{
-				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-			}
-			else if (action == swimming || hopclk == 0xFF)
-			{
-				action=swimhit; FFCore.setHeroAction(swimhit);
-			}
-			else
-			{
-				action=gothit; FFCore.setHeroAction(gothit);
-			}
+					if (IsSideSwim())
+					{
+						action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
+					}
+					else if (action == swimming || hopclk == 0xFF)
+					{
+						action=swimhit; FFCore.setHeroAction(swimhit);
+					}
+					else
+					{
+						action=gothit; FFCore.setHeroAction(gothit);
+					}
 				}
 					
 				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
@@ -6203,7 +6229,7 @@ void HeroClass::checkhit()
 					tapping = false;
 				}
 				
-				hclk=48;
+				hclk=iframes;
 				sfx(getHurtSFX(),pan(x.getInt()));
 				return;
 			}
@@ -6320,13 +6346,39 @@ killweapon:
 		{
 			if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1) && !fallclk)
 			{
-				if(NayrusLoveShieldClk<=0)
+				std::vector<int32_t> &ev = FFCore.eventData;
+				ev.clear();
+				ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
+				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+				ev.push_back(0);
+				ev.push_back(NayrusLoveShieldClk>0?10000:0);
+				ev.push_back(48*10000);
+				ev.push_back(ZSD_LWPN*10000);
+				ev.push_back(s->getUID());
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+				int32_t dmg = ev[0]/10000;
+				bool nullhit = ev[2] != 0;
+				
+				if(nullhit) {ev.clear(); return;}
+				
+				//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+				ev[0] = ringpower(dmg)*10000;
+				
+				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+				dmg = ev[0]/10000;
+				int32_t hdir = ev[1]/10000;
+				nullhit = ev[2] != 0;
+				bool nayrulove = ev[3] != 0;
+				int32_t iframes = ev[4] / 10000;
+				ev.clear();
+				if(nullhit) return;
+				if(!nayrulove)
 				{
-					int32_t ringpow = ringpower(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart()));
-					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-ringpow,0)));
+					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
 				}
 				
-				hitdir = s->hitdir(x,y,16,16,dir);
+				hitdir = hdir;
 				
 				if (action != rafting && action != freeze && action != sideswimfreeze)
 				{
@@ -6351,7 +6403,7 @@ killweapon:
 					tapping = false;
 				}
 				
-				hclk=48;
+				hclk=iframes;
 				sfx(getHurtSFX(),pan(x.getInt()));
 				return;
 			}
@@ -6359,10 +6411,29 @@ killweapon:
 		
 		if(hclk==0 && s->id==wWind && s->hit(x+7,y+7-fakez,z,2,2,1) && !fairyclk)
 		{
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(0);
+			ev.push_back(s->dir*10000);
+			ev.push_back(0);
+			ev.push_back(0);
+			ev.push_back(ZSD_LWPN*10000);
+			ev.push_back(s->getUID());
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+			bool nullhit = ev[2] != 0;
+			if(nullhit) {ev.clear(); return;}
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+			int32_t hdir = ev[1]/10000;
+			nullhit = ev[2] != 0;
+			ev.clear();
+			if(nullhit) return;
+			
 			reset_hookshot();
 			xofs=1000;
 			action=inwind; FFCore.setHeroAction(inwind);
-			dir=s->dir;
+			dir=s->dir=hdir;
 			spins = charging = attackclk = 0;
 			
 			// In case Hero used two whistles in a row, summoning two whirlwinds,
@@ -6398,15 +6469,41 @@ killweapon:
 	if(hit2!=-1)
 	{
 		weapon* lwpnspr = (weapon*)Lwpns.spr(hit2);
-		if(NayrusLoveShieldClk<=0)
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back((lwpn_dp(hit2)*10000));
+		ev.push_back(lwpnspr->hitdir(x,y,16,16,dir)*10000);
+		ev.push_back(0);
+		ev.push_back(NayrusLoveShieldClk>0?10000:0);
+		ev.push_back(48*10000);
+		ev.push_back(ZSD_LWPN*10000);
+		ev.push_back(lwpnspr->getUID());
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+		int32_t dmg = ev[0]/10000;
+		bool nullhit = ev[2] != 0;
+		
+		if(nullhit) {ev.clear(); return;}
+		
+		//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+		ev[0] = ringpower(dmg)*10000;
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+		dmg = ev[0]/10000;
+		int32_t hdir = ev[1]/10000;
+		nullhit = ev[2] != 0;
+		bool nayrulove = ev[3] != 0;
+		int32_t iframes = ev[4] / 10000;
+		ev.clear();
+		if(nullhit) return;
+		if(!nayrulove)
 		{
-			int32_t ringpow = ringpower(lwpn_dp(hit2));
-			game->set_life(zc_max(game->get_life()-ringpow,0));
+			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
 			sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
 		}
 		
-		hitdir = lwpnspr->hitdir(x,y,16,16,dir);
+		hitdir = hdir;
 		lwpnspr->onhit(false);
 		
 		if (IsSideSwim())
@@ -6422,7 +6519,7 @@ killweapon:
 			action=gothit; FFCore.setHeroAction(gothit);
 		}
 			
-		hclk=48;
+		hclk=iframes;
 		
 		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 		{
@@ -6442,15 +6539,41 @@ killweapon:
 	if(hit2!=-1)
 	{
 		weapon* ewpnspr = (weapon*)Ewpns.spr(hit2);
-		if(NayrusLoveShieldClk<=0)
+		std::vector<int32_t> &ev = FFCore.eventData;
+		ev.clear();
+		ev.push_back((ewpn_dp(hit2)*10000));
+		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
+		ev.push_back(0);
+		ev.push_back(NayrusLoveShieldClk>0?10000:0);
+		ev.push_back(48*10000);
+		ev.push_back(ZSD_EWPN*10000);
+		ev.push_back(ewpnspr->getUID());
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+		int32_t dmg = ev[0]/10000;
+		bool nullhit = ev[2] != 0;
+		
+		if(nullhit) {ev.clear(); return;}
+		
+		//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+		ev[0] = ringpower(dmg)*10000;
+		
+		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+		dmg = ev[0]/10000;
+		int32_t hdir = ev[1]/10000;
+		nullhit = ev[2] != 0;
+		bool nayrulove = ev[3] != 0;
+		int32_t iframes = ev[4] / 10000;
+		ev.clear();
+		if(nullhit) return;
+		if(!nayrulove)
 		{
-			int32_t ringpow = ringpower(ewpn_dp(hit2));
-			game->set_life(zc_max(game->get_life()-ringpow,0));
+			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
 			sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
 		}
 		
-		hitdir = ewpnspr->hitdir(x,y,16,16,dir);
+		hitdir = hdir;
 		ewpnspr->onhit(false);
 		
 		if (IsSideSwim())
@@ -6466,7 +6589,7 @@ killweapon:
 			action=gothit; FFCore.setHeroAction(gothit);
 		}
 			
-		hclk=48;
+		hclk=iframes;
 		
 		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 		{
@@ -6535,10 +6658,12 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		return false;
 		
 	int32_t hp_mod[4] = {0};
+	int32_t cid[8];
 	byte hasKB = 0;
 	
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1)];
+		cid[0] = layer>-1?MAPCOMBO2(layer,dx1,dy1):MAPCOMBO(dx1,dy1);
+		newcombo& cmb = combobuf[cid[0]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6550,7 +6675,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2)];
+		cid[1] = layer>-1?MAPCOMBO2(layer,dx1,dy2):MAPCOMBO(dx1,dy2);
+		newcombo& cmb = combobuf[cid[1]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6562,7 +6688,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1)];
+		cid[2] = layer>-1?MAPCOMBO2(layer,dx2,dy1):MAPCOMBO(dx2,dy1);
+		newcombo& cmb = combobuf[cid[2]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6574,7 +6701,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2)];
+		cid[3] = layer>-1?MAPCOMBO2(layer,dx2,dy2):MAPCOMBO(dx2,dy2);
+		newcombo& cmb = combobuf[cid[3]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1) 
@@ -6586,7 +6714,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	
-	
+	int32_t bestcid=0;
 	int32_t hp_modtotal=0;
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
 	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
@@ -6619,16 +6747,32 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotal >= 0) //Okay, if it's over 0, it's healing Hero.
-				hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
+			{
+				if(hp_mod[i] < hp_modtotal)
+				{
+					hp_modtotal = hp_mod[i];
+					bestcid = cid[i];
+				}
+			}
 			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Hero.
-				hp_modtotal = zc_max(hp_modtotal, hp_mod[i]);
+			{
+				if(hp_mod[i] > hp_modtotal)
+				{
+					hp_modtotal = hp_mod[i];
+					bestcid = cid[i];
+				}
+			}
 		}
-		else
-			hp_modtotal = zc_min(hp_modtotal, hp_mod[i]);
+		else if(hp_mod[i] < hp_modtotal)
+		{
+			hp_modtotal = hp_mod[i];
+			bestcid = cid[i];
+		}
 	}
 	
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy1)];
+		cid[4] = MAPFFCOMBO(dx1,dy1);
+		newcombo& cmb = combobuf[cid[4]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6640,7 +6784,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx1,dy2)];
+		cid[5] = MAPFFCOMBO(dx1,dy2);
+		newcombo& cmb = combobuf[cid[5]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6652,7 +6797,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy1)];
+		cid[6] = MAPFFCOMBO(dx2,dy1);
+		newcombo& cmb = combobuf[cid[6]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6664,7 +6810,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		newcombo& cmb = combobuf[MAPFFCOMBO(dx2,dy2)];
+		cid[7] = MAPFFCOMBO(dx2,dy2);
+		newcombo& cmb = combobuf[cid[7]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
 			if(cmb.usrflags&cflag1 )
@@ -6676,6 +6823,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	
+	int32_t bestffccid = 0;
 	int32_t hp_modtotalffc = 0;
 	
 	for (int32_t i = 0; i <= 1; ++i)
@@ -6704,21 +6852,40 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotalffc >= 0)
-				hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
+			{
+				if(hp_mod[i] < hp_modtotalffc)
+				{
+					hp_modtotalffc = hp_mod[i];
+					bestffccid = cid[4+i];
+				}
+			}
 			else if(hp_mod[i] < 0)
-				hp_modtotalffc = zc_max(hp_modtotalffc, hp_mod[i]);
+			{
+				if(hp_mod[i] > hp_modtotalffc)
+				{
+					hp_modtotalffc = hp_mod[i];
+					bestffccid = cid[4+i];
+				}
+			}
 		}
-		else
-			hp_modtotalffc = zc_min(hp_modtotalffc, hp_mod[i]);
+		else if(hp_mod[i] < hp_modtotalffc)
+		{
+			hp_modtotalffc = hp_mod[i];
+			bestffccid = cid[4+i];
+		}
 	}
 	
 	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
+	if(hp_modtotalffc < hp_modmin) bestcid = bestffccid;
 	
-	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
-	
+	if(current_ring)
+	{
+		global_defring = !global_defring;
+		global_perilring = !global_perilring;
+	}
 	int32_t itemid = current_item_id(itype_boots);
 	
 	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
@@ -6729,17 +6896,42 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		if((itemid<0) || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
 			if (!do_health_check) return true;
-			if(NayrusLoveShieldClk<=0)
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(-hp_modmin*10000);
+			ev.push_back((hasKB ? dir^1 : -1)*10000);
+			ev.push_back(0);
+			ev.push_back(NayrusLoveShieldClk>0?10000:0);
+			ev.push_back(48*10000);
+			ev.push_back(ZSD_COMBODATA*10000);
+			ev.push_back(bestcid);
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+			int32_t dmg = ev[0]/10000;
+			bool nullhit = ev[2] != 0;
+			
+			if(nullhit) {ev.clear(); return false;}
+	
+			//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+			ev[0] = ringpower(dmg, !global_perilring, !global_defring)*10000;
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+			dmg = ev[0]/10000;
+			int32_t hdir = ev[1]/10000;
+			nullhit = ev[2] != 0;
+			bool nayrulove = ev[3] != 0;
+			int32_t iframes = ev[4] / 10000;
+			ev.clear();
+			if(nullhit) return false;
+			
+			if(!nayrulove)
 			{
-				int32_t ringpow = ringpower(-hp_modmin, !global_perilring, !global_defring);
-				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-hp_modmin),0));
+				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
 			
-			if(hasKB)
-				hitdir = (dir^1);
-			else
-				hitdir = -1;
+			hitdir = hdir;
 			doHit(hitdir);
+			hclk = iframes;
 			return true;
 		}
 		else if (do_health_check) paymagiccost(itemid); // Boots are successful
@@ -6787,15 +6979,45 @@ int32_t HeroClass::hithero(int32_t hit2)
 	{
 		return -1;
 	}
-	if(NayrusLoveShieldClk<=0)
+	
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	//Args: 'damage (pre-ring)','hitdir','nullifyhit','type:npc','npc uid'
+	ev.push_back((enemy_dp(hit2) *10000));
+	ev.push_back(((sprite*)enemyptr)->hitdir(x,y,16,16,dir)*10000);
+	ev.push_back(0);
+	ev.push_back(NayrusLoveShieldClk>0?10000:0);
+	ev.push_back(48*10000);
+	ev.push_back(ZSD_NPC*10000);
+	ev.push_back(enemyptr->getUID());
+	
+	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+	int32_t dmg = ev[0] / 10000;
+	bool nullhit = ev[2] != 0;
+	
+	if(nullhit) {ev.clear(); return -1;}
+	
+	//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+	ev[0] = ((ringpower(dmg)*10000));
+	
+	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+	dmg = ev[0] / 10000;
+	int32_t hdir = ev[1] / 10000;
+	nullhit = ev[2] != 0;
+	bool nayrulove = ev[3] != 0;
+	int32_t iframes = ev[4] / 10000;
+	ev.clear();
+	
+	if(nullhit) return -1;
+	
+	if(!nayrulove)
 	{
-		int32_t ringpow = ringpower(enemy_dp(hit2));
-		game->set_life(zc_max(game->get_life()-ringpow,0));
+		game->set_life(zc_max(game->get_life()-dmg,0));
 		sethitHeroUID(HIT_BY_NPC,(hit2+1));
 		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
 	}
 	
-	hitdir = ((sprite*)enemyptr)->hitdir(x,y,16,16,dir);
+	hitdir = hdir;
 	if (IsSideSwim())
 	{
 	   action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
@@ -6809,7 +7031,7 @@ int32_t HeroClass::hithero(int32_t hit2)
 		action=gothit; FFCore.setHeroAction(gothit);
 	}
 		
-	hclk=48;
+	hclk=iframes;
 	sfx(getHurtSFX(),pan(x.getInt()));
 	
 	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)

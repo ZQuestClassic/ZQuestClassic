@@ -777,7 +777,14 @@ enum
 	GENSCR_EVENT_CHANGE_SCREEN,
 	GENSCR_EVENT_CHANGE_DMAP,
 	GENSCR_EVENT_CHANGE_LEVEL,
+	GENSCR_EVENT_HERO_HIT_1,
+	GENSCR_EVENT_HERO_HIT_2,
 	GENSCR_NUMEVENT
+};
+enum
+{
+	ZSD_NPC, ZSD_LWPN, ZSD_EWPN, ZSD_ITSPR, ZSD_COMBODATA,
+	NUM_ZSD
 };
 
 struct user_genscript
@@ -873,6 +880,7 @@ int32_t max_ff_rules;
 mapscr* tempScreens[7];
 mapscr* ScrollingScreens[7];
 int32_t ScrollingData[SZ_SCROLLDATA];
+std::vector<int32_t> eventData;
 int32_t getQRBit(int32_t rule);
 void setHeroAction(int32_t a);
 int32_t getHeroAction();
@@ -4812,8 +4820,9 @@ enum ASM_DEFINE
 #define COMBODTRIGGERCTR        0x1467
 #define COMBODTRIGGERCTRAMNT    0x1468
 #define GENDATAEVENTSTATE       0x1469
+#define GAMEEVENTDATA           0x146A
 
-#define NUMVARIABLES         	0x146A
+#define NUMVARIABLES         	0x146B
 
 //} End variables
 

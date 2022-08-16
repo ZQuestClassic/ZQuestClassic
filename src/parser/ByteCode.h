@@ -1412,8 +1412,9 @@
 #define COMBODTRIGGERCTR        1329
 #define COMBODTRIGGERCTRAMNT    1330
 #define GENDATAEVENTSTATE       1331
+#define GAMEEVENTDATA           1332
 
-#define LAST_BYTECODE           1332
+#define LAST_BYTECODE           1333
 
 //} END OF BYTECODE
 

@@ -3596,7 +3596,25 @@ enum
 	GENSCR_EVENT_CHANGE_SCREEN, //When the screen changes
 	GENSCR_EVENT_CHANGE_DMAP, //When the dmap changes
 	GENSCR_EVENT_CHANGE_LEVEL, //When the level changes
+	GENSCR_EVENT_HERO_HIT_1, //Player is hit, before ring applied
+	GENSCR_EVENT_HERO_HIT_2, //Player is hit, after ring applied
 	GENSCR_NUMEVENT
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
+{
+	GENEV_HEROHIT_DAMAGE, //Damage to be taken
+	GENEV_HEROHIT_HITDIR, //Dir to be knocked in
+	GENEV_HEROHIT_NULLIFY, //Bool: to nullify the hit, or not
+	GENEV_HEROHIT_NAYRUON, //Bool: if nayru's love will nullify the damage, or not
+	GENEV_HEROHIT_IFRAMES, //Number of IFrames to have after hit, if not nullified
+	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ('OBJTYPE_')
+	GENEV_HEROHIT_HITOBJ //The pointer to that object
+};
+
+enum
+{
+	OBJTYPE_NPC, OBJTYPE_LWPN, OBJTYPE_EWPN, OBJTYPE_ITSPR, OBJTYPE_COMBODATA,
+	NUM_OBJTYPE
 };
 
 enum //*weapon->Flags[] indexes

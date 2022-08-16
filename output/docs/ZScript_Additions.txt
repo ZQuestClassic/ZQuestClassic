@@ -2963,6 +2963,10 @@ int MiscSprites[MISCSPR_MAX];
 int MiscSFX[MISCSFX_MAX];
  * The quest's misc sfx. Use the 'MISCSFX_' constants to access this array.
 
+untyped EventData[?];
+ * Contains event data for use with 'WaitEvent()' in generic scripts.
+ * Use the appropriate set of 'GENEV_' constants based on the event.
+
 int SubscreenSpeed;
  * The speed multiplier for the active subscreen falling or raising.
  * The base speed (1) is 3 pixels per frame. The maximum value is 85.
