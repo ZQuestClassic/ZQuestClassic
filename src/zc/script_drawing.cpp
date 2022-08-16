@@ -1597,8 +1597,8 @@ void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     /* layer, x, y, tile, color opacity */
     
     int32_t opacity = sdci[6]/10000;
-	int x = xoffset+(sdci[2]/10000)-global_viewport_x;
-	int y = yoffset+(sdci[3]/10000)-global_viewport_y;
+	int x = xoffset+(sdci[2]/10000);
+	int y = yoffset+(sdci[3]/10000);
     
     if(opacity < 128)
         overtiletranslucent16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
@@ -1634,9 +1634,9 @@ void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     {
 	    
 	    if(v.at(q+4) < 128)
-		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1))-global_viewport_x, yoffset+(v.at(q+2))-global_viewport_y, v.at(q+3), 0, v.at(q+4));
+		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0, v.at(q+4));
 	    else
-		overtile16(bmp, v.at(q), xoffset+(v.at(q+1))-global_viewport_x, yoffset+(v.at(q+2))-global_viewport_y, v.at(q+3), 0);
+		overtile16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0);
     }
 }
 
@@ -1666,8 +1666,8 @@ void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         overtile16(bmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
 
-	int x = xoffset+x1-global_viewport_x;
-	int y = yoffset+y1-global_viewport_y;
+	int x = xoffset+x1;
+	int y = yoffset+y1;
 	
 	if(opacity < 128)
 	{
@@ -5092,8 +5092,8 @@ void bmp_do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     
     if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 
-	int x = xoffset+(sdci[2]/10000) - global_viewport_x;
-	int y = yoffset+(sdci[3]/10000) - global_viewport_y;
+	int x = xoffset+(sdci[2]/10000);
+	int y = yoffset+(sdci[3]/10000);
     
     if(opacity < 128)
         overtiletranslucent16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
@@ -5280,8 +5280,8 @@ void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
         overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
 	*/
 
-	int x = xoffset+x1-global_viewport_x;
-	int y = yoffset+y1-global_viewport_y;
+	int x = xoffset+x1;
+	int y = yoffset+y1;
 	
 	if(opacity < 128)
 	{
@@ -10982,9 +10982,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
 	int32_t xoffset=xoff, yoffset=yoff;
 
-	xoffset -= global_viewport_x;
-	yoffset -= global_viewport_y;
-
 	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
 	{
 		if(!brokenOffset)
@@ -11019,6 +11016,9 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			}
 			isTargetOffScreenBmp = true;
 		}
+
+		xoffset -= global_viewport_x;
+		yoffset -= global_viewport_y;
 		
 		switch(sdci[0])
 		{
