@@ -473,18 +473,25 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 			}
 			else decorations.add(new comboSprite((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), 0, 0, combobuf[cid].attribytes[0]));
 		}
-		int32_t it = -1; 
+		int32_t it = -1;
+		int32_t thedropset = -1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
 				it = combobuf[cid].attribytes[1];
 			}
-			else it = select_dropitem(combobuf[cid].attribytes[1]); 
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]);
+				thedropset = combobuf[cid].attribytes[1];
+			}
 		}
 		if( it != -1 )
 		{
-			items.add(new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 		
 		//drop special room item

@@ -293,7 +293,7 @@ class breakable : public sprite
 public:
     int32_t aclk, aframe, o_tile, aspd, frames;
 	newcombo const& cmb;
-	int32_t dropitem, breaktimer;
+	int32_t dropitem, breaktimer, fromdropset;
 	int8_t breaksprtype;
 	byte breaksfx,breakspr;
 	

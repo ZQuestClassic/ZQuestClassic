@@ -4828,8 +4828,9 @@ enum ASM_DEFINE
 #define COMBODTRIGGERCTRAMNT    0x1468
 #define GENDATAEVENTSTATE       0x1469
 #define GAMEEVENTDATA           0x146A
+#define ITEMDROPPEDBY           0x146B
 
-#define NUMVARIABLES         	0x146B
+#define NUMVARIABLES         	0x146C
 
 //} End variables
 

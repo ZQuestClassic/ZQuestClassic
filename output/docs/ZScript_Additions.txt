@@ -4532,6 +4532,10 @@ int LightShape;
 int ShadowSprite;
  * The shadow sprite used by the itemsprite, 0-255
 
+int DroppedBy;
+ * The dropset ID that dropped this item.
+ * -1 if item was not dropped from a dropset.
+
 void Remove();
  * Instantly DELETES an itemsprite.
  * This will immediately invalidate the itemsprite pointer, as well as update 'Screen->NumItems()', and change the indexes for 'Screen->LoadItem()'

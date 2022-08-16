@@ -3650,16 +3650,29 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	else if(isCuttableItemType(type))
 	{
 		int32_t it = -1;
+		int32_t thedropset = -1;
 		
 		//select_dropitem( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) ? (combobuf[MAPCOMBO(bx,by)-1].attributes[1])/10000L : 12, bx, by);
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
-			it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+			if(combobuf[cid].usrflags&cflag11)
+				it = combobuf[cid].attribytes[1];
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]); 
+				thedropset = combobuf[cid].attribytes[1]; 
+			}
 		}
-		else it = select_dropitem(12);
+		else
+		{
+			it = select_dropitem(12);
+			thedropset = 12;
+		}
 		if(it!=-1)
 		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 	}
 	
@@ -3885,6 +3898,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		else if(isCuttableItemType(type))
 		{
 			int32_t it = -1;
+			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
 				if ( combobuf[cid].usrflags&cflag11 ) 
@@ -3894,13 +3908,20 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 				else
 				{
 					it = select_dropitem(combobuf[cid].attribytes[1]);
+					thedropset = combobuf[cid].attribytes[1];
 				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
 			if(it!=-1)
 			{
-				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
 		}
 		
@@ -3947,9 +3968,16 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		if(isCuttableItemType(type2))
 		{
 			int32_t it=-1;
+			int32_t thedropset=-1;
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				if(combobuf[cid].usrflags&cflag11)
+					it = combobuf[cid].attribytes[1];
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					thedropset = combobuf[cid].attribytes[1]; 
+				}
 			}
 			else
 			{
@@ -3967,7 +3995,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			
 			if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
 			{
-				items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
 		}
 		
@@ -4194,17 +4224,30 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
         else if(isCuttableItemType(type))
         {
             int32_t it = -1;
+            int32_t thedropset = -1;
 		
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				if(combobuf[cid].usrflags&cflag11)
+					it = combobuf[cid].attribytes[1];
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					thedropset = combobuf[cid].attribytes[1];
+				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
             if(it!=-1)
             {
-                items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+                item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
+			}
         }
         
         putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr->data[i],tmpscr->cset[i]);
@@ -4456,6 +4499,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		else if(isCuttableItemType(type))
         {
 			int32_t it = -1;
+			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
 				if ( combobuf[cid].usrflags&cflag11 ) 
@@ -4465,13 +4509,20 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 				else
 				{
 					it = select_dropitem(combobuf[cid].attribytes[1]);
+					thedropset = combobuf[cid].attribytes[1];
 				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
 			if(it!=-1)
 			{
-				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
         }
         
@@ -4519,9 +4570,16 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
+            int32_t thedropset=-1;
 			if ( (combobuf[cid].usrflags&cflag2) )
 			{
-				it = (combobuf[cid].usrflags&cflag11) ? combobuf[cid].attribytes[1] : select_dropitem(combobuf[cid].attribytes[1]); 
+				if(combobuf[cid].usrflags&cflag11)
+					it = combobuf[cid].attribytes[1];
+				else
+				{
+					it = select_dropitem(combobuf[cid].attribytes[1]); 
+					thedropset = combobuf[cid].attribytes[1];
+				}
 			}
 			else
 			{
@@ -4539,8 +4597,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
-            }
+                item* itm = (new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
+			}
         }
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -4998,6 +5058,7 @@ void HeroClass::check_slash_block(weapon *w)
         else if(isCuttableItemType(type))
         {
 			int32_t it = -1;
+			int32_t thedropset = -1;
 			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
 			{
 				if ( combobuf[cid].usrflags&cflag11 ) 
@@ -5007,13 +5068,20 @@ void HeroClass::check_slash_block(weapon *w)
 				else
 				{
 					it = select_dropitem(combobuf[cid].attribytes[1]);
+					thedropset = combobuf[cid].attribytes[1];
 				}
 			}
-			else it = select_dropitem(12);
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
 			
 			if(it!=-1)
 			{
-				items.add(new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)bx, (zfix)by,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				itm->from_dropset = thedropset;
+				items.add(itm);
 			}
         }
         
@@ -5060,15 +5128,28 @@ void HeroClass::check_slash_block(weapon *w)
         if(isCuttableItemType(type2))
         {
             int32_t it=-1;
+			int32_t thedropset = -1;
 			if ( (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag2) )
 			{
-				it = (combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11) ? combobuf[MAPCOMBO(bx,by)-1].attribytes[1] : select_dropitem(combobuf[MAPCOMBO(bx,by)-1].attribytes[1]); 
+				if(combobuf[MAPCOMBO(bx,by)-1].usrflags&cflag11)
+					it = combobuf[MAPCOMBO(bx,by)-1].attribytes[1];
+				else
+				{
+					thedropset = combobuf[MAPCOMBO(bx,by)-1].attribytes[1];
+					it = select_dropitem(thedropset);
+				}
 			}
-			else it = select_dropitem(12);
-            
+			else
+			{
+				it = select_dropitem(12);
+				thedropset = 12;
+			}
+			
             if(it!=-1 && itemsbuf[it].family != itype_misc) // Don't drop non-gameplay items
             {
-                items.add(new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+				item* itm = (new item((zfix)fx, (zfix)fy,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+                itm->from_dropset = thedropset;
+                items.add(itm);
             }
         }
         
@@ -8095,13 +8176,20 @@ bool HeroClass::animate(int32_t)
 												if(cmb.usrflags&cflag3) //Breaks on swap
 												{
 													int32_t it = -1;
+													int32_t thedropset = -1;
 													if(cmb.usrflags&cflag4) //drop item
 													{
-														int32_t it = (cmb.usrflags&cflag5) ? cmb.attribytes[2] : select_dropitem(cmb.attribytes[2]); 
+														if(cmb.usrflags&cflag5)
+															it = cmb.attribytes[2];
+														else
+														{
+															it = select_dropitem(cmb.attribytes[2]); 
+															thedropset = cmb.attribytes[2];
+														}
 													}
 													
 													breakable* br = new breakable(x, y, zfix(0),
-														cmb, scr->cset[targpos], it, cmb.attribytes[2],
+														cmb, scr->cset[targpos], it, thedropset, cmb.attribytes[2],
 														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
 													br->switch_hooked = true;
 													decorations.add(br);
@@ -8179,15 +8267,25 @@ bool HeroClass::animate(int32_t)
 												}
 												
 												int32_t it = -1;
+												int32_t thedropset = -1;
 												if(isCuttableItemType(cmb.type)) //Drop an item
 												{
 													if ( (cmb.usrflags&cflag2) )
 													{
-														it = (cmb.usrflags&cflag11)
-															? cmb.attribytes[1]
-															: select_dropitem(cmb.attribytes[1]); 
+														it =
+														if(cmb.usrflags&cflag11)
+															it = cmb.attribytes[1];
+														else
+														{
+															it = select_dropitem(cmb.attribytes[1]); 
+															thedropset = cmb.attribytes[1];
+														}
 													}
-													else it = select_dropitem(12);
+													else
+													{
+														it = select_dropitem(12);
+														thedropset = 12;
+													}
 												}
 												
 												byte breaksfx = 0;
@@ -8220,7 +8318,7 @@ bool HeroClass::animate(int32_t)
 														: -2))));
 												
 												breakable* br = new breakable(x, y, zfix(0),
-													cmb, breakcs, it, breaksfx,
+													cmb, breakcs, it, thedropset, breaksfx,
 													decotype, cmb.attribytes[0], switchhookclk);
 												br->switch_hooked = true;
 												decorations.add(br);

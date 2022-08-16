@@ -166,17 +166,24 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		}
 		
 		int32_t it = -1; 
+		int32_t thedropset = -1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
 				it = combobuf[cid].attribytes[1];
 			}
-			else it = select_dropitem(combobuf[cid].attribytes[1]); 
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]);
+				thedropset = combobuf[cid].attribytes[1];
+			}
 		}
 		if( it != -1 )
 		{
-			items.add(new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 		
 		//drop special room item
@@ -392,6 +399,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 	else if(isCuttableItemType(type))
 	{
 		int32_t it = -1;
+		int32_t thedropset = -1;
 		if (cmb.usrflags&cflag2) //specific dropset or item
 		{
 			if (cmb.usrflags&cflag11) 
@@ -401,13 +409,20 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 			else
 			{
 				it = select_dropitem(cmb.attribytes[1]);
+				thedropset = cmb.attribytes[1];
 			}
 		}
-		else it = select_dropitem(12);
+		else
+		{
+			it = select_dropitem(12);
+			thedropset = 12;
+		}
 		
 		if(it!=-1)
 		{
-			items.add(new item((zfix)x, (zfix)y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)x, (zfix)y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 	}
 	

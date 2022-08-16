@@ -4304,6 +4304,12 @@ int32_t get_register(const int32_t arg)
 				ret = int32_t(((item*)(s))->spr_shadow) * 10000;
 			}
 			break;
+		case ITEMDROPPEDBY:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = int32_t(((item*)(s))->from_dropset) * 10000;
+			}
+			break;
 		case ITMSWHOOKED:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
@@ -13933,6 +13939,12 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
+			}
+			break;
+		case ITEMDROPPEDBY:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->from_dropset=vbound(value/10000,-1,255);
 			}
 			break;
 		case ITMSWHOOKED:
@@ -37807,6 +37819,7 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
 	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
 	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
+	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

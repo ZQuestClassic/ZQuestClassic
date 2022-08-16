@@ -3699,15 +3699,18 @@ void enemy::leave_item()
 	
 	if(drop_item!=-1&&((itemsbuf[drop_item].family!=itype_fairy)||!m_walkflag(x,y,0,dir)))
 	{
+		item* itm;
 		if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 		{
-			items.add(new item(x+hxofs+(hxsz/2)-8,y+hyofs+(hysz/2)-8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+			itm = (new item(x+hxofs+(hxsz/2)-8,y+hyofs+(hysz/2)-8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
 		else
 		{
-			if(extend >= 3) items.add(new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
-			else items.add(new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+			if(extend >= 3) itm = (new item(x+(txsz-1)*8,y+(tysz-1)*8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+			else itm = (new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
+		itm->from_dropset = item_set;
+		items.add(itm);
 	}
 }
 
