@@ -309,7 +309,7 @@ void spawn_decoration(newcombo const& cmb, int32_t pos)
 
 void trigger_cuttable(const pos_handle& pos_handle)
 {
-	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return;
+	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	mapscr* tmp = pos_handle.screen;
@@ -432,7 +432,7 @@ void trigger_cuttable(const pos_handle& pos_handle)
 
 bool trigger_step(const pos_handle& pos_handle)
 {
-	if(unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
+	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
@@ -809,7 +809,7 @@ bool trigger_lockblock(const pos_handle& pos_handle)
 bool trigger_armos_grave(const pos_handle& pos_handle, int32_t trigdir)
 {
 	if (pos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 	
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	//!TODO Expand 'guygrid' stuff to account for layers, so that layers >0 can be used
@@ -1100,7 +1100,7 @@ bool trigger_damage_combo(const pos_handle& pos_handle)
 
 bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 
 	int32_t tx, ty;
 	COMBOXY_REGION(pos_handle.rpos, tx, ty);
@@ -1292,7 +1292,7 @@ bool trigger_stepfx(const pos_handle& pos_handle, bool stepped)
 
 bool trigger_switchhookblock(const pos_handle& pos_handle)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 	if(Hero.switchhookclk) return false;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
@@ -1319,14 +1319,13 @@ bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 // Forcibly triggers a combo at a given position
 bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 {
-	if (unsigned(pos_handle.layer) > 6 || unsigned(pos_handle.rpos) > unsigned(region_max_rpos)) return false;
+	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 
 	int lyr = pos_handle.layer;
-	// TODO z3 remove
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
 	int32_t cid = pos_handle.screen->data[pos];
-	int32_t cx = COMBOX(pos);
-	int32_t cy = COMBOY(pos);
+	int32_t cx, cy;
+	COMBOXY_REGION(pos_handle.rpos, cx, cy);
 
 	newcombo const& cmb = combobuf[cid];	
 	bool hasitem = false;
@@ -1381,8 +1380,9 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 	bool used_bit = false;
 	if(w)
 	{
+		// TODO z3
 		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
-		check_bit = get_bit(grid,(((cx>>4) + cy)));
+		check_bit = get_bit(grid, pos);
 	}
 	if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 	{
@@ -1518,7 +1518,7 @@ bool do_trigger_combo(const pos_handle& pos_handle, int32_t special, weapon* w)
 	}
 	if(used_bit && grid)
 	{
-		set_bit(grid,(((cx>>4) + cy)),1);
+		set_bit(grid,pos,1);
 	}
 	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
 		killgenwpn(w);
