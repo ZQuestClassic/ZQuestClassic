@@ -525,8 +525,7 @@ bool movingblock::animate(int32_t)
 				opendoors=8;
 			}
 			
-			// TODO z3 permSecret
-			if(canPermSecret())
+			if(canPermSecret(currdmap, pos_handle.screen_index))
 			{
 				if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW

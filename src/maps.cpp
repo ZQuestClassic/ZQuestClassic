@@ -633,10 +633,9 @@ int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2
     return 0;
 }
 
-// TODO z3 remove -1 defaults
-bool canPermSecret(int32_t dmap, int32_t scr)
+bool canPermSecret(int32_t dmap, int32_t screen_index)
 {
-	return (!isdungeon(dmap, scr) || get_bit(quest_rules,qr_DUNGEON_DMAPS_PERM_SECRETS));
+	return (!isdungeon(dmap, screen_index) || get_bit(quest_rules,qr_DUNGEON_DMAPS_PERM_SECRETS));
 }
 
 int32_t MAPCOMBO(int32_t x, int32_t y)
@@ -644,8 +643,8 @@ int32_t MAPCOMBO(int32_t x, int32_t y)
 	x = vbound(x, 0, world_w-1);
 	y = vbound(y, 0, world_h-1);
 	int32_t combo = COMBOPOS(x%256, y%176);
-	auto scr = get_screen_for_world_xy(x, y);
-	return scr->data[combo];
+	auto screen = get_screen_for_world_xy(x, y);
+	return screen->data[combo];
 }
 
 int32_t MAPCOMBOzq(int32_t x,int32_t y)
@@ -3065,7 +3064,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 		}
 	}
 	
-	if(setflag && canPermSecret())
+	if (setflag && canPermSecret(currdmap, screen_index))
 		if(!(scr->flags5&fTEMPSECRETS))
 			setmapflag2(scr, screen_index, mSECRET);
 

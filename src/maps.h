@@ -107,7 +107,7 @@ void clear_dmap(word i);
 void clear_dmaps();
 int32_t count_dmaps();
 int32_t isdungeon(int32_t dmap = -1, int32_t scr = -1);
-bool canPermSecret(int32_t dmap = -1, int32_t scr = -1);
+bool canPermSecret(int32_t dmap, int32_t screen_index);
 int32_t MAPCOMBO(int32_t x, int32_t y);
 int32_t MAPCOMBO(const pos_handle& pos_handle);
 int32_t MAPCOMBOzq(int32_t x,int32_t y);

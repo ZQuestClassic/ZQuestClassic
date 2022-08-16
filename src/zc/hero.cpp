@@ -19700,6 +19700,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 
 bool did_secret;
 
+// TODO z3
 void HeroClass::checkspecial()
 {
     checktouchblk();
@@ -19748,7 +19749,7 @@ void HeroClass::checkspecial()
 			bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
             hidden_entrance(0,true,only16_31,-2);
             
-            if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret())
+            if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret(currdmap, currscr))
             {
                 if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
             }
@@ -19943,13 +19944,14 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=COMBOPOS_REGION(x+j,y+i))
 			{
-				// zprint("Step Secs\n");
-				if(stype==cSTRIGFLAG && canPermSecret())
+				rpos_t new_stepsecret = COMBOPOS_REGION(x+j, y+i);
+				auto pos_handle = get_pos_handle(new_stepsecret, 0);
+				
+				if(stype==cSTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = COMBOPOS_REGION(x+j, y+i);
-						auto pos_handle = get_pos_handle(stepsecret, 0);
+						stepsecret = new_stepsecret;
 						
 						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
 						{
@@ -19966,8 +19968,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = COMBOPOS_REGION(x+j, y+i);
-						auto pos_handle = get_pos_handle(stepsecret, 0);
+						stepsecret = new_stepsecret;
 
 						bool high16only = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
 						trigger_secrets_for_screen(pos_handle.screen_index, high16only);
@@ -20584,7 +20585,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			sfx(combobuf[MAPCOMBO(pos_handle)].attribytes[0],pan((int32_t)x));
 			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr.data[stepsecret]].attribytes[0]);
 			
-			if(type==cTRIGFLAG && canPermSecret())
+			if(type==cTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
 			{ 
 				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
 				
@@ -21063,7 +21064,7 @@ RaftingStuff:
 			homescr = (code&0xFF) + DMaps[currdmap].xoff;
 			init_dmap();
 			
-			if(canPermSecret())
+			if(canPermSecret(currdmap, currscr))
 				setmapflag(mSECRET);
 		}
 		
