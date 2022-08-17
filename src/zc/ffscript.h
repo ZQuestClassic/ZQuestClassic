@@ -4791,8 +4791,19 @@ enum ASM_DEFINE
 #define COMBODTRIGGERLIGHTBEAM  0x1466
 #define COMBODTRIGGERCTR        0x1467
 #define COMBODTRIGGERCTRAMNT    0x1468
+#define REGIONDD                0x1469
+#define REGIONCD                0x146A
+#define REGIONFD                0x146B
+#define REGIONTD                0x146C
+#define REGIONID                0x146D
+#define REGIONSD                0x146E
+#define REGIONED                0x146F
+#define REGIONWORLDWIDTH        0x1470
+#define REGIONWORLDHEIGHT       0x1471
+#define REGIONSCREENWIDTH       0x1472
+#define REGIONSCREENHEIGHT      0x1473
 
-#define NUMVARIABLES         	0x1469
+#define NUMVARIABLES         	0x1474
 
 //} End variables
 

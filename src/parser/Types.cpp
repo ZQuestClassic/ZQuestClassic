@@ -143,6 +143,7 @@ DataTypeArray DataType::STRING(CHAR);
 DataTypeClassConst DataType::GAME(ZCLASSID_GAME, "Game");
 DataTypeClassConst DataType::PLAYER(ZCLASSID_PLAYER, "Player");
 DataTypeClassConst DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
+DataTypeClassConst DataType::REGION(ZCLASSID_REGION, "Region");
 DataTypeClassConst DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
 DataTypeClassConst DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
 DataTypeClassConst DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
@@ -244,6 +245,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZVARTYPEID_GAME: return &GAME;
 		case ZVARTYPEID_PLAYER: return &PLAYER;
 		case ZVARTYPEID_SCREEN: return &SCREEN;
+		case ZVARTYPEID_REGION: return &REGION;
 		case ZVARTYPEID_FFC: return &FFC;
 		case ZVARTYPEID_ITEM: return &ITEM;
 		case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
@@ -295,6 +297,7 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLASSID_GAME: return &GAME;
 		case ZCLASSID_PLAYER: return &PLAYER;
 		case ZCLASSID_SCREEN: return &SCREEN;
+		case ZCLASSID_REGION: return &REGION;
 		case ZCLASSID_FFC: return &FFC;
 		case ZCLASSID_ITEM: return &ITEM;
 		case ZCLASSID_ITEMCLASS: return &ITEMCLASS;

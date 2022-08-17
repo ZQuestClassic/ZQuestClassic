@@ -1599,6 +1599,11 @@ public:
 	{
 		return checkBoundsPos(pos, 0, 175, str);
 	}
+
+	static INLINE int32_t checkComboRpos(const rpos_t rpos, const char * const str)
+	{
+		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, str);
+	}
 	
 	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
 	{
@@ -1693,6 +1698,17 @@ public:
 	}
 	
 	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+        
+		return _NoError;
+	}
+
+	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup, const char * const funcvar)
 	{
 		if(n < boundlow || n > boundup)
 		{
@@ -7861,6 +7877,95 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 			else
 				ret = ((combobuf[tmpscr.data[pos]].walk & 0xF0)>>4) * 10000;
+		}
+		break;
+
+		///----------------------------------------------------------------------------------------------------//
+		//Region->ComboX
+		#define GET_REGION_VAR(member, str) \
+		{ \
+		rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
+		int32_t pos = RPOS_TO_POS(rpos); \
+		if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
+		{ \
+		    ret = -10000; \
+		} \
+		else \
+		    ret = get_screen_for_rpos(rpos)->member[pos]*10000; \
+		}
+
+		case REGIONDD:
+			GET_REGION_VAR(data,  "Region->ComboD[]") break;
+			
+		case REGIONCD:
+			GET_REGION_VAR(cset,  "Region->ComboC[]") break;
+			
+		case REGIONFD:
+			GET_REGION_VAR(sflag, "Region->ComboF[]") break;
+			
+		#define GET_REGION_VAR_BUF(member, str) \
+		{ \
+		    rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
+			int32_t pos = RPOS_TO_POS(rpos); \
+		    if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
+		    { \
+			ret = -10000; \
+		    } \
+		    else \
+			ret = combobuf[get_screen_for_rpos(rpos)->data[pos]].member * 10000; \
+		}
+			
+		case REGIONTD:
+			GET_REGION_VAR_BUF(type, "Region->ComboT[]") break;
+			
+		case REGIONID:
+			GET_REGION_VAR_BUF(flag, "Region->ComboI[]") break;
+			
+		case REGIONSD:
+		{
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			int32_t pos = RPOS_TO_POS(rpos);
+			
+			if(BC::checkComboRpos(rpos, "Region->ComboS[]") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = (combobuf[get_screen_for_rpos(rpos)->data[pos]].walk & 0xF) * 10000;
+		}
+		break;
+			
+		case REGIONED:
+		{
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			int32_t pos = RPOS_TO_POS(rpos);
+			
+			if(BC::checkComboRpos(rpos, "Region->ComboE[]") != SH::_NoError)
+				ret = -10000;
+			else
+				ret = ((combobuf[get_screen_for_rpos(rpos)->data[pos]].walk & 0xF0)>>4) * 10000;
+		}
+		break;
+
+		case REGIONWORLDWIDTH:
+		{
+			ret = world_w;
+		}
+		break;
+
+		case REGIONWORLDHEIGHT:
+		{
+			ret = world_h;
+		}
+		break;
+
+		case REGIONSCREENWIDTH:
+		{
+			ret = region_scr_width;
+		}
+		break;
+
+		case REGIONSCREENHEIGHT:
+		{
+			ret = region_scr_height;
 		}
 		break;
 		
@@ -17371,6 +17476,181 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			combobuf[tmpscr.data[pos]].walk &= ~0xF0;
             combobuf[tmpscr.data[pos]].walk |= ((val)&0x0F)<<4;
+		}
+    }
+    break;
+
+	///----------------------------------------------------------------------------------------------------//
+	//Region->ComboX
+	case REGIONDD:
+	{
+		rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+		int32_t val = (value/10000);
+		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		{
+			Z_scripterrlog("Invalid [rpos] %d used to write to Region->ComboD[]\n", rpos);
+		}
+		else if ( ((unsigned) val) >= MAXCOMBOS )
+		{
+			Z_scripterrlog("Invalid combo ID %d used to write to Region->ComboD[]\n", val);
+		}
+		else
+		{
+			mapscr* screen = get_screen_for_rpos(rpos);
+			screen_combo_modify_preroutine(screen,pos);
+			screen->data[pos]=(val);
+			screen_combo_modify_postroutine(screen,pos);
+		}
+	}
+	break;
+    
+	case REGIONCD:
+	{
+		rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+		int32_t val = (value/10000); //cset
+		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboC[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 15 )
+		{
+			Z_scripterrlog("Invalid CSet ID %d used to write to Region->ComboC[]\n", val);
+		}
+		else
+		{
+			mapscr* screen = get_screen_for_rpos(rpos);
+			screen_combo_modify_preroutine(screen,pos);
+			tmpscr.cset[pos]=(val)&15;
+			screen_combo_modify_postroutine(screen,pos);
+		}
+	}
+	break;
+    
+	case REGIONFD:
+	{
+		rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+		int32_t val = (value/10000); //flag
+		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboF[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 256 )
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Region->ComboF[]\n", val);
+		}
+		
+		else
+		{
+			mapscr* screen = get_screen_for_rpos(rpos);
+			screen->sflag[pos]=(val);
+		}
+	}
+	break;
+    
+    case REGIONTD:
+    {
+        rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+        int32_t val = (value/10000); //type
+	if (rpos > region_max_rpos || rpos < (rpos_t)0)
+	{
+		Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboT[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Invalid Flag ID %d used to write to Region->ComboT[]\n", val);
+	}
+        else
+        {
+			mapscr* screen = get_screen_for_rpos(rpos);
+
+            // Preprocess each instance of the combo on the screen
+            for(int32_t i = 0; i < 176; i++)
+            {
+                if(screen->data[i] == screen->data[pos])
+                {
+                    screen_combo_modify_preroutine(screen,i);
+                }
+            }
+            
+            combobuf[screen->data[pos]].type=val;
+            
+            for(int32_t i = 0; i < 176; i++)
+            {
+                if(screen->data[i] == screen->data[pos])
+                {
+                    screen_combo_modify_postroutine(screen,i);
+                }
+            }
+        }
+    }
+    break;
+    
+    case REGIONID:
+    {
+        rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+        int32_t val = (value/10000); //iflag
+	if (rpos > region_max_rpos || rpos < (rpos_t)0)
+	{
+		Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboI[]\n", pos);
+	}
+	else if ( ((unsigned) val) >= 256 )
+	{
+		Z_scripterrlog("Invalid Flag ID %d used to write to Region->ComboI[]\n", val);
+	}
+        
+        else
+		{
+			mapscr* screen = get_screen_for_rpos(rpos);
+            combobuf[screen->data[pos]].flag=val;
+		}
+    }
+    break;
+    
+    case REGIONSD:
+    {
+        rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+        int32_t val = (value/10000); //iflag
+		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboS[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Region->ComboS[]\n", val);
+		}
+        else
+		{
+			mapscr* screen = get_screen_for_rpos(rpos);
+			combobuf[screen->data[pos]].walk &= ~0x0F;
+            combobuf[screen->data[pos]].walk |= (val)&0x0F;
+		}
+    }
+    break;
+    
+    case REGIONED:
+    {
+        rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
+		int32_t pos = RPOS_TO_POS(rpos);
+        int32_t val = (value/10000); //iflag
+		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		{
+			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboE[]\n", pos);
+		}
+		else if ( ((unsigned) val) >= 16 )//solidity 1, 2, 4, 8 max 15
+		{
+			Z_scripterrlog("Invalid Flag ID %d used to write to Region->ComboE[]\n", val);
+		}
+        else
+		{
+			mapscr* screen = get_screen_for_rpos(rpos);
+			combobuf[screen->data[pos]].walk &= ~0xF0;
+            combobuf[screen->data[pos]].walk |= ((val)&0x0F)<<4;
 		}
     }
     break;
@@ -37119,6 +37399,11 @@ script_variable ZASMVars[]=
 	{"SCREENDATAHOLDUPSFX", SCREENDATAHOLDUPSFX, 0, 0 },
 	{"SCREENDATASCREENMIDI", SCREENDATASCREENMIDI, 0, 0 },
 	{"SCREENDATALENSLAYER", SCREENDATALENSLAYER, 0, 0 },
+
+	{"REGIONWORLDWIDTH", REGIONWORLDWIDTH, 0, 0 },
+	{"REGIONWORLDHEIGHT", REGIONWORLDHEIGHT, 0, 0 },
+	{"REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
+	{"REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
 	{"LINKSCRIPTTILE", LINKSCRIPTTILE, 0, 0 },
 	{"LINKSCRIPFLIP", LINKSCRIPFLIP, 0, 0 },

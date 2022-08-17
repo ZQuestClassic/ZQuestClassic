@@ -312,6 +312,15 @@ string ZScript::VarToString(int32_t ID)
 		
 	case COMBOFDM:
 		return "COMBOFDM";
+	
+	case REGIONDD:
+		return "REGIONDD";
+		
+	case REGIONCD:
+		return "REGIONCD";
+		
+	case REGIONFD:
+		return "REGIONFD";
 		
 	case REFFFC:
 		return "REFFFC";
@@ -459,6 +468,27 @@ string ZScript::VarToString(int32_t ID)
 		
 	case COMBOSDM:
 		return "COMBOSDM";
+	
+	case REGIONID:
+		return "REGIONID";
+		
+	case REGIONTD:
+		return "REGIONTD";
+		
+	case REGIONSD:
+		return "REGIONSD";
+		
+	case REGIONED:
+		return "REGIONED";
+		
+	// case REGIONIDM:
+	// 	return "REGIONIDM";
+		
+	// case REGIONTDM:
+	// 	return "REGIONTDM";
+		
+	// case REGIONSDM:
+	// 	return "REGIONSDM";
 		
 	case GETMIDI:
 		return "GETMIDI";

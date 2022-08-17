@@ -85,6 +85,7 @@ namespace ZScript
 		ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START,
 		ZVARTYPEID_PLAYER,
 		ZVARTYPEID_SCREEN,
+		ZVARTYPEID_REGION,
 		ZVARTYPEID_FFC,
 		ZVARTYPEID_ITEM,
 		ZVARTYPEID_ITEMCLASS,
@@ -152,6 +153,8 @@ namespace ZScript
 				return "PLAYER";
 			case ZVARTYPEID_SCREEN:
 				return "SCREEN";
+			case ZVARTYPEID_REGION:
+				return "REGION";
 			case ZVARTYPEID_FFC:
 				return "FFC";
 			case ZVARTYPEID_ITEM:
@@ -263,6 +266,8 @@ namespace ZScript
 			return ZVARTYPEID_PLAYER;
 		else if(name == "SCREEN")
 			return ZVARTYPEID_SCREEN;
+		else if(name == "REGION")
+			return ZVARTYPEID_REGION;
 		else if(name == "FFC")
 			return ZVARTYPEID_FFC;
 		else if(name == "ITEMSPRITE")
@@ -425,6 +430,7 @@ namespace ZScript
 		static DataTypeClassConst GAME;
 		static DataTypeClassConst PLAYER;
 		static DataTypeClassConst SCREEN;
+		static DataTypeClassConst REGION;
 		static DataTypeClassConst AUDIO;
 		static DataTypeClassConst DEBUG;
 		static DataTypeClassConst GRAPHICS;

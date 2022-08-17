@@ -584,6 +584,18 @@ int ComboAt(int x, int y)
 	return (y & 240)+(x>>4);
 }
 
+//Finds the location of a combo, given its (x,y) coordinates in the region
+int ComboAtRegion(int x, int y) 
+{
+	x = VBound(x,Region->WorldWidth - 1,0);
+	y = VBound(y,Region->WorldHeight - 1,0);
+
+	int scr_dx = x / (16*16);
+	int scr_dy = y / (11*16);
+	int pos = ComboAt(x, y);
+	return (scr_dx + scr_dy * Region->ScreenWidth)*176 + pos;
+}
+
 //Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
 bool ComboFI(int x, int y, int flag)
 {

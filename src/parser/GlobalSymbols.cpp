@@ -367,6 +367,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
     case ZVARTYPEID_FFC: return &FFCSymbols::getInst();
     case ZVARTYPEID_PLAYER: return &HeroSymbols::getInst();
     case ZVARTYPEID_SCREEN: return &ScreenSymbols::getInst();
+	case ZVARTYPEID_REGION: return &RegionSymbols::getInst();
     case ZVARTYPEID_GAME: return &GameSymbols::getInst();
     case ZVARTYPEID_ITEM: return &ItemSymbols::getInst();
     case ZVARTYPEID_ITEMCLASS: return &ItemclassSymbols::getInst();
@@ -4051,6 +4052,47 @@ void ScreenSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+}
+
+RegionSymbols RegionSymbols::singleton = RegionSymbols();
+
+static AccessorTable RegionTable[] =
+{
+//	  name,                           rettype,                  setorget,     var,                              numindex,     funcFlags,                            numParams,   params
+    { "getComboD[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONDD,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboD[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONDD,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboC[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONCD,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboC[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONCD,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboF[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONFD,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboF[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONFD,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboI[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONID,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboI[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONID,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboT[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONTD,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboT[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONTD,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboS[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONSD,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboS[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONSD,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getComboE[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONED,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "setComboE[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONED,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+
+	{ "getWorldWidth",                ZVARTYPEID_FLOAT,         GETTER,       REGIONWORLDWIDTH,                  1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWorldHeight",               ZVARTYPEID_FLOAT,         GETTER,       REGIONWORLDHEIGHT,                 1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScreenWidth",               ZVARTYPEID_FLOAT,         GETTER,       REGIONSCREENWIDTH,                 1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScreenHeight",              ZVARTYPEID_FLOAT,         GETTER,       REGIONSCREENHEIGHT,                1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	
+	// TODO z3 getScreenIndex(rpos)
+
+	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
+};
+
+
+RegionSymbols::RegionSymbols()
+{
+    table = RegionTable;
+    refVar = NUL;
+}
+
+void RegionSymbols::generateCode()
+{
 }
 
 ItemSymbols ItemSymbols::singleton = ItemSymbols();

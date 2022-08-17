@@ -1411,8 +1411,28 @@
 #define COMBODTRIGGERLIGHTBEAM  1328
 #define COMBODTRIGGERCTR        1329
 #define COMBODTRIGGERCTRAMNT    1330
+#define REGIONID                1331 // region_max_rpos of these
+#define REGIONTD                1332 // region_max_rpos of these
+#define REGIONSD                1333 // region_max_rpos of these
+#define REGIONED                1334 // region_max_rpos of these
+// #define REGIONIDM               1335 // region_max_rpos of these
+// #define REGIONTDM               1336 // region_max_rpos of these
+// #define REGIONSDM               1337 // region_max_rpos of these
+// #define REGIONDDM               1338 // region_max_rpos of these
+// #define REGIONCDM               1339 // region_max_rpos of these
+// #define REGIONFDM               1340 // region_max_rpos of these
+// #define REGIONIDM               1341 // region_max_rpos of these
+// #define REGIONTDM               1342 // region_max_rpos of these
+// #define REGIONSDM               1343 // region_max_rpos of these
+#define REGIONDD                1344 // region_max_rpos of these
+#define REGIONCD                1345 // region_max_rpos of these
+#define REGIONFD                1346 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1347
+#define REGIONWORLDHEIGHT       1348
+#define REGIONSCREENWIDTH       1349
+#define REGIONSCREENHEIGHT      1350
 
-#define LAST_BYTECODE           1331
+#define LAST_BYTECODE           1351
 
 //} END OF BYTECODE
 
