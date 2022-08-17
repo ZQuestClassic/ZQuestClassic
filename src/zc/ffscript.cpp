@@ -643,6 +643,16 @@ refInfo ffcScriptData[32];
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
+
+void user_genscript::quit()
+{
+	doscript = false;
+	if(indx > -1)
+	{
+		FFCore.deallocateAllArrays(SCRIPT_GENERIC, indx);
+	}
+}
+
 void countGenScripts()
 {
 	max_valid_genscript = 0;
@@ -682,6 +692,7 @@ void load_genscript(const gamedata& gd)
 	{
 		user_genscript& gen = user_scripts[q];
 		gen.clear();
+		gen.indx = q;
 		gen.doscript = gd.gen_doscript[q];
 		gen.exitState = gd.gen_exitState[q];
 		gen.reloadState = gd.gen_reloadState[q];
@@ -2265,7 +2276,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return size_t(-1);
 			
 		return a.Size();
@@ -2276,7 +2287,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return -1;
 			
 		word count;
@@ -2291,7 +2302,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			str.clear();
 			return;
@@ -2319,7 +2330,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return;
 			
 		for(word i = offset; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
@@ -2334,7 +2345,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return;
 			
 		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
@@ -2349,7 +2360,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return -10000;
 			
 		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2363,7 +2374,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return;
 			
 		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2388,7 +2399,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return _InvalidPointer;
 			
 		word j = 0, k = userStride;
@@ -2419,7 +2430,7 @@ public:
 	{
 		ZScriptArray &a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return _InvalidPointer;
 			
 		word i;
@@ -2454,7 +2465,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return _InvalidPointer;
 			
 		word j = 0, k = userStride;
@@ -2484,10 +2495,13 @@ public:
 // Called to deallocate arrays when a script stops running
 void deallocateArray(const int32_t ptrval)
 {
+	if(ptrval == 0) return;
 	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
+		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
+		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
 		if(localRAM[ptrval].Size() == 0)
@@ -2542,6 +2556,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
+			arrayOwner[i].specOwned = false;
 			deallocateArray(i);
 			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
 		}
@@ -2575,6 +2590,7 @@ void FFScript::deallocateAllArrays()
 	{
 		if(localRAM[i].Size() > 0)
 		{
+			arrayOwner[i].specOwned = false;
 			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
 			deallocateArray(i);
 		}
@@ -21567,8 +21583,52 @@ void do_resize_array()
 	int32_t size = vbound(get_register(sarg2) / 10000, 1, 214748);
 	dword ptrval = get_register(sarg1) / 10000;
 	ZScriptArray &a = ArrayH::getArray(ptrval);
-	if(a == INVALIDARRAY) return;
+	if(&a == &INVALIDARRAY) return;
 	a.Resize(size);
+}
+
+void do_own_array(const byte scriptType, const int32_t UID)
+{
+	dword arrindx = get_register(sarg1) / 10000;
+	
+	ZScriptArray &a = ArrayH::getArray(arrindx);
+	
+	if(a != INVALIDARRAY && arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+	{
+		arrayOwner[arrindx].scriptType = scriptType;
+		arrayOwner[arrindx].ownerUID = UID;
+		arrayOwner[arrindx].specOwned = true;
+		arrayOwner[arrindx].specCleared = false;
+	}
+	else if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	{
+		//ignore global arrays
+	}
+	else Z_scripterrlog("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
+}
+void do_destroy_array()
+{
+	dword arrindx = get_register(sarg1) / 10000;
+	
+	ZScriptArray &a = ArrayH::getArray(arrindx);
+	
+	if(a != INVALIDARRAY && arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+	{
+		arrayOwner[arrindx].clear();
+		
+		if(localRAM[arrindx].Size() == 0)
+			;
+		else
+		{
+			localRAM[arrindx].Clear();
+		}
+		arrayOwner[arrindx].specCleared = true;
+	}
+	else if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	{
+		//ignore global arrays
+	}
+	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
 void do_allocatemem(const bool v, const bool local, const byte type, const uint32_t UID)
@@ -21606,6 +21666,8 @@ void do_allocatemem(const bool v, const bool local, const byte type, const uint3
 			//Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
 			arrayOwner[ptrval].scriptType = type;
 			arrayOwner[ptrval].ownerUID = UID;
+			arrayOwner[ptrval].specOwned = false;
+			arrayOwner[ptrval].specCleared = false;
 		}
 	}
 	else
@@ -26210,7 +26272,8 @@ void do_combotile(const bool v)
 void do_readpod(const bool v)
 {
 	int32_t indx = SH::get_arg(sarg2, v) / 10000;
-	set_register(sarg1, ArrayH::getElement(ri->d[rINDEX] / 10000, indx));
+	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx);
+	set_register(sarg1, val);
 }
 void do_writepod(const bool v1, const bool v2)
 {
@@ -27181,6 +27244,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			case RESIZEARRAYR:
 				do_resize_array();
+				break;
+			case OWNARRAYR:
+				do_own_array(type, i);
+				break;
+			case DESTROYARRAYR:
+				do_destroy_array();
 				break;
 				
 			case DEALLOCATEMEMR:
@@ -30811,7 +30880,7 @@ void FFScript::do_file_readchars()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30857,7 +30926,7 @@ void FFScript::do_file_readbytes()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30884,7 +30953,7 @@ void FFScript::do_file_readstring()
 	{
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30929,7 +30998,7 @@ void FFScript::do_file_readints()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30995,7 +31064,7 @@ void FFScript::do_file_writebytes()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		string output;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -31046,7 +31115,7 @@ void FFScript::do_file_writeints()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -31721,10 +31790,13 @@ int32_t FFScript::loadMapData()
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateZScriptArray(const int32_t ptrval)
 {
+	if(ptrval == 0) return;
 	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
+		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
+		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
 		if(localRAM[ptrval].Size() == 0)
@@ -34633,11 +34705,11 @@ void FFScript::do_getgenericscript()
 	int32_t script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
-	zprint2("Searching for generic script named '%s'\n", the_string.c_str());
+	// zprint2("Searching for generic script named '%s'\n", the_string.c_str());
 	for(int32_t q = 0; q < NUMSCRIPTSGENERIC; q++)
 	{
-		if(genericmap[q].scriptname.size()>2)
-			zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
+		// if(genericmap[q].scriptname.size()>2)
+			// zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
 		if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
@@ -34964,8 +35036,8 @@ void FFScript::do_xtoa()
 	//for ( int32_t q = 0; q < 6; ++q )
 	//	zprint2("ri->d[%d] is %d", q, ri->d[q]);
 	
-	zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
-	zprint2("xtoa_c number is: %d\n",number);
+	// zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
+	// zprint2("xtoa_c number is: %d\n",number);
 		
 	
 	
@@ -34977,10 +35049,10 @@ void FFScript::do_xtoa()
 		number *= -1;
 	}
 	double num = number;
-	zprint2("xtoa_c(), num is: %f\n", num);
+	// zprint2("xtoa_c(), num is: %f\n", num);
 	int32_t digits = floor(FFCore.LogToBase(num, (double)16) + 1);
 	//sizeof(number)*CHAR_BIT/4;
-	zprint2("xtoa_c, digits is: %d\n",digits);
+	// zprint2("xtoa_c, digits is: %d\n",digits);
 	
 	
 	int32_t pos = 0;
@@ -36482,6 +36554,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
 	{ "WAITEVENT",			   0,   0,   0,   0},
+	{ "OWNARRAYR",			   1,   0,   0,   0},
+	{ "DESTROYARRAYR",			   1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

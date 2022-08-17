@@ -3601,6 +3601,14 @@ string OResizeArrayRegister::toString()
 {
     return "RESIZEARRAYR " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
 }
+string OOwnArrayRegister::toString()
+{
+    return "OWNARRAYR " + getArgument()->toString();
+}
+string ODestroyArrayRegister::toString()
+{
+    return "DESTROYARRAYR " + getArgument()->toString();
+}
 
 string OSave::toString()
 {

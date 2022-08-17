@@ -4725,6 +4725,26 @@ namespace ZScript
 			return new OResizeArrayRegister(a->clone(), b->clone());
 		}
 	};
+	class OOwnArrayRegister : public UnaryOpcode
+	{
+	public:
+		OOwnArrayRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OOwnArrayRegister(a->clone());
+		}
+	};
+	class ODestroyArrayRegister : public UnaryOpcode
+	{
+	public:
+		ODestroyArrayRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODestroyArrayRegister(a->clone());
+		}
+	};
 
 	class OSave : public Opcode
 	{

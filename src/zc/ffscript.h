@@ -783,6 +783,8 @@ enum
 	GENSCR_EVENT_ENEMY_DROP_ITEM_1,
 	GENSCR_EVENT_ENEMY_DROP_ITEM_2,
 	GENSCR_EVENT_ENEMY_DEATH,
+	GENSCR_EVENT_ENEMY_HIT1,
+	GENSCR_EVENT_ENEMY_HIT2,
 	GENSCR_NUMEVENT
 };
 enum
@@ -815,6 +817,7 @@ public:
 	bool wait_atleast;
 	bool waitevent;
 	scr_timing waituntil;
+	int32_t indx;
 	refInfo ri;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
 	
@@ -829,6 +832,7 @@ public:
 		exitState = 0;
 		reloadState = 0;
 		eventstate = 0;
+		indx = -1;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
 		memset(initd, 0, sizeof(initd));
@@ -838,6 +842,7 @@ public:
 	}
 	void launch()
 	{
+		quit();
 		doscript = true;
 		initialized = false;
 		wait_atleast = true;
@@ -846,10 +851,7 @@ public:
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
 	}
-	void quit()
-	{
-		doscript = false;
-	}
+	void quit();
 	size_t dataSize() const
 	{
 		return _dataSize;
@@ -1999,7 +2001,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return size_t(-1);
             
         return a.Size();
@@ -2010,7 +2012,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return -1;
             
         word count;
@@ -2025,7 +2027,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
         {
             str.clear();
             return;
@@ -2045,7 +2047,7 @@ enum __Error
         ZScriptArray& a = getArray(ptr);
         ZScriptArray& b = getArray(ptr2);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
 	
 	if(b == INVALIDARRAY)
@@ -2062,7 +2064,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
             
         for(word i = 0; checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
@@ -2075,7 +2077,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
 	if ( getSize(ptr) < (unsigned)min_size )
 	{
@@ -2092,7 +2094,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return -10000;
             
         if(checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2106,7 +2108,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return;
             
         if(checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2131,7 +2133,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
             
         word j = 0, k = userStride;
@@ -2162,7 +2164,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
             
         word i;
@@ -2198,7 +2200,7 @@ enum __Error
     {
         ZScriptArray& a = getArray(ptr);
         
-        if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
             return _InvalidPointer;
             
         word j = 0, k = userStride;
@@ -3333,8 +3335,10 @@ enum ASM_DEFINE
 	LPOWERV2,
 	SCRTRIGGERCOMBO,
 	WAITEVENT,
+	OWNARRAYR,
+	DESTROYARRAYR,
 	
-	NUMCOMMANDS           //0x01D6
+	NUMCOMMANDS           //0x01D7
 };
 
 

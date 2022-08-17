@@ -642,6 +642,8 @@ static AccessorTable GlobalTable[] =
 	{ "GetDepthBuffer",         ZVARTYPEID_VOID,             FUNCTION,     0,     1,          0,                                    4,           {  ZVARTYPEID_FLOAT,        ZVARTYPEID_FLOAT,         ZVARTYPEID_FLOAT,     ZVARTYPEID_FLOAT,     -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,         	    	   -1,       	    	       -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                           -1,                          } },
 	{ "SizeOfArray",            ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "ResizeArray",            ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_UNTYPED, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "OwnArray",               ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "DestroyArray",           ZVARTYPEID_VOID,             FUNCTION,     0,     1,          FUNCFLAG_INLINE,                      1,           { ZVARTYPEID_UNTYPED, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayBool",        ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_BOOL, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayFFC",         ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_FFC, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	 { "SizeOfArrayItem",        ZVARTYPEID_FLOAT,            FUNCTION,     0,     1,          0,                                    1,           { ZVARTYPEID_ITEM, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
@@ -1444,7 +1446,7 @@ void GlobalSymbols::generateCode()
         RETURN();
         function->giveCode(code);
     }
-    //int32_t ResizeArray(untyped ptr, int sz)
+    //void ResizeArray(untyped ptr, int sz)
     {
 	    Function* function = getFunction("ResizeArray", 2);
         int32_t label = function->getLabel();
@@ -1453,6 +1455,28 @@ void GlobalSymbols::generateCode()
         LABELBACK(label);
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
         addOpcode2 (code, new OResizeArrayRegister(new VarArgument(EXP1),new VarArgument(EXP2)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void OwnArray(untyped ptr)
+    {
+	    Function* function = getFunction("OwnArray", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        addOpcode2 (code, new OOwnArrayRegister(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
+    //void DestroyArray(untyped ptr)
+    {
+	    Function* function = getFunction("DestroyArray", 1);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        addOpcode2 (code, new ODestroyArrayRegister(new VarArgument(EXP1)));
         RETURN();
         function->giveCode(code);
     }

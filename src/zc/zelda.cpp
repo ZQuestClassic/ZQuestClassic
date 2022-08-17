@@ -452,11 +452,16 @@ extern bool player_waitdraw;
 extern bool dmap_waitdraw;
 extern bool passive_subscreen_waitdraw;
 
-ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0) {}
+ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0),
+	specOwned(false), specCleared(false)
+{}
+
 void ScriptOwner::clear()
 {
 	scriptType = SCRIPT_NONE;
 	ownerUID = 0;
+	specOwned = false;
+	specCleared = false;
 }
 
 //ZScript array storage

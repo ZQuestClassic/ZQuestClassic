@@ -5096,9 +5096,9 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		case ed2x:
 		{
 			*power = zc_max(1,*power*2);
-		//int32_t pow = *power;
+			//int32_t pow = *power;
 			//*power = vbound((pow*2),0,214747);
-		return -1; 
+			return -1; 
 		}
 		case ed3x:
 		{
@@ -5111,17 +5111,17 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		case ed4x:
 		{
 			*power = zc_max(1,*power*4);
-		//int32_t pow = *power;
+			//int32_t pow = *power;
 			//*power = vbound((pow*4),0,214747);
-		return -1;
+			return -1;
 		}
 		
 		
 		case edHEAL:
 		{ //Probably needs its own function, or  routine in the damage functuon to heal if power is negative. 
-		//int32_t pow = *power;
+			//int32_t pow = *power;
 			//*power = vbound((pow*-1),0,214747);
-		//break;
+			//break;
 			*power = zc_min(0,*power*-1);
 			return -1;
 		}
@@ -5185,6 +5185,44 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 	return -1;
 }
 
+int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w)
+{
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	ev.push_back(*power*10000);
+	ev.push_back(edef*10000);
+	ev.push_back(unblockable*10000);
+	ev.push_back(wpnId*10000);
+	ev.push_back(0);
+	ev.push_back(getUID());
+	ev.push_back(w?w->getUID():0);
+	
+	throwGenScriptEvent(GENSCR_EVENT_ENEMY_HIT1);
+	*power = ev[0]/10000;
+	edef = ev[1]/10000;
+	unblockable = byte(ev[2]/10000);
+	wpnId = ev[3] / 10000;
+	bool nullify = ev[4]!=0;
+	ev.clear();
+	if(nullify) return 0;
+	
+	int32_t ret = defendNew(wpnId, power, edef, unblockable);
+	if(ret != -1) return ret;
+	ev.push_back(*power*10000);
+	ev.push_back(edef*10000);
+	ev.push_back(unblockable*10000);
+	ev.push_back(wpnId*10000);
+	ev.push_back(0);
+	ev.push_back(getUID());
+	ev.push_back(w?w->getUID():0);
+	
+	throwGenScriptEvent(GENSCR_EVENT_ENEMY_HIT2);
+	*power = ev[0]/10000;
+	nullify = ev[4]!=0;
+	ev.clear();
+	if(nullify) return 0;
+	return -1;
+}
 
 int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w)
 {
@@ -5192,7 +5230,7 @@ int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w)
 
 	int32_t edef = resolveEnemyDefence(w);
 	if(QHeader.zelda_version > 0x250)
-		return defendNew(wid, power,  edef, w->unblockable);
+		return defendNewInt(wid, power,  edef, w->unblockable, w);
 	switch(wid)
 	{
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
@@ -5203,7 +5241,7 @@ int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w)
 			return -1;
 
 		default:
-			return defendNew(wid, power,  edef, w->unblockable);
+			return defendNewInt(wid, power,  edef, w->unblockable, w);
 	}
 }
 
@@ -5741,32 +5779,22 @@ int32_t enemy::takehit(weapon *w)
 		
 		if ( ((itemsbuf[parent_item].flags & ITEM_FLAG2) == 0) ||  ( parent_item == -1 )  )  //if the flag is set, or the weapon is scripted
 		{
-		//al_trace("Whistle weapon in %s\n", "takehit flag == 0");
-		return 0; break;
+			//al_trace("Whistle weapon in %s\n", "takehit flag == 0");
+			return 0; break;
 		}
 		else 
 		{
-		//al_trace("Whistle weapon in %s\n", "takehit flag != 0");
-		w->power = itemsbuf[parent_item].misc5;
+			w->power = power = itemsbuf[parent_item].misc5;
+				
+			int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, w);
 			
-		//int32_t def = defendNew(wWhistle, &power,  resolveEnemyDefence(w));
-		int32_t def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
-		//int32_t def = defend(wWhistle, &power,  edefWhistle);
-			
-		//al_trace("whistle def is: %d\n", def);
-		//al_trace("edefWhistle: %d\n", edefWhistle);
-		//al_trace("whistle weapon defence resolution is %d\n", resolveEnemyDefence(w));
-		//al_trace("Whistle Defence: %i\n", def);
-		//al_trace("Whistle Damage Flag: %i\n", (itemsbuf[parent_item].flags & ITEM_FLAG2) ? 1 : 0);
-
-		if(def <= 0) 
-		{
-			if ( def == -2 ) hp -= hp;
-			else hp -= w->power;
-			//al_trace("Whistle Defence: %i\n", def);
-			return def;
-		}
-		break;
+			if(def <= 0) 
+			{
+				if ( def == -2 ) hp -= hp;
+				else hp -= power;
+				return def;
+			}
+			break;
 		}
 		break;
 	}
@@ -5820,7 +5848,7 @@ int32_t enemy::takehit(weapon *w)
 	case wBrang:
 	{
 		//int32_t def = defendNew(wpnId, &power, edefBRANG, w);
-		int32_t def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
+		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, w);
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
 		
@@ -5849,7 +5877,7 @@ int32_t enemy::takehit(weapon *w)
 	case wHookshot:
 	{
 		//int32_t def = defendNew(wpnId, &power, edefHOOKSHOT,w);
-		int32_t def = defendNew(wpnId, &power,  resolveEnemyDefence(w), w->unblockable);
+		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, w);
 		
 		if(def >= 0) return def;
 		

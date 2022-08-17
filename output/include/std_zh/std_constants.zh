@@ -3602,6 +3602,8 @@ enum
 	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created)
 	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created)
 	GENSCR_EVENT_ENEMY_DEATH, //Enemy dying
+	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses
+	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -3642,6 +3644,16 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DEATH'
 {
 	GENEV_EDEATH_DYING, //Bool: if the enemy is dying, or not (set false to cancel death)
 	GENEV_EDEATH_NPC //the npc pointer
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_HIT1' and 'GENSCR_EVENT_ENEMY_HIT2'
+{
+	GENEV_EHIT_POWER, //damage amount
+	GENEV_EHIT_DEFENSETYPE, //defense type
+	GENEV_EHIT_UNBLOCKABLE, //unblockable flagset
+	GENEV_EHIT_WEAPONID, //weapon ID
+	GENEV_EHIT_NULLIFY, //Bool: if true the hit will not connect
+	GENEV_EHIT_NPCPTR, //npc pointer
+	GENEV_EHIT_LWPNPTR //lweapon pointer
 };
 
 enum //constants for 'GENEV_ITEMCOL_TYPE'
