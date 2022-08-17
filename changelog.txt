@@ -1,5 +1,25 @@
 // 2.55 Change Log
-// Updated 15th Aug, 2022
+// Updated 17th Aug, 2022
+
+//A109
+
+Add 'OwnArray()'/'DestroyArray()' functions
+	( EmilyV, 17th Aug, 2022 )
+
+Fix more conveyor bugs
+	( Deedee, 17th Aug, 2022 )
+
+Fix light beam visual glitch
+Add 'itemsprite->DroppedBy'
+Fix droplist right click crash
+	( EmilyV, 16th Aug, 2022 )
+
+Generic script 'WaitEvent' system
+Fix ring/damage combo interaction
+	( EmilyV, 15th Aug, 2022 )
+
+Fix slow midis
+	( connorjclark, 15th Aug, 2022 )
 
 --Aug 15th Nightly
 
