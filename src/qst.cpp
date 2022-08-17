@@ -6962,6 +6962,23 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					}
 				}
 			}
+			else
+			{
+				switch(tempitem.family)
+				{
+					case itype_arrow:
+						tempitem.cost_counter[1] = crARROWS;
+						break;
+					case itype_bomb:
+						tempitem.cost_counter[1] = crBOMBS;
+						break;
+					case itype_sbomb:
+						tempitem.cost_counter[1] = crSBOMBS;
+						break;
+					default:
+						tempitem.cost_counter[1] = crNONE;
+				}
+			}
 			if ( s_version >= 44 )  //! cost counter
 			{
 				for ( int32_t q = 0; q < 8; q++ )
