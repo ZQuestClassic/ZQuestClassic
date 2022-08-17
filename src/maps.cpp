@@ -74,9 +74,9 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-// #define hardcode_regions_mode 0
+#define hardcode_regions_mode 0
 // z1
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 // entire map is region
 // #define hardcode_regions_mode 2
 

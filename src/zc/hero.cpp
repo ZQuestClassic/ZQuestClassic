@@ -23887,37 +23887,38 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
-	// switch(scrolldir)
-	// {
-	// 	case up:
-	// 		FFCore.ScrollingData[SCROLLDATA_NX] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_NY] = -176;
-	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-	// 		break;
-	// 	case down:
-	// 		FFCore.ScrollingData[SCROLLDATA_NX] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_NY] = 176;
-	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-	// 		break;
-	// 	case left:
-	// 		FFCore.ScrollingData[SCROLLDATA_NX] = -256;
-	// 		FFCore.ScrollingData[SCROLLDATA_NY] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-	// 		break;
-	// 	case right:
-	// 		FFCore.ScrollingData[SCROLLDATA_NX] = 256;
-	// 		FFCore.ScrollingData[SCROLLDATA_NY] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-	// 		FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-	// 		break;
-	// }
-	// FFCore.init_combo_doscript();
+	switch(scrolldir)
+	{
+		case up:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = -176;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+		case down:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 176;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+		case left:
+			FFCore.ScrollingData[SCROLLDATA_NX] = -256;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+		case right:
+			FFCore.ScrollingData[SCROLLDATA_NX] = 256;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+			break;
+	}
+	FFCore.init_combo_doscript();
 	
-	// TODO z3 Just meant to expose previous screen to scriping.
+	// expose previous screen to scripting.
 	special_warp_return_screen = tmpscr;
+
 	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
 	special_warp_return_screen.data.resize(_mapsSize, 0);
 	special_warp_return_screen.sflag.resize(_mapsSize, 0);
@@ -23996,18 +23997,18 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				}
 			}
 		}
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
 		//Waitdraw for item scripts. 
-		// FFCore.itemScriptEngineOnWaitdraw();
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEM_WAITDRAW);
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_WAITDRAW);
+		FFCore.itemScriptEngineOnWaitdraw();
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEM_WAITDRAW);
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_WAITDRAW);
 		
 		//Sprite scripts on Waitdraw
-		// FFCore.eweaponScriptEngineOnWaitdraw();
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_WAITDRAW);
-		// FFCore.itemSpriteScriptEngineOnWaitdraw();
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
+		FFCore.eweaponScriptEngineOnWaitdraw();
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_WAITDRAW);
+		FFCore.itemSpriteScriptEngineOnWaitdraw();
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_WAITDRAW);
 		
 		//This is no longer a do-while, as the first iteration is now slightly different. -Em
 		draw_screen(&tmpscr,true,true);
@@ -24015,7 +24016,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		// if(cx == scx)
 		// 	rehydratelake(false);
 			
-		// FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 	}
 	
 	advanceframe(true);
@@ -24318,8 +24319,29 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int sx = step * move_counter * -dx;
 		int sy = step * move_counter * -dy;
 		if (is_smooth_vertical_scrolling) sy += 3;
-		
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
+
+		int script_sx = -sx;
+		int script_sy = -sy;
+		switch(scrolldir)
+		{
+		case up:
+			script_sy += 176;
+			break;
+			
+		case down:
+			script_sy -= 176;
+			break;
+			
+		case left:
+			script_sx += 256;
+			break;
+			
+		case right:
+			script_sx -= 256;
+			break;
+		}
+
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, script_sx, script_sy, end_frames, false);
 		
 		if(no_move > 0)
 			no_move--;
@@ -24384,18 +24406,22 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			{
 			case up:
 				y += step;
+				script_sy -= step;
 				break;
 				
 			case down:
 				y -= step;
+				script_sy += step;
 				break;
 				
 			case left:
 				x += step;
+				script_sx -= step;
 				break;
 				
 			case right:
 				x -= step;
+				script_sx += step;
 				break;
 			}
 			
@@ -24419,67 +24445,71 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
-		//Drawing
-		int tx = sx;
-		int ty = sy;
-		int tx2 = sx;
-		int ty2 = sy;
-		
+		// Script stuff
+		// TODO: this is trying really hard to mimic the values from the old scrolling code...
+		// Not sure if this is ideal yet. Needs more testing.
 		switch(scrolldir)
 		{
 		case right:
-			FFCore.ScrollingData[SCROLLDATA_NX] = 256-tx2;
+			FFCore.ScrollingData[SCROLLDATA_NX] = 256-script_sx;
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
-			FFCore.ScrollingData[SCROLLDATA_OX] = -tx2;
+			FFCore.ScrollingData[SCROLLDATA_OX] = -script_sx;
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-			tx -= 256;
 			break;
 			
 		case down:
 			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
-			FFCore.ScrollingData[SCROLLDATA_NY] = 176-ty2;
+			FFCore.ScrollingData[SCROLLDATA_NY] = 176-script_sy;
 			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-			FFCore.ScrollingData[SCROLLDATA_OY] = -ty2;
-			ty -= 176;
+			FFCore.ScrollingData[SCROLLDATA_OY] = -script_sy;
 			break;
 			
 		case left:
-			FFCore.ScrollingData[SCROLLDATA_NX] = -tx2;
+			FFCore.ScrollingData[SCROLLDATA_NX] = -script_sx;
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
-			FFCore.ScrollingData[SCROLLDATA_OX] = 256-tx2;
+			FFCore.ScrollingData[SCROLLDATA_OX] = 256-script_sx;
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
-			tx2 -= 256;
 			break;
 			
 		case up:
 			FFCore.ScrollingData[SCROLLDATA_NX] = 0;
-			FFCore.ScrollingData[SCROLLDATA_NY] = -ty2;
+			FFCore.ScrollingData[SCROLLDATA_NY] = -script_sy;
 			FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-			FFCore.ScrollingData[SCROLLDATA_OY] = 176-ty2;
-			ty2 -= 176;
+			FFCore.ScrollingData[SCROLLDATA_OY] = 176-script_sy;
 			break;
 		}
 
 		//FFScript.OnWaitdraw()
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, script_sx, script_sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 
+		bool any_screen_layer2bg = false;
+		bool any_screen_layer3bg = false;
 		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
 			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
 			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
 
+			any_screen_layer2bg = any_screen_layer2bg || myscr->flags7&fLAYER2BG;
+			any_screen_layer3bg = any_screen_layer3bg || myscr->flags7&fLAYER3BG;
 			if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, map, scr, 2, myscr, -offx, -offy + playing_field_offset, 2);
 			if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, map, scr, 3, myscr, -offx, -offy + playing_field_offset, 2);
-			if (!(draw_dx == 0 && draw_dy == 0)) // Not sure why ...
-			{
-				// TODO z3 primitives verify
-				if(XOR((myscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, myscr, offx, offy);			
-				if(XOR((myscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, myscr, offx, offy);
-			}
+		});
 
+		// Draw screens' background layer primitives together, after their layers' combos.
+		// Not ideal, but probably good enough for all realistic purposes.
+		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
+		{
+			if(XOR(any_screen_layer2bg, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
+			if(XOR(any_screen_layer3bg, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
+		}
+
+		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy;
+			
 			putscr(scrollbuf, offx, offy, myscr);
 		});
 
@@ -24518,8 +24548,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		});
 
-		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
-		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
+		for_every_nearby_screen_during_scroll([&](mapscr* myscr, int map, int scr, int draw_dx, int draw_dy) {
+			int offx = (draw_dx + z3_get_region_relative_dx(scrolling_scr)) * 256 + sx;
+			int offy = (draw_dy + z3_get_region_relative_dy(scrolling_scr)) * 176 + sy + playing_field_offset;
+			putscrdoors(framebuf, offx, offy, myscr);
+		});
 
 		if (!align_counter || scroll_counter) herostep();
 		
@@ -24666,7 +24699,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
-		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setHeroAction(lastaction);
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 
@@ -24857,7 +24889,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	// Use new scrolling function if scrolling to/from a scrollable region.
-	// TODO z3 use this for all scrolling
 	{
 		int tempdestscr = destscr;
 		if (destscr != -1)
@@ -25298,7 +25329,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			return;
 		}
 		
-		
+
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
 		
 		if(no_move > 0)
@@ -25692,7 +25723,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
-		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setHeroAction(lastaction);
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 	
