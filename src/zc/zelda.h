@@ -466,6 +466,8 @@ struct ScriptOwner
 	ScriptOwner();
 	byte scriptType;
 	uint32_t ownerUID;
+	bool specOwned;
+	bool specCleared;
 	void clear();
 };
 

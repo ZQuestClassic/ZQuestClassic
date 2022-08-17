@@ -358,6 +358,7 @@ public:
 	void checkswordtap();
 	void oldcheckchest(int32_t type);
 	void checkchest(int32_t type);
+	void checkgenpush();
 	void checksigns();
 	void checktouchblk();
 	void checklocked();

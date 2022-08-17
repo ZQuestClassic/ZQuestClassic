@@ -1,4 +1,4 @@
-\//--------------------------------------------------------
+//--------------------------------------------------------
 //  Zelda Classic
 //  by Jeremy Craner, 1999-2000
 //
@@ -3004,6 +3004,8 @@ void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 {
 	if(over)
 	{
+		if(combobuf[cid].animflags & AF_TRANSPARENT)
+			transp = !transp;
 		if(transp)
 			overcombotranslucent(dest, x, y, cid, cset, 128);
 		else overcombo(dest, x, y, cid, cset);
@@ -4979,6 +4981,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	game->load_portal();
+	if(!tmp) throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
 }
 
 // Screen is being viewed by the Overworld Map viewer.

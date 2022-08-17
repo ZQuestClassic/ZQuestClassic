@@ -8660,6 +8660,29 @@ void system_pal2()
 	memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
 }
 
+static uint32_t entered_sys_pal = 0;
+void enter_sys_pal()
+{
+	if(is_sys_pal)
+	{
+		if(entered_sys_pal)
+			++entered_sys_pal;
+		return;
+	}
+	system_pal();
+	++entered_sys_pal;
+}
+void exit_sys_pal()
+{
+	if(entered_sys_pal)
+	{
+		if(!--entered_sys_pal)
+		{
+			game_pal();
+		}
+	}
+}
+
 void switch_out_callback()
 {
     if (pause_in_background)

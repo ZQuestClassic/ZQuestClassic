@@ -2350,6 +2350,7 @@ Firstly, it can run 'passively':
 		launched; after 'Waitframe()', they return to the "Start of Frame" timing.
 	The 'WaitTo' function can be used to go to each specific timing, similarly to how
 		'Waitdraw' works in other scripts.
+	The 'WaitEvent' function can be used to handle specific events.
 	The passive running of a generic script is also affected by it's 'ExitState' and 'ReloadState'
 		arrays, which can exit the script or restart it from the beginning when certain conditions
 		are met (such as changing screens/dmaps, continuing, reloading, ...)
@@ -2674,6 +2675,11 @@ void WaitTo(int script_timing, bool at_least);
  * Use the 'SCR_TIMING_' constants from 'std_constants.zh' for 'script_timing'
  * !WIP! Timings are subject to change
 
+int WaitEvent();
+ * Only for passively-running 'Generic Scripts'
+ * Halts the script until an 'event' occurs, at which point it returns the event number.
+ * Compare the return to the 'GENSCR_EVENT_' constants.
+
 float Distance(float x1, float y1, float x1, float y2)
  * Returns the distance between two sets of coordinates using Pythagoras' Theorem
  * The old version is now std::Distance(...)
@@ -2902,6 +2908,15 @@ void ResizeArray(untyped[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
  * If size is <1, the array will be resized to size '1'.
 
+void OwnArray(untyped[] arr);
+ * Grants ownership of the array to the calling script.
+ * If the array is a local array, it now will not be deallocated until the current script quits.
+ * If the array is a global array, does nothing.
+
+void DestroyArray(untyped[] arr);
+ * Immediately deallocates the specified array, if it is a local array.
+ * If the array is a global array, does nothing.
+
 void Trace(untyped)
  * The Trace() instruction now supports all datatypes.
 
@@ -2956,6 +2971,10 @@ int MiscSprites[MISCSPR_MAX];
 
 int MiscSFX[MISCSFX_MAX];
  * The quest's misc sfx. Use the 'MISCSFX_' constants to access this array.
+
+untyped EventData[?];
+ * Contains event data for use with 'WaitEvent()' in generic scripts.
+ * Use the appropriate set of 'GENEV_' constants based on the event.
 
 int SubscreenSpeed;
  * The speed multiplier for the active subscreen falling or raising.
@@ -4521,6 +4540,10 @@ int LightShape;
 
 int ShadowSprite;
  * The shadow sprite used by the itemsprite, 0-255
+
+int DroppedBy;
+ * The dropset ID that dropped this item.
+ * -1 if item was not dropped from a dropset.
 
 void Remove();
  * Instantly DELETES an itemsprite.
@@ -6745,8 +6768,11 @@ int SkipAnimY;
 
 int AnimFlags;
  * This contains flag data for the Combo Editor settings:
- *	0x	Refresh Animation on Room Entry
- * 	0x 	Refresh Animation When Cycled To
+ *  AF_FRESH       Refresh Animation on Room Entry
+ *  AF_CYCLE       Refresh Animation When Cycled To
+ *  AF_CYCLENOCSET Cycle ignores CSet
+ *  AF_TRANSPARENT Toggle Transparent
+ * Use bitwise operators with these constants to read/set these flags.
 
 int Expansion[6]; 
  * Reserved for future use by the Combo Editor.
@@ -6788,10 +6814,36 @@ int TriggerLevel;
 int TriggerItem;
  * The required item ID for triggering the combo.
  * If 0, no item is required.
+ * Related:
+ * TriggerFlags[TRIGFLAG_INVERT_ITEMREQ] (require NOT having the item),
+ * TriggerFlags[TRIGFLAG_CONSUME_ITEMREQ] (consume the item)
+
+int TriggerProximity;
+ * The required player proximity for triggering the combo.
+ * If 0, proximity requirement is disabled.
+ * Related:
+ * TriggerFlags[TRIGFLAG_INVERT_PROXIMITY] (require being farther instead of closer)
 
 int TriggerTimer;
  * The timer for timed combo triggers. If 0, no timed trigger will occur.
  * The combo will be triggered every 'n' frames, timer unique to each combo position.
+
+int TrigLightBeam;
+ * The light beam trigger set that (may) trigger this combo.
+ * 0 means any beams, 1-32 mean only matching beams.
+ * Related:
+ * TriggerFlags[TRIGFLAG_LIGHTON] (trigger when hit by matching light)
+ * TriggerFlags[TRIGFLAG_LIGHTOFF] (trigger when NOT hit by matching light)
+
+int TriggerCounter;
+ * The counter used for counter-based triggerflags
+int TriggerCtrAmount;
+ * The amount used for counter-based triggerflags
+ * Related:
+ * TriggerFlags[TRIGFLAG_COUNTER_GE]
+ * TriggerFlags[TRIGFLAG_COUNTER_LT]
+ * TriggerFlags[TRIGFLAG_COUNTER_EAT]
+ * TriggerFlags[TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT]
 
 int TriggerSFX;
  * The SFX to play when the combo is triggered. If 0, no SFX will be played.
@@ -7821,6 +7873,18 @@ bool ReloadState[GENSCR_NUMST];
  * GENSCR_ST_CHANGE_SCREEN: Exits/Reloads upon loading a new screen
  * GENSCR_ST_CHANGE_DMAP: Exits/Reloads upon loading a new dmap
  * GENSCR_ST_CHANGE_LEVEL: Exits/Reloads upon loading a new dmap level
+
+bool EventListen[GENSCR_NUMEVENT];
+ * An array of event listen states. Each state, if true, specifies an event that 'WaitEvent()'
+ *     will respond to for this script.
+ * All states default to 'false'
+ * GENSCR_EVENT_NIL:            N/A (error value)
+ * GENSCR_EVENT_INIT:           When loading in from a save/new quest
+ * GENSCR_EVENT_CONTINUE:       When F6->Continue
+ * GENSCR_EVENT_FFC_PRELOAD:    When FFCs run 'on screen init'
+ * GENSCR_EVENT_CHANGE_SCREEN:  When the screen changes (before opening wipe)
+ * GENSCR_EVENT_CHANGE_DMAP:    When the dmap changes
+ * GENSCR_EVENT_CHANGE_LEVEL:   When the level changes
 
 int DataSize;
  * Represents the size of the 'Data[]' array.

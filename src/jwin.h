@@ -86,7 +86,7 @@ extern "C"
 /* Disable click to select combo for d_combo_proc */
 #define D_NOCLICK       D_USER
 
-#define D_RESIZED		(D_USER<<1)
+#define D_RESIZED		(D_USER<<5)
 
 /* This should be used for all DIALOGs in the new GUI system.
  * It indicates that there is a Dialog that owns this array

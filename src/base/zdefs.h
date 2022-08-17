@@ -253,7 +253,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            2 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          29
+#define V_COMBOS          30
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
 #define V_DMAPS            16
@@ -267,7 +267,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            46
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        26 //skipped 13->15 for 2.53.1
+#define V_SAVEGAME        27
 #define V_COMBOALIASES     3
 #define V_HEROSPRITES      15
 #define V_SUBSCREEN        7
@@ -276,7 +276,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       30
+#define V_COMPATRULE       31
 #define V_ZINFO            2
 
 //= V_SHOPS is under V_MISC
@@ -1092,7 +1092,7 @@ enum
 	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
 	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
 	//60
-	
+	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD,
 	//70
 	
 	//ZScript Parser //room for 20 of these
@@ -1332,7 +1332,7 @@ enum
 #define combotriggerCMBTYPEFX    0x10000000
 #define combotriggerONLYGENTRIG  0x20000000
 #define combotriggerKILLWPN      0x40000000
-//#define combotriggerSOMETHING    0x80000000
+#define combotriggerEWFIREBALL   0x80000000
 
 //Page 2, triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
@@ -1358,6 +1358,36 @@ enum
 #define combotriggerCOUNTERLT    0x00100000
 #define combotriggerCOUNTEREAT   0x00200000
 #define combotriggerCTRNONLYTRIG 0x00400000
+#define combotriggerLIGHTON      0x00800000
+#define combotriggerLIGHTOFF     0x01000000
+#define combotriggerPUSH         0x02000000
+#define combotriggerLENSON       0x04000000
+#define combotriggerLENSOFF      0x08000000
+#define combotriggerEWARROW      0x10000000
+#define combotriggerEWBRANG      0x20000000
+#define combotriggerEWSWORD      0x40000000
+#define combotriggerEWROCK       0x80000000
+
+//triggerflags[2]
+#define combotriggerEWSCRIPT01   0x00000001
+#define combotriggerEWSCRIPT02   0x00000002
+#define combotriggerEWSCRIPT03   0x00000004
+#define combotriggerEWSCRIPT04   0x00000008
+#define combotriggerEWSCRIPT05   0x00000010
+#define combotriggerEWSCRIPT06   0x00000020
+#define combotriggerEWSCRIPT07   0x00000040
+#define combotriggerEWSCRIPT08   0x00000080
+#define combotriggerEWSCRIPT09   0x00000100
+#define combotriggerEWSCRIPT10   0x00000200
+#define combotriggerEWMAGIC      0x00000400
+#define combotriggerEWBBLAST     0x00000800
+#define combotriggerEWSBBLAST    0x00001000
+#define combotriggerEWLITBOMB    0x00002000
+#define combotriggerEWLITSBOMB   0x00004000
+#define combotriggerEWFIRETRAIL  0x00008000
+#define combotriggerEWFLAME      0x00010000
+#define combotriggerEWWIND       0x00020000
+#define combotriggerEWFLAME2     0x00040000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01
@@ -3154,6 +3184,7 @@ struct newcombo
 	word trigprox; //16 bits
 	byte trigctr; //8 bits
 	int32_t trigctramnt; //32 bits
+	byte triglbeam; //8 bits
 	char label[11];
 		//Only one of these per combo: Otherwise we would have 
 		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
@@ -3208,6 +3239,7 @@ struct newcombo
 		trigprox = 0;
 		trigctr = 0;
 		trigctramnt = 0;
+		triglbeam = 0;
 		trigchange = 0;
 		for(int32_t q = 0; q < 11; ++q)
 			label[q] = 0;
@@ -3257,6 +3289,7 @@ struct newcombo
 		if(trigprox) return false;
 		if(trigctr) return false;
 		if(trigctramnt) return false;
+		if(triglbeam) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
@@ -3275,6 +3308,7 @@ struct newcombo
 #define AF_FRESH          0x01
 #define AF_CYCLE          0x02
 #define AF_CYCLENOCSET    0x04
+#define AF_TRANSPARENT    0x08
 
 struct tiletype
 {
@@ -4311,6 +4345,7 @@ struct gamedata
 	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
+	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
 	// member functions
 	// public:
@@ -5386,6 +5421,8 @@ bool load_dev_info(std::string const& devstr);
 bool load_dev_info_clipboard();
 std::string generate_zq_about();
 
+void enter_sys_pal();
+void exit_sys_pal();
 
 #undef cmb1
 #undef cmb2

@@ -643,6 +643,16 @@ refInfo ffcScriptData[32];
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
+
+void user_genscript::quit()
+{
+	doscript = false;
+	if(indx > -1)
+	{
+		FFCore.deallocateAllArrays(SCRIPT_GENERIC, indx);
+	}
+}
+
 void countGenScripts()
 {
 	max_valid_genscript = 0;
@@ -657,6 +667,24 @@ void timeExitAllGenscript(byte exState)
 	for(user_genscript& g : user_scripts)
 		g.timeExit(exState);
 }
+void throwGenScriptEvent(int32_t event)
+{
+	for(auto q = 1; q <= max_valid_genscript; ++q)
+	{
+		user_genscript& scr = user_scripts[q];
+		if(!scr.doscript) continue;
+		if(!genericscripts[q]->valid()) continue;
+		if(!scr.waitevent) continue;
+		if(scr.eventstate & (1<<event))
+		{
+			scr.ri.d[rEXP1] = event*10000;
+			scr.waitevent = false;
+			
+			//Run the script!
+			ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+		}
+	}
+}
 
 void load_genscript(const gamedata& gd)
 {
@@ -664,9 +692,11 @@ void load_genscript(const gamedata& gd)
 	{
 		user_genscript& gen = user_scripts[q];
 		gen.clear();
+		gen.indx = q;
 		gen.doscript = gd.gen_doscript[q];
 		gen.exitState = gd.gen_exitState[q];
 		gen.reloadState = gd.gen_reloadState[q];
+		gen.eventstate = gd.gen_eventstate[q];
 		memcpy(gen.initd, gd.gen_initd[q], sizeof(gen.initd));
 		gen.dataResize(gd.gen_dataSize[q]);
 		gen.data = gd.gen_data[q];
@@ -681,6 +711,7 @@ void save_genscript(gamedata& gd)
 		gd.gen_doscript[q] = gen.doscript;
 		gd.gen_exitState[q] = gen.exitState;
 		gd.gen_reloadState[q] = gen.reloadState;
+		gd.gen_eventstate[q] = gen.eventstate;
 		memcpy(gd.gen_initd[q], gen.initd, sizeof(gen.initd));
 		gd.gen_dataSize[q] = gen.dataSize();
 		gd.gen_data[q] = gen.data;
@@ -690,24 +721,30 @@ void save_genscript(gamedata& gd)
 void FFScript::runGenericPassiveEngine(int32_t scrtm)
 {
 	if(!max_valid_genscript) return; //No generic scripts in the quest!
-	if(genscript_timing != scrtm)
+	//zprint2("Processing timing %d\n", scrtm);
+	bool init = (scrtm == SCR_TIMING_INIT);
+	if(!init)
 	{
-		//zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
-		while(genscript_timing != scrtm)
-			runGenericPassiveEngine(genscript_timing);
+		if(genscript_timing != scrtm)
+		{
+			//zprint2("Generic script timing jump: expected '%d', found '%d'\n", genscript_timing, scrtm);
+			while(genscript_timing != scrtm)
+				runGenericPassiveEngine(genscript_timing);
+		}
 	}
 	for(auto q = 1; q <= max_valid_genscript; ++q)
 	{
 		user_genscript& scr = user_scripts[q];
 		if(!scr.doscript) continue;
 		if(!genericscripts[q]->valid()) continue;
-		if(scr.waituntil > scrtm || (!scr.wait_atleast && scr.waituntil != scrtm))
+		if(scr.waitevent) continue;
+		if(!init && (scr.waituntil > scrtm || (!scr.wait_atleast && scr.waituntil != scrtm)))
 			continue;
 		
 		//Run the script!
 		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
 	}
-	if(genscript_timing >= SCR_TIMING_END_FRAME)
+	if(init || genscript_timing >= SCR_TIMING_END_FRAME)
 		genscript_timing = SCR_TIMING_START_FRAME;
 	else ++genscript_timing;
 }
@@ -2239,7 +2276,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return size_t(-1);
 			
 		return a.Size();
@@ -2250,7 +2287,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return -1;
 			
 		word count;
@@ -2265,7 +2302,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			str.clear();
 			return;
@@ -2293,7 +2330,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return;
 			
 		for(word i = offset; BC::checkUserArrayIndex(i, ArrayH::getSize(ptr)+1) == _NoError && num_values != 0; i++)
@@ -2308,7 +2345,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return;
 			
 		for(word i = offset; BC::checkUserArrayIndex(i, a.Size()) == _NoError && num_values != 0; i++)
@@ -2323,7 +2360,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return -10000;
 			
 		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2337,7 +2374,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return;
 			
 		if(BC::checkUserArrayIndex(offset, a.Size()) == _NoError)
@@ -2362,7 +2399,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return _InvalidPointer;
 			
 		word j = 0, k = userStride;
@@ -2393,7 +2430,7 @@ public:
 	{
 		ZScriptArray &a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return _InvalidPointer;
 			
 		word i;
@@ -2428,7 +2465,7 @@ public:
 	{
 		ZScriptArray& a = getArray(ptr);
 		
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 			return _InvalidPointer;
 			
 		word j = 0, k = userStride;
@@ -2458,10 +2495,13 @@ public:
 // Called to deallocate arrays when a script stops running
 void deallocateArray(const int32_t ptrval)
 {
+	if(ptrval == 0) return;
 	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
+		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
+		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
 		if(localRAM[ptrval].Size() == 0)
@@ -2516,6 +2556,7 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 	{
 		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
 		{
+			arrayOwner[i].specOwned = false;
 			deallocateArray(i);
 			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
 		}
@@ -2549,6 +2590,7 @@ void FFScript::deallocateAllArrays()
 	{
 		if(localRAM[i].Size() > 0)
 		{
+			arrayOwner[i].specOwned = false;
 			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
 			deallocateArray(i);
 		}
@@ -4276,6 +4318,12 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				ret = int32_t(((item*)(s))->spr_shadow) * 10000;
+			}
+			break;
+		case ITEMDROPPEDBY:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				ret = int32_t(((item*)(s))->from_dropset) * 10000;
 			}
 			break;
 		case ITMSWHOOKED:
@@ -7355,6 +7403,16 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				ret = QMisc.miscsfx[inx] * 10000;
+			}
+			break;
+		}
+		case GAMEEVENTDATA:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			ret = 0;
+			if ( ((unsigned)inx) < FFCore.eventData.size() )
+			{
+				ret = FFCore.eventData[inx];
 			}
 			break;
 		}
@@ -10987,6 +11045,46 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].trigchange) * 10000;
 			break;
 		}
+		case COMBODTRIGGERPROX:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+			}
+			else ret = (combobuf[ri->combosref].trigprox) * 10000;
+			break;
+		}
+		case COMBODTRIGGERLIGHTBEAM:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+			}
+			else ret = (combobuf[ri->combosref].triglbeam) * 10000;
+			break;
+		}
+		case COMBODTRIGGERCTR:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+			}
+			else ret = (combobuf[ri->combosref].trigctr) * 10000;
+			break;
+		}
+		case COMBODTRIGGERCTRAMNT:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+			}
+			else ret = (combobuf[ri->combosref].trigctramnt) * 10000;
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
 		//COMBOCLASS STRUCT
@@ -11803,6 +11901,21 @@ int32_t get_register(const int32_t arg)
 					break;
 				}
 				ret = (scr->reloadState & (1<<indx)) ? 10000L : 0;
+			}
+			break;
+		}
+		case GENDATAEVENTSTATE:
+		{
+			ret = 0;
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "EventListen"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMEVENT)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->EventListen[]: %d\n", indx);
+					break;
+				}
+				ret = (scr->eventstate & (1<<indx)) ? 10000L : 0;
 			}
 			break;
 		}
@@ -13842,6 +13955,12 @@ void set_register(const int32_t arg, const int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
+			}
+			break;
+		case ITEMDROPPEDBY:
+			if(0!=(s=checkItem(ri->itemref)))
+			{
+				((item*)(s))->from_dropset=vbound(value/10000,-1,255);
 			}
 			break;
 		case ITMSWHOOKED:
@@ -16882,6 +17001,15 @@ void set_register(const int32_t arg, const int32_t value)
 			else
 			{
 				QMisc.miscsfx[inx] = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case GAMEEVENTDATA:
+		{
+			int32_t inx = (ri->d[rINDEX])/10000;
+			if ( ((unsigned)inx) < FFCore.eventData.size() )
+			{
+				FFCore.eventData[inx] = value;
 			}
 			break;
 		}
@@ -20471,6 +20599,42 @@ void set_register(const int32_t arg, const int32_t value)
 			else combobuf[ri->combosref].trigchange = vbound(value/10000,-65535,65535);
 			break;
 		}
+		case COMBODTRIGGERPROX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerProximity");
+			}
+			else combobuf[ri->combosref].trigprox = vbound(value/10000,0,65535);
+			break;
+		}
+		case COMBODTRIGGERLIGHTBEAM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerLightBeam");
+			}
+			else combobuf[ri->combosref].triglbeam = vbound(value/10000,0,32);
+			break;
+		}
+		case COMBODTRIGGERCTR:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCounter");
+			}
+			else combobuf[ri->combosref].trigctr = vbound(value/10000, 0, MAX_COUNTERS-1);
+			break;
+		}
+		case COMBODTRIGGERCTRAMNT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
+			}
+			else combobuf[ri->combosref].trigctramnt = vbound(value/10000, -65535, 65535);
+			break;
+		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 	
 	
@@ -21190,6 +21354,20 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			break;
 		}
+		case GENDATAEVENTSTATE:
+		{
+			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "EventListen"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= GENSCR_NUMEVENT)
+				{
+					Z_scripterrlog("Invalid index passed to genericdata->EventListen[]: %d\n", indx);
+					break;
+				}
+				SETFLAG(scr->eventstate, (1<<indx), value);
+			}
+			break;
+		}
 		case GENDATADATA:
 		{
 			if(user_genscript* scr = checkGenericScr(ri->genericdataref, "Data[]"))
@@ -21405,8 +21583,52 @@ void do_resize_array()
 	int32_t size = vbound(get_register(sarg2) / 10000, 1, 214748);
 	dword ptrval = get_register(sarg1) / 10000;
 	ZScriptArray &a = ArrayH::getArray(ptrval);
-	if(a == INVALIDARRAY) return;
+	if(&a == &INVALIDARRAY) return;
 	a.Resize(size);
+}
+
+void do_own_array(const byte scriptType, const int32_t UID)
+{
+	dword arrindx = get_register(sarg1) / 10000;
+	
+	ZScriptArray &a = ArrayH::getArray(arrindx);
+	
+	if(a != INVALIDARRAY && arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+	{
+		arrayOwner[arrindx].scriptType = scriptType;
+		arrayOwner[arrindx].ownerUID = UID;
+		arrayOwner[arrindx].specOwned = true;
+		arrayOwner[arrindx].specCleared = false;
+	}
+	else if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	{
+		//ignore global arrays
+	}
+	else Z_scripterrlog("Tried to 'OwnArray()' an invalid array '%d'\n", arrindx);
+}
+void do_destroy_array()
+{
+	dword arrindx = get_register(sarg1) / 10000;
+	
+	ZScriptArray &a = ArrayH::getArray(arrindx);
+	
+	if(a != INVALIDARRAY && arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
+	{
+		arrayOwner[arrindx].clear();
+		
+		if(localRAM[arrindx].Size() == 0)
+			;
+		else
+		{
+			localRAM[arrindx].Clear();
+		}
+		arrayOwner[arrindx].specCleared = true;
+	}
+	else if(arrindx >= NUM_ZSCRIPT_ARRAYS && arrindx < NUM_ZSCRIPT_ARRAYS*2)
+	{
+		//ignore global arrays
+	}
+	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
 void do_allocatemem(const bool v, const bool local, const byte type, const uint32_t UID)
@@ -21444,6 +21666,8 @@ void do_allocatemem(const bool v, const bool local, const byte type, const uint3
 			//Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
 			arrayOwner[ptrval].scriptType = type;
 			arrayOwner[ptrval].ownerUID = UID;
+			arrayOwner[ptrval].specOwned = false;
+			arrayOwner[ptrval].specCleared = false;
 		}
 	}
 	else
@@ -24963,12 +25187,28 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			doWarpEffect(warpEffect, true);
 			//zprint("FFCore.warp_player reached line: %d \n", 15973);
 			int32_t c = DMaps[currdmap].color;
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != dmapID)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[dmapID].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[dmapID].level;
 			currdmap = dmapID;
-			dlevel = DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			currmap = DMaps[currdmap].map;
 			init_dmap();
 			update_subscreens(dmapID);
@@ -25058,12 +25298,28 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if ( !(warpFlags&warpFlagDONTKILLSOUNDS) ) kill_sfx();
 			sfx(warpSound);
 			blackscr(30,false);
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != dmapID)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[dmapID].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+				changedlevel = true;
+			}
+			dlevel = DMaps[dmapID].level;
 			currdmap = dmapID;
-			dlevel=DMaps[currdmap].level;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			currmap=DMaps[currdmap].map;
 			init_dmap();
 			update_subscreens(dmapID);
@@ -25197,11 +25453,28 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			
 			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			bool changedlevel = false;
+			bool changeddmap = false;
 			if(currdmap != dmapID)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+				changeddmap = true;
+			}
 			if(dlevel != DMaps[dmapID].level)
+			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-			dlevel = DMaps[dmapID].level; //Fix dlevel and draw the map (end hack). -Z
+				changedlevel = true;
+			}
+			dlevel = DMaps[dmapID].level;
+			currdmap = dmapID;
+			if(changeddmap)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+			}
+			if(changedlevel)
+			{
+				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+			}
 			
 			Hero.reset_hookshot();
 			
@@ -25999,7 +26272,8 @@ void do_combotile(const bool v)
 void do_readpod(const bool v)
 {
 	int32_t indx = SH::get_arg(sarg2, v) / 10000;
-	set_register(sarg1, ArrayH::getElement(ri->d[rINDEX] / 10000, indx));
+	int32_t val = ArrayH::getElement(ri->d[rINDEX] / 10000, indx);
+	set_register(sarg1, val);
 }
 void do_writepod(const bool v1, const bool v2)
 {
@@ -26241,6 +26515,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri = &scr.ri;
 			ri->genericdataref = script;
 			curscript = genericscripts[script];
+			scr.waitevent = false;
 			if(!scr.initialized)
 			{
 				scr.initialized = true;
@@ -26448,7 +26723,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	}
 	
 	while(scommand != 0xFFFF && scommand != WAITFRAME
-		&& scommand != WAITDRAW && scommand != WAITTO)
+		&& scommand != WAITDRAW && scommand != WAITTO
+		&& scommand != WAITEVENT)
 	{
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -26968,6 +27244,12 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			case RESIZEARRAYR:
 				do_resize_array();
+				break;
+			case OWNARRAYR:
+				do_own_array(type, i);
+				break;
+			case DESTROYARRAYR:
+				do_destroy_array();
 				break;
 				
 			case DEALLOCATEMEMR:
@@ -29951,6 +30233,26 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 					break;
 			}
 		}
+		else if(scommand == WAITEVENT)
+		{
+			switch(type)
+			{
+				case SCRIPT_GENERIC_FROZEN:
+					scommand = WAITFRAME;
+					ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
+					break;
+				case SCRIPT_GENERIC:
+				{
+					user_genscript& scr = user_scripts[script];
+					scr.waitevent = true;
+					break;
+				}
+				default:
+					Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
+					scommand = NOP;
+					break;
+			}
+		}
 		else if(scommand == WAITFRAME)
 		{
 			switch(type)
@@ -30277,6 +30579,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 //This keeps ffc scripts running beyond the first frame. 
 int32_t ffscript_engine(const bool preload)
 {
+	if(preload)
+	{
+		throwGenScriptEvent(GENSCR_EVENT_FFC_PRELOAD);
+	}
 	if (!FFCore.system_suspend[susptFFCSCRIPTS])
 	{
 		//run screen script, first
@@ -30574,7 +30880,7 @@ void FFScript::do_file_readchars()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30620,7 +30926,7 @@ void FFScript::do_file_readbytes()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30647,7 +30953,7 @@ void FFScript::do_file_readstring()
 	{
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30692,7 +30998,7 @@ void FFScript::do_file_readints()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if(&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30758,7 +31064,7 @@ void FFScript::do_file_writebytes()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		string output;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -30809,7 +31115,7 @@ void FFScript::do_file_writeints()
 		if(count == 0) return;
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ZScriptArray& a = getArray(arrayptr);
-		if(a == INVALIDARRAY)
+		if (&a == &INVALIDARRAY)
 		{
 			return;
 		}
@@ -31484,10 +31790,13 @@ int32_t FFScript::loadMapData()
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
 void FFScript::deallocateZScriptArray(const int32_t ptrval)
 {
+	if(ptrval == 0) return;
 	if(ptrval<=0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
 		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
 	else
 	{
+		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
+		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
 		if(localRAM[ptrval].Size() == 0)
@@ -32497,6 +32806,7 @@ FFScript::FFScript()
 */
 void FFScript::init()
 {
+	eventData.clear();
 	countGenScripts();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
 	print_ZASM = zasm_debugger;
@@ -34395,11 +34705,11 @@ void FFScript::do_getgenericscript()
 	int32_t script_num = -1;
 	FFCore.getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
-	zprint2("Searching for generic script named '%s'\n", the_string.c_str());
+	// zprint2("Searching for generic script named '%s'\n", the_string.c_str());
 	for(int32_t q = 0; q < NUMSCRIPTSGENERIC; q++)
 	{
-		if(genericmap[q].scriptname.size()>2)
-			zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
+		// if(genericmap[q].scriptname.size()>2)
+			// zprint2("Checking against '%s'...\n", genericmap[q].scriptname.c_str());
 		if(!(strcmp(the_string.c_str(), genericmap[q].scriptname.c_str())))
 		{
 			script_num = q+1;
@@ -34726,8 +35036,8 @@ void FFScript::do_xtoa()
 	//for ( int32_t q = 0; q < 6; ++q )
 	//	zprint2("ri->d[%d] is %d", q, ri->d[q]);
 	
-	zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
-	zprint2("xtoa_c number is: %d\n",number);
+	// zprint2("xtoa_c arrayptr_a is: %d\n",arrayptr_a);
+	// zprint2("xtoa_c number is: %d\n",number);
 		
 	
 	
@@ -34739,10 +35049,10 @@ void FFScript::do_xtoa()
 		number *= -1;
 	}
 	double num = number;
-	zprint2("xtoa_c(), num is: %f\n", num);
+	// zprint2("xtoa_c(), num is: %f\n", num);
 	int32_t digits = floor(FFCore.LogToBase(num, (double)16) + 1);
 	//sizeof(number)*CHAR_BIT/4;
-	zprint2("xtoa_c, digits is: %d\n",digits);
+	// zprint2("xtoa_c, digits is: %d\n",digits);
 	
 	
 	int32_t pos = 0;
@@ -34962,12 +35272,12 @@ void FFScript::do_itoacat()
 	int32_t arrayptr_a = get_register(sarg1) / 10000;
 	int32_t number = get_register(sarg2) / 10000;
 	
-	zprint2("itoacat arrayptr_a is: %d\n",arrayptr_a);
-	zprint2("itoacat number is: %d\n",number);
+	// zprint2("itoacat arrayptr_a is: %d\n",arrayptr_a);
+	// zprint2("itoacat number is: %d\n",number);
 		
 	double num = number;
 	int32_t digits = FFCore.numDigits(number); //int32_t(log10(temp) * 10000.0)
-	zprint2("itoacat, digits is: %d\n",digits);
+	// zprint2("itoacat, digits is: %d\n",digits);
 	int32_t pos = 0;
 	int32_t ret = 0;
 	string strA;
@@ -36243,6 +36553,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
+	{ "WAITEVENT",			   0,   0,   0,   0},
+	{ "OWNARRAYR",			   1,   0,   0,   0},
+	{ "DESTROYARRAYR",			   1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -37574,6 +37887,13 @@ script_variable ZASMVars[]=
 	{ "SCREENEXSTATED", SCREENEXSTATED, 0, 0 },
 	{ "MAPDATAEXSTATED", MAPDATAEXSTATED, 0, 0 },
 	{ "HEROSTANDING", HEROSTANDING, 0, 0 },
+	{ "COMBODTRIGGERPROX", COMBODTRIGGERPROX, 0, 0 },
+	{ "COMBODTRIGGERLIGHTBEAM", COMBODTRIGGERLIGHTBEAM, 0, 0 },
+	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
+	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
+	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
+	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
+	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

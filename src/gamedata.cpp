@@ -193,6 +193,7 @@ void gamedata::Copy(const gamedata& g)
 	memcpy(gen_doscript, g.gen_doscript, sizeof(gen_doscript));
 	memcpy(gen_exitState, g.gen_exitState, sizeof(gen_exitState));
 	memcpy(gen_reloadState, g.gen_reloadState, sizeof(gen_reloadState));
+	memcpy(gen_eventstate, g.gen_eventstate, sizeof(gen_eventstate));
 	memcpy(gen_initd, g.gen_initd, sizeof(gen_initd));
 	memcpy(gen_dataSize, g.gen_dataSize, sizeof(gen_dataSize));
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
@@ -208,6 +209,7 @@ void gamedata::clear_genscript()
 	memset(gen_doscript, 0, sizeof(gen_doscript));
 	memset(gen_exitState, 0, sizeof(gen_exitState));
 	memset(gen_reloadState, 0, sizeof(gen_reloadState));
+	memset(gen_eventstate, 0, sizeof(gen_eventstate));
 	memset(gen_initd, 0, sizeof(gen_initd));
 	memset(gen_dataSize, 0, sizeof(gen_dataSize));
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)

@@ -166,17 +166,24 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		}
 		
 		int32_t it = -1; 
+		int32_t thedropset = -1;
 		if ( (combobuf[cid].usrflags&cflag2) )
 		{
 			if ( combobuf[cid].usrflags&cflag11 ) //specific item
 			{
 				it = combobuf[cid].attribytes[1];
 			}
-			else it = select_dropitem(combobuf[cid].attribytes[1]); 
+			else
+			{
+				it = select_dropitem(combobuf[cid].attribytes[1]);
+				thedropset = combobuf[cid].attribytes[1];
+			}
 		}
 		if( it != -1 )
 		{
-			items.add(new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 		
 		//drop special room item
@@ -392,6 +399,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 	else if(isCuttableItemType(type))
 	{
 		int32_t it = -1;
+		int32_t thedropset = -1;
 		if (cmb.usrflags&cflag2) //specific dropset or item
 		{
 			if (cmb.usrflags&cflag11) 
@@ -401,13 +409,20 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 			else
 			{
 				it = select_dropitem(cmb.attribytes[1]);
+				thedropset = cmb.attribytes[1];
 			}
 		}
-		else it = select_dropitem(12);
+		else
+		{
+			it = select_dropitem(12);
+			thedropset = 12;
+		}
 		
 		if(it!=-1)
 		{
-			items.add(new item((zfix)x, (zfix)y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item((zfix)x, (zfix)y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			itm->from_dropset = thedropset;
+			items.add(itm);
 		}
 	}
 	
@@ -1036,7 +1051,8 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+	auto cid = tmp->data[pos];
+	newcombo const& cmb = combobuf[cid];
 	if(Hero.hclk || Hero.superman || Hero.fallclk)
 		return false; //immune
 	int32_t dmg = 0;
@@ -1044,10 +1060,14 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 		dmg = cmb.attributes[0] / -10000L;
 	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
 	
-	bool global_ring = (((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1)) || ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1)));
-	bool global_defring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
+	if(current_ring)
+	{
+		global_defring = !global_defring;
+		global_perilring = !global_perilring;
+	}
 	
 	int32_t itemid = current_item_id(itype_boots);
 	
@@ -1059,12 +1079,40 @@ bool trigger_damage_combo(int32_t lyr, int32_t pos)
 			|| (4<<current_item_power(itype_boots)<(abs(dmg))) || ((cmb.walk&0xF) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
-			if(Hero.NayrusLoveShieldClk<=0)
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(-dmg*10000);
+			ev.push_back(-10000);
+			ev.push_back(0);
+			ev.push_back(Hero.NayrusLoveShieldClk>0?10000:0);
+			ev.push_back(48*10000);
+			ev.push_back(ZSD_COMBODATA*10000);
+			ev.push_back(cid);
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+			int32_t dmg = ev[0]/10000;
+			bool nullhit = ev[2] != 0;
+			
+			if(nullhit) {ev.clear(); return false;}
+			
+			//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+			ev[0] = Hero.ringpower(dmg, !global_perilring, !global_defring)*10000;
+			
+			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+			dmg = ev[0]/10000;
+			int32_t hdir = ev[1]/10000;
+			nullhit = ev[2] != 0;
+			bool nayrulove = ev[3] != 0;
+			int32_t iframes = ev[4] / 10000;
+			ev.clear();
+			if(nullhit) return false;
+			
+			if(!nayrulove)
 			{
-				int32_t ringpow = Hero.ringpower(-dmg, !global_perilring, !global_defring);
-				game->set_life(zc_max(game->get_life()-(global_ring!=current_ring ? ringpow:-dmg),0));
+				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
-			Hero.doHit(-1); //set hit action, iframes, etc
+			Hero.doHit(hdir); //set hit action, iframes, etc
+			Hero.hclk = iframes;
 			return true;
 		}
 		else paymagiccost(itemid); //boots succeeded

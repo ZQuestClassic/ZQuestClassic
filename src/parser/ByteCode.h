@@ -1407,8 +1407,15 @@
 #define SCREENEXSTATED          1324
 #define MAPDATAEXSTATED         1325
 #define HEROSTANDING            1326
+#define COMBODTRIGGERPROX       1327
+#define COMBODTRIGGERLIGHTBEAM  1328
+#define COMBODTRIGGERCTR        1329
+#define COMBODTRIGGERCTRAMNT    1330
+#define GENDATAEVENTSTATE       1331
+#define GAMEEVENTDATA           1332
+#define ITEMDROPPEDBY           1333
 
-#define LAST_BYTECODE           1327
+#define LAST_BYTECODE           1334
 
 //} END OF BYTECODE
 
@@ -1956,6 +1963,16 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OWaitTo(a->clone(),b->clone());
+		}
+	};
+	
+	class OWaitEvent : public Opcode
+	{
+	public:
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWaitEvent();
 		}
 	};
 	
@@ -4706,6 +4723,26 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OResizeArrayRegister(a->clone(), b->clone());
+		}
+	};
+	class OOwnArrayRegister : public UnaryOpcode
+	{
+	public:
+		OOwnArrayRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OOwnArrayRegister(a->clone());
+		}
+	};
+	class ODestroyArrayRegister : public UnaryOpcode
+	{
+	public:
+		ODestroyArrayRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new ODestroyArrayRegister(a->clone());
 		}
 	};
 

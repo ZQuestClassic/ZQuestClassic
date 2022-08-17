@@ -452,11 +452,16 @@ extern bool player_waitdraw;
 extern bool dmap_waitdraw;
 extern bool passive_subscreen_waitdraw;
 
-ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0) {}
+ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0),
+	specOwned(false), specCleared(false)
+{}
+
 void ScriptOwner::clear()
 {
 	scriptType = SCRIPT_NONE;
 	ownerUID = 0;
+	specOwned = false;
+	specCleared = false;
 }
 
 //ZScript array storage
@@ -1910,6 +1915,7 @@ int32_t init_game()
 	//Load the quest
 	//setPackfilePassword(datapwd);
 	int32_t ret = load_quest(game);
+	countGenScripts();
 	
 	if(ret != qe_OK)
 	{
@@ -2207,7 +2213,7 @@ int32_t init_game()
 	//show quest metadata when loading it
 	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
 	
-	FFCore.init(); ///Initialise new ffscript engine core. 
+	//FFCore.init(); ///Initialise new ffscript engine core. 
 	if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
@@ -2441,13 +2447,18 @@ int32_t init_game()
 	FFCore.runOnLaunchEngine();
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
 	
+	FFCore.runGenericPassiveEngine(SCR_TIMING_INIT);
+	throwGenScriptEvent(GENSCR_EVENT_INIT);
+	
+	if(!get_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);
+	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2492,7 +2503,7 @@ int32_t init_game()
 	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptActiveSubscreenScript();
-	ffscript_engine(true);  //Here is a much safer place...
+	if(get_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
 	return 0;
 }
 
@@ -2501,6 +2512,7 @@ int32_t cont_game()
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.init();
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
+	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
 	didpit=false;
 	Hero.unfreeze();
 	Hero.reset_hookshot();
@@ -2524,14 +2536,30 @@ int32_t cont_game()
 	  dlevel = DMaps[0].level;
 	  }
 	  */
+	bool changedlevel = false;
+	bool changeddmap = false;
 	if(currdmap != lastentrance_dmap)
+	{
 		timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+		changeddmap = true;
+	}
 	if(dlevel != DMaps[lastentrance_dmap].level)
+	{
 		timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+		changedlevel = true;
+	}
+	dlevel = DMaps[lastentrance_dmap].level;
 	currdmap = lastentrance_dmap;
+	if(changeddmap)
+	{
+		throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+	}
+	if(changedlevel)
+	{
+		throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+	}
 	homescr = currscr = lastentrance;
 	currmap = DMaps[currdmap].map;
-	dlevel = DMaps[currdmap].level;
 	init_dmap();
 	
 	for(int32_t i=0; i<6; i++)
@@ -2652,12 +2680,28 @@ void restart_level()
 	
 	if(dlevel && !get_bit(quest_rules,qr_LEVEL_RESTART_CONT_POINT))
 	{
+		bool changedlevel = false;
+		bool changeddmap = false;
 		if(currdmap != lastentrance_dmap)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
+			changeddmap = true;
+		}
 		if(dlevel != DMaps[lastentrance_dmap].level)
+		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
+			changedlevel = true;
+		}
+		dlevel = DMaps[lastentrance_dmap].level;
 		currdmap = lastentrance_dmap;
-		dlevel = DMaps[currdmap].level;
+		if(changeddmap)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
+		}
+		if(changedlevel)
+		{
+			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
+		}
 		homescr = currscr = lastentrance;
 		init_dmap();
 	}
@@ -5434,13 +5478,18 @@ int main(int argc, char **argv)
 		set_keyboard_rate(250,33);
 		toogam = false;
 		ignoreSideview=false;
+		clear_bitmap(lightbeam_bmp);
 		if(zqtesting_mode)
 		{
 			int32_t q = Quit;
 			Quit = 0;
 			if(q==qCONT)
 				cont_game();
-			else init_game();
+			else if(init_game())
+			{
+				//Failed initializing? Keep trying.
+				do Quit = 0; while(init_game());
+			}
 			Quit = 0;
 		}
 		else titlescreen(load_save);
@@ -5450,7 +5499,6 @@ int main(int argc, char **argv)
 		setup_combo_animations();
 		setup_combo_animations2();
 		
-		clear_bitmap(lightbeam_bmp);
 		while(Quit<=0)
 		{
 #ifdef _WIN32

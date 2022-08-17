@@ -1061,6 +1061,9 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
+	{ "WAITEVENT",         0,   0,   0,   0},
+	{ "OWNARRAYR",         1,   0,   0,   0},
+	{ "DESTROYARRAYR",         1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2404,6 +2407,13 @@ script_variable variable_list[]=
 	{ "SCREENEXSTATED", SCREENEXSTATED, 0, 0 },
 	{ "MAPDATAEXSTATED", MAPDATAEXSTATED, 0, 0 },
 	{ "HEROSTANDING", HEROSTANDING, 0, 0 },
+	{ "COMBODTRIGGERPROX", COMBODTRIGGERPROX, 0, 0 },
+	{ "COMBODTRIGGERLIGHTBEAM", COMBODTRIGGERLIGHTBEAM, 0, 0 },
+	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
+	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
+	{ "GENDATAEVENTSTATE", GENDATAEVENTSTATE, 0, 0 },
+	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
+	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };

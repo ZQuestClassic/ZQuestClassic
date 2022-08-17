@@ -602,8 +602,7 @@ DropDownList( \
 
 #define INFOBTN(inf) \
 Button(forceFitH = true, text = "?", \
-	disabled = (!inf || !inf[0]), \
-	onPressFunc = [&]() \
+	onPressFunc = [=]() \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
