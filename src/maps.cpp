@@ -74,11 +74,11 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // majora's ALTTP test
-#define hardcode_regions_mode 0
+// #define hardcode_regions_mode 0
 // z1
 // #define hardcode_regions_mode 1
 // entire map is region
-// #define hardcode_regions_mode 2
+#define hardcode_regions_mode 2
 
 static const int hardcode_z3_regions[] = {
 #if hardcode_regions_mode == 0
@@ -1865,15 +1865,17 @@ bool isSVLadder(int32_t x, int32_t y)
 
 bool isSVPlatform(int32_t x, int32_t y)
 {
-	if(x<0 || x>255 || y<0 || y>175)
+	if(x<0 || x>=world_w || y<0 || y>=world_h)
         return false;
 	
-    mapscr *s1, *s2;
-    s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-    s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
+	mapscr* base_scr = get_layer_scr_for_xy(x, y, -1);
+	mapscr* lyr1_scr = get_layer_scr_for_xy(x, y, 0);
+	mapscr* lyr2_scr = get_layer_scr_for_xy(x, y, 1);
+    mapscr* s1 = (lyr1_scr->valid) ? lyr1_scr : base_scr;
+	mapscr* s2 = (lyr2_scr->valid) ? lyr2_scr : base_scr;
 	
-    int32_t combo = COMBOPOS(x,y);
-    return (tmpscr.sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[tmpscr.data[combo]].flag == mfSIDEVIEWPLATFORM) ||
+    int32_t combo = COMBOPOS(x%256, y%176);
+    return (base_scr->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[base_scr->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
 		(s1->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s1->data[combo]].flag == mfSIDEVIEWPLATFORM) ||
 		(s2->sflag[combo] == mfSIDEVIEWPLATFORM) || (combobuf[s2->data[combo]].flag == mfSIDEVIEWPLATFORM);
 }

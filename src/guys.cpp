@@ -3643,7 +3643,7 @@ bool enemy::isOnSideviewPlatform()
 {
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
-	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= world_h && currscr>=0x70 && !(tmpscr.flags2&wfDOWN)) return true; //Bottom of the map
 	for(int32_t nx = x+4; nx < x + usewid; nx+=16)
 	{
 		if(_walkflag(nx,y+usehei,0)) return true;

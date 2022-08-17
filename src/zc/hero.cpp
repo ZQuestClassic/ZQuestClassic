@@ -111,7 +111,8 @@ static inline bool platform_fallthrough()
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false)
 {
-	return (_walkflag(x+4,y+16,0) || (y>=160 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN)) ||
+	mapscr* s = get_screen_for_world_xy(x, y);
+	return (_walkflag(x+4,y+16,0) || (y>=world_h-16 && currscr>=0x70 && !(s->flags2&wfDOWN)) ||
 		(((y%16)==0) && (!platform_fallthrough() || ignoreFallthrough) &&
 		(checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16))));
 }
@@ -7380,7 +7381,8 @@ bool HeroClass::animate(int32_t)
 			//zprint2("ydif is: %d\n", ydiff);
 			//zprint2("ydif is: %d\n", (int32_t)fall);
 			falling_oldy = y; // Stomp Boots-related variable
-			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
+			
+			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (CLEAR_LOW_BITS(y.getInt()+ydiff+15, 4) != CLEAR_LOW_BITS(y.getInt()+15, 4)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
 			}
@@ -7436,8 +7438,8 @@ bool HeroClass::animate(int32_t)
 			hoverflags = 0;
 			
 			// TODO z3
-			if(y>=160 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN))  // Landed on the bottommost screen.
-				y = 160;
+			if(y>=world_h-16 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN))  // Landed on the bottommost screen.
+				y = world_h-16;
 		}
 		// Stop hovering if you press down.
 		else if((hoverclk>0 || ladderx || laddery) && DrunkDown())
@@ -7743,7 +7745,6 @@ bool HeroClass::animate(int32_t)
 		lbunnyclock = 0;
 	}
 	
-	// TODO z3
 	if(!is_on_conveyor && !(diagonalMovement||NO_GRIDLOCK) && (fall==0 || fakefall==0 || z>0 || fakez>0) && charging==0 && spins<=5
 			&& action != gothit)
 	{
@@ -7751,12 +7752,12 @@ bool HeroClass::animate(int32_t)
 		{
 		case up:
 		case down:
-			x=(x.getInt()+4)&0xFFF8;
+			x = CLEAR_LOW_BITS(x.getInt() + 4, 3);
 			break;
 			
 		case left:
 		case right:
-			y=(y.getInt()+4)&0xFFF8;
+			y = CLEAR_LOW_BITS(y.getInt() + 4, 3);
 			break;
 		}
 	}
