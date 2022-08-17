@@ -85,6 +85,8 @@ bool is_conveyor(int32_t type)
 
 int32_t get_conveyor(int32_t x, int32_t y)
 {
+	x = vbound(x, 0, (16*16)-1);
+	y = vbound(y, 0, (11*16)-1);
 	int32_t cmbid = MAPCOMBO(x,y);
 	newcombo const* cmb = &combobuf[cmbid];
 	if (!_effectflag(x,y,1,-1, true))
