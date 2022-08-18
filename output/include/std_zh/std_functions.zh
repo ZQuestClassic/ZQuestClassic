@@ -589,11 +589,12 @@ int ComboAtRegion(int x, int y)
 {
 	x = VBound(x,Region->WorldWidth - 1,0);
 	y = VBound(y,Region->WorldHeight - 1,0);
-
-	int scr_dx = x / (16*16);
-	int scr_dy = y / (11*16);
-	int pos = ComboAt(x, y);
-	return (scr_dx + scr_dy * Region->ScreenWidth)*176 + pos;
+	// Floor'd because in Zscript, ints aren't ints?!
+	int scr_dx = Floor(x / 256);
+	int scr_dy = Floor(y / 176);
+	int offset_pos = (scr_dx + scr_dy * Region->ScreenWidth)*176;
+	int pos = ((y%176) & 240)+((x%256)>>4);
+	return offset_pos + pos;
 }
 
 //Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
@@ -609,6 +610,19 @@ bool ComboFI(int loc, int flag)
 	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
 }
 
+//Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
+bool ComboFIRegion(int x, int y, int flag)
+{
+	int loc = ComboAtRegion(x,y);
+	return Region->ComboF[loc] == flag || Region->ComboI[loc] == flag;
+}
+
+//Returns true if the combo at 'loc' has either an inherent or place flag of type 'flag'
+bool ComboFIRegion(int loc, int flag)
+{
+	return Region->ComboF[loc] == flag || Region->ComboI[loc] == flag;
+}
+
 //Return the coordinates of a combo on the screen
 int ComboX(int loc) 
 {
@@ -617,6 +631,26 @@ int ComboX(int loc)
 int ComboY(int loc) 
 {
 	return loc&0xF0;
+}
+
+//Return the coordinates of a combo on the screen
+int ComboXRegion(int rpos)
+{
+	int scr_index = rpos / 176;
+	int scr_width = Region->ScreenWidth;
+	int scr_dx = scr_index % scr_width;
+	int scr_dy = scr_index / scr_width;
+	int pos = rpos % 176;
+	return scr_dx*16*16 + ComboX(pos);
+}
+int ComboYRegion(int rpos)
+{
+	int scr_index = rpos / 176;
+	int scr_width = Region->ScreenWidth;
+	int scr_dx = scr_index % scr_width;
+	int scr_dy = scr_index / scr_width;
+	int pos = rpos % 176;
+	return scr_dy*11*16 + ComboY(pos);
 }
 
 //Returns a if cond is true, else b. Overloaded.

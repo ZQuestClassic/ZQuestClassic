@@ -4074,12 +4074,12 @@ static AccessorTable RegionTable[] =
 	{ "getComboE[]",                  ZVARTYPEID_FLOAT,         GETTER,       REGIONED,                          22528,          0,                                    2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	{ "setComboE[]",                  ZVARTYPEID_VOID,          SETTER,       REGIONED,                          22528,          0,                                    3,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 
-	{ "getWorldWidth",                ZVARTYPEID_FLOAT,         GETTER,       REGIONWORLDWIDTH,                  1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getWorldHeight",               ZVARTYPEID_FLOAT,         GETTER,       REGIONWORLDHEIGHT,                 1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScreenWidth",               ZVARTYPEID_FLOAT,         GETTER,       REGIONSCREENWIDTH,                 1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
-	{ "getScreenHeight",              ZVARTYPEID_FLOAT,         GETTER,       REGIONSCREENHEIGHT,                1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWorldWidth",                ZVARTYPEID_LONG,         GETTER,       REGIONWORLDWIDTH,                  1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getWorldHeight",               ZVARTYPEID_LONG,         GETTER,       REGIONWORLDHEIGHT,                 1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScreenWidth",               ZVARTYPEID_LONG,         GETTER,       REGIONSCREENWIDTH,                 1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
+	{ "getScreenHeight",              ZVARTYPEID_LONG,         GETTER,       REGIONSCREENHEIGHT,                1,              0,                                    1,           { ZVARTYPEID_REGION, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 	
-	// TODO z3 getScreenIndex(rpos)
+	{ "GetScreenIndexForRpos",        ZVARTYPEID_FLOAT,         FUNCTION,     0,                                1,            FUNCFLAG_INLINE,                      2,           { ZVARTYPEID_REGION, ZVARTYPEID_FLOAT, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } },
 
 	{ "",                             -1,                       -1,           -1,                               -1,           0,                                    0,           { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 } }
 };
@@ -4093,6 +4093,19 @@ RegionSymbols::RegionSymbols()
 
 void RegionSymbols::generateCode()
 {
+	//int32_t GetScreenIndexForRpos(region, int32_t)
+    {
+	    Function* function = getFunction("GetScreenIndexForRpos", 2);
+        int32_t label = function->getLabel();
+        vector<shared_ptr<Opcode>> code;
+        addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+        LABELBACK(label);
+        //pop pointer, and ignore it
+        POPREF();
+        addOpcode2 (code, new OGetScreenIndexForRpos(new VarArgument(EXP1)));
+        RETURN();
+        function->giveCode(code);
+    }
 }
 
 ItemSymbols ItemSymbols::singleton = ItemSymbols();

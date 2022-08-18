@@ -7947,25 +7947,25 @@ int32_t get_register(const int32_t arg)
 
 		case REGIONWORLDWIDTH:
 		{
-			ret = world_w;
+			ret = world_w * 10000;
 		}
 		break;
 
 		case REGIONWORLDHEIGHT:
 		{
-			ret = world_h;
+			ret = world_h * 10000;
 		}
 		break;
 
 		case REGIONSCREENWIDTH:
 		{
-			ret = region_scr_width;
+			ret = region_scr_width * 10000;
 		}
 		break;
 
 		case REGIONSCREENHEIGHT:
 		{
-			ret = region_scr_height;
+			ret = region_scr_height * 10000;
 		}
 		break;
 		
@@ -22738,6 +22738,19 @@ void do_gettilewarptype(const bool v)
 	set_register(sarg1, tmpscr.tilewarptype[warp]*10000);
 }
 
+void do_getscreenindexforrpos(const bool v)
+{
+	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
+	
+	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Screen->GetScreenIndexForRpos") != SH::_NoError)
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
+	set_register(sarg1, get_screen_index_for_rpos(rpos) * 10000);
+}
+
 void do_layerscreen()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
@@ -30196,6 +30209,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				set_register(sarg1, r ? 10000L : 0L);
 				break;
 			}
+
+			case GETSCREENINDEXFORRPOS:
+				do_getscreenindexforrpos(false);
+				break;
 			
 			default:
 			{
@@ -37399,11 +37416,6 @@ script_variable ZASMVars[]=
 	{"SCREENDATAHOLDUPSFX", SCREENDATAHOLDUPSFX, 0, 0 },
 	{"SCREENDATASCREENMIDI", SCREENDATASCREENMIDI, 0, 0 },
 	{"SCREENDATALENSLAYER", SCREENDATALENSLAYER, 0, 0 },
-
-	{"REGIONWORLDWIDTH", REGIONWORLDWIDTH, 0, 0 },
-	{"REGIONWORLDHEIGHT", REGIONWORLDHEIGHT, 0, 0 },
-	{"REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
-	{"REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
 	{"LINKSCRIPTTILE", LINKSCRIPTTILE, 0, 0 },
 	{"LINKSCRIPFLIP", LINKSCRIPFLIP, 0, 0 },
@@ -37939,6 +37951,11 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERLIGHTBEAM", COMBODTRIGGERLIGHTBEAM, 0, 0 },
 	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
 	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
+
+	{ "REGIONWORLDWIDTH", REGIONWORLDWIDTH, 0, 0 },
+	{ "REGIONWORLDHEIGHT", REGIONWORLDHEIGHT, 0, 0 },
+	{ "REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
+	{ "REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

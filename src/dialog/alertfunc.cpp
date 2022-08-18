@@ -64,7 +64,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 		//even args only, as (, char*, void(*func)(),)
 		for(uint32_t q = 0; q < numButtons; ++q)
 		{
-			std::string btntext(va_arg(args, char*));
+			std::string btntext(va_arg(args, const char*));
 			typedef bool (*funcType)(void);
 			std::function<bool()> func = va_arg(args, funcType);
 			if(func)

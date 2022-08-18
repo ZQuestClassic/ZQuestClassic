@@ -24796,6 +24796,12 @@ void clear_map_states()
 }
 
 
+bool doCompileOpenHeader()
+{
+    call_header_dlg();
+    return false;
+}
+
 void compile_sfx(bool success)
 {
 	if ( success )
@@ -25235,7 +25241,7 @@ int32_t onCompileScript()
 						"Ensure that both versions are higher than \"Quest Ver\" was previously, "
 						"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
 						2, 1, //2 buttons, where buttons[1] is focused
-						"Header", [&](){call_header_dlg(); return false;},
+						"Header", doCompileOpenHeader,
 						"OK", NULL
 					).show();
 				}

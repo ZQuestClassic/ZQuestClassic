@@ -10288,6 +10288,17 @@ namespace ZScript
 			return new ORunGenericFrozenScript(a->clone());
 		}
 	};
+
+	class OGetScreenIndexForRpos : public UnaryOpcode
+	{
+	public:
+		OGetScreenIndexForRpos(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OGetScreenIndexForRpos(a->clone());
+		}
+	};
 }
 
 #endif

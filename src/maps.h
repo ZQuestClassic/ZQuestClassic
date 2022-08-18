@@ -54,8 +54,8 @@ extern bool triggered_screen_secrets;
         - currscr is the screen where the hero currently is
 */
 
-// How large the current region is. If not currently in z3 scrolling mode, this is just the size
-// of a single screen.
+// How large the current region is in pixels. If not currently in z3 scrolling mode, this is just the size
+// of a single screen (256, 176).
 extern int world_w, world_h;
 // The camera offset in the above world-space coordinates. If not currently in z3 scrolling mode,
 // this is just 0. Otherwise it attempts to center the hero in the middle of the camera, snapping

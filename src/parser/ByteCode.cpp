@@ -325,6 +325,18 @@ string ZScript::VarToString(int32_t ID)
 	case REFFFC:
 		return "REFFFC";
 	
+	case REGIONWORLDWIDTH:
+		return "REGIONWORLDWIDTH";
+
+	case REGIONWORLDHEIGHT:
+		return "REGIONWORLDHEIGHT";
+
+	case REGIONSCREENWIDTH:
+		return "REGIONSCREENWIDTH";
+
+	case REGIONSCREENHEIGHT:
+		return "REGIONSCREENHEIGHT";
+	
 	case REFMAPDATA: return "REFMAPDATA";
 	case REFSCREENDATA: return "REFSCREENDATA";
 	case REFCOMBODATA: return "REFCOMBODATA";
@@ -2148,6 +2160,7 @@ string ZScript::VarToString(int32_t ID)
 	
 	default:
 	{
+		DCHECK(false);
 		sprintf(temp, "d%d", ID);
 		return string(temp);
 	}
@@ -6006,6 +6019,10 @@ string OModuleGetIC::toString()
     return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OGetScreenIndexForRpos::toString()
+{
+    return "GETSCREENINDEXFORRPOS " + getArgument()->toString();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 

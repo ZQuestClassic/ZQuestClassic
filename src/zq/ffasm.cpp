@@ -1061,6 +1061,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "LPOWERV",         2,   0,   1,   0},
 	{ "LPOWERV2",         2,   1,   0,   0},
 	{ "SCRTRIGGERCOMBO",         2,   0,   0,   0},
+	{ "GETSCREENINDEXFORRPOS",     1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2408,6 +2409,18 @@ script_variable variable_list[]=
 	{ "COMBODTRIGGERLIGHTBEAM", COMBODTRIGGERLIGHTBEAM, 0, 0 },
 	{ "COMBODTRIGGERCTR", COMBODTRIGGERCTR, 0, 0 },
 	{ "COMBODTRIGGERCTRAMNT", COMBODTRIGGERCTRAMNT, 0, 0 },
+
+	{ "REGIONID", REGIONID, 0, 0 },
+	{ "REGIONTD", REGIONTD, 0, 0 },
+	{ "REGIONSD", REGIONSD, 0, 0 },
+	{ "REGIONED", REGIONED, 0, 0 },
+	{ "REGIONDD", REGIONDD, 0, 0 },
+	{ "REGIONCD", REGIONCD, 0, 0 },
+	{ "REGIONFD", REGIONFD, 0, 0 },
+	{ "REGIONWORLDWIDTH", REGIONWORLDWIDTH, 0, 0 },
+	{ "REGIONWORLDHEIGHT", REGIONWORLDHEIGHT, 0, 0 },
+	{ "REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
+	{ "REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
 	{ " ",  -1, 0, 0 }
 };
