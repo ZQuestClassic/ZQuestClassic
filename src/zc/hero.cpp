@@ -26582,6 +26582,7 @@ void HeroClass::checkitems(int32_t index)
 	int32_t pickup = ptr->pickup;
 	int32_t PriceIndex = ptr->PriceIndex;
 	int32_t id2 = ptr->id;
+	int32_t holdid = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
@@ -26592,6 +26593,7 @@ void HeroClass::checkitems(int32_t index)
 		if(newid > -1)
 		{
 			id2 = newid;
+			holdid = newid;
 			pstr = itemsbuf[newid].pstring;
 			pstr_flags = itemsbuf[newid].pickup_string_flags;
 		}
@@ -26870,8 +26872,8 @@ void HeroClass::checkitems(int32_t index)
 			//restart music
 			if(get_bit(quest_rules, qr_HOLDNOSTOPMUSIC) == 0)
 				music_stop();
-				
-			holditem=ptr->id; // NES consistency: when combining blue potions, hold up the blue potion.
+			
+			holditem=holdid; // NES consistency: when combining blue potions, hold up the blue potion.
 			freeze_guys=true;
 			//show the info string
 			 
