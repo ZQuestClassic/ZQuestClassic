@@ -15187,13 +15187,13 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
         // why this not look good
         // jwin_draw_frame(tempbmp, x+header_width+is_large, y+header_height+is_large, (is_large?180:116)*2, (is_large?84:60)*2, FR_DEEP);
         
+        int txtheight = text_height(is_large?nfont:spfont);
         for(j=0; j<8; ++j)
         {
             for(k=0; k<cols; ++k)
             {
-                // TODO z3 getHighlightColor
                 byte region_index = getNibble(region_index_data[j*8 + k/2], k % 2 == 0);
-                int color = region_index + 1;
+                int color = vc(region_index);
                 int frame = FR_MEDDARK;
                 jwin_draw_frame(tempbmp, x+header_width+(k*col_width)+frame_thickness, y+header_height+(j*l)+frame_thickness, col_width, l, frame);
 
@@ -15203,11 +15203,21 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
                          x+header_width+(k*col_width)+frame_thickness+col_width-button_thickness-1, y+header_height+(j*l)+frame_thickness+l-button_thickness-1, color);
                 if (region_index > 0)
                 {
-                    textprintf_ex(tempbmp, is_large?nfont:spfont, x0, y0, jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], "%d", region_index);
-                    // Center index?
-                    // rectfill(tempbmp, x0+col_width/5, y0+l/5,
-                    //          x+header_width+(k*col_width)+frame_thickness+col_width-button_thickness-col_width/5+1, y+header_height+(j*l)+frame_thickness+l-button_thickness-l/5-1, jwin_pal[jcBOX]);
-                    // textprintf_centre_ex(tempbmp, is_large?nfont:spfont, x0+col_width/2-button_thickness, y0+l/2-txtheight/2, jwin_pal[jcDARK], jwin_pal[jcBOX], "%d", region_index);
+                    // Ideally would just use `getHighlightColor(color)` but the method isn't good enough yet.
+                    int text_color;
+                    switch (region_index) {
+                        case 2:
+                        case 3:
+                        case 5:
+                        case 7:
+                        case 9:
+                            // getHighlightColor currently looks awfule for these colors, so just use black.
+                            text_color = vc(0);
+                            break;
+                        default:
+                            text_color = getHighlightColor(color);
+                    }
+                    textprintf_centre_ex(tempbmp, is_large?nfont:spfont, x0+col_width/2-button_thickness, y0+l/2-txtheight/2, text_color, -1, "%d", region_index);
                 }
             }
         }
