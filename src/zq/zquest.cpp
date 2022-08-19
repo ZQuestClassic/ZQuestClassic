@@ -15122,7 +15122,144 @@ int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
             scare_mouse();
             object_message(d, MSG_DRAW, 0);
             unscare_mouse();
+            rest(16);
             custom_vsync();
+        }
+    }
+    break;
+    }
+    
+    return D_O_K;
+}
+
+unsigned char setLowerNibble(unsigned char orig, unsigned char nibble) {
+    unsigned char res = orig;
+    res &= 0xF0; // Clear out the lower nibble
+    res |= (nibble & 0x0F); // OR in the desired mask
+    return res;
+}
+
+unsigned char setUpperNibble(unsigned char orig, unsigned char nibble) {
+    unsigned char res = orig;
+    res &= 0x0F; // Clear out the upper nibble
+    res |= ((nibble << 4) & 0xF0); // OR in the desired mask
+    return res;
+}
+
+unsigned char getNibble(unsigned char byte, bool high) {
+    if (high) return byte >> 4 & 0xF;
+    else      return byte & 0xF;
+}
+
+int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
+{
+    int32_t frame_thickness=int32_t(2*(is_large?1.5:1));
+    int32_t button_thickness=2;
+    int32_t header_width=int32_t(4*(is_large?1.5:1));
+    int32_t header_height=int32_t(6*(is_large?1.5:1));
+    int32_t cols=16;
+    int32_t col_width=(is_large ? 11:7)*2;
+    int32_t l=(is_large?10:7)*2;
+
+    unsigned char* region_index_data = (unsigned char *)d->dp;
+    
+    switch(msg)
+    {
+    case MSG_DRAW:
+    {
+        BITMAP *tempbmp = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
+        clear_bitmap(tempbmp);
+        int32_t x=d->x;
+        int32_t y=d->y;
+        int32_t j=0, k=0;
+        rectfill(tempbmp,x,y,x+d->w-1,y+header_height-1,jwin_pal[jcBOX]);
+        
+        for(j=0; j<8; ++j)
+        {
+            textprintf_ex(tempbmp,is_large?nfont:spfont,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+        }
+        
+        for(j=0; j<cols; ++j)
+        {
+            textprintf_ex(tempbmp,is_large?nfont:spfont,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+        }
+        
+        // why this not look good
+        // jwin_draw_frame(tempbmp, x+header_width+is_large, y+header_height+is_large, (is_large?180:116)*2, (is_large?84:60)*2, FR_DEEP);
+        
+        for(j=0; j<8; ++j)
+        {
+            for(k=0; k<cols; ++k)
+            {
+                unsigned char region_index = getNibble(region_index_data[j*8 + k/2], k % 2 == 0);
+                int color = region_index + 1;
+                int frame = FR_MEDDARK;
+                jwin_draw_frame(tempbmp, x+header_width+(k*col_width)+frame_thickness, y+header_height+(j*l)+frame_thickness, col_width, l, frame);
+                // int color = get_bit((byte *)d->dp,8*j+k)&&d->d1?jwin_pal[jcBOXFG]:jwin_pal[jcBOX];
+
+                int x0 = x+header_width+(k*col_width)+frame_thickness+button_thickness;
+                int y0 = y+header_height+(j*l)+frame_thickness+button_thickness;
+                rectfill(tempbmp, x0, y0,
+                         x+header_width+(k*col_width)+frame_thickness+col_width-button_thickness-1, y+header_height+(j*l)+frame_thickness+l-button_thickness-1, color);
+                if (region_index > 0)
+                {
+                    textprintf_ex(tempbmp, is_large?nfont:spfont, x0, y0, jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], "%d", region_index);
+                    // Center index?
+                    // rectfill(tempbmp, x0+col_width/5, y0+l/5,
+                    //          x+header_width+(k*col_width)+frame_thickness+col_width-button_thickness-col_width/5+1, y+header_height+(j*l)+frame_thickness+l-button_thickness-l/5-1, jwin_pal[jcBOX]);
+                    // textprintf_centre_ex(tempbmp, is_large?nfont:spfont, x0+col_width/2-button_thickness, y0+l/2-txtheight/2, jwin_pal[jcDARK], jwin_pal[jcBOX], "%d", region_index);
+                }
+            }
+        }
+        
+        masked_blit(tempbmp,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        destroy_bitmap(tempbmp);
+    }
+    break;
+    
+    case MSG_LPRESS:
+    {
+        int32_t xx = -1;
+        int32_t yy = -1;
+        bool sticky_mode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
+        unsigned char sticky_value = 255;
+        
+        while(gui_mouse_b())  // Drag across to select multiple
+        {
+            int32_t x=(gui_mouse_x()-(d->x)-frame_thickness-header_width)/col_width;
+            int32_t y=(gui_mouse_y()-(d->y)-frame_thickness-header_height)/l;
+            
+            if(xx != x || yy != y)
+            {
+                xx = x;
+                yy = y;
+                
+                if(y>=0 && y<8 && x>=0 && x<cols)
+                {
+                    if(!(key[KEY_ALT]||key[KEY_ALTGR]||key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL]))
+                    {
+                        unsigned char old_region_datum = region_index_data[y*8 + x/2];
+                        unsigned char current_region_index = getNibble(old_region_datum, x % 2 == 0);
+                        if (sticky_value == 255) sticky_value = current_region_index;
+                        unsigned char new_region_index = sticky_mode ?
+                            sticky_value :
+                            // Only allow 10 choices, 0 being "not a region".
+                            (current_region_index + 1) % 10;
+
+                        region_index_data[y*8 + x/2] = x%2==0 ?
+                            setUpperNibble(old_region_datum, new_region_index) :
+                            setLowerNibble(old_region_datum, new_region_index);
+                    }
+                }
+            }
+            
+            scare_mouse();
+            object_message(d, MSG_DRAW, 0);
+            unscare_mouse();
+            rest(16);
+            custom_vsync();
+
+            if (!sticky_mode) break;
         }
     }
     break;
@@ -15611,6 +15748,12 @@ static int32_t editdmap_scripts_list[] =
 	28, -1
 };
 
+static int32_t editdmap_regions_list[] =
+{
+    // dialog control number
+	215, -1
+};
+
 static TABPANEL editdmap_tabs[] =
 {
     // (text)
@@ -15619,8 +15762,9 @@ static TABPANEL editdmap_tabs[] =
     { (char *)"Music",          0,           editdmap_music_list,          0,  NULL },
     { (char *)"Maps",           0,           editdmap_subscreenmaps_list,  0,  NULL },
     { (char *)"Flags",          0,           editdmap_flags_list,          0,  NULL },
-    { (char *)"Disable",        0, 		   editdmap_disableitems_list,   0,  NULL },
-    { (char *)"Scripts",        0, 		   editdmap_scripts_list,   0,  NULL },
+    { (char *)"Disable",        0, 		     editdmap_disableitems_list,   0,  NULL },
+    { (char *)"Scripts",        0, 		     editdmap_scripts_list,        0,  NULL },
+    { (char *)"Regions",        0, 		     editdmap_regions_list,        0,  NULL },
     { NULL,                     0,           NULL,                         0,  NULL }
 };
 
@@ -15969,6 +16113,8 @@ static DIALOG editdmap_dlg[] =
 	{  jwin_check_proc,              12,    215,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Mirror Continues instead of Warping",      NULL,                 NULL                  },
     {  jwin_text_proc,              162,    191,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Mirror DMap:",                               NULL,                 NULL                  },
     {  jwin_edit_proc,              218,    187,     21,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           2,             0,  NULL,                                                  NULL,                 NULL                  },
+    //215
+    {  d_region_grid_proc,           12,     69,     310,     120,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
 	
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
@@ -15979,6 +16125,8 @@ void editdmap(int32_t index)
     char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
     char *tmfname;
     byte gridstring[8];
+    // [8 rows][half byte for each screen in a row]
+    unsigned char region_index_bytes[8][8];
     static int32_t xy[2];
 	
 	char initdvals[8][13]; //script
@@ -16079,7 +16227,17 @@ void editdmap(int32_t index)
             set_bit(gridstring,8*i+j,get_bit((byte *)(DMaps[index].grid+i),7-j));
         }
     }
-    
+
+    for(int32_t i=0; i<8; i++)
+    {
+        for(int32_t j=0; j<8; j++)
+        {
+            // TODO z3
+            // region_index_bytes[i][j] = DMaps[index].region_grid[i][j];
+            region_index_bytes[i][j] = 1;
+        }
+    }
+
     editdmap_dlg[58].dp=gridstring;
     editdmap_dlg[60].dp=compassstr;
     editdmap_dlg[62].dp=contstr;
@@ -16090,6 +16248,7 @@ void editdmap(int32_t index)
     editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
     editdmap_dlg[83].d1=DMaps[index].midi;
     editdmap_dlg[87].dp=tmusicstr;
+    editdmap_dlg[215].dp=region_index_bytes;
     dmap_tracks=0;
     ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
     
