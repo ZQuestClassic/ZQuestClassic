@@ -15236,20 +15236,28 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
                 
                 if(y>=0 && y<8 && x>=0 && x<cols)
                 {
-                    if(!(key[KEY_ALT]||key[KEY_ALTGR]||key[KEY_ZC_LCONTROL]||key[KEY_ZC_RCONTROL]))
+                    unsigned char old_region_datum = region_index_data[y*8 + x/2];
+                    unsigned char current_region_index = getNibble(old_region_datum, x % 2 == 0);
+                    if (sticky_value == 255) sticky_value = current_region_index;
+                    
+                    // Only allow 10 choices, 0 being "not a region".
+                    unsigned char new_region_index;
+                    if (sticky_mode)
                     {
-                        unsigned char old_region_datum = region_index_data[y*8 + x/2];
-                        unsigned char current_region_index = getNibble(old_region_datum, x % 2 == 0);
-                        if (sticky_value == 255) sticky_value = current_region_index;
-                        unsigned char new_region_index = sticky_mode ?
-                            sticky_value :
-                            // Only allow 10 choices, 0 being "not a region".
-                            (current_region_index + 1) % 10;
-
-                        region_index_data[y*8 + x/2] = x%2==0 ?
-                            setUpperNibble(old_region_datum, new_region_index) :
-                            setLowerNibble(old_region_datum, new_region_index);
+                        new_region_index = sticky_value;
                     }
+                    else if (key[KEY_ALT])
+                    {
+                        new_region_index = current_region_index == 0 ? 9 : current_region_index - 1;
+                    }
+                    else
+                    {
+                        new_region_index = (current_region_index + 1) % 10;
+                    }
+
+                    region_index_data[y*8 + x/2] = x%2==0 ?
+                        setUpperNibble(old_region_datum, new_region_index) :
+                        setLowerNibble(old_region_datum, new_region_index);
                 }
             }
             
