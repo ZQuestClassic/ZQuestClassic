@@ -613,7 +613,9 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
     int32_t max_len = 0;
     int32_t hline_pos;
     int32_t xx = x;
+	bool is_scr = bmp == screen;
     
+	if(is_scr) scare_mouse();
     while(s[c])
     {
         len = 0;
@@ -673,6 +675,7 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
         
         y += text_height(f);
     }
+	if(is_scr) unscare_mouse();
     
     return max_len;
 }
@@ -4951,18 +4954,23 @@ byte getHighlightColor(int32_t c)
 
 byte getHighlightColor(RGB const& col)
 {
-	byte bright = (col.r >= 32) + (col.g >= 32) + (col.b >= 32);
-	byte sbright = (col.r >= 48) + (col.g >= 48) + (col.b >= 48);
-	byte highlightColor = vc(7); //sysgray
-	if(bright >= 2)
-	{
-		if(sbright >= 2)
-			highlightColor = vc(0); //sysblack
-		else highlightColor = vc(8); //sysdarkgray
-	}
-	else if(!bright)
-		highlightColor = vc(15); //syswhite
-	return highlightColor;
+	double lum = (pow(col.r/64.0, 2.2) * 0.2126) +
+	             (pow(col.g/64.0, 2.2) * 0.7152) +
+	             (pow(col.b/64.0, 2.2) * 0.0722);
+	return lum < 0.4 ? vc(15) : vc(0);
+	//Old -Em
+	// byte bright = (col.r >= 32) + (col.g >= 32) + (col.b >= 32);
+	// byte sbright = (col.r >= 48) + (col.g >= 48) + (col.b >= 48);
+	// byte highlightColor = vc(7); //sysgray
+	// if(bright >= 2)
+	// {
+		// if(sbright >= 2)
+			// highlightColor = vc(0); //sysblack
+		// else highlightColor = vc(8); //sysdarkgray
+	// }
+	// else if(!bright)
+		// highlightColor = vc(15); //syswhite
+	// return highlightColor;
 }
 
 int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
