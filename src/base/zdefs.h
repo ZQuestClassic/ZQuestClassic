@@ -265,7 +265,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS          30
 #define V_CSETS            5 //palette data
 #define V_MAPS            22
-#define V_DMAPS            16
+#define V_DMAPS            17
 #define V_DOORS            1
 #define V_ITEMS           53
 #define V_WEAPONS          7
@@ -3728,35 +3728,31 @@ struct dmap
     byte midi;
     byte cont;
     byte type;
-    //8
     byte grid[8];
-    //16
+	// [8 rows][half byte for each screen in a row]
+	// Covers an entire map.
+	// Currently the only valid nibble values are 0-9.
+	// 0 indicates that screen is not a scrolling region.
+	// Positive values indicate a contiguous scrolling region.
+	// Currently, scrolling regions MUST be rectangles and have no holes.
+	// Indexes can be repeated - they currently don't hold any special meaning.
+	byte region_indices[8][8];
     char name[21];
     char title[21];
     char intro[73];
-    //byte padding;
-    //132
     int32_t minimap_1_tile;                                      //before getting map
     byte minimap_1_cset;                                      //cset for minimap 1
-    //byte padding;
     int32_t minimap_2_tile;                                      //after getting map
     byte minimap_2_cset;                                      //cset for minimap 2
-    //byte padding;
-    //140
     int32_t largemap_1_tile;                                     //large map
     byte largemap_1_cset;                                     //cset for large
-    //byte padding;
     int32_t largemap_2_tile;                                     //large map
     byte largemap_2_cset;                                     //cset for large
     char tmusic[56];
     byte tmusictrack;
     byte active_subscreen;
     byte passive_subscreen;
-    // int32_t emusic;
-    //byte padding;
-    //204
     byte disableditems[iMax];
-    // 460
     int32_t flags;
     char sideview;
     word script;

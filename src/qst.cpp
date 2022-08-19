@@ -5105,6 +5105,20 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			tempDMap.mirrorDMap = -1;
 		}
+
+		if(s_version >= 17)
+		{
+			for(int32_t j=0; j<8; j++)
+            {
+                for(int32_t k=0; k<8; k++)
+                {
+					if(!p_getc(&tempDMap.region_indices[j][k],f,keepdata))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+		}
 		
 		if(keepdata==true)
 		{

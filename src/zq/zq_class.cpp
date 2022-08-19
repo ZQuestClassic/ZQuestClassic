@@ -7613,6 +7613,17 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 			{
 				new_return(41);
 			}
+            
+            for(int32_t j=0; j<8; j++)
+            {
+                for(int32_t k=0; k<8; k++)
+                {
+                    if(!p_putc(DMaps[i].region_indices[j][k],f))
+                    {
+                        new_return(42);
+                    }
+                }
+            }
         }
         
         if(writecycle==0)

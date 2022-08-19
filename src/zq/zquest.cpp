@@ -15132,21 +15132,21 @@ int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
     return D_O_K;
 }
 
-unsigned char setLowerNibble(unsigned char orig, unsigned char nibble) {
-    unsigned char res = orig;
+byte setLowerNibble(byte orig, byte nibble) {
+    byte res = orig;
     res &= 0xF0; // Clear out the lower nibble
     res |= (nibble & 0x0F); // OR in the desired mask
     return res;
 }
 
-unsigned char setUpperNibble(unsigned char orig, unsigned char nibble) {
-    unsigned char res = orig;
+byte setUpperNibble(byte orig, byte nibble) {
+    byte res = orig;
     res &= 0x0F; // Clear out the upper nibble
     res |= ((nibble << 4) & 0xF0); // OR in the desired mask
     return res;
 }
 
-unsigned char getNibble(unsigned char byte, bool high) {
+byte getNibble(byte byte, bool high) {
     if (high) return byte >> 4 & 0xF;
     else      return byte & 0xF;
 }
@@ -15161,7 +15161,7 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
     int32_t col_width=(is_large ? 11:7)*2;
     int32_t l=(is_large?10:7)*2;
 
-    unsigned char* region_index_data = (unsigned char *)d->dp;
+    byte* region_index_data = (byte *)d->dp;
     
     switch(msg)
     {
@@ -15191,11 +15191,11 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
         {
             for(k=0; k<cols; ++k)
             {
-                unsigned char region_index = getNibble(region_index_data[j*8 + k/2], k % 2 == 0);
+                // TODO z3 getHighlightColor
+                byte region_index = getNibble(region_index_data[j*8 + k/2], k % 2 == 0);
                 int color = region_index + 1;
                 int frame = FR_MEDDARK;
                 jwin_draw_frame(tempbmp, x+header_width+(k*col_width)+frame_thickness, y+header_height+(j*l)+frame_thickness, col_width, l, frame);
-                // int color = get_bit((byte *)d->dp,8*j+k)&&d->d1?jwin_pal[jcBOXFG]:jwin_pal[jcBOX];
 
                 int x0 = x+header_width+(k*col_width)+frame_thickness+button_thickness;
                 int y0 = y+header_height+(j*l)+frame_thickness+button_thickness;
@@ -15222,7 +15222,7 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
         int32_t xx = -1;
         int32_t yy = -1;
         bool sticky_mode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
-        unsigned char sticky_value = 255;
+        byte sticky_value = 255;
         
         while(gui_mouse_b())  // Drag across to select multiple
         {
@@ -15236,12 +15236,12 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
                 
                 if(y>=0 && y<8 && x>=0 && x<cols)
                 {
-                    unsigned char old_region_datum = region_index_data[y*8 + x/2];
-                    unsigned char current_region_index = getNibble(old_region_datum, x % 2 == 0);
+                    byte old_region_datum = region_index_data[y*8 + x/2];
+                    byte current_region_index = getNibble(old_region_datum, x % 2 == 0);
                     if (sticky_value == 255) sticky_value = current_region_index;
                     
                     // Only allow 10 choices, 0 being "not a region".
-                    unsigned char new_region_index;
+                    byte new_region_index;
                     if (sticky_mode)
                     {
                         new_region_index = sticky_value;
@@ -16133,8 +16133,7 @@ void editdmap(int32_t index)
     char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
     char *tmfname;
     byte gridstring[8];
-    // [8 rows][half byte for each screen in a row]
-    unsigned char region_index_bytes[8][8];
+    byte region_indices[8][8];
     static int32_t xy[2];
 	
 	char initdvals[8][13]; //script
@@ -16240,9 +16239,7 @@ void editdmap(int32_t index)
     {
         for(int32_t j=0; j<8; j++)
         {
-            // TODO z3
-            // region_index_bytes[i][j] = DMaps[index].region_grid[i][j];
-            region_index_bytes[i][j] = 1;
+            region_indices[i][j] = DMaps[index].region_indices[i][j];
         }
     }
 
@@ -16256,7 +16253,7 @@ void editdmap(int32_t index)
     editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
     editdmap_dlg[83].d1=DMaps[index].midi;
     editdmap_dlg[87].dp=tmusicstr;
-    editdmap_dlg[215].dp=region_index_bytes;
+    editdmap_dlg[215].dp=region_indices;
     dmap_tracks=0;
     ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
     
@@ -16436,6 +16433,14 @@ void editdmap(int32_t index)
             for(int32_t j=0; j<8; j++)
             {
                 set_bit((byte *)(DMaps[index].grid+i),7-j,get_bit(gridstring,8*i+j));
+            }
+        }
+        
+        for(int32_t i=0; i<8; i++)
+        {
+            for(int32_t j=0; j<8; j++)
+            {
+                DMaps[index].region_indices[i][j] = region_indices[i][j];
             }
         }
         
